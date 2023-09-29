@@ -3,6 +3,7 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
 import { BFF_API } from 'constants/env'
+import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
 import {
   IAssetOverview,
@@ -341,6 +342,14 @@ const kyberAIApi = createApi({
   }),
 })
 
+export const useGetWatchlistInformationQuery = () => {
+  const { isWhiteList } = useIsWhiteListKyberAI()
+
+  const data = kyberAIApi.useGetWatchlistInformationQuery(undefined, { skip: !isWhiteList })
+
+  return data
+}
+
 export const {
   useAssetOverviewQuery,
   useTokenOverviewQuery,
@@ -364,7 +373,6 @@ export const {
   useCreateCustomWatchlistMutation,
   useDeleteCustomWatchlistMutation,
   useUpdateWatchlistsNameMutation,
-  useGetWatchlistInformationQuery,
   useUpdateCustomizedWatchlistsPrioritiesMutation,
 } = kyberAIApi
 export default kyberAIApi

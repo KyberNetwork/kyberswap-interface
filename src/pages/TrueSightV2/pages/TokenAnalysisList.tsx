@@ -477,14 +477,9 @@ const TokenRow = React.memo(function TokenRow({
   const navigate = useNavigate()
   const location = useLocation()
   const mixpanelHandler = useMixpanelKyberAI()
-  // const { account } = useActiveWeb3React()
   const theme = useTheme()
-  // const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [showSwapMenu, setShowSwapMenu] = useState(false)
-  // const [addToWatchlist] = useAddToWatchlistMutation()
-  // const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
-  // const [isWatched, setIsWatched] = useState(false)
-  // const [loadingStar, setLoadingStar] = useState(false)
+
   const rowRef = useRef<HTMLTableRowElement>(null)
 
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
@@ -501,55 +496,12 @@ const TokenRow = React.memo(function TokenRow({
     )
   }
 
-  // const handleWatchlistClick = (e: any) => {
-  //   e.stopPropagation()
-  //   if (!account) return
-  //   setLoadingStar(true)
-  //   if (isWatched) {
-  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //       token_name: token.symbol?.toUpperCase(),
-  //       source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-  //       ranking_order: index,
-  //       option: 'remove',
-  //     })
-  //     Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //       setIsWatched(false)
-  //       setLoadingStar(false)
-  //     })
-  //   } else {
-  //     if (!reachedMaxLimit) {
-  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //         token_name: token.symbol?.toUpperCase(),
-  //         source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-  //         ranking_order: index,
-  //         option: 'add',
-  //       })
-  //       Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //         setIsWatched(true)
-  //         setLoadingStar(false)
-  //       })
-  //     }
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   setIsWatched(token.isWatched)
-  // }, [token.isWatched])
-
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   return (
     <tr key={token.asset_id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
-          <WatchlistButton size={above768 ? 20 : 16} assetId={token.asset_id} />
-          {/* <StarWithAnimation
-              key={token.SourceTokenID}
-              watched={isWatched}
-              loading={loadingStar}
-              onClick={handleWatchlistClick}
-              size={above768 ? 20 : 16}
-              disabled={!isWatched && reachedMaxLimit}
-            /> */}
+          <WatchlistButton size={above768 ? 20 : 16} assetId={token.asset_id} symbol={token.symbol} />
           {above768 ? index : <></>}
         </RowFit>
       </td>
@@ -576,7 +528,6 @@ const TokenRow = React.memo(function TokenRow({
 
           <Column gap="8px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
             <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
-            {/* <TokenListVariants tokens={token.tokens} /> */}
           </Column>
         </Row>
       </td>

@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
-import { CSSProperties, useEffect, useRef, useState } from 'react'
+import { CSSProperties, memo, useEffect, useRef, useState } from 'react'
 import { Check, Plus, X } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { Text } from 'rebass'
@@ -15,6 +15,8 @@ import AnimatedSpinLoader from 'components/Loader/AnimatedSpinLoader'
 import Modal from 'components/Modal'
 import Popover from 'components/Popover'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
 import kyberAIApi, {
@@ -343,23 +345,30 @@ const debounce = (func: () => void, timeout = 1000) => {
   timer = setTimeout(() => func(), timeout)
 }
 
-export default function WatchlistButton({
+const MAX_LIMIT_WATCHED_TOKEN = 50
+
+function WatchlistButton({
   assetId,
+  symbol,
   size,
   wrapperStyle,
 }: {
   assetId?: string
+  symbol?: string
   size?: number
   wrapperStyle?: CSSProperties
 }) {
   const theme = useTheme()
   const dispatch = useDispatch()
+  const mixpanelHandler = useMixpanelKyberAI()
+
   const [openMenu, setOpenMenu] = useState(false)
   const [openManageModal, setOpenManageModal] = useState(false)
 
   const { data, refetch: refetchWatchlists } = useGetWatchlistInformationQuery()
   const watchlists = data?.watchlists || []
   const numberOfWatchlists = watchlists?.length || 0
+  const isReachMaxLimit = (data?.totalUniqueAssetNumber || 0) >= MAX_LIMIT_WATCHED_TOKEN
 
   const [updateWatchlistsPriorities] = useUpdateCustomizedWatchlistsPrioritiesMutation()
 
@@ -375,12 +384,20 @@ export default function WatchlistButton({
   const handleAddtoWatchlist = (id: number) => {
     if (id && assetId) {
       addToWatchlist({ userWatchlistId: id, assetId: +assetId })
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: symbol?.toUpperCase(),
+        option: 'add',
+      })
     }
   }
 
   const handleRemoveFromWatchlist = (id: number) => {
     if (id && assetId) {
       removeFromWatchlist({ userWatchlistId: id, assetId: +assetId })
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: symbol?.toUpperCase(),
+        option: 'remove',
+      })
     }
   }
 
@@ -437,13 +454,20 @@ export default function WatchlistButton({
         placement="bottom-start"
         noArrow={true}
       >
-        <StarWithAnimation
-          loading={false}
-          watched={!!assetId && !!watchlists && watchlists?.some(item => item.assetIds?.includes(+assetId))}
-          onClick={() => setOpenMenu(prev => !prev)}
-          wrapperStyle={wrapperStyle}
-          size={size}
-        />
+        <MouseoverTooltip
+          text={t`You can only watch up to ${MAX_LIMIT_WATCHED_TOKEN} tokens`}
+          disableTooltip={!isReachMaxLimit}
+        >
+          <StarWithAnimation
+            loading={false}
+            watched={!!assetId && !!watchlists && watchlists?.some(item => item.assetIds?.includes(+assetId))}
+            onClick={() => {
+              !isReachMaxLimit && setOpenMenu(prev => !prev)
+            }}
+            wrapperStyle={wrapperStyle}
+            size={size}
+          />
+        </MouseoverTooltip>
       </Popover>
       <Modal isOpen={openManageModal} width="380px">
         <ModalWrapper onClick={e => e.stopPropagation()}>
@@ -474,3 +498,5 @@ export default function WatchlistButton({
     </div>
   )
 }
+
+export default memo(WatchlistButton)
