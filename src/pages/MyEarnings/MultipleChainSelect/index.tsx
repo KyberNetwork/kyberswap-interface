@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { AnimatePresence, motion } from 'framer-motion'
 import { ReactNode, useRef, useState } from 'react'
 import { Flex } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
@@ -50,8 +51,19 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
       className={className}
     >
       <SelectButton expanded={expanded} onClick={() => setExpanded(e => !e)} {...props} />
-
-      {expanded && <PopoverBody onClose={() => setExpanded(false)} {...props} />}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -10, opacity: 0 }}
+            transition={{ duration: 0.1 }}
+            style={{ position: 'absolute', left: 0, top: '100%' }}
+          >
+            <PopoverBody onClose={() => setExpanded(false)} {...props} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Flex>
   )
 }

@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
 import { rgba } from 'polished'
-import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { ArrowDown, ArrowUp } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -33,6 +33,7 @@ import MultipleChainDropdown from '../components/MultipleChainDropdown'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
+import TokenListVariants from '../components/TokenListVariants'
 import WatchlistButton from '../components/WatchlistButton'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
@@ -55,6 +56,7 @@ const TradeInfoWrapper = styled.div`
 const ListTokenWrapper = styled(StyledSectionWrapper)`
   height: fit-content;
   padding: 0;
+  background: ${({ theme }) => theme.background};
   @media only screen and (max-width: ${SIZE_MOBILE}) {
     margin-left: -16px;
     margin-right: -16px;
@@ -278,6 +280,17 @@ const tokenTypeList: {
     ),
   },
   {
+    type: KyberAIListType.KYBERSWAP_DELTA,
+    title: t`Kyberscore Delta`,
+    icon: 'bearish',
+    tooltip: theme => (
+      <span>
+        Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
+        consecutive time periods. This may indicate a change in trend of the token
+      </span>
+    ),
+  },
+  {
     type: KyberAIListType.TOP_CEX_INFLOW,
     title: t`Top CEX Positive Netflow`,
     icon: 'download',
@@ -296,6 +309,18 @@ const tokenTypeList: {
       <span>
         Tokens with the highest <span style={{ color: theme.text }}>net withdrawals</span> from Centralized Exchanges in
         the last 3 Days. Possible buy pressure
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.FUNDING_RATE,
+    title: t`Funding Rates`,
+    icon: 'coin-bag',
+    tooltip: () => (
+      <span>
+        Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish and
+        vice-versa for negative funding rates. Extremely positive or negative funding rates may result in leveraged
+        positions getting squeezed.
       </span>
     ),
   },
@@ -510,6 +535,7 @@ const TokenRow = React.memo(function TokenRow({
 
           <Column gap="8px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
             <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
+            <TokenListVariants tokens={token.tokens} />
           </Column>
         </Row>
       </td>
@@ -685,6 +711,7 @@ export default function TokenAnalysisList() {
   const [showShare, setShowShare] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
   const [listType, setListType] = useState(KyberAIListType.BULLISH)
+  const [, startTransition] = useTransition()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const tableRef = useRef<HTMLTableElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
@@ -717,9 +744,11 @@ export default function TokenAnalysisList() {
   }, [data])
 
   const handleTabChange = (tab: KyberAIListType) => {
-    searchParams.set('listType', tab)
-    searchParams.set('page', '1')
-    setSearchParams(searchParams)
+    startTransition(() => {
+      searchParams.set('listType', tab)
+      searchParams.set('page', '1')
+      setSearchParams(searchParams)
+    })
   }
   const handleFilterChange = useCallback(
     (filter: Record<string, string>) => {

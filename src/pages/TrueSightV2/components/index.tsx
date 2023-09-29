@@ -28,7 +28,6 @@ export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   padding: 16px;
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.border};
-  /* ${({ theme }) => `background-color: ${theme.background};`} */
   background: ${({ theme }) =>
     theme.darkMode
       ? `linear-gradient(332deg, rgb(32 32 32) 0%, rgba(15, 15, 15, 1) 80%)`

@@ -43,6 +43,7 @@ const StyledSelect = styled(Select)`
 const StyledChainSelect = styled(MultipleChainSelect)`
   ${shareStyle}
   padding: 12px;
+  background: ${({ theme }) => theme.buttonBlack};
 `
 
 const SelectName = styled.div`
@@ -181,7 +182,7 @@ export default function TokenFilter({
         {showLoading ? (
           new Array(5)
             .fill(0)
-            .map((_, i) => <StyledSkeleton key={i} baseColor={theme.buttonBlack} highlightColor={theme.border} />)
+            .map((_, i) => <StyledSkeleton key={i} baseColor={theme.background} highlightColor={theme.border} />)
         ) : (
           <>
             <StyledChainSelect
@@ -225,7 +226,7 @@ export default function TokenFilter({
           style={{
             filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))',
             flexShrink: 0,
-            backgroundColor: theme.background,
+            backgroundColor: theme.tableHeader,
           }}
           onClick={() => setShowShare(true)}
         >

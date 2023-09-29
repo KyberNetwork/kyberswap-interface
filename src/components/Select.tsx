@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -16,9 +17,13 @@ const SelectWrapper = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
   padding: 12px;
+  :hover {
+    filter: brightness(1.2);
+    z-index: 10;
+  }
 `
 
-const SelectMenu = styled.div`
+const SelectMenu = styled(motion.div)`
   position: absolute;
   top: 40px;
   left: 0;
@@ -124,34 +129,43 @@ function Select({
     >
       <SelectedWrap>{activeRender ? activeRender(selectedInfo) : getOptionLabel(selectedInfo)}</SelectedWrap>
       <DropdownArrowIcon rotate={showMenu} color={arrowColor} />
-      {showMenu && (
-        <SelectMenu style={{ ...menuStyle, ...(menuPlacementTop ? { bottom: 40, top: 'unset' } : {}) }} ref={refMenu}>
-          {options.map(item => {
-            const value = getOptionValue(item)
-            const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
-              e.stopPropagation()
-              e.preventDefault()
-              setShowMenu(prev => !prev)
-              if (item.onSelect) item.onSelect?.()
-              else {
-                setSelected(value)
-                onChange(value)
+      <AnimatePresence>
+        {showMenu && (
+          <SelectMenu
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -10, opacity: 0 }}
+            transition={{ duration: 0.1 }}
+            style={{ ...menuStyle, ...(menuPlacementTop ? { bottom: 40, top: 'unset' } : {}) }}
+            ref={refMenu}
+          >
+            {options.map(item => {
+              const value = getOptionValue(item)
+              const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
+                e.stopPropagation()
+                e.preventDefault()
+                setShowMenu(prev => !prev)
+                if (item.onSelect) item.onSelect?.()
+                else {
+                  setSelected(value)
+                  onChange(value)
+                }
               }
-            }
-            return (
-              <Option
-                key={value}
-                role="button"
-                $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
-                onClick={onClick}
-                style={optionStyle}
-              >
-                {optionRender ? optionRender(item) : getOptionLabel(item)}
-              </Option>
-            )
-          })}
-        </SelectMenu>
-      )}
+              return (
+                <Option
+                  key={value}
+                  role="button"
+                  $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
+                  onClick={onClick}
+                  style={optionStyle}
+                >
+                  {optionRender ? optionRender(item) : getOptionLabel(item)}
+                </Option>
+              )
+            })}
+          </SelectMenu>
+        )}
+      </AnimatePresence>
     </SelectWrapper>
   )
 }
