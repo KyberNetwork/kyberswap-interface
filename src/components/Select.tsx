@@ -87,7 +87,7 @@ function Select({
   style?: CSSProperties
   menuStyle?: CSSProperties
   optionStyle?: CSSProperties
-  onChange: (value: any) => void
+  onChange?: (value: any) => void
   forceMenuPlacementTop?: boolean
   arrowColor?: string
 }) {

@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
@@ -13,8 +14,10 @@ import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
+import WatchlistButton from 'pages/TrueSightV2/components/WatchlistButton'
 import { NETWORK_TO_CHAINID, SUPPORTED_NETWORK_KYBERAI, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
 import { useGetFilterCategoriesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { ICustomWatchlists } from 'pages/TrueSightV2/types'
 import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -140,8 +143,6 @@ export default function TokenFilter({
     [defaultFilter, chainFilter],
   )
 
-  // todo watch list chains
-
   const theme = useTheme()
   const [selectedChains, setSelectChains] = useState<ChainId[]>([])
   const handleChainChange = useCallback(
@@ -155,6 +156,12 @@ export default function TokenFilter({
     },
     [chainFilter, onChangeFilter, allChainIds, onTrackingSelectChain],
   )
+
+  const [watchListInfo, setWatchlistInfo] = useState<ICustomWatchlists>()
+  const handleChangeWatchlist = (watchlist: ICustomWatchlists) => {
+    setWatchlistInfo(watchlist)
+    onChangeFilter('watchlist', watchlist.id + '')
+  }
 
   const isInit = useRef(false)
   useEffect(() => {
@@ -212,6 +219,15 @@ export default function TokenFilter({
                 }}
               />
             ))}
+            <WatchlistButton
+              trigger={
+                <StyledSelect
+                  options={[]}
+                  activeRender={() => activeRender('Watchlist', watchListInfo?.name || t`All Tokens`)}
+                />
+              }
+              onSelectWatchlist={handleChangeWatchlist}
+            />
           </>
         )}
       </SelectGroup>
