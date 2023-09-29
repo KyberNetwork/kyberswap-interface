@@ -580,18 +580,17 @@ const WidgetTokenRow = ({
   const theme = useTheme()
   const navigate = useNavigate()
 
-  const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
-  const hasMutipleChain = token?.tokens?.length > 1
+  const latestKyberScore: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
+  const hasMutipleChain = token?.addresses?.length > 1
   const [showSwapMenu, setShowSwapMenu] = useState(false)
 
   const rowRef = useRef<HTMLTableRowElement>(null)
 
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
+  const tokens = token.addresses || []
 
   const handleRowClick = () => {
-    navigate(
-      `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
-    )
+    navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.assetId}?chain=${tokens[0].chain}&address=${tokens[0].address}`)
     onClick?.()
   }
 
@@ -600,7 +599,7 @@ const WidgetTokenRow = ({
     if (hasMutipleChain) {
       setShowSwapMenu(true)
     } else {
-      navigateToSwapPage({ address: token.tokens[0].address, chain: token.tokens[0].chain })
+      navigateToSwapPage({ address: tokens[0].address, chain: tokens[0].chain })
     }
   }
 
@@ -646,33 +645,27 @@ const WidgetTokenRow = ({
           <td>
             <Column gap="4px">
               <RowFit gap="6px">
-                <WatchlistButton assetId={token.asset_id} symbol={token.symbol} />
-                <img
-                  alt="tokenInList"
-                  src={token.tokens[0].logo}
-                  width="24px"
-                  height="24px"
-                  style={{ borderRadius: '12px' }}
-                />
+                <WatchlistButton assetId={token.assetId} symbol={token.symbol} />
+                <img alt="tokenInList" src={token.logo} width="24px" height="24px" style={{ borderRadius: '12px' }} />
                 <Column gap="2px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
                   <Text fontSize="14px" style={{ textTransform: 'uppercase' }}>
                     {token.symbol}
                   </Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    {/* <TokenListVariants tokens={token.tokens} iconSize={10} /> */}
+                    {/* <TokenListVariants tokens={token.addresses} iconSize={10} /> */}
                   </RowFit>
                 </Column>
               </RowFit>
               <Text color={theme.text} fontSize="14px" lineHeight="20px">
                 ${formatTokenPrice(token.price)}
               </Text>
-              <Text fontSize="10px" lineHeight="12px" color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+              <Text fontSize="10px" lineHeight="12px" color={token.priceChange24H > 0 ? theme.primary : theme.red}>
                 <Row gap="2px">
                   <ChevronIcon
-                    rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
-                    color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                    rotate={token.priceChange24H > 0 ? '180deg' : '0deg'}
+                    color={token.priceChange24H > 0 ? theme.primary : theme.red}
                   />
-                  {Math.abs(token.percent_change_24h).toFixed(2)}%
+                  {Math.abs(token.priceChange24H).toFixed(2)}%
                 </Row>
               </Text>
             </Column>
@@ -682,19 +675,13 @@ const WidgetTokenRow = ({
         <>
           <td>
             <RowFit gap="6px">
-              <WatchlistButton assetId={token.asset_id} symbol={token.symbol} />
+              <WatchlistButton assetId={token.assetId} symbol={token.symbol} />
               <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
-                <img
-                  alt="tokenInList"
-                  src={token.tokens[0].logo}
-                  width="24px"
-                  height="24px"
-                  style={{ borderRadius: '12px' }}
-                />
+                <img alt="tokenInList" src={token.logo} width="24px" height="24px" style={{ borderRadius: '12px' }} />
                 <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
                   <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    <TokenListVariants tokens={token.tokens} />
+                    <TokenListVariants tokens={token.addresses} />
                   </RowFit>
                 </Column>
               </Row>
@@ -704,7 +691,7 @@ const WidgetTokenRow = ({
             <Column style={{ alignItems: 'center', width: '110px' }}>
               <SmallKyberScoreMeter data={latestKyberScore} disabledTooltip={token.symbol === 'KNC'} />
               <Text
-                color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
+                color={calculateValueToColor(latestKyberScore?.kyberScore || 0, theme)}
                 fontSize="14px"
                 fontWeight={500}
               >
@@ -717,13 +704,13 @@ const WidgetTokenRow = ({
               <Text color={theme.text} fontSize="14px" lineHeight="20px">
                 ${formatTokenPrice(token.price)}
               </Text>
-              <Text fontSize="10px" lineHeight="12px" color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+              <Text fontSize="10px" lineHeight="12px" color={token.priceChange24H > 0 ? theme.primary : theme.red}>
                 <Row gap="2px">
                   <ChevronIcon
-                    rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
-                    color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                    rotate={token.priceChange24H > 0 ? '180deg' : '0deg'}
+                    color={token.priceChange24H > 0 ? theme.primary : theme.red}
                   />
-                  {Math.abs(token.percent_change_24h).toFixed(2)}%
+                  {Math.abs(token.priceChange24H).toFixed(2)}%
                 </Row>
               </Text>
             </Column>
@@ -731,7 +718,7 @@ const WidgetTokenRow = ({
         </>
       )}
       <td>
-        <TokenChart data={token['7daysprice']} index={token.tokens[0].address} width={isMobile ? '100%' : ''} />
+        <TokenChart data={token['7daysprice']} index={token.addresses[0].address} width={isMobile ? '100%' : ''} />
       </td>
       <td>
         <Row justifyContent="flex-end">
@@ -745,7 +732,7 @@ const WidgetTokenRow = ({
       </td>
       {hasMutipleChain && (
         <>
-          <MultipleChainDropdown show={showSwapMenu} tokens={token?.tokens} onChainClick={handleSwapNavigateClick} />
+          <MultipleChainDropdown show={showSwapMenu} tokens={token?.addresses} onChainClick={handleSwapNavigateClick} />
         </>
       )}
     </tr>
@@ -1122,7 +1109,7 @@ export const TokenListInShareModalTable = ({
       </thead>
       <tbody>
         {data.map((token, index) => {
-          const latestKyberscore = token.ks_3d ? token.ks_3d[token.ks_3d.length - 1] : null
+          const latestKyberscore = token.kyberScore3D ? token.kyberScore3D[token.kyberScore3D.length - 1] : null
           return (
             <tr key={token.symbol + index} style={{ height: '50px' }}>
               <td style={{ padding: '16px 0px 16px 10px', color: theme.subText }}>{index + 1 + startIndex}</td>
@@ -1130,7 +1117,7 @@ export const TokenListInShareModalTable = ({
                 <RowFit gap="6px" align="center">
                   <img
                     alt="tokenInList"
-                    src={getProxyTokenLogo(token.tokens[0].logo)}
+                    src={getProxyTokenLogo(token.logo)}
                     width="18px"
                     height="18px"
                     loading="lazy"
@@ -1138,11 +1125,11 @@ export const TokenListInShareModalTable = ({
                   />
                   <Text>{token.symbol.toUpperCase()}</Text>
                   <RowFit gap="4px" marginLeft="4px">
-                    {token.tokens.slice(0, 6).map(item => {
-                      const size = token.tokens.length > 6 ? '12px' : '14px'
+                    {token.addresses.slice(0, 6).map(item => {
+                      const size = token.addresses.length > 6 ? '12px' : '14px'
                       return <img src={NETWORK_IMAGE_URL[item.chain]} key={item.address} width={size} height={size} />
                     })}
-                    {token.tokens.length > 6 && <span style={{ fontSize: '10px' }}>...</span>}
+                    {token.addresses.length > 6 && <span style={{ fontSize: '10px' }}>...</span>}
                   </RowFit>
                 </RowFit>
               </td>
@@ -1151,21 +1138,21 @@ export const TokenListInShareModalTable = ({
                   <Text fontSize={formatTokenPrice(token.price).length > 14 ? '14px' : '16px'}>
                     ${formatTokenPrice(token.price)}
                   </Text>
-                  <Text fontSize={12} color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+                  <Text fontSize={12} color={token.priceChange24H > 0 ? theme.primary : theme.red}>
                     <Row gap="2px">
                       <ChevronIcon
-                        rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
-                        color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                        rotate={token.priceChange24H > 0 ? '180deg' : '0deg'}
+                        color={token.priceChange24H > 0 ? theme.primary : theme.red}
                       />
-                      {Math.abs(token.percent_change_24h).toFixed(2)}%
+                      {Math.abs(token.priceChange24H).toFixed(2)}%
                     </Row>
                   </Text>
                 </RowFit>
               </td>
               {!mobileMode && (
                 <td style={{ textAlign: 'right' }}>
-                  <Text color={calculateValueToColor(latestKyberscore?.kyber_score || 0, theme)}>
-                    {latestKyberscore?.kyber_score}
+                  <Text color={calculateValueToColor(latestKyberscore?.kyberScore || 0, theme)}>
+                    {latestKyberscore?.kyberScore}
                   </Text>
                 </td>
               )}

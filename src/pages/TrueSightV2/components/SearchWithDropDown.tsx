@@ -25,16 +25,17 @@ import { formatTokenPrice } from '../utils'
 import WatchlistButton from './WatchlistButton'
 
 const formatTokenType = (token: ITokenList): ITokenSearchResult => {
+  const kyberScore3D = token.kyberScore3D?.[token.kyberScore3D.length - 1]
   return {
-    assetId: token.asset_id,
+    assetId: token.assetId,
     name: token.name,
     symbol: token.symbol,
-    logo: token.tokens[0].logo,
+    logo: token.logo,
     price: token.price,
-    priceChange24h: token.percent_change_24h,
+    priceChange24h: token.priceChange24H,
     kyberScore: {
-      score: token.ks_3d?.[token.ks_3d.length - 1].kyber_score || 0,
-      label: token.ks_3d?.[token.ks_3d.length - 1].tag || '',
+      score: kyberScore3D?.kyberScore || 0,
+      label: kyberScore3D?.tag || '',
     },
   }
 }

@@ -55,11 +55,11 @@ const SelectedWrap = styled.div`
   text-overflow: ellipsis;
   flex: 1;
 `
-export type SelectOption = { value?: string | number; label: string | number; onSelect?: () => void }
+export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void }
 
 const getOptionValue = (option: SelectOption | undefined) => {
   if (!option) return ''
-  return typeof option !== 'object' ? option : option.value ?? option.label
+  return typeof option !== 'object' ? option : option.value ?? ''
 }
 const getOptionLabel = (option: SelectOption | undefined) => {
   if (!option) return ''

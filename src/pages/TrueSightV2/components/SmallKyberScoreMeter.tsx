@@ -28,7 +28,7 @@ const GaugeValue = styled.div`
   bottom: 6px;
 `
 function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreChart; disabledTooltip?: boolean }) {
-  const value = data?.kyber_score
+  const value = data?.kyberScore
   const theme = useTheme()
   const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
@@ -56,12 +56,12 @@ function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreCha
             data ? (
               <Column style={{ whiteSpace: 'pre-wrap' }}>
                 <Text>
-                  Calculated at {data.created_at ? dayjs(data.created_at * 1000).format('DD/MM/YYYY HH:mm A') : '--'}
+                  Calculated at {data.createdAt ? dayjs(data.createdAt * 1000).format('DD/MM/YYYY HH:mm A') : '--'}
                 </Text>
                 <Text>
                   KyberScore:{' '}
-                  <span style={{ color: calculateValueToColor(data.kyber_score || 0, theme) }}>
-                    {data.kyber_score || '--'} ({data.tag || t`Not Applicable`})
+                  <span style={{ color: calculateValueToColor(data.kyberScore || 0, theme) }}>
+                    {data.kyberScore || '--'} ({data.tag || t`Not Applicable`})
                   </span>
                 </Text>
                 <Text>

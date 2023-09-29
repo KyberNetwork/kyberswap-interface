@@ -33,24 +33,20 @@ const kyberAIApi = createApi({
     //1.
     tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
       query: ({ type, chain, page, pageSize, watchlist, keywords, ...filter }) => ({
-        url: '/tokens',
+        url: '/assets',
         params: {
           ...filter,
           type: type || 'all',
-          chain: 'all', // todo remove
           page: page || 1,
           size: pageSize || 10,
-          watchlist: watchlist ? 'true' : undefined,
+          watchlist,
           keywords,
         },
       }),
       transformResponse: (res: any) => {
-        if (res.code === 0) {
-          return { data: res.data.data.contents, totalItems: res.data.paging.totalItems }
-        }
-        throw new Error(res.msg)
+        return { data: res.data.assets, totalItems: res.data.pagination.totalItems }
       },
-      providesTags: (result, error, arg) => (arg.watchlist === true ? ['myWatchList', 'tokenList'] : ['tokenList']),
+      providesTags: (_, __, arg) => (arg.watchlist === 'string' ? ['myWatchList', 'tokenList'] : ['tokenList']),
     }),
     assetOverview: builder.query<IAssetOverview, { assetId?: string }>({
       query: ({ assetId }: { assetId?: string }) => ({

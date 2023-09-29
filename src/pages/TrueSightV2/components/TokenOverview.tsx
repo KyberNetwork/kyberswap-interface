@@ -316,12 +316,12 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                       <>
                         <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
                           <Text>
-                            Calculated at {dayjs(latestKyberscore.created_at * 1000).format('DD/MM/YYYY HH:mm A')}
+                            Calculated at {dayjs(latestKyberscore.createdAt * 1000).format('DD/MM/YYYY HH:mm A')}
                           </Text>
                           <Text>
                             KyberScore:{' '}
-                            <span style={{ color: calculateValueToColor(latestKyberscore.kyber_score || 0, theme) }}>
-                              {latestKyberscore.kyber_score || '--'} ({latestKyberscore.tag || t`Not Applicable`})
+                            <span style={{ color: calculateValueToColor(latestKyberscore.kyberScore || 0, theme) }}>
+                              {latestKyberscore.kyberScore || '--'} ({latestKyberscore.tag || t`Not Applicable`})
                             </span>
                           </Text>
                           <Text>
@@ -534,7 +534,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
             <ShareButton onClick={() => setShowShare(true)} />
           </RowBetween>
           <Row justify="center" marginBottom="12px">
-            <KyberScoreMeter value={latestKyberscore?.kyber_score} />
+            <KyberScoreMeter value={latestKyberscore?.kyberScore} />
           </Row>
 
           <Row marginBottom="16px" justify="center" gap="6px">
@@ -555,12 +555,12 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                 <>
                   <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
                     <Text>
-                      {latestKyberscore && dayjs(latestKyberscore?.created_at * 1000).format('DD/MM/YYYY HH:mm A')}
+                      {latestKyberscore && dayjs(latestKyberscore?.createdAt * 1000).format('DD/MM/YYYY HH:mm A')}
                     </Text>
                     <Text>
                       KyberScore:{' '}
-                      <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
-                        {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Applicable`})
+                      <span style={{ color: calculateValueToColor(latestKyberscore?.kyberScore || 0, theme) }}>
+                        {latestKyberscore?.kyberScore || '--'} ({latestKyberscore?.tag || t`Not Applicable`})
                       </span>
                     </Text>
                     <Text>

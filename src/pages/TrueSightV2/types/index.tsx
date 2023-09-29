@@ -1,8 +1,8 @@
 export interface IKyberScoreChart {
   tag: string
   price: number
-  kyber_score: number
-  created_at: number
+  kyberScore: number
+  createdAt: number
 }
 export interface IAssetOverview {
   addresses: { chain: string; address: string }[]
@@ -38,21 +38,21 @@ export interface IAssetOverview {
 export interface ITokenList {
   symbol: string
   name: string
-  asset_id: string
-  tokens: Array<{ address: string; logo: string; chain: string }>
+  assetId: string
+  addresses: Array<{ address: string; chain: string }>
+  logo: string
   price: number
-  percent_change_24h: number
-  volume_24h: number
+  priceChange24H: number
+  volume24H: number
   '7daysprice': Array<{ value: number; timestamp: number }>
-  kyber_score: number
-  ks_3d?: Array<IKyberScoreChart>
+  kyberScore: number
+  kyberScore3D?: Array<IKyberScoreChart>
   kyber_tag: string
   market_cap: number
   isWatched: boolean
   cex_inflow_3days: number
   cex_outflow_3days: number
-  cex_inflow_24h: number
-  cex_outflow_24h: number
+  cexNetflow24H: number
   cex_netflow_3days: number
   discovered_on?: number
 }
@@ -231,6 +231,6 @@ export type QueryTokenParams = {
   chain?: string
   page?: number
   pageSize?: number
-  watchlist?: boolean
+  watchlist?: string
   keywords?: string
 }

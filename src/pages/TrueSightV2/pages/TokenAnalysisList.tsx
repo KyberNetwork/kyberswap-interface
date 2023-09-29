@@ -491,24 +491,21 @@ const TokenRow = React.memo(function TokenRow({
 
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-
-  const hasMutipleChain = token.tokens.length > 1
+  const tokens = token.addresses || []
+  const hasMutipleChain = tokens.length > 1
 
   const handleRowClick = () => {
-    navigate(
-      `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
-      {
-        state: { from: location },
-      },
-    )
+    navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.assetId}?chain=${tokens[0].chain}&address=${tokens[0].address}`, {
+      state: { from: location },
+    })
   }
 
-  const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
+  const latestKyberScore: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
   return (
-    <tr key={token.asset_id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
+    <tr key={token.assetId} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
-          <WatchlistButton size={above768 ? 20 : 16} assetId={token.asset_id} symbol={token.symbol} />
+          <WatchlistButton size={above768 ? 20 : 16} assetId={token.assetId} symbol={token.symbol} />
           {above768 ? index : <></>}
         </RowFit>
       </td>
@@ -525,7 +522,7 @@ const TokenRow = React.memo(function TokenRow({
           >
             <img
               alt="tokenInList"
-              src={token.tokens[0].logo}
+              src={token.logo}
               width="36px"
               height="36px"
               loading="lazy"
@@ -534,8 +531,7 @@ const TokenRow = React.memo(function TokenRow({
           </div>
 
           <Column gap="8px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
-            <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
-            <TokenListVariants tokens={token.tokens} />
+            <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text> <TokenListVariants tokens={tokens} />
           </Column>
         </Row>
       </td>
@@ -543,7 +539,7 @@ const TokenRow = React.memo(function TokenRow({
         <Column style={{ alignItems: 'center', width: '110px' }}>
           <SmallKyberScoreMeter data={latestKyberScore} />
           <Text
-            color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
+            color={calculateValueToColor(latestKyberScore?.kyberScore || 0, theme)}
             fontSize="14px"
             fontWeight={500}
           >
@@ -552,18 +548,18 @@ const TokenRow = React.memo(function TokenRow({
         </Column>
       </td>
       <td>
-        <KyberScoreChart data={token.ks_3d} index={index} />
+        <KyberScoreChart data={token.kyberScore3D} index={index} />
       </td>
       <td>
         <Column gap="10px" style={{ textAlign: 'left' }}>
           <Text>${formatTokenPrice(token.price)}</Text>
-          <Text fontSize={12} color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+          <Text fontSize={12} color={token.priceChange24H > 0 ? theme.primary : theme.red}>
             <Row gap="2px">
               <ChevronIcon
-                rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
-                color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                rotate={token.priceChange24H > 0 ? '180deg' : '0deg'}
+                color={token.priceChange24H > 0 ? theme.primary : theme.red}
               />
-              {Math.abs(token.percent_change_24h).toFixed(2)}%
+              {Math.abs(token.priceChange24H).toFixed(2)}%
             </Row>
           </Text>
         </Column>
@@ -574,10 +570,10 @@ const TokenRow = React.memo(function TokenRow({
       <td style={{ textAlign: 'start' }}>
         $
         {currentTab === KyberAIListType.TOP_CEX_INFLOW
-          ? formatLocaleStringNum(token.cex_inflow_24h - token.cex_outflow_24h) || '--'
+          ? formatLocaleStringNum(token.cexNetflow24H) || '--'
           : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-          ? formatLocaleStringNum(token.cex_outflow_24h - token.cex_inflow_24h) || '--'
-          : formatLocaleStringNum(token.volume_24h) || '--'}
+          ? formatLocaleStringNum(token.cexNetflow24H) || '--'
+          : formatLocaleStringNum(token.volume24H) || '--'}
       </td>
       {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TRENDING_SOON].includes(
         currentTab,
@@ -607,7 +603,7 @@ const TokenRow = React.memo(function TokenRow({
                   option: 'explore',
                 })
                 navigate(
-                  `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
+                  `${APP_PATHS.KYBERAI_EXPLORE}/${token.assetId}?chain=${tokens[0].chain}&address=${tokens[0].address}`,
                   {
                     state: { from: location },
                   },
@@ -630,7 +626,7 @@ const TokenRow = React.memo(function TokenRow({
                 if (hasMutipleChain) {
                   setShowSwapMenu(true)
                 } else {
-                  navigateToSwapPage(token.tokens[0])
+                  navigateToSwapPage(token.addresses[0])
                 }
               }}
             >
@@ -641,7 +637,7 @@ const TokenRow = React.memo(function TokenRow({
             <>
               <MultipleChainDropdown
                 show={showSwapMenu}
-                tokens={token?.tokens}
+                tokens={token?.addresses}
                 onChainClick={(chain, address) => {
                   if (chain && address) {
                     navigateToSwapPage({ chain, address })
@@ -723,7 +719,7 @@ export default function TokenAnalysisList() {
   const queryParams = useMemo(() => {
     const params: QueryTokenParams = { page, pageSize, ...filter }
     if (listTypeParam === KyberAIListType.MYWATCHLIST) {
-      params.watchlist = true
+      params.watchlist = filter.watchlist || 'all'
       params.type = KyberAIListType.ALL
     } else {
       params.type = listTypeParam
@@ -737,8 +733,8 @@ export default function TokenAnalysisList() {
   const kyberscoreCalculateAt = useMemo(() => {
     const listData = data?.data || []
     const timestamps = listData.map(token => {
-      const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
-      return latestKyberScore?.created_at || 0
+      const latestKyberScore: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
+      return latestKyberScore?.createdAt || 0
     })
     return Math.max(...timestamps, 0)
   }, [data])
@@ -1005,7 +1001,7 @@ export default function TokenAnalysisList() {
                   listData.map((token: ITokenList, index: number) => (
                     <TokenRow
                       token={token}
-                      key={token.asset_id + '_' + (pageSize * (page - 1) + index + 1)}
+                      key={token.assetId + '_' + (pageSize * (page - 1) + index + 1)}
                       currentTab={listType}
                       index={pageSize * (page - 1) + index + 1}
                       isScrolling={isScrolling}

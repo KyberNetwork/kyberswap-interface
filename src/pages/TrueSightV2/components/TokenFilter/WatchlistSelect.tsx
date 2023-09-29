@@ -1,7 +1,9 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { CSSProperties } from 'styled-components'
 
+import Icon from 'components/Icons/Icon'
+import Row from 'components/Row'
 import { SelectOption } from 'components/Select'
 import { ActiveSelectItem, StyledSelect } from 'pages/TrueSightV2/components/TokenFilter'
 import { ManageListModal } from 'pages/TrueSightV2/components/WatchlistButton'
@@ -27,8 +29,22 @@ const WatchlistSelect = ({
         return { value: e.id + '', label: `${e.name} (${e.assetNumber})` }
       }) || []
 
-    opts.unshift({ label: t`All Tokens (${total})`, value: '' })
-    opts.push({ label: t`Manage Lists`, onSelect: () => setIsOpen(true) }) // todo danh: update like desgin
+    opts.unshift({
+      label: (
+        <Row>
+          <Trans>All Tokens ({total})</Trans>
+        </Row>
+      ),
+      value: '',
+    })
+    opts.push({
+      label: (
+        <Row gap="6px">
+          <Icon id="assignment" size={20} /> <Trans>Manage Lists</Trans>
+        </Row>
+      ),
+      onSelect: () => setIsOpen(true),
+    }) // todo danh: update like desgin
 
     return opts
   }, [dataWatchList])
