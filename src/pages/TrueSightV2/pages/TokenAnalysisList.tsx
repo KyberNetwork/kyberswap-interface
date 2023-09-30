@@ -682,13 +682,14 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
 }
 
 enum SORT_FIELD {
-  NAME = 'tvl',
-  KYBER_SCORE = 'apr',
-  PRICE = 'volume',
-  VOLUME_24H = 'fee',
-  NETFLOW_3D = 'my_liquidity',
-  FIRST_DISCOVER_ON = 'my_liquidity',
-  FUNDING_RATe = 'fd',
+  NAME = 'symbol',
+  KYBER_SCORE = 'kyber_score',
+  PRICE = 'price',
+  VOLUME_24H = 'volume_24h',
+  CEX_NETFLOW_24H = 'total_cex_netflow_24h',
+  CEX_NETFLOW_3D = 'total_cex_netflow_3d',
+  FIRST_DISCOVER_ON = 'trending_discovered_on',
+  FUNDING_RATE = 'funding_rate',
 }
 
 const formatParamsFromUrl = (searchParams: URLSearchParams) => {
@@ -803,6 +804,7 @@ export default function TokenAnalysisList() {
     KyberAIListType.TRENDING_SOON,
   ].includes(listType)
 
+  // sort single for now
   const [sortType, setSortType] = useState<SORT_FIELD>()
   const [sortDirection, setSortDirection] = useState(SORT_DIRECTION.DESC)
   const SortArrow = ({ type }: { type: SORT_FIELD }) => {
@@ -811,6 +813,8 @@ export default function TokenAnalysisList() {
   const onChangeSort = (sort: SORT_FIELD) => {
     setSortType(sort)
     setSortDirection(sortDirection === SORT_DIRECTION.DESC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC)
+    searchParams.set('sort', `${sort}:${sortDirection}`)
+    setSearchParams(searchParams)
   }
 
   return (
@@ -922,30 +926,41 @@ export default function TokenAnalysisList() {
                       <Trans>Last 7d price</Trans>
                     </Row>
                   </th>
-                  <th onClick={() => onChangeSort(SORT_FIELD.VOLUME_24H)}>
-                    <Row justify="flex-start" gap="4px">
-                      <Trans>
-                        {{
-                          [KyberAIListType.TOP_CEX_INFLOW]: '24h Netflow',
-                          [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Netflow',
-                        }[listType as string] || '24h Volume'}
-                      </Trans>
-                    </Row>
-                  </th>
-                  {isCexFlowTabs && (
-                    <th onClick={() => onChangeSort(SORT_FIELD.FIRST_DISCOVER_ON)}>
-                      <Row justify="flex-start" gap="4px">
-                        <Trans>
-                          {{
-                            [KyberAIListType.TOP_CEX_INFLOW]: '3D Netflow',
-                            [KyberAIListType.TOP_CEX_OUTFLOW]: '3D Netflow',
-                            [KyberAIListType.TRENDING_SOON]: 'First Discovered On',
-                          }[listType as string] || ''}
-                        </Trans>
-                        <SortArrow type={SORT_FIELD.FIRST_DISCOVER_ON} />
-                      </Row>
-                    </th>
-                  )}
+                  {(() => {
+                    const map: Record<string, string> = {
+                      [KyberAIListType.TOP_CEX_INFLOW]: t`24h Netflow`,
+                      [KyberAIListType.TOP_CEX_OUTFLOW]: t`24h Netflow`,
+                    }
+                    const sortField = map[listType] ? SORT_FIELD.CEX_NETFLOW_24H : SORT_FIELD.VOLUME_24H
+                    return (
+                      <th onClick={() => onChangeSort(sortField)}>
+                        <Row justify="flex-start" gap="4px">
+                          {map[listType] || <Trans>24h Volume</Trans>}
+                          <SortArrow type={sortField} />
+                        </Row>
+                      </th>
+                    )
+                  })()}
+                  {(() => {
+                    if (!isCexFlowTabs) return null
+                    const map: Record<string, string> = {
+                      [KyberAIListType.TOP_CEX_INFLOW]: t`3D Netflow`,
+                      [KyberAIListType.TOP_CEX_OUTFLOW]: t`3D Netflow`,
+                      [KyberAIListType.TRENDING_SOON]: t`First Discovered On`,
+                    }
+                    const sortField =
+                      listType === KyberAIListType.TRENDING_SOON
+                        ? SORT_FIELD.FIRST_DISCOVER_ON
+                        : SORT_FIELD.CEX_NETFLOW_3D
+                    return (
+                      <th onClick={() => onChangeSort(sortField)}>
+                        <Row justify="flex-start" gap="4px">
+                          {map[listType]}
+                          <SortArrow type={sortField} />
+                        </Row>
+                      </th>
+                    )
+                  })()}
                   <th style={{ textAlign: 'end' }}>
                     <Trans>Action</Trans>
                   </th>
