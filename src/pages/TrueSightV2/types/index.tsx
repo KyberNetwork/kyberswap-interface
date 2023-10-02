@@ -233,4 +233,5 @@ export type QueryTokenParams = {
   pageSize?: number
   watchlist?: string
   keywords?: string
+  sort?: string
 }

@@ -17,6 +17,7 @@ import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonK
 import WatchlistSelect from 'pages/TrueSightV2/components/TokenFilter/WatchlistSelect'
 import { NETWORK_TO_CHAINID, SUPPORTED_NETWORK_KYBERAI, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
 import { useGetFilterCategoriesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { KyberAIListType } from 'pages/TrueSightV2/types'
 import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -122,11 +123,13 @@ export default function TokenFilter({
   setShowShare,
   onTrackingSelectChain,
   filter = EMPTY_OBJECT,
+  listType,
 }: {
   handleFilterChange: (filter: Record<string, string>) => void
   setShowShare: (v: boolean) => void
   onTrackingSelectChain: (v: string) => void
   filter: { [k: string]: string }
+  listType: KyberAIListType
 }) {
   const onChangeFilter = useCallback(
     (key: string, value: string) => {
@@ -213,11 +216,13 @@ export default function TokenFilter({
                 menuStyle={menuStyle}
               />
             ))}
-            <WatchlistSelect
-              value={filter['watchlist']}
-              onChange={value => onChangeFilter('watchlist', value)}
-              menuStyle={menuStyle}
-            />
+            {listType === KyberAIListType.MYWATCHLIST && (
+              <WatchlistSelect
+                value={filter['watchlist']}
+                onChange={value => onChangeFilter('watchlist', value)}
+                menuStyle={menuStyle}
+              />
+            )}
           </>
         )}
       </SelectGroup>

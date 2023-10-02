@@ -4,6 +4,7 @@ import baseQueryOauth from 'services/baseQueryOauth'
 
 import { SelectOption } from 'components/Select'
 import { BFF_API } from 'constants/env'
+import { DEFAULT_PARAMS_BY_TAB } from 'pages/TrueSightV2/constants'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
 import {
@@ -19,6 +20,7 @@ import {
   ITokenList,
   ITokenSearchResult,
   ITradingVolume,
+  KyberAIListType,
   OHLCData,
   QueryTokenParams,
 } from '../types'
@@ -32,11 +34,11 @@ const kyberAIApi = createApi({
   endpoints: builder => ({
     //1.
     tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
-      query: ({ type, chain, page, pageSize, watchlist, keywords, ...filter }) => ({
+      query: ({ type, chain, page, pageSize, watchlist, keywords, ...filterSort }) => ({
         url: '/assets',
         params: {
-          ...filter,
-          type: type || 'all',
+          ...DEFAULT_PARAMS_BY_TAB[type as KyberAIListType],
+          ...filterSort,
           page: page || 1,
           size: pageSize || 10,
           watchlist,

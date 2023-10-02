@@ -37,7 +37,7 @@ import TokenListVariants from '../components/TokenListVariants'
 import WatchlistButton from '../components/WatchlistButton'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
-import { KYBERAI_LISTYPE_TO_MIXPANEL, Z_INDEX_KYBER_AI } from '../constants'
+import { KYBERAI_LISTYPE_TO_MIXPANEL, SORT_FIELD, Z_INDEX_KYBER_AI } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType, QueryTokenParams } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
@@ -681,17 +681,6 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
   )
 }
 
-enum SORT_FIELD {
-  NAME = 'symbol',
-  KYBER_SCORE = 'kyber_score',
-  PRICE = 'price',
-  VOLUME_24H = 'volume_24h',
-  CEX_NETFLOW_24H = 'total_cex_netflow_24h',
-  CEX_NETFLOW_3D = 'total_cex_netflow_3d',
-  FIRST_DISCOVER_ON = 'trending_discovered_on',
-  FUNDING_RATE = 'funding_rate',
-}
-
 const formatParamsFromUrl = (searchParams: URLSearchParams) => {
   const { page, listType, ...filter } = Object.fromEntries(searchParams)
   return {
@@ -808,7 +797,8 @@ export default function TokenAnalysisList() {
   const [sortType, setSortType] = useState<SORT_FIELD>()
   const [sortDirection, setSortDirection] = useState(SORT_DIRECTION.DESC)
   const SortArrow = ({ type }: { type: SORT_FIELD }) => {
-    return sortType === type && sortDirection === SORT_DIRECTION.DESC ? <ArrowUp size={16} /> : <ArrowDown size={16} />
+    if (sortType !== type) return null
+    return sortDirection === SORT_DIRECTION.DESC ? <ArrowUp size={16} /> : <ArrowDown size={16} />
   }
   const onChangeSort = (sort: SORT_FIELD) => {
     setSortType(sort)
@@ -831,6 +821,7 @@ export default function TokenAnalysisList() {
         <TokenListDraggableTabs tab={listTypeParam} setTab={handleTabChange} />
 
         <TokenFilter
+          listType={listTypeParam}
           filter={filter}
           handleFilterChange={handleFilterChange}
           setShowShare={setShowShare}
