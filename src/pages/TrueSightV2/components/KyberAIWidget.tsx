@@ -202,17 +202,16 @@ export default function Widget() {
   }, [])
 
   const { data, isFetching, isError } = useTokenListQuery(
-    activeTab === WidgetTab.MyWatchlist
-      ? { type: KyberAIListType.ALL, page: 1, pageSize: 5, watchlist: 'all' }
-      : {
-          type: {
-            [WidgetTab.Bearish]: KyberAIListType.BEARISH,
-            [WidgetTab.Bullish]: KyberAIListType.BULLISH,
-            [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
-          }[activeTab],
-          page: 1,
-          pageSize: 5,
-        },
+    {
+      type: {
+        [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
+        [WidgetTab.Bearish]: KyberAIListType.BEARISH,
+        [WidgetTab.Bullish]: KyberAIListType.BULLISH,
+        [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
+      }[activeTab],
+      page: 1,
+      pageSize: 5,
+    },
     { refetchOnMountOrArgChange: true, skip: !isWhiteList || !showWidget },
   )
 

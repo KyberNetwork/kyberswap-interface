@@ -39,7 +39,7 @@ import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
 import { KYBERAI_LISTYPE_TO_MIXPANEL, SORT_FIELD, Z_INDEX_KYBER_AI } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
-import { IKyberScoreChart, ITokenList, KyberAIListType, QueryTokenParams } from '../types'
+import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
 
 const SIZE_MOBILE = '1080px'
@@ -707,14 +707,7 @@ export default function TokenAnalysisList() {
   const { page, listTypeParam, filter } = useMemo(() => formatParamsFromUrl(searchParams), [searchParams])
 
   const queryParams = useMemo(() => {
-    const params: QueryTokenParams = { page, pageSize, ...filter }
-    if (listTypeParam === KyberAIListType.MYWATCHLIST) {
-      params.watchlist = filter.watchlist || 'all'
-      params.type = KyberAIListType.ALL
-    } else {
-      params.type = listTypeParam
-    }
-    return params
+    return { page, pageSize, ...filter, type: listTypeParam }
   }, [page, listTypeParam, filter])
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(queryParams)

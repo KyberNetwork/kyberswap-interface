@@ -77,6 +77,7 @@ export enum SORT_FIELD {
 
 export const DEFAULT_PARAMS_BY_TAB: Partial<{ [tab in KyberAIListType]: Record<string, string> }> = {
   [KyberAIListType.ALL]: { sort: `${SORT_FIELD.PRICE_CHANGE_24H}:${SORT_DIRECTION.DESC}` },
+  [KyberAIListType.MYWATCHLIST]: { watchlist: `all` },
   [KyberAIListType.BULLISH]: {
     sort: `${SORT_FIELD.KYBER_SCORE}:${SORT_DIRECTION.ASC}`,
     kyberScoreTags: ['Very Bullish', 'Bullish'].join(','),

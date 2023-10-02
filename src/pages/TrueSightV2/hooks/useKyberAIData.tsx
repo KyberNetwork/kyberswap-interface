@@ -34,14 +34,13 @@ const kyberAIApi = createApi({
   endpoints: builder => ({
     //1.
     tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
-      query: ({ type, chain, page, pageSize, watchlist, keywords, ...filterSort }) => ({
+      query: ({ type, chain, page, pageSize, keywords, ...filterSort }) => ({
         url: '/assets',
         params: {
           ...DEFAULT_PARAMS_BY_TAB[type as KyberAIListType],
           ...filterSort,
           page: page || 1,
           size: pageSize || 10,
-          watchlist,
           keywords,
         },
       }),
