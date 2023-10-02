@@ -497,21 +497,21 @@ const participantDefault = {
 }
 export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
   const { userInfo } = useSessionInfo()
-  const { data: data = participantDefault, isError } = useGetParticipantInfoQuery(undefined, {
+  const { currentData } = useGetParticipantInfoQuery(undefined, {
     skip: !userInfo,
   })
-  return isError ? participantDefault : data
+  return currentData || participantDefault
 }
 
 export const useIsWhiteListKyberAI = () => {
   const { isLogin, pendingAuthentication, userInfo } = useSessionInfo()
   const {
-    data: rawData,
+    currentData: rawData,
     isFetching,
     isError,
     refetch,
   } = useGetParticipantInfoQuery(undefined, {
-    skip: !userInfo,
+    skip: !userInfo || userInfo?.data?.hasAccessToKyberAI,
   })
 
   const { account } = useActiveWeb3React()
