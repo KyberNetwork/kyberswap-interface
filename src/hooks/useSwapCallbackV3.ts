@@ -118,7 +118,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
         throw new Error('Missing dependencies')
       }
-      console.log('namgold swap', { library })
       const value = BigNumber.from(inputAmount.currency.isNative ? inputAmount.quotient.toString() : 0)
       const response = await sendEVMTransaction(
         account,
