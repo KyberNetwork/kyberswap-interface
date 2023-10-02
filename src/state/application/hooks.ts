@@ -314,7 +314,7 @@ const getPrommEthPrice = async (
   return [ethPrice, ethPriceOneDay, priceChangeETH]
 }
 
-// should fetch from price service
+// todo: should fetch from price service
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
   const { isEVM, chainId } = useActiveWeb3React()

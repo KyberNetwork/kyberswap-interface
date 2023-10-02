@@ -9,7 +9,7 @@ import { toFixed } from 'utils/numbers'
 
 import { ClassicPoolData, CommonReturn } from './type'
 
-export type ClassicPool = {
+type ClassicPoolResponse = {
   id: string
   fee: string
   feeUSD: string
@@ -52,7 +52,7 @@ type Response = {
   code: number
   message: string
   data?: {
-    pools: Array<ClassicPool>
+    pools: Array<ClassicPoolResponse>
   }
 }
 
