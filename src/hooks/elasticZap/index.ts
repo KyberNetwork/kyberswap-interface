@@ -1,16 +1,18 @@
-import { Currency, CurrencyAmount, Percent } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from 'ethers'
+import { defaultAbiCoder as abiEncoder } from 'ethers/lib/utils'
+import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
+import ZAP_ROUTER_ABI from 'constants/abis/elastic-zap/router.json'
 import ZAP_HELPER_ABI from 'constants/abis/elastic-zap/zap-helper.json'
-import ZAP_IN_ABI from 'constants/abis/elastic-zap/zap-in.json'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useContract, useContractForReading } from 'hooks/useContract'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin } from 'utils'
+import { calculateGasMargin } from 'utils'
 
 export interface ZapResult {
   liquidity: BigNumber
@@ -40,6 +42,8 @@ export function useZapInPoolResult(params?: {
             params.poolAddress,
             params.tokenIn,
             params.amountIn.quotient.toString(),
+            // Aggregator amount out, hardcode 0 for now
+            '0',
             1,
             params.tickLower,
             params.tickUpper,
@@ -60,154 +64,166 @@ export function useZapInPoolResult(params?: {
   }
 }
 
-interface ZapInToAddParams {
-  pool: string
-  tokenIn: string
-  positionId: string
-  amount: string
-  zapResult: ZapResult
-}
-
-interface ZapInToMintParams {
-  pool: string
-  tokenIn: string
-  previousTicks: [number, number]
-  amount: string
-  zapResult: ZapResult
-  tickLower: number
-  tickUpper: number
-}
-
 export function useZapInAction() {
   const { networkInfo, account } = useActiveWeb3React()
-  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.zapIn
-  const zapInContract = useContract(zapInContractAddress, ZAP_IN_ABI, true)
+  const { router: zapRouterAddress, validator, executor } = (networkInfo as EVMNetworkInfo).elastic?.zap || {}
+  const zapRouterContract = useContract(zapRouterAddress, ZAP_ROUTER_ABI, true)
 
   const posManagerAddress = (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager
   const [slippage] = useUserSlippageTolerance()
   const deadline = useTransactionDeadline() // custom from users settings
 
-  const estimateGasZapInPoolToAddLiquidity = useCallback(
-    async ({ pool, tokenIn, positionId, amount, zapResult }: ZapInToAddParams) => {
-      if (!zapInContract || !account)
-        return {
-          gas: undefined,
-          params: undefined,
+  const zapIn = useCallback(
+    async (
+      {
+        tokenId = 0,
+        tokenIn,
+        amountIn,
+        usedAmount0,
+        usedAmount1,
+        poolAddress,
+        tickUpper,
+        tickLower,
+        poolInfo,
+        tickPrevious,
+        liquidity,
+      }: {
+        tokenId?: number | string
+        tokenIn: string
+        amountIn: string
+        usedAmount0: string
+        usedAmount1: string
+        poolAddress: string
+        tickLower: number
+        tickUpper: number
+        poolInfo: {
+          token0: string
+          token1: string
+          fee: number
         }
+        tickPrevious: [number, number]
+        liquidity: string
+      },
+      options: {
+        zapWithNative: boolean
+        estimateOnly?: boolean
+      },
+    ) => {
+      if (zapRouterContract) {
+        const minLiquidity = JSBI.divide(
+          JSBI.multiply(JSBI.BigInt(liquidity), JSBI.BigInt(10000 - slippage)),
+          JSBI.BigInt(10000),
+        ).toString()
 
-      const minLiquidity = zapResult.liquidity.sub(
-        zapResult.liquidity.mul(BigNumber.from(basisPointsToPercent(slippage).quotient.toString())),
-      )
+        const zapInfo = abiEncoder.encode(['address', 'address', 'uint256'], [poolAddress, posManagerAddress, tokenId])
+        const extraData = tokenId
+          ? abiEncoder.encode(['uint128'], [minLiquidity])
+          : abiEncoder.encode(['address', 'int24', 'int24', 'uint128'], [account, tickLower, tickUpper, minLiquidity])
 
-      const maxRemainingAmount0 = zapResult.remainingAmount0.mul(
-        BigNumber.from(basisPointsToPercent(slippage).add(new Percent(1)).quotient.toString()),
-      )
-      const maxRemainingAmount1 = zapResult.remainingAmount1.mul(
-        BigNumber.from(basisPointsToPercent(slippage).add(new Percent(1)).quotient.toString()),
-      )
+        const zeros = '0'.repeat(128)
+        const minZapAmount0 = JSBI.divide(
+          JSBI.multiply(JSBI.BigInt(usedAmount0), JSBI.BigInt(slippage)),
+          JSBI.BigInt(10000),
+        ).toString(2)
 
-      const params = [
-        [
-          posManagerAddress,
-          pool,
-          account,
-          tokenIn,
-          positionId,
-          amount,
-          minLiquidity,
-          maxRemainingAmount0,
-          maxRemainingAmount1,
-          deadline,
-        ],
-        1,
-      ]
+        // temporary hardcode for 0
+        const minZapAmount1 = JSBI.divide(
+          JSBI.multiply(JSBI.BigInt(usedAmount1), JSBI.BigInt(slippage)),
+          JSBI.BigInt(10000),
+        ).toString(2)
 
-      const gas = await zapInContract.estimateGas.zapInPoolToAddLiquidity(...params)
+        const minZapAmount = JSBI.BigInt(
+          parseInt((zeros + minZapAmount0).slice(-128) + (zeros + minZapAmount1).slice(-128), 2),
+        ).toString()
+
+        const zapExecutorData = abiEncoder.encode(
+          [
+            'address',
+            'address',
+            'tupple(address token0,int24 fee,address token1)',
+            'uint256',
+            'address',
+            'uint256',
+            'uint256',
+            'int24',
+            'int24',
+            'int24[2]',
+            'uint128',
+            'bytes',
+          ],
+          [
+            posManagerAddress,
+            poolAddress,
+            { token0: poolInfo.token0, fee: poolInfo.fee, token1: poolInfo.token1 },
+            tokenId,
+            account,
+            1,
+            minZapAmount,
+            tickLower,
+            tickUpper,
+            tickPrevious,
+            minLiquidity,
+            '0x',
+          ],
+        )
+
+        const executorData = abiEncoder.encode(
+          ['uint8', 'address', 'uint256', 'bytes', 'bytes', 'bytes'],
+          [
+            0,
+            tokenIn,
+            amountIn,
+            '0x',
+            '0x',
+            // hardcode for dynamic field (poolInfo) in contract
+            '0x0000000000000000000000000000000000000000000000000000000000000020' + zapExecutorData.slice(2),
+          ],
+        )
+
+        const params = [
+          [
+            0, //dextype: elastic
+            tokenIn,
+            amountIn,
+            zapInfo,
+            extraData,
+            '0x',
+          ],
+          [validator, executor, deadline?.toString(), executorData, '0x'],
+        ]
+
+        const gasEstimated = await zapRouterContract.estimateGas[options.zapWithNative ? 'zapInWithNative' : 'zapIn'](
+          ...params,
+          {
+            value: options.zapWithNative ? amountIn : undefined,
+          },
+        )
+
+        if (options.estimateOnly) {
+          return {
+            gasEstimated,
+            hash: '',
+          }
+        }
+        const { hash } = await zapRouterContract[options.zapWithNative ? 'zapInWithNative' : 'zapIn'](...params, {
+          value: options.zapWithNative ? amountIn : undefined,
+          gasLimit: calculateGasMargin(gasEstimated),
+        })
+        return {
+          gasEstimated,
+          hash,
+        }
+      }
 
       return {
-        gas,
-        params,
+        gasEstimated: 0,
+        hash: '',
       }
     },
-    [zapInContract, account, deadline, posManagerAddress, slippage],
-  )
-
-  const zapInPoolToAddLiquidity = useCallback(
-    async (params: ZapInToAddParams) => {
-      if (!zapInContract || !account) return
-      const { gas, params: callParams } = await estimateGasZapInPoolToAddLiquidity(params)
-      if (!gas || !callParams) return
-
-      const { hash } = await zapInContract.zapInPoolToAddLiquidity(...callParams, {
-        gasLimit: calculateGasMargin(gas),
-      })
-      return hash
-    },
-    [estimateGasZapInPoolToAddLiquidity, zapInContract, account],
-  )
-
-  const estimateGasZapInPoolToMint = useCallback(
-    async ({ pool, tokenIn, previousTicks, amount, zapResult, tickLower, tickUpper }: ZapInToMintParams) => {
-      if (!zapInContract || !account) return {}
-
-      const minLiquidity = zapResult.liquidity.sub(
-        zapResult.liquidity.mul(BigNumber.from(basisPointsToPercent(slippage).quotient.toString())),
-      )
-
-      const maxRemainingAmount0 = zapResult.remainingAmount0.mul(
-        BigNumber.from(basisPointsToPercent(slippage).add(new Percent(1)).quotient.toString()),
-      )
-      const maxRemainingAmount1 = zapResult.remainingAmount1.mul(
-        BigNumber.from(basisPointsToPercent(slippage).add(new Percent(1)).quotient.toString()),
-      )
-
-      const params = [
-        [
-          posManagerAddress,
-          pool,
-          account,
-          tokenIn,
-          tickLower,
-          tickUpper,
-          previousTicks,
-          amount,
-          minLiquidity,
-          maxRemainingAmount0,
-          maxRemainingAmount1,
-          deadline,
-        ],
-        1,
-      ]
-
-      const gas = await zapInContract.estimateGas.zapInPoolToMint(...params)
-
-      return {
-        gas,
-        params,
-      }
-    },
-    [zapInContract, account, deadline, posManagerAddress, slippage],
-  )
-
-  const zapInPoolToMint = useCallback(
-    async (params: ZapInToMintParams) => {
-      if (!zapInContract || !account) return
-      const { gas, params: callParams } = await estimateGasZapInPoolToMint(params)
-      if (!gas || !callParams) return
-
-      console.log(gas.toString(), calculateGasMargin(gas).toString())
-      const { hash } = await zapInContract.zapInPoolToMint(...callParams, {
-        gasLimit: calculateGasMargin(gas),
-      })
-      return hash
-    },
-    [estimateGasZapInPoolToMint, account, zapInContract],
+    [account, deadline, executor, validator, posManagerAddress, zapRouterContract, slippage],
   )
 
   return {
-    zapInPoolToAddLiquidity,
-    zapInPoolToMint,
-    estimateGasZapInPoolToMint,
-    estimateGasZapInPoolToAddLiquidity,
+    zapIn,
   }
 }

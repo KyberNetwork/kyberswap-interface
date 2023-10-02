@@ -1013,7 +1013,11 @@ export default function AddLiquidity() {
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
   const params = useMemo(() => {
-    return poolAddress && amountIn?.greaterThan('0') && selectedCurrency && tickLower && tickUpper
+    return poolAddress &&
+      amountIn?.greaterThan('0') &&
+      selectedCurrency &&
+      tickLower !== undefined &&
+      tickUpper !== undefined
       ? {
           poolAddress,
           tokenIn: selectedCurrency.wrapped.address,
@@ -1025,9 +1029,9 @@ export default function AddLiquidity() {
   }, [amountIn, poolAddress, selectedCurrency, tickLower, tickUpper])
 
   const { loading: zapLoading, result: zapResult } = useZapInPoolResult(params)
-  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.zapIn
+  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
   const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
-  const { zapInPoolToMint } = useZapInAction()
+  const { zapIn } = useZapInAction()
   const [showZapPendingModal, setShowZapPendingModal] = useState(false)
   const [zapError, setZapError] = useState('')
 
@@ -1037,10 +1041,15 @@ export default function AddLiquidity() {
   else if (!amountIn) error = <Trans>Invalid Input</Trans>
   else if (balance && amountIn?.greaterThan(balance)) error = <Trans>Insufficient Balance</Trans>
 
-  const usedAmount0 =
-    pool?.token0 && CurrencyAmount.fromRawAmount(pool.token0, zapResult?.usedAmount0.toString() || '0')
-  const usedAmount1 =
-    pool?.token1 && CurrencyAmount.fromRawAmount(pool.token1, zapResult?.usedAmount1.toString() || '0')
+  const newPosDraft =
+    pool && zapResult && tickLower !== undefined && tickUpper !== undefined
+      ? new Position({
+          pool,
+          tickLower,
+          tickUpper,
+          liquidity: zapResult.liquidity.toString(),
+        })
+      : undefined
 
   const tickReader = useProAmmTickReader()
 
@@ -1064,37 +1073,51 @@ export default function AddLiquidity() {
     }
 
     if (
-      tickUpper &&
-      tickLower &&
+      tickUpper !== undefined &&
+      tickLower !== undefined &&
       selectedCurrency &&
       zapResult &&
       amountIn?.quotient &&
-      tickPreviousForZap.length == 2
+      tickPreviousForZap.length == 2 &&
+      pool
     ) {
       try {
         setShowZapPendingModal(true)
         setAttemptingTxn(true)
-        const txHash = await zapInPoolToMint({
-          pool: poolAddress,
-          tokenIn: selectedCurrency.wrapped.address,
-          previousTicks: [tickPreviousForZap[0], tickPreviousForZap[1]],
-          amount: amountIn.quotient.toString(),
-          zapResult,
-          tickLower,
-          tickUpper,
-        })
+        const { hash: txHash } = await zapIn(
+          {
+            tokenId: 0,
+            tokenIn: selectedCurrency.wrapped.address,
+            amountIn: amountIn.quotient.toString(),
+            usedAmount0: zapResult.usedAmount0.toString(),
+            usedAmount1: zapResult.usedAmount1.toString(),
+            poolAddress,
+            tickLower,
+            tickUpper,
+            tickPrevious: [tickPreviousForZap[0], tickPreviousForZap[1]],
+            poolInfo: {
+              token0: pool.token0.wrapped.address,
+              fee: pool.fee,
+              token1: pool.token1.wrapped.address,
+            },
+            liquidity: zapResult.liquidity.toString(),
+          },
+          {
+            zapWithNative: selectedCurrency.isNative,
+          },
+        )
         setTxHash(txHash)
         setAttemptingTxn(false)
-        const tokenSymbolIn = usedAmount0 ? unwrappedToken(usedAmount0.currency).symbol : ''
-        const tokenSymbolOut = usedAmount1 ? unwrappedToken(usedAmount1.currency).symbol : ''
+        const tokenSymbolIn = newPosDraft ? unwrappedToken(newPosDraft.amount0.currency).symbol : ''
+        const tokenSymbolOut = newPosDraft ? unwrappedToken(newPosDraft.amount1.currency).symbol : ''
         addTransactionWithType({
           hash: txHash,
           type: TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
           extraInfo: {
-            tokenAmountIn: usedAmount0?.toSignificant(6) || '',
-            tokenAmountOut: usedAmount1?.toSignificant(6) || '',
-            tokenAddressIn: usedAmount0?.currency.wrapped.address || '',
-            tokenAddressOut: usedAmount1?.currency.wrapped.address || '',
+            tokenAmountIn: newPosDraft?.amount0.toSignificant(6) || '',
+            tokenAmountOut: newPosDraft?.amount1.toSignificant(6) || '',
+            tokenAddressIn: newPosDraft?.amount0.currency.wrapped.address || '',
+            tokenAddressOut: newPosDraft?.amount1.currency.wrapped.address || '',
             tokenSymbolIn,
             tokenSymbolOut,
             arbitrary: {
@@ -1870,8 +1893,8 @@ export default function AddLiquidity() {
         attemptingTxn={attemptingTxn}
         pendingText={
           <Trans>
-            Supplying {usedAmount0?.toSignificant(6)} {pool?.token0.symbol} and {usedAmount1?.toSignificant(6)}{' '}
-            {pool?.token1?.symbol}
+            Supplying {newPosDraft?.amount0.toSignificant(6)} {pool?.token0.symbol} and{' '}
+            {newPosDraft?.amount1.toSignificant(6)} {pool?.token1?.symbol}
           </Trans>
         }
         content={() => (

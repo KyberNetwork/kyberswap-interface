@@ -1,6 +1,6 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
@@ -212,7 +212,7 @@ export default function IncreaseLiquidity() {
 
   const previousTicks =
     // : number[] = []
-    useProAmmPreviousTicks(pool, position)
+    useProAmmPreviousTicks(pool, existingPosition)
   const { onFieldAInput, onFieldBInput, onResetMintState } = useProAmmMintActionHandlers(noLiquidity, 0)
 
   useEffect(() => {
@@ -443,6 +443,7 @@ export default function IncreaseLiquidity() {
   const selectedCurrency = useMemo(() => {
     return isReverse ? currencies[Field.CURRENCY_B] : currencies[Field.CURRENCY_A]
   }, [isReverse, currencies])
+
   const debouncedValue = useDebounce(value, 300)
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
@@ -459,9 +460,9 @@ export default function IncreaseLiquidity() {
   }, [amountIn, existingPosition, poolAddress, selectedCurrency])
 
   const { loading: zapLoading, result: zapResult } = useZapInPoolResult(params)
-  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.zapIn
+  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
   const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
-  const { zapInPoolToAddLiquidity } = useZapInAction()
+  const { zapIn } = useZapInAction()
   const [showZapPendingModal, setShowZapPendingModal] = useState(false)
   const [zapError, setZapError] = useState('')
 
@@ -471,12 +472,15 @@ export default function IncreaseLiquidity() {
   else if (!amountIn) error = <Trans>Invalid Input</Trans>
   else if (balance && amountIn?.greaterThan(balance)) error = <Trans>Insufficient Balance</Trans>
 
-  const usedAmount0 =
-    existingPosition?.pool?.token0 &&
-    CurrencyAmount.fromRawAmount(existingPosition.pool.token0, zapResult?.usedAmount0.toString() || '0')
-  const usedAmount1 =
-    existingPosition?.pool?.token1 &&
-    CurrencyAmount.fromRawAmount(existingPosition?.pool.token1, zapResult?.usedAmount1.toString() || '0')
+  const newPosDraft =
+    pool && zapResult && existingPosition
+      ? new Position({
+          pool,
+          tickLower: existingPosition.tickLower,
+          tickUpper: existingPosition.tickUpper,
+          liquidity: zapResult.liquidity.toString(),
+        })
+      : undefined
 
   const handleZap = async () => {
     if (zapApprovalState === ApprovalState.NOT_APPROVED) {
@@ -484,29 +488,45 @@ export default function IncreaseLiquidity() {
       return
     }
 
-    if (selectedCurrency && tokenId && zapResult && amountIn?.quotient && existingPosition) {
+    if (selectedCurrency && tokenId && zapResult && amountIn?.quotient && existingPosition && previousTicks?.length) {
       try {
         setShowZapPendingModal(true)
         setAttemptingTxn(true)
-        const txHash = await zapInPoolToAddLiquidity({
-          pool: poolAddress,
-          tokenIn: selectedCurrency.wrapped.address,
-          positionId: tokenId,
-          amount: amountIn.quotient.toString(),
-          zapResult,
-        })
+        const { hash: txHash } = await zapIn(
+          {
+            tokenId: tokenId.toString(),
+            tokenIn: selectedCurrency.wrapped.address,
+            amountIn: amountIn.quotient.toString(),
+            usedAmount0: zapResult.usedAmount0.toString(),
+            usedAmount1: zapResult.usedAmount1.toString(),
+            poolAddress,
+            tickLower: existingPosition.tickLower,
+            tickUpper: existingPosition.tickUpper,
+            tickPrevious: [previousTicks[0], previousTicks[1]],
+            poolInfo: {
+              token0: existingPosition.pool.token0.wrapped.address,
+              fee: existingPosition.pool.fee,
+              token1: existingPosition.pool.token1.wrapped.address,
+            },
+            liquidity: zapResult.liquidity.toString(),
+          },
+          {
+            zapWithNative: selectedCurrency.isNative,
+          },
+        )
+
         setTxHash(txHash)
         setAttemptingTxn(false)
-        const tokenSymbolIn = usedAmount0 ? unwrappedToken(usedAmount0.currency).symbol : ''
-        const tokenSymbolOut = usedAmount1 ? unwrappedToken(usedAmount1.currency).symbol : ''
+        const tokenSymbolIn = newPosDraft ? unwrappedToken(newPosDraft.amount0.currency).symbol : ''
+        const tokenSymbolOut = newPosDraft ? unwrappedToken(newPosDraft?.amount1.currency).symbol : ''
         addTransactionWithType({
           hash: txHash,
           type: TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
           extraInfo: {
-            tokenAmountIn: usedAmount0?.toSignificant(6) || '',
-            tokenAmountOut: usedAmount1?.toSignificant(6) || '',
-            tokenAddressIn: usedAmount0?.currency.wrapped.address || '',
-            tokenAddressOut: usedAmount1?.currency.wrapped.address || '',
+            tokenAmountIn: newPosDraft?.amount0.toSignificant(6) || '',
+            tokenAmountOut: newPosDraft?.amount1.toSignificant(6) || '',
+            tokenAddressIn: newPosDraft?.amount0.currency.wrapped.address || '',
+            tokenAddressOut: newPosDraft?.amount1.currency.wrapped.address || '',
             tokenSymbolIn,
             tokenSymbolOut,
             arbitrary: {
@@ -594,8 +614,8 @@ export default function IncreaseLiquidity() {
         attemptingTxn={attemptingTxn}
         pendingText={
           <Trans>
-            Supplying {usedAmount0?.toSignificant(6)} {existingPosition?.pool.token0.symbol} and{' '}
-            {usedAmount1?.toSignificant(6)} {existingPosition?.pool?.token1?.symbol}
+            Supplying {newPosDraft?.amount0.toSignificant(6)} {existingPosition?.pool.token0.symbol} and{' '}
+            {newPosDraft?.amount1.toSignificant(6)} {existingPosition?.pool?.token1?.symbol}
           </Trans>
         }
         content={() => (

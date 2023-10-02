@@ -1,6 +1,5 @@
 import { CurrencyAmount, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
-import { BigNumber } from 'ethers'
 import { useEffect, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { Box, Flex, Text } from 'rebass'
@@ -84,14 +83,18 @@ export default function ZapDetail({
     currency1?.symbol || '',
   )
 
-  const usedAmount0 = pool?.token0 && CurrencyAmount.fromRawAmount(pool.token0, result?.usedAmount0.toString() || '0')
-  const usedAmount1 = pool?.token1 && CurrencyAmount.fromRawAmount(pool.token1, result?.usedAmount1.toString() || '0')
+  const newPosDraft =
+    pool && result && tickLower !== undefined && tickUpper !== undefined
+      ? new Position({
+          pool,
+          tickLower,
+          tickUpper,
+          liquidity: result.liquidity.toString(),
+        })
+      : undefined
 
-  let newPooledAmount0 = usedAmount0
-  if (position && newPooledAmount0) newPooledAmount0 = newPooledAmount0.add(position.amount0)
-
-  let newPooledAmount1 = usedAmount1
-  if (position && newPooledAmount1) newPooledAmount1 = newPooledAmount1.add(position.amount1)
+  const newPooledAmount0 = newPosDraft?.amount0
+  const newPooledAmount1 = newPosDraft?.amount1
 
   const prices = useTokenPrices(
     [WETH[chainId].address, currency0?.wrapped.address, currency1?.wrapped.address].filter(Boolean) as string[],
@@ -105,23 +108,19 @@ export default function ZapDetail({
     +(newPooledAmount0?.toExact() || '0') * (prices[currency0?.wrapped?.address || ''] || 0) +
     +(newPooledAmount1?.toExact() || '0') * (prices[currency1?.wrapped?.address || ''] || 0)
 
-  const totalAmount0 = BigNumber.from(result?.usedAmount0 || '0').add(BigNumber.from(result?.remainingAmount0 || '0'))
-  const totalAmount1 = BigNumber.from(result?.usedAmount1 || '0').add(BigNumber.from(result?.remainingAmount1 || '0'))
-
   const amountInUsd = +(amountIn?.toExact() || '0') * (prices[amountIn?.currency?.wrapped.address || ''] || 0)
+
   const amountUSDAfterSwap =
     currency0 && currency1
-      ? +CurrencyAmount.fromRawAmount(currency0, totalAmount0.toString()).toExact() *
-          (prices[currency0.wrapped.address] || 0) +
-        +CurrencyAmount.fromRawAmount(currency1, totalAmount1.toString()).toExact() *
-          (prices[currency1.wrapped.address] || 0)
+      ? +(newPooledAmount0?.toExact() || 0) * (prices[currency0.wrapped.address] || 0) +
+        +(newPooledAmount1?.toExact() || 0) * (prices[currency1.wrapped.address] || 0)
       : 0
 
   const priceImpact = ((amountInUsd - amountUSDAfterSwap) * 100) / amountInUsd
   const priceImpactRes = checkPriceImpact(priceImpact)
 
   const [gas, setGas] = useState('') // GWei
-  const { estimateGasZapInPoolToMint, estimateGasZapInPoolToAddLiquidity } = useZapInAction()
+  const { zapIn } = useZapInAction()
 
   const amount = amountIn?.quotient.toString()
 
@@ -131,47 +130,52 @@ export default function ZapDetail({
   }, [readProvider])
 
   useEffect(() => {
-    if (tokenId) {
-      if (poolAddress && tokenIn && tokenId && amount && result) {
-        estimateGasZapInPoolToAddLiquidity({
-          pool: poolAddress,
+    if (
+      pool &&
+      poolAddress &&
+      tokenIn &&
+      amount &&
+      result &&
+      tickLower !== undefined &&
+      tickUpper !== undefined &&
+      previousTicks?.length
+    ) {
+      zapIn(
+        {
+          tokenId: tokenId?.toString() || 0,
           tokenIn,
-          positionId: tokenId,
-          amount,
-          zapResult: result,
-        })
-          .then(({ gas }) => {
-            setGas(gas?.toString() || '')
-          })
-          .catch(() => {
-            setGas('')
-          })
-      } else {
-        setGas('')
-      }
-    } else {
-      if (poolAddress && tokenIn && previousTicks && amount && result && tickLower && tickUpper) {
-        estimateGasZapInPoolToMint({
-          pool: poolAddress,
-          tokenIn,
-          previousTicks: previousTicks as any,
-          amount,
-          zapResult: result,
+          amountIn: amount,
+          usedAmount0: result.usedAmount0.toString(),
+          usedAmount1: result.usedAmount1.toString(),
+          poolAddress,
           tickLower,
           tickUpper,
+          tickPrevious: [previousTicks[0], previousTicks[1]],
+          poolInfo: {
+            token0: pool.token0.wrapped.address,
+            fee: pool.fee,
+            token1: pool.token1.wrapped.address,
+          },
+          liquidity: result.liquidity.toString(),
+        },
+        {
+          zapWithNative: !!amountIn?.currency.isNative,
+          estimateOnly: true,
+        },
+      )
+        .then(({ gasEstimated }) => {
+          setGas(gasEstimated.toString())
         })
-          .then(({ gas }) => {
-            setGas(gas?.toString() || '')
-          })
-          .catch(() => {
-            setGas('')
-          })
-      } else setGas('')
+        .catch(() => {
+          setGas('')
+        })
+    } else {
+      setGas('')
     }
   }, [
     amount,
-    estimateGasZapInPoolToMint,
-    estimateGasZapInPoolToAddLiquidity,
+    amountIn?.currency.isNative,
+    zapIn,
     tokenIn,
     poolAddress,
     tokenId,
@@ -180,6 +184,7 @@ export default function ZapDetail({
     previousTicks,
     readProvider,
     result,
+    pool,
   ])
 
   const estimateGasUsd =

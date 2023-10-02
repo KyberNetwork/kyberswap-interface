@@ -70,9 +70,10 @@ const maticInfo: EVMNetworkInfo = {
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
     zap: {
-      helper: '0x03d07c4fb8Ab9165aa99c758FEc879A78A5c6395',
-      zapIn: '0xE04Ce2D23223a643a7Cb1FB4F8396D255058d60d',
-      zapOut: '0xf55d0A8Df5C864c0058CC2F755695ff6A20c9CB4',
+      helper: '0xb26E27eFD9c65c3A9E1F74BB1c943b93eDB78a0E',
+      router: '0x5a330407EBa73847C054Df73b512024B1E577d74',
+      validator: '0x0501fc2Ef504157fc690080e25f9fEdB360f4d0B',
+      executor: '0xFb8681b0814B68c2fA4Cd9a9CDF3a5e4c454eF23',
     },
   },
   limitOrder: '*',

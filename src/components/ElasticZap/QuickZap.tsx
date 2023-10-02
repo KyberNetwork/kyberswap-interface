@@ -1,4 +1,3 @@
-import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -96,7 +95,7 @@ export default function QuickZap(props: Props) {
 
 function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   const { chainId, networkInfo, account } = useActiveWeb3React()
-  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.zapIn
+  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
   const theme = useTheme()
   const [selectedRange, setSelectedRange] = useState<RANGE>(RANGE_LIST[1])
 
@@ -182,9 +181,11 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   const [tickLower, tickUpper] = useTicksFromRange(selectedRange, pool || undefined)
   const tickReader = useProAmmTickReader()
 
+  const vTickLower = position ? position.tickLower : tickLower
+  const vTickUpper = position ? position.tickUpper : tickUpper
   const results = useSingleContractMultipleData(tickReader, 'getNearestInitializedTicks', [
-    [poolAddress, tickLower],
-    [poolAddress, tickUpper],
+    [poolAddress, vTickLower],
+    [poolAddress, vTickUpper],
   ])
 
   const tickPrevious = useMemo(() => {
@@ -197,21 +198,21 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
           poolAddress,
           tokenIn: selectedCurrency.wrapped.address,
           amountIn,
-          tickLower: position?.tickLower || tickLower,
-          tickUpper: position?.tickUpper || tickUpper,
+          tickLower: vTickLower,
+          tickUpper: vTickUpper,
         }
       : undefined
-  }, [amountIn, position, poolAddress, selectedCurrency, tickLower, tickUpper])
+  }, [amountIn, poolAddress, selectedCurrency, vTickLower, vTickUpper])
 
   const { loading: zapLoading, result } = useZapInPoolResult(params)
-  console.log(result)
   const [approvalState, approve] = useApproveCallback(amountIn, zapInContractAddress)
-  const { zapInPoolToAddLiquidity, zapInPoolToMint } = useZapInAction()
+  const { zapIn } = useZapInAction()
 
   let error: ReactElement | null = null
   if (!typedValue) error = <Trans>Enter an amount</Trans>
   else if (!amountIn) error = <Trans>Invalid Input</Trans>
-  else if (amountIn?.greaterThan(balances[isReverse ? 1 : 0])) error = <Trans>Insufficient Balance</Trans>
+  else if (balances[isReverse ? 1 : 0] && amountIn?.greaterThan(balances[isReverse ? 1 : 0]))
+    error = <Trans>Insufficient Balance</Trans>
 
   const renderActionName = () => {
     if (error) return error
@@ -233,15 +234,6 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
     return <Trans>Add Liquidity</Trans>
   }
 
-  const usedAmount0 = token0 && CurrencyAmount.fromRawAmount(token0, result?.usedAmount0.toString() || '0')
-  const usedAmount1 = token1 && CurrencyAmount.fromRawAmount(token1, result?.usedAmount1.toString() || '0')
-
-  let newPooledAmount0 = usedAmount0
-  if (position && newPooledAmount0) newPooledAmount0 = newPooledAmount0.add(position.amount0)
-
-  let newPooledAmount1 = usedAmount1
-  if (position && newPooledAmount1) newPooledAmount1 = newPooledAmount1.add(position.amount1)
-
   const symbol0 = getTokenSymbolWithHardcode(chainId, token0?.wrapped.address, currency0?.symbol)
   const symbol1 = getTokenSymbolWithHardcode(chainId, token1?.wrapped.address, currency1?.symbol)
 
@@ -250,32 +242,48 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   const [errorMsg, setError] = useState('')
   const addTransactionWithType = useTransactionAdder()
 
+  const newPosDraft =
+    pool && result
+      ? new Position({
+          pool,
+          tickLower: vTickLower,
+          tickUpper: vTickUpper,
+          liquidity: result.liquidity.toString(),
+        })
+      : undefined
+
   const handleClick = async () => {
     if (approvalState === ApprovalState.NOT_APPROVED) {
       approve()
       return
     }
 
-    if (selectedCurrency && (tokenId || tickPrevious.every(Boolean)) && result && amountIn?.quotient) {
+    if (selectedCurrency && (tokenId || tickPrevious.every(Boolean)) && result && amountIn?.quotient && pool) {
       try {
         setAttempingTx(true)
-        const txHash = await (tokenId
-          ? zapInPoolToAddLiquidity({
-              pool: poolAddress,
-              tokenIn: selectedCurrency.wrapped.address,
-              positionId: tokenId.toString(),
-              amount: amountIn.quotient.toString(),
-              zapResult: result,
-            })
-          : zapInPoolToMint({
-              pool: poolAddress,
-              tokenIn: selectedCurrency.wrapped.address,
-              previousTicks: [tickPrevious[0], tickPrevious[1]],
-              amount: amountIn.quotient.toString(),
-              zapResult: result,
-              tickLower,
-              tickUpper,
-            }))
+
+        const { hash: txHash } = await zapIn(
+          {
+            tokenId: tokenId ? tokenId.toString() : 0,
+            tokenIn: selectedCurrency.wrapped.address,
+            amountIn: amountIn.quotient.toString(),
+            usedAmount0: result.usedAmount0.toString(),
+            usedAmount1: result.usedAmount1.toString(),
+            poolAddress,
+            tickLower: vTickLower,
+            tickUpper: vTickUpper,
+            tickPrevious: [tickPrevious[0], tickPrevious[1]],
+            poolInfo: {
+              token0: pool.token0.wrapped.address,
+              fee: pool.fee,
+              token1: pool.token1.wrapped.address,
+            },
+            liquidity: result.liquidity.toString(),
+          },
+          {
+            zapWithNative: selectedCurrency.isNative,
+          },
+        )
 
         setTxHash(txHash)
         addTransactionWithType({
@@ -284,8 +292,8 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
           extraInfo: {
             tokenSymbolIn: symbol0 ?? '',
             tokenSymbolOut: symbol1 ?? '',
-            tokenAmountIn: usedAmount0?.toSignificant(6) || '0',
-            tokenAmountOut: usedAmount1?.toSignificant(6) || '0',
+            tokenAmountIn: newPosDraft?.amount0?.toSignificant(6) || '0',
+            tokenAmountOut: newPosDraft?.amount1?.toSignificant(6) || '0',
             tokenAddressIn: currency0?.wrapped.address || '',
             tokenAddressOut: currency1?.wrapped.address || '',
           },
@@ -308,7 +316,8 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
           }}
           pendingText={
             <Trans>
-              Supplying {usedAmount0?.toSignificant(6)} {symbol0} and {usedAmount1?.toSignificant(6)} {symbol1}
+              Supplying {newPosDraft?.amount0?.toSignificant(6)} {symbol0} and {newPosDraft?.amount1?.toSignificant(6)}{' '}
+              {symbol1}
             </Trans>
           }
         />
@@ -418,8 +427,8 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                 zapLoading={zapLoading}
                 amountIn={amountIn}
                 poolAddress={poolAddress}
-                tickLower={position?.tickLower || tickLower}
-                tickUpper={position?.tickUpper || tickUpper}
+                tickLower={vTickLower}
+                tickUpper={vTickUpper}
                 previousTicks={tickPrevious}
               />
 
