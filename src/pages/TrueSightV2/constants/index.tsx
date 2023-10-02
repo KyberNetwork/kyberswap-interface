@@ -79,11 +79,11 @@ export const DEFAULT_PARAMS_BY_TAB: Partial<{ [tab in KyberAIListType]: Record<s
   [KyberAIListType.ALL]: { sort: `${SORT_FIELD.PRICE_CHANGE_24H}:${SORT_DIRECTION.DESC}` },
   [KyberAIListType.MYWATCHLIST]: { watchlist: `all` },
   [KyberAIListType.BULLISH]: {
-    sort: `${SORT_FIELD.KYBER_SCORE}:${SORT_DIRECTION.ASC}`,
+    sort: `${SORT_FIELD.KYBER_SCORE}:${SORT_DIRECTION.DESC}`,
     kyberScoreTags: ['Very Bullish', 'Bullish'].join(','),
   },
   [KyberAIListType.BEARISH]: {
-    sort: `${SORT_FIELD.KYBER_SCORE}:${SORT_DIRECTION.DESC}`,
+    sort: `${SORT_FIELD.KYBER_SCORE}:${SORT_DIRECTION.ASC}`,
     kyberScoreTags: ['Bearish', 'Very Bearish'].join(','),
   },
   [KyberAIListType.TOP_CEX_INFLOW]: {
