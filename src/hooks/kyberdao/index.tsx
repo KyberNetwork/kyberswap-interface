@@ -495,6 +495,7 @@ export function useVotingInfo() {
     rewardStats: {
       knc: rewardStats ? +rewardStats.pending?.totalAmountInKNC + +rewardStats.liquidated?.totalAmountInKNC : 0,
       usd: rewardStats ? +rewardStats.pending?.totalAmountInUSD + +rewardStats.liquidated?.totalAmountInUSD : 0,
+      apr: rewardStats ? +rewardStats.apr : 0,
     },
   }
   return result
