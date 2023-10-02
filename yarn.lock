@@ -2265,10 +2265,10 @@
     axios "1.2.1"
     client-oauth2 "^4.3.3"
 
-"@kyberswap/krystal-walletconnect-v2@0.0.1-rc1.1":
-  version "0.0.1-rc1.1"
-  resolved "https://registry.yarnpkg.com/@kyberswap/krystal-walletconnect-v2/-/krystal-walletconnect-v2-0.0.1-rc1.1.tgz#77967a56517d94d76c1f96507d0f3e9035954d05"
-  integrity sha512-BXdMCYMZaeuQH0zaQ2lAnIVaeLeU6TzjBvwR5XjP6jzEFh+wfiFeweFd6mIWrl0KXAMB+oppi+9rnE/UCsjqjg==
+"@kyberswap/krystal-walletconnect-v2@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@kyberswap/krystal-walletconnect-v2/-/krystal-walletconnect-v2-0.0.1.tgz#ce9657ca0c8029f06209ea379d89452791210453"
+  integrity sha512-/vR1nUCazlMH1lFRpI4E5xCA3xk6psd7gvWOnNjgwZqi77aML8KlXnB+PTdgmLtq/APR0FRDOqo2XVI+o11/YA==
   dependencies:
     "@walletconnect/ethereum-provider" "2.8.1"
     "@walletconnect/modal" "2.4.7"
