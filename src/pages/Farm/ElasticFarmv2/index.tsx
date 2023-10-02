@@ -22,7 +22,7 @@ import { ClickableText, ElasticFarmV2TableHeader } from 'components/YieldPools/s
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
-import { Dots } from 'pages/Pool/styleds'
+import { Dots } from 'pages/MyPoolClassic/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { SORT_DIRECTION, SORT_FIELD, useFarmV2Action, useFilteredFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'

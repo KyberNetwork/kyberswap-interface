@@ -19,19 +19,21 @@ import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClassicFarmingPoolAPRCell } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 import useTheme from 'hooks/useTheme'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { usePoolDetailModalToggle } from 'state/application/hooks'
 import { useActiveAndUniqueFarmsData } from 'state/farms/classic/hooks'
 import { setSelectedPool } from 'state/pools/actions'
-import { SubgraphPoolData, UserLiquidityPosition, useSharedPoolIdManager } from 'state/pools/hooks'
-import { formattedNum, shortenAddress } from 'utils'
+import { UserLiquidityPosition, useSharedPoolIdManager } from 'state/pools/hooks'
+import { shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { getMyLiquidity, getTradingFeeAPR, parseSubgraphPoolData } from 'utils/dmm'
+import { formatDisplayNumber } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 interface ListItemGroupProps {
-  poolData: SubgraphPoolData
+  poolData: ClassicPoolData
   userLiquidityPositions: { [key: string]: UserLiquidityPosition }
 }
 
@@ -57,7 +59,6 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
   )
   const currency0Symbol = getTokenSymbolWithHardcode(chainId, currency0.wrapped.address, currency0.symbol)
   const currency1Symbol = getTokenSymbolWithHardcode(chainId, currency1.wrapped.address, currency1.symbol)
-
   const realPercentToken0 =
     reserve0 && virtualReserve0 && reserve1 && virtualReserve1
       ? reserve0.asFraction
@@ -73,8 +74,19 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
 
   const oneYearFL = getTradingFeeAPR(poolData.reserveUSD, fee24H).toFixed(2)
 
-  const ampLiquidity = formattedNum(`${parseFloat(amp.toSignificant(5)) * parseFloat(poolData.reserveUSD)}`, true)
-  const totalValueLocked = formattedNum(`${parseFloat(poolData.reserveUSD)}`, true)
+  const ampLiquidity = formatDisplayNumber(
+    amp.multiply(new Fraction(Math.trunc(parseFloat(poolData.reserveUSD) * 1000000), 1000000)),
+    {
+      style: 'currency',
+      significantDigits: 7,
+      fractionDigits: 4,
+    },
+  )
+  const totalValueLocked = formatDisplayNumber(poolData.reserveUSD, {
+    style: 'currency',
+    significantDigits: 7,
+    fractionDigits: 4,
+  })
 
   const onTogglePoolDetailModal = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.stopPropagation()
@@ -111,7 +123,7 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
           paddingRight: '20px', // to make all the APR numbers vertically align
         }}
       >
-        {oneYearFL}%
+        {formatDisplayNumber(Number(oneYearFL) / 100, { style: 'percent', fractionDigits: 2 })}
       </Flex>
     )
   }
@@ -124,7 +136,7 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
           <Text fontSize="14px" fontWeight="500">
             {currency0Symbol} - {currency1Symbol}
           </Text>
-          <FeeTag style={{ padding: '4px 6px' }}>AMP {formattedNum(amp.toSignificant(5))}</FeeTag>
+          <FeeTag style={{ padding: '4px 6px' }}>AMP {formatDisplayNumber(amp, { significantDigits: 5 })}</FeeTag>
           {isFarmingPool && (
             <MouseoverTooltip placement="top" text={t`Available for yield farming`}>
               <Link to={`${APP_PATHS.FARMS}/${networkInfo.route}?tab=classic&type=active&search=${poolData.id}`}>
@@ -185,8 +197,12 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
       >
         {renderAPR()}
       </DataText>
-      <DataText alignItems="flex-end">{!poolData ? <Loader /> : formattedNum(volume, true)}</DataText>
-      <DataText alignItems="flex-end">{!poolData ? <Loader /> : formattedNum(fee24H, true)}</DataText>
+      <DataText alignItems="flex-end">
+        {!poolData ? <Loader /> : formatDisplayNumber(volume, { style: 'currency', significantDigits: 6 })}
+      </DataText>
+      <DataText alignItems="flex-end">
+        {!poolData ? <Loader /> : formatDisplayNumber(fee24H, { style: 'currency', significantDigits: 6 })}
+      </DataText>
       <DataText alignItems="flex-end">{getMyLiquidity(myLiquidity)}</DataText>
       <ButtonWrapper style={{ marginRight: '-3px' }}>
         <ButtonEmpty

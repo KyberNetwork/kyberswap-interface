@@ -179,7 +179,7 @@ export default function PoolCombination() {
         ) : tab === VERSION.ELASTIC_LEGACY ? (
           <ElasticLegacy tab="my_positions" />
         ) : (
-          <Pool />
+          <MyPoolClassic />
         )}
       </PageWrapper>
       <SwitchLocaleLink />
@@ -187,7 +187,7 @@ export default function PoolCombination() {
   )
 }
 
-function Pool() {
+function MyPoolClassic() {
   const theme = useTheme()
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
 

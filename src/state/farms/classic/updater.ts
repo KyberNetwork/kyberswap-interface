@@ -40,6 +40,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
     console.count('running farm updater')
     const abortController = new AbortController()
 
+    // todo namgold: add from here for farm
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
       const isV3 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV3?.includes(contract.address)
 

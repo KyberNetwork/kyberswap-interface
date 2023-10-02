@@ -314,6 +314,7 @@ const getPrommEthPrice = async (
   return [ethPrice, ethPriceOneDay, priceChangeETH]
 }
 
+// should fetch from price service
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
   const { isEVM, chainId } = useActiveWeb3React()
@@ -324,7 +325,6 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
   )
 
   useEffect(() => {
-    const controller = new AbortController()
     if (!isEVM) return
 
     async function checkForEthPrice() {
@@ -351,9 +351,6 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
       }
     }
     checkForEthPrice()
-    return () => {
-      controller.abort()
-    }
   }, [dispatch, chainId, version, isEVM, elasticClient, classicClient, blockClient, isEnableBlockService])
 
   return ethPrice

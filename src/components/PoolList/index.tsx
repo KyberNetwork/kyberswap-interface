@@ -17,21 +17,22 @@ import { ClickableText } from 'components/YieldPools/styleds'
 import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
+import useGetClassicPools from 'hooks/pool/classic'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { useActiveAndUniqueFarmsData } from 'state/farms/classic/hooks'
 import { Field } from 'state/pair/actions'
 import {
-  SubgraphPoolData,
   UserLiquidityPosition,
-  useAllPoolsData,
   useResetPools,
   useSharedPoolIdManager,
   useUserLiquidityPositions,
 } from 'state/pools/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
+import { MEDIA_WIDTHS } from 'theme'
 import { getTradingFeeAPR } from 'utils/dmm'
 
 import ItemCard from './ItemCard'
@@ -64,6 +65,9 @@ const TableHeader = styled.div`
   z-index: 1;
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
   text-align: right;
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    grid-template-columns: 3fr 120px 80px 1fr 1fr 1fr 1fr;
+  `};
 `
 const Grid = styled.div`
   padding: 24px;
@@ -106,8 +110,9 @@ const ITEM_PER_PAGE = 12
 
 const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable }: PoolListProps) => {
   const above1000 = useMedia('(min-width: 1000px)')
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const { loading: loadingPoolsData, data: subgraphPoolsData } = useAllPoolsData()
+  const { loading: loadingPoolsData, data: subgraphPoolsData } = useGetClassicPools()
 
   const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
   const [viewMode] = useViewMode()
@@ -139,7 +144,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
   const sortDirection = sortOrder === SORT_DIRECTION.DESC
 
   const listComparator = useCallback(
-    (poolA: SubgraphPoolData, poolB: SubgraphPoolData): number => {
+    (poolA: ClassicPoolData, poolB: ClassicPoolData): number => {
       const feeA = poolA?.oneDayFeeUSD ? poolA?.oneDayFeeUSD : poolA?.oneDayFeeUntracked
       const feeB = poolB?.oneDayFeeUSD ? poolB?.oneDayFeeUSD : poolB?.oneDayFeeUntracked
       const a = transformedUserLiquidityPositions[poolA.id]
@@ -204,20 +209,29 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
           <InfoHelper text={AMP_HINT} />
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText onClick={() => handleSort(SORT_FIELD.TVL)} style={{ textAlign: 'right' }}>
-            <Trans>AMP LIQUIDITY</Trans>
-            <InfoHelper text={AMP_LIQUIDITY_HINT} />
-            <span style={{ marginLeft: '0.25rem' }}>|</span>
-            <span style={{ marginLeft: '0.25rem' }}>TVL</span>
-            {sortedColumn === SORT_FIELD.TVL ? (
-              !sortDirection ? (
-                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+          <ClickableText
+            onClick={() => handleSort(SORT_FIELD.TVL)}
+            style={{ textAlign: 'right' }}
+            flexDirection={upToLarge ? 'column' : 'row'}
+            alignItems="flex-end"
+          >
+            <Flex>
+              <Trans>AMP LIQUIDITY</Trans>
+              <InfoHelper text={AMP_LIQUIDITY_HINT} />
+            </Flex>
+            {upToLarge ? <span /> : <span style={{ marginLeft: '0.25rem' }}>|</span>}
+            <Flex>
+              <span style={{ marginLeft: '0.25rem' }}>TVL</span>
+              {sortedColumn === SORT_FIELD.TVL ? (
+                !sortDirection ? (
+                  <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+                ) : (
+                  <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+                )
               ) : (
-                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
-              )
-            ) : (
-              ''
-            )}
+                ''
+              )}
+            </Flex>
           </ClickableText>
         </Flex>
         <Flex

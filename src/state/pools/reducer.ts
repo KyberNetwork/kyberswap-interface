@@ -1,15 +1,17 @@
 import { createReducer } from '@reduxjs/toolkit'
 
+import { ClassicPoolData } from 'hooks/pool/classic/type'
+
 import { setError, setLoading, setSelectedPool, setSharedPoolId, updatePools } from './actions'
-import { SubgraphPoolData, UserLiquidityPosition } from './hooks'
+import { UserLiquidityPosition } from './hooks'
 
 interface SelectedPool {
-  poolData: SubgraphPoolData
+  poolData: ClassicPoolData
   myLiquidity: UserLiquidityPosition | undefined
 }
 
 interface PoolsState {
-  readonly pools: SubgraphPoolData[]
+  readonly pools: ClassicPoolData[]
   readonly loading: boolean
   readonly error: Error | undefined
   readonly selectedPool: SelectedPool | undefined

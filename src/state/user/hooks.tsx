@@ -264,11 +264,10 @@ export function useToV2LiquidityTokens(
       result.map((result, index) => {
         return {
           tokens: tokenCouples[index],
-          liquidityTokens: result?.result?.[0]
-            ? result.result[0].map(
-                (address: string) => new Token(tokenCouples[index][0].chainId, address, 18, 'DMM-LP', 'DMM LP'),
-              )
-            : [],
+          liquidityTokens:
+            result?.result?.[0]?.map(
+              (address: string) => new Token(tokenCouples[index][0].chainId, address, 18, 'DMM-LP', 'DMM LP'),
+            ) ?? [],
         }
       }),
     [tokenCouples, result],

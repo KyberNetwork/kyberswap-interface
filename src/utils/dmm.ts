@@ -10,10 +10,11 @@ import { EVM_NETWORK } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 import { useBlockNumber } from 'state/application/hooks'
 import { useRewardTokens } from 'state/farms/classic/hooks'
 import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/classic/types'
-import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
+import { UserLiquidityPosition } from 'state/pools/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { formattedNum } from 'utils'
@@ -38,7 +39,7 @@ export function priceRangeCalc(
 }
 
 export function parseSubgraphPoolData(
-  poolData: SubgraphPoolData,
+  poolData: ClassicPoolData,
   chainId: ChainId,
 ): {
   reserve0: CurrencyAmount<Currency> | undefined
@@ -85,7 +86,7 @@ export function parseSubgraphPoolData(
 
 // const temp = pool.virtualReserve1.subtract(pool.reserve1).divide(pool.reserve1.decimalScale).asFraction
 
-function getToken0MinPrice(pool: Pair | SubgraphPoolData): Fraction {
+function getToken0MinPrice(pool: Pair | ClassicPoolData): Fraction {
   if (pool instanceof Pair) {
     const temp = pool.virtualReserve1.subtract(pool.reserve1).divide(pool.reserve1.decimalScale).asFraction
     return temp
@@ -112,7 +113,7 @@ function getToken0MinPrice(pool: Pair | SubgraphPoolData): Fraction {
   }
 }
 
-function getToken0MaxPrice(pool: Pair | SubgraphPoolData): Fraction {
+function getToken0MaxPrice(pool: Pair | ClassicPoolData): Fraction {
   if (pool instanceof Pair) {
     const temp = pool.virtualReserve0.subtract(pool.reserve0).divide(pool.virtualReserve0.decimalScale).asFraction
 
@@ -145,7 +146,7 @@ function getToken0MaxPrice(pool: Pair | SubgraphPoolData): Fraction {
   }
 }
 
-function getToken1MinPrice(pool: Pair | SubgraphPoolData): Fraction {
+function getToken1MinPrice(pool: Pair | ClassicPoolData): Fraction {
   if (pool instanceof Pair) {
     const temp = pool.virtualReserve0.subtract(pool.reserve0).divide(pool.reserve0.decimalScale).asFraction
 
@@ -173,7 +174,7 @@ function getToken1MinPrice(pool: Pair | SubgraphPoolData): Fraction {
   }
 }
 
-function getToken1MaxPrice(pool: Pair | SubgraphPoolData): Fraction {
+function getToken1MaxPrice(pool: Pair | ClassicPoolData): Fraction {
   if (pool instanceof Pair) {
     const temp = pool.virtualReserve1.subtract(pool.reserve1).divide(pool.reserve1.decimalScale).asFraction
 
@@ -222,7 +223,7 @@ export const priceRangeCalcByPair = (pair?: Pair): [Fraction | undefined, Fracti
 }
 
 export const priceRangeCalcBySubgraphPool = (
-  pool?: SubgraphPoolData,
+  pool?: ClassicPoolData,
 ): [Fraction | undefined, Fraction | undefined][] => {
   if (!pool || new Fraction(pool.amp).equalTo(JSBI.BigInt(10000)))
     return [

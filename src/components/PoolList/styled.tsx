@@ -18,6 +18,9 @@ export const TableRow = styled.div`
     border-bottom-right-radius: 20px;
     border-bottom-left-radius: 20px;
   }
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    grid-template-columns: 3fr 120px 1fr 1fr 1fr 1fr 1fr;
+  `};
 `
 
 export const DataText = styled(Flex)`
