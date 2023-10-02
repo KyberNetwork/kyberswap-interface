@@ -718,7 +718,7 @@ const WidgetTokenRow = ({
         </>
       )}
       <td>
-        <TokenChart data={token['7daysprice']} index={token.addresses[0].address} width={isMobile ? '100%' : ''} />
+        <TokenChart data={token.weekPrices} index={token.addresses[0].address} width={isMobile ? '100%' : ''} />
       </td>
       <td>
         <Row justifyContent="flex-end">

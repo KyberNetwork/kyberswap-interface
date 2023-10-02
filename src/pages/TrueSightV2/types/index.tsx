@@ -44,17 +44,15 @@ export interface ITokenList {
   price: number
   priceChange24H: number
   volume24H: number
-  '7daysprice': Array<{ value: number; timestamp: number }>
+  weekPrices: Array<{ value: number; timestamp: number }>
   kyberScore: number
   kyberScore3D?: Array<IKyberScoreChart>
-  kyber_tag: string
-  market_cap: number
+  kyberScoreTag: string
+  marketCap: number
   isWatched: boolean
-  cex_inflow_3days: number
-  cex_outflow_3days: number
   cexNetflow24H: number
-  cex_netflow_3days: number
-  discovered_on?: number
+  cexNetflow3D: number
+  discoveredOn?: number
 }
 
 export interface INumberOfTrades {

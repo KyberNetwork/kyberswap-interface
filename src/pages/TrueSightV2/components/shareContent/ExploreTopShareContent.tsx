@@ -80,7 +80,7 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: IAs
   )
   if (!token) return null
   const latestKyberscore = token.kyberScore?.ks3d && token.kyberScore.ks3d[token.kyberScore.ks3d.length - 1]
-  const last7daysPrice = data?.data[0]?.['7daysprice']
+  const last7daysPrice = data?.data[0]?.weekPrices
   const formattedData = last7daysPrice ? [...last7daysPrice].sort((a, b) => a.timestamp - b.timestamp).slice(1, 8) : []
   const priceChangeColor = token && token.price24hChangePercent > 0 ? theme.primary : theme.red
   const msgTimeScore = (

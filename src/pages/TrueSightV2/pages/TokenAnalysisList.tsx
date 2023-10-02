@@ -565,7 +565,7 @@ const TokenRow = React.memo(function TokenRow({
         </Column>
       </td>
       <td style={{ textAlign: 'start' }}>
-        <TokenChart data={token['7daysprice']} index={index} />
+        <TokenChart data={token.weekPrices} index={index} />
       </td>
       <td style={{ textAlign: 'start' }}>
         $
@@ -580,12 +580,12 @@ const TokenRow = React.memo(function TokenRow({
       ) && (
         <td style={{ textAlign: 'start' }}>
           {currentTab === KyberAIListType.TOP_CEX_INFLOW
-            ? '$' + formatLocaleStringNum(token.cex_netflow_3days || 0) || '--'
+            ? '$' + formatLocaleStringNum(token.cexNetflow3D || 0) || '--'
             : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-            ? '$' + formatLocaleStringNum(token.cex_netflow_3days || 0) || '--'
+            ? '$' + formatLocaleStringNum(token.cexNetflow3D || 0) || '--'
             : currentTab === KyberAIListType.TRENDING_SOON
-            ? token.discovered_on
-              ? dayjs(token.discovered_on * 1000).format('DD/MM/YYYY')
+            ? token.discoveredOn
+              ? dayjs(token.discoveredOn * 1000).format('DD/MM/YYYY')
               : '--'
             : '--'}
         </td>
