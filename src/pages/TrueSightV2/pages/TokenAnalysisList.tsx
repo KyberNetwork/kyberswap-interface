@@ -54,6 +54,7 @@ const TradeInfoWrapper = styled.div`
 `
 
 const ListTokenWrapper = styled(StyledSectionWrapper)`
+  min-height: 700px;
   height: fit-content;
   padding: 0;
   background: ${({ theme }) => theme.background};
@@ -258,7 +259,7 @@ const LoadingWrapper = styled(Row)`
   opacity: 0.8;
   z-index: ${Z_INDEX_KYBER_AI.LOADING_TOKENS_TABLE};
   border-radius: 20px;
-  padding-top: min(30vh, 20%);
+  padding-top: min(25vh, 20%);
   justify-content: center;
   align-items: flex-start;
   box-sizing: border-box;
@@ -705,7 +706,7 @@ const formatParamsFromUrl = (searchParams: URLSearchParams) => {
     filter,
   }
 }
-const pageSize = 25
+const pageSize = 50
 
 export default function TokenAnalysisList() {
   const theme = useTheme()

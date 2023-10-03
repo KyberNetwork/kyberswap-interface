@@ -40,7 +40,7 @@ const kyberAIApi = createApi({
           ...DEFAULT_PARAMS_BY_TAB[type as KyberAIListType],
           ...filterSort,
           page: page || 1,
-          size: pageSize || 10,
+          pageSize: pageSize || 10,
           keywords,
         },
       }),
