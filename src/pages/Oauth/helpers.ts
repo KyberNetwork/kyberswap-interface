@@ -4,28 +4,6 @@ export const getSupportLoginMethods = (loginFlow: LoginFlow | undefined) => {
   return loginFlow?.oauth_client?.metadata?.allowed_login_methods ?? []
 }
 
-const whiteListDomains = [/https:\/\/(.+?\.)?kyberswap\.com$/, /https:\/\/(.+)\.kyberengineering\.io$/]
-const isValidRedirectURL = (url: string | undefined) => {
-  try {
-    if (!url) return false
-    const newUrl = new URL(url) // valid url
-    if (
-      url.endsWith('.js') ||
-      newUrl.pathname.endsWith('.js') ||
-      !whiteListDomains.some(regex => newUrl.origin.match(regex))
-    ) {
-      return false
-    }
-    return newUrl.protocol === 'http:' || newUrl.protocol === 'https:'
-  } catch (error) {
-    return false
-  }
-}
-
-export const navigateToUrl = (url: string | undefined) => {
-  if (url && isValidRedirectURL(url)) window.location.href = url
-}
-
 type MessageParams = {
   domain: string
   uri: string

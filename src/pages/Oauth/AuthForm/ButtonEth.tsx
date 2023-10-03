@@ -10,6 +10,7 @@ import { useActiveWeb3React } from 'hooks'
 import useAutoSignIn from 'pages/Oauth/AuthForm/useAutoSignIn'
 import { FlowStatus } from 'pages/Oauth/Login'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { navigateToUrl } from 'utils/redirect'
 
 const ButtonEth = ({
   loading,
@@ -17,12 +18,12 @@ const ButtonEth = ({
   onClick,
   flowStatus,
   showBtnCancel,
-  onClickCancel,
+  backUrl,
 }: {
   disabled: boolean
   loading: boolean
   onClick: () => void
-  onClickCancel: () => void
+  backUrl: string | undefined
   flowStatus: FlowStatus
   showBtnCancel: boolean
 }) => {
@@ -44,13 +45,13 @@ const ButtonEth = ({
       {showBtnCancel && (
         <ButtonOutlined
           width="230px"
+          height="36px"
           onClick={e => {
             e.preventDefault()
-            onClickCancel()
+            navigateToUrl(backUrl)
           }}
-          height="36px"
         >
-          Cancel
+          <Trans>Cancel</Trans>
         </ButtonOutlined>
       )}
       <ButtonPrimary

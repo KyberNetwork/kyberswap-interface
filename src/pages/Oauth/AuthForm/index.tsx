@@ -10,7 +10,7 @@ import ButtonEth from 'pages/Oauth/AuthForm/ButtonEth'
 import ButtonGoogle from 'pages/Oauth/AuthForm/ButtonGoogle'
 import { FlowStatus } from 'pages/Oauth/Login'
 
-import { getSupportLoginMethods, navigateToUrl } from '../helpers'
+import { getSupportLoginMethods } from '../helpers'
 import AuthFormFieldMessage from './AuthFormMessage'
 
 const Form = styled.form`
@@ -47,7 +47,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStat
       <AuthFormFieldMessage messages={ui.messages} />
       {showEth && (
         <ButtonEth
-          onClickCancel={() => navigateToUrl(back_uri)}
+          backUrl={back_uri}
           showBtnCancel={!!showBtnCancel}
           onClick={signInWithEth}
           disabled={processingSignIn || disableEth}

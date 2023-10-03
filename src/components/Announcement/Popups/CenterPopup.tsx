@@ -4,7 +4,6 @@ import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import CtaButton from 'components/Announcement/Popups/CtaButton'
-import { useNavigateToUrl } from 'components/Announcement/helper'
 import {
   AnnouncementTemplatePopup,
   PopupContentAnnouncement,
@@ -17,6 +16,7 @@ import { Z_INDEXS } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
+import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
 const Wrapper = styled.div`

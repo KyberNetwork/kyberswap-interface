@@ -23,7 +23,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 import ChevronIcon from '../components/ChevronIcon'
 import FeedbackSurvey from '../components/FeedbackSurvey'
@@ -889,9 +889,9 @@ export default function TokenAnalysisList() {
                             KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking
                             into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100.
                             Higher the score, more bullish the token in the short-term. Read more{' '}
-                            <a href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">
+                            <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">
                               here ↗
-                            </a>
+                            </ExternalLink>
                           </span>
                         }
                         delay={200}
