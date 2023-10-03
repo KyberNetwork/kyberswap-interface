@@ -1,4 +1,5 @@
 import { KyberOauth2Api } from '@kybernetwork/oauth2'
+import { FetchBaseQueryArgs } from '@reduxjs/toolkit/dist/query/fetchBaseQuery'
 import { BaseQueryFn, fetchBaseQuery } from '@reduxjs/toolkit/query'
 import axios from 'axios'
 
@@ -33,11 +34,11 @@ const baseQueryOauth =
 
 // same as baseQueryOauth, but has flag to revert if meet incident
 export const baseQueryOauthDynamic =
-  ({ baseUrl = '' }: { baseUrl?: string }): BaseQueryFn =>
+  ({ baseUrl = '', ...baseFetchOption }: FetchBaseQueryArgs): BaseQueryFn =>
   async (args, WebApi, extraOptions) => {
     if (!args.authentication) {
       // to quickly revert if meet incident
-      const rawBaseQuery = fetchBaseQuery({ baseUrl })
+      const rawBaseQuery = fetchBaseQuery({ baseUrl, ...baseFetchOption })
       return rawBaseQuery(args, WebApi, extraOptions)
     }
     return queryWithTokenAndTracking(args, baseUrl)
