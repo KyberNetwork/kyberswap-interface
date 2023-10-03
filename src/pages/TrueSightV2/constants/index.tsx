@@ -92,7 +92,7 @@ export const DEFAULT_PARAMS_BY_TAB: Partial<{ [tab in KyberAIListType]: Record<s
     cexNetflow3D: 'gt(0)',
   },
   [KyberAIListType.TOP_CEX_OUTFLOW]: {
-    sort: `${SORT_FIELD.CEX_NETFLOW_3D}:${SORT_DIRECTION.DESC}`,
+    sort: `${SORT_FIELD.CEX_NETFLOW_3D}:${SORT_DIRECTION.ASC}`,
     cexNetflow3D: 'lt(0)',
   },
   [KyberAIListType.TOP_TRADED]: { sort: `${SORT_FIELD.VOLUME_24H}:${SORT_DIRECTION.DESC}` },
