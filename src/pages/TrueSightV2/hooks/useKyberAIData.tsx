@@ -30,7 +30,7 @@ const kyberAIApi = createApi({
   baseQuery: baseQueryOauth({
     baseUrl: `${BFF_API}/v1/truesight`,
   }),
-  tagTypes: ['tokenOverview', 'tokenList', 'myWatchList'],
+  tagTypes: ['tokenOverview', 'tokenList', 'myWatchList', 'watchlistsInfo'],
   endpoints: builder => ({
     //1.
     tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
@@ -258,6 +258,7 @@ const kyberAIApi = createApi({
           }),
         )
       },
+      invalidatesTags: ['watchlistsInfo'],
     }),
     //20.
     removeFromWatchlist: builder.mutation({
@@ -281,6 +282,7 @@ const kyberAIApi = createApi({
           }),
         )
       },
+      invalidatesTags: ['watchlistsInfo'],
     }),
     //21.
     createCustomWatchlist: builder.mutation({
@@ -289,6 +291,7 @@ const kyberAIApi = createApi({
         method: 'POST',
         params,
       }),
+      invalidatesTags: ['watchlistsInfo'],
     }),
     //22.
     deleteCustomWatchlist: builder.mutation({
@@ -297,6 +300,7 @@ const kyberAIApi = createApi({
         method: 'DELETE',
         params,
       }),
+      invalidatesTags: ['watchlistsInfo'],
     }),
     //23.
     updateWatchlistsName: builder.mutation({
@@ -305,6 +309,16 @@ const kyberAIApi = createApi({
         method: 'PUT',
         params: { name },
       }),
+      async onQueryStarted({ userWatchlistId, name }, { dispatch }) {
+        dispatch(
+          kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
+            const watchlists = draft.watchlists.find(item => item.id === userWatchlistId)
+            if (watchlists) {
+              watchlists.name = name
+            }
+          }),
+        )
+      },
     }),
     //24.
     getWatchlistInformation: builder.query<{ totalUniqueAssetNumber: number; watchlists: ICustomWatchlists[] }, void>({
@@ -314,11 +328,11 @@ const kyberAIApi = createApi({
       transformResponse: (res: any) => res.data,
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         const { data } = await queryFulfilled
-        if (data.watchlists.length === 0) {
+        if (data.watchlists.length === 1) {
           await dispatch(kyberAIApi.endpoints.createCustomWatchlist.initiate({ name: t`My 1st Watchlists` }))
-          dispatch(kyberAIApi.endpoints.getWatchlistInformation.initiate())
         }
       },
+      providesTags: ['watchlistsInfo'],
     }),
     //26.
     updateCustomizedWatchlistsPriorities: builder.mutation({
@@ -327,6 +341,7 @@ const kyberAIApi = createApi({
         method: 'PUT',
         params: { orderedIds },
       }),
+      invalidatesTags: ['watchlistsInfo'],
     }),
     getFilterCategories: builder.query<{ displayName: string; queryKey: string; values: SelectOption[] }[], void>({
       query: () => ({

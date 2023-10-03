@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
+import { AnimatePresence, Reorder, motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { CSSProperties, memo, useEffect, useRef, useState } from 'react'
 import { Check, Plus, X } from 'react-feather'
 import { useDispatch } from 'react-redux'
@@ -96,24 +96,25 @@ const GrabButton = styled.div`
     color: ${({ theme }) => theme.subText + 'dd'};
   }
 `
-const InlineInput = styled.input`
+const InlineInput = styled(motion.input)`
   background-color: transparent;
   color: ${({ theme }) => theme.text};
   font-size: unset;
   outline: none;
   border: none;
+  ::placeholder {
+    font-style: italic;
+  }
 `
 
 function WatchlistsItem({
   item,
   watchlistsCount,
   wrapperRef,
-  refetchList,
 }: {
   item: ICustomWatchlists
   watchlistsCount: number
   wrapperRef: React.RefObject<HTMLDivElement>
-  refetchList: () => void
 }) {
   const controls = useDragControls()
   const theme = useTheme()
@@ -136,7 +137,7 @@ function WatchlistsItem({
 
   const handleUpdateWatchlists = () => {
     setIsEditting(false)
-    updateWatchlistsName({ userWatchlistId: item.id, name: ref.current?.value || '' }).finally(() => refetchList())
+    updateWatchlistsName({ userWatchlistId: item.id, name: ref.current?.value || '' })
   }
 
   const handleRemoveWatchlists = () => {
@@ -155,7 +156,7 @@ function WatchlistsItem({
       title: t`Remove Watchlist`,
       confirmText: t`Yes`,
       cancelText: t`No, go back`,
-      onConfirm: () => deleteCustomWatchlist({ ids: item.id.toString() }).finally(() => refetchList()),
+      onConfirm: () => deleteCustomWatchlist({ ids: item.id.toString() }),
     })
   }
 
@@ -250,7 +251,7 @@ function WatchlistsItem({
   )
 }
 
-const CreateListWrapper = styled.div<{ $disabled: boolean }>`
+const CreateListWrapper = styled(motion.div)<{ $disabled: boolean }>`
   color: ${({ theme }) => theme.subText};
   background-color: ${({ theme }) => theme.buttonBlack};
   border-radius: 16px;
@@ -288,26 +289,47 @@ const CreateListButtonWrapper = styled(RowFit)`
   }
 `
 
-const CreateListInput = ({ watchlistsCount, refetchList }: { watchlistsCount: number; refetchList: () => void }) => {
+const CreateListInput = ({
+  watchlistsCount,
+  watchlists,
+}: {
+  watchlistsCount: number
+  watchlists: ICustomWatchlists[]
+}) => {
+  const theme = useTheme()
   const [value, setValue] = useState<string>('')
+  const [isError, setIsError] = useState(false)
   const [createCustomWatchlist] = useCreateCustomWatchlistMutation()
+  const inputControls = useAnimationControls()
+
   const ref = useRef<HTMLInputElement>(null)
-  const onSubmit = (e: any) => {
+  const touchedRef = useRef<boolean>(false)
+
+  const checkExist = (name: string) => watchlists.some(watchlists => watchlists.name === name)
+
+  const onSubmit = async (e: any) => {
     e.stopPropagation()
-    if (value !== '') {
-      const newListName = value ? value : generateNewListName(watchlistsCount + 1)
+    const newListName = value ? value : generateNewListName(watchlistsCount + 1)
+    setValue(newListName)
+    if (checkExist(newListName)) {
+      inputControls.start({ x: [-6, 7, 0] }, { type: 'spring', damping: 10, stiffness: 3000 })
+      inputControls.start({ color: [theme.red, theme.white] }, { duration: 1.5 })
+      touchedRef.current = true
+      setIsError(true)
+    } else {
+      touchedRef.current = false
+      setIsError(false)
       if (newListName) {
-        createCustomWatchlist({ name: newListName }).finally(() => {
-          refetchList()
-        })
+        createCustomWatchlist({ name: newListName })
       }
+      setValue('')
     }
-    setValue('')
   }
+
   const disabled = watchlistsCount >= 5
 
   return (
-    <SimpleTooltip text={t`You can only create up to 5 watchlists`} disabled={!disabled} delay={100}>
+    <SimpleTooltip text={t`You can only create up to 5 watchlists.`} disabled={!disabled} delay={100} width="200px">
       <CreateListWrapper
         $disabled={!!disabled}
         onClick={() => {
@@ -317,11 +339,35 @@ const CreateListInput = ({ watchlistsCount, refetchList }: { watchlistsCount: nu
         <RowBetween>
           <InlineInput
             ref={ref}
+            animate={inputControls}
+            initial={{ color: theme.text }}
             value={value}
-            onChange={e => setValue(e.target.value)}
-            placeholder={t`Create a new list`}
+            onChange={e => {
+              if (touchedRef.current) {
+                if (!checkExist(e.target.value)) {
+                  setIsError(false)
+                } else {
+                  setIsError(true)
+                }
+              }
+              setValue(e.target.value)
+            }}
+            placeholder={disabled ? t`Reached max limit.` : generateNewListName(watchlistsCount + 1)}
             maxLength={25}
+            style={{ zIndex: 2 }}
           />
+          <AnimatePresence>
+            {isError && (
+              <motion.div
+                initial={{ y: 5, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 5, opacity: 0 }}
+                style={{ position: 'absolute', fontSize: '12px', top: -20, left: 0, color: theme.red, zIndex: 1 }}
+              >
+                <Trans>Watchlists name exist!</Trans>
+              </motion.div>
+            )}
+          </AnimatePresence>
           <CreateListButtonWrapper onClick={onSubmit}>
             <Plus size={16} />
             <Text fontSize="14px">
@@ -348,7 +394,7 @@ const debounce = (func: () => void, timeout = 1000) => {
 const MAX_LIMIT_WATCHED_TOKEN = 50
 
 export const ManageListModal = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) => {
-  const { data, refetch: refetchWatchlists } = useGetWatchlistInformationQuery()
+  const { data } = useGetWatchlistInformationQuery()
   const watchlists = data?.watchlists || []
   const numberOfWatchlists = watchlists?.length || 0
   const dispatch = useDispatch()
@@ -379,7 +425,7 @@ export const ManageListModal = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
             <X />
           </ButtonAction>
         </RowBetween>
-        <CreateListInput watchlistsCount={numberOfWatchlists} refetchList={() => refetchWatchlists()} />
+        <CreateListInput watchlistsCount={numberOfWatchlists} watchlists={watchlists} />
         <ReorderWrapper ref={reorderWrapperRef}>
           <Reorder.Group axis="y" values={watchlists} onReorder={handleReorder}>
             <AnimatePresence>
@@ -389,7 +435,6 @@ export const ManageListModal = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsO
                   watchlistsCount={numberOfWatchlists}
                   key={item.id}
                   item={item}
-                  refetchList={() => refetchWatchlists()}
                 />
               ))}
             </AnimatePresence>

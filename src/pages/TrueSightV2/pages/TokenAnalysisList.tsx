@@ -249,6 +249,24 @@ const TabWrapper = styled(motion.div)`
   `}
 `
 
+const LoadingWrapper = styled(Row)`
+  position: absolute;
+  inset: 0 0 0 0;
+  background: ${({ theme }) => theme.background};
+  opacity: 0.8;
+  z-index: ${Z_INDEX_KYBER_AI.LOADING_TOKENS_TABLE};
+  border-radius: 20px;
+  padding-top: min(30vh, 20%);
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    inset: 0 -16px 0 -16px;
+    width: 100vw;
+    border-radius: 0;
+  `}
+`
+
 const tokenTypeList: {
   type: KyberAIListType
   icon?: ICON_ID
@@ -701,7 +719,6 @@ export default function TokenAnalysisList() {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const tableRef = useRef<HTMLTableElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const isMobile = useMedia(`(max-width:${SIZE_MOBILE})`)
 
   const [searchParams, setSearchParams] = useSearchParams()
   const { page, listTypeParam, filter } = useMemo(() => formatParamsFromUrl(searchParams), [searchParams])
@@ -804,7 +821,7 @@ export default function TokenAnalysisList() {
     <>
       <TradeInfoWrapper>
         <Text fontSize="12px" color={theme.subText} fontWeight={500}>
-          <Trans>Rankings will be updated every 4 hours</Trans>
+          <Trans>KyberScore will be updated every 1 hour</Trans>
         </Text>
         <Text fontSize="12px" color={theme.subText} fontStyle="italic">
           <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
@@ -823,21 +840,9 @@ export default function TokenAnalysisList() {
 
         <Column gap="0px" style={{ position: 'relative' }}>
           {isFetching && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: '0 0 0 0',
-                background: theme.background,
-                opacity: 0.8,
-                zIndex: Z_INDEX_KYBER_AI.LOADING_TOKENS_TABLE,
-                borderRadius: isMobile ? 0 : '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            <LoadingWrapper>
               <AnimatedLoader />
-            </div>
+            </LoadingWrapper>
           )}
           <TableWrapper ref={wrapperRef}>
             <Table ref={tableRef}>
@@ -966,7 +971,7 @@ export default function TokenAnalysisList() {
                   <>
                     {above768 ? (
                       <tr>
-                        <td colSpan={isCexFlowTabs ? 9 : 8} height={200} style={{ pointerEvents: 'none' }}>
+                        <td colSpan={isCexFlowTabs ? 9 : 8} height={400} style={{ pointerEvents: 'none' }}>
                           <Text>
                             {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 ? (
                               <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
@@ -977,7 +982,7 @@ export default function TokenAnalysisList() {
                         </td>
                       </tr>
                     ) : (
-                      <tr style={{ height: '201px' }}>
+                      <tr style={{ height: '250px' }}>
                         <Row
                           style={{
                             position: 'absolute',
