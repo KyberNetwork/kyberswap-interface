@@ -27,15 +27,8 @@ const GaugeValue = styled.div`
   justify-content: center;
   bottom: 6px;
 `
-function SmallKyberScoreMeter({
-  data,
-  disabledTooltip,
-  token,
-}: {
-  data?: IKyberScoreChart
-  disabledTooltip?: boolean
-  token: ITokenList
-}) {
+function SmallKyberScoreMeter({ disabledTooltip, token }: { disabledTooltip?: boolean; token: ITokenList }) {
+  const data: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
   const value = token?.kyberScore
   const theme = useTheme()
   const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
@@ -69,11 +62,11 @@ function SmallKyberScoreMeter({
                 <Text>
                   KyberScore:{' '}
                   <span style={{ color: calculateValueToColor(value || 0, theme) }}>
-                    {value || '--'} ({data.tag || t`Not Applicable`})
+                    {value || '--'} ({token.kyberScoreTag || t`Not Applicable`})
                   </span>
                 </Text>
                 <Text>
-                  Token Price: <span style={{ color: theme.text }}>{formatTokenPrice(data.price || 0)}</span>
+                  Token Price: <span style={{ color: theme.text }}>{formatTokenPrice(token.price || 0)}</span>
                 </Text>
               </Column>
             ) : (
