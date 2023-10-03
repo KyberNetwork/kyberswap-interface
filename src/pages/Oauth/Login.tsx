@@ -1,4 +1,5 @@
 import KyberOauth2, { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
+import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Loader from 'components/Loader'
@@ -18,7 +19,11 @@ const getErrorMsg = (error: any) => {
   const data = error?.response?.data
   const isExpired = data?.error?.id === 'self_service_flow_expired'
   if (isExpired) {
-    return <span>Time to sign-in is Expired, please go back and try again.</span>
+    return (
+      <span>
+        <Trans>Time to sign-in is Expired, please go back and try again.</Trans>
+      </span>
+    )
   }
 
   return data?.ui?.messages?.[0]?.text || data?.error?.reason || data?.error?.message || error?.message || error + ''

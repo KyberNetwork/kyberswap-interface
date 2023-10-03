@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import styled from 'styled-components'
 
 import backgroundImage from 'assets/images/truesight-v2/landing-page/background-gradient.png'
@@ -44,7 +45,7 @@ export const KyberLogo = () => {
   )
 }
 
-export function PageContainer({ msg }: { msg: string }) {
+export function PageContainer({ msg }: { msg: ReactNode }) {
   return (
     <Container>
       <Content>

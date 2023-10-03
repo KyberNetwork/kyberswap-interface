@@ -1,6 +1,8 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
+import { Trans } from '@lingui/macro'
 import { useEffect } from 'react'
 
+import Dots from 'components/Dots'
 import { ENV_KEY } from 'constants/env'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { PageContainer } from 'pages/Oauth/styled'
@@ -21,7 +23,15 @@ function Logout() {
       })
   }, [logout_challenge])
 
-  return <PageContainer msg={'Logging out...'} />
+  return (
+    <PageContainer
+      msg={
+        <Dots>
+          <Trans>Logging out</Trans>
+        </Dots>
+      }
+    />
+  )
 }
 
 export default Logout
