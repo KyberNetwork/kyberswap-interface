@@ -43,19 +43,19 @@ const ButtonEth = ({
     <Flex style={{ justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
       {showBtnCancel && (
         <ButtonOutlined
-          width={'230px'}
+          width="230px"
           onClick={e => {
             e.preventDefault()
             onClickCancel()
           }}
-          height={'36px'}
+          height="36px"
         >
           Cancel
         </ButtonOutlined>
       )}
       <ButtonPrimary
-        width={'230px'}
-        height={'36px'}
+        width="230px"
+        height="36px"
         className="login-btn"
         id={'btnLoginEth'}
         onClick={onClick}
