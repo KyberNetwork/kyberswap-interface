@@ -4,7 +4,7 @@ import { ArrowLeft, ExternalLink as LinkIconFeather, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, keyframes } from 'styled-components'
 
-import { isValidRedirectURL, navigateToUrl } from 'utils/redirect'
+import { navigateToUrl, validateRedirectURL } from 'utils/redirect'
 
 export const ButtonText = styled.button<{ color?: string; gap?: string }>`
   outline: none;
@@ -203,13 +203,7 @@ export function ExternalLink({
     [target, onClick],
   )
   return (
-    <StyledLink
-      target={target}
-      rel={rel}
-      href={isValidRedirectURL(href, false) ? href : '#'}
-      onClick={handleClick}
-      {...rest}
-    />
+    <StyledLink target={target} rel={rel} href={validateRedirectURL(href, false)} onClick={handleClick} {...rest} />
   )
 }
 
@@ -233,13 +227,7 @@ export function ExternalLinkIcon({
     [href, target],
   )
   return (
-    <LinkIconWrapper
-      target={target}
-      rel={rel}
-      href={isValidRedirectURL(href, false) ? href : '#'}
-      onClick={handleClick}
-      {...rest}
-    >
+    <LinkIconWrapper target={target} rel={rel} href={validateRedirectURL(href, false)} onClick={handleClick} {...rest}>
       <LinkIcon color={color} />
     </LinkIconWrapper>
   )
