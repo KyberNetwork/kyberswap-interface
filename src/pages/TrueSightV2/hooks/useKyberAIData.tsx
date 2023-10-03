@@ -242,8 +242,8 @@ const kyberAIApi = createApi({
         method: 'POST',
         params: { assetId },
       }),
-      async onQueryStarted({ userWatchlistId, assetId }, { dispatch }) {
-        dispatch(
+      async onQueryStarted({ userWatchlistId, assetId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
           kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
             draft.totalUniqueAssetNumber += 1
             const watchlists = draft.watchlists.find(item => item.id === userWatchlistId)
@@ -257,8 +257,13 @@ const kyberAIApi = createApi({
             }
           }),
         )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
       },
-      invalidatesTags: ['watchlistsInfo'],
+      invalidatesTags: (result, error) => (error ? [] : ['watchlistsInfo']),
     }),
     //20.
     removeFromWatchlist: builder.mutation({
@@ -267,8 +272,8 @@ const kyberAIApi = createApi({
         method: 'DELETE',
         params: { assetId },
       }),
-      async onQueryStarted({ userWatchlistId, assetId }, { dispatch }) {
-        dispatch(
+      async onQueryStarted({ userWatchlistId, assetId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
           kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
             draft.totalUniqueAssetNumber -= 1
             const watchlists = draft.watchlists.find(item => item.id === userWatchlistId)
@@ -281,8 +286,13 @@ const kyberAIApi = createApi({
             }
           }),
         )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
       },
-      invalidatesTags: ['watchlistsInfo'],
+      invalidatesTags: (result, error) => (error ? [] : ['watchlistsInfo']),
     }),
     //21.
     createCustomWatchlist: builder.mutation({

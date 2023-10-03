@@ -220,8 +220,8 @@ export enum KyberAIListType {
   TOP_CEX_OUTFLOW = 'top_cex_outflow',
   TOP_TRADED = 'top_traded',
   TRENDING_SOON = 'trendingsoon',
-  FUNDING_RATE = 'funding_rate_asc',
-  KYBERSWAP_DELTA = 'kyber_score_delta_asc',
+  FUNDING_RATE = 'funding_rate',
+  KYBERSWAP_DELTA = 'kyber_score_delta',
 }
 
 export type QueryTokenParams = {
