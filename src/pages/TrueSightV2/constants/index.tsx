@@ -98,8 +98,14 @@ export const DEFAULT_PARAMS_BY_TAB: Partial<{ [tab in KyberAIListType]: Record<s
   [KyberAIListType.TOP_TRADED]: { sort: `${SORT_FIELD.VOLUME_24H}:${SORT_DIRECTION.DESC}` },
   [KyberAIListType.TRENDING]: { trendingTypes: 'trending' },
   [KyberAIListType.TRENDING_SOON]: { trendingTypes: 'trending-soon' },
-  [KyberAIListType.FUNDING_RATE]: { sort: `${SORT_FIELD.FUNDING_RATE}:${SORT_DIRECTION.DESC}` },
-  [KyberAIListType.KYBERSWAP_DELTA]: { sort: `${SORT_FIELD.KYBER_SCORE_DELTA}:${SORT_DIRECTION.DESC}` },
+  [KyberAIListType.FUNDING_RATE]: {
+    sort: `${SORT_FIELD.FUNDING_RATE}:${SORT_DIRECTION.DESC}`,
+    requiredFields: 'funding_rate',
+  },
+  [KyberAIListType.KYBERSWAP_DELTA]: {
+    sort: `${SORT_FIELD.KYBER_SCORE_DELTA}:${SORT_DIRECTION.DESC}`,
+    requiredFields: 'kyber_score_delta',
+  },
 }
 
 export enum KYBERAI_CHART_ID {
