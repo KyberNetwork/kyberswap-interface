@@ -1,6 +1,7 @@
 import { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -55,9 +56,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStat
         />
       )}
       {hasBothEthAndGoogle && (
-        <div style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 10, color: theme.subText }}>
+        <Flex style={{ width: '100%', alignItems: 'center', gap: 10, color: theme.subText }}>
           <Splash /> or <Splash />
-        </div>
+        </Flex>
       )}
       {hasGoogle && <ButtonGoogle flowStatus={flowStatus} outline={showEth} />}
     </Form>

@@ -1,4 +1,5 @@
 import { LoginMethod } from '@kybernetwork/oauth2'
+import { Trans } from '@lingui/macro'
 import React, { useCallback, useRef } from 'react'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -28,7 +29,7 @@ const ButtonGoogle: React.FC<Props> = ({ outline, flowStatus }) => {
     value: 'google',
     name: 'provider',
     ref,
-    children: <>Sign-In with Google</>,
+    children: <Trans>Sign-In with Google</Trans>,
     style: isAutoLogin ? { opacity: 0 } : undefined,
   }
   return React.createElement(outline ? ButtonOutlined : ButtonPrimary, props)

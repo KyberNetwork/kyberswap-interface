@@ -16,10 +16,10 @@ function Logout() {
     KyberOauth2.oauthUi
       .acceptLogout(logout_challenge)
       .then(data => {
-        console.debug('logout resp', data)
+        console.debug('Oauth logout resp', data)
       })
       .catch(err => {
-        console.debug('err logout', err)
+        console.debug('Oauth logout error', err)
       })
   }, [logout_challenge])
 

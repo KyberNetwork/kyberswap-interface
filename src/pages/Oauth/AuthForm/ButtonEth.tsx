@@ -1,4 +1,5 @@
 import { LoginMethod } from '@kybernetwork/oauth2'
+import { Trans } from '@lingui/macro'
 import { useCallback } from 'react'
 import { Flex, Text } from 'rebass'
 
@@ -63,12 +64,16 @@ const ButtonEth = ({
         {loading ? (
           <>
             <Loader />
-            &nbsp; <Text style={{ whiteSpace: 'nowrap' }}> Signing In</Text>
+            &nbsp;{' '}
+            <Text sx={{ whiteSpace: 'nowrap' }}>
+              {' '}
+              <Trans>Signing In</Trans>
+            </Text>
           </>
         ) : (
           <>
             <Wallet />
-            &nbsp; Sign-In with Wallet
+            &nbsp; <Trans>Sign-In with Wallet</Trans>
           </>
         )}
       </ButtonPrimary>

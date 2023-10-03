@@ -16,10 +16,10 @@ function Page() {
     KyberOauth2.oauthUi
       .getFlowConsent(consent_challenge)
       .then(data => {
-        console.debug('resp consent', data)
+        console.debug('Oauth resp consent', data)
       })
       .catch(err => {
-        console.debug('err consent', err)
+        console.debug('Oauth consent error', err)
       })
   }, [consent_challenge])
 
