@@ -1,4 +1,5 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import DOMPurify from 'dompurify'
 import { parse } from 'querystring'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -34,7 +35,7 @@ export const shortString = (str: string | undefined, n: number) => {
 }
 
 export const escapeScriptHtml = (str: string) => {
-  return str.replace(/<.*?script.*?>.*?<\/.*?script.*?>/gim, '')
+  return DOMPurify.sanitize(str)
 }
 
 export const isEmailValid = (value: string | undefined) =>
