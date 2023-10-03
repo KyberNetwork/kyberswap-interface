@@ -557,12 +557,8 @@ const TokenRow = React.memo(function TokenRow({
       </td>
       <td>
         <Column style={{ alignItems: 'center', width: '110px' }}>
-          <SmallKyberScoreMeter data={latestKyberScore} />
-          <Text
-            color={calculateValueToColor(latestKyberScore?.kyberScore || 0, theme)}
-            fontSize="14px"
-            fontWeight={500}
-          >
+          <SmallKyberScoreMeter data={latestKyberScore} token={token} />
+          <Text color={calculateValueToColor(token.kyberScore || 0, theme)} fontSize="14px" fontWeight={500}>
             {latestKyberScore?.tag || 'Not Applicable'}
           </Text>
         </Column>

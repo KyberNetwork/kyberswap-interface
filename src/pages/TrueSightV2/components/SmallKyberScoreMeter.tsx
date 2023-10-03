@@ -8,7 +8,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 
-import { IKyberScoreChart } from '../types'
+import { IKyberScoreChart, ITokenList } from '../types'
 import { calculateValueToColor, formatTokenPrice } from '../utils'
 import { gaugeList } from './KyberScoreMeter'
 import SimpleTooltip from './SimpleTooltip'
@@ -27,8 +27,16 @@ const GaugeValue = styled.div`
   justify-content: center;
   bottom: 6px;
 `
-function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreChart; disabledTooltip?: boolean }) {
-  const value = data?.kyberScore
+function SmallKyberScoreMeter({
+  data,
+  disabledTooltip,
+  token,
+}: {
+  data?: IKyberScoreChart
+  disabledTooltip?: boolean
+  token: ITokenList
+}) {
+  const value = token?.kyberScore
   const theme = useTheme()
   const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
@@ -60,8 +68,8 @@ function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreCha
                 </Text>
                 <Text>
                   KyberScore:{' '}
-                  <span style={{ color: calculateValueToColor(data.kyberScore || 0, theme) }}>
-                    {data.kyberScore || '--'} ({data.tag || t`Not Applicable`})
+                  <span style={{ color: calculateValueToColor(value || 0, theme) }}>
+                    {value || '--'} ({data.tag || t`Not Applicable`})
                   </span>
                 </Text>
                 <Text>
