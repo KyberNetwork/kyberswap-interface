@@ -21,20 +21,26 @@ export const useActivationWallet: () => {
       const wallet = (SUPPORTED_WALLETS as any)[walletKey]
       if (!isEVMWallet(wallet)) return
       try {
-        console.info('Activate EVM start', { wallet, isEagerly })
-        // localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
+        console.info('Activate EVM start', { walletKey, isEagerly })
         if (isEagerly) {
           if (wallet.connector.connectEagerly) {
             await wallet.connector.connectEagerly()
+            console.info('Activate EVM success with .connectEagerly()', {
+              walletKey,
+              isEagerly,
+              'wallet.connector': wallet.connector,
+            })
           } else {
             await wallet.connector.activate()
+            console.info('Activate EVM success with .activate()', { walletKey, isEagerly })
           }
         } else {
           await wallet.connector.activate()
+          console.info('Activate EVM success with .activate()', { walletKey, isEagerly })
         }
-        console.info('Activate EVM success', { walletKey, isEagerly })
         localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_EVM, walletKey)
       } catch (error) {
+        console.error('Activate EVM failed:', { walletKey, wallet, error, isEagerly })
         localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
         const e = new Error(`[Wallet] ${error.message}`)
         e.name = 'Activate EVM failed'
@@ -43,7 +49,6 @@ export const useActivationWallet: () => {
           level: 'warning',
           extra: { error, walletKey, isEagerly },
         })
-        console.error('Activate EVM failed:', { walletKey, wallet, error, isEagerly })
         throw error
       }
     },

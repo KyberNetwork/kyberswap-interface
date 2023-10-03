@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import { PoolRatesEntry } from 'data/type'
 import useTheme from 'hooks/useTheme'
 import { useDarkModeManager } from 'state/user/hooks'
-import { formatNotDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const IconWrapper = styled.div`
   position: absolute;
@@ -38,14 +38,14 @@ type CandleStickChartPropsType = {
 }
 
 const valueFormatter = (val: number) => {
-  let e: number
+  let fraction: number
   if (val < 1.01 && val > 0.99) {
     const leftover = Math.abs(val - 1)
-    e = parseInt(leftover.toExponential().match(/e([+-][0-9]+)/)?.[1] ?? '0')
+    fraction = parseInt(leftover.toExponential().match(/e([+-][0-9]+)/)?.[1] ?? '0')
   } else {
-    e = parseInt(val.toExponential().match(/e([+-][0-9]+)/)?.[1] ?? '0')
+    fraction = parseInt(val.toExponential().match(/e([+-][0-9]+)/)?.[1] ?? '0')
   }
-  return formatNotDollarAmount(val, 3 - e)
+  return formatDisplayNumber(val, { fractionDigits: 3 - fraction })
 }
 
 const CandleStickChart = ({
@@ -140,7 +140,7 @@ const CandleStickChart = ({
           borderColor: 'rgba(197, 203, 206, 0.8)',
         },
         localization: {
-          priceFormatter: (val: number) => formatNotDollarAmount(val, 6),
+          priceFormatter: (val: number) => formatDisplayNumber(val, { significantDigits: 6, allowNegative: true }),
         },
       })
 

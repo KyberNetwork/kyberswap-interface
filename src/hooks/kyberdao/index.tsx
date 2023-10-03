@@ -20,7 +20,6 @@ import DaoABI from 'constants/abis/kyberdao/dao.json'
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
-import { didUserReject } from 'constants/connectors/utils'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
@@ -40,6 +39,7 @@ import { aggregateValue } from 'utils/array'
 import { friendlyError } from 'utils/errorMessage'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/sentry'
 
 import {
   EligibleTxsInfo,
@@ -89,11 +89,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (didUserReject(error)) {
-          throw new Error('Transaction rejected.')
-        } else {
-          throw error
-        }
+        throw error
       }
     },
     [addTransactionWithType, stakingContract, kyberDaoInfo],
@@ -120,11 +116,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (didUserReject(error)) {
-          throw new Error('Transaction rejected.')
-        } else {
-          throw error
-        }
+        throw error
       }
     },
     [addTransactionWithType, stakingContract, kyberDaoInfo?.KNCAddress],
@@ -155,11 +147,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (didUserReject(error)) {
-          throw new Error('Transaction rejected.')
-        } else {
-          throw error
-        }
+        throw error
       }
     },
     [addTransactionWithType, migrateContract, kyberDaoInfo],
@@ -181,11 +169,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (didUserReject(error)) {
-          throw new Error('Transaction rejected.')
-        } else {
-          throw error
-        }
+        throw error
       }
     },
     [addTransactionWithType, stakingContract],
@@ -208,11 +192,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (didUserReject(error)) {
-          throw new Error('Transaction rejected.')
-        } else {
-          throw error
-        }
+        throw error
       }
     },
     [addTransactionWithType, stakingContract],
@@ -272,11 +252,7 @@ export function useClaimVotingRewards() {
       })
       return tx.hash as string
     } catch (error) {
-      if (didUserReject(error)) {
-        throw new Error('Transaction rejected.')
-      } else {
-        throw error
-      }
+      throw error
     }
   }, [
     userRewards,
@@ -312,11 +288,7 @@ export const useVotingActions = () => {
         })
         return tx.hash
       } catch (error) {
-        if (didUserReject(error)) {
-          throw new Error('Transaction rejected.')
-        } else {
-          throw error
-        }
+        throw error
       }
     },
     [daoContract, addTransactionWithType, kyberDaoInfo?.dao],
@@ -619,7 +591,7 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
 }
 
 export function useClaimGasRefundRewards() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, walletKey } = useActiveWeb3React()
   const { library } = useWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const { claimableReward } = useGasRefundInfo({})
@@ -654,7 +626,10 @@ export function useClaimGasRefundRewards() {
     const rewardContractAddress = response.data.data.ContractAddress
     const encodedData = response.data.data.EncodedData
     try {
-      const tx = await sendEVMTransaction(account, library, rewardContractAddress, encodedData, BigNumber.from(0))
+      const tx = await sendEVMTransaction(account, library, rewardContractAddress, encodedData, BigNumber.from(0), {
+        name: ErrorName.GasRefundClaimError,
+        wallet: walletKey,
+      })
       if (!tx) throw new Error()
       addTransactionWithType({
         hash: tx.hash,
@@ -678,7 +653,7 @@ export function useClaimGasRefundRewards() {
       })
       throw error
     }
-  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, refetch])
+  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, refetch, walletKey])
   return claimGasRefundRewards
 }
 
