@@ -37,7 +37,7 @@ import TokenListVariants from '../components/TokenListVariants'
 import WatchlistButton from '../components/WatchlistButton'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
-import { KYBERAI_LISTYPE_TO_MIXPANEL, SORT_FIELD, Z_INDEX_KYBER_AI } from '../constants'
+import { DEFAULT_PARAMS_BY_TAB, KYBERAI_LISTYPE_TO_MIXPANEL, SORT_FIELD, Z_INDEX_KYBER_AI } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
@@ -94,6 +94,25 @@ const PaginationWrapper = styled.div`
     border: none;
   }
 `
+
+const TableHeaderCell = styled.th<{ sortable?: boolean }>`
+  border: none;
+  outline: none;
+  white-space: nowrap;
+  font-weight: 400 !important;
+  color: ${({ theme }) => theme.subText} !important;
+  font-size: 12px;
+  background-color: ${({ theme }) => theme.tableHeader};
+  ${({ sortable }) =>
+    sortable &&
+    css`
+      cursor: pointer;
+      :hover {
+        color: ${({ theme }) => theme.text} !important;
+      }
+    `}
+`
+
 const Table = styled.table`
   border-spacing: 0px;
   width: 100%;
@@ -116,22 +135,9 @@ const Table = styled.table`
       border-radius: 0;
     }
 
-    th {
-      border: none;
-      outline: none;
-      white-space: nowrap;
-      font-weight: 400 !important;
-      color: ${({ theme }) => theme.subText} !important;
-      font-size: 12px;
-      background-color: ${({ theme }) => theme.tableHeader};
-      cursor: pointer;
-
-      :hover {
-        color: ${({ theme }) => theme.text} !important;
-      }
-    }
     tr {
       height: 48px;
+      cursor: default !important;
     }
   }
 
@@ -720,6 +726,23 @@ export default function TokenAnalysisList() {
   const tableRef = useRef<HTMLTableElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
+  // sort single for now
+  const [sortInfo, setSortInfo] = useState<{ field: SORT_FIELD | undefined; direction: SORT_DIRECTION }>({
+    field: undefined,
+    direction: SORT_DIRECTION.DESC,
+  })
+  const SortArrow = ({ type }: { type: SORT_FIELD }) => {
+    if (sortInfo.field !== type) return null
+    return sortInfo.direction === SORT_DIRECTION.DESC ? <ArrowDown size={16} /> : <ArrowUp size={16} />
+  }
+  const onChangeSort = (sortField: SORT_FIELD) => {
+    const toggleValue = sortInfo.direction === SORT_DIRECTION.DESC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC
+    const newDirection = sortField === sortInfo.field ? toggleValue : SORT_DIRECTION.DESC
+    setSortInfo({ direction: newDirection, field: sortField })
+    searchParams.set('sort', `${sortField}:${newDirection}`)
+    setSearchParams(searchParams)
+  }
+
   const [searchParams, setSearchParams] = useSearchParams()
   const { page, listTypeParam, filter } = useMemo(() => formatParamsFromUrl(searchParams), [searchParams])
 
@@ -745,6 +768,13 @@ export default function TokenAnalysisList() {
       searchParams.set('listType', tab)
       searchParams.set('page', '1')
       setSearchParams(searchParams)
+      // set default sort icon
+      const defaultSort = DEFAULT_PARAMS_BY_TAB[tab]?.sort || ''
+      const [field, direction] = defaultSort.split(':')
+      setSortInfo({
+        direction: (direction as SORT_DIRECTION) || SORT_DIRECTION.DESC,
+        field: (field as SORT_FIELD) || undefined,
+      })
     })
   }
   const handleFilterChange = useCallback(
@@ -803,20 +833,6 @@ export default function TokenAnalysisList() {
     KyberAIListType.TRENDING_SOON,
   ].includes(listType)
 
-  // sort single for now
-  const [sortType, setSortType] = useState<SORT_FIELD>()
-  const [sortDirection, setSortDirection] = useState(SORT_DIRECTION.DESC)
-  const SortArrow = ({ type }: { type: SORT_FIELD }) => {
-    if (sortType !== type) return null
-    return sortDirection === SORT_DIRECTION.DESC ? <ArrowUp size={16} /> : <ArrowDown size={16} />
-  }
-  const onChangeSort = (sort: SORT_FIELD) => {
-    setSortType(sort)
-    setSortDirection(sortDirection === SORT_DIRECTION.DESC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC)
-    searchParams.set('sort', `${sort}:${sortDirection}`)
-    setSearchParams(searchParams)
-  }
-
   return (
     <>
       <TradeInfoWrapper>
@@ -859,8 +875,9 @@ export default function TokenAnalysisList() {
               </colgroup>
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th
+                  <TableHeaderCell>#</TableHeaderCell>
+                  <TableHeaderCell
+                    sortable
                     style={{ textAlign: 'left' }}
                     className={isScrolling ? 'table-cell-shadow-right' : ''}
                     onClick={() => onChangeSort(SORT_FIELD.NAME)}
@@ -869,8 +886,12 @@ export default function TokenAnalysisList() {
                       <Trans>Token name</Trans>
                       <SortArrow type={SORT_FIELD.NAME} />
                     </Row>
-                  </th>
-                  <th style={{ textAlign: 'left' }} onClick={() => onChangeSort(SORT_FIELD.KYBER_SCORE)}>
+                  </TableHeaderCell>
+                  <TableHeaderCell
+                    sortable
+                    style={{ textAlign: 'left' }}
+                    onClick={() => onChangeSort(SORT_FIELD.KYBER_SCORE)}
+                  >
                     <Column gap="4px">
                       <Row justify="flex-start" gap="4px">
                         <Column gap="2px">
@@ -898,23 +919,23 @@ export default function TokenAnalysisList() {
                         <SortArrow type={SORT_FIELD.KYBER_SCORE} />
                       </Row>
                     </Column>
-                  </th>
-                  <th style={{ textAlign: 'left' }}>
+                  </TableHeaderCell>
+                  <TableHeaderCell style={{ textAlign: 'left' }}>
                     <Text>
                       <Trans>Last 3D KyberScores</Trans>
                     </Text>
-                  </th>
-                  <th onClick={() => onChangeSort(SORT_FIELD.PRICE)}>
+                  </TableHeaderCell>
+                  <TableHeaderCell sortable onClick={() => onChangeSort(SORT_FIELD.PRICE)}>
                     <Row justify="flex-start" gap="4px">
                       <Trans>Current Price</Trans>
                       <SortArrow type={SORT_FIELD.PRICE} />
                     </Row>
-                  </th>
-                  <th>
+                  </TableHeaderCell>
+                  <TableHeaderCell>
                     <Row justify="flex-start">
                       <Trans>Last 7d price</Trans>
                     </Row>
-                  </th>
+                  </TableHeaderCell>
                   {(() => {
                     const map: Record<string, string> = {
                       [KyberAIListType.TOP_CEX_INFLOW]: t`24h Netflow`,
@@ -922,12 +943,12 @@ export default function TokenAnalysisList() {
                     }
                     const sortField = map[listType] ? SORT_FIELD.CEX_NETFLOW_24H : SORT_FIELD.VOLUME_24H
                     return (
-                      <th onClick={() => onChangeSort(sortField)}>
+                      <TableHeaderCell sortable onClick={() => onChangeSort(sortField)}>
                         <Row justify="flex-start" gap="4px">
                           {map[listType] || <Trans>24h Volume</Trans>}
                           <SortArrow type={sortField} />
                         </Row>
-                      </th>
+                      </TableHeaderCell>
                     )
                   })()}
                   {(() => {
@@ -942,17 +963,17 @@ export default function TokenAnalysisList() {
                         ? SORT_FIELD.FIRST_DISCOVER_ON
                         : SORT_FIELD.CEX_NETFLOW_3D
                     return (
-                      <th onClick={() => onChangeSort(sortField)}>
+                      <TableHeaderCell sortable onClick={() => onChangeSort(sortField)}>
                         <Row justify="flex-start" gap="4px">
                           {map[listType]}
                           <SortArrow type={sortField} />
                         </Row>
-                      </th>
+                      </TableHeaderCell>
                     )
                   })()}
-                  <th style={{ textAlign: 'end' }}>
+                  <TableHeaderCell style={{ textAlign: 'end' }}>
                     <Trans>Action</Trans>
-                  </th>
+                  </TableHeaderCell>
                 </tr>
               </thead>
               <tbody>
