@@ -15,6 +15,12 @@ const Divider = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
 `
 
+const CustomOption = styled(Row)`
+  :hover {
+    background-color: ${({ theme }) => theme.background};
+  }
+`
+
 const optionStyle: CSSProperties = { fontSize: '14px', padding: '10px 18px', alignItems: 'center' }
 const WatchlistSelect = ({
   menuStyle,
@@ -50,15 +56,15 @@ const WatchlistSelect = ({
         dropdownRender={menu => {
           return (
             <>
-              <Row style={optionStyle} onClick={() => onChange('')}>
+              <CustomOption style={optionStyle} onClick={() => onChange('')}>
                 {labelAll}
-              </Row>
+              </CustomOption>
               <Divider />
               {menu}
               <Divider />
-              <Row style={optionStyle} gap="6px" onClick={() => setIsOpen(true)}>
+              <CustomOption style={optionStyle} gap="6px" onClick={() => setIsOpen(true)}>
                 <Icon id="assignment" size={20} /> <Trans>Manage Lists</Trans>
-              </Row>
+              </CustomOption>
             </>
           )
         }}

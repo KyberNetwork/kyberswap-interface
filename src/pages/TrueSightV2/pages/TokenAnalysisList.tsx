@@ -168,7 +168,7 @@ const Table = styled.table`
     td:nth-child(2),
     th:nth-child(2) {
       position: sticky;
-      z-index: 2;
+      z-index: ${Z_INDEX_KYBER_AI.TOKEN_NAME_TABLE_COLUMN};
     }
     td:nth-child(1),
     th:nth-child(1) {
