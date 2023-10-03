@@ -111,8 +111,8 @@ export const ElasticFarmCombination: FC = () => {
           <Trans>
             Note: Farms will run in{' '}
             <Text as="span" color={theme.warning}>
-              multiple phases.
-            </Text>{' '}
+              multiple phases
+            </Text>
             If you haven’t harvested your rewards for ended farms, you still can access them via the{' '}
             <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}?type=${FARM_TAB.ENDED}`}>
               Ended
