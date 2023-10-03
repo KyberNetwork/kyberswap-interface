@@ -34,16 +34,15 @@ const WatchlistSelect = ({
   const [isOpen, setIsOpen] = useState(false)
   const { data: dataWatchList } = useGetWatchlistInformationQuery()
 
-  const { options, totalToken } = useMemo(() => {
-    let totalToken = 0
+  const options = useMemo(() => {
     const opts: SelectOption[] =
       dataWatchList?.watchlists?.map(e => {
-        totalToken += e.assetNumber
         return { value: e.id + '', label: `${e.name} (${e.assetNumber})` }
       }) || []
-    return { options: opts, totalToken }
+    return opts
   }, [dataWatchList])
 
+  const totalToken = dataWatchList?.totalUniqueAssetNumber
   const labelAll = <Trans>All Tokens ({totalToken})</Trans>
 
   return (
