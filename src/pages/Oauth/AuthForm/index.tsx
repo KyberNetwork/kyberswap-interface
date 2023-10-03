@@ -9,6 +9,7 @@ import useTheme from 'hooks/useTheme'
 import ButtonEth from 'pages/Oauth/AuthForm/ButtonEth'
 import ButtonGoogle from 'pages/Oauth/AuthForm/ButtonGoogle'
 import { FlowStatus } from 'pages/Oauth/Login'
+import { isValidRedirectURL } from 'utils/redirect'
 
 import { getSupportLoginMethods } from '../helpers'
 import AuthFormFieldMessage from './AuthFormMessage'
@@ -40,7 +41,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStat
 
   const showEth = loginMethods.includes(LoginMethod.ETH) && autoLoginMethod !== LoginMethod.GOOGLE
   const hasGoogle = loginMethods.includes(LoginMethod.GOOGLE)
-  const showBtnCancel = !isMobile && !hasGoogle && back_uri && !processingSignIn
+  const showBtnCancel = !isMobile && !hasGoogle && isValidRedirectURL(back_uri) && !processingSignIn
   const hasBothEthAndGoogle = hasGoogle && showEth
   return (
     <Form encType="application/x-www-form-urlencoded" action={ui.action} method={ui.method}>
