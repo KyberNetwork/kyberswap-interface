@@ -6,9 +6,32 @@ import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 if (ENV_LEVEL == ENV_TYPE.ADPR) {
   setTimeout(() => {
-    console.log('capturing Injected window.ethereum', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
-    captureMessage('Injected window.ethereum', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
-  }, 2000)
+    if (getIsGenericInjector()) {
+      const params = {
+        level: 'warning',
+        extra: {
+          detector: {
+            isMetaMaskWallet: getIsMetaMaskWallet(),
+            isCoinbaseWallet: getIsCoinbaseWallet(),
+            isBraveWallet: getIsBraveWallet(),
+            isC98Wallet: getIsC98Wallet(),
+            isRabbyWallet: getIsRabbyWallet(),
+            isBloctoWallet: getIsBloctoWallet(),
+            isKrystalWallet: getIsKrystalWallet(),
+            isTrustWallet: getIsTrustWallet(),
+            isGenericInjector: getIsGenericInjector(),
+          },
+          'window.ethereum': window.ethereum,
+          'window.web3': window.web3,
+          'window.coin98': window.coin98,
+          'window.coinbaseWalletExtension': window.coinbaseWalletExtension,
+          'navigator.brave': navigator.brave,
+        },
+      } as const
+      captureMessage('Unknown injected window.ethereum', params)
+      console.info('Capturing injected window.ethereum', { params })
+    }
+  }, 5000)
 }
 
 export const getIsInjected = () => Boolean(window.ethereum)
@@ -78,12 +101,15 @@ export enum ErrorCode {
   ALPHA_WALLET_REJECTED = 'Request rejected',
 }
 
-const rejectedPhrases: readonly string[] = [
-  'user rejected transaction',
-  'User declined to send the transaction',
-  'user denied transaction',
-  'you must accept',
-].map(phrase => phrase.toLowerCase())
+// Known phrases:
+// - User declined to send the transaction ...
+// - user denied transaction ...
+// - user rejected transaction ...
+// - User rejected methods ...
+// - User rejected the request ...
+const rejectedPhrases: readonly string[] = ['User declined', 'user denied', 'you must accept', 'User rejected'].map(
+  phrase => phrase.toLowerCase(),
+)
 
 export function didUserReject(error: any): boolean {
   const message = String(

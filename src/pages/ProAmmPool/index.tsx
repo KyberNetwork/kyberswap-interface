@@ -87,7 +87,6 @@ export default function ProAmmPool() {
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
   const { userInfo } = useElasticFarmsV2()
-  console.log(userInfo)
 
   const farmV2Positions = useMemo(
     () =>

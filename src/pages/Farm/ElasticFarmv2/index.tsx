@@ -241,6 +241,7 @@ export default function ElasticFarmv2({
             whiteSpace: 'nowrap',
             height: '38px',
             padding: '0 12px',
+            maxWidth: '140px',
           }}
           onClick={handleApprove}
           disabled

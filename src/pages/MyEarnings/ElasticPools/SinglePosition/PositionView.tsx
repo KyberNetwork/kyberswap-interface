@@ -129,7 +129,7 @@ const PositionView: React.FC<CommonProps> = props => {
     }) || []
 
   const farmV2Rewards =
-    positionEarning.farmV2DepositedPositions?.[0].pendingRewards.map((amount, index) => {
+    positionEarning.farmV2DepositedPositions?.[0].pendingRewards?.map((amount, index) => {
       const tokenId = positionEarning.farmV2DepositedPositions?.[0].farmV2.rewards[index].tokenID || ''
       const token = tokens[tokenId] || new Token(chainId, tokenId, 18, '', '')
 

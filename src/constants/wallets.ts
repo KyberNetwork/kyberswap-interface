@@ -36,6 +36,8 @@ import {
   injectedHooks,
   krystal,
   krystalHooks,
+  krystalWalletConnectV2,
+  krystalWalletConnectV2Hooks,
   metaMask,
   metamaskHooks,
   rabby,
@@ -65,13 +67,13 @@ import {
   getIsTrustWallet,
 } from 'constants/connectors/utils'
 
-const detectInjected = (): WalletReadyState => {
+const detectGenericInjected = (): WalletReadyState => {
   // used in mobile dapp
   if (getIsGenericInjector()) return WalletReadyState.Installed
   return WalletReadyState.Unsupported
 }
 
-const detectMetamask = (): WalletReadyState => {
+const detectMetamaskInjected = (): WalletReadyState => {
   if (getIsMetaMaskWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
@@ -98,28 +100,33 @@ const detectSafe = (): WalletReadyState => {
   return isSafe ? WalletReadyState.Installed : WalletReadyState.NotDetected
 }
 
-const detectRabby = (): WalletReadyState => {
+const detectRabbyInjected = (): WalletReadyState => {
   if (getIsRabbyWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
-const detectKrystal = (): WalletReadyState => {
+const detectKrystalInjected = (): WalletReadyState => {
   if (getIsKrystalWallet()) return WalletReadyState.Installed
-  return WalletReadyState.NotDetected
+  return WalletReadyState.Unsupported
 }
 
-const detectBrave = (): WalletReadyState => {
+const detectKrystalWC = (): WalletReadyState => {
+  if (!getIsKrystalWallet()) return WalletReadyState.Installed
+  return WalletReadyState.Unsupported
+}
+
+const detectBraveInjected = (): WalletReadyState => {
   //todo known issue: fail connect on mobile solana
   if (getIsBraveWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
-const detectCoin98 = (): WalletReadyState => {
+const detectCoin98Injected = (): WalletReadyState => {
   if (getIsC98Wallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
-const detectCoinbase = (): WalletReadyState => {
+const detectCoinbaseInjected = (): WalletReadyState => {
   const detectCoinbase = (): WalletReadyState => {
     if (getIsCoinbaseWallet()) return WalletReadyState.Installed
     // in NotDetected case, Coinbase show install link itself
@@ -130,7 +137,7 @@ const detectCoinbase = (): WalletReadyState => {
   return result
 }
 
-const detectTrustWallet = (): WalletReadyState => {
+const detectTrustWalletInjected = (): WalletReadyState => {
   if (getIsTrustWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
@@ -167,7 +174,7 @@ export const SUPPORTED_WALLETS = {
     name: 'Browser Wallet',
     icon: INJECTED_DARK_ICON,
     iconLight: INJECTED_LIGHT_ICON,
-    readyState: detectInjected,
+    readyState: detectGenericInjected,
   } as EVMWalletInfo,
   METAMASK: {
     connector: metaMask,
@@ -176,7 +183,7 @@ export const SUPPORTED_WALLETS = {
     icon: METAMASK,
     iconLight: METAMASK,
     installLink: 'https://metamask.io/download',
-    readyState: detectMetamask,
+    readyState: detectMetamaskInjected,
   } as EVMWalletInfo,
   KRYSTAL: {
     connector: krystal,
@@ -185,7 +192,7 @@ export const SUPPORTED_WALLETS = {
     icon: KRYSTAL,
     iconLight: KRYSTAL,
     installLink: 'https://wallet.krystal.app',
-    readyState: detectKrystal,
+    readyState: detectKrystalInjected,
   } as EVMWalletInfo,
   RABBY: {
     connector: rabby,
@@ -194,7 +201,7 @@ export const SUPPORTED_WALLETS = {
     icon: RABBY,
     iconLight: RABBY,
     installLink: 'https://rabby.io',
-    readyState: detectRabby,
+    readyState: detectRabbyInjected,
   } as EVMWalletInfo,
   TRUST_WALLET: {
     connector: trust,
@@ -203,7 +210,7 @@ export const SUPPORTED_WALLETS = {
     icon: TRUSTWALLET,
     iconLight: TRUSTWALLET,
     installLink: 'https://trustwallet.com/vi/deeplink',
-    readyState: detectTrustWallet,
+    readyState: detectTrustWalletInjected,
   } as EVMWalletInfo,
   BRAVE: {
     connector: brave,
@@ -213,7 +220,7 @@ export const SUPPORTED_WALLETS = {
     icon: BRAVE,
     iconLight: BRAVE,
     installLink: 'https://brave.com/download',
-    readyState: detectBrave,
+    readyState: detectBraveInjected,
     // If Phantom extension installed block Brave wallet
     readyStateSolana: () => (window.solana?.isBraveWallet ? braveAdapter.readyState : WalletReadyState.NotDetected),
   } as EVMWalletInfo & SolanaWalletInfo,
@@ -234,7 +241,7 @@ export const SUPPORTED_WALLETS = {
     icon: COINBASE,
     iconLight: COINBASE,
     installLink: 'https://www.coinbase.com/wallet',
-    readyState: detectCoinbase,
+    readyState: detectCoinbaseInjected,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
   } as EVMWalletInfo & SolanaWalletInfo,
   COIN98: {
@@ -245,7 +252,7 @@ export const SUPPORTED_WALLETS = {
     icon: COIN98,
     iconLight: COIN98,
     installLink: 'https://wallet.coin98.com/',
-    readyState: detectCoin98,
+    readyState: detectCoin98Injected,
     readyStateSolana: () => coin98Adapter.readyState,
   } as EVMWalletInfo & SolanaWalletInfo,
   BLOCTO_INJECTED: {
@@ -255,6 +262,15 @@ export const SUPPORTED_WALLETS = {
     icon: BLOCTO,
     iconLight: BLOCTO,
     readyState: detectBloctoInjected,
+  } as EVMWalletInfo,
+  KRYSTAL_WC: {
+    connector: krystalWalletConnectV2,
+    hooks: krystalWalletConnectV2Hooks,
+    name: 'Krystal',
+    icon: KRYSTAL,
+    iconLight: KRYSTAL,
+    installLink: 'https://wallet.krystal.app',
+    readyState: detectKrystalWC,
   } as EVMWalletInfo,
   WALLET_CONNECT: {
     connector: walletConnectV2,
