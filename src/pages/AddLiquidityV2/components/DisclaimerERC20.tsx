@@ -11,26 +11,17 @@ import { ExternalLink } from 'theme'
 export default function DisclaimerERC20({ href, token0, token1 }: { href?: string; token0: string; token1: string }) {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
-  const { data: data0 } = useGetTokenListQuery(
+  const { data } = useGetTokenListQuery(
     {
       chainId,
-      query: token0,
-    },
-    {
-      skip: !token0 || !token1,
-    },
-  )
-  const { data: data1 } = useGetTokenListQuery(
-    {
-      chainId,
-      query: token1,
+      addresses: `${token0},${token1}`,
     },
     {
       skip: !token0 || !token1,
     },
   )
 
-  const hide = data0?.data?.tokens?.[0].isStandardERC20 && data1?.data?.tokens?.[0].isStandardERC20
+  const hide = data?.data?.tokens?.[0]?.isStandardERC20 && data?.data?.tokens?.[1]?.isStandardERC20
   if (hide) return null
 
   return (
