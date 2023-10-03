@@ -59,7 +59,10 @@ const ButtonEth = ({
         height="36px"
         className="login-btn"
         id={'btnLoginEth'}
-        onClick={onClick}
+        onClick={e => {
+          e.preventDefault()
+          onClickEth()
+        }}
         disabled={disabled}
       >
         {loading ? (
