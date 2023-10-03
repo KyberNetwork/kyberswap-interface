@@ -119,6 +119,7 @@ const ChainSelect = () => {
         </ButtonOutlined>
 
         <MultipleChainSelect
+          style={{ height: 36 }}
           handleChangeChains={handleChangeChains}
           comingSoonList={comingSoonList}
           chainIds={SUPPORTED_NETWORKS_FOR_MY_EARNINGS}

@@ -102,7 +102,7 @@ function Select({
 
   useEffect(() => {
     const findValue = options.find(item => getOptionValue(item) === selectedValue)?.value
-    findValue && setSelected(findValue)
+    setSelected(findValue || getOptionValue(options?.[0]))
   }, [selectedValue, options])
 
   useEffect(() => {

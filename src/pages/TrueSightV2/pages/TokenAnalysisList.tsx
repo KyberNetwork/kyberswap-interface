@@ -131,10 +131,6 @@ const Table = styled.table`
       color: ${theme.subText};
     `};
 
-    @media only screen and (max-width: 768px) {
-      border-radius: 0;
-    }
-
     tr {
       height: 48px;
       cursor: default !important;
@@ -593,9 +589,7 @@ const TokenRow = React.memo(function TokenRow({
       </td>
       <td style={{ textAlign: 'start' }}>
         $
-        {currentTab === KyberAIListType.TOP_CEX_INFLOW
-          ? formatLocaleStringNum(token.cexNetflow24H) || '--'
-          : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
+        {currentTab === KyberAIListType.TOP_CEX_INFLOW || currentTab === KyberAIListType.TOP_CEX_OUTFLOW
           ? formatLocaleStringNum(token.cexNetflow24H) || '--'
           : formatLocaleStringNum(token.volume24H) || '--'}
       </td>
@@ -603,9 +597,7 @@ const TokenRow = React.memo(function TokenRow({
         currentTab,
       ) && (
         <td style={{ textAlign: 'start' }}>
-          {currentTab === KyberAIListType.TOP_CEX_INFLOW
-            ? '$' + formatLocaleStringNum(token.cexNetflow3D || 0) || '--'
-            : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
+          {currentTab === KyberAIListType.TOP_CEX_INFLOW || currentTab === KyberAIListType.TOP_CEX_OUTFLOW
             ? '$' + formatLocaleStringNum(token.cexNetflow3D || 0) || '--'
             : currentTab === KyberAIListType.TRENDING_SOON
             ? token.discoveredOn
@@ -768,7 +760,7 @@ export default function TokenAnalysisList() {
       searchParams.set('listType', tab)
       searchParams.set('page', '1')
       setSearchParams(searchParams)
-      // set default sort icon
+      // set default sort state
       const defaultSort = DEFAULT_PARAMS_BY_TAB[tab]?.sort || ''
       const [field, direction] = defaultSort.split(':')
       setSortInfo({
@@ -792,15 +784,6 @@ export default function TokenAnalysisList() {
     searchParams.set('page', page.toString())
     setSearchParams(searchParams)
   }
-  const onTrackingSelectChain = useCallback(
-    (network: string) => {
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_SWITCH_CHAIN_CLICK, {
-        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-        network,
-      })
-    },
-    [listType, mixpanelHandler],
-  )
 
   useEffect(() => {
     if (wrapperRef.current && tableRef.current) {
@@ -851,7 +834,6 @@ export default function TokenAnalysisList() {
           filter={filter}
           handleFilterChange={handleFilterChange}
           setShowShare={setShowShare}
-          onTrackingSelectChain={onTrackingSelectChain}
         />
 
         <Column gap="0px" style={{ position: 'relative' }}>

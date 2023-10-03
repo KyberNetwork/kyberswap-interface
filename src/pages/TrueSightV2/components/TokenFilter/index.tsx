@@ -10,12 +10,18 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Select from 'components/Select'
 import { EMPTY_OBJECT } from 'constants/index'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
 import WatchlistSelect from 'pages/TrueSightV2/components/TokenFilter/WatchlistSelect'
-import { NETWORK_TO_CHAINID, SUPPORTED_NETWORK_KYBERAI, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
+import {
+  KYBERAI_LISTYPE_TO_MIXPANEL,
+  NETWORK_TO_CHAINID,
+  SUPPORTED_NETWORK_KYBERAI,
+  Z_INDEX_KYBER_AI,
+} from 'pages/TrueSightV2/constants'
 import { useGetFilterCategoriesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { KyberAIListType } from 'pages/TrueSightV2/types'
 import { useSessionInfo } from 'state/authen/hooks'
@@ -26,9 +32,9 @@ const SELECT_SIZE = '60px'
 const shareStyle = css`
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 16px;
-  height: ${SELECT_SIZE} !important;
+  height: ${SELECT_SIZE};
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    height: unset !important;
+    height: 36px;
     padding-top: 6px;
     padding-bottom: 6px;
   `}
@@ -82,7 +88,7 @@ const ShareGroup = styled.div`
     top: 0;
     bottom: 0;
     padding: 0 12px;
-    background: ${theme.buttonBlack}
+    background: ${theme.background}
   `}
 `
 
@@ -121,13 +127,11 @@ export const ActiveSelectItem = ({ name, label }: { name: string; label: ReactNo
 export default function TokenFilter({
   handleFilterChange,
   setShowShare,
-  onTrackingSelectChain,
   filter = EMPTY_OBJECT,
   listType,
 }: {
   handleFilterChange: (filter: Record<string, string>) => void
   setShowShare: (v: boolean) => void
-  onTrackingSelectChain: (v: string) => void
   filter: { [k: string]: string }
   listType: KyberAIListType
 }) {
@@ -154,6 +158,17 @@ export default function TokenFilter({
     [filter, chainFilter],
   )
 
+  const mixpanelHandler = useMixpanelKyberAI()
+  const onTrackingSelectChain = useCallback(
+    (network: string) => {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_SWITCH_CHAIN_CLICK, {
+        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+        network,
+      })
+    },
+    [listType, mixpanelHandler],
+  )
+
   const theme = useTheme()
   const [selectedChains, setSelectChains] = useState<ChainId[]>([])
   const handleChainChange = useCallback(
@@ -175,7 +190,6 @@ export default function TokenFilter({
     setSelectChains(defaultChains.length ? defaultChains : allChainIds)
   }, [allChainIds, defaultChains])
 
-  // todo loading de len filter
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const menuStyle: CSSProperties = {
@@ -184,11 +198,13 @@ export default function TokenFilter({
     maxHeight: 400,
     overflowY: 'scroll',
   }
+
+  const isWatchlistTab = listType === KyberAIListType.MYWATCHLIST
   return (
     <StyledWrapper>
       <SelectGroup>
         {showLoading ? (
-          new Array(5)
+          new Array(isWatchlistTab ? 5 : 4)
             .fill(0)
             .map((_, i) => <StyledSkeleton key={i} baseColor={theme.background} highlightColor={theme.border} />)
         ) : (
@@ -216,7 +232,7 @@ export default function TokenFilter({
                 menuStyle={menuStyle}
               />
             ))}
-            {listType === KyberAIListType.MYWATCHLIST && (
+            {isWatchlistTab && (
               <WatchlistSelect
                 value={filter['watchlist']}
                 onChange={value => onChangeFilter('watchlist', value)}

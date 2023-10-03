@@ -43,7 +43,6 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
       sx={{
         flex: '0 0 150px',
         width: '150px',
-        height: '36px',
         position: 'relative',
         zIndex: '3',
         ...style,

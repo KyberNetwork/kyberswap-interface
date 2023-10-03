@@ -132,7 +132,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: Config } = {
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
     [PrivateAnnouncementType.CROSS_CHAIN]: '25,26',
     [PrivateAnnouncementType.KYBER_AI]: '27',
-    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54', // todo
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54', // todo danh
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,11,1,28,29,22,23',
@@ -143,7 +143,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: Config } = {
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.CROSS_CHAIN]: '27,28',
     [PrivateAnnouncementType.KYBER_AI]: '26',
-    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54', // todo
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54', // todo danh
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,16,19,9,25,24,21,22',
