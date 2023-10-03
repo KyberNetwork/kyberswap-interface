@@ -1629,9 +1629,11 @@ export default function AddLiquidity() {
                     <Flex>{warnings}</Flex>
                   </Row>
                 )}
-                <Flex maxWidth={chartRef?.current?.clientWidth} alignSelf="flex-end">
-                  <DisclaimerERC20 />
-                </Flex>
+                {tokenA && tokenB && (
+                  <Flex maxWidth={chartRef?.current?.clientWidth} alignSelf="flex-end">
+                    <DisclaimerERC20 token0={tokenA.address} token1={tokenB.address} />
+                  </Flex>
+                )}
 
                 <Row justify="flex-end">
                   <Buttons />

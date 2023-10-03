@@ -672,7 +672,11 @@ const TokenPair = ({
               </Warning>
             )}
 
-            <DisclaimerERC20 href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/add-liquidity-to-an-existing-elastic-pool#non-standard-tokens" />
+            <DisclaimerERC20
+              href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/add-liquidity-to-an-existing-elastic-pool#non-standard-tokens"
+              token0={currencyIdB}
+              token1={currencyIdA}
+            />
 
             <div style={{ marginBottom: '1.5rem' }} />
 

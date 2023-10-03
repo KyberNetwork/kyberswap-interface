@@ -98,7 +98,7 @@ const ksSettingApi = createApi({
 
     getTokenList: builder.query<
       TokenListResponse,
-      { chainId: number; page?: number; pageSize?: number; isWhitelisted?: boolean; isStable?: boolean }
+      { chainId: number; page?: number; pageSize?: number; isWhitelisted?: boolean; isStable?: boolean; query?: string }
     >({
       query: ({ chainId, ...params }) => ({
         url: `/tokens`,

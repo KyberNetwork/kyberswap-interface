@@ -13,6 +13,7 @@ export interface TokenInfo {
   readonly isWhitelisted?: boolean // from backend
   readonly multichainInfo?: MultiChainTokenInfo // from multichain api
   readonly domainSeparator?: string
+  readonly isStandardERC20?: boolean
 }
 
 export class WrappedTokenInfo extends Token {
