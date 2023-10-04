@@ -8,7 +8,7 @@ import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled, { DefaultTheme, css } from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
@@ -28,6 +28,7 @@ import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnaly
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
   calculateValueToColor,
+  colorFundingRateText,
   formatLocaleStringNum,
   formatTokenPrice,
   navigateToSwapPage,
@@ -354,12 +355,6 @@ export const SupportResistanceLevel = () => {
   )
 }
 
-function colorRateText(value: number, theme: DefaultTheme) {
-  if (value > 0.015) return theme.primary
-  if (value > 0.005) return theme.text
-  return theme.red
-}
-
 export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
   const theme = useTheme()
   const { chain, address } = useKyberAIAssetOverview()
@@ -385,7 +380,7 @@ export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
               </td>
               <td>
                 <Row justify="flex-end">
-                  <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
+                  <Text color={colorFundingRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
                     {i.rate ? i.rate.toFixed(4) + '%' : '--'}
                   </Text>
                 </Row>
@@ -433,7 +428,7 @@ export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
           </td>
           {data?.uMarginList?.map((i: any) => (
             <td key={i.exchangeName}>
-              <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
+              <Text color={colorFundingRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
                 {i.rate ? i.rate.toFixed(4) + '%' : '--'}
               </Text>
             </td>

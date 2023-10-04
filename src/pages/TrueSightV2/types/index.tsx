@@ -45,8 +45,16 @@ export interface ITokenList {
   priceChange24H: number
   volume24H: number
   weekPrices: Array<{ value: number; timestamp: number }>
+  fundingRate: number
+  fundingRateExtra: {
+    symbol: string
+    symbolLogo: string
+    uMarginList: { exchangeLogo: string; exchangeName: string; rate: number }[]
+  }
   kyberScore: number
   kyberScore3D?: Array<IKyberScoreChart>
+  kyberScoreDelta: number
+  prevKyberScore: number
   kyberScoreTag: string
   marketCap: number
   isWatched: boolean

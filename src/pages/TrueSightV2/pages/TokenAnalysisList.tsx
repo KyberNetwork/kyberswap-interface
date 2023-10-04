@@ -1,9 +1,7 @@
 import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
 import { rgba } from 'polished'
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
-import { ArrowDown, ArrowUp } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -17,7 +15,6 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import TabButton from 'components/TabButton'
-import { TextDotted } from 'components/Tooltip'
 import { APP_PATHS, ICON_ID, SORT_DIRECTION } from 'constants/index'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -26,21 +23,17 @@ import { StyledSectionWrapper } from 'pages/TrueSightV2/components'
 import TokenFilter from 'pages/TrueSightV2/components/TokenFilter'
 import { MEDIA_WIDTHS } from 'theme'
 
-import ChevronIcon from '../components/ChevronIcon'
 import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
 import MultipleChainDropdown from '../components/MultipleChainDropdown'
 import SimpleTooltip from '../components/SimpleTooltip'
-import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
-import TokenChart from '../components/TokenChartSVG'
-import TokenListVariants from '../components/TokenListVariants'
 import WatchlistButton from '../components/WatchlistButton'
-import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
 import { DEFAULT_PARAMS_BY_TAB, KYBERAI_LISTYPE_TO_MIXPANEL, SORT_FIELD, Z_INDEX_KYBER_AI } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
+import useRenderRankingList from '../hooks/useRenderRankingList'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
-import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
+import { navigateToSwapPage } from '../utils'
 
 const SIZE_MOBILE = '1080px'
 
@@ -379,6 +372,7 @@ const tokenTypeList: {
 ]
 
 const ARROW_SIZE = 40
+
 const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab: (type: KyberAIListType) => void }) => {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
@@ -508,6 +502,8 @@ const TokenRow = React.memo(function TokenRow({
   const theme = useTheme()
   const [showSwapMenu, setShowSwapMenu] = useState(false)
 
+  const { renderTableCell } = useRenderRankingList()
+
   const rowRef = useRef<HTMLTableRowElement>(null)
 
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
@@ -530,83 +526,7 @@ const TokenRow = React.memo(function TokenRow({
           {above768 ? index : <></>}
         </RowFit>
       </td>
-      <td className={isScrolling ? 'table-cell-shadow-right' : ''}>
-        <Row gap="8px">
-          <div
-            style={{
-              position: 'relative',
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-            }}
-          >
-            <img
-              alt="tokenInList"
-              src={token.logo}
-              width="36px"
-              height="36px"
-              loading="lazy"
-              style={{ background: 'white' }}
-            />
-          </div>
-
-          <Column gap="8px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
-            <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text> <TokenListVariants tokens={tokens} />
-          </Column>
-        </Row>
-      </td>
-      <td>
-        <Column style={{ alignItems: 'center', width: '110px' }}>
-          <SmallKyberScoreMeter data={latestKyberScore} />
-          <Text
-            color={calculateValueToColor(latestKyberScore?.kyberScore || 0, theme)}
-            fontSize="14px"
-            fontWeight={500}
-          >
-            {latestKyberScore?.tag || 'Not Applicable'}
-          </Text>
-        </Column>
-      </td>
-      <td>
-        <KyberScoreChart data={token.kyberScore3D} index={index} />
-      </td>
-      <td>
-        <Column gap="10px" style={{ textAlign: 'left' }}>
-          <Text>${formatTokenPrice(token.price)}</Text>
-          <Text fontSize={12} color={token.priceChange24H > 0 ? theme.primary : theme.red}>
-            <Row gap="2px">
-              <ChevronIcon
-                rotate={token.priceChange24H > 0 ? '180deg' : '0deg'}
-                color={token.priceChange24H > 0 ? theme.primary : theme.red}
-              />
-              {Math.abs(token.priceChange24H).toFixed(2)}%
-            </Row>
-          </Text>
-        </Column>
-      </td>
-      <td style={{ textAlign: 'start' }}>
-        <TokenChart data={token.weekPrices} index={index} />
-      </td>
-      <td style={{ textAlign: 'start' }}>
-        $
-        {currentTab === KyberAIListType.TOP_CEX_INFLOW || currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-          ? formatLocaleStringNum(token.cexNetflow24H) || '--'
-          : formatLocaleStringNum(token.volume24H) || '--'}
-      </td>
-      {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TRENDING_SOON].includes(
-        currentTab,
-      ) && (
-        <td style={{ textAlign: 'start' }}>
-          {currentTab === KyberAIListType.TOP_CEX_INFLOW || currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-            ? '$' + formatLocaleStringNum(token.cexNetflow3D || 0) || '--'
-            : currentTab === KyberAIListType.TRENDING_SOON
-            ? token.discoveredOn
-              ? dayjs(token.discoveredOn * 1000).format('DD/MM/YYYY')
-              : '--'
-            : '--'}
-        </td>
-      )}
+      {renderTableCell({ token, isScrolling, theme, latestKyberScore, index, currentTab })}
       <td>
         <Row gap="6px" justify={'flex-end'}>
           <SimpleTooltip text={t`Explore`}>
@@ -719,15 +639,14 @@ export default function TokenAnalysisList() {
   const tableRef = useRef<HTMLTableElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
+  const { renderCol, renderTableHeader } = useRenderRankingList()
+
   // sort single for now
   const [sortInfo, setSortInfo] = useState<{ field: SORT_FIELD | undefined; direction: SORT_DIRECTION }>({
     field: undefined,
     direction: SORT_DIRECTION.DESC,
   })
-  const SortArrow = ({ type }: { type: SORT_FIELD }) => {
-    if (sortInfo.field !== type) return null
-    return sortInfo.direction === SORT_DIRECTION.DESC ? <ArrowDown size={16} /> : <ArrowUp size={16} />
-  }
+
   const onChangeSort = (sortField: SORT_FIELD) => {
     const toggleValue = sortInfo.direction === SORT_DIRECTION.DESC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC
     const newDirection = sortField === sortInfo.field ? toggleValue : SORT_DIRECTION.DESC
@@ -847,113 +766,13 @@ export default function TokenAnalysisList() {
             <Table ref={tableRef}>
               <colgroup>
                 <col style={{ width: '80px', minWidth: '40px' }} />
-                <col style={{ width: '220px', minWidth: 'fit-content' }} />
-                <col style={{ width: '200px', minWidth: 'auto' }} />
-                <col style={{ width: '230px', minWidth: 'auto' }} />
-                <col style={{ width: '250px', minWidth: 'auto' }} />
-                <col style={{ width: '250px', minWidth: 'auto' }} />
-                {isCexFlowTabs && <col style={{ width: '150px', minWidth: 'auto' }} />}
-                <col style={{ width: '150px', minWidth: 'auto' }} />
-                <col style={{ width: '200px', minWidth: 'auto' }} />
+                {renderCol()}
+                <col style={{ width: '120px', minWidth: 'auto' }} />
               </colgroup>
               <thead>
                 <tr>
                   <TableHeaderCell>#</TableHeaderCell>
-                  <TableHeaderCell
-                    sortable
-                    style={{ textAlign: 'left' }}
-                    className={isScrolling ? 'table-cell-shadow-right' : ''}
-                    onClick={() => onChangeSort(SORT_FIELD.NAME)}
-                  >
-                    <Row gap="4px">
-                      <Trans>Token name</Trans>
-                      <SortArrow type={SORT_FIELD.NAME} />
-                    </Row>
-                  </TableHeaderCell>
-                  <TableHeaderCell
-                    sortable
-                    style={{ textAlign: 'left' }}
-                    onClick={() => onChangeSort(SORT_FIELD.KYBER_SCORE)}
-                  >
-                    <Column gap="4px">
-                      <Row justify="flex-start" gap="4px">
-                        <Column gap="2px">
-                          <SimpleTooltip
-                            text={
-                              <span>
-                                KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by
-                                taking into account multiple on-chain and off-chain indicators. The score ranges from 0
-                                to 100. Higher the score, more bullish the token in the short-term. Read more{' '}
-                                <a href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">
-                                  here ↗
-                                </a>
-                              </span>
-                            }
-                            delay={200}
-                          >
-                            <TextDotted>
-                              <Trans>Kyberscore</Trans>
-                            </TextDotted>
-                          </SimpleTooltip>
-                          <Text as="small" fontSize={'10px'} sx={{ textTransform: 'none' }}>
-                            At {kyberscoreCalculateAt ? dayjs(kyberscoreCalculateAt * 1000).format('hh:mm A') : '--'}
-                          </Text>
-                        </Column>
-                        <SortArrow type={SORT_FIELD.KYBER_SCORE} />
-                      </Row>
-                    </Column>
-                  </TableHeaderCell>
-                  <TableHeaderCell style={{ textAlign: 'left' }}>
-                    <Text>
-                      <Trans>Last 3D KyberScores</Trans>
-                    </Text>
-                  </TableHeaderCell>
-                  <TableHeaderCell sortable onClick={() => onChangeSort(SORT_FIELD.PRICE)}>
-                    <Row justify="flex-start" gap="4px">
-                      <Trans>Current Price</Trans>
-                      <SortArrow type={SORT_FIELD.PRICE} />
-                    </Row>
-                  </TableHeaderCell>
-                  <TableHeaderCell>
-                    <Row justify="flex-start">
-                      <Trans>Last 7d price</Trans>
-                    </Row>
-                  </TableHeaderCell>
-                  {(() => {
-                    const map: Record<string, string> = {
-                      [KyberAIListType.TOP_CEX_INFLOW]: t`24h Netflow`,
-                      [KyberAIListType.TOP_CEX_OUTFLOW]: t`24h Netflow`,
-                    }
-                    const sortField = map[listType] ? SORT_FIELD.CEX_NETFLOW_24H : SORT_FIELD.VOLUME_24H
-                    return (
-                      <TableHeaderCell sortable onClick={() => onChangeSort(sortField)}>
-                        <Row justify="flex-start" gap="4px">
-                          {map[listType] || <Trans>24h Volume</Trans>}
-                          <SortArrow type={sortField} />
-                        </Row>
-                      </TableHeaderCell>
-                    )
-                  })()}
-                  {(() => {
-                    if (!isCexFlowTabs) return null
-                    const map: Record<string, string> = {
-                      [KyberAIListType.TOP_CEX_INFLOW]: t`3D Netflow`,
-                      [KyberAIListType.TOP_CEX_OUTFLOW]: t`3D Netflow`,
-                      [KyberAIListType.TRENDING_SOON]: t`First Discovered On`,
-                    }
-                    const sortField =
-                      listType === KyberAIListType.TRENDING_SOON
-                        ? SORT_FIELD.FIRST_DISCOVER_ON
-                        : SORT_FIELD.CEX_NETFLOW_3D
-                    return (
-                      <TableHeaderCell sortable onClick={() => onChangeSort(sortField)}>
-                        <Row justify="flex-start" gap="4px">
-                          {map[listType]}
-                          <SortArrow type={sortField} />
-                        </Row>
-                      </TableHeaderCell>
-                    )
-                  })()}
+                  {renderTableHeader({ theme, kyberscoreCalculateAt, onChangeSort, sortInfo })}
                   <TableHeaderCell style={{ textAlign: 'end' }}>
                     <Trans>Action</Trans>
                   </TableHeaderCell>

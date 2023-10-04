@@ -25,13 +25,19 @@ export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
 }
 
 export const getTypeByKyberScore = (value: number) => {
+  if (value < 17) {
+    return 'Very Bearish'
+  }
   if (value < 34) {
     return 'Bearish'
   }
   if (value < 68) {
     return 'Neutral'
   }
-  return 'Bullish'
+  if (value < 84) {
+    return 'Bullish'
+  }
+  return 'Very Bullish'
 }
 
 export const formatShortNum = (num: number, fixed = 1): string => {
@@ -114,4 +120,10 @@ export const navigateToLimitPage = ({ address, chain }: { address?: string; chai
       `${APP_PATHS.LIMIT}/${formattedChain}?inputCurrency=${wethAddress}&outputCurrency=${address}`,
     '_blank',
   )
+}
+
+export const colorFundingRateText = (value: number, theme: DefaultTheme) => {
+  if (value > 0.015) return theme.primary
+  if (value > 0.005) return theme.text
+  return theme.red
 }
