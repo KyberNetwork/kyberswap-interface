@@ -39,7 +39,7 @@ Cypress.Commands.add('selectTokenOut', () => {
 })
 
 Cypress.Commands.add('searchToken', (value) => {
-   cy.get(TokenCatalogLocators.txtToken).should('be.visible').type(value)
+   cy.get(TokenCatalogLocators.txtSearch).should('be.visible').type(value)
 })
 
 Cypress.Commands.add('selectTokenBySymbol', (value) => {
@@ -74,7 +74,7 @@ Cypress.Commands.add('deleteImportedToken', (value: string) => {
    cy.searchToken(value)
    cy.wait(1000)
    cy.get(TokenCatalogLocators.lblRowInWhiteList).children().find(TokenCatalogLocators.iconRemoveImportedToken).click()
-   cy.get(TokenCatalogLocators.txtToken).clear()
+   cy.get(TokenCatalogLocators.txtSearch).clear()
 
 })
 

@@ -1,7 +1,7 @@
 export const TokenCatalogLocators = {
   dropdownTokenIn: '[data-testid=swap-currency-input] [data-testid=token-symbol-container]',
   dropdownTokenOut: '[data-testid=swap-currency-output] [data-testid=token-symbol-container]',
-  txtToken: '[data-testid=token-search-input]',
+  txtSearch: '[data-testid=search-input]',
   lblFavoriteToken: '[data-testid=favorite-token]',
   lblRowInWhiteList: '[data-testid=token-item]',
   lblNotFound: '[data-testid=no-token-result]',
@@ -47,13 +47,13 @@ export const FarmLocators = {
 }
 
 export const PoolLocators = {
-  txtSearch: '[data-testid=input-search]'
+  txtSearch: '[data-testid=search-input]'
 }
 
 export const MyPoolLocators = {
-  txtSearch: '[data-testid=input-search]'
+  txtSearch: '[data-testid=search-input]'
 }
 
 export const MyEarningLocators = {
-  txtSearch: '[data-testid=input-search]'
+  txtSearch: '[data-testid=search-input]'
 }
