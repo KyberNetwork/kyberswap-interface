@@ -348,7 +348,11 @@ export default function ListLimitOrder() {
                   onCancelOrder={showConfirmCancel}
                   onEditOrder={showEditOrderModal}
                   tokenPrices={tokenPrices}
-                  hasOrderCancelling={orders.some(e => (e.operatorSignatureExpiredAt || 0) * 1000 - Date.now() > 0)}
+                  hasOrderCancelling={orders.some(
+                    e =>
+                      e.status === LimitOrderStatus.CANCELLING &&
+                      (e.operatorSignatureExpiredAt || 0) * 1000 - Date.now() > 0,
+                  )}
                 />
               ))}
             </Column>

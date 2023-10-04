@@ -111,9 +111,10 @@ const ActionButtons = ({
       </IconWrap>
     ) : null
 
-  const iconCancelling = !isChildren ? (
-    <CancelStatusButton style={itemStyle} expiredAt={operatorSignatureExpiredAt} />
-  ) : null
+  const iconCancelling =
+    !isChildren && status === LimitOrderStatus.CANCELLING ? (
+      <CancelStatusButton style={itemStyle} expiredAt={operatorSignatureExpiredAt} />
+    ) : null
 
   const isDisabledCopy =
     !isChildren && [LimitOrderStatus.CANCELLED, LimitOrderStatus.CANCELLING, LimitOrderStatus.EXPIRED].includes(status)
