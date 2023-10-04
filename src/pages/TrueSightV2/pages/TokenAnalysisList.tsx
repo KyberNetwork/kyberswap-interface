@@ -4,7 +4,7 @@ import { rgba } from 'polished'
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
+import { useEffectOnce, useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
@@ -618,11 +618,12 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
 }
 
 const formatParamsFromUrl = (searchParams: URLSearchParams) => {
-  const { page, listType, ...filter } = Object.fromEntries(searchParams)
+  const { page, listType, sort, ...filter } = Object.fromEntries(searchParams)
   return {
     page: +page || 1,
     listTypeParam: (listType as KyberAIListType) || KyberAIListType.BULLISH,
     filter,
+    sort,
   }
 }
 const pageSize = 50
@@ -655,11 +656,11 @@ export default function TokenAnalysisList() {
   }
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const { page, listTypeParam, filter } = useMemo(() => formatParamsFromUrl(searchParams), [searchParams])
+  const { page, listTypeParam, sort, filter } = useMemo(() => formatParamsFromUrl(searchParams), [searchParams])
 
   const queryParams = useMemo(() => {
-    return { page, pageSize, ...filter, type: listTypeParam }
-  }, [page, listTypeParam, filter])
+    return { page, pageSize, sort, ...filter, type: listTypeParam }
+  }, [page, listTypeParam, filter, sort])
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(queryParams)
   const listData = data?.data || []
@@ -673,19 +674,25 @@ export default function TokenAnalysisList() {
     return Math.max(...timestamps, 0)
   }, [data])
 
+  const setDefaultSortArrow = (tab: KyberAIListType, autoSet = false) => {
+    // set default sort state
+    const defaultSort = (autoSet ? sort : '') || DEFAULT_PARAMS_BY_TAB[tab]?.sort || ''
+    const [field, direction] = defaultSort.split(':')
+    setSortInfo({
+      direction: (direction as SORT_DIRECTION) || SORT_DIRECTION.DESC,
+      field: (field as SORT_FIELD) || undefined,
+    })
+  }
+
+  useEffectOnce(() => setDefaultSortArrow(listTypeParam, true))
+
   const handleTabChange = (tab: KyberAIListType) => {
     startTransition(() => {
       const searchParams = new URLSearchParams() // to reset filter/sort
       searchParams.set('listType', tab)
       searchParams.set('page', '1')
       setSearchParams(searchParams)
-      // set default sort state
-      const defaultSort = DEFAULT_PARAMS_BY_TAB[tab]?.sort || ''
-      const [field, direction] = defaultSort.split(':')
-      setSortInfo({
-        direction: (direction as SORT_DIRECTION) || SORT_DIRECTION.DESC,
-        field: (field as SORT_FIELD) || undefined,
-      })
+      setDefaultSortArrow(tab)
     })
   }
   const handleFilterChange = useCallback(
