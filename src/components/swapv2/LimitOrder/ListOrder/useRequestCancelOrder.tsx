@@ -20,6 +20,7 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { getContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/sentry'
 
 import { formatAmountOrder, formatSignature, getErrorMessage, getPayloadTracking } from '../helpers'
 import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder } from '../type'
@@ -64,7 +65,7 @@ const useRequestCancelOrder = ({
   totalOrder: number
 }) => {
   const { setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo, walletKey } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [insertCancellingOrder] = useInsertCancellingOrderMutation()
@@ -78,7 +79,17 @@ const useRequestCancelOrder = ({
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
 
     const sendTransaction = async (encodedData: string, contract: string, payload: any) => {
-      const response = await sendEVMTransaction(account, library, contract, encodedData, BigNumber.from(0))
+      const response = await sendEVMTransaction({
+        account,
+        library,
+        contractAddress: contract,
+        encodedData,
+        value: BigNumber.from(0),
+        sentryInfo: {
+          name: ErrorName.LimitOrderError,
+          wallet: walletKey,
+        },
+      })
       if (response?.hash) {
         insertCancellingOrder({
           maker: account,
