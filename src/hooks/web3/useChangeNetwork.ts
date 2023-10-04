@@ -4,7 +4,7 @@ import { captureException } from '@sentry/react'
 import { useCallback } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import { walletConnectV2 } from 'constants/connectors/evm'
+import { krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors/evm'
 import { didUserReject } from 'constants/connectors/utils'
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -261,7 +261,7 @@ export function useChangeNetwork() {
           )
 
           // walletconnect v2 not support add network, so halt execution here
-          if (didUserReject(error) || connector === walletConnectV2) {
+          if (didUserReject(error) || connector === walletConnectV2 || connector === krystalWalletConnectV2) {
             failureCallback(desiredChainId, error, customFailureCallback)
             return
           }

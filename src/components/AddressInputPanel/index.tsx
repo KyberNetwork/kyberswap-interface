@@ -55,14 +55,17 @@ const Input = styled.input<{ error?: boolean }>`
   }
   padding: 0px;
   -webkit-appearance: textfield;
+  appearance: textfield;
 
   ::-webkit-search-decoration {
     -webkit-appearance: none;
+    appearance: none;
   }
 
   ::-webkit-outer-spin-button,
   ::-webkit-inner-spin-button {
     -webkit-appearance: none;
+    appearance: none;
   }
 `
 

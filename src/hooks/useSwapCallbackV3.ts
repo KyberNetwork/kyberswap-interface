@@ -13,11 +13,12 @@ import { ChargeFeeBy } from 'types/route'
 import { isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/sentry'
 
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
 const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId, isEVM, walletKey } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const { isSaveGas, recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
@@ -124,12 +125,13 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
         routerAddress,
         encodedSwapData,
         value,
+        { name: ErrorName.SwapError, wallet: walletKey },
         handleSwapResponse,
       )
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
       return response?.hash
     },
-    [account, handleSwapResponse, inputAmount, library],
+    [account, handleSwapResponse, inputAmount, library, walletKey],
   )
 
   if (isEVM) {

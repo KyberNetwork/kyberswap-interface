@@ -2,7 +2,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { Connector } from '@web3-react/types'
 import { useCallback } from 'react'
 
-import { coinbaseWallet, walletConnectV2 } from 'constants/connectors/evm'
+import { coinbaseWallet, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors/evm'
 import {
   LOCALSTORAGE_LAST_WALLETKEY_EVM,
   LOCALSTORAGE_LAST_WALLETKEY_SOLANA,
@@ -20,7 +20,7 @@ const disconnectEvmConnector: (connector: Connector | undefined) => void | Promi
     }
     connector.deactivate?.()
     connector.resetState?.()
-    if (connector === walletConnectV2) {
+    if (connector === walletConnectV2 || connector === krystalWalletConnectV2) {
       // This key should be deleted when disconnected by walletconnect library
       // But it was deleted slowly, if user call connector.active() again before this key cleared, bug will appear
       // So we force remove it right after disconnected to preventing bug

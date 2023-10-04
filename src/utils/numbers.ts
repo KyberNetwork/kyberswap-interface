@@ -22,23 +22,6 @@ export const formatDollarAmount = (num: number | undefined, digits = 2) => {
     .toLowerCase()
 }
 
-// todo: deprecated, use formatDisplayNumber instead
-export const formatNotDollarAmount = (num: number | undefined, digits = 2) => {
-  if (num === 0) return '0.00'
-  if (!num) return '-'
-  if (num < 0.001 && digits <= 3) {
-    return '<0.001'
-  }
-  const fractionDigits = num > 1000 ? 2 : digits
-  return Intl.NumberFormat('en-US', {
-    notation: num < 10000 ? 'standard' : 'compact',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: fractionDigits,
-  })
-    .format(num)
-    .toLowerCase()
-}
-
 // stringify number without scientific format
 // e.g: (123456789123456789123456789).toString() => 1.2345678912345679e+26
 //      toFixed(123456789123456789123456789) => 123456789123456800000000000

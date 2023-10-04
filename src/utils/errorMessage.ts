@@ -21,6 +21,13 @@ function parseKnownPattern(text: string): string | undefined {
   )
     return t`An error occurred. Try refreshing the price rate or increase max slippage`
 
+  if (
+    error.includes('insufficient funds for intrinsic transaction cost') ||
+    error.includes('OutOfFund') ||
+    error.includes('insufficient balance for transfer')
+  )
+    return t`Your current balance falls short of covering the required gas fee.`
+
   if (error.includes('header not found') || error.includes('swap failed'))
     return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
 
@@ -39,13 +46,18 @@ function parseKnownPattern(text: string): string | undefined {
   return undefined
 }
 
+const codeMapping: { [key: string]: string } = {
+  'Internal JSON-RPC error.': 'Network Error. Please check your connection and try again.',
+}
+
 const patterns: { pattern: RegExp; getMessage: (match: RegExpExecArray) => string }[] = [
+  { pattern: /"message": ?"([^"]+?)"/, getMessage: match => codeMapping[match[1]] },
   {
     pattern: /{"originalError":.+"message":"execution reverted: ([^"]+)"/,
     getMessage: match => match[1],
   },
   { pattern: /^([\w ]*\w+) \(.+?\)$/, getMessage: match => match[1] },
-  { pattern: /"message": ?"[^"]+?"/, getMessage: match => match[1] },
+  { pattern: /"message": ?"([^"]+?)"/, getMessage: match => match[1] },
 ]
 function parseKnownRegexPattern(text: string): string | undefined {
   const pattern = patterns.find(pattern => pattern.pattern.exec(text))

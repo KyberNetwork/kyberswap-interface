@@ -1459,7 +1459,7 @@ export default function AddLiquidity() {
 
       <Row flexDirection="column" sx={{ gap: '16px' }} marginTop="1rem">
         {warnings}
-        <DisclaimerERC20 />
+        {tokenA && tokenB && <DisclaimerERC20 token0={tokenA.address} token1={tokenB.address} />}
 
         <Row justify="flex-end">{method === 'pair' ? <Buttons /> : ZapButton}</Row>
       </Row>
