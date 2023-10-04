@@ -4,7 +4,7 @@ import { FarmLocators, MyPoolLocators, PoolLocators } from "../selectors/selecto
 
 const tokenCatalog = new TokenCatalog()
 
-describe('CSP', { tags: TAG.smoke }, () => {
+describe('CSP', { tags: TAG.regression }, () => {
     beforeEach(() => {
         cy.on('window:load', (win) => cy.stub(win.console, 'log').as('log'))
         SwapPage.open(DEFAULT_URL)
@@ -14,7 +14,13 @@ describe('CSP', { tags: TAG.smoke }, () => {
         beforeEach(() => {
             SwapPage.selectTokenIn()
         })
+
         it('injecting <script> tag does not work', () => {
+            tokenCatalog.searchToken('KNC<script>console.log(`failed`)</script>')
+            cy.get('@log').should('not.have.been.called')
+        })
+
+        it('injects XSS via img onerror attribute', () => {
             tokenCatalog.searchToken('KNC<img src="" onerror="console.log(`failed`)" />')
             cy.get('@log').should('not.have.been.called')
         })
@@ -36,6 +42,14 @@ describe('CSP', { tags: TAG.smoke }, () => {
             cy.get(PoolLocators.txtSearch, { timeout: 10000 })
                 .should('be.visible')
                 .click()
+                .type('KNC<script>console.log(`failed`)</script>')
+            cy.get('@log').should('not.have.been.called')
+        })
+
+        it('injects XSS via img onerror attribute', () => {
+            cy.get(PoolLocators.txtSearch, { timeout: 10000 })
+                .should('be.visible')
+                .click()
                 .type('KNC<img src="" onerror="console.log(`failed`)" />')
             cy.get('@log').should('not.have.been.called')
         })
@@ -53,7 +67,16 @@ describe('CSP', { tags: TAG.smoke }, () => {
         beforeEach(() => {
             SwapPage.goToMyPoolsPage()
         })
+
         it('injecting <script> tag does not work', () => {
+            cy.get(MyPoolLocators.txtSearch, { timeout: 10000 })
+                .should('be.visible')
+                .click()
+                .type('KNC<script>console.log(`failed`)</script>')
+            cy.get('@log').should('not.have.been.called')
+        })
+
+        it('injects XSS via img onerror attribute', () => {
             cy.get(MyPoolLocators.txtSearch, { timeout: 10000 })
                 .should('be.visible')
                 .click()
@@ -75,7 +98,16 @@ describe('CSP', { tags: TAG.smoke }, () => {
         beforeEach(() => {
             SwapPage.goToFarmPage()
         })
+
         it('injecting <script> tag does not work', () => {
+            cy.get(FarmLocators.txtSearch, { timeout: 10000 })
+                .should('be.visible')
+                .click()
+                .type('KNC<script>console.log(`failed`)</script>')
+            cy.get('@log').should('not.have.been.called')
+        })
+
+        it('injects XSS via img onerror attribute', () => {
             cy.get(FarmLocators.txtSearch, { timeout: 10000 })
                 .should('be.visible')
                 .click()
