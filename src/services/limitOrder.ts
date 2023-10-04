@@ -145,6 +145,7 @@ const limitOrderApi = createApi({
         method: 'POST',
       }),
       transformResponse,
+      invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
     }),
   }),
 })

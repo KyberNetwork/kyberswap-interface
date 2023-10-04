@@ -6,6 +6,7 @@ import JSBI from 'jsbi'
 import debounce from 'lodash/debounce'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import styled from 'styled-components'
@@ -42,6 +43,7 @@ import { useNotify } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -100,6 +102,15 @@ const InputWrapper = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   display: flex;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
+`
+const ExpiredInput = styled(InputWrapper)`
+  max-width: 30%;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    max-width: unset;
+  `}
 `
 
 function LimitOrderForm({
@@ -120,7 +131,7 @@ function LimitOrderForm({
   isEdit = false, // else create
 }: Props) {
   const { account, chainId, networkInfo } = useActiveWeb3React()
-
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const notify = useNotify()
   const { mixpanelHandler } = useMixpanel()
@@ -668,7 +679,7 @@ function LimitOrderForm({
           />
         </Tooltip>
 
-        <RowBetween gap="1rem">
+        <RowBetween gap="1rem" flexDirection={upToSmall ? 'column' : 'row'}>
           <InputWrapper>
             <Flex justifyContent={'space-between'} alignItems="center">
               <DeltaRate
@@ -703,7 +714,7 @@ function LimitOrderForm({
               )}
             </Flex>
           </InputWrapper>
-          <InputWrapper style={{ maxWidth: '30%' }}>
+          <ExpiredInput>
             <Label>
               <Trans>Expires In</Trans>
               <InfoHelper
@@ -715,7 +726,7 @@ function LimitOrderForm({
               value={expire}
               onChange={onChangeExpire}
               optionStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
-              menuStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
+              menuStyle={{ left: upToSmall ? 'unset' : 0, ...(isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}) }}
               style={{ width: '100%', padding: 0, height: INPUT_HEIGHT }}
               options={[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }]}
               activeRender={item => {
@@ -729,7 +740,7 @@ function LimitOrderForm({
                 )
               }}
             />
-          </InputWrapper>
+          </ExpiredInput>
         </RowBetween>
 
         <RowBetween>
