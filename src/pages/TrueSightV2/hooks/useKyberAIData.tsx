@@ -47,7 +47,8 @@ const kyberAIApi = createApi({
       transformResponse: (res: any) => {
         return { data: res.data.assets, totalItems: res.data.pagination.totalItems }
       },
-      providesTags: (_, __, arg) => (arg.watchlist === 'string' ? ['myWatchList', 'tokenList'] : ['tokenList']),
+      providesTags: (_, __, { type }) =>
+        type === KyberAIListType.MYWATCHLIST ? ['myWatchList', 'tokenList'] : ['tokenList'],
     }),
     assetOverview: builder.query<IAssetOverview, { assetId?: string }>({
       query: ({ assetId }: { assetId?: string }) => ({
@@ -263,7 +264,7 @@ const kyberAIApi = createApi({
           patchResult.undo()
         }
       },
-      invalidatesTags: (result, error) => (error ? [] : ['watchlistsInfo']),
+      invalidatesTags: (result, error) => (error ? [] : ['watchlistsInfo', 'myWatchList']),
     }),
     //20.
     removeFromWatchlist: builder.mutation({
@@ -292,7 +293,7 @@ const kyberAIApi = createApi({
           patchResult.undo()
         }
       },
-      invalidatesTags: (result, error) => (error ? [] : ['watchlistsInfo']),
+      invalidatesTags: (result, error) => (error ? [] : ['watchlistsInfo', 'myWatchList']),
     }),
     //21.
     createCustomWatchlist: builder.mutation({

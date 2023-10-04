@@ -793,9 +793,9 @@ export default function TokenAnalysisList() {
                   <>
                     {above768 ? (
                       <tr>
-                        <td colSpan={isCexFlowTabs ? 9 : 8} height={400} style={{ pointerEvents: 'none' }}>
+                        <td colSpan={isCexFlowTabs ? 9 : 8} height={500} style={{ pointerEvents: 'none' }}>
                           <Text>
-                            {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 ? (
+                            {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 && page === 1 ? (
                               <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
                             ) : (
                               <Trans>There was an error. Please try again later.</Trans>

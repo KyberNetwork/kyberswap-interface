@@ -510,7 +510,7 @@ function WatchlistButton({
         loading={false}
         watched={!!assetId && !!watchlists && watchlists?.some(item => item.assetIds?.includes(+assetId))}
         onClick={() => {
-          !isReachMaxLimit && setOpenMenu(prev => !prev)
+          !isReachMaxLimit && setOpenMenu(true)
         }}
         wrapperStyle={wrapperStyle}
         size={size}
@@ -519,12 +519,12 @@ function WatchlistButton({
   )
 
   return (
-    <div onClick={e => e.stopPropagation()}>
+    <div onClick={e => e.stopPropagation()} ref={ref}>
       <Popover
         show={openMenu}
         style={{ backgroundColor: theme.tableHeader, borderRadius: '20px' }}
         content={
-          <MenuWrapper ref={ref}>
+          <MenuWrapper>
             {watchlists?.map((watchlists: ICustomWatchlists) => {
               const watched = !!assetId && !!watchlists.assetIds && watchlists.assetIds.includes(+assetId)
               return (
