@@ -90,7 +90,7 @@ const KyberAITokenBanner = ({
       return {
         kyberScore: token?.kyberScore?.score,
         label: token?.kyberScore?.label,
-        address: token?.address,
+        address: '', //todo
         logo: token?.logo,
         symbol: token?.symbol,
       }

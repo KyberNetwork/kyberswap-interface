@@ -13,6 +13,7 @@ import Divider from 'components/Divider'
 import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
+import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -21,7 +22,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useIsWhiteListKyberAI, useKyberAIWidget } from 'state/user/hooks'
 
-import { useTokenListQuery } from '../hooks/useKyberAIData'
+import { useGetWatchlistInformationQuery, useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, KyberAIListType } from '../types'
 import SimpleTooltip from './SimpleTooltip'
 import { WidgetMobileTable, WidgetTable } from './table/index'
@@ -159,13 +160,44 @@ export enum WidgetTab {
   TrendingSoon = 'Trending Soon',
 }
 
-const widgetTabTooltip = {
-  [WidgetTab.MyWatchlist]: undefined,
+const widgetTabRender = {
+  [WidgetTab.MyWatchlist]: {
+    tooltip: undefined,
+    render: ({ watchlists }: any) => (
+      <Select
+        options={
+          watchlists?.map((e: any) => {
+            return { value: e.id + '', label: `${e.name} (${e.assetNumber})` }
+          }) || []
+        }
+        activeRender={() => (
+          <Row gap="4px">
+            <Icon id="star" size={14} />
+            <Trans>My Watchlists</Trans>
+          </Row>
+        )}
+        dropdownRender={menu => <>{menu}</>}
+        style={{ padding: 0, background: 'unset', fontSize: '14px' }}
+      />
+    ),
+  },
   [WidgetTab.Bullish]: {
     tooltip: () => <Trans>Based on highest KyberScore which analyzes on-chain and off-chain indicators</Trans>,
+    render: () => (
+      <Row gap="4px">
+        <Icon id="bullish" size={14} />
+        <Trans>Bullish</Trans>
+      </Row>
+    ),
   },
   [WidgetTab.Bearish]: {
     tooltip: () => <Trans>Based on lowest KyberScore which analyzes on-chain and off-chain indicators</Trans>,
+    render: () => (
+      <Row gap="4px">
+        <Icon id="bearish" size={14} />
+        <Trans>Bearish</Trans>
+      </Row>
+    ),
   },
   [WidgetTab.TrendingSoon]: {
     tooltip: (theme: DefaultTheme) => (
@@ -173,6 +205,12 @@ const widgetTabTooltip = {
         Tokens that could be <span style={{ color: theme.text }}>trending</span> in the near future. Trending indicates
         interest in a token - it doesnt imply bullishness or bearishness
       </Trans>
+    ),
+    render: () => (
+      <Row gap="4px">
+        <Icon id="trending-soon" size={14} />
+        <Trans>Trending Soon</Trans>
+      </Row>
     ),
   },
 }
@@ -185,6 +223,7 @@ export default function Widget() {
   const [showWidget, toggleWidget] = useKyberAIWidget()
   const [activeTab, setActiveTab] = useState<WidgetTab>(WidgetTab.MyWatchlist)
   const { isWhiteList } = useIsWhiteListKyberAI()
+  const { data: dataWatchlists } = useGetWatchlistInformationQuery()
   const [, setIsSessionExpired] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const mobileRef = useRef<HTMLDivElement>(null)
@@ -311,28 +350,31 @@ export default function Widget() {
         <ExpandedWidgetWrapper ref={ref} show={showExpanded}>
           <Column>
             <Row>
-              {Object.values(WidgetTab).map(t => (
-                <Tab
-                  key={t}
-                  onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_CATEGORY_CLICK, {
-                      from_cate: activeTab,
-                      to_cate: t,
-                      source: 'widget',
-                    })
-                    setActiveTab(t)
-                  }}
-                  active={activeTab === t}
-                >
-                  {widgetTabTooltip[t]?.tooltip ? (
-                    <MouseoverTooltip text={widgetTabTooltip[t]?.tooltip(theme)} placement="top">
-                      <Text style={{ borderBottom: `1px dotted ${theme.subText}` }}>{t}</Text>
-                    </MouseoverTooltip>
-                  ) : (
-                    <Text>{t}</Text>
-                  )}
-                </Tab>
-              ))}
+              {Object.values(WidgetTab).map(t => {
+                const tab = widgetTabRender[t]
+                return (
+                  <Tab
+                    key={t}
+                    onClick={() => {
+                      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_CATEGORY_CLICK, {
+                        from_cate: activeTab,
+                        to_cate: t,
+                        source: 'widget',
+                      })
+                      setActiveTab(t)
+                    }}
+                    active={activeTab === t}
+                  >
+                    {tab.tooltip ? (
+                      <MouseoverTooltip text={tab.tooltip(theme)} placement="top">
+                        <Text style={{ borderBottom: `1px dotted ${theme.subText}` }}>{tab.render()}</Text>
+                      </MouseoverTooltip>
+                    ) : (
+                      <Text>{tab.render({ watchlists: dataWatchlists?.watchlists })}</Text>
+                    )}
+                  </Tab>
+                )
+              })}
             </Row>
             <Row align="center" justify="center" height="400px" width="820px">
               {activeTab === WidgetTab.MyWatchlist && data && data.data.length === 0 ? (

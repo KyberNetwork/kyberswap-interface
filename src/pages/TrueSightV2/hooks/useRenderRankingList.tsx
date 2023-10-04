@@ -413,7 +413,7 @@ const renderByColumnType: Record<
     tableHeader: ({ theme }) => (
       <TableHeaderCell colSpan={3} align="left">
         <Column gap="6px">
-          <Row justify="flex-start">
+          <Row justify="center">
             <Trans>Funding Rates</Trans>
           </Row>
           <Row

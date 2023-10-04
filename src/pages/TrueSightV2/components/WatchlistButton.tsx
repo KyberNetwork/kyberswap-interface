@@ -329,7 +329,12 @@ const CreateListInput = ({
   const disabled = watchlistsCount >= 5
 
   return (
-    <SimpleTooltip text={t`You can only create up to 5 watchlists.`} disabled={!disabled} delay={100} width="200px">
+    <SimpleTooltip
+      text={t`You can only create up to 5 custom watchlists.`}
+      disabled={!disabled}
+      delay={100}
+      width="200px"
+    >
       <CreateListWrapper
         $disabled={!!disabled}
         onClick={() => {

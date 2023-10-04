@@ -14,7 +14,6 @@ export interface IAssetOverview {
   description: string
   webs: string[]
   communities: string[]
-  address: string
   price: number
   price24hChangePercent: number
   '24hLow': number

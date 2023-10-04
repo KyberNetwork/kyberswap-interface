@@ -486,7 +486,7 @@ const TokenHeader = ({
               token_name: token?.symbol?.toUpperCase(),
               network: chain,
             })
-            navigateToSwapPage({ address: token?.address, chain })
+            navigateToSwapPage({ address, chain })
           }}
         >
           <RowFit gap="4px">

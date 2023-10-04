@@ -311,7 +311,7 @@ const kyberAIApi = createApi({
         method: 'DELETE',
         params,
       }),
-      invalidatesTags: ['watchlistsInfo'],
+      invalidatesTags: ['watchlistsInfo', 'myWatchList'],
     }),
     //23.
     updateWatchlistsName: builder.mutation({

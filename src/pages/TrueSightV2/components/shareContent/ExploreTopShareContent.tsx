@@ -8,6 +8,7 @@ import styled, { useTheme } from 'styled-components'
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Row, { RowFit } from 'components/Row'
+import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import { useTokenListQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { IAssetOverview, KyberAIListType } from 'pages/TrueSightV2/types'
 import { calculateValueToColor, formatTokenPrice } from 'pages/TrueSightV2/utils'
@@ -74,9 +75,10 @@ const PriceChart7Days = ({
 }
 export default function ExploreShareContent({ token, mobileMode }: { token?: IAssetOverview; mobileMode?: boolean }) {
   const theme = useTheme()
+  const { address } = useKyberAIAssetOverview()
   const { data } = useTokenListQuery(
-    { type: KyberAIListType.ALL, page: 1, pageSize: 5, keywords: token?.address },
-    { skip: !token?.address, refetchOnMountOrArgChange: true },
+    { type: KyberAIListType.ALL, page: 1, pageSize: 5, keywords: address },
+    { skip: !address, refetchOnMountOrArgChange: true },
   )
   if (!token) return null
   const latestKyberscore = token.kyberScore?.ks3d && token.kyberScore.ks3d[token.kyberScore.ks3d.length - 1]

@@ -109,7 +109,8 @@ const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; cu
   )
 
   const token = tab === TokenTabType.First ? token0Overview || token1Overview : token1Overview
-
+  const address =
+    tab === TokenTabType.First ? currency0?.wrapped.address || currency1?.wrapped.address : currency1?.wrapped.address
   if (!isWhiteList || !token) return null
 
   const kbsColor = calculateValueToColor(token.kyberScore.score || 0, theme)
@@ -164,9 +165,7 @@ const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; cu
             <RowFit>
               <ButtonLight
                 height="24px"
-                onClick={() =>
-                  navigateToSwapPage({ address: token.address, chain: SUPPORTED_NETWORK_KYBERAI[chainId] })
-                }
+                onClick={() => navigateToSwapPage({ address: address, chain: SUPPORTED_NETWORK_KYBERAI[chainId] })}
               >
                 <RowFit gap="4px">
                   <Repeat size={14} />
@@ -219,7 +218,7 @@ const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; cu
                 token_name: token.symbol?.toUpperCase(),
               })
               window.open(
-                APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token.address,
+                APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + address,
                 '_blank',
               )
             }}

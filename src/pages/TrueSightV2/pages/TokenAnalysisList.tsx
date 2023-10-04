@@ -332,9 +332,8 @@ const tokenTypeList: {
     icon: 'coin-bag',
     tooltip: () => (
       <span>
-        Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish and
-        vice-versa for negative funding rates. Extremely positive or negative funding rates may result in leveraged
-        positions getting squeezed.
+        Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish &amp;
+        vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed
       </span>
     ),
   },
@@ -441,7 +440,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
             },
           }
           return (
-            <SimpleTooltip key={type} text={tooltip?.(theme)} delay={500} hideOnMobile>
+            <SimpleTooltip key={type} text={tooltip?.(theme)} hideOnMobile>
               <TabButton
                 separator={index !== 0 && index !== indexActive + 1}
                 text={title}
@@ -739,7 +738,7 @@ export default function TokenAnalysisList() {
     <>
       <TradeInfoWrapper>
         <Text fontSize="12px" color={theme.subText} fontWeight={500}>
-          <Trans>KyberScore will be updated every 1 hour</Trans>
+          <Trans>KyberScore will be updated every 4 hour</Trans>
         </Text>
         <Text fontSize="12px" color={theme.subText} fontStyle="italic">
           <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
