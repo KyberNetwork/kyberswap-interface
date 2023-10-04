@@ -2,7 +2,6 @@ import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
 import { ArrowDown, ArrowUp } from 'react-feather'
-import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -10,6 +9,7 @@ import Column from 'components/Column'
 import Row from 'components/Row'
 import { TextDotted } from 'components/Tooltip'
 import { SORT_DIRECTION } from 'constants/index'
+import { useFormatParamsFromUrl } from 'pages/TrueSightV2/utils'
 
 import ChevronIcon from '../components/ChevronIcon'
 import SimpleTooltip from '../components/SimpleTooltip'
@@ -465,9 +465,8 @@ const renderByColumnType: Record<
 }
 
 export default function useRenderRankingList() {
-  const [searchParams] = useSearchParams()
-  const listTypeParam = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
-  const columnsList = configColumnsByListType[listTypeParam]
+  const { listType } = useFormatParamsFromUrl()
+  const columnsList = configColumnsByListType[listType] || []
 
   return {
     renderCol: () => columnsList.map(c => renderByColumnType[c].col()),

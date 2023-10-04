@@ -1,12 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useTheme } from 'styled-components'
 
 import Column from 'components/Column'
 import Row from 'components/Row'
 import { ITokenList, KyberAIListType } from 'pages/TrueSightV2/types'
+import { useFormatParamsFromUrl } from 'pages/TrueSightV2/utils'
 
 import { TokenListInShareModalTable } from '../table'
 
@@ -32,8 +32,7 @@ export default function TokenAnalysisListShareContent({
   mobileMode?: boolean
 }) {
   const theme = useTheme()
-  const [searchParams] = useSearchParams()
-  const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
+  const { listType } = useFormatParamsFromUrl()
   const title = listType ? mapTypeTitle[listType] : ''
   return (
     <Column gap="20px">

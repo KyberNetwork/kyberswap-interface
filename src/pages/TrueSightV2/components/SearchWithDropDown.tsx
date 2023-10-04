@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
@@ -16,6 +16,7 @@ import useDebounce from 'hooks/useDebounce'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { useFormatParamsFromUrl } from 'pages/TrueSightV2/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { KYBERAI_LISTYPE_TO_MIXPANEL } from '../constants'
@@ -306,7 +307,6 @@ let checkedNewData = false
 const SearchWithDropdown = () => {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
-  const [searchParams] = useSearchParams()
   const { pathname } = useLocation()
 
   const [expanded, setExpanded] = useState(false)
@@ -344,7 +344,7 @@ const SearchWithDropdown = () => {
     }
   }, [history, getTokenData, setHistory])
 
-  const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
+  const { listType } = useFormatParamsFromUrl()
 
   const { data: top5bullish, isLoading: isBullishLoading } = useTokenListQuery({
     type: KyberAIListType.BULLISH,

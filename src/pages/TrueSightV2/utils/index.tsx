@@ -1,9 +1,12 @@
 import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { commify } from 'ethers/lib/utils'
+import { useSearchParams } from 'react-router-dom'
 import { DefaultTheme } from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
+import { KyberAIListType } from 'pages/TrueSightV2/types'
+import { isInEnum } from 'utils/string'
 
 import { NETWORK_TO_CHAINID } from '../constants'
 
@@ -126,4 +129,16 @@ export const colorFundingRateText = (value: number, theme: DefaultTheme) => {
   if (value > 0.015) return theme.primary
   if (value > 0.005) return theme.text
   return theme.red
+}
+
+export const useFormatParamsFromUrl = () => {
+  const [searchParams] = useSearchParams()
+  const { page, listType, sort, ...filter } = Object.fromEntries(searchParams)
+  const defaultTab = KyberAIListType.BULLISH
+  return {
+    page: +page || 1,
+    listType: (isInEnum(listType, KyberAIListType) ? listType : defaultTab) || defaultTab,
+    filter,
+    sort,
+  }
 }

@@ -33,7 +33,7 @@ import { DEFAULT_PARAMS_BY_TAB, KYBERAI_LISTYPE_TO_MIXPANEL, SORT_FIELD, Z_INDEX
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import useRenderRankingList from '../hooks/useRenderRankingList'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
-import { navigateToSwapPage } from '../utils'
+import { navigateToSwapPage, useFormatParamsFromUrl } from '../utils'
 
 const SIZE_MOBILE = '1080px'
 
@@ -616,15 +616,6 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
   )
 }
 
-const formatParamsFromUrl = (searchParams: URLSearchParams) => {
-  const { page, listType, sort, ...filter } = Object.fromEntries(searchParams)
-  return {
-    page: +page || 1,
-    listTypeParam: (listType as KyberAIListType) || KyberAIListType.BULLISH,
-    filter,
-    sort,
-  }
-}
 const pageSize = 50
 
 export default function TokenAnalysisList() {
@@ -655,7 +646,7 @@ export default function TokenAnalysisList() {
   }
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const { page, listTypeParam, sort, filter } = useMemo(() => formatParamsFromUrl(searchParams), [searchParams])
+  const { page, listType: listTypeParam, sort, filter } = useFormatParamsFromUrl()
 
   const queryParams = useMemo(() => {
     return { page, pageSize, sort, ...filter, type: listTypeParam }
@@ -741,6 +732,44 @@ export default function TokenAnalysisList() {
     KyberAIListType.TRENDING_SOON,
   ].includes(listType)
 
+  const renderEmptyTokens = () => {
+    const msg = (
+      <Text>
+        {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 && page === 1 ? (
+          <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
+        ) : isError ? (
+          <Trans>There was an error. Please try again later.</Trans>
+        ) : (
+          <Trans>No results found.</Trans>
+        )}
+      </Text>
+    )
+    return (
+      <>
+        {above768 ? (
+          <tr>
+            <td colSpan={isCexFlowTabs ? 9 : 8} height={500} style={{ pointerEvents: 'none' }}>
+              {msg}
+            </td>
+          </tr>
+        ) : (
+          <tr style={{ height: '250px' }}>
+            <Row
+              style={{
+                position: 'absolute',
+                height: '200px',
+                justifyContent: 'center',
+                backgroundColor: theme.background,
+              }}
+            >
+              {msg}
+            </Row>
+          </tr>
+        )}
+      </>
+    )
+  }
+
   return (
     <>
       <TradeInfoWrapper>
@@ -796,40 +825,7 @@ export default function TokenAnalysisList() {
                     <LoadingRowSkeleton hasExtraCol={isCexFlowTabs} />
                   </SkeletonTheme>
                 ) : isError || listData.length === 0 ? (
-                  <>
-                    {above768 ? (
-                      <tr>
-                        <td colSpan={isCexFlowTabs ? 9 : 8} height={500} style={{ pointerEvents: 'none' }}>
-                          <Text>
-                            {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 && page === 1 ? (
-                              <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
-                            ) : (
-                              <Trans>There was an error. Please try again later.</Trans>
-                            )}
-                          </Text>
-                        </td>
-                      </tr>
-                    ) : (
-                      <tr style={{ height: '250px' }}>
-                        <Row
-                          style={{
-                            position: 'absolute',
-                            height: '200px',
-                            justifyContent: 'center',
-                            backgroundColor: theme.background,
-                          }}
-                        >
-                          <Text>
-                            {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 ? (
-                              <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
-                            ) : (
-                              <Trans>There was an error. Please try again later.</Trans>
-                            )}
-                          </Text>
-                        </Row>
-                      </tr>
-                    )}
-                  </>
+                  renderEmptyTokens()
                 ) : (
                   listData.map((token: ITokenList, index: number) => (
                     <TokenRow
