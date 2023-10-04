@@ -133,3 +133,11 @@ export const DEFAULT_EXPLORE_PAGE_TOKEN = {
   address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   assetId: 32895,
 }
+
+export enum KYBERSCORE_TAG_TYPE {
+  VERY_BULLISH = 'Very Bullish',
+  BULLISH = 'Bullish',
+  NEUTRAL = 'Neutral',
+  BEARISH = 'Bearish',
+  VERY_BEARISH = 'Very Bearish',
+}

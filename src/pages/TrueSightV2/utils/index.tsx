@@ -8,7 +8,7 @@ import { APP_PATHS } from 'constants/index'
 import { KyberAIListType } from 'pages/TrueSightV2/types'
 import { isInEnum } from 'utils/string'
 
-import { NETWORK_TO_CHAINID } from '../constants'
+import { KYBERSCORE_TAG_TYPE, NETWORK_TO_CHAINID } from '../constants'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   if (value === 0) return theme.darkMode ? theme.subText : theme.border
@@ -27,20 +27,20 @@ export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   return theme.primary
 }
 
-export const getTypeByKyberScore = (value: number) => {
+export const getTypeByKyberScore = (value: number): KYBERSCORE_TAG_TYPE => {
   if (value < 17) {
-    return 'Very Bearish'
+    return KYBERSCORE_TAG_TYPE.VERY_BEARISH
   }
   if (value < 34) {
-    return 'Bearish'
+    return KYBERSCORE_TAG_TYPE.BEARISH
   }
   if (value < 68) {
-    return 'Neutral'
+    return KYBERSCORE_TAG_TYPE.NEUTRAL
   }
   if (value < 84) {
-    return 'Bullish'
+    return KYBERSCORE_TAG_TYPE.BULLISH
   }
-  return 'Very Bullish'
+  return KYBERSCORE_TAG_TYPE.VERY_BULLISH
 }
 
 export const formatShortNum = (num: number, fixed = 1): string => {

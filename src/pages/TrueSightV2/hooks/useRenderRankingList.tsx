@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
-import { ArrowDown, ArrowUp } from 'react-feather'
+import { ArrowDown, ArrowUp, Minus } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -17,7 +17,7 @@ import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import TokenListVariants from '../components/TokenListVariants'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
-import { SORT_FIELD } from '../constants'
+import { KYBERSCORE_TAG_TYPE, SORT_FIELD } from '../constants'
 import { KyberAIListType } from '../types'
 import {
   calculateValueToColor,
@@ -387,10 +387,43 @@ const renderByColumnType: Record<
     ),
     tableCell: ({ token, theme }) => {
       const delta = token ? token.kyberScore - token.prevKyberScore : 0
+      const prevKyberscoreTag = getTypeByKyberScore(token.prevKyberScore)
+      const kyberscoreTag = getTypeByKyberScore(token.kyberScore)
+      let arrowColor
+      if (
+        prevKyberscoreTag === KYBERSCORE_TAG_TYPE.VERY_BULLISH &&
+        kyberscoreTag === KYBERSCORE_TAG_TYPE.VERY_BEARISH
+      ) {
+        arrowColor = theme.red
+      } else if (
+        (prevKyberscoreTag === KYBERSCORE_TAG_TYPE.VERY_BULLISH && kyberscoreTag === KYBERSCORE_TAG_TYPE.BEARISH) ||
+        (prevKyberscoreTag === KYBERSCORE_TAG_TYPE.BULLISH && kyberscoreTag === KYBERSCORE_TAG_TYPE.VERY_BEARISH)
+      ) {
+        arrowColor = theme.warning
+      } else if (
+        (prevKyberscoreTag === KYBERSCORE_TAG_TYPE.BEARISH && kyberscoreTag === KYBERSCORE_TAG_TYPE.VERY_BULLISH) ||
+        (prevKyberscoreTag === KYBERSCORE_TAG_TYPE.VERY_BEARISH && kyberscoreTag === KYBERSCORE_TAG_TYPE.BULLISH)
+      ) {
+        arrowColor = theme.primary30
+      } else if (
+        prevKyberscoreTag === KYBERSCORE_TAG_TYPE.VERY_BEARISH &&
+        kyberscoreTag === KYBERSCORE_TAG_TYPE.VERY_BULLISH
+      ) {
+        arrowColor = theme.primary
+      } else {
+        arrowColor = theme.text
+      }
+
       return (
         <td>
           <Row gap="8px">
-            {delta > 0 ? <ArrowUp size={36} color={theme.primary} /> : <ArrowDown size={36} color={theme.red} />}
+            {arrowColor === theme.text ? (
+              <Minus size={36} color={theme.text} />
+            ) : delta > 0 ? (
+              <ArrowUp size={36} color={arrowColor} />
+            ) : (
+              <ArrowDown size={36} color={arrowColor} />
+            )}
             <Column fontSize="14px" lineHeight="20px" alignItems="flex-start" fontWeight={500} gap="2px">
               <Text color={theme.subText}>{getTypeByKyberScore(token?.prevKyberScore || 50)}</Text>
               <Text color={calculateValueToColor(token?.kyberScore || 50, theme)}>
