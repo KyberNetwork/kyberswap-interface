@@ -99,7 +99,7 @@ export const DEFAULT_PARAMS_BY_TAB: Partial<{ [tab in KyberAIListType]: Record<s
   [KyberAIListType.TRENDING]: { trendingTypes: 'trending' },
   [KyberAIListType.TRENDING_SOON]: { trendingTypes: 'trending-soon' },
   [KyberAIListType.FUNDING_RATE]: {
-    sort: `${SORT_FIELD.FUNDING_RATE}:${SORT_DIRECTION.DESC}`,
+    sort: `${SORT_FIELD.FUNDING_RATE}:${SORT_DIRECTION.DESC},${SORT_FIELD.KYBER_SCORE}:${SORT_DIRECTION.DESC}`,
     requiredFields: 'funding_rate',
   },
   [KyberAIListType.KYBERSWAP_DELTA]: {
