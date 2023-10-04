@@ -470,7 +470,9 @@ function WatchlistButton({
 
   const { data } = useGetWatchlistInformationQuery()
   const watchlists = data?.watchlists || []
+
   const isReachMaxLimit = (data?.totalUniqueAssetNumber || 0) >= MAX_LIMIT_WATCHED_TOKEN
+  const isWatched = !!assetId && !!watchlists && watchlists?.some(item => item.assetIds?.includes(+assetId))
 
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
@@ -508,14 +510,14 @@ function WatchlistButton({
   const btnStar = (
     <MouseoverTooltip
       text={t`You can only watch up to ${MAX_LIMIT_WATCHED_TOKEN} tokens`}
-      disableTooltip={!isReachMaxLimit}
+      disableTooltip={isWatched || !isReachMaxLimit}
     >
       <StarWithAnimation
         stopPropagation
         loading={false}
-        watched={!!assetId && !!watchlists && watchlists?.some(item => item.assetIds?.includes(+assetId))}
+        watched={isWatched}
         onClick={() => {
-          !isReachMaxLimit && setOpenMenu(true)
+          ;(isWatched || !isReachMaxLimit) && setOpenMenu(true)
         }}
         wrapperStyle={wrapperStyle}
         size={size}
