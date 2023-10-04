@@ -5,6 +5,7 @@ import styled, { CSSProperties } from 'styled-components'
 import Icon from 'components/Icons/Icon'
 import Row from 'components/Row'
 import { SelectOption } from 'components/Select'
+import useTheme from 'hooks/useTheme'
 import { ActiveSelectItem, StyledSelect } from 'pages/TrueSightV2/components/TokenFilter'
 import { ManageListModal } from 'pages/TrueSightV2/components/WatchlistButton'
 import { useGetWatchlistInformationQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
@@ -44,9 +45,11 @@ const WatchlistSelect = ({
 
   const totalToken = dataWatchList?.totalUniqueAssetNumber
   const labelAll = <Trans>All Tokens ({totalToken})</Trans>
+  const theme = useTheme()
 
   return (
     <>
+      <div style={{ height: '26px', minWidth: 2, background: theme.border }} />
       <StyledSelect
         value={value}
         activeRender={item => <ActiveSelectItem name={t`Watchlist`} label={value ? item?.label : labelAll} />}

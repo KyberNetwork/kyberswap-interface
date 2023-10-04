@@ -101,7 +101,7 @@ export default function TrueSightV2() {
           </RowFit>
           <RowFit gap="16px" flex={1} justify="flex-end">
             {above768 && <SearchWithDropDown />}
-            {isExplore && <SubscribeButtonKyberAI source="explore" />}
+            {isExplore && <SubscribeButtonKyberAI />}
           </RowFit>
         </RowBetween>
       </HeaderWrapper>

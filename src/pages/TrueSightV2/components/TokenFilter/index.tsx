@@ -98,6 +98,7 @@ const SelectGroup = styled.div`
   gap: 12px;
   display: flex;
   height: ${SELECT_SIZE};
+  align-items: center;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     position: relative;
     top: 0;
@@ -287,7 +288,7 @@ export default function TokenFilter({
         >
           <Icon size={16} id="share" />
         </ButtonGray>
-        <SubscribeButtonKyberAI source="ranking" />
+        <SubscribeButtonKyberAI ranking />
       </ShareGroup>
     </StyledWrapper>
   )
