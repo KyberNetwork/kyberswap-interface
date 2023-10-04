@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
-import { CSSProperties } from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import Icon from 'components/Icons/Icon'
 import Row from 'components/Row'
@@ -9,6 +9,19 @@ import { ActiveSelectItem, StyledSelect } from 'pages/TrueSightV2/components/Tok
 import { ManageListModal } from 'pages/TrueSightV2/components/WatchlistButton'
 import { useGetWatchlistInformationQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 
+const Divider = styled.div`
+  height: 1px;
+  margin: 6px 0;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+`
+
+const CustomOption = styled(Row)`
+  :hover {
+    background-color: ${({ theme }) => theme.background};
+  }
+`
+
+const optionStyle: CSSProperties = { fontSize: '14px', padding: '10px 18px', alignItems: 'center' }
 const WatchlistSelect = ({
   menuStyle,
   onChange,
@@ -21,42 +34,40 @@ const WatchlistSelect = ({
   const [isOpen, setIsOpen] = useState(false)
   const { data: dataWatchList } = useGetWatchlistInformationQuery()
 
-  const watchlistesOptions = useMemo(() => {
-    let total = 0
+  const options = useMemo(() => {
     const opts: SelectOption[] =
       dataWatchList?.watchlists?.map(e => {
-        total += e.assetNumber
         return { value: e.id + '', label: `${e.name} (${e.assetNumber})` }
       }) || []
-
-    opts.unshift({
-      label: (
-        <Row>
-          <Trans>All Tokens ({total})</Trans>
-        </Row>
-      ),
-      value: '',
-    })
-    opts.push({
-      label: (
-        <Row gap="6px">
-          <Icon id="assignment" size={20} /> <Trans>Manage Lists</Trans>
-        </Row>
-      ),
-      onSelect: () => setIsOpen(true),
-    }) // todo danh: update like desgin
-
     return opts
   }, [dataWatchList])
+
+  const totalToken = dataWatchList?.totalUniqueAssetNumber
+  const labelAll = <Trans>All Tokens ({totalToken})</Trans>
 
   return (
     <>
       <StyledSelect
         value={value}
-        activeRender={item => <ActiveSelectItem name={t`Watchlist`} label={item?.label} />}
-        options={watchlistesOptions}
+        activeRender={item => <ActiveSelectItem name={t`Watchlist`} label={value ? item?.label : labelAll} />}
+        options={options}
         onChange={onChange}
-        optionStyle={{ fontSize: '14px' }}
+        dropdownRender={menu => {
+          return (
+            <>
+              <CustomOption style={optionStyle} onClick={() => onChange('')}>
+                {labelAll}
+              </CustomOption>
+              <Divider />
+              {menu}
+              <Divider />
+              <CustomOption style={optionStyle} gap="6px" onClick={() => setIsOpen(true)}>
+                <Icon id="assignment" size={20} /> <Trans>Manage Lists</Trans>
+              </CustomOption>
+            </>
+          )
+        }}
+        optionStyle={optionStyle}
         menuStyle={menuStyle}
       />
       <ManageListModal isOpen={isOpen} setIsOpen={setIsOpen} />

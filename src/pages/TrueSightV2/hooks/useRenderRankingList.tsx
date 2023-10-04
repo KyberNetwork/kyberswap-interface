@@ -249,16 +249,12 @@ const renderByColumnType: Record<
         </Column>
       </TableHeaderCell>
     ),
-    tableCell: ({ theme, latestKyberScore }) => (
+    tableCell: ({ theme, token }) => (
       <td>
         <Column style={{ alignItems: 'center', width: '110px' }}>
-          <SmallKyberScoreMeter data={latestKyberScore} />
-          <Text
-            color={calculateValueToColor(latestKyberScore?.kyberScore || 0, theme)}
-            fontSize="14px"
-            fontWeight={500}
-          >
-            {latestKyberScore?.tag || 'Not Applicable'}
+          <SmallKyberScoreMeter token={token} />
+          <Text color={calculateValueToColor(token?.kyberScore || 0, theme)} fontSize="14px" fontWeight={500}>
+            {token?.kyberScoreTag || 'Not Applicable'}
           </Text>
         </Column>
       </td>

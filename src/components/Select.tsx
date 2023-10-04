@@ -83,10 +83,12 @@ function Select({
   className,
   forceMenuPlacementTop = false,
   arrowColor,
+  dropdownRender,
 }: {
   value?: string | number
   className?: string
   options: SelectOption[]
+  dropdownRender?: (menu: ReactNode) => ReactNode
   activeRender?: (selectedItem: SelectOption | undefined) => ReactNode
   optionRender?: (option: SelectOption | undefined) => ReactNode
   style?: CSSProperties
@@ -117,6 +119,33 @@ function Select({
   const selectedInfo = options.find(item => getOptionValue(item) === selected)
   const refMenu = useRef<HTMLDivElement>(null)
 
+  const renderMenu = () => {
+    return options.map(item => {
+      const value = getOptionValue(item)
+      const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation()
+        e.preventDefault()
+        setShowMenu(prev => !prev)
+        if (item.onSelect) item.onSelect?.()
+        else {
+          setSelected(value)
+          onChange?.(value)
+        }
+      }
+      return (
+        <Option
+          key={value}
+          role="button"
+          $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
+          onClick={onClick}
+          style={optionStyle}
+        >
+          {optionRender ? optionRender(item) : getOptionLabel(item)}
+        </Option>
+      )
+    })
+  }
+
   return (
     <SelectWrapper
       ref={ref}
@@ -139,30 +168,7 @@ function Select({
             style={{ ...menuStyle, ...(menuPlacementTop ? { bottom: 40, top: 'unset' } : {}) }}
             ref={refMenu}
           >
-            {options.map(item => {
-              const value = getOptionValue(item)
-              const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
-                e.stopPropagation()
-                e.preventDefault()
-                setShowMenu(prev => !prev)
-                if (item.onSelect) item.onSelect?.()
-                else {
-                  setSelected(value)
-                  onChange?.(value)
-                }
-              }
-              return (
-                <Option
-                  key={value}
-                  role="button"
-                  $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
-                  onClick={onClick}
-                  style={optionStyle}
-                >
-                  {optionRender ? optionRender(item) : getOptionLabel(item)}
-                </Option>
-              )
-            })}
+            {dropdownRender ? dropdownRender(renderMenu()) : renderMenu()}
           </SelectMenu>
         )}
       </AnimatePresence>

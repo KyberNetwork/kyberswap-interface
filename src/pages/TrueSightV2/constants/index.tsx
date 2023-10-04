@@ -92,14 +92,20 @@ export const DEFAULT_PARAMS_BY_TAB: Partial<{ [tab in KyberAIListType]: Record<s
     cexNetflow3D: 'gt(0)',
   },
   [KyberAIListType.TOP_CEX_OUTFLOW]: {
-    sort: `${SORT_FIELD.CEX_NETFLOW_3D}:${SORT_DIRECTION.DESC}`,
+    sort: `${SORT_FIELD.CEX_NETFLOW_3D}:${SORT_DIRECTION.ASC}`,
     cexNetflow3D: 'lt(0)',
   },
   [KyberAIListType.TOP_TRADED]: { sort: `${SORT_FIELD.VOLUME_24H}:${SORT_DIRECTION.DESC}` },
   [KyberAIListType.TRENDING]: { trendingTypes: 'trending' },
   [KyberAIListType.TRENDING_SOON]: { trendingTypes: 'trending-soon' },
-  [KyberAIListType.FUNDING_RATE]: { sort: `${SORT_FIELD.FUNDING_RATE}:${SORT_DIRECTION.DESC}` },
-  [KyberAIListType.KYBERSWAP_DELTA]: { sort: `${SORT_FIELD.KYBER_SCORE_DELTA}:${SORT_DIRECTION.DESC}` },
+  [KyberAIListType.FUNDING_RATE]: {
+    sort: `${SORT_FIELD.FUNDING_RATE}:${SORT_DIRECTION.DESC}`,
+    requiredFields: 'funding_rate',
+  },
+  [KyberAIListType.KYBERSWAP_DELTA]: {
+    sort: `${SORT_FIELD.KYBER_SCORE_DELTA}:${SORT_DIRECTION.DESC}`,
+    requiredFields: 'kyber_score_delta',
+  },
 }
 
 export enum KYBERAI_CHART_ID {
@@ -116,7 +122,8 @@ export enum KYBERAI_CHART_ID {
 
 export const Z_INDEX_KYBER_AI = {
   HEADER_TABLE_TOKENS: 2,
-  LOADING_TOKENS_TABLE: 3,
+  LOADING_TOKENS_TABLE: 2,
+  TOKEN_NAME_TABLE_COLUMN: 1,
   FILTER_TOKEN_OPTIONS: 4,
 }
 

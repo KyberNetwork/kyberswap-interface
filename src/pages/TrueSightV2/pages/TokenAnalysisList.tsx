@@ -162,7 +162,7 @@ const Table = styled.table`
     td:nth-child(2),
     th:nth-child(2) {
       position: sticky;
-      z-index: 2;
+      z-index: ${Z_INDEX_KYBER_AI.TOKEN_NAME_TABLE_COLUMN};
     }
     td:nth-child(1),
     th:nth-child(1) {
@@ -517,7 +517,6 @@ const TokenRow = React.memo(function TokenRow({
     })
   }
 
-  const latestKyberScore: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
   return (
     <tr key={token.assetId} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
@@ -526,7 +525,7 @@ const TokenRow = React.memo(function TokenRow({
           {above768 ? index : <></>}
         </RowFit>
       </td>
-      {renderTableCell({ token, isScrolling, theme, latestKyberScore, index, currentTab })}
+      {renderTableCell({ token, isScrolling, theme, index, currentTab })}
       <td>
         <Row gap="6px" justify={'flex-end'}>
           <SimpleTooltip text={t`Explore`}>

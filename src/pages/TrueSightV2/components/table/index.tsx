@@ -25,7 +25,7 @@ import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/T
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
-import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
+import { IHolderList, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
   calculateValueToColor,
   colorFundingRateText,
@@ -575,7 +575,6 @@ const WidgetTokenRow = ({
   const theme = useTheme()
   const navigate = useNavigate()
 
-  const latestKyberScore: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
   const hasMutipleChain = token?.addresses?.length > 1
   const [showSwapMenu, setShowSwapMenu] = useState(false)
 
@@ -684,13 +683,9 @@ const WidgetTokenRow = ({
           </td>
           <td>
             <Column style={{ alignItems: 'center', width: '110px' }}>
-              <SmallKyberScoreMeter data={latestKyberScore} disabledTooltip={token.symbol === 'KNC'} />
-              <Text
-                color={calculateValueToColor(latestKyberScore?.kyberScore || 0, theme)}
-                fontSize="14px"
-                fontWeight={500}
-              >
-                {latestKyberScore?.tag || t`Not Applicable`}
+              <SmallKyberScoreMeter token={token} disabledTooltip={token.symbol === 'KNC'} />
+              <Text color={calculateValueToColor(token.kyberScore || 0, theme)} fontSize="14px" fontWeight={500}>
+                {token?.kyberScoreTag || t`Not Applicable`}
               </Text>
             </Column>
           </td>
@@ -1104,7 +1099,6 @@ export const TokenListInShareModalTable = ({
       </thead>
       <tbody>
         {data.map((token, index) => {
-          const latestKyberscore = token.kyberScore3D ? token.kyberScore3D[token.kyberScore3D.length - 1] : null
           return (
             <tr key={token.symbol + index} style={{ height: '50px' }}>
               <td style={{ padding: '16px 0px 16px 10px', color: theme.subText }}>{index + 1 + startIndex}</td>
@@ -1146,9 +1140,7 @@ export const TokenListInShareModalTable = ({
               </td>
               {!mobileMode && (
                 <td style={{ textAlign: 'right' }}>
-                  <Text color={calculateValueToColor(latestKyberscore?.kyberScore || 0, theme)}>
-                    {latestKyberscore?.kyberScore}
-                  </Text>
+                  <Text color={calculateValueToColor(token?.kyberScore || 0, theme)}>{token?.kyberScore}</Text>
                 </td>
               )}
             </tr>

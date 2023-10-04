@@ -88,6 +88,7 @@ const ShareGroup = styled.div`
     top: 0;
     bottom: 0;
     padding: 0 12px;
+    z-index: ${Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS};
     background: ${theme.background}
   `}
 `
@@ -104,7 +105,6 @@ const SelectGroup = styled.div`
     bottom: 0;
     width: 100%;
     height: 100%;
-    overflow-x: scroll;
     padding-right: 100px;
   `}
 `
@@ -200,9 +200,38 @@ export default function TokenFilter({
   }
 
   const isWatchlistTab = listType === KyberAIListType.MYWATCHLIST
+
+  const [scrolling, setScrolling] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  // why we need it: z-index of select not working with scroll container
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    let touchstartX = 0
+    const onStart = (e: TouchEvent) => {
+      touchstartX = e.changedTouches?.[0]?.screenX
+    }
+    const onEnd = (e: TouchEvent) => {
+      const touchendX = e.changedTouches?.[0]?.screenX
+      if (Math.abs(touchendX - touchstartX) > 5) {
+        setScrolling(true)
+      }
+    }
+    node?.addEventListener('touchstart', onStart)
+    node?.addEventListener('touchend', onEnd)
+    return () => {
+      node?.removeEventListener('touchstart', onStart)
+      node?.removeEventListener('touchend', onEnd)
+    }
+  }, [])
+
   return (
     <StyledWrapper>
-      <SelectGroup>
+      <SelectGroup
+        ref={ref}
+        style={{ overflowX: scrolling ? 'scroll' : undefined }}
+        onClick={() => setScrolling(false)}
+      >
         {showLoading ? (
           new Array(isWatchlistTab ? 5 : 4)
             .fill(0)
