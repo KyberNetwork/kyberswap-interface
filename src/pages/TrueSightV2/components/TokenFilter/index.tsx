@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
@@ -288,7 +289,10 @@ export default function TokenFilter({
         >
           <Icon size={16} id="share" />
         </ButtonGray>
-        <SubscribeButtonKyberAI ranking />
+        <SubscribeButtonKyberAI
+          type="ranking"
+          tooltip={t`Subscribe to receive daily emails on tokens in your watchlist and tokens recommended by KyberAI!`}
+        />
       </ShareGroup>
     </StyledWrapper>
   )
