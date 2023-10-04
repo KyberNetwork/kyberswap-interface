@@ -410,11 +410,12 @@ const renderByColumnType: Record<
         <col style={{ width: '120px', minWidth: 'auto' }} />
       </>
     ),
-    tableHeader: ({ theme }) => (
-      <TableHeaderCell colSpan={3} align="left">
+    tableHeader: ({ theme, sortInfo, onChangeSort }) => (
+      <TableHeaderCell colSpan={3} align="left" sortable onClick={() => onChangeSort(SORT_FIELD.FUNDING_RATE)}>
         <Column gap="6px">
-          <Row justify="flex-start">
+          <Row justify="flex-start" gap="4px">
             <Trans>Funding Rates</Trans>
+            <SortArrow type={SORT_FIELD.FUNDING_RATE} sortInfo={sortInfo} />
           </Row>
           <Row
             gap="24px"
