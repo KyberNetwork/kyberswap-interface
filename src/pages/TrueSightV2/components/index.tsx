@@ -61,6 +61,10 @@ export const SectionDescription = styled.div<{ show?: boolean }>`
     css`
       white-space: initial;
     `}
+
+  > * {
+    display: inline-block;
+  }
 `
 
 const ButtonWrapper = styled.div`
