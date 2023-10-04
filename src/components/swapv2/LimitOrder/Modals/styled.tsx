@@ -62,13 +62,16 @@ export const Header = ({ title, onDismiss }: { title: string; onDismiss: () => v
   )
 }
 
+const NoteWrapper = styled.div`
+  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
+  color: ${({ theme }) => theme.text};
+  padding: 10px 12px;
+  border-radius: 16px;
+  line-height: 16px;
+  font-size: 12px;
+`
 export const Note = ({ note }: { note?: string }) => {
-  const theme = useTheme()
-  return note ? (
-    <Text fontSize={12} fontStyle="italic" color={theme.subText}>
-      {note}
-    </Text>
-  ) : null
+  return note ? <NoteWrapper>{note}</NoteWrapper> : null
 }
 
 type ListDataType = { label: string; content: ReactNode }[]

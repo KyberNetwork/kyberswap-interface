@@ -139,7 +139,7 @@ export default function ListLimitOrder() {
   const [keyword, setKeyword] = useState('')
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
-  const { ordersUpdating } = useLimitState()
+  const { ordersNeedCreated: ordersUpdating } = useLimitState()
 
   const { isOrderCancelling } = useCancellingOrders()
   const { mixpanelHandler } = useMixpanel()

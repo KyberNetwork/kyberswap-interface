@@ -7,7 +7,7 @@ import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import Modal from 'components/Modal'
-import { useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
+import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
@@ -18,7 +18,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm, { Label } from './LimitOrderForm'
 import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
-import { CancelOrderFunction, CancelOrderInfo, LimitOrder, LimitOrderStatus, RateInfo } from './type'
+import { CancelOrderFunction, CancelOrderInfo, EditOrderInfo, LimitOrder, LimitOrderStatus, RateInfo } from './type'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -84,6 +84,8 @@ export default function EditOrderModal({
 
   const orders = useMemo(() => (order ? [order] : []), [order])
 
+  const estimateGas = useEstimateFee({ orders })
+
   const renderCancelButtons = (showCancelStatus = true, disableButtons = false) => (
     <>
       {showCancelStatus && (
@@ -96,7 +98,7 @@ export default function EditOrderModal({
       )}
       <CancelButtons
         isEdit
-        orders={orders}
+        estimateGas={estimateGas}
         supportCancelGasless={supportCancelGasless}
         loading={flowState.attemptingTxn}
         cancelStatus={cancelStatus}
@@ -116,6 +118,8 @@ export default function EditOrderModal({
     onClickGaslessCancel,
     onClickHardCancel,
   }
+
+  const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas }
 
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
@@ -144,11 +148,11 @@ export default function EditOrderModal({
           setFlowState={setFlowState}
           currencyIn={currencyIn}
           currencyOut={currencyOut}
-          isEdit
           defaultInputAmount={formatIn}
           defaultOutputAmount={formatOut}
           defaultActiveMakingAmount={defaultActiveMakingAmount}
           defaultRate={defaultRate}
+          editOrderInfo={editOrderInfo}
           cancelOrderInfo={cancelOrderInfo}
           note={note}
           orderInfo={order}

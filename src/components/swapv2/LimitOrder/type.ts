@@ -77,6 +77,8 @@ export type CancelOrderInfo = {
   renderCancelButtons: (v?: boolean, disableButtons?: boolean) => ReactNode
 }
 
+export type EditOrderInfo = { cancelType?: CancelOrderType; gasFee?: string; isEdit?: boolean }
+
 export type CancelOrderResponse = {
   orders: { operatorSignatureExpiredAt: number }[]
 }

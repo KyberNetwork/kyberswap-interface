@@ -61,7 +61,7 @@ import {
   parseFraction,
   removeTrailingZero,
 } from './helpers'
-import { CancelOrderInfo, CreateOrderParam, LimitOrder, RateInfo } from './type'
+import { CancelOrderInfo, CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from './type'
 
 export const Label = styled.div`
   font-weight: 500;
@@ -91,7 +91,7 @@ type Props = {
   zIndexToolTip?: number
   cancelOrderInfo?: CancelOrderInfo
   defaultRate?: RateInfo
-  isEdit?: boolean
+  editOrderInfo?: EditOrderInfo
 }
 
 const InputWrapper = styled.div`
@@ -128,8 +128,9 @@ function LimitOrderForm({
   setFlowState,
   zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
   cancelOrderInfo,
-  isEdit = false, // else create
+  editOrderInfo,
 }: Props) {
+  const isEdit = editOrderInfo?.isEdit || false // else create
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
@@ -138,7 +139,7 @@ function LimitOrderForm({
 
   const { setCurrencyIn, setCurrencyOut, switchCurrency, removeOrderNeedCreated, resetState, setOrderEditing } =
     useLimitActionHandlers()
-  const { ordersUpdating, inputAmount: inputAmountGlobal } = useLimitState()
+  const { ordersNeedCreated: ordersUpdating, inputAmount: inputAmountGlobal } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
   const [outputAmount, setOuputAmount] = useState(defaultOutputAmount)
@@ -805,7 +806,7 @@ function LimitOrderForm({
         rateInfo={rateInfo}
         marketPrice={tradeInfo}
         note={note}
-        isEdit={isEdit}
+        editOrderInfo={editOrderInfo}
         warningMessage={warningMessage}
         percentDiff={Number(deltaRate.rawPercent)}
         renderButtons={cancelOrderInfo?.renderCancelButtons}

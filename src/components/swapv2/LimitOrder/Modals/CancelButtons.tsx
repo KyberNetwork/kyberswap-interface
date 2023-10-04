@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { Check } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
@@ -8,14 +8,11 @@ import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
-import { useGetEncodeLimitOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
-import { CancelOrderType, LimitOrder } from 'components/swapv2/LimitOrder/type'
-import { EMPTY_ARRAY } from 'constants/index'
+import { CancelOrderType } from 'components/swapv2/LimitOrder/type'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-import useEstimateGasTxs from 'utils/useEstimateGasTxs'
 
 const ButtonGroup = ({
   isEdit,
@@ -80,7 +77,7 @@ const CancelButtons = ({
   totalOrder,
   disabledGasLessCancel = false,
   disabledHardCancel = false,
-  orders = EMPTY_ARRAY,
+  estimateGas,
 }: {
   cancelStatus: CancelStatus
   onOkay: () => void
@@ -93,7 +90,7 @@ const CancelButtons = ({
   totalOrder?: ReactNode
   disabledGasLessCancel?: boolean
   disabledHardCancel?: boolean
-  orders?: LimitOrder[]
+  estimateGas: string
 }) => {
   const theme = useTheme()
   const isWaiting = cancelStatus === CancelStatus.WAITING
@@ -105,38 +102,8 @@ const CancelButtons = ({
     supportCancelGasless ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL,
   )
 
-  const getEncodeData = useGetEncodeLimitOrder()
-  const estimateGas = useEstimateGasTxs()
-  const [gasFeeHardCancel, setGasFeeHardCancel] = useState('')
-
-  useEffect(() => {
-    const controller = new AbortController()
-    const signal = controller.signal
-    const fetchEncode = async () => {
-      try {
-        if (!orders.length) throw new Error()
-        const resp = await getEncodeData({ orders, isCancelAll })
-        if (signal.aborted) return
-        const data = await Promise.all(resp.map(estimateGas))
-        if (signal.aborted) return
-        const gas = data.reduce((rs, item) => rs + (item.gasInUsd || 0), 0)
-        setGasFeeHardCancel(gas + '')
-      } catch (error) {
-        if (signal.aborted) return
-        setGasFeeHardCancel('')
-      }
-    }
-
-    setTimeout(() => {
-      if (signal.aborted) return
-      fetchEncode()
-    }, 100)
-
-    return () => controller.abort()
-  }, [getEncodeData, orders, estimateGas, isCancelAll])
-
-  const gasAmountDisplay = gasFeeHardCancel
-    ? `~${formatDisplayNumber(gasFeeHardCancel + '', {
+  const gasAmountDisplay = estimateGas
+    ? `~${formatDisplayNumber(estimateGas + '', {
         style: 'currency',
         significantDigits: 4,
       })}`

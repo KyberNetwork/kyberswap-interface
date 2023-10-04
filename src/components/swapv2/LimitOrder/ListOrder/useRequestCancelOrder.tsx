@@ -21,11 +21,12 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { getContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/sentry'
+import useEstimateGasTxs from 'utils/useEstimateGasTxs'
 
 import { formatAmountOrder, formatSignature, getErrorMessage, getPayloadTracking } from '../helpers'
 import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder } from '../type'
 
-export const useGetEncodeLimitOrder = () => {
+const useGetEncodeLimitOrder = () => {
   const { account } = useActiveWeb3React()
   const [getEncodeData] = useGetEncodeDataMutation()
   const { library } = useWeb3React()
@@ -253,4 +254,39 @@ export const useProcessCancelOrder = ({
 
   return { onClickGaslessCancel, onClickHardCancel, expiredTime, cancelStatus, setCancelStatus }
 }
+
+export const useEstimateFee = ({ isCancelAll = false, orders }: { isCancelAll?: boolean; orders: LimitOrder[] }) => {
+  const getEncodeData = useGetEncodeLimitOrder()
+  const estimateGas = useEstimateGasTxs()
+  const [gasFeeHardCancel, setGasFeeHardCancel] = useState('')
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const signal = controller.signal
+    const fetchEncode = async () => {
+      try {
+        if (!orders.length) throw new Error()
+        const resp = await getEncodeData({ orders, isCancelAll })
+        if (signal.aborted) return
+        const data = await Promise.all(resp.map(estimateGas))
+        if (signal.aborted) return
+        const gas = data.reduce((rs, item) => rs + (item.gasInUsd || 0), 0)
+        setGasFeeHardCancel(gas + '')
+      } catch (error) {
+        if (signal.aborted) return
+        setGasFeeHardCancel('')
+      }
+    }
+
+    setTimeout(() => {
+      if (signal.aborted) return
+      fetchEncode()
+    }, 100)
+
+    return () => controller.abort()
+  }, [getEncodeData, orders, estimateGas, isCancelAll])
+
+  return gasFeeHardCancel
+}
+
 export default useRequestCancelOrder

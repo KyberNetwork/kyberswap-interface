@@ -4,7 +4,7 @@ import { Text } from 'rebass'
 
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
-import { useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
+import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import useAllActiveOrders, { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
@@ -133,6 +133,7 @@ function CancelOrderModal({
   ])
 
   const formatOrders = useMemo(() => (isCancelAll ? orders : order ? [order] : []), [order, isCancelAll, orders])
+  const estimateGas = useEstimateFee({ orders: formatOrders, isCancelAll })
   return (
     <Modal maxWidth={isCancelAll && !isCancelDone ? 540 : 480} isOpen={isOpen} onDismiss={onDismiss}>
       <Container>
@@ -165,7 +166,7 @@ function CancelOrderModal({
           flowState={flowState}
         />
         <CancelButtons
-          orders={formatOrders}
+          estimateGas={estimateGas}
           supportCancelGasless={supportGasLessCancel}
           loading={flowState.attemptingTxn}
           cancelStatus={cancelStatus}

@@ -11,11 +11,13 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/const'
 import { useActiveWeb3React } from 'hooks'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
+import useTheme from 'hooks/useTheme'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { TransactionFlowState } from 'types/TransactionFlowState'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import { formatAmountOrder } from '../helpers'
-import { RateInfo } from '../type'
+import { CancelOrderType, EditOrderInfo, RateInfo } from '../type'
 import { Container, Header, ListInfo, Note, Rate, Value } from './styled'
 
 const styleLogo = { width: 20, height: 20 }
@@ -35,7 +37,7 @@ export default memo(function ConfirmOrderModal({
   warningMessage,
   percentDiff,
   renderButtons,
-  isEdit,
+  editOrderInfo,
 }: {
   onSubmit: () => void
   onDismiss: () => void
@@ -51,18 +53,20 @@ export default memo(function ConfirmOrderModal({
   warningMessage: ReactNode[]
   percentDiff: number
   renderButtons?: () => ReactNode
-  isEdit?: boolean
+  editOrderInfo?: EditOrderInfo
 }) {
   const { account } = useActiveWeb3React()
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = percentDiff < WORSE_PRICE_DIFF_THRESHOLD
-
+  const theme = useTheme()
   const displayCurrencyOut = useMemo(() => {
     return currencyOut?.isNative ? currencyOut.wrapped : currencyOut
   }, [currencyOut])
 
+  const { cancelType, gasFee, isEdit } = editOrderInfo || {}
+
   const listData = useMemo(() => {
-    return [
+    const nodes = [
       {
         label: t`I want to pay`,
         content: currencyIn && inputAmount && (
@@ -98,7 +102,41 @@ export default memo(function ConfirmOrderModal({
         ),
       },
     ]
-  }, [account, currencyIn, displayCurrencyOut, inputAmount, rateInfo, outputAmount, expireAt])
+    if (isEdit)
+      nodes.push({
+        label: t`Edit Type`,
+        content: (
+          <Value>
+            <Text>
+              {cancelType === CancelOrderType.GAS_LESS_CANCEL ? (
+                <Trans>Gasless Edit</Trans>
+              ) : (
+                <Trans>
+                  Hard Edit (
+                  <Text as="span" color={theme.red}>
+                    ~{formatDisplayNumber(gasFee, { style: 'currency', fractionDigits: 4 })}
+                  </Text>{' '}
+                  gas fees)
+                </Trans>
+              )}
+            </Text>
+          </Value>
+        ),
+      })
+    return nodes
+  }, [
+    account,
+    currencyIn,
+    displayCurrencyOut,
+    inputAmount,
+    rateInfo,
+    outputAmount,
+    expireAt,
+    isEdit,
+    gasFee,
+    cancelType,
+    theme,
+  ])
 
   const handleDismiss = () => {
     onDismiss()
