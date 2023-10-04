@@ -6,7 +6,9 @@ import { GetRouteParams, GetRouteResponse } from './types/getRoute'
 
 const routeApi = createApi({
   reducerPath: 'routeApi',
-  baseQuery: baseQueryOauthDynamic({ baseUrl: '' }),
+  baseQuery: baseQueryOauthDynamic({
+    baseUrl: '',
+  }),
   endpoints: builder => ({
     getRoute: builder.query<
       GetRouteResponse,
@@ -20,6 +22,9 @@ const routeApi = createApi({
         url,
         params,
         authentication,
+        headers: {
+          'x-client-id': 'kyberswap',
+        },
       }),
     }),
     buildRoute: builder.mutation<
@@ -32,6 +37,9 @@ const routeApi = createApi({
         body: payload,
         signal,
         authentication,
+        headers: {
+          'x-client-id': 'kyberswap',
+        },
       }),
     }),
   }),

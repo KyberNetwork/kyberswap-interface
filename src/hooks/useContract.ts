@@ -45,16 +45,19 @@ export function useContract(
 ): Contract | null {
   const { account, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
+  const { readProvider } = useKyberSwapConfig()
+
+  const lib = useMemo(() => (account ? library : readProvider), [account, library, readProvider])
 
   return useMemo(() => {
-    if (!isEVM || !address || !ABI || !library) return null
+    if (!isEVM || !address || !ABI || !lib) return null
     try {
-      return getContract(address, ABI, library, withSignerIfPossible && account ? account : undefined)
+      return getContract(address, ABI, lib as any, withSignerIfPossible && account ? account : undefined)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, ABI, library, withSignerIfPossible, account, isEVM])
+  }, [address, ABI, lib, withSignerIfPossible, account, isEVM])
 }
 
 export function useContractForReading(
