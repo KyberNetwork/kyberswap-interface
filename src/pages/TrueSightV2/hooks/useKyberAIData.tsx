@@ -301,7 +301,7 @@ const kyberAIApi = createApi({
           patchResult.undo()
         }
       },
-      invalidatesTags: (result, error) => (error ? [] : ['watchlistsInfo', 'myWatchList']),
+      invalidatesTags: (_, error) => (error ? [] : ['watchlistsInfo', 'myWatchList']),
     }),
     //21.
     createCustomWatchlist: builder.mutation({
@@ -310,7 +310,7 @@ const kyberAIApi = createApi({
         method: 'POST',
         params,
       }),
-      invalidatesTags: ['watchlistsInfo'],
+      invalidatesTags: (_, error) => (error ? [] : ['watchlistsInfo']),
     }),
     //22.
     deleteCustomWatchlist: builder.mutation({
@@ -319,7 +319,7 @@ const kyberAIApi = createApi({
         method: 'DELETE',
         params,
       }),
-      invalidatesTags: ['watchlistsInfo', 'myWatchList'],
+      invalidatesTags: (_, error) => (error ? [] : ['watchlistsInfo', 'myWatchList']),
     }),
     //23.
     updateWatchlistsName: builder.mutation({
@@ -347,7 +347,7 @@ const kyberAIApi = createApi({
       transformResponse: (res: any) => res.data,
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         const { data } = await queryFulfilled
-        if (data.watchlists.length === 1) {
+        if (data.watchlists.length === 0) {
           await dispatch(kyberAIApi.endpoints.createCustomWatchlist.initiate({ name: t`My 1st Watchlists` }))
         }
       },

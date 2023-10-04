@@ -387,7 +387,7 @@ const CreateListInput = ({
 
 const generateNewListName = (number: number) => {
   const ordinalStrings: { [key: number]: string } = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th' }
-  return `My ${ordinalStrings[number]} Watchlist`
+  return `My ${ordinalStrings[number]} Watchlists`
 }
 
 let timer: NodeJS.Timeout
