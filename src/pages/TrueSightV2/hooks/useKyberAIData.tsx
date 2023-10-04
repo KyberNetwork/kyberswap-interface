@@ -36,7 +36,10 @@ const kyberAIApi = createApi({
     tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
       query: ({ type, chain, page, pageSize, keywords, sort, ...filter }) => {
         const { secondarySort, ...defaultParams } = DEFAULT_PARAMS_BY_TAB[type as KyberAIListType] || {}
-        const sortParam = `${sort || defaultParams.sort}${secondarySort ? `,${secondarySort}` : ''}`
+        const sortParam =
+          sort || defaultParams.sort
+            ? `${sort || defaultParams.sort}${secondarySort ? `,${secondarySort}` : ''}`
+            : undefined
         return {
           url: '/assets',
           params: {
