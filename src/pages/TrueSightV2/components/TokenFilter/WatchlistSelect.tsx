@@ -1,11 +1,10 @@
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { ReactNode, useMemo, useState } from 'react'
 import styled, { CSSProperties } from 'styled-components'
 
 import Icon from 'components/Icons/Icon'
 import Row from 'components/Row'
 import { SelectOption } from 'components/Select'
-import useTheme from 'hooks/useTheme'
 import { ActiveSelectItem, StyledSelect } from 'pages/TrueSightV2/components/TokenFilter'
 import { ManageListModal } from 'pages/TrueSightV2/components/WatchlistButton'
 import { useGetWatchlistInformationQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
@@ -22,15 +21,19 @@ const CustomOption = styled(Row)`
   }
 `
 
-const optionStyle: CSSProperties = { fontSize: '14px', padding: '10px 18px', alignItems: 'center' }
+const optionStyle: CSSProperties = { fontSize: '14px', padding: '10px 18px', textAlign: 'left' }
 const WatchlistSelect = ({
   menuStyle,
   onChange,
   value,
+  activeRender,
+  style,
 }: {
   menuStyle: CSSProperties
   onChange: (key: string) => void
   value: string
+  activeRender?: (any: any) => ReactNode
+  style?: CSSProperties
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const { data: dataWatchList } = useGetWatchlistInformationQuery()
@@ -45,14 +48,18 @@ const WatchlistSelect = ({
 
   const totalToken = dataWatchList?.totalUniqueAssetNumber
   const labelAll = <Trans>All Tokens ({totalToken})</Trans>
-  const theme = useTheme()
 
   return (
     <>
-      <div style={{ height: '26px', minWidth: 2, background: theme.border }} />
       <StyledSelect
         value={value}
-        activeRender={item => <ActiveSelectItem name={t`Watchlist`} label={value ? item?.label : labelAll} />}
+        activeRender={item =>
+          activeRender ? (
+            activeRender(item)
+          ) : (
+            <ActiveSelectItem name={t`Watchlist`} label={value ? item?.label : labelAll} />
+          )
+        }
         options={options}
         onChange={onChange}
         dropdownRender={menu => {
@@ -72,6 +79,7 @@ const WatchlistSelect = ({
         }}
         optionStyle={optionStyle}
         menuStyle={menuStyle}
+        style={style}
       />
       <ManageListModal isOpen={isOpen} setIsOpen={setIsOpen} />
     </>

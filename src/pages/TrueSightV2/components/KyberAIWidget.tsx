@@ -13,7 +13,6 @@ import Divider from 'components/Divider'
 import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
-import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -22,9 +21,10 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useIsWhiteListKyberAI, useKyberAIWidget } from 'state/user/hooks'
 
-import { useGetWatchlistInformationQuery, useTokenListQuery } from '../hooks/useKyberAIData'
+import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, KyberAIListType } from '../types'
 import SimpleTooltip from './SimpleTooltip'
+import WatchlistSelect from './TokenFilter/WatchlistSelect'
 import { WidgetMobileTable, WidgetTable } from './table/index'
 
 const CloseButton = styled.div`
@@ -163,21 +163,27 @@ export enum WidgetTab {
 const widgetTabRender = {
   [WidgetTab.MyWatchlist]: {
     tooltip: undefined,
-    render: ({ watchlists }: any) => (
-      <Select
-        options={
-          watchlists?.map((e: any) => {
-            return { value: e.id + '', label: `${e.name} (${e.assetNumber})` }
-          }) || []
-        }
+    render: ({ onChangeWatchList }: any) => (
+      <WatchlistSelect
+        value={''}
+        menuStyle={{
+          top: '40px',
+        }}
+        onChange={onChangeWatchList}
         activeRender={() => (
-          <Row gap="4px">
+          <Row gap="4px" lineHeight="16px">
             <Icon id="star" size={14} />
             <Trans>My Watchlists</Trans>
           </Row>
         )}
-        dropdownRender={menu => <>{menu}</>}
-        style={{ padding: 0, background: 'unset', fontSize: '14px' }}
+        style={{
+          padding: 0,
+          borderRadius: 0,
+          background: 'unset',
+          border: 0,
+          height: 'fit-content',
+          fontSize: '14px',
+        }}
       />
     ),
   },
@@ -222,8 +228,8 @@ export default function Widget() {
   const [showExpanded, setShowExpanded] = useState(false)
   const [showWidget, toggleWidget] = useKyberAIWidget()
   const [activeTab, setActiveTab] = useState<WidgetTab>(WidgetTab.MyWatchlist)
+  const [selectingWatchlists, setSelectingWatchlists] = useState<string | undefined>()
   const { isWhiteList } = useIsWhiteListKyberAI()
-  const { data: dataWatchlists } = useGetWatchlistInformationQuery()
   const [, setIsSessionExpired] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const mobileRef = useRef<HTMLDivElement>(null)
@@ -250,6 +256,7 @@ export default function Widget() {
       }[activeTab],
       page: 1,
       pageSize: 5,
+      watchlist: activeTab === WidgetTab.MyWatchlist ? selectingWatchlists || 'all' : undefined,
     },
     { refetchOnMountOrArgChange: true, skip: !isWhiteList || !showWidget },
   )
@@ -349,7 +356,7 @@ export default function Widget() {
       ) : (
         <ExpandedWidgetWrapper ref={ref} show={showExpanded}>
           <Column>
-            <Row>
+            <Row style={{ zIndex: 2 }}>
               {Object.values(WidgetTab).map(t => {
                 const tab = widgetTabRender[t]
                 return (
@@ -370,13 +377,19 @@ export default function Widget() {
                         <Text style={{ borderBottom: `1px dotted ${theme.subText}` }}>{tab.render()}</Text>
                       </MouseoverTooltip>
                     ) : (
-                      <Text>{tab.render({ watchlists: dataWatchlists?.watchlists })}</Text>
+                      <Text>
+                        {tab.render({
+                          onChangeWatchList: (value: string) => {
+                            setSelectingWatchlists(value)
+                          },
+                        })}
+                      </Text>
                     )}
                   </Tab>
                 )
               })}
             </Row>
-            <Row align="center" justify="center" height="400px" width="820px">
+            <Row align="center" justify="center" height="400px" width="820px" style={{ zIndex: 1 }}>
               {activeTab === WidgetTab.MyWatchlist && data && data.data.length === 0 ? (
                 <Text color={theme.subText} textAlign="center">
                   <Trans>
@@ -405,19 +418,24 @@ export default function Widget() {
               </TextButton>
               <TextButton
                 style={{ color: theme.primary }}
-                onClick={() =>
+                onClick={() => {
+                  const searchParams: any = {
+                    listType: {
+                      [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
+                      [WidgetTab.Bearish]: KyberAIListType.BEARISH,
+                      [WidgetTab.Bullish]: KyberAIListType.BULLISH,
+                      [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
+                    }[activeTab],
+                  }
+                  if (activeTab === WidgetTab.MyWatchlist) {
+                    searchParams.watchlist = selectingWatchlists || 'all'
+                  }
                   navigate({
                     pathname: APP_PATHS.KYBERAI_RANKINGS,
-                    search: `${createSearchParams({
-                      listType: {
-                        [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
-                        [WidgetTab.Bearish]: KyberAIListType.BEARISH,
-                        [WidgetTab.Bullish]: KyberAIListType.BULLISH,
-                        [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
-                      }[activeTab],
-                    })}`,
+                    search: `${createSearchParams(searchParams)}`,
                   })
-                }
+                  setShowExpanded(false)
+                }}
               >
                 <Trans>View more ↗</Trans>
               </TextButton>
@@ -493,7 +511,7 @@ const KyberAIWidgetMobileContent = ({
   const navigate = useNavigate()
   return (
     <Wrapper style={{ width: '100%' }}>
-      <Row>
+      <Row style={{ zIndex: 2 }}>
         <MobileTab active={activeTab === WidgetTab.MyWatchlist} onClick={() => setActiveTab(WidgetTab.MyWatchlist)}>
           <Icon id="star" size={16} />
           <span>{WidgetTab.MyWatchlist}</span>
@@ -511,7 +529,7 @@ const KyberAIWidgetMobileContent = ({
           <span>{WidgetTab.TrendingSoon}</span>
         </MobileTab>
       </Row>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, zIndex: 1 }}>
         <WidgetMobileTable
           data={data}
           isLoading={isLoading}

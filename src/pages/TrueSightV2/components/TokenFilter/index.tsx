@@ -264,11 +264,14 @@ export default function TokenFilter({
               />
             ))}
             {isWatchlistTab && (
-              <WatchlistSelect
-                value={filter['watchlist']}
-                onChange={value => onChangeFilter('watchlist', value)}
-                menuStyle={menuStyle}
-              />
+              <>
+                <div style={{ height: '26px', minWidth: 2, background: theme.border }} />
+                <WatchlistSelect
+                  value={filter['watchlist']}
+                  onChange={value => onChangeFilter('watchlist', value)}
+                  menuStyle={menuStyle}
+                />
+              </>
             )}
           </>
         )}
