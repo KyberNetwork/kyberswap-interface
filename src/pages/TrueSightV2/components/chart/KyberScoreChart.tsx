@@ -86,7 +86,7 @@ export default function KyberScoreChart({
         </defs>
         <g transform="scale(1,-1) translate(0,-21)" clipPath="url(#cut-off-outline)">
           {filledData?.map((item, index) => {
-            const v = item?.createdAt || 0
+            const v = item?.kyberScore || 0
             const gap = 2
             const rectWidth = (100 - (filledData.length - 1) * gap) / filledData.length
             const rectHeight = !v ? 21 : Math.max((v * 21) / 100, 0.8)

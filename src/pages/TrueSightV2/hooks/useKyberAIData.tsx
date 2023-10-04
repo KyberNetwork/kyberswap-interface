@@ -4,6 +4,7 @@ import baseQueryOauth from 'services/baseQueryOauth'
 
 import { SelectOption } from 'components/Select'
 import { BFF_API } from 'constants/env'
+import { RTK_QUERY_TAGS } from 'constants/index'
 import { DEFAULT_PARAMS_BY_TAB } from 'pages/TrueSightV2/constants'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
@@ -30,7 +31,12 @@ const kyberAIApi = createApi({
   baseQuery: baseQueryOauth({
     baseUrl: `${BFF_API}/v1/truesight`,
   }),
-  tagTypes: ['tokenOverview', 'tokenList', 'myWatchList', 'watchlistsInfo'],
+  tagTypes: [
+    RTK_QUERY_TAGS.GET_TOKEN_OVERVIEW_KYBER_AI,
+    RTK_QUERY_TAGS.GET_TOKEN_LIST_KYBER_AI,
+    RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI,
+    RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI,
+  ],
   endpoints: builder => ({
     //1.
     tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
@@ -56,7 +62,9 @@ const kyberAIApi = createApi({
         return { data: res.data.assets, totalItems: res.data.pagination.totalItems }
       },
       providesTags: (_, __, { type }) =>
-        type === KyberAIListType.MYWATCHLIST ? ['myWatchList', 'tokenList'] : ['tokenList'],
+        type === KyberAIListType.MYWATCHLIST
+          ? [RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI, RTK_QUERY_TAGS.GET_TOKEN_LIST_KYBER_AI]
+          : [RTK_QUERY_TAGS.GET_TOKEN_LIST_KYBER_AI],
     }),
     assetOverview: builder.query<IAssetOverview, { assetId?: string }>({
       query: ({ assetId }: { assetId?: string }) => ({
@@ -272,7 +280,8 @@ const kyberAIApi = createApi({
           patchResult.undo()
         }
       },
-      invalidatesTags: (result, error) => (error ? [] : ['watchlistsInfo', 'myWatchList']),
+      invalidatesTags: (result, error) =>
+        error ? [] : [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI, RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI],
     }),
     //20.
     removeFromWatchlist: builder.mutation({
@@ -301,7 +310,8 @@ const kyberAIApi = createApi({
           patchResult.undo()
         }
       },
-      invalidatesTags: (_, error) => (error ? [] : ['watchlistsInfo', 'myWatchList']),
+      invalidatesTags: (_, error) =>
+        error ? [] : [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI, RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI],
     }),
     //21.
     createCustomWatchlist: builder.mutation({
@@ -310,7 +320,7 @@ const kyberAIApi = createApi({
         method: 'POST',
         params,
       }),
-      invalidatesTags: (_, error) => (error ? [] : ['watchlistsInfo']),
+      invalidatesTags: (_, error) => (error ? [] : [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI]),
     }),
     //22.
     deleteCustomWatchlist: builder.mutation({
@@ -319,7 +329,8 @@ const kyberAIApi = createApi({
         method: 'DELETE',
         params,
       }),
-      invalidatesTags: (_, error) => (error ? [] : ['watchlistsInfo', 'myWatchList']),
+      invalidatesTags: (_, error) =>
+        error ? [] : [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI, RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI],
     }),
     //23.
     updateWatchlistsName: builder.mutation({
@@ -351,7 +362,7 @@ const kyberAIApi = createApi({
           await dispatch(kyberAIApi.endpoints.createCustomWatchlist.initiate({ name: t`My 1st Watchlists` }))
         }
       },
-      providesTags: ['watchlistsInfo'],
+      providesTags: [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI],
     }),
     //26.
     updateCustomizedWatchlistsPriorities: builder.mutation({
@@ -360,7 +371,7 @@ const kyberAIApi = createApi({
         method: 'PUT',
         params: { orderedIds },
       }),
-      invalidatesTags: ['watchlistsInfo'],
+      invalidatesTags: [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI],
     }),
     getFilterCategories: builder.query<{ displayName: string; queryKey: string; values: SelectOption[] }[], void>({
       query: () => ({

@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux'
 import { useGetOrCreateProfileMutation } from 'services/identity'
 
 import { useActiveWeb3React } from 'hooks'
-import kyberAIapi from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { AppState } from 'state'
 import { useSessionInfo } from 'state/authen/hooks'
 import { UserProfile, authenActions } from 'state/authen/reducer'
@@ -229,7 +228,6 @@ export const useSaveUserProfile = () => {
       account: string | undefined
     }) => {
       dispatch(authenActions.updateProfile({ profile, isAnonymous }))
-      dispatch(kyberAIapi.util.invalidateTags(['myWatchList']))
       saveCacheProfile({
         isAnonymous,
         profile,

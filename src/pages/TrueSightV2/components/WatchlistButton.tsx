@@ -349,11 +349,7 @@ const CreateListInput = ({
             value={value}
             onChange={e => {
               if (touchedRef.current) {
-                if (!checkExist(e.target.value)) {
-                  setIsError(false)
-                } else {
-                  setIsError(true)
-                }
+                setIsError(checkExist(e.target.value))
               }
               setValue(e.target.value)
             }}

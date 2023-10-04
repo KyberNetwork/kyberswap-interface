@@ -502,7 +502,7 @@ const renderByColumnType: Record<
       <>
         {['Binance', 'OKX', 'Bybit'].map((exname: string) => {
           const exchange = token?.fundingRateExtra?.uMarginList?.find((item: any) => item.exchangeName === exname)
-          const rate = (exchange && exchange.rate) || 0
+          const rate = exchange?.rate || 0
           return (
             <td key={exname} style={{ textAlign: 'start' }}>
               <Text color={colorFundingRateText(rate, theme)}>{rate.toFixed(4) + '%' || '--'}</Text>
