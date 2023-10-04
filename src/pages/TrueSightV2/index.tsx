@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -101,7 +101,12 @@ export default function TrueSightV2() {
           </RowFit>
           <RowFit gap="16px" flex={1} justify="flex-end">
             {above768 && <SearchWithDropDown />}
-            {isExplore && <SubscribeButtonKyberAI source="explore" />}
+            {isExplore && (
+              <SubscribeButtonKyberAI
+                type="explore"
+                tooltip={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
+              />
+            )}
           </RowFit>
         </RowBetween>
       </HeaderWrapper>

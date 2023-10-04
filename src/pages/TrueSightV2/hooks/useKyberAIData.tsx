@@ -34,16 +34,24 @@ const kyberAIApi = createApi({
   endpoints: builder => ({
     //1.
     tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
-      query: ({ type, chain, page, pageSize, keywords, ...filterSort }) => ({
-        url: '/assets',
-        params: {
-          ...DEFAULT_PARAMS_BY_TAB[type as KyberAIListType],
-          ...filterSort,
-          page: page || 1,
-          pageSize: pageSize || 10,
-          keywords,
-        },
-      }),
+      query: ({ type, chain, page, pageSize, keywords, sort, ...filter }) => {
+        const { secondarySort, ...defaultParams } = DEFAULT_PARAMS_BY_TAB[type as KyberAIListType] || {}
+        const sortParam =
+          sort || defaultParams.sort
+            ? `${sort || defaultParams.sort}${secondarySort ? `,${secondarySort}` : ''}`
+            : undefined
+        return {
+          url: '/assets',
+          params: {
+            ...defaultParams,
+            ...filter,
+            sort: sortParam,
+            page: page || 1,
+            pageSize: pageSize || 10,
+            keywords,
+          },
+        }
+      },
       transformResponse: (res: any) => {
         return { data: res.data.assets, totalItems: res.data.pagination.totalItems }
       },
