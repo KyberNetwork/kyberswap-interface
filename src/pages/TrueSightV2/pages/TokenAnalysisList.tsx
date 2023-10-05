@@ -700,6 +700,8 @@ export default function TokenAnalysisList() {
     [searchParams, setSearchParams],
   )
 
+  const onResetFilterSort = () => handleTabChange(listTypeParam)
+
   const handlePageChange = (page: number) => {
     searchParams.set('page', page.toString())
     setSearchParams(searchParams)
@@ -792,6 +794,7 @@ export default function TokenAnalysisList() {
           filter={filter}
           handleFilterChange={handleFilterChange}
           setShowShare={setShowShare}
+          onResetFilterSort={onResetFilterSort}
         />
 
         <Column gap="0px" style={{ position: 'relative' }}>

@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Trash2 } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -126,16 +127,29 @@ export const ActiveSelectItem = ({ name, label }: { name: string; label: ReactNo
   )
 }
 
+const StyledButton = styled(ButtonGray)`
+  height: 36px;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 14px;
+  display: flex;
+  color: ${({ theme }) => theme.subText};
+  background-color: ${({ theme }) => theme.tableHeader};
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16));
+`
+
 export default function TokenFilter({
   handleFilterChange,
   setShowShare,
   filter = EMPTY_OBJECT,
   listType,
+  onResetFilterSort,
 }: {
   handleFilterChange: (filter: Record<string, string>) => void
   setShowShare: (v: boolean) => void
   filter: { [k: string]: string }
   listType: KyberAIListType
+  onResetFilterSort: () => void
 }) {
   const onChangeFilter = useCallback(
     (key: string, value: string) => {
@@ -277,21 +291,14 @@ export default function TokenFilter({
         )}
       </SelectGroup>
       <ShareGroup>
-        <ButtonGray
-          color={theme.subText}
-          gap="4px"
-          width="36px"
-          height="36px"
-          padding="6px"
-          style={{
-            filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))',
-            flexShrink: 0,
-            backgroundColor: theme.tableHeader,
-          }}
-          onClick={() => setShowShare(true)}
-        >
+        <StyledButton onClick={onResetFilterSort}>
+          <Trash2 size={16} />
+          {!upToSmall && <Trans>Reset</Trans>}
+        </StyledButton>
+        <StyledButton onClick={() => setShowShare(true)}>
           <Icon size={16} id="share" />
-        </ButtonGray>
+          {!upToSmall && <Trans>Share</Trans>}
+        </StyledButton>
         <SubscribeButtonKyberAI
           type="ranking"
           tooltip={t`Subscribe to receive daily emails on tokens in your watchlist and tokens recommended by KyberAI!`}
