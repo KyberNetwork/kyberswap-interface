@@ -23,17 +23,8 @@ const Label = styled.span<{ labelColor?: string }>`
   overflow: hidden;
   text-overflow: ellipsis;
 `
-type Props = {
-  onClick: () => void
-} & MultipleChainSelectProps
-const SelectButton: React.FC<Props> = ({
-  onClick,
-  selectedChainIds,
-  chainIds,
-  activeRender,
-  activeStyle,
-  labelColor,
-}) => {
+type Props = MultipleChainSelectProps
+const SelectButton: React.FC<Props> = ({ selectedChainIds, chainIds, activeRender, activeStyle, labelColor }) => {
   const theme = useTheme()
 
   const renderButtonBody = () => {
@@ -88,7 +79,6 @@ const SelectButton: React.FC<Props> = ({
         cursor: 'pointer',
         ...activeStyle,
       }}
-      onClick={onClick}
     >
       {activeRender ? activeRender(renderButtonBody()) : renderButtonBody()}
     </Flex>
