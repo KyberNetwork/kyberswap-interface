@@ -108,7 +108,7 @@ const SelectGroup = styled.div`
     bottom: 0;
     width: 100%;
     height: 100%;
-    padding-right: 100px;
+    padding-right: 130px;
   `}
 `
 
