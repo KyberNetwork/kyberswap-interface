@@ -72,6 +72,13 @@ const kyberAIApi = createApi({
       }),
       transformResponse: (res: any) => {
         // If token is stablecoin remove its kyberscore value
+        if (res?.data?.kyberScore?.ks3d) {
+          res.data.kyberScore.ks3d = res?.data?.kyberScore?.ks3d.map((e: any) => ({
+            ...e,
+            kyberScore: e.kyber_score,
+            createdAt: e.created_at,
+          }))
+        }
         if (res.data && res.data.tags?.includes('stablecoin')) {
           return { ...res.data, kyberScore: { ks3d: null, label: '', score: 0 } }
         }
