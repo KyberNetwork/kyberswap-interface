@@ -184,7 +184,7 @@ const KyberAITokenBanner = ({
                     output_token: token1?.symbol?.toUpperCase(),
                   })
 
-                  navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
+                  //navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
                 }}
               />
             </RowFit>
@@ -199,10 +199,10 @@ const KyberAITokenBanner = ({
               input_token: token0?.symbol?.toUpperCase(),
               output_token: token1?.symbol?.toUpperCase(),
             })
-            window.open(
-              APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address,
-              '_blank',
-            )
+            // window.open(
+            //   APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address,
+            //   '_blank',
+            // )
           }}
         >
           <RowBetween>
