@@ -105,7 +105,7 @@ export default function NewUpdateAnnoucement() {
           </Trans>
         </Text>
         <Row justify="center">
-          <ButtonPrimary style={{ padding: '8px 16px', width: 'fit-content' }}>
+          <ButtonPrimary style={{ padding: '8px 16px', width: 'fit-content' }} onClick={toggle}>
             <Text fontSize={above768 ? '14px' : '12px'} lineHeight={above768 ? '20px' : '14px'}>
               <Trans>Let&apos;s get started</Trans>
             </Text>
