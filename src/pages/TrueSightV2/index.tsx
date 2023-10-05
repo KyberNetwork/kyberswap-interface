@@ -14,6 +14,7 @@ import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonK
 import { MEDIA_WIDTHS } from 'theme'
 
 import TrueSightWidget from './components/KyberAIWidget'
+import NewUpdateAnnoucement from './components/NewUpdateAnnoucement'
 import SearchWithDropDown from './components/SearchWithDropDown'
 import TutorialModal from './components/TutorialModal'
 import SingleToken from './pages/SingleToken'
@@ -119,6 +120,7 @@ export default function TrueSightV2() {
         {isExplore ? <SingleToken /> : <TokenAnalysisList />}
         <TrueSightWidget />
         <TutorialModal />
+        <NewUpdateAnnoucement />
       </Wrapper>
     </>
   )
