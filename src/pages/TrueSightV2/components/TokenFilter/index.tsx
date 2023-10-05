@@ -109,6 +109,11 @@ const SelectGroup = styled.div`
     width: 100%;
     height: 100%;
     padding-right: 150px;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    > * {
+      scroll-snap-align: start;
+    }
   `}
 `
 
@@ -219,7 +224,7 @@ export default function TokenFilter({
 
   return (
     <StyledWrapper>
-      <SelectGroup style={{ overflowX: 'scroll' }}>
+      <SelectGroup>
         {showLoading ? (
           new Array(isWatchlistTab ? 5 : 4)
             .fill(0)

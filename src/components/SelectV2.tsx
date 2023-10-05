@@ -159,7 +159,7 @@ function Select({
   })
 
   const updateCallback = useCallback(() => {
-    update && update()
+    update?.()
   }, [update])
 
   useInterval(updateCallback, showMenu ? 100 : null)

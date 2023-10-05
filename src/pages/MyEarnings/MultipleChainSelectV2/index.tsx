@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
@@ -78,6 +78,20 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
     }
   }
 
+  useEffect(() => {
+    setLocalSelectedChains(selectedChains)
+    // eslint-disable-next-line
+  }, [selectedChains.length])
+
+  const selectAllRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (!selectAllRef.current) {
+      return
+    }
+    selectAllRef.current.indeterminate =
+      0 < localSelectedChains.length && localSelectedChains.length < networkList.length
+  }, [localSelectedChains, networkList.length])
+
   return (
     <Select
       className={className}
@@ -146,7 +160,13 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
                 padding: '10px 18px',
               }}
             >
-              <Checkbox type="checkbox" id="checkAllChain" checked={isAllSelected} onChange={onChangeChain} />
+              <Checkbox
+                ref={selectAllRef}
+                type="checkbox"
+                id="checkAllChain"
+                checked={isAllSelected}
+                onChange={onChangeChain}
+              />
 
               <Flex width="20px" alignItems="center" justifyContent="center">
                 <LogoKyber width="14px" height="auto" color={theme.primary} />
