@@ -39,7 +39,7 @@ const Wrapper = styled.div`
 `
 
 // Change this value whenever want to show this Modal again
-const CURRENT_VERSION = 1
+const CURRENT_VERSION = 2
 
 export default function NewUpdateAnnoucement() {
   const theme = useTheme()
@@ -71,7 +71,7 @@ export default function NewUpdateAnnoucement() {
             overflow: 'hidden',
             borderRadius: above768 ? '16px' : '6px',
             boxShadow: '0 0 6px 0px #00000060',
-            height: above768 ? '128px' : 'auto',
+            height: above768 ? '128px' : '60px',
             backgroundImage: `url(${banner})`,
             backgroundColor: theme.buttonBlack,
             backgroundSize: 'cover',
