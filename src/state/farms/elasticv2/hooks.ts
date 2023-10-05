@@ -65,7 +65,7 @@ export const useFilteredFarmsV2 = (farmAddress?: string) => {
   const updatedFarms = useMemo(() => {
     const newFarms = farms
       ?.filter(farm => {
-        if (farm?.endTime < Date.now() / 1000) return false
+        if (farm?.endTime < Date.now() / 1000 || farm?.isSettled) return false
         const isUserJoinThisFarm = userInfo?.find(item => item.fId === farm.fId)
         if (!isUserJoinThisFarm) return false
 
