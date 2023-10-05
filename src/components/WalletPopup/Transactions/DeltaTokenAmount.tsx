@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode } from 'react'
 import styled, { CSSProperties } from 'styled-components'
 
-import Logo, { TokenLogoWithChain } from 'components/Logo'
+import { TokenLogoWithChain, TokenLogoWithShadow } from 'components/Logo'
 import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem'
 import { getTokenLogo } from 'components/WalletPopup/Transactions/helper'
 import useTheme from 'hooks/useTheme'
@@ -12,16 +12,6 @@ export const TokenAmountWrapper = styled.div`
   align-items: center;
   gap: 4px;
   font-size: 12px;
-`
-const TokenLogo = styled(Logo)`
-  width: 12px;
-  height: 12px;
-  border-radius: 100%;
-  box-shadow: ${({ theme }) =>
-    (() => {
-      const color = theme.darkMode ? `rgba(256, 256, 256, 0.2)` : `rgba(0, 0, 0, 0.2)`
-      return `0 4px 5px 0 ${color}, 0 1px 70px 0 ${color};`
-    })()};
 `
 
 const DeltaTokenAmount = ({
@@ -55,7 +45,7 @@ const DeltaTokenAmount = ({
         (chainId ? (
           <TokenLogoWithChain tokenLogo={logoUrl} chainId={chainId} size={12} />
         ) : (
-          <TokenLogo srcs={[logoUrl]} />
+          <TokenLogoWithShadow size="12px" srcs={[logoUrl]} />
         ))}
       <PrimaryText style={{ color }}>
         {sign} {amount} {symbol}

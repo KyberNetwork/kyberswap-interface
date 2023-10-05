@@ -1,7 +1,7 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
+import { useGetParticipantInfoQuery, useLazyGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
 import { SUGGESTED_BASES } from 'constants/bases'
 import { TERM_FILES_PATH } from 'constants/index'
@@ -497,22 +497,27 @@ const participantDefault = {
 }
 export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
   const { userInfo } = useSessionInfo()
-  const { data: data = participantDefault, isError } = useGetParticipantInfoQuery(undefined, {
+  const { currentData } = useGetParticipantInfoQuery(undefined, {
     skip: !userInfo,
   })
-  return isError ? participantDefault : data
+  return currentData || participantDefault
 }
 
 export const useIsWhiteListKyberAI = () => {
   const { isLogin, pendingAuthentication, userInfo } = useSessionInfo()
   const {
-    data: rawData,
+    currentData: rawData,
     isFetching,
     isError,
-    refetch,
   } = useGetParticipantInfoQuery(undefined, {
-    skip: !userInfo,
+    skip: !userInfo || userInfo?.data?.hasAccessToKyberAI,
   })
+
+  const [getParticipantInfoQuery] = useLazyGetParticipantInfoQuery()
+  // why not use refetch of useGetParticipantInfoQuery: loop api issues, idk.
+  const refetch = useCallback(() => {
+    userInfo && getParticipantInfoQuery()
+  }, [getParticipantInfoQuery, userInfo])
 
   const { account } = useActiveWeb3React()
   const [connectingWallet] = useIsConnectingWallet()

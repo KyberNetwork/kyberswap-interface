@@ -8,7 +8,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 
-import { IKyberScoreChart } from '../types'
+import { IKyberScoreChart, ITokenList } from '../types'
 import { calculateValueToColor, formatTokenPrice } from '../utils'
 import { gaugeList } from './KyberScoreMeter'
 import SimpleTooltip from './SimpleTooltip'
@@ -27,8 +27,9 @@ const GaugeValue = styled.div`
   justify-content: center;
   bottom: 6px;
 `
-function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreChart; disabledTooltip?: boolean }) {
-  const value = data?.kyber_score
+function SmallKyberScoreMeter({ disabledTooltip, token }: { disabledTooltip?: boolean; token: ITokenList }) {
+  const data: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
+  const value = token?.kyberScore
   const theme = useTheme()
   const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
@@ -56,16 +57,16 @@ function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreCha
             data ? (
               <Column style={{ whiteSpace: 'pre-wrap' }}>
                 <Text>
-                  Calculated at {data.created_at ? dayjs(data.created_at * 1000).format('DD/MM/YYYY HH:mm A') : '--'}
+                  Calculated at {data.createdAt ? dayjs(data.createdAt * 1000).format('DD/MM/YYYY HH:mm A') : '--'}
                 </Text>
                 <Text>
                   KyberScore:{' '}
-                  <span style={{ color: calculateValueToColor(data.kyber_score || 0, theme) }}>
-                    {data.kyber_score || '--'} ({data.tag || t`Not Applicable`})
+                  <span style={{ color: calculateValueToColor(value || 0, theme) }}>
+                    {value || '--'} ({token.kyberScoreTag || t`Not Applicable`})
                   </span>
                 </Text>
                 <Text>
-                  Token Price: <span style={{ color: theme.text }}>{formatTokenPrice(data.price || 0)}</span>
+                  Token Price: <span style={{ color: theme.text }}>{formatTokenPrice(token.price || 0)}</span>
                 </Text>
               </Column>
             ) : (

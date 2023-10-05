@@ -2,13 +2,13 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled, { DefaultTheme, css } from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
@@ -19,23 +19,16 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
-import useIsReachMaxLimitWatchedToken from 'pages/TrueSightV2/hooks/useIsReachMaxLimitWatchedToken'
+import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
-import {
-  useAddToWatchlistMutation,
-  useFundingRateQuery,
-  useHolderListQuery,
-  useLiveDexTradesQuery,
-  useRemoveFromWatchlistMutation,
-} from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
-import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
+import { IHolderList, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
   calculateValueToColor,
+  colorFundingRateText,
   formatLocaleStringNum,
   formatTokenPrice,
   navigateToSwapPage,
@@ -47,12 +40,11 @@ import { getProxyTokenLogo } from 'utils/tokenInfo'
 import ChevronIcon from '../ChevronIcon'
 import { WidgetTab } from '../KyberAIWidget'
 import MultipleChainDropdown from '../MultipleChainDropdown'
-import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
 import TimeFrameLegend from '../TimeFrameLegend'
 import TokenChart from '../TokenChartSVG'
 import TokenListVariants from '../TokenListVariants'
-import { StarWithAnimation } from '../WatchlistStar'
+import WatchlistButton from '../WatchlistButton'
 
 const TableWrapper = styled.div`
   overflow-x: scroll;
@@ -183,7 +175,7 @@ export const Top10HoldersTable = () => {
       </colgroup>
       <thead>
         <tr>
-          <th style={{ position: 'sticky', zIndex: 2 }}>
+          <th style={{ position: 'sticky', zIndex: Z_INDEX_KYBER_AI.HEADER_TABLE_TOKENS }}>
             <Trans>Address</Trans>
           </th>
           <th>
@@ -197,7 +189,7 @@ export const Top10HoldersTable = () => {
       <tbody>
         {data?.slice(0, 10).map((item: IHolderList, i: number) => (
           <tr key={i}>
-            <td style={{ position: 'sticky', zIndex: 2 }}>
+            <td style={{ position: 'sticky', zIndex: Z_INDEX_KYBER_AI.HEADER_TABLE_TOKENS }}>
               <Column gap="4px">
                 <Text fontSize="14px" lineHeight="20px" color={theme.text}>
                   {shortenAddress(1, item.address)}
@@ -363,12 +355,6 @@ export const SupportResistanceLevel = () => {
   )
 }
 
-function colorRateText(value: number, theme: DefaultTheme) {
-  if (value > 0.015) return theme.primary
-  if (value > 0.005) return theme.text
-  return theme.red
-}
-
 export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
   const theme = useTheme()
   const { chain, address } = useKyberAIAssetOverview()
@@ -394,7 +380,7 @@ export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
               </td>
               <td>
                 <Row justify="flex-end">
-                  <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
+                  <Text color={colorFundingRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
                     {i.rate ? i.rate.toFixed(4) + '%' : '--'}
                   </Text>
                 </Row>
@@ -442,7 +428,7 @@ export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
           </td>
           {data?.uMarginList?.map((i: any) => (
             <td key={i.exchangeName}>
-              <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
+              <Text color={colorFundingRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
                 {i.rate ? i.rate.toFixed(4) + '%' : '--'}
               </Text>
             </td>
@@ -578,9 +564,9 @@ const WidgetTableWrapper = styled(Table)`
 const WidgetTokenRow = ({
   token,
   onClick,
-  activeTab,
-  index,
-}: {
+}: // activeTab,
+// index,
+{
   token: ITokenList
   onClick?: () => void
   activeTab: WidgetTab
@@ -588,25 +574,17 @@ const WidgetTokenRow = ({
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const mixpanelHandler = useMixpanelKyberAI()
-  const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
 
-  const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
-  const hasMutipleChain = token?.tokens?.length > 1
+  const hasMutipleChain = token?.addresses?.length > 1
   const [showSwapMenu, setShowSwapMenu] = useState(false)
-  const [isWatched, setIsWatched] = useState(!!token.isWatched)
-  const [loadingStar, setLoadingStar] = useState(false)
-  const [addToWatchlist] = useAddToWatchlistMutation()
-  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
 
   const rowRef = useRef<HTMLTableRowElement>(null)
 
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
+  const tokens = token.addresses || []
 
   const handleRowClick = () => {
-    navigate(
-      `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
-    )
+    navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.assetId}?chain=${tokens[0].chain}&address=${tokens[0].address}`)
     onClick?.()
   }
 
@@ -615,47 +593,13 @@ const WidgetTokenRow = ({
     if (hasMutipleChain) {
       setShowSwapMenu(true)
     } else {
-      navigateToSwapPage({ address: token.tokens[0].address, chain: token.tokens[0].chain })
+      navigateToSwapPage({ address: tokens[0].address, chain: tokens[0].chain })
     }
   }
 
   const handleSwapNavigateClick = (chain: string, address: string) => {
     navigateToSwapPage({ address, chain })
   }
-
-  const handleWatchlistClick = (e: any) => {
-    e.stopPropagation()
-    setLoadingStar(true)
-    if (isWatched) {
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-        token_name: token.symbol?.toUpperCase(),
-        source: activeTab,
-        ranking_order: index,
-        option: 'remove',
-      })
-      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-        setIsWatched(false)
-        setLoadingStar(false)
-      })
-    } else {
-      if (!isWatched) {
-        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-          token_name: token.symbol?.toUpperCase(),
-          source: activeTab,
-          ranking_order: index,
-          option: 'add',
-        })
-        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-          setIsWatched(true)
-          setLoadingStar(false)
-        })
-      }
-    }
-  }
-
-  useEffect(() => {
-    setIsWatched(token.isWatched)
-  }, [token.isWatched])
 
   return (
     <tr onClick={handleRowClick} style={{ position: 'relative' }} ref={rowRef}>
@@ -664,38 +608,27 @@ const WidgetTokenRow = ({
           <td>
             <Column gap="4px">
               <RowFit gap="6px">
-                <StarWithAnimation
-                  watched={isWatched}
-                  loading={loadingStar}
-                  onClick={handleWatchlistClick}
-                  disabled={!isWatched && reachedMaxLimit}
-                />
-                <img
-                  alt="tokenInList"
-                  src={token.tokens[0].logo}
-                  width="24px"
-                  height="24px"
-                  style={{ borderRadius: '12px' }}
-                />
+                <WatchlistButton assetId={token.assetId} symbol={token.symbol} />
+                <img alt="tokenInList" src={token.logo} width="24px" height="24px" style={{ borderRadius: '12px' }} />
                 <Column gap="2px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
                   <Text fontSize="14px" style={{ textTransform: 'uppercase' }}>
                     {token.symbol}
                   </Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    <TokenListVariants tokens={token.tokens} iconSize={10} />
+                    <TokenListVariants tokens={token.addresses} iconSize={10} />
                   </RowFit>
                 </Column>
               </RowFit>
               <Text color={theme.text} fontSize="14px" lineHeight="20px">
                 ${formatTokenPrice(token.price)}
               </Text>
-              <Text fontSize="10px" lineHeight="12px" color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+              <Text fontSize="10px" lineHeight="12px" color={token.priceChange24H > 0 ? theme.primary : theme.red}>
                 <Row gap="2px">
                   <ChevronIcon
-                    rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
-                    color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                    rotate={token.priceChange24H > 0 ? '180deg' : '0deg'}
+                    color={token.priceChange24H > 0 ? theme.primary : theme.red}
                   />
-                  {Math.abs(token.percent_change_24h).toFixed(2)}%
+                  {Math.abs(token.priceChange24H).toFixed(2)}%
                 </Row>
               </Text>
             </Column>
@@ -705,34 +638,13 @@ const WidgetTokenRow = ({
         <>
           <td>
             <RowFit gap="6px">
-              <SimpleTooltip
-                text={
-                  isWatched
-                    ? t`Remove from watchlist`
-                    : reachedMaxLimit
-                    ? t`Reached 30 tokens limit`
-                    : t`Add to watchlist`
-                }
-              >
-                <StarWithAnimation
-                  watched={isWatched}
-                  loading={loadingStar}
-                  onClick={handleWatchlistClick}
-                  disabled={!isWatched && reachedMaxLimit}
-                />
-              </SimpleTooltip>
+              <WatchlistButton assetId={token.assetId} symbol={token.symbol} />
               <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
-                <img
-                  alt="tokenInList"
-                  src={token.tokens[0].logo}
-                  width="24px"
-                  height="24px"
-                  style={{ borderRadius: '12px' }}
-                />
+                <img alt="tokenInList" src={token.logo} width="24px" height="24px" style={{ borderRadius: '12px' }} />
                 <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
                   <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    <TokenListVariants tokens={token.tokens} />
+                    <TokenListVariants tokens={token.addresses} />
                   </RowFit>
                 </Column>
               </Row>
@@ -740,13 +652,9 @@ const WidgetTokenRow = ({
           </td>
           <td>
             <Column style={{ alignItems: 'center', width: '110px' }}>
-              <SmallKyberScoreMeter data={latestKyberScore} disabledTooltip={token.symbol === 'KNC'} />
-              <Text
-                color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
-                fontSize="14px"
-                fontWeight={500}
-              >
-                {latestKyberScore?.tag || t`Not Applicable`}
+              <SmallKyberScoreMeter token={token} disabledTooltip={token.symbol === 'KNC'} />
+              <Text color={calculateValueToColor(token.kyberScore || 0, theme)} fontSize="14px" fontWeight={500}>
+                {token?.kyberScoreTag || t`Not Applicable`}
               </Text>
             </Column>
           </td>
@@ -755,13 +663,13 @@ const WidgetTokenRow = ({
               <Text color={theme.text} fontSize="14px" lineHeight="20px">
                 ${formatTokenPrice(token.price)}
               </Text>
-              <Text fontSize="10px" lineHeight="12px" color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+              <Text fontSize="10px" lineHeight="12px" color={token.priceChange24H > 0 ? theme.primary : theme.red}>
                 <Row gap="2px">
                   <ChevronIcon
-                    rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
-                    color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                    rotate={token.priceChange24H > 0 ? '180deg' : '0deg'}
+                    color={token.priceChange24H > 0 ? theme.primary : theme.red}
                   />
-                  {Math.abs(token.percent_change_24h).toFixed(2)}%
+                  {Math.abs(token.priceChange24H).toFixed(2)}%
                 </Row>
               </Text>
             </Column>
@@ -769,7 +677,7 @@ const WidgetTokenRow = ({
         </>
       )}
       <td>
-        <TokenChart data={token['7daysprice']} index={token.tokens[0].address} width={isMobile ? '100%' : ''} />
+        <TokenChart data={token.weekPrices} index={token.addresses[0].address} width={isMobile ? '100%' : ''} />
       </td>
       <td>
         <Row justifyContent="flex-end">
@@ -783,7 +691,7 @@ const WidgetTokenRow = ({
       </td>
       {hasMutipleChain && (
         <>
-          <MultipleChainDropdown show={showSwapMenu} tokens={token?.tokens} onChainClick={handleSwapNavigateClick} />
+          <MultipleChainDropdown show={showSwapMenu} tokens={token?.addresses} onChainClick={handleSwapNavigateClick} />
         </>
       )}
     </tr>
@@ -1160,7 +1068,6 @@ export const TokenListInShareModalTable = ({
       </thead>
       <tbody>
         {data.map((token, index) => {
-          const latestKyberscore = token.ks_3d ? token.ks_3d[token.ks_3d.length - 1] : null
           return (
             <tr key={token.symbol + index} style={{ height: '50px' }}>
               <td style={{ padding: '16px 0px 16px 10px', color: theme.subText }}>{index + 1 + startIndex}</td>
@@ -1168,7 +1075,7 @@ export const TokenListInShareModalTable = ({
                 <RowFit gap="6px" align="center">
                   <img
                     alt="tokenInList"
-                    src={getProxyTokenLogo(token.tokens[0].logo)}
+                    src={getProxyTokenLogo(token.logo)}
                     width="18px"
                     height="18px"
                     loading="lazy"
@@ -1176,11 +1083,11 @@ export const TokenListInShareModalTable = ({
                   />
                   <Text>{token.symbol.toUpperCase()}</Text>
                   <RowFit gap="4px" marginLeft="4px">
-                    {token.tokens.slice(0, 6).map(item => {
-                      const size = token.tokens.length > 6 ? '12px' : '14px'
+                    {token.addresses.slice(0, 6).map(item => {
+                      const size = token.addresses.length > 6 ? '12px' : '14px'
                       return <img src={NETWORK_IMAGE_URL[item.chain]} key={item.address} width={size} height={size} />
                     })}
-                    {token.tokens.length > 6 && <span style={{ fontSize: '10px' }}>...</span>}
+                    {token.addresses.length > 6 && <span style={{ fontSize: '10px' }}>...</span>}
                   </RowFit>
                 </RowFit>
               </td>
@@ -1189,22 +1096,20 @@ export const TokenListInShareModalTable = ({
                   <Text fontSize={formatTokenPrice(token.price).length > 14 ? '14px' : '16px'}>
                     ${formatTokenPrice(token.price)}
                   </Text>
-                  <Text fontSize={12} color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+                  <Text fontSize={12} color={token.priceChange24H > 0 ? theme.primary : theme.red}>
                     <Row gap="2px">
                       <ChevronIcon
-                        rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
-                        color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                        rotate={token.priceChange24H > 0 ? '180deg' : '0deg'}
+                        color={token.priceChange24H > 0 ? theme.primary : theme.red}
                       />
-                      {Math.abs(token.percent_change_24h).toFixed(2)}%
+                      {Math.abs(token.priceChange24H).toFixed(2)}%
                     </Row>
                   </Text>
                 </RowFit>
               </td>
               {!mobileMode && (
                 <td style={{ textAlign: 'right' }}>
-                  <Text color={calculateValueToColor(latestKyberscore?.kyber_score || 0, theme)}>
-                    {latestKyberscore?.kyber_score}
-                  </Text>
+                  <Text color={calculateValueToColor(token?.kyberScore || 0, theme)}>{token?.kyberScore}</Text>
                 </td>
               )}
             </tr>

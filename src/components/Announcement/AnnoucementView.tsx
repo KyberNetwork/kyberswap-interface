@@ -252,7 +252,7 @@ export default function AnnouncementView({
                     height={height}
                     width={width}
                     itemCount={itemCount}
-                    itemSize={isMyInboxTab ? 116 : 126}
+                    itemSize={isMyInboxTab ? 120 : 126}
                     onItemsRendered={onItemsRendered}
                     ref={ref}
                   >
