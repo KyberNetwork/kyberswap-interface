@@ -19,6 +19,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
+import { WATCHLIST_MAX_LIMIT } from '../constants'
 import kyberAIApi, {
   useAddToWatchlistMutation,
   useCreateCustomWatchlistMutation,
@@ -383,7 +384,7 @@ const CreateListInput = ({
 
 const generateNewListName = (number: number) => {
   const ordinalStrings: { [key: number]: string } = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th' }
-  return `My ${ordinalStrings[number]} Watchlists`
+  return `My ${ordinalStrings[number]} Watchlist`
 }
 
 let timer: NodeJS.Timeout
@@ -391,8 +392,6 @@ const debounce = (func: () => void, timeout = 1000) => {
   clearTimeout(timer)
   timer = setTimeout(() => func(), timeout)
 }
-
-const MAX_LIMIT_WATCHED_TOKEN = 50
 
 export const ManageListModal = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) => {
   const { data } = useGetWatchlistInformationQuery()
@@ -467,7 +466,7 @@ function WatchlistButton({
   const { data } = useGetWatchlistInformationQuery()
   const watchlists = data?.watchlists || []
 
-  const isReachMaxLimit = (data?.totalUniqueAssetNumber || 0) >= MAX_LIMIT_WATCHED_TOKEN
+  const isReachMaxLimit = (data?.totalUniqueAssetNumber || 0) >= WATCHLIST_MAX_LIMIT
   const isWatched = !!assetId && !!watchlists && watchlists?.some(item => item.assetIds?.includes(+assetId))
 
   const [addToWatchlist] = useAddToWatchlistMutation()
@@ -505,7 +504,7 @@ function WatchlistButton({
 
   const btnStar = (
     <MouseoverTooltip
-      text={t`You can only watch up to ${MAX_LIMIT_WATCHED_TOKEN} tokens`}
+      text={t`You can only watch up to ${WATCHLIST_MAX_LIMIT} tokens`}
       disableTooltip={isWatched || !isReachMaxLimit}
     >
       <StarWithAnimation

@@ -359,7 +359,7 @@ const kyberAIApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         const { data } = await queryFulfilled
         if (data.watchlists.length === 0) {
-          await dispatch(kyberAIApi.endpoints.createCustomWatchlist.initiate({ name: t`My 1st Watchlists` }))
+          await dispatch(kyberAIApi.endpoints.createCustomWatchlist.initiate({ name: t`My 1st Watchlist` }))
         }
       },
       providesTags: [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI],

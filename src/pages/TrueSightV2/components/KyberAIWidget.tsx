@@ -21,6 +21,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useIsWhiteListKyberAI, useKyberAIWidget } from 'state/user/hooks'
 
+import { WATCHLIST_MAX_LIMIT } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, KyberAIListType } from '../types'
 import SimpleTooltip from './SimpleTooltip'
@@ -398,7 +399,7 @@ export default function Widget() {
                       KyberAI
                     </Text>
                     .<br />
-                    You can watch up to 10 tokens
+                    You can watch up to {WATCHLIST_MAX_LIMIT} tokens
                   </Trans>
                 </Text>
               ) : (

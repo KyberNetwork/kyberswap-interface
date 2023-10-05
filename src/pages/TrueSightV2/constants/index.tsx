@@ -5,6 +5,9 @@ import { NETWORKS_INFO } from 'constants/networks'
 
 import { KyberAIListType } from '../types'
 
+export const WATCHLIST_MAX_LIMIT = 50
+export const CUSTOM_WATCHLISTS_MAX_LIMIT = 5
+
 export const SUPPORTED_NETWORK_KYBERAI: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: 'ethereum',
   [ChainId.BSCMAINNET]: 'bsc',
