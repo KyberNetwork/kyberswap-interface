@@ -143,7 +143,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: Config } = {
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.CROSS_CHAIN]: '27,28',
     [PrivateAnnouncementType.KYBER_AI]: '26',
-    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54', // todo danh
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '30',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,16,19,9,25,24,21,22',
