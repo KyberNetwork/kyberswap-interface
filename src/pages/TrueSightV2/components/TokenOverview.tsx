@@ -659,7 +659,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
         isOpen={showShare}
         onClose={() => setShowShare(false)}
         content={mobileMode => <KyberScoreShareContent token={data} mobileMode={mobileMode} />}
-        title="Kyberscore"
+        title="KyberScore"
         onShareClick={social =>
           mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
             token_name: data?.symbol?.toUpperCase(),
