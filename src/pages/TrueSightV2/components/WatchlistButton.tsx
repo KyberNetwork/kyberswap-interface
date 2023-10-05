@@ -1,5 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { AnimatePresence, Reorder, motion, useAnimationControls, useDragControls } from 'framer-motion'
+import debounce from 'lodash/debounce'
 import { CSSProperties, memo, useEffect, useRef, useState } from 'react'
 import { Check, Plus, X } from 'react-feather'
 import { useDispatch } from 'react-redux'
@@ -385,12 +386,6 @@ const CreateListInput = ({
 const generateNewListName = (number: number) => {
   const ordinalStrings: { [key: number]: string } = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th' }
   return `My ${ordinalStrings[number]} Watchlist`
-}
-
-let timer: NodeJS.Timeout
-const debounce = (func: () => void, timeout = 1000) => {
-  clearTimeout(timer)
-  timer = setTimeout(() => func(), timeout)
 }
 
 export const ManageListModal = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) => {

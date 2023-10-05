@@ -601,37 +601,6 @@ const WidgetTokenRow = ({
     navigateToSwapPage({ address, chain })
   }
 
-  // const handleWatchlistClick = (e: any) => {
-  //   e.stopPropagation()
-  //   if (!account) return
-  //   setLoadingStar(true)
-  //   if (isWatched) {
-  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //       token_name: token.symbol?.toUpperCase(),
-  //       source: activeTab,
-  //       ranking_order: index,
-  //       option: 'remove',
-  //     })
-  //     Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //       setIsWatched(false)
-  //       setLoadingStar(false)
-  //     })
-  //   } else {
-  //     if (!isWatched) {
-  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //         token_name: token.symbol?.toUpperCase(),
-  //         source: activeTab,
-  //         ranking_order: index,
-  //         option: 'add',
-  //       })
-  //       Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //         setIsWatched(true)
-  //         setLoadingStar(false)
-  //       })
-  //     }
-  //   }
-  // }
-
   return (
     <tr onClick={handleRowClick} style={{ position: 'relative' }} ref={rowRef}>
       {isMobile ? (
@@ -646,7 +615,7 @@ const WidgetTokenRow = ({
                     {token.symbol}
                   </Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    {/* <TokenListVariants tokens={token.addresses} iconSize={10} /> */}
+                    <TokenListVariants tokens={token.addresses} iconSize={10} />
                   </RowFit>
                 </Column>
               </RowFit>

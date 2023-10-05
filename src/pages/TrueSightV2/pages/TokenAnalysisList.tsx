@@ -299,8 +299,10 @@ const tokenTypeList: {
     icon: 'bearish',
     tooltip: theme => (
       <span>
-        Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
-        consecutive time periods. This may indicate a change in trend of the token
+        <Trans>
+          Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
+          consecutive time periods. This may indicate a change in trend of the token
+        </Trans>
       </span>
     ),
   },
@@ -332,8 +334,10 @@ const tokenTypeList: {
     icon: 'coin-bag',
     tooltip: () => (
       <span>
-        Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish &amp;
-        vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed
+        <Trans>
+          Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish &amp;
+          vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed
+        </Trans>
       </span>
     ),
   },
