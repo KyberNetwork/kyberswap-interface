@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { ReactNode, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
@@ -33,6 +34,29 @@ export type MultipleChainSelectProps = {
   labelColor?: string
   activeRender?: (node: ReactNode) => ReactNode
 }
+
+const ChainWrapper = styled.div`
+  max-height: 180px;
+  overflow-y: scroll;
+  /* width */
+  ::-webkit-scrollbar {
+    display: unset;
+    width: 8px;
+    border-radius: 999px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => rgba(theme.subText, 0.4)};
+    border-radius: 999px;
+  }
+`
 const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, style, ...props }) => {
   const { comingSoonList = [], selectedChainIds = [], handleChangeChains, chainIds = [], onTracking } = props
   const options = chainIds.map(id => ({ value: id, label: id }))
@@ -122,25 +146,27 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
                 padding: '10px 18px',
               }}
             >
-              <Checkbox type="checkbox" checked={isAllSelected} onChange={onChangeChain} />
+              <Checkbox type="checkbox" id="checkAllChain" checked={isAllSelected} onChange={onChangeChain} />
 
               <Flex width="20px" alignItems="center" justifyContent="center">
                 <LogoKyber width="14px" height="auto" color={theme.primary} />
               </Flex>
 
               <Text
-                as="span"
+                as="label"
+                htmlFor="checkAllChain"
                 sx={{
                   fontWeight: 500,
                   fontSize: '14px',
                   lineHeight: '20px',
                   color: theme.text,
+                  cursor: 'pointer',
                 }}
               >
                 <Trans>All Chains</Trans>
               </Text>
             </Flex>
-            {menu}
+            <ChainWrapper>{menu}</ChainWrapper>
             <Box sx={{ margin: '10px 0', width: '100%', height: '0', borderBottom: `1px solid ${theme.border}` }} />
             <Flex padding={'0 22px'}>
               <ApplyButton
