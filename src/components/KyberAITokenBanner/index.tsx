@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { memo, useMemo } from 'react'
 import { ArrowRight } from 'react-feather'
-import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
@@ -38,7 +37,6 @@ const KyberAITokenBanner = ({
   const { isWhiteList } = useIsWhiteListKyberAI()
   const isShowKyberAIBanner = useShowKyberAIBanner()
 
-  const navigate = useNavigate()
   const { mixpanelHandler } = useMixpanel()
   const chain = Object.keys(NETWORK_TO_CHAINID).find(i => NETWORK_TO_CHAINID[i] === chainId)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
