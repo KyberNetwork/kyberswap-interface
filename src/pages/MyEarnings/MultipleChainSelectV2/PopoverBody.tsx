@@ -65,6 +65,7 @@ export const ApplyButton: React.FC<ApplyButtonProps> = ({ disabled, onClick, num
           display: 'inline-flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          gap: '4px',
         }}
       >
         <Trans>View Selected Chains</Trans>
