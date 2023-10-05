@@ -10,12 +10,12 @@ import styled, { CSSProperties, css } from 'styled-components'
 import { ButtonGray } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import Select from 'components/Select'
+import Select from 'components/SelectV2'
 import { EMPTY_OBJECT } from 'constants/index'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
-import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
+import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelectV2'
 import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
 import WatchlistSelect from 'pages/TrueSightV2/components/TokenFilter/WatchlistSelect'
 import {
@@ -108,7 +108,7 @@ const SelectGroup = styled.div`
     bottom: 0;
     width: 100%;
     height: 100%;
-    padding-right: 130px;
+    padding-right: 150px;
   `}
 `
 
@@ -210,44 +210,16 @@ export default function TokenFilter({
 
   const menuStyle: CSSProperties = {
     zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS,
-    top: upToSmall ? undefined : SELECT_SIZE,
+    top: upToSmall ? undefined : 0,
     maxHeight: 400,
     overflowY: 'scroll',
   }
 
   const isWatchlistTab = listType === KyberAIListType.MYWATCHLIST
 
-  const [scrolling, setScrolling] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  // why we need it: z-index of select not working with scroll container
-  useEffect(() => {
-    const node = ref.current
-    if (!node) return
-    let touchstartX = 0
-    const onStart = (e: TouchEvent) => {
-      touchstartX = e.changedTouches?.[0]?.screenX
-    }
-    const onEnd = (e: TouchEvent) => {
-      const touchendX = e.changedTouches?.[0]?.screenX
-      if (Math.abs(touchendX - touchstartX) > 5) {
-        setScrolling(true)
-      }
-    }
-    node?.addEventListener('touchstart', onStart)
-    node?.addEventListener('touchend', onEnd)
-    return () => {
-      node?.removeEventListener('touchstart', onStart)
-      node?.removeEventListener('touchend', onEnd)
-    }
-  }, [])
-
   return (
     <StyledWrapper>
-      <SelectGroup
-        ref={ref}
-        style={{ overflowX: scrolling ? 'scroll' : undefined }}
-        onClick={() => setScrolling(false)}
-      >
+      <SelectGroup style={{ overflowX: 'scroll' }}>
         {showLoading ? (
           new Array(isWatchlistTab ? 5 : 4)
             .fill(0)
