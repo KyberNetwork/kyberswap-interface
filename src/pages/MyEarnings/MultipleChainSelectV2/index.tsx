@@ -1,8 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useEffect, useRef, useState } from 'react'
-import { Box, Flex, Text } from 'rebass'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { Box, Flex } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
@@ -57,6 +57,16 @@ const ChainWrapper = styled.div`
     border-radius: 999px;
   }
 `
+
+const Label = styled.span`
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20x;
+  color: ${({ theme }) => theme.text};
+  cursor: pointer;
+  user-select: none;
+`
+
 const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, style, ...props }) => {
   const { comingSoonList = [], selectedChainIds = [], handleChangeChains, chainIds = [], onTracking } = props
   const options = chainIds.map(id => ({ value: id, label: id }))
@@ -92,20 +102,26 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
       0 < localSelectedChains.length && localSelectedChains.length < networkList.length
   }, [localSelectedChains, networkList.length])
 
+  const onHideMenu = useCallback(() => {
+    setLocalSelectedChains(selectedChains)
+  }, [selectedChains])
+
   return (
     <Select
+      onHideMenu={onHideMenu}
       className={className}
       style={{ ...style, flex: '0 0 150px', width: '150px', position: 'relative', zIndex: '3' }}
       activeRender={_ => <SelectButton {...props} />}
       options={options}
+      optionStyle={{ padding: 0 }}
       optionRender={item => {
         const network = Number(item?.value) as ChainId
         const config = NETWORKS_INFO[network]
         const isComingSoon = comingSoonList.includes(network)
         const isSelected = isComingSoon ? false : localSelectedChains.includes(network)
         const handleClick = (e: any) => {
-          if (isComingSoon) return
           e.stopPropagation()
+          if (isComingSoon) return
           if (isSelected) {
             setLocalSelectedChains(localSelectedChains.filter(chain => chain !== network))
           } else {
@@ -116,9 +132,8 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
         return (
           <MouseoverTooltip
             text={isComingSoon ? 'Coming soon' : ''}
-            width="fit-content"
             placement="top"
-            containerStyle={{ width: 'fit-content' }}
+            width={isComingSoon ? 'fit-content' : undefined}
           >
             <Flex
               onClick={handleClick}
@@ -128,23 +143,15 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
                 cursor: isComingSoon ? 'not-allowed' : 'pointer',
                 userSelect: 'none',
                 opacity: isComingSoon ? 0.6 : 1,
+                width: '100%',
+                padding: '10px 18px',
               }}
             >
               <Checkbox type="checkbox" checked={isSelected} onChange={handleClick} />
 
               <StyledLogo src={theme.darkMode && config.iconDark ? config.iconDark : config.icon} />
 
-              <Text
-                as="span"
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '14px',
-                  lineHeight: '20px',
-                  color: theme.text,
-                }}
-              >
-                {config.name}
-              </Text>
+              <Label>{config.name}</Label>
             </Flex>
           </MouseoverTooltip>
         )
@@ -153,11 +160,13 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
         return (
           <>
             <Flex
+              as="label"
               onClick={e => e.stopPropagation()}
               sx={{
                 alignItems: 'center',
                 gap: '8px',
                 padding: '10px 18px',
+                cursor: 'pointer',
               }}
             >
               <Checkbox
@@ -172,23 +181,15 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
                 <LogoKyber width="14px" height="auto" color={theme.primary} />
               </Flex>
 
-              <Text
-                as="label"
-                htmlFor="checkAllChain"
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '14px',
-                  lineHeight: '20px',
-                  color: theme.text,
-                  cursor: 'pointer',
-                }}
-              >
+              <Label>
                 <Trans>All Chains</Trans>
-              </Text>
+              </Label>
             </Flex>
             <ChainWrapper>{menu}</ChainWrapper>
+
             <Box sx={{ margin: '10px 0', width: '100%', height: '0', borderBottom: `1px solid ${theme.border}` }} />
-            <Flex padding={'0 22px'}>
+
+            <Flex padding={'0 18px'}>
               <ApplyButton
                 disabled={!localSelectedChains.length}
                 onClick={() => {

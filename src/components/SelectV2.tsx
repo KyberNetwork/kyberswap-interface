@@ -88,6 +88,7 @@ function Select({
   forceMenuPlacementTop = false,
   arrowColor,
   dropdownRender,
+  onHideMenu,
 }: {
   value?: string | number
   className?: string
@@ -101,6 +102,7 @@ function Select({
   onChange?: (value: any) => void
   forceMenuPlacementTop?: boolean
   arrowColor?: string
+  onHideMenu?: () => void // hide without changes
 }) {
   const [selected, setSelected] = useState(getOptionValue(options?.[0]))
   const [showMenu, setShowMenu] = useState(false)
@@ -119,6 +121,7 @@ function Select({
 
   useOnClickOutside(referenceElement as any, () => {
     setShowMenu(false)
+    onHideMenu?.()
   })
   const selectedInfo = options.find(item => getOptionValue(item) === selected)
   const refMenu = useRef<HTMLDivElement>(null)

@@ -174,6 +174,7 @@ export default function TokenFilter({
     return { allChainIds, listSelects, chainFilter }
   }, [data])
 
+  // chains when f5, from url
   const defaultChains = useMemo(
     () => getChainsFromSlugs(filter[chainFilter?.queryKey]?.split(',')),
     [filter, chainFilter],
@@ -268,7 +269,12 @@ export default function TokenFilter({
         )}
       </SelectGroup>
       <ShareGroup>
-        <StyledButton onClick={onResetFilterSort}>
+        <StyledButton
+          onClick={() => {
+            setSelectChains(allChainIds)
+            onResetFilterSort()
+          }}
+        >
           <Trash2 size={16} />
           {!upToSmall && <Trans>Reset</Trans>}
         </StyledButton>
