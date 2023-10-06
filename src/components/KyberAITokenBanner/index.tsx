@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { memo, useMemo } from 'react'
 import { ArrowRight } from 'react-feather'
-import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
@@ -38,7 +37,6 @@ const KyberAITokenBanner = ({
   const { isWhiteList } = useIsWhiteListKyberAI()
   const isShowKyberAIBanner = useShowKyberAIBanner()
 
-  const navigate = useNavigate()
   const { mixpanelHandler } = useMixpanel()
   const chain = Object.keys(NETWORK_TO_CHAINID).find(i => NETWORK_TO_CHAINID[i] === chainId)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
@@ -90,7 +88,7 @@ const KyberAITokenBanner = ({
       return {
         kyberScore: token?.kyberScore?.score,
         label: token?.kyberScore?.label,
-        address: token?.address,
+        address: '', //todo
         logo: token?.logo,
         symbol: token?.symbol,
       }
@@ -184,7 +182,7 @@ const KyberAITokenBanner = ({
                     output_token: token1?.symbol?.toUpperCase(),
                   })
 
-                  navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
+                  //navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
                 }}
               />
             </RowFit>
@@ -199,10 +197,10 @@ const KyberAITokenBanner = ({
               input_token: token0?.symbol?.toUpperCase(),
               output_token: token1?.symbol?.toUpperCase(),
             })
-            window.open(
-              APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address,
-              '_blank',
-            )
+            // window.open(
+            //   APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address,
+            //   '_blank',
+            // )
           }}
         >
           <RowBetween>

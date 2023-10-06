@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
@@ -16,24 +16,26 @@ import useDebounce from 'hooks/useDebounce'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { useFormatParamsFromUrl } from 'pages/TrueSightV2/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { KYBERAI_LISTYPE_TO_MIXPANEL } from '../constants'
 import { useLazySearchTokenQuery, useSearchTokenQuery, useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, ITokenSearchResult, KyberAIListType } from '../types'
 import { formatTokenPrice } from '../utils'
+import WatchlistButton from './WatchlistButton'
 
 const formatTokenType = (token: ITokenList): ITokenSearchResult => {
   return {
-    assetId: token.asset_id,
+    assetId: token.assetId,
     name: token.name,
     symbol: token.symbol,
-    logo: token.tokens[0].logo,
+    logo: token.logo,
     price: token.price,
-    priceChange24h: token.percent_change_24h,
+    priceChange24h: token.priceChange24H,
     kyberScore: {
-      score: token.ks_3d?.[token.ks_3d.length - 1].kyber_score || 0,
-      label: token.ks_3d?.[token.ks_3d.length - 1].tag || '',
+      score: token.kyberScore || 0,
+      label: token.kyberScoreTag || '',
     },
   }
 }
@@ -209,6 +211,8 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
     >
       <td>
         <RowFit gap="10px">
+          <WatchlistButton size={16} assetId={token.assetId} symbol={token.symbol} />
+
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
               <img
@@ -303,7 +307,6 @@ let checkedNewData = false
 const SearchWithDropdown = () => {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
-  const [searchParams] = useSearchParams()
   const { pathname } = useLocation()
 
   const [expanded, setExpanded] = useState(false)
@@ -341,7 +344,7 @@ const SearchWithDropdown = () => {
     }
   }, [history, getTokenData, setHistory])
 
-  const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
+  const { listType } = useFormatParamsFromUrl()
 
   const { data: top5bullish, isLoading: isBullishLoading } = useTokenListQuery({
     type: KyberAIListType.BULLISH,
@@ -361,6 +364,7 @@ const SearchWithDropdown = () => {
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   useOnClickOutside(wrapperRef, () => setExpanded(false))
+
   useEffect(() => {
     if (!inputRef.current) return
     const inputEl = inputRef.current
@@ -443,7 +447,7 @@ const SearchWithDropdown = () => {
           {history && (
             <SearchResultTableWrapper
               header={
-                <RowFit color={theme.subText} gap="4px">
+                <RowFit color={theme.subText} gap="10px">
                   <History />
                   <Text fontSize="12px">Search History</Text>
                 </RowFit>
@@ -456,7 +460,7 @@ const SearchWithDropdown = () => {
           )}
           <SearchResultTableWrapper
             header={
-              <RowFit color={theme.subText} gap="4px">
+              <RowFit color={theme.subText} gap="10px">
                 <Icon id="bullish" size={16} />
                 <Text fontSize="12px">Bullish Tokens</Text>
               </RowFit>
@@ -486,7 +490,7 @@ const SearchWithDropdown = () => {
           </SearchResultTableWrapper>
           <SearchResultTableWrapper
             header={
-              <RowFit color={theme.subText} gap="4px">
+              <RowFit color={theme.subText} gap="10px">
                 <Icon id="bearish" size={16} />
                 <Text fontSize="12px">Bearish Tokens</Text>
               </RowFit>

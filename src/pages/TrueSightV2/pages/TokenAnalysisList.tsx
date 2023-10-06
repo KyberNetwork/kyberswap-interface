@@ -1,47 +1,63 @@
 import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
 import { rgba } from 'polished'
-import React, { ReactNode, useEffect, useRef, useState } from 'react'
-import { Info } from 'react-feather'
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
+import { useEffectOnce, useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import { ButtonGray, ButtonLight, ButtonOutlined } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
-import Row, { RowBetween, RowFit } from 'components/Row'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS, ICON_ID } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import Row, { RowFit } from 'components/Row'
+import TabButton from 'components/TabButton'
+import { APP_PATHS, ICON_ID, SORT_DIRECTION } from 'constants/index'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { StyledSectionWrapper } from 'pages/TrueSightV2/components'
+import TokenFilter from 'pages/TrueSightV2/components/TokenFilter'
 import { MEDIA_WIDTHS } from 'theme'
 
-import ChevronIcon from '../components/ChevronIcon'
 import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
 import MultipleChainDropdown from '../components/MultipleChainDropdown'
-import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
-import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
-import TokenChart from '../components/TokenChartSVG'
-import TokenListVariants from '../components/TokenListVariants'
-import { StarWithAnimation } from '../components/WatchlistStar'
-import KyberScoreChart from '../components/chart/KyberScoreChart'
+import WatchlistButton from '../components/WatchlistButton'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
-import { KYBERAI_LISTYPE_TO_MIXPANEL, NETWORK_TO_CHAINID } from '../constants'
-import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
-import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
+import { DEFAULT_PARAMS_BY_TAB, KYBERAI_LISTYPE_TO_MIXPANEL, SORT_FIELD, Z_INDEX_KYBER_AI } from '../constants'
+import { useTokenListQuery } from '../hooks/useKyberAIData'
+import useRenderRankingList from '../hooks/useRenderRankingList'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
-import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
+import { navigateToSwapPage, useFormatParamsFromUrl } from '../utils'
+
+const SIZE_MOBILE = '1080px'
+
+const TradeInfoWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+   flex-direction: column;
+  `}
+`
+
+const ListTokenWrapper = styled(StyledSectionWrapper)`
+  min-height: 700px;
+  height: fit-content;
+  padding: 0;
+  background: ${({ theme }) => theme.background};
+  @media only screen and (max-width: ${SIZE_MOBILE}) {
+    margin-left: -16px;
+    margin-right: -16px;
+    border-left: 0;
+    border-right: 0;
+  }
+`
 
 const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
@@ -50,11 +66,7 @@ const TableWrapper = styled.div`
   border-bottom: none;
   transition: all 0.15s ease;
   overflow: hidden;
-  min-height: 500px;
-  background-color: ${({ theme }) => theme.background};
-  @media only screen and (max-width: 1080px) {
-    margin-left: -16px;
-    margin-right: -16px;
+  @media only screen and (max-width: ${SIZE_MOBILE}) {
     border-radius: 0px;
     border: none;
     overflow-x: scroll;
@@ -69,15 +81,32 @@ const PaginationWrapper = styled.div`
   overflow: hidden;
   min-height: 50px;
   background-color: ${({ theme }) => theme.background};
-  border-top: 1px solid ${({ theme }) => theme.border};
-
-  @media only screen and (max-width: 1080px) {
+  @media only screen and (max-width: ${SIZE_MOBILE}) {
     margin-left: -16px;
     margin-right: -16px;
     border-radius: 0px;
     border: none;
   }
 `
+
+const TableHeaderCell = styled.th<{ sortable?: boolean }>`
+  border: none;
+  outline: none;
+  white-space: nowrap;
+  font-weight: 400 !important;
+  color: ${({ theme }) => theme.subText} !important;
+  font-size: 12px;
+  background-color: ${({ theme }) => theme.tableHeader};
+  ${({ sortable }) =>
+    sortable &&
+    css`
+      cursor: pointer;
+      :hover {
+        color: ${({ theme }) => theme.text} !important;
+      }
+    `}
+`
+
 const Table = styled.table`
   border-spacing: 0px;
   width: 100%;
@@ -88,7 +117,7 @@ const Table = styled.table`
     text-transform: uppercase;
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: ${Z_INDEX_KYBER_AI.HEADER_TABLE_TOKENS};
     border-radius: 19px 19px 0 0;
 
     ${({ theme }) => css`
@@ -96,26 +125,9 @@ const Table = styled.table`
       color: ${theme.subText};
     `};
 
-    @media only screen and (max-width: 768px) {
-      border-radius: 0;
-    }
-
-    th {
-      border: none;
-      outline: none;
-      white-space: nowrap;
-      font-weight: 400 !important;
-      color: ${({ theme }) => theme.subText} !important;
-      font-size: 12px;
-      background-color: ${({ theme }) => theme.tableHeader};
-      cursor: pointer;
-
-      :hover {
-        color: ${({ theme }) => theme.text} !important;
-      }
-    }
     tr {
       height: 48px;
+      cursor: default !important;
     }
   }
 
@@ -150,7 +162,7 @@ const Table = styled.table`
     td:nth-child(2),
     th:nth-child(2) {
       position: sticky;
-      z-index: 2;
+      z-index: ${Z_INDEX_KYBER_AI.TOKEN_NAME_TABLE_COLUMN};
     }
     td:nth-child(1),
     th:nth-child(1) {
@@ -212,8 +224,6 @@ const TabWrapper = styled(motion.div)`
   cursor: grab;
   display: inline-flex;
   width: fit-content;
-  gap: 8px;
-  padding: 1px;
   position: relative;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
@@ -235,41 +245,12 @@ const TabWrapper = styled(motion.div)`
   `}
 `
 
-const ButtonTypeActive = styled(ButtonLight)`
-  height: 36px;
-  gap: 4px;
-  font-size: 14px;
-  white-space: nowrap;
-  border: 1px solid ${({ theme }) => theme.primary};
-  background-color: ${({ theme }) => rgba(theme.primary, 0.33)};
-  transition: all 0.1s ease;
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.primary, 0.5)};
-    filter: none;
-  }
-`
-
-const ButtonTypeInactive = styled(ButtonOutlined)`
-  height: 36px;
-  gap: 4px;
-  font-size: 14px;
-  white-space: nowrap;
-  transition: all 0.1s ease;
-  ${({ theme }) => css`
-    color: ${theme.subText};
-    border-color: ${theme.subText};
-  `}
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.border, 0.5)};
-  }
-`
-
 const LoadingWrapper = styled(Row)`
   position: absolute;
   inset: 0 0 0 0;
   background: ${({ theme }) => theme.background};
   opacity: 0.8;
-  z-index: 100;
+  z-index: ${Z_INDEX_KYBER_AI.LOADING_TOKENS_TABLE};
   border-radius: 20px;
   padding-top: min(25vh, 20%);
   justify-content: center;
@@ -313,6 +294,19 @@ const tokenTypeList: {
     ),
   },
   {
+    type: KyberAIListType.KYBERSWAP_DELTA,
+    title: t`Kyberscore Delta`,
+    icon: 'bearish',
+    tooltip: theme => (
+      <span>
+        <Trans>
+          Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
+          consecutive time periods. This may indicate a change in trend of the token
+        </Trans>
+      </span>
+    ),
+  },
+  {
     type: KyberAIListType.TOP_CEX_INFLOW,
     title: t`Top CEX Positive Netflow`,
     icon: 'download',
@@ -331,6 +325,19 @@ const tokenTypeList: {
       <span>
         Tokens with the highest <span style={{ color: theme.text }}>net withdrawals</span> from Centralized Exchanges in
         the last 3 Days. Possible buy pressure
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.FUNDING_RATE,
+    title: t`Funding Rates`,
+    icon: 'coin-bag',
+    tooltip: () => (
+      <span>
+        <Trans>
+          Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish &amp;
+          vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed
+        </Trans>
       </span>
     ),
   },
@@ -367,6 +374,8 @@ const tokenTypeList: {
   },
 ]
 
+const ARROW_SIZE = 40
+
 const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab: (type: KyberAIListType) => void }) => {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
@@ -394,11 +403,9 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
 
   useEffect(() => {
     const handleResize = () => {
-      if (wrapperRef.current?.clientWidth && wrapperRef.current?.clientWidth < wrapperRef.current?.scrollWidth) {
-        setShowScrollRightButton(true)
-      } else {
-        setShowScrollRightButton(false)
-      }
+      setShowScrollRightButton(
+        Boolean(wrapperRef.current?.clientWidth && wrapperRef.current?.clientWidth < wrapperRef.current?.scrollWidth),
+      )
     }
     handleResize()
     window.addEventListener('resize', handleResize)
@@ -407,10 +414,16 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
     }
   }, [])
 
+  const indexActive = tokenTypeList.findIndex(e => e.type === tab)
+
   return (
-    <>
-      <TabWrapper ref={wrapperRef} onScrollCapture={e => e.preventDefault()}>
-        {tokenTypeList.map(({ type, title, icon, tooltip }, index) => {
+    <Row gap="8px" style={{ position: 'relative' }}>
+      <TabWrapper
+        ref={wrapperRef}
+        onScrollCapture={e => e.preventDefault()}
+        style={{ paddingRight: showScrollRightButton ? ARROW_SIZE : undefined }}
+      >
+        {tokenTypeList.map(({ type, title, tooltip }, index) => {
           const props = {
             onClick: () => {
               mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_CATEGORY_CLICK, {
@@ -430,36 +443,46 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
               }
             },
           }
-          if (tab === type) {
-            return (
-              <MouseoverTooltipDesktopOnly key={type} text={tooltip?.(theme)} delay={500} placement="top">
-                <ButtonTypeActive {...props} ref={el => (tabListRef.current[index] = el)}>
-                  {icon && <Icon id={icon} size={16} />}
-                  {title}
-                </ButtonTypeActive>
-              </MouseoverTooltipDesktopOnly>
-            )
-          } else {
-            return (
-              <MouseoverTooltipDesktopOnly key={type} text={tooltip?.(theme)} delay={500} placement="top">
-                <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
-                  {icon && <Icon id={icon} size={16} />}
-                  {title}
-                </ButtonTypeInactive>
-              </MouseoverTooltipDesktopOnly>
-            )
-          }
+          return (
+            <SimpleTooltip key={type} text={tooltip?.(theme)} hideOnMobile>
+              <TabButton
+                separator={index !== 0 && index !== indexActive + 1}
+                text={title}
+                active={tab === type}
+                key={type}
+                style={{ fontSize: '14px', padding: '0 12px' }}
+                {...props}
+                ref={el => {
+                  if (el) {
+                    tabListRef.current[index] = el
+                  }
+                }}
+              />
+            </SimpleTooltip>
+          )
         })}
       </TabWrapper>
       {showScrollRightButton && (
         <DropdownSVG
-          style={{ transform: 'rotate(-90deg)', cursor: 'pointer', flexShrink: '0' }}
+          style={{
+            transform: 'rotate(-90deg)',
+            cursor: 'pointer',
+            flexShrink: '0',
+            position: 'absolute',
+            background: theme.background,
+            color: theme.text,
+            right: 0,
+            top: 0,
+            padding: 6,
+            height: ARROW_SIZE,
+            width: ARROW_SIZE,
+          }}
           onClick={() => {
             setScrollLeftValue(prev => prev + 120)
           }}
         />
       )}
-    </>
+    </Row>
   )
 }
 
@@ -480,167 +503,32 @@ const TokenRow = React.memo(function TokenRow({
   const location = useLocation()
   const mixpanelHandler = useMixpanelKyberAI()
   const theme = useTheme()
-  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [showSwapMenu, setShowSwapMenu] = useState(false)
-  const [addToWatchlist] = useAddToWatchlistMutation()
-  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
-  const [isWatched, setIsWatched] = useState(false)
-  const [loadingStar, setLoadingStar] = useState(false)
+
+  const { renderTableCell } = useRenderRankingList()
+
   const rowRef = useRef<HTMLTableRowElement>(null)
 
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-
-  const hasMutipleChain = token.tokens.length > 1
+  const tokens = token.addresses || []
+  const hasMutipleChain = tokens.length > 1
 
   const handleRowClick = () => {
-    navigate(
-      `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
-      {
-        state: { from: location },
-      },
-    )
+    navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.assetId}?chain=${tokens[0].chain}&address=${tokens[0].address}`, {
+      state: { from: location },
+    })
   }
 
-  const handleWatchlistClick = (e: any) => {
-    e.stopPropagation()
-    setLoadingStar(true)
-    if (isWatched) {
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-        token_name: token.symbol?.toUpperCase(),
-        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-        ranking_order: index,
-        option: 'remove',
-      })
-      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-        setIsWatched(false)
-        setLoadingStar(false)
-      })
-    } else {
-      if (!reachedMaxLimit) {
-        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-          token_name: token.symbol?.toUpperCase(),
-          source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-          ranking_order: index,
-          option: 'add',
-        })
-        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-          setIsWatched(true)
-          setLoadingStar(false)
-        })
-      }
-    }
-  }
-
-  useEffect(() => {
-    setIsWatched(token.isWatched)
-  }, [token.isWatched])
-
-  const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   return (
-    <tr key={token.asset_id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
+    <tr key={token.assetId} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
-          <SimpleTooltip
-            text={
-              isWatched ? t`Remove from watchlist` : reachedMaxLimit ? t`Reached 30 tokens limit` : t`Add to watchlist`
-            }
-            hideOnMobile
-          >
-            <StarWithAnimation
-              key={token.asset_id}
-              watched={isWatched}
-              loading={loadingStar}
-              onClick={handleWatchlistClick}
-              size={above768 ? 20 : 16}
-              disabled={!isWatched && reachedMaxLimit}
-            />
-          </SimpleTooltip>
+          <WatchlistButton size={above768 ? 20 : 16} assetId={token.assetId} symbol={token.symbol} />
           {above768 ? index : <></>}
         </RowFit>
       </td>
-      <td className={isScrolling ? 'table-cell-shadow-right' : ''}>
-        <Row gap="8px">
-          <div
-            style={{
-              position: 'relative',
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-            }}
-          >
-            <img
-              alt="tokenInList"
-              src={token.tokens[0].logo}
-              width="36px"
-              height="36px"
-              loading="lazy"
-              style={{ background: 'white' }}
-            />
-          </div>
-
-          <Column gap="8px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
-            <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
-            <TokenListVariants tokens={token.tokens} />
-          </Column>
-        </Row>
-      </td>
-      <td>
-        <Column style={{ alignItems: 'center', width: '110px' }}>
-          <SmallKyberScoreMeter data={latestKyberScore} />
-          <Text
-            color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
-            fontSize="14px"
-            fontWeight={500}
-          >
-            {latestKyberScore?.tag || 'Not Applicable'}
-          </Text>
-        </Column>
-      </td>
-      <td>
-        <KyberScoreChart data={token.ks_3d} index={index} />
-      </td>
-      <td>
-        <Column gap="10px" style={{ textAlign: 'left' }}>
-          <Text>${formatTokenPrice(token.price)}</Text>
-          <Text fontSize={12} color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
-            <Row gap="2px">
-              <ChevronIcon
-                rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
-                color={token.percent_change_24h > 0 ? theme.primary : theme.red}
-              />
-              {Math.abs(token.percent_change_24h).toFixed(2)}%
-            </Row>
-          </Text>
-        </Column>
-      </td>
-      <td style={{ textAlign: 'start' }}>
-        <TokenChart data={token['7daysprice']} index={index} />
-      </td>
-      <td style={{ textAlign: 'start' }}>
-        $
-        {currentTab === KyberAIListType.TOP_CEX_INFLOW
-          ? formatLocaleStringNum(token.cex_inflow_24h - token.cex_outflow_24h) || '--'
-          : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-          ? formatLocaleStringNum(token.cex_outflow_24h - token.cex_inflow_24h) || '--'
-          : formatLocaleStringNum(token.volume_24h) || '--'}
-      </td>
-      {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TRENDING_SOON].includes(
-        currentTab,
-      ) && (
-        <td style={{ textAlign: 'start' }}>
-          {currentTab === KyberAIListType.TOP_CEX_INFLOW
-            ? '$' + formatLocaleStringNum(token.cex_netflow_3days || 0) || '--'
-            : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-            ? '$' + formatLocaleStringNum(token.cex_netflow_3days || 0) || '--'
-            : currentTab === KyberAIListType.TRENDING_SOON
-            ? token.discovered_on
-              ? dayjs(token.discovered_on * 1000).format('DD/MM/YYYY')
-              : '--'
-            : '--'}
-        </td>
-      )}
+      {renderTableCell({ token, isScrolling, theme, index, currentTab })}
       <td>
         <Row gap="6px" justify={'flex-end'}>
           <SimpleTooltip text={t`Explore`}>
@@ -654,7 +542,7 @@ const TokenRow = React.memo(function TokenRow({
                   option: 'explore',
                 })
                 navigate(
-                  `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
+                  `${APP_PATHS.KYBERAI_EXPLORE}/${token.assetId}?chain=${tokens[0].chain}&address=${tokens[0].address}`,
                   {
                     state: { from: location },
                   },
@@ -677,7 +565,7 @@ const TokenRow = React.memo(function TokenRow({
                 if (hasMutipleChain) {
                   setShowSwapMenu(true)
                 } else {
-                  navigateToSwapPage(token.tokens[0])
+                  navigateToSwapPage(token.addresses[0])
                 }
               }}
             >
@@ -688,7 +576,7 @@ const TokenRow = React.memo(function TokenRow({
             <>
               <MultipleChainDropdown
                 show={showSwapMenu}
-                tokens={token?.tokens}
+                tokens={token?.addresses}
                 onChainClick={(chain, address) => {
                   if (chain && address) {
                     navigateToSwapPage({ chain, address })
@@ -731,64 +619,91 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
     </>
   )
 }
+
+const pageSize = 50
+
 export default function TokenAnalysisList() {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
   const [showShare, setShowShare] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
   const [listType, setListType] = useState(KyberAIListType.BULLISH)
+  const [, startTransition] = useTransition()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const tableRef = useRef<HTMLTableElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const [searchParams, setSearchParams] = useSearchParams()
-  const listTypeParam = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
-  const page = +(searchParams.get('page') || 1)
-  const chain = searchParams.get('chain') || undefined
-  const pageSize = 25
+  const { renderCol, renderTableHeader } = useRenderRankingList()
 
-  const { data, isLoading, isFetching, isError } = useTokenListQuery(
-    listTypeParam === KyberAIListType.MYWATCHLIST
-      ? {
-          type: KyberAIListType.ALL,
-          chain: chain || 'all',
-          page,
-          pageSize,
-          watchlist: true,
-        }
-      : {
-          type: listTypeParam,
-          chain: chain || 'all',
-          page,
-          pageSize,
-        },
-  )
+  // sort single for now
+  const [sortInfo, setSortInfo] = useState<{ field: SORT_FIELD | undefined; direction: SORT_DIRECTION }>({
+    field: undefined,
+    direction: SORT_DIRECTION.DESC,
+  })
+
+  const onChangeSort = (sortField: SORT_FIELD) => {
+    const toggleValue = sortInfo.direction === SORT_DIRECTION.DESC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC
+    const newDirection = sortField === sortInfo.field ? toggleValue : SORT_DIRECTION.DESC
+    setSortInfo({ direction: newDirection, field: sortField })
+    searchParams.set('sort', `${sortField}:${newDirection}`)
+    setSearchParams(searchParams)
+  }
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { page, listType: listTypeParam, sort, filter } = useFormatParamsFromUrl()
+
+  const queryParams = useMemo(() => {
+    return { page, pageSize, sort, ...filter, type: listTypeParam }
+  }, [page, listTypeParam, filter, sort])
+
+  const { data, isLoading, isFetching, isError } = useTokenListQuery(queryParams)
   const listData = data?.data || []
 
-  const handleTabChange = (tab: KyberAIListType) => {
-    searchParams.set('listType', tab)
-    searchParams.set('page', '1')
-    setSearchParams(searchParams)
+  const kyberscoreCalculateAt = useMemo(() => {
+    const listData = data?.data || []
+    const timestamps = listData.map(token => {
+      const latestKyberScore: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
+      return latestKyberScore?.createdAt || 0
+    })
+    return Math.max(...timestamps, 0)
+  }, [data])
+
+  const setDefaultSortArrow = (tab: KyberAIListType, autoSet = false) => {
+    // set default sort state
+    const defaultSort = (autoSet ? sort : '') || DEFAULT_PARAMS_BY_TAB[tab]?.sort || ''
+    const [field, direction] = defaultSort.split(':')
+    setSortInfo({
+      direction: (direction as SORT_DIRECTION) || SORT_DIRECTION.DESC,
+      field: (field as SORT_FIELD) || undefined,
+    })
   }
+
+  useEffectOnce(() => setDefaultSortArrow(listTypeParam, true))
+
+  const handleTabChange = (tab: KyberAIListType) => {
+    startTransition(() => {
+      const searchParams = new URLSearchParams() // to reset filter/sort
+      searchParams.set('listType', tab)
+      searchParams.set('page', '1')
+      setSearchParams(searchParams)
+      setDefaultSortArrow(tab)
+    })
+  }
+  const handleFilterChange = useCallback(
+    (filter: Record<string, string>) => {
+      Object.entries(filter).forEach(([key, value]) => {
+        value === '' || value === undefined ? searchParams.delete(key) : searchParams.set(key, value)
+      })
+      searchParams.set('page', '1')
+      setSearchParams(searchParams)
+    },
+    [searchParams, setSearchParams],
+  )
+
+  const onResetFilterSort = () => handleTabChange(listTypeParam)
+
   const handlePageChange = (page: number) => {
     searchParams.set('page', page.toString())
-    setSearchParams(searchParams)
-  }
-  const handleChainChange = (chainName?: string) => {
-    if (!chainName) {
-      searchParams.delete('chain')
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_SWITCH_CHAIN_CLICK, {
-        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-        network: 'All',
-      })
-    } else {
-      searchParams.set('chain', chainName)
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_SWITCH_CHAIN_CLICK, {
-        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-        network: NETWORKS_INFO[NETWORK_TO_CHAINID[chainName]].name,
-      })
-    }
-    searchParams.set('page', '1')
     setSearchParams(searchParams)
   }
 
@@ -810,254 +725,159 @@ export default function TokenAnalysisList() {
     }
     return
   }, [])
+
   useEffect(() => {
     if (!isFetching) {
       setListType(listTypeParam)
     }
   }, [isFetching, listTypeParam])
+
+  const isCexFlowTabs = [
+    KyberAIListType.TOP_CEX_INFLOW,
+    KyberAIListType.TOP_CEX_OUTFLOW,
+    KyberAIListType.TRENDING_SOON,
+  ].includes(listType)
+
+  const renderEmptyTokens = () => {
+    const msg = (
+      <Text>
+        {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 && page === 1 ? (
+          <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
+        ) : isError ? (
+          <Trans>There was an error. Please try again later.</Trans>
+        ) : (
+          <Trans>No results found.</Trans>
+        )}
+      </Text>
+    )
+    return (
+      <>
+        {above768 ? (
+          <tr>
+            <td colSpan={isCexFlowTabs ? 9 : 8} height={500} style={{ pointerEvents: 'none' }}>
+              {msg}
+            </td>
+          </tr>
+        ) : (
+          <tr style={{ height: '250px' }}>
+            <Row
+              style={{
+                position: 'absolute',
+                height: '200px',
+                justifyContent: 'center',
+                backgroundColor: theme.background,
+              }}
+            >
+              {msg}
+            </Row>
+          </tr>
+        )}
+      </>
+    )
+  }
+
   return (
     <>
-      <Row gap="8px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
+      <TradeInfoWrapper>
+        <Text fontSize="12px" color={theme.subText} fontWeight={500}>
+          <Trans>KyberScore will be updated every 4 hour</Trans>
+        </Text>
+        <Text fontSize="12px" color={theme.subText} fontStyle="italic">
+          <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
+        </Text>
+      </TradeInfoWrapper>
+      <ListTokenWrapper>
         <TokenListDraggableTabs tab={listTypeParam} setTab={handleTabChange} />
-      </Row>
-      <RowBetween flexDirection={above768 ? 'row' : 'column'} gap="16px">
-        <Column gap="8px">
-          <Text fontSize="12px" color={theme.subText} fontWeight={500}>
-            <Trans>Rankings will be updated every 4 hours</Trans>
-          </Text>
-          <Text fontSize="12px" color={theme.subText} fontStyle="italic">
-            <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
-          </Text>
-        </Column>
-        <RowFit gap="12px" alignSelf={'flex-end'}>
-          <ButtonGray
-            color={theme.subText}
-            gap="4px"
-            width="36px"
-            height="36px"
-            padding="6px"
-            style={{
-              filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))',
-              flexShrink: 0,
-              backgroundColor: theme.background,
-            }}
-            onClick={() => setShowShare(true)}
-          >
-            <Icon size={16} id="share" />
-          </ButtonGray>
-          <NetworkSelect filter={chain} setFilter={handleChainChange} />
-        </RowFit>
-      </RowBetween>
-      <Column gap="0px" style={{ position: 'relative' }}>
-        {isFetching && (
-          <LoadingWrapper>
-            <AnimatedLoader />
-          </LoadingWrapper>
-        )}
-        <TableWrapper ref={wrapperRef}>
-          <Table ref={tableRef}>
-            <colgroup>
-              <col style={{ width: '80px', minWidth: '40px' }} />
-              <col style={{ width: '220px', minWidth: 'fit-content' }} />
-              <col style={{ width: '200px', minWidth: 'auto' }} />
-              <col style={{ width: '230px', minWidth: 'auto' }} />
-              <col style={{ width: '250px', minWidth: 'auto' }} />
-              <col style={{ width: '250px', minWidth: 'auto' }} />
-              {[
-                KyberAIListType.TOP_CEX_INFLOW,
-                KyberAIListType.TOP_CEX_OUTFLOW,
-                KyberAIListType.TRENDING_SOON,
-              ].includes(listType) && <col style={{ width: '150px', minWidth: 'auto' }} />}
-              <col style={{ width: '150px', minWidth: 'auto' }} />
-              <col style={{ width: '200px', minWidth: 'auto' }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th style={{ textAlign: 'left' }} className={isScrolling ? 'table-cell-shadow-right' : ''}>
-                  <Row>
-                    <Trans>Token name</Trans>
-                  </Row>
-                </th>
-                <th style={{ textAlign: 'left' }}>
-                  <Column gap="4px">
-                    <Row justify="flex-start" gap="4px">
-                      <Trans>Kyberscore</Trans>{' '}
-                      <SimpleTooltip
-                        text={
-                          <span>
-                            KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking
-                            into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100.
-                            Higher the score, more bullish the token in the short-term. Read more{' '}
-                            <a href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">
-                              here ↗
-                            </a>
-                          </span>
-                        }
-                        delay={200}
-                      >
-                        <Info size={10} color={'currentcolor'} display="block" />
-                      </SimpleTooltip>
-                    </Row>
-                  </Column>
-                </th>
-                <th style={{ textAlign: 'left' }}>
-                  <Text>
-                    <Trans>Last 3D KyberScores</Trans>
-                  </Text>
-                </th>
-                <th>
-                  <Row justify="flex-start">
-                    <Trans>Current Price</Trans>
-                  </Row>
-                </th>
-                <th>
-                  <Row justify="flex-start">
-                    <Trans>Last 7d price</Trans>
-                  </Row>
-                </th>
-                <th>
-                  <Row justify="flex-start">
-                    <Trans>
-                      {{
-                        [KyberAIListType.TOP_CEX_INFLOW]: '24h Netflow',
-                        [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Netflow',
-                      }[listType as string] || '24h Volume'}
-                    </Trans>
-                  </Row>
-                </th>
-                {[
-                  KyberAIListType.TOP_CEX_INFLOW,
-                  KyberAIListType.TOP_CEX_OUTFLOW,
-                  KyberAIListType.TRENDING_SOON,
-                ].includes(listType) && (
-                  <th>
-                    <Row justify="flex-start">
-                      <Trans>
-                        {{
-                          [KyberAIListType.TOP_CEX_INFLOW]: '3D Netflow',
-                          [KyberAIListType.TOP_CEX_OUTFLOW]: '3D Netflow',
-                          [KyberAIListType.TRENDING_SOON]: 'First Discovered On',
-                        }[listType as string] || ''}
-                      </Trans>
-                    </Row>
-                  </th>
-                )}
-                <th style={{ textAlign: 'end' }}>
-                  <Trans>Action</Trans>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <SkeletonTheme
-                  baseColor={theme.border}
-                  height="28px"
-                  borderRadius="8px"
-                  direction="ltr"
-                  duration={1.5}
-                  highlightColor={theme.tabActive}
-                >
-                  <LoadingRowSkeleton
-                    hasExtraCol={[
-                      KyberAIListType.TOP_CEX_INFLOW,
-                      KyberAIListType.TOP_CEX_OUTFLOW,
-                      KyberAIListType.TRENDING_SOON,
-                    ].includes(listType)}
-                  />
-                </SkeletonTheme>
-              ) : isError || listData.length === 0 ? (
-                <>
-                  {above768 ? (
-                    <tr>
-                      <td
-                        colSpan={
-                          [
-                            KyberAIListType.TOP_CEX_INFLOW,
-                            KyberAIListType.TOP_CEX_OUTFLOW,
-                            KyberAIListType.TRENDING_SOON,
-                          ].includes(listType)
-                            ? 9
-                            : 8
-                        }
-                        height={550}
-                        style={{ pointerEvents: 'none' }}
-                      >
-                        <Text>
-                          {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 ? (
-                            <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
-                          ) : (
-                            <Trans>There was an error. Please try again later.</Trans>
-                          )}
-                        </Text>
-                      </td>
-                    </tr>
-                  ) : (
-                    <tr style={{ height: '250px' }}>
-                      <Row
-                        style={{
-                          position: 'absolute',
-                          height: '200px',
-                          justifyContent: 'center',
-                          backgroundColor: theme.background,
-                          width: '100vw',
-                        }}
-                      >
-                        <Text>
-                          {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 ? (
-                            <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
-                          ) : (
-                            <Trans>There was an error. Please try again later.</Trans>
-                          )}
-                        </Text>
-                      </Row>
-                    </tr>
-                  )}
-                </>
-              ) : (
-                listData.map((token: ITokenList, index: number) => (
-                  <TokenRow
-                    token={token}
-                    key={token.asset_id + '_' + (pageSize * (page - 1) + index + 1)}
-                    currentTab={listType}
-                    index={pageSize * (page - 1) + index + 1}
-                    isScrolling={isScrolling}
-                    listType={listType}
-                  />
-                ))
-              )}
-            </tbody>
-          </Table>
-        </TableWrapper>
-        <PaginationWrapper>
-          {!isError && (
-            <Pagination
-              totalCount={data?.totalItems || 10}
-              pageSize={pageSize}
-              currentPage={page}
-              onPageChange={(page: number) => {
-                window.scroll({ top: 0 })
-                handlePageChange(page)
-              }}
-              style={{ flex: 1 }}
-            />
+
+        <TokenFilter
+          listType={listTypeParam}
+          filter={filter}
+          handleFilterChange={handleFilterChange}
+          setShowShare={setShowShare}
+          onResetFilterSort={onResetFilterSort}
+        />
+
+        <Column gap="0px" style={{ position: 'relative' }}>
+          {isFetching && (
+            <LoadingWrapper>
+              <AnimatedLoader />
+            </LoadingWrapper>
           )}
-        </PaginationWrapper>
-      </Column>
-      <KyberAIShareModal
-        isOpen={showShare}
-        onClose={() => setShowShare(false)}
-        content={mobileMode => <TokenAnalysisListShareContent data={data?.data || []} mobileMode={mobileMode} />}
-        onShareClick={social =>
-          mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
-            token_name: 'share_list_token',
-            network: chain,
-            source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-            share_via: social,
-          })
-        }
-      />
-      <FeedbackSurvey />
+          <TableWrapper ref={wrapperRef}>
+            <Table ref={tableRef}>
+              <colgroup>
+                <col style={{ width: '80px', minWidth: '40px' }} />
+                {renderCol()}
+                <col style={{ width: '120px', minWidth: 'auto' }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <TableHeaderCell>#</TableHeaderCell>
+                  {renderTableHeader({ theme, kyberscoreCalculateAt, onChangeSort, sortInfo })}
+                  <TableHeaderCell style={{ textAlign: 'end' }}>
+                    <Trans>Action</Trans>
+                  </TableHeaderCell>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <SkeletonTheme
+                    baseColor={theme.border}
+                    height="28px"
+                    borderRadius={'8px'}
+                    direction="ltr"
+                    duration={1.5}
+                    highlightColor={theme.tabActive}
+                  >
+                    <LoadingRowSkeleton hasExtraCol={isCexFlowTabs} />
+                  </SkeletonTheme>
+                ) : isError || listData.length === 0 ? (
+                  renderEmptyTokens()
+                ) : (
+                  listData.map((token: ITokenList, index: number) => (
+                    <TokenRow
+                      token={token}
+                      key={token.assetId + '_' + (pageSize * (page - 1) + index + 1)}
+                      currentTab={listType}
+                      index={pageSize * (page - 1) + index + 1}
+                      isScrolling={isScrolling}
+                      listType={listType}
+                    />
+                  ))
+                )}
+              </tbody>
+            </Table>
+          </TableWrapper>
+          <PaginationWrapper>
+            {!isError && (
+              <Pagination
+                totalCount={data?.totalItems || 10}
+                pageSize={pageSize}
+                currentPage={page}
+                onPageChange={(page: number) => {
+                  window.scroll({ top: 0 })
+                  handlePageChange(page)
+                }}
+                style={{ flex: 1 }}
+              />
+            )}
+          </PaginationWrapper>
+        </Column>
+        <KyberAIShareModal
+          isOpen={showShare}
+          onClose={() => setShowShare(false)}
+          content={mobileMode => <TokenAnalysisListShareContent data={data?.data || []} mobileMode={mobileMode} />}
+          onShareClick={social =>
+            mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
+              token_name: 'share_list_token',
+              network: filter.chains || 'all',
+              source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+              share_via: social,
+            })
+          }
+        />
+        <FeedbackSurvey />
+      </ListTokenWrapper>
     </>
   )
 }

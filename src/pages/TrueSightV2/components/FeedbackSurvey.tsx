@@ -72,8 +72,8 @@ export default function FeedbackSurvey() {
   const [isOpenWidget, setIsOpenWidget] = useState(false)
   const theme = useTheme()
   const { updatedAt, status } = useGetParticipantKyberAIInfo()
-  const [isShowModalLS, setIsShowModalLS] = useLocalStorage<string | undefined>(LOCALSTORAGE_MODAL_SHOWED, undefined)
-  const [isShowWidgetLS, setIsShowWidgetLS] = useLocalStorage<string | undefined>(LOCALSTORAGE_WIDGET_SHOWED, undefined)
+  const [isShowModalLS, setIsShowModalLS] = useLocalStorage(LOCALSTORAGE_MODAL_SHOWED, '')
+  const [isShowWidgetLS, setIsShowWidgetLS] = useLocalStorage(LOCALSTORAGE_WIDGET_SHOWED, '')
 
   const isValid = useMemo(
     () => updatedAt < MOMENT_THIS_SURVEY_RELEASE && status === ParticipantStatus.WHITELISTED && Date.now() < END_DATE,

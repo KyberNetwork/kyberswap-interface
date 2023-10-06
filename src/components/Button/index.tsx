@@ -387,3 +387,36 @@ export const ButtonApprove = ({
     />
   )
 }
+
+const StyledButtonAction = styled(RebassButton)`
+  cursor: pointer;
+  appearance: none;
+  padding: 2px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  outline: none;
+  border-radius: 50%;
+  border: none;
+  color: unset;
+  transition: all 0.1s;
+  :hover {
+    background-color: ${({ theme }) => theme.subText + '20'};
+  }
+  :active {
+    background-color: ${({ theme }) => theme.subText + '10'};
+    transform: translateY(2px);
+  }
+`
+
+export const ButtonAction = ({
+  onClick,
+  children,
+  ...rest
+}: { onClick?: () => void; children: ReactNode } & ButtonProps) => {
+  return (
+    <StyledButtonAction onClick={onClick} {...rest}>
+      {children}
+    </StyledButtonAction>
+  )
+}
