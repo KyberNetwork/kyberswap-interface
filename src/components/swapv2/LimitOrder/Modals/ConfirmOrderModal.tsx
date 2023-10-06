@@ -36,7 +36,6 @@ export default memo(function ConfirmOrderModal({
   note,
   warningMessage,
   percentDiff,
-  renderButtons,
   editOrderInfo,
 }: {
   onSubmit: () => void
@@ -52,7 +51,6 @@ export default memo(function ConfirmOrderModal({
   note?: string
   warningMessage: ReactNode[]
   percentDiff: number
-  renderButtons?: () => ReactNode
   editOrderInfo?: EditOrderInfo
 }) {
   const { account } = useActiveWeb3React()
@@ -193,6 +191,37 @@ export default memo(function ConfirmOrderModal({
     )
   }
 
+  const renderConfirmData = () => (
+    <>
+      <ListInfo
+        listData={listData}
+        marketPrice={marketPrice}
+        symbolIn={currencyIn?.symbol}
+        symbolOut={displayCurrencyOut?.symbol}
+      />
+      <Note note={note} />
+
+      {warningMessage?.length > 0 && (
+        <Column gap="16px">
+          {warningMessage?.map((mess, i) => (
+            <ErrorWarningPanel key={i} type="warn" title={mess} />
+          ))}
+        </Column>
+      )}
+
+      {isEdit ? null : (
+        <Flex
+          sx={{
+            gap: '12px',
+          }}
+        >
+          {renderConfirmPriceButton()}
+          {renderPlaceOrderButton()}
+        </Flex>
+      )}
+    </>
+  )
+
   const renderConfirmationContent = (): ReactNode => {
     return (
       <Flex flexDirection={'column'} width="100%">
@@ -202,40 +231,15 @@ export default memo(function ConfirmOrderModal({
           ) : (
             <Container>
               <Header title={t`Review your order`} onDismiss={handleDismiss} />
-              <ListInfo
-                listData={listData}
-                marketPrice={marketPrice}
-                symbolIn={currencyIn?.symbol}
-                symbolOut={displayCurrencyOut?.symbol}
-              />
-              <Note note={note} />
-
-              {warningMessage?.length > 0 && (
-                <Column gap="16px">
-                  {warningMessage?.map((mess, i) => (
-                    <ErrorWarningPanel key={i} type="warn" title={mess} />
-                  ))}
-                </Column>
-              )}
-
-              {renderButtons ? (
-                renderButtons?.()
-              ) : (
-                <Flex
-                  sx={{
-                    gap: '12px',
-                  }}
-                >
-                  {renderConfirmPriceButton()}
-                  {renderPlaceOrderButton()}
-                </Flex>
-              )}
+              {renderConfirmData()}
             </Container>
           )}
         </div>
       </Flex>
     )
   }
+
+  if (isEdit && flowState.showConfirm) return renderConfirmData()
 
   return (
     <TransactionConfirmationModal

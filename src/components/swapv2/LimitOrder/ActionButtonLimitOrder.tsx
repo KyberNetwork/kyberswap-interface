@@ -12,7 +12,7 @@ import {
 } from 'components/Button'
 import ProgressSteps from 'components/ProgressSteps'
 import { RowBetween } from 'components/Row'
-import { CancelOrderInfo, CancelOrderType } from 'components/swapv2/LimitOrder/type'
+import { CancelOrderType } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -36,8 +36,6 @@ export default function ActionButtonLimitOrder({
   showApproveFlow,
   showWarning,
   isEdit,
-  cancelOrderInfo,
-  hasChangedOrderInfo,
 }: {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
@@ -56,8 +54,6 @@ export default function ActionButtonLimitOrder({
   onWrapToken: () => Promise<void>
   showPreview: (v?: CancelOrderType) => void
   isEdit: boolean
-  cancelOrderInfo: CancelOrderInfo | undefined
-  hasChangedOrderInfo: boolean
 }) {
   const disableBtnApproved =
     approval === ApprovalState.PENDING ||
@@ -119,10 +115,8 @@ export default function ActionButtonLimitOrder({
     </Text>
   )
 
-  if (isEdit && cancelOrderInfo) {
-    // todo refactor props this file
-    const { renderCancelButtons } = cancelOrderInfo
-    return renderCancelButtons(false, !hasChangedOrderInfo) as JSX.Element
+  if (isEdit) {
+    return null
   }
 
   if (showWarning && !disableBtnReview)

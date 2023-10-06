@@ -1,7 +1,4 @@
 import { ChainId, Currency, Fraction } from '@kyberswap/ks-sdk-core'
-import { ReactNode } from 'react'
-
-import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 
 export enum LimitOrderStatus {
   // status from BE
@@ -68,14 +65,6 @@ export type CancelOrderFunction = (data: {
   cancelType: CancelOrderType
   isEdit?: boolean
 }) => Promise<any>
-
-export type CancelOrderInfo = {
-  cancelStatus: CancelStatus
-  supportCancelGasless: boolean
-  onClickGaslessCancel: () => Promise<void>
-  onClickHardCancel: () => Promise<void>
-  renderCancelButtons: (v?: boolean, disableButtons?: boolean) => ReactNode
-}
 
 export type EditOrderInfo = { cancelType?: CancelOrderType; gasFee?: string; isEdit?: boolean }
 

@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Text } from 'rebass'
 
 import Logo from 'components/Logo'
@@ -13,7 +13,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
-import { CancelOrderFunction, LimitOrder, LimitOrderStatus } from '../type'
+import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from './styled'
 
 export enum CancelStatus {
@@ -65,7 +65,6 @@ function CancelOrderModal({
   const isOrderSupportGaslessCancel = useIsSupportSoftCancelOrder()
 
   const supportGasLessCancel = isCancelAll ? supportCancelGaslessAllOrders : isOrderSupportGaslessCancel(order)
-
   const { onClickGaslessCancel, onClickHardCancel, expiredTime, cancelStatus, setCancelStatus } = useProcessCancelOrder(
     {
       isOpen,
@@ -74,6 +73,9 @@ function CancelOrderModal({
       getOrders: (gasLessCancel: boolean) =>
         isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
     },
+  )
+  const [cancelType, setCancelType] = useState(
+    supportGasLessCancel ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL,
   )
 
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
@@ -166,6 +168,8 @@ function CancelOrderModal({
           flowState={flowState}
         />
         <CancelButtons
+          cancelType={cancelType}
+          setCancelType={setCancelType}
           estimateGas={estimateGas}
           supportCancelGasless={supportGasLessCancel}
           loading={flowState.attemptingTxn}

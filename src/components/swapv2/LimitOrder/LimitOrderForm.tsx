@@ -4,7 +4,7 @@ import axios from 'axios'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import debounce from 'lodash/debounce'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -61,7 +61,7 @@ import {
   parseFraction,
   removeTrailingZero,
 } from './helpers'
-import { CancelOrderInfo, CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from './type'
+import { CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from './type'
 
 export const Label = styled.div`
   font-weight: 500;
@@ -89,7 +89,6 @@ type Props = {
   flowState: TransactionFlowState
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
   zIndexToolTip?: number
-  cancelOrderInfo?: CancelOrderInfo
   defaultRate?: RateInfo
   editOrderInfo?: EditOrderInfo
 }
@@ -112,24 +111,28 @@ const ExpiredInput = styled(InputWrapper)`
     max-width: unset;
   `}
 `
-
-function LimitOrderForm({
-  currencyIn,
-  currencyOut,
-  defaultInputAmount = '',
-  defaultOutputAmount = '',
-  defaultActiveMakingAmount = '',
-  defaultExpire,
-  defaultRate = { rate: '', invertRate: '', invert: false },
-  setIsSelectCurrencyManual,
-  note = '',
-  orderInfo,
-  flowState,
-  setFlowState,
-  zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
-  cancelOrderInfo,
-  editOrderInfo,
-}: Props) {
+export type LimitOrderFormHandle = {
+  hasChangedOrderInfo: () => boolean
+}
+const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrderForm(
+  {
+    currencyIn,
+    currencyOut,
+    defaultInputAmount = '',
+    defaultOutputAmount = '',
+    defaultActiveMakingAmount = '',
+    defaultExpire,
+    defaultRate = { rate: '', invertRate: '', invert: false },
+    setIsSelectCurrencyManual,
+    note = '',
+    orderInfo,
+    flowState,
+    setFlowState,
+    zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
+    editOrderInfo,
+  },
+  ref,
+) {
   const isEdit = editOrderInfo?.isEdit || false // else create
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -611,14 +614,39 @@ function LimitOrderForm({
     deltaRate,
   })
 
-  const hasChangedOrderInfo =
-    isEdit &&
-    (defaultInputAmount !== inputAmount ||
-      defaultRate?.rate !== rateInfo.rate ||
-      defaultExpire?.getTime() !== expiredAt)
+  useImperativeHandle(ref, () => ({
+    hasChangedOrderInfo() {
+      return (
+        isEdit &&
+        (defaultInputAmount !== inputAmount ||
+          defaultRate?.rate !== rateInfo.rate ||
+          defaultExpire?.getTime() !== expiredAt)
+      )
+    },
+  }))
 
   // todo isEdit && console.log('renderr')
 
+  const renderConfirmModal = () => (
+    <ConfirmOrderModal
+      flowState={flowState}
+      onDismiss={hidePreview}
+      onSubmit={onSubmitCreateOrderWithTracking}
+      currencyIn={currencyIn}
+      currencyOut={currencyOut}
+      inputAmount={inputAmount}
+      outputAmount={outputAmount}
+      expireAt={expiredAt}
+      rateInfo={rateInfo}
+      marketPrice={tradeInfo}
+      note={note}
+      editOrderInfo={editOrderInfo}
+      warningMessage={warningMessage}
+      percentDiff={Number(deltaRate.rawPercent)}
+    />
+  )
+
+  if (isEdit && flowState.showConfirm) return renderConfirmModal()
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -788,29 +816,11 @@ function LimitOrderForm({
             showApproveFlow,
             showWarning: warningMessage.length > 0,
             isEdit,
-            cancelOrderInfo,
-            hasChangedOrderInfo,
           }}
         />
       </Flex>
 
-      <ConfirmOrderModal
-        flowState={flowState}
-        onDismiss={hidePreview}
-        onSubmit={onSubmitCreateOrderWithTracking}
-        currencyIn={currencyIn}
-        currencyOut={currencyOut}
-        inputAmount={inputAmount}
-        outputAmount={outputAmount}
-        expireAt={expiredAt}
-        rateInfo={rateInfo}
-        marketPrice={tradeInfo}
-        note={note}
-        editOrderInfo={editOrderInfo}
-        warningMessage={warningMessage}
-        percentDiff={Number(deltaRate.rawPercent)}
-        renderButtons={cancelOrderInfo?.renderCancelButtons}
-      />
+      {renderConfirmModal()}
 
       <ExpirePicker
         defaultDate={customDateExpire}
@@ -821,6 +831,6 @@ function LimitOrderForm({
       />
     </>
   )
-}
+})
 
 export default memo(LimitOrderForm)

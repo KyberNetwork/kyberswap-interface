@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ReactNode, useState } from 'react'
+import { ReactNode } from 'react'
 import { Check } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
@@ -70,6 +70,7 @@ const CancelButtons = ({
   onOkay,
   onClickHardCancel,
   onClickGaslessCancel,
+  onSubmit,
   loading,
   supportCancelGasless,
   isEdit,
@@ -78,9 +79,13 @@ const CancelButtons = ({
   disabledGasLessCancel = false,
   disabledHardCancel = false,
   estimateGas,
+  confirmOnly = false,
+  cancelType,
+  setCancelType,
 }: {
   cancelStatus: CancelStatus
   onOkay: () => void
+  onSubmit?: () => void
   onClickGaslessCancel: () => void
   onClickHardCancel: () => void
   loading: boolean
@@ -91,16 +96,15 @@ const CancelButtons = ({
   disabledGasLessCancel?: boolean
   disabledHardCancel?: boolean
   estimateGas: string
+  confirmOnly?: boolean
+  cancelType: CancelOrderType
+  setCancelType: (v: CancelOrderType) => void
 }) => {
   const theme = useTheme()
   const isWaiting = cancelStatus === CancelStatus.WAITING
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isTimeout = cancelStatus === CancelStatus.TIMEOUT
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
-
-  const [cancelType, setCancelType] = useState(
-    supportCancelGasless ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL,
-  )
 
   const gasAmountDisplay = estimateGas
     ? `~${formatDisplayNumber(estimateGas + '', {
@@ -159,45 +163,49 @@ const CancelButtons = ({
 
   return (
     <>
-      <ButtonGroup
-        style={{ flexDirection: isCountDown ? 'row-reverse' : undefined }}
-        isEdit={isEdit}
-        gasAmountDisplay={gasAmountDisplay}
-        buttonGasless={
-          <ButtonOutlined
-            {...propsGasless}
-            onClick={() => setCancelType(CancelOrderType.GAS_LESS_CANCEL)}
-            disabled={disabledGasLessCancel || !supportCancelGasless || loading}
-          >
-            <GasLessIcon />
-            &nbsp;
-            {isCancelAll ? totalOrder : isEdit ? <Trans>Gasless Edit</Trans> : <Trans>Gasless Cancel</Trans>}
-          </ButtonOutlined>
-        }
-        buttonHardEdit={
-          <ButtonOutlined
-            {...propsHardCancel}
-            onClick={() => setCancelType(CancelOrderType.HARD_CANCEL)}
-            color={cancelType === CancelOrderType.HARD_CANCEL ? theme.primary : undefined}
-          >
-            <GasStation size={20} />
-            &nbsp;
-            {isCancelAll ? (
-              <Trans>Hard Cancel All Orders</Trans>
-            ) : isEdit ? (
-              <Trans>Hard Edit</Trans>
-            ) : (
-              <Trans>Hard Cancel</Trans>
-            )}
-          </ButtonOutlined>
-        }
-      />
+      {!confirmOnly && (
+        <ButtonGroup
+          style={{ flexDirection: isCountDown ? 'row-reverse' : undefined }}
+          isEdit={isEdit}
+          gasAmountDisplay={gasAmountDisplay}
+          buttonGasless={
+            <ButtonOutlined
+              {...propsGasless}
+              onClick={() => setCancelType(CancelOrderType.GAS_LESS_CANCEL)}
+              disabled={disabledGasLessCancel || !supportCancelGasless || loading}
+            >
+              <GasLessIcon />
+              &nbsp;
+              {isCancelAll ? totalOrder : isEdit ? <Trans>Gasless Edit</Trans> : <Trans>Gasless Cancel</Trans>}
+            </ButtonOutlined>
+          }
+          buttonHardEdit={
+            <ButtonOutlined
+              {...propsHardCancel}
+              onClick={() => setCancelType(CancelOrderType.HARD_CANCEL)}
+              color={cancelType === CancelOrderType.HARD_CANCEL ? theme.primary : undefined}
+            >
+              <GasStation size={20} />
+              &nbsp;
+              {isCancelAll ? (
+                <Trans>Hard Cancel All Orders</Trans>
+              ) : isEdit ? (
+                <Trans>Hard Edit</Trans>
+              ) : (
+                <Trans>Hard Cancel</Trans>
+              )}
+            </ButtonOutlined>
+          }
+        />
+      )}
       {isWaiting && (
         <ButtonPrimary
           disabled={loading || (disabledGasLessCancel && disabledHardCancel)}
           width={'100%'}
           height={'40px'}
-          onClick={cancelType === CancelOrderType.GAS_LESS_CANCEL ? onClickGaslessCancel : onClickHardCancel}
+          onClick={
+            onSubmit || (cancelType === CancelOrderType.GAS_LESS_CANCEL ? onClickGaslessCancel : onClickHardCancel)
+          }
         >
           {isEdit ? (
             <Trans>Edit Order</Trans>

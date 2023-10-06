@@ -1,24 +1,27 @@
 import { Trans } from '@lingui/macro'
 import { ethers } from 'ethers'
-import { useMemo } from 'react'
-import { X } from 'react-feather'
+import { useMemo, useRef, useState } from 'react'
+import { ChevronLeft, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import Modal from 'components/Modal'
 import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
+import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
+import useTheme from 'hooks/useTheme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-import LimitOrderForm, { Label } from './LimitOrderForm'
+import LimitOrderForm, { Label, LimitOrderFormHandle } from './LimitOrderForm'
 import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
-import { CancelOrderFunction, CancelOrderInfo, EditOrderInfo, LimitOrder, LimitOrderStatus, RateInfo } from './type'
+import { CancelOrderFunction, CancelOrderType, EditOrderInfo, LimitOrder, LimitOrderStatus, RateInfo } from './type'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -32,6 +35,10 @@ const StyledLabel = styled(Label)`
   margin-bottom: 0;
 `
 
+enum Steps {
+  EDIT_ORDER,
+  REVIEW_ORDER,
+}
 export default function EditOrderModal({
   onSubmit,
   onDismiss,
@@ -50,6 +57,7 @@ export default function EditOrderModal({
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
 }) {
   const { chainId, account } = useActiveWeb3React()
+  const [step, setStep] = useState(Steps.EDIT_ORDER)
 
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
   const currencyIn = useCurrencyV2(makerAsset) ?? undefined
@@ -81,83 +89,106 @@ export default function EditOrderModal({
 
   const isSupportSoftCancelOrder = useIsSupportSoftCancelOrder()
   const supportCancelGasless = isSupportSoftCancelOrder(order)
+  const [cancelType, setCancelType] = useState(
+    supportCancelGasless ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL,
+  )
 
   const orders = useMemo(() => (order ? [order] : []), [order])
 
   const estimateGas = useEstimateFee({ orders })
+  // todo refactor props all
 
-  const renderCancelButtons = (showCancelStatus = true, disableButtons = false) => (
-    <>
-      {showCancelStatus && (
-        <CancelStatusCountDown
-          expiredTime={expiredTime}
-          cancelStatus={cancelStatus}
-          setCancelStatus={setCancelStatus}
-          flowState={flowState}
-        />
-      )}
-      <CancelButtons
-        isEdit
-        estimateGas={estimateGas}
-        supportCancelGasless={supportCancelGasless}
-        loading={flowState.attemptingTxn}
-        cancelStatus={cancelStatus}
-        onOkay={onDismiss}
-        onClickGaslessCancel={onClickGaslessCancel}
-        onClickHardCancel={onClickHardCancel}
-        disabledGasLessCancel={disableButtons}
-        disabledHardCancel={disableButtons}
-      />
-    </>
-  )
-
-  const cancelOrderInfo: CancelOrderInfo = {
-    cancelStatus,
-    supportCancelGasless,
-    renderCancelButtons,
-    onClickGaslessCancel,
-    onClickHardCancel,
+  const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas, cancelType }
+  const theme = useTheme()
+  const isReviewOrder = step === Steps.REVIEW_ORDER
+  const onBack = () => {
+    setStep(Steps.EDIT_ORDER)
+    setFlowState(v => ({ ...v, showConfirm: false }))
+  }
+  const onNext = () => {
+    setStep(Steps.REVIEW_ORDER)
+    setFlowState(v => ({ ...v, showConfirm: true }))
   }
 
-  const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas }
+  const ref = useRef<LimitOrderFormHandle>(null)
+  const renderCancelButtons = () => {
+    const hasChangeInfo = ref.current?.hasChangedOrderInfo?.()
+    return (
+      <>
+        {isReviewOrder && (
+          <CancelStatusCountDown
+            expiredTime={expiredTime}
+            cancelStatus={cancelStatus}
+            setCancelStatus={setCancelStatus}
+            flowState={flowState}
+          />
+        )}
+        <CancelButtons
+          cancelType={cancelType}
+          setCancelType={setCancelType}
+          confirmOnly={isReviewOrder}
+          onSubmit={isReviewOrder ? undefined : onNext}
+          isEdit
+          estimateGas={estimateGas}
+          supportCancelGasless={supportCancelGasless}
+          loading={flowState.attemptingTxn}
+          cancelStatus={cancelStatus}
+          onOkay={onDismiss}
+          onClickGaslessCancel={onClickGaslessCancel}
+          onClickHardCancel={onClickHardCancel}
+          disabledGasLessCancel={!hasChangeInfo}
+          disabledHardCancel={!hasChangeInfo}
+        />
+      </>
+    )
+  }
+
+  const isWaiting = cancelStatus === CancelStatus.WAITING
 
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
       <Wrapper>
         <Flex justifyContent={'space-between'} alignItems="center">
-          <Text>
-            <Trans>Edit Order</Trans>
-          </Text>
-          <X style={{ cursor: 'pointer' }} onClick={onDismiss} />
+          {isReviewOrder && isWaiting ? (
+            <ChevronLeft style={{ cursor: 'pointer', color: theme.subText }} onClick={onBack} />
+          ) : (
+            <div />
+          )}
+          <Text>{isReviewOrder && isWaiting ? <Trans>Review your order</Trans> : <Trans>Edit Order</Trans>}</Text>
+          <X style={{ cursor: 'pointer', color: theme.subText }} onClick={onDismiss} />
         </Flex>
-        <div>
+
+        <Column gap="10px">
           <StyledLabel>
             <Trans>
               Editing this order will automatically cancel your existing order and a new order will be created.
             </Trans>
           </StyledLabel>
           {status === LimitOrderStatus.PARTIALLY_FILLED && (
-            <StyledLabel style={{ marginTop: '0.75rem' }}>
+            <StyledLabel>
               <Trans>Your currently existing order is {filled}% filled.</Trans>
             </StyledLabel>
           )}
-        </div>
-        <LimitOrderForm
-          zIndexToolTip={Z_INDEXS.MODAL}
-          flowState={flowState}
-          setFlowState={setFlowState}
-          currencyIn={currencyIn}
-          currencyOut={currencyOut}
-          defaultInputAmount={formatIn}
-          defaultOutputAmount={formatOut}
-          defaultActiveMakingAmount={defaultActiveMakingAmount}
-          defaultRate={defaultRate}
-          editOrderInfo={editOrderInfo}
-          cancelOrderInfo={cancelOrderInfo}
-          note={note}
-          orderInfo={order}
-          defaultExpire={defaultExpire}
-        />
+        </Column>
+        {isWaiting && (
+          <LimitOrderForm
+            ref={ref}
+            zIndexToolTip={Z_INDEXS.MODAL}
+            flowState={flowState}
+            setFlowState={setFlowState}
+            currencyIn={currencyIn}
+            currencyOut={currencyOut}
+            defaultInputAmount={formatIn}
+            defaultOutputAmount={formatOut}
+            defaultActiveMakingAmount={defaultActiveMakingAmount}
+            defaultRate={defaultRate}
+            editOrderInfo={editOrderInfo}
+            note={note}
+            orderInfo={order}
+            defaultExpire={defaultExpire}
+          />
+        )}
+        {renderCancelButtons()}
       </Wrapper>
     </Modal>
   )
