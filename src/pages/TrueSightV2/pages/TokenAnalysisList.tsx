@@ -575,6 +575,7 @@ const TokenRow = React.memo(function TokenRow({
             <>
               <MultipleChainDropdown
                 show={showSwapMenu}
+                onDismiss={() => setShowSwapMenu(false)}
                 tokens={token?.addresses}
                 onChainClick={(chain, address) => {
                   if (chain && address) {

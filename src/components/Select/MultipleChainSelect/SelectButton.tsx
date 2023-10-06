@@ -74,7 +74,6 @@ const SelectButton: React.FC<Props> = ({ selectedChainIds, chainIds, activeRende
         paddingRight: '8px',
         justifyContent: 'space-between',
         alignItems: 'center',
-        background: theme.background,
         userSelect: 'none',
         cursor: 'pointer',
         ...activeStyle,
