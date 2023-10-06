@@ -73,7 +73,7 @@ const MultipleChainDropdown = React.forwardRef(
   (
     props: {
       show: boolean
-      tokens?: Array<{ address: string; logo: string; chain: string }>
+      tokens?: Array<{ address: string; chain: string }>
       onChainClick: (chain: string, address: string) => void
     },
     ref,
@@ -90,7 +90,7 @@ const MultipleChainDropdown = React.forwardRef(
               </Text>
             </Row>
             <Row style={{ flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
-              {tokens?.map((item: { address: string; logo: string; chain: string }) => {
+              {tokens?.map((item: { address: string; chain: string }) => {
                 if (item.chain === 'ethereum')
                   return (
                     <MobileChainIcon
@@ -170,7 +170,7 @@ const MultipleChainDropdown = React.forwardRef(
         ref={ref}
         onClick={e => e.stopPropagation()}
       >
-        {tokens?.map((item: { address: string; logo: string; chain: string }) => {
+        {tokens?.map((item: { address: string; chain: string }) => {
           if (item.chain === 'ethereum')
             return (
               <ChainIcon

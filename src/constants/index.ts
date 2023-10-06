@@ -308,6 +308,10 @@ export const RTK_QUERY_TAGS = {
 
   // kyber ai
   GET_PARTICIPANT_INFO_KYBER_AI: 'GET_PARTICIPANT_INFO_KYBER_AI',
+  GET_WATCHLIST_TOKENS_KYBER_AI: 'GET_WATCHLIST_TOKENS_KYBER_AI',
+  GET_WATCHLIST_INFO_KYBER_AI: 'GET_WATCHLIST_INFO_KYBER_AI',
+  GET_TOKEN_OVERVIEW_KYBER_AI: 'GET_TOKEN_OVERVIEW_KYBER_AI',
+  GET_TOKEN_LIST_KYBER_AI: 'GET_TOKEN_LIST_KYBER_AI',
 
   // limit order
   GET_LIST_ORDERS: 'GET_LIST_ORDERS',
@@ -399,6 +403,10 @@ export const ICON_IDS = [
   'twitter',
   'facebook',
   'discord',
+  'assignment',
+  'drag-indicator',
+  'pencil',
+  'trash',
 ] as const
 export type ICON_ID = typeof ICON_IDS[number]
 
@@ -411,4 +419,9 @@ export const FRAX_FARMS: { [chainId in ChainId]?: string[] } = {
   [ChainId.MATIC]: ['0xa5ebdde0f2e657d77bebeda085dd49f6decf8504'],
   [ChainId.ARBITRUM]: ['0x6a7dccf168fba624a81b293c2538d31427b5b4bd'],
   [ChainId.OPTIMISM]: ['0xa837d04a64acf66912d05cfd9b951e4e399ab680'],
+}
+
+export enum SORT_DIRECTION {
+  ASC = 'asc',
+  DESC = 'desc',
 }

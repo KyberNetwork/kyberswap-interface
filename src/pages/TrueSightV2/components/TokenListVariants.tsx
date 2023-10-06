@@ -20,7 +20,7 @@ export default function TokenListVariants({
   tokens,
   iconSize = 12,
 }: {
-  tokens: Array<{ address: string; logo: string; chain: string }>
+  tokens: Array<{ address: string; chain: string }>
   iconSize?: number
 }) {
   const theme = useTheme()

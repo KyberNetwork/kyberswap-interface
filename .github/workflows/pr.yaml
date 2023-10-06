@@ -116,6 +116,7 @@ jobs:
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-stg
 
+
       - name: Docker build and push
         uses: docker/build-push-action@v2
         with:
