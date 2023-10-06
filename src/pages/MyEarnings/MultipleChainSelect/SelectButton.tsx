@@ -2,20 +2,11 @@ import { Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 
 import { MultipleChainSelectProps, StyledLogo } from '.'
-
-const DropdownIcon = styled(DropdownSVG)`
-  transition: transform 300ms;
-  color: ${({ theme }) => theme.subText};
-  &[data-flip='true'] {
-    transform: rotate(180deg);
-  }
-`
 
 const ButtonBodyWrapper = styled.div`
   display: flex;
@@ -32,19 +23,8 @@ const Label = styled.span<{ labelColor?: string }>`
   overflow: hidden;
   text-overflow: ellipsis;
 `
-type Props = {
-  expanded: boolean
-  onClick: () => void
-} & MultipleChainSelectProps
-const SelectButton: React.FC<Props> = ({
-  expanded,
-  onClick,
-  selectedChainIds,
-  chainIds,
-  activeRender,
-  activeStyle,
-  labelColor,
-}) => {
+type Props = MultipleChainSelectProps
+const SelectButton: React.FC<Props> = ({ selectedChainIds, chainIds, activeRender, activeStyle, labelColor }) => {
   const theme = useTheme()
 
   const renderButtonBody = () => {
@@ -94,16 +74,12 @@ const SelectButton: React.FC<Props> = ({
         paddingRight: '8px',
         justifyContent: 'space-between',
         alignItems: 'center',
-        borderRadius: '18px',
-        background: theme.background,
         userSelect: 'none',
         cursor: 'pointer',
         ...activeStyle,
       }}
-      onClick={onClick}
     >
       {activeRender ? activeRender(renderButtonBody()) : renderButtonBody()}
-      <DropdownIcon data-flip={expanded} />
     </Flex>
   )
 }

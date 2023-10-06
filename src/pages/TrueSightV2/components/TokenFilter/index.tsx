@@ -15,7 +15,7 @@ import { EMPTY_OBJECT } from 'constants/index'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
-import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelectV2'
+import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
 import WatchlistSelect from 'pages/TrueSightV2/components/TokenFilter/WatchlistSelect'
 import {
@@ -54,7 +54,7 @@ export const StyledSelect = styled(Select)`
 const StyledChainSelect = styled(MultipleChainSelect)`
   ${shareStyle}
   padding: 12px;
-  background: ${({ theme }) => theme.buttonBlack};
+  background: ${({ theme }) => theme.buttonBlack} !important;
 `
 
 const SelectName = styled.div`
