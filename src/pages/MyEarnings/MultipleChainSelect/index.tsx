@@ -7,7 +7,7 @@ import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
 import Checkbox from 'components/CheckBox'
-import Select from 'components/SelectV2'
+import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useChainsConfig from 'hooks/useChainsConfig'
