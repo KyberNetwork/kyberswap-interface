@@ -82,6 +82,7 @@ const CancelButtons = ({
   confirmOnly = false,
   cancelType,
   setCancelType,
+  confirmBtnText,
 }: {
   cancelStatus: CancelStatus
   onOkay: () => void
@@ -99,6 +100,7 @@ const CancelButtons = ({
   confirmOnly?: boolean
   cancelType: CancelOrderType
   setCancelType: (v: CancelOrderType) => void
+  confirmBtnText?: ReactNode
 }) => {
   const theme = useTheme()
   const isWaiting = cancelStatus === CancelStatus.WAITING
@@ -207,13 +209,7 @@ const CancelButtons = ({
             onSubmit || (cancelType === CancelOrderType.GAS_LESS_CANCEL ? onClickGaslessCancel : onClickHardCancel)
           }
         >
-          {isEdit ? (
-            <Trans>Edit Order</Trans>
-          ) : isCancelAll ? (
-            <Trans>Cancel Orders</Trans>
-          ) : (
-            <Trans>Cancel Order</Trans>
-          )}
+          {confirmBtnText}
         </ButtonPrimary>
       )}
     </>

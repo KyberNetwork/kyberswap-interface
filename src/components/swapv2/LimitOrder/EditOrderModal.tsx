@@ -138,6 +138,7 @@ export default function EditOrderModal({
           onClickHardCancel={onClickHardCancel}
           disabledGasLessCancel={!hasChangeInfo}
           disabledHardCancel={!hasChangeInfo}
+          confirmBtnText={isReviewOrder ? <Trans>Place Order</Trans> : <Trans>Edit Order</Trans>}
         />
       </>
     )

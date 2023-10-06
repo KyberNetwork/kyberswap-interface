@@ -178,6 +178,7 @@ function CancelOrderModal({
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
           isCancelAll={isCancelAll}
+          confirmBtnText={isCancelAll ? <Trans>Cancel Orders</Trans> : <Trans>Cancel Order</Trans>}
           totalOrder={
             isCancelAll ? (
               ordersSoftCancel.length === orders.length || !supportGasLessCancel ? (
