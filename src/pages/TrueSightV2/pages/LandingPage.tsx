@@ -202,7 +202,7 @@ const FloatingImageWithMotion = (props: {
     [0, props.parallaxDistance ? 2200 / props.parallaxDistance : 0],
   )
 
-  const translateY = useSpring(transformedTranslateY, { bounce: 0, duration: 0.5 })
+  const translateY = useSpring(transformedTranslateY, { damping: 10, stiffness: 100 })
 
   return (
     <motion.div transition={transition} style={{ translateY, ...props.style }}>
