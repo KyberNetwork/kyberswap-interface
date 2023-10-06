@@ -22,7 +22,6 @@ const SelectWrapper = styled.div`
   padding: 12px;
   :hover {
     filter: brightness(1.2);
-    z-index: 10;
   }
 `
 
@@ -57,6 +56,7 @@ const SelectedWrap = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  user-select: none;
 `
 export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void }
 
