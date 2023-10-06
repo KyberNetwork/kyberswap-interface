@@ -175,12 +175,7 @@ const KyberAITokenBanner = ({
           <div style={{ width: '100px' }}></div>
         </Container>
       ) : (
-        <MobileContainer
-          color={color}
-          onClick={() => {
-            handleBannerClick
-          }}
-        >
+        <MobileContainer color={color} onClick={handleBannerClick}>
           <RowBetween>
             <RowFit gap="8px">
               {staticMode ? (
