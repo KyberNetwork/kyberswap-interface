@@ -1,10 +1,9 @@
 import { Portal } from '@reach/portal'
 import { AnimatePresence, motion } from 'framer-motion'
-import { CSSProperties, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
 import styled from 'styled-components'
 
-import useInterval from 'hooks/useInterval'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
 import { DropdownArrowIcon } from './ArrowRotate'
