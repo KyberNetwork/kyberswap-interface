@@ -87,11 +87,11 @@ const ShareGroup = styled.div`
     height: unset;
     position: absolute;
     right: 0;
-    top: 0;
-    bottom: 0;
+    top: -2px;
+    bottom: -2px;
     padding: 0 12px;
     z-index: ${Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS};
-    background: ${theme.background}
+    background: ${theme.background};
   `}
 `
 
