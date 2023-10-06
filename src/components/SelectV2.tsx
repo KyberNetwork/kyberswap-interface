@@ -1,10 +1,9 @@
 import { Portal } from '@reach/portal'
 import { AnimatePresence, motion } from 'framer-motion'
-import { CSSProperties, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
 import styled from 'styled-components'
 
-import useInterval from 'hooks/useInterval'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
 import { DropdownArrowIcon } from './ArrowRotate'
@@ -26,12 +25,8 @@ const SelectWrapper = styled.div`
 `
 
 const SelectMenu = styled(motion.div)`
-  position: absolute;
-  top: 0px;
-  left: 0;
-  right: 0;
-  margin: auto;
   border-radius: 16px;
+  overflow: hidden;
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   z-index: 2;
   background: ${({ theme }) => theme.tabActive};
@@ -68,11 +63,6 @@ const getOptionLabel = (option: SelectOption | undefined) => {
   if (!option) return ''
   return typeof option !== 'object' ? option : option.label || option.value
 }
-
-// function isElementOverflowBottom(el: HTMLElement) {
-//   const rect = el.getBoundingClientRect()
-//   return rect.bottom >= (window.innerHeight || document?.documentElement?.clientHeight)
-// }
 
 const defaultOffset: [number, number] = [0 /* skidding */, 2 /* distance */]
 function Select({
@@ -115,11 +105,10 @@ function Select({
 
   useEffect(() => {
     if (!refMenu?.current) return
-    // if (!menuPlacementTop) setForceMenuPlacementTop(showMenu && isElementOverflowBottom(refMenu.current))
   }, [showMenu, menuPlacementTop])
-  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
+  const ref = useRef<HTMLDivElement>(null)
 
-  useOnClickOutside(referenceElement as any, () => {
+  useOnClickOutside(ref, () => {
     setShowMenu(false)
     onHideMenu?.()
   })
@@ -132,7 +121,7 @@ function Select({
       const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation()
         e.preventDefault()
-        setShowMenu(prev => !prev)
+        setShowMenu(false)
         if (item.onSelect) item.onSelect?.()
         else {
           setSelected(value)
@@ -155,25 +144,18 @@ function Select({
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
 
-  const { styles, update } = usePopper(referenceElement, popperElement, {
+  const { styles } = usePopper(ref.current, popperElement, {
     placement: 'bottom',
     strategy: 'fixed',
     modifiers: [{ name: 'offset', options: { offset: defaultOffset } }],
   })
 
-  const updateCallback = useCallback(() => {
-    update?.()
-  }, [update])
-
-  useInterval(updateCallback, showMenu ? 100 : null)
-
   return (
     <SelectWrapper
-      ref={setReferenceElement as any}
-      // ref={ref}
+      ref={ref}
       role="button"
       onClick={() => {
-        setShowMenu(!showMenu)
+        setShowMenu(true)
       }}
       style={style}
       className={className}
@@ -183,17 +165,24 @@ function Select({
       <AnimatePresence>
         {showMenu && (
           <Portal>
-            <SelectMenu
+            <div
               ref={setPopperElement as any}
-              // initial={{ y: -10, opacity: 0 }}
-              // animate={{ y: 0, opacity: 1 }}
-              // exit={{ y: -10, opacity: 0 }}
-              // transition={{ duration: 0.1 }}
-              style={{ ...styles.popper, ...menuStyle, ...(menuPlacementTop ? { bottom: 40, top: 'unset' } : {}) }}
-              // ref={refMenu}
+              style={{
+                ...styles.popper,
+                ...(menuPlacementTop ? { bottom: 40, top: 'unset' } : {}),
+                zIndex: 1,
+              }}
             >
-              {dropdownRender ? dropdownRender(renderMenu()) : renderMenu()}
-            </SelectMenu>
+              <SelectMenu
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -10, opacity: 0 }}
+                transition={{ duration: 0.1 }}
+                style={{ ...menuStyle }}
+              >
+                <div>{dropdownRender ? dropdownRender(renderMenu()) : renderMenu()}</div>
+              </SelectMenu>
+            </div>
           </Portal>
         )}
       </AnimatePresence>

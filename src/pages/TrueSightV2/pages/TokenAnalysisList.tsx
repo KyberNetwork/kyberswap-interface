@@ -252,12 +252,11 @@ const LoadingWrapper = styled(Row)`
   opacity: 0.8;
   z-index: ${Z_INDEX_KYBER_AI.LOADING_TOKENS_TABLE};
   border-radius: 20px;
-  padding-top: min(25vh, 20%);
+  padding-top: min(25vh, 25%);
   justify-content: center;
   align-items: flex-start;
   box-sizing: border-box;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    inset: 0 -16px 0 -16px;
     width: 100vw;
     border-radius: 0;
   `}
