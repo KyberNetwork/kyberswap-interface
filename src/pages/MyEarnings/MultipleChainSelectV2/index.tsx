@@ -110,7 +110,7 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
     <Select
       onHideMenu={onHideMenu}
       className={className}
-      style={{ ...style, flex: '0 0 150px', width: '150px', position: 'relative', zIndex: '3' }}
+      style={{ ...style, flex: '0 0 150px', width: '150px', position: 'relative' }}
       activeRender={_ => <SelectButton {...props} />}
       options={options}
       optionStyle={{ padding: 0 }}

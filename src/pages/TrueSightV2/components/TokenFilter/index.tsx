@@ -215,8 +215,6 @@ export default function TokenFilter({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const menuStyle: CSSProperties = {
-    zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS,
-    top: upToSmall ? undefined : 0,
     maxHeight: 400,
     overflowY: 'scroll',
   }
@@ -233,7 +231,7 @@ export default function TokenFilter({
         ) : (
           <>
             <StyledChainSelect
-              menuStyle={{ left: 0, zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS }}
+              menuStyle={menuStyle}
               activeStyle={{
                 backgroundColor: 'transparent',
                 padding: 0,
