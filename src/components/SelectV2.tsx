@@ -22,7 +22,6 @@ const SelectWrapper = styled.div`
   padding: 12px;
   :hover {
     filter: brightness(1.2);
-    z-index: 10;
   }
 `
 
@@ -57,6 +56,7 @@ const SelectedWrap = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  user-select: none;
 `
 export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void }
 
@@ -88,6 +88,7 @@ function Select({
   forceMenuPlacementTop = false,
   arrowColor,
   dropdownRender,
+  onHideMenu,
 }: {
   value?: string | number
   className?: string
@@ -101,6 +102,7 @@ function Select({
   onChange?: (value: any) => void
   forceMenuPlacementTop?: boolean
   arrowColor?: string
+  onHideMenu?: () => void // hide without changes
 }) {
   const [selected, setSelected] = useState(getOptionValue(options?.[0]))
   const [showMenu, setShowMenu] = useState(false)
@@ -119,6 +121,7 @@ function Select({
 
   useOnClickOutside(referenceElement as any, () => {
     setShowMenu(false)
+    onHideMenu?.()
   })
   const selectedInfo = options.find(item => getOptionValue(item) === selected)
   const refMenu = useRef<HTMLDivElement>(null)
@@ -159,7 +162,7 @@ function Select({
   })
 
   const updateCallback = useCallback(() => {
-    update && update()
+    update?.()
   }, [update])
 
   useInterval(updateCallback, showMenu ? 100 : null)

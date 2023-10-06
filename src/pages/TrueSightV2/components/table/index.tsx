@@ -728,7 +728,7 @@ export const WidgetTable = ({
               <Trans>Token</Trans>
             </th>
             <th>
-              <Trans>Kyberscore</Trans>
+              <Trans>KyberScore</Trans>
             </th>
             <th>
               <Trans>Price | 24 Change</Trans>
@@ -1061,7 +1061,7 @@ export const TokenListInShareModalTable = ({
           </th>
           {!mobileMode && (
             <th>
-              <Trans>Kyberscore</Trans>
+              <Trans>KyberScore</Trans>
             </th>
           )}
         </tr>

@@ -109,6 +109,11 @@ const SelectGroup = styled.div`
     width: 100%;
     height: 100%;
     padding-right: 150px;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    > * {
+      scroll-snap-align: start;
+    }
   `}
 `
 
@@ -169,6 +174,7 @@ export default function TokenFilter({
     return { allChainIds, listSelects, chainFilter }
   }, [data])
 
+  // chains when f5, from url
   const defaultChains = useMemo(
     () => getChainsFromSlugs(filter[chainFilter?.queryKey]?.split(',')),
     [filter, chainFilter],
@@ -219,7 +225,7 @@ export default function TokenFilter({
 
   return (
     <StyledWrapper>
-      <SelectGroup style={{ overflowX: 'scroll' }}>
+      <SelectGroup>
         {showLoading ? (
           new Array(isWatchlistTab ? 5 : 4)
             .fill(0)
@@ -263,7 +269,12 @@ export default function TokenFilter({
         )}
       </SelectGroup>
       <ShareGroup>
-        <StyledButton onClick={onResetFilterSort}>
+        <StyledButton
+          onClick={() => {
+            setSelectChains(allChainIds)
+            onResetFilterSort()
+          }}
+        >
           <Trash2 size={16} />
           {!upToSmall && <Trans>Reset</Trans>}
         </StyledButton>
