@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import { Z_INDEXS } from 'constants/styles'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
-import { DropdownArrowIcon } from './ArrowRotate'
+import { DropdownArrowIcon } from '../ArrowRotate'
 
 const SelectWrapper = styled.div`
   cursor: pointer;
