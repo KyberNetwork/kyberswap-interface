@@ -133,11 +133,10 @@ export default function DateTimePicker({
     menuStyle: {
       height: 250,
       overflow: 'scroll',
-      top: 'unset',
-      right: 'unset',
       textAlign: 'center',
       width: 'fit-content',
     } as CSSProperties,
+    placement: 'left',
   }
 
   const expireResult = defaultExpire ? Date.now() + defaultExpire * 1000 : date

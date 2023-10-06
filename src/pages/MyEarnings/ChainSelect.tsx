@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
+import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import {
   COMING_SOON_NETWORKS_FOR_MY_EARNINGS,
   COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC,
@@ -16,7 +17,6 @@ import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import { AppState } from 'state'
 import { useAppSelector } from 'state/hooks'
 import { selectChains } from 'state/myEarnings/actions'

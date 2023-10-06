@@ -10,12 +10,12 @@ import styled, { CSSProperties, css } from 'styled-components'
 import { ButtonGray } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import Select from 'components/SelectV2'
+import Select from 'components/Select'
+import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import { EMPTY_OBJECT } from 'constants/index'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
-import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelectV2'
 import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
 import WatchlistSelect from 'pages/TrueSightV2/components/TokenFilter/WatchlistSelect'
 import {
@@ -54,7 +54,7 @@ export const StyledSelect = styled(Select)`
 const StyledChainSelect = styled(MultipleChainSelect)`
   ${shareStyle}
   padding: 12px;
-  background: ${({ theme }) => theme.buttonBlack};
+  background: ${({ theme }) => theme.buttonBlack} !important;
 `
 
 const SelectName = styled.div`
@@ -87,11 +87,11 @@ const ShareGroup = styled.div`
     height: unset;
     position: absolute;
     right: 0;
-    top: 0;
-    bottom: 0;
+    top: -2px;
+    bottom: -2px;
     padding: 0 12px;
     z-index: ${Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS};
-    background: ${theme.background}
+    background: ${theme.background};
   `}
 `
 
@@ -215,8 +215,6 @@ export default function TokenFilter({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const menuStyle: CSSProperties = {
-    zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS,
-    top: upToSmall ? undefined : 0,
     maxHeight: 400,
     overflowY: 'scroll',
   }
@@ -233,7 +231,7 @@ export default function TokenFilter({
         ) : (
           <>
             <StyledChainSelect
-              menuStyle={{ left: 0, zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS }}
+              menuStyle={menuStyle}
               activeStyle={{
                 backgroundColor: 'transparent',
                 padding: 0,

@@ -7,7 +7,7 @@ import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
 import Checkbox from 'components/CheckBox'
-import Select from 'components/SelectV2'
+import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useChainsConfig from 'hooks/useChainsConfig'
@@ -67,6 +67,14 @@ const Label = styled.span`
   user-select: none;
 `
 
+const StyledSelect = styled(Select)`
+  flex: 0 0 150px;
+  width: 150px;
+  position: relative;
+  border-radius: 18px;
+  background-color: ${({ theme }) => theme.buttonGray};
+`
+
 const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, style, ...props }) => {
   const { comingSoonList = [], selectedChainIds = [], handleChangeChains, chainIds = [], onTracking } = props
   const options = chainIds.map(id => ({ value: id, label: id }))
@@ -107,10 +115,10 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
   }, [selectedChains])
 
   return (
-    <Select
+    <StyledSelect
       onHideMenu={onHideMenu}
       className={className}
-      style={{ ...style, flex: '0 0 150px', width: '150px', position: 'relative', zIndex: '3' }}
+      style={style}
       activeRender={_ => <SelectButton {...props} />}
       options={options}
       optionStyle={{ padding: 0 }}
