@@ -30,6 +30,7 @@ const ContentWrapper = styled.div`
   border-radius: 12px;
   background-color: ${({ theme }) => theme.tableHeader};
   font-size: 12px;
+  line-height: 16px;
   color: ${({ theme }) => theme.subText};
   width: fit-content;
   max-width: 250px;

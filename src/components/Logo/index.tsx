@@ -2,6 +2,7 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { CSSProperties, useState } from 'react'
 import { HelpCircle } from 'react-feather'
 import { ImageProps } from 'rebass'
+import styled from 'styled-components'
 
 import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -82,3 +83,14 @@ export function TokenLogoWithChain(data: any) {
     </div>
   )
 }
+
+export const TokenLogoWithShadow = styled(Logo)<{ size: string }>`
+  width: ${({ size }) => size};
+  height: ${({ size }) => size};
+  border-radius: 100%;
+  box-shadow: ${({ theme }) =>
+    (() => {
+      const color = theme.darkMode ? `rgba(256, 256, 256, 0.2)` : `rgba(0, 0, 0, 0.2)`
+      return `0 4px 5px 0 ${color}, 0 1px 70px 0 ${color};`
+    })()};
+`

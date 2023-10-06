@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -21,6 +20,7 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 
 import { ShareButton } from '.'
 import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
+import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
 import { IAssetOverview } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
 import ChevronIcon from './ChevronIcon'
@@ -145,7 +145,7 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
 
 export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLoading?: boolean }) => {
   const theme = useTheme()
-  const { chain } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const mixpanelHandler = useMixpanelKyberAI()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [expanded, setExpanded] = useState(false)
@@ -164,6 +164,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
     if (data?.kyberScore.score < 40) return 'bearish'
     return ''
   }, [data])
+
   const priceChangeColor = data && data.price24hChangePercent > 0 ? theme.primary : theme.red
   return (
     <>
@@ -222,43 +223,6 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                   color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
                 />
               </Column>
-              {/*  <Column gap="6px" style={{ justifyContent: 'end' }}>
-                <Text fontSize="12px">
-                  <Trans>Performance</Trans>
-                </Text>
-                <Row gap="8px">
-                  <PerformanceCard color={theme.red}>
-                    <Text fontSize="12px">-8.36%</Text>
-                    <Text color={theme.text} fontSize="10px">
-                      1W
-                    </Text>
-                  </PerformanceCard>
-                  <PerformanceCard color={theme.primary}>
-                    <Text color={theme.primary} fontSize="12px">
-                      18.33%
-                    </Text>
-                    <Text color={theme.text} fontSize="10px">
-                      1M
-                    </Text>
-                  </PerformanceCard>
-                  <PerformanceCard color={theme.primary}>
-                    <Text color={theme.primary} fontSize="12px">
-                      142.55%
-                    </Text>
-                    <Text color={theme.text} fontSize="10px">
-                      3M
-                    </Text>
-                  </PerformanceCard>
-                  <PerformanceCard color={theme.primary}>
-                    <Text color={theme.primary} fontSize="12px">
-                      32.27%
-                    </Text>
-                    <Text color={theme.text} fontSize="10px">
-                      6M
-                    </Text>
-                  </PerformanceCard>
-                </Row> 
-              </Column>*/}
             </CardWrapper>
             <CardWrapper style={{ alignItems: 'center', gap: '12px' }} className={cardClassname}>
               <RowBetween marginBottom="4px">
@@ -293,7 +257,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                 <ShareButton onClick={() => setShowShare(true)} />
               </RowBetween>
               <KyberScoreMeter
-                key={data ? data.symbol + data.address : undefined}
+                key={data ? data.symbol + address : undefined}
                 value={data?.kyberScore?.score}
                 style={{ width: '211px', height: '128px' }}
               />
@@ -315,12 +279,12 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                       <>
                         <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
                           <Text>
-                            Calculated at {dayjs(latestKyberscore.created_at * 1000).format('DD/MM/YYYY HH:mm A')}
+                            Calculated at {dayjs(latestKyberscore.createdAt * 1000).format('DD/MM/YYYY HH:mm A')}
                           </Text>
                           <Text>
                             KyberScore:{' '}
-                            <span style={{ color: calculateValueToColor(latestKyberscore.kyber_score || 0, theme) }}>
-                              {latestKyberscore.kyber_score || '--'} ({latestKyberscore.tag || t`Not Applicable`})
+                            <span style={{ color: calculateValueToColor(latestKyberscore.kyberScore || 0, theme) }}>
+                              {latestKyberscore.kyberScore || '--'} ({latestKyberscore.tag || t`Not Applicable`})
                             </span>
                           </Text>
                           <Text>
@@ -428,7 +392,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>Address</Trans>
                 </Text>
-                {data && chain ? (
+                {address && chain ? (
                   <RowFit gap="4px">
                     <SimpleTooltip text={t`Open scan explorer`}>
                       <a
@@ -438,7 +402,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                         }}
                         target="_blank"
                         rel="noopener noreferrer"
-                        href={getEtherscanLink(NETWORK_TO_CHAINID[chain], data.address, 'token')}
+                        href={getEtherscanLink(NETWORK_TO_CHAINID[chain], address, 'token')}
                       >
                         <RowFit gap="4px">
                           <img
@@ -448,7 +412,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                             height="16px"
                             style={{ display: 'block' }}
                           />
-                          <StyledTokenAddress>{shortenAddress(1, data.address)}</StyledTokenAddress>
+                          <StyledTokenAddress>{shortenAddress(1, address)}</StyledTokenAddress>
                         </RowFit>
                       </a>
                     </SimpleTooltip>
@@ -459,7 +423,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                         </Text>
                       }
                     >
-                      <CopyHelper toCopy={data?.address || ''} />
+                      <CopyHelper toCopy={address} />
                     </SimpleTooltip>
                   </RowFit>
                 ) : (
@@ -534,7 +498,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
             <ShareButton onClick={() => setShowShare(true)} />
           </RowBetween>
           <Row justify="center" marginBottom="12px">
-            <KyberScoreMeter value={latestKyberscore?.kyber_score} />
+            <KyberScoreMeter value={latestKyberscore?.kyberScore} />
           </Row>
 
           <Row marginBottom="16px" justify="center" gap="6px">
@@ -555,12 +519,12 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                 <>
                   <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
                     <Text>
-                      {latestKyberscore && dayjs(latestKyberscore?.created_at * 1000).format('DD/MM/YYYY HH:mm A')}
+                      {latestKyberscore && dayjs(latestKyberscore?.createdAt * 1000).format('DD/MM/YYYY HH:mm A')}
                     </Text>
                     <Text>
                       KyberScore:{' '}
-                      <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
-                        {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Applicable`})
+                      <span style={{ color: calculateValueToColor(latestKyberscore?.kyberScore || 0, theme) }}>
+                        {latestKyberscore?.kyberScore || '--'} ({latestKyberscore?.tag || t`Not Applicable`})
                       </span>
                     </Text>
                     <Text>
@@ -649,7 +613,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>Address</Trans>
                 </Text>
-                {data && chain ? (
+                {address && chain ? (
                   <RowFit gap="4px">
                     <SimpleTooltip text={t`Open scan explorer`}>
                       <a
@@ -659,7 +623,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                         }}
                         target="_blank"
                         rel="noopener noreferrer"
-                        href={getEtherscanLink(NETWORK_TO_CHAINID[chain], data.address, 'token')}
+                        href={getEtherscanLink(NETWORK_TO_CHAINID[chain], address, 'token')}
                       >
                         <img
                           src={NETWORK_IMAGE_URL[chain || 'ethereum']}
@@ -671,9 +635,9 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                       </a>
                     </SimpleTooltip>
                     <Text color={theme.subText} fontWeight={500}>
-                      {shortenAddress(1, data.address)}
+                      {shortenAddress(1, address)}
                     </Text>
-                    <CopyHelper toCopy={data?.address || ''} />
+                    <CopyHelper toCopy={address} />
                   </RowFit>
                 ) : (
                   <></>
@@ -696,7 +660,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
         isOpen={showShare}
         onClose={() => setShowShare(false)}
         content={mobileMode => <KyberScoreShareContent token={data} mobileMode={mobileMode} />}
-        title="Kyberscore"
+        title="KyberScore"
         onShareClick={social =>
           mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
             token_name: data?.symbol?.toUpperCase(),

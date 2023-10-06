@@ -39,5 +39,10 @@ const kyberAIApi = createApi({
   }),
 })
 
-export const { useGetParticipantInfoQuery, useRequestWhiteListMutation, useLazyCheckReferralCodeQuery } = kyberAIApi
+export const {
+  useLazyGetParticipantInfoQuery,
+  useGetParticipantInfoQuery,
+  useRequestWhiteListMutation,
+  useLazyCheckReferralCodeQuery,
+} = kyberAIApi
 export default kyberAIApi

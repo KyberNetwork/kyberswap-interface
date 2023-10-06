@@ -29,6 +29,7 @@ export type Topic = {
   type: TopicType
   isKyberAI: boolean
   isPriceAlert: boolean
+  isPriceElasticPool: boolean
 }
 
 type SaveNotificationParam = {
@@ -58,8 +59,10 @@ const useNotification = () => {
       ...e,
       id: Date.now() + i,
       isSubscribed: e?.topics?.every(e => e.isSubscribed),
+      // special topic ids
       isKyberAI: e?.topics?.some(e => e.id + '' === KYBER_AI_TOPIC_ID),
       isPriceAlert: e?.topics?.some(e => e.id + '' === PRICE_ALERT_TOPIC_ID),
+      isPriceElasticPool: e?.topics?.some(e => e.id + '' === ELASTIC_POOL_TOPIC_ID),
     }))
     dispatch(setSubscribedNotificationTopic({ topicGroups }))
   }, [resp, dispatch])

@@ -8,7 +8,7 @@ import { APP_PATHS } from 'constants/index'
 import CreateAlert from 'pages/NotificationCenter/CreateAlert'
 import GeneralAnnouncement from 'pages/NotificationCenter/GeneralAnnouncement'
 import Menu from 'pages/NotificationCenter/Menu'
-import Overview from 'pages/NotificationCenter/Overview'
+import Overview from 'pages/NotificationCenter/NotificationPreference'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
 import Profile from 'pages/NotificationCenter/Profile'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -140,6 +140,10 @@ function NotificationCenter() {
             <Route
               path={PROFILE_MANAGE_ROUTES.KYBER_AI_TOKENS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI} />}
+            />
+            <Route
+              path={PROFILE_MANAGE_ROUTES.KYBER_AI_WATCH_LIST}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI_WATCHLIST} />}
             />
             <Route path={PROFILE_MANAGE_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 

@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -9,14 +9,14 @@ import Column from 'components/Column'
 import MailIcon from 'components/Icons/MailIcon'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
-import ActionButtons from 'components/SubscribeButton/NotificationPreference/ActionButtons'
-import Header from 'components/SubscribeButton/NotificationPreference/Header'
-import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
+import ActionButtons from 'pages/NotificationCenter/NotificationPreference/ActionButtons'
+import InputEmail from 'pages/NotificationCenter/NotificationPreference/InputEmail'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
@@ -99,9 +99,7 @@ const EmailColum = styled(Column)`
   `}
 `
 
-const noop = () => {
-  //
-}
+const noop = () => {}
 
 const sortGroup = (arr: Topic[]) => [...arr].sort((x, y) => y.priority - x.priority)
 
@@ -140,18 +138,11 @@ export const useValidateEmail = (defaultEmail?: string) => {
   return { inputEmail: inputEmail.trim(), onChangeEmail, errorInput, errorColor, hasErrorInput, reset }
 }
 
-function NotificationPreference({
-  header,
-  isOpen,
-  toggleModal = noop,
-}: {
-  header?: ReactNode
-  isOpen: boolean
-  toggleModal?: () => void
-}) {
+function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => void }) {
   const theme = useTheme()
   const { isLoading, saveNotification, topicGroups: topicGroupsGlobal, unsubscribeAll } = useNotification()
 
+  const { account } = useActiveWeb3React()
   const { userInfo, isLogin } = useSessionInfo()
   const { isSignInEmail } = useSignedAccountInfo()
   const { isWhiteList } = useIsWhiteListKyberAI()
@@ -190,23 +181,14 @@ function NotificationPreference({
   )
 
   useEffect(() => {
-    if (isOpen) {
-      setEmailPendingVerified('')
-      reset(userInfo?.email)
-    }
-  }, [userInfo, isOpen, reset])
+    setEmailPendingVerified('')
+    reset(userInfo?.email)
+  }, [userInfo, reset])
 
   useEffect(() => {
-    setTimeout(
-      () => {
-        setSelectedTopic(isOpen ? topicGroupsGlobal.filter(e => e.isSubscribed).map(e => e.id) : [])
-        if (isOpen) {
-          setTopicGroups(sortGroup(topicGroupsGlobal))
-        }
-      },
-      isOpen ? 0 : 400,
-    )
-  }, [isOpen, topicGroupsGlobal])
+    setSelectedTopic(topicGroupsGlobal.filter(e => e.isSubscribed).map(e => e.id))
+    setTopicGroups(sortGroup(topicGroupsGlobal))
+  }, [topicGroupsGlobal])
 
   const getDiffChangeTopics = useCallback(
     (topicGroups: Topic[]) => {
@@ -381,7 +363,9 @@ function NotificationPreference({
 
   return (
     <Wrapper>
-      {header || <Header toggleModal={toggleModal} />}
+      <Text fontWeight={'500'} color={theme.text} fontSize="14px">
+        <Trans>Email Notification</Trans>
+      </Text>
 
       <EmailColum>
         <Label>
@@ -404,7 +388,7 @@ function NotificationPreference({
         <ListGroupWrapper>
           <GroupColum>
             {commons.map(topic => {
-              const isDisabled = topic.isPriceAlert ? false : disableCheckbox
+              const isDisabled = topic.isPriceElasticPool ? !account : topic.isPriceAlert ? false : disableCheckbox
               return renderTopic(
                 topic,
                 isDisabled,
@@ -460,4 +444,17 @@ function NotificationPreference({
     </Wrapper>
   )
 }
-export default NotificationPreference
+
+const StyledPreference = styled.div`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    max-width: unset;
+  `}
+`
+
+export default function Overview() {
+  return (
+    <StyledPreference>
+      <NotificationPreference />
+    </StyledPreference>
+  )
+}

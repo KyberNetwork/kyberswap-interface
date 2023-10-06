@@ -1,13 +1,29 @@
 import { Trans } from '@lingui/macro'
 import { AlertTriangle } from 'react-feather'
 import { Flex, Text } from 'rebass'
+import { useGetTokenListQuery } from 'services/ksSetting'
 
 import { WarningCard } from 'components/Card'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
-export default function DisclaimerERC20({ href }: { href?: string }) {
+export default function DisclaimerERC20({ href, token0, token1 }: { href?: string; token0: string; token1: string }) {
   const theme = useTheme()
+  const { chainId } = useActiveWeb3React()
+  const { data } = useGetTokenListQuery(
+    {
+      chainId,
+      addresses: `${token0},${token1}`,
+    },
+    {
+      skip: !token0 || !token1,
+    },
+  )
+
+  const hide = data?.data?.tokens?.[0]?.isStandardERC20 && data?.data?.tokens?.[1]?.isStandardERC20
+  if (hide) return null
+
   return (
     <WarningCard padding="10px 16px">
       <Flex alignItems="center" sx={{ gap: '12px' }} lineHeight={1.5}>

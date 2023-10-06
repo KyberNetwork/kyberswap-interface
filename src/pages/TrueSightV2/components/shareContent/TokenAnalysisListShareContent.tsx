@@ -1,12 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useTheme } from 'styled-components'
 
 import Column from 'components/Column'
 import Row from 'components/Row'
 import { ITokenList, KyberAIListType } from 'pages/TrueSightV2/types'
+import { useFormatParamsFromUrl } from 'pages/TrueSightV2/utils'
 
 import { TokenListInShareModalTable } from '../table'
 
@@ -18,9 +18,10 @@ const mapTypeTitle = {
   [KyberAIListType.TOP_CEX_INFLOW]: t`Top CEX Positive Netflow Tokens`,
   [KyberAIListType.TOP_CEX_OUTFLOW]: t`Top CEX Negative Netflow Tokens`,
   [KyberAIListType.TOP_TRADED]: t`Top Trade Tokens`,
-  // [KyberAIListType.TOP_SOCIAL]: t`Top Social Tokens`,
   [KyberAIListType.TRENDING_SOON]: t`Trending Soon Tokens`,
   [KyberAIListType.TRENDING]: t`Top Trending Tokens`,
+  [KyberAIListType.FUNDING_RATE]: t`Funding Rates`,
+  [KyberAIListType.KYBERSWAP_DELTA]: t`KyberScore Delta`,
 }
 
 export default function TokenAnalysisListShareContent({
@@ -31,8 +32,7 @@ export default function TokenAnalysisListShareContent({
   mobileMode?: boolean
 }) {
   const theme = useTheme()
-  const [searchParams] = useSearchParams()
-  const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
+  const { listType } = useFormatParamsFromUrl()
   const title = listType ? mapTypeTitle[listType] : ''
   return (
     <Column gap="20px">
@@ -42,7 +42,7 @@ export default function TokenAnalysisListShareContent({
           Today, <span style={{ color: theme.subText }}>{dayjs(Date.now()).format('DD/MM/YYYY')}</span>
         </Trans>
       </Text>
-      <Row gap="22px" justify="space-between">
+      <Row gap="22px" justify="space-between" alignItems="flex-start">
         {mobileMode ? (
           <>
             <TokenListInShareModalTable data={data.slice(0, 10)} startIndex={0} mobileMode />

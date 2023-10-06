@@ -8,6 +8,7 @@ import styled, { useTheme } from 'styled-components'
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Row, { RowFit } from 'components/Row'
+import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import { useTokenListQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { IAssetOverview, KyberAIListType } from 'pages/TrueSightV2/types'
 import { calculateValueToColor, formatTokenPrice } from 'pages/TrueSightV2/utils'
@@ -74,15 +75,23 @@ const PriceChart7Days = ({
 }
 export default function ExploreShareContent({ token, mobileMode }: { token?: IAssetOverview; mobileMode?: boolean }) {
   const theme = useTheme()
+  const { address } = useKyberAIAssetOverview()
   const { data } = useTokenListQuery(
-    { type: KyberAIListType.ALL, page: 1, pageSize: 5, keywords: token?.address },
-    { skip: !token?.address, refetchOnMountOrArgChange: true },
+    { type: KyberAIListType.ALL, page: 1, pageSize: 5, keywords: address },
+    { skip: !address, refetchOnMountOrArgChange: true },
   )
   if (!token) return null
   const latestKyberscore = token.kyberScore?.ks3d && token.kyberScore.ks3d[token.kyberScore.ks3d.length - 1]
-  const last7daysPrice = data?.data[0]?.['7daysprice']
+  const last7daysPrice = data?.data[0]?.weekPrices
   const formattedData = last7daysPrice ? [...last7daysPrice].sort((a, b) => a.timestamp - b.timestamp).slice(1, 8) : []
   const priceChangeColor = token && token.price24hChangePercent > 0 ? theme.primary : theme.red
+  const msgTimeScore = (
+    <Trans>
+      Calculated at {latestKyberscore ? dayjs(latestKyberscore?.createdAt * 1000).format('HH:mm A, MMM DD') : ''} when
+      price was {latestKyberscore ? '$' + formatTokenPrice(latestKyberscore.price) : '--'}
+    </Trans>
+  )
+
   if (mobileMode) {
     return (
       <Column gap="20px">
@@ -118,16 +127,10 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: IAs
         <Divider style={{ flex: 'unset' }} />
         <Column width="100%" height="100%" gap="16px" style={{ justifyContent: 'space-between' }}>
           <Text fontWeight={500}>KyberScore</Text>
-          <Text fontSize="12px">
-            <Trans>
-              Calculated at{' '}
-              {latestKyberscore ? dayjs(latestKyberscore?.created_at * 1000).format('HH:mm A, MMM DD') : ''} when price
-              was {latestKyberscore ? '$' + formatTokenPrice(latestKyberscore.price) : '--'}
-            </Trans>
-          </Text>
+          <Text fontSize="12px">{msgTimeScore}</Text>
           <Row gap="12px">
             <KyberScoreMeter
-              value={latestKyberscore?.kyber_score || 0}
+              value={latestKyberscore?.kyberScore || 0}
               style={{ width: '220px', height: '100px', alignSelf: 'center' }}
               noAnimation={true}
               fontSize="28px"
@@ -136,7 +139,7 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: IAs
               <Text color={theme.text} fontSize="16px" lineHeight="20px" textAlign="center">
                 <Trans>
                   {token?.symbol?.toUpperCase()} seems to be{' '}
-                  <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
+                  <span style={{ color: calculateValueToColor(latestKyberscore?.kyberScore || 0, theme) }}>
                     {latestKyberscore ? latestKyberscore.tag : ''}
                   </span>
                 </Trans>
@@ -159,15 +162,9 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: IAs
     <Row align="stretch" justify="stretch" gap="36px">
       <CardWrapper>
         <Column width="100%" height="100%" gap="16px" style={{ justifyContent: 'space-between' }}>
-          <Text>
-            <Trans>
-              Calculated at{' '}
-              {latestKyberscore ? dayjs(latestKyberscore?.created_at * 1000).format('HH:mm A, MMM DD') : ''} when price
-              was {latestKyberscore ? '$' + formatTokenPrice(latestKyberscore.price) : '--'}
-            </Trans>
-          </Text>
+          <Text>{msgTimeScore}</Text>
           <KyberScoreMeter
-            value={latestKyberscore?.kyber_score || 0}
+            value={latestKyberscore?.kyberScore || 0}
             style={{ width: '264px', height: '160px', alignSelf: 'center' }}
             noAnimation={true}
           />
@@ -175,7 +172,7 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: IAs
             <Text color={theme.text} fontSize="24px" lineHeight="28px">
               <Trans>
                 {token?.symbol?.toUpperCase()} seems to be{' '}
-                <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
+                <span style={{ color: calculateValueToColor(latestKyberscore?.kyberScore || 0, theme) }}>
                   {latestKyberscore ? latestKyberscore.tag : ''}
                 </span>
               </Trans>
