@@ -244,12 +244,12 @@ msgid "<0>Whether you're looking to identify new tokens to trade, or get alpha o
 msgstr "<0>Whether you're looking to identify new tokens to trade, or get alpha on a specific token, KyberAI has it all! KyberAI currently provides trading insights on <1>4000+ tokens</1> across <2>7 blockchains!</2></0> <3>For traders who are in discovery mode, start with the Rankings section. Here you will see top tokens under each of the 7 categories - <4>Bullish, Bearish, Top CEX Inflow, Top CEX Outflow, Top Traded, Trending Soon, Currently Trending.</4>We update the token rankings multiple times a day!</3> <5>For traders looking to spot alpha on specific tokens, start with the Explore section. You will find a number of On-Chain and Technical insights on your token that you can look at to make an informed trading decision.</5>"
 
 #: src/pages/Verify/index.tsx
-#~ msgid "<0>Your email have been verified by KyberSwap.com.</0> If it has been more than a few days and you still haven’t receive any notification yet, please contact us through our channels. You will be redirected to our Swap page after {timeRedirect}s."
-#~ msgstr "<0>Your email have been verified by KyberSwap.com.</0> If it has been more than a few days and you still haven’t receive any notification yet, please contact us through our channels. You will be redirected to our Swap page after {timeRedirect}s."
+#~ msgid "<0>Your email has been verified by KyberSwap.com.</0> If it has been more than a few days and you still haven’t received any notification yet, please contact us through our channels. You will be redirected to our Swap page after {timeRedirect}s."
+#~ msgstr "<0>Your email has been verified by KyberSwap.com.</0> If it has been more than a few days and you still haven’t received any notification yet, please contact us through our channels. You will be redirected to our Swap page after {timeRedirect}s."
 
 #: src/pages/Verify/index.tsx
-msgid "<0>Your email have been verified.</0> If it has been more than a few days and you still haven’t receive any notification yet, please contact us through our channels.<1/>You will be redirected to <2>{redirectUrl}</2> after <3>{time}</3>s."
-msgstr "<0>Your email have been verified.</0> If it has been more than a few days and you still haven’t receive any notification yet, please contact us through our channels.<1/>You will be redirected to <2>{redirectUrl}</2> after <3>{time}</3>s."
+msgid "<0>Your email has been verified.</0> If it has been more than a few days and you still haven’t received any notification yet, please contact us through our channels.<1/>You will be redirected to <2>{redirectUrl}</2> after <3>{time}</3>s."
+msgstr "<0>Your email has been verified.</0> If it has been more than a few days and you still haven’t received any notification yet, please contact us through our channels.<1/>You will be redirected to <2>{redirectUrl}</2> after <3>{time}</3>s."
 
 #: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "<0>{0} {makerAssetSymbol}</0> and receive <1>{1} {takerAssetSymbol}</1> <2>at {takerAssetSymbol} price of {rate} {makerAssetSymbol}</2>"
@@ -2565,8 +2565,8 @@ msgid "Funding Rate on Centralized Exchanges"
 msgstr "Funding Rate on Centralized Exchanges"
 
 #: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
-msgid "Funding rate is useful in identifying short-term trends.<0>Positive funding rates</0> suggests traders are <1>bullish</1> . Extremely positive funding rates may result in long positions getting squeezed. <2>Negative funding rates</2> suggests traders are <3>bearish</3> . Extremely negative funding rates may result in short positions getting squeezed."
-msgstr "Funding rate is useful in identifying short-term trends.<0>Positive funding rates</0> suggests traders are <1>bullish</1> . Extremely positive funding rates may result in long positions getting squeezed. <2>Negative funding rates</2> suggests traders are <3>bearish</3> . Extremely negative funding rates may result in short positions getting squeezed."
+msgid "Funding rate is useful in identifying short-term trends.<0>Positive funding rates</0> suggests traders are <1>bullish</1>. Extremely positive funding rates may result in long positions getting squeezed. <2>Negative funding rates</2> suggests traders are <3>bearish</3>. Extremely negative funding rates may result in short positions getting squeezed."
+msgstr "Funding rate is useful in identifying short-term trends.<0>Positive funding rates</0> suggests traders are <1>bullish</1>. Extremely positive funding rates may result in long positions getting squeezed. <2>Negative funding rates</2> suggests traders are <3>bearish</3>. Extremely negative funding rates may result in short positions getting squeezed."
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/WalletPopup/SendToken/index.tsx
@@ -2910,12 +2910,12 @@ msgstr "Increase Liquidity"
 
 #: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
 msgid ""
-"Indicates how many times a token changes hands in a given time frame. Its measured in $. Trading volume\n"
+"Indicates how many times a token changes hands in a given time frame. It's measured in $. Trading volume\n"
 "indicates interest in a token. The more people are buying and selling something, the higher the volume,\n"
 "which can drive even more interest in that token. Typically, high volume trading for a token can mean an\n"
 "increase in prices and low volume cryptocurrency could indicate prices falling."
 msgstr ""
-"Indicates how many times a token changes hands in a given time frame. Its measured in $. Trading volume\n"
+"Indicates how many times a token changes hands in a given time frame. It's measured in $. Trading volume\n"
 "indicates interest in a token. The more people are buying and selling something, the higher the volume,\n"
 "which can drive even more interest in that token. Typically, high volume trading for a token can mean an\n"
 "increase in prices and low volume cryptocurrency could indicate prices falling."
