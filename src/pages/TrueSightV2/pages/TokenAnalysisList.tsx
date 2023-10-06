@@ -295,7 +295,7 @@ const tokenTypeList: {
   },
   {
     type: KyberAIListType.KYBERSWAP_DELTA,
-    title: t`Kyberscore Delta`,
+    title: t`KyberScore Delta`,
     icon: 'bearish',
     tooltip: theme => (
       <span>
