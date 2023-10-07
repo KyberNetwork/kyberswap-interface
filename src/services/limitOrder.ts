@@ -2,8 +2,11 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
-import { LIMIT_ORDER_API_READ, LIMIT_ORDER_API_WRITE } from 'constants/env'
+import { LIMIT_ORDER_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
+
+const LIMIT_ORDER_API_READ = `${LIMIT_ORDER_API}/read-ks/api`
+const LIMIT_ORDER_API_WRITE = `${LIMIT_ORDER_API}/write/api`
 
 const mapPath: Partial<Record<LimitOrderStatus, string>> = {
   [LimitOrderStatus.CANCELLED]: 'cancelled',
