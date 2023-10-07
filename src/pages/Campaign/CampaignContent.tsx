@@ -17,8 +17,10 @@ import ProgressBar from 'components/ProgressBar'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
+import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
+import { useInvalidateTagCampaign } from 'hooks/useInvalidateTags'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import CampaignActions from 'pages/Campaign/CampaignActions'
@@ -370,18 +372,12 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
     true,
   )
 
+  const invalidateTags = useInvalidateTagCampaign()
   useEffect(() => {
     if (campaignsRefreshIn === 0 && selectedCampaign) {
-      // todo
-      // mutate([
-      //   selectedCampaign,
-      //   SWR_KEYS.getLeaderboard(selectedCampaign.id),
-      //   selectedCampaignLeaderboardPageNumber,
-      //   selectedCampaignLeaderboardLookupAddress,
-      //   account,
-      // ])
+      invalidateTags(RTK_QUERY_TAGS.GET_LEADER_BOARD_CAMPAIGN)
     }
-  }, [campaignsRefreshIn, selectedCampaign])
+  }, [campaignsRefreshIn, selectedCampaign, invalidateTags])
 
   if (campaigns.length === 0 && loadingCampaignData) {
     return <LocalLoader />

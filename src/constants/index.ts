@@ -302,6 +302,9 @@ export const RTK_QUERY_TAGS = {
 
   // limit order
   GET_LIST_ORDERS: 'GET_LIST_ORDERS',
+
+  // campaign
+  GET_LEADER_BOARD_CAMPAIGN: 'GET_TOKEN_LEADERBOARD_CAMPAIGN',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
