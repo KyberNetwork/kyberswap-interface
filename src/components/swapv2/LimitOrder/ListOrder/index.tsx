@@ -334,65 +334,59 @@ export default function ListLimitOrder() {
       {loading ? (
         <LocalLoader />
       ) : (
-        <>
-          <div>
-            <TableHeader />
-            <Column>
-              {orders.map((order, index) => (
-                <OrderItem
-                  isLast={index === orders.length - 1}
-                  isOrderCancelling={isOrderCancelling}
-                  index={index + (curPage - 1) * PAGE_SIZE}
-                  key={order.id}
-                  order={order}
-                  onCancelOrder={showConfirmCancel}
-                  onEditOrder={showEditOrderModal}
-                  tokenPrices={tokenPrices}
-                  hasOrderCancelling={orders.some(
-                    e =>
-                      e.status === LimitOrderStatus.CANCELLING &&
-                      (e.operatorSignatureExpiredAt || 0) * 1000 - Date.now() > 0,
-                  )}
+        <div>
+          <TableHeader />
+          <Column>
+            {orders.map((order, index) => (
+              <OrderItem
+                isLast={index === orders.length - 1}
+                isOrderCancelling={isOrderCancelling}
+                index={index + (curPage - 1) * PAGE_SIZE}
+                key={order.id}
+                order={order}
+                onCancelOrder={showConfirmCancel}
+                onEditOrder={showEditOrderModal}
+                tokenPrices={tokenPrices}
+                hasOrderCancelling={orders.some(isOrderCancelling)}
+              />
+            ))}
+          </Column>
+          {orders.length !== 0 ? (
+            <TableFooter isTabActive={isTabActive}>
+              {isTabActive && (
+                <ButtonCancelAll color={theme.red} onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
+                  <Trash size={15} />
+                  <Text marginLeft={'5px'}>
+                    <Trans>Cancel All</Trans>
+                  </Text>
+                </ButtonCancelAll>
+              )}
+              {totalOrder > PAGE_SIZE && (
+                <Pagination
+                  haveBg={false}
+                  onPageChange={onPageChange}
+                  totalCount={totalOrder}
+                  currentPage={curPage}
+                  pageSize={PAGE_SIZE}
+                  style={{ padding: '0' }}
                 />
-              ))}
-            </Column>
-            {orders.length !== 0 ? (
-              <TableFooter isTabActive={isTabActive}>
-                {isTabActive ? (
-                  <ButtonCancelAll color={theme.red} onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
-                    <Trash size={15} />
-                    <Text marginLeft={'5px'}>
-                      <Trans>Cancel All</Trans>
-                    </Text>
-                  </ButtonCancelAll>
-                ) : null}
-                {totalOrder > PAGE_SIZE && (
-                  <Pagination
-                    haveBg={false}
-                    onPageChange={onPageChange}
-                    totalCount={totalOrder}
-                    currentPage={curPage}
-                    pageSize={PAGE_SIZE}
-                    style={{ padding: '0' }}
-                  />
+              )}
+            </TableFooter>
+          ) : (
+            <NoResultWrapper>
+              <NoDataIcon />
+              <Text marginTop={'10px'}>
+                {keyword ? (
+                  <Trans>No orders found</Trans>
+                ) : isTabActive ? (
+                  <Trans>You don&apos;t have any open orders yet</Trans>
+                ) : (
+                  <Trans>You don&apos;t have any order history</Trans>
                 )}
-              </TableFooter>
-            ) : (
-              <NoResultWrapper>
-                <NoDataIcon />
-                <Text marginTop={'10px'}>
-                  {keyword ? (
-                    <Trans>No orders found</Trans>
-                  ) : isTabActive ? (
-                    <Trans>You don&apos;t have any open orders yet</Trans>
-                  ) : (
-                    <Trans>You don&apos;t have any order history</Trans>
-                  )}
-                </Text>
-              </NoResultWrapper>
-            )}
-          </div>
-        </>
+              </Text>
+            </NoResultWrapper>
+          )}
+        </div>
       )}
 
       <CancelOrderModal

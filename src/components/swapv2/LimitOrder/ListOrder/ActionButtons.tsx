@@ -104,6 +104,7 @@ const ActionButtons = ({
   const { status, chainId, transactions = [], operatorSignatureExpiredAt } = order
   const isActiveTab = isActiveStatus(status)
   const numberTxs = transactions.length
+
   const iconExpand =
     ((isActiveTab && numberTxs >= 1) || (!isActiveTab && numberTxs > 1)) && !isChildren ? (
       <IconWrap color={theme.subText} onClick={onExpand} style={itemStyle}>
@@ -122,9 +123,9 @@ const ActionButtons = ({
 
   return (
     <Flex alignItems={'center'} justifyContent={'flex-end'}>
+      {iconCancelling}
       {isActiveTab && !isChildren ? (
         <>
-          {iconCancelling}
           {numberTxs === 0 && (
             <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Edit`} placement="top" width="fit-content">
               <IconWrap
@@ -147,43 +148,34 @@ const ActionButtons = ({
               <Trash color={disabledCancel ? theme.border : theme.red} size={15} />
             </IconWrap>
           </MouseoverTooltipDesktopOnly>
-          {iconExpand}
         </>
       ) : (
-        <>
-          {iconCancelling}
-          {(numberTxs <= 1 || isChildren) && (
-            <>
-              <MouseoverTooltipDesktopOnly text={isDisabledCopy ? '' : t`Copy Txn Hash`} placement="top" width="135px">
-                <IconWrap color={isChildren ? '' : theme.subText} isDisabled={isDisabledCopy} style={itemStyle}>
-                  <CopyHelper
-                    toCopy={txHash}
-                    style={{ color: isDisabledCopy ? theme.border : theme.subText, margin: 0 }}
-                    size="15"
-                  />
-                </IconWrap>
-              </MouseoverTooltipDesktopOnly>
-              <MouseoverTooltipDesktopOnly
-                text={!isDisabledCopy ? networkInfo.etherscanName : ''}
-                placement="top"
-                width="fit-content"
-              >
-                <IconWrap color={isChildren ? '' : theme.primary} isDisabled={isDisabledCopy} style={itemStyle}>
-                  <ExternalLink href={chainId ? getEtherscanLink(chainId, txHash, 'transaction') : ''}>
-                    <LinkIcon size={15} color={isDisabledCopy ? theme.border : theme.primary} />
-                  </ExternalLink>
-                </IconWrap>
-              </MouseoverTooltipDesktopOnly>
-            </>
-          )}
-          {iconExpand && (
-            <>
-              {!isChildren && <IconWrap color="" />}
-              {iconExpand}
-            </>
-          )}
-        </>
+        (numberTxs <= 1 || isChildren) && (
+          <>
+            <MouseoverTooltipDesktopOnly text={isDisabledCopy ? '' : t`Copy Txn Hash`} placement="top" width="135px">
+              <IconWrap color={isChildren ? '' : theme.subText} isDisabled={isDisabledCopy} style={itemStyle}>
+                <CopyHelper
+                  toCopy={txHash}
+                  style={{ color: isDisabledCopy ? theme.border : theme.subText, margin: 0 }}
+                  size="15"
+                />
+              </IconWrap>
+            </MouseoverTooltipDesktopOnly>
+            <MouseoverTooltipDesktopOnly
+              text={!isDisabledCopy ? networkInfo.etherscanName : ''}
+              placement="top"
+              width="fit-content"
+            >
+              <IconWrap color={isChildren ? '' : theme.primary} isDisabled={isDisabledCopy} style={itemStyle}>
+                <ExternalLink href={chainId ? getEtherscanLink(chainId, txHash, 'transaction') : ''}>
+                  <LinkIcon size={15} color={isDisabledCopy ? theme.border : theme.primary} />
+                </ExternalLink>
+              </IconWrap>
+            </MouseoverTooltipDesktopOnly>
+          </>
+        )
       )}
+      {iconExpand}
     </Flex>
   )
 }

@@ -3,7 +3,6 @@ import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
-import debounce from 'lodash/debounce'
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -145,7 +144,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const { ordersNeedCreated: ordersUpdating, inputAmount: inputAmountGlobal } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
-  const [outputAmount, setOuputAmount] = useState(defaultOutputAmount)
+  const [outputAmount, setOutputAmount] = useState(defaultOutputAmount)
 
   const [rateInfo, setRateInfo] = useState<RateInfo>(defaultRate)
   const displayRate = rateInfo.invert ? rateInfo.invertRate : rateInfo.rate
@@ -181,7 +180,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     if (rate) {
       if (inputAmount) {
         const output = calcOutput(inputAmount, newRate.rateFraction || rate, currencyOut.decimals)
-        setOuputAmount(output)
+        setOutputAmount(output)
       }
       if (!invertRate) {
         newRate.invertRate = calcInvert(rate)
@@ -194,7 +193,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       newRate.rateFraction = parseFraction(invertRate).invert()
       if (inputAmount) {
         const output = calcOutput(inputAmount, newRate.rateFraction, currencyOut.decimals)
-        setOuputAmount(output)
+        setOutputAmount(output)
       }
       setRateInfo(newRate)
       return
@@ -211,7 +210,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         invertRate: calcInvert(rate),
       })
     }
-    setOuputAmount(output)
+    setOutputAmount(output)
   }
 
   const setPriceRateMarket = () => {
@@ -235,7 +234,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     (input: string) => {
       setInputAmount(input)
       if (rateInfo.rate && currencyIn && currencyOut && input) {
-        setOuputAmount(calcOutput(input, rateInfo.rateFraction || rateInfo.rate, currencyOut.decimals))
+        setOutputAmount(calcOutput(input, rateInfo.rateFraction || rateInfo.rate, currencyOut.decimals))
       }
     },
     [rateInfo, currencyIn, currencyOut],
@@ -392,7 +391,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
   const onResetForm = () => {
     setInputAmount(defaultInputAmount)
-    setOuputAmount(defaultOutputAmount)
+    setOutputAmount(defaultOutputAmount)
     setRateInfo(defaultRate)
     setExpire(DEFAULT_EXPIRED)
     setCustomDateExpire(undefined)
@@ -477,19 +476,11 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     }
   }, [approval, approvalSubmitted])
 
-  const refreshActiveMakingAmount = useMemo(
-    () =>
-      debounce(() => {
-        try {
-          getActiveMakingAmount()
-        } catch (error) {}
-      }, 100),
-    [getActiveMakingAmount],
-  )
-
-  useEffect(() => {
-    if (currencyIn) refreshActiveMakingAmount()
-  }, [currencyIn, refreshActiveMakingAmount, isEdit])
+  const refreshActiveMakingAmount = useCallback(() => {
+    try {
+      getActiveMakingAmount()
+    } catch (error) {}
+  }, [getActiveMakingAmount])
 
   useEffect(() => {
     if (!isEdit || !orderInfo?.id) return

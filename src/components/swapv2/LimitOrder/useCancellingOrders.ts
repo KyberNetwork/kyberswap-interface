@@ -5,7 +5,7 @@ import { useActiveWeb3React } from 'hooks'
 import { OrderNonces, subscribeCancellingOrders } from 'utils/firebase'
 
 import { isActiveStatus } from './helpers'
-import { LimitOrder } from './type'
+import { LimitOrder, LimitOrderStatus } from './type'
 
 export type CancellingOrderInfo = {
   loading: boolean
@@ -44,9 +44,15 @@ export default function useCancellingOrders(): CancellingOrderInfo {
       if (typeof order === 'string') {
         return cancellingOrdersIds.includes(+order) && nonces.length > 0
       }
-      return (
-        isActiveStatus(order.status) && (nonces?.includes?.(order.nonce) || cancellingOrdersIds?.includes(order.id))
-      )
+      const { status, nonce, operatorSignatureExpiredAt, id } = order
+
+      const isCancellingHardCancel =
+        isActiveStatus(status) && (nonces?.includes?.(nonce) || cancellingOrdersIds?.includes(id))
+
+      const isCancellingGaslessCancel =
+        status === LimitOrderStatus.CANCELLING && (operatorSignatureExpiredAt || 0) * 1000 - Date.now() > 0
+
+      return isCancellingHardCancel || isCancellingGaslessCancel
     },
     [cancellingOrdersNonces, cancellingOrdersIds, contract],
   )
