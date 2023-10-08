@@ -6,6 +6,7 @@ import JSBI from 'jsbi'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
 import { uint256ToFraction } from 'utils/numbers'
 
 import { CreateOrderParam, LimitOrder, LimitOrderStatus } from './type'
@@ -132,7 +133,6 @@ export const calcPercentFilledOrder = (value: string, total: string, decimals: n
   }
 }
 
-// todo: move to friendlyError
 export const getErrorMessage = (error: any) => {
   console.error('Limit order error: ', error)
   const errorCode: string = error?.response?.data?.code || error.code || ''
@@ -142,7 +142,7 @@ export const getErrorMessage = (error: any) => {
     4004: t`Invalid signature`,
   }
   const msg = mapErrorMessageByErrCode[errorCode]
-  return msg?.toString?.() || error?.message || 'Error occur. Please try again.'
+  return msg?.toString?.() || friendlyError(error)
 }
 
 export const getPayloadCreateOrder = (params: CreateOrderParam) => {
