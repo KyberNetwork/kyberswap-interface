@@ -1,91 +1,85 @@
 const white = '#FFFFFF'
 const black = '#000000'
 
-export function colors(darkMode: boolean) {
+export function colors() {
   return {
     // base
     white,
     black,
 
     // text
-    text: darkMode ? '#ffffff' : '#222222',
+    text: '#ffffff',
     darkText: '#222222',
-    textReverse: darkMode ? '#222222' : '#ffffff',
-    subText: darkMode ? '#A9A9A9' : '#5E5E5E',
-    disableText: darkMode ? '#373737' : '#B6B6B6',
+    textReverse: '#222222',
+    subText: '#A9A9A9',
+    disableText: '#373737',
 
     // backgrounds
-    background: darkMode ? '#1C1C1C' : '#ffffff',
-    background2: darkMode ? '#1C1C1C' : '#f5f5f5',
-    tabActive: darkMode ? '#313131' : '#ffffff',
-    tabBackground: darkMode ? '#0F0F0F' : '#E2E2E2',
+    background: '#1C1C1C',
+    background2: '#1C1C1C',
+    tabActive: '#313131',
+    tabBackground: '#0F0F0F',
 
-    tableHeader: darkMode ? '#313131' : '#FBFBFB',
-    buttonBlack: darkMode ? '#0F0F0F' : '#f5f5f5',
-    buttonGray: darkMode ? '#292929' : '#E2E2E2',
+    tableHeader: '#313131',
+    buttonBlack: '#0F0F0F',
+    buttonGray: '#292929',
 
-    text2: darkMode ? '#C3C5CB' : '#565A69',
-    text3: darkMode ? '#6C7284' : '#888D9B',
-    text4: darkMode ? '#565A69' : '#C3C5CB',
-    text6: darkMode ? '#6d8591' : '#565A69',
-    text7: darkMode ? '#c9d2d7' : '#565A69',
-    text9: darkMode ? '#859aa5' : '#859aa5',
-    text10: darkMode ? '#00a2f7' : '#00a2f7',
-    text11: darkMode ? '#f4f4f4' : '#565A69',
-    text13: darkMode ? '#f5f5f5' : '#333333',
-    text15: darkMode ? '#3b3b3b' : '#8A8A8A',
-    text16: darkMode ? '#D8D8D8' : '#212121',
+    text2: '#C3C5CB',
+    text3: '#6C7284',
+    text4: '#565A69',
+    text6: '#6d8591',
+    text7: '#c9d2d7',
+    text9: '#859aa5',
+    text10: '#00a2f7',
+    text11: '#f4f4f4',
+    text13: '#f5f5f5',
+    text15: '#3b3b3b',
+    text16: '#D8D8D8',
 
     // backgrounds
-    bg1: darkMode ? '#212429' : '#FFFFFF',
-    bg2: darkMode ? '#222c31' : '#F7F8FA',
-    bg3: darkMode ? '#40444F' : '#dcdbdc',
-    bg3Opacity4: darkMode ? '#40444F69' : '#69dcdbdc69',
-    bg4: darkMode ? '#565A69' : '#CED0D9',
-    bg5: darkMode ? '#6C7284' : '#888D9B',
-    bg7: darkMode ? '#31CB9E' : '#98e5ce',
-    bg8: darkMode ? '#1d7a5f' : '#31CB9E',
-    bg9: darkMode ? '#1d2a32' : '#ecebeb',
-    bg10: darkMode ? '#263239' : '#f5f5f5',
-    bg11: darkMode ? '#1b2226' : '#ebeaea',
-    bg13: darkMode ? '#1f292e' : '#e8e9ed',
-    bg14: darkMode ? '#40505a' : '#a9a9a9',
-    bg15: darkMode ? '#1f292e' : '#f5f5f5',
-    bg16: darkMode ? '#1f292e' : '#ffffff',
-    bg17: darkMode ? '#31cb9e33' : '#31cb9e1a',
-    bg18: darkMode ? '#1a4052' : '#ecebeb',
-    bg19: darkMode ? '#222c31' : '#ffffff',
-    bg20: darkMode ? '#243036' : '#F5F5F5',
-    bg21: darkMode
-      ? 'linear-gradient(90deg, rgba(29, 122, 95, 0.5) 0%, rgba(29, 122, 95, 0) 100%)'
-      : 'linear-gradient(90deg, rgba(49, 203, 158, 0.15) 0%, rgba(49, 203, 158, 0) 100%)', // success
-    bg22: darkMode
-      ? 'linear-gradient(90deg, rgba(255, 83, 123, 0.4) 0%, rgba(255, 83, 123, 0) 100%)'
-      : 'linear-gradient(90deg, rgba(255, 83, 123, 0.15) 0%, rgba(255, 83, 123, 0) 100%)', // error
-    bg23: darkMode
-      ? 'linear-gradient(90deg, rgba(255, 153, 1, 0.5) 0%, rgba(255, 153, 1, 0) 100%)'
-      : 'linear-gradient(90deg, rgba(255, 153, 1, 0.5) 0%, rgba(255, 153, 1, 0) 100%)', // warning
-    radialGradient: darkMode ? 'radial-gradient(#095143, #06291d)' : 'radial-gradient(#DAEBE6, #DAF1EC)',
+    bg1: '#212429',
+    bg2: '#222c31',
+    bg3: '#40444F',
+    bg3Opacity4: '#40444F69',
+    bg4: '#565A69',
+    bg5: '#6C7284',
+    bg7: '#31CB9E',
+    bg8: '#1d7a5f',
+    bg9: '#1d2a32',
+    bg10: '#263239',
+    bg11: '#1b2226',
+    bg13: '#1f292e',
+    bg14: '#40505a',
+    bg15: '#1f292e',
+    bg16: '#1f292e',
+    bg17: '#31cb9e33',
+    bg18: '#1a4052',
+    bg19: '#222c31',
+    bg20: '#243036',
+    bg21: 'linear-gradient(90deg, rgba(29, 122, 95, 0.5) 0%, rgba(29, 122, 95, 0) 100%)', // success
+    bg22: 'linear-gradient(90deg, rgba(255, 83, 123, 0.4) 0%, rgba(255, 83, 123, 0) 100%)', // error
+    bg23: 'linear-gradient(90deg, rgba(255, 153, 1, 0.5) 0%, rgba(255, 153, 1, 0) 100%)', // warning
+    radialGradient: 'radial-gradient(#095143, #06291d)',
 
     //specialty colors
-    modalBG: darkMode ? 'rgba(0,0,0,.425)' : 'rgba(0,0,0,0.3)',
-    advancedBG: darkMode ? '#1d272b' : '#ecebeb',
-    advancedBorder: darkMode ? '#303e46' : '#dcdbdc',
+    modalBG: 'rgba(0,0,0,.425)',
+    advancedBG: '#1d272b',
+    advancedBorder: '#303e46',
 
     //primary colors
     primary: '#31CB9E',
-    primary30: darkMode ? '#1D4D3D' : '#C7E9DC',
+    primary30: '#1D4D3D',
 
     // border colors
-    border: darkMode ? '#505050' : '#C1C1C1',
-    btnOutline: darkMode ? '#31cb9e' : '#333333',
+    border: '#505050',
+    btnOutline: '#31cb9e',
 
     // table colors
-    oddRow: darkMode ? '#283339' : '#ffffff',
-    evenRow: darkMode ? '#303e46' : '#f4f4f4',
+    oddRow: '#283339',
+    evenRow: '#303e46',
 
     // other
-    red: darkMode ? '#FF537B' : '#FF6871',
+    red: '#FF537B',
     warning: '#FF9901',
     apr: '#0faaa2',
     lightGreen: '#98E5CE',
@@ -101,8 +95,8 @@ export function colors(darkMode: boolean) {
     blue1: '#31cb9e',
     lightBlue: '#78d5ff',
     darkBlue: '#1183b7',
-    blue: darkMode ? '#08A1E7' : '#31cb9e',
-    shadow: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.04)',
+    blue: '#08A1E7',
+    shadow: 'rgba(0, 0, 0, 0.2)',
   } as const
 }
 
