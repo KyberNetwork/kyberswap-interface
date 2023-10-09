@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import AURORA from 'assets/networks/aurora-network.svg'
+import auroraIcon from 'assets/networks/aurora.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -16,7 +16,7 @@ const auroraInfo: EVMNetworkInfo = {
   poolFarmRoute: 'aurora',
   aggregatorRoute: 'aurora',
   name: 'Aurora',
-  icon: AURORA,
+  icon: auroraIcon,
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,

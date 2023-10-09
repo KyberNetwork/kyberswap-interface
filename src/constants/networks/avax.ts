@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import avalancheIcon from 'assets/networks/avalanche.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const NOT_SUPPORT = null
@@ -12,7 +13,7 @@ const avaxInfo: EVMNetworkInfo = {
   poolFarmRoute: 'avalanche',
   aggregatorRoute: 'avalanche',
   name: 'Avalanche',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/31645e2e-9c40-4fdf-9ddf-50d24e5399e4.svg',
+  icon: avalancheIcon,
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,

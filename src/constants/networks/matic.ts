@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import polygonIcon from 'assets/networks/polygon.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const NOT_SUPPORT = null
@@ -12,7 +13,7 @@ const maticInfo: EVMNetworkInfo = {
   poolFarmRoute: 'polygon',
   aggregatorRoute: 'polygon',
   name: 'Polygon PoS',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
+  icon: polygonIcon,
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
