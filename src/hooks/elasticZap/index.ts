@@ -1,16 +1,22 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Percent } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import { defaultAbiCoder as abiEncoder } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useBuildRouteMutation, useLazyGetRouteQuery } from 'services/route'
+import { RouteSummary } from 'services/route/types/getRoute'
 
+import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import ZAP_ROUTER_ABI from 'constants/abis/elastic-zap/router.json'
 import ZAP_HELPER_ABI from 'constants/abis/elastic-zap/zap-helper.json'
+import { AGGREGATOR_API_PATHS, ETHER_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useContract, useContractForReading } from 'hooks/useContract'
+// import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useSingleCallResult } from 'state/multicall/hooks'
+import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { calculateGasMargin } from 'utils'
 
@@ -25,53 +31,137 @@ export interface ZapResult {
 export function useZapInPoolResult(params?: {
   poolAddress: string
   tokenIn: string
+  tokenOut: string
+  isNative: boolean
   amountIn: CurrencyAmount<Currency>
   tickLower: number
   tickUpper: number
 }): {
   loading: boolean
+  aggregatorData: RouteSummary | null
   result: ZapResult | undefined
 } {
-  const { networkInfo } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const zapHelperContract = useContractForReading((networkInfo as EVMNetworkInfo).elastic.zap?.helper, ZAP_HELPER_ABI)
+
+  const [getRoute, { isLoading: loadingAggregator }] = useLazyGetRouteQuery()
+
+  // TODO(viet-nv): update prod env
+  // const { aggregatorDomain } = useKyberswapGlobalConfig()
+  const aggregatorDomain = 'https://aggregator-api.stg.kyberengineering.io'
+  const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
+
+  const splitedAmount = useMemo(() => {
+    if (!params?.amountIn) return []
+    const percent = [10, 20, 30, 40, 50]
+    const percents = percent.map(item => new Percent(item, 100))
+    return percents.map(item => params.amountIn.multiply(item))
+  }, [params?.amountIn])
+
+  const [aggregatorOutputs, setAggregatorOutputs] = useState<Array<RouteSummary>>([])
+
+  useEffect(() => {
+    if (params) {
+      setAggregatorOutputs([])
+      Promise.all(
+        splitedAmount.map(item => {
+          return getRoute({
+            url,
+            authentication: false,
+            params: {
+              tokenIn: params.isNative ? ETHER_ADDRESS : params.tokenIn,
+              tokenOut: params.tokenOut,
+              saveGas: '',
+              amountIn: item.quotient.toString(),
+              excludedPools: params.poolAddress,
+            },
+          })
+        }),
+      )
+        .then(res => res?.map(item => item?.data?.data?.routeSummary) || [])
+        .then(res => setAggregatorOutputs(res.filter(Boolean) as Array<RouteSummary>))
+    }
+  }, [params, splitedAmount, getRoute, url])
 
   const callParams = useMemo(
     () =>
-      params
+      params && !loadingAggregator
         ? [
-            params.poolAddress,
-            params.tokenIn,
-            params.amountIn.quotient.toString(),
-            // Aggregator amount out, hardcode 0 for now
-            '0',
-            1,
-            params.tickLower,
-            params.tickUpper,
+            [
+              params.poolAddress,
+              params.tokenIn,
+              params.amountIn.quotient.toString(),
+              '0',
+              1,
+              params.tickLower,
+              params.tickUpper,
+            ],
+            ...aggregatorOutputs
+              .filter(item => JSBI.greaterThan(params.amountIn.quotient, JSBI.BigInt(item.amountIn)))
+              .map(item => [
+                params.poolAddress,
+                params.tokenIn,
+                JSBI.subtract(params.amountIn.quotient, JSBI.BigInt(item.amountIn)).toString(),
+                item.amountOut,
+                1,
+                params.tickLower,
+                params.tickUpper,
+              ]),
           ]
         : undefined,
-    [params],
+    [params, aggregatorOutputs, loadingAggregator],
   )
 
-  const { loading, result } = useSingleCallResult(
+  const data = useSingleContractMultipleData(
     params ? zapHelperContract : undefined,
     'getZapInPoolResults',
-    callParams,
+    callParams || [],
   )
 
-  return {
-    loading,
-    result: result?.results,
-  }
+  const bestRes = useMemo(() => {
+    let index = -1
+    let res = undefined
+    let maxLiq = BigNumber.from('0')
+    data.forEach((item, idx) => {
+      const l = BigNumber.from(item?.result?.results?.liquidity?.toString() || '0')
+      if (l.gt(maxLiq)) {
+        maxLiq = l
+        index = idx
+        res = item?.result?.results
+      }
+    })
+
+    return {
+      result: res,
+      loading: data?.some(item => item?.loading) || loadingAggregator,
+      // index = 0 => dont need to use aggregator
+      aggregatorData:
+        index === 0 || !params
+          ? null
+          : aggregatorOutputs?.filter(item => JSBI.greaterThan(params.amountIn.quotient, JSBI.BigInt(item.amountIn)))?.[
+              index - 1
+            ],
+    }
+  }, [data, loadingAggregator, aggregatorOutputs, params])
+
+  return bestRes
 }
 
 export function useZapInAction() {
-  const { networkInfo, account } = useActiveWeb3React()
+  const { networkInfo, account, chainId } = useActiveWeb3React()
   const { router: zapRouterAddress, validator, executor } = (networkInfo as EVMNetworkInfo).elastic?.zap || {}
   const zapRouterContract = useContract(zapRouterAddress, ZAP_ROUTER_ABI, true)
 
   const posManagerAddress = (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager
   const [slippage] = useUserSlippageTolerance()
   const deadline = useTransactionDeadline() // custom from users settings
+
+  const [buildRoute] = useBuildRouteMutation()
+
+  // TODO(viet-nv): update prod env
+  // const { aggregatorDomain } = useKyberswapGlobalConfig()
+  const aggregatorDomain = 'https://aggregator-api.stg.kyberengineering.io'
+  const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.BUILD_ROUTE}`
 
   const zapIn = useCallback(
     async (
@@ -87,6 +177,7 @@ export function useZapInAction() {
         poolInfo,
         tickPrevious,
         liquidity,
+        aggregatorRoute,
       }: {
         tokenId?: number | string
         tokenIn: string
@@ -103,13 +194,31 @@ export function useZapInAction() {
         }
         tickPrevious: [number, number]
         liquidity: string
+        aggregatorRoute: RouteSummary | null
       },
       options: {
         zapWithNative: boolean
         estimateOnly?: boolean
       },
     ) => {
-      if (zapRouterContract) {
+      if (zapRouterContract && account) {
+        let aggregatorRes = null
+        if (aggregatorRoute) {
+          aggregatorRes = (await buildRoute({
+            url,
+            payload: {
+              routeSummary: aggregatorRoute,
+              deadline: +(deadline?.toString() || (Math.floor(Date.now() / 1000) + 1200).toString()),
+              slippageTolerance: slippage,
+              sender: account,
+              recipient: account,
+              source: 'kyberswap',
+              skipSimulateTx: false,
+            },
+            authentication: false,
+          })) as { data: BuildRouteResult }
+        }
+
         const minLiquidity = JSBI.divide(
           JSBI.multiply(JSBI.BigInt(liquidity), JSBI.BigInt(10000 - slippage)),
           JSBI.BigInt(10000),
@@ -167,14 +276,23 @@ export function useZapInAction() {
           ],
         )
 
+        let aggregatorInfo = '0x'
+        if (aggregatorRes?.data?.data) {
+          aggregatorInfo =
+            '0x0000000000000000000000000000000000000000000000000000000000000020' +
+            abiEncoder
+              .encode(['address', 'bytes'], [aggregatorRes.data.data.routerAddress, aggregatorRes.data.data.data])
+              .slice(2)
+        }
+
         const executorData = abiEncoder.encode(
           ['uint8', 'address', 'uint256', 'bytes', 'bytes', 'bytes'],
           [
             0,
             tokenIn,
             amountIn,
-            '0x',
-            '0x',
+            '0x', // feeInfo
+            aggregatorInfo,
             // hardcode for dynamic field (poolInfo) in contract
             '0x0000000000000000000000000000000000000000000000000000000000000020' + zapExecutorData.slice(2),
           ],
@@ -220,7 +338,7 @@ export function useZapInAction() {
         hash: '',
       }
     },
-    [account, deadline, executor, validator, posManagerAddress, zapRouterContract, slippage],
+    [account, deadline, executor, validator, posManagerAddress, zapRouterContract, slippage, buildRoute, url],
   )
 
   return {

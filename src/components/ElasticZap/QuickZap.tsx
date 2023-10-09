@@ -173,6 +173,10 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
     return isReverse ? currency1 : currency0
   }, [isReverse, currency0, currency1])
 
+  const quoteCurrency = useMemo(() => {
+    return isReverse ? currency0 : currency1
+  }, [isReverse, currency0, currency1])
+
   const [typedValue, setTypedValue] = useState('')
   const debouncedValue = useDebounce(typedValue, 300)
 
@@ -193,18 +197,20 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   }, [results])
 
   const params = useMemo(() => {
-    return amountIn?.greaterThan('0') && selectedCurrency
+    return amountIn?.greaterThan('0') && selectedCurrency && quoteCurrency
       ? {
           poolAddress,
           tokenIn: selectedCurrency.wrapped.address,
+          tokenOut: quoteCurrency.wrapped.address,
+          isNative: selectedCurrency.isNative,
           amountIn,
           tickLower: vTickLower,
           tickUpper: vTickUpper,
         }
       : undefined
-  }, [amountIn, poolAddress, selectedCurrency, vTickLower, vTickUpper])
+  }, [amountIn, poolAddress, selectedCurrency, vTickLower, vTickUpper, quoteCurrency])
 
-  const { loading: zapLoading, result } = useZapInPoolResult(params)
+  const { loading: zapLoading, result, aggregatorData } = useZapInPoolResult(params)
   const [approvalState, approve] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapIn } = useZapInAction()
 
@@ -279,6 +285,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
               token1: pool.token1.wrapped.address,
             },
             liquidity: result.liquidity.toString(),
+            aggregatorRoute: aggregatorData,
           },
           {
             zapWithNative: selectedCurrency.isNative,
@@ -430,6 +437,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                 tickLower={vTickLower}
                 tickUpper={vTickUpper}
                 previousTicks={tickPrevious}
+                aggregatorRoute={aggregatorData}
               />
 
               <Flex sx={{ gap: '1rem' }} marginTop="1.25rem">

@@ -1009,6 +1009,10 @@ export default function AddLiquidity() {
   const selectedCurrency = useMemo(() => {
     return isReverse ? currencies[Field.CURRENCY_B] : currencies[Field.CURRENCY_A]
   }, [isReverse, currencies])
+  const quoteZapCurrency = useMemo(() => {
+    return isReverse ? currencies[Field.CURRENCY_A] : currencies[Field.CURRENCY_B]
+  }, [isReverse, currencies])
+
   const debouncedValue = useDebounce(zapValue, 300)
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
@@ -1017,18 +1021,21 @@ export default function AddLiquidity() {
       amountIn?.greaterThan('0') &&
       selectedCurrency &&
       tickLower !== undefined &&
-      tickUpper !== undefined
+      tickUpper !== undefined &&
+      quoteZapCurrency
       ? {
           poolAddress,
           tokenIn: selectedCurrency.wrapped.address,
+          tokenOut: quoteZapCurrency.wrapped.address,
+          isNative: selectedCurrency.isNative,
           amountIn,
           tickLower,
           tickUpper,
         }
       : undefined
-  }, [amountIn, poolAddress, selectedCurrency, tickLower, tickUpper])
+  }, [amountIn, poolAddress, selectedCurrency, quoteZapCurrency, tickLower, tickUpper])
 
-  const { loading: zapLoading, result: zapResult } = useZapInPoolResult(params)
+  const { loading: zapLoading, result: zapResult, aggregatorData } = useZapInPoolResult(params)
   const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
   const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapIn } = useZapInAction()
@@ -1101,6 +1108,7 @@ export default function AddLiquidity() {
               token1: pool.token1.wrapped.address,
             },
             liquidity: zapResult.liquidity.toString(),
+            aggregatorRoute: aggregatorData,
           },
           {
             zapWithNative: selectedCurrency.isNative,
@@ -1777,6 +1785,7 @@ export default function AddLiquidity() {
                       previousTicks={
                         tickPreviousForZap.length === 2 ? [tickPreviousForZap[0], tickPreviousForZap[1]] : undefined
                       }
+                      aggregatorRoute={aggregatorData}
                     />
                   )}
 

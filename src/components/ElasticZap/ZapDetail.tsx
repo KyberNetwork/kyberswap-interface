@@ -3,6 +3,7 @@ import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useEffect, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { Box, Flex, Text } from 'rebass'
+import { RouteSummary } from 'services/route/types/getRoute'
 import styled, { CSSProperties } from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -42,6 +43,7 @@ export default function ZapDetail({
   tickLower,
   tickUpper,
   previousTicks,
+  aggregatorRoute,
 }: {
   pool: Pool | null | undefined
   tokenIn: string | undefined
@@ -49,6 +51,7 @@ export default function ZapDetail({
   position: Position | null | undefined
   zapLoading: boolean
   amountIn: CurrencyAmount<NativeCurrency | Token> | undefined
+  aggregatorRoute: RouteSummary | null
   sx?: CSSProperties
   poolAddress: string | undefined
   tokenId?: string
@@ -157,6 +160,7 @@ export default function ZapDetail({
             token1: pool.token1.wrapped.address,
           },
           liquidity: result.liquidity.toString(),
+          aggregatorRoute,
         },
         {
           zapWithNative: !!amountIn?.currency.isNative,
@@ -174,6 +178,7 @@ export default function ZapDetail({
     }
   }, [
     amount,
+    aggregatorRoute,
     amountIn?.currency.isNative,
     zapIn,
     tokenIn,

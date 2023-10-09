@@ -444,22 +444,28 @@ export default function IncreaseLiquidity() {
     return isReverse ? currencies[Field.CURRENCY_B] : currencies[Field.CURRENCY_A]
   }, [isReverse, currencies])
 
+  const quoteZapCurrency = useMemo(() => {
+    return isReverse ? currencies[Field.CURRENCY_A] : currencies[Field.CURRENCY_B]
+  }, [isReverse, currencies])
+
   const debouncedValue = useDebounce(value, 300)
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
   const params = useMemo(() => {
-    return poolAddress && amountIn?.greaterThan('0') && selectedCurrency && existingPosition
+    return poolAddress && amountIn?.greaterThan('0') && selectedCurrency && existingPosition && quoteZapCurrency
       ? {
           poolAddress,
           tokenIn: selectedCurrency.wrapped.address,
+          tokenOut: quoteZapCurrency.wrapped.address,
+          isNative: selectedCurrency.isNative,
           amountIn,
           tickLower: existingPosition.tickLower,
           tickUpper: existingPosition.tickUpper,
         }
       : undefined
-  }, [amountIn, existingPosition, poolAddress, selectedCurrency])
+  }, [amountIn, existingPosition, poolAddress, selectedCurrency, quoteZapCurrency])
 
-  const { loading: zapLoading, result: zapResult } = useZapInPoolResult(params)
+  const { loading: zapLoading, result: zapResult, aggregatorData } = useZapInPoolResult(params)
   const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
   const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapIn } = useZapInAction()
@@ -509,6 +515,7 @@ export default function IncreaseLiquidity() {
               token1: existingPosition.pool.token1.wrapped.address,
             },
             liquidity: zapResult.liquidity.toString(),
+            aggregatorRoute: aggregatorData,
           },
           {
             zapWithNative: selectedCurrency.isNative,
@@ -798,6 +805,7 @@ export default function IncreaseLiquidity() {
                       poolAddress={poolAddress}
                       tickLower={existingPosition?.tickLower}
                       tickUpper={existingPosition?.tickUpper}
+                      aggregatorRoute={aggregatorData}
                     />
                   )}
                 </FirstColumn>
