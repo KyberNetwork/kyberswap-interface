@@ -151,7 +151,6 @@ const detectPhantomWallet = (): WalletReadyState => {
 export interface WalletInfo {
   name: string
   icon: string
-  iconLight: string
   installLink?: string
   href?: string
 }
@@ -173,7 +172,6 @@ export const SUPPORTED_WALLETS = {
     hooks: injectedHooks,
     name: 'Browser Wallet',
     icon: INJECTED_DARK_ICON,
-    iconLight: INJECTED_LIGHT_ICON,
     readyState: detectGenericInjected,
   } as EVMWalletInfo,
   METAMASK: {
@@ -181,7 +179,6 @@ export const SUPPORTED_WALLETS = {
     hooks: metamaskHooks,
     name: 'MetaMask',
     icon: METAMASK,
-    iconLight: METAMASK,
     installLink: 'https://metamask.io/download',
     readyState: detectMetamaskInjected,
   } as EVMWalletInfo,
@@ -190,7 +187,6 @@ export const SUPPORTED_WALLETS = {
     hooks: krystalHooks,
     name: 'Krystal',
     icon: KRYSTAL,
-    iconLight: KRYSTAL,
     installLink: 'https://wallet.krystal.app',
     readyState: detectKrystalInjected,
   } as EVMWalletInfo,
@@ -199,7 +195,6 @@ export const SUPPORTED_WALLETS = {
     hooks: rabbyHooks,
     name: 'Rabby',
     icon: RABBY,
-    iconLight: RABBY,
     installLink: 'https://rabby.io',
     readyState: detectRabbyInjected,
   } as EVMWalletInfo,
@@ -208,7 +203,6 @@ export const SUPPORTED_WALLETS = {
     hooks: trustHooks,
     name: 'Trust Wallet',
     icon: TRUSTWALLET,
-    iconLight: TRUSTWALLET,
     installLink: 'https://trustwallet.com/vi/deeplink',
     readyState: detectTrustWalletInjected,
   } as EVMWalletInfo,
@@ -218,7 +212,6 @@ export const SUPPORTED_WALLETS = {
     adapter: braveAdapter,
     name: 'Brave Wallet',
     icon: BRAVE,
-    iconLight: BRAVE,
     installLink: 'https://brave.com/download',
     readyState: detectBraveInjected,
     // If Phantom extension installed block Brave wallet
@@ -229,7 +222,6 @@ export const SUPPORTED_WALLETS = {
     hooks: gnosisSafeHooks,
     name: 'Safe',
     icon: SAFE,
-    iconLight: SAFE,
     installLink: 'https://safe.global/wallet',
     readyState: detectSafe,
   } as EVMWalletInfo,
@@ -239,7 +231,6 @@ export const SUPPORTED_WALLETS = {
     adapter: coinbaseAdapter,
     name: 'Coinbase',
     icon: COINBASE,
-    iconLight: COINBASE,
     installLink: 'https://www.coinbase.com/wallet',
     readyState: detectCoinbaseInjected,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
@@ -250,7 +241,6 @@ export const SUPPORTED_WALLETS = {
     adapter: coin98Adapter,
     name: 'Coin98',
     icon: COIN98,
-    iconLight: COIN98,
     installLink: 'https://wallet.coin98.com/',
     readyState: detectCoin98Injected,
     readyStateSolana: () => coin98Adapter.readyState,
@@ -260,7 +250,6 @@ export const SUPPORTED_WALLETS = {
     hooks: bloctoInjectHooks,
     name: 'Blocto',
     icon: BLOCTO,
-    iconLight: BLOCTO,
     readyState: detectBloctoInjected,
   } as EVMWalletInfo,
   KRYSTAL_WC: {
@@ -268,7 +257,6 @@ export const SUPPORTED_WALLETS = {
     hooks: krystalWalletConnectV2Hooks,
     name: 'Krystal',
     icon: KRYSTAL,
-    iconLight: KRYSTAL,
     installLink: 'https://wallet.krystal.app',
     readyState: detectKrystalWC,
   } as EVMWalletInfo,
@@ -277,7 +265,6 @@ export const SUPPORTED_WALLETS = {
     hooks: walletConnectV2Hooks,
     name: 'WalletConnect',
     icon: WALLETCONNECT,
-    iconLight: WALLETCONNECT,
     readyState: () => WalletReadyState.Installed,
   } as EVMWalletInfo,
   BLOCTO: {
@@ -285,7 +272,6 @@ export const SUPPORTED_WALLETS = {
     hooks: bloctoHooks,
     name: 'Blocto',
     icon: BLOCTO,
-    iconLight: BLOCTO,
     installLink: 'https://www.blocto.io/download',
     readyState: detectBlocto,
   } as EVMWalletInfo,
@@ -293,7 +279,6 @@ export const SUPPORTED_WALLETS = {
     adapter: solflareAdapter,
     name: 'Solflare',
     icon: SOLFLARE,
-    iconLight: SOLFLARE,
     installLink: solflareAdapter.url,
     readyStateSolana: () => solflareAdapter.readyState,
   } as SolanaWalletInfo,
@@ -301,7 +286,6 @@ export const SUPPORTED_WALLETS = {
     adapter: phantomAdapter,
     name: 'Phantom',
     icon: PHANTOM,
-    iconLight: PHANTOM,
     installLink: phantomAdapter.url,
     readyStateSolana: detectPhantomWallet,
   } as SolanaWalletInfo,
@@ -309,7 +293,6 @@ export const SUPPORTED_WALLETS = {
     adapter: slopeAdapter,
     name: 'Slope Wallet',
     icon: SLOPE,
-    iconLight: SLOPE,
     installLink: slopeAdapter.url,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : slopeAdapter.readyState),
   } as SolanaWalletInfo,

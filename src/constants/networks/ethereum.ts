@@ -18,9 +18,9 @@ const ethereumInfo: EVMNetworkInfo = {
   aggregatorRoute: 'ethereum',
   name: 'Ethereum',
   icon: Mainnet,
-  iconDark: NOT_SUPPORT,
+
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum',
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',

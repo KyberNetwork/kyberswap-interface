@@ -66,7 +66,7 @@ export default function DownloadWalletModal() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Image width="24px" maxHeight="24px" src={isDarkMode ? item.icon : item.iconLight} />
+                <Image width="24px" maxHeight="24px" src={item.icon} />
                 {item.name}
               </DownloadWalletRow>
             ))}

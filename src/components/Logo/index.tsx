@@ -7,7 +7,6 @@ import styled from 'styled-components'
 import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { useIsDarkMode } from 'state/user/hooks'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
 
@@ -41,11 +40,9 @@ export default function Logo({ srcs, alt, ...rest }: LogoProps) {
 }
 
 export function NetworkLogo({ chainId, style = {} }: { chainId: ChainId; style?: CSSProperties }) {
-  const isDarkMode = useIsDarkMode()
-  const { iconDark, icon } = NETWORKS_INFO[chainId]
-  const iconSrc = isDarkMode && iconDark ? iconDark : icon
-  if (!iconSrc) return null
-  return <img src={iconSrc} alt="Switch Network" style={style} />
+  const { icon } = NETWORKS_INFO[chainId]
+  if (!icon) return null
+  return <img src={icon} alt="Switch Network" style={style} />
 }
 
 export function TokenLogoWithChain(data: { tokenLogo: string; chainId: ChainId; size: number | string }): JSX.Element
@@ -88,9 +85,9 @@ export const TokenLogoWithShadow = styled(Logo)<{ size: string }>`
   width: ${({ size }) => size};
   height: ${({ size }) => size};
   border-radius: 100%;
-  box-shadow: ${({ theme }) =>
+  box-shadow: ${() =>
     (() => {
-      const color = theme.darkMode ? `rgba(256, 256, 256, 0.2)` : `rgba(0, 0, 0, 0.2)`
+      const color = `rgba(256, 256, 256, 0.2)`
       return `0 4px 5px 0 ${color}, 0 1px 70px 0 ${color};`
     })()};
 `

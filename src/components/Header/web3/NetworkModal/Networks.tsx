@@ -177,13 +177,13 @@ const Networks = ({
 
   return (
     <NetworkList mt={mt} mb={mb}>
-      {supportedChains.map(({ chainId: itemChainId, iconDark, icon, name, state }: NetworkInfo, i: number) => {
+      {supportedChains.map(({ chainId: itemChainId, icon, name, state }: NetworkInfo, i: number) => {
         const isMaintenance = state === ChainState.MAINTENANCE
         const disabled =
           !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(itemChainId) : false) || isMaintenance
         const selected = selectedId === itemChainId && !isWrongNetwork
 
-        const imgSrc = (isDarkMode ? iconDark : icon) || icon
+        const imgSrc = icon
         const walletKey =
           itemChainId === ChainId.SOLANA
             ? walletSolana.walletKey

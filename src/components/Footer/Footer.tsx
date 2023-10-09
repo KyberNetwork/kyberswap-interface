@@ -8,7 +8,6 @@ import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import Medium from 'components/Icons/Medium'
 import PoweredByIconDark from 'components/Icons/PoweredByIconDark'
-import PoweredByIconLight from 'components/Icons/PoweredByIconLight'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import InfoHelper from 'components/InfoHelper'
 import { KYBER_NETWORK_DISCORD_URL, KYBER_NETWORK_TWITTER_URL } from 'constants/index'
@@ -114,7 +113,7 @@ function Footer() {
               <Trans>Powered By</Trans>
             </Text>
             <ExternalLink href="https://kyber.network" style={{ display: 'flex' }}>
-              {isDarkMode ? <PoweredByIconDark width={48} /> : <PoweredByIconLight width={48} />}
+              <PoweredByIconDark width={48} />
             </ExternalLink>
           </Item>
           <Separator />

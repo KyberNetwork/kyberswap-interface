@@ -329,7 +329,7 @@ export default function WalletView({
                   <IconWrapper>
                     <img
                       height={18}
-                      src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
+                      src={SUPPORTED_WALLETS[walletKey].icon}
                       alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
                     />
                   </IconWrapper>

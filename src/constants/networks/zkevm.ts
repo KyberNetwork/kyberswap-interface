@@ -16,9 +16,9 @@ const zkEvm: EVMNetworkInfo = {
   aggregatorRoute: 'polygon-zkevm',
   name: 'Polygon zkEVM',
   icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/41cb81da-c7ed-4bc1-99ef-4bfe6d80861e1692928936919.svg',
-  iconDark: NOT_SUPPORT,
+
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph:
     'https://polygon-zkevm-graph.kyberengineering.io/subgraphs/name/kybernetwork/polygon-zkevm-blocks',
   etherscanUrl: 'https://zkevm.polygonscan.com',

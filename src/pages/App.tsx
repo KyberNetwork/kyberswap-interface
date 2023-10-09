@@ -101,10 +101,7 @@ const BodyWrapper = styled.div`
 `
 
 const preloadImages = () => {
-  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [
-    NETWORKS_INFO[chainId].icon,
-    NETWORKS_INFO[chainId].iconDark,
-  ])
+  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [NETWORKS_INFO[chainId].icon])
     .flat()
     .filter(Boolean) as string[]
 

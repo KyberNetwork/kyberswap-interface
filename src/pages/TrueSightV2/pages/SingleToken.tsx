@@ -62,7 +62,7 @@ export const HeaderButton = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background-color: ${({ theme }) => (theme.darkMode ? theme.buttonGray : theme.background)};
+  background-color: ${({ theme }) => theme.buttonGray};
   color: ${({ theme }) => theme.subText};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.16);
   :hover {

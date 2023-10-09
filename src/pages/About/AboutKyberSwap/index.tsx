@@ -499,14 +499,8 @@ function AboutKyberSwap() {
           </Text>
 
           <SupportedChain>
-            {supportedChains.map(({ chainId: chain, iconDark, icon, name }) => (
-              <img
-                src={isDarkMode && iconDark ? iconDark || icon : icon}
-                alt={name}
-                key={chain}
-                width="36px"
-                height="36px"
-              />
+            {supportedChains.map(({ chainId: chain, icon, name }) => (
+              <img src={icon} alt={name} key={chain} width="36px" height="36px" />
             ))}
           </SupportedChain>
 

@@ -26,7 +26,7 @@ const StyledRequireConnectWalletWrapper = styled.div<{ bgUrl?: string; height?: 
   background-size: 100% 100%;
   background-position: center;
   filter: brightness(1.1);
-  box-shadow: 0 4px 8px ${({ theme }) => (theme.darkMode ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)')};
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 `
 
 const getBlurredImageUrl = (chartType: number, tab: ChartTab) => {

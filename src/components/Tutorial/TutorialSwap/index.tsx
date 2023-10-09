@@ -149,7 +149,6 @@ function Welcome() {
 function ConnectWallet() {
   const [isExpanded, setIsExpanded] = useState(false)
   const toggleExpand = () => setIsExpanded(!isExpanded)
-  const isDarkMode = useIsDarkMode()
   return (
     <Layout title={LIST_TITLE.CONNECT_WALLET}>
       <Desc>
@@ -169,11 +168,7 @@ function ConnectWallet() {
               .filter(e => e.installLink)
               .map(item => (
                 <NetworkItemWrapper key={item.name} onClick={() => window.open(item.installLink)}>
-                  <img
-                    src={isDarkMode ? item.icon : item.iconLight}
-                    alt={item.name}
-                    style={{ width: '20px', maxHeight: '20px' }}
-                  />
+                  <img src={item.icon} alt={item.name} style={{ width: '20px', maxHeight: '20px' }} />
                   <span>{item.name}</span>
                 </NetworkItemWrapper>
               ))}

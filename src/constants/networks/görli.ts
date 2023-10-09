@@ -18,9 +18,9 @@ const görliInfo: EVMNetworkInfo = {
   aggregatorRoute: EMPTY,
   name: 'Görli',
   icon: Mainnet,
-  iconDark: NOT_SUPPORT,
+
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dramacrypto/goerli-blocks',
   etherscanUrl: 'https://goerli.etherscan.io',
   etherscanName: 'Goerli Explorer',

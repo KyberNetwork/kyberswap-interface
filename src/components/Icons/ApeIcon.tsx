@@ -9,7 +9,7 @@ export default function ApeIcon({ size }: { size?: number }) {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      opacity={theme.darkMode ? 1 : 0.6}
+      opacity={1}
     >
       <path
         opacity="0.5"

@@ -157,7 +157,7 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
             >
               <Checkbox type="checkbox" checked={isSelected} onChange={handleClick} />
 
-              <StyledLogo src={theme.darkMode && config.iconDark ? config.iconDark : config.icon} />
+              <StyledLogo src={config.icon} />
 
               <Label>{config.name}</Label>
             </Flex>

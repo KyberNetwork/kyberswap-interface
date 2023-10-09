@@ -16,9 +16,9 @@ const optimismInfo: EVMNetworkInfo = {
   aggregatorRoute: 'optimism',
   name: 'Optimism',
   icon: OPTIMISM,
-  iconDark: NOT_SUPPORT,
+
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph',
   etherscanUrl: 'https://optimistic.etherscan.io',
   etherscanName: 'Optimistic Ethereum Explorer',

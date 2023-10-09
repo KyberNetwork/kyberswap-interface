@@ -17,8 +17,7 @@ const solanaInfo: SolanaNetworkInfo = {
   name: 'Solana Devnet',
   icon: Solana,
   iconSelected: Solana,
-  iconDark: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   etherscanUrl: 'https://solscan.io',
   etherscanName: 'Solana scan',
   bridgeURL: 'https://www.portalbridge.com/#/transfer',

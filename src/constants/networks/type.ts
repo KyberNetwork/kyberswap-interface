@@ -14,9 +14,7 @@ export interface NetworkInfo {
   readonly aggregatorRoute: string
   readonly name: string
   readonly icon: string
-  readonly iconDark: string | null
   readonly iconSelected: string | null
-  readonly iconDarkSelected: string | null
   readonly etherscanUrl: string
   readonly etherscanName: string
   readonly bridgeURL: string

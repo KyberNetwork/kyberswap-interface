@@ -21,13 +21,11 @@ import gradientImage2 from 'assets/images/truesight-v2/landing-page/gradient2.pn
 import gradientImage from 'assets/images/truesight-v2/landing-page/gradient.png'
 import iconImage from 'assets/images/truesight-v2/landing-page/icon.png'
 import image1 from 'assets/images/truesight-v2/landing-page/image1.png'
-import kyberscoreMeterLightImage from 'assets/images/truesight-v2/landing-page/kyberscore-meter-light.png'
 import kyberscoreMeterImage from 'assets/images/truesight-v2/landing-page/kyberscore-meter.png'
 import liveDexTradesImage from 'assets/images/truesight-v2/landing-page/live-dex-trades.png'
 import starsMobileImage from 'assets/images/truesight-v2/landing-page/stars-mobile.png'
 import starsImage from 'assets/images/truesight-v2/landing-page/stars.png'
 import tokenListImage from 'assets/images/truesight-v2/landing-page/token-list.png'
-import tokenPriceLightImage from 'assets/images/truesight-v2/landing-page/token-price-light.png'
 import tokenPriceImage from 'assets/images/truesight-v2/landing-page/token-price.png'
 // import videoPlaceholderImage from 'assets/images/truesight-v2/landing-page/video-placeholder.png'
 import sprite from 'assets/svg/kyberAILandingPageSprite.svg'
@@ -332,7 +330,7 @@ export default function KyberAILandingPage() {
                 style={{ position: 'absolute', transform: 'translate(-50%,-50%)', left: '50%', top: '56%' }}
               />
               <img
-                src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
+                src={kyberscoreMeterImage}
                 alt="kyberscore"
                 width="70%"
                 style={{ position: 'absolute', transform: 'translate(-50%,-50%)', left: '82%', top: '32%' }}
@@ -365,7 +363,7 @@ export default function KyberAILandingPage() {
                 />
               </motion.div>
               <img
-                src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
+                src={tokenPriceImage}
                 alt="token price"
                 width={'100%'}
                 style={{
@@ -484,7 +482,7 @@ export default function KyberAILandingPage() {
                   parallaxDistance={-7}
                 />
                 <FloatingImageWithMotion
-                  src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
+                  src={tokenPriceImage}
                   alt="token Price"
                   left={0}
                   top={920}
