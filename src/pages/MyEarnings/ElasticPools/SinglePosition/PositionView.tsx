@@ -275,7 +275,7 @@ const PositionView: React.FC<CommonProps> = props => {
               }
             />
           ) : (
-            <Value>--</Value>
+            <Value>$0</Value>
           )}
         </Row>
       </Column>
@@ -315,10 +315,12 @@ const PositionView: React.FC<CommonProps> = props => {
               <Text as="span" fontSize="16px" fontWeight={500} lineHeight={'20px'}>
                 {+positionEarning.pendingRewardUSD
                   ? formatDisplayNumber(positionEarning.pendingRewardUSD, { style: 'currency', significantDigits: 6 })
+                  : farmRewards?.length
+                  ? '$0'
                   : '--'}
               </Text>
             }
-            disabled={!+positionEarning.pendingRewardUSD}
+            disabled={disabledHarvest}
             text={
               <>
                 {farmRewards?.map((rw, index) => (
