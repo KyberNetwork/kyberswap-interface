@@ -4,6 +4,7 @@ import { useAckNotificationOrderMutation } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
@@ -25,7 +26,7 @@ const isTransactionFailed = (txHash: string, transactions: GroupedTxsByHash | un
 
 const useNotificationLimitOrder = () => {
   const notify = useNotify()
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const showedNotificationOrderIds = useRef<{ [id: string]: boolean }>({})
 
   const ackNotiLocal = useCallback((id: string | number) => {
@@ -48,8 +49,9 @@ const useNotificationLimitOrder = () => {
         ) {
           notify(
             {
-              type: cancelAllSuccess ? NotificationType.WARNING : NotificationType.ERROR,
-              title: cancelAllSuccess ? t`Order Cancelled` : t`Cancel Orders Failed`,
+              type: cancelAllSuccess ? NotificationType.SUCCESS : NotificationType.ERROR,
+              title: cancelAllSuccess ? t`Limit Order` : t`Cancel Orders Failed`,
+              link: `${APP_PATHS.LIMIT}/${networkInfo.route}`,
               summary: (
                 <SummaryNotify
                   message={
@@ -85,9 +87,10 @@ const useNotificationLimitOrder = () => {
       if (orderCancelSuccess.length)
         notify(
           {
-            type: NotificationType.WARNING,
-            title: t`Order Cancelled`,
+            type: NotificationType.SUCCESS,
+            title: t`Limit Order`,
             summary: <SummaryNotify orders={orderCancelSuccess} type={LimitOrderStatus.CANCELLED} />,
+            link: `${APP_PATHS.LIMIT}/${networkInfo.route}`,
           },
           10000,
         )
@@ -172,6 +175,6 @@ const useNotificationLimitOrder = () => {
       unsubscribeExpired?.()
       unsubscribeFilled?.()
     }
-  }, [account, chainId, notify, ackNotificationOrder, ackNotiLocal, transactions])
+  }, [account, chainId, notify, ackNotificationOrder, ackNotiLocal, transactions, networkInfo.route])
 }
 export default useNotificationLimitOrder
