@@ -12,7 +12,6 @@ import {
 } from 'components/Button'
 import ProgressSteps from 'components/ProgressSteps'
 import { RowBetween } from 'components/Row'
-import { CancelOrderType } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -52,7 +51,7 @@ export default function ActionButtonLimitOrder({
   showWarning: boolean
   approveCallback: () => Promise<void>
   onWrapToken: () => Promise<void>
-  showPreview: (v?: CancelOrderType) => void
+  showPreview: () => void
   isEdit: boolean
 }) {
   const disableBtnApproved =
@@ -99,7 +98,7 @@ export default function ActionButtonLimitOrder({
               approval={approval}
             />
           )}
-          <ButtonError width="48%" id="review-order-button" disabled={disableBtnReview} onClick={() => showPreview()}>
+          <ButtonError width="48%" id="review-order-button" disabled={disableBtnReview} onClick={showPreview}>
             <Text fontSize={16} fontWeight={500}>
               <Trans>Review Order</Trans>
             </Text>
@@ -119,11 +118,10 @@ export default function ActionButtonLimitOrder({
     return null
   }
 
-  if (showWarning && !disableBtnReview)
-    return <ButtonWarning onClick={() => showPreview()}>{contentButton}</ButtonWarning>
+  if (showWarning && !disableBtnReview) return <ButtonWarning onClick={showPreview}>{contentButton}</ButtonWarning>
 
   return (
-    <ButtonPrimary id="review-order-button" onClick={() => showPreview()} disabled={disableBtnReview}>
+    <ButtonPrimary id="review-order-button" onClick={showPreview} disabled={disableBtnReview}>
       {contentButton}
     </ButtonPrimary>
   )

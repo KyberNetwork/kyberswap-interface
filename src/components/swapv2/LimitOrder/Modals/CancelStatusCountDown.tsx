@@ -98,8 +98,10 @@ export default function CancelStatusCountDown({
         <Clock color={theme.red} size={16} /> <Text lineHeight={'20px'}>{formatRemainTime(remain)}</Text>
       </Timer>
       <Text fontSize={'10px'} fontWeight={'400'} color={theme.subText}>
-        *There is a possibility that the order might be filled before cancellation.{' '}
-        <ExternalLink href={DOCS_LINKS.USER_GUIDE}>Learn more ↗︎</ExternalLink>
+        <Trans>*There is a possibility that the order might be filled before cancellation.</Trans>{' '}
+        <ExternalLink href={DOCS_LINKS.USER_GUIDE}>
+          <Trans>Learn more ↗︎</Trans>
+        </ExternalLink>
       </Text>
     </CountDownWrapper>
   ) : null
@@ -135,9 +137,11 @@ export default function CancelStatusCountDown({
         <Flex fontSize={'14px'} fontWeight={'400'} color={theme.red} alignItems={'center'} sx={{ gap: '4px' }}>
           <TimerIcon />{' '}
           <Flex sx={{ gap: '4px' }}>
-            Your request has timed out.{' '}
+            <Trans>Your request has timed out.</Trans>{' '}
             <Text fontSize={'10px'} fontWeight={'400'} alignSelf={'flex-end'}>
-              <ExternalLink href={DOCS_LINKS.USER_GUIDE}>Learn more ↗︎</ExternalLink>
+              <ExternalLink href={DOCS_LINKS.USER_GUIDE}>
+                <Trans>Learn more ↗︎</Trans>
+              </ExternalLink>
             </Text>
           </Flex>
         </Flex>
@@ -146,7 +150,7 @@ export default function CancelStatusCountDown({
           <SuccessIcon>
             <Check size={14} />
           </SuccessIcon>{' '}
-          Order has been successfully cancelled.
+          <Trans>Order has been successfully cancelled.</Trans>
         </Flex>
       ) : null}
     </CountDownWrapper>

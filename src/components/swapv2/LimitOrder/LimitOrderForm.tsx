@@ -438,8 +438,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       // todo
       window.location.href.includes('test') &&
         axios.get(
-          'https://limit-order.stg.kyberengineering.io/read-partner/api/v1/orders/operator-signature?chainId=137&orderIds=' +
-            response?.id,
+          `https://limit-order.stg.kyberengineering.io/read-partner/api/v1/orders/operator-signature?chainId=${chainId}&orderIds=${response?.id}`,
         )
 
       return response?.id
@@ -616,9 +615,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     },
   }))
 
-  // todo isEdit && console.log('renderr')
-
-  const renderConfirmModal = () => (
+  const renderConfirmModal = (showConfirmContent = false) => (
     <ConfirmOrderModal
       flowState={flowState}
       onDismiss={hidePreview}
@@ -630,6 +627,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       expireAt={expiredAt}
       rateInfo={rateInfo}
       marketPrice={tradeInfo}
+      showConfirmContent={showConfirmContent}
       note={note}
       editOrderInfo={editOrderInfo}
       warningMessage={warningMessage}
@@ -637,7 +635,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     />
   )
 
-  if (isEdit && flowState.showConfirm) return renderConfirmModal()
+  if (isEdit && flowState.showConfirm) return renderConfirmModal(true)
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>

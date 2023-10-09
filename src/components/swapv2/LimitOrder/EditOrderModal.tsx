@@ -113,6 +113,8 @@ export default function EditOrderModal({
   const ref = useRef<LimitOrderFormHandle>(null)
   const renderCancelButtons = () => {
     const hasChangeInfo = ref.current?.hasChangedOrderInfo?.()
+    const disabledGasLessCancel = !hasChangeInfo || !supportGasLessCancel || flowState.attemptingTxn
+    const disabledHardCancel = !hasChangeInfo || flowState.attemptingTxn
     return (
       <>
         {isReviewOrder && (
@@ -130,15 +132,18 @@ export default function EditOrderModal({
           onSubmit={isReviewOrder ? undefined : onNext}
           isEdit
           estimateGas={estimateGas}
-          supportCancelGasless={supportGasLessCancel}
-          loading={flowState.attemptingTxn}
           cancelStatus={cancelStatus}
-          onOkay={onDismiss}
+          onDismiss={onDismiss}
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
-          disabledGasLessCancel={!hasChangeInfo}
-          disabledHardCancel={!hasChangeInfo}
-          confirmBtnText={isReviewOrder ? <Trans>Place Order</Trans> : <Trans>Edit Order</Trans>}
+          buttonInfo={{
+            disabledGasLessCancel,
+            disabledHardCancel,
+            cancelGaslessText: <Trans>Gasless Edit</Trans>,
+            hardCancelGasless: <Trans>Hard Edit</Trans>,
+            confirmBtnText: isReviewOrder ? <Trans>Place Order</Trans> : <Trans>Edit Order</Trans>,
+            disabledConfirm: flowState.attemptingTxn || (disabledGasLessCancel && disabledHardCancel),
+          }}
         />
       </>
     )

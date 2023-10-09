@@ -37,6 +37,7 @@ export default memo(function ConfirmOrderModal({
   warningMessage,
   percentDiff,
   editOrderInfo,
+  showConfirmContent,
 }: {
   onSubmit: () => void
   onDismiss: () => void
@@ -52,6 +53,7 @@ export default memo(function ConfirmOrderModal({
   warningMessage: ReactNode[]
   percentDiff: number
   editOrderInfo?: EditOrderInfo
+  showConfirmContent: boolean
 }) {
   const { account } = useActiveWeb3React()
   const [confirmed, setConfirmed] = useState(false)
@@ -222,6 +224,8 @@ export default memo(function ConfirmOrderModal({
     </>
   )
 
+  if (showConfirmContent) return renderConfirmData()
+
   const renderConfirmationContent = (): ReactNode => {
     return (
       <Flex flexDirection={'column'} width="100%">
@@ -238,8 +242,6 @@ export default memo(function ConfirmOrderModal({
       </Flex>
     )
   }
-
-  if (isEdit && flowState.showConfirm) return renderConfirmData()
 
   return (
     <TransactionConfirmationModal

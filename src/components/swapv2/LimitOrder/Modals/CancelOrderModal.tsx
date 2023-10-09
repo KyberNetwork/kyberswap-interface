@@ -56,11 +56,7 @@ function CancelOrderModal({
     takerAssetDecimals,
   } = order ?? ({} as LimitOrder)
 
-  const {
-    orders = [],
-    ordersSoftCancel = [],
-    supportCancelGaslessAllOrders,
-  } = useAllActiveOrders(false && !isCancelAll)
+  const { orders = [], ordersSoftCancel = [], supportCancelGaslessAllOrders } = useAllActiveOrders(!isCancelAll)
 
   const isOrderSupportGaslessCancel = useIsSupportSoftCancelOrder()
 
@@ -139,6 +135,20 @@ function CancelOrderModal({
 
   const formatOrders = useMemo(() => (isCancelAll ? orders : order ? [order] : []), [order, isCancelAll, orders])
   const estimateGas = useEstimateFee({ orders: formatOrders, isCancelAll })
+  const disabledGasLessCancel = !supportGasLessCancel || flowState.attemptingTxn
+  const disabledHardCancel = flowState.attemptingTxn
+  const cancelGaslessText = isCancelAll ? (
+    ordersSoftCancel.length === orders.length || !supportGasLessCancel ? (
+      <Trans>Gasless Cancel All Orders</Trans>
+    ) : (
+      <Trans>
+        Gasless Cancel {ordersSoftCancel.length}/{orders.length} Orders
+      </Trans>
+    )
+  ) : (
+    <Trans>Gasless Cancel</Trans>
+  )
+
   return (
     <Modal maxWidth={isCancelAll && !isCancelDone ? 540 : 480} isOpen={isOpen} onDismiss={onDismiss}>
       <Container>
@@ -175,25 +185,19 @@ function CancelOrderModal({
           cancelType={cancelType}
           setCancelType={setCancelType}
           estimateGas={estimateGas}
-          supportCancelGasless={supportGasLessCancel}
-          loading={flowState.attemptingTxn}
+          buttonInfo={{
+            disabledGasLessCancel,
+            disabledHardCancel,
+            cancelGaslessText,
+            hardCancelGasless: isCancelAll ? <Trans>Hard Cancel All Orders</Trans> : <Trans>Hard Cancel</Trans>,
+            disabledConfirm: flowState.attemptingTxn || (disabledGasLessCancel && disabledHardCancel),
+            confirmBtnText:
+              isCancelAll && orders.length > 1 ? <Trans>Cancel Orders</Trans> : <Trans>Cancel Order</Trans>,
+          }}
           cancelStatus={cancelStatus}
-          onOkay={onDismiss}
+          onDismiss={onDismiss}
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
-          isCancelAll={isCancelAll}
-          confirmBtnText={isCancelAll && orders.length > 1 ? <Trans>Cancel Orders</Trans> : <Trans>Cancel Order</Trans>}
-          totalOrder={
-            isCancelAll ? (
-              ordersSoftCancel.length === orders.length || !supportGasLessCancel ? (
-                <Trans>Gasless Cancel All Orders</Trans>
-              ) : (
-                <Trans>
-                  Gasless Cancel {ordersSoftCancel.length}/{orders.length} Orders
-                </Trans>
-              )
-            ) : null
-          }
         />
       </Container>
     </Modal>

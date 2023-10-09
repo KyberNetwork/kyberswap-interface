@@ -71,42 +71,46 @@ const ButtonWrapper = styled.div`
   `}
 `
 
+type ButtonInfo = {
+  disabledGasLessCancel: boolean
+  disabledHardCancel: boolean
+  cancelGaslessText: ReactNode
+  hardCancelGasless: ReactNode
+  confirmBtnText: ReactNode
+  disabledConfirm: boolean
+}
+
 const CancelButtons = ({
   cancelStatus,
-  onOkay,
+  onDismiss,
   onClickHardCancel,
   onClickGaslessCancel,
   onSubmit,
-  loading,
-  supportCancelGasless,
   isEdit,
-  isCancelAll,
-  totalOrder,
-  disabledGasLessCancel = false,
-  disabledHardCancel = false,
   estimateGas,
   confirmOnly = false,
   cancelType,
   setCancelType,
-  confirmBtnText,
+  buttonInfo: {
+    disabledGasLessCancel = false,
+    disabledHardCancel = false,
+    cancelGaslessText,
+    hardCancelGasless,
+    disabledConfirm,
+    confirmBtnText,
+  },
 }: {
   cancelStatus: CancelStatus
-  onOkay: () => void
+  onDismiss: () => void
   onSubmit?: () => void
   onClickGaslessCancel: () => void
   onClickHardCancel: () => void
-  loading: boolean
-  supportCancelGasless: boolean
   isEdit?: boolean // else cancel
-  isCancelAll?: boolean
-  totalOrder?: ReactNode
-  disabledGasLessCancel?: boolean
-  disabledHardCancel?: boolean
   estimateGas: string
   confirmOnly?: boolean
   cancelType: CancelOrderType
   setCancelType: (v: CancelOrderType) => void
-  confirmBtnText?: ReactNode
+  buttonInfo: ButtonInfo
 }) => {
   const theme = useTheme()
   const isWaiting = cancelStatus === CancelStatus.WAITING
@@ -124,7 +128,7 @@ const CancelButtons = ({
   if (isCancelDone)
     return (
       <ButtonWrapper>
-        <ButtonLight onClick={onOkay} height={'40px'} width={'100%'}>
+        <ButtonLight onClick={onDismiss} height={'40px'} width={'100%'}>
           <Check size={18} /> &nbsp;<Trans>Close</Trans>
         </ButtonLight>
       </ButtonWrapper>
@@ -144,7 +148,7 @@ const CancelButtons = ({
     height: '40px',
     width: '100%',
   }
-  const propsHardCancel = { style: { height: '40px', width: '100%' }, disabled: loading || disabledHardCancel }
+  const propsHardCancel = { style: { height: '40px', width: '100%' }, disabled: disabledHardCancel }
 
   if (isCountDown)
     return (
@@ -154,7 +158,7 @@ const CancelButtons = ({
         isEdit={isEdit}
         gasAmountDisplay={gasAmountDisplay}
         buttonGasless={
-          <ButtonPrimary {...propsGasless} onClick={onOkay}>
+          <ButtonPrimary {...propsGasless} onClick={onDismiss}>
             <Check size={18} />
             &nbsp;
             <Trans>Close</Trans>
@@ -181,11 +185,11 @@ const CancelButtons = ({
             <ButtonOutlined
               {...propsGasless}
               onClick={() => setCancelType(CancelOrderType.GAS_LESS_CANCEL)}
-              disabled={disabledGasLessCancel || !supportCancelGasless || loading}
+              disabled={disabledGasLessCancel}
             >
               <GasLessIcon />
               &nbsp;
-              {isCancelAll ? totalOrder : isEdit ? <Trans>Gasless Edit</Trans> : <Trans>Gasless Cancel</Trans>}
+              {cancelGaslessText}
             </ButtonOutlined>
           }
           buttonHardEdit={
@@ -196,20 +200,14 @@ const CancelButtons = ({
             >
               <GasStation size={20} />
               &nbsp;
-              {isCancelAll ? (
-                <Trans>Hard Cancel All Orders</Trans>
-              ) : isEdit ? (
-                <Trans>Hard Edit</Trans>
-              ) : (
-                <Trans>Hard Cancel</Trans>
-              )}
+              {hardCancelGasless}
             </ButtonOutlined>
           }
         />
       )}
       {isWaiting && (
         <ButtonPrimary
-          disabled={loading || (disabledGasLessCancel && disabledHardCancel)}
+          disabled={disabledConfirm}
           width={'100%'}
           height={'40px'}
           onClick={
