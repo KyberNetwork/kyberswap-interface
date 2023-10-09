@@ -1,5 +1,5 @@
 import { lighten } from 'polished'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Text, TextProps } from 'rebass'
 import styled, {
   DefaultTheme,
@@ -7,8 +7,6 @@ import styled, {
   createGlobalStyle,
   css,
 } from 'styled-components'
-
-import { useIsDarkMode } from 'state/user/hooks'
 
 import { Colors, colors } from './color'
 
@@ -35,18 +33,15 @@ const mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } 
   return accumulator
 }, {} as { [width in keyof typeof MEDIA_WIDTHS]: typeof css })
 
-function theme(darkMode: boolean): DefaultTheme {
+function theme(): DefaultTheme {
   return {
-    ...colors(darkMode),
+    ...colors(),
 
     grids: {
       sm: 8,
       md: 12,
       lg: 24,
     },
-
-    //shadows
-    shadow1: darkMode ? '#000' : '#2F80ED',
 
     // media queries
     mediaWidth: mediaWidthTemplates,
@@ -60,16 +55,12 @@ function theme(darkMode: boolean): DefaultTheme {
       display: flex;
       flex-flow: row nowrap;
     `,
-    darkMode: darkMode,
+    darkMode: true,
   }
 }
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const darkMode = useIsDarkMode()
-
-  const themeObject = useMemo(() => theme(darkMode), [darkMode])
-
-  return <StyledComponentsThemeProvider theme={themeObject}>{children}</StyledComponentsThemeProvider>
+  return <StyledComponentsThemeProvider theme={theme()}>{children}</StyledComponentsThemeProvider>
 }
 
 const TextWrapper = styled(Text)<{ color: keyof Colors }>`
@@ -150,10 +141,10 @@ export const FixedGlobalStyle = createGlobalStyle`
   }
 
   a {
-    color: ${colors(false).primary};
+    color: ${colors().primary};
     text-decoration: none;
     :hover{
-      color: ${lighten(0.2, colors(false).primary)};
+      color: ${lighten(0.2, colors().primary)};
     }
   }
 

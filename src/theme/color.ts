@@ -78,6 +78,9 @@ export function colors() {
     oddRow: '#283339',
     evenRow: '#303e46',
 
+    //shadows
+    shadow1: '#000',
+
     // other
     red: '#FF537B',
     warning: '#FF9901',

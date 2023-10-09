@@ -273,7 +273,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
         wrapperStyle={useMemo(() => {
           return {
             color: theme.subText,
-            backgroundColor: theme.darkMode ? theme.buttonGray : theme.background,
+            backgroundColor: theme.buttonGray,
             height: above768 ? '36px' : '32px',
             width: above768 ? '36px' : '32px',
             borderRadius: '100%',

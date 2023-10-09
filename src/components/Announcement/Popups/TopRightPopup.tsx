@@ -123,10 +123,7 @@ const Overlay = styled.div`
   width: 100%;
   height: 100%;
   background: ${({ theme }) =>
-    `linear-gradient(180deg, ${rgba(theme.darkMode ? theme.black : theme.white, 0)} 40.1%, ${rgba(
-      theme.darkMode ? theme.black : theme.white,
-      0.8,
-    )} 100%)`};
+    `linear-gradient(180deg, ${rgba(theme.black, 0)} 40.1%, ${rgba(theme.black, 0.8)} 100%)`};
 `
 
 export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType; hasOverlay: boolean }) {

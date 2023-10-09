@@ -31,5 +31,6 @@ declare module 'styled-components' {
     // css snippets
     flexColumnNoWrap: FlattenSimpleInterpolation
     flexRowNoWrap: FlattenSimpleInterpolation
+    darkMode: boolean
   }
 }
