@@ -134,8 +134,6 @@ export const BLACKLIST_WALLETS: string[] = [
   '0xCa0840578f57fE71599D29375e16783424023357',
 ]
 
-export const NetworkContextName = 'NETWORK'
-
 // default allowed slippage, in bips
 export const INITIAL_ALLOWED_SLIPPAGE = 50
 // 20 minutes, denominated in seconds
@@ -144,7 +142,6 @@ export const DEFAULT_DEADLINE_FROM_NOW = 60 * 20
 export const TIME_TO_REFRESH_SWAP_RATE = 10
 
 export const BIG_INT_ONE = JSBI.BigInt(1)
-export const BIG_INT_MINUS_ONE = JSBI.BigInt(-1)
 export const BIG_INT_ZERO = JSBI.BigInt(0)
 
 // one basis point
@@ -162,8 +159,6 @@ export const BUNDLE_ID = '1'
 
 export const COINGECKO_BFF_API_URL = `${ENV.BFF_API}/v1/coingecko/api/v3`
 export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
-
-export const KNC_COINGECKO_ID = 'kyber-network-crystal'
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 export const ETHER_ADDRESS_SOLANA = 'So11111111111111111111111111111111111111111'
@@ -185,9 +180,6 @@ export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools wit
 
 export const sentryRequestId = uuid()
 
-export const TRENDING_SOON_ITEM_PER_PAGE = 10
-export const TRENDING_SOON_MAX_ITEMS = 50
-export const TRENDING_ITEM_PER_PAGE = 25
 export const CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE = 10
 export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
 
@@ -205,9 +197,6 @@ export const SWR_KEYS = {
   getCampaignTransactions: (campaignId: number, limit: number, offset: number, account: string) =>
     `${CAMPAIGN_BASE_URL}/${campaignId}/proofs?limit=${limit}&offset=${offset}&userAddress=${account}`,
 }
-
-// Epsilon 0 is absolute permittivity of free space whose value is 8.854×10^-12 and unit is C^2N^-1m–2.
-export const EPSILON = 0.000000000008854
 
 // https://www.nasdaq.com/glossary/b/bip
 export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 1999
