@@ -477,9 +477,8 @@ export function useVotingInfo() {
     fetcher,
   )
 
-  const { data: rewardStats } = useSWR<RewardStats>(
-    kyberDaoInfo?.daoStatsApi + '/api/v1/reward-stats?network=ethereum',
-    url => fetcher(url).then(res => res.rewardStats),
+  const { data: rewardStats } = useSWR<RewardStats>(kyberDaoInfo?.daoStatsApi + '/api/v1/reward-stats', url =>
+    fetcher(url).then(res => res.rewardStats),
   )
 
   const result = {
