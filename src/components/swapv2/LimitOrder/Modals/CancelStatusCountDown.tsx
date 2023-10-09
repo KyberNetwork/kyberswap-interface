@@ -11,6 +11,7 @@ import { Clock } from 'components/Icons'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Loader from 'components/Loader'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
+import { DOCS_LINKS } from 'components/swapv2/LimitOrder/const'
 import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
@@ -88,7 +89,6 @@ export default function CancelStatusCountDown({
 
   useInterval(countdown, remain > 0 && isCountDown ? 1000 : null)
 
-  // todo docs link
   const contentCountDown = isCountDown ? (
     <CountDownWrapper>
       <Text fontSize={'14px'} fontWeight={'400'} color={theme.text}>
@@ -99,7 +99,7 @@ export default function CancelStatusCountDown({
       </Timer>
       <Text fontSize={'10px'} fontWeight={'400'} color={theme.subText}>
         *There is a possibility that the order might be filled before cancellation.{' '}
-        <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
+        <ExternalLink href={DOCS_LINKS.USER_GUIDE}>Learn more ↗︎</ExternalLink>
       </Text>
     </CountDownWrapper>
   ) : null
@@ -137,7 +137,7 @@ export default function CancelStatusCountDown({
           <Flex sx={{ gap: '4px' }}>
             Your request has timed out.{' '}
             <Text fontSize={'10px'} fontWeight={'400'} alignSelf={'flex-end'}>
-              <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
+              <ExternalLink href={DOCS_LINKS.USER_GUIDE}>Learn more ↗︎</ExternalLink>
             </Text>
           </Flex>
         </Flex>

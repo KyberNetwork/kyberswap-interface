@@ -68,3 +68,10 @@ export const USD_THRESHOLD = new Proxy(_USD_THRESHOLD, {
 
 export const WORSE_PRICE_DIFF_THRESHOLD = -5
 export const BETTER_PRICE_DIFF_THRESHOLD = 30
+
+export const DOCS_LINKS = {
+  GASLESS_CANCEL:
+    'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#gasless-cancel',
+  HARD_CANCEL: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#hard-cancel',
+  USER_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/user-guides/cancel-limit-orders',
+}

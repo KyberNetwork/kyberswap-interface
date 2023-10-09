@@ -9,6 +9,7 @@ import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
+import { DOCS_LINKS } from 'components/swapv2/LimitOrder/const'
 import { CancelOrderType } from 'components/swapv2/LimitOrder/type'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
@@ -38,7 +39,8 @@ const ButtonGroup = ({
           <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
             {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
             <Trans>
-              <br /> Cancellation may not be instant. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
+              <br /> Cancellation may not be instant.{' '}
+              <ExternalLink href={DOCS_LINKS.GASLESS_CANCEL}>Learn more ↗︎</ExternalLink>
             </Trans>
           </Text>
         )}
@@ -51,7 +53,7 @@ const ButtonGroup = ({
           ) : (
             <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees. </Trans>
           )}{' '}
-          <ExternalLink href="/todo">
+          <ExternalLink href={DOCS_LINKS.HARD_CANCEL}>
             <Trans>Learn more ↗︎</Trans>
           </ExternalLink>
         </Text>
