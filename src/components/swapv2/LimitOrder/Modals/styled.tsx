@@ -84,11 +84,13 @@ const ListWrapper = styled.div`
   padding: 16px;
 `
 export function ListInfo({
+  title,
   listData,
   marketPrice,
   symbolIn,
   symbolOut,
 }: {
+  title?: string
   listData: ListDataType
   marketPrice: BaseTradeInfo | undefined
   symbolIn: string | undefined
@@ -96,6 +98,7 @@ export function ListInfo({
 }) {
   return (
     <Column gap="8px">
+      {title && <Label style={{ marginBottom: '4px' }}>{title}</Label>}
       <ListWrapper>
         {listData.map(item => (
           <Row key={item.label}>

@@ -84,7 +84,11 @@ function CancelOrderModal({
   const renderContentCancelAll = () => {
     return (
       <Label>
-        <Trans>Are you sure you want to cancel {orders.length} limit orders?</Trans>
+        {orders.length === 1 ? (
+          <Trans>Are you sure you want to cancel {orders.length} limit order?</Trans>
+        ) : (
+          <Trans>Are you sure you want to cancel {orders.length} limit orders?</Trans>
+        )}
       </Label>
     )
   }
@@ -92,10 +96,6 @@ function CancelOrderModal({
     return !order
       ? []
       : [
-          {
-            label: t`I want to cancel my order where`,
-            content: <Value />,
-          },
           {
             label: t`I pay`,
             content: (
@@ -145,6 +145,7 @@ function CancelOrderModal({
           renderContentCancelAll()
         ) : (
           <ListInfo
+            title={t`I want to cancel my order where`}
             listData={listData}
             marketPrice={marketPrice}
             symbolIn={makerAssetSymbol}
@@ -179,7 +180,7 @@ function CancelOrderModal({
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
           isCancelAll={isCancelAll}
-          confirmBtnText={isCancelAll ? <Trans>Cancel Orders</Trans> : <Trans>Cancel Order</Trans>}
+          confirmBtnText={isCancelAll && orders.length > 1 ? <Trans>Cancel Orders</Trans> : <Trans>Cancel Order</Trans>}
           totalOrder={
             isCancelAll ? (
               ordersSoftCancel.length === orders.length || !supportGasLessCancel ? (

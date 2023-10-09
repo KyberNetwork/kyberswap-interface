@@ -20,24 +20,28 @@ const ButtonGroup = ({
   buttonHardEdit,
   gasAmountDisplay,
   style,
+  showGaslessNote = true,
 }: {
   isEdit?: boolean
   buttonGasless: ReactNode
   buttonHardEdit: ReactNode
   gasAmountDisplay: string
   style?: CSSProperties
+  showGaslessNote?: boolean
 }) => {
   const theme = useTheme()
   return (
     <ButtonWrapper style={style}>
       <Column width={'100%'} gap="8px">
         {buttonGasless}
-        <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
-          {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
-          <Trans>
-            <br /> Cancellation may not be instant. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
-          </Trans>
-        </Text>
+        {showGaslessNote && (
+          <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
+            {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
+            <Trans>
+              <br /> Cancellation may not be instant. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
+            </Trans>
+          </Text>
+        )}
       </Column>
       <Column width={'100%'} gap="8px">
         {buttonHardEdit}
@@ -143,6 +147,7 @@ const CancelButtons = ({
   if (isCountDown)
     return (
       <ButtonGroup
+        showGaslessNote={false}
         style={{ flexDirection: 'row-reverse' }}
         isEdit={isEdit}
         gasAmountDisplay={gasAmountDisplay}
