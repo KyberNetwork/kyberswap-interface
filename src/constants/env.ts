@@ -112,8 +112,8 @@ export const FIREBASE: { [key in EnvKeys]: { DEFAULT: FirebaseConfig; LIMIT_ORDE
   },
 }
 
-type Config = { [type in PrivateAnnouncementType]: string } & { EXCLUDE: string }
-const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: Config } = {
+type TemplateConfig = { [type in PrivateAnnouncementType]: string } & { EXCLUDE: string }
+const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   development: {
     [PrivateAnnouncementType.PRICE_ALERT]: '53',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
@@ -156,7 +156,7 @@ export enum EnvKeys {
 }
 export const ENV_KEY: EnvKeys = import.meta.env.VITE_ENV
 
-export const getAnnouncementsTemplateIds = (type: PrivateAnnouncementType | 'EXCLUDE') => {
+export const getAnnouncementsTemplateIds = (type: keyof TemplateConfig) => {
   return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]?.[type]
 }
 
