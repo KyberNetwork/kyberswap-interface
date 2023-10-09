@@ -13,7 +13,7 @@ import { useAllTokens } from 'hooks/Tokens'
 import { ClassicPoolData } from 'hooks/pool/classic/type'
 import { useBlockNumber } from 'state/application/hooks'
 import { useRewardTokens } from 'state/farms/classic/hooks'
-import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/classic/types'
+import { FairLaunchVersion, Farm, Reward, RewardPerTimeUnit } from 'state/farms/classic/types'
 import { UserLiquidityPosition } from 'state/pools/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -280,29 +280,27 @@ function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
 
   const farmRewardsPerTimeUnit: RewardPerTimeUnit[] = []
 
-  if (farm.rewardPerSeconds) {
+  if (farm.version === FairLaunchVersion.V2) {
     farm.rewardTokens.forEach((token, index) => {
+      const amount = BigNumber.from(farm.rewardPerSeconds[index])
       if (farmRewardsPerTimeUnit[index]) {
-        farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(
-          BigNumber.from(farm.rewardPerSeconds[index]),
-        )
+        farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(amount)
       } else {
         farmRewardsPerTimeUnit[index] = {
           token,
-          amount: BigNumber.from(farm.rewardPerSeconds[index]),
+          amount,
         }
       }
     })
   } else if (farm.rewardPerBlocks) {
     farm.rewardTokens.forEach((token, index) => {
+      const amount = BigNumber.from(farm.rewardPerBlocks[index])
       if (farmRewardsPerTimeUnit[index]) {
-        farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(
-          BigNumber.from(farm.rewardPerBlocks[index]),
-        )
+        farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(amount)
       } else {
         farmRewardsPerTimeUnit[index] = {
           token,
-          amount: BigNumber.from(farm.rewardPerBlocks[index]),
+          amount,
         }
       }
     })
@@ -324,7 +322,7 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
 
   let yearlyRewardUSD
 
-  if (farm.rewardPerSeconds) {
+  if (farm.version === FairLaunchVersion.V2) {
     // FarmV2
 
     const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -442,30 +440,20 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
     const initialAllFarmsRewards: { [key: string]: Reward } = {}
 
     const allFarmsRewards = farms.reduce((total, farm) => {
-      if (farm.rewardPerSeconds) {
+      if (farm.version === FairLaunchVersion.V2) {
         farm.rewardTokens.forEach((token, index) => {
-          if (total[token.address]) {
-            total[token.address].amount = total[token.address].amount.add(
-              BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index]),
-            )
-          } else {
-            total[token.address] = {
-              token,
-              amount: BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index]),
-            }
+          const amount = BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index])
+          total[token.address] = {
+            token,
+            amount: amount.add(total[token.address]?.amount || 0),
           }
         })
       } else {
         farm.rewardTokens.forEach((token, index) => {
-          if (total[token.address]) {
-            total[token.address].amount = total[token.address].amount.add(
-              BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index]),
-            )
-          } else {
-            total[token.address] = {
-              token,
-              amount: BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index]),
-            }
+          const amount = BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index])
+          total[token.address] = {
+            token,
+            amount: amount.add(total[token.address]?.amount || 0),
           }
         })
       }

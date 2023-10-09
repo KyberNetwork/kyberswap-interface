@@ -12,7 +12,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useBlockNumber } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/classic/hooks'
-import { Farm } from 'state/farms/classic/types'
+import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
 
 import ConfirmHarvestingModal from './ConfirmHarvestingModal'
 
@@ -41,19 +41,20 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
 
   const filterFarm = useCallback(
     (farm: Farm) => {
-      const filterByTime = farm.rewardPerSeconds
-        ? currentTimestampRef.current &&
-          (qs.type === FARM_TAB.MY_FARMS
-            ? true
-            : active
-            ? farm.endTime >= currentTimestampRef.current
-            : farm.endTime < currentTimestampRef.current)
-        : blockNumberRef.current &&
-          (qs.type === FARM_TAB.MY_FARMS
-            ? true
-            : active
-            ? farm.endBlock >= blockNumberRef.current
-            : farm.endBlock < blockNumberRef.current)
+      const filterByTime =
+        farm.version === FairLaunchVersion.V2
+          ? currentTimestampRef.current &&
+            (qs.type === FARM_TAB.MY_FARMS
+              ? true
+              : active
+              ? farm.endTime >= currentTimestampRef.current
+              : farm.endTime < currentTimestampRef.current)
+          : blockNumberRef.current &&
+            (qs.type === FARM_TAB.MY_FARMS
+              ? true
+              : active
+              ? farm.endBlock >= blockNumberRef.current
+              : farm.endBlock < blockNumberRef.current)
 
       const filterBySearchText = debouncedSearchText
         ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||

@@ -1,5 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
+import { Fraction } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -16,7 +18,7 @@ import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { getBulkPoolDataFromPoolList } from 'state/pools/hooks'
 
-export default function Updater({ isInterval = true }: { isInterval?: boolean }): null {
+export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean }): null {
   const dispatch = useAppDispatch()
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const fairLaunchContracts = useFairLaunchContracts(false)
@@ -40,7 +42,6 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
     console.count('running farm updater')
     const abortController = new AbortController()
 
-    // todo namgold: add from here for farm
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
       const isV3 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV3?.includes(contract.address)
 
@@ -68,8 +69,9 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
           if (isV2 || isV3) {
             return {
               ...poolInfo,
-              accRewardPerShares: poolInfo.accRewardPerShares.map((accRewardPerShare: BigNumber, index: number) =>
-                accRewardPerShare.div(isV3 ? poolInfo.multipliers[index] : poolInfo.rewardMultipliers[index]),
+              totalStake: new Fraction(
+                poolInfo.totalStake.toString(),
+                JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)),
               ),
               rewardPerSeconds: poolInfo.rewardPerSeconds.map((accRewardPerShare: BigNumber, index: number) =>
                 accRewardPerShare.div(isV3 ? poolInfo.multipliers[index] : poolInfo.rewardMultipliers[index]),
@@ -89,6 +91,10 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
 
           return {
             ...poolInfo,
+            totalStake: new Fraction(
+              poolInfo.totalStake.toString(),
+              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)),
+            ),
             pid,
             fairLaunchVersion: FairLaunchVersion.V1,
             rewardTokens,

@@ -47,6 +47,7 @@ import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
 import { useBlockNumber, useOpenModal } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/classic/hooks'
+import { FairLaunchVersion } from 'state/farms/classic/types'
 import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
@@ -130,8 +131,8 @@ const Farm = () => {
       .flat()
       .filter(
         item =>
-          (item.endTime && item.endTime > currentTimestamp) ||
-          (blockNumber && item.endBlock && item.endBlock > blockNumber),
+          (item.version === FairLaunchVersion.V2 && item.endTime > currentTimestamp) ||
+          (blockNumber && item.version === FairLaunchVersion.V1 && item.endBlock > blockNumber),
       )
       .forEach(current => {
         current.rewardTokens?.forEach(token => {

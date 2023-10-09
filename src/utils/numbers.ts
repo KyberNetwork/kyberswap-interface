@@ -65,7 +65,7 @@ const log10 = (n: Fraction): number => {
   return Math.log10(parsedN)
 }
 
-const parseNum = (value: FormatValue): Fraction => {
+export const parseNum = (value: FormatValue): Fraction => {
   try {
     if (
       typeof value === 'string' ||
@@ -169,6 +169,7 @@ export const formatDisplayNumber = (
     }${percent}`
   }
 
+  // todo namgold
   const formatter = Intl.NumberFormat('en-US', {
     notation: absShownFraction.greaterThan(10 ** (significantDigits || fractionDigits || 4)) ? 'compact' : 'standard',
     style,

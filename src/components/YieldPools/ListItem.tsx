@@ -36,7 +36,7 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/classic/actions'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
-import { Farm, Reward } from 'state/farms/classic/types'
+import { FairLaunchVersion, Farm, Reward } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
@@ -92,10 +92,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const farmRewards = useFarmRewards([farm])
 
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
-  const lpTokenRatio = new Fraction(
-    farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
-  ).divide(
+  const lpTokenRatio = farm.totalStake.divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
@@ -392,14 +389,14 @@ const ListItem = ({ farm }: ListItemProps) => {
             </Row>
             {/* ENDING IN */}
             <Column gap="6px">
-              {farm.startTime > currentTimestamp ? (
+              {farm.version === FairLaunchVersion.V2 && farm.startTime > currentTimestamp ? (
                 <>
                   <Text fontSize="12px" color={theme.warning}>
                     <Trans>New phase will start in</Trans>
                   </Text>
                   <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
                 </>
-              ) : farm.endTime > currentTimestamp ? (
+              ) : farm.version === FairLaunchVersion.V2 && farm.endTime > currentTimestamp ? (
                 <>
                   <Text color={theme.subText} fontSize="12px">
                     <Trans>Current phase will end in</Trans>
@@ -539,11 +536,11 @@ const ListItem = ({ farm }: ListItemProps) => {
             <Text fontSize={12} color={theme.subText} lineHeight="16px">
               <Trans>Staked TVL</Trans>
             </Text>
-            {farm.startTime > currentTimestamp ? (
+            {farm.version === FairLaunchVersion.V2 && farm.startTime > currentTimestamp ? (
               <Text fontSize={12} lineHeight="16px" color={theme.warning}>
                 <Trans>New phase will start in</Trans>
               </Text>
-            ) : farm.endTime > currentTimestamp ? (
+            ) : farm.version === FairLaunchVersion.V2 && farm.endTime > currentTimestamp ? (
               <Text fontSize={12} color={theme.subText} lineHeight="16px">
                 <Trans>Current phase will end in</Trans>
               </Text>
@@ -557,7 +554,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             <Text fontSize="16px" color={theme.text} lineHeight="20px">
               {formatDollarAmount(liquidity)}
             </Text>
-            {farm.startTime !== undefined ? (
+            {farm.version === FairLaunchVersion.V2 ? (
               farm.startTime > currentTimestamp ? (
                 <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
               ) : farm.endTime > currentTimestamp ? (

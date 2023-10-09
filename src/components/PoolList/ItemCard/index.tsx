@@ -502,10 +502,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 }
 
 const FarmCalculator = ({ farm, onUpdate }: { farm: Farm; onUpdate: (value: number) => void }) => {
-  const lpTokenRatio = new Fraction(
-    farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)),
-  ).divide(
+  const lpTokenRatio = farm.totalStake.divide(
     new Fraction(parseUnits(farm.totalSupply, 18).toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18))),
   )
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
