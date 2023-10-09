@@ -141,7 +141,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
   const { setCurrencyIn, setCurrencyOut, switchCurrency, removeOrderNeedCreated, resetState, setOrderEditing } =
     useLimitActionHandlers()
-  const { ordersNeedCreated: ordersUpdating, inputAmount: inputAmountGlobal } = useLimitState()
+  const { ordersNeedCreated, inputAmount: inputAmountGlobal } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
   const [outputAmount, setOutputAmount] = useState(defaultOutputAmount)
@@ -515,7 +515,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     // call when cancel expired/cancelled
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
       data?.orders.forEach(order => {
-        const findInfo = ordersUpdating.find(e => e.orderId === order.id)
+        const findInfo = ordersNeedCreated.find(e => e.orderId === order.id)
         if (!findInfo?.orderId) return
         removeOrderNeedCreated(findInfo.orderId)
         // when cancel order success => create a new order
@@ -530,7 +530,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       unsubscribeCancelled?.()
       unsubscribeExpired?.()
     }
-  }, [account, chainId, ordersUpdating, removeOrderNeedCreated, refreshActiveMakingAmount, isEdit])
+  }, [account, chainId, ordersNeedCreated, removeOrderNeedCreated, refreshActiveMakingAmount, isEdit])
 
   useEffect(() => {
     if (inputAmountGlobal) onSetInput(inputAmountGlobal)
