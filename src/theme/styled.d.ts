@@ -14,9 +14,6 @@ declare module 'styled-components' {
   export interface DefaultTheme extends Colors {
     grids: Grids
 
-    // shadows
-    shadow1: string
-
     // media queries
     mediaWidth: {
       upToXXSmall: ThemedCssFunction<DefaultTheme>
@@ -31,6 +28,5 @@ declare module 'styled-components' {
     // css snippets
     flexColumnNoWrap: FlattenSimpleInterpolation
     flexRowNoWrap: FlattenSimpleInterpolation
-    darkMode: boolean
   }
 }

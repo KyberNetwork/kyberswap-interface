@@ -17,7 +17,6 @@ import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { useIsDarkMode } from 'state/user/hooks'
 
 const NewLabel = styled.span`
   font-size: 12px;
@@ -143,7 +142,6 @@ const Networks = ({
   const { changeNetwork } = useChangeNetwork()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
-  const isDarkMode = useIsDarkMode()
   const theme = useTheme()
   const onSelect = (chainId: ChainId) => {
     customToggleModal?.()
@@ -235,10 +233,7 @@ const Networks = ({
                 {selected && !walletKey && <CircleGreen />}
                 {walletKey && (
                   <WalletWrapper>
-                    <img
-                      src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
-                      alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
-                    />
+                    <img src={SUPPORTED_WALLETS[walletKey].icon} alt={SUPPORTED_WALLETS[walletKey].name + ' icon'} />
                   </WalletWrapper>
                 )}
               </ListItem>

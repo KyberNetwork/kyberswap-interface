@@ -4,12 +4,9 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import DesktopDarkPlaceholder from 'assets/images/my_earnings_placeholder_desktop_dark.png'
-import DesktopLightPlaceholder from 'assets/images/my_earnings_placeholder_desktop_light.png'
 import MobileDarkPlaceholder from 'assets/images/my_earnings_placeholder_mobile_dark.png'
-import MobileLightPlaceholder from 'assets/images/my_earnings_placeholder_mobile_light.png'
 import { ButtonPrimary } from 'components/Button'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useDarkModeManager } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const Image = styled.img`
@@ -20,23 +17,14 @@ const Image = styled.img`
 
 const Placeholder = () => {
   const toggleWalletModal = useWalletModalToggle()
-  const [darkMode] = useDarkModeManager()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const getBackround = () => {
     if (upToSmall) {
-      if (darkMode) {
-        return MobileDarkPlaceholder
-      }
-
-      return MobileLightPlaceholder
+      return MobileDarkPlaceholder
     }
 
-    if (darkMode) {
-      return DesktopDarkPlaceholder
-    }
-
-    return DesktopLightPlaceholder
+    return DesktopDarkPlaceholder
   }
 
   return (

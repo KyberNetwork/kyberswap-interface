@@ -12,7 +12,6 @@ import TwitterIcon from 'components/Icons/TwitterIcon'
 import InfoHelper from 'components/InfoHelper'
 import { KYBER_NETWORK_DISCORD_URL, KYBER_NETWORK_TWITTER_URL } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, ExternalLinkNoLineHeight } from 'theme'
 
 const FooterWrapper = styled.div`
@@ -101,7 +100,6 @@ export const FooterSocialLink = () => {
 }
 
 function Footer() {
-  const isDarkMode = useIsDarkMode()
   const above768 = useMedia('(min-width: 768px)')
 
   return (
@@ -124,15 +122,7 @@ function Footer() {
               {!above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} placement="top" />}
             </Text>
             <ExternalLink href="https://chainsecurity.com/security-audit/kyberswap-elastic" style={{ display: 'flex' }}>
-              <img
-                src={
-                  isDarkMode
-                    ? ChainSecurity
-                    : 'https://chainsecurity.com/wp-content/themes/chainsecurity-wp/resources/images/temp/logo.svg'
-                }
-                alt=""
-                width="98px"
-              />
+              <img src={ChainSecurity} alt="" width="98px" />
             </ExternalLink>
             {above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} placement="top" />}
           </Item>

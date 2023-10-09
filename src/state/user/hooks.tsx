@@ -83,14 +83,6 @@ function deserializeToken(serializedToken: SerializedToken): Token {
       )
 }
 
-export function useIsDarkMode(): boolean {
-  return true
-}
-
-export function useDarkModeManager(): [boolean] {
-  return [true]
-}
-
 export function useUserLocale(): SupportedLocale | null {
   return useAppSelector(state => state.user.userLocale)
 }

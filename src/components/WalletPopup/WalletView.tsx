@@ -21,7 +21,6 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
-import { useIsDarkMode } from 'state/user/hooks'
 import { useTokensHasBalance } from 'state/wallet/hooks'
 import { ExternalLinkIcon } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
@@ -131,7 +130,6 @@ export default function WalletView({
   const nodeRef = useRef<HTMLDivElement>(null)
   const [isMinimal, setMinimal] = useState(false)
   const { chainId, account = '', walletKey } = useActiveWeb3React()
-  const isDarkMode = useIsDarkMode()
   const disconnectWallet = useDisconnectWallet()
 
   const {

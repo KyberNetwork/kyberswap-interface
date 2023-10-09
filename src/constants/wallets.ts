@@ -18,7 +18,6 @@ import SOLFLARE from 'assets/wallets-connect/solflare.svg'
 import TRUSTWALLET from 'assets/wallets-connect/trust-wallet.svg'
 import WALLETCONNECT from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
-import INJECTED_LIGHT_ICON from 'assets/wallets/browser-wallet-light.svg'
 import {
   blocto,
   bloctoHooks,

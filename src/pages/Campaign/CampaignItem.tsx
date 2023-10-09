@@ -32,7 +32,7 @@ const CampaignItemWrapper = styled.div<{ selected?: boolean }>`
     border-bottom: none;
   }
   position: relative;
-  background: ${({ theme, selected }) => (selected ? rgba(theme.bg8, 0.12) : 'transparent')};
+  background: ${({ theme, selected }) => (selected ? rgba(theme.bg6, 0.12) : 'transparent')};
 
   ${({ theme, selected }) =>
     selected &&

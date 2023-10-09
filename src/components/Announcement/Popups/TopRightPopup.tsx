@@ -53,9 +53,9 @@ const ltr = keyframes`
 
 const getBackgroundColor = (theme: DefaultTheme, type: NotificationType = NotificationType.ERROR) => {
   const mapColor = {
-    [NotificationType.SUCCESS]: theme.bg21,
-    [NotificationType.ERROR]: theme.bg22,
-    [NotificationType.WARNING]: theme.bg23,
+    [NotificationType.SUCCESS]: theme.bgSuccess,
+    [NotificationType.ERROR]: theme.bgError,
+    [NotificationType.WARNING]: theme.bgWarning,
   }
   return mapColor[type]
 }

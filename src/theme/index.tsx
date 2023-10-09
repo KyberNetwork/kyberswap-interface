@@ -55,7 +55,6 @@ function theme(): DefaultTheme {
       display: flex;
       flex-flow: row nowrap;
     `,
-    darkMode: true,
   }
 }
 

@@ -22,7 +22,6 @@ import { connections } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { filterTruthy } from 'utils'
 
