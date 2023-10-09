@@ -80,8 +80,10 @@ function CancelOrderModal({
   }, [supportGasLessCancel])
 
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
+  const isWaiting = cancelStatus === CancelStatus.WAITING
 
   const renderContentCancelAll = () => {
+    if (!isWaiting) return null
     return (
       <Label>
         {orders.length === 1 ? (

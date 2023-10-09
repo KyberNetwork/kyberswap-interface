@@ -97,7 +97,6 @@ export default function EditOrderModal({
   const orders = useMemo(() => (order ? [order] : []), [order])
 
   const estimateGas = useEstimateFee({ orders })
-  // todo refactor props all
 
   const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas, cancelType }
   const theme = useTheme()
@@ -146,17 +145,14 @@ export default function EditOrderModal({
   }
 
   const isWaiting = cancelStatus === CancelStatus.WAITING
+  const showReview = isReviewOrder && isWaiting
 
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
       <Wrapper>
         <Flex justifyContent={'space-between'} alignItems="center">
-          {isReviewOrder && isWaiting ? (
-            <ChevronLeft style={{ cursor: 'pointer', color: theme.subText }} onClick={onBack} />
-          ) : (
-            <div />
-          )}
-          <Text>{isReviewOrder && isWaiting ? <Trans>Review your order</Trans> : <Trans>Edit Order</Trans>}</Text>
+          {showReview ? <ChevronLeft style={{ cursor: 'pointer', color: theme.subText }} onClick={onBack} /> : <div />}
+          <Text>{showReview ? <Trans>Review your order</Trans> : <Trans>Edit Order</Trans>}</Text>
           <X style={{ cursor: 'pointer', color: theme.subText }} onClick={onDismiss} />
         </Flex>
 
@@ -172,6 +168,7 @@ export default function EditOrderModal({
             </StyledLabel>
           )}
         </Column>
+
         {isWaiting && (
           <LimitOrderForm
             ref={ref}

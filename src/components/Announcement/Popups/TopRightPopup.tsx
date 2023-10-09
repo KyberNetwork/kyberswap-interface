@@ -156,7 +156,7 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
     case PopupType.SIMPLE: {
       const { type = NotificationType.ERROR } = content as PopupContentSimple
       notiType = type
-      popupContent = <SimplePopup {...(content as PopupContentSimple)} type={type} /> // todo use generic
+      popupContent = <SimplePopup {...(content as PopupContentSimple)} type={type} />
       break
     }
     case PopupType.TRANSACTION: {
