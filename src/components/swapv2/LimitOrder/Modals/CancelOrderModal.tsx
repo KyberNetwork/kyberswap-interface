@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 
 import Logo from 'components/Logo'
@@ -74,9 +74,10 @@ function CancelOrderModal({
         isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
     },
   )
-  const [cancelType, setCancelType] = useState(
-    supportGasLessCancel ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL,
-  )
+  const [cancelType, setCancelType] = useState(CancelOrderType.GAS_LESS_CANCEL)
+  useEffect(() => {
+    setCancelType(supportGasLessCancel ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL)
+  }, [supportGasLessCancel])
 
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
 

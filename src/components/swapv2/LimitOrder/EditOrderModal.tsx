@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ethers } from 'ethers'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
@@ -88,10 +88,11 @@ export default function EditOrderModal({
   )
 
   const isSupportSoftCancelOrder = useIsSupportSoftCancelOrder()
-  const supportCancelGasless = isSupportSoftCancelOrder(order)
-  const [cancelType, setCancelType] = useState(
-    supportCancelGasless ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL,
-  )
+  const supportGasLessCancel = isSupportSoftCancelOrder(order)
+  const [cancelType, setCancelType] = useState(CancelOrderType.GAS_LESS_CANCEL)
+  useEffect(() => {
+    setCancelType(supportGasLessCancel ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL)
+  }, [supportGasLessCancel])
 
   const orders = useMemo(() => (order ? [order] : []), [order])
 
@@ -130,7 +131,7 @@ export default function EditOrderModal({
           onSubmit={isReviewOrder ? undefined : onNext}
           isEdit
           estimateGas={estimateGas}
-          supportCancelGasless={supportCancelGasless}
+          supportCancelGasless={supportGasLessCancel}
           loading={flowState.attemptingTxn}
           cancelStatus={cancelStatus}
           onOkay={onDismiss}
