@@ -110,11 +110,14 @@ export default function EditOrderModal({
     setFlowState(v => ({ ...v, showConfirm: true }))
   }
 
+  const isWaiting = cancelStatus === CancelStatus.WAITING
+  const showReview = isReviewOrder && isWaiting
+
   const ref = useRef<LimitOrderFormHandle>(null)
   const renderCancelButtons = () => {
     const hasChangeInfo = ref.current?.hasChangedOrderInfo?.()
     const disabledGasLessCancel = !hasChangeInfo || !supportGasLessCancel || flowState.attemptingTxn
-    const disabledHardCancel = !hasChangeInfo || flowState.attemptingTxn
+    const disabledHardCancel = (!hasChangeInfo && step === Steps.EDIT_ORDER) || flowState.attemptingTxn
     return (
       <>
         {isReviewOrder && (
@@ -148,9 +151,6 @@ export default function EditOrderModal({
       </>
     )
   }
-
-  const isWaiting = cancelStatus === CancelStatus.WAITING
-  const showReview = isReviewOrder && isWaiting
 
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
