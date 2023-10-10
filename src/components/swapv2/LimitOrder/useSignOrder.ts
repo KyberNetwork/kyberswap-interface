@@ -1,11 +1,12 @@
 import { useCallback } from 'react'
 import { useCreateOrderSignatureMutation } from 'services/limitOrder'
 
-import { formatAmountOrder, formatSignature, getPayloadCreateOrder } from 'components/swapv2/LimitOrder/helpers'
+import { formatAmountOrder, getPayloadCreateOrder } from 'components/swapv2/LimitOrder/helpers'
 import { CreateOrderParam } from 'components/swapv2/LimitOrder/type'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
+import { formatSignature } from 'utils/transaction'
 
 export default function useSignOrder(
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>> | undefined,

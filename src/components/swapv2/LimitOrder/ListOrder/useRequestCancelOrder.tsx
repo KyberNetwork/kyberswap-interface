@@ -21,9 +21,10 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { getContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/sentry'
+import { formatSignature } from 'utils/transaction'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
 
-import { formatAmountOrder, formatSignature, getErrorMessage, getPayloadTracking } from '../helpers'
+import { formatAmountOrder, getErrorMessage, getPayloadTracking } from '../helpers'
 import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder } from '../type'
 
 const useGetEncodeLimitOrder = () => {
