@@ -8,6 +8,7 @@ import RadioButtonChecked from 'components/Icons/RadioButtonChecked'
 import RadioButtonUnchecked from 'components/Icons/RadioButtonUnchecked'
 import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
 
 const Wrapper = styled.div<{ type?: 'Finished' | 'Active' | 'Choosing' | 'Pending'; disabled?: boolean }>`
   border-radius: 4px;
@@ -103,11 +104,6 @@ const CheckButtonWrapper = styled.div`
     display: block;
   }
 `
-// Operator miss typing option title, need to custom it in UI
-// { [ProposalId]: {[OptionId]: newTitle } }
-const HARDCODED_OPTION_TITLE: Record<number, Record<number, string>> = {
-  19: { 1: 'Base: KNC-USDC & KNC-ETH' },
-}
 
 export default function OptionButton({
   checked,
