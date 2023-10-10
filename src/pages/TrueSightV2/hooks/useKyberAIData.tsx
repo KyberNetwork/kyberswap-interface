@@ -19,6 +19,7 @@ import {
   INumberOfTrades,
   INumberOfTransfers,
   ITokenList,
+  ITokenOverview,
   ITokenSearchResult,
   ITradingVolume,
   KyberAIListType,
@@ -86,7 +87,7 @@ const kyberAIApi = createApi({
       },
     }),
     //4.
-    tokenOverview: builder.query<IAssetOverview, { chain?: string; address?: string }>({
+    tokenOverview: builder.query<ITokenOverview, { chain?: string; address?: string }>({
       query: ({ chain, address }: { chain?: string; address?: string }) => ({
         url: `/overview/${chain}/${address}`,
       }),

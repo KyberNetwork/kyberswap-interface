@@ -4,6 +4,37 @@ export interface IKyberScoreChart {
   kyberScore: number
   createdAt: number
 }
+
+export interface ITokenOverview {
+  assetId: number
+  address: string
+  symbol: string
+  logo: string
+  decimals: number
+  chain: string
+  description: string
+  webs: string[]
+  communities: string[]
+  tags: string[]
+  atl: number
+  ath: number
+  '24hVolume': number
+  price: number
+  price24hChangePercent: number
+  '24hLow': number
+  '24hHigh': number
+  '1yLow': number
+  '1yHigh': number
+  circulatingSupply: number
+  marketCap: number
+  numberOfHolders: number
+  kyberScore: {
+    score: number
+    label: string
+    ks3d: Array<{ tag: string; price: number; kyber_score: number; created_at: number }>
+  }
+}
+
 export interface IAssetOverview {
   addresses: { chain: string; address: string }[]
   tags: string[]

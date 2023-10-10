@@ -19,7 +19,7 @@ export function useOnClickOutside<T extends HTMLElement>(
       if (nodes.some(node => node.current?.contains(e.target as Node) ?? false)) {
         return
       }
-      if (handlerRef.current) handlerRef.current()
+      handlerRef.current?.()
     }
 
     document.addEventListener(isMobile ? 'touchstart' : 'mousedown', handleClickOutside)

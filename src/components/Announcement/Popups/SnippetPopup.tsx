@@ -8,7 +8,6 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 
 import NotificationImage from 'assets/images/notification_default.png'
 import CtaButton from 'components/Announcement/Popups/CtaButton'
-import { useNavigateToUrl } from 'components/Announcement/helper'
 import {
   AnnouncementTemplatePopup,
   PopupContentAnnouncement,
@@ -20,6 +19,7 @@ import { Z_INDEXS } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDetailAnnouncement, useRemovePopup } from 'state/application/hooks'
+import { useNavigateToUrl } from 'utils/redirect'
 
 const IMAGE_HEIGHT = '124px'
 const PADDING_MOBILE = '16px'

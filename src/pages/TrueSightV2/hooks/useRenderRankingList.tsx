@@ -253,7 +253,7 @@ const renderByColumnType: Record<
                 delay={200}
               >
                 <TextDotted>
-                  <Trans>Kyberscore</Trans>
+                  <Trans>KyberScore</Trans>
                 </TextDotted>
               </SimpleTooltip>
               <Text as="small" fontSize={'10px'} sx={{ textTransform: 'none' }}>
@@ -398,7 +398,7 @@ const renderByColumnType: Record<
     tableHeader: ({ sortInfo, onChangeSort }) => (
       <TableHeaderCell sortable onClick={() => onChangeSort?.(SORT_FIELD.KYBER_SCORE_DELTA)}>
         <Row justify="flex-start" gap="4px">
-          <Trans>Kyberscore Delta</Trans>
+          <Trans>KyberScore Delta</Trans>
           <SortArrow type={SORT_FIELD.KYBER_SCORE_DELTA} sortInfo={sortInfo} />
         </Row>
       </TableHeaderCell>
