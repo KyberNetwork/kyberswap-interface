@@ -6,12 +6,12 @@ import { Flex, Text } from 'rebass'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
-import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePriceAlert } from 'components/Announcement/type'
 import { ButtonLight } from 'components/Button'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import useTheme from 'hooks/useTheme'
 import { HistoricalPriceAlert, PriceAlertType } from 'pages/NotificationCenter/const'
+import { useNavigateToUrl } from 'utils/redirect'
 
 export const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
   const { swapURL } = alert
