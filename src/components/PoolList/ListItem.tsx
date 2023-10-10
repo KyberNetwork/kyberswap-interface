@@ -29,7 +29,7 @@ import { UserLiquidityPosition, useSharedPoolIdManager } from 'state/pools/hooks
 import { shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { getMyLiquidity, getTradingFeeAPR, parseSubgraphPoolData } from 'utils/dmm'
-import { formatDisplayNumber } from 'utils/numbers'
+import { formatDisplayNumber, parseNum } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 interface ListItemGroupProps {
@@ -74,14 +74,11 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
 
   const oneYearFL = getTradingFeeAPR(poolData.reserveUSD, fee24H).toFixed(2)
 
-  const ampLiquidity = formatDisplayNumber(
-    amp.multiply(new Fraction(Math.trunc(parseFloat(poolData.reserveUSD) * 1000000), 1000000)),
-    {
-      style: 'currency',
-      significantDigits: 7,
-      fractionDigits: 4,
-    },
-  )
+  const ampLiquidity = formatDisplayNumber(amp.multiply(parseNum(poolData.reserveUSD)), {
+    style: 'currency',
+    significantDigits: 7,
+    fractionDigits: 4,
+  })
   const totalValueLocked = formatDisplayNumber(poolData.reserveUSD, {
     style: 'currency',
     significantDigits: 7,
