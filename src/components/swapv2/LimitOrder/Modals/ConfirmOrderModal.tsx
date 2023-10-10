@@ -68,7 +68,7 @@ export default memo(function ConfirmOrderModal({
   const listData = useMemo(() => {
     const nodes = [
       {
-        label: t`I want to pay`,
+        label: t`I pay`,
         content: currencyIn && inputAmount && (
           <Value>
             <CurrencyLogo currency={currencyIn} style={styleLogo} />
@@ -79,7 +79,7 @@ export default memo(function ConfirmOrderModal({
         ),
       },
       {
-        label: t`and receive at least`,
+        label: t`and receive`,
         content: displayCurrencyOut && outputAmount && (
           <Value>
             <CurrencyLogo currency={displayCurrencyOut} style={styleLogo} />
