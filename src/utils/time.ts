@@ -23,7 +23,7 @@ export const formatTime = (time: number) => {
 const pad = (n: number) => (n < 10 ? `0${n}` : n)
 export const formatRemainTime = (timeInSeconds: number) => {
   const hours = Math.floor(timeInSeconds / 3600)
-  const minutes = Math.floor((timeInSeconds - hours * 3600) / 60)
-  const seconds = timeInSeconds - hours * 3600 - minutes * 60
+  const minutes = Math.floor((timeInSeconds % 3600) / 60)
+  const seconds = timeInSeconds % 60
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
 }
