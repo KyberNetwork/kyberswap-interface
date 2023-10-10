@@ -127,7 +127,7 @@ export default function OptionButton({
   id: number
 }) {
   const parsedPercent = parseFloat(percent.toFixed(2) || '0')
-  const hardCodedTitle = HARDCODED_OPTION_TITLE[proposalId][id]
+  const hardCodedTitle = HARDCODED_OPTION_TITLE[proposalId]?.[id]
   return (
     <Wrapper onClick={() => !disabled && onOptionClick?.()} disabled={disabled} type={type}>
       <div style={{ zIndex: 4, width: '100%' }}>
