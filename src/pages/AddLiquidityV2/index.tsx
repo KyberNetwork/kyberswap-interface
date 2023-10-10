@@ -1120,7 +1120,7 @@ export default function AddLiquidity() {
         const tokenSymbolOut = newPosDraft ? unwrappedToken(newPosDraft.amount1.currency).symbol : ''
         addTransactionWithType({
           hash: txHash,
-          type: TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
+          type: TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
           extraInfo: {
             tokenAmountIn: newPosDraft?.amount0.toSignificant(6) || '',
             tokenAmountOut: newPosDraft?.amount1.toSignificant(6) || '',

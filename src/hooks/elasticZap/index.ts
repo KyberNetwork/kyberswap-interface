@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Percent } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from 'ethers'
-import { defaultAbiCoder as abiEncoder } from 'ethers/lib/utils'
+import { Interface, defaultAbiCoder as abiEncoder } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useBuildRouteMutation, useLazyGetRouteQuery } from 'services/route'
@@ -12,7 +12,7 @@ import ZAP_HELPER_ABI from 'constants/abis/elastic-zap/zap-helper.json'
 import { AGGREGATOR_API_PATHS, ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract, useContractForReading } from 'hooks/useContract'
 // import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -27,6 +27,8 @@ export interface ZapResult {
   remainingAmount0: BigNumber
   remainingAmount1: BigNumber
 }
+
+const zapRouterInterface = new Interface(ZAP_ROUTER_ABI)
 
 export function useZapInPoolResult(params?: {
   poolAddress: string
@@ -149,6 +151,7 @@ export function useZapInPoolResult(params?: {
 
 export function useZapInAction() {
   const { networkInfo, account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const { router: zapRouterAddress, validator, executor } = (networkInfo as EVMNetworkInfo).elastic?.zap || {}
   const zapRouterContract = useContract(zapRouterAddress, ZAP_ROUTER_ABI, true)
 
@@ -201,7 +204,7 @@ export function useZapInAction() {
         estimateOnly?: boolean
       },
     ) => {
-      if (zapRouterContract && account) {
+      if (zapRouterContract && account && library) {
         let aggregatorRes = null
         if (aggregatorRoute) {
           aggregatorRes = (await buildRoute({
@@ -310,6 +313,17 @@ export function useZapInAction() {
           [validator, executor, deadline?.toString(), executorData, '0x'],
         ]
 
+        const callData = zapRouterInterface.encodeFunctionData(
+          options.zapWithNative ? 'zapInWithNative' : 'zapIn',
+          params,
+        )
+
+        console.debug('zap data', {
+          value: options.zapWithNative ? amountIn : undefined,
+          data: callData,
+          to: zapRouterAddress,
+        })
+
         const gasEstimated = await zapRouterContract.estimateGas[options.zapWithNative ? 'zapInWithNative' : 'zapIn'](
           ...params,
           {
@@ -323,10 +337,16 @@ export function useZapInAction() {
             hash: '',
           }
         }
-        const { hash } = await zapRouterContract[options.zapWithNative ? 'zapInWithNative' : 'zapIn'](...params, {
+
+        const txn = {
           value: options.zapWithNative ? amountIn : undefined,
+          data: callData,
+          to: zapRouterAddress,
           gasLimit: calculateGasMargin(gasEstimated),
-        })
+        }
+
+        const { hash } = await library.getSigner().sendTransaction(txn)
+
         return {
           gasEstimated,
           hash,
@@ -338,7 +358,19 @@ export function useZapInAction() {
         hash: '',
       }
     },
-    [account, deadline, executor, validator, posManagerAddress, zapRouterContract, slippage, buildRoute, url],
+    [
+      account,
+      deadline,
+      executor,
+      validator,
+      posManagerAddress,
+      zapRouterContract,
+      slippage,
+      buildRoute,
+      url,
+      library,
+      zapRouterAddress,
+    ],
   )
 
   return {

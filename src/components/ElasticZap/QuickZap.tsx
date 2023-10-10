@@ -295,7 +295,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
         setTxHash(txHash)
         addTransactionWithType({
           hash: txHash,
-          type: TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
+          type: tokenId ? TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY : TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
           extraInfo: {
             tokenSymbolIn: symbol0 ?? '',
             tokenSymbolOut: symbol1 ?? '',
