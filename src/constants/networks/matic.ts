@@ -69,7 +69,7 @@ const maticInfo: EVMNetworkInfo = {
       '0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43',
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
-    'farmV2.1S': ['0x15390f6939AA48F9796233E6144f1218721265Bb'],
+    'farmV2.1S': [],
   },
   limitOrder: '*',
   averageBlockTimeInSeconds: 2.6,
