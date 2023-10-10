@@ -85,6 +85,7 @@ export interface EVMNetworkInfo extends NetworkInfo {
       executor: string
       validator: string
     }
+    readonly 'farmV2.1S'?: string[]
   }
   readonly limitOrder: null | '*' | EnvKeys[]
   readonly averageBlockTimeInSeconds: number

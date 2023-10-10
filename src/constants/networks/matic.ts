@@ -75,6 +75,7 @@ const maticInfo: EVMNetworkInfo = {
       executor: '0x523c9fD816F0e46D229b8E3477F87B3E672005a6',
       helper: '0x3aB54d504D08d43B3407620Da7eB95AE175297F3',
     },
+    'farmV2.1S': [],
   },
   limitOrder: '*',
   averageBlockTimeInSeconds: 2.6,
