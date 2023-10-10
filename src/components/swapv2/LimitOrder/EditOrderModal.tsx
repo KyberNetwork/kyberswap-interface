@@ -115,9 +115,9 @@ export default function EditOrderModal({
 
   const ref = useRef<LimitOrderFormHandle>(null)
   const renderCancelButtons = () => {
-    const hasChangeInfo = ref.current?.hasChangedOrderInfo?.()
+    const hasChangeInfo = step === Steps.EDIT_ORDER ? ref.current?.hasChangedOrderInfo?.() : true
     const disabledGasLessCancel = !hasChangeInfo || !supportGasLessCancel || flowState.attemptingTxn
-    const disabledHardCancel = (!hasChangeInfo && step === Steps.EDIT_ORDER) || flowState.attemptingTxn
+    const disabledHardCancel = !hasChangeInfo || flowState.attemptingTxn
     return (
       <>
         {isReviewOrder && (
