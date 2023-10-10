@@ -8,6 +8,7 @@ import RadioButtonChecked from 'components/Icons/RadioButtonChecked'
 import RadioButtonUnchecked from 'components/Icons/RadioButtonUnchecked'
 import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
 
 const Wrapper = styled.div<{ type?: 'Finished' | 'Active' | 'Choosing' | 'Pending'; disabled?: boolean }>`
   border-radius: 4px;
@@ -112,6 +113,7 @@ export default function OptionButton({
   onOptionClick,
   isCheckBox,
   disabled,
+  proposalId,
   id,
 }: {
   checked?: boolean
@@ -121,9 +123,11 @@ export default function OptionButton({
   onOptionClick?: () => void
   isCheckBox: boolean
   disabled?: boolean
+  proposalId: number
   id: number
 }) {
   const parsedPercent = parseFloat(percent.toFixed(2) || '0')
+  const hardCodedTitle = HARDCODED_OPTION_TITLE[proposalId][id]
   return (
     <Wrapper onClick={() => !disabled && onOptionClick?.()} disabled={disabled} type={type}>
       <div style={{ zIndex: 4, width: '100%' }}>
@@ -147,7 +151,7 @@ export default function OptionButton({
                   <RadioButtonUnchecked />
                 )}{' '}
               </CheckButtonWrapper>
-              <Text>{`${id}. ${title}`}</Text>
+              <Text>{`${id}. ${hardCodedTitle || title}`}</Text>
             </RowFit>
           </MouseoverTooltip>
           <Text fontSize="12px" padding={'0 4px'}>
