@@ -296,7 +296,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               const apr =
                 farm.isSettled || +farm.endTime < Date.now() / 1000 || farm.liquidity === '0'
                   ? 0
-                  : (100 * (totalFarmRewardUsd * +r.weight * 365)) / totalFarmingTime / denominator
+                  : (100 * (totalFarmRewardUsd * +r.weight * 365)) / totalFarmingTime / denominator || 0
 
               return {
                 ...r,

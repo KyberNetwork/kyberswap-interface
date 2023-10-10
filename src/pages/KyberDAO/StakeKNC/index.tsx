@@ -289,9 +289,9 @@ export default function StakeKNC() {
               <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
                 <Trans>
                   You can access legacy KyberDAO v1 to read about previous KIPs{' '}
-                  <a href="https://legacy.kyber.org/vote" target="_blank" rel="noreferrer">
+                  <ExternalLink href="https://legacy.kyber.org/vote" target="_blank" rel="noreferrer">
                     here ↗
-                  </a>
+                  </ExternalLink>
                 </Trans>
               </Text>
             </CardInfo>
