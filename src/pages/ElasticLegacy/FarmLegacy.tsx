@@ -155,7 +155,7 @@ export default function FarmLegacy({
     }
   }
 
-  const farmContract = useProMMFarmContract(config[chainId].farmContract || '')
+  const farmContract = useProMMFarmContract(config[chainId]?.farmContract || '')
 
   const handleWithdraw = async () => {
     setShowConfirmModal('withdraw')

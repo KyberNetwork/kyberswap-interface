@@ -15,7 +15,9 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import QuestionHelper from 'components/QuestionHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract, useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -26,7 +28,7 @@ import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
+import { basisPointsToPercent, buildFlagsForFarmV21, calculateGasMargin, formattedNumLong } from 'utils'
 
 export default function ProAmmFee({
   tokenId,
@@ -50,7 +52,7 @@ export default function ProAmmFee({
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
-  const { account } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const token0Shown = feeValue0?.currency || position.pool.token0
@@ -108,12 +110,18 @@ export default function ProAmmFee({
   const { userInfo } = useElasticFarmsV2()
   const info = userInfo?.find(item => item.nftId.toString() === tokenId.toString())
   const address = info?.farmAddress
+
+  const isFarmV21 = (networkInfo as EVMNetworkInfo).elastic['farmV2.1S']
+    ?.map(item => item.toLowerCase())
+    .includes(address?.toLowerCase())
+
   const farmV2Contract = useContract(address, FarmV2ABI)
+  const farmV21Contract = useContract(address, FarmV21ABI)
 
   const collectFeeFromFarmContract = async () => {
     const isInFarmV2 = !!info
 
-    const contract = isInFarmV2 ? farmV2Contract : farmContract
+    const contract = isInFarmV2 ? (isFarmV21 ? farmV21Contract : farmV2Contract) : farmContract
 
     if (!contract || !feeValue0 || !feeValue1) {
       setAttemptingTxn(false)
@@ -125,14 +133,28 @@ export default function ProAmmFee({
     const amount1Min = feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
     try {
       const params = isInFarmV2
-        ? [
-            info.fId,
-            [tokenId.toString()],
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline?.toString(),
-            true,
-          ]
+        ? isFarmV21
+          ? [
+              info.fId,
+              [tokenId.toString()],
+              amount0Min.quotient.toString(),
+              amount1Min.quotient.toString(),
+              deadline?.toString(),
+              buildFlagsForFarmV21({
+                isClaimFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+                isSyncFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+                isClaimReward: false,
+                isReceiveNative: true,
+              }),
+            ]
+          : [
+              info.fId,
+              [tokenId.toString()],
+              amount0Min.quotient.toString(),
+              amount1Min.quotient.toString(),
+              deadline?.toString(),
+              true,
+            ]
         : [
             [tokenId.toString()],
             amount0Min.quotient.toString(),

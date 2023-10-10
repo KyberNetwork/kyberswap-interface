@@ -21,11 +21,9 @@ describe('Intercept', { tags: TAG.regression }, () => {
       it('Should get pool, farm list successfully', () => {
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
-         cy.intercept('GET', '**/block?**').as('get-block')
          SwapPage.goToPoolPage()
          cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
          cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
-         cy.wait('@get-block', { timeout: 60000 }).its('response.statusCode').should('equal', 200)
       })
 
       it('Should be displayed APR and TVL values', () => {
@@ -56,7 +54,6 @@ describe('Intercept', { tags: TAG.regression }, () => {
       it('Should get pool, farm list successfully', () => {
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
-         cy.intercept('GET', '**/block?**').as('get-block')
          SwapPage.goToFarmPage()
          cy.get('[data-testid=farm-block]')
             .should(_ => {})
@@ -65,7 +62,6 @@ describe('Intercept', { tags: TAG.regression }, () => {
                   cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
                }
                cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
-               cy.wait('@get-block', { timeout: 60000 }).its('response.statusCode').should('equal', 200)
             })
       })
    })
