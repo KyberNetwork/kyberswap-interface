@@ -184,7 +184,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
               proposalInfo?.vote_stats?.options.reduce((max, o) => (o.vote_count > max.vote_count ? o : max)).option ===
                 index
             const filteredParticipants = participants.filter(p => p.option === index)
-            const hardCodedTitle = proposalId ? HARDCODED_OPTION_TITLE[proposalId][index] : undefined
+            const hardCodedTitle = proposalId ? HARDCODED_OPTION_TITLE[proposalId]?.[index] : undefined
             return (
               <OptionWrapper
                 key={optionTitle}
