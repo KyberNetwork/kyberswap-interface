@@ -83,7 +83,7 @@ function CancelOrderModal({
     return (
       <Label>
         {orders.length === 1 ? (
-          <Trans>Are you sure you want to cancel {orders.length} limit order?</Trans>
+          <Trans>Are you sure you want to cancel this limit order?</Trans>
         ) : (
           <Trans>Are you sure you want to cancel {orders.length} limit orders?</Trans>
         )}
