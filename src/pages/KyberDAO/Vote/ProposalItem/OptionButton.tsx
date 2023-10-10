@@ -103,6 +103,11 @@ const CheckButtonWrapper = styled.div`
     display: block;
   }
 `
+// Operator miss typing option title, need to custom it in UI
+// { [ProposalId]: {[OptionId]: newTitle } }
+const HARDCODED_OPTION_TITLE: Record<number, Record<number, string>> = {
+  19: { 1: 'Base: KNC-USDC & KNC-ETH' },
+}
 
 export default function OptionButton({
   checked,
@@ -112,6 +117,7 @@ export default function OptionButton({
   onOptionClick,
   isCheckBox,
   disabled,
+  proposalId,
   id,
 }: {
   checked?: boolean
@@ -121,9 +127,11 @@ export default function OptionButton({
   onOptionClick?: () => void
   isCheckBox: boolean
   disabled?: boolean
+  proposalId: number
   id: number
 }) {
   const parsedPercent = parseFloat(percent.toFixed(2) || '0')
+  const hardCodedTitle = HARDCODED_OPTION_TITLE[proposalId][id]
   return (
     <Wrapper onClick={() => !disabled && onOptionClick?.()} disabled={disabled} type={type}>
       <div style={{ zIndex: 4, width: '100%' }}>
@@ -147,7 +155,7 @@ export default function OptionButton({
                   <RadioButtonUnchecked />
                 )}{' '}
               </CheckButtonWrapper>
-              <Text>{`${id}. ${title}`}</Text>
+              <Text>{`${id}. ${hardCodedTitle || title}`}</Text>
             </RowFit>
           </MouseoverTooltip>
           <Text fontSize="12px" padding={'0 4px'}>
