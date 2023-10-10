@@ -1,8 +1,10 @@
+import { useMemo } from 'react'
 import useSWRImmutable from 'swr/immutable'
 
 import { POOL_FARM_BASE_URL } from 'constants/env'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useDebug from 'hooks/useDebug'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { get24hValue } from 'utils'
 import { toFixed } from 'utils/numbers'
@@ -75,42 +77,46 @@ const useGetClassicPoolsKN = (): CommonReturn => {
     },
   )
 
-  const poolData: ClassicPoolData[] | undefined = data?.data?.pools.map(pool => {
-    const oneDayVolumeUSD = toFixed(get24hValue(pool.volumeUsd, pool.volumeUsdOneDayAgo))
-    const oneDayFeeUSD = toFixed(get24hValue(pool.feeUSD, pool.feesUsdOneDayAgo))
+  const poolData: ClassicPoolData[] | undefined = useMemo(
+    () =>
+      data?.data?.pools.map(pool => {
+        const oneDayVolumeUSD = toFixed(get24hValue(pool.volumeUsd, pool.volumeUsdOneDayAgo))
+        const oneDayFeeUSD = toFixed(get24hValue(pool.feeUSD, pool.feesUsdOneDayAgo))
 
-    return {
-      id: pool.id,
-      amp: pool.amp,
-      fee: Number(pool.fee),
-      reserve0: pool.reserve0,
-      reserve1: pool.reserve1,
-      vReserve0: pool.vReserve0,
-      vReserve1: pool.vReserve1,
+        return {
+          id: pool.id,
+          amp: pool.amp,
+          fee: Number(pool.fee),
+          reserve0: pool.reserve0,
+          reserve1: pool.reserve1,
+          vReserve0: pool.vReserve0,
+          vReserve1: pool.vReserve1,
 
-      totalSupply: pool.totalSupply,
-      reserveUSD: pool.reserveUSD,
-      volumeUSD: pool.volumeUsd,
-      feeUSD: pool.feeUSD,
-      oneDayVolumeUSD,
-      oneDayVolumeUntracked: '0',
-      oneDayFeeUSD,
-      oneDayFeeUntracked: '0',
+          totalSupply: pool.totalSupply,
+          reserveUSD: pool.reserveUSD,
+          volumeUSD: pool.volumeUsd,
+          feeUSD: pool.feeUSD,
+          oneDayVolumeUSD,
+          oneDayVolumeUntracked: '0',
+          oneDayFeeUSD,
+          oneDayFeeUntracked: '0',
 
-      token0: {
-        id: pool.token0.id,
-        symbol: pool.token0.symbol,
-        decimals: pool.token0.decimals,
-        name: pool.token0.name,
-      },
-      token1: {
-        id: pool.token1.id,
-        symbol: pool.token1.symbol,
-        decimals: pool.token1.decimals,
-        name: pool.token1.name,
-      },
-    }
-  })
+          token0: {
+            id: pool.token0.id,
+            symbol: pool.token0.symbol,
+            decimals: pool.token0.decimals,
+            name: pool.token0.name,
+          },
+          token1: {
+            id: pool.token1.id,
+            symbol: pool.token1.symbol,
+            decimals: pool.token1.decimals,
+            name: pool.token1.name,
+          },
+        }
+      }),
+    [data?.data?.pools],
+  )
 
   return {
     loading: isValidating,

@@ -112,7 +112,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
   const above1000 = useMedia('(min-width: 1000px)')
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const { loading: loadingPoolsData, data: subgraphPoolsData } = useGetClassicPools()
+  const { loading: loadingPoolsData, data: classicPoolsData } = useGetClassicPools()
 
   const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
   const [viewMode] = useViewMode()
@@ -324,8 +324,8 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   const [currentPage, setCurrentPage] = useState(1)
   const { stableCoins } = useStableCoins(chainId)
-  const sortedFilteredSubgraphPoolsData = useMemo(() => {
-    let res = [...subgraphPoolsData]
+  const sortedFilteredClassicPoolsData = useMemo(() => {
+    let res = [...classicPoolsData]
 
     if (isShowOnlyActiveFarmPools) {
       const farmAddresses = farms.map(farm => farm.id)
@@ -372,7 +372,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
     return res.sort(listComparator)
   }, [
-    subgraphPoolsData,
+    classicPoolsData,
     listComparator,
     isShowOnlyActiveFarmPools,
     currencies,
@@ -385,11 +385,11 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   const startIndex = (currentPage - 1) * ITEM_PER_PAGE
   const endIndex = currentPage * ITEM_PER_PAGE
-  const pageData = sortedFilteredSubgraphPoolsData.slice(startIndex, endIndex)
+  const pageData = sortedFilteredClassicPoolsData.slice(startIndex, endIndex)
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [chainId, subgraphPoolsData, currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable])
+  }, [chainId, classicPoolsData, currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable])
 
   const [sharedPoolId, setSharedPoolId] = useSharedPoolIdManager()
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
@@ -414,7 +414,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 
-  if (sortedFilteredSubgraphPoolsData.length === 0)
+  if (sortedFilteredClassicPoolsData.length === 0)
     return (
       <SelectPairInstructionWrapper>
         <div style={{ marginBottom: '1rem' }}>
@@ -454,7 +454,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
         pageSize={ITEM_PER_PAGE}
         onPageChange={newPage => setCurrentPage(newPage)}
         currentPage={currentPage}
-        totalCount={sortedFilteredSubgraphPoolsData.length}
+        totalCount={sortedFilteredClassicPoolsData.length}
         haveBg={above1000}
       />
       <PoolDetailModal />
