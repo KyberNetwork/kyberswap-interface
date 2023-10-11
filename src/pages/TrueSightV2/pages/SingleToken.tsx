@@ -33,6 +33,7 @@ import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStat
 import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
 import { DiscoverTokenTab, IAssetOverview } from '../types'
 import { navigateToSwapPage } from '../utils'
+import LiquidityAnalysis from './LiquidityAnalysis'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
 
@@ -607,6 +608,7 @@ export default function SingleToken() {
                       {
                         [DiscoverTokenTab.OnChainAnalysis]: 'on-chain' as const,
                         [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis' as const,
+                        [DiscoverTokenTab.LiquidityAnalysis]: 'liquidity-analysis' as const,
                       }[tab]
                     }
                     size={20}
@@ -622,6 +624,7 @@ export default function SingleToken() {
         </Row>
         {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
         {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
+        {currentTab === DiscoverTokenTab.LiquidityAnalysis && <LiquidityAnalysis />}
       </ChartStatesContext.Provider>
       <KyberAIShareModal
         isOpen={showShare}

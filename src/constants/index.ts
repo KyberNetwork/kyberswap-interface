@@ -373,6 +373,7 @@ export const ICON_IDS = [
   'alarm',
   'on-chain',
   'technical-analysis',
+  'liquidity-analysis',
   'news',
   'arrow',
   'chart',

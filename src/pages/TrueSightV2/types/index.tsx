@@ -213,6 +213,7 @@ export interface ISRLevel {
 export enum DiscoverTokenTab {
   TechnicalAnalysis = 'Technical Analysis',
   OnChainAnalysis = 'On-Chain Analysis',
+  LiquidityAnalysis = 'Liquidity Analysis',
 }
 
 export enum ChartTab {

@@ -264,10 +264,9 @@ export const SectionWrapper = ({
                   fontSize="14px"
                   color={theme.primary}
                   width="fit-content"
-                  style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+                  style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap', marginLeft: '4px' }}
                   onClick={() => setShowText(prev => !prev)}
                 >
-                  {' '}
                   <Trans>Hide</Trans>
                 </Text>
               )}
@@ -368,10 +367,9 @@ export const SectionWrapper = ({
                     fontSize="12px"
                     color={theme.primary}
                     width="fit-content"
-                    style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+                    style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap', marginLeft: '4px' }}
                     onClick={() => setShowText(prev => !prev)}
                   >
-                    {' '}
                     <Trans>Hide</Trans>
                   </Text>
                 )}
