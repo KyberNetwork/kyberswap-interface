@@ -19,8 +19,6 @@ export interface SerializedPair {
   token1: SerializedToken
 }
 
-export const updateMatchesDarkMode = createAction<{ matchesDarkMode: boolean }>('user/updateMatchesDarkMode')
-export const updateUserDarkMode = createAction<{ userDarkMode: boolean }>('user/updateUserDarkMode')
 export const updateUserDegenMode = createAction<{ userDegenMode: boolean; isStablePairSwap: boolean }>(
   'user/updateUserDegenMode',
 )

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useInterval } from 'react-use'
 
@@ -7,7 +7,7 @@ import { AppDispatch, AppState } from 'state/index'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
-import { updateMatchesDarkMode, updateUserDegenMode } from './actions'
+import { updateUserDegenMode } from './actions'
 
 export default function Updater(): null {
   const dispatch = useDispatch<AppDispatch>()
@@ -30,31 +30,6 @@ export default function Updater(): null {
   }, [degenMode, dispatch, isStablePairSwap, rawSlippage, setRawSlippage, userDegenModeAutoDisableTimestamp])
 
   useInterval(autoDisableDegenMode, 1_000)
-
-  // keep dark mode in sync with the system
-  useEffect(() => {
-    const darkHandler = (match: MediaQueryListEvent) => {
-      dispatch(updateMatchesDarkMode({ matchesDarkMode: match.matches }))
-    }
-
-    const match = window?.matchMedia('(prefers-color-scheme: dark)')
-    // Uncomment this to use browser's theme.
-    // dispatch(updateMatchesDarkMode({ matchesDarkMode: match.matches }))
-
-    if (match?.addListener) {
-      match?.addListener(darkHandler)
-    } else if (match?.addEventListener) {
-      match?.addEventListener('change', darkHandler)
-    }
-
-    return () => {
-      if (match?.removeListener) {
-        match?.removeListener(darkHandler)
-      } else if (match?.removeEventListener) {
-        match?.removeEventListener('change', darkHandler)
-      }
-    }
-  }, [dispatch])
 
   return null
 }

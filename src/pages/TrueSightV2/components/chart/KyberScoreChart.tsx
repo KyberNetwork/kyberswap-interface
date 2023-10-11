@@ -98,7 +98,7 @@ export default function KyberScoreChart({
                 x={index * (rectWidth + gap)}
                 y={0}
                 width={rectWidth}
-                style={{ fill: !v ? (theme.darkMode ? theme.background + '60' : theme.text + '10') : color }}
+                style={{ fill: !v ? theme.background + '60' : color }}
                 onMouseEnter={e => handleMouseEnter(e, index)}
                 strokeWidth={!v ? '2px' : 0}
                 stroke={theme.disableText}

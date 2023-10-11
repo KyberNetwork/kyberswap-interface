@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { darken, lighten, rgba } from 'polished'
+import { lighten, rgba } from 'polished'
 import { MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react'
 import { Plus, TrendingUp, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -16,7 +16,7 @@ const RemoveTab = styled.span`
   :hover {
     ${({ theme }) =>
       css`
-        background-color: ${theme.darkMode ? lighten(0.3, theme.buttonBlack) : darken(0.2, theme.buttonBlack)};
+        background-color: ${lighten(0.3, theme.buttonBlack)};
       `}
   }
   border-radius: 999px;
@@ -28,7 +28,7 @@ const buttonBackgroundColor = css<{ active?: boolean }>`
     ${({ theme, active }) =>
       !active
         ? css`
-            background-color: ${theme.darkMode ? lighten(0.03, theme.buttonBlack) : darken(0.1, theme.buttonBlack)};
+            background-color: ${lighten(0.03, theme.buttonBlack)};
           `
         : ''}
   }
@@ -96,7 +96,7 @@ const AddTabWrapper = styled.div`
     ${({ theme }) =>
       css`
         ${AddTab} {
-          background-color: ${theme.darkMode ? lighten(0.5, theme.subText + '33') : darken(0.1, theme.subText + '33')};
+          background-color: ${lighten(0.5, theme.subText + '33')};
         }
       `}
   }
@@ -112,7 +112,7 @@ const AddTab = styled.button`
     css`
       background-color: ${theme.subText}33;
       :hover {
-        background-color: ${theme.darkMode ? lighten(0.5, theme.subText + '33') : darken(0.1, theme.subText + '33')};
+        background-color: ${lighten(0.5, theme.subText + '33')};
       }
       color: ${theme.text};
       box-shadow: 0 0 4px ${theme.primary}, 0 0 8px ${theme.primary}, 0 0 12px ${theme.primary},

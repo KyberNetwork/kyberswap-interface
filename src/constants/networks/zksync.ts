@@ -17,9 +17,9 @@ const zkSyncInfo: EVMNetworkInfo = {
   aggregatorRoute: 'zksync',
   name: 'zkSync Era',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/bd11850b-6aef-48c6-a27d-f8ee833e0dbc1693378187666.svg',
-  iconDark: NOT_SUPPORT,
+
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://zksync-graph.kyberengineering.io/subgraphs/name/kybernetwork/zksync-blocks',
   etherscanUrl: 'https://explorer.zksync.io',
   etherscanName: 'zkSync Era Explorer',

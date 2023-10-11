@@ -25,7 +25,6 @@ export const getTransactionStatus = (transaction: TransactionDetails) => {
   }
 }
 
-// todo danh update limit order use this function
 export const formatSignature = (rawSignature: string) => {
   const bytes = ethers.utils.arrayify(rawSignature)
   const lastByte = bytes[64]
