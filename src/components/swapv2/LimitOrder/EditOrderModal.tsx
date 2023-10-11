@@ -88,7 +88,7 @@ export default function EditOrderModal({
   )
 
   const isSupportSoftCancelOrder = useIsSupportSoftCancelOrder()
-  const supportGasLessCancel = isSupportSoftCancelOrder(order)
+  const { orderSupportGasless: supportGasLessCancel, chainSupportGasless } = isSupportSoftCancelOrder(order)
   const [cancelType, setCancelType] = useState(CancelOrderType.GAS_LESS_CANCEL)
   useEffect(() => {
     setCancelType(supportGasLessCancel ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL)
@@ -142,7 +142,8 @@ export default function EditOrderModal({
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
           buttonInfo={{
-            supportGasLessCancel,
+            orderSupportGasless: supportGasLessCancel,
+            chainSupportGasless,
             disabledGasLessCancel,
             disabledHardCancel,
             cancelGaslessText: <Trans>Gasless Edit</Trans>,

@@ -73,7 +73,8 @@ const ButtonWrapper = styled.div`
 `
 
 type ButtonInfo = {
-  supportGasLessCancel: boolean
+  orderSupportGasless: boolean
+  chainSupportGasless: boolean
   disabledGasLessCancel: boolean
   disabledHardCancel: boolean
   cancelGaslessText: ReactNode
@@ -94,7 +95,8 @@ const CancelButtons = ({
   cancelType,
   setCancelType,
   buttonInfo: {
-    supportGasLessCancel,
+    orderSupportGasless,
+    chainSupportGasless,
     disabledGasLessCancel = false,
     disabledHardCancel = false,
     cancelGaslessText,
@@ -120,6 +122,7 @@ const CancelButtons = ({
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isTimeout = cancelStatus === CancelStatus.TIMEOUT
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
+  console.log(123, orderSupportGasless, chainSupportGasless)
 
   const gasAmountDisplay = estimateGas
     ? `~${formatDisplayNumber(estimateGas + '', {
@@ -187,7 +190,13 @@ const CancelButtons = ({
           buttonGasless={
             <MouseoverTooltip
               placement="top"
-              text={supportGasLessCancel ? '' : t`This chain is not supported gasless cancel. It's coming soon.`}
+              text={
+                !chainSupportGasless
+                  ? t`This chain is not supported gasless cancel. It's coming soon.`
+                  : !orderSupportGasless
+                  ? t`This order is not supported gasless cancel. Because it was created by our old contract`
+                  : ''
+              }
             >
               <ButtonOutlined
                 {...propsGasless}

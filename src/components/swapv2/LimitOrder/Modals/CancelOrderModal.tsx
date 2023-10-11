@@ -59,8 +59,10 @@ function CancelOrderModal({
   const { orders = [], ordersSoftCancel = [], supportCancelGaslessAllOrders } = useAllActiveOrders(!isCancelAll)
 
   const isOrderSupportGaslessCancel = useIsSupportSoftCancelOrder()
+  const { orderSupportGasless, chainSupportGasless } = isOrderSupportGaslessCancel(order)
 
-  const supportGasLessCancel = isCancelAll ? supportCancelGaslessAllOrders : isOrderSupportGaslessCancel(order)
+  const supportGasLessCancel = isCancelAll ? supportCancelGaslessAllOrders : orderSupportGasless
+
   const { onClickGaslessCancel, onClickHardCancel, expiredTime, cancelStatus, setCancelStatus } = useProcessCancelOrder(
     {
       isOpen,
@@ -186,7 +188,8 @@ function CancelOrderModal({
           setCancelType={setCancelType}
           estimateGas={estimateGas}
           buttonInfo={{
-            supportGasLessCancel,
+            orderSupportGasless: supportGasLessCancel,
+            chainSupportGasless,
             disabledGasLessCancel,
             disabledHardCancel,
             cancelGaslessText,
