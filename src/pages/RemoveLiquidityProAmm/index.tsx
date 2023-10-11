@@ -29,13 +29,13 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { RowBetween } from 'components/Row'
 import Slider from 'components/Slider'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
+import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { didUserReject } from 'constants/connectors/utils'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -55,7 +55,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
-import { basisPointsToPercent, calculateGasMargin, formattedNum, isAddressString } from 'utils'
+import { basisPointsToPercent, buildFlagsForFarmV21, calculateGasMargin, formattedNum, isAddressString } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 import { ErrorName } from 'utils/sentry'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
@@ -148,7 +148,6 @@ export default function RemoveLiquidityProAmm() {
 
 function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
-  const [claimFee, setIsClaimFee] = useState(true)
   const positionManager = useProAmmNFTPositionManagerContract()
   const theme = useTheme()
   const { networkInfo, account, chainId, isEVM } = useActiveWeb3React()
@@ -160,9 +159,14 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const isFarmV2 = (networkInfo as EVMNetworkInfo).elastic.farmV2S
     ?.map(item => item.toLowerCase())
     .includes(owner?.toLowerCase())
+  const isFarmV21 = (networkInfo as EVMNetworkInfo).elastic['farmV2.1S']
+    ?.map(item => item.toLowerCase())
+    .includes(owner?.toLowerCase())
 
   const ownByFarm = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) || isFarmV2
+    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) ||
+      isFarmV2 ||
+      isFarmV21
     : false
 
   const ownsNFT = owner === account || ownByFarm
@@ -265,6 +269,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const farmV2Address = isFarmV2 ? owner : undefined
   const farmV2Contract = useContract(farmV2Address, FarmV2ABI)
+  const farmV21Contract = useContract(isFarmV21 ? owner : undefined, FarmV21ABI)
 
   const handleBroadcastRemoveSuccess = (response: TransactionResponse) => {
     setAttemptingTxn(false)
@@ -290,7 +295,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   }
 
   const burnFromFarm = async () => {
-    const contract = isFarmV2 ? farmV2Contract : farmV1Contract
+    const contract = isFarmV21 ? farmV21Contract : isFarmV2 ? farmV2Contract : farmV1Contract
 
     if (!contract || !liquidityValue0 || !liquidityValue1 || !deadline || !positionSDK || !liquidityPercentage) {
       return
@@ -300,14 +305,28 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       const amount0Min = liquidityValue0?.subtract(liquidityValue0.multiply(basisPointsToPercent(allowedSlippage)))
       const amount1Min = liquidityValue1?.subtract(liquidityValue1.multiply(basisPointsToPercent(allowedSlippage)))
 
-      const params = isFarmV2
+      const params = isFarmV21
         ? [
             tokenId.toString(),
             liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
             amount0Min.quotient.toString(),
             amount1Min.quotient.toString(),
             deadline.toString(),
-            claimFee && feeValue0?.greaterThan('0'),
+            buildFlagsForFarmV21({
+              isClaimFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+              isSyncFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+              isClaimReward: true,
+              isReceiveNative: !receiveWETH,
+            }),
+          ]
+        : isFarmV2
+        ? [
+            tokenId.toString(),
+            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
+            amount0Min.quotient.toString(),
+            amount1Min.quotient.toString(),
+            deadline.toString(),
+            feeValue0?.greaterThan('0'),
             !receiveWETH,
           ]
         : [
@@ -317,7 +336,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             !receiveWETH,
-            [claimFee && feeValue0?.greaterThan('0'), true],
+            [feeValue0?.greaterThan('0'), true],
           ]
 
       const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
@@ -381,16 +400,12 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       slippageTolerance: basisPointsToPercent(allowedSlippage),
       deadline: deadline.toString(),
       collectOptions: {
-        expectedCurrencyOwed0: claimFee
-          ? feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage)))
-          : CurrencyAmount.fromRawAmount(feeValue0.currency, 0),
-        expectedCurrencyOwed1: claimFee
-          ? feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
-          : CurrencyAmount.fromRawAmount(feeValue1.currency, 0),
+        expectedCurrencyOwed0: feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage))),
+        expectedCurrencyOwed1: feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage))),
         recipient: account,
         deadline: deadline.toString(),
         isRemovingLiquid: true,
-        havingFee: claimFee && !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
+        havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
       },
     })
     const txn = {
@@ -448,8 +463,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     <Trans>
       Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
       {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
-      {claimFee && (feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)) ? <br /> : ''}
-      {claimFee && (feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO))
+      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO) ? <br /> : ''}
+      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)
         ? `Collecting fee of ${feeValue0?.toSignificant(6)} ${
             feeValue0?.currency?.symbol
           } and ${feeValue1?.toSignificant(6)} ${feeValue1?.currency?.symbol}`
@@ -504,15 +519,13 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     title={t`Remove Amount`}
                   />
                   {positionSDK ? (
-                    claimFee ? (
-                      <ProAmmFee
-                        totalFeeRewardUSD={totalFeeRewardUSD}
-                        feeValue0={feeValue0}
-                        feeValue1={feeValue1}
-                        position={positionSDK}
-                        tokenId={tokenId}
-                      />
-                    ) : null
+                    <ProAmmFee
+                      totalFeeRewardUSD={totalFeeRewardUSD}
+                      feeValue0={feeValue0}
+                      feeValue1={feeValue1}
+                      position={positionSDK}
+                      tokenId={tokenId}
+                    />
                   ) : (
                     <Loader />
                   )}
@@ -762,18 +775,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                         />
                       </div>
                     </TokenInputWrapper>
-
-                    <Flex alignItems="center" sx={{ gap: '12px' }} marginTop="0.75rem">
-                      <Text fontSize="12px" fontWeight="500">
-                        Claim Your Fees Earned
-                      </Text>
-                      <Toggle
-                        isActive={claimFee}
-                        toggle={() => {
-                          setIsClaimFee(prev => !prev)
-                        }}
-                      />
-                    </Flex>
                   </AmoutToRemoveContent>
 
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (

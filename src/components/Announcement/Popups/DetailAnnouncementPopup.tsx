@@ -6,7 +6,6 @@ import styled from 'styled-components'
 
 import NotificationImage from 'assets/images/notification_default.png'
 import CtaButton from 'components/Announcement/Popups/CtaButton'
-import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePopup } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
@@ -14,6 +13,7 @@ import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useDetailAnnouncement } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
 const PaginationButton = styled.div`
