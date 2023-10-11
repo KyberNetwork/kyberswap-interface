@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import OPTIMISM from 'assets/networks/optimism-network.svg'
+import optimismIcon from 'assets/networks/optimism.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -15,7 +15,7 @@ const optimismInfo: EVMNetworkInfo = {
   poolFarmRoute: 'optimism',
   aggregatorRoute: 'optimism',
   name: 'Optimism',
-  icon: OPTIMISM,
+  icon: optimismIcon,
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
