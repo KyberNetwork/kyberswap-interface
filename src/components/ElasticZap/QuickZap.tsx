@@ -202,7 +202,6 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
           poolAddress,
           tokenIn: selectedCurrency.wrapped.address,
           tokenOut: quoteCurrency.wrapped.address,
-          isNative: selectedCurrency.isNative,
           amountIn,
           tickLower: vTickLower,
           tickUpper: vTickUpper,

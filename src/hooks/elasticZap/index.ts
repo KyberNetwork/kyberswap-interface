@@ -9,7 +9,7 @@ import { RouteSummary } from 'services/route/types/getRoute'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import ZAP_ROUTER_ABI from 'constants/abis/elastic-zap/router.json'
 import ZAP_HELPER_ABI from 'constants/abis/elastic-zap/zap-helper.json'
-import { AGGREGATOR_API_PATHS, ETHER_ADDRESS } from 'constants/index'
+import { AGGREGATOR_API_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -34,7 +34,6 @@ export function useZapInPoolResult(params?: {
   poolAddress: string
   tokenIn: string
   tokenOut: string
-  isNative: boolean
   amountIn: CurrencyAmount<Currency>
   tickLower: number
   tickUpper: number
@@ -71,7 +70,7 @@ export function useZapInPoolResult(params?: {
             url,
             authentication: false,
             params: {
-              tokenIn: params.isNative ? ETHER_ADDRESS : params.tokenIn,
+              tokenIn: params.tokenIn,
               tokenOut: params.tokenOut,
               saveGas: '',
               amountIn: item.quotient.toString(),

@@ -1027,7 +1027,6 @@ export default function AddLiquidity() {
           poolAddress,
           tokenIn: selectedCurrency.wrapped.address,
           tokenOut: quoteZapCurrency.wrapped.address,
-          isNative: selectedCurrency.isNative,
           amountIn,
           tickLower,
           tickUpper,
