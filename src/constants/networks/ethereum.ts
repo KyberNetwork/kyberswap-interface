@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ethereumIcon from 'assets/networks/ethereum.svg'
-import { EnvKeys, KYBER_DAO_STATS_API } from 'constants/env'
+import { KYBER_DAO_STATS_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
