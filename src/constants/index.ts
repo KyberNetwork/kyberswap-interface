@@ -240,6 +240,10 @@ export const APP_PATHS = {
   PROFILE_MANAGE: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',
   VERIFY_AUTH: '/auth',
+
+  IAM_LOGIN: '/login',
+  IAM_LOGOUT: '/logout',
+  IAM_CONSENT: '/consent',
 } as const
 
 export const TERM_FILES_PATH = {
@@ -301,6 +305,9 @@ export const RTK_QUERY_TAGS = {
   GET_WATCHLIST_INFO_KYBER_AI: 'GET_WATCHLIST_INFO_KYBER_AI',
   GET_TOKEN_OVERVIEW_KYBER_AI: 'GET_TOKEN_OVERVIEW_KYBER_AI',
   GET_TOKEN_LIST_KYBER_AI: 'GET_TOKEN_LIST_KYBER_AI',
+
+  // limit order
+  GET_LIST_ORDERS: 'GET_LIST_ORDERS',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {

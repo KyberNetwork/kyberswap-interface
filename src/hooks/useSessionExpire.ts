@@ -37,7 +37,9 @@ export default function useSessionExpiredGlobal() {
       if (isKyberAIPage && accountId === signedAccount) {
         delete data.cancelText
       }
-      showConfirm(data)
+
+      const isIAMPages = [APP_PATHS.IAM_CONSENT, APP_PATHS.IAM_LOGIN, APP_PATHS.IAM_LOGOUT].includes(pathname)
+      if (!isIAMPages) showConfirm(data)
     }
     KyberOauth2.on(KyberOauth2Event.SESSION_EXPIRED, listener)
     return () => KyberOauth2.off(KyberOauth2Event.SESSION_EXPIRED, listener)

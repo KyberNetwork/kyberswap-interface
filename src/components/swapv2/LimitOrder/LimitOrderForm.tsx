@@ -1,25 +1,19 @@
 import { Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ethers } from 'ethers'
 import JSBI from 'jsbi'
-import debounce from 'lodash/debounce'
-import { rgba } from 'polished'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Info, Repeat } from 'react-feather'
+import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { Repeat } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import {
-  useCreateOrderMutation,
-  useCreateOrderSignatureMutation,
-  useGetLOContractAddressQuery,
-  useGetTotalActiveMakingAmountQuery,
-} from 'services/limitOrder'
+import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import ArrowRotate from 'components/ArrowRotate'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
+import InfoHelper from 'components/InfoHelper'
 import NumericalInput from 'components/NumericalInput'
 import { RowBetween } from 'components/Row'
 import Select from 'components/Select'
@@ -29,7 +23,9 @@ import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrd
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
+import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
 import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInputError'
+import useWarningCreateOrder from 'components/swapv2/LimitOrder/useWarningCreateOrder'
 import useWrapEthStatus from 'components/swapv2/LimitOrder/useWrapEthStatus'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
@@ -45,18 +41,13 @@ import { useNotify } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import ExpirePicker from './ExpirePicker'
-import {
-  BETTER_PRICE_DIFF_THRESHOLD,
-  DEFAULT_EXPIRED,
-  USD_THRESHOLD,
-  WORSE_PRICE_DIFF_THRESHOLD,
-  getExpireOptions,
-} from './const'
+import { DEFAULT_EXPIRED, getExpireOptions } from './const'
 import {
   calcInvert,
   calcOutput,
@@ -68,7 +59,7 @@ import {
   parseFraction,
   removeTrailingZero,
 } from './helpers'
-import { CreateOrderParam, LimitOrder, RateInfo } from './type'
+import { CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from './type'
 
 export const Label = styled.div`
   font-weight: 500;
@@ -84,7 +75,6 @@ const Set2Market = styled(Label)`
 const INPUT_HEIGHT = 28
 
 type Props = {
-  refreshListOrder: () => void
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   defaultInputAmount?: string
@@ -93,14 +83,12 @@ type Props = {
   defaultExpire?: Date
   setIsSelectCurrencyManual?: (val: boolean) => void
   note?: string
-  onCancelOrder?: () => Promise<any>
   orderInfo?: LimitOrder
   flowState: TransactionFlowState
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
   zIndexToolTip?: number
-  onDismissModalEdit?: () => void
   defaultRate?: RateInfo
-  isEdit?: boolean
+  editOrderInfo?: EditOrderInfo
 }
 
 const InputWrapper = styled.div`
@@ -111,43 +99,51 @@ const InputWrapper = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   display: flex;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
 `
-const HightLight = styled.span`
-  font-weight: 500;
-  color: ${({ theme }) => theme.warning};
+const ExpiredInput = styled(InputWrapper)`
+  max-width: 30%;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    max-width: unset;
+  `}
 `
-
-const LimitOrderForm = function LimitOrderForm({
-  refreshListOrder,
-  onCancelOrder,
-  currencyIn,
-  currencyOut,
-  defaultInputAmount = '',
-  defaultOutputAmount = '',
-  defaultActiveMakingAmount = '',
-  defaultExpire,
-  defaultRate = { rate: '', invertRate: '', invert: false },
-  setIsSelectCurrencyManual,
-  note = '',
-  orderInfo,
-  flowState,
-  setFlowState,
-  zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
-  onDismissModalEdit,
-  isEdit = false, // else create
-}: Props) {
+export type LimitOrderFormHandle = {
+  hasChangedOrderInfo: () => boolean
+}
+const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrderForm(
+  {
+    currencyIn,
+    currencyOut,
+    defaultInputAmount = '',
+    defaultOutputAmount = '',
+    defaultActiveMakingAmount = '',
+    defaultExpire,
+    defaultRate = { rate: '', invertRate: '', invert: false },
+    setIsSelectCurrencyManual,
+    note = '',
+    orderInfo,
+    flowState,
+    setFlowState,
+    zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
+    editOrderInfo,
+  },
+  ref,
+) {
+  const isEdit = editOrderInfo?.isEdit || false // else create
   const { account, chainId, networkInfo } = useActiveWeb3React()
-
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const notify = useNotify()
   const { mixpanelHandler } = useMixpanel()
 
-  const { setCurrencyIn, setCurrencyOut, switchCurrency, setCurrentOrder, removeCurrentOrder, resetState } =
+  const { setCurrencyIn, setCurrencyOut, switchCurrency, removeOrderNeedCreated, resetState, setOrderEditing } =
     useLimitActionHandlers()
-  const { ordersUpdating, inputAmount: inputAmountGlobal } = useLimitState()
+  const { ordersNeedCreated, inputAmount: inputAmountGlobal } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
-  const [outputAmount, setOuputAmount] = useState(defaultOutputAmount)
+  const [outputAmount, setOutputAmount] = useState(defaultOutputAmount)
 
   const [rateInfo, setRateInfo] = useState<RateInfo>(defaultRate)
   const displayRate = rateInfo.invert ? rateInfo.invertRate : rateInfo.rate
@@ -183,7 +179,7 @@ const LimitOrderForm = function LimitOrderForm({
     if (rate) {
       if (inputAmount) {
         const output = calcOutput(inputAmount, newRate.rateFraction || rate, currencyOut.decimals)
-        setOuputAmount(output)
+        setOutputAmount(output)
       }
       if (!invertRate) {
         newRate.invertRate = calcInvert(rate)
@@ -196,7 +192,7 @@ const LimitOrderForm = function LimitOrderForm({
       newRate.rateFraction = parseFraction(invertRate).invert()
       if (inputAmount) {
         const output = calcOutput(inputAmount, newRate.rateFraction, currencyOut.decimals)
-        setOuputAmount(output)
+        setOutputAmount(output)
       }
       setRateInfo(newRate)
       return
@@ -213,7 +209,7 @@ const LimitOrderForm = function LimitOrderForm({
         invertRate: calcInvert(rate),
       })
     }
-    setOuputAmount(output)
+    setOutputAmount(output)
   }
 
   const setPriceRateMarket = () => {
@@ -237,7 +233,7 @@ const LimitOrderForm = function LimitOrderForm({
     (input: string) => {
       setInputAmount(input)
       if (rateInfo.rate && currencyIn && currencyOut && input) {
-        setOuputAmount(calcOutput(input, rateInfo.rateFraction || rateInfo.rate, currencyOut.decimals))
+        setOutputAmount(calcOutput(input, rateInfo.rateFraction || rateInfo.rate, currencyOut.decimals))
       }
     },
     [rateInfo, currencyIn, currencyOut],
@@ -285,8 +281,8 @@ const LimitOrderForm = function LimitOrderForm({
   }
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
-  const { data, isError } = useGetLOContractAddressQuery(chainId)
-  const limitOrderContract = isError ? undefined : data
+  const { currentData } = useGetLOConfigQuery(chainId)
+  const limitOrderContract = currentData?.contract
 
   const currentAllowance = useTokenAllowance(
     currencyIn as Token,
@@ -394,7 +390,7 @@ const LimitOrderForm = function LimitOrderForm({
 
   const onResetForm = () => {
     setInputAmount(defaultInputAmount)
-    setOuputAmount(defaultOutputAmount)
+    setOutputAmount(defaultOutputAmount)
     setRateInfo(defaultRate)
     setExpire(DEFAULT_EXPIRED)
     setCustomDateExpire(undefined)
@@ -413,33 +409,7 @@ const LimitOrderForm = function LimitOrderForm({
     [setFlowState],
   )
 
-  const [getMessageSignature] = useCreateOrderSignatureMutation()
-  const signOrder = async (params: CreateOrderParam) => {
-    const { currencyIn, currencyOut, inputAmount, outputAmount, signature, salt } = params
-    if (signature && salt) return { signature, salt }
-    if (!library || !currencyIn || !currencyOut) return { signature: '', salt: '' }
-
-    const payload = getPayloadCreateOrder(params)
-    setFlowState(state => ({
-      ...state,
-      attemptingTxn: true,
-      pendingText: `Sign limit order: ${formatAmountOrder(inputAmount)} ${currencyIn.symbol} to ${formatAmountOrder(
-        outputAmount,
-      )} ${currencyOut.symbol}`,
-    }))
-    const messagePayload = await getMessageSignature(payload).unwrap()
-
-    const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
-
-    const bytes = ethers.utils.arrayify(rawSignature)
-    const lastByte = bytes[64]
-    if (lastByte === 0 || lastByte === 1) {
-      // to support hardware wallet https://ethereum.stackexchange.com/a/113727
-      bytes[64] += 27
-    }
-
-    return { signature: ethers.utils.hexlify(bytes), salt: messagePayload?.message?.salt }
-  }
+  const signOrder = useSignOrder(setFlowState)
 
   const [submitOrder] = useCreateOrderMutation()
   const onSubmitCreateOrder = async (params: CreateOrderParam) => {
@@ -464,36 +434,10 @@ const LimitOrderForm = function LimitOrderForm({
         10000,
       )
       onResetForm()
-      setTimeout(() => refreshListOrder?.(), 500)
       return response?.id
     } catch (error) {
       handleError(error)
       return
-    }
-  }
-
-  const onSubmitEditOrder = async () => {
-    try {
-      if (!onCancelOrder) return
-      await onCancelOrder()
-      if (orderInfo) {
-        const param = {
-          orderId: orderInfo?.id,
-          account,
-          chainId,
-          currencyIn,
-          currencyOut,
-          inputAmount,
-          outputAmount,
-          expiredAt,
-        }
-        const { signature, salt } = await signOrder(param)
-        setCurrentOrder({ ...param, salt, signature })
-      }
-      onDismissModalEdit?.()
-    } catch (error) {
-      orderInfo && removeCurrentOrder(orderInfo.id)
-      handleError(error)
     }
   }
 
@@ -524,44 +468,62 @@ const LimitOrderForm = function LimitOrderForm({
     }
   }, [approval, approvalSubmitted])
 
-  const refreshActiveMakingAmount = useMemo(
-    () =>
-      debounce(() => {
-        try {
-          getActiveMakingAmount()
-        } catch (error) {}
-      }, 100),
-    [getActiveMakingAmount],
-  )
+  const refreshActiveMakingAmount = useCallback(() => {
+    try {
+      getActiveMakingAmount()
+    } catch (error) {}
+  }, [getActiveMakingAmount])
 
   useEffect(() => {
-    if (currencyIn) refreshActiveMakingAmount()
-  }, [currencyIn, refreshActiveMakingAmount, isEdit])
+    if (!isEdit || !orderInfo?.id) return
+    setOrderEditing({
+      orderId: orderInfo.id,
+      account,
+      chainId,
+      currencyIn,
+      currencyOut,
+      inputAmount,
+      outputAmount,
+      expiredAt,
+    })
+  }, [
+    setOrderEditing,
+    account,
+    chainId,
+    currencyIn,
+    currencyOut,
+    inputAmount,
+    outputAmount,
+    expiredAt,
+    orderInfo?.id,
+    isEdit,
+  ])
 
   // use ref to prevent too many api call when firebase update status
   const refSubmitCreateOrder = useRef(onSubmitCreateOrder)
   refSubmitCreateOrder.current = onSubmitCreateOrder
-  const refRefreshActiveMakingAmount = useRef(refreshActiveMakingAmount)
-  refRefreshActiveMakingAmount.current = refreshActiveMakingAmount
 
   useEffect(() => {
     if (!account) return
     // call when cancel expired/cancelled
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
       data?.orders.forEach(order => {
-        const findInfo = ordersUpdating.find(e => e.orderId === order.id)
+        const findInfo = ordersNeedCreated.find(e => e.orderId === order.id)
         if (!findInfo?.orderId) return
-        removeCurrentOrder(findInfo.orderId)
-        if (order.isSuccessful) refSubmitCreateOrder.current(findInfo)
+        removeOrderNeedCreated(findInfo.orderId)
+        // when cancel order success => create a new order
+        if (order.isSuccessful && !isEdit) {
+          refSubmitCreateOrder.current(findInfo)
+        }
       })
-      refRefreshActiveMakingAmount.current()
+      refreshActiveMakingAmount()
     })
-    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, refRefreshActiveMakingAmount.current)
+    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, refreshActiveMakingAmount)
     return () => {
       unsubscribeCancelled?.()
       unsubscribeExpired?.()
     }
-  }, [account, chainId, ordersUpdating, removeCurrentOrder])
+  }, [account, chainId, ordersNeedCreated, removeOrderNeedCreated, refreshActiveMakingAmount, isEdit])
 
   useEffect(() => {
     if (inputAmountGlobal) onSetInput(inputAmountGlobal)
@@ -627,49 +589,46 @@ const LimitOrderForm = function LimitOrderForm({
       !enoughAllowance ||
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
-  const warningMessage = useMemo(() => {
-    const messages = []
-
-    if (currencyIn && displayRate && !deltaRate.profit && Number(deltaRate.rawPercent) <= WORSE_PRICE_DIFF_THRESHOLD) {
-      // need to remove the minus out of the percent text
-      const percentWithoutMinus = deltaRate.percent.slice(1)
-
-      messages.push(
-        <Text>
-          <Trans>
-            Your limit order price is <HightLight>{percentWithoutMinus}</HightLight> lower than the market. You will be
-            selling your {currencyIn.symbol} exceedingly cheap.
-          </Trans>
-        </Text>,
-      )
-    }
-
-    const threshold = USD_THRESHOLD[chainId]
-    const showWarningThresHold = outputAmount && estimateUSD.rawInput && estimateUSD.rawInput < threshold
-
-    if (showWarningThresHold) {
-      messages.push(
-        <Text>
-          <Trans>
-            We suggest you increase the value of your limit order to at least <HightLight>${threshold}</HightLight>.
-            This will increase the odds of your order being filled.
-          </Trans>
-        </Text>,
-      )
-    }
-
-    return messages
-  }, [
-    chainId,
+  const warningMessage = useWarningCreateOrder({
+    estimateUSD: estimateUSD.rawInput,
     currencyIn,
-    deltaRate.percent,
-    deltaRate.profit,
-    deltaRate.rawPercent,
-    displayRate,
-    estimateUSD.rawInput,
     outputAmount,
-  ])
+    displayRate,
+    deltaRate,
+  })
 
+  useImperativeHandle(ref, () => ({
+    hasChangedOrderInfo() {
+      return (
+        isEdit &&
+        (defaultInputAmount !== inputAmount ||
+          defaultRate?.rate !== rateInfo.rate ||
+          defaultExpire?.getTime() !== expiredAt)
+      )
+    },
+  }))
+
+  const renderConfirmModal = (showConfirmContent = false) => (
+    <ConfirmOrderModal
+      flowState={flowState}
+      onDismiss={hidePreview}
+      onSubmit={onSubmitCreateOrderWithTracking}
+      currencyIn={currencyIn}
+      currencyOut={currencyOut}
+      inputAmount={inputAmount}
+      outputAmount={outputAmount}
+      expireAt={expiredAt}
+      rateInfo={rateInfo}
+      marketPrice={tradeInfo}
+      showConfirmContent={showConfirmContent}
+      note={note}
+      editOrderInfo={editOrderInfo}
+      warningMessage={warningMessage}
+      percentDiff={Number(deltaRate.rawPercent)}
+    />
+  )
+
+  if (isEdit && flowState.showConfirm) return renderConfirmModal(true)
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -702,83 +661,6 @@ const LimitOrderForm = function LimitOrderForm({
           />
         </Tooltip>
 
-        <RowBetween gap="1rem">
-          <InputWrapper>
-            <Flex justifyContent={'space-between'} alignItems="center">
-              <DeltaRate symbolIn={currencyIn?.symbol ?? ''} marketPrice={tradeInfo} rateInfo={rateInfo} />
-              {tradeInfo && (
-                <Set2Market onClick={setPriceRateMarket}>
-                  <Trans>Market</Trans>
-                </Set2Market>
-              )}
-            </Flex>
-            <Flex alignItems={'center'} style={{ background: theme.buttonBlack, borderRadius: 12 }}>
-              <NumericalInput
-                maxLength={50}
-                style={{ fontSize: 14, height: INPUT_HEIGHT }}
-                value={displayRate}
-                onUserInput={onChangeRate}
-                onFocus={trackingTouchInput}
-              />
-              {currencyIn && currencyOut && (
-                <Flex style={{ gap: 6, cursor: 'pointer' }} onClick={() => onInvertRate(!rateInfo.invert)}>
-                  <CurrencyLogo size={'18px'} currency={rateInfo.invert ? currencyIn : currencyOut} />
-                  <Text fontSize={14} color={theme.subText}>
-                    {rateInfo.invert ? currencyIn?.symbol : currencyOut?.symbol}
-                  </Text>
-                  <div>
-                    <Repeat color={theme.subText} size={12} />
-                  </div>
-                </Flex>
-              )}
-            </Flex>
-          </InputWrapper>
-          <InputWrapper style={{ maxWidth: '30%' }}>
-            <Label>
-              <Trans>Expires In</Trans>
-            </Label>
-            <Select
-              value={expire}
-              onChange={onChangeExpire}
-              optionStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
-              menuStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
-              style={{ width: '100%', padding: 0, height: INPUT_HEIGHT }}
-              options={[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }]}
-              activeRender={item => {
-                const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : item?.label
-                return (
-                  <MouseoverTooltip text={customDateExpire ? displayTime : ''} width="130px">
-                    <Text color={theme.text} fontSize={14}>
-                      {displayTime}
-                    </Text>
-                  </MouseoverTooltip>
-                )
-              }}
-            />
-          </InputWrapper>
-        </RowBetween>
-
-        <RowBetween>
-          {currencyIn && currencyOut ? (
-            <TradePrice
-              price={tradeInfo}
-              style={{ width: 'fit-content', fontStyle: 'italic' }}
-              color={theme.text}
-              label={t`Est. Market Price:`}
-              loading={loadingTrade}
-              symbolIn={currencyIn?.symbol}
-              symbolOut={currencyOut?.symbol}
-            />
-          ) : (
-            <div />
-          )}
-          <ArrowRotate
-            rotate={rotate}
-            onClick={isEdit ? undefined : handleRotateClick}
-            style={{ width: 25, height: 25, padding: 4, background: theme.buttonGray }}
-          />
-        </RowBetween>
-
         <Tooltip text={outPutError} show={!!outPutError} placement="top" style={styleTooltip} width="fit-content">
           <CurrencyInputPanel
             maxLength={16}
@@ -808,30 +690,90 @@ const LimitOrderForm = function LimitOrderForm({
           />
         </Tooltip>
 
-        {Number(deltaRate.rawPercent) >= BETTER_PRICE_DIFF_THRESHOLD && (
-          <Flex
-            padding="14px 18px"
-            color={theme.text}
-            alignItems="center"
-            style={{ background: rgba(theme.subText, 0.2) }}
-            sx={{
-              borderRadius: '16px',
-              gap: '8px',
-            }}
-          >
-            <Info
-              size={16}
-              style={{
-                flex: '0 0 16px',
+        <RowBetween gap="1rem" flexDirection={upToSmall ? 'column' : 'row'}>
+          <InputWrapper>
+            <Flex justifyContent={'space-between'} alignItems="center">
+              <DeltaRate
+                symbol={(rateInfo.invert ? currencyOut?.symbol : currencyIn?.symbol) ?? ''}
+                marketPrice={tradeInfo}
+                rateInfo={rateInfo}
+              />
+              {tradeInfo && (
+                <Set2Market onClick={setPriceRateMarket}>
+                  <Trans>Market</Trans>
+                </Set2Market>
+              )}
+            </Flex>
+            <Flex alignItems={'center'} style={{ background: theme.buttonBlack, borderRadius: 12 }}>
+              <NumericalInput
+                maxLength={50}
+                style={{ fontSize: 14, height: INPUT_HEIGHT }}
+                value={displayRate}
+                onUserInput={onChangeRate}
+                onFocus={trackingTouchInput}
+              />
+              {currencyIn && currencyOut && (
+                <Flex style={{ gap: 6, cursor: 'pointer' }} onClick={() => onInvertRate(!rateInfo.invert)}>
+                  <CurrencyLogo size={'18px'} currency={rateInfo.invert ? currencyIn : currencyOut} />
+                  <Text fontSize={14} color={theme.subText}>
+                    {rateInfo.invert ? currencyIn?.symbol : currencyOut?.symbol}
+                  </Text>
+                  <div>
+                    <Repeat color={theme.subText} size={12} />
+                  </div>
+                </Flex>
+              )}
+            </Flex>
+          </InputWrapper>
+          <ExpiredInput>
+            <Label>
+              <Trans>Expires In</Trans>
+              <InfoHelper
+                color={theme.primary}
+                text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}
+              />
+            </Label>
+            <Select
+              value={expire}
+              onChange={onChangeExpire}
+              optionStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
+              menuStyle={{ left: upToSmall ? 'unset' : 0, ...(isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}) }}
+              style={{ width: '100%', padding: 0, height: INPUT_HEIGHT }}
+              options={[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }]}
+              activeRender={item => {
+                const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : item?.label
+                return (
+                  <MouseoverTooltip text={customDateExpire ? displayTime : ''} width="130px">
+                    <Text color={theme.text} fontSize={14}>
+                      {displayTime}
+                    </Text>
+                  </MouseoverTooltip>
+                )
               }}
             />
-            <Text fontWeight={400} fontSize={12} color={theme.text}>
-              <Trans>
-                Limit order price is &gt;=30% higher than the market. We just want to make sure this is correct
-              </Trans>
-            </Text>
-          </Flex>
-        )}
+          </ExpiredInput>
+        </RowBetween>
+
+        <RowBetween>
+          {currencyIn && currencyOut ? (
+            <TradePrice
+              price={tradeInfo}
+              style={{ width: 'fit-content', fontStyle: 'italic' }}
+              color={theme.text}
+              label={t`Est. Market Price:`}
+              loading={loadingTrade}
+              symbolIn={currencyIn?.symbol}
+              symbolOut={currencyOut?.symbol}
+            />
+          ) : (
+            <div />
+          )}
+          <ArrowRotate
+            rotate={rotate}
+            onClick={isEdit ? undefined : handleRotateClick}
+            style={{ width: 25, height: 25, padding: 4, background: theme.buttonGray }}
+          />
+        </RowBetween>
 
         {warningMessage.map((mess, i) => (
           <ErrorWarningPanel type="warn" key={i} title={mess} />
@@ -855,25 +797,12 @@ const LimitOrderForm = function LimitOrderForm({
             showPreview,
             showApproveFlow,
             showWarning: warningMessage.length > 0,
+            isEdit,
           }}
         />
       </Flex>
 
-      <ConfirmOrderModal
-        flowState={flowState}
-        onDismiss={hidePreview}
-        onSubmit={isEdit ? onSubmitEditOrder : onSubmitCreateOrderWithTracking}
-        currencyIn={currencyIn}
-        currencyOut={currencyOut}
-        inputAmount={inputAmount}
-        outputAmount={outputAmount}
-        expireAt={expiredAt}
-        rateInfo={rateInfo}
-        marketPrice={tradeInfo}
-        note={note}
-        warningMessage={warningMessage}
-        percentDiff={Number(deltaRate.rawPercent)}
-      />
+      {renderConfirmModal()}
 
       <ExpirePicker
         defaultDate={customDateExpire}
@@ -884,6 +813,6 @@ const LimitOrderForm = function LimitOrderForm({
       />
     </>
   )
-}
+})
 
 export default memo(LimitOrderForm)

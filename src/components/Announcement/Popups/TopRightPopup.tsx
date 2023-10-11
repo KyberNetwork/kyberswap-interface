@@ -151,9 +151,9 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
   let popupContent
   switch (popupType) {
     case PopupType.SIMPLE: {
-      const { title, summary, type = NotificationType.ERROR, icon } = content as PopupContentSimple
+      const { type = NotificationType.ERROR } = content as PopupContentSimple
       notiType = type
-      popupContent = <SimplePopup title={title} type={type} summary={summary} icon={icon} />
+      popupContent = <SimplePopup {...(content as PopupContentSimple)} type={type} />
       break
     }
     case PopupType.TRANSACTION: {
