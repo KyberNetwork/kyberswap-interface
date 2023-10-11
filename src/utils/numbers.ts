@@ -64,6 +64,30 @@ const log10 = (n: Fraction): number => {
   const parsedN = Number(n.toSignificant(30))
   return Math.log10(parsedN)
 }
+// - $ 123,456,222,333.44444 e+22 eur5
+const regex = /^\s*?\+?(-)?\s*?(\$)?\s*?([\d,]+)(?:\.(\d+))?\s*?(?:e\+?(\-?\d+))?\s*?(\w+?)?\s*?$/
+const parseNumPart = (str: string): string[] => {
+  const parsedResult = regex.exec(str)
+  if (parsedResult) {
+    const [, negative, currency, integer, decimal, exponent, unit] = parsedResult
+    return [negative || '', currency || '', integer, decimal || '', exponent, unit || '']
+  }
+  return ['', '', '', '', '', ''] // [negative, currency, integer, decimal, exponent, unit]
+}
+
+const parseString = (value: string): Fraction => {
+  try {
+    const [negative, , integer, decimal, e] = parseNumPart(value)
+    const exponent = Number(e || '0') - decimal.length
+    if (exponent > 0) {
+      return new Fraction(negative + integer.replace(/,/g, '') + decimal + '0'.repeat(exponent), 1)
+    }
+    return new Fraction(negative + integer.replace(/,/g, '') + decimal, 10 ** -exponent)
+  } catch (e) {
+    console.log('namgold parse error', e)
+    return new Fraction(0, 1)
+  }
+}
 
 export const parseNum = (value: FormatValue): Fraction => {
   try {
@@ -75,7 +99,7 @@ export const parseNum = (value: FormatValue): Fraction => {
       value instanceof Price
     ) {
       const valueStr = (() => {
-        if (typeof value === 'string') return toFixed(+value)
+        if (typeof value === 'string') return parseString(value).toFixed(18)
         if (typeof value === 'number') return toFixed(value)
         if (value instanceof CurrencyAmount) return value.toFixed(value.currency.decimals)
         if (value instanceof Price) return value.toFixed(18)
@@ -188,20 +212,10 @@ export const formatDisplayNumber = (
   // It might return number with longer fraction digits than maximumFractionDigits
   // Hence, we have to do an additional step that manually slice those oversize fraction digits
   if (fractionDigits !== undefined) {
-    const [negative, currency, integer, decimal, unit] = parseNumPart(result)
+    const [negative, currency, integer, decimal, , unit] = parseNumPart(result)
     const trimedSlicedDecimal = decimal?.slice(0, fractionDigits).replace(/0+$/, '')
     if (trimedSlicedDecimal) return negative + currency + integer + '.' + trimedSlicedDecimal + unit
     return negative + currency + integer + unit
   }
   return result
-}
-
-const regex = /^(-\s*)?(\$\s*)?([\d,]+)(\.\d+)?\s*?(\w?.*?)$/
-const parseNumPart = (str: string): string[] => {
-  const parsedResult = regex.exec(str)
-  if (parsedResult) {
-    const [, negative, currency, integer, decimal, unit] = parsedResult
-    return [negative?.trim() || '', currency?.trim() || '', integer, decimal?.slice(1) || '', unit?.trim() || '']
-  }
-  return ['', '', '', '', '']
 }

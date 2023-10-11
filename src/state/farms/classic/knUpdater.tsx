@@ -13,7 +13,7 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { setFarmsData, setLoading, setYieldPoolsError } from 'state/farms/classic/actions'
 import { FairLaunchVersion, Farm, FarmV1, FarmV2 } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
-import { parseNum } from 'utils/numbers'
+import { parseNum, toFixed } from 'utils/numbers'
 
 const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
   const dispatch = useAppDispatch()
@@ -66,7 +66,7 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
           const oneDayFeeUntracked = '0'
           const userData = {} // todo namgold: fill this.
 
-          const rewardPerUnits: BigNumber[] = farmPool.rewardPerUnits.map(i => parseUnits(String(i), 0))
+          const rewardPerUnits: BigNumber[] = farmPool.rewardPerUnits.map(i => parseUnits(toFixed(i), 0))
           const start = Number(farmPool.start)
           const end = Number(farmPool.end)
           const lastReward = start // todo namgold: fill this.
