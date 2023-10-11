@@ -14,7 +14,9 @@ export const getExpireOptions = () =>
   [
     MIN_TIME_MINUTES * TIMES_IN_SECS.ONE_MIN,
     10 * TIMES_IN_SECS.ONE_MIN,
+    30 * TIMES_IN_SECS.ONE_MIN,
     TIMES_IN_SECS.ONE_HOUR,
+    TIMES_IN_SECS.ONE_DAY,
     3 * TIMES_IN_SECS.ONE_DAY,
     7 * TIMES_IN_SECS.ONE_DAY,
     30 * TIMES_IN_SECS.ONE_DAY,
@@ -66,3 +68,10 @@ export const USD_THRESHOLD = new Proxy(_USD_THRESHOLD, {
 
 export const WORSE_PRICE_DIFF_THRESHOLD = -5
 export const BETTER_PRICE_DIFF_THRESHOLD = 30
+
+export const DOCS_LINKS = {
+  GASLESS_CANCEL:
+    'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#gasless-cancel',
+  HARD_CANCEL: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#hard-cancel',
+  USER_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/user-guides/cancel-limit-orders',
+}

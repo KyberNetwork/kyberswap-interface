@@ -16,9 +16,9 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   aggregatorRoute: 'bsc',
   name: 'BNB Testnet',
   icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/a44a3dbc-9150-4278-8354-7b5953f9a1ab.svg',
-  iconDark: NOT_SUPPORT,
+
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-blocks-bsctestnet',
   etherscanUrl: 'https://testnet.bscscan.com',
   etherscanName: 'BscScan',

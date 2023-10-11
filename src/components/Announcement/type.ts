@@ -155,9 +155,10 @@ export type PopupContentTxn = {
 
 export type PopupContentSimple = {
   title: string
+  type: NotificationType
   summary?: ReactNode
   icon?: ReactNode
-  type: NotificationType
+  link?: string
 }
 
 export type PopupContentAnnouncement = {

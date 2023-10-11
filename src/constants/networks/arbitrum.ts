@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import ARBITRUM from 'assets/networks/arbitrum-network.svg'
+import arbitrumIcon from 'assets/networks/arbitrum.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -15,10 +15,9 @@ const arbitrumInfo: EVMNetworkInfo = {
   poolFarmRoute: 'arbitrum',
   aggregatorRoute: 'arbitrum',
   name: 'Arbitrum',
-  icon: ARBITRUM,
-  iconDark: NOT_SUPPORT,
+  icon: arbitrumIcon,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/arbitrum-blocks',
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',

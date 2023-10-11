@@ -53,9 +53,9 @@ const ltr = keyframes`
 
 const getBackgroundColor = (theme: DefaultTheme, type: NotificationType = NotificationType.ERROR) => {
   const mapColor = {
-    [NotificationType.SUCCESS]: theme.bg21,
-    [NotificationType.ERROR]: theme.bg22,
-    [NotificationType.WARNING]: theme.bg23,
+    [NotificationType.SUCCESS]: theme.bgSuccess,
+    [NotificationType.ERROR]: theme.bgError,
+    [NotificationType.WARNING]: theme.bgWarning,
   }
   return mapColor[type]
 }
@@ -123,10 +123,7 @@ const Overlay = styled.div`
   width: 100%;
   height: 100%;
   background: ${({ theme }) =>
-    `linear-gradient(180deg, ${rgba(theme.darkMode ? theme.black : theme.white, 0)} 40.1%, ${rgba(
-      theme.darkMode ? theme.black : theme.white,
-      0.8,
-    )} 100%)`};
+    `linear-gradient(180deg, ${rgba(theme.black, 0)} 40.1%, ${rgba(theme.black, 0.8)} 100%)`};
 `
 
 export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType; hasOverlay: boolean }) {
@@ -154,9 +151,9 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
   let popupContent
   switch (popupType) {
     case PopupType.SIMPLE: {
-      const { title, summary, type = NotificationType.ERROR, icon } = content as PopupContentSimple
+      const { type = NotificationType.ERROR } = content as PopupContentSimple
       notiType = type
-      popupContent = <SimplePopup title={title} type={type} summary={summary} icon={icon} />
+      popupContent = <SimplePopup {...(content as PopupContentSimple)} type={type} />
       break
     }
     case PopupType.TRANSACTION: {

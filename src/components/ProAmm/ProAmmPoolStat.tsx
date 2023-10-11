@@ -24,7 +24,6 @@ import { useAllTokens } from 'hooks/Tokens'
 import usePoolTransactionsStat from 'hooks/usePoolTransactionsStat'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
@@ -110,7 +109,6 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
   const poolTransactionsStat = usePoolTransactionsStat(pool.address)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const isDarkMode = useIsDarkMode()
   const [searchParams] = useSearchParams()
 
   const activeRangeIndex = Number(searchParams.get('farmRange') || '0')
@@ -272,7 +270,7 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
               <Flex sx={{ gap: upToLarge ? '16px' : '32px', paddingLeft: upToLarge ? '0' : '24px', width: '100%' }}>
                 <PieChart width={88} height={88}>
                   <Pie
-                    stroke={isDarkMode ? 'black' : 'white'}
+                    stroke={'black'}
                     data={poolTransactionsStat}
                     dataKey="value"
                     nameKey="name"

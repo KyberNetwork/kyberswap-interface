@@ -34,9 +34,7 @@ import {
   toggleTradeRoutes,
   updateAcceptedTermVersion,
   updateChainId,
-  updateMatchesDarkMode,
   updateTokenAnalysisSettings,
-  updateUserDarkMode,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
@@ -60,9 +58,6 @@ export type CrossChainSetting = {
 export interface UserState {
   // the timestamp of the last updateVersion action
   lastUpdateVersionTimestamp?: number
-
-  userDarkMode: boolean | null // the user's choice for dark mode or light mode
-  matchesDarkMode: boolean // whether the dark mode media query matches
 
   userLocale: SupportedLocale | null
 
@@ -152,8 +147,6 @@ export const CROSS_CHAIN_SETTING_DEFAULT = {
 }
 
 const initialState: UserState = {
-  userDarkMode: null, // default to system preference
-  matchesDarkMode: true,
   userDegenMode: false,
   userDegenModeAutoDisableTimestamp: 0,
   userLocale: null,
@@ -213,14 +206,6 @@ export default createReducer(initialState, builder =>
       }
 
       state.lastUpdateVersionTimestamp = currentTimestamp()
-    })
-    .addCase(updateUserDarkMode, (state, action) => {
-      state.userDarkMode = action.payload.userDarkMode
-      state.timestamp = currentTimestamp()
-    })
-    .addCase(updateMatchesDarkMode, (state, action) => {
-      state.matchesDarkMode = action.payload.matchesDarkMode
-      state.timestamp = currentTimestamp()
     })
     .addCase(updateUserDegenMode, (state, action) => {
       state.userDegenMode = action.payload.userDegenMode

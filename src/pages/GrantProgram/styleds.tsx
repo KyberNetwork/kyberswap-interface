@@ -2,7 +2,6 @@ import styled from 'styled-components'
 
 import Background from 'assets/images/about_background.png'
 import DarkTexture from 'assets/images/dark_texture.png'
-import LightTexture from 'assets/images/light_texture.png'
 
 export const HeaderText = styled.span`
   color: ${({ theme }) => theme.text};
@@ -48,7 +47,7 @@ export const PageWrapper = styled.div<{ $hideBackground?: boolean }>`
     padding-bottom: 72px;
   `}
 
-  background-image: url(${Background}), url(${({ theme }) => (theme.darkMode ? DarkTexture : LightTexture)});
+  background-image: url(${Background}), url(${DarkTexture});
   background-size: contain, contain;
   background-repeat: repeat-y, no-repeat;
   z-index: 1;

@@ -40,11 +40,17 @@ export type LimitOrder = {
     makingAmount: string
     takingAmount: string
   }>
+  contractAddress: string
+  operatorSignatureExpiredAt?: number
   // custom
   isSuccessful: boolean
   uuid: string
   txHash: string
-  contractAddress: string
+}
+
+export enum CancelOrderType {
+  GAS_LESS_CANCEL,
+  HARD_CANCEL,
 }
 
 export type RateInfo = {
@@ -54,8 +60,16 @@ export type RateInfo = {
   rateFraction?: Fraction // to calc with big number
 }
 
-export type ListOrderHandle = {
-  refreshListOrder: () => void
+export type CancelOrderFunction = (data: {
+  orders: LimitOrder[]
+  cancelType: CancelOrderType
+  isEdit?: boolean
+}) => Promise<CancelOrderResponse>
+
+export type EditOrderInfo = { cancelType?: CancelOrderType; gasFee?: string; isEdit?: boolean }
+
+export type CancelOrderResponse = {
+  orders: { operatorSignatureExpiredAt: number }[]
 }
 
 export type CreateOrderParam = {

@@ -11,7 +11,6 @@ import { connections } from 'constants/wallets'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useCloseModal, useModalOpen } from 'state/application/hooks'
-import { useDarkModeManager } from 'state/user/hooks'
 import { ButtonText } from 'theme'
 
 const DownloadWalletRow = styled.a`
@@ -40,7 +39,6 @@ const DownloadWalletRow = styled.a`
 
 export default function DownloadWalletModal() {
   const theme = useTheme()
-  const [isDarkMode] = useDarkModeManager()
   const isOpen = useModalOpen(ApplicationModal.DOWNLOAD_WALLET)
   const closeModal = useCloseModal(ApplicationModal.DOWNLOAD_WALLET)
   return (
@@ -66,7 +64,7 @@ export default function DownloadWalletModal() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Image width="24px" maxHeight="24px" src={isDarkMode ? item.icon : item.iconLight} />
+                <Image width="24px" maxHeight="24px" src={item.icon} />
                 {item.name}
               </DownloadWalletRow>
             ))}
