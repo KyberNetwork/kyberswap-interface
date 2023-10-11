@@ -1,6 +1,5 @@
 import { Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import axios from 'axios'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
@@ -435,12 +434,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         10000,
       )
       onResetForm()
-      // todo
-      window.location.href.includes('test') &&
-        axios.get(
-          `https://limit-order.stg.kyberengineering.io/read-partner/api/v1/orders/operator-signature?chainId=${chainId}&orderIds=${response?.id}`,
-        )
-
       return response?.id
     } catch (error) {
       handleError(error)
