@@ -11,7 +11,7 @@ import { isInEnum } from 'utils/string'
 import { KYBERSCORE_TAG_TYPE, NETWORK_TO_CHAINID } from '../constants'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
-  if (value === 0) return theme.darkMode ? theme.subText : theme.border
+  if (value === 0) return theme.subText
   if (value < 17) {
     return theme.red
   }
@@ -19,7 +19,7 @@ export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
     return '#FFA7C3'
   }
   if (value < 68) {
-    return theme.darkMode ? theme.text : theme.border
+    return theme.text
   }
   if (value < 84) {
     return '#8DE1C7'

@@ -136,7 +136,7 @@ function ProLiveChart({
       fullscreen: false,
       autosize: true,
       studies_overrides: {},
-      theme: theme.darkMode ? 'Dark' : 'Light',
+      theme: 'Dark',
       custom_css_url: '/charting_library/style.css',
       timeframe: '2w',
       time_frames: [
@@ -157,7 +157,7 @@ function ProLiveChart({
       setLoading(false)
       tvWidget.applyOverrides({
         'paneProperties.backgroundType': 'solid',
-        'paneProperties.background': theme.darkMode ? theme.buttonBlack : theme.background,
+        'paneProperties.background': theme.buttonBlack,
         'mainSeriesProperties.candleStyle.upColor': theme.primary,
         'mainSeriesProperties.candleStyle.borderUpColor': theme.primary,
         'mainSeriesProperties.candleStyle.wickUpColor': theme.primary,

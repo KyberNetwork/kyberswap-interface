@@ -15,9 +15,8 @@ const bnbInfo: EVMNetworkInfo = {
   aggregatorRoute: 'bsc',
   name: 'BNB Chain',
   icon: bnbIcon,
-  iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc',
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',

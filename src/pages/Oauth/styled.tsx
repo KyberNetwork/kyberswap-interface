@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 import backgroundImage from 'assets/images/truesight-v2/landing-page/background-gradient.png'
 import Loader from 'components/Loader'
-import { useIsDarkMode } from 'state/user/hooks'
 
 export const Container = styled.div`
   flex: 1;
@@ -39,10 +38,7 @@ export const TextDesc = styled.div`
 `
 
 export const KyberLogo = () => {
-  const iseDark = useIsDarkMode()
-  return (
-    <img src={iseDark ? '/logo-dark.svg' : '/logo.svg'} alt="loading-icon" style={{ width: 230, maxWidth: '90vw' }} />
-  )
+  return <img src={'/logo-dark.svg'} alt="loading-icon" style={{ width: 230, maxWidth: '90vw' }} />
 }
 
 export function PageContainer({ msg }: { msg: ReactNode }) {

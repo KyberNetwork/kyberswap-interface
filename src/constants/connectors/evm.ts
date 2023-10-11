@@ -35,7 +35,6 @@ export const [blocto, bloctoHooks] = initializeConnector<BloctoConnector>(
 )
 export const [bloctoInject, bloctoInjectHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 
-const darkmode = Boolean(window.matchMedia('(prefers-color-scheme: dark)'))
 const walletconnectConfig = {
   options: {
     projectId: WALLETCONNECT_PROJECT_ID,
@@ -52,7 +51,7 @@ const walletconnectConfig = {
     }, {} as { [key in ChainId]: string }),
     qrModalOptions: {
       chainImages: undefined,
-      themeMode: darkmode ? ('dark' as const) : ('light' as const),
+      themeMode: 'dark' as const,
       themeVariables: {
         '--w3m-z-index': '1000',
         '--w3m-logo-image-url': Kyber,

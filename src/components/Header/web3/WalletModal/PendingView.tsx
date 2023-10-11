@@ -57,7 +57,7 @@ const ErrorButton = styled.div`
   min-width: 70px;
   &:hover {
     cursor: pointer;
-    background-color: ${({ theme }) => darken(0.1, theme.bg7)};
+    background-color: ${({ theme }) => darken(0.1, theme.bg5)};
   }
 `
 

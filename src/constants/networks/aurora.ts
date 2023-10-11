@@ -17,9 +17,8 @@ const auroraInfo: EVMNetworkInfo = {
   aggregatorRoute: 'aurora',
   name: 'Aurora',
   icon: auroraIcon,
-  iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/aurora-blocks',
   etherscanUrl: 'https://aurorascan.dev',
   etherscanName: 'Aurora Explorer',

@@ -14,9 +14,8 @@ const maticInfo: EVMNetworkInfo = {
   aggregatorRoute: 'polygon',
   name: 'Polygon PoS',
   icon: polygonIcon,
-  iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon',
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',

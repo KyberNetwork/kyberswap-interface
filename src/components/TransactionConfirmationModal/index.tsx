@@ -17,7 +17,6 @@ import HurryUpBanner from 'components/swapv2/HurryUpBanner'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useIsDarkMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
 import { CloseIcon } from 'theme/components'
@@ -90,7 +89,6 @@ export function ConfirmationPendingContent({
 }
 
 function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: ChainId }) {
-  const isDarkMode = useIsDarkMode()
   const { walletKey, isEVM } = useActiveWeb3React()
   const handleClick = async () => {
     const tokenAddress = token.address
@@ -131,7 +129,7 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
         <Trans>
           Add {token.symbol} to {walletConfig.name}
         </Trans>{' '}
-        <StyledLogo src={isDarkMode ? walletConfig.icon : walletConfig.iconLight} />
+        <StyledLogo src={walletConfig.icon} />
       </RowFixed>
     </ButtonLight>
   )

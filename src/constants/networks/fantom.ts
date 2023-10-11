@@ -16,9 +16,8 @@ const fantomInfo: EVMNetworkInfo = {
   aggregatorRoute: 'fantom',
   name: 'Fantom',
   icon: fantomIcon,
-  iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks',
   etherscanUrl: 'https://ftmscan.com',
   etherscanName: 'Ftmscan',

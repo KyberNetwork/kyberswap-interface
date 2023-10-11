@@ -14,9 +14,8 @@ const avaxInfo: EVMNetworkInfo = {
   aggregatorRoute: 'avalanche',
   name: 'Avalanche',
   icon: avalancheIcon,
-  iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks',
   etherscanUrl: 'https://snowtrace.io',
   etherscanName: 'Snowtrace',

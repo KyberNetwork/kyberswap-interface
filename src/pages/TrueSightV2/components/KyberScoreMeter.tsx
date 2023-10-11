@@ -275,7 +275,7 @@ function KyberScoreMeter({
 
     Object.keys(gaugeRefs.current).map((k: string) => {
       const el = gaugeRefs.current?.[k]
-      el?.setAttribute('style', 'fill:' + theme.darkMode ? theme.subText + '30' : theme.border + '60')
+      el?.setAttribute('style', 'fill:' + theme.subText + '30')
     })
 
     const step = (currentTime: number, prevValue: number, nextValue: number) => {
@@ -299,11 +299,7 @@ function KyberScoreMeter({
             el?.setAttribute(
               'style',
               'fill:' +
-                (+k <= activeGaugeValue
-                  ? calculateValueToColor(currentValueRef.current, theme)
-                  : theme.darkMode
-                  ? theme.subText + '30'
-                  : theme.border + '60'),
+                (+k <= activeGaugeValue ? calculateValueToColor(currentValueRef.current, theme) : theme.subText + '30'),
             )
           })
         }
@@ -362,9 +358,7 @@ function KyberScoreMeter({
                 fill={
                   g.value < (valueProp * gaugeList.length) / 100
                     ? calculateValueToColor(valueProp, theme)
-                    : theme.darkMode
-                    ? theme.subText + '30'
-                    : theme.border + '60'
+                    : theme.subText + '30'
                 }
               />
             ))
@@ -372,7 +366,7 @@ function KyberScoreMeter({
               <MeterGauge
                 key={g.value}
                 d={g.d}
-                fill={theme.darkMode ? theme.subText + '30' : theme.border + '60'}
+                fill={theme.subText + '30'}
                 ref={el => {
                   gaugeRefs.current[g.value.toString()] = el
                 }}

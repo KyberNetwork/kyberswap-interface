@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import cronosDarkIcon from 'assets/networks/cronos-dark.svg'
 import cronosIcon from 'assets/networks/cronos.svg'
 import CronosLogo from 'assets/svg/cronos-token-logo.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -17,8 +16,6 @@ const cronosInfo: EVMNetworkInfo = {
   aggregatorRoute: 'cronos',
   name: 'Cronos',
   icon: cronosIcon,
-  iconDark: cronosDarkIcon,
-  iconDarkSelected: cronosIcon,
   iconSelected: cronosIcon,
   defaultBlockSubgraph: 'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/cronos-blocks',
   etherscanUrl: 'https://cronoscan.com',
