@@ -32,7 +32,7 @@ import KyberScoreChart from './chart/KyberScoreChart'
 import KyberScoreShareContent from './shareContent/KyberScoreShareContent'
 
 const CardWrapper = styled.div<{ gap?: string }>`
-  --background-color: ${({ theme }) => (theme.darkMode ? theme.text + '22' : theme.subText + '20')};
+  --background-color: ${({ theme }) => theme.text + '22'};
 
   position: relative;
   overflow: hidden;
@@ -41,11 +41,7 @@ const CardWrapper = styled.div<{ gap?: string }>`
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(
-    200deg,
-    ${({ theme }) => (theme.darkMode ? rgba(24, 24, 24, 0.15) : rgba(224, 224, 224, 0.15))} -4%,
-    var(--background-color) 100%
-  );
+  background: linear-gradient(200deg, rgba(24, 24, 24, 0.15) -4%, var(--background-color) 100%);
   box-shadow: inset 0px 2px 2px rgba(255, 255, 255, 0.2), 0px 4px 8px var(--background-color);
   transition: all 0.5s ease;
   ::after {
@@ -63,10 +59,10 @@ const CardWrapper = styled.div<{ gap?: string }>`
   }
 
   &.bullish {
-    --background-color: ${({ theme }) => (theme.darkMode ? theme.primary + '32' : theme.primary + '40')};
+    --background-color: ${({ theme }) => theme.primary + '32'};
   }
   &.bearish {
-    --background-color: ${({ theme }) => (theme.darkMode ? theme.red + '32' : theme.red + '60')};
+    --background-color: ${({ theme }) => theme.red + '32'};
   }
 
   ${({ theme, gap }) => css`

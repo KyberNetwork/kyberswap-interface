@@ -39,8 +39,7 @@ export const ENV_LEVEL = !import.meta.env.VITE_TAG
   ? ENV_TYPE.DEV
   : ENV_TYPE.PROD
 
-export const LIMIT_ORDER_API_READ = required('LIMIT_ORDER_API_READ')
-export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')
+export const LIMIT_ORDER_API = required('LIMIT_ORDER_API')
 export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
 export const OAUTH_CLIENT_ID = required('OAUTH_CLIENT_ID')

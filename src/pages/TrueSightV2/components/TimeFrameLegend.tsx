@@ -13,15 +13,15 @@ const TimeFrameWrapper = styled.div`
   display: flex;
   align-items: center;
   position: relative;
-  background-color: ${({ theme }) => (theme.darkMode ? theme.buttonBlack : theme.subText + '80')};
+  background-color: ${({ theme }) => theme.buttonBlack};
   border: 2px solid ${({ theme }) => theme.buttonBlack};
-  color: ${({ theme }) => (theme.darkMode ? theme.subText : theme.textReverse)};
+  color: ${({ theme }) => theme.subText};
   cursor: pointer;
   overflow: hidden;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 10px;
     justify-content: center;
-    background-color: ${({ theme }) => (theme.darkMode ? theme.background : theme.subText + '80')};
+    background-color: ${({ theme }) => theme.background};
   `}
 `
 const Element = styled.div<{ active?: boolean; count?: number }>`

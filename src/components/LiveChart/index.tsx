@@ -8,7 +8,6 @@ import { useTokenTopPoolsQuery } from 'services/geckoTermial'
 import styled from 'styled-components'
 
 import { ReactComponent as GeckoTerminalSVG } from 'assets/svg/geckoterminal.svg'
-import { ReactComponent as GeckoTerminalLightSVG } from 'assets/svg/geckoterminal_light.svg'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/LocalLoader'
@@ -18,7 +17,6 @@ import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartDat
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
-import { useIsDarkMode } from 'state/user/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import AnimatingNumber from './AnimatingNumber'
@@ -114,7 +112,6 @@ function LiveChart({
   enableProChart?: boolean
 }) {
   const { isSolana, networkInfo } = useActiveWeb3React()
-  const isDarkMode = useIsDarkMode()
   const theme = useTheme()
   const [currenciesState, setCurrenciesState] = useState(currencies)
 
@@ -330,11 +327,7 @@ function LiveChart({
                 <Text color={theme.subText} fontSize="10px">
                   Powered by
                 </Text>
-                {isDarkMode ? (
-                  <GeckoTerminalSVG style={{ width: '75px' }} />
-                ) : (
-                  <GeckoTerminalLightSVG style={{ width: '75px' }} />
-                )}
+                <GeckoTerminalSVG style={{ width: '75px' }} />
               </Flex>
             </div>
 

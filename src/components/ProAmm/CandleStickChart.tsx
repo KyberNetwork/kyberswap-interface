@@ -7,7 +7,6 @@ import styled from 'styled-components'
 
 import { PoolRatesEntry } from 'data/type'
 import useTheme from 'hooks/useTheme'
-import { useDarkModeManager } from 'state/user/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const IconWrapper = styled.div`
@@ -79,22 +78,8 @@ const CandleStickChart = ({
   const chartCreated = useRef<IChartApi | null>(null)
   const dataPrev = usePrevious(data)
 
-  const [darkMode] = useDarkModeManager()
-  const textColor = darkMode ? 'white' : 'black'
+  const textColor = 'white'
   const theme = useTheme()
-  const previousTheme = usePrevious(darkMode)
-
-  // reset the chart if theme switches
-  useEffect(() => {
-    if (chartCreated.current && previousTheme !== darkMode) {
-      // remove the tooltip element
-      const tooltip = document.getElementById('tooltip-id')
-      const node = ref.current
-      tooltip && node?.removeChild(tooltip)
-      chartCreated.current.resize(0, 0)
-      chartCreated.current = null
-    }
-  }, [chartCreated, darkMode, previousTheme])
 
   useEffect(() => {
     if (data !== dataPrev && chartCreated.current) {
@@ -123,10 +108,10 @@ const CandleStickChart = ({
         },
         grid: {
           vertLines: {
-            color: darkMode ? '#40505A4d' : '#C2C2C233',
+            color: '#40505A4d',
           },
           horzLines: {
-            color: darkMode ? '#40505A4d' : '#C2C2C233',
+            color: '#40505A4d',
           },
         },
         crosshair: {
@@ -190,18 +175,7 @@ const CandleStickChart = ({
 
       chartCreated.current = chart
     }
-  }, [
-    theme.subText,
-    theme.text,
-    chartCreated,
-    formattedData,
-    width,
-    height,
-    base,
-    textColor,
-    darkMode,
-    onSetCurrentRate,
-  ])
+  }, [theme.subText, theme.text, chartCreated, formattedData, width, height, base, textColor, onSetCurrentRate])
 
   // responsiveness
   useEffect(() => {

@@ -31,7 +31,7 @@ function SmallKyberScoreMeter({ disabledTooltip, token }: { disabledTooltip?: bo
   const data: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
   const value = token?.kyberScore
   const theme = useTheme()
-  const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
+  const emptyColor = theme.subText + '30'
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
   const activeGaugeColor = calculateValueToColor(value || 0, theme)
 

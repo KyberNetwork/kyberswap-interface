@@ -10,26 +10,25 @@ import styled, { CSSProperties, DefaultTheme } from 'styled-components'
 import InfoHelper from 'components/InfoHelper'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
-import { checkOrderActive } from 'components/swapv2/LimitOrder/ListOrder'
 import useTheme from 'hooks/useTheme'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
-import { calcPercentFilledOrder, formatAmountOrder, formatRateLimitOrder } from '../helpers'
+import { calcPercentFilledOrder, formatAmountOrder, formatRateLimitOrder, isActiveStatus } from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
 import ActionButtons from './ActionButtons'
 
-export const ItemWrapper = styled.div<{ hasBorder?: boolean }>`
+export const ItemWrapper = styled.div<{ hasBorder?: boolean; active?: boolean }>`
   border-bottom: 1px solid ${({ theme, hasBorder }) => (hasBorder ? theme.border : 'transparent')};
   font-size: 12px;
   padding: 10px;
-  grid-template-columns: 1.5fr 1fr 1.5fr 2fr 80px;
+  grid-template-columns: 1.5fr 1fr 1.5fr 2fr ${({ active }) => (active ? '110px' : '80px')};
   display: grid;
   gap: 10px;
   align-items: center;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1.5fr 1.5fr 1.5fr 80px;
+  ${({ theme, active }) => theme.mediaWidth.upToLarge`
+    grid-template-columns: 1.5fr 1.5fr 1.5fr ${active ? '110px' : '80px'};
     .rate {
       display:none;
     }
@@ -42,7 +41,7 @@ const ItemWrapperMobile = styled.div`
   flex-direction: column;
   justify-content: space-between;
   gap: 14px;
-  padding: 20px 0px;
+  padding: 20px 10px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
 `
 const DeltaAmount = styled.div<{ color: string }>`
@@ -216,6 +215,8 @@ export default function OrderItem({
   onEditOrder,
   isOrderCancelling,
   tokenPrices,
+  isLast,
+  hasOrderCancelling,
 }: {
   order: LimitOrder
   onCancelOrder: (order: LimitOrder) => void
@@ -223,6 +224,8 @@ export default function OrderItem({
   index: number
   isOrderCancelling: (order: LimitOrder) => boolean
   tokenPrices: Record<string, number>
+  isLast: boolean
+  hasOrderCancelling: boolean
 }) {
   const [expand, setExpand] = useState(false)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -238,7 +241,7 @@ export default function OrderItem({
     takerAssetDecimals,
   } = order
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
-  const isOrderActive = checkOrderActive(order)
+  const isOrderActive = isActiveStatus(order.status)
   const filledPercent = calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals)
   const theme = useTheme()
 
@@ -367,7 +370,7 @@ export default function OrderItem({
   }
   return (
     <>
-      <ItemWrapper hasBorder={!transactions.length || !expand}>
+      <ItemWrapper hasBorder={isLast ? false : !transactions.length || !expand} active={hasOrderCancelling}>
         <Flex alignItems={'center'} style={{ gap: 10 }}>
           <IndexText>{index + 1}</IndexText>
           <AmountInfo order={order} />

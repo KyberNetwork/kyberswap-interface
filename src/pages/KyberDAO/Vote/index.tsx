@@ -63,16 +63,12 @@ const Card = styled.div<{ hasGreenBackground?: boolean }>`
     background-color: ${transparentize(0.3, theme.buttonGray)};
     flex: 1;
   `}
-  ${({ theme, hasGreenBackground }) =>
+  ${({ hasGreenBackground }) =>
     hasGreenBackground &&
-    (theme.darkMode
-      ? css`
-          background-image: url('${luxuryGreenBackground}');
-          background-size: cover;
-        `
-      : css`
-          background: radial-gradient(#daebe6, #daf1ec);
-        `)}
+    css`
+      background-image: url('${luxuryGreenBackground}');
+      background-size: cover;
+    `}
 `
 
 const CardGroup = styled(RowBetween)`

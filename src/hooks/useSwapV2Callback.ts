@@ -119,17 +119,17 @@ export function useSwapV2Callback(
     // swap v2 is unused anymore
     // todo: remove this
     const onSwapWithBackendEncode = async (): Promise<string> => {
-      const response = await sendEVMTransaction(
+      const response = await sendEVMTransaction({
         account,
         library,
-        trade.routerAddress,
-        trade.encodedSwapData,
+        contractAddress: trade.routerAddress,
+        encodedData: trade.encodedSwapData,
         value,
-        { name: ErrorName.SwapError, wallet: walletKey },
-        onHandleSwapResponse,
+        sentryInfo: { name: ErrorName.SwapError, wallet: walletKey },
         chainId,
-      )
+      })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
+      onHandleSwapResponse(response)
       return response?.hash
     }
     const onSwapSolana = async (): Promise<string> => {
