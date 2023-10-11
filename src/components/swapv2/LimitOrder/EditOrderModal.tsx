@@ -140,6 +140,7 @@ export default function EditOrderModal({
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
           buttonInfo={{
+            supportGasLessCancel,
             disabledGasLessCancel,
             disabledHardCancel,
             cancelGaslessText: <Trans>Gasless Edit</Trans>,

@@ -186,6 +186,7 @@ function CancelOrderModal({
           setCancelType={setCancelType}
           estimateGas={estimateGas}
           buttonInfo={{
+            supportGasLessCancel,
             disabledGasLessCancel,
             disabledHardCancel,
             cancelGaslessText,

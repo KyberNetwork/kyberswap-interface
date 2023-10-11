@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { ReactNode } from 'react'
 import { Check } from 'react-feather'
 import { Text } from 'rebass'
@@ -8,6 +8,7 @@ import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import { DOCS_LINKS } from 'components/swapv2/LimitOrder/const'
 import { CancelOrderType } from 'components/swapv2/LimitOrder/type'
@@ -72,6 +73,7 @@ const ButtonWrapper = styled.div`
 `
 
 type ButtonInfo = {
+  supportGasLessCancel: boolean
   disabledGasLessCancel: boolean
   disabledHardCancel: boolean
   cancelGaslessText: ReactNode
@@ -92,6 +94,7 @@ const CancelButtons = ({
   cancelType,
   setCancelType,
   buttonInfo: {
+    supportGasLessCancel,
     disabledGasLessCancel = false,
     disabledHardCancel = false,
     cancelGaslessText,
@@ -182,15 +185,21 @@ const CancelButtons = ({
           isEdit={isEdit}
           gasAmountDisplay={gasAmountDisplay}
           buttonGasless={
-            <ButtonOutlined
-              {...propsGasless}
-              onClick={() => setCancelType(CancelOrderType.GAS_LESS_CANCEL)}
-              disabled={disabledGasLessCancel}
+            <MouseoverTooltip
+              placement="top"
+              text={supportGasLessCancel ? '' : t`This chain is not supported gasless cancel. It's coming soon.`}
             >
-              <GasLessIcon />
-              &nbsp;
-              {cancelGaslessText}
-            </ButtonOutlined>
+              <ButtonOutlined
+                {...propsGasless}
+                onClick={() => setCancelType(CancelOrderType.GAS_LESS_CANCEL)}
+                $disabled={disabledGasLessCancel}
+                disabled={disabledGasLessCancel}
+              >
+                <GasLessIcon />
+                &nbsp;
+                {cancelGaslessText}
+              </ButtonOutlined>
+            </MouseoverTooltip>
           }
           buttonHardEdit={
             <ButtonOutlined
