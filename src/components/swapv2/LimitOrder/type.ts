@@ -64,7 +64,7 @@ export type CancelOrderFunction = (data: {
   orders: LimitOrder[]
   cancelType: CancelOrderType
   isEdit?: boolean
-}) => Promise<any>
+}) => Promise<void>
 
 export type EditOrderInfo = { cancelType?: CancelOrderType; gasFee?: string; isEdit?: boolean }
 

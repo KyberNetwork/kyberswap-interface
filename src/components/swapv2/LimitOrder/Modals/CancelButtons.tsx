@@ -50,9 +50,9 @@ const ButtonGroup = ({
         {buttonHardEdit}
         <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
           {isEdit ? (
-            <Trans>Edit immediately by paying {gasAmountDisplay} gas fees. </Trans>
+            <Trans>Edit immediately by paying {gasAmountDisplay} gas fees.</Trans>
           ) : (
-            <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees. </Trans>
+            <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees.</Trans>
           )}{' '}
           <ExternalLink href={DOCS_LINKS.HARD_CANCEL}>
             <Trans>Learn more ↗︎</Trans>
