@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { PublicKey } from '@solana/web3.js'
 
-import Solana from 'assets/networks/solana-network.svg'
+import solanaIcon from 'assets/networks/solana.svg'
 import { SolanaNetworkInfo } from 'constants/networks/type'
 
 export const SelectedNetwork = WalletAdapterNetwork.Mainnet
@@ -15,8 +15,8 @@ const solanaInfo: SolanaNetworkInfo = {
   priceRoute: 'solana',
   aggregatorRoute: 'solana',
   name: 'Solana Devnet',
-  icon: Solana,
-  iconSelected: Solana,
+  icon: solanaIcon,
+  iconSelected: solanaIcon,
   iconDark: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   etherscanUrl: 'https://solscan.io',
@@ -25,7 +25,7 @@ const solanaInfo: SolanaNetworkInfo = {
   nativeToken: {
     symbol: 'SOL',
     name: 'SOL',
-    logo: Solana,
+    logo: solanaIcon,
     decimal: 9,
     // Fee for Solana: 5000 lamport * signature = 5000 * 10^-9 SOL * signature
     // Rent fee for set up account: 0.00203928 SOL

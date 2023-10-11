@@ -1,8 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import Mainnet from 'assets/networks/mainnet-network.svg'
-import { KYBER_DAO_STATS_API } from 'constants/env'
+import ethereumIcon from 'assets/networks/ethereum.svg'
+import { EnvKeys, KYBER_DAO_STATS_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -17,7 +17,7 @@ const ethereumInfo: EVMNetworkInfo = {
   poolFarmRoute: 'ethereum',
   aggregatorRoute: 'ethereum',
   name: 'Ethereum',
-  icon: Mainnet,
+  icon: ethereumIcon,
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
