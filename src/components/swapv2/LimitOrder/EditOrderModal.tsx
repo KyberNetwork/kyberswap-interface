@@ -113,11 +113,13 @@ export default function EditOrderModal({
   const isWaiting = cancelStatus === CancelStatus.WAITING
   const showReview = isReviewOrder && isWaiting
 
+  // todo
   const ref = useRef<LimitOrderFormHandle>(null)
   const renderCancelButtons = () => {
     const hasChangeInfo = step === Steps.EDIT_ORDER ? ref.current?.hasChangedOrderInfo?.() : true
     const disabledGasLessCancel = !hasChangeInfo || !supportGasLessCancel || flowState.attemptingTxn
     const disabledHardCancel = !hasChangeInfo || flowState.attemptingTxn
+    if (!ref.current?.isShowApprove?.()) return null
     return (
       <>
         {isReviewOrder && (

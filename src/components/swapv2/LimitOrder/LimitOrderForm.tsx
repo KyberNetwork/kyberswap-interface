@@ -111,6 +111,7 @@ const ExpiredInput = styled(InputWrapper)`
 `
 export type LimitOrderFormHandle = {
   hasChangedOrderInfo: () => boolean
+  isShowApprove: () => boolean
 }
 const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrderForm(
   {
@@ -583,7 +584,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     !checkingAllowance &&
     !showWrap &&
     !isNotFillAllInput &&
-    !hasInputError &&
     (approval === ApprovalState.NOT_APPROVED ||
       approval === ApprovalState.PENDING ||
       !enoughAllowance ||
@@ -601,10 +601,14 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     hasChangedOrderInfo() {
       return (
         isEdit &&
+        !hasInputError &&
         (defaultInputAmount !== inputAmount ||
           defaultRate?.rate !== rateInfo.rate ||
           defaultExpire?.getTime() !== expiredAt)
       )
+    },
+    isShowApprove() {
+      return isEdit && !showApproveFlow
     },
   }))
 

@@ -56,7 +56,8 @@ export default function ActionButtonLimitOrder({
 }) {
   const disableBtnApproved =
     approval === ApprovalState.PENDING ||
-    ((approval !== ApprovalState.NOT_APPROVED || approvalSubmitted || !!hasInputError) && enoughAllowance)
+    !!hasInputError ||
+    ((approval !== ApprovalState.NOT_APPROVED || approvalSubmitted) && enoughAllowance)
 
   const disableBtnReview =
     checkingAllowance ||
