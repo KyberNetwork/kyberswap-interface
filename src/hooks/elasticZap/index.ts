@@ -146,6 +146,7 @@ export function useZapInPoolResult(params?: {
     }
   }, [data, loadingAggregator, aggregatorOutputs, params])
 
+  console.log(bestRes)
   return bestRes
 }
 
@@ -204,7 +205,7 @@ export function useZapInAction() {
         estimateOnly?: boolean
       },
     ) => {
-      if (zapRouterContract && account && library) {
+      if (zapRouterContract && account && library && executor) {
         let aggregatorRes = null
         if (aggregatorRoute) {
           aggregatorRes = (await buildRoute({
@@ -214,7 +215,7 @@ export function useZapInAction() {
               deadline: +(deadline?.toString() || (Math.floor(Date.now() / 1000) + 1200).toString()),
               slippageTolerance: slippage,
               sender: account,
-              recipient: account,
+              recipient: executor,
               source: 'kyberswap',
               skipSimulateTx: false,
             },

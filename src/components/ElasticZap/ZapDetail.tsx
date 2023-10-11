@@ -96,8 +96,13 @@ export default function ZapDetail({
         })
       : undefined
 
-  const newPooledAmount0 = newPosDraft?.amount0
-  const newPooledAmount1 = newPosDraft?.amount1
+  let newPooledAmount0 = newPosDraft?.amount0
+  let newPooledAmount1 = newPosDraft?.amount1
+
+  if (position && newPooledAmount0 && newPooledAmount1) {
+    newPooledAmount0 = newPooledAmount0.add(position.amount0)
+    newPooledAmount1 = newPooledAmount1.add(position.amount1)
+  }
 
   const prices = useTokenPrices(
     [WETH[chainId].address, currency0?.wrapped.address, currency1?.wrapped.address].filter(Boolean) as string[],
@@ -252,7 +257,7 @@ export default function ZapDetail({
           <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
             {position && (
               <>
-                <CurrencyLogo currency={currency0} size="14px" />
+                <CurrencyLogo currency={currency1} size="14px" />
                 <Text color={theme.subText}>{position.amount1.toSignificant(6)} →</Text>
               </>
             )}
