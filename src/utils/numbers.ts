@@ -65,14 +65,14 @@ const log10 = (n: Fraction): number => {
   return Math.log10(parsedN)
 }
 // - $ 123,456,222,333.44444 e+22 eur5
-const regex = /^\s*?\+?(-)?\s*?(\$)?\s*?([\d,]+)(?:\.(\d+))?\s*?(?:e\+?(\-?\d+))?\s*?(\w+?)?\s*?$/
+const regex = /^\s*?\+?(-)?\s*?(\$)?\s*?([\d,]+)(?:\.(\d+))?\s*?(?:e\+?(\-?\d+))?\s*?(%|\w+?)?\s*?$/
 const parseNumPart = (str: string): string[] => {
   const parsedResult = regex.exec(str)
   if (parsedResult) {
     const [, negative, currency, integer, decimal, exponent, unit] = parsedResult
     return [negative || '', currency || '', integer, decimal || '', exponent, unit || '']
   }
-  return ['', '', '', '', '', ''] // [negative, currency, integer, decimal, exponent, unit]
+  return ['', '', '0', '', '', ''] // [negative, currency, integer, decimal, exponent, unit]
 }
 
 const parseString = (value: string): Fraction => {
@@ -192,6 +192,7 @@ export const formatDisplayNumber = (
       slicedDecimal.length ? '.' + '0'.repeat(numberOfLeadingZeros) + slicedDecimal : ''
     }${percent}`
   }
+
   const thresholdLog = significantDigits || fractionDigits || 4
   const threshold = thresholdLog > 1 ? 10 ** thresholdLog : 10_000
   const formatter = Intl.NumberFormat('en-US', {
