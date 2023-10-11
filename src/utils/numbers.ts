@@ -168,10 +168,10 @@ export const formatDisplayNumber = (
       slicedDecimal.length ? '.' + '0'.repeat(numberOfLeadingZeros) + slicedDecimal : ''
     }${percent}`
   }
-
-  // todo namgold
+  const thresholdLog = significantDigits || fractionDigits || 4
+  const threshold = thresholdLog > 1 ? 10 ** thresholdLog : 10_000
   const formatter = Intl.NumberFormat('en-US', {
-    notation: absShownFraction.greaterThan(10 ** (significantDigits || fractionDigits || 4)) ? 'compact' : 'standard',
+    notation: !absShownFraction.lessThan(threshold) ? 'compact' : 'standard',
     style,
     currency: 'USD',
     minimumFractionDigits: fractionDigits ? 0 : undefined,
