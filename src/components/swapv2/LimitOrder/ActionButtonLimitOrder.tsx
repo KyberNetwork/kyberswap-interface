@@ -34,6 +34,7 @@ export default function ActionButtonLimitOrder({
   approvalSubmitted,
   showApproveFlow,
   showWarning,
+  isEdit,
 }: {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
@@ -51,6 +52,7 @@ export default function ActionButtonLimitOrder({
   approveCallback: () => Promise<void>
   onWrapToken: () => Promise<void>
   showPreview: () => void
+  isEdit: boolean
 }) {
   const disableBtnApproved =
     approval === ApprovalState.PENDING ||
@@ -111,7 +113,13 @@ export default function ActionButtonLimitOrder({
       {checkingAllowance ? <Trans>Checking Allowance...</Trans> : <Trans>Review Order</Trans>}
     </Text>
   )
+
+  if (isEdit) {
+    return null
+  }
+
   if (showWarning && !disableBtnReview) return <ButtonWarning onClick={showPreview}>{contentButton}</ButtonWarning>
+
   return (
     <ButtonPrimary id="review-order-button" onClick={showPreview} disabled={disableBtnReview}>
       {contentButton}

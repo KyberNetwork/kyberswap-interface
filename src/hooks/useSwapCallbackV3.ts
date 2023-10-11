@@ -119,16 +119,20 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
         throw new Error('Missing dependencies')
       }
       const value = BigNumber.from(inputAmount.currency.isNative ? inputAmount.quotient.toString() : 0)
-      const response = await sendEVMTransaction(
+
+      const response = await sendEVMTransaction({
         account,
         library,
-        routerAddress,
-        encodedSwapData,
+        contractAddress: routerAddress,
+        encodedData: encodedSwapData,
         value,
-        { name: ErrorName.SwapError, wallet: walletKey },
-        handleSwapResponse,
-      )
+        sentryInfo: {
+          name: ErrorName.SwapError,
+          wallet: walletKey,
+        },
+      })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
+      handleSwapResponse(response)
       return response?.hash
     },
     [account, handleSwapResponse, inputAmount, library, walletKey],

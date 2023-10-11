@@ -324,6 +324,7 @@ interface ConfirmationModalProps {
   hash: string | undefined
   content: () => React.ReactNode
   attemptingTxn: boolean
+  attemptingTxnContent?: () => React.ReactNode
   pendingText: string | React.ReactNode
   tokenAddToMetaMask?: Currency
   showTxBanner?: boolean
@@ -336,6 +337,7 @@ export default function TransactionConfirmationModal({
   isOpen,
   onDismiss,
   attemptingTxn,
+  attemptingTxnContent,
   hash,
   pendingText,
   content,
@@ -356,7 +358,11 @@ export default function TransactionConfirmationModal({
       width={!attemptingTxn && !hash ? width : undefined}
     >
       {attemptingTxn ? (
-        <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} startedTime={startedTime} />
+        attemptingTxnContent ? (
+          attemptingTxnContent()
+        ) : (
+          <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} startedTime={startedTime} />
+        )
       ) : hash ? (
         <TransactionSubmittedContent
           showTxBanner={showTxBanner}

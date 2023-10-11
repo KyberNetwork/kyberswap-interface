@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ethereumIcon from 'assets/networks/ethereum.svg'
-import { EnvKeys, KYBER_DAO_STATS_API } from 'constants/env'
+import { KYBER_DAO_STATS_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -69,7 +69,7 @@ const ethereumInfo: EVMNetworkInfo = {
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
     farmV2S: ['0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43', '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd'],
   },
-  limitOrder: [EnvKeys.PROD],
+  limitOrder: '*',
   averageBlockTimeInSeconds: 13.13,
   coingeckoNetworkId: 'ethereum',
   coingeckoNativeTokenId: 'ethereum',

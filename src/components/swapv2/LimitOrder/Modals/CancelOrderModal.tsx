@@ -1,34 +1,48 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 
-import { ButtonError } from 'components/Button'
 import Logo from 'components/Logo'
-import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import Modal from 'components/Modal'
+import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
+import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
+import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
+import useAllActiveOrders, { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import useTheme from 'hooks/useTheme'
+import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-import { BaseTradeInfo, useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
-import { LimitOrder, LimitOrderStatus } from '../type'
-import { Container, Header, Label, ListInfo, MarketInfo, Note, Rate, Value } from './styled'
+import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
+import { Container, Header, Label, ListInfo, Note, Rate, Value } from './styled'
+
+export enum CancelStatus {
+  WAITING,
+  COUNTDOWN,
+  TIMEOUT,
+  CANCEL_DONE,
+}
 
 const styleLogo = { width: 20, height: 20 }
-function ContentCancel({
+function CancelOrderModal({
   isCancelAll,
   order,
-  marketPrice,
   onSubmit,
   onDismiss,
+  flowState,
+  isOpen,
 }: {
   isCancelAll: boolean
   order: LimitOrder | undefined
-  marketPrice: BaseTradeInfo | undefined
-  onSubmit: () => void
+  onSubmit: CancelOrderFunction
   onDismiss: () => void
+  flowState: TransactionFlowState
+  isOpen: boolean
 }) {
-  const theme = useTheme()
+  const currencyIn = useCurrencyV2(order?.makerAsset) || undefined
+  const currencyOut = useCurrencyV2(order?.takerAsset) || undefined
+  const { tradeInfo: marketPrice } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut)
+
   const {
     takerAssetLogoURL,
     makerAssetSymbol,
@@ -41,10 +55,38 @@ function ContentCancel({
     makerAssetDecimals,
     takerAssetDecimals,
   } = order ?? ({} as LimitOrder)
+
+  const { orders = [], ordersSoftCancel = [], supportCancelGaslessAllOrders } = useAllActiveOrders(!isCancelAll)
+
+  const isOrderSupportGaslessCancel = useIsSupportSoftCancelOrder()
+
+  const supportGasLessCancel = isCancelAll ? supportCancelGaslessAllOrders : isOrderSupportGaslessCancel(order)
+  const { onClickGaslessCancel, onClickHardCancel, expiredTime, cancelStatus, setCancelStatus } = useProcessCancelOrder(
+    {
+      isOpen,
+      onDismiss,
+      onSubmit,
+      getOrders: (gasLessCancel: boolean) =>
+        isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
+    },
+  )
+  const [cancelType, setCancelType] = useState(CancelOrderType.GAS_LESS_CANCEL)
+  useEffect(() => {
+    setCancelType(supportGasLessCancel ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL)
+  }, [supportGasLessCancel])
+
+  const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
+  const isWaiting = cancelStatus === CancelStatus.WAITING
+
   const renderContentCancelAll = () => {
+    if (!isWaiting) return null
     return (
       <Label>
-        <Trans>Are you sure you want to cancel all orders?</Trans>
+        {orders.length === 1 ? (
+          <Trans>Are you sure you want to cancel this limit order?</Trans>
+        ) : (
+          <Trans>Are you sure you want to cancel {orders.length} limit orders?</Trans>
+        )}
       </Label>
     )
   }
@@ -52,10 +94,6 @@ function ContentCancel({
     return !order
       ? []
       : [
-          {
-            label: t`I want to cancel my order where`,
-            content: <Value />,
-          },
           {
             label: t`I pay`,
             content: (
@@ -94,77 +132,77 @@ function ContentCancel({
     makerAssetDecimals,
     takerAssetDecimals,
   ])
+
+  const formatOrders = useMemo(() => (isCancelAll ? orders : order ? [order] : []), [order, isCancelAll, orders])
+  const estimateGas = useEstimateFee({ orders: formatOrders, isCancelAll })
+  const disabledGasLessCancel = !supportGasLessCancel || flowState.attemptingTxn
+  const disabledHardCancel = flowState.attemptingTxn
+  const cancelGaslessText = isCancelAll ? (
+    ordersSoftCancel.length === orders.length || !supportGasLessCancel ? (
+      <Trans>Gasless Cancel All Orders</Trans>
+    ) : (
+      <Trans>
+        Gasless Cancel {ordersSoftCancel.length}/{orders.length} Orders
+      </Trans>
+    )
+  ) : (
+    <Trans>Gasless Cancel</Trans>
+  )
+
   return (
-    <Container>
-      <Header title={t`Cancel Order`} onDismiss={onDismiss} />
-      {isCancelAll ? (
-        renderContentCancelAll()
-      ) : (
-        <>
-          <ListInfo listData={listData} />
-          <MarketInfo marketPrice={marketPrice} symbolIn={makerAssetSymbol} symbolOut={takerAssetSymbol} />
-        </>
-      )}
-      <Note
-        note={t`Note: Cancelling an order will cost gas fees. ${
-          status === LimitOrderStatus.PARTIALLY_FILLED
-            ? `Your currently existing order is ${calcPercentFilledOrder(
-                filledTakingAmount,
-                takingAmount,
-                takerAssetDecimals,
-              )}% filled`
-            : null
-        }`}
-      />
-      <ButtonError onClick={onSubmit} style={{ background: theme.red }}>
-        <Trans>Cancel</Trans>
-      </ButtonError>
-    </Container>
+    <Modal maxWidth={isCancelAll && !isCancelDone ? 540 : 480} isOpen={isOpen} onDismiss={onDismiss}>
+      <Container>
+        <Header title={isCancelAll ? t`Bulk Cancellation` : t`Cancel an order`} onDismiss={onDismiss} />
+        {isCancelAll ? (
+          renderContentCancelAll()
+        ) : (
+          <ListInfo
+            title={t`I want to cancel my order where`}
+            listData={listData}
+            marketPrice={marketPrice}
+            symbolIn={makerAssetSymbol}
+            symbolOut={takerAssetSymbol}
+          />
+        )}
+        <Note
+          note={
+            status === LimitOrderStatus.PARTIALLY_FILLED
+              ? t`Note: Your currently existing order is ${calcPercentFilledOrder(
+                  filledTakingAmount,
+                  takingAmount,
+                  takerAssetDecimals,
+                )}% filled`
+              : ''
+          }
+        />
+        <CancelStatusCountDown
+          expiredTime={expiredTime}
+          cancelStatus={cancelStatus}
+          setCancelStatus={setCancelStatus}
+          flowState={flowState}
+        />
+        <CancelButtons
+          cancelType={cancelType}
+          setCancelType={setCancelType}
+          estimateGas={estimateGas}
+          buttonInfo={{
+            supportGasLessCancel,
+            disabledGasLessCancel,
+            disabledHardCancel,
+            cancelGaslessText,
+            hardCancelGasless: isCancelAll ? <Trans>Hard Cancel All Orders</Trans> : <Trans>Hard Cancel</Trans>,
+            disabledConfirm: flowState.attemptingTxn || (disabledGasLessCancel && disabledHardCancel),
+            confirmBtnText:
+              isCancelAll && orders.length > 1 ? <Trans>Cancel Orders</Trans> : <Trans>Cancel Order</Trans>,
+          }}
+          cancelStatus={cancelStatus}
+          onDismiss={onDismiss}
+          onClickGaslessCancel={onClickGaslessCancel}
+          onClickHardCancel={onClickHardCancel}
+        />
+      </Container>
+    </Modal>
   )
 }
 
-export default function CancelOrderModal({
-  onSubmit,
-  onDismiss,
-  flowState,
-  order,
-  isOpen,
-  isCancelAll,
-}: {
-  onSubmit: () => void
-  onDismiss: () => void
-  flowState: TransactionFlowState
-  order?: LimitOrder
-  isOpen: boolean
-  isCancelAll: boolean
-}) {
-  const currencyIn = useCurrencyV2(order?.makerAsset) || undefined
-  const currencyOut = useCurrencyV2(order?.takerAsset) || undefined
-  const { tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut)
-  const confirmationContent = useCallback(
-    () =>
-      flowState.errorMessage ? (
-        <TransactionErrorContent onDismiss={onDismiss} message={flowState.errorMessage} />
-      ) : (
-        <ContentCancel
-          onSubmit={onSubmit}
-          onDismiss={onDismiss}
-          marketPrice={tradeInfo}
-          isCancelAll={isCancelAll}
-          order={order}
-        />
-      ),
-    [onDismiss, flowState.errorMessage, onSubmit, order, tradeInfo, isCancelAll],
-  )
-  return (
-    <TransactionConfirmationModal
-      maxWidth={450}
-      hash={flowState.txHash}
-      isOpen={flowState.showConfirm && isOpen}
-      onDismiss={onDismiss}
-      attemptingTxn={flowState.attemptingTxn}
-      content={confirmationContent}
-      pendingText={flowState.pendingText || t`Canceling order`}
-    />
-  )
-}
+export default CancelOrderModal

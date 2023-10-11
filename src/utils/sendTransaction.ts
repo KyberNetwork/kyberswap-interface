@@ -13,19 +13,26 @@ import { calculateGasMargin } from 'utils'
 
 import { ErrorName, TransactionError } from './sentry'
 
-export async function sendEVMTransaction(
-  account: string,
-  library: ethers.providers.Web3Provider | undefined,
-  contractAddress: string,
-  encodedData: string,
-  value: BigNumber,
+export async function sendEVMTransaction({
+  account,
+  library,
+  contractAddress,
+  encodedData,
+  value,
+  sentryInfo,
+  chainId,
+}: {
+  account: string
+  library: ethers.providers.Web3Provider | undefined
+  contractAddress: string
+  encodedData: string
+  value: BigNumber
   sentryInfo: {
     name: ErrorName
     wallet: SUPPORTED_WALLET | undefined
-  },
-  handler?: (response: TransactionResponse) => void,
-  chainId?: ChainId,
-): Promise<TransactionResponse | undefined> {
+  }
+  chainId?: ChainId
+}): Promise<TransactionResponse | undefined> {
   if (!account || !library) return
 
   const estimateGasOption = {
@@ -60,7 +67,6 @@ export async function sendEVMTransaction(
 
   try {
     const response = await library.getSigner().sendTransaction(sendTransactionOption)
-    handler?.(response)
     return response
   } catch (error) {
     throw new TransactionError(
