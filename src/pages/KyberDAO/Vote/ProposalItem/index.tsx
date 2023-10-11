@@ -187,7 +187,7 @@ const VoteButton = ({
   )
 }
 
-const FORCED_TO_BINARY_OPTION_PROPOSALS = [14, 15, 17, 18]
+const FORCED_TO_BINARY_OPTION_PROPOSALS = [14, 15, 17, 18, 19]
 
 function ProposalItem({
   proposal,
@@ -324,6 +324,7 @@ function ProposalItem({
                   : 'Finished'
               }
               isCheckBox={proposal.proposal_type === ProposalType.GenericProposal && !isForcedBinaryOption}
+              proposalId={proposal.proposal_id}
               id={index}
             />
           )
