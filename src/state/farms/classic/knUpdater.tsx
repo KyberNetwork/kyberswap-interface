@@ -31,7 +31,6 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
   latestChainId.current = chainId
 
   useEffect(() => {
-    console.count('running farm updater')
     const abortController = new AbortController()
 
     async function getListFarmsKN(): Promise<Farm[]> {
@@ -145,13 +144,13 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
         if (!abortController.signal.aborted) {
           console.error('fetch farmData KN error', { error: err })
           dispatch(setYieldPoolsError(err as Error))
-          dispatch(setFarmsData({}))
         }
       } finally {
         dispatch(setLoading(false))
       }
     }
 
+    dispatch(setFarmsData({}))
     checkForFarms()
 
     const i =
@@ -166,9 +165,6 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
     }
   }, [fetchFarmKN, dispatch, chainId, account, isEnableKNProtocol, isInterval])
 
-  useEffect(() => {
-    dispatch(setFarmsData({}))
-  }, [chainId, dispatch])
   return null
 }
 export default KNUpdater
