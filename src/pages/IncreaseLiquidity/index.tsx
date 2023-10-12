@@ -451,18 +451,26 @@ export default function IncreaseLiquidity() {
   const debouncedValue = useDebounce(value, 300)
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
+  const tickLower = existingPosition?.tickLower
+  const tickUpper = existingPosition?.tickUpper
+
   const params = useMemo(() => {
-    return poolAddress && amountIn?.greaterThan('0') && selectedCurrency && existingPosition && quoteZapCurrency
+    return poolAddress &&
+      amountIn?.greaterThan('0') &&
+      selectedCurrency &&
+      quoteZapCurrency &&
+      tickLower !== undefined &&
+      tickUpper !== undefined
       ? {
           poolAddress,
           tokenIn: selectedCurrency.wrapped.address,
           tokenOut: quoteZapCurrency.wrapped.address,
           amountIn,
-          tickLower: existingPosition.tickLower,
-          tickUpper: existingPosition.tickUpper,
+          tickLower,
+          tickUpper,
         }
       : undefined
-  }, [amountIn, existingPosition, poolAddress, selectedCurrency, quoteZapCurrency])
+  }, [amountIn, poolAddress, selectedCurrency, quoteZapCurrency, tickLower, tickUpper])
 
   const { loading: zapLoading, result: zapResult, aggregatorData } = useZapInPoolResult(params)
   const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
@@ -804,6 +812,7 @@ export default function IncreaseLiquidity() {
                       poolAddress={poolAddress}
                       tickLower={existingPosition?.tickLower}
                       tickUpper={existingPosition?.tickUpper}
+                      previousTicks={previousTicks}
                       aggregatorRoute={aggregatorData}
                     />
                   )}

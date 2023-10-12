@@ -54,7 +54,7 @@ export function useZapInPoolResult(params?: {
 
   const splitedAmount = useMemo(() => {
     if (!params?.amountIn) return []
-    const percent = [10, 20, 30, 40, 50]
+    const percent = [10, 20, 30, 40, 50, 60, 70, 80, 90]
     const percents = percent.map(item => new Percent(item, 100))
     return percents.map(item => params.amountIn.multiply(item))
   }, [params?.amountIn])
@@ -76,6 +76,7 @@ export function useZapInPoolResult(params?: {
               amountIn: item.quotient.toString(),
               excludedPools: params.poolAddress,
             },
+            clientId: 'kyberswap-zap',
           })
         }),
       )
@@ -145,6 +146,7 @@ export function useZapInPoolResult(params?: {
     }
   }, [data, loadingAggregator, aggregatorOutputs, params])
 
+  // TODO: Remove
   console.log(bestRes)
   return bestRes
 }
@@ -215,10 +217,11 @@ export function useZapInAction() {
               slippageTolerance: slippage,
               sender: account,
               recipient: executor,
-              source: 'kyberswap',
+              source: 'kyberswap-zap',
               skipSimulateTx: false,
             },
             authentication: false,
+            clientId: 'kyberswap-zap',
           })) as { data: BuildRouteResult }
         }
 
