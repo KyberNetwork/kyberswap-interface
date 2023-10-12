@@ -47,7 +47,7 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
       })
 
       it('Should be added tokenIn to favorite tokens list', () => {
-         SwapPage.selectTokenIn().addFavoriteToken(tokenSymbols[0])
+         SwapPage.selectTokenIn().addFavoriteToken([tokenSymbols[0]])
          tokenCatalog.getFavoriteTokens((list) => {
             expect(list).to.include.members([tokenSymbols[0]])
          })
@@ -63,7 +63,7 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
       })
 
       it('Should be added tokenOut to favorite tokens list', () => {
-         SwapPage.selectTokenOut().addFavoriteToken(tokenSymbols[0])
+         SwapPage.selectTokenOut().addFavoriteToken([tokenSymbols[0]])
          tokenCatalog.getFavoriteTokens((list) => {
             expect(list).to.include.members([tokenSymbols[0]])
          })

@@ -21,6 +21,11 @@ export const SwapPageLocators = {
   btnSkipTutorial: '[data-testid=button-skip-tutorial]',
 }
 
+export const LimitOrderLocators = {
+  dropdownTokenSell: '[data-testid=limit-order-input-tokena] [data-testid=token-symbol-container]',
+  dropdownTokenBuy: '[data-testid=limit-order-input-tokenb] [data-testid=token-symbol-container]'
+}
+
 export const WalletLocators = {
   btnConnectWallet: '[data-testid=button-connect-wallet]',
   btnMetaMask: '[data-testid=connect-METAMASK]',
