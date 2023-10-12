@@ -23,7 +23,6 @@ export interface FarmV1 {
   stakeToken: string
   startBlock: number
   endBlock: number
-  lastRewardBlock: number
   token0?: {
     id: string
     symbol: string
@@ -56,7 +55,6 @@ export interface FarmV2 {
   stakeToken: string
   startTime: number
   endTime: number
-  lastRewardTime: number
   token0?: any
   token1?: any
   amp: number

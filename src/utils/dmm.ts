@@ -402,7 +402,7 @@ export function useCurrencyConvertedToNative(currency?: Currency): Currency | un
   }, [currency])
 }
 
-export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[] {
+export function useFarmRewards(farms?: Farm[]): Reward[] {
   const result = useMemo(() => {
     if (!farms) {
       return []
@@ -437,32 +437,8 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
       return total
     }, initialRewards)
 
-    const initialAllFarmsRewards: { [key: string]: Reward } = {}
-
-    const allFarmsRewards = farms.reduce((total, farm) => {
-      if (farm.version === FairLaunchVersion.V2) {
-        farm.rewardTokens.forEach((token, index) => {
-          const amount = BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index])
-          total[token.address] = {
-            token,
-            amount: amount.add(total[token.address]?.amount || 0),
-          }
-        })
-      } else {
-        farm.rewardTokens.forEach((token, index) => {
-          const amount = BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index])
-          total[token.address] = {
-            token,
-            amount: amount.add(total[token.address]?.amount || 0),
-          }
-        })
-      }
-
-      return total
-    }, initialAllFarmsRewards)
-
-    return onlyCurrentUser ? Object.values(userFarmRewards) : Object.values(allFarmsRewards)
-  }, [farms, onlyCurrentUser])
+    return Object.values(userFarmRewards)
+  }, [farms])
   return result
 }
 

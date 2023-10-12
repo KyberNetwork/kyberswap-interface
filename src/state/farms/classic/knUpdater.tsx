@@ -69,7 +69,6 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
           const rewardPerUnits: BigNumber[] = farmPool.rewardPerUnits.map(i => parseUnits(toFixed(i), 0))
           const start = Number(farmPool.start)
           const end = Number(farmPool.end)
-          const lastReward = start // todo namgold: fill this.
 
           if (version === FairLaunchVersion.V1) {
             return {
@@ -83,7 +82,6 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
               stakeToken,
               startBlock: start,
               endBlock: end,
-              lastRewardBlock: lastReward,
               token0,
               token1,
               amp,
@@ -108,7 +106,6 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
             stakeToken,
             startTime: start,
             endTime: end,
-            lastRewardTime: lastReward,
             token0,
             token1,
             amp,
