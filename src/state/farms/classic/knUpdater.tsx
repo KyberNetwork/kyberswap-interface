@@ -52,8 +52,8 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
           const rewardTokens = farmPool.rewardTokens.map(
             ({ id, decimals, symbol, name }) => new Token(chainId, id, Number(decimals), symbol, name),
           )
-          const totalStake = parseNum(farmPool.stakedTvl)
-          const stakeToken = id // todo namgold: check this
+          const totalStake = parseNum(farmPool.stakedAmount).divide(10 ** 18)
+          const stakeToken = id
           const token0 = { id: farmPool.pool.token0.id, symbol: farmPool.pool.token0.symbol }
           const token1 = { id: farmPool.pool.token1.id, symbol: farmPool.pool.token1.symbol }
           const amp = Number(farmPool.pool.amp)
@@ -65,11 +65,10 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
             .subtract(parseNum(farmPool.pool.feesUsdOneDayAgo))
             .toFixed(18)
           const oneDayFeeUntracked = '0'
-          const userData = {} // todo namgold: fill this.
-
           const rewardPerUnits: BigNumber[] = farmPool.rewardPerUnits.map(i => parseUnits(toFixed(i), 0))
           const start = Number(farmPool.start)
           const end = Number(farmPool.end)
+          const userData = {} // todo namgold: fill this.
 
           if (version === FairLaunchVersion.V1) {
             return {

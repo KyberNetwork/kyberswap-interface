@@ -46,7 +46,7 @@ import { currencyIdFromAddress } from 'utils/currencyId'
 import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { ModalContentWrapper } from './ElasticFarmModals/styled'
@@ -368,7 +368,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             {/* STAKED TVL */}
             <Row>
               <Text fontSize="14px" fontWeight={400}>
-                {formatDollarAmount(liquidity)}
+                {formatDisplayNumber(liquidity, { style: 'currency', significantDigits: 6 })}
               </Text>
             </Row>
             {/* AVG APR */}
@@ -551,7 +551,7 @@ const ListItem = ({ farm }: ListItemProps) => {
           </RowBetween>
           <RowBetween marginBottom="16px">
             <Text fontSize="16px" color={theme.text} lineHeight="20px">
-              {formatDollarAmount(liquidity)}
+              {formatDisplayNumber(liquidity, { style: 'currency', significantDigits: 6 })}
             </Text>
             {farm.version === FairLaunchVersion.V2 ? (
               farm.startTime > currentTimestamp ? (
@@ -573,7 +573,7 @@ const ListItem = ({ farm }: ListItemProps) => {
           </RowBetween>
           <RowBetween marginBottom="16px">
             <Text fontSize="16px" color={theme.text} lineHeight="20px">
-              {!!userStakedBalanceUSD ? formatDollarAmount(userStakedBalanceUSD) : '--'}
+              {formatDisplayNumber(userStakedBalanceUSD, { style: 'currency', significantDigits: 6, allowZero: false })}
             </Text>
           </RowBetween>
           <RowBetween marginBottom="16px">
