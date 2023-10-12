@@ -704,6 +704,14 @@ export default function AddLiquidity() {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
+  const priceDiff =
+    baseCurrency && quoteCurrency && tokenA && tokenB && price
+      ? Math.abs(
+          Number((isSorted ? price : price?.invert())?.toSignificant(18)) /
+            (usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address]) -
+            1,
+        )
+      : 0
   const isPriceDeviated =
     baseCurrency &&
     quoteCurrency &&
@@ -715,6 +723,7 @@ export default function AddLiquidity() {
         (usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address]) -
         1,
     ) >= 0.02
+
   const isFullRange = activeRange === RANGE.FULL_RANGE
   const isValid = !errorMessage && !invalidRange
   const isWarningButton = isPriceDeviated || isFullRange || outOfRange
@@ -857,7 +866,10 @@ export default function AddLiquidity() {
                   {formatDisplayNumber(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], {
                     significantDigits: 4,
                   })}{' '}
-                  {quoteCurrency.symbol}). You might have high impermanent loss after you add liquidity to this pool
+                  {quoteCurrency.symbol}) by {(priceDiff * 100).toFixed(2)}%. Please consider the{' '}
+                  <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/impermanent-loss">
+                    impermanent loss
+                  </ExternalLink>
                 </Trans>
               )}
             </TYPE.black>
