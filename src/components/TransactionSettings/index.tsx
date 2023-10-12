@@ -1,12 +1,13 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
+import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Toggle from 'components/Toggle'
-import Tooltip from 'components/Tooltip'
+import Tooltip, { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
 import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
@@ -64,7 +65,7 @@ type Props = {
 
 export default function TransactionSettings({ hoverBg }: Props) {
   const theme = useTheme()
-  const [isDegenMode] = useDegenModeManager()
+  const [isDegenMode, toggleDegenMode] = useDegenModeManager()
   const toggle = useToggleTransactionSettingsMenu()
   // show confirmation view before turning on
   const [showConfirmation, setShowConfirmation] = useState(false)
@@ -74,6 +75,16 @@ export default function TransactionSettings({ hoverBg }: Props) {
   const showTooltip = useCallback(() => setIsShowTooltip(true), [setIsShowTooltip])
   const hideTooltip = useCallback(() => setIsShowTooltip(false), [setIsShowTooltip])
 
+  const handleToggleAdvancedMode = () => {
+    if (isDegenMode /* is already ON */) {
+      toggleDegenMode()
+      setShowConfirmation(false)
+      return
+    }
+
+    toggle()
+    setShowConfirmation(true)
+  }
   return (
     <>
       <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
@@ -110,6 +121,20 @@ export default function TransactionSettings({ hoverBg }: Props) {
           <SettingsWrapper>
             <SlippageSetting shouldShowPinButton={false} />
             <TransactionTimeLimitSetting />
+
+            <Flex justifyContent="space-between">
+              <Flex width="fit-content" alignItems="center">
+                <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                  <MouseoverTooltip
+                    text={t`You can make trades with high price impact and without any confirmation prompts. Enable at your own risk`}
+                    placement="right"
+                  >
+                    <Trans>Advanced Mode</Trans>
+                  </MouseoverTooltip>
+                </TextDashed>
+              </Flex>
+              <Toggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleAdvancedMode} />
+            </Flex>
           </SettingsWrapper>
         </MenuFlyout>
       </StyledMenu>

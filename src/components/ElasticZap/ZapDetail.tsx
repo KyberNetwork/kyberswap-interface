@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
-import { useEffect, useState } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { Box, Flex, Text } from 'rebass'
 import { RouteSummary } from 'services/route/types/getRoute'
@@ -46,6 +46,7 @@ export interface ZapDetail {
   newPooledAmount0: CurrencyAmount<Currency> | undefined
   newPooledAmount1: CurrencyAmount<Currency> | undefined
   zapResult: ZapResult | undefined
+  skeleton: (w?: number) => ReactElement
 }
 
 export const useZapDetail = ({
@@ -192,6 +193,17 @@ export const useZapDetail = ({
   const estimateGasUsd =
     gas && prices[WETH[chainId].address] ? ((+gasPrice * +gas) / 1e18) * prices[WETH[chainId].address] : 0
 
+  const theme = useTheme()
+  const skeleton = (width?: number) => (
+    <Skeleton
+      height="13px"
+      width={`${width || 169}px`}
+      baseColor={theme.border}
+      highlightColor={theme.buttonGray}
+      borderRadius="999px"
+    />
+  )
+
   return {
     estimateGasUsd,
     priceImpact: {
@@ -206,6 +218,7 @@ export const useZapDetail = ({
     amountInUsd,
     newPooledAmount0,
     newPooledAmount1,
+    skeleton,
   }
 }
 
@@ -228,19 +241,10 @@ export default function ZapDetail({
     oldUsdValue,
     newUsdValue,
     priceImpact,
+    skeleton,
   } = zapDetail
 
   const theme = useTheme()
-  const skeleton = (width?: number) => (
-    <Skeleton
-      height="13px"
-      width={`${width || 169}px`}
-      baseColor={theme.border}
-      highlightColor={theme.buttonGray}
-      borderRadius="999px"
-    />
-  )
-
   const currency0 = pool?.token0 && unwrappedToken(pool.token0)
   const currency1 = pool?.token1 && unwrappedToken(pool.token1)
 

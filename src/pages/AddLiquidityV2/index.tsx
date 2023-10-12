@@ -24,7 +24,8 @@ import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { OutlineCard, SubTextCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import ZapDetail, { useZapDetail } from 'components/ElasticZap/ZapDetail'
+import CurrencyLogo from 'components/CurrencyLogo'
+import { useZapDetail } from 'components/ElasticZap/ZapDetail'
 import FeeSelector from 'components/FeeSelector'
 import HoverInlineText from 'components/HoverInlineText'
 import { Swap as SwapIcon, TwoWayArrow } from 'components/Icons'
@@ -96,7 +97,7 @@ import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber, toFixed } from 'utils/numbers'
-import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
+import { SLIPPAGE_STATUS, checkRangeSlippage, formatSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import DisclaimerERC20 from './components/DisclaimerERC20'
@@ -1148,6 +1149,19 @@ export default function AddLiquidity() {
     setAttemptingTxn(false)
   }
 
+  const zapDetail = useZapDetail({
+    pool,
+    tokenIn: selectedCurrency?.wrapped?.address,
+    position: undefined,
+    zapResult,
+    amountIn,
+    poolAddress,
+    tickLower,
+    tickUpper,
+    previousTicks: tickPreviousForZap,
+    aggregatorRoute: aggregatorData,
+  })
+
   const ZapButton = (
     <ButtonPrimary
       onClick={handleZap}
@@ -1433,30 +1447,105 @@ export default function AddLiquidity() {
                     </Flex>
                   </Flex>
                 ) : (
-                  <CurrencyInputPanel
-                    id="zap-increase-liquidity"
-                    value={zapValue}
-                    onUserInput={v => {
-                      setZapValue(v)
-                    }}
-                    onMax={() => {
-                      setZapValue(currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]?.toExact() || '')
-                    }}
-                    onHalf={() => {
-                      setZapValue(
-                        currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]?.divide('2').toExact() || '',
-                      )
-                    }}
-                    currency={selectedCurrency}
-                    positionMax="top"
-                    showCommonBases
-                    estimatedUsd=""
-                    isSwitchMode
-                    onSwitchCurrency={() => {
-                      setIsReverse(prev => !prev)
-                    }}
-                    outline
-                  />
+                  <Flex sx={{ gap: '1rem' }} flexDirection={upToMedium ? 'column' : 'row'}>
+                    <div style={{ flex: 1 }}>
+                      <CurrencyInputPanel
+                        id="zap-increase-liquidity"
+                        value={zapValue}
+                        onUserInput={v => {
+                          setZapValue(v)
+                        }}
+                        onMax={() => {
+                          setZapValue(
+                            currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]?.toExact() || '',
+                          )
+                        }}
+                        onHalf={() => {
+                          setZapValue(
+                            currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]?.divide('2').toExact() ||
+                              '',
+                          )
+                        }}
+                        currency={selectedCurrency}
+                        positionMax="top"
+                        showCommonBases
+                        estimatedUsd={formattedNum(zapDetail.amountInUsd, true)}
+                        isSwitchMode
+                        onSwitchCurrency={() => {
+                          setIsReverse(prev => !prev)
+                        }}
+                        outline
+                      />
+                    </div>
+                    <Flex
+                      flex={1}
+                      flexDirection="column"
+                      justifyContent="space-between"
+                      fontSize="12px"
+                      fontWeight="500"
+                    >
+                      <Flex justifyContent="space-between">
+                        <Text color={theme.subText}>Est. Pooled {pool?.token0.symbol}</Text>
+                        {zapLoading ? (
+                          zapDetail.skeleton()
+                        ) : !zapResult || !pool ? (
+                          '--'
+                        ) : (
+                          <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                            <CurrencyLogo currency={unwrappedToken(pool.token0)} size="14px" />
+                            <Text>
+                              {zapDetail.newPooledAmount0?.toSignificant(6)} {unwrappedToken(pool.token0).symbol}
+                            </Text>
+                          </Flex>
+                        )}
+                      </Flex>
+
+                      <Flex justifyContent="space-between">
+                        <Text color={theme.subText}>Est. Pooled {pool?.token1.symbol}</Text>
+                        {zapLoading ? (
+                          zapDetail.skeleton()
+                        ) : !zapResult || !pool ? (
+                          '--'
+                        ) : (
+                          <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                            <CurrencyLogo currency={unwrappedToken(pool.token1)} size="14px" />
+                            <Text>
+                              {zapDetail.newPooledAmount1?.toSignificant(6)} {unwrappedToken(pool.token1).symbol}
+                            </Text>
+                          </Flex>
+                        )}
+                      </Flex>
+
+                      <Flex justifyContent="space-between">
+                        <Text color={theme.subText}>Max Slippage</Text>
+                        <Text> {formatSlippage(allowedSlippage)}</Text>
+                      </Flex>
+
+                      <Flex justifyContent="space-between">
+                        <Text color={theme.subText}>Price Impact</Text>
+                        {zapLoading ? (
+                          zapDetail.skeleton(40)
+                        ) : (
+                          <Text
+                            fontWeight="500"
+                            color={
+                              zapDetail.priceImpact.isVeryHigh
+                                ? theme.red
+                                : zapDetail.priceImpact.isHigh
+                                ? theme.warning
+                                : theme.text
+                            }
+                          >
+                            {zapDetail.priceImpact.isInvalid
+                              ? '--'
+                              : zapDetail.priceImpact.value < 0.01
+                              ? '<0.01%'
+                              : zapDetail.priceImpact.value.toFixed(2) + '%'}
+                          </Text>
+                        )}
+                      </Flex>
+                    </Flex>
+                  </Flex>
                 )}
               </DynamicSection>
             </>
@@ -1468,7 +1557,7 @@ export default function AddLiquidity() {
         {warnings}
         {tokenA && tokenB && <DisclaimerERC20 token0={tokenA.address} token1={tokenB.address} />}
 
-        <Row justify="flex-end">{method === 'pair' ? <Buttons /> : ZapButton}</Row>
+        <Row justify="flex-end">{method === 'pair' || !account ? <Buttons /> : ZapButton}</Row>
       </Row>
     </>
   )
@@ -1593,19 +1682,6 @@ export default function AddLiquidity() {
       onFarmRangeSelected(range.tickLower, range.tickUpper)
     }
   }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected, positionsState, pIndex])
-  const zapDetail = useZapDetail({
-    pool,
-    tokenIn: selectedCurrency?.wrapped?.address,
-    position: undefined,
-    zapResult,
-    amountIn,
-    poolAddress,
-    tickLower,
-    tickUpper,
-    previousTicks: tickPreviousForZap,
-    aggregatorRoute: aggregatorData,
-  })
-
   if (!isEVM) return <Navigate to="/" />
 
   return (
@@ -1780,14 +1856,6 @@ export default function AddLiquidity() {
                       currencyB={currencies_B}
                     />
                   </DynamicSection>
-
-                  {method === 'zap' && (
-                    <ZapDetail
-                      sx={{ backgroundColor: theme.buttonBlack }}
-                      zapLoading={zapLoading}
-                      zapDetail={zapDetail}
-                    />
-                  )}
 
                   {noLiquidity ? (
                     <AutoColumn gap="1rem">

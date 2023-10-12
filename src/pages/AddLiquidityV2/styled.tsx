@@ -1,10 +1,12 @@
 import { Trans } from '@lingui/macro'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties, css, keyframes, useTheme } from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Input from 'components/NumericalInput'
+import { MEDIA_WIDTHS } from 'theme'
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 0 2rem 1rem;
@@ -243,6 +245,9 @@ export const MethodSelector = ({
   setMethod: (method: 'pair' | 'zap') => void
   sx?: CSSProperties
 }) => {
+  const theme = useTheme()
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
   return (
     <Flex
       justifyContent="space-between"
@@ -252,17 +257,29 @@ export const MethodSelector = ({
         ...sx,
       }}
     >
-      <Text fontWeight="500" fontSize={20}>
-        <Trans>Your Position</Trans>
-      </Text>
-      <MethodTabs>
-        <MethodTab role="button" onClick={() => setMethod('pair')} active={method === 'pair'}>
-          Token Pair
-        </MethodTab>
-        <MethodTab role="button" onClick={() => setMethod('zap')} active={method === 'zap'}>
-          Zap
-        </MethodTab>
-      </MethodTabs>
+      {!upToExtraSmall && (
+        <Text fontWeight="500" fontSize={20}>
+          <Trans>Your Position</Trans>
+        </Text>
+      )}
+      <Flex
+        sx={{ gap: '8px' }}
+        alignItems="center"
+        justifyContent={upToExtraSmall ? 'space-between' : undefined}
+        flex={upToExtraSmall ? 1 : undefined}
+      >
+        <Text fontSize="12px" fontWeight="500" color={theme.subText}>
+          Add liquidity by:
+        </Text>
+        <MethodTabs>
+          <MethodTab role="button" onClick={() => setMethod('pair')} active={method === 'pair'}>
+            Token Pair
+          </MethodTab>
+          <MethodTab role="button" onClick={() => setMethod('zap')} active={method === 'zap'}>
+            Zap In
+          </MethodTab>
+        </MethodTabs>
+      </Flex>
     </Flex>
   )
 }
