@@ -66,7 +66,12 @@ export type CancelOrderFunction = (data: {
   isEdit?: boolean
 }) => Promise<CancelOrderResponse>
 
-export type EditOrderInfo = { cancelType?: CancelOrderType; gasFee?: string; isEdit?: boolean }
+export type EditOrderInfo = {
+  cancelType?: CancelOrderType
+  gasFee?: string
+  isEdit?: boolean
+  renderCancelButtons: () => JSX.Element
+}
 
 export type CancelOrderResponse = {
   orders: { operatorSignatureExpiredAt: number }[]

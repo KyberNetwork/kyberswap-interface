@@ -159,9 +159,10 @@ export const getPayloadCreateOrder = (params: CreateOrderParam) => {
   }
 }
 
-export const getPayloadTracking = (order: LimitOrder, networkName: string) => {
+export const getPayloadTracking = (order: LimitOrder, networkName: string, payload = {}) => {
   const { makerAssetSymbol, takerAssetSymbol, makingAmount, makerAssetDecimals, id } = order
   return {
+    ...payload,
     from_token: makerAssetSymbol,
     to_token: takerAssetSymbol,
     from_network: networkName,
