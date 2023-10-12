@@ -134,7 +134,7 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
         const farms: Farm[] = await getListFarmsKN()
         if (abortController.signal.aborted) throw new AbortedError()
         const data = farms.reduce((acc, cur) => {
-          const id = cur.id
+          const id = cur.fairLaunchAddress
           if (!acc[id]) acc[id] = []
           acc[id].push(cur)
           return acc
