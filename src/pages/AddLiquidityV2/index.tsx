@@ -24,7 +24,7 @@ import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { OutlineCard, SubTextCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import ZapDetail from 'components/ElasticZap/ZapDetail'
+import ZapDetail, { useZapDetail } from 'components/ElasticZap/ZapDetail'
 import FeeSelector from 'components/FeeSelector'
 import HoverInlineText from 'components/HoverInlineText'
 import { Swap as SwapIcon, TwoWayArrow } from 'components/Icons'
@@ -1593,6 +1593,18 @@ export default function AddLiquidity() {
       onFarmRangeSelected(range.tickLower, range.tickUpper)
     }
   }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected, positionsState, pIndex])
+  const zapDetail = useZapDetail({
+    pool,
+    tokenIn: selectedCurrency?.wrapped?.address,
+    position: undefined,
+    zapResult,
+    amountIn,
+    poolAddress,
+    tickLower,
+    tickUpper,
+    previousTicks: tickPreviousForZap,
+    aggregatorRoute: aggregatorData,
+  })
 
   if (!isEVM) return <Navigate to="/" />
 
@@ -1771,20 +1783,9 @@ export default function AddLiquidity() {
 
                   {method === 'zap' && (
                     <ZapDetail
-                      pool={pool}
-                      tokenIn={selectedCurrency?.wrapped?.address}
-                      position={undefined}
-                      zapResult={zapResult}
-                      zapLoading={zapLoading}
-                      amountIn={amountIn}
                       sx={{ backgroundColor: theme.buttonBlack }}
-                      poolAddress={poolAddress}
-                      tickLower={tickLower}
-                      tickUpper={tickUpper}
-                      previousTicks={
-                        tickPreviousForZap.length === 2 ? [tickPreviousForZap[0], tickPreviousForZap[1]] : undefined
-                      }
-                      aggregatorRoute={aggregatorData}
+                      zapLoading={zapLoading}
+                      zapDetail={zapDetail}
                     />
                   )}
 

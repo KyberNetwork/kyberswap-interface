@@ -21,7 +21,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import ZapDetail from 'components/ElasticZap/ZapDetail'
+import ZapDetail, { useZapDetail } from 'components/ElasticZap/ZapDetail'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Loader from 'components/Loader'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
@@ -584,6 +584,19 @@ export default function IncreaseLiquidity() {
     </ButtonPrimary>
   )
 
+  const zapDetail = useZapDetail({
+    pool: existingPosition?.pool,
+    position: existingPosition,
+    tokenIn: selectedCurrency?.wrapped.address,
+    tokenId,
+    amountIn,
+    zapResult,
+    poolAddress,
+    tickLower: existingPosition?.tickLower,
+    tickUpper: existingPosition?.tickUpper,
+    previousTicks: previousTicks,
+    aggregatorRoute: aggregatorData,
+  })
   if (!isEVM) return <Navigate to="/" />
 
   const inputAmountStyle = {
@@ -800,22 +813,7 @@ export default function IncreaseLiquidity() {
                     </Flex>
                   </BlackCard>
 
-                  {method === 'zap' && (
-                    <ZapDetail
-                      pool={existingPosition?.pool}
-                      position={existingPosition}
-                      tokenIn={selectedCurrency?.wrapped.address}
-                      tokenId={tokenId}
-                      zapLoading={zapLoading}
-                      amountIn={amountIn}
-                      zapResult={zapResult}
-                      poolAddress={poolAddress}
-                      tickLower={existingPosition?.tickLower}
-                      tickUpper={existingPosition?.tickUpper}
-                      previousTicks={previousTicks}
-                      aggregatorRoute={aggregatorData}
-                    />
-                  )}
+                  {method === 'zap' && <ZapDetail zapLoading={zapLoading} zapDetail={zapDetail} />}
                 </FirstColumn>
 
                 <SecondColumn>

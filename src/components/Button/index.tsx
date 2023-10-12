@@ -20,6 +20,7 @@ const disabledHoverBase = css`
 `
 const Base = styled(RebassButton)<{
   color?: string
+  backgroundColor?: string
   padding?: string
   margin?: string
   width?: string
@@ -81,7 +82,7 @@ const disabledPrimary = css<{
   opacity: ${({ altDisabledStyle }) => (altDisabledStyle ? '0.7' : '1')};
 `
 export const ButtonPrimary = styled(Base)`
-  background-color: ${({ theme }) => theme.primary};
+  background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary};
   color: ${({ theme }) => theme.textReverse};
   &:hover {
     color: ${({ theme }) => theme.textReverse};

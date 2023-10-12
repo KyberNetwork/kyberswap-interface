@@ -13,6 +13,7 @@ import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
+import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -40,11 +41,12 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { StyledInternalLink } from 'theme'
+import { formattedNum } from 'utils'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import RangeSelector, { useTicksFromRange } from './RangeSelector'
-import ZapDetail from './ZapDetail'
+import ZapDetail, { useZapDetail } from './ZapDetail'
 
 const QuickZapButtonWrapper = styled(ButtonOutlined)<{ size: 'small' | 'medium' }>`
   padding: 0;
@@ -313,6 +315,22 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
     }
   }
 
+  const zapDetail = useZapDetail({
+    pool,
+    tokenIn: selectedCurrency?.wrapped.address,
+    tokenId: tokenId?.toString(),
+    position,
+    zapResult: result,
+    amountIn,
+    poolAddress,
+    tickLower: vTickLower,
+    tickUpper: vTickUpper,
+    previousTicks: tickPrevious,
+    aggregatorRoute: aggregatorData,
+  })
+
+  console.log(111, zapDetail.priceImpact)
+
   return (
     <Modal isOpen={isOpen}>
       {attempingTx ? (
@@ -385,9 +403,9 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                   setTypedValue(balances[isReverse ? 1 : 0].divide('2').toExact())
                 }}
                 currency={selectedCurrency}
+                estimatedUsd={formattedNum(zapDetail.amountInUsd.toString(), true) || undefined}
                 positionMax="top"
                 showCommonBases
-                estimatedUsd=""
                 isSwitchMode
                 onSwitchCurrency={() => {
                   setIsReverse(prev => !prev)
@@ -424,31 +442,38 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                 <SlippageSettingGroup isWrapOrUnwrap={false} isStablePairSwap={false} />
               </div>
 
-              <ZapDetail
-                pool={pool}
-                tokenIn={selectedCurrency?.wrapped.address}
-                tokenId={tokenId?.toString()}
-                position={position}
-                zapResult={result}
-                zapLoading={zapLoading}
-                amountIn={amountIn}
-                poolAddress={poolAddress}
-                tickLower={vTickLower}
-                tickUpper={vTickUpper}
-                previousTicks={tickPrevious}
-                aggregatorRoute={aggregatorData}
-              />
+              <ZapDetail zapLoading={zapLoading} zapDetail={zapDetail} />
+
+              {!!(
+                zapDetail.priceImpact?.isVeryHigh ||
+                zapDetail.priceImpact?.isHigh ||
+                zapDetail.priceImpact?.isInvalid
+              ) &&
+                !zapLoading && (
+                  <>
+                    <Flex marginTop="1rem" />
+                    <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+                  </>
+                )}
 
               <Flex sx={{ gap: '1rem' }} marginTop="1.25rem">
                 <ButtonOutlined onClick={onDismiss}>
                   <Trans>Cancel</Trans>
                 </ButtonOutlined>
+
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
                     <Trans>Connect Wallet</Trans>
                   </ButtonLight>
                 ) : (
                   <ButtonPrimary
+                    backgroundColor={
+                      zapDetail.priceImpact.isVeryHigh
+                        ? theme.red
+                        : zapDetail.priceImpact.isHigh
+                        ? theme.warning
+                        : undefined
+                    }
                     onClick={handleClick}
                     disabled={!!error || approvalState === ApprovalState.PENDING || zapLoading}
                   >

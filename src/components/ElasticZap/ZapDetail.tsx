@@ -1,4 +1,4 @@
-import { CurrencyAmount, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useEffect, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
@@ -30,15 +30,31 @@ const Detail = styled(Box)`
   padding: 12px;
 `
 
-export default function ZapDetail({
+export interface ZapDetail {
+  estimateGasUsd: number
+  priceImpact: {
+    value: number
+    isHigh: boolean
+    isInvalid: boolean
+    isVeryHigh: boolean
+  }
+  position: Position | null | undefined
+  pool: Pool | null | undefined
+  oldUsdValue: number
+  newUsdValue: number
+  amountInUsd: number
+  newPooledAmount0: CurrencyAmount<Currency> | undefined
+  newPooledAmount1: CurrencyAmount<Currency> | undefined
+  zapResult: ZapResult | undefined
+}
+
+export const useZapDetail = ({
   pool,
   zapResult: result,
   position,
-  zapLoading,
   amountIn,
   tokenIn,
   tokenId,
-  sx,
   poolAddress,
   tickLower,
   tickUpper,
@@ -49,43 +65,19 @@ export default function ZapDetail({
   tokenIn: string | undefined
   zapResult: ZapResult | undefined
   position: Position | null | undefined
-  zapLoading: boolean
   amountIn: CurrencyAmount<NativeCurrency | Token> | undefined
   aggregatorRoute: RouteSummary | null
-  sx?: CSSProperties
   poolAddress: string | undefined
   tokenId?: string
   tickLower?: number
   tickUpper?: number
   previousTicks?: number[]
-}) {
-  const theme = useTheme()
+}): ZapDetail => {
   const { chainId } = useActiveWeb3React()
   const { readProvider } = useKyberSwapConfig()
 
-  const skeleton = (width?: number) => (
-    <Skeleton
-      height="13px"
-      width={`${width || 169}px`}
-      baseColor={theme.border}
-      highlightColor={theme.buttonGray}
-      borderRadius="999px"
-    />
-  )
-
   const currency0 = pool?.token0 && unwrappedToken(pool.token0)
   const currency1 = pool?.token1 && unwrappedToken(pool.token1)
-  const symbol0 = getTokenSymbolWithHardcode(
-    pool?.token0.chainId,
-    pool?.token0?.wrapped.address,
-    currency0?.symbol || '',
-  )
-  const symbol1 = getTokenSymbolWithHardcode(
-    pool?.token0.chainId,
-    pool?.token1?.wrapped.address,
-    currency1?.symbol || '',
-  )
-
   const newPosDraft =
     pool && result && tickLower !== undefined && tickUpper !== undefined
       ? new Position({
@@ -200,6 +192,69 @@ export default function ZapDetail({
   const estimateGasUsd =
     gas && prices[WETH[chainId].address] ? ((+gasPrice * +gas) / 1e18) * prices[WETH[chainId].address] : 0
 
+  return {
+    estimateGasUsd,
+    priceImpact: {
+      value: priceImpact,
+      ...priceImpactRes,
+    },
+    zapResult: result,
+    position,
+    pool,
+    oldUsdValue,
+    newUsdValue,
+    amountInUsd,
+    newPooledAmount0,
+    newPooledAmount1,
+  }
+}
+
+export default function ZapDetail({
+  zapLoading,
+  sx,
+  zapDetail,
+}: {
+  sx?: CSSProperties
+  zapLoading: boolean
+  zapDetail: ZapDetail
+}) {
+  const {
+    pool,
+    position,
+    estimateGasUsd,
+    zapResult: result,
+    newPooledAmount0,
+    newPooledAmount1,
+    oldUsdValue,
+    newUsdValue,
+    priceImpact,
+  } = zapDetail
+
+  const theme = useTheme()
+  const skeleton = (width?: number) => (
+    <Skeleton
+      height="13px"
+      width={`${width || 169}px`}
+      baseColor={theme.border}
+      highlightColor={theme.buttonGray}
+      borderRadius="999px"
+    />
+  )
+
+  const currency0 = pool?.token0 && unwrappedToken(pool.token0)
+  const currency1 = pool?.token1 && unwrappedToken(pool.token1)
+
+  const symbol0 = getTokenSymbolWithHardcode(
+    pool?.token0.chainId,
+    pool?.token0?.wrapped.address,
+    currency0?.symbol || '',
+  )
+  const symbol1 = getTokenSymbolWithHardcode(
+    pool?.token0.chainId,
+    pool?.token1?.wrapped.address,
+    currency1?.symbol || '',
+  )
+
   return (
     <Detail sx={sx}>
       <Flex justifyContent="space-between">
@@ -289,9 +344,9 @@ export default function ZapDetail({
         ) : (
           <Text
             fontWeight="500"
-            color={priceImpactRes.isVeryHigh ? theme.red : priceImpactRes.isHigh ? theme.warning : theme.text}
+            color={priceImpact.isVeryHigh ? theme.red : priceImpact.isHigh ? theme.warning : theme.text}
           >
-            {priceImpactRes.isInvalid ? '--' : priceImpact < 0.01 ? '<0.01%' : priceImpact.toFixed(2) + '%'}
+            {priceImpact.isInvalid ? '--' : priceImpact.value < 0.01 ? '<0.01%' : priceImpact.value.toFixed(2) + '%'}
           </Text>
         )}
       </Flex>
