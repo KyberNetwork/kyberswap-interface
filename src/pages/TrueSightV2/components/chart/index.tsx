@@ -2816,8 +2816,8 @@ export const Prochart = ({
   )
 }
 
-{/* IN DEVELOPMENT */}
-export const LiquidityProfile = ({ noAnimation }: { noAnimation?: boolean }) => {
+/* IN DEVELOPMENT */
+export const LiquidityProfile = () => {
   const theme = useTheme()
 
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.LIQUIDITY_PROFILE, {

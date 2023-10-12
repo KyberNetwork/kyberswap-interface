@@ -394,6 +394,11 @@ const kyberAIApi = createApi({
           ],
         })),
     }),
+    getLiquidityMarkets: builder.query({
+      query: () => ({
+        url: 'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/market-pairs/latest?slug=kyber-network-crystal-v2&start=1&limit=15&category=spot&centerType=cex&sort=cmc_rank_advanced&direction=desc&spotUntracked=true',
+      }),
+    }),
   }),
 })
 
@@ -430,5 +435,6 @@ export const {
   useUpdateWatchlistsNameMutation,
   useUpdateCustomizedWatchlistsPrioritiesMutation,
   useGetFilterCategoriesQuery,
+  useGetLiquidityMarketsQuery,
 } = kyberAIApi
 export default kyberAIApi

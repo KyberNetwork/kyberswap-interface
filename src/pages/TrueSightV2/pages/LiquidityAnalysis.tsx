@@ -6,6 +6,7 @@ import { useTokenAnalysisSettings } from 'state/user/hooks'
 
 import { SectionWrapper } from '../components'
 import { LiquidityProfile } from '../components/chart'
+import { LiquidityMarkets } from '../components/table'
 import { KYBERAI_CHART_ID } from '../constants'
 
 const Wrapper = styled.div`
@@ -38,7 +39,7 @@ export default function LiquidityAnalysis() {
         // shareContent={numberOfTradesNodata ? undefined : () => <NumberofTradesChart noAnimation />}
         docsLinks={[]}
       >
-        <LiquidityProfile />
+        <LiquidityMarkets />
       </SectionWrapper>
     </Wrapper>
   )

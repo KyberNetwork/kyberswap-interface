@@ -23,7 +23,12 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
-import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import {
+  useFundingRateQuery,
+  useGetLiquidityMarketsQuery,
+  useHolderListQuery,
+  useLiveDexTradesQuery,
+} from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
@@ -538,6 +543,63 @@ export const LiveDEXTrades = () => {
         totalCount={data?.length || 10}
         onPageChange={page => setCurrentPage(page)}
       />
+    </>
+  )
+}
+
+const TableTab = styled.div<{ active?: boolean }>`
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  padding: 12px 16px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  :hover {
+    filter: brightness(1.2);
+  }
+  ${({ active, theme }) =>
+    active
+      ? css`
+          background-color: ${theme.primary + '40'};
+          color: ${theme.primary};
+          border-color: ${theme.primary};
+        `
+      : css`
+          color: ${theme.subText};
+          background-color: ${theme.buttonBlack};
+        `}
+`
+
+export const LiquidityMarkets = () => {
+  const { data } = useGetLiquidityMarketsQuery({})
+  console.log('🚀 ~ file: index.tsx:575 ~ LiquidityMarkets ~ data:', data)
+
+  return (
+    <>
+      <RowFit>
+        <TableTab active>DEX</TableTab>
+        <TableTab>CEX</TableTab>
+        <TableTab>Perpetual</TableTab>
+      </RowFit>
+      <LoadingHandleWrapper isLoading={false} hasData={true} height="500px">
+        <colgroup>
+          <col width="200px" />
+          <col width="120px" />
+          <col width="200px" />
+          <col width="200px" />
+          <col width="100px" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Exchange</th>
+            <th>Token Pair</th>
+            <th>Current Price</th>
+            <th>24h Volume</th>
+            <th style={{ textAlign: 'right' }}>Action</th>
+          </tr>
+        </thead>
+        <tbody style={{ fontSize: '14px', lineHeight: '20px' }}></tbody>
+      </LoadingHandleWrapper>
     </>
   )
 }
