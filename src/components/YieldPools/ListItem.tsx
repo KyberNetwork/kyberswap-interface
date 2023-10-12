@@ -81,8 +81,8 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const token0 = useToken(farm.token0?.id) as Token
   const token1 = useToken(farm.token1?.id) as Token
-  const currency0 = unwrappedToken(token0)
-  const currency1 = unwrappedToken(token1)
+  const currency0 = token0 ? unwrappedToken(token0) : undefined
+  const currency1 = token1 ? unwrappedToken(token1) : undefined
 
   const poolAddressChecksum = isAddressString(chainId, farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
