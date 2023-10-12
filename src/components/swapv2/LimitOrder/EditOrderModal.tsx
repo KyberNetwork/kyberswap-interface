@@ -88,7 +88,7 @@ export default function EditOrderModal({
   )
 
   const isSupportSoftCancelOrder = useIsSupportSoftCancelOrder()
-  const supportGasLessCancel = isSupportSoftCancelOrder(order)
+  const { orderSupportGasless: supportGasLessCancel, chainSupportGasless } = isSupportSoftCancelOrder(order)
   const [cancelType, setCancelType] = useState(CancelOrderType.GAS_LESS_CANCEL)
   useEffect(() => {
     setCancelType(supportGasLessCancel ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL)
@@ -98,7 +98,6 @@ export default function EditOrderModal({
 
   const estimateGas = useEstimateFee({ orders })
 
-  const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas, cancelType }
   const theme = useTheme()
   const isReviewOrder = step === Steps.REVIEW_ORDER
   const onBack = () => {
@@ -139,8 +138,10 @@ export default function EditOrderModal({
           onDismiss={onDismiss}
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
+          order={order}
           buttonInfo={{
-            supportGasLessCancel,
+            orderSupportGasless: supportGasLessCancel,
+            chainSupportGasless,
             disabledGasLessCancel,
             disabledHardCancel,
             cancelGaslessText: <Trans>Gasless Edit</Trans>,
@@ -153,6 +154,7 @@ export default function EditOrderModal({
     )
   }
 
+  const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas, cancelType, renderCancelButtons }
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
       <Wrapper>
@@ -193,7 +195,6 @@ export default function EditOrderModal({
             defaultExpire={defaultExpire}
           />
         )}
-        {renderCancelButtons()}
       </Wrapper>
     </Modal>
   )
