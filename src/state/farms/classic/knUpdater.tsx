@@ -31,7 +31,6 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
   latestChainId.current = chainId
 
   useEffect(() => {
-    console.count('running farm updater')
     const abortController = new AbortController()
 
     async function getListFarmsKN(): Promise<Farm[]> {
@@ -62,7 +61,9 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
           const reserve1 = farmPool.pool.reserve1
           const reserveUSD = farmPool.pool.reserveUSD
           const totalSupply = farmPool.pool.totalSupply
-          const oneDayFeeUSD = farmPool.pool.feeUSD
+          const oneDayFeeUSD = parseNum(farmPool.pool.feeUSD)
+            .subtract(parseNum(farmPool.pool.feesUsdOneDayAgo))
+            .toFixed(18)
           const oneDayFeeUntracked = '0'
           const userData = {} // todo namgold: fill this.
 
@@ -132,7 +133,7 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
         const farms: Farm[] = await getListFarmsKN()
         if (abortController.signal.aborted) throw new AbortedError()
         const data = farms.reduce((acc, cur) => {
-          const id = cur.id
+          const id = cur.fairLaunchAddress
           if (!acc[id]) acc[id] = []
           acc[id].push(cur)
           return acc
@@ -149,6 +150,7 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
       }
     }
 
+    dispatch(setFarmsData({}))
     checkForFarms()
 
     const i =

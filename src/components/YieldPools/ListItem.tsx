@@ -79,8 +79,10 @@ const ListItem = ({ farm }: ListItemProps) => {
   const above1200 = useMedia('(min-width: 1200px)')
   const dispatch = useAppDispatch()
 
-  const currency0 = useToken(farm.token0?.id) as Token
-  const currency1 = useToken(farm.token1?.id) as Token
+  const token0 = useToken(farm.token0?.id) as Token
+  const token1 = useToken(farm.token1?.id) as Token
+  const currency0 = token0 ? unwrappedToken(token0) : undefined
+  const currency1 = token1 ? unwrappedToken(token1) : undefined
 
   const poolAddressChecksum = isAddressString(chainId, farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
@@ -143,12 +145,9 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const amp = farm.amp / 10000
 
-  const pairSymbol =
-    currency0 && currency1
-      ? `${unwrappedToken(currency0).symbol}-${unwrappedToken(currency1).symbol} LP`
-      : `${farm.token0.symbol} - ${farm.token1.symbol} LP`
-  const symbol0 = currency0 ? unwrappedToken(currency0).symbol : farm.token0.symbol
-  const symbol1 = currency1 ? unwrappedToken(currency1).symbol : farm.token1.symbol
+  const symbol0 = currency0 ? currency0.symbol : farm.token0.symbol
+  const symbol1 = currency1 ? currency1.symbol : farm.token1.symbol
+  const pairSymbol = `${symbol0}-${symbol1} LP`
 
   const [depositValue, setDepositValue] = useState('')
   const [withdrawValue, setWithdrawValue] = useState('')
