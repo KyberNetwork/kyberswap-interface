@@ -62,7 +62,9 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
           const reserve1 = farmPool.pool.reserve1
           const reserveUSD = farmPool.pool.reserveUSD
           const totalSupply = farmPool.pool.totalSupply
-          const oneDayFeeUSD = farmPool.pool.feeUSD
+          const oneDayFeeUSD = parseNum(farmPool.pool.feeUSD)
+            .subtract(parseNum(farmPool.pool.feesUsdOneDayAgo))
+            .toFixed(18)
           const oneDayFeeUntracked = '0'
           const userData = {} // todo namgold: fill this.
 
