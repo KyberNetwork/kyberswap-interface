@@ -9,9 +9,10 @@ export const useIsSupportSoftCancelOrder = () => {
   const { currentData: config } = useGetLOConfigQuery(chainId)
   return useCallback(
     (order: LimitOrder | undefined) => {
-      if (!order) return false
       const features = config?.features || {}
-      return !!features?.[order.contractAddress?.toLowerCase?.()]?.supportDoubleSignature
+      const orderSupportGasless = !!features?.[order?.contractAddress?.toLowerCase?.() ?? '']?.supportDoubleSignature
+      const chainSupportGasless = Object.values(features).some(e => e.supportDoubleSignature)
+      return { orderSupportGasless, chainSupportGasless }
     },
     [config],
   )
@@ -27,7 +28,7 @@ export default function useAllActiveOrders(disabled = false) {
   const isSupportSoftCancel = useIsSupportSoftCancelOrder()
   return useMemo(() => {
     const orders = data?.orders || []
-    const ordersSoftCancel = orders.filter(isSupportSoftCancel)
+    const ordersSoftCancel = orders.filter(e => isSupportSoftCancel(e).orderSupportGasless)
     return {
       orders,
       ordersSoftCancel,
