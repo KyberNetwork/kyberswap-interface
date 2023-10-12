@@ -79,14 +79,12 @@ const SelectNetworkButton = styled(ButtonEmpty)<{ disabled: boolean }>`
   }
 `
 const gap = '1rem'
-const NetworkList = styled.div<{ mt: number; mb: number }>`
+const NetworkList = styled.div`
   display: flex;
   align-items: center;
   gap: ${gap};
   flex-wrap: wrap;
   width: 100%;
-  margin-top: ${({ mt }) => mt}px;
-  margin-bottom: ${({ mb }) => mb}px;
   & > * {
     width: calc(33.33% - ${gap} * 2 / 3);
   }
@@ -119,8 +117,6 @@ const WalletWrapper = styled.div`
 
 const Networks = ({
   onChangedNetwork,
-  mt = 30,
-  mb = 0,
   isAcceptedTerm = true,
   activeChainIds,
   selectedId,
@@ -129,8 +125,6 @@ const Networks = ({
   disabledMsg,
 }: {
   onChangedNetwork?: () => void
-  mt?: number
-  mb?: number
   isAcceptedTerm?: boolean
   activeChainIds?: ChainId[]
   selectedId?: ChainId
@@ -174,7 +168,7 @@ const Networks = ({
   const { supportedChains } = useChainsConfig()
 
   return (
-    <NetworkList mt={mt} mb={mb}>
+    <NetworkList>
       {supportedChains.map(({ chainId: itemChainId, icon, name, state }: NetworkInfo, i: number) => {
         const isMaintenance = state === ChainState.MAINTENANCE
         const disabled =
