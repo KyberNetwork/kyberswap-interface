@@ -54,7 +54,8 @@ export default function ActionButtonLimitOrder({
   onWrapToken: () => Promise<void>
   showPreview: () => void
   editOrderInfo?: EditOrderInfo
-}) {
+}): any {
+  // todo any
   const { isEdit, renderCancelButtons } = editOrderInfo || {}
   const disableBtnApproved =
     approval === ApprovalState.PENDING ||
