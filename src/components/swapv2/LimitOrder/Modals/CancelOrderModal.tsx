@@ -184,6 +184,7 @@ function CancelOrderModal({
           flowState={flowState}
         />
         <CancelButtons
+          order={order}
           cancelType={cancelType}
           setCancelType={setCancelType}
           estimateGas={estimateGas}

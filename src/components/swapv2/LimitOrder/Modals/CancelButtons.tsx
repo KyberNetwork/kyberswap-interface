@@ -11,7 +11,10 @@ import { GasStation } from 'components/Icons'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import { DOCS_LINKS } from 'components/swapv2/LimitOrder/const'
-import { CancelOrderType } from 'components/swapv2/LimitOrder/type'
+import { getPayloadTracking } from 'components/swapv2/LimitOrder/helpers'
+import { CancelOrderType, LimitOrder } from 'components/swapv2/LimitOrder/type'
+import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -94,6 +97,7 @@ const CancelButtons = ({
   confirmOnly = false,
   cancelType,
   setCancelType,
+  order,
   buttonInfo: {
     orderSupportGasless,
     chainSupportGasless,
@@ -116,13 +120,26 @@ const CancelButtons = ({
   cancelType: CancelOrderType
   setCancelType: (v: CancelOrderType) => void
   buttonInfo: ButtonInfo
+  order: LimitOrder | undefined
 }) => {
   const theme = useTheme()
   const isWaiting = cancelStatus === CancelStatus.WAITING
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isTimeout = cancelStatus === CancelStatus.TIMEOUT
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
-  console.log(123, orderSupportGasless, chainSupportGasless)
+  const { mixpanelHandler } = useMixpanel()
+  const { networkInfo } = useActiveWeb3React()
+
+  const onSetType = (type: CancelOrderType) => {
+    setCancelType(type)
+    if (!order) return
+    mixpanelHandler(
+      isEdit ? MIXPANEL_TYPE.LO_CLICK_UPDATE_TYPE : MIXPANEL_TYPE.LO_CLICK_CANCEL_TYPE,
+      getPayloadTracking(order, networkInfo.name, {
+        [isEdit ? 'edit_type' : 'cancel_type']: type === CancelOrderType.GAS_LESS_CANCEL ? 'Gasless' : 'Hard',
+      }),
+    )
+  }
 
   const gasAmountDisplay = estimateGas
     ? `~${formatDisplayNumber(estimateGas + '', {
@@ -200,7 +217,7 @@ const CancelButtons = ({
             >
               <ButtonOutlined
                 {...propsGasless}
-                onClick={() => setCancelType(CancelOrderType.GAS_LESS_CANCEL)}
+                onClick={() => onSetType(CancelOrderType.GAS_LESS_CANCEL)}
                 $disabled={disabledGasLessCancel}
                 disabled={disabledGasLessCancel}
               >
@@ -213,7 +230,7 @@ const CancelButtons = ({
           buttonHardEdit={
             <ButtonOutlined
               {...propsHardCancel}
-              onClick={() => setCancelType(CancelOrderType.HARD_CANCEL)}
+              onClick={() => onSetType(CancelOrderType.HARD_CANCEL)}
               color={cancelType === CancelOrderType.HARD_CANCEL ? theme.primary : undefined}
             >
               <GasStation size={20} />

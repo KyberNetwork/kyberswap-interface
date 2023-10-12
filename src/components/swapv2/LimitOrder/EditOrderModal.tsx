@@ -139,6 +139,7 @@ export default function EditOrderModal({
           onDismiss={onDismiss}
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
+          order={order}
           buttonInfo={{
             orderSupportGasless: supportGasLessCancel,
             chainSupportGasless,

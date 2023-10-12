@@ -201,6 +201,8 @@ export enum MIXPANEL_TYPE {
   LO_CLICK_EDIT_ORDER,
   LO_DISPLAY_SETTING_CLICK,
   LO_CLICK_SUBSCRIBE_BTN,
+  LO_CLICK_CANCEL_TYPE,
+  LO_CLICK_UPDATE_TYPE,
 
   // Wallet UI
   WUI_WALLET_CLICK,
@@ -1113,6 +1115,14 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.LO_CLICK_SUBSCRIBE_BTN: {
           mixpanel.track('Limit Order - User click to Subscribe button')
+          break
+        }
+        case MIXPANEL_TYPE.LO_CLICK_CANCEL_TYPE: {
+          mixpanel.track('Limit Order - Cancel Order Double Signature Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.LO_CLICK_UPDATE_TYPE: {
+          mixpanel.track('Limit Order - Update Order Double Signature Click', payload)
           break
         }
 
