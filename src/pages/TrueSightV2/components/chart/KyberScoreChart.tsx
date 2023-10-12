@@ -54,7 +54,7 @@ export default function KyberScoreChart({
     const startTimestamp = Math.floor(Date.now() / 14400000) * 14400
     for (let i = 0; i < 18; i++) {
       const timestamp = startTimestamp - i * 14400
-      const index = data.findIndex(item => item.created_at === timestamp)
+      const index = data.findIndex(item => item.createdAt === timestamp)
       if (index >= 0) {
         datatemp.push(data[index])
       } else {
@@ -86,7 +86,7 @@ export default function KyberScoreChart({
         </defs>
         <g transform="scale(1,-1) translate(0,-21)" clipPath="url(#cut-off-outline)">
           {filledData?.map((item, index) => {
-            const v = item?.kyber_score || 0
+            const v = item?.kyberScore || 0
             const gap = 2
             const rectWidth = (100 - (filledData.length - 1) * gap) / filledData.length
             const rectHeight = !v ? 21 : Math.max((v * 21) / 100, 0.8)
@@ -98,7 +98,7 @@ export default function KyberScoreChart({
                 x={index * (rectWidth + gap)}
                 y={0}
                 width={rectWidth}
-                style={{ fill: !v ? (theme.darkMode ? theme.background + '60' : theme.text + '10') : color }}
+                style={{ fill: !v ? theme.background + '60' : color }}
                 onMouseEnter={e => handleMouseEnter(e, index)}
                 strokeWidth={!v ? '2px' : 0}
                 stroke={theme.disableText}
@@ -111,7 +111,6 @@ export default function KyberScoreChart({
                   dur={noAnimation ? '0s' : '0.5s'}
                   begin={noAnimation ? '0s' : `${1 + index * 0.05}s`}
                   fill="freeze"
-                  keySplines="0 0.33 0.3 1"
                 />
               </rect>
             )
@@ -125,16 +124,16 @@ export default function KyberScoreChart({
           <Column style={{ color: theme.subText, fontSize: '12px', lineHeight: '16px' }} gap="2px">
             <Text>
               Calculated at{' '}
-              {hoveringItem?.created_at && dayjs(hoveringItem?.created_at * 1000).format('DD/MM/YYYY hh:mm A')}
+              {hoveringItem?.createdAt && dayjs(hoveringItem?.createdAt * 1000).format('DD/MM/YYYY hh:mm A')}
             </Text>
             <Text style={{ whiteSpace: 'nowrap' }}>
               <Trans>KyberScore</Trans>:{' '}
               <span
-                style={{ color: hoveringItem ? calculateValueToColor(hoveringItem.kyber_score, theme) : theme.text }}
+                style={{ color: hoveringItem ? calculateValueToColor(hoveringItem.kyberScore, theme) : theme.text }}
               >
                 {hoveringItem
                   ? !!hoveringItem.tag
-                    ? `${hoveringItem.kyber_score} (${hoveringItem.tag})`
+                    ? `${hoveringItem.kyberScore} (${hoveringItem.tag})`
                     : 'N/A'
                   : '--'}
               </span>

@@ -7,33 +7,16 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
-import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { useNavigateToUrl } from 'utils/redirect'
 import { formatTime } from 'utils/time'
 
-import { Desc, Time, Title, Wrapper } from './styled'
-
-const ArrowWrapper = styled.div`
-  width: 20px;
-  height: 20px;
-  color: ${({ theme }) => theme.subText};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  svg {
-    transition: all 150ms ease-in-out;
-  }
-  &[data-expanded='true'] {
-    svg {
-      transform: rotate(180deg);
-    }
-  }
-`
+import { ArrowWrapper, Desc, Time, Title, Wrapper } from './styled'
 
 const Detail = styled(Desc)`
   flex-direction: column;

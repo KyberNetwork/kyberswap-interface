@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
 
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
-import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
+import { ELASTIC_FARM_TYPE, FARM_TAB, SORT_DIRECTION } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useActiveWeb3React } from 'hooks'
 import { useContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
@@ -44,11 +44,6 @@ export enum SORT_FIELD {
   MY_REWARD = 'my_reward',
 }
 
-export enum SORT_DIRECTION {
-  ASC = 'asc',
-  DESC = 'desc',
-}
-
 export const useFilteredFarmsV2 = (farmAddress?: string) => {
   const { isEVM, chainId } = useActiveWeb3React()
 
@@ -70,7 +65,7 @@ export const useFilteredFarmsV2 = (farmAddress?: string) => {
   const updatedFarms = useMemo(() => {
     const newFarms = farms
       ?.filter(farm => {
-        if (farm?.endTime < Date.now() / 1000) return false
+        if (farm?.endTime < Date.now() / 1000 || farm?.isSettled) return false
         const isUserJoinThisFarm = userInfo?.find(item => item.fId === farm.fId)
         if (!isUserJoinThisFarm) return false
 

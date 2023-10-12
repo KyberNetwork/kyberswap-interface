@@ -5,18 +5,15 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import headerBanner from 'assets/images/truesight-v2/header_banner.png'
-import headerBannerLight from 'assets/images/truesight-v2/header_banner_light.png'
 import Icon from 'components/Icons/Icon'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import SubscribeNotificationButton from 'components/SubscribeButton'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { KYBER_AI_TOPIC_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
-import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
 import { MEDIA_WIDTHS } from 'theme'
 
 import TrueSightWidget from './components/KyberAIWidget'
+import NewUpdateAnnoucement from './components/NewUpdateAnnoucement'
 import SearchWithDropDown from './components/SearchWithDropDown'
 import TutorialModal from './components/TutorialModal'
 import SingleToken from './pages/SingleToken'
@@ -40,7 +37,7 @@ const Wrapper = styled.div`
 `
 
 const HeaderWrapper = styled.div`
-  background-image: url(${({ theme }) => (theme.darkMode ? headerBanner : headerBannerLight)});
+  background-image: url(${headerBanner});
   background-color: ${({ theme }) => theme.buttonBlack};
   background-size: cover;
   width: 100%;
@@ -77,7 +74,6 @@ const HeaderNavItem = styled.div<{ active?: boolean }>`
 
 export default function TrueSightV2() {
   const theme = useTheme()
-  const mixpanelHandler = useMixpanelKyberAI()
   const location = useLocation()
   const isExplore = location?.pathname.includes('Explore')
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
@@ -105,20 +101,12 @@ export default function TrueSightV2() {
           </RowFit>
           <RowFit gap="16px" flex={1} justify="flex-end">
             {above768 && <SearchWithDropDown />}
-            <MouseoverTooltip
-              text={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
-              placement="right"
-              delay={1200}
-            >
-              <SubscribeNotificationButton
-                topicId={KYBER_AI_TOPIC_ID}
-                onClick={() =>
-                  mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SUBSCRIBE_CLICK, {
-                    source: isExplore ? 'explore' : 'ranking',
-                  })
-                }
+            {isExplore && (
+              <SubscribeButtonKyberAI
+                type="explore"
+                tooltip={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
               />
-            </MouseoverTooltip>
+            )}
           </RowFit>
         </RowBetween>
       </HeaderWrapper>
@@ -131,6 +119,7 @@ export default function TrueSightV2() {
         {isExplore ? <SingleToken /> : <TokenAnalysisList />}
         <TrueSightWidget />
         <TutorialModal />
+        <NewUpdateAnnoucement />
       </Wrapper>
     </>
   )

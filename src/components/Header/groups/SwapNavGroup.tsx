@@ -7,9 +7,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-// import MultichainLogoDark from 'assets/images/multichain_black.png'
 // import MultichainLogoLight from 'assets/images/multichain_white.png'
-import SquidLogoDark from 'assets/images/squid_dark.png'
 import SquidLogoLight from 'assets/images/squid_light.png'
 // import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
@@ -20,7 +18,6 @@ import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
@@ -53,7 +50,6 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 
 const SwapNavGroup = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
-  const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
 
@@ -118,7 +114,7 @@ const SwapNavGroup = () => {
                 </IconWrapper>
                 <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
                   <Trans>Cross-Chain</Trans>
-                  <img src={isDark ? SquidLogoLight : SquidLogoDark} alt="kyberswap with Squid" height={16} />
+                  <img src={SquidLogoLight} alt="kyberswap with Squid" height={16} />
                 </Flex>
               </Flex>
             </StyledNavLink>

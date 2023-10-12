@@ -37,11 +37,14 @@ import KyberAIExplore from 'pages/TrueSightV2'
 import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
 import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
 import { useHolidayMode } from 'state/user/hooks'
-import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { isAddressString, isSupportLimitOrder, shortenAddress } from 'utils'
 
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import VerifyAuth from './Verify/VerifyAuth'
+
+const Login = lazy(() => import('./Oauth/Login'))
+const Logout = lazy(() => import('./Oauth/Logout'))
+const Consent = lazy(() => import('./Oauth/Consent'))
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
@@ -102,10 +105,7 @@ const BodyWrapper = styled.div`
 `
 
 const preloadImages = () => {
-  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [
-    NETWORKS_INFO[chainId].icon,
-    NETWORKS_INFO[chainId].iconDark,
-  ])
+  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [NETWORKS_INFO[chainId].icon])
     .flat()
     .filter(Boolean) as string[]
 
@@ -317,8 +317,6 @@ export default function App() {
                 <Popups />
                 <Web3ReactManager>
                   <Routes>
-                    <Route element={<DarkModeQueryParamReader />} />
-
                     {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
                     <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
                     {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
@@ -430,6 +428,9 @@ export default function App() {
                     <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
 
                     <Route path={APP_PATHS.VERIFY_AUTH} element={<VerifyAuth />} />
+                    <Route path={APP_PATHS.IAM_LOGIN} element={<Login />} />
+                    <Route path={APP_PATHS.IAM_LOGOUT} element={<Logout />} />
+                    <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>

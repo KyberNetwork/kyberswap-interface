@@ -362,8 +362,8 @@ export const useRemoveLiquidityLegacy = (
   const { library } = useWeb3React()
 
   const { token0, token1, position, usd } = parsePosition(item, chainId, tokenPrices)
-  const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[item.id][0])
-  const feeValue1 = CurrencyAmount.fromRawAmount(unwrappedToken(token1), feeRewards[item.id][1])
+  const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[item.id]?.[0] || '0')
+  const feeValue1 = CurrencyAmount.fromRawAmount(unwrappedToken(token1), feeRewards[item.id]?.[1] || '0')
 
   const [allowedSlippage] = useUserSlippageTolerance()
   const deadline = useTransactionDeadline()

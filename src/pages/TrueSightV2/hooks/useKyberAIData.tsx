@@ -1,10 +1,16 @@
+import { t } from '@lingui/macro'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
+import { SelectOption } from 'components/Select'
 import { BFF_API } from 'constants/env'
+import { RTK_QUERY_TAGS } from 'constants/index'
+import { DEFAULT_PARAMS_BY_TAB } from 'pages/TrueSightV2/constants'
+import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
 import {
   IAssetOverview,
+  ICustomWatchlists,
   ILiquidCEX,
   ILiveTrade,
   INetflowToCEX,
@@ -13,10 +19,12 @@ import {
   INumberOfTrades,
   INumberOfTransfers,
   ITokenList,
+  ITokenOverview,
   ITokenSearchResult,
   ITradingVolume,
   KyberAIListType,
   OHLCData,
+  QueryTokenParams,
 } from '../types'
 
 const kyberAIApi = createApi({
@@ -24,60 +32,40 @@ const kyberAIApi = createApi({
   baseQuery: baseQueryOauth({
     baseUrl: `${BFF_API}/v1/truesight`,
   }),
-  tagTypes: ['tokenOverview', 'tokenList', 'myWatchList'],
+  tagTypes: [
+    RTK_QUERY_TAGS.GET_TOKEN_OVERVIEW_KYBER_AI,
+    RTK_QUERY_TAGS.GET_TOKEN_LIST_KYBER_AI,
+    RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI,
+    RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI,
+  ],
   endpoints: builder => ({
     //1.
-    tokenList: builder.query<
-      { data: ITokenList[]; totalItems: number },
-      {
-        type?: KyberAIListType
-        chain?: string
-        page?: number
-        pageSize?: number
-        watchlist?: boolean
-        keywords?: string
-      }
-    >({
-      query: ({ type, chain, page, pageSize, watchlist, keywords }) => ({
-        url: '/tokens',
-        params: {
-          type: type || 'all',
-          chain: chain || 'all',
-          page: page || 1,
-          size: pageSize || 10,
-          watchlist: watchlist ? 'true' : undefined,
-          keywords,
-        },
-      }),
-      transformResponse: (res: any) => {
-        if (res.code === 0) {
-          return { data: res.data.data.contents, totalItems: res.data.paging.totalItems }
+    tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
+      query: ({ type, chain, page, pageSize, keywords, sort, ...filter }) => {
+        const { secondarySort, ...defaultParams } = DEFAULT_PARAMS_BY_TAB[type as KyberAIListType] || {}
+        const sortParam =
+          sort || defaultParams.sort
+            ? `${sort || defaultParams.sort}${secondarySort ? `,${secondarySort}` : ''}`
+            : undefined
+        return {
+          url: '/assets',
+          params: {
+            ...defaultParams,
+            ...filter,
+            sort: sortParam,
+            page: page || 1,
+            pageSize: pageSize || 10,
+            keywords,
+          },
         }
-        throw new Error(res.msg)
       },
-      providesTags: (result, error, arg) => (arg.watchlist === true ? ['myWatchList', 'tokenList'] : ['tokenList']),
-    }),
-    //2.
-    addToWatchlist: builder.mutation({
-      query: (params: { tokenAddress: string; chain: string }) => ({
-        url: `/watchlist`,
-        method: 'POST',
-        params,
-      }),
-      invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }, 'myWatchList'],
-    }),
-    //3.
-    removeFromWatchlist: builder.mutation({
-      query: (params: { tokenAddress: string; chain: string }) => ({
-        url: `/watchlist`,
-        method: 'DELETE',
-        params,
-      }),
-      invalidatesTags: (res, err, params) => [
-        { type: 'tokenOverview', id: params.tokenAddress },
-        'myWatchList',
-        'tokenList',
-      ],
+      transformResponse: (res: any) => {
+        return { data: res.data.assets, totalItems: res.data.pagination.totalItems }
+      },
+      providesTags: (_, __, { type }) =>
+        type === KyberAIListType.MYWATCHLIST
+          ? [RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI, RTK_QUERY_TAGS.GET_TOKEN_LIST_KYBER_AI]
+          : [RTK_QUERY_TAGS.GET_TOKEN_LIST_KYBER_AI],
     }),
     assetOverview: builder.query<IAssetOverview, { assetId?: string }>({
       query: ({ assetId }: { assetId?: string }) => ({
@@ -85,6 +73,13 @@ const kyberAIApi = createApi({
       }),
       transformResponse: (res: any) => {
         // If token is stablecoin remove its kyberscore value
+        if (res?.data?.kyberScore?.ks3d) {
+          res.data.kyberScore.ks3d = res?.data?.kyberScore?.ks3d.map((e: any) => ({
+            ...e,
+            kyberScore: e.kyber_score,
+            createdAt: e.created_at,
+          }))
+        }
         if (res.data && res.data.tags?.includes('stablecoin')) {
           return { ...res.data, kyberScore: { ks3d: null, label: '', score: 0 } }
         }
@@ -92,7 +87,7 @@ const kyberAIApi = createApi({
       },
     }),
     //4.
-    tokenOverview: builder.query<IAssetOverview, { chain?: string; address?: string }>({
+    tokenOverview: builder.query<ITokenOverview, { chain?: string; address?: string }>({
       query: ({ chain, address }: { chain?: string; address?: string }) => ({
         url: `/overview/${chain}/${address}`,
       }),
@@ -265,8 +260,150 @@ const kyberAIApi = createApi({
       }),
       transformResponse: (res: any) => res.data,
     }),
+    //19.
+    addToWatchlist: builder.mutation({
+      query: ({ userWatchlistId, assetId }: { userWatchlistId: number; assetId: number }) => ({
+        url: `/watchlists/${userWatchlistId}/assets`,
+        method: 'POST',
+        params: { assetId },
+      }),
+      async onQueryStarted({ userWatchlistId, assetId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
+            draft.totalUniqueAssetNumber += 1
+            const watchlists = draft.watchlists.find(item => item.id === userWatchlistId)
+            if (watchlists) {
+              if (watchlists.assetIds) {
+                watchlists.assetIds.push(assetId)
+              } else {
+                watchlists.assetIds = [assetId]
+              }
+              watchlists.assetNumber += 1
+            }
+          }),
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
+      invalidatesTags: (result, error) =>
+        error ? [] : [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI, RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI],
+    }),
+    //20.
+    removeFromWatchlist: builder.mutation({
+      query: ({ userWatchlistId, assetId }: { userWatchlistId: number; assetId: number }) => ({
+        url: `/watchlists/${userWatchlistId}/assets`,
+        method: 'DELETE',
+        params: { assetId },
+      }),
+      async onQueryStarted({ userWatchlistId, assetId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
+            draft.totalUniqueAssetNumber -= 1
+            const watchlists = draft.watchlists.find(item => item.id === userWatchlistId)
+            if (watchlists) {
+              if (watchlists.assetIds) {
+                const index = watchlists.assetIds.indexOf(assetId)
+                watchlists.assetIds.splice(index, 1)
+              }
+              watchlists.assetNumber -= 1
+            }
+          }),
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
+      invalidatesTags: (_, error) =>
+        error ? [] : [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI, RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI],
+    }),
+    //21.
+    createCustomWatchlist: builder.mutation({
+      query: (params: { name: string }) => ({
+        url: `/watchlists`,
+        method: 'POST',
+        params,
+      }),
+      invalidatesTags: (_, error) => (error ? [] : [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI]),
+    }),
+    //22.
+    deleteCustomWatchlist: builder.mutation({
+      query: (params: { ids: string }) => ({
+        url: `/watchlists`,
+        method: 'DELETE',
+        params,
+      }),
+      invalidatesTags: (_, error) =>
+        error ? [] : [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI, RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI],
+    }),
+    //23.
+    updateWatchlistsName: builder.mutation({
+      query: ({ userWatchlistId, name }: { userWatchlistId: number; name: string }) => ({
+        url: `/watchlists/${userWatchlistId}`,
+        method: 'PUT',
+        params: { name },
+      }),
+      async onQueryStarted({ userWatchlistId, name }, { dispatch }) {
+        dispatch(
+          kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
+            const watchlists = draft.watchlists.find(item => item.id === userWatchlistId)
+            if (watchlists) {
+              watchlists.name = name
+            }
+          }),
+        )
+      },
+    }),
+    //24.
+    getWatchlistInformation: builder.query<{ totalUniqueAssetNumber: number; watchlists: ICustomWatchlists[] }, void>({
+      query: () => ({
+        url: `/watchlists/overview`,
+      }),
+      transformResponse: (res: any) => res.data,
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled
+        if (data.watchlists.length === 0) {
+          await dispatch(kyberAIApi.endpoints.createCustomWatchlist.initiate({ name: t`My 1st Watchlist` }))
+        }
+      },
+      providesTags: [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI],
+    }),
+    //26.
+    updateCustomizedWatchlistsPriorities: builder.mutation({
+      query: ({ orderedIds }: { orderedIds: string }) => ({
+        url: `/watchlists/priorities`,
+        method: 'PUT',
+        params: { orderedIds },
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI],
+    }),
+    getFilterCategories: builder.query<{ displayName: string; queryKey: string; values: SelectOption[] }[], void>({
+      query: () => ({
+        url: `/assets/filters`,
+      }),
+      transformResponse: (res: any) =>
+        res.data.map((e: any) => ({
+          ...e,
+          values: [
+            { label: t`All ${e.displayName}`, value: '' },
+            ...e.values.map((opt: any) => ({ label: opt.displayName, value: opt.queryValue })),
+          ],
+        })),
+    }),
   }),
 })
+
+export const useGetWatchlistInformationQuery = () => {
+  const { isWhiteList } = useIsWhiteListKyberAI()
+
+  const data = kyberAIApi.useGetWatchlistInformationQuery(undefined, { skip: !isWhiteList })
+
+  return data
+}
 
 export const {
   useAssetOverviewQuery,
@@ -288,5 +425,10 @@ export const {
   useSearchTokenQuery,
   useLazySearchTokenQuery,
   useFundingRateQuery,
+  useCreateCustomWatchlistMutation,
+  useDeleteCustomWatchlistMutation,
+  useUpdateWatchlistsNameMutation,
+  useUpdateCustomizedWatchlistsPrioritiesMutation,
+  useGetFilterCategoriesQuery,
 } = kyberAIApi
 export default kyberAIApi

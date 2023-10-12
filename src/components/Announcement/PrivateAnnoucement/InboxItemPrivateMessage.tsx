@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
-import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePopup } from 'components/Announcement/type'
+import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
 const Desc = styled.div`

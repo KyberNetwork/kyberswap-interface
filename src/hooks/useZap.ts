@@ -104,10 +104,11 @@ export const useZapInAmounts = (
         if (tokenIn && tokenOut && pool && userIn?.gt(0)) {
           const amounts = await calculateZapInAmounts(tokenIn, tokenOut, pool, userIn)
 
-          setResult({
-            amounts,
-            error: undefined,
-          })
+          if (amounts)
+            setResult({
+              amounts,
+              error: undefined,
+            })
         }
       } catch (err) {
         setResult({

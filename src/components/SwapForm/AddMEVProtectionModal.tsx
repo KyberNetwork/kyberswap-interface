@@ -59,7 +59,7 @@ const RPCOption = styled(ButtonEmpty)<{ selected: boolean }>`
   ${({ theme, selected }) =>
     selected &&
     css`
-      background-color: ${theme.darkMode ? theme.buttonBlack : theme.buttonGray};
+      background-color: ${theme.buttonBlack};
       & > div {
         color: ${theme.text};
       }

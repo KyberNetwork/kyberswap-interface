@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import Mainnet from 'assets/networks/mainnet-network.svg'
+import ethereumIcon from 'assets/networks/ethereum.svg'
 import { EnvKeys } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
@@ -17,10 +17,9 @@ const görliInfo: EVMNetworkInfo = {
   poolFarmRoute: EMPTY,
   aggregatorRoute: EMPTY,
   name: 'Görli',
-  icon: Mainnet,
-  iconDark: NOT_SUPPORT,
+  icon: ethereumIcon,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dramacrypto/goerli-blocks',
   etherscanUrl: 'https://goerli.etherscan.io',
   etherscanName: 'Goerli Explorer',

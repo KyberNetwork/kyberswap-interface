@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import BnbLogo from 'assets/images/bnb-logo.png'
+import bnbIcon from 'assets/networks/bnb.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const NOT_SUPPORT = null
@@ -13,10 +14,9 @@ const bnbInfo: EVMNetworkInfo = {
   poolFarmRoute: 'bsc',
   aggregatorRoute: 'bsc',
   name: 'BNB Chain',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/a44a3dbc-9150-4278-8354-7b5953f9a1ab.svg',
-  iconDark: NOT_SUPPORT,
+  icon: bnbIcon,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc',
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',

@@ -10,16 +10,12 @@ import { ItemWrapper } from './OrderItem'
 const Header = styled(ItemWrapper)`
   background-color: ${({ theme }) => theme.tableHeader};
   color: ${({ theme }) => theme.subText};
-  border-radius: 20px 20px 0px 0px;
   font-size: 12px;
   font-weight: 500;
   padding: 16px 12px;
   border-bottom: none;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    border-radius: 0px;
-    padding-left: 30px;
-    margin-left: -30px;
-    width: calc(100vw + 14px);
+    padding-left: 16px;
   `};
 `
 
@@ -31,7 +27,7 @@ const TableHeader = () => {
         <>
           <Flex alignItems={'center'} style={{ gap: 10 }}>
             <Text>
-              <Trans>TRADE</Trans>
+              <Trans>LIMIT ORDER(S)</Trans>
             </Text>
           </Flex>
           <Text className="rate">
@@ -43,13 +39,13 @@ const TableHeader = () => {
           <Text>
             <Trans> FILLED % | STATUS</Trans>
           </Text>
-          <Text textAlign={'center'}>
+          <Text textAlign={'right'}>
             <Trans>ACTION</Trans>
           </Text>
         </>
       ) : (
-        <Text>
-          <Trans>TRADE</Trans>
+        <Text style={{ whiteSpace: 'nowrap' }}>
+          <Trans>LIMIT ORDER(S)</Trans>
         </Text>
       )}
     </Header>

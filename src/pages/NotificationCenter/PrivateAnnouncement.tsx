@@ -9,13 +9,13 @@ import {
 } from 'services/announcement'
 import styled from 'styled-components'
 
+import { PRIVATE_ANN_TITLE } from 'components/Announcement/PrivateAnnoucement'
 import InboxItemNotificationCenter from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
 import { useInvalidateTagAnnouncement } from 'components/Announcement/helper'
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import DeleteAllAlertsButton from 'pages/NotificationCenter/DeleteAllAlertsButton'
-import { MENU_TITLE } from 'pages/NotificationCenter/Menu'
 import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
@@ -97,7 +97,7 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
           <DeleteAllAlertsButton
             disabled={totalAnnouncement === 0 || loading}
             onClear={clearAll}
-            notificationName={type ? MENU_TITLE[type] : t`Notifications`}
+            notificationName={type ? PRIVATE_ANN_TITLE[type] : t`Notifications`}
           />
         </HeaderWrapper>
         {data?.notifications?.length ? (

@@ -17,7 +17,6 @@ import {
   useRegisterCampaignSuccessModalToggle,
 } from 'state/application/hooks'
 import { useRecaptchaCampaignManager } from 'state/campaigns/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
 
 const Background = styled.div`
   background-color: ${({ theme }) => theme.tableHeader};
@@ -42,7 +41,6 @@ const ModalRegisterCampaignCaptcha = ({ refreshListCampaign }: { refreshListCamp
   const toggleRegisterCampaignCaptchaModal = useRegisterCampaignCaptchaModalToggle()
   const toggleRegisterCampaignSuccessModal = useRegisterCampaignSuccessModalToggle()
   const [recaptchaCampaign, updateRecaptchaCampaignId, updateRecaptchaCampaignLoading] = useRecaptchaCampaignManager()
-  const isDarkMode = useIsDarkMode()
   const theme = useTheme()
 
   const { account } = useActiveWeb3React()
@@ -116,7 +114,7 @@ const ModalRegisterCampaignCaptcha = ({ refreshListCampaign }: { refreshListCamp
           size="normal"
           sitekey={GOOGLE_RECAPTCHA_KEY}
           onChange={handleReCaptchaVerify}
-          theme={isDarkMode ? 'dark' : 'light'}
+          theme={'dark'}
           style={{ minHeight: '78px' }}
         />
       </Background>
