@@ -166,7 +166,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
         }
       })
   }, [proposalInfo])
-  const options = proposalInfo?.options.map((option, index) => HARDCODED_OPTION_TITLE[proposalId]?.[index] || option)
+  const options = proposalInfo?.options.map((option, index) => (HARDCODED_OPTION_TITLE[proposalId] || [])[index] || option)
 
   // flag to reduce fontsize when contents are too long
   const isLongText = useMemo(() => {
