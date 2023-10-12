@@ -111,7 +111,6 @@ const ExpiredInput = styled(InputWrapper)`
 `
 export type LimitOrderFormHandle = {
   hasChangedOrderInfo: () => boolean
-  isShowApprove: () => boolean
 }
 const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrderForm(
   {
@@ -607,11 +606,31 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           defaultExpire?.getTime() !== expiredAt)
       )
     },
-    isShowApprove() {
-      return isEdit && !showApproveFlow
-    },
   }))
 
+  const renderActionBtn = () => (
+    <ActionButtonLimitOrder
+      {...{
+        currencyIn,
+        currencyOut,
+        approval,
+        showWrap,
+        isWrappingEth,
+        isNotFillAllInput,
+        approvalSubmitted,
+        hasInputError,
+        enoughAllowance,
+        checkingAllowance,
+        wrapInputError,
+        approveCallback,
+        onWrapToken,
+        showPreview,
+        showApproveFlow,
+        showWarning: warningMessage.length > 0,
+        editOrderInfo,
+      }}
+    />
+  )
   const renderConfirmModal = (showConfirmContent = false) => (
     <ConfirmOrderModal
       flowState={flowState}
@@ -632,7 +651,13 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     />
   )
 
-  if (isEdit && flowState.showConfirm) return renderConfirmModal(true)
+  if (isEdit && flowState.showConfirm)
+    return (
+      <>
+        {renderConfirmModal(true)}
+        {renderActionBtn()}
+      </>
+    )
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -783,27 +808,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           <ErrorWarningPanel type="warn" key={i} title={mess} />
         ))}
 
-        <ActionButtonLimitOrder
-          {...{
-            currencyIn,
-            currencyOut,
-            approval,
-            showWrap,
-            isWrappingEth,
-            isNotFillAllInput,
-            approvalSubmitted,
-            hasInputError,
-            enoughAllowance,
-            checkingAllowance,
-            wrapInputError,
-            approveCallback,
-            onWrapToken,
-            showPreview,
-            showApproveFlow,
-            showWarning: warningMessage.length > 0,
-            isEdit,
-          }}
-        />
+        {renderActionBtn()}
       </Flex>
 
       {renderConfirmModal()}

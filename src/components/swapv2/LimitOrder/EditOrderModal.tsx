@@ -98,7 +98,6 @@ export default function EditOrderModal({
 
   const estimateGas = useEstimateFee({ orders })
 
-  const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas, cancelType }
   const theme = useTheme()
   const isReviewOrder = step === Steps.REVIEW_ORDER
   const onBack = () => {
@@ -119,7 +118,6 @@ export default function EditOrderModal({
     const hasChangeInfo = step === Steps.EDIT_ORDER ? ref.current?.hasChangedOrderInfo?.() : true
     const disabledGasLessCancel = !hasChangeInfo || !supportGasLessCancel || flowState.attemptingTxn
     const disabledHardCancel = !hasChangeInfo || flowState.attemptingTxn
-    if (!ref.current?.isShowApprove?.()) return null
     return (
       <>
         {isReviewOrder && (
@@ -156,6 +154,7 @@ export default function EditOrderModal({
     )
   }
 
+  const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas, cancelType, renderCancelButtons }
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
       <Wrapper>
@@ -196,7 +195,6 @@ export default function EditOrderModal({
             defaultExpire={defaultExpire}
           />
         )}
-        {renderCancelButtons()}
       </Wrapper>
     </Modal>
   )
