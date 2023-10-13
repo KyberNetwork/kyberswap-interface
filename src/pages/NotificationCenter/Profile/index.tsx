@@ -21,13 +21,12 @@ import { useUploadImageToCloud } from 'hooks/social'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { useValidateEmail } from 'pages/NotificationCenter/NotificationPreference'
-import InputEmail from 'pages/NotificationCenter/NotificationPreference/InputEmail'
+import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPreference/InputEmail'
 import AvatarEdit from 'pages/NotificationCenter/Profile/AvatarEdit'
 import ExportAccountButton from 'pages/NotificationCenter/Profile/ExportAccountButton'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { ButtonLogout, ButtonSave } from 'pages/NotificationCenter/Profile/buttons'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useIsKeepCurrentProfile, useProfileInfo, useRefreshProfile, useSignedAccountInfo } from 'state/profile/hooks'
@@ -119,7 +118,16 @@ export default function Profile() {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { chainId } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
-  const { inputEmail, onChangeEmail, errorColor, hasErrorInput } = useValidateEmail(userInfo?.email)
+
+  const { inputEmail, onChangeEmail, errorInput } = useValidateEmail(userInfo?.email)
+  const [isShowVerify, setIsShowVerify] = useState(false)
+  const showVerifyModal = () => {
+    setIsShowVerify(true)
+  }
+  const onDismissVerifyModal = () => {
+    setIsShowVerify(false)
+  }
+
   const [nickname, setNickName] = useState('')
   const { signOut } = useLogin()
   const navigate = useNavigate()
@@ -157,14 +165,6 @@ export default function Profile() {
     setPreviewImage(avatar || userInfo?.avatarUrl)
     file && setFile(file)
   }, [userInfo, onChangeEmail, prevIdentity])
-
-  const [isShowVerify, setIsShowVerify] = useState(false)
-  const showVerifyModal = () => {
-    setIsShowVerify(true)
-  }
-  const onDismissVerifyModal = () => {
-    setIsShowVerify(false)
-  }
 
   const handleFileChange = (imgUrl: string, file: File) => {
     setFile(file)
@@ -289,15 +289,16 @@ export default function Profile() {
                   <Trans>Email Address (Optional)</Trans>
                 </MouseoverTooltip>
               </Label>
-              <InputEmail
-                color={theme.text}
-                hasError={hasErrorInput}
+              <InputEmailWithVerification
+                style={{ color: theme.text }}
+                hasError={!!errorInput}
                 showVerifyModal={showVerifyModal}
-                errorColor={errorColor}
                 onChange={onChangeEmailWrapp}
                 value={inputEmail}
                 disabled={isSignInEmail}
                 isVerifiedEmail={!!isVerifiedEmail}
+                isShowVerify={isShowVerify}
+                onDismissVerifyModal={onDismissVerifyModal}
               />
             </FormGroup>
           </LeftColum>
@@ -334,12 +335,6 @@ export default function Profile() {
           )}
         </ActionsWrapper>
       </FormWrapper>
-      <VerifyCodeModal
-        isOpen={isShowVerify}
-        onDismiss={onDismissVerifyModal}
-        email={inputEmail}
-        onVerifySuccess={onDismissVerifyModal}
-      />
     </Wrapper>
   )
 }

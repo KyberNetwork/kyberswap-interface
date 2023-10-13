@@ -1,15 +1,13 @@
 import { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
-import React from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { Fragment, useMemo } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import ButtonEth from 'pages/Oauth/AuthForm/ButtonEth'
 import ButtonGoogle from 'pages/Oauth/AuthForm/ButtonGoogle'
+import EmailLoginForm from 'pages/Oauth/AuthForm/EmailLoginForm'
 import { FlowStatus } from 'pages/Oauth/Login'
-import { validateRedirectURL } from 'utils/redirect'
 
 import { getSupportLoginMethods } from '../helpers'
 import AuthFormFieldMessage from './AuthFormMessage'
@@ -19,6 +17,8 @@ const Form = styled.form`
   flex-direction: column;
   align-items: center;
   gap: 14px;
+  width: 340px;
+  max-width: 90vw;
 `
 
 interface AuthFormProps extends React.FormHTMLAttributes<HTMLFormElement> {
@@ -30,38 +30,51 @@ interface AuthFormProps extends React.FormHTMLAttributes<HTMLFormElement> {
 
 const Splash = () => <div style={{ flex: 1, borderTop: '1px solid #505050' }}></div>
 
-const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStatus, disableEth }) => {
-  const { back_uri } = useParsedQueryString<{ back_uri: string }>()
+export const OrDivider = () => {
   const theme = useTheme()
-  if (!formConfig) return null
+  return (
+    <Flex style={{ width: '100%', alignItems: 'center', gap: 10, color: theme.subText }}>
+      <Splash /> or <Splash />
+    </Flex>
+  )
+}
 
-  const { autoLoginMethod, processingSignIn } = flowStatus
-  const { ui } = formConfig
+const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStatus, disableEth }) => {
+  const { processingSignIn } = flowStatus
   const loginMethods = getSupportLoginMethods(formConfig)
 
-  const showEth = loginMethods.includes(LoginMethod.ETH) && autoLoginMethod !== LoginMethod.GOOGLE
+  const hasEth = loginMethods.includes(LoginMethod.ETH)
   const hasGoogle = loginMethods.includes(LoginMethod.GOOGLE)
-  const showBtnCancel = !isMobile && !hasGoogle && validateRedirectURL(back_uri) && !processingSignIn
-  const hasBothEthAndGoogle = hasGoogle && showEth
+  const hasEmail = loginMethods.includes(LoginMethod.EMAIL)
+
+  const nodes = useMemo(() => {
+    const nodes = []
+    if (hasEmail) nodes.push(<EmailLoginForm flowStatus={flowStatus} />)
+    if (hasEth)
+      nodes.push(
+        <ButtonEth
+          onClick={signInWithEth}
+          disabled={disableEth}
+          loading={processingSignIn}
+          flowStatus={flowStatus}
+          primary={!hasEmail}
+        />,
+      )
+    if (hasGoogle) nodes.push(<ButtonGoogle flowStatus={flowStatus} primary={!hasEmail && !hasEth} />)
+    return nodes
+  }, [disableEth, flowStatus, hasEmail, hasEth, hasGoogle, processingSignIn, signInWithEth])
+
+  if (!formConfig) return null
+  const { ui } = formConfig
   return (
     <Form encType="application/x-www-form-urlencoded" action={ui.action} method={ui.method}>
       <AuthFormFieldMessage messages={ui.messages} />
-      {showEth && (
-        <ButtonEth
-          backUrl={back_uri}
-          showBtnCancel={!!showBtnCancel}
-          onClick={signInWithEth}
-          disabled={processingSignIn || disableEth}
-          loading={processingSignIn}
-          flowStatus={flowStatus}
-        />
-      )}
-      {hasBothEthAndGoogle && (
-        <Flex style={{ width: '100%', alignItems: 'center', gap: 10, color: theme.subText }}>
-          <Splash /> or <Splash />
-        </Flex>
-      )}
-      {hasGoogle && <ButtonGoogle flowStatus={flowStatus} outline={showEth} />}
+      {nodes.map((el, i) => (
+        <Fragment key={i}>
+          {el}
+          {i !== nodes.length - 1 && <OrDivider />}
+        </Fragment>
+      ))}
     </Form>
   )
 }

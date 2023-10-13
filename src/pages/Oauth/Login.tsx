@@ -9,7 +9,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { Container, Content, KyberLogo, TextDesc } from 'pages/Oauth/styled'
 import getShortenAddress from 'utils/getShortenAddress'
-import { queryStringToObject } from 'utils/string'
+import { isInEnum, queryStringToObject } from 'utils/string'
 import { formatSignature } from 'utils/transaction'
 
 import AuthForm from './AuthForm'
@@ -35,6 +35,15 @@ export type FlowStatus = {
   autoLoginMethod: LoginMethod | undefined // not waiting for click btn
 }
 
+const canAutoSignInEth = (loginMethods: LoginMethod[]) => {
+  const isIncludeEth = loginMethods.includes(LoginMethod.ETH)
+  const totalMethod = loginMethods.length
+  return (
+    (isIncludeEth && totalMethod === 1) ||
+    (isIncludeEth && totalMethod === 2 && loginMethods.includes(LoginMethod.ANONYMOUS))
+  )
+}
+
 export function Login() {
   const { account, chainId } = useActiveWeb3React()
   const { library: provider } = useWeb3React()
@@ -50,13 +59,9 @@ export function Login() {
   const { wallet_address } = useParsedQueryString<{ wallet_address: string }>()
 
   const loginMethods = getSupportLoginMethods(authFormConfig)
-  const isSignInEth = loginMethods.includes(LoginMethod.ETH)
+  const showMsgSignInEth = account && canAutoSignInEth(loginMethods)
   const isMismatchEthAddress =
-    !loginMethods.includes(LoginMethod.GOOGLE) &&
-    isSignInEth &&
-    wallet_address &&
-    account &&
-    wallet_address?.toLowerCase() !== account?.toLowerCase()
+    showMsgSignInEth && wallet_address && wallet_address?.toLowerCase() !== account?.toLowerCase()
 
   const connectingWallet = useRef(false)
 
@@ -102,6 +107,7 @@ export function Login() {
 
   useEffect(() => {
     const getFlowLogin = async () => {
+      const { error_description, type } = queryStringToObject(window.location.search)
       try {
         KyberOauth2.initialize({ mode: ENV_KEY })
         const loginFlow = await KyberOauth2.oauthUi.getFlowLogin()
@@ -113,7 +119,8 @@ export function Login() {
 
         let autoLoginMethod: LoginMethod | undefined
         const isIncludeGoogle = loginMethods.includes(LoginMethod.GOOGLE)
-        if (loginMethods.length === 1) {
+        const totalMethod = loginMethods.length
+        if (totalMethod === 1) {
           if (loginMethods.includes(LoginMethod.ANONYMOUS)) {
             throw new Error('Not found login method for this app')
           }
@@ -121,13 +128,18 @@ export function Login() {
             autoLoginMethod = LoginMethod.GOOGLE
           }
         }
-        if (loginMethods.includes(LoginMethod.ETH) && !isIncludeGoogle) {
+        if (canAutoSignInEth(loginMethods)) {
           autoLoginMethod = LoginMethod.ETH
         }
+
+        // auto login method from url
+        if (!autoLoginMethod && isInEnum(type + '', LoginMethod) && loginMethods.includes(type)) {
+          autoLoginMethod = type as LoginMethod
+        }
+
         KyberOauth2.initialize({ clientId: client_id, mode: ENV_KEY })
         setFlowStatus(v => ({ ...v, flowReady: true, autoLoginMethod }))
       } catch (error: any) {
-        const { error_description } = queryStringToObject(window.location.search)
         setError(error_description || getErrorMsg(error))
       }
     }
@@ -160,7 +172,7 @@ export function Login() {
           <TextDesc style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Loader size="20px" /> Checking data ...
           </TextDesc>
-        ) : isSignInEth && account ? (
+        ) : showMsgSignInEth ? (
           renderEthMsg()
         ) : (
           appName && <TextDesc>Please sign in to continue with {appName}</TextDesc>
@@ -168,7 +180,7 @@ export function Login() {
         <AuthForm
           formConfig={authFormConfig}
           flowStatus={flowStatus}
-          signInWithEth={signInWithEth}
+          signInWithEth={signInWithEth} // todo move
           disableEth={!!isMismatchEthAddress}
         />
       </Content>

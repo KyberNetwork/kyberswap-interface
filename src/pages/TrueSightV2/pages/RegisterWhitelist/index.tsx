@@ -11,9 +11,9 @@ import DownloadWalletModal from 'components/DownloadWalletModal'
 import Row from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useLogin from 'hooks/useLogin'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import SignInForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SignInForm'
 import SubscribeForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SubscribeForm'
 import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
@@ -35,7 +35,6 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const { isLogin } = useSessionInfo()
-  const { signIn } = useLogin()
 
   const { isWhiteList, isWaitList, loading: isCheckingPermission } = useIsWhiteListKyberAI()
 
@@ -115,12 +114,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
       </Column>
     )
 
-  if (!isLogin)
-    return (
-      <ConnectWalletButton onClick={() => signIn()}>
-        <Trans>Sign-In to Continue</Trans>
-      </ConnectWalletButton>
-    )
+  if (!isLogin) return <SignInForm />
 
   const btnGetStart = (
     <ConnectWalletButton

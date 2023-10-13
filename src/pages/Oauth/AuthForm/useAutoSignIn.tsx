@@ -9,7 +9,7 @@ const useAutoSignIn = ({
   method,
   flowStatus: { flowReady, autoLoginMethod },
 }: {
-  onClick: (e?: React.MouseEvent) => void
+  onClick: (e?: any) => void // todo
   method: LoginMethod
   flowStatus: FlowStatus
 }) => {
@@ -17,9 +17,12 @@ const useAutoSignIn = ({
   const { current: triedEager } = useEagerConnect()
   useEffect(() => {
     if (autoSelect.current || !flowReady || autoLoginMethod !== method) return
-    if ((triedEager && autoLoginMethod === LoginMethod.ETH) || autoLoginMethod === LoginMethod.GOOGLE) {
+    if (
+      (triedEager && autoLoginMethod === LoginMethod.ETH) ||
+      [LoginMethod.GOOGLE, LoginMethod.EMAIL].includes(autoLoginMethod)
+    ) {
       autoSelect.current = true
-      onClick()
+      onClick?.()
     }
   }, [flowReady, autoLoginMethod, onClick, triedEager, method])
 }

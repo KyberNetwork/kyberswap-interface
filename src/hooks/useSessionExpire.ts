@@ -1,4 +1,4 @@
-import KyberOauth2, { KyberOauth2Event, LoginMethod } from '@kybernetwork/oauth2'
+import KyberOauth2, { KyberOauth2Event } from '@kybernetwork/oauth2'
 import { t } from '@lingui/macro'
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -54,7 +54,7 @@ export default function useSessionExpiredGlobal() {
         const accountSignHasChanged = signedMethod !== newLoginMethod || signedAccount !== newSignedAccount
         if (document.visibilityState === 'visible' && accountSignHasChanged) {
           // sync account in multi window tab
-          signIn(newSignedAccount, newLoginMethod === LoginMethod.ANONYMOUS)
+          signIn({ account: newSignedAccount, loginMethod: newLoginMethod })
         }
       } catch (error) {}
     }

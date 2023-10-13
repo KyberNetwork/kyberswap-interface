@@ -6,6 +6,7 @@ import { ButtonLight } from 'components/Button'
 import Input from 'components/Input'
 import Tooltip from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 
 const CheckIcon = styled(Check)`
   position: absolute;
@@ -26,28 +27,26 @@ const ButtonVerify = styled(ButtonLight)`
 const InputWrapper = styled.div`
   position: relative;
 `
-
-export default function InputEmail({
-  errorColor,
+type Props = {
+  onChange: (val: string) => void
+  isVerifiedEmail?: boolean
+  value: string
+  disabled?: boolean
+  hasError?: boolean
+  showVerifyModal?: () => void
+  style?: CSSProperties
+  placement?: string
+}
+export function InputEmail({
   value,
   onChange,
   isVerifiedEmail,
   showVerifyModal,
   disabled,
   hasError,
-  color,
   style,
-}: {
-  errorColor?: string
-  onChange: (val: string) => void
-  isVerifiedEmail: boolean
-  value: string
-  disabled?: boolean
-  hasError?: boolean
-  showVerifyModal: () => void
-  color?: string
-  style?: CSSProperties
-}) {
+  placement,
+}: Props) {
   const theme = useTheme()
   return (
     <Tooltip
@@ -56,24 +55,57 @@ export default function InputEmail({
       show={!!hasError}
       placement="top"
       width="fit-content"
+      containerStyle={style}
     >
       <InputWrapper style={style}>
         <Input
-          color={color}
+          color={style?.color}
+          style={{ maxHeight: '100%' }}
           disabled={disabled}
-          borderColor={errorColor}
+          borderColor={hasError ? theme.red : theme.border}
           value={value}
-          placeholder="example@email.com"
+          placeholder={placement || 'example@email.com'}
           onChange={e => onChange(e.target.value)}
         />
 
         {!isVerifiedEmail && value && (
-          <ButtonVerify width={'50px'} height={'24px'} disabled={hasError || disabled} onClick={showVerifyModal}>
+          <ButtonVerify
+            width={'50px'}
+            height={'24px'}
+            disabled={hasError || disabled}
+            onClick={e => {
+              e.preventDefault()
+              showVerifyModal?.()
+            }}
+          >
             <Trans>Verify</Trans>
           </ButtonVerify>
         )}
-        {isVerifiedEmail && value && <CheckIcon color={theme.primary} />}
+        {isVerifiedEmail && value && !hasError && <CheckIcon color={theme.primary} />}
       </InputWrapper>
     </Tooltip>
+  )
+}
+
+export default function InputEmailWithVerification(
+  props: Props & {
+    isShowVerify: boolean
+    onDismissVerifyModal: () => void
+    sendCode?: (data: { email: string }) => Promise<any>
+    verifyCode?: (data: { email: string; code: string }) => Promise<void>
+  },
+) {
+  const { value, isShowVerify, onDismissVerifyModal, sendCode, verifyCode } = props
+  return (
+    <>
+      <InputEmail {...props} />
+      <VerifyCodeModal
+        isOpen={isShowVerify}
+        onDismiss={onDismissVerifyModal}
+        email={value}
+        sendCode={sendCode}
+        verifyCode={verifyCode}
+      />
+    </>
   )
 }

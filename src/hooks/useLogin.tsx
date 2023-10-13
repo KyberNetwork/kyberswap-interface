@@ -27,7 +27,7 @@ import {
   useSaveUserProfile,
   useSignedAccountInfo,
 } from 'state/profile/hooks'
-import { filterTruthy, isAddress } from 'utils'
+import { isAddress } from 'utils'
 import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 import { isEmailValid } from 'utils/string'
 
@@ -38,7 +38,7 @@ KyberOauth2.initialize({
 })
 
 const useLogin = (autoLogin = false) => {
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const [createProfile] = useGetOrCreateProfileMutation()
   // const [connectWalletToProfile] = useConnectWalletToProfileMutation()
@@ -55,27 +55,25 @@ const useLogin = (autoLogin = false) => {
   const getProfile = useCallback(
     async ({
       walletAddress,
-      isAnonymous,
+      loginMethod,
       session,
       account,
     }: {
       walletAddress: string | undefined
-      isAnonymous: boolean
+      loginMethod: LoginMethod
       account: string
       session: any
     }) => {
+      const isAnonymous = loginMethod === LoginMethod.ANONYMOUS
       try {
         const profile = await createProfile().unwrap()
-        if (walletAddress && isAddress(chainId, walletAddress)) {
+        if (loginMethod === LoginMethod.ETH && walletAddress && isAddress(chainId, walletAddress)) {
           // await connectWalletToProfile({ walletAddress }) // temp off
         }
 
         const formatProfile = { ...profile }
-        if (isEmailValid(account) && session) {
-          // sign in with google
-          formatProfile.avatarUrl = session?.picture ?? ''
+        if (loginMethod === LoginMethod.EMAIL && session) {
           formatProfile.email = session?.email ?? ''
-          formatProfile.nickname = filterTruthy([session?.first_name, session?.last_name]).join(' ')
         }
         setProfile({ profile: formatProfile, isAnonymous, account })
       } catch (error) {
@@ -89,8 +87,17 @@ const useLogin = (autoLogin = false) => {
   )
 
   const showSignInSuccess = useCallback(
-    (desireAccount: string | undefined, guest = false) =>
-      !autoLogin &&
+    (desireAccount: string | undefined, loginMethod: LoginMethod) => {
+      const isGuest = loginMethod === LoginMethod.ANONYMOUS
+      if (autoLogin) return
+
+      const profileName =
+        loginMethod === LoginMethod.EMAIL
+          ? `email ${desireAccount}`
+          : isGuest
+          ? `Guest Profile`
+          : `profile ${getProfileName(desireAccount, isGuest)}`
+
       notify(
         {
           type: NotificationType.SUCCESS,
@@ -98,16 +105,11 @@ const useLogin = (autoLogin = false) => {
           summary:
             desireAccount?.toLowerCase() === account?.toLowerCase()
               ? t`Connected successfully with the current wallet address`
-              : t`Connected successfully with ${
-                  isEmailValid(desireAccount)
-                    ? `email ${desireAccount}`
-                    : guest
-                    ? `Guest Profile`
-                    : `profile ${getProfileName(desireAccount, guest)}`
-                }`,
+              : t`Connected successfully with ${profileName}`,
         },
         10_000,
-      ),
+      )
+    },
     [account, notify, autoLogin, getProfileName],
   )
 
@@ -126,8 +128,13 @@ const useLogin = (autoLogin = false) => {
         hasError = true
       } finally {
         setLoading(false)
-        await getProfile({ walletAddress: account, isAnonymous: true, account: guestAccount, session: userInfo })
-        !hasError && showSuccessMsg && showSignInSuccess(guestAccount, true)
+        await getProfile({
+          walletAddress: account,
+          account: guestAccount,
+          session: userInfo,
+          loginMethod: LoginMethod.ANONYMOUS,
+        })
+        !hasError && showSuccessMsg && showSignInSuccess(guestAccount, LoginMethod.ANONYMOUS)
       }
     },
     [getProfile, setLoading, account, saveSignedAccount, showSignInSuccess],
@@ -139,7 +146,7 @@ const useLogin = (autoLogin = false) => {
       try {
         setLoading(true)
         const { loginMethod, userInfo } = await KyberOauth2.getSession(
-          isEmailValid(desireAccount ?? '') || !desireAccount
+          isEmailValid(desireAccount) || !desireAccount
             ? { account: desireAccount }
             : { method: LoginMethod.ETH, account: desireAccount },
         )
@@ -147,11 +154,11 @@ const useLogin = (autoLogin = false) => {
         saveSignedAccount({ account: respAccount, method: loginMethod })
         await getProfile({
           walletAddress: respAccount,
-          isAnonymous: false,
+          loginMethod,
           session: userInfo,
           account: respAccount,
         })
-        showSignInSuccess(respAccount)
+        showSignInSuccess(respAccount, loginMethod)
       } catch (error) {
         console.log('sdk get session err:', desireAccount, error.message)
         if (loginAnonymousIfFailed) {
@@ -164,22 +171,29 @@ const useLogin = (autoLogin = false) => {
     [setLoading, signInAnonymous, getProfile, saveSignedAccount, showSignInSuccess],
   )
 
-  const redirectSignIn = useCallback(
-    (account: string) => {
-      setLoginRedirectUrl(window.location.href)
-      KyberOauth2.authenticate(isEVM ? { wallet_address: account } : {}) // navigate to login page
-    },
-    [isEVM],
-  )
+  const redirectSignIn = useCallback((account: string, loginMethod = LoginMethod.ETH) => {
+    setLoginRedirectUrl(window.location.href)
+    const accountKey = loginMethod === LoginMethod.ETH ? 'wallet_address' : 'email'
+    KyberOauth2.authenticate({ [accountKey]: account, type: loginMethod }) // navigate to login page
+  }, [])
 
   // check account info and redirect if needed
   const [, setAutoSignIn] = useIsAutoLoginAfterConnectWallet()
   const signIn = useCallback(
-    async (desireAccount?: string, showSessionExpired = false) => {
+    async ({
+      desireAccount,
+      showSessionExpired,
+      loginMethod = LoginMethod.ETH,
+    }: {
+      desireAccount?: string
+      showSessionExpired?: boolean
+      loginMethod?: LoginMethod
+    }) => {
       const isAddAccount = !desireAccount
       const isSelectAccount = !!desireAccount
+      const isEth = loginMethod === LoginMethod.ETH
 
-      if (isAddAccount && !account) {
+      if (isAddAccount && !account && isEth) {
         toggleWalletModal()
         setAutoSignIn({ value: true, account: desireAccount })
         return
@@ -193,19 +207,19 @@ const useLogin = (autoLogin = false) => {
         return
       }
 
-      const formatAccount = desireAccount || account || ''
+      const formatAccount = desireAccount || (isEth ? account : '') || ''
       if (showSessionExpired && isSelectAccount && !isTokenExist) {
         showConfirm({
           isOpen: true,
           content: t`Your session has expired. Please sign-in to continue.`,
           title: t`Session Expired`,
           confirmText: t`Sign-in`,
-          onConfirm: () => redirectSignIn(formatAccount),
+          onConfirm: () => redirectSignIn(formatAccount, loginMethod),
           cancelText: t`Cancel`,
         })
         return
       }
-      redirectSignIn(formatAccount)
+      redirectSignIn(formatAccount, loginMethod)
     },
     [account, checkSessionSignIn, toggleWalletModal, showConfirm, setAutoSignIn, redirectSignIn],
   )
@@ -300,8 +314,18 @@ const useLogin = (autoLogin = false) => {
   )
 
   const signInWrapped = useCallback(
-    (desireAccount: string | undefined = undefined, isGuest = false, showSessionExpired = false) => {
-      return isGuest ? signInAnonymous(desireAccount) : signIn(desireAccount, showSessionExpired)
+    ({
+      account = undefined,
+      loginMethod = LoginMethod.ETH,
+      showSessionExpired = false,
+    }: {
+      account?: string
+      loginMethod?: LoginMethod
+      showSessionExpired?: boolean
+    } = {}) => {
+      return loginMethod === LoginMethod.ANONYMOUS
+        ? signInAnonymous(account)
+        : signIn({ desireAccount: account, showSessionExpired, loginMethod })
     },
     [signInAnonymous, signIn],
   )
@@ -348,7 +372,7 @@ export const useAutoLogin = () => {
     useIsAutoLoginAfterConnectWallet()
   useEffect(() => {
     if (!account || !needSignInAfterConnectWallet) return
-    signIn(accountSignAfterConnectedWallet)
+    signIn({ account: accountSignAfterConnectedWallet })
     setAutoSignIn({ value: false, account: undefined })
   }, [account, needSignInAfterConnectWallet, accountSignAfterConnectedWallet, signIn, setAutoSignIn])
 

@@ -76,6 +76,9 @@ export default function VerifyCodeModal({
   showVerifySuccess,
   verifySuccessTitle,
   verifySuccessContent,
+  sendCode,
+  verifyCode,
+  refreshProfile = true,
 }: {
   onVerifySuccess?: (() => Promise<any>) | (() => void)
   isOpen: boolean
@@ -84,6 +87,9 @@ export default function VerifyCodeModal({
   showVerifySuccess?: boolean
   verifySuccessTitle?: string
   verifySuccessContent?: ReactNode
+  sendCode?: (data: { email: string }) => Promise<any>
+  verifyCode?: (data: { email: string; code: string }) => Promise<void>
+  refreshProfile?: boolean
 }) {
   const theme = useTheme()
   const [otp, setOtp] = useState<string>('')
@@ -123,20 +129,19 @@ export default function VerifyCodeModal({
     [notify],
   )
 
-  const sendEmail = useCallback(() => {
+  const sendEmail = useCallback(async () => {
     interval.current && clearInterval(interval.current)
     if (!email) return
-    sendOtp({ email })
-      .unwrap()
-      .then(() => {
-        setExpireDuration(defaultTime)
-        setError(undefined)
-      })
-      .catch(data => {
-        setExpireDuration(0)
-        setError(!data?.status ? ErrorType.RATE_LIMIT : ErrorType.SEND_EMAIL_ERROR)
-      })
-  }, [email, sendOtp])
+    try {
+      const promise = sendCode ? sendCode({ email }) : sendOtp({ email }).unwrap()
+      await promise
+      setExpireDuration(defaultTime)
+      setError(undefined)
+    } catch (error) {
+      setExpireDuration(0)
+      setError(!error?.status ? ErrorType.RATE_LIMIT : ErrorType.SEND_EMAIL_ERROR)
+    }
+  }, [email, sendOtp, sendCode])
 
   const checkedRegisterStatus = useRef(false) // prevent spam
   const sendEmailWhenInit = useCallback(() => {
@@ -158,15 +163,18 @@ export default function VerifyCodeModal({
     }
   }, [isOpen, showNotiSuccess, showVerifySuccess, sendEmailWhenInit])
 
-  const refreshProfile = useRefreshProfile()
+  const refreshProfileInfo = useRefreshProfile()
 
   const verify = async () => {
     try {
       if (!email) return
-      await verifyOtp({ code: otp, email }).unwrap()
-      await onVerifySuccess?.()
-      await refreshProfile()
-      showNotiSuccess()
+      const promise = verifyCode ? verifyCode({ code: otp, email }) : verifyOtp({ code: otp, email }).unwrap()
+      await promise
+      await (onVerifySuccess ? onVerifySuccess() : onDismiss())
+      if (refreshProfile) {
+        await refreshProfileInfo()
+        showNotiSuccess()
+      }
     } catch (error) {
       setError(ErrorType.VALIDATE_ERROR)
       notify({
