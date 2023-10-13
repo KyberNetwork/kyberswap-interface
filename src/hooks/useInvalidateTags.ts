@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import announcementApi from 'services/announcement'
 import campaignApi from 'services/campaign'
+import limitOrderApi from 'services/limitOrder'
 
 import kyberAIApi from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { useAppDispatch } from 'state/hooks'
@@ -25,4 +26,8 @@ export const useInvalidateTagCampaign = () => {
 
 export const useInvalidateTagKyberAi = () => {
   return useInvalidateTags(kyberAIApi)
+}
+
+export const useInvalidateTagLimitOrder = () => {
+  return useInvalidateTags(limitOrderApi)
 }
