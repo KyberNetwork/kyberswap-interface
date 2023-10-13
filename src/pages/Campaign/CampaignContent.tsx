@@ -17,10 +17,8 @@ import ProgressBar from 'components/ProgressBar'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
-import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
-import { useInvalidateTagCampaign } from 'hooks/useInvalidateTags'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import CampaignActions from 'pages/Campaign/CampaignActions'
@@ -56,6 +54,8 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import oembed2iframe from 'utils/oembed2iframe'
 
 import ModalSelectCampaign from './ModalSelectCampaign'
+
+export const MINUTE_TO_REFRESH = 5 * 60
 
 const LoaderParagraphs = () => (
   <>
@@ -325,8 +325,7 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
     data: campaigns,
   } = useSelector((state: AppState) => state.campaigns)
 
-  const MINUTE_TO_REFRESH = 5
-  const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(MINUTE_TO_REFRESH * 60)
+  const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(MINUTE_TO_REFRESH)
   const dispatch = useAppDispatch()
   useInterval(
     () => {
@@ -336,10 +335,7 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
           setCampaignData({
             campaigns: campaigns.map(campaign => {
               if (campaign.id === selectedCampaign.id) {
-                return {
-                  ...campaign,
-                  status,
-                }
+                return { ...campaign, status }
               }
               return campaign
             }),
@@ -361,23 +357,11 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
       ) {
         updateCampaignStatus(CampaignStatus.ENDED)
       }
-      setCampaignsRefreshIn(prev => {
-        if (prev === 0) {
-          return MINUTE_TO_REFRESH * 60
-        }
-        return prev - 1
-      })
+      setCampaignsRefreshIn(prev => (prev === 0 ? MINUTE_TO_REFRESH : prev - 1))
     },
     selectedCampaign?.campaignState === CampaignState.CampaignStateReady ? 1000 : null,
     true,
   )
-
-  const invalidateTags = useInvalidateTagCampaign()
-  useEffect(() => {
-    if (campaignsRefreshIn === 0 && selectedCampaign) {
-      invalidateTags(RTK_QUERY_TAGS.GET_LEADER_BOARD_CAMPAIGN)
-    }
-  }, [campaignsRefreshIn, selectedCampaign, invalidateTags])
 
   if (campaigns.length === 0 && loadingCampaignData) {
     return <LocalLoader />

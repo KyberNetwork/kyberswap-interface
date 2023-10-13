@@ -19,7 +19,7 @@ import {
 import { AppState } from 'state/index'
 import { getCampaignIdFromSlug, getSlugUrlCampaign } from 'utils/campaign'
 
-import CampaignContent from './CampaignContent'
+import CampaignContent, { MINUTE_TO_REFRESH } from './CampaignContent'
 
 const MAXIMUM_ITEMS_PER_REQUEST = 10
 
@@ -130,7 +130,7 @@ export default function CampaignsUpdater() {
       lookupAddress: selectedCampaignLeaderboardLookupAddress,
       pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
     },
-    { skip: !selectedCampaign?.id },
+    { skip: !selectedCampaign?.id, pollingInterval: MINUTE_TO_REFRESH * 1000 },
   )
 
   useEffect(() => {

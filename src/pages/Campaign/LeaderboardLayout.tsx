@@ -74,21 +74,17 @@ export default function LeaderboardLayout({
   const [currentPage, setCurrentPage] = useSelectedCampaignLeaderboardPageNumberManager()
 
   let totalItems = 0
-  if (type === 'leaderboard') {
-    if (selectedCampaignLeaderboard) {
-      totalItems = leaderboardSearchValue ? 1 : selectedCampaignLeaderboard.totalParticipants
-    }
+  if (type === 'leaderboard' && selectedCampaignLeaderboard) {
+    totalItems = leaderboardSearchValue ? 1 : selectedCampaignLeaderboard.totalParticipants
   }
-  if (type === 'lucky_winner') {
-    if (selectedCampaign && selectedCampaignLeaderboard) {
-      const randomRewards = selectedCampaign.rewardDistribution.filter(reward => reward.type === 'Random')
-      const totalRandomRewardItems = randomRewards.reduce(
-        (acc, reward) => acc + ((reward as RewardRandom).nWinners ?? 0),
-        0,
-      )
+  if (type === 'lucky_winner' && selectedCampaign && selectedCampaignLeaderboard) {
+    const randomRewards = selectedCampaign.rewardDistribution.filter(reward => reward.type === 'Random')
+    const totalRandomRewardItems = randomRewards.reduce(
+      (acc, reward) => acc + ((reward as RewardRandom).nWinners ?? 0),
+      0,
+    )
 
-      totalItems = searchValue ? 1 : Math.min(totalRandomRewardItems, selectedCampaignLeaderboard.totalParticipants)
-    }
+    totalItems = searchValue ? 1 : Math.min(totalRandomRewardItems, selectedCampaignLeaderboard.totalParticipants)
   }
 
   const refreshInMinute = Math.floor(refreshIn / 60)

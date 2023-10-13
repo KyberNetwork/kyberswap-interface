@@ -5,7 +5,7 @@ import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 
 import { CAMPAIGN_BASE_URL } from 'constants/env'
-import { RESERVE_USD_DECIMALS, RTK_QUERY_TAGS } from 'constants/index'
+import { RESERVE_USD_DECIMALS } from 'constants/index'
 import {
   CampaignData,
   CampaignLeaderboard,
@@ -201,7 +201,6 @@ const formatTxs = (data: any[]) => {
 const campaignApi = createApi({
   reducerPath: 'campaignApi',
   baseQuery: fetchBaseQuery({ baseUrl: `${CAMPAIGN_BASE_URL}/api/v1/campaigns` }),
-  tagTypes: [RTK_QUERY_TAGS.GET_LEADER_BOARD_CAMPAIGN],
   endpoints: builder => ({
     getCampaigns: builder.query<any, { campaignName: string; userAddress?: string; offset: number; limit: number }>({
       query: params => ({
@@ -219,7 +218,6 @@ const campaignApi = createApi({
         url: `/${campaignId}/leaderboard`,
       }),
       transformResponse: (data: any) => formatLeaderboardData(data?.data),
-      providesTags: [RTK_QUERY_TAGS.GET_LEADER_BOARD_CAMPAIGN],
     }),
     getLuckyWinners: builder.query<
       CampaignLuckyWinner[],
