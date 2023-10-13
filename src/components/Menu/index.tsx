@@ -473,7 +473,7 @@ export default function Menu() {
             )}
 
             <MenuItem>
-              <ExternalLink
+              <a
                 href={TERM_FILES_PATH.KYBERSWAP_TERMS}
                 onClick={() => {
                   toggle()
@@ -482,10 +482,10 @@ export default function Menu() {
               >
                 <FileText />
                 <Trans>Terms</Trans>
-              </ExternalLink>
+              </a>
             </MenuItem>
             <MenuItem>
-              <ExternalLink
+              <a
                 href={TERM_FILES_PATH.PRIVACY_POLICY}
                 onClick={() => {
                   toggle()
@@ -494,7 +494,7 @@ export default function Menu() {
               >
                 <FileText />
                 <Trans>Privacy Policy</Trans>
-              </ExternalLink>
+              </a>
             </MenuItem>
             <MenuItem>
               <ExternalLink
