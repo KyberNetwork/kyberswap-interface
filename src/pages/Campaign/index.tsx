@@ -97,7 +97,7 @@ export default function CampaignsUpdater() {
         replace: true,
       })
     }
-    if (selectedCampaignId === undefined) {
+    if (!selectedCampaignId) {
       navigateFirsOne()
       return
     }

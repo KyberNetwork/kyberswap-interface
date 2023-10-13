@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { useSelector } from 'react-redux'
@@ -313,9 +313,12 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
   const toggleSelectCampaignModal = useSelectCampaignModalToggle()
 
   const navigate = useNavigate()
-  const onSelectCampaign = (campaign: CampaignData) => {
-    navigate(getSlugUrlCampaign(campaign.id, campaign.name))
-  }
+  const onSelectCampaign = useCallback(
+    (campaign: CampaignData) => {
+      navigate(getSlugUrlCampaign(campaign.id, campaign.name))
+    },
+    [navigate],
+  )
 
   const now = Date.now()
 
