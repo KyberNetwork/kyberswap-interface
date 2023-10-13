@@ -6,7 +6,7 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { get24hValue } from 'utils'
-import { toFixed } from 'utils/numbers'
+import { toString } from 'utils/numbers'
 
 import { ClassicPoolData, CommonReturn } from './type'
 
@@ -79,8 +79,8 @@ const useGetClassicPoolsKN = (): CommonReturn => {
   const poolData: ClassicPoolData[] | undefined = useMemo(
     () =>
       data?.data?.pools.map(pool => {
-        const oneDayVolumeUSD = toFixed(get24hValue(pool.volumeUsd, pool.volumeUsdOneDayAgo))
-        const oneDayFeeUSD = toFixed(get24hValue(pool.feeUSD, pool.feesUsdOneDayAgo))
+        const oneDayVolumeUSD = toString(get24hValue(pool.volumeUsd, pool.volumeUsdOneDayAgo))
+        const oneDayFeeUSD = toString(get24hValue(pool.feeUSD, pool.feesUsdOneDayAgo))
 
         return {
           id: pool.id,
