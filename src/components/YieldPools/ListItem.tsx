@@ -373,7 +373,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             </Row>
             {/* AVG APR */}
             <Row color={theme.apr} gap="4px">
-              {apr.toFixed(2)}%
+              {formatDisplayNumber(apr / 100, { style: 'percent', fractionDigits: 2 })}
               {apr !== 0 && (
                 <MouseoverTooltip
                   width="fit-content"
@@ -531,7 +531,7 @@ const ListItem = ({ farm }: ListItemProps) => {
           </RowBetween>
           <RowBetween marginBottom="16px">
             <Text fontSize={28} lineHeight="32px" color={theme.apr} fontWeight={500}>
-              {!!apr ? apr.toFixed(2) + '%' : '--'}
+              {formatDisplayNumber(apr / 100, { style: 'percent', fractionDigits: 2 })}
             </Text>
           </RowBetween>
           <RowBetween marginBottom="4px">
