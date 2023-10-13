@@ -421,7 +421,7 @@ export default function Vote() {
                 )
               ) : (
                 <ButtonLight onClick={toggleWalletModal}>
-                  <Trans>Connect Your Wallet</Trans>
+                  <Trans>Connect</Trans>
                 </ButtonLight>
               )}
             </AutoColumn>

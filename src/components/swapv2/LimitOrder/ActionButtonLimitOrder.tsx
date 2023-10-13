@@ -75,7 +75,7 @@ export default function ActionButtonLimitOrder({
   if (!account)
     return (
       <ButtonLight onClick={toggleWalletModal}>
-        <Trans>Connect Wallet</Trans>
+        <Trans>Connect</Trans>
       </ButtonLight>
     )
 
