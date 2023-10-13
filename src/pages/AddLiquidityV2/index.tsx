@@ -252,7 +252,7 @@ export default function AddLiquidity() {
   const defaultFId = Number(searchParams.get('fId') || '0')
   const range = activeRanges.find(i => i.index === activeRangeIndex && i.farm.fId === defaultFId)
 
-  const [method, setMethod] = useState<'pair' | 'zap'>('pair')
+  const [method, setMethod] = useState<'pair' | 'zap'>('zap')
 
   const canJoinFarm =
     isFarmV2Available &&

@@ -449,6 +449,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                 zapDetail.priceImpact?.isHigh ||
                 zapDetail.priceImpact?.isInvalid
               ) &&
+                result &&
                 !zapLoading && (
                   <>
                     <Flex marginTop="1rem" />
