@@ -140,13 +140,13 @@ export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean
             (farmData: Farm) => farmData && farmData.id.toLowerCase() === poolInfo.stakeToken.toLowerCase(),
           ),
           ...poolInfo,
+          version: isV2 ? FairLaunchVersion.V2 : isV3 ? FairLaunchVersion.V3 : FairLaunchVersion.V1,
           rewardTokens: poolInfo.rewardTokens,
           fairLaunchAddress: contract.address,
           userData: {
             stakedBalance: stakedBalances[index],
             rewards: [FairLaunchVersion.V2, FairLaunchVersion.V3].includes(poolInfo.fairLaunchVersion)
-              ? pendingRewards[index] &&
-                pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
+              ? pendingRewards[index]?.map((pendingReward: BigNumber, pendingRewardIndex: number) =>
                   pendingReward.div(
                     isV3 ? poolInfo.multipliers[pendingRewardIndex] : poolInfo.rewardMultipliers[pendingRewardIndex],
                   ),

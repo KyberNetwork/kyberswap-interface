@@ -125,6 +125,7 @@ type FormatOptions = {
   significantDigits?: number // usually for decimal style
   fallback?: string
   allowNegative?: boolean
+  allowZero?: boolean
 }
 interface RequiredFraction extends FormatOptions {
   fractionDigits: number // usually for percent  & currency styles
@@ -156,6 +157,7 @@ export const formatDisplayNumber = (
     fractionDigits,
     fallback = '--',
     allowNegative = false,
+    allowZero = true,
   }: RequiredFraction | RequiredSignificant,
 ): string => {
   const currency = style === 'currency' ? '$' : ''
@@ -165,6 +167,7 @@ export const formatDisplayNumber = (
   if (value === undefined || value === null || Number.isNaN(value)) return fallbackResult
   const parsedFraction = parseNum(value)
   if (!allowNegative && parsedFraction.lessThan(BIG_INT_ZERO)) return fallbackResult
+  if (!allowZero && parsedFraction.equalTo(BIG_INT_ZERO)) return fallbackResult
 
   const shownFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
   const absShownFraction = shownFraction.lessThan(0) ? shownFraction.multiply(-1) : shownFraction
