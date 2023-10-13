@@ -164,12 +164,5 @@ export const setSelectedCampaignLeaderboardLookupAddress = createAction<string>(
 
 export const setClaimingCampaignRewardId = createAction<number | null>('campaigns/setClaimingCampaignRewardId')
 
-export const setSelectedCampaignLuckyWinnersPageNumber = createAction<number>(
-  'campaigns/setSelectedCampaignLuckyWinnersPageNumber',
-)
-export const setSelectedCampaignLuckyWinnersLookupAddress = createAction<string>(
-  'campaigns/setSelectedCampaignLuckyWinnersLookupAddress',
-)
-
 export const setRecaptchaCampaignId = createAction<number | undefined>('campaigns/setRecaptchaCampaignId')
 export const setRecaptchaCampaignLoading = createAction<boolean>('campaigns/setRecaptchaCampaignLoading')

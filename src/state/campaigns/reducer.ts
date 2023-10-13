@@ -16,8 +16,6 @@ import {
   setSelectedCampaignLeaderboard,
   setSelectedCampaignLeaderboardLookupAddress,
   setSelectedCampaignLeaderboardPageNumber,
-  setSelectedCampaignLuckyWinnersLookupAddress,
-  setSelectedCampaignLuckyWinnersPageNumber,
 } from './actions'
 
 interface CampaignsState {
@@ -28,12 +26,8 @@ interface CampaignsState {
   readonly selectedCampaign: CampaignData | undefined
 
   readonly selectedCampaignLeaderboard: CampaignLeaderboard | undefined
-  readonly loadingCampaignLeaderboard: boolean
   readonly selectedCampaignLeaderboardPageNumber: number
   readonly selectedCampaignLeaderboardLookupAddress: string
-
-  readonly selectedCampaignLuckyWinnersPageNumber: number
-  readonly selectedCampaignLuckyWinnersLookupAddress: string
 
   readonly claimingCampaignRewardId: number | null // id that is being claimed
 
@@ -53,12 +47,8 @@ const initialState: CampaignsState = {
   selectedCampaign: undefined,
 
   selectedCampaignLeaderboard: undefined,
-  loadingCampaignLeaderboard: false,
   selectedCampaignLeaderboardPageNumber: 0,
   selectedCampaignLeaderboardLookupAddress: '',
-
-  selectedCampaignLuckyWinnersPageNumber: 0,
-  selectedCampaignLuckyWinnersLookupAddress: '',
 
   claimingCampaignRewardId: null,
 
@@ -130,18 +120,6 @@ export default createReducer<CampaignsState>(initialState, builder =>
       }
     })
 
-    .addCase(setSelectedCampaignLuckyWinnersPageNumber, (state, { payload: pageNumber }) => {
-      return {
-        ...state,
-        selectedCampaignLuckyWinnersPageNumber: pageNumber,
-      }
-    })
-    .addCase(setSelectedCampaignLuckyWinnersLookupAddress, (state, { payload: lookupAddress }) => {
-      return {
-        ...state,
-        selectedCampaignLuckyWinnersLookupAddress: lookupAddress,
-      }
-    })
     .addCase(setRecaptchaCampaignId, (state, { payload: id }) => {
       return {
         ...state,

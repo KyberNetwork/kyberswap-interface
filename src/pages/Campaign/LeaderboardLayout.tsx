@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Clock } from 'react-feather'
 import { useSelector } from 'react-redux'
 import { useMedia, useSize } from 'react-use'
@@ -22,8 +22,6 @@ import { CampaignState, CampaignStatus, RewardRandom } from 'state/campaigns/act
 import {
   useSelectedCampaignLeaderboardLookupAddressManager,
   useSelectedCampaignLeaderboardPageNumberManager,
-  useSelectedCampaignLuckyWinnerPageNumber,
-  useSelectedCampaignLuckyWinnersLookupAddressManager,
 } from 'state/campaigns/hooks'
 import { formatNumberWithPrecisionRange } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -49,18 +47,21 @@ export default function LeaderboardLayout({
     </span>
   ))
 
-  const {
-    selectedCampaignLeaderboard,
-    selectedCampaign,
-    selectedCampaignLuckyWinnersPageNumber,
-    selectedCampaignLuckyWinnersLookupAddress,
-  } = useSelector((state: AppState) => state.campaigns)
+  const { selectedCampaignLeaderboard, selectedCampaign } = useSelector((state: AppState) => state.campaigns)
+  const [leaderboardSearchValue, setLeaderboardSearchValue] = useSelectedCampaignLeaderboardLookupAddressManager()
 
+  const [luckyWinnersSearchValue, setLuckyWinnersSearchValue] = useState('')
+
+  const [searchValue, setSearchValue] =
+    type === 'leaderboard'
+      ? [leaderboardSearchValue, setLeaderboardSearchValue]
+      : [luckyWinnersSearchValue, setLuckyWinnersSearchValue]
+  const [currentPageLuckyWinner, setCurrentPageLuckyWinner] = useState(0)
   const { currentData: dataLuckWinners } = useGetLuckyWinnersQuery(
     {
       pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
-      pageNumber: selectedCampaignLuckyWinnersPageNumber,
-      lookupAddress: selectedCampaignLuckyWinnersLookupAddress,
+      pageNumber: currentPageLuckyWinner,
+      lookupAddress: luckyWinnersSearchValue,
       campaignId: selectedCampaign?.id || 0,
     },
     { skip: !selectedCampaign?.id },
@@ -71,13 +72,6 @@ export default function LeaderboardLayout({
     EMPTY_ARRAY
 
   const [currentPage, setCurrentPage] = useSelectedCampaignLeaderboardPageNumberManager()
-  const [currentPageLuckyWinner, setCurrentPageLuckyWinner] = useSelectedCampaignLuckyWinnerPageNumber()
-  const [leaderboardSearchValue, setLeaderboardSearchValue] = useSelectedCampaignLeaderboardLookupAddressManager()
-  const [luckyWinnersSearchValue, setLuckyWinnersSearchValue] = useSelectedCampaignLuckyWinnersLookupAddressManager()
-  const [searchValue, setSearchValue] =
-    type === 'leaderboard'
-      ? [leaderboardSearchValue, setLeaderboardSearchValue]
-      : [luckyWinnersSearchValue, setLuckyWinnersSearchValue]
 
   let totalItems = 0
   if (type === 'leaderboard') {
