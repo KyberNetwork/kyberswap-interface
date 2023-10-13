@@ -65,7 +65,7 @@ const Placeholder = () => {
           }}
           onClick={toggleWalletModal}
         >
-          <Trans>Connect Wallet</Trans>
+          <Trans>Connect</Trans>
         </ButtonPrimary>
       </Flex>
     </Flex>
