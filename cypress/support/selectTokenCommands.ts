@@ -10,8 +10,7 @@ declare global {
       interface Chainable {
          closeTutorialPopup(): Chainable<void>
          searchToken(value: string): Chainable<void>
-         selectTokenIn(): Chainable<void>
-         selectTokenOut(): Chainable<void>
+         selectToken(selector: string): Chainable<void>
          selectTokenBySymbol(value: string): Chainable<void>
          removeFavoriteToken(value: string): Chainable<void>
          addFavoriteToken(): Chainable<void>
@@ -30,15 +29,12 @@ Cypress.Commands.add('closeTutorialPopup', () => {
    cy.get(SwapPageLocators.btnSkipTutorial, { timeout: 30000 }).should('be.visible').click()
 })
 
-Cypress.Commands.add('selectTokenIn', () => {
-   cy.get(SwapPageLocators.dropdownTokenIn, { timeout: 30000 }).should('be.visible').click()
-})
-
-Cypress.Commands.add('selectTokenOut', () => {
-   cy.get(SwapPageLocators.dropdownTokenOut, { timeout: 30000 }).should('be.visible').click()
+Cypress.Commands.add('selectToken', (selector: string) => {
+   cy.get(selector, { timeout: 30000 }).should('be.visible').click()
 })
 
 Cypress.Commands.add('searchToken', (value) => {
+   cy.get(TokenCatalogLocators.txtToken).clear()
    cy.get(TokenCatalogLocators.txtToken).should('be.visible').type(value)
 })
 
