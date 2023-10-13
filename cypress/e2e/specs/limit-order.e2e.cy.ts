@@ -15,7 +15,7 @@ const tokenCatalog = new TokenCatalog();
 describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
     beforeEach(() => {
         SwapPage.open(DEFAULT_URL)
-        cy.get('#limit-button').click()
+        SwapPage.goToLimitOrder()
     })
 
     describe('Add/remove/select token with favorite tokens list', () => {

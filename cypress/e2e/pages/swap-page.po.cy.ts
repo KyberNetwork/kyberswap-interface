@@ -37,6 +37,10 @@ export const SwapPage = {
         cy.get(WalletLocators.statusConnected, { timeout: 10000 }).should('be.visible')
     },
 
+    goToLimitOrder() {
+        cy.get(LimitOrderLocators.btnLimit).click()
+    },
+
     goToFarmPage() {
         cy.get(HeaderLocators.dropdownEarn).click({ force: true })
         cy.get(HeaderLocators.lblFarms).click({ force: true })

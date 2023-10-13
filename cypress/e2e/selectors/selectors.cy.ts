@@ -23,7 +23,8 @@ export const SwapPageLocators = {
 
 export const LimitOrderLocators = {
   dropdownTokenSell: '[data-testid=limit-order-input-tokena] [data-testid=token-symbol-container]',
-  dropdownTokenBuy: '[data-testid=limit-order-input-tokenb] [data-testid=token-symbol-container]'
+  dropdownTokenBuy: '[data-testid=limit-order-input-tokenb] [data-testid=token-symbol-container]',
+  btnLimit: '[data-testid=limit-button]'
 }
 
 export const WalletLocators = {
