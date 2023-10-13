@@ -541,7 +541,7 @@ export default function Swap() {
                     <BottomGrouping>
                       {!account ? (
                         <ButtonLight onClick={toggleWalletModal}>
-                          <Trans>Connect Wallet</Trans>
+                          <Trans>Connect</Trans>
                         </ButtonLight>
                       ) : showWrap ? (
                         <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>

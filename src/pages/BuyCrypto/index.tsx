@@ -473,7 +473,7 @@ function BuyCrypto() {
 
                 {!account ? (
                   <ButtonLight margin={'16px 0 0'} width={upToSmall ? '100%' : '50%'} onClick={toggleWalletModal}>
-                    Connect your wallet
+                    Connect
                   </ButtonLight>
                 ) : (
                   <Address>

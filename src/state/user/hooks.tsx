@@ -101,12 +101,14 @@ export function useUserLocaleManager(): [SupportedLocale | null, (newLocale: Sup
   return [locale, setLocale]
 }
 
+// unused for now, but may be added again in the future. So we should keep it here.
 export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void] {
   const dispatch = useAppDispatch()
   const acceptedTermVersion = useSelector<AppState, AppState['user']['acceptedTermVersion']>(
     state => state.user.acceptedTermVersion,
   )
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isAcceptedTerm = !!acceptedTermVersion && acceptedTermVersion === TERM_FILES_PATH.VERSION
 
   const setIsAcceptedTerm = useCallback(
@@ -116,7 +118,8 @@ export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void
     [dispatch],
   )
 
-  return [isAcceptedTerm, setIsAcceptedTerm]
+  // return [isAcceptedTerm, setIsAcceptedTerm]
+  return [true, setIsAcceptedTerm]
 }
 
 export function useDegenModeManager(): [boolean, () => void] {
