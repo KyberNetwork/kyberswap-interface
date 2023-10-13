@@ -198,7 +198,7 @@ function Web3StatusInner() {
       id={TutorialIds.BUTTON_CONNECT_WALLET}
       data-testid="button-connect-wallet"
     >
-      <Trans>Connect Wallet</Trans>
+      <Trans>Connect</Trans>
     </ButtonLight>
   )
 }

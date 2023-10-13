@@ -177,7 +177,7 @@ function FaucetModal() {
             }}
             style={{ borderRadius: '24px', height: '44px' }}
           >
-            <Trans>Connect Wallet</Trans>
+            <Trans>Connect</Trans>
           </ButtonPrimary>
         )}
       </Flex>
