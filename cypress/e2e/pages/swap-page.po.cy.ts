@@ -1,4 +1,4 @@
-import { HeaderLocators, NetworkLocators, SwapPageLocators, TokenCatalogLocators, WalletLocators } from "../selectors/selectors.cy"
+import { HeaderLocators, LimitOrderLocators, NetworkLocators, SwapPageLocators, TokenCatalogLocators, WalletLocators } from "../selectors/selectors.cy"
 
 export interface myCallbackType<T> {
     (myArgument: T): void
@@ -12,11 +12,11 @@ export const SwapPage = {
     },
 
     selectTokenIn(): TokenCatalog {
-        cy.selectTokenIn()
+        cy.selectToken(SwapPageLocators.dropdownTokenIn)
         return new TokenCatalog()
     },
     selectTokenOut(): TokenCatalog {
-        cy.selectTokenOut()
+        cy.selectToken(SwapPageLocators.dropdownTokenOut)
         return new TokenCatalog()
     },
 
@@ -35,6 +35,10 @@ export const SwapPage = {
 
     getStatusConnectedWallet() {
         cy.get(WalletLocators.statusConnected, { timeout: 10000 }).should('be.visible')
+    },
+
+    goToLimitOrder() {
+        cy.get(LimitOrderLocators.btnLimit).click()
     },
 
     goToFarmPage() {
@@ -78,10 +82,12 @@ export class TokenCatalog {
         cy.selectTokenBySymbol(tokenSymbol)
     }
 
-    addFavoriteToken(tokenSymbol: string) {
-        this.searchToken(tokenSymbol)
-        cy.wait(2000)
-        cy.addFavoriteToken()
+    addFavoriteToken(tokenSymbol: Array<string>) {
+        tokenSymbol.forEach(element => {
+            this.searchToken(element)
+            cy.wait(2000)
+            cy.addFavoriteToken()
+        });
     }
 
     removeFavoriteToken(tokenSymbol: string) {
