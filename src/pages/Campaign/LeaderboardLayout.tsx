@@ -6,6 +6,7 @@ import { Clock } from 'react-feather'
 import { useSelector } from 'react-redux'
 import { useMedia, useSize } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useGetLuckyWinnersQuery } from 'services/campaign'
 import styled, { css } from 'styled-components'
 
 import Bronze from 'assets/svg/bronze_icon.svg'
@@ -14,7 +15,7 @@ import Silver from 'assets/svg/silver_icon.svg'
 import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Search, { Container as SearchContainer, Wrapper as SearchWrapper } from 'components/Search'
-import { BIG_INT_ZERO, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT } from 'constants/index'
+import { BIG_INT_ZERO, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT, EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
 import { CampaignState, CampaignStatus, RewardRandom } from 'state/campaigns/actions'
@@ -48,9 +49,26 @@ export default function LeaderboardLayout({
     </span>
   ))
 
-  const { selectedCampaignLeaderboard, selectedCampaignLuckyWinners, selectedCampaign } = useSelector(
-    (state: AppState) => state.campaigns,
+  const {
+    selectedCampaignLeaderboard,
+    selectedCampaign,
+    selectedCampaignLuckyWinnersPageNumber,
+    selectedCampaignLuckyWinnersLookupAddress,
+  } = useSelector((state: AppState) => state.campaigns)
+
+  const { currentData: dataLuckWinners } = useGetLuckyWinnersQuery(
+    {
+      pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
+      pageNumber: selectedCampaignLuckyWinnersPageNumber,
+      lookupAddress: selectedCampaignLuckyWinnersLookupAddress,
+      campaignId: selectedCampaign?.id || 0,
+    },
+    { skip: !selectedCampaign?.id },
   )
+
+  const luckyWinners =
+    (selectedCampaign?.campaignState === CampaignState.CampaignStateReady ? EMPTY_ARRAY : dataLuckWinners) ||
+    EMPTY_ARRAY
 
   const [currentPage, setCurrentPage] = useSelectedCampaignLeaderboardPageNumberManager()
   const [currentPageLuckyWinner, setCurrentPageLuckyWinner] = useSelectedCampaignLuckyWinnerPageNumber()
@@ -143,7 +161,7 @@ export default function LeaderboardLayout({
     )
   })
 
-  const luckyWinnersTableBody = selectedCampaignLuckyWinners.map((luckyWinner, index) => {
+  const luckyWinnersTableBody = luckyWinners.map((luckyWinner, index) => {
     return (
       <LeaderboardTableBody key={index} noColumns={2} showMedal={false} style={{ background: 'transparent' }}>
         <LeaderboardTableBodyItem isThisRankingEligible={true}>

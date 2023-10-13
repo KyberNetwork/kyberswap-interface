@@ -222,7 +222,7 @@ const campaignApi = createApi({
       providesTags: [RTK_QUERY_TAGS.GET_LEADER_BOARD_CAMPAIGN],
     }),
     getLuckyWinners: builder.query<
-      any,
+      CampaignLuckyWinner[],
       { pageSize: number; pageNumber: number; lookupAddress: string; campaignId: number }
     >({
       query: ({ campaignId, ...params }) => ({

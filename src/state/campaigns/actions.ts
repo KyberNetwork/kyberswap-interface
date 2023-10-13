@@ -164,12 +164,6 @@ export const setSelectedCampaignLeaderboardLookupAddress = createAction<string>(
 
 export const setClaimingCampaignRewardId = createAction<number | null>('campaigns/setClaimingCampaignRewardId')
 
-export const setSelectedCampaignLuckyWinners = createAction<{ luckyWinners: CampaignLuckyWinner[] }>(
-  'campaigns/setSelectedCampaignLuckyWinners',
-)
-export const setLoadingSelectedCampaignLuckyWinners = createAction<boolean>(
-  'campaigns/setLoadingSelectedCampaignLuckyWinners',
-)
 export const setSelectedCampaignLuckyWinnersPageNumber = createAction<number>(
   'campaigns/setSelectedCampaignLuckyWinnersPageNumber',
 )

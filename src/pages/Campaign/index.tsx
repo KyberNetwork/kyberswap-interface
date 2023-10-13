@@ -1,23 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useGetCampaignsQuery, useGetLeaderboardQuery, useGetLuckyWinnersQuery } from 'services/campaign'
+import { useGetCampaignsQuery, useGetLeaderboardQuery } from 'services/campaign'
 
 import { APP_PATHS, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import {
   CampaignLeaderboard,
-  CampaignState,
   setCampaignDataByPage,
   setLastTimeRefreshData,
   setLoadingCampaignData,
   setLoadingCampaignDataError,
   setLoadingSelectedCampaignLeaderboard,
-  setLoadingSelectedCampaignLuckyWinners,
   setSelectedCampaign,
   setSelectedCampaignLeaderboard,
-  setSelectedCampaignLuckyWinners,
 } from 'state/campaigns/actions'
 import { AppState } from 'state/index'
 import { getCampaignIdFromSlug, getSlugUrlCampaign } from 'utils/campaign'
@@ -145,36 +142,6 @@ export default function CampaignsUpdater() {
   useEffect(() => {
     dispatch(setLoadingSelectedCampaignLeaderboard(isLoadingLeaderboard))
   }, [dispatch, isLoadingLeaderboard])
-
-  /**********************CAMPAIGN LUCKY WINNERS**********************/
-
-  const { selectedCampaignLuckyWinnersPageNumber, selectedCampaignLuckyWinnersLookupAddress } = useSelector(
-    (state: AppState) => state.campaigns,
-  )
-
-  const { currentData: dataLuckWinners, isFetching: isLoadingLuckyWinners } = useGetLuckyWinnersQuery(
-    {
-      pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
-      pageNumber: selectedCampaignLuckyWinnersPageNumber,
-      lookupAddress: selectedCampaignLuckyWinnersLookupAddress,
-      campaignId: selectedCampaign?.id || 0,
-    },
-    { skip: !selectedCampaign?.id },
-  )
-
-  const luckyWinners =
-    (selectedCampaign?.campaignState === CampaignState.CampaignStateReady ? EMPTY_ARRAY : dataLuckWinners) ||
-    EMPTY_ARRAY
-
-  useEffect(() => {
-    if (luckyWinners !== undefined) {
-      dispatch(setSelectedCampaignLuckyWinners({ luckyWinners: luckyWinners }))
-    }
-  }, [dispatch, luckyWinners])
-
-  useEffect(() => {
-    dispatch(setLoadingSelectedCampaignLuckyWinners(isLoadingLuckyWinners))
-  }, [dispatch, isLoadingLuckyWinners])
 
   return (
     <CampaignContent

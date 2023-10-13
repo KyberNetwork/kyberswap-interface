@@ -3,7 +3,6 @@ import { createReducer } from '@reduxjs/toolkit'
 import {
   CampaignData,
   CampaignLeaderboard,
-  CampaignLuckyWinner,
   setCampaignData,
   setCampaignDataByPage,
   setClaimingCampaignRewardId,
@@ -11,14 +10,12 @@ import {
   setLoadingCampaignData,
   setLoadingCampaignDataError,
   setLoadingSelectedCampaignLeaderboard,
-  setLoadingSelectedCampaignLuckyWinners,
   setRecaptchaCampaignId,
   setRecaptchaCampaignLoading,
   setSelectedCampaign,
   setSelectedCampaignLeaderboard,
   setSelectedCampaignLeaderboardLookupAddress,
   setSelectedCampaignLeaderboardPageNumber,
-  setSelectedCampaignLuckyWinners,
   setSelectedCampaignLuckyWinnersLookupAddress,
   setSelectedCampaignLuckyWinnersPageNumber,
 } from './actions'
@@ -35,8 +32,6 @@ interface CampaignsState {
   readonly selectedCampaignLeaderboardPageNumber: number
   readonly selectedCampaignLeaderboardLookupAddress: string
 
-  readonly selectedCampaignLuckyWinners: CampaignLuckyWinner[]
-  readonly loadingCampaignLuckyWinners: boolean
   readonly selectedCampaignLuckyWinnersPageNumber: number
   readonly selectedCampaignLuckyWinnersLookupAddress: string
 
@@ -62,8 +57,6 @@ const initialState: CampaignsState = {
   selectedCampaignLeaderboardPageNumber: 0,
   selectedCampaignLeaderboardLookupAddress: '',
 
-  selectedCampaignLuckyWinners: [],
-  loadingCampaignLuckyWinners: false,
   selectedCampaignLuckyWinnersPageNumber: 0,
   selectedCampaignLuckyWinnersLookupAddress: '',
 
@@ -136,18 +129,7 @@ export default createReducer<CampaignsState>(initialState, builder =>
         selectedCampaignLeaderboardLookupAddress: lookupAddress,
       }
     })
-    .addCase(setSelectedCampaignLuckyWinners, (state, { payload: { luckyWinners } }) => {
-      return {
-        ...state,
-        selectedCampaignLuckyWinners: luckyWinners,
-      }
-    })
-    .addCase(setLoadingSelectedCampaignLuckyWinners, (state, { payload: loading }) => {
-      return {
-        ...state,
-        loadingCampaignLuckyWinners: loading,
-      }
-    })
+
     .addCase(setSelectedCampaignLuckyWinnersPageNumber, (state, { payload: pageNumber }) => {
       return {
         ...state,
