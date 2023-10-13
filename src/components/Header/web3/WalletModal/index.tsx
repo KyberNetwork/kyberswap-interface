@@ -32,7 +32,6 @@ import {
   useWalletModalToggle,
 } from 'state/application/hooks'
 import { useIsConnectingWallet } from 'state/authen/hooks'
-import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
 
 import Option from './Option'
