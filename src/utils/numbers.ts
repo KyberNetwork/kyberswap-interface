@@ -187,7 +187,7 @@ export const formatDisplayNumber = (
       .slice(0, significantDigits || 6)
       .replace(/0+$/, '')
 
-    if (numberOfLeadingZeros > 2) {
+    if (numberOfLeadingZeros > 3) {
       const subscripts = numberOfLeadingZeros
         .toString()
         .split('')
