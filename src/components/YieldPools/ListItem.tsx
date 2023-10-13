@@ -41,12 +41,12 @@ import { useAppDispatch } from 'state/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
-import { formattedNum, isAddressString, shortenAddress } from 'utils'
+import { isAddressString, shortenAddress } from 'utils'
 import { currencyIdFromAddress } from 'utils/currencyId'
 import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
-import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
+import { getFullDisplayBalance } from 'utils/formatBalance'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
-import { formatDisplayNumber } from 'utils/numbers'
+import { formatDisplayNumber, parseFraction } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { ModalContentWrapper } from './ElasticFarmModals/styled'
@@ -88,7 +88,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
 
   const userStakedBalance = farm.userData?.stakedBalance
-    ? BigNumber.from(farm.userData?.stakedBalance)
+    ? BigNumber.from(farm.userData.stakedBalance)
     : BigNumber.from(0)
 
   const farmRewards = useFarmRewards([farm])
@@ -129,8 +129,8 @@ const ListItem = ({ farm }: ListItemProps) => {
   const userStakedToken0Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve0)
   const userStakedToken1Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve1)
 
-  const userLPBalanceUSD = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
-  const userStakedBalanceUSD = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
+  const userLPBalanceUSD = lpUserLPBalanceRatio.multiply(parseFraction(farm.reserveUSD))
+  const userStakedBalanceUSD = lpUserStakedTokenRatio.multiply(parseFraction(farm.reserveUSD))
 
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
 
@@ -295,11 +295,11 @@ const ListItem = ({ farm }: ListItemProps) => {
   const usd = () => {
     switch (modalType) {
       case 'stake':
-        return formattedNum(userLPBalanceUSD.toString(), true)
+        return formatDisplayNumber(userLPBalanceUSD, { style: 'currency', significantDigits: 4 })
       case 'unstake':
-        return formattedNum(userStakedBalanceUSD.toString(), true)
+        return formatDisplayNumber(userStakedBalanceUSD, { style: 'currency', significantDigits: 4 })
       default:
-        return formattedNum(rewardUSD.toString(), true)
+        return formatDisplayNumber(rewardUSD, { style: 'currency', significantDigits: 4 })
     }
   }
 
@@ -311,7 +311,7 @@ const ListItem = ({ farm }: ListItemProps) => {
     <>
       {viewMode === VIEW_MODE.LIST && above1200 && (
         <>
-          <TableRow joined={!!userStakedBalanceUSD}>
+          <TableRow joined={userStakedBalanceUSD.greaterThan(0)}>
             {/* POOLS | AMP */}
             <Column gap="12px">
               <Row>
@@ -411,7 +411,7 @@ const ListItem = ({ farm }: ListItemProps) => {
               )}
             </Column>
             {/* MY DEPOSIT | TARGET VOLUME */}
-            <Row>{formattedNum(userStakedBalanceUSD.toString(), true)}</Row>
+            <Row>{formatDisplayNumber(userStakedBalanceUSD, { style: 'currency', significantDigits: 4 })}</Row>
             {/* MY REWARDS */}
             <Column gap="8px" style={{ alignItems: 'end' }}>
               {farmRewards.map(reward => {
@@ -421,7 +421,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                       {chainId && reward.token.wrapped.address && (
                         <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
                       )}
-                      {getFullDisplayBalance(reward.amount, reward.token.decimals)}
+                      {formatDisplayNumber(parseFraction(reward.amount).divide(10 ** reward.token.decimals), {
+                        style: 'decimal',
+                        fractionDigits: 6,
+                      })}
                     </Row>
                   </div>
                 )
@@ -467,7 +470,7 @@ const ListItem = ({ farm }: ListItemProps) => {
         </>
       )}
       {(viewMode === VIEW_MODE.GRID || !above1200) && (
-        <FarmCard joined={!!userStakedBalanceUSD}>
+        <FarmCard joined={userStakedBalanceUSD.greaterThan(0)}>
           <Row marginBottom="12px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
             <Link
@@ -589,7 +592,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                         {chainId && reward.token.wrapped.address && (
                           <CurrencyLogo currency={reward.token} size="16px" />
                         )}
-                        {!!reward.amount && getFullDisplayBalance(reward.amount, reward.token.decimals)}
+                        {formatDisplayNumber(parseFraction(reward.amount).divide(10 ** reward.token.decimals), {
+                          style: 'decimal',
+                          fractionDigits: 6,
+                        })}
                       </RowFit>
                       {index !== arr.length - 1 && (
                         <div style={{ height: '10px', width: '1px', backgroundColor: theme.border }} />
@@ -660,7 +666,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                   <React.Fragment key={reward.token.wrapped.address}>
                     <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
                       {chainId && reward.token.wrapped.address && <CurrencyLogo currency={reward.token} size="16px" />}
-                      {getFullDisplayBalance(reward.amount, reward.token.decimals)}
+                      {formatDisplayNumber(parseFraction(reward.amount).divide(10 ** reward.token.decimals), {
+                        style: 'decimal',
+                        fractionDigits: 6,
+                      })}
                     </Flex>
                     {index !== farmRewards.length - 1 && <Text color={theme.subText}>|</Text>}
                   </React.Fragment>
@@ -672,7 +681,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                 <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
                   <CurrencyLogo currency={currency0} size="16px" />
                   <Text textAlign="right" fontSize="0.75rem" color={theme.subText}>
-                    {formatTokenBalance(modalType === 'stake' ? userToken0Balance : userStakedToken0Balance)}
+                    {formatDisplayNumber(modalType === 'stake' ? userToken0Balance : userStakedToken0Balance, {
+                      style: 'decimal',
+                      fractionDigits: 6,
+                    })}
                   </Text>
                 </Flex>
                 <Text color={theme.subText}>|</Text>
@@ -680,7 +692,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                 <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
                   <CurrencyLogo currency={currency1} size="16px" />
                   <Text textAlign="right" fontSize="0.75rem" color={theme.subText}>
-                    {formatTokenBalance(modalType === 'stake' ? userToken1Balance : userStakedToken1Balance)}
+                    {formatDisplayNumber(modalType === 'stake' ? userToken1Balance : userStakedToken1Balance, {
+                      style: 'decimal',
+                      fractionDigits: 6,
+                    })}
                   </Text>
                 </Flex>
               </>

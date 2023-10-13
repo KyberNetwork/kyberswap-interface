@@ -16,7 +16,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddressString } from 'utils'
-import { toFixed } from 'utils/numbers'
+import { toString } from 'utils/numbers'
 
 import OriginalEarningsBreakdownPanel from './EarningsBreakdownPanel'
 import OriginalMyEarningsOverTimePanel from './MyEarningsOverTimePanel'
@@ -151,19 +151,19 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
         ? latestData.map(data => ({
             logoUrl: data.logoUrl,
             symbol: data.symbol,
-            value: toFixed(data.amountUSD),
+            value: toString(data.amountUSD),
             percent: isAllZero ? (1 / visibleItems) * 100 : (data.amountUSD / totalValue) * 100,
           }))
         : [
             ...latestData.slice(0, 9).map(data => ({
               logoUrl: data.logoUrl,
               symbol: data.symbol,
-              value: toFixed(data.amountUSD),
+              value: toString(data.amountUSD),
               percent: isAllZero ? 10 : (data.amountUSD / totalValue) * 100,
             })),
             {
               symbol: t`Others`,
-              value: toFixed(totalValueOfOthers),
+              value: toString(totalValueOfOthers),
               percent: isAllZero ? 10 : (totalValueOfOthers / totalValue) * 100,
             },
           ]

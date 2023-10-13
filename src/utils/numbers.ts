@@ -1,9 +1,11 @@
 import { CurrencyAmount, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
+import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 
 import { BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
 
 // todo: deprecated, use formatDisplayNumber instead
+// e.g: formatDisplayNumber(num, { style: 'currency', significantDigits: 4 })
 export const formatDollarAmount = (num: number | undefined, digits = 2) => {
   if (num === 0) return '$0.00'
   if (!num) return '-'
@@ -26,7 +28,7 @@ export const formatDollarAmount = (num: number | undefined, digits = 2) => {
 // e.g: (123456789123456789123456789).toString() => 1.2345678912345679e+26
 //      toFixed(123456789123456789123456789) => 123456789123456800000000000
 // https://stackoverflow.com/a/1685917/8153505
-export function toFixed(x: number): string {
+export function toString(x: number): string {
   if (Math.abs(x) < 1.0) {
     const e = parseInt(x.toString().split('e-')[1])
     if (e) {
@@ -84,23 +86,24 @@ const parseString = (value: string): Fraction => {
     }
     return new Fraction(negative + integer.replace(/,/g, '') + decimal, 10 ** -exponent)
   } catch (e) {
-    console.log('namgold parse error', e)
     return new Fraction(0, 1)
   }
 }
 
-export const parseNum = (value: FormatValue): Fraction => {
+export const parseFraction = (value: FormatValue): Fraction => {
   try {
     if (
       typeof value === 'string' ||
       typeof value === 'number' ||
+      value instanceof BigNumber ||
       value instanceof CurrencyAmount ||
       value instanceof Percent ||
       value instanceof Price
     ) {
       const valueStr = (() => {
         if (typeof value === 'string') return parseString(value).toFixed(18)
-        if (typeof value === 'number') return toFixed(value)
+        if (typeof value === 'number') return toString(value)
+        if (value instanceof BigNumber) return value.toString()
         if (value instanceof CurrencyAmount) return value.toFixed(value.currency.decimals)
         if (value instanceof Price) return value.toFixed(18)
         if (value instanceof Percent) return value.divide(100).toFixed(18)
@@ -118,7 +121,7 @@ export const parseNum = (value: FormatValue): Fraction => {
   }
 }
 
-type FormatValue = string | number | bigint | JSBI | Fraction | undefined | null
+type FormatValue = string | number | bigint | JSBI | BigNumber | Fraction | undefined | null
 type FormatOptions = {
   style?: 'decimal' | 'currency' | 'percent'
   fractionDigits?: number // usually for percent  & currency styles
@@ -165,7 +168,7 @@ export const formatDisplayNumber = (
   const fallbackResult = `${currency}${fallback}${percent}`
 
   if (value === undefined || value === null || Number.isNaN(value)) return fallbackResult
-  const parsedFraction = parseNum(value)
+  const parsedFraction = parseFraction(value)
   if (!allowNegative && parsedFraction.lessThan(BIG_INT_ZERO)) return fallbackResult
   if (!allowZero && parsedFraction.equalTo(BIG_INT_ZERO)) return fallbackResult
 

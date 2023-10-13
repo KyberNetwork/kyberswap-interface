@@ -1,24 +1,28 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Token } from '@kyberswap/ks-sdk-core'
+import { Token, WETH } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { FarmKN, useLazyGetFarmClassicQuery } from 'services/knprotocol'
 
-import { AbortedError } from 'constants/index'
-import { isEVM } from 'constants/networks'
+import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
+import FAIRLAUNCH_V3_ABI from 'constants/abis/fairlaunch-v3.json'
+import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
+import { AbortedError, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { setFarmsData, setLoading, setYieldPoolsError } from 'state/farms/classic/actions'
 import { FairLaunchVersion, Farm, FarmV1, FarmV2 } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
-import { parseNum, toFixed } from 'utils/numbers'
+import { getContractForReading } from 'utils/getContract'
+import { parseFraction, toString } from 'utils/numbers'
 
 const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
   const dispatch = useAppDispatch()
   const { chainId, account } = useActiveWeb3React()
-  const { isEnableKNProtocol } = useKyberSwapConfig()
+  const { isEnableKNProtocol, readProvider } = useKyberSwapConfig()
   const [fetchFarmKN] = useLazyGetFarmClassicQuery()
 
   const farmsData = useSelector((state: AppState) => state.farms.data)
@@ -39,49 +43,121 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
         const farmsKN: FarmKN[] | undefined = (await fetchFarmKN(chainId)).data?.data.farmPools
         if (!farmsKN) return []
 
-        const mapping = farmsKN.map(farmPool => {
-          const [fairLaunchAddress] = farmPool.id.split('_')
-          const pid = Number(farmPool.pid)
-          const id = farmPool.pool.id
-          const version =
-            farmPool.version === 1
-              ? FairLaunchVersion.V1
-              : farmPool.version === 2
-              ? FairLaunchVersion.V2
-              : FairLaunchVersion.V3
-          const rewardTokens = farmPool.rewardTokens.map(
-            ({ id, decimals, symbol, name }) => new Token(chainId, id, Number(decimals), symbol, name),
-          )
-          const totalStake = parseNum(farmPool.stakedAmount).divide(10 ** 18)
-          const stakeToken = id
-          const token0 = { id: farmPool.pool.token0.id, symbol: farmPool.pool.token0.symbol }
-          const token1 = { id: farmPool.pool.token1.id, symbol: farmPool.pool.token1.symbol }
-          const amp = Number(farmPool.pool.amp)
-          const reserve0 = farmPool.pool.reserve0
-          const reserve1 = farmPool.pool.reserve1
-          const reserveUSD = farmPool.pool.reserveUSD
-          const totalSupply = farmPool.pool.totalSupply
-          const oneDayFeeUSD = parseNum(farmPool.pool.feeUSD)
-            .subtract(parseNum(farmPool.pool.feesUsdOneDayAgo))
-            .toFixed(18)
-          const oneDayFeeUntracked = '0'
-          const rewardPerUnits: BigNumber[] = farmPool.rewardPerUnits.map(i => parseUnits(toFixed(i), 0))
-          const start = Number(farmPool.start)
-          const end = Number(farmPool.end)
-          const userData = {} // todo namgold: fill this.
+        const mapping = await Promise.all(
+          farmsKN.map(async farmPool => {
+            const [fairLaunchAddress] = farmPool.id.split('_')
+            const pid = Number(farmPool.pid)
+            const id = farmPool.pool.id
+            // const version =
+            //   farmPool.version === 1
+            //     ? FairLaunchVersion.V1
+            //     : farmPool.version === 2
+            //     ? FairLaunchVersion.V2
+            //     : FairLaunchVersion.V3
+            // todo namgold: subgraph issue, revert this later
+            const version: FairLaunchVersion =
+              Number(farmPool.start) < 1_000_000_000 ? FairLaunchVersion.V1 : FairLaunchVersion.V2
+            const rewardTokens = farmPool.rewardTokens.map(({ id, decimals, symbol, name }) =>
+              id === ZERO_ADDRESS
+                ? new Token(
+                    chainId,
+                    WETH[chainId].address,
+                    NETWORKS_INFO[chainId].nativeToken.decimal,
+                    NETWORKS_INFO[chainId].nativeToken.symbol,
+                    NETWORKS_INFO[chainId].nativeToken.name,
+                  )
+                : new Token(chainId, id, Number(decimals), symbol, name),
+            )
+            const totalStake = parseFraction(farmPool.stakedAmount).divide(10 ** 18)
+            const stakeToken = id
+            const token0 = { id: farmPool.pool.token0.id, symbol: farmPool.pool.token0.symbol }
+            const token1 = { id: farmPool.pool.token1.id, symbol: farmPool.pool.token1.symbol }
+            const amp = Number(farmPool.pool.amp)
+            const reserve0 = farmPool.pool.reserve0
+            const reserve1 = farmPool.pool.reserve1
+            const reserveUSD = farmPool.pool.reserveUSD
+            const totalSupply = farmPool.pool.totalSupply
+            const oneDayFeeUSD = parseFraction(farmPool.pool.feeUSD)
+              .subtract(parseFraction(farmPool.pool.feesUsdOneDayAgo))
+              .toFixed(18)
+            const oneDayFeeUntracked = '0'
+            const rewardPerUnits: BigNumber[] = farmPool.rewardPerUnits.map(i => parseUnits(toString(i), 0))
+            const start = Number(farmPool.start)
+            const end = Number(farmPool.end)
 
-          if (version === FairLaunchVersion.V1) {
+            const userData = await (async () => {
+              if (!account) return {}
+              if (!readProvider) return {}
+              try {
+                const contract = getContractForReading(
+                  fairLaunchAddress,
+                  version === FairLaunchVersion.V1
+                    ? FAIRLAUNCH_ABI
+                    : version === FairLaunchVersion.V2
+                    ? FAIRLAUNCH_V2_ABI
+                    : FAIRLAUNCH_V3_ABI,
+                  readProvider,
+                )
+
+                const stakedBalance = (await contract.getUserInfo(pid, account)).amount
+                if (abortController.signal.aborted) throw new AbortedError()
+                const pendingRewards: BigNumber[] = await contract.pendingRewards(pid, account)
+                if (abortController.signal.aborted) throw new AbortedError()
+
+                const userData = {
+                  stakedBalance,
+                  rewards:
+                    version === FairLaunchVersion.V1
+                      ? pendingRewards
+                      : pendingRewards.map((pendingReward, index) =>
+                          pendingReward.div(10 ** (18 - rewardTokens[index].decimals)),
+                        ),
+                }
+                return userData
+              } catch (e) {
+                if (!abortController.signal.aborted) {
+                  console.error('fetch userData error', e)
+                }
+                return {}
+              }
+            })()
+
+            if (version === FairLaunchVersion.V1) {
+              return {
+                fairLaunchAddress,
+                version,
+                pid,
+                id,
+                rewardTokens,
+                rewardPerBlocks: rewardPerUnits,
+                totalStake,
+                stakeToken,
+                startBlock: start,
+                endBlock: end,
+                token0,
+                token1,
+                amp,
+                reserve0,
+                reserve1,
+                reserveUSD,
+                totalSupply,
+                oneDayFeeUSD,
+                oneDayFeeUntracked,
+                userData,
+              } as FarmV1
+            }
+
             return {
               fairLaunchAddress,
               version,
               pid,
               id,
               rewardTokens,
-              rewardPerBlocks: rewardPerUnits,
+              rewardPerSeconds: rewardPerUnits,
               totalStake,
               stakeToken,
-              startBlock: start,
-              endBlock: end,
+              startTime: start,
+              endTime: end,
               token0,
               token1,
               amp,
@@ -92,35 +168,14 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
               oneDayFeeUSD,
               oneDayFeeUntracked,
               userData,
-            } as FarmV1
-          }
-
-          return {
-            fairLaunchAddress,
-            version,
-            pid,
-            id,
-            rewardTokens,
-            rewardPerSeconds: rewardPerUnits,
-            totalStake,
-            stakeToken,
-            startTime: start,
-            endTime: end,
-            token0,
-            token1,
-            amp,
-            reserve0,
-            reserve1,
-            reserveUSD,
-            totalSupply,
-            oneDayFeeUSD,
-            oneDayFeeUntracked,
-            userData,
-          } as FarmV2
-        })
+            } as FarmV2
+          }),
+        )
         return mapping
       } catch (error) {
-        console.error('parse kn error', { error })
+        if (!abortController.signal.aborted) {
+          console.error('parse kn error', { error })
+        }
         throw error
       }
     }
@@ -162,7 +217,7 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
       abortController.abort()
       i && clearInterval(i)
     }
-  }, [fetchFarmKN, dispatch, chainId, account, isEnableKNProtocol, isInterval])
+  }, [fetchFarmKN, dispatch, chainId, account, isEnableKNProtocol, isInterval, readProvider])
 
   return null
 }
