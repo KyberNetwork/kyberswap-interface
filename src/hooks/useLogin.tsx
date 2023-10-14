@@ -31,11 +31,15 @@ import { isAddress } from 'utils'
 import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 import { isEmailValid } from 'utils/string'
 
-KyberOauth2.initialize({
-  clientId: OAUTH_CLIENT_ID,
-  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.VERIFY_AUTH}`,
-  mode: ENV_KEY,
-})
+export const initializeOauthKyberSwap = () => {
+  KyberOauth2.initialize({
+    clientId: OAUTH_CLIENT_ID,
+    redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.VERIFY_AUTH}`,
+    mode: ENV_KEY,
+  })
+}
+
+initializeOauthKyberSwap()
 
 const useLogin = (autoLogin = false) => {
   const { account, chainId } = useActiveWeb3React()
@@ -172,6 +176,7 @@ const useLogin = (autoLogin = false) => {
   )
 
   const redirectSignIn = useCallback((account: string, loginMethod = LoginMethod.ETH) => {
+    if (window.location.pathname.startsWith(APP_PATHS.IAM_LOGIN)) return
     setLoginRedirectUrl(window.location.href)
     const accountKey = loginMethod === LoginMethod.ETH ? 'wallet_address' : 'email'
     KyberOauth2.authenticate({ [accountKey]: account, type: loginMethod }) // navigate to login page

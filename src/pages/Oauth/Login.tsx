@@ -6,6 +6,7 @@ import Loader from 'components/Loader'
 import { didUserReject } from 'constants/connectors/utils'
 import { ENV_KEY } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { initializeOauthKyberSwap } from 'hooks/useLogin'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { Container, Content, KyberLogo, TextDesc } from 'pages/Oauth/styled'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -144,6 +145,11 @@ export function Login() {
       }
     }
     getFlowLogin()
+  }, [])
+
+  useEffect(() => {
+    // user click to others page of kyberswap => reset config
+    return () => initializeOauthKyberSwap()
   }, [])
 
   const appName = authFormConfig?.oauth_client?.client_name || authFormConfig?.oauth_client?.client_id
