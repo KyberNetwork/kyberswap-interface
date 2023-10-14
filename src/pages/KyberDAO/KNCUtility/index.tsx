@@ -279,8 +279,8 @@ export default function KNCUtility() {
                   <Text fontSize={14} fontWeight={400} lineHeight="20px">
                     <Trans>
                       These Terms and Conditions should be read in conjunction with the KyberSwap{' '}
-                      <a href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms of Use</a>, which lay out the terms and conditions
-                      that apply to all KyberSwap activities.
+                      <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms of Use</ExternalLink>, which lay out
+                      the terms and conditions that apply to all KyberSwap activities.
                     </Trans>
                   </Text>
                 </li>
@@ -290,7 +290,7 @@ export default function KNCUtility() {
                     <Trans>
                       By visiting KyberSwap and participating in the program, the User is deemed to have read,
                       understood, and agreed to these Terms and Conditions and the KyberSwap{' '}
-                      <a href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms of Use</a>.
+                      <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms of Use</ExternalLink>.
                     </Trans>
                   </Text>
                 </li>
@@ -308,9 +308,10 @@ export default function KNCUtility() {
                   <Text fontSize={14} fontWeight={400} lineHeight="20px">
                     <Trans>
                       KyberSwap maintains the right, at its sole discretion, to take action or remove rewards against
-                      the User who violates the KyberSwap <a href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms of Use</a>{' '}
-                      and/or violates, cheats, or exploits the program, including but not limited to, any suspicious
-                      activities, or any attempts to circumvent these Terms and Conditions.
+                      the User who violates the KyberSwap{' '}
+                      <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms of Use</ExternalLink> and/or violates,
+                      cheats, or exploits the program, including but not limited to, any suspicious activities, or any
+                      attempts to circumvent these Terms and Conditions.
                     </Trans>
                   </Text>
                 </li>

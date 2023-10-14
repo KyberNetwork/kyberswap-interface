@@ -6,9 +6,15 @@ import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 
 const whiteListDomains = [/https:\/\/(.+?\.)?kyberswap\.com$/, /https:\/\/(.+)\.kyberengineering\.io$/]
-export const validateRedirectURL = (url: string | undefined, whitelistKyberSwap = true) => {
+
+type Options = { whitelistKyberSwap?: boolean; allowPath?: boolean }
+export const validateRedirectURL = (
+  url: string | undefined,
+  { whitelistKyberSwap = true, allowPath = false }: Options = {},
+) => {
   try {
     if (!url) throw new Error()
+    if (allowPath && url.startsWith('/')) return url
     const newUrl = new URL(url) // valid url
     if (
       url.endsWith('.js') ||
@@ -24,8 +30,8 @@ export const validateRedirectURL = (url: string | undefined, whitelistKyberSwap 
   }
 }
 
-export const navigateToUrl = (url: string | undefined, whitelistKyberSwap = true) => {
-  const urlFormatted = validateRedirectURL(url, whitelistKyberSwap)
+export const navigateToUrl = (url: string | undefined, options?: Options) => {
+  const urlFormatted = validateRedirectURL(url, options)
   if (urlFormatted) window.location.href = urlFormatted
 }
 
@@ -46,7 +52,7 @@ export const useNavigateToUrl = () => {
         return
       }
       const { pathname, host, search } = new URL(actionURL)
-      if (!validateRedirectURL(actionURL, false)) return
+      if (!validateRedirectURL(actionURL, { whitelistKyberSwap: false })) return
       if (window.location.host === host) {
         navigate(`${pathname}${search}`)
       } else {
