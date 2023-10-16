@@ -7,10 +7,10 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 
 const whiteListDomains = [/https:\/\/(.+?\.)?kyberswap\.com$/, /https:\/\/(.+)\.kyberengineering\.io$/]
 
-type Options = { whitelistKyberSwap?: boolean; allowRelativePath?: boolean }
+type Options = { _dangerousCheckWhitelist?: boolean; allowRelativePath?: boolean }
 export const validateRedirectURL = (
   url: string | undefined,
-  { whitelistKyberSwap = true, allowRelativePath = false }: Options = {},
+  { _dangerousCheckWhitelist = true, allowRelativePath = false }: Options = {},
 ) => {
   try {
     if (!url || url.endsWith('.js')) throw new Error()
@@ -18,7 +18,7 @@ export const validateRedirectURL = (
     if (
       newUrl.pathname.endsWith('.js') ||
       !['https:', 'http:'].includes(newUrl.protocol) ||
-      (whitelistKyberSwap && !whiteListDomains.some(regex => newUrl.origin.match(regex)))
+      (_dangerousCheckWhitelist && !whiteListDomains.some(regex => newUrl.origin.match(regex)))
     ) {
       throw new Error()
     }
@@ -50,7 +50,7 @@ export const useNavigateToUrl = () => {
         return
       }
       const { pathname, host, search } = new URL(actionURL)
-      if (!validateRedirectURL(actionURL, { whitelistKyberSwap: false })) return
+      if (!validateRedirectURL(actionURL, { _dangerousCheckWhitelist: false })) return
       if (window.location.host === host) {
         navigate(`${pathname}${search}`)
       } else {

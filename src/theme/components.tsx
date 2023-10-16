@@ -206,7 +206,7 @@ export function ExternalLink({
     <StyledLink
       target={target}
       rel={rel}
-      href={validateRedirectURL(href, { whitelistKyberSwap: false, allowRelativePath: true })}
+      href={validateRedirectURL(href, { _dangerousCheckWhitelist: false, allowRelativePath: true })}
       onClick={handleClick}
       {...rest}
     />
@@ -227,7 +227,7 @@ export function ExternalLinkIcon({
         console.debug('Fired outbound link event', href)
       } else {
         event.preventDefault()
-        navigateToUrl(href, { whitelistKyberSwap: false, allowRelativePath: true })
+        navigateToUrl(href, { _dangerousCheckWhitelist: false, allowRelativePath: true })
       }
     },
     [href, target],
@@ -236,7 +236,7 @@ export function ExternalLinkIcon({
     <LinkIconWrapper
       target={target}
       rel={rel}
-      href={validateRedirectURL(href, { whitelistKyberSwap: false, allowRelativePath: true })}
+      href={validateRedirectURL(href, { _dangerousCheckWhitelist: false, allowRelativePath: true })}
       onClick={handleClick}
       {...rest}
     >
