@@ -117,7 +117,7 @@ jobs:
           CI: false
           VITE_TAG: ${{ needs.prepare.outputs.image_tag }}
           NODE_OPTIONS: '--max_old_space_size=4096'
-        run: yarn build-dev
+        run: yarn build
 
       - name: Docker build and push
         uses: docker/build-push-action@v2
