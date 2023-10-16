@@ -529,7 +529,7 @@ export default function StakeKNCComponent() {
                     style={{ marginRight: '5px' }}
                     placement="top"
                   />
-                  <Trans>Connect Wallet</Trans>
+                  <Trans>Connect</Trans>
                 </ButtonLight>
               )}
             </>
@@ -603,7 +603,7 @@ export default function StakeKNCComponent() {
                     style={{ marginRight: '5px' }}
                     placement="top"
                   />
-                  <Trans>Connect Wallet</Trans>
+                  <Trans>Connect</Trans>
                 </ButtonLight>
               )}
             </>

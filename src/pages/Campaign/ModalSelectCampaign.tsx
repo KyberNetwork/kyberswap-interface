@@ -27,7 +27,7 @@ const ModalSelectCampaign = (props: {
     }, 200)
   }
   return (
-    <Modal isOpen={isSelectCampaignModalOpen} onDismiss={toggleSelectCampaignModal} maxHeight={70} minHeight={50}>
+    <Modal isOpen={isSelectCampaignModalOpen} onDismiss={toggleSelectCampaignModal} minHeight={70}>
       <div style={{ position: 'absolute', top: '24px', right: '20px' }}>
         <X color={theme.subText} size={24} onClick={toggleSelectCampaignModal} />
       </div>
