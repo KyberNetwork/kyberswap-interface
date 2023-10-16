@@ -334,7 +334,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const wca = ca.wrapped
       const wcaAddress = wca && wca.address.toLowerCase()
       res = res.filter(
-        poolData => wcaAddress && (poolData.token0.id === wcaAddress || poolData.token1.id === wcaAddress),
+        poolData => wcaAddress && (poolData.token0.address === wcaAddress || poolData.token1.address === wcaAddress),
       )
     }
 
@@ -342,7 +342,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const wcb = cb.wrapped
       const wcbAddress = wcb && wcb.address.toLowerCase()
       res = res.filter(
-        poolData => wcbAddress && (poolData.token0.id === wcbAddress || poolData.token1.id === wcbAddress),
+        poolData => wcbAddress && (poolData.token0.address === wcbAddress || poolData.token1.address === wcbAddress),
       )
     }
 
@@ -350,8 +350,8 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const search = searchValue.toLowerCase()
 
       return (
-        poolData.token0.symbol.toLowerCase().includes(search) ||
-        poolData.token1.symbol.toLowerCase().includes(search) ||
+        poolData.token0.symbol?.toLowerCase().includes(search) ||
+        poolData.token1.symbol?.toLowerCase().includes(search) ||
         poolData.id.includes(search)
       )
     })
@@ -360,7 +360,8 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const stableList = isEVM ? stableCoins?.map(item => item.address.toLowerCase()) || [] : []
       res = res.filter(poolData => {
         return (
-          stableList.includes(poolData.token0.id.toLowerCase()) && stableList.includes(poolData.token1.id.toLowerCase())
+          stableList.includes(poolData.token0.address.toLowerCase()) &&
+          stableList.includes(poolData.token1.address.toLowerCase())
         )
       })
     }

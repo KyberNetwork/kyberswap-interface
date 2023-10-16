@@ -57,8 +57,8 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
               : farm.endBlock < blockNumberRef.current)
 
       const filterBySearchText = debouncedSearchText
-        ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
-          farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
+        ? farm.token0?.symbol?.toLowerCase().includes(debouncedSearchText) ||
+          farm.token1?.symbol?.toLowerCase().includes(debouncedSearchText) ||
           farm.id === debouncedSearchText
         : true
 
@@ -68,12 +68,12 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
           : true
 
       const filterByToken0 = token0
-        ? farm.token0?.id.toLowerCase() === token0.toLowerCase() ||
-          farm.token1?.id.toLowerCase() === token0.toLowerCase()
+        ? farm.token0?.address.toLowerCase() === token0.toLowerCase() ||
+          farm.token1?.address.toLowerCase() === token0.toLowerCase()
         : true
       const filterByToken1 = token1
-        ? farm.token0?.id.toLowerCase() === token1.toLowerCase() ||
-          farm.token1?.id.toLowerCase() === token1.toLowerCase()
+        ? farm.token0?.address.toLowerCase() === token1.toLowerCase() ||
+          farm.token1?.address.toLowerCase() === token1.toLowerCase()
         : true
 
       return filterByTime && filterBySearchText && filterByStakedOnly && filterByToken0 && filterByToken1

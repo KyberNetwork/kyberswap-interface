@@ -109,8 +109,8 @@ const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
                 ? uniqueAndActiveFarms.map(farm => (
                     <MarqueeItem
                       key={`${farm.token0?.symbol}-${farm.token1?.symbol}`}
-                      token0={farm.token0.id}
-                      token1={farm.token1.id}
+                      token0={farm.token0.address}
+                      token1={farm.token1.address}
                     />
                   ))
                 : activePrommFarm.map(farm => (

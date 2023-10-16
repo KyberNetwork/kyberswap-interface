@@ -1,4 +1,3 @@
-import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, Fraction, Price, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
@@ -50,22 +49,8 @@ export function parseSubgraphPoolData(
   currency0: Currency
   currency1: Currency
 } {
-  const token0 = new Token(
-    chainId,
-    getAddress(poolData.token0.id),
-    +poolData.token0.decimals,
-    poolData.token0.symbol,
-    poolData.token0.name,
-  )
-  const token1 = new Token(
-    chainId,
-    getAddress(poolData.token1.id),
-    +poolData.token1.decimals,
-    poolData.token1.symbol,
-    poolData.token1.name,
-  )
-  const currency0 = unwrappedToken(token0)
-  const currency1 = unwrappedToken(token1)
+  const currency0 = unwrappedToken(poolData.token0)
+  const currency1 = unwrappedToken(poolData.token1)
 
   const reserve0 = tryParseAmount(poolData.reserve0, currency0)
   const virtualReserve0 = tryParseAmount(poolData.vReserve0, currency0)

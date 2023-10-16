@@ -10,6 +10,7 @@ import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 import { useFairLaunchContracts } from 'hooks/useContract'
 import { AppState } from 'state'
 import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
@@ -124,7 +125,7 @@ export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean
 
       const poolAddresses = poolInfos.map(poolInfo => poolInfo.stakeToken.toLowerCase())
 
-      const farmsData = await getBulkPoolDataFromPoolList(
+      const poolsData: ClassicPoolData[] = await getBulkPoolDataFromPoolList(
         isEnableBlockService,
         poolAddresses,
         classicClient,
@@ -136,8 +137,8 @@ export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean
 
       const farms: Farm[] = poolInfos.map((poolInfo, index) => {
         return {
-          ...farmsData.find(
-            (farmData: Farm) => farmData && farmData.id.toLowerCase() === poolInfo.stakeToken.toLowerCase(),
+          ...poolsData.find(
+            (poolData: ClassicPoolData) => poolData && poolData.id.toLowerCase() === poolInfo.stakeToken.toLowerCase(),
           ),
           ...poolInfo,
           version: isV2 ? FairLaunchVersion.V2 : isV3 ? FairLaunchVersion.V3 : FairLaunchVersion.V1,
@@ -194,6 +195,7 @@ export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean
       dispatch(setLoading(false))
     }
 
+    dispatch(setFarmsData({}))
     checkForFarms()
 
     const i =

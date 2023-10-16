@@ -26,7 +26,6 @@ import { APP_PATHS, DMM_ANALYTICS_URL } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { usePairByAddress, usePairsByAddress } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
-import { useToken } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -456,8 +455,8 @@ function MyPoolClassic() {
                     {userFarms
                       .filter(
                         farm =>
-                          farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
-                          farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
+                          farm.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
+                          farm.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
                           farm.id.toLowerCase() === debouncedSearchText,
                       )
                       .map(farm => (
@@ -502,8 +501,8 @@ function MyPoolClassic() {
                   {userFarms
                     .filter(
                       farm =>
-                        farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
-                        farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
+                        farm.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
+                        farm.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
                         farm.id.toLowerCase() === debouncedSearchText,
                     )
                     .map(farm => (
@@ -550,11 +549,9 @@ const StakedPool = ({
   tab: 'ALL' | 'STAKED'
   userLiquidityPositions?: UserLiquidityPosition[]
 }) => {
-  const token0 = useToken(farm.token0?.id) || undefined
-  const token1 = useToken(farm.token1?.id) || undefined
   const { farmAPR } = useTotalApr(farm)
 
-  const pair = usePairByAddress(token0?.wrapped, token1?.wrapped, farm.id)[1]
+  const pair = usePairByAddress(farm.token0?.wrapped, farm.token1?.wrapped, farm.id)[1]
 
   if (!pair) return <PreloadCard />
 

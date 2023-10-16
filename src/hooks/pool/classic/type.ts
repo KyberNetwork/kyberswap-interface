@@ -1,3 +1,5 @@
+import { Token } from '@kyberswap/ks-sdk-core'
+
 export interface ClassicPoolData {
   id: string
   amp: string
@@ -14,18 +16,8 @@ export interface ClassicPoolData {
   oneDayVolumeUntracked: string
   oneDayFeeUSD: string
   oneDayFeeUntracked: string
-  token0: {
-    id: string
-    symbol: string
-    decimals: string
-    name: string
-  }
-  token1: {
-    id: string
-    symbol: string
-    decimals: string
-    name: string
-  }
+  token0: Token
+  token1: Token
 }
 
 export type CommonReturn = {

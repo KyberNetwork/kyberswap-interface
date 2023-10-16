@@ -13,7 +13,35 @@ type Token = {
   decimals: string
   priceUSD: string
 }
-export type FarmKN = {
+
+export type ClassicPoolKN = {
+  id: string
+  fee: string
+  feeUSD: string
+  feesUsdOneDayAgo: string
+  feesUsdTwoDaysAgo: string
+  feeUSD0: string
+  feeUSD1: string
+  feeAmount0: string
+  feeAmount1: string
+  token0: Token
+  token1: Token
+  reserve0: string
+  reserve1: string
+  vReserve0: string
+  vReserve1: string
+  totalSupply: string
+  pair: string
+  reserveUSD: string
+  volumeUsd: string
+  volumeUsdOneDayAgo: string
+  volumeUsdTwoDaysAgo: string
+  amp: string
+  apr: string
+  farmApr: string
+}
+
+export type ClassicFarmKN = {
   id: string
   pid: string
   start: string
@@ -64,7 +92,12 @@ const knProtocolApi = createApi({
         }/api/v1/elastic-new/farm-v2?perPage=1000&page=1`,
       }),
     }),
-    getFarmClassic: builder.query<{ data: { farmPools: FarmKN[] } }, ChainId>({
+    getPoolClassic: builder.query<{ data: { pools: ClassicPoolKN[] } }, ChainId>({
+      query: (chainId: EVM_NETWORK) => ({
+        url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/classic/pools?includeLowTvl=true&perPage=10000&page=1`,
+      }),
+    }),
+    getFarmClassic: builder.query<{ data: { farmPools: ClassicFarmKN[] } }, ChainId>({
       query: (chainId: EVM_NETWORK) => ({
         url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/classic/farm-pools?perPage=1000&page=1`,
       }),
@@ -73,4 +106,4 @@ const knProtocolApi = createApi({
 })
 
 export default knProtocolApi
-export const { useLazyGetFarmV2Query, useLazyGetFarmClassicQuery } = knProtocolApi
+export const { useLazyGetFarmV2Query, useLazyGetFarmClassicQuery, useGetPoolClassicQuery } = knProtocolApi

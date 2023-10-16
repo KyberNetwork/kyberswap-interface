@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
-import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -105,7 +105,7 @@ export async function getBulkPoolDataFromPoolList(
   blockClient: ApolloClient<NormalizedCacheObject>,
   chainId: ChainId,
   ethPrice: string | undefined,
-): Promise<any> {
+): Promise<ClassicPoolData[]> {
   try {
     const current = await apolloClient.query({
       query: POOLS_BULK_FROM_LIST(poolList, !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)),
@@ -148,6 +148,10 @@ export async function getBulkPoolDataFromPoolList(
 
             data = parseData(data, oneDayHistory, ethPrice, b1, chainId)
 
+            const token0 = data.token0
+            const token1 = data.token1
+            data.token0 = new Token(chainId, token0.id, Number(token0.decimals), token0.symbol, token0.name)
+            data.token1 = new Token(chainId, token1.id, Number(token1.decimals), token1.symbol, token1.name)
             return data
           }),
       )
@@ -221,7 +225,10 @@ async function getBulkPoolDataWithPagination(
           // }
 
           data = parseData(data, oneDayHistory, ethPrice, b1, chainId)
-
+          const token0 = data.token0
+          const token1 = data.token1
+          data.token0 = new Token(chainId, token0.id, Number(token0.decimals), token0.symbol, token0.name)
+          data.token1 = new Token(chainId, token1.id, Number(token1.decimals), token1.symbol, token1.name)
           return data
         }),
     )

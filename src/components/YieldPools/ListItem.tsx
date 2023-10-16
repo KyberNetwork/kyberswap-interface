@@ -25,7 +25,6 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useToken } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useFairLaunch from 'hooks/useFairLaunch'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -79,10 +78,8 @@ const ListItem = ({ farm }: ListItemProps) => {
   const above1200 = useMedia('(min-width: 1200px)')
   const dispatch = useAppDispatch()
 
-  const token0 = useToken(farm.token0?.id) as Token
-  const token1 = useToken(farm.token1?.id) as Token
-  const currency0 = token0 ? unwrappedToken(token0) : undefined
-  const currency1 = token1 ? unwrappedToken(token1) : undefined
+  const currency0 = unwrappedToken(farm.token0)
+  const currency1 = unwrappedToken(farm.token1)
 
   const poolAddressChecksum = isAddressString(chainId, farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
@@ -318,9 +315,9 @@ const ListItem = ({ farm }: ListItemProps) => {
                 <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
                 <Link
                   to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
-                    farm.token0?.id,
+                    farm.token0?.address,
                     chainId,
-                  )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
+                  )}/${currencyIdFromAddress(farm.token1?.address, chainId)}/${farm.id}`}
                   style={{ textDecoration: 'none', marginRight: '6px' }}
                 >
                   {symbol0} - {symbol1}
@@ -475,9 +472,9 @@ const ListItem = ({ farm }: ListItemProps) => {
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
             <Link
               to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
-                farm.token0?.id,
+                farm.token0?.address,
                 chainId,
-              )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
+              )}/${currencyIdFromAddress(farm.token1?.address, chainId)}/${farm.id}`}
               style={{ textDecoration: 'none', marginRight: '6px' }}
             >
               <Text fontSize="16px" fontWeight="500" marginRight="4px" color={theme.green}>
@@ -805,9 +802,9 @@ const ListItem = ({ farm }: ListItemProps) => {
                 </ExternalLink>
                 <Link
                   to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
-                    farm.token0?.id,
+                    farm.token0?.address,
                     chainId,
-                  )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
+                  )}/${currencyIdFromAddress(farm.token1?.address, chainId)}/${farm.id}`}
                   style={{ textDecoration: 'none' }}
                 >
                   <GetLP style={{ textAlign: 'right' }}>

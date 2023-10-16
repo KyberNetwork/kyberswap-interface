@@ -1,8 +1,8 @@
+import { Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
-import useSWRImmutable from 'swr/immutable'
+import { useGetPoolClassicQuery } from 'services/knprotocol'
 
-import { POOL_FARM_BASE_URL } from 'constants/env'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { get24hValue } from 'utils'
@@ -10,75 +10,14 @@ import { toString } from 'utils/numbers'
 
 import { ClassicPoolData, CommonReturn } from './type'
 
-type ClassicPoolResponse = {
-  id: string
-  fee: string
-  feeUSD: string
-  feesUsdOneDayAgo: string
-  feesUsdTwoDaysAgo: string
-  feeUSD0: string
-  feeUSD1: string
-  feeAmount0: string
-  feeAmount1: string
-  token0: {
-    id: string
-    symbol: string
-    name: string
-    decimals: string
-    priceUSD: string
-  }
-  token1: {
-    id: string
-    symbol: string
-    name: string
-    decimals: string
-    priceUSD: string
-  }
-  reserve0: string
-  reserve1: string
-  vReserve0: string
-  vReserve1: string
-  totalSupply: string
-  pair: string
-  reserveUSD: string
-  volumeUsd: string
-  volumeUsdOneDayAgo: string
-  volumeUsdTwoDaysAgo: string
-  amp: string
-  apr: string
-  farmApr: string
-}
-
-type Response = {
-  code: number
-  message: string
-  data?: {
-    pools: Array<ClassicPoolResponse>
-  }
-}
-
 const useGetClassicPoolsKN = (): CommonReturn => {
   const { chainId } = useActiveWeb3React()
   const { isEnableKNProtocol } = useKyberSwapConfig()
 
-  const chainRoute = !isEVM(chainId) || NETWORKS_INFO[chainId].poolFarmRoute
-
-  const { isValidating, error, data } = useSWRImmutable<Response>(
-    `${POOL_FARM_BASE_URL}/${chainRoute}/api/v1/classic/pools?includeLowTvl=true&page=1&perPage=10000&thisParamToForceRefresh=${isEnableKNProtocol}`,
-    async (url: string) => {
-      if (!isEnableKNProtocol) {
-        return Promise.resolve({})
-      }
-      return fetch(url).then(resp => resp.json())
-    },
-    {
-      refreshInterval: isEnableKNProtocol ? 0 : 60_000,
-    },
-  )
-
+  const { currentData, error, isFetching } = useGetPoolClassicQuery(chainId, { skip: !isEnableKNProtocol })
   const poolData: ClassicPoolData[] | undefined = useMemo(
     () =>
-      data?.data?.pools.map(pool => {
+      currentData?.data?.pools.map(pool => {
         const oneDayVolumeUSD = toString(get24hValue(pool.volumeUsd, pool.volumeUsdOneDayAgo))
         const oneDayFeeUSD = toString(get24hValue(pool.feeUSD, pool.feesUsdOneDayAgo))
 
@@ -100,27 +39,33 @@ const useGetClassicPoolsKN = (): CommonReturn => {
           oneDayFeeUSD,
           oneDayFeeUntracked: '0',
 
-          token0: {
-            id: pool.token0.id,
-            symbol: pool.token0.symbol,
-            decimals: pool.token0.decimals,
-            name: pool.token0.name,
-          },
-          token1: {
-            id: pool.token1.id,
-            symbol: pool.token1.symbol,
-            decimals: pool.token1.decimals,
-            name: pool.token1.name,
-          },
+          token0:
+            pool.token0.id === ZERO_ADDRESS
+              ? WETH[chainId]
+              : new Token(chainId, pool.token0.id, Number(pool.token0.decimals), pool.token0.symbol, pool.token0.name),
+          token1:
+            pool.token1.id === ZERO_ADDRESS
+              ? WETH[chainId]
+              : new Token(chainId, pool.token1.id, Number(pool.token1.decimals), pool.token1.symbol, pool.token1.name),
         }
-      }),
-    [data?.data?.pools],
+      }) ?? [],
+    [currentData?.data?.pools, chainId],
+  )
+  const fetchError = useMemo(
+    () =>
+      //https://redux-toolkit.js.org/rtk-query/usage-with-typescript#error-result-example
+      error
+        ? 'status' in error
+          ? new Error('error' in error ? error.error : JSON.stringify(error.data))
+          : new Error(error.message)
+        : undefined,
+    [error],
   )
 
   return {
-    loading: isValidating,
-    error: error,
-    data: poolData || [],
+    loading: isFetching,
+    error: fetchError,
+    data: poolData,
   }
 }
 

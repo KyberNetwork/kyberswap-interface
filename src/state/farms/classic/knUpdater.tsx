@@ -3,13 +3,13 @@ import { Token, WETH } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
-import { FarmKN, useLazyGetFarmClassicQuery } from 'services/knprotocol'
+import { ClassicFarmKN, useLazyGetFarmClassicQuery } from 'services/knprotocol'
 
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import FAIRLAUNCH_V3_ABI from 'constants/abis/fairlaunch-v3.json'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import { AbortedError, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
@@ -40,7 +40,7 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
     async function getListFarmsKN(): Promise<Farm[]> {
       try {
         if (!isEVM(chainId)) return []
-        const farmsKN: FarmKN[] | undefined = (await fetchFarmKN(chainId)).data?.data.farmPools
+        const farmsKN: ClassicFarmKN[] | undefined = (await fetchFarmKN(chainId)).data?.data.farmPools
         if (!farmsKN) return []
 
         const mapping = await Promise.all(
@@ -57,21 +57,31 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
             // todo namgold: subgraph issue, revert this later
             const version: FairLaunchVersion =
               Number(farmPool.start) < 1_000_000_000 ? FairLaunchVersion.V1 : FairLaunchVersion.V2
-            const rewardTokens = farmPool.rewardTokens.map(({ id, decimals, symbol, name }) =>
-              id === ZERO_ADDRESS
-                ? new Token(
-                    chainId,
-                    WETH[chainId].address,
-                    NETWORKS_INFO[chainId].nativeToken.decimal,
-                    NETWORKS_INFO[chainId].nativeToken.symbol,
-                    NETWORKS_INFO[chainId].nativeToken.name,
-                  )
-                : new Token(chainId, id, Number(decimals), symbol, name),
+            const rewardTokens: Token[] = farmPool.rewardTokens.map(({ id, decimals, symbol, name }) =>
+              id === ZERO_ADDRESS ? WETH[chainId] : new Token(chainId, id, Number(decimals), symbol, name),
             )
             const totalStake = parseFraction(farmPool.stakedAmount).divide(10 ** 18)
             const stakeToken = id
-            const token0 = { id: farmPool.pool.token0.id, symbol: farmPool.pool.token0.symbol }
-            const token1 = { id: farmPool.pool.token1.id, symbol: farmPool.pool.token1.symbol }
+            const token0: Token =
+              farmPool.pool.token0.id === ZERO_ADDRESS
+                ? WETH[chainId]
+                : new Token(
+                    chainId,
+                    farmPool.pool.token0.id,
+                    Number(farmPool.pool.token0.decimals),
+                    farmPool.pool.token0.symbol,
+                    farmPool.pool.token0.name,
+                  )
+            const token1: Token =
+              farmPool.pool.token1.id === ZERO_ADDRESS
+                ? WETH[chainId]
+                : new Token(
+                    chainId,
+                    farmPool.pool.token1.id,
+                    Number(farmPool.pool.token1.decimals),
+                    farmPool.pool.token1.symbol,
+                    farmPool.pool.token1.name,
+                  )
             const amp = Number(farmPool.pool.amp)
             const reserve0 = farmPool.pool.reserve0
             const reserve1 = farmPool.pool.reserve1
