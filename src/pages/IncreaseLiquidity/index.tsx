@@ -78,6 +78,7 @@ import { calculateGasMargin, formattedNum, isAddressString, shortenAddress } fro
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDollarAmount } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
+import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import Chart from './Chart'
@@ -649,6 +650,20 @@ export default function IncreaseLiquidity() {
     setAttemptingTxn(false)
   }
 
+  const token0 = existingPosition?.pool.token0
+  const token1 = existingPosition?.pool.token1
+
+  const symbol0 = getTokenSymbolWithHardcode(
+    chainId,
+    token0?.wrapped.address,
+    useWrapped ? token0?.wrapped.symbol : (token0 ? unwrappedToken(token0) : token0)?.symbol,
+  )
+  const symbol1 = getTokenSymbolWithHardcode(
+    chainId,
+    token1?.wrapped.address,
+    useWrapped ? token1?.wrapped.symbol : (token1 ? unwrappedToken(token1) : token1)?.symbol,
+  )
+
   return (
     <>
       <TransactionConfirmationModal
@@ -658,8 +673,8 @@ export default function IncreaseLiquidity() {
         attemptingTxn={attemptingTxn}
         pendingText={
           <Trans>
-            Supplying {newPosDraft?.amount0.toSignificant(6)} {existingPosition?.pool.token0.symbol} and{' '}
-            {newPosDraft?.amount1.toSignificant(6)} {existingPosition?.pool?.token1?.symbol}
+            Supplying {newPosDraft?.amount0.toSignificant(6)} {symbol0} and {newPosDraft?.amount1.toSignificant(6)}{' '}
+            {symbol1}
           </Trans>
         }
         content={() => (

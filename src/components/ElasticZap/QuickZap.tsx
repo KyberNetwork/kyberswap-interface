@@ -251,8 +251,16 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
     return <Trans>Add Liquidity</Trans>
   }
 
-  const symbol0 = getTokenSymbolWithHardcode(chainId, token0?.wrapped.address, currency0?.symbol)
-  const symbol1 = getTokenSymbolWithHardcode(chainId, token1?.wrapped.address, currency1?.symbol)
+  const symbol0 = getTokenSymbolWithHardcode(
+    chainId,
+    token0?.wrapped.address,
+    useWrapped ? currency0?.wrapped.symbol : currency0?.symbol,
+  )
+  const symbol1 = getTokenSymbolWithHardcode(
+    chainId,
+    token1?.wrapped.address,
+    useWrapped ? currency1?.wrapped.symbol : currency1?.symbol,
+  )
 
   const [attempingTx, setAttempingTx] = useState(false)
   const [txHash, setTxHash] = useState('')

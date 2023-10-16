@@ -99,6 +99,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber, toFixed } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage, formatSlippage } from 'utils/slippage'
+import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import DisclaimerERC20 from './components/DisclaimerERC20'
@@ -1718,6 +1719,17 @@ export default function AddLiquidity() {
   }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected, positionsState, pIndex])
   if (!isEVM) return <Navigate to="/" />
 
+  const symbol0 = getTokenSymbolWithHardcode(
+    chainId,
+    pool?.token0?.wrapped.address,
+    useWrapped ? pool?.token0?.wrapped.symbol : (pool?.token0 ? unwrappedToken(pool.token0) : pool?.token0)?.symbol,
+  )
+  const symbol1 = getTokenSymbolWithHardcode(
+    chainId,
+    pool?.token1?.wrapped.address,
+    useWrapped ? pool?.token1?.wrapped.symbol : (pool?.token1 ? unwrappedToken(pool.token1) : pool?.token1)?.symbol,
+  )
+
   return (
     <>
       <TransactionConfirmationModal
@@ -2004,8 +2016,8 @@ export default function AddLiquidity() {
         attemptingTxn={attemptingTxn}
         pendingText={
           <Trans>
-            Supplying {newPosDraft?.amount0.toSignificant(6)} {pool?.token0.symbol} and{' '}
-            {newPosDraft?.amount1.toSignificant(6)} {pool?.token1?.symbol}
+            Supplying {newPosDraft?.amount0.toSignificant(6)} {symbol0} and {newPosDraft?.amount1.toSignificant(6)}{' '}
+            {symbol1}
           </Trans>
         }
         content={() => (
