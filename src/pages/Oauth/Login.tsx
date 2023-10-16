@@ -126,7 +126,7 @@ export function Login() {
             throw new Error('Not found login method for this app')
           }
           if (isIncludeGoogle) {
-            autoLoginMethod = LoginMethod.GOOGLE
+            // autoLoginMethod = LoginMethod.GOOGLE
           }
         }
         if (canAutoSignInEth(loginMethods)) {
