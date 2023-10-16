@@ -42,6 +42,7 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { StyledInternalLink } from 'theme'
 import { formattedNum } from 'utils'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -166,14 +167,20 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   const outOfRange =
     !!position && (position.pool.tickCurrent < position.tickLower || position.pool.tickCurrent >= position.tickUpper)
 
-  const currencies = useMemo(() => [currency0, currency1], [currency0, currency1])
+  const currencies = useMemo(
+    () => [currency0, currency1, currency0?.wrapped, currency1?.wrapped],
+    [currency0, currency1],
+  )
   const balances = useCurrencyBalances(currencies)
 
   const [isReverse, setIsReverse] = useState(false)
+  const [useWrapped, setUseWrapped] = useState(false)
 
   const selectedCurrency = useMemo(() => {
-    return isReverse ? currency1 : currency0
-  }, [isReverse, currency0, currency1])
+    const currency = isReverse ? currency1 : currency0
+    if (useWrapped) return currency?.wrapped
+    return currency ? unwrappedToken(currency) : currency
+  }, [isReverse, currency0, currency1, useWrapped])
 
   const quoteCurrency = useMemo(() => {
     return isReverse ? currency0 : currency1
@@ -215,10 +222,12 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   const [approvalState, approve] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapIn } = useZapInAction()
 
+  const balanceIndex = useWrapped ? (isReverse ? 3 : 2) : isReverse ? 1 : 0
+
   let error: ReactElement | null = null
   if (!typedValue) error = <Trans>Enter an amount</Trans>
   else if (!amountIn) error = <Trans>Invalid Input</Trans>
-  else if (balances[isReverse ? 1 : 0] && amountIn?.greaterThan(balances[isReverse ? 1 : 0]))
+  else if (balances[balanceIndex] && amountIn?.greaterThan(balances[balanceIndex]))
     error = <Trans>Insufficient Balance</Trans>
 
   const renderActionName = () => {
@@ -397,10 +406,10 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                   setTypedValue(v)
                 }}
                 onMax={() => {
-                  setTypedValue(balances[isReverse ? 1 : 0].toExact())
+                  setTypedValue(maxAmountSpend(balances[balanceIndex])?.toExact() || '')
                 }}
                 onHalf={() => {
-                  setTypedValue(balances[isReverse ? 1 : 0].divide('2').toExact())
+                  setTypedValue(balances[balanceIndex].divide('2').toExact())
                 }}
                 currency={selectedCurrency}
                 estimatedUsd={formattedNum(zapDetail.amountInUsd.toString(), true) || undefined}
@@ -408,7 +417,12 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                 showCommonBases
                 isSwitchMode
                 onSwitchCurrency={() => {
-                  setIsReverse(prev => !prev)
+                  if (selectedCurrency?.isNative) {
+                    setUseWrapped(true)
+                  } else {
+                    setUseWrapped(false)
+                    setIsReverse(prev => !prev)
+                  }
                 }}
               />
 

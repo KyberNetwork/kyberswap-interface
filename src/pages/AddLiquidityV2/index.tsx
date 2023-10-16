@@ -91,6 +91,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
+import { useCurrencyBalances } from 'state/wallet/hooks'
 import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -1018,10 +1019,14 @@ export default function AddLiquidity() {
   // ZAP state
   const [zapValue, setZapValue] = useState('')
   const [isReverse, setIsReverse] = useState(false)
+  const [useWrapped, setUseWrapped] = useState(false)
 
   const selectedCurrency = useMemo(() => {
-    return isReverse ? currencies[Field.CURRENCY_B] : currencies[Field.CURRENCY_A]
-  }, [isReverse, currencies])
+    const currency = isReverse ? currencies[Field.CURRENCY_B] : currencies[Field.CURRENCY_A]
+    if (useWrapped) return currency?.wrapped
+    return currency ? unwrappedToken(currency) : currency
+  }, [isReverse, currencies, useWrapped])
+
   const quoteZapCurrency = useMemo(() => {
     return isReverse ? currencies[Field.CURRENCY_A] : currencies[Field.CURRENCY_B]
   }, [isReverse, currencies])
@@ -1054,7 +1059,20 @@ export default function AddLiquidity() {
   const [showZapPendingModal, setShowZapPendingModal] = useState(false)
   const [zapError, setZapError] = useState('')
 
-  const balance = currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]
+  const zapBalances = useCurrencyBalances(
+    useMemo(
+      () => [
+        currencies[Field.CURRENCY_A],
+        currencies[Field.CURRENCY_B],
+        currencies[Field.CURRENCY_A]?.wrapped,
+        currencies[Field.CURRENCY_B]?.wrapped,
+      ],
+      [currencies],
+    ),
+  )
+
+  const balanceIndex = useWrapped ? (isReverse ? 3 : 2) : isReverse ? 1 : 0
+  const balance = zapBalances[balanceIndex]
   let error: ReactElement | null = null
   if (!zapValue) error = <Trans>Enter an amount</Trans>
   else if (!amountIn) error = <Trans>Invalid Input</Trans>
@@ -1468,15 +1486,11 @@ export default function AddLiquidity() {
                           setZapValue(v)
                         }}
                         onMax={() => {
-                          setZapValue(
-                            currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]?.toExact() || '',
-                          )
+                          const amount = zapBalances[balanceIndex]
+                          if (amount) setZapValue(maxAmountSpend(amount)?.toExact() || '')
                         }}
                         onHalf={() => {
-                          setZapValue(
-                            currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]?.divide('2').toExact() ||
-                              '',
-                          )
+                          setZapValue(zapBalances[balanceIndex]?.divide('2').toExact() || '')
                         }}
                         currency={selectedCurrency}
                         positionMax="top"
@@ -1484,7 +1498,12 @@ export default function AddLiquidity() {
                         estimatedUsd={formattedNum(zapDetail.amountInUsd, true)}
                         isSwitchMode
                         onSwitchCurrency={() => {
-                          setIsReverse(prev => !prev)
+                          if (selectedCurrency?.isNative) {
+                            setUseWrapped(true)
+                          } else {
+                            setUseWrapped(false)
+                            setIsReverse(prev => !prev)
+                          }
                         }}
                         outline
                       />
