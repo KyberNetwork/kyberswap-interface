@@ -14,8 +14,7 @@ export const validateRedirectURL = (
 ) => {
   try {
     if (!url || url.endsWith('.js')) throw new Error()
-    if (allowRelativePath && url.startsWith('/')) return url
-    const newUrl = new URL(url) // valid url
+    const newUrl = allowRelativePath && url.startsWith('/') ? new URL(`${window.location.origin}${url}`) : new URL(url)
     if (
       newUrl.pathname.endsWith('.js') ||
       !['https:', 'http:'].includes(newUrl.protocol) ||
