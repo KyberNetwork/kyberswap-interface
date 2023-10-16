@@ -268,7 +268,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
               placement="right"
               text={
                 !isFarmingPool ? (
-                  <Trans>Estimated return from trading fees if you participate in the pool</Trans>
+                  <Trans>Estimated return from trading fees if you participate in the pool.</Trans>
                 ) : (
                   <APRTooltipContent farmAPR={farmAPR || 0} poolAPR={Number(oneYearFL)} />
                 )

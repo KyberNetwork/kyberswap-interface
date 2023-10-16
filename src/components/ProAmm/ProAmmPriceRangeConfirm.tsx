@@ -99,6 +99,7 @@ export default function ProAmmPriceRangeConfirm({
                     <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
                       here ↗
                     </ExternalLink>
+                    .
                   </Trans>
                 </Text>
               }
