@@ -7,7 +7,7 @@ import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useEffect, useMemo, useRef } from 'react'
-import knProtocolApi, { useLazyGetFarmV2Query } from 'services/knprotocol'
+import { useGetFarmV2Mutation } from 'services/knprotocol'
 
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
@@ -119,7 +119,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
     fetchPolicy: 'network-only',
   })
 
-  const [getElasticFarmV2FromKnProtocol, { data: knProtocolData, error: knProtocolError }] = useLazyGetFarmV2Query()
+  const [getElasticFarmV2FromKnProtocol, { data: knProtocolData, error: knProtocolError }] = useGetFarmV2Mutation()
 
   const data = useMemo(() => {
     if (isEnableKNProtocol) {
@@ -147,7 +147,9 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
         })
       }
     }
-    Promise.resolve(dispatch(knProtocolApi.util.resetApiState())).then(() => {
+    // Promise.resolve(dispatch(knProtocolApi.util.resetApiState())).then(() => {
+    // Promise.resolve(dispatch(knProtocolApi.util.invalidateTags([RTK_QUERY_TAGS.GET_FARM_V2]))).then(() => {
+    Promise.resolve(0).then(() => {
       dispatch(setFarms({ chainId, farms: [] }))
       getFarm(chainId, true)
     })
