@@ -32,7 +32,6 @@ import {
   useWalletModalToggle,
 } from 'state/application/hooks'
 import { useIsConnectingWallet } from 'state/authen/hooks'
-import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
 
 import Option from './Option'
@@ -317,13 +316,13 @@ export default function WalletModal() {
             <Text color={theme.subText}>
               <Trans>
                 By connecting a wallet, you accept{' '}
-                <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+                <a href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                   KyberSwap&lsquo;s Terms of Use
-                </ExternalLink>{' '}
+                </a>{' '}
                 and consent to its{' '}
-                <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                <a href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
                   Privacy Policy
-                </ExternalLink>
+                </a>
                 . Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}
               </Trans>
             </Text>
