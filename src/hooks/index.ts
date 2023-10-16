@@ -1,4 +1,3 @@
-import { Networkish } from '@ethersproject/networks'
 import { Web3Provider } from '@ethersproject/providers'
 import { ChainId, ChainType, getChainType } from '@kyberswap/ks-sdk-core'
 import { Wallet, useWallet } from '@solana/wallet-adapter-react'
@@ -126,17 +125,18 @@ type Web3React = {
   active: boolean
 }
 
-const wrapProvider = (provider: Web3Provider, blackjackData: BlackjackCheck) =>
+const wrapProvider = (provider: Web3Provider, blackjackData: BlackjackCheck): Web3Provider =>
   new Proxy(provider, {
     get(target, prop) {
       if (prop === 'send' && blackjackData.blacklisted) throw new Error('There was an error with your transaction')
       return target[prop as keyof Web3Provider]
     },
   })
-const cache = new Map<Web3Provider, any>()
+const cache = new Map<Web3Provider, Web3Provider>()
 const useWrappedProvider = () => {
   const { provider, account } = useWeb3ReactCore<Web3Provider>()
   const { data: blackjackData } = useCheckBlackjackQuery(account ?? '', { skip: !account })
+
   if (!provider) return undefined
   if (!blackjackData) return undefined
   const wrappedProvider = cache.get(provider) || wrapProvider(provider, blackjackData)
