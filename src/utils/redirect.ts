@@ -7,17 +7,16 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 
 const whiteListDomains = [/https:\/\/(.+?\.)?kyberswap\.com$/, /https:\/\/(.+)\.kyberengineering\.io$/]
 
-type Options = { whitelistKyberSwap?: boolean; allowPath?: boolean }
+type Options = { whitelistKyberSwap?: boolean; allowRelativePath?: boolean }
 export const validateRedirectURL = (
   url: string | undefined,
-  { whitelistKyberSwap = true, allowPath = false }: Options = {},
+  { whitelistKyberSwap = true, allowRelativePath = false }: Options = {},
 ) => {
   try {
-    if (!url) throw new Error()
-    if (allowPath && url.startsWith('/')) return url
+    if (!url || url.endsWith('.js')) throw new Error()
+    if (allowRelativePath && url.startsWith('/')) return url
     const newUrl = new URL(url) // valid url
     if (
-      url.endsWith('.js') ||
       newUrl.pathname.endsWith('.js') ||
       !['https:', 'http:'].includes(newUrl.protocol) ||
       (whitelistKyberSwap && !whiteListDomains.some(regex => newUrl.origin.match(regex)))
