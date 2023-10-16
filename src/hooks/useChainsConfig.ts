@@ -18,9 +18,7 @@ export type ChainStateMap = { [chain in ChainId]: ChainState }
 const defaultData = MAINNET_NETWORKS.map(chainId => NETWORKS_INFO[chainId])
 export default function useChainsConfig() {
   const { data } = useGetChainsConfigurationQuery()
-  console.log('🚀 ~ file: useChainsConfig.ts:21 ~ useChainsConfig ~ data:', data)
   const globalConfig = useKyberswapGlobalConfig()
-  console.log('🚀 ~ file: useChainsConfig.ts:23 ~ useChainsConfig ~ globalConfig:', globalConfig)
 
   return useMemo(() => {
     const hasConfig = !!data

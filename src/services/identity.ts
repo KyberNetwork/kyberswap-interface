@@ -39,7 +39,10 @@ const identityApi = createApi({
         method: 'PUT',
       }),
     }),
-    updateProfile: builder.mutation<any, { nickname?: string; avatarURL?: string }>({
+    updateProfile: builder.mutation<
+      any,
+      { nickname?: string; avatarURL?: string; data?: { favouriteChainIds: string[] } }
+    >({
       query: body => ({
         url: `/v1/profile/me`,
         body,
