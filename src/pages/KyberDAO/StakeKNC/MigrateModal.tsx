@@ -166,7 +166,7 @@ export default function MigrateModal({
               </>
             ) : (
               <ButtonLight onClick={toggleWalletModal}>
-                <Trans>Connect Wallet</Trans>
+                <Trans>Connect</Trans>
               </ButtonLight>
             )}
           </Row>

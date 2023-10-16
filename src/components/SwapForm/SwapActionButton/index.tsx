@@ -194,7 +194,7 @@ const SwapActionButton: React.FC<Props> = ({
     if (!account) {
       return (
         <ButtonLight onClick={toggleWalletModal}>
-          <Trans>Connect Wallet</Trans>
+          <Trans>Connect</Trans>
         </ButtonLight>
       )
     }
