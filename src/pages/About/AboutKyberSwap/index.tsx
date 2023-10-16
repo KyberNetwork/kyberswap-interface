@@ -1017,6 +1017,11 @@ function AboutKyberSwap() {
                 alt="Base"
                 width="100%"
               />
+              <img
+                src="https://file.notion.so/f/s/60f8e4c7-ca68-47a4-8979-7cdb457876f2/Scroll_Inverted_logo_300100px_RGB.svg?id=72fbd4d6-ce80-49a5-aff8-c9afe41b2ea9&table=block&spaceId=cc12e519-e01d-4277-9573-3fe8e5bdf9ce&expirationTimestamp=1697565600000&signature=dFpSCa664sHdlG6NxdX1yzy11DcfRCc48fyRHUYrPuY&downloadName=Scroll_Inverted+logo_300*100px_RGB.svg"
+                alt="Sroll"
+                width="100%"
+              />
             </Powered>
           </Text>
         </Wrapper>

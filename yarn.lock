@@ -2293,10 +2293,10 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
-"@kyberswap/ks-sdk-core@1.0.11", "@kyberswap/ks-sdk-core@^1.0.5":
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-core/-/ks-sdk-core-1.0.11.tgz#59362240147001ccabcb49ed77991b2f78b0e440"
-  integrity sha512-A7pPRqr0lFeSYOsuitsld+WglV4G8Tl5FsKZpx9mBjOrSFKGLOtCE0oMwAeD4+Jjo8VyLJppkBINQYY7wAq8Xg==
+"@kyberswap/ks-sdk-core@1.0.12", "@kyberswap/ks-sdk-core@^1.0.5":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-core/-/ks-sdk-core-1.0.12.tgz#a48cd835adb90cc138218746cea0d7f246d28643"
+  integrity sha512-JWqo4bfmvc74P5gUgmmJzZh2GQj5MzRPrpD4L/nIPMhzvdIMreK2aEbU0euv8g2ao+Gthnk8e3hnYragxzj7yQ==
   dependencies:
     "@ethersproject/address" "^5.0.2"
     "@solana/web3.js" "^1.66.2"

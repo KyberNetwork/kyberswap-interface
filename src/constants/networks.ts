@@ -20,6 +20,7 @@ import {
   matic,
   mumbai,
   optimism,
+  scroll,
   solana,
   solanaDevnet,
   zkEvm,
@@ -51,6 +52,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.LINEA]: linea,
   [ChainId.ZKEVM]: zkEvm,
   [ChainId.BASE]: base,
+  [ChainId.SCROLL]: scroll,
   [ChainId.SOLANA]: solana,
   [ChainId.SOLANA_DEVNET]: solanaDevnet,
 } as const
@@ -77,6 +79,7 @@ export const MAINNET_NETWORKS = [
   ChainId.ZKEVM,
   ChainId.ZKSYNC,
   ChainId.BASE,
+  ChainId.SCROLL,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   // ChainId.SOLANA,
@@ -148,6 +151,7 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.LINEA]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKEVM]: [8, 10, 50, 300, 500, 1000],
   [ChainId.BASE]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.SCROLL]: [8, 10, 50, 300, 500, 1000],
 }
 
 export const ONLY_STATIC_FEE_CHAINS = [
@@ -159,6 +163,7 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.LINEA,
   ChainId.ZKEVM,
   ChainId.BASE,
+  ChainId.SCROLL,
 ]
 
 // hardcode for unavailable subgraph
