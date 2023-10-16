@@ -16,6 +16,7 @@ const Divider = styled.div`
 `
 
 const CustomOption = styled(Row)`
+  cursor: pointer;
   :hover {
     background-color: ${({ theme }) => theme.background};
   }
