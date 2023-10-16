@@ -40,6 +40,19 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
     console.debug('resp loginEmail', resp)
   }
 
+  const qs = useParsedQueryString<{ flow: string }>()
+  const onSendCode = async ({ email }: { email: string }) => {
+    return KyberOauth2.oauthUi.sendVerifyCode(
+      { email, flow: qs.flow + '' },
+      {
+        withCredentials: true,
+        headers: {
+          'X-CSRF-Token': window.csrf,
+        },
+      },
+    )
+  }
+
   return (
     <Wrapper>
       <InputEmailWithVerification
@@ -51,7 +64,7 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
         style={{ width: 340, height: 36 }}
         onDismissVerifyModal={onDismissVerifyModal}
         isShowVerify={isShowVerify}
-        sendCode={KyberOauth2.oauthUi.sendVerifyCode}
+        sendCode={onSendCode}
         verifyCode={onVerifyCode}
       />
       <ButtonPrimary height={'36px'} onClick={onVerifyEmail}>

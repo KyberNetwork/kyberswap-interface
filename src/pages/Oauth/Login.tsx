@@ -117,7 +117,7 @@ export function Login() {
 
         const { client_id } = loginFlow.oauth_client
         const loginMethods = getSupportLoginMethods(loginFlow)
-
+        window.csrf = loginFlow?.ui?.nodes?.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? '' // todo
         let autoLoginMethod: LoginMethod | undefined
         const isIncludeGoogle = loginMethods.includes(LoginMethod.GOOGLE)
         const totalMethod = loginMethods.length
