@@ -1,3 +1,4 @@
+import { Networkish } from '@ethersproject/networks'
 import { Web3Provider } from '@ethersproject/providers'
 import { ChainId, ChainType, getChainType } from '@kyberswap/ks-sdk-core'
 import { Wallet, useWallet } from '@solana/wallet-adapter-react'
@@ -6,6 +7,7 @@ import { Connector } from '@web3-react/types'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
+import { BlackjackCheck, useCheckBlackjackQuery } from 'services/blackjack'
 
 import { blocto, gnosisSafe, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors/evm'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
@@ -124,8 +126,28 @@ type Web3React = {
   active: boolean
 }
 
+const wrapProvider = (provider: Web3Provider, blackjackData: BlackjackCheck) =>
+  new Proxy(provider, {
+    get(target, prop) {
+      if (prop === 'send' && blackjackData.blacklisted) throw new Error('There was an error with your transaction')
+      return target[prop as keyof Web3Provider]
+    },
+  })
+const cache = new Map<Web3Provider, any>()
+const useWrappedProvider = () => {
+  const { provider, account } = useWeb3ReactCore<Web3Provider>()
+  const { data: blackjackData } = useCheckBlackjackQuery(account ?? '', { skip: !account })
+  if (!provider) return undefined
+  if (!blackjackData) return undefined
+  const wrappedProvider = cache.get(provider) || wrapProvider(provider, blackjackData)
+  cache.set(provider, wrappedProvider)
+  return wrappedProvider
+}
+
 export function useWeb3React(): Web3React {
-  const { connector, chainId, account, isActive: active, provider } = useWeb3ReactCore<Web3Provider>()
+  const { connector, chainId, account, isActive: active } = useWeb3ReactCore<Web3Provider>()
+  const provider = useWrappedProvider()
+
   return {
     connector,
     library: provider,
