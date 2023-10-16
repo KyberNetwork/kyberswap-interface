@@ -6,15 +6,19 @@ import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 
 const whiteListDomains = [/https:\/\/(.+?\.)?kyberswap\.com$/, /https:\/\/(.+)\.kyberengineering\.io$/]
-export const validateRedirectURL = (url: string | undefined, whitelistKyberSwap = true) => {
+
+type Options = { _dangerousSkipCheckWhitelist?: boolean; allowRelativePath?: boolean }
+export const validateRedirectURL = (
+  url: string | undefined,
+  { _dangerousSkipCheckWhitelist = false, allowRelativePath = false }: Options = {},
+) => {
   try {
-    if (!url) throw new Error()
-    const newUrl = new URL(url) // valid url
+    if (!url || url.endsWith('.js')) throw new Error()
+    const newUrl = allowRelativePath && url.startsWith('/') ? new URL(`${window.location.origin}${url}`) : new URL(url)
     if (
-      url.endsWith('.js') ||
       newUrl.pathname.endsWith('.js') ||
       !['https:', 'http:'].includes(newUrl.protocol) ||
-      (whitelistKyberSwap && !whiteListDomains.some(regex => newUrl.origin.match(regex)))
+      (!_dangerousSkipCheckWhitelist && !whiteListDomains.some(regex => newUrl.origin.match(regex)))
     ) {
       throw new Error()
     }
@@ -24,8 +28,8 @@ export const validateRedirectURL = (url: string | undefined, whitelistKyberSwap 
   }
 }
 
-export const navigateToUrl = (url: string | undefined, whitelistKyberSwap = true) => {
-  const urlFormatted = validateRedirectURL(url, whitelistKyberSwap)
+export const navigateToUrl = (url: string | undefined, options?: Options) => {
+  const urlFormatted = validateRedirectURL(url, options)
   if (urlFormatted) window.location.href = urlFormatted
 }
 
@@ -46,7 +50,7 @@ export const useNavigateToUrl = () => {
         return
       }
       const { pathname, host, search } = new URL(actionURL)
-      if (!validateRedirectURL(actionURL, false)) return
+      if (!validateRedirectURL(actionURL, { _dangerousSkipCheckWhitelist: true })) return
       if (window.location.host === host) {
         navigate(`${pathname}${search}`)
       } else {
