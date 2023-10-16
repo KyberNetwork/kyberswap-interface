@@ -10,7 +10,7 @@ const whiteListDomains = [/https:\/\/(.+?\.)?kyberswap\.com$/, /https:\/\/(.+)\.
 type Options = { _dangerousSkipCheckWhitelist?: boolean; allowRelativePath?: boolean }
 export const validateRedirectURL = (
   url: string | undefined,
-  { _dangerousSkipCheckWhitelist = true, allowRelativePath = false }: Options = {},
+  { _dangerousSkipCheckWhitelist = false, allowRelativePath = false }: Options = {},
 ) => {
   try {
     if (!url || url.endsWith('.js')) throw new Error()
