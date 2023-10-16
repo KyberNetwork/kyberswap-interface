@@ -117,7 +117,7 @@ export default function Vote() {
     claimedRewardAmount,
     stakerInfo,
     stakerInfoNextEpoch,
-    rewardStats: { knc, usd },
+    rewardStats: { knc, usd, apr },
   } = useVotingInfo()
 
   const kncPrice = useKNCPrice()
@@ -237,12 +237,23 @@ export default function Vote() {
           </Card>
           <Card>
             <AutoColumn>
-              <Text color={theme.subText} fontSize="14px" marginBottom="20px">
-                <Trans>Total Voting Rewards</Trans>
-              </Text>
-              <Text fontSize={20} marginBottom="8px" fontWeight={500}>
-                {(+knc?.toFixed(0)).toLocaleString() ?? '--'} KNC
-              </Text>
+              <RowBetween marginBottom="20px">
+                <Text color={theme.subText} fontSize="14px">
+                  <Trans>Total Voting Rewards</Trans>
+                </Text>
+                <Text color={theme.subText} fontSize="14px">
+                  <Trans>APR</Trans>
+                </Text>
+              </RowBetween>
+              <RowBetween marginBottom="8px">
+                <Text fontSize={20} fontWeight={500}>
+                  {(+knc?.toFixed(0)).toLocaleString() ?? '--'} KNC
+                </Text>
+                <Text fontSize={20} fontWeight={500} color={theme.apr}>
+                  {apr.toFixed(2) ?? '--'}%
+                </Text>
+              </RowBetween>
+
               <Text fontSize={12} color={theme.subText}>
                 ~{(+usd?.toFixed(0)).toLocaleString() ?? '--'} USD
               </Text>
