@@ -17,7 +17,7 @@ import { FairLaunchVersion, Farm, Reward, RewardPerTimeUnit } from 'state/farms/
 import { UserLiquidityPosition } from 'state/pools/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { formattedNum } from 'utils'
+import { formatDisplayNumber } from 'utils/numbers'
 import { isTokenNative } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -252,12 +252,12 @@ export const getTradingFeeAPR = (liquidity?: string, feeOneDay?: string): number
     : (parseFloat(feeOneDay) * 365 * 100) / parseFloat(liquidity)
 }
 
-const DEFAULT_MY_LIQUIDITY = '-'
+const DEFAULT_MY_LIQUIDITY = '--'
 
 export const getMyLiquidity = (
   liquidityPosition?: UserLiquidityPosition,
   defaultValue = DEFAULT_MY_LIQUIDITY,
-): string | 0 => {
+): string => {
   if (!liquidityPosition || parseFloat(liquidityPosition.pool.totalSupply) === 0) {
     return defaultValue
   }
@@ -266,11 +266,7 @@ export const getMyLiquidity = (
     (parseFloat(liquidityPosition.liquidityTokenBalance) * parseFloat(liquidityPosition.pool.reserveUSD)) /
     parseFloat(liquidityPosition.pool.totalSupply)
 
-  if (myLiquidity === 0) {
-    return defaultValue
-  }
-
-  return formattedNum(myLiquidity.toString(), true)
+  return formatDisplayNumber(myLiquidity, { style: 'currency', significantDigits: 4, allowZero: false })
 }
 
 function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {

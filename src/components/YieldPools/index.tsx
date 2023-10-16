@@ -106,7 +106,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
           backgroundColor={theme.background}
           justifyContent="center"
           padding="32px"
-          style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
+          style={{ borderRadius: '20px' }}
         >
           <Text color={theme.subText}>
             {debouncedSearchText ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}

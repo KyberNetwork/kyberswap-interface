@@ -50,7 +50,7 @@ import {
   priceRangeCalcBySubgraphPool,
   useFarmApr,
 } from 'utils/dmm'
-import { formatDisplayNumber } from 'utils/numbers'
+import { formatDisplayNumber, parseFraction } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 const StyledLink = styled(ExternalLink)`
@@ -106,14 +106,11 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 
   const [, setSharedPoolId] = useSharedPoolIdManager()
 
-  const ampLiquidity = formatDisplayNumber(
-    amp.multiply(new Fraction(Math.trunc(parseFloat(poolData.reserveUSD) * 1000000), 1000000)),
-    {
-      style: 'currency',
-      significantDigits: 7,
-      fractionDigits: 4,
-    },
-  )
+  const ampLiquidity = formatDisplayNumber(amp.multiply(parseFraction(poolData.reserveUSD)), {
+    style: 'currency',
+    significantDigits: 7,
+    fractionDigits: 4,
+  })
   const volume = poolData.oneDayVolumeUSD ? poolData.oneDayVolumeUSD : poolData.oneDayVolumeUntracked
   const fee24H = poolData.oneDayFeeUSD ? poolData.oneDayFeeUSD : poolData.oneDayFeeUntracked
   const oneYearFL = getTradingFeeAPR(poolData.reserveUSD, fee24H).toFixed(2)
