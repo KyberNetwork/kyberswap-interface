@@ -854,9 +854,10 @@ export default function AddLiquidity() {
     outOfRange ||
     slippageStatus === SLIPPAGE_STATUS.HIGH ||
     farmPosWarning
-  const warnings = showWarning && (
+
+  const warnings = !!showWarning && (
     <Flex flexDirection="column" sx={{ gap: '12px' }} width="100%">
-      {noLiquidity && (
+      {!!noLiquidity && (
         <SubTextCard padding="10px 16px">
           <Flex alignItems="center">
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
@@ -878,7 +879,7 @@ export default function AddLiquidity() {
           </Flex>
         </SubTextCard>
       )}
-      {isPriceDeviated && (
+      {!!isPriceDeviated && (
         <WarningCard padding="10px 16px">
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
@@ -921,7 +922,7 @@ export default function AddLiquidity() {
           </Flex>
         </WarningCard>
       )}
-      {invalidRange ? (
+      {!!invalidRange ? (
         <WarningCard padding="10px 16px">
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
@@ -951,7 +952,7 @@ export default function AddLiquidity() {
           </Flex>
         </WarningCard>
       ) : null}
-      {farmPosWarning && (
+      {!!farmPosWarning && (
         <WarningCard padding="10px 16px">
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
@@ -1093,7 +1094,7 @@ export default function AddLiquidity() {
   const tickReader = useProAmmTickReader()
 
   const results = useSingleContractMultipleData(
-    tickLower && tickUpper ? tickReader : undefined,
+    tickLower !== undefined && tickUpper !== undefined ? tickReader : undefined,
     'getNearestInitializedTicks',
     [
       [poolAddress, tickLower],
