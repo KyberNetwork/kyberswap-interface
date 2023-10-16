@@ -1077,6 +1077,7 @@ export default function AddLiquidity() {
   if (!zapValue) error = <Trans>Enter an amount</Trans>
   else if (!amountIn) error = <Trans>Invalid Input</Trans>
   else if (balance && amountIn?.greaterThan(balance)) error = <Trans>Insufficient Balance</Trans>
+  else if (!zapResult) error = <Trans>Insufficient Liquidity</Trans>
 
   const newPosDraft =
     pool && zapResult && tickLower !== undefined && tickUpper !== undefined
@@ -1525,7 +1526,7 @@ export default function AddLiquidity() {
                           <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
                             <CurrencyLogo currency={unwrappedToken(pool.token0)} size="14px" />
                             <Text>
-                              {zapDetail.newPooledAmount0?.toSignificant(6)} {unwrappedToken(pool.token0).symbol}
+                              {zapDetail.newPooledAmount0?.toSignificant(10)} {unwrappedToken(pool.token0).symbol}
                             </Text>
                           </Flex>
                         )}
@@ -1541,7 +1542,7 @@ export default function AddLiquidity() {
                           <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
                             <CurrencyLogo currency={unwrappedToken(pool.token1)} size="14px" />
                             <Text>
-                              {zapDetail.newPooledAmount1?.toSignificant(6)} {unwrappedToken(pool.token1).symbol}
+                              {zapDetail.newPooledAmount1?.toSignificant(10)} {unwrappedToken(pool.token1).symbol}
                             </Text>
                           </Flex>
                         )}
@@ -1556,6 +1557,8 @@ export default function AddLiquidity() {
                         <Text color={theme.subText}>Price Impact</Text>
                         {zapLoading ? (
                           zapDetail.skeleton(40)
+                        ) : !zapResult ? (
+                          '--'
                         ) : (
                           <Text
                             fontWeight="500"

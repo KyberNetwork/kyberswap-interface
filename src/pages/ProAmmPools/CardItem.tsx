@@ -96,6 +96,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
       !item.isSettled &&
       item.poolAddress.toLowerCase() === pool.address.toLowerCase(),
   )
+
   const isFarmV2 = !!farmV2
   const maxFarmV2Apr = Math.max(...(farmV2?.ranges.map(item => item.apr || 0) || []))
 

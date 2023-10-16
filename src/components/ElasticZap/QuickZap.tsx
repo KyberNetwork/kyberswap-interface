@@ -229,6 +229,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   else if (!amountIn) error = <Trans>Invalid Input</Trans>
   else if (balances[balanceIndex] && amountIn?.greaterThan(balances[balanceIndex]))
     error = <Trans>Insufficient Balance</Trans>
+  else if (!result) error = <Trans>Insufficient Liquidity</Trans>
 
   const renderActionName = () => {
     if (error) return error
@@ -337,8 +338,6 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
     previousTicks: tickPrevious,
     aggregatorRoute: aggregatorData,
   })
-
-  console.log(111, zapDetail.priceImpact)
 
   return (
     <Modal isOpen={isOpen}>

@@ -14,7 +14,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract, useContractForReading } from 'hooks/useContract'
-// import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
+import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -47,9 +47,7 @@ export function useZapInPoolResult(params?: {
 
   const [getRoute, { isLoading: loadingAggregator }] = useLazyGetRouteQuery()
 
-  // TODO(viet-nv): update prod env
-  // const { aggregatorDomain } = useKyberswapGlobalConfig()
-  const aggregatorDomain = 'https://aggregator-api.stg.kyberengineering.io'
+  const { aggregatorDomain } = useKyberswapGlobalConfig()
   const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
 
   const splitedAmount = useMemo(() => {
@@ -163,9 +161,7 @@ export function useZapInAction() {
 
   const [buildRoute] = useBuildRouteMutation()
 
-  // TODO(viet-nv): update prod env
-  // const { aggregatorDomain } = useKyberswapGlobalConfig()
-  const aggregatorDomain = 'https://aggregator-api.stg.kyberengineering.io'
+  const { aggregatorDomain } = useKyberswapGlobalConfig()
   const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.BUILD_ROUTE}`
 
   const zapIn = useCallback(

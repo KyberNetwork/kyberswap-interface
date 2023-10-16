@@ -345,6 +345,8 @@ export default function ZapDetail({
         <Text color={theme.subText}>Price Impact</Text>
         {zapLoading ? (
           skeleton(40)
+        ) : !result ? (
+          '--'
         ) : (
           <Text
             fontWeight="500"
