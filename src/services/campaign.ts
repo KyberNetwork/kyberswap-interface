@@ -240,8 +240,8 @@ const campaignApi = createApi({
       transformResponse: (data: any) => formatTxs(data?.data || []),
     }),
     joinCampaign: builder.mutation<any, { token: string | null; address: string; recaptchaId: number }>({
-      query: ({ recaptchaId, ...data }) => ({
-        data,
+      query: ({ recaptchaId, ...body }) => ({
+        body,
         method: 'POST',
         url: `/${recaptchaId}/participants`,
       }),
