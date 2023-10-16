@@ -1,10 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback } from 'react'
-import AnnouncementApi from 'services/announcement'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
 import { TIMES_IN_SECS } from 'constants/index'
-import { useAppDispatch } from 'state/hooks'
 
 const LsKey = 'ack-announcements'
 export const getAnnouncementsAckMap = () => JSON.parse(localStorage[LsKey] || '{}')
@@ -41,21 +38,4 @@ export const isPopupCanShow = (
 
   const isExpired = Date.now() < startAt * 1000 || Date.now() > endAt * 1000
   return !isRead && !isExpired && isRightChain && isOwn
-}
-
-export const useInvalidateTags = (reducerPath: string) => {
-  const dispatch = useAppDispatch()
-  return useCallback(
-    (tag: string | string[]) => {
-      dispatch({
-        type: `${reducerPath}/invalidateTags`,
-        payload: Array.isArray(tag) ? tag : [tag],
-      })
-    },
-    [dispatch, reducerPath],
-  )
-}
-
-export const useInvalidateTagAnnouncement = () => {
-  return useInvalidateTags(AnnouncementApi.reducerPath)
 }

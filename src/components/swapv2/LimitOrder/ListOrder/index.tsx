@@ -6,11 +6,10 @@ import { Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import limitOrderApi, { useGetListOrdersQuery } from 'services/limitOrder'
+import { useGetListOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
-import { useInvalidateTags } from 'components/Announcement/helper'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
@@ -22,6 +21,7 @@ import SubscribeNotificationButton from 'components/SubscribeButton'
 import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import { EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
@@ -203,7 +203,7 @@ export default function ListLimitOrder() {
     onReset()
   }, [chainId, orderType])
 
-  const invalidateTag = useInvalidateTags(limitOrderApi.reducerPath)
+  const invalidateTag = useInvalidateTagLimitOrder()
   const refetchOrders = useCallback(() => {
     invalidateTag(RTK_QUERY_TAGS.GET_LIST_ORDERS)
   }, [invalidateTag])

@@ -682,7 +682,7 @@ const TokenPair = ({
 
             {!account ? (
               <ButtonLight onClick={toggleWalletModal}>
-                <Trans>Connect Wallet</Trans>
+                <Trans>Connect</Trans>
               </ButtonLight>
             ) : (
               <AutoColumn gap={'md'}>

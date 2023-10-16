@@ -78,7 +78,7 @@ export default function RequireConnectWalletWrapper({
           height="36px"
           style={{ boxShadow: '0 2px 4px 2px #00000030' }}
         >
-          <Trans>Connect Wallet</Trans>
+          <Trans>Connect</Trans>
         </ButtonPrimary>
       </StyledRequireConnectWalletWrapper>
     )

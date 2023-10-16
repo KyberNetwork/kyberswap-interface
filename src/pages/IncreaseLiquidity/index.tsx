@@ -352,7 +352,7 @@ export default function IncreaseLiquidity() {
       </ButtonPrimary>
     ) : !account ? (
       <ButtonLight onClick={toggleWalletModal}>
-        <Trans>Connect Wallet</Trans>
+        <Trans>Connect</Trans>
       </ButtonLight>
     ) : (
       <>

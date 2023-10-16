@@ -5,11 +5,11 @@ import { CheckCircle, Copy, ExternalLink, Info, X } from 'react-feather'
 import { useSelector } from 'react-redux'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useGetTxsCampaignQuery } from 'services/campaign'
 import styled, { css } from 'styled-components'
-import useSWR from 'swr'
 
 import Modal from 'components/Modal'
-import { CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
+import { CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
@@ -17,7 +17,6 @@ import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleYourCampaignTransactionsModal } from 'state/application/hooks'
-import { CampaignProofData } from 'state/campaigns/actions'
 import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 
@@ -32,37 +31,15 @@ export default function YourCampaignTransactionsModal() {
   const above768 = useMedia('(min-width: 768px)')
 
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
-  const { data: userCampaignTransactions } = useSWR<CampaignProofData[]>(
-    account && selectedCampaign
-      ? SWR_KEYS.getCampaignTransactions(
-          selectedCampaign.id,
-          CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE,
-          CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE * (currentPage - 1),
-          account,
-        )
-      : null,
-    async (url: string) => {
-      try {
-        const response = await fetch(url)
-        if (response.ok) {
-          const data = await response.json()
-          if (data && Array.isArray(data.data) && data.data.length) {
-            return data.data.map(
-              (item: any): CampaignProofData => ({
-                id: item.id,
-                chainId: parseInt(item.chainId),
-                utcTimestamp: new Date(item.time).getTime(),
-                txPoint: item.txPoint,
-                txHash: item.tx,
-              }),
-            )
-          }
-        }
-        return []
-      } catch (err) {
-        console.error(err)
-      }
+
+  const { data: userCampaignTransactions } = useGetTxsCampaignQuery(
+    {
+      campaignId: selectedCampaign?.id || 0,
+      limit: CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE,
+      offset: CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE * (currentPage - 1),
+      userAddress: account ?? '',
     },
+    { skip: !selectedCampaign?.id },
   )
 
   const [isCopied, setCopied] = useCopyClipboard()

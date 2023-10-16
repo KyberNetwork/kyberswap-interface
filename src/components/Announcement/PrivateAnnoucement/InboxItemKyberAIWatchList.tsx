@@ -19,7 +19,7 @@ const ItemWrapper = styled.div`
   gap: 8px;
 `
 export const TokenInfo = ({
-  showPrice = true,
+  showPrice = false,
   logoSize = '12px',
   token,
 }: {
@@ -73,7 +73,7 @@ function InboxItemBridge({
   }
 
   return (
-    <InboxItemWrapper isRead={isRead} onClick={onClick} style={{ ...style, paddingTop: '8px', gap: '6px' }}>
+    <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} />

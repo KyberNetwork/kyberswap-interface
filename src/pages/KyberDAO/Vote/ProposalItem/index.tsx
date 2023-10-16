@@ -178,7 +178,7 @@ const VoteButton = ({
           </ButtonPrimary>
         ) : (
           <ButtonLight width={isMobile ? '100%' : '200px'} onClick={toggleWalletModal}>
-            <Trans>Connect Wallet</Trans>
+            <Trans>Connect</Trans>
           </ButtonLight>
         )
       ) : (

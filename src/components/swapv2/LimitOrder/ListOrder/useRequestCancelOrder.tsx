@@ -219,19 +219,29 @@ export const useProcessCancelOrder = ({
   getOrders: (v: boolean) => LimitOrder[]
   isEdit?: boolean
 }) => {
+  const { chainId } = useActiveWeb3React()
   const [expiredTime, setExpiredTime] = useState(0)
   const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
   const controller = useRef(new AbortController())
 
+  const onResetState = useCallback(() => {
+    setExpiredTime(0)
+    setCancelStatus(CancelStatus.WAITING)
+  }, [])
+
   useEffect(() => {
     if (!isOpen) {
-      setCancelStatus(CancelStatus.WAITING)
+      onResetState()
     }
     return () => {
       controller?.current?.abort()
       controller.current = new AbortController()
     }
-  }, [isOpen])
+  }, [isOpen, onResetState])
+
+  useEffect(() => {
+    onResetState()
+  }, [chainId, onResetState])
 
   const requestCancel = async (type: CancelOrderType) => {
     const signal = controller.current.signal
@@ -246,6 +256,7 @@ export const useProcessCancelOrder = ({
       else onDismiss()
     } catch (error) {
       if (signal.aborted) return
+      setExpiredTime(0)
       setCancelStatus(expiredTime ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
     }
   }
