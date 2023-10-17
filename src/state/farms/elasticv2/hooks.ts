@@ -1,16 +1,20 @@
+import { t } from '@lingui/macro'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
 
+import { NotificationType } from 'components/Announcement/type'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { ELASTIC_FARM_TYPE, FARM_TAB, SORT_DIRECTION } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useActiveWeb3React } from 'hooks'
 import { useContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useNotify } from 'state/application/hooks'
 import { useAppSelector } from 'state/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin, isAddressString } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
 
 import { defaultChainData } from '.'
 import { UserFarmV2Info } from './types'
@@ -211,25 +215,38 @@ export const useFarmV2Action = (farmAddress: string) => {
   const addTransactionWithType = useTransactionAdder()
   const farmContract = useContract(farmAddress, FarmV2ABI)
   const posManager = useProAmmNFTPositionManagerContract()
+  const notify = useNotify()
 
   const approve = useCallback(async () => {
     if (!posManager) {
       throw new Error(CONTRACT_NOT_FOUND_MSG)
     }
-    const estimateGas = await posManager.estimateGas.setApprovalForAll(farmAddress, true)
-    const tx = await posManager.setApprovalForAll(farmAddress, true, {
-      gasLimit: calculateGasMargin(estimateGas),
-    })
-    addTransactionWithType({
-      hash: tx.hash,
-      type: TRANSACTION_TYPE.APPROVE,
-      extraInfo: {
-        summary: `Elastic Static Farm`,
-        contract: farmAddress,
-      },
-    })
-    return tx.hash
-  }, [posManager, farmAddress, addTransactionWithType])
+    try {
+      const estimateGas = await posManager.estimateGas.setApprovalForAll(farmAddress, true)
+      const tx = await posManager.setApprovalForAll(farmAddress, true, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.APPROVE,
+        extraInfo: {
+          summary: `Elastic Static Farm`,
+          contract: farmAddress,
+        },
+      })
+      return tx.hash
+    } catch (error) {
+      const message = friendlyError(error)
+      notify(
+        {
+          title: t`Approve Farm Error`,
+          summary: message,
+          type: NotificationType.ERROR,
+        },
+        8000,
+      )
+    }
+  }, [posManager, farmAddress, addTransactionWithType, notify])
 
   //Deposit
   const deposit = useCallback(
@@ -247,11 +264,20 @@ export const useFarmV2Action = (farmAddress: string) => {
           type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
         })
         return tx.hash
-      } catch (e) {
-        throw e
+      } catch (error) {
+        const message = friendlyError(error)
+        notify(
+          {
+            title: t`Deposit Farm Error`,
+            summary: message,
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
+        throw error
       }
     },
-    [farmContract, addTransactionWithType, account],
+    [farmContract, addTransactionWithType, account, notify],
   )
 
   const updateLiquidity = useCallback(
@@ -269,11 +295,20 @@ export const useFarmV2Action = (farmAddress: string) => {
           type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
         })
         return tx.hash
-      } catch (e) {
-        throw e
+      } catch (error) {
+        const message = friendlyError(error)
+        notify(
+          {
+            title: t`Update Liquidity Error`,
+            summary: message,
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
+        throw error
       }
     },
-    [addTransactionWithType, farmContract],
+    [addTransactionWithType, farmContract, notify],
   )
 
   const withdraw = useCallback(
@@ -292,11 +327,20 @@ export const useFarmV2Action = (farmAddress: string) => {
           type: TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
         })
         return tx.hash
-      } catch (e) {
-        throw e
+      } catch (error) {
+        const message = friendlyError(error)
+        notify(
+          {
+            title: t`Withdraw Error`,
+            summary: message,
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
+        throw error
       }
     },
-    [addTransactionWithType, farmContract],
+    [addTransactionWithType, farmContract, notify],
   )
 
   const harvest = useCallback(
@@ -313,11 +357,20 @@ export const useFarmV2Action = (farmAddress: string) => {
 
         addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST })
         return tx.hash
-      } catch (e) {
-        throw e
+      } catch (error) {
+        const message = friendlyError(error)
+        notify(
+          {
+            title: t`Harvest Error`,
+            summary: message,
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
+        throw error
       }
     },
-    [addTransactionWithType, farmContract],
+    [addTransactionWithType, farmContract, notify],
   )
 
   return { approve, deposit, withdraw, harvest, updateLiquidity }
