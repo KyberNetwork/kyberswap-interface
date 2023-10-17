@@ -227,7 +227,7 @@ export default function ProAmmPool() {
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
-            <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>
+            <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools.</Trans>
             {!upToSmall && (
               <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                 <Flex alignItems="center">

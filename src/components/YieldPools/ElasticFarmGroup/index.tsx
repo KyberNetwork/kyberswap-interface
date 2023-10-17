@@ -426,7 +426,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
               ) : null)}
           </ClickableText>
           <InfoHelper
-            text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+            text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
           />
         </Flex>
 
@@ -444,7 +444,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
                 <ArrowUp size={12} />
               ) : null)}
           </ClickableText>
-          <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
+          <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees.`} />
         </Flex>
 
         <Flex

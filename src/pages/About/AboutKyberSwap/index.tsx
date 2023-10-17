@@ -850,19 +850,19 @@ function AboutKyberSwap() {
               <Flex marginTop="20px" alignItems="center">
                 <Enter />
                 <Text marginLeft="12px">
-                  <Trans>No KYC or sign-ups required</Trans>
+                  <Trans>No KYC or sign-ups required.</Trans>
                 </Text>
               </Flex>
               <Flex marginTop="20px" alignItems="center">
                 <BestPrice />
                 <Text marginLeft="12px">
-                  <Trans>No extra deposit or withdrawal fees</Trans>
+                  <Trans>No extra deposit or withdrawal fees.</Trans>
                 </Text>
               </Flex>
               <Flex marginTop="20px" alignItems="center">
                 <CircleFocus />
                 <Text marginLeft="12px">
-                  <Trans>List your tokens permissionlessly</Trans>
+                  <Trans>List your tokens permissionlessly.</Trans>
                 </Text>
               </Flex>
             </Flex>
@@ -967,7 +967,7 @@ function AboutKyberSwap() {
               >
                 <Trans>
                   KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product
-                  KyberSwap. It is the glue that connects different stakeholders in Kyber&apos;s ecosystem
+                  KyberSwap. It is the glue that connects different stakeholders in Kyber&apos;s ecosystem.
                 </Trans>
               </Text>
               <img

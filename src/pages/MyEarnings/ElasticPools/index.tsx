@@ -162,7 +162,7 @@ const ElasticPools = () => {
           <>
             <Info width="32px" height="32px" />
             <Text fontSize="16px" fontWeight={500}>
-              <Trans>No liquidity found</Trans>
+              <Trans>No liquidity found.</Trans>
             </Text>
           </>
         )}
@@ -197,7 +197,7 @@ const ElasticPools = () => {
           <Text>
             APR
             <InfoHelper
-              text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+              text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
             />
           </Text>
           <Text>

@@ -103,7 +103,7 @@ const guideStepByVersion: Record<
   [VERSION.ELASTIC_LEGACY]: [],
   [VERSION.CLASSIC]: [
     {
-      content: <Trans>Identify the Classic farm you would like to participate in</Trans>,
+      content: <Trans>Identify the Classic farm you would like to participate in.</Trans>,
       icon: <Eye size={20} />,
       title: 'Step 1',
     },
@@ -112,24 +112,24 @@ const guideStepByVersion: Record<
         <Trans>
           Add liquidity to the corresponding{' '}
           <StyledInternalLink to="/pools?tab=classic">Classic pool</StyledInternalLink> to receive Liquidity Provider
-          (LP) tokens
+          (LP) tokens.
         </Trans>
       ), //todo: add network route
       icon: <Drop size={20} />,
       title: 'Step 2',
     },
     {
-      content: <Trans>Stake your LP tokens in the farm you identified earlier</Trans>,
+      content: <Trans>Stake your LP tokens in the farm you identified earlier.</Trans>,
       icon: <Deposit width={20} height={20} />,
       title: 'Step 3',
     },
     {
-      content: <Trans>Harvest your farming rewards whenever you want</Trans>,
+      content: <Trans>Harvest your farming rewards whenever you want.</Trans>,
       icon: <AgriCulture width={20} height={20} />,
       title: 'Step 4',
     },
     {
-      content: <Trans>Claim your farming rewards! (Note: some farms may have a vesting period)</Trans>,
+      content: <Trans>Claim your farming rewards! (Note: some farms may have a vesting period).</Trans>,
       icon: <MoneyBagOutline size={20} />,
       title: 'Step 5',
     },

@@ -101,7 +101,7 @@ export const APRTooltipContent = ({
               whiteSpace: upToSmall ? 'wrap' : 'nowrap',
             }}
           >
-            <Trans>Estimated return from additional rewards if you also participate in the farm</Trans>
+            <Trans>Estimated return from additional rewards if you also participate in the farm.</Trans>
           </Text>
         </Flex>
       )}
