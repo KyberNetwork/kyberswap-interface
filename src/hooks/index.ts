@@ -6,7 +6,7 @@ import { Connector } from '@web3-react/types'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
-import { BlackjackCheck, useCheckBlackjackQuery } from 'services/blackjack'
+import { useCheckBlackjackQuery } from 'services/blackjack'
 
 import { blocto, gnosisSafe, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors/evm'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
@@ -125,12 +125,10 @@ type Web3React = {
   active: boolean
 }
 
-const wrapProvider = (provider: Web3Provider, blackjackData: BlackjackCheck | undefined): Web3Provider =>
+const wrapProvider = (provider: Web3Provider): Web3Provider =>
   new Proxy(provider, {
     get(target, prop) {
-      if (prop === 'send') {
-        if (blackjackData?.blacklisted) throw new Error('There was an error with your transaction.')
-      }
+      if (prop === 'send') throw new Error('There was an error with your transaction.')
       return target[prop as keyof Web3Provider]
     },
   })
@@ -140,9 +138,11 @@ const useWrappedProvider = () => {
   const { data: blackjackData } = useCheckBlackjackQuery(account ?? '', { skip: !account })
 
   if (!provider) return undefined
+  if (!blackjackData) return provider
+  if (!blackjackData.blacklisted) return provider
   let wrappedProvider = cacheProvider.get(provider)
   if (!wrappedProvider) {
-    wrappedProvider = wrapProvider(provider, blackjackData)
+    wrappedProvider = wrapProvider(provider)
     cacheProvider.set(provider, wrappedProvider)
   }
   return wrappedProvider

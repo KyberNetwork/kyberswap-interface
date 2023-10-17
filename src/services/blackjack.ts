@@ -3,7 +3,7 @@ import baseQueryOauth from 'services/baseQueryOauth'
 
 import { BLACKJACK_API } from 'constants/env'
 
-export type BlackjackCheck = {
+type BlackjackCheck = {
   blacklisted: boolean
   expiryMs: string
   reason: number
