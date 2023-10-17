@@ -128,8 +128,17 @@ type Web3React = {
 const wrapProvider = (provider: Web3Provider): Web3Provider =>
   new Proxy(provider, {
     get(target, prop) {
-      if (prop === 'send') throw new Error('There was an error with your transaction.')
-      return target[prop as keyof Web3Provider]
+      if (prop === 'send') {
+        return (...params: any[]) => {
+          if (params[0] === 'eth_chainId') {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return target[prop](...params)
+          }
+          throw new Error('There was an error with your transaction.')
+        }
+      }
+      return target[prop as unknown as keyof Web3Provider]
     },
   })
 const cacheProvider = new WeakMap<Web3Provider, Web3Provider>()

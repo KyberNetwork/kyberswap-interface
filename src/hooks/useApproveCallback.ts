@@ -66,79 +66,77 @@ export function useApproveCallback(
 
   const approve = useCallback(
     async (customAmount?: CurrencyAmount<Currency>): Promise<void> => {
-      if (approvalState !== ApprovalState.NOT_APPROVED && !forceApprove) {
-        console.error('approve was called unnecessarily')
-        return
-      }
-      if (!token) {
-        console.error('no token')
-        return
-      }
-
-      if (!tokenContract) {
-        console.error('tokenContract is null')
-        return
-      }
-
-      if (!amountToApprove) {
-        console.error('missing amount to approve')
-        return
-      }
-
-      if (!spender) {
-        console.error('no spender')
-        return
-      }
-
-      let estimatedGas
-      let approvedAmount
       try {
-        if (customAmount instanceof CurrencyAmount) {
-          estimatedGas = await tokenContract.estimateGas.approve(spender, customAmount)
-          approvedAmount = customAmount
-        } else {
-          estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256)
-          approvedAmount = MaxUint256
+        if (approvalState !== ApprovalState.NOT_APPROVED && !forceApprove) {
+          console.error('approve was called unnecessarily')
+          return
         }
-      } catch (e) {
-        try {
-          estimatedGas = await tokenContract.estimateGas.approve(spender, amountToApprove.quotient.toString())
-          approvedAmount = amountToApprove.quotient.toString()
-        } catch {
-          estimatedGas = await tokenContract.estimateGas.approve(spender, '0')
-          return tokenContract.approve(spender, '0', {
-            gasLimit: calculateGasMargin(estimatedGas),
-          })
+        if (!token) {
+          console.error('no token')
+          return
         }
-      }
 
-      return tokenContract
-        .approve(spender, approvedAmount, {
+        if (!tokenContract) {
+          console.error('tokenContract is null')
+          return
+        }
+
+        if (!amountToApprove) {
+          console.error('missing amount to approve')
+          return
+        }
+
+        if (!spender) {
+          console.error('no spender')
+          return
+        }
+
+        let estimatedGas
+        let approvedAmount
+        try {
+          if (customAmount instanceof CurrencyAmount) {
+            estimatedGas = await tokenContract.estimateGas.approve(spender, customAmount)
+            approvedAmount = customAmount
+          } else {
+            estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256)
+            approvedAmount = MaxUint256
+          }
+        } catch (e) {
+          try {
+            estimatedGas = await tokenContract.estimateGas.approve(spender, amountToApprove.quotient.toString())
+            approvedAmount = amountToApprove.quotient.toString()
+          } catch {
+            estimatedGas = await tokenContract.estimateGas.approve(spender, '0')
+            return tokenContract.approve(spender, '0', {
+              gasLimit: calculateGasMargin(estimatedGas),
+            })
+          }
+        }
+
+        const response = await tokenContract.approve(spender, approvedAmount, {
           gasLimit: calculateGasMargin(estimatedGas),
         })
-        .then((response: TransactionResponse) => {
-          addTransactionWithType({
-            hash: response.hash,
-            type: TRANSACTION_TYPE.APPROVE,
-            extraInfo: {
-              tokenSymbol: token.symbol ?? '',
-              tokenAddress: token.address,
-              contract: spender,
-            },
-          })
+        addTransactionWithType({
+          hash: response.hash,
+          type: TRANSACTION_TYPE.APPROVE,
+          extraInfo: {
+            tokenSymbol: token.symbol ?? '',
+            tokenAddress: token.address,
+            contract: spender,
+          },
         })
-        .catch((error: Error) => {
-          const message = friendlyError(error)
-          console.error('Approve token error:', { message, error })
-          notify(
-            {
-              title: t`Approve Error`,
-              summary: message,
-              type: NotificationType.ERROR,
-            },
-            8000,
-          )
-        })
+      } catch (error) {
+        const message = friendlyError(error)
+        console.error('Approve token error:', { message, error })
+        notify(
+          {
+            title: t`Approve Error`,
+            summary: message,
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
+      }
     },
     [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, forceApprove, notify],
   )
