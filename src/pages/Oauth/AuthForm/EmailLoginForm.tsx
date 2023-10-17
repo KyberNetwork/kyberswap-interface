@@ -10,7 +10,7 @@ import { useValidateEmail } from 'pages/NotificationCenter/NotificationPreferenc
 import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPreference/InputEmail'
 import useAutoSignIn from 'pages/Oauth/AuthForm/useAutoSignIn'
 import { FlowStatus } from 'pages/Oauth/Login'
-import { isEmailValid } from 'utils/string'
+import { isEmailValid, queryStringToObject } from 'utils/string'
 
 const Wrapper = styled(Column)`
   width: 100%;
@@ -40,10 +40,9 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
     console.debug('resp loginEmail', resp)
   }
 
-  const qs = useParsedQueryString<{ flow: string }>()
   const onSendCode = async ({ email }: { email: string }) => {
     return KyberOauth2.oauthUi.sendVerifyCode(
-      { email, flow: qs.flow + '' },
+      { email, flow: queryStringToObject(window.location.search).flow + '' },
       {
         withCredentials: true,
         headers: {
