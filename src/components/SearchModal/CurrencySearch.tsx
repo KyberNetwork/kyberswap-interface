@@ -265,6 +265,7 @@ export function CurrencySearch({
   )
 
   // menu ui
+  const isImportedTab = activeTab === Tab.Imported
   const [open, toggle] = useToggle(false)
   const node = useRef<HTMLDivElement>()
   useOnClickOutside(node, open ? toggle : undefined)
@@ -316,8 +317,7 @@ export function CurrencySearch({
     async (page?: number) => {
       const nextPage = (page ?? pageCount) + 1
       let tokens: WrappedTokenInfo[] = []
-
-      if (debouncedQuery) {
+      if (debouncedQuery && !isImportedTab) {
         abortControllerRef.current.abort()
         abortControllerRef.current = new AbortController()
         tokens = await fetchTokens(debouncedQuery, nextPage, chainId, abortControllerRef.current.signal)
@@ -347,7 +347,7 @@ export function CurrencySearch({
           }
         }
       } else {
-        tokens = Object.values(defaultTokens)
+        tokens = isImportedTab ? [] : Object.values(defaultTokens)
       }
 
       setPageCount(nextPage)
@@ -355,6 +355,7 @@ export function CurrencySearch({
       setHasMoreToken(tokens.length === PAGE_SIZE && !!debouncedQuery)
     },
     [
+      isImportedTab,
       chainId,
       debouncedQuery,
       defaultTokens,
@@ -375,10 +376,10 @@ export function CurrencySearch({
     // need call api when only debouncedQuery change
   }, [debouncedQuery, prevQuery, fetchListTokens])
 
-  const isImportedTab = activeTab === Tab.Imported
-
   const visibleCurrencies: Currency[] = useMemo(() => {
-    return isImportedTab ? tokenImportsFiltered : filteredSortedTokens
+    return isImportedTab || (!isImportedTab && !filteredSortedTokens.length)
+      ? tokenImportsFiltered
+      : filteredSortedTokens
   }, [isImportedTab, filteredSortedTokens, tokenImportsFiltered])
 
   const removeToken = useRemoveUserAddedToken()
