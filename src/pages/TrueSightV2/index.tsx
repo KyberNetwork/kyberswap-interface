@@ -5,7 +5,6 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import headerBanner from 'assets/images/truesight-v2/header_banner.png'
-import headerBannerLight from 'assets/images/truesight-v2/header_banner_light.png'
 import Icon from 'components/Icons/Icon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
@@ -38,7 +37,7 @@ const Wrapper = styled.div`
 `
 
 const HeaderWrapper = styled.div`
-  background-image: url(${({ theme }) => (theme.darkMode ? headerBanner : headerBannerLight)});
+  background-image: url(${headerBanner});
   background-color: ${({ theme }) => theme.buttonBlack};
   background-size: cover;
   width: 100%;

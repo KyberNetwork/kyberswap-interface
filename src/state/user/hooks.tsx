@@ -43,7 +43,6 @@ import {
   toggleTradeRoutes,
   updateAcceptedTermVersion,
   updateTokenAnalysisSettings,
-  updateUserDarkMode,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
@@ -84,24 +83,6 @@ function deserializeToken(serializedToken: SerializedToken): Token {
       )
 }
 
-export function useIsDarkMode(): boolean {
-  const userDarkMode = useSelector<AppState, boolean | null>(state => state.user.userDarkMode)
-  const matchesDarkMode = useSelector<AppState, boolean>(state => state.user.matchesDarkMode)
-
-  return typeof userDarkMode !== 'boolean' ? matchesDarkMode : userDarkMode
-}
-
-export function useDarkModeManager(): [boolean, () => void] {
-  const dispatch = useDispatch<AppDispatch>()
-  const darkMode = useIsDarkMode()
-
-  const toggleSetDarkMode = useCallback(() => {
-    dispatch(updateUserDarkMode({ userDarkMode: !darkMode }))
-  }, [darkMode, dispatch])
-
-  return [darkMode, toggleSetDarkMode]
-}
-
 export function useUserLocale(): SupportedLocale | null {
   return useAppSelector(state => state.user.userLocale)
 }
@@ -120,12 +101,14 @@ export function useUserLocaleManager(): [SupportedLocale | null, (newLocale: Sup
   return [locale, setLocale]
 }
 
+// unused for now, but may be added again in the future. So we should keep it here.
 export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void] {
   const dispatch = useAppDispatch()
   const acceptedTermVersion = useSelector<AppState, AppState['user']['acceptedTermVersion']>(
     state => state.user.acceptedTermVersion,
   )
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isAcceptedTerm = !!acceptedTermVersion && acceptedTermVersion === TERM_FILES_PATH.VERSION
 
   const setIsAcceptedTerm = useCallback(
@@ -135,7 +118,8 @@ export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void
     [dispatch],
   )
 
-  return [isAcceptedTerm, setIsAcceptedTerm]
+  // return [isAcceptedTerm, setIsAcceptedTerm]
+  return [true, setIsAcceptedTerm]
 }
 
 export function useDegenModeManager(): [boolean, () => void] {

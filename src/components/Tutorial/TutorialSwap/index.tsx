@@ -22,7 +22,6 @@ import { connections } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { filterTruthy } from 'utils'
 
@@ -149,7 +148,6 @@ function Welcome() {
 function ConnectWallet() {
   const [isExpanded, setIsExpanded] = useState(false)
   const toggleExpand = () => setIsExpanded(!isExpanded)
-  const isDarkMode = useIsDarkMode()
   return (
     <Layout title={LIST_TITLE.CONNECT_WALLET}>
       <Desc>
@@ -169,11 +167,7 @@ function ConnectWallet() {
               .filter(e => e.installLink)
               .map(item => (
                 <NetworkItemWrapper key={item.name} onClick={() => window.open(item.installLink)}>
-                  <img
-                    src={isDarkMode ? item.icon : item.iconLight}
-                    alt={item.name}
-                    style={{ width: '20px', maxHeight: '20px' }}
-                  />
+                  <img src={item.icon} alt={item.name} style={{ width: '20px', maxHeight: '20px' }} />
                   <span>{item.name}</span>
                 </NetworkItemWrapper>
               ))}

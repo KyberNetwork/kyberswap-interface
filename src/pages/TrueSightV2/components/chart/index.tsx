@@ -2684,7 +2684,7 @@ export const Prochart = ({
       fullscreen: false,
       autosize: true,
       studies_overrides: {},
-      theme: theme.darkMode ? 'Dark' : 'Light',
+      theme: 'Dark',
       custom_css_url: '/charting_library/style.css',
       timeframe: '1m',
       time_frames: [
@@ -2703,7 +2703,7 @@ export const Prochart = ({
     tvWidget.onChartReady(() => {
       tvWidget.applyOverrides({
         'paneProperties.backgroundType': 'solid',
-        'paneProperties.background': theme.darkMode ? theme.buttonBlack : theme.background,
+        'paneProperties.background': theme.buttonBlack,
         'mainSeriesProperties.priceLineColor': theme.blue,
         'mainSeriesProperties.candleStyle.upColor': theme.primary,
         'mainSeriesProperties.candleStyle.borderUpColor': theme.primary,

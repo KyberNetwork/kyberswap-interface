@@ -3,7 +3,6 @@ import { createReducer } from '@reduxjs/toolkit'
 import {
   CampaignData,
   CampaignLeaderboard,
-  CampaignLuckyWinner,
   setCampaignData,
   setCampaignDataByPage,
   setClaimingCampaignRewardId,
@@ -11,34 +10,24 @@ import {
   setLoadingCampaignData,
   setLoadingCampaignDataError,
   setLoadingSelectedCampaignLeaderboard,
-  setLoadingSelectedCampaignLuckyWinners,
   setRecaptchaCampaignId,
   setRecaptchaCampaignLoading,
   setSelectedCampaign,
   setSelectedCampaignLeaderboard,
   setSelectedCampaignLeaderboardLookupAddress,
   setSelectedCampaignLeaderboardPageNumber,
-  setSelectedCampaignLuckyWinners,
-  setSelectedCampaignLuckyWinnersLookupAddress,
-  setSelectedCampaignLuckyWinnersPageNumber,
 } from './actions'
 
 interface CampaignsState {
   readonly data: CampaignData[]
   readonly loadingCampaignData: boolean
-  readonly loadingCampaignDataError: Error | undefined
+  readonly loadingCampaignDataError: boolean
 
   readonly selectedCampaign: CampaignData | undefined
 
   readonly selectedCampaignLeaderboard: CampaignLeaderboard | undefined
-  readonly loadingCampaignLeaderboard: boolean
   readonly selectedCampaignLeaderboardPageNumber: number
   readonly selectedCampaignLeaderboardLookupAddress: string
-
-  readonly selectedCampaignLuckyWinners: CampaignLuckyWinner[]
-  readonly loadingCampaignLuckyWinners: boolean
-  readonly selectedCampaignLuckyWinnersPageNumber: number
-  readonly selectedCampaignLuckyWinnersLookupAddress: string
 
   readonly claimingCampaignRewardId: number | null // id that is being claimed
 
@@ -53,19 +42,13 @@ interface CampaignsState {
 const initialState: CampaignsState = {
   data: [],
   loadingCampaignData: true,
-  loadingCampaignDataError: undefined,
+  loadingCampaignDataError: false,
 
   selectedCampaign: undefined,
 
   selectedCampaignLeaderboard: undefined,
-  loadingCampaignLeaderboard: false,
   selectedCampaignLeaderboardPageNumber: 0,
   selectedCampaignLeaderboardLookupAddress: '',
-
-  selectedCampaignLuckyWinners: [],
-  loadingCampaignLuckyWinners: false,
-  selectedCampaignLuckyWinnersPageNumber: 0,
-  selectedCampaignLuckyWinnersLookupAddress: '',
 
   claimingCampaignRewardId: null,
 
@@ -136,30 +119,7 @@ export default createReducer<CampaignsState>(initialState, builder =>
         selectedCampaignLeaderboardLookupAddress: lookupAddress,
       }
     })
-    .addCase(setSelectedCampaignLuckyWinners, (state, { payload: { luckyWinners } }) => {
-      return {
-        ...state,
-        selectedCampaignLuckyWinners: luckyWinners,
-      }
-    })
-    .addCase(setLoadingSelectedCampaignLuckyWinners, (state, { payload: loading }) => {
-      return {
-        ...state,
-        loadingCampaignLuckyWinners: loading,
-      }
-    })
-    .addCase(setSelectedCampaignLuckyWinnersPageNumber, (state, { payload: pageNumber }) => {
-      return {
-        ...state,
-        selectedCampaignLuckyWinnersPageNumber: pageNumber,
-      }
-    })
-    .addCase(setSelectedCampaignLuckyWinnersLookupAddress, (state, { payload: lookupAddress }) => {
-      return {
-        ...state,
-        selectedCampaignLuckyWinnersLookupAddress: lookupAddress,
-      }
-    })
+
     .addCase(setRecaptchaCampaignId, (state, { payload: id }) => {
       return {
         ...state,

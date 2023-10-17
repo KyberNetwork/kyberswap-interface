@@ -22,7 +22,6 @@ import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/h
 import { useSignedAccountInfo } from 'state/profile/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
-import { useIsDarkMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
@@ -104,7 +103,6 @@ const AccountElement = styled.div`
 
 function Web3StatusInner() {
   const { chainId, account, walletKey, isEVM, isWrongNetwork } = useActiveWeb3React()
-  const isDarkMode = useIsDarkMode()
   const { mixpanelHandler } = useMixpanel()
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { signIn } = useLogin()
@@ -183,10 +181,7 @@ function Web3StatusInner() {
             ) : (
               walletKey && (
                 <IconWrapper size={16}>
-                  <img
-                    src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
-                    alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
-                  />
+                  <img src={SUPPORTED_WALLETS[walletKey].icon} alt={SUPPORTED_WALLETS[walletKey].name + ' icon'} />
                 </IconWrapper>
               )
             )}
@@ -203,7 +198,7 @@ function Web3StatusInner() {
       id={TutorialIds.BUTTON_CONNECT_WALLET}
       data-testid="button-connect-wallet"
     >
-      <Trans>Connect Wallet</Trans>
+      <Trans>Connect</Trans>
     </ButtonLight>
   )
 }

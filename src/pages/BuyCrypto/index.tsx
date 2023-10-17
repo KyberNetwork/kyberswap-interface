@@ -16,7 +16,6 @@ import introImg from 'assets/buy-crypto/intro.png'
 import masterCard from 'assets/buy-crypto/master-card.svg'
 import visa from 'assets/buy-crypto/visa.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
-import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
 import SeamlessImg from 'assets/svg/seamless.svg'
 import { ReactComponent as Brave } from 'assets/wallets-connect/brave.svg'
 import c98 from 'assets/wallets-connect/coin98.svg'
@@ -38,7 +37,6 @@ import useTheme from 'hooks/useTheme'
 import { KSStatistic } from 'pages/About/AboutKyberSwap'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
-import { useDarkModeManager } from 'state/user/hooks'
 import { ButtonText, ExternalLink } from 'theme'
 
 import KyberAIWidget from '../TrueSightV2/components/KyberAIWidget'
@@ -226,7 +224,6 @@ function BuyCrypto() {
     supportedNetworks[chainId] || supportedNetworks[ChainId.MAINNET]
   }&excludeFiatCurrencies=SGD&redirectURL=${redirectURL}`
 
-  const [isDarkMode] = useDarkModeManager()
   const { mixpanelHandler } = useMixpanel()
 
   const handleStepClick = (value: number) => {
@@ -476,7 +473,7 @@ function BuyCrypto() {
 
                 {!account ? (
                   <ButtonLight margin={'16px 0 0'} width={upToSmall ? '100%' : '50%'} onClick={toggleWalletModal}>
-                    Connect your wallet
+                    Connect
                   </ButtonLight>
                 ) : (
                   <Address>
@@ -558,13 +555,7 @@ function BuyCrypto() {
                 <>
                   <Step direction="vertical" currentStep={4} onStepClick={handleStepClick} />
                   <Flex>
-                    <Image
-                      src={isDarkMode ? ForTraderImage : ForTraderImageLight}
-                      marginLeft="68px"
-                      maxWidth="496px"
-                      data-aos="zoom-in-right"
-                      flex={1}
-                    />
+                    <Image src={ForTraderImage} marginLeft="68px" maxWidth="496px" data-aos="zoom-in-right" flex={1} />
                   </Flex>
                 </>
               )}

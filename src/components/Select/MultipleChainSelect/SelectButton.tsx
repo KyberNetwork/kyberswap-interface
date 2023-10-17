@@ -41,7 +41,7 @@ const SelectButton: React.FC<Props> = ({ selectedChainIds, chainIds, activeRende
 
     if (selectedChainIds.length === 1) {
       const config = NETWORKS_INFO[selectedChainIds[0]]
-      const iconSrc = theme.darkMode && config.iconDark ? config.iconDark : config.icon
+      const iconSrc = config.icon
 
       return (
         <ButtonBodyWrapper>
@@ -55,9 +55,7 @@ const SelectButton: React.FC<Props> = ({ selectedChainIds, chainIds, activeRende
       <ButtonBodyWrapper>
         {selectedChainIds.slice(0, 3).map(chainId => {
           const config = NETWORKS_INFO[chainId]
-          const iconSrc = theme.darkMode && config.iconDark ? config.iconDark : config.icon
-
-          return <StyledLogo src={iconSrc} key={chainId} />
+          return <StyledLogo src={config.icon} key={chainId} />
         })}
 
         {selectedChainIds.length > 3 && `+${selectedChainIds.length - 3}`}

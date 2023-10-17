@@ -17,7 +17,6 @@ import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { useIsDarkMode } from 'state/user/hooks'
 
 const NewLabel = styled.span`
   font-size: 12px;
@@ -47,7 +46,7 @@ const ListItem = styled.div<{ selected?: boolean }>`
   ${({ theme, selected }) =>
     selected &&
     css`
-      background-color: ${theme.darkMode ? theme.buttonBlack : theme.buttonGray};
+      background-color: ${theme.buttonBlack};
       & > div {
         color: ${theme.text};
       }
@@ -143,7 +142,6 @@ const Networks = ({
   const { changeNetwork } = useChangeNetwork()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
-  const isDarkMode = useIsDarkMode()
   const theme = useTheme()
   const onSelect = (chainId: ChainId) => {
     customToggleModal?.()
@@ -177,13 +175,13 @@ const Networks = ({
 
   return (
     <NetworkList mt={mt} mb={mb}>
-      {supportedChains.map(({ chainId: itemChainId, iconDark, icon, name, state }: NetworkInfo, i: number) => {
+      {supportedChains.map(({ chainId: itemChainId, icon, name, state }: NetworkInfo, i: number) => {
         const isMaintenance = state === ChainState.MAINTENANCE
         const disabled =
           !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(itemChainId) : false) || isMaintenance
         const selected = selectedId === itemChainId && !isWrongNetwork
 
-        const imgSrc = (isDarkMode ? iconDark : icon) || icon
+        const imgSrc = icon
         const walletKey =
           itemChainId === ChainId.SOLANA
             ? walletSolana.walletKey
@@ -235,10 +233,7 @@ const Networks = ({
                 {selected && !walletKey && <CircleGreen />}
                 {walletKey && (
                   <WalletWrapper>
-                    <img
-                      src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
-                      alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
-                    />
+                    <img src={SUPPORTED_WALLETS[walletKey].icon} alt={SUPPORTED_WALLETS[walletKey].name + ' icon'} />
                   </WalletWrapper>
                 )}
               </ListItem>

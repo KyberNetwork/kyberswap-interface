@@ -22,7 +22,6 @@ import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
-import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, shortenAddress } from 'utils'
@@ -76,7 +75,6 @@ export default function SwapDetails({
   const { isEVM, chainId, networkInfo, account } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
-  const isDarkMode = useIsDarkMode()
   const { slippage, routeSummary } = useSwapFormContext()
   const { gasRefundPercentage } = useGasRefundTier()
 
@@ -371,12 +369,7 @@ export default function SwapDetails({
             </MouseoverTooltip>
           </TextDashed>
           <Flex fontSize={12} fontWeight="501" alignItems="center" sx={{ gap: '4px' }}>
-            <img
-              src={isDarkMode && networkInfo.iconDark ? networkInfo.iconDark : networkInfo.icon}
-              alt="network icon"
-              width="12px"
-              height="12px"
-            />
+            <img src={networkInfo.icon} alt="network icon" width="12px" height="12px" />
             {networkInfo.name}
           </Flex>
         </RowBetween>

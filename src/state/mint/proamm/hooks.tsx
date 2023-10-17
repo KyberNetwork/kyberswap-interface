@@ -515,7 +515,7 @@ export function useProAmmDerivedMintInfo(
   const currencyBalanceB = currencyBalances?.[Field.CURRENCY_B]
   const errorMessage: ReactNode | undefined = useMemo(() => {
     if (!account) {
-      return <Trans>Connect Wallet</Trans>
+      return <Trans>Connect</Trans>
     }
 
     if (poolState === PoolState.INVALID) {
@@ -1068,7 +1068,7 @@ export function useProAmmDerivedAllMintInfo(
 
   const errorMessage: ReactNode | undefined = useMemo(() => {
     if (!account) {
-      return <Trans>Connect Wallet</Trans>
+      return <Trans>Connect</Trans>
     }
 
     if (poolState === PoolState.INVALID) {

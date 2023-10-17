@@ -12,6 +12,7 @@ import {
 } from 'components/Button'
 import ProgressSteps from 'components/ProgressSteps'
 import { RowBetween } from 'components/Row'
+import { EditOrderInfo } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -34,6 +35,7 @@ export default function ActionButtonLimitOrder({
   approvalSubmitted,
   showApproveFlow,
   showWarning,
+  editOrderInfo,
 }: {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
@@ -51,10 +53,13 @@ export default function ActionButtonLimitOrder({
   approveCallback: () => Promise<void>
   onWrapToken: () => Promise<void>
   showPreview: () => void
+  editOrderInfo?: EditOrderInfo
 }) {
+  const { isEdit, renderCancelButtons } = editOrderInfo || {}
   const disableBtnApproved =
     approval === ApprovalState.PENDING ||
-    ((approval !== ApprovalState.NOT_APPROVED || approvalSubmitted || !!hasInputError) && enoughAllowance)
+    !!hasInputError ||
+    ((approval !== ApprovalState.NOT_APPROVED || approvalSubmitted) && enoughAllowance)
 
   const disableBtnReview =
     checkingAllowance ||
@@ -70,7 +75,7 @@ export default function ActionButtonLimitOrder({
   if (!account)
     return (
       <ButtonLight onClick={toggleWalletModal}>
-        <Trans>Connect Wallet</Trans>
+        <Trans>Connect</Trans>
       </ButtonLight>
     )
 
@@ -111,7 +116,13 @@ export default function ActionButtonLimitOrder({
       {checkingAllowance ? <Trans>Checking Allowance...</Trans> : <Trans>Review Order</Trans>}
     </Text>
   )
+
+  if (isEdit) {
+    return checkingAllowance ? <ButtonPrimary disabled>{contentButton}</ButtonPrimary> : renderCancelButtons?.() || null
+  }
+
   if (showWarning && !disableBtnReview) return <ButtonWarning onClick={showPreview}>{contentButton}</ButtonWarning>
+
   return (
     <ButtonPrimary id="review-order-button" onClick={showPreview} disabled={disableBtnReview}>
       {contentButton}

@@ -16,9 +16,9 @@ const lineaInfo: EVMNetworkInfo = {
   aggregatorRoute: 'linea',
   name: 'Linea',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/12a257d3-65e3-4b16-8a84-03a4ca34a6bc1693378197244.svg',
-  iconDark: NOT_SUPPORT,
+
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://graph-query.linea.build/subgraphs/name/kybernetwork/linea-blocks',
   etherscanUrl: 'https://lineascan.build',
   etherscanName: 'Linea Explorer',

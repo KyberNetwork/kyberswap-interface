@@ -42,7 +42,7 @@ export default function TokenAnalysisListShareContent({
           Today, <span style={{ color: theme.subText }}>{dayjs(Date.now()).format('DD/MM/YYYY')}</span>
         </Trans>
       </Text>
-      <Row gap="22px" justify="space-between" alignItems="flex-start">
+      <Row gap="22px" justify="space-between" align="flex-start">
         {mobileMode ? (
           <>
             <TokenListInShareModalTable data={data.slice(0, 10)} startIndex={0} mobileMode />

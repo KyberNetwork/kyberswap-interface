@@ -10,8 +10,6 @@ import {
   setRecaptchaCampaignLoading,
   setSelectedCampaignLeaderboardLookupAddress,
   setSelectedCampaignLeaderboardPageNumber,
-  setSelectedCampaignLuckyWinnersLookupAddress,
-  setSelectedCampaignLuckyWinnersPageNumber,
 } from 'state/campaigns/actions'
 import { AppState } from 'state/index'
 
@@ -31,20 +29,6 @@ export function useSelectedCampaignLeaderboardPageNumberManager(): [number, (pag
   return [selectedCampaignLeaderboardPageNumber, updateSelectedCampaignLeaderboardPageNumberCallback]
 }
 
-export function useSelectedCampaignLuckyWinnerPageNumber(): [number, (page: number) => void] {
-  const page = useSelector((state: AppState) => state.campaigns.selectedCampaignLuckyWinnersPageNumber)
-  const dispatch = useDispatch()
-
-  const setPage = useCallback(
-    (newPageNumber: number) => {
-      dispatch(setSelectedCampaignLuckyWinnersPageNumber(newPageNumber))
-    },
-    [dispatch],
-  )
-
-  return [page, setPage]
-}
-
 export function useSelectedCampaignLeaderboardLookupAddressManager() {
   const selectedCampaignLeaderboardLookupAddress = useSelector(
     (state: AppState) => state.campaigns.selectedCampaignLeaderboardLookupAddress,
@@ -61,25 +45,6 @@ export function useSelectedCampaignLeaderboardLookupAddressManager() {
   return useMemo(
     () => [selectedCampaignLeaderboardLookupAddress, updateSelectedCampaignLeaderboardLookupAddressCallback] as const,
     [selectedCampaignLeaderboardLookupAddress, updateSelectedCampaignLeaderboardLookupAddressCallback],
-  )
-}
-
-export function useSelectedCampaignLuckyWinnersLookupAddressManager() {
-  const selectedCampaignLuckyWinnersLookupAddress = useSelector(
-    (state: AppState) => state.campaigns.selectedCampaignLuckyWinnersLookupAddress,
-  )
-  const dispatch = useDispatch()
-
-  const updateSelectedCampaignLuckyWinnersLookupAddressCallback = useCallback(
-    (newLookupAddress: string) => {
-      dispatch(setSelectedCampaignLuckyWinnersLookupAddress(newLookupAddress))
-    },
-    [dispatch],
-  )
-
-  return useMemo(
-    () => [selectedCampaignLuckyWinnersLookupAddress, updateSelectedCampaignLuckyWinnersLookupAddressCallback] as const,
-    [selectedCampaignLuckyWinnersLookupAddress, updateSelectedCampaignLuckyWinnersLookupAddressCallback],
   )
 }
 

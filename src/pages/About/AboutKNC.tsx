@@ -7,13 +7,9 @@ import { Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
 import GeckoterminalIcon from 'assets/images/geckoterminal_dark.png'
-import GeckoterminalIconLight from 'assets/images/geckoterminal_light.png'
 import KNCGraphic from 'assets/images/knc-graphic.png'
 import CoinGecko from 'assets/svg/coingecko_color.svg'
-import CoinGeckoLight from 'assets/svg/coingecko_color_light.svg'
 import CoinMarketCap from 'assets/svg/coinmarketcap.svg'
-import CoinMarketCapLight from 'assets/svg/coinmarketcap_light.svg'
-import KyberDaoLight from 'assets/svg/kyber-dao-light.svg'
 import KyberDao from 'assets/svg/kyber-dao.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
 import TrophyIcon from 'assets/svg/trophy.svg'
@@ -67,7 +63,6 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useDarkModeManager } from 'state/user/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 
 import {
@@ -121,7 +116,6 @@ const LIST_WALLETS = [
 function AboutKNC() {
   const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
-  const [isDarkMode] = useDarkModeManager()
   const above768 = useMedia('(min-width: 768px)')
   const above500 = useMedia('(min-width: 500px)')
 
@@ -209,7 +203,7 @@ function AboutKNC() {
     <div
       style={{
         position: 'relative',
-        background: isDarkMode ? theme.buttonBlack : theme.white,
+        background: theme.buttonBlack,
         width: '100vw',
         overflow: 'hidden',
       }}
@@ -313,12 +307,7 @@ function AboutKNC() {
             alignItems="center"
             flexDirection={above768 ? 'row' : 'column'}
           >
-            <img
-              width="85%"
-              src={isDarkMode ? KyberDao : KyberDaoLight}
-              alt="KyberDao"
-              style={{ display: above768 ? 'block' : 'none' }}
-            />
+            <img width="85%" src={KyberDao} alt="KyberDao" style={{ display: above768 ? 'block' : 'none' }} />
             <Flex width="100%" flexDirection="column" height="max-content">
               <Text fontSize={['20px', '24px']} fontWeight={500} color={theme.primary}>
                 <Trans>KYBER DAO</Trans>
@@ -410,12 +399,7 @@ function AboutKNC() {
           {above768 ? (
             <Exchange>
               {LIST_WALLETS.map(wallet => (
-                <img
-                  key={wallet.logo}
-                  src={isDarkMode ? wallet.logo : wallet.lightLogo}
-                  alt={wallet.logo}
-                  style={{ margin: 'auto' }}
-                />
+                <img key={wallet.logo} src={wallet.logo} alt={wallet.logo} style={{ margin: 'auto' }} />
               ))}
             </Exchange>
           ) : (
@@ -432,12 +416,7 @@ function AboutKNC() {
               {LIST_WALLETS.map(wallet => (
                 <SwiperSlide key={wallet.logo}>
                   <ExchangeWrapper>
-                    <img
-                      src={isDarkMode ? wallet.logo : wallet.lightLogo}
-                      alt={wallet.logo}
-                      width="160px"
-                      style={{ margin: 'auto' }}
-                    />
+                    <img src={wallet.logo} alt={wallet.logo} width="160px" style={{ margin: 'auto' }} />
                   </ExchangeWrapper>
                 </SwiperSlide>
               ))}
@@ -459,17 +438,13 @@ function AboutKNC() {
                 style={{ gap: '48px', alignItems: 'center' }}
               >
                 <ExternalLink href={`https://www.coingecko.com/en/coins/kyber-network-crystal`}>
-                  <img src={isDarkMode ? CoinGecko : CoinGeckoLight} alt="CoinGecko" width="165px" />
+                  <img src={CoinGecko} alt="CoinGecko" width="165px" />
                 </ExternalLink>
                 <ExternalLink href={`https://coinmarketcap.com/currencies/kyber-network-crystal-v2/`}>
-                  <img src={isDarkMode ? CoinMarketCap : CoinMarketCapLight} alt="CoinMarketCap" width="227px" />
+                  <img src={CoinMarketCap} alt="CoinMarketCap" width="227px" />
                 </ExternalLink>
                 <ExternalLink href="https://www.geckoterminal.com/eth/pools/0xa38a0165e82b7a5e8650109e9e54087a34c93020">
-                  <img
-                    src={isDarkMode ? GeckoterminalIcon : GeckoterminalIconLight}
-                    alt="Geckoterminal"
-                    width="235px"
-                  />
+                  <img src={GeckoterminalIcon} alt="Geckoterminal" width="235px" />
                 </ExternalLink>
               </Flex>
             </Flex>
@@ -477,7 +452,7 @@ function AboutKNC() {
           </MoreInfoWrapper>
         </Wrapper>
       </AboutPage>
-      <Footer background={isDarkMode ? theme.background : theme.white}>
+      <Footer background={theme.background}>
         <FooterContainer>
           <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
             <ExternalLink href={`https://docs.kyberswap.com`}>

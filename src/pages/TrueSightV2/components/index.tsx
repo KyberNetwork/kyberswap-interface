@@ -28,10 +28,7 @@ export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   padding: 16px;
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) =>
-    theme.darkMode
-      ? `linear-gradient(332deg, rgb(32 32 32) 0%, rgba(15, 15, 15, 1) 80%)`
-      : `linear-gradient(34.68deg, rgba(193, 193, 193, 0.1) 9.77%, rgba(255, 255, 255, 0) 108.92%);`};
+  background: linear-gradient(332deg, rgb(32 32 32) 0%, rgba(15, 15, 15, 1) 80%);
   margin-bottom: 36px;
   display: flex;
   flex-direction: column;

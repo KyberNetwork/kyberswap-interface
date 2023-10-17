@@ -17,6 +17,7 @@ import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/typ
 import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
+import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { escapeScriptHtml } from 'utils/string'
 
@@ -177,7 +178,7 @@ const VoteButton = ({
           </ButtonPrimary>
         ) : (
           <ButtonLight width={isMobile ? '100%' : '200px'} onClick={toggleWalletModal}>
-            <Trans>Connect Wallet</Trans>
+            <Trans>Connect</Trans>
           </ButtonLight>
         )
       ) : (
@@ -453,7 +454,13 @@ function ProposalItem({
           isShow={showConfirmModal}
           title={proposal.title}
           toggle={() => setShowConfirmModal(false)}
-          options={selectedOptions.length > 0 ? selectedOptions.map(option => proposal.options[option]).join(', ') : ''}
+          options={
+            selectedOptions.length > 0
+              ? selectedOptions
+                  .map(option => HARDCODED_OPTION_TITLE[proposal.proposal_id]?.[option] || proposal.options[option])
+                  .join(', ')
+              : ''
+          }
           onVoteConfirm={handleVoteConfirm}
         />
       )}

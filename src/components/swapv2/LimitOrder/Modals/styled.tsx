@@ -1,10 +1,12 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
@@ -14,11 +16,11 @@ import { formatAmountOrder, formatRateLimitOrder } from '../helpers'
 import { LimitOrder, RateInfo } from '../type'
 
 export const Container = styled.div`
-  padding: 25px 30px;
+  padding: 20px 24px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 24px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     font-size:14px;
     padding: 16px 20px;
@@ -60,29 +62,56 @@ export const Header = ({ title, onDismiss }: { title: string; onDismiss: () => v
   )
 }
 
+const NoteWrapper = styled.div`
+  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
+  color: ${({ theme }) => theme.text};
+  padding: 10px 12px;
+  border-radius: 16px;
+  line-height: 16px;
+  font-size: 12px;
+`
 export const Note = ({ note }: { note?: string }) => {
-  const theme = useTheme()
-  return note ? (
-    <Text fontSize={12} fontStyle="italic" color={theme.subText}>
-      {note}
-    </Text>
-  ) : null
+  return note ? <NoteWrapper>{note}</NoteWrapper> : null
 }
 
 type ListDataType = { label: string; content: ReactNode }[]
-export function ListInfo({ listData }: { listData: ListDataType }) {
+const ListWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 12px;
+  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.3)};
+  padding: 16px;
+`
+export function ListInfo({
+  title,
+  listData,
+  marketPrice,
+  symbolIn,
+  symbolOut,
+}: {
+  title?: string
+  listData: ListDataType
+  marketPrice: BaseTradeInfo | undefined
+  symbolIn: string | undefined
+  symbolOut: string | undefined
+}) {
   return (
-    <Flex style={{ gap: 14 }} flexDirection="column">
-      {listData.map(item => (
-        <Row key={item.label}>
-          <Label>{item.label}</Label>
-          {item.content}
-        </Row>
-      ))}
-    </Flex>
+    <Column gap="8px">
+      {title && <Label style={{ marginBottom: '4px' }}>{title}</Label>}
+      <ListWrapper>
+        {listData.map(item => (
+          <Row key={item.label}>
+            <Label>{item.label}</Label>
+            {item.content}
+          </Row>
+        ))}
+      </ListWrapper>
+      <MarketInfo marketPrice={marketPrice} symbolIn={symbolIn} symbolOut={symbolOut} />
+    </Column>
   )
 }
-export const MarketInfo = ({
+const MarketInfo = ({
   marketPrice,
   symbolIn,
   symbolOut,
@@ -93,17 +122,10 @@ export const MarketInfo = ({
 }) => {
   const theme = useTheme()
   return (
-    <Flex
-      flexDirection={'column'}
-      style={{
-        borderRadius: 16,
-        padding: '14px 16px',
-        border: `1px solid ${theme.border}`,
-      }}
-    >
+    <Flex flexDirection={'column'}>
       <Row>
         <Label style={{ fontSize: 12 }}>
-          <Trans>Estimated Market Price</Trans>
+          <Trans>Est. Market Price</Trans>
         </Label>
         <Value style={{ maxWidth: '60%' }}>
           <TradePrice
