@@ -1,11 +1,7 @@
-import { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
-
-import { OAUTH_CLIENT_ID } from 'constants/env'
+import { LoginFlow } from '@kybernetwork/oauth2'
 
 export const getSupportLoginMethods = (loginFlow: LoginFlow | undefined) => {
   // todo check many case, remove
-  if (loginFlow?.oauth_client?.client_id === OAUTH_CLIENT_ID)
-    return [LoginMethod.EMAIL, LoginMethod.ETH, LoginMethod.ANONYMOUS]
   return loginFlow?.oauth_client?.metadata?.allowed_login_methods ?? []
 }
 
