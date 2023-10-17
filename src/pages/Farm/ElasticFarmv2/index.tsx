@@ -147,7 +147,7 @@ export default function ElasticFarmv2({
             width={upToSmall ? '100%' : undefined}
           >
             <MouseoverTooltip
-              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract`}
+              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract.`}
             >
               <TextDashed fontSize="12px" fontWeight="500" color={theme.subText}>
                 <Trans>Deposited Liquidity</Trans>

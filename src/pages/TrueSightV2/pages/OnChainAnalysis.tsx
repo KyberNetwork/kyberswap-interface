@@ -85,14 +85,14 @@ export default function OnChainAnalysis() {
         description={
           <Trans>
             Netflow (Inflow - Outflow) of token to whale wallets (
-            <MouseoverTooltip text={t`Wallets with more than $5m in assets across multiple chains`} placement="top">
+            <MouseoverTooltip text={t`Wallets with more than $5m in assets across multiple chains.`} placement="top">
               <Text color={theme.text} style={{ borderBottom: '1px dotted' }}>
                 General Whales
               </Text>
             </MouseoverTooltip>{' '}
             and{' '}
             <MouseoverTooltip
-              text={t`Wallets which hold 1% or more of the circulating supply of this token`}
+              text={t`Wallets which hold 1% or more of the circulating supply of this token.`}
               placement="top"
             >
               <Text color={theme.text} style={{ borderBottom: '1px dotted' }}>

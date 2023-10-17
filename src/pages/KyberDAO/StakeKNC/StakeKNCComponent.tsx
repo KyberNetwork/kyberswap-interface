@@ -542,7 +542,7 @@ export default function StakeKNCComponent() {
                 </Text>
                 {isDelegated && (
                   <MouseoverTooltip
-                    text={t`You have already delegated your voting power to this address`}
+                    text={t`You have already delegated your voting power to this address.`}
                     placement="top"
                   >
                     <DelegatedAddressBadge>

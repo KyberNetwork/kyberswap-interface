@@ -504,7 +504,7 @@ export default function FullPositionCard({
     }
 
     return (
-      <MouseoverTooltip width="fit-content" placement="top" text={<Trans>Available for yield farming</Trans>}>
+      <MouseoverTooltip width="fit-content" placement="top" text={<Trans>Available for yield farming.</Trans>}>
         <Link to={goToFarmPath}>
           <FarmingIcon />
         </Link>

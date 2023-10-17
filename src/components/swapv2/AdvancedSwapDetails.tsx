@@ -104,7 +104,7 @@ const MinReceiveLabel = () => {
     <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
       <MouseoverTooltip
         width="200px"
-        text={<Trans>You will receive at least this amount or your transaction will revert</Trans>}
+        text={<Trans>You will receive at least this amount or your transaction will revert.</Trans>}
         placement="right"
       >
         <Trans>Minimum Received</Trans>
@@ -328,7 +328,7 @@ export function TradeSummaryCrossChain({
           <RowBetween>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip width="200px" text={<Trans>Current Price in the market</Trans>} placement="right">
+                <MouseoverTooltip width="200px" text={<Trans>Current Price in the market.</Trans>} placement="right">
                   <Trans>Current Price</Trans>
                 </MouseoverTooltip>
               </TextDashed>

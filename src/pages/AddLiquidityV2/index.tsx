@@ -994,7 +994,7 @@ export default function AddLiquidity() {
             <DynamicSection gap="md" disabled={disableRangeSelect}>
               <Flex sx={{ gap: '6px' }} alignItems="center" lineHeight={1.5}>
                 <MouseoverTooltip
-                  text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
+                  text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees.`}
                 >
                   <RangeTab active={!showFarmRangeSelect} role="button" onClick={() => setShowFarmRangeSelect(false)}>
                     {isFarmV2Available ? <Trans>Custom Ranges</Trans> : <Trans>Select a Range</Trans>}
