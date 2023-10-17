@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
@@ -172,4 +172,4 @@ const CampaignListAndSearch = ({
   )
 }
 
-export default CampaignListAndSearch
+export default memo(CampaignListAndSearch)

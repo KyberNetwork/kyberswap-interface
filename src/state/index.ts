@@ -1,26 +1,27 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blockServiceApi from 'services/blockService'
+import campaignApi from 'services/campaign'
 import coingeckoApi from 'services/coingecko'
+import crosschainApi from 'services/crossChain'
+import earningApi from 'services/earning'
+import geckoTerminalApi from 'services/geckoTermial'
+import identifyApi from 'services/identity'
+import knProtocolApi from 'services/knprotocol'
+import ksSettingApi from 'services/ksSetting'
 import kyberAISubscriptionApi from 'services/kyberAISubscription'
+import kyberDAO from 'services/kyberDAO'
+import limitOrderApi from 'services/limitOrder'
 import priceAlertApi from 'services/priceAlert'
 import routeApi from 'services/route'
+import socialApi from 'services/social'
 import tokenApi from 'services/token'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import kyberAIApi from 'pages/TrueSightV2/hooks/useKyberAIData'
 
-import announcementApi, { publicAnnouncementApi } from '../services/announcement'
-import crosschainApi from '../services/crossChain'
-import earningApi from '../services/earning'
-import geckoTerminalApi from '../services/geckoTermial'
-import identifyApi from '../services/identity'
-import knProtocolApi from '../services/knprotocol'
-import ksSettingApi from '../services/ksSetting'
-import kyberDAO from '../services/kyberDAO'
-import limitOrderApi from '../services/limitOrder'
-import socialApi from '../services/social'
 import application from './application/reducer'
 import authen from './authen/reducer'
 import burnProAmm from './burn/proamm/reducer'
@@ -97,6 +98,7 @@ const store = configureStore({
     [coingeckoApi.reducerPath]: coingeckoApi.reducer,
     [limitOrderApi.reducerPath]: limitOrderApi.reducer,
 
+    [campaignApi.reducerPath]: campaignApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
     [kyberDAO.reducerPath]: kyberDAO.reducer,
@@ -128,6 +130,7 @@ const store = configureStore({
       .concat(coingeckoApi.middleware)
       .concat(limitOrderApi.middleware)
       .concat(kyberAIApi.middleware)
+      .concat(campaignApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
       .concat(announcementApi.middleware)
       .concat(publicAnnouncementApi.middleware)

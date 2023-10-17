@@ -193,7 +193,7 @@ export function ExternalLink({
 }: Omit<HTMLProps<HTMLAnchorElement>, 'as' | 'ref'> & { href: string }) {
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
-      onClick && onClick(event)
+      onClick?.(event)
       // don't prevent default, don't redirect if it's a new tab
       if (target === '_blank' || event.ctrlKey || event.metaKey) {
       } else {
@@ -203,7 +203,13 @@ export function ExternalLink({
     [target, onClick],
   )
   return (
-    <StyledLink target={target} rel={rel} href={validateRedirectURL(href, false)} onClick={handleClick} {...rest} />
+    <StyledLink
+      target={target}
+      rel={rel}
+      href={validateRedirectURL(href, { _dangerousSkipCheckWhitelist: true, allowRelativePath: true })}
+      onClick={handleClick}
+      {...rest}
+    />
   )
 }
 
@@ -221,13 +227,19 @@ export function ExternalLinkIcon({
         console.debug('Fired outbound link event', href)
       } else {
         event.preventDefault()
-        navigateToUrl(href, false)
+        navigateToUrl(href, { _dangerousSkipCheckWhitelist: true, allowRelativePath: true })
       }
     },
     [href, target],
   )
   return (
-    <LinkIconWrapper target={target} rel={rel} href={validateRedirectURL(href, false)} onClick={handleClick} {...rest}>
+    <LinkIconWrapper
+      target={target}
+      rel={rel}
+      href={validateRedirectURL(href, { _dangerousSkipCheckWhitelist: true, allowRelativePath: true })}
+      onClick={handleClick}
+      {...rest}
+    >
       <LinkIcon color={color} />
     </LinkIconWrapper>
   )
