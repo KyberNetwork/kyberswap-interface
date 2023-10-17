@@ -163,7 +163,7 @@ export default function ProAmmPriceRangeConfirm({
             >
               {formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)}
               <InfoHelper
-                text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}
+                text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price.`}
                 placement={'right'}
                 size={12}
               />
