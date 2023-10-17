@@ -975,7 +975,7 @@ export default function IncreaseLiquidity() {
                     </WarningCard>
                   )}
 
-                  <Flex justifyContent="flex-end">{method === 'pair' ? <Buttons /> : ZapButton}</Flex>
+                  <Flex justifyContent="flex-end">{method === 'pair' || !account ? <Buttons /> : ZapButton}</Flex>
                 </SecondColumn>
               </GridColumn>
             </AutoColumn>

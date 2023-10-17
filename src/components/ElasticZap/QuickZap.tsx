@@ -33,8 +33,8 @@ import { useContract, useProAmmTickReader } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
-import { RANGE_LIST } from 'pages/AddLiquidityV2/constants'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { RANGE } from 'state/mint/proamm/type'
 import { NEVER_RELOAD, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -46,7 +46,7 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import RangeSelector, { useTicksFromRange } from './RangeSelector'
+import RangeSelector, { FARMING_RANGE, useTicksFromRange } from './RangeSelector'
 import ZapDetail, { useZapDetail } from './ZapDetail'
 
 const QuickZapButtonWrapper = styled(ButtonOutlined)<{ size: 'small' | 'medium' }>`
@@ -73,7 +73,13 @@ const Content = styled.div`
   width: 100%;
 `
 
-export const QuickZapButton = ({ onClick, size = 'medium' }: { onClick: () => void; size?: 'small' | 'medium' }) => {
+export const QuickZapButton = ({
+  onClick,
+  size = 'medium',
+}: {
+  onClick: (e: React.MouseEvent<HTMLElement>) => void
+  size?: 'small' | 'medium'
+}) => {
   return (
     <MouseoverTooltip text={<Trans>Quickly zap and add liquidity using only one token</Trans>}>
       <QuickZapButtonWrapper onClick={onClick} size={size}>
@@ -100,7 +106,12 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   const { chainId, networkInfo, account } = useActiveWeb3React()
   const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
   const theme = useTheme()
-  const [selectedRange, setSelectedRange] = useState<RANGE>(RANGE_LIST[1])
+  const [selectedRange, setSelectedRange] = useState<RANGE | FARMING_RANGE | null>(null)
+
+  const { farms: elasticFarmV2s } = useElasticFarmsV2()
+  const farmV2 = elasticFarmV2s
+    ?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled)
+    .find(farm => farm.poolAddress.toLowerCase() === poolAddress.toLowerCase())
 
   const toggleWalletModal = useWalletModalToggle()
   const poolContract = useContract(poolAddress, abi)
@@ -455,6 +466,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                     pool={pool}
                     selectedRange={selectedRange}
                     onChange={range => setSelectedRange(range)}
+                    farmV2={farmV2}
                   />
                 </>
               )}
