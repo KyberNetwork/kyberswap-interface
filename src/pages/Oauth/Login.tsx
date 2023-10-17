@@ -111,7 +111,7 @@ export function Login() {
       const { error_description, type } = queryStringToObject(window.location.search)
       try {
         KyberOauth2.initialize({ mode: ENV_KEY })
-        const loginFlow = await KyberOauth2.oauthUi.getFlowLogin()
+        const loginFlow = await KyberOauth2.oauthUi.getFlowLogin({ withCredentials: true })
         if (!loginFlow) return
         setAuthFormConfig(loginFlow)
 
