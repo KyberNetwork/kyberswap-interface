@@ -22,12 +22,12 @@ export const LimitOder = {
         cy.getContent(LimitOrderLocators.dropdownTokenBuy, text)
     },
 
-    setSellRate(text: string) {
-        cy.get(LimitOrderLocators.txtSellRate).click().type(text)
+    setSellingRate(text: string) {
+        cy.get(LimitOrderLocators.txtSellingRate).click().type(text)
     },
 
-    getSellRate() {
-        return cy.get(LimitOrderLocators.txtSellRate).invoke('val').then(value => {
+    getSellingRate() {
+        return cy.get(LimitOrderLocators.txtSellingRate).invoke('val').then(value => {
             return value
         })
     }

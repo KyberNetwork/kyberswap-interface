@@ -81,9 +81,9 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
     })
 
     describe('Sell rate', () => {
-        it('Able to set sell rate by number', () => {
-            LimitOder.setSellRate('1.2345..67')
-            LimitOder.getSellRate().then((value) => {
+        it('Able to set selling rate by number', () => {
+            LimitOder.setSellingRate('1.2345..67')
+            LimitOder.getSellingRate().then((value) => {
                 cy.wrap(value).should('eq', '1.234567')
             })
         })
