@@ -33,7 +33,7 @@ export async function sendEVMTransaction({
   }
   chainId?: ChainId
 }): Promise<TransactionResponse | undefined> {
-  if (!account || !library) return
+  if (!account || !library) throw new Error('Invalid transaction')
 
   const estimateGasOption = {
     from: account,

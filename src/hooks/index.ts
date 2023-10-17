@@ -125,10 +125,13 @@ type Web3React = {
   active: boolean
 }
 
-const wrapProvider = (provider: Web3Provider, blackjackData: BlackjackCheck): Web3Provider =>
+const wrapProvider = (provider: Web3Provider, blackjackData: BlackjackCheck | undefined): Web3Provider =>
   new Proxy(provider, {
     get(target, prop) {
-      if (prop === 'send' && blackjackData.blacklisted) throw new Error('There was an error with your transaction')
+      if (prop === 'send') {
+        if (!blackjackData) throw new Error('There was an error with your transaction')
+        if (blackjackData.blacklisted) throw new Error('There was an error with your transaction.')
+      }
       return target[prop as keyof Web3Provider]
     },
   })
