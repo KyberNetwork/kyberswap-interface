@@ -61,7 +61,7 @@ const PriceImpactNote = () => {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <b>here ↗</b>
+                  <b>here ↗</b>.
                 </a>
               </Text>
             </Trans>
@@ -343,7 +343,7 @@ export function TradeSummaryCrossChain({
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
               <MouseoverTooltip
                 width="200px"
-                text={<Trans>You will receive at least this amount, or your transaction will revert by Axelar</Trans>}
+                text={<Trans>You will receive at least this amount, or your transaction will revert by Axelar.</Trans>}
                 placement="right"
               >
                 <Trans>Minimum Received</Trans>
@@ -363,7 +363,7 @@ export function TradeSummaryCrossChain({
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip
                 width="200px"
-                text={<Trans>Estimate time to complete your transaction</Trans>}
+                text={<Trans>Estimate time to complete your transaction.</Trans>}
                 placement="right"
               >
                 {t`Estimated Processing Time`}
@@ -407,13 +407,13 @@ export function TradeSummaryCrossChain({
                               >
                                 swap
                               </Text>
-                              <ArrowUpRight size={12} color={theme.primary} />
+                              <ArrowUpRight size={12} color={theme.primary} />.
                             </Trans>
                           </div>
                         ) : (
                           <Trans>
                             We overestimate gas by 50% to guarantee your trade. Any gas we don&apos;t use will be
-                            refunded by Axelar
+                            refunded by Axelar.
                           </Trans>
                         )}
                       </Text>
@@ -449,7 +449,7 @@ export function TradeSummaryCrossChain({
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip
                 width="200px"
-                text={<Trans>Fees charged by KyberSwap and Squid</Trans>}
+                text={<Trans>Fees charged by KyberSwap and Squid.</Trans>}
                 placement="right"
               >
                 <Trans>Service Fee</Trans>

@@ -544,7 +544,7 @@ export default function FullPositionCard({
             <MouseoverTooltip
               text={
                 warningToken ? (
-                  <WarningMessage>{t`Note: ${warningToken} is now <10% of the pool. Pool might become inactive if ${warningToken} reaches 0%`}</WarningMessage>
+                  <WarningMessage>{t`Note: ${warningToken} is now <10% of the pool. Pool might become inactive if ${warningToken} reaches 0%.`}</WarningMessage>
                 ) : (
                   <WarningMessage>
                     <Trans>One token is close to 0% in the pool ratio. Pool might go inactive.</Trans>

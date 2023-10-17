@@ -891,7 +891,7 @@ export default function AddLiquidity() {
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
-              <Trans>Invalid range selected. The min price must be lower than the max price</Trans>
+              <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
             </TYPE.black>
           </Flex>
         </WarningCard>
@@ -900,7 +900,7 @@ export default function AddLiquidity() {
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
-              <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions</Trans>
+              <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions.</Trans>
             </TYPE.black>
           </Flex>
         </WarningCard>
@@ -910,7 +910,7 @@ export default function AddLiquidity() {
             <AlertTriangle stroke={theme.warning} size="16px" />
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
-                Your position will not earn fees until the market price of the pool moves into your price range
+                Your position will not earn fees until the market price of the pool moves into your price range.
               </Trans>
             </TYPE.black>
           </Flex>
@@ -923,7 +923,7 @@ export default function AddLiquidity() {
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
                 Warning: The price range for this liquidity position is not eligible for farming rewards. To become
-                eligible for rewards, please match the farm’s active range(s)
+                eligible for rewards, please match the farm’s active range(s).
               </Trans>
             </TYPE.black>
           </Flex>
@@ -945,7 +945,7 @@ export default function AddLiquidity() {
                 >
                   Slippage
                 </TextUnderlineColor>
-                <TextUnderlineTransparent> is high. Your transaction may be front-run</TextUnderlineTransparent>
+                <TextUnderlineTransparent> is high. Your transaction may be front-run.</TextUnderlineTransparent>
               </Trans>
             </TYPE.black>
           </Flex>

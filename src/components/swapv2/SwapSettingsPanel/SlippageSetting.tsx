@@ -62,6 +62,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true, isCrossC
                   <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
                     here ↗
                   </ExternalLink>
+                  .
                 </Trans>
               </Text>
             }

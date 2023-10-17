@@ -377,11 +377,11 @@ export default function ListLimitOrder() {
               <NoDataIcon />
               <Text marginTop={'10px'}>
                 {keyword ? (
-                  <Trans>No orders found</Trans>
+                  <Trans>No orders found.</Trans>
                 ) : isTabActive ? (
-                  <Trans>You don&apos;t have any open orders yet</Trans>
+                  <Trans>You don&apos;t have any open orders yet.</Trans>
                 ) : (
-                  <Trans>You don&apos;t have any order history</Trans>
+                  <Trans>You don&apos;t have any order history.</Trans>
                 )}
               </Text>
             </NoResultWrapper>
