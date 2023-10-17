@@ -739,6 +739,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
               <NumericalInput
                 maxLength={50}
                 style={{ fontSize: 14, height: INPUT_HEIGHT }}
+                data-testid="input-sell-rate"
                 value={displayRate}
                 onUserInput={onChangeRate}
                 onFocus={trackingTouchInput}
