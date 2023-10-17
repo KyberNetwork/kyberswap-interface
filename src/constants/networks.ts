@@ -190,6 +190,7 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.LINEA,
   ChainId.BASE,
   ChainId.ZKSYNC,
+  ChainId.SCROLL,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,

@@ -440,7 +440,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.ZKEVM]: USDT[ChainId.ZKEVM],
   [ChainId.LINEA]: USDC[ChainId.LINEA],
   [ChainId.BASE]: USDC[ChainId.BASE],
-  [ChainId.SCROLL]: USDC[ChainId.SCROLL],
+  [ChainId.SCROLL]: USDT[ChainId.SCROLL],
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
