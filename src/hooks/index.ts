@@ -132,15 +132,18 @@ const wrapProvider = (provider: Web3Provider, blackjackData: BlackjackCheck): We
       return target[prop as keyof Web3Provider]
     },
   })
-const cache = new Map<Web3Provider, Web3Provider>()
+const cacheProvider = new WeakMap<Web3Provider, Web3Provider>()
 const useWrappedProvider = () => {
   const { provider, account } = useWeb3ReactCore<Web3Provider>()
   const { data: blackjackData } = useCheckBlackjackQuery(account ?? '', { skip: !account })
 
   if (!provider) return undefined
   if (!blackjackData) return undefined
-  const wrappedProvider = cache.get(provider) || wrapProvider(provider, blackjackData)
-  cache.set(provider, wrappedProvider)
+  let wrappedProvider = cacheProvider.get(provider)
+  if (!wrappedProvider) {
+    wrappedProvider = wrapProvider(provider, blackjackData)
+    cacheProvider.set(provider, wrappedProvider)
+  }
   return wrappedProvider
 }
 
