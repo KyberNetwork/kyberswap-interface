@@ -240,7 +240,7 @@ export default function DraggableNetworkButton({
         dragTransition={{ bounceStiffness: 500 }}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        layoutId={networkInfo.route}
+        layoutId={networkInfo.chainId.toString() + networkInfo.route}
         selected={selected}
         animate={animateControls}
         variants={variants}
