@@ -1,4 +1,4 @@
-import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import styled from 'styled-components'
@@ -8,7 +8,6 @@ import Column from 'components/Column'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useValidateEmail } from 'pages/NotificationCenter/NotificationPreference'
 import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPreference/InputEmail'
-import useAutoSignIn from 'pages/Oauth/AuthForm/useAutoSignIn'
 import { FlowStatus } from 'pages/Oauth/Login'
 import { isEmailValid, queryStringToObject } from 'utils/string'
 
@@ -33,7 +32,7 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
     setIsShowVerify(true)
   }
 
-  useAutoSignIn({ method: LoginMethod.EMAIL, onClick: onVerifyEmail, flowStatus })
+  // useAutoSignIn({ method: LoginMethod.EMAIL, onClick: onVerifyEmail, flowStatus })
 
   const onVerifyCode = async (data: { code: string; email: string }) => {
     const resp = await KyberOauth2.oauthUi.loginEmail(data)
