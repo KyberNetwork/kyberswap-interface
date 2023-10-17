@@ -112,7 +112,7 @@ export default function DraggableNetworkButton({
   droppableRefs,
   networkInfo,
   activeChainIds,
-  selectedId,
+  isSelected,
   disabledMsg,
   isEdittingMobile,
   isAddButton,
@@ -125,7 +125,7 @@ export default function DraggableNetworkButton({
   droppableRefs: MutableRefObject<HTMLDivElement[]>
   networkInfo: NetworkInfo
   activeChainIds?: ChainId[]
-  selectedId?: ChainId
+  isSelected?: boolean
   disabledMsg?: string
   isEdittingMobile?: boolean
   isAddButton?: boolean
@@ -146,7 +146,7 @@ export default function DraggableNetworkButton({
   const { state, icon, chainId, name } = networkInfo
   const isMaintenance = state === ChainState.MAINTENANCE
   const disabled = (activeChainIds ? !activeChainIds?.includes(chainId) : false) || isMaintenance
-  const selected = selectedId === chainId && !isWrongNetwork
+  const selected = isSelected && !isWrongNetwork
   const walletKey =
     chainId === ChainId.SOLANA ? walletSolana.walletKey : walletEVM.chainId === chainId ? walletEVM.walletKey : null
 

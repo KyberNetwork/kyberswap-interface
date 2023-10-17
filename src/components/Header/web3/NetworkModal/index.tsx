@@ -64,6 +64,9 @@ const DropableZone = forwardRef(function DropableZone(
   )
 })
 
+const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
+const CHAINS_DROPZONE_ID = 'chains-dropzone'
+
 export default function NetworkModal({
   activeChainIds,
   selectedId,
@@ -95,13 +98,13 @@ export default function NetworkModal({
   const { supportedChains } = useChainsConfig()
 
   const handleDrop = (chainId: string, dropId: string) => {
-    if (dropId === 'favorite-dropzone') {
+    if (dropId === FAVORITE_DROPZONE_ID) {
       const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
       if (chainInfo && !favoriteChains.includes(chainInfo)) {
         saveFavoriteChains([...favoriteChains, chainInfo.chainId.toString()])
       }
     }
-    if (dropId === 'chains-dropzone') {
+    if (dropId === CHAINS_DROPZONE_ID) {
       if (favoriteChains.some(fChainId => fChainId === chainId)) {
         saveFavoriteChains([...favoriteChains.filter(fChainId => fChainId !== chainId)])
       }
@@ -125,6 +128,29 @@ export default function NetworkModal({
     const uniqueArray = Array.from(new Set(chains))
     requestSaveProfile({ data: { favouriteChainIds: uniqueArray } })
     setFavoriteChains(uniqueArray)
+  }
+
+  const renderNetworkButton = (networkInfo: NetworkInfo, isAdding: boolean) => {
+    return (
+      <DraggableNetworkButton
+        key={networkInfo.chainId}
+        droppableRefs={droppableRefs}
+        networkInfo={networkInfo}
+        activeChainIds={activeChainIds}
+        isSelected={selectedId === networkInfo.chainId}
+        disabledMsg={disabledMsg}
+        onDrop={(dropId: string) => {
+          handleDrop(networkInfo.chainId.toString(), dropId)
+        }}
+        customToggleModal={customToggleModal}
+        customOnSelectNetwork={customOnSelectNetwork}
+        onChangedNetwork={toggleNetworkModal}
+        // Mobile only props
+        isAddButton={isAdding}
+        isEdittingMobile={isEdittingMobile}
+        onFavoriteClick={() => handleFavoriteChangeMobile(networkInfo.chainId.toString(), isAdding)}
+      />
+    )
   }
 
   useEffect(() => {
@@ -191,7 +217,7 @@ export default function NetworkModal({
                 droppableRefs.current[0] = ref
               }
             }}
-            id="favorite-dropzone"
+            id={FAVORITE_DROPZONE_ID}
           >
             {favoriteChains.length === 0 ? (
               <Row border={'1px dashed ' + theme.text + '32'} borderRadius="99px" padding="8px 12px" justify="center">
@@ -204,24 +230,7 @@ export default function NetworkModal({
                 {supportedChains
                   .filter(chain => favoriteChains.some(i => i === chain.chainId.toString()))
                   .map((networkInfo: NetworkInfo) => {
-                    return (
-                      <DraggableNetworkButton
-                        key={networkInfo.chainId}
-                        droppableRefs={droppableRefs}
-                        networkInfo={networkInfo}
-                        activeChainIds={activeChainIds}
-                        selectedId={selectedId}
-                        disabledMsg={disabledMsg}
-                        onDrop={(dropId: string) => {
-                          handleDrop(networkInfo.chainId.toString(), dropId)
-                        }}
-                        customToggleModal={customToggleModal}
-                        customOnSelectNetwork={customOnSelectNetwork}
-                        onChangedNetwork={toggleNetworkModal}
-                        isEdittingMobile={isEdittingMobile}
-                        onFavoriteClick={() => handleFavoriteChangeMobile(networkInfo.chainId.toString(), false)}
-                      />
-                    )
+                    return renderNetworkButton(networkInfo, false)
                   })}
               </NetworkList>
             )}
@@ -244,30 +253,12 @@ export default function NetworkModal({
                 droppableRefs.current[1] = ref
               }
             }}
-            id="chains-dropzone"
+            id={CHAINS_DROPZONE_ID}
           >
             {supportedChains
               .filter(chain => !favoriteChains.some(i => i === chain.chainId.toString()))
               .map((networkInfo: NetworkInfo) => {
-                return (
-                  <DraggableNetworkButton
-                    isAddButton
-                    key={networkInfo.chainId}
-                    droppableRefs={droppableRefs}
-                    networkInfo={networkInfo}
-                    activeChainIds={activeChainIds}
-                    selectedId={selectedId}
-                    disabledMsg={disabledMsg}
-                    onDrop={(dropId: string) => {
-                      handleDrop(networkInfo.chainId.toString(), dropId)
-                    }}
-                    customToggleModal={customToggleModal}
-                    customOnSelectNetwork={customOnSelectNetwork}
-                    onChangedNetwork={toggleNetworkModal}
-                    isEdittingMobile={isEdittingMobile}
-                    onFavoriteClick={() => handleFavoriteChangeMobile(networkInfo.chainId.toString(), true)}
-                  />
-                )
+                return renderNetworkButton(networkInfo, true)
               })}
           </NetworkList>
         </Column>
