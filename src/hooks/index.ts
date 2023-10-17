@@ -141,7 +141,6 @@ const useWrappedProvider = () => {
   const { data: blackjackData } = useCheckBlackjackQuery(account ?? '', { skip: !account })
 
   if (!provider) return undefined
-  if (!blackjackData) return undefined
   let wrappedProvider = cacheProvider.get(provider)
   if (!wrappedProvider) {
     wrappedProvider = wrapProvider(provider, blackjackData)
