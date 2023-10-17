@@ -31,11 +31,15 @@ import { filterTruthy, isAddress } from 'utils'
 import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 import { isEmailValid } from 'utils/string'
 
-KyberOauth2.initialize({
-  clientId: OAUTH_CLIENT_ID,
-  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.VERIFY_AUTH}`,
-  mode: ENV_KEY,
-})
+export const initializeOauthKyberSwap = () => {
+  KyberOauth2.initialize({
+    clientId: OAUTH_CLIENT_ID,
+    redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.VERIFY_AUTH}`,
+    mode: ENV_KEY,
+  })
+}
+
+initializeOauthKyberSwap()
 
 const useLogin = (autoLogin = false) => {
   const { account, chainId, isEVM } = useActiveWeb3React()
