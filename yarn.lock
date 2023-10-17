@@ -2257,10 +2257,10 @@
     bs58 "^5.0.0"
     uuid "^8.3.2"
 
-"@kybernetwork/oauth2@1.0.1-rc.6":
-  version "1.0.1-rc.6"
-  resolved "https://npm.pkg.github.com/download/@kybernetwork/oauth2/1.0.1-rc.6/3411811639a8c800f716c35b6739333df8d53523#3411811639a8c800f716c35b6739333df8d53523"
-  integrity sha512-bJk+SO1P/nqi01hBP7IW5TNN0pS83QfLyXn5mkGXHq93ZliNR+6ADU0n42DHwv7eVx4PP+tVemV+ZyJ7kbFmUg==
+"@kybernetwork/oauth2@1.0.1-rc.7":
+  version "1.0.1-rc.7"
+  resolved "https://npm.pkg.github.com/download/@kybernetwork/oauth2/1.0.1-rc.7/dfbdcb5c967e564e8f4fa0c2cb23da4a5d07efe0#dfbdcb5c967e564e8f4fa0c2cb23da4a5d07efe0"
+  integrity sha512-4VabqXzjY1Z/IhZcrxOQM8BCdCefTDkahHo5a8+lwbdskGipRdnZhx5vYWAcxgwDtGuTO2o8D8i9i4sG0LhRIw==
   dependencies:
     axios "1.2.1"
     client-oauth2 "^4.3.3"
