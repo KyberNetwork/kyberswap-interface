@@ -170,6 +170,7 @@ const useLogin = (autoLogin = false) => {
 
   const redirectSignIn = useCallback(
     (account: string) => {
+      if (window.location.pathname.startsWith(APP_PATHS.IAM_LOGIN)) return
       setLoginRedirectUrl(window.location.href)
       KyberOauth2.authenticate(isEVM ? { wallet_address: account } : {}) // navigate to login page
     },

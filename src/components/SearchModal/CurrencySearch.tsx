@@ -14,7 +14,7 @@ import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
 import { KS_SETTING_API } from 'constants/env'
-import { isEVM, isSolana } from 'constants/networks'
+import { isEVM } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -156,7 +156,6 @@ export function CurrencySearch({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const isQueryValidEVMAddress = isEVM(chainId) && !!isAddress(chainId, debouncedQuery)
-  const isQueryValidSolanaAddress = isSolana(chainId) && !!isAddress(chainId, debouncedQuery)
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
@@ -346,8 +345,6 @@ export function CurrencySearch({
               console.error('import token err', err)
             })
           }
-        } else if (tokens.length === 0 && isQueryValidSolanaAddress) {
-          // TODO: query tokens from Solana token db
         }
       } else {
         tokens = Object.values(defaultTokens)
@@ -363,7 +360,6 @@ export function CurrencySearch({
       defaultTokens,
       fetchERC20TokenFromRPC,
       isQueryValidEVMAddress,
-      isQueryValidSolanaAddress,
       pageCount,
       importTokensToKsSettings,
     ],
