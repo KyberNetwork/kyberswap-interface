@@ -57,6 +57,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.ZKEVM]: [],
   [ChainId.LINEA]: [],
   [ChainId.BASE]: [],
+  [ChainId.SCROLL]: [],
   [ChainId.SOLANA_DEVNET]: [],
 }
 
@@ -151,6 +152,7 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb', // DAI
   ],
   [ChainId.LINEA]: [],
+  [ChainId.SCROLL]: [],
   [ChainId.SOLANA_DEVNET]: [],
 }
 
@@ -200,6 +202,7 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.ZKEVM]: [],
   [ChainId.LINEA]: [],
   [ChainId.BASE]: [],
+  [ChainId.SCROLL]: [],
   [ChainId.SOLANA_DEVNET]: [],
 }
 
@@ -243,6 +246,8 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'DAI (Wormhole)',
   ),
+  // TDOD: Get real DAI
+  [ChainId.SCROLL]: new Token(ChainId.SCROLL, '0x50c5725949a6f0c72e6c4a641f24049a917db0cb', 18, 'DAI', 'Dai'),
 }
 
 export const USDC: { [chainId in ChainId]: Token } = {
@@ -284,6 +289,8 @@ export const USDC: { [chainId in ChainId]: Token } = {
   [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0xA8CE8aee21bC2A48a5EF670afCc9274C7bbbC035', 6, 'USDC', 'USD Coin'),
   [ChainId.LINEA]: new Token(ChainId.LINEA, '0x176211869cA2b568f2A7D4EE941E073a821EE1ff', 6, 'USDC', 'USD Coin'),
   [ChainId.BASE]: new Token(ChainId.BASE, '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA', 6, 'USDC', 'USD Coin'),
+  // TODO: verify this USDC on Scroll
+  [ChainId.SCROLL]: new Token(ChainId.SCROLL, '0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4', 6, 'USDC', 'USD Coin'),
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -352,6 +359,8 @@ export const USDT: { [chainId in ChainId]: Token } = {
 
   // not existed
   [ChainId.BASE]: new Token(ChainId.BASE, '0xA219439258ca9da29E9Cc4cE5596924745e12B93', 6, 'USDT', 'Tether USD'),
+  // TODO: verify this address
+  [ChainId.SCROLL]: new Token(ChainId.SCROLL, '0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df', 6, 'USDT', 'Tether USD'),
 }
 
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
@@ -381,12 +390,13 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0xa00e3a3511aac35ca78530c85007afcd31753819', 18, 'KNC', 'KNC'),
   [ChainId.LINEA]: new Token(ChainId.LINEA, '0x3b2F62d42DB19B30588648bf1c184865D4C3B1D6', 18, 'KNC', 'KNC'),
   [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0x6A80A465409ce8D36C513129C0FEEa61BEd579ba', 18, 'KNC', 'KNC'),
+  [ChainId.BASE]: new Token(ChainId.BASE, '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1', 18, 'KNC', 'KNC'),
 
   // TODO(viet-nv): KNC does not exist on the below chain
   [ChainId.CRONOS]: new Token(ChainId.CRONOS, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.AURORA]: new Token(ChainId.AURORA, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.FANTOM]: new Token(ChainId.FANTOM, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.BASE]: new Token(ChainId.BASE, KNC_ADDRESS, 18, 'KNC', 'KNC'),
+  [ChainId.SCROLL]: new Token(ChainId.SCROLL, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, KNC_ADDRESS, 18, 'KNC', 'KNC'),
 
   [ChainId.AVAXTESTNET]: new Token(ChainId.AVAXTESTNET, KNC_ADDRESS, 18, 'KNC', 'KNC'),
@@ -430,6 +440,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.ZKEVM]: USDT[ChainId.ZKEVM],
   [ChainId.LINEA]: USDC[ChainId.LINEA],
   [ChainId.BASE]: USDC[ChainId.BASE],
+  [ChainId.SCROLL]: USDT[ChainId.SCROLL],
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
