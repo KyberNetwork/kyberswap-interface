@@ -87,13 +87,13 @@ const knProtocolApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: POOL_FARM_BASE_URL }),
   tagTypes: [RTK_QUERY_TAGS.GET_FARM_V2],
   endpoints: builder => ({
-    getFarmV2: builder.mutation<{ data: { data: SubgraphFarmV2[] } }, ChainId>({
+    getFarmV2: builder.query<{ data: { data: SubgraphFarmV2[] } }, ChainId>({
       query: (chainId: ChainId) => ({
         url: `/${
           (NETWORKS_INFO[chainId] as EVMNetworkInfo).poolFarmRoute
         }/api/v1/elastic-new/farm-v2?perPage=1000&page=1`,
       }),
-      invalidatesTags: [RTK_QUERY_TAGS.GET_FARM_V2],
+      providesTags: [RTK_QUERY_TAGS.GET_FARM_V2],
     }),
     getPoolClassic: builder.query<{ data: { pools: ClassicPoolKN[] } }, ChainId>({
       query: (chainId: EVM_NETWORK) => ({
@@ -109,4 +109,4 @@ const knProtocolApi = createApi({
 })
 
 export default knProtocolApi
-export const { useGetFarmV2Mutation, useLazyGetFarmClassicQuery, useGetPoolClassicQuery } = knProtocolApi
+export const { useLazyGetFarmV2Query, useLazyGetFarmClassicQuery, useGetPoolClassicQuery } = knProtocolApi
