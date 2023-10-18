@@ -271,7 +271,7 @@ export const ListView = ({
           </Text>
         </Text>
 
-        <div>
+        <div style={{ width: 'fit-content' }}>
           <MouseoverTooltip
             width="fit-content"
             text={
