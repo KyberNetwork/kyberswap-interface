@@ -30,7 +30,6 @@ export default function useENSName(address?: string): { ENSName: string | null; 
   const resolverAddressResult = resolverAddress.result?.[0]
   const resolverContract = useENSResolverContract(
     resolverAddressResult && !isZero(resolverAddressResult) ? resolverAddressResult : undefined,
-    false,
   )
   const name = useSingleCallResult(resolverContract, 'name', ensNodeArgument)
 

@@ -162,12 +162,12 @@ export function useENSRegistrarContract(withSignerIfPossible?: boolean): Contrac
   return useContract(address, ENS_ABI, withSignerIfPossible)
 }
 
-export function useENSResolverContract(address: string | undefined, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(address, ENS_PUBLIC_RESOLVER_ABI, withSignerIfPossible)
+export function useENSResolverContract(address: string | undefined): Contract | null {
+  return useContractForReading(address, ENS_PUBLIC_RESOLVER_ABI)
 }
 
-export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(tokenAddress, ERC20_BYTES32_ABI, withSignerIfPossible)
+export function useBytes32TokenContract(tokenAddress?: string): Contract | null {
+  return useContractForReading(tokenAddress, ERC20_BYTES32_ABI)
 }
 
 export function usePairContract(pairAddress?: string): Contract | null {
