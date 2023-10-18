@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
@@ -73,6 +73,12 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
           <Trans>KNC Amount</Trans>
         </Text>
         <Text color={theme.text}>{Math.floor(proposal.vote_stats.total_vote_count).toLocaleString()}</Text>
+      </InfoRow>
+      <InfoRow>
+        <Text color={theme.subText}>
+          <Trans>Quorum Status</Trans>
+        </Text>
+        <Text color={theme.text}>{proposal.vote_stats.quorum_status === 1 ? t`Reached` : t`Not Reached`}</Text>
       </InfoRow>
       <InfoRow>
         <Text color={theme.subText}>

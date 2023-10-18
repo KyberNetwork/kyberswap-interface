@@ -53,7 +53,7 @@ export default function AnnouncementItem({
         {!expand &&
           minimalAssets.map((token, i) => (
             <Fragment key={i}>
-              <TokenInfo token={token} showPrice={false} key={i} logoSize={'14px'} />
+              <TokenInfo token={token} key={i} logoSize={'14px'} />
               {i === minimalAssets.length - 1 ? (minimalAssets.length < slice ? '' : ', ...') : ', '}
             </Fragment>
           ))}

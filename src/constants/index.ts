@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid'
 
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
+import { CAMPAIGN_BASE_URL } from './env'
 import * as ENV from './env'
 import { EVM_MAINNET_NETWORKS, EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
 
@@ -186,16 +186,10 @@ export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
-export const CAMPAIGN_BASE_URL = `${CAMPAIGN_BASE_DOMAIN}/api/v1/campaigns`
 export const SWR_KEYS = {
-  getGrantProgramLeaderBoard: (id: number | string) => `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions/${id}/leaderboard`,
-  getListGrantPrograms: `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions`,
-  getGrantProgram: (id: number | string) => `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions/${id}`,
-  getListCampaign: CAMPAIGN_BASE_URL,
-  getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/leaderboard',
-  getLuckyWinners: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/lucky-winners',
-  getCampaignTransactions: (campaignId: number, limit: number, offset: number, account: string) =>
-    `${CAMPAIGN_BASE_URL}/${campaignId}/proofs?limit=${limit}&offset=${offset}&userAddress=${account}`,
+  getGrantProgramLeaderBoard: (id: number | string) => `${CAMPAIGN_BASE_URL}/api/v1/competitions/${id}/leaderboard`,
+  getListGrantPrograms: `${CAMPAIGN_BASE_URL}/api/v1/competitions`,
+  getGrantProgram: (id: number | string) => `${CAMPAIGN_BASE_URL}/api/v1/competitions/${id}`,
 }
 
 // https://www.nasdaq.com/glossary/b/bip
@@ -341,6 +335,7 @@ export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [
   ChainId.LINEA,
   ChainId.ZKEVM,
   ChainId.BASE,
+  ChainId.SCROLL,
 ]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
