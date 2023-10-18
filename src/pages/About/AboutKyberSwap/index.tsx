@@ -1017,6 +1017,11 @@ function AboutKyberSwap() {
                 alt="Base"
                 width="100%"
               />
+              <img
+                src="https://storage.googleapis.com/ks-setting-1d682dca/8f4656a9-aaeb-438c-a6c2-3af30cca26db1697596014388.png"
+                alt="Sroll"
+                width="100%"
+              />
             </Powered>
           </Text>
         </Wrapper>
