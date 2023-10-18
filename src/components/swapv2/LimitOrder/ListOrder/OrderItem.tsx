@@ -1,8 +1,10 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
+import { stringify } from 'querystring'
 import { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties, DefaultTheme } from 'styled-components'
@@ -239,6 +241,8 @@ export default function OrderItem({
     transactions = [],
     takerAssetSymbol,
     takerAssetDecimals,
+    takerAsset,
+    makerAsset,
   } = order
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
   const isOrderActive = isActiveStatus(order.status)
@@ -260,6 +264,16 @@ export default function OrderItem({
   const marketPrice = tokenPrices[order.takerAsset] / tokenPrices[order.makerAsset]
   const selectedPrice = Number(formatRateLimitOrder(order, false))
   const percent = ((marketPrice - selectedPrice) / marketPrice) * 100
+
+  const navigate = useNavigate()
+  const onClickOrder = () => {
+    navigate({
+      search: stringify({
+        inputCurrency: makerAsset,
+        outputCurrency: takerAsset,
+      }),
+    })
+  }
 
   const renderProgressComponent = () => {
     const getTooltipText = () => {
@@ -312,7 +326,7 @@ export default function OrderItem({
 
   if (upToSmall) {
     return (
-      <ItemWrapperMobile>
+      <ItemWrapperMobile onClick={onClickOrder}>
         <Flex justifyContent={'space-between'}>
           <AmountInfo order={order} />
           <ActionButtons
@@ -370,7 +384,11 @@ export default function OrderItem({
   }
   return (
     <>
-      <ItemWrapper hasBorder={isLast ? false : !transactions.length || !expand} active={hasOrderCancelling}>
+      <ItemWrapper
+        hasBorder={isLast ? false : !transactions.length || !expand}
+        active={hasOrderCancelling}
+        onClick={onClickOrder}
+      >
         <Flex alignItems={'center'} style={{ gap: 10 }}>
           <IndexText>{index + 1}</IndexText>
           <AmountInfo order={order} />
