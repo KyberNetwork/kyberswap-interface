@@ -58,8 +58,7 @@ export default createReducer(initialState, builder =>
           group: getTransactionGroupByType(type),
         })
         chainTxs[txs[0].hash] = txs
-        transactions[chainId] = chainTxs
-        transactions[chainId] = clearOldTransactions(transactions[chainId])
+        transactions[chainId] = clearOldTransactions(chainTxs)
       },
     )
     .addCase(clearAllTransactions, (transactions, { payload: { chainId } }) => {
