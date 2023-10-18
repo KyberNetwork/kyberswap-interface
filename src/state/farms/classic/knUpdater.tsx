@@ -1,8 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Token, WETH } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'ethers/lib/utils'
-import { useEffect, useRef } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect } from 'react'
 import { ClassicFarmKN, useLazyGetFarmClassicQuery } from 'services/knprotocol'
 
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
@@ -11,7 +10,6 @@ import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import { AbortedError, ZERO_ADDRESS } from 'constants/index'
 import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { setFarmsData, setLoading, setYieldPoolsError } from 'state/farms/classic/actions'
 import { FairLaunchVersion, Farm, FarmV1, FarmV2 } from 'state/farms/classic/types'
@@ -24,15 +22,6 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
   const { chainId, account } = useActiveWeb3React()
   const { isEnableKNProtocol, readProvider } = useKyberSwapConfig()
   const [fetchFarmKN] = useLazyGetFarmClassicQuery()
-
-  const farmsData = useSelector((state: AppState) => state.farms.data)
-
-  const farmsDataRef = useRef(farmsData)
-  farmsDataRef.current = farmsData
-
-  // Fix slow network speed when loading farm.
-  const latestChainId = useRef(chainId)
-  latestChainId.current = chainId
 
   useEffect(() => {
     const abortController = new AbortController()
