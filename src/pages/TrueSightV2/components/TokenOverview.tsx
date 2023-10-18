@@ -204,7 +204,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
               <Column justifyContent="center">
                 <PriceRange
                   title={t`Daily Range`}
-                  high={0}
+                  high={data?.['24hHigh'] || 0}
                   low={data?.['24hLow'] || 0}
                   current={+(data?.price || 0)}
                   style={{ flex: 'initial' }}
@@ -212,7 +212,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                 />
                 <PriceRange
                   title={t`1Y Range`}
-                  high={0}
+                  high={data?.['1yHigh'] || 0}
                   low={data?.['1yLow'] || 0}
                   current={data?.price ? +data.price : 0}
                   style={{ flex: 'initial' }}
@@ -454,7 +454,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
           <ExpandableBox expanded={expanded} height={ref1?.current?.scrollHeight} ref={ref1}>
             <PriceRange
               title={t`Daily Range`}
-              high={0}
+              high={data?.['24hHigh'] || 0}
               low={data?.['24hLow'] || 0}
               current={+(data?.price || 0)}
               style={{ marginBottom: '16px' }}
@@ -462,7 +462,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
             />
             <PriceRange
               title={t`1Y Range`}
-              high={0}
+              high={data?.['1yHigh'] || 0}
               low={data?.['1yLow'] || 0}
               current={data?.price ? +data.price : 0}
               color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
