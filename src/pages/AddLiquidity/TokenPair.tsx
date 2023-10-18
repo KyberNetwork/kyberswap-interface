@@ -395,7 +395,11 @@ const TokenPair = ({
           </Text>
         </RowFlat>
         <Row>
-          <Text fontSize="24px">{'DMM ' + nativeA?.symbol + '/' + nativeB?.symbol + ' LP Tokens'}</Text>
+          <Text fontSize="24px">
+            <Trans>
+              DMM {nativeA?.symbol}/{nativeB?.symbol} LP Tokens
+            </Trans>
+          </Text>
         </Row>
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
           {t`Output is estimated. If the price changes by more than ${

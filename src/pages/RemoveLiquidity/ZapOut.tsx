@@ -60,6 +60,7 @@ import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatJSBIValue } from 'utils/formatBalance'
 import { getZapContract } from 'utils/getContract'
+import { formatDisplayNumber } from 'utils/numbers'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
 import { ErrorName } from 'utils/sentry'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
@@ -234,23 +235,23 @@ export default function ZapOut({
       message,
     })
 
-    library
-      .send('eth_signTypedData_v4', [account, data])
-      .then(splitSignature)
-      .then(signature => {
-        setSignatureData({
-          v: signature.v,
-          r: signature.r,
-          s: signature.s,
-          deadline: deadline.toNumber(),
+    try {
+      library
+        .send('eth_signTypedData_v4', [account, data])
+        .then(splitSignature)
+        .then(signature => {
+          setSignatureData({
+            v: signature.v,
+            r: signature.r,
+            s: signature.s,
+            deadline: deadline.toNumber(),
+          })
         })
-      })
-      .catch((error: any) => {
-        // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
-        if (!didUserReject(error)) {
-          approveCallback()
-        }
-      })
+    } catch (error) {
+      if (!didUserReject(error)) {
+        approveCallback()
+      }
+    }
   }
 
   // wrapped onUserInput to clear signatures
@@ -662,7 +663,13 @@ export default function ZapOut({
                     </Text>
 
                     <Text fontSize={12} fontWeight={500}>
-                      <Trans>Balance</Trans>: {!userLiquidity ? <Loader /> : userLiquidity?.toSignificant(6)} LP Tokens
+                      <Trans>Balance</Trans>:{' '}
+                      {!userLiquidity ? (
+                        <Loader />
+                      ) : (
+                        formatDisplayNumber(userLiquidity, { style: 'decimal', significantDigits: 6 })
+                      )}{' '}
+                      LP Tokens
                     </Text>
                   </RowBetween>
                   <Row style={{ alignItems: 'flex-end' }}>

@@ -206,6 +206,10 @@ export function useClaimVotingRewards() {
   const { userRewards, remainingCumulativeAmount } = useVotingInfo()
   const kyberDaoInfo = useKyberDAOInfo()
   const rewardDistributorContract = useContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
+  const rewardDistributorContractForReading = useContractForReading(
+    kyberDaoInfo?.rewardsDistributor,
+    RewardDistributorABI,
+  )
   const addTransactionWithType = useTransactionAdder()
 
   const claimVotingRewards = useCallback(async () => {
@@ -216,11 +220,11 @@ export function useClaimVotingRewards() {
     const merkleProof = proof
     const formatAmount = formatUnitsToFixed(remainingCumulativeAmount)
 
-    if (!rewardDistributorContract) {
+    if (!rewardDistributorContract || !rewardDistributorContractForReading) {
       throw new Error(CONTRACT_NOT_FOUND_MSG)
     }
     try {
-      const isValidClaim = await rewardDistributorContract.isValidClaim(
+      const isValidClaim = await rewardDistributorContractForReading.isValidClaim(
         cycle,
         index,
         address,
@@ -259,6 +263,7 @@ export function useClaimVotingRewards() {
     account,
     remainingCumulativeAmount,
     rewardDistributorContract,
+    rewardDistributorContractForReading,
     addTransactionWithType,
     kyberDaoInfo?.rewardsDistributor,
     kyberDaoInfo?.KNCAddress,

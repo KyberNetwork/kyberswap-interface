@@ -52,6 +52,7 @@ import {
   getOldStaticFeeRouterContract,
   getStaticFeeRouterContract,
 } from 'utils/getContract'
+import { formatDisplayNumber } from 'utils/numbers'
 import { ErrorName } from 'utils/sentry'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 
@@ -164,7 +165,7 @@ export default function TokenPair({
     const domain = {
       name: isStaticFeePair ? 'KyberSwap LP' : 'KyberDMM LP',
       version: '1',
-      chainId: chainId,
+      chainId,
       verifyingContract: pair.liquidityToken.address,
     }
     const Permit = [
@@ -176,7 +177,7 @@ export default function TokenPair({
     ]
     const message = {
       owner: account,
-      TransactionErrorContent,
+      TransactionErrorContent, // todo: ?? what is this
       spender: contractAddress,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
@@ -192,23 +193,23 @@ export default function TokenPair({
       message,
     })
 
-    library
-      .send('eth_signTypedData_v4', [account, data])
-      .then(splitSignature)
-      .then(signature => {
-        setSignatureData({
-          v: signature.v,
-          r: signature.r,
-          s: signature.s,
-          deadline: deadline.toNumber(),
+    try {
+      await library
+        .send('eth_signTypedData_v4', [account, data])
+        .then(splitSignature)
+        .then(signature => {
+          setSignatureData({
+            v: signature.v,
+            r: signature.r,
+            s: signature.s,
+            deadline: deadline.toNumber(),
+          })
         })
-      })
-      .catch((error: any) => {
-        // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
-        if (!didUserReject(error)) {
-          approveCallback()
-        }
-      })
+    } catch (error) {
+      if (!didUserReject(error)) {
+        approveCallback()
+      }
+    }
   }
 
   // wrapped onUserInput to clear signatures
@@ -602,7 +603,13 @@ export default function TokenPair({
                     </Text>
 
                     <Text fontSize={12} fontWeight={500}>
-                      <Trans>Balance</Trans>: {!userLiquidity ? <Loader /> : userLiquidity?.toSignificant(6)} LP Tokens
+                      <Trans>Balance</Trans>:{' '}
+                      {!userLiquidity ? (
+                        <Loader />
+                      ) : (
+                        formatDisplayNumber(userLiquidity, { style: 'decimal', significantDigits: 6 })
+                      )}{' '}
+                      LP Tokens
                     </Text>
                   </RowBetween>
                   <Row style={{ alignItems: 'flex-end' }}>

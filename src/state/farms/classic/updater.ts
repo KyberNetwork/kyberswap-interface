@@ -19,7 +19,7 @@ import { getBulkPoolDataFromPoolList } from 'state/pools/hooks'
 export default function Updater({ isInterval = true }: { isInterval?: boolean }): null {
   const dispatch = useAppDispatch()
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
-  const fairLaunchContracts = useFairLaunchContracts(false)
+  const fairLaunchContracts = useFairLaunchContracts()
   const ethPrice = useETHPrice()
   const ethPriceRef = useRef(ethPrice.currentPrice)
   ethPriceRef.current = ethPrice.currentPrice

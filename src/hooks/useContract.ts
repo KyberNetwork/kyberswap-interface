@@ -47,7 +47,10 @@ export function useContract(
   const { library } = useWeb3React()
   const { readProvider } = useKyberSwapConfig()
 
-  const lib = useMemo(() => (account ? library : readProvider), [account, library, readProvider])
+  const lib = useMemo(
+    () => (account && withSignerIfPossible ? library : readProvider),
+    [account, withSignerIfPossible, library, readProvider],
+  )
 
   return useMemo(() => {
     if (!isEVM || !address || !ABI || !lib) return null
@@ -167,8 +170,8 @@ export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossi
   return useContract(tokenAddress, ERC20_BYTES32_ABI, withSignerIfPossible)
 }
 
-export function usePairContract(pairAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(pairAddress, IUniswapV2PairABI.abi, withSignerIfPossible)
+export function usePairContract(pairAddress?: string): Contract | null {
+  return useContractForReading(pairAddress, IUniswapV2PairABI.abi)
 }
 
 export function useMulticallContract(customChainId?: ChainId): Contract | null {
@@ -180,12 +183,15 @@ export function useMulticallContract(customChainId?: ChainId): Contract | null {
 export function useOldStaticFeeFactoryContract(): Contract | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
 
-  return useContract(isEVM ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.factory : undefined, FACTORY_ABI)
+  return useContractForReading(
+    isEVM ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.factory : undefined,
+    FACTORY_ABI,
+  )
 }
 export function useStaticFeeFactoryContract(): Contract | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
 
-  return useContract(
+  return useContractForReading(
     isEVM ? (networkInfo as EVMNetworkInfo).classic.static.factory : undefined,
     KS_STATIC_FEE_FACTORY_ABI,
   )
@@ -193,13 +199,16 @@ export function useStaticFeeFactoryContract(): Contract | null {
 export function useDynamicFeeFactoryContract(): Contract | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
 
-  return useContract(isEVM ? (networkInfo as EVMNetworkInfo).classic.dynamic?.factory : undefined, FACTORY_ABI)
+  return useContractForReading(
+    isEVM ? (networkInfo as EVMNetworkInfo).classic.dynamic?.factory : undefined,
+    FACTORY_ABI,
+  )
 }
 
 export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
 
-  return useContract(
+  return useContractForReading(
     isEVM
       ? isStaticFeeContract
         ? isOldStaticFeeContract
@@ -215,7 +224,7 @@ export function useProMMFarmContract(address: string): Contract | null {
   return useContract(address, PROMM_FARM_ABI)
 }
 
-function useFairLaunchV1Contracts(withSignerIfPossible?: boolean): {
+function useFairLaunchV1Contracts(): {
   [key: string]: Contract
 } | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
@@ -223,11 +232,11 @@ function useFairLaunchV1Contracts(withSignerIfPossible?: boolean): {
   return useMultipleContracts(
     isEVM ? (networkInfo as EVMNetworkInfo).classic.fairlaunch : undefined,
     FAIRLAUNCH_ABI,
-    withSignerIfPossible,
+    false,
   )
 }
 
-function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
+function useFairLaunchV2Contracts(): {
   [key: string]: Contract
 } | null {
   const { networkInfo, isEVM } = useActiveWeb3React()
@@ -235,11 +244,11 @@ function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
   return useMultipleContracts(
     isEVM ? (networkInfo as EVMNetworkInfo).classic.fairlaunchV2 : undefined,
     FAIRLAUNCH_V2_ABI,
-    withSignerIfPossible,
+    false,
   )
 }
 
-function useFairLaunchV3Contracts(withSignerIfPossible?: boolean): {
+function useFairLaunchV3Contracts(): {
   [key: string]: Contract
 } | null {
   const { networkInfo, isEVM } = useActiveWeb3React()
@@ -249,16 +258,16 @@ function useFairLaunchV3Contracts(withSignerIfPossible?: boolean): {
       ? (networkInfo as EVMNetworkInfo).classic.fairlaunchV3
       : undefined,
     FAIRLAUNCH_V3_ABI,
-    withSignerIfPossible,
+    false,
   )
 }
 
-export function useFairLaunchContracts(withSignerIfPossible?: boolean): {
+export function useFairLaunchContracts(): {
   [key: string]: Contract
 } | null {
-  const fairLaunchV1Contracts = useFairLaunchV1Contracts(withSignerIfPossible)
-  const fairLaunchV2Contracts = useFairLaunchV2Contracts(withSignerIfPossible)
-  const fairLaunchV3Contracts = useFairLaunchV3Contracts(withSignerIfPossible)
+  const fairLaunchV1Contracts = useFairLaunchV1Contracts()
+  const fairLaunchV2Contracts = useFairLaunchV2Contracts()
+  const fairLaunchV3Contracts = useFairLaunchV3Contracts()
 
   const fairLaunchContracts = useMemo(() => {
     return { ...fairLaunchV1Contracts, ...fairLaunchV2Contracts, ...fairLaunchV3Contracts }
