@@ -1,10 +1,15 @@
 import { Trans } from '@lingui/macro'
 import { FC } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { checkPriceImpact } from 'utils/prices'
 
 const TextUnderlineColor = styled(Text)`
@@ -28,10 +33,14 @@ const PRICE_IMPACT_EXPLANATION_URL =
 type Props = {
   isDegenMode?: boolean
   priceImpact: number | undefined
+  showLimitOrderLink?: boolean
 }
 
-const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
+const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLink = false }) => {
   const priceImpactResult = checkPriceImpact(priceImpact)
+  const theme = useTheme()
+  const navigate = useNavigate()
+  const { networkInfo } = useActiveWeb3React()
 
   if (typeof priceImpact !== 'number') {
     return null
@@ -71,6 +80,23 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
     )
   }
 
+  const limitOrderNote = showLimitOrderLink ? (
+    <Text>
+      <Trans>
+        Do you want to make a{' '}
+        <Text
+          as="b"
+          sx={{ cursor: 'pointer' }}
+          color={theme.primary}
+          onClick={() => navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}`)}
+        >
+          Limit Order
+        </Text>{' '}
+        instead?
+      </Trans>
+    </Text>
+  ) : undefined
+
   // VERY high
   if (priceImpactResult.isVeryHigh) {
     return (
@@ -89,18 +115,21 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
           </Row>
         }
         longText={
-          <Text>
-            {isDegenMode ? (
-              <Trans>
-                You have turned on Degen Mode from settings. Trades with very high price impact can be executed
-              </Trans>
-            ) : (
-              <Trans>
-                You can turn on Degen Mode from Settings to execute trades with very high price impact. This can result
-                in bad rates and loss of funds
-              </Trans>
-            )}
-          </Text>
+          <Column gap="4px">
+            <Text>
+              {isDegenMode ? (
+                <Trans>
+                  You have turned on Degen Mode from settings. Trades with very high price impact can be executed
+                </Trans>
+              ) : (
+                <Trans>
+                  You can turn on Degen Mode from Settings to execute trades with very high price impact. This can
+                  result in bad rates and loss of funds
+                </Trans>
+              )}
+            </Text>
+            {limitOrderNote}
+          </Column>
         }
       />
     )
@@ -120,7 +149,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
   )
 
   if (priceImpactResult.isHigh) {
-    return <WarningNote shortText={shortText} />
+    return <WarningNote shortText={shortText} longText={limitOrderNote} />
   }
 
   return null
