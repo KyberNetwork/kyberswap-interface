@@ -14,7 +14,7 @@ import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
 import { KS_SETTING_API } from 'constants/env'
-import { isEVM, isSolana } from 'constants/networks'
+import { isEVM } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -156,7 +156,6 @@ export function CurrencySearch({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const isQueryValidEVMAddress = isEVM(chainId) && !!isAddress(chainId, debouncedQuery)
-  const isQueryValidSolanaAddress = isSolana(chainId) && !!isAddress(chainId, debouncedQuery)
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
@@ -266,6 +265,7 @@ export function CurrencySearch({
   )
 
   // menu ui
+  const isImportedTab = activeTab === Tab.Imported
   const [open, toggle] = useToggle(false)
   const node = useRef<HTMLDivElement>()
   useOnClickOutside(node, open ? toggle : undefined)
@@ -317,8 +317,7 @@ export function CurrencySearch({
     async (page?: number) => {
       const nextPage = (page ?? pageCount) + 1
       let tokens: WrappedTokenInfo[] = []
-
-      if (debouncedQuery) {
+      if (debouncedQuery && !isImportedTab) {
         abortControllerRef.current.abort()
         abortControllerRef.current = new AbortController()
         tokens = await fetchTokens(debouncedQuery, nextPage, chainId, abortControllerRef.current.signal)
@@ -346,11 +345,9 @@ export function CurrencySearch({
               console.error('import token err', err)
             })
           }
-        } else if (tokens.length === 0 && isQueryValidSolanaAddress) {
-          // TODO: query tokens from Solana token db
         }
       } else {
-        tokens = Object.values(defaultTokens)
+        tokens = isImportedTab ? [] : Object.values(defaultTokens)
       }
 
       setPageCount(nextPage)
@@ -358,12 +355,12 @@ export function CurrencySearch({
       setHasMoreToken(tokens.length === PAGE_SIZE && !!debouncedQuery)
     },
     [
+      isImportedTab,
       chainId,
       debouncedQuery,
       defaultTokens,
       fetchERC20TokenFromRPC,
       isQueryValidEVMAddress,
-      isQueryValidSolanaAddress,
       pageCount,
       importTokensToKsSettings,
     ],
@@ -379,10 +376,10 @@ export function CurrencySearch({
     // need call api when only debouncedQuery change
   }, [debouncedQuery, prevQuery, fetchListTokens])
 
-  const isImportedTab = activeTab === Tab.Imported
-
   const visibleCurrencies: Currency[] = useMemo(() => {
-    return isImportedTab ? tokenImportsFiltered : filteredSortedTokens
+    return isImportedTab || (!isImportedTab && !filteredSortedTokens.length)
+      ? tokenImportsFiltered
+      : filteredSortedTokens
   }, [isImportedTab, filteredSortedTokens, tokenImportsFiltered])
 
   const removeToken = useRemoveUserAddedToken()
