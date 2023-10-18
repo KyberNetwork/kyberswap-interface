@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
 import { findTx } from 'utils'
@@ -12,15 +13,22 @@ import {
   removeTx,
   replaceTx,
 } from './actions'
-import { GroupedTxsByHash, TransactionExtraInfo } from './type'
+import { GroupedTxsByHash, TransactionDetails, TransactionExtraInfo } from './type'
 
-const now = () => new Date().getTime()
-
-interface TransactionState {
-  [chainId: number]: GroupedTxsByHash | undefined
+type TransactionState = {
+  [chainId in ChainId]?: GroupedTxsByHash | undefined
 }
 
 const initialState: TransactionState = {}
+
+const clearOldTransactions = (transactions: GroupedTxsByHash | undefined): GroupedTxsByHash | undefined => {
+  if (!transactions) return undefined
+  const chainTxs = Object.values(transactions ?? {}).filter(Boolean) as TransactionDetails[][]
+  chainTxs.sort((a, b) => a[0].addedTime - b[0].addedTime)
+  const slicedChainTxs = chainTxs.slice(-10).filter(tx => tx[0].addedTime > Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const result = slicedChainTxs.reduce((acc, cur) => ({ ...acc, [cur[0].hash]: cur }), {}) as GroupedTxsByHash
+  return result
+}
 
 export default createReducer(initialState, builder =>
   builder
@@ -44,13 +52,14 @@ export default createReducer(initialState, builder =>
           hash,
           type,
           from,
-          addedTime: now(),
+          addedTime: Date.now(),
           chainId,
           extraInfo,
           group: getTransactionGroupByType(type),
         })
         chainTxs[txs[0].hash] = txs
         transactions[chainId] = chainTxs
+        transactions[chainId] = clearOldTransactions(transactions[chainId])
       },
     )
     .addCase(clearAllTransactions, (transactions, { payload: { chainId } }) => {
@@ -67,7 +76,7 @@ export default createReducer(initialState, builder =>
       const tx = findTx(transactions[chainId], hash)
       if (!tx) return
       tx.receipt = receipt
-      tx.confirmedTime = now()
+      tx.confirmedTime = Date.now()
       const newExtraInfo: TransactionExtraInfo = { ...tx.extraInfo, needCheckSubgraph }
       tx.extraInfo = newExtraInfo
     })
