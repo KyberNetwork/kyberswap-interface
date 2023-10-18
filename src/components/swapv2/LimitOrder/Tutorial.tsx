@@ -5,6 +5,7 @@ import { Check } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import BackgroundImage from 'assets/images/limit_order_pnl.png'
 import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Row from 'components/Row'
@@ -21,7 +22,9 @@ const Wrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   border-radius: 16px;
-  background: var(--overlay-oapy-20, rgba(15, 170, 162, 0.2)); // todo
+  background-image: url(${BackgroundImage});
+  background-repeat: no-repeat;
+  background-size: 100%;
 `
 
 const CheckIcon = styled.div`
