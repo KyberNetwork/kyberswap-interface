@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { MutableRefObject, useState } from 'react'
+import { MutableRefObject, RefObject, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Minus, Plus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -116,6 +116,7 @@ export default function DraggableNetworkButton({
   disabledMsg,
   isEdittingMobile,
   isAddButton,
+  dragConstraints,
   customToggleModal,
   customOnSelectNetwork,
   onChangedNetwork,
@@ -129,6 +130,7 @@ export default function DraggableNetworkButton({
   disabledMsg?: string
   isEdittingMobile?: boolean
   isAddButton?: boolean
+  dragConstraints?: RefObject<Element>
   customToggleModal?: () => void
   customOnSelectNetwork?: (chainId: ChainId) => void
   onChangedNetwork?: () => void
@@ -191,6 +193,8 @@ export default function DraggableNetworkButton({
       filter: 'brightness(1)',
       scale: 1,
       zIndex: 'unset',
+      x: 0,
+      y: 0,
     },
   }
 
@@ -243,14 +247,8 @@ export default function DraggableNetworkButton({
         dragListener={false}
         dragMomentum={false}
         dragControls={dragControls}
-        dragSnapToOrigin
-        dragConstraints={{
-          left: 0,
-          top: 0,
-          right: 0,
-          bottom: 0,
-        }}
-        dragElastic={1}
+        dragConstraints={dragConstraints}
+        dragElastic={0}
         dragTransition={{ bounceStiffness: 500 }}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -259,8 +257,10 @@ export default function DraggableNetworkButton({
         layoutId={networkInfo.chainId.toString() + networkInfo.route}
         selected={selected}
         animate={animateControls}
+        transition={{ type: 'spring', damping: 50, stiffness: 1000 }}
         variants={variants}
-        onClick={() => !selected && handleChainSelect()}
+        style={{ boxShadow: '0 0px 0px #00000060' }}
+        onClick={() => !selected && !isDragging && handleChainSelect()}
         $disabled={disabled}
       >
         <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px' }} />

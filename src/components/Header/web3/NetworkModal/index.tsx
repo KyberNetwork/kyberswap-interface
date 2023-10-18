@@ -89,6 +89,7 @@ export default function NetworkModal({
 
   const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
   const [isEdittingMobile, setIsEdittingMobile] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModalGlobal = useNetworkModalToggle()
@@ -135,6 +136,7 @@ export default function NetworkModal({
       <DraggableNetworkButton
         key={networkInfo.chainId}
         droppableRefs={droppableRefs}
+        dragConstraints={wrapperRef}
         networkInfo={networkInfo}
         activeChainIds={activeChainIds}
         isSelected={selectedId === networkInfo.chainId}
@@ -165,7 +167,7 @@ export default function NetworkModal({
       zindex={Z_INDEXS.MODAL}
       height="500px"
     >
-      <Wrapper>
+      <Wrapper ref={wrapperRef}>
         <RowBetween>
           <Text fontWeight="500" fontSize={20}>
             {isWrongNetwork ? <Trans>Wrong Chain</Trans> : <Trans>Select a Chain</Trans>}
