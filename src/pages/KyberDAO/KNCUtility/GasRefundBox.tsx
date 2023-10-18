@@ -199,7 +199,7 @@ export default function GasRefundBox() {
                 )
               ) : (
                 <ButtonLight onClick={toggleWalletModal} padding="10px 12px">
-                  <Trans>Connect Wallet</Trans>
+                  <Trans>Connect</Trans>
                 </ButtonLight>
               )
             ) : selectedTab === KNCUtilityTabs.Pending && nextCycleStartTime ? (

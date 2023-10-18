@@ -37,6 +37,7 @@ interface VoteStat {
   total_address_count: number
   total_vote_count: number
   votes: VoteDetail[] | null
+  quorum_status: number
 }
 export interface ProposalDetail {
   cancelled: boolean
@@ -130,4 +131,5 @@ export interface RewardStats {
     totalAmountInKNC: string
     totalAmountInUSD: string
   }
+  apr: string
 }

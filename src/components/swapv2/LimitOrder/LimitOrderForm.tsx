@@ -583,7 +583,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     !checkingAllowance &&
     !showWrap &&
     !isNotFillAllInput &&
-    !hasInputError &&
     (approval === ApprovalState.NOT_APPROVED ||
       approval === ApprovalState.PENDING ||
       !enoughAllowance ||
@@ -601,6 +600,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     hasChangedOrderInfo() {
       return (
         isEdit &&
+        !hasInputError &&
         (defaultInputAmount !== inputAmount ||
           defaultRate?.rate !== rateInfo.rate ||
           defaultExpire?.getTime() !== expiredAt)
@@ -608,6 +608,29 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     },
   }))
 
+  const renderActionBtn = () => (
+    <ActionButtonLimitOrder
+      {...{
+        currencyIn,
+        currencyOut,
+        approval,
+        showWrap,
+        isWrappingEth,
+        isNotFillAllInput,
+        approvalSubmitted,
+        hasInputError,
+        enoughAllowance,
+        checkingAllowance,
+        wrapInputError,
+        approveCallback,
+        onWrapToken,
+        showPreview,
+        showApproveFlow,
+        showWarning: warningMessage.length > 0,
+        editOrderInfo,
+      }}
+    />
+  )
   const renderConfirmModal = (showConfirmContent = false) => (
     <ConfirmOrderModal
       flowState={flowState}
@@ -628,7 +651,13 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     />
   )
 
-  if (isEdit && flowState.showConfirm) return renderConfirmModal(true)
+  if (isEdit && flowState.showConfirm)
+    return (
+      <>
+        {renderConfirmModal(true)}
+        {renderActionBtn()}
+      </>
+    )
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -647,6 +676,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             currency={currencyIn}
             showCommonBases
             id="create-limit-order-input-tokena"
+            dataTestId="limit-order-input-tokena"
             maxCurrencySymbolLength={6}
             filterWrap
             onClickSelect={trackingTouchSelectToken}
@@ -674,6 +704,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             estimatedUsd={estimateUSD.output}
             onFocus={trackingTouchInput}
             id="create-limit-order-input-tokenb"
+            dataTestId="limit-order-input-tokenb"
             onCurrencySelect={handleOutputSelect}
             positionMax="top"
             showCommonBases
@@ -708,6 +739,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
               <NumericalInput
                 maxLength={50}
                 style={{ fontSize: 14, height: INPUT_HEIGHT }}
+                data-testid="input-selling-rate"
                 value={displayRate}
                 onUserInput={onChangeRate}
                 onFocus={trackingTouchInput}
@@ -779,27 +811,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           <ErrorWarningPanel type="warn" key={i} title={mess} />
         ))}
 
-        <ActionButtonLimitOrder
-          {...{
-            currencyIn,
-            currencyOut,
-            approval,
-            showWrap,
-            isWrappingEth,
-            isNotFillAllInput,
-            approvalSubmitted,
-            hasInputError,
-            enoughAllowance,
-            checkingAllowance,
-            wrapInputError,
-            approveCallback,
-            onWrapToken,
-            showPreview,
-            showApproveFlow,
-            showWarning: warningMessage.length > 0,
-            isEdit,
-          }}
-        />
+        {renderActionBtn()}
       </Flex>
 
       {renderConfirmModal()}

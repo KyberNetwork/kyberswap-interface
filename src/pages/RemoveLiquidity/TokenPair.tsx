@@ -753,7 +753,7 @@ export default function TokenPair({
               <div style={{ position: 'relative' }}>
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
-                    <Trans>Connect Wallet</Trans>
+                    <Trans>Connect</Trans>
                   </ButtonLight>
                 ) : (
                   <RowBetween>
