@@ -40,6 +40,7 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
       it('Should be removed tokenIn from favorite tokens list', () => {
          SwapPage.selectTokenIn().getFavoriteTokens((arr) => {
             tokenCatalog.removeFavoriteToken(arr[1])
+            cy.wait(2000)
             tokenCatalog.getFavoriteTokens((list) => {
                expect(list).not.to.include.members([arr[1]])
             })
@@ -56,6 +57,7 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
       it('Should be removed tokenOut from favorite tokens list', () => {
          SwapPage.selectTokenOut().getFavoriteTokens((arr) => {
             tokenCatalog.removeFavoriteToken(arr[2])
+            cy.wait(2000)
             tokenCatalog.getFavoriteTokens((list) => {
                expect(list).not.to.include.members([arr[2]])
             })

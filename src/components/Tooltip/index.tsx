@@ -45,6 +45,7 @@ export default function Tooltip({
   onMouseEnter,
   onMouseLeave,
   show,
+  dataTestId,
   ...rest
 }: TooltipProps) {
   return (
@@ -57,6 +58,7 @@ export default function Tooltip({
             size={size}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
+            data-testid={dataTestId}
           >
             {text}
           </TooltipContainer>
