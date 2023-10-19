@@ -41,29 +41,6 @@ const NetworkList = styled.div`
   }
 `
 
-const DropableZone = forwardRef(function DropableZone(
-  { id, children }: { id: string; children: ReactNode },
-  ref: LegacyRef<HTMLDivElement>,
-) {
-  const [isDraggingOver, setIsDraggingOver] = useState(false)
-  return (
-    <div
-      ref={ref}
-      onDragOverCapture={() => setIsDraggingOver(true)}
-      style={
-        isDraggingOver
-          ? {
-              backgroundColor: 'red',
-            }
-          : {} //todo
-      }
-      id={id}
-    >
-      {children}
-    </div>
-  )
-})
-
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 const CHAINS_DROPZONE_ID = 'chains-dropzone'
 
@@ -213,7 +190,7 @@ export default function NetworkModal({
                 </Button>
               ))}
           </Row>
-          <DropableZone
+          <div
             ref={ref => {
               if (ref) {
                 droppableRefs.current[0] = ref
@@ -236,7 +213,7 @@ export default function NetworkModal({
                   })}
               </NetworkList>
             )}
-          </DropableZone>
+          </div>
 
           <Row gap="12px">
             <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>

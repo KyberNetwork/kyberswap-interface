@@ -246,9 +246,9 @@ export default function TokenFilter({
               <StyledSelect
                 value={filter[queryKey]}
                 key={queryKey}
-                activeRender={(item: any) => <ActiveSelectItem name={displayName} label={item?.label} />}
+                activeRender={item => <ActiveSelectItem name={displayName} label={item?.label} />}
                 options={values}
-                onChange={(value: any) => onChangeFilter(queryKey, value)}
+                onChange={value => onChangeFilter(queryKey, value)}
                 optionStyle={{ fontSize: '14px' }}
                 menuStyle={menuStyle}
               />
