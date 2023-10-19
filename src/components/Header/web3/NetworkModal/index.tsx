@@ -159,7 +159,7 @@ export default function NetworkModal({
             <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
               <Trans>Favorite Chain(s)</Trans>
             </Text>
-            <hr style={{ border: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
+            <hr style={{ borderColor: theme.border, width: '100%' }} />
             {isMobile &&
               (isEdittingMobile ? (
                 <Button
@@ -219,7 +219,7 @@ export default function NetworkModal({
             <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
               <Trans>Chain List</Trans>
             </Text>
-            <hr style={{ border: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
+            <hr style={{ borderColor: theme.border, width: '100%' }} />
           </Row>
           {isWrongNetwork && (
             <TYPE.main fontSize={16} marginTop={14}>
