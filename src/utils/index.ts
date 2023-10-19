@@ -152,9 +152,9 @@ const formatDollarSignificantAmount = (num: number, minDigits: number, maxDigits
   })
   return formatter.format(num)
 }
-
-// todo: deprecated, use formatDisplayNumber instead
-// e.g: formatDisplayNumber(number, { style: 'decimal', significantDigits: 2 })
+/** @deprecated use formatDisplayNumber instead
+ * @example formatDisplayNumber(number, { style: 'decimal', significantDigits: 2 })
+ */
 export function formatNumberWithPrecisionRange(number: number, minPrecision = 2, maxPrecision = 2) {
   const options = {
     minimumFractionDigits: minPrecision,
@@ -177,8 +177,9 @@ const truncateFloatNumber = (num: number, maximumFractionDigits = 6) => {
   return `${wholePart}.${fractionalPart.slice(0, maximumFractionDigits)}`
 }
 
-// todo: deprecated, use formatDisplayNumber instead
-// e.g: formatDisplayNumber(number, { style: 'currency' | 'decimal', significantDigits: 6 })
+/** @deprecated use formatDisplayNumber instead
+ * @example formatDisplayNumber(number, { style: 'currency' | 'decimal', significantDigits: 6 })
+ */
 export function formattedNum(number: string | number, usd = false, fractionDigits = 5): string {
   if (number === 0 || number === '' || number === undefined) {
     return usd ? '$0' : '0'
@@ -220,8 +221,9 @@ export function formattedNum(number: string | number, usd = false, fractionDigit
   return truncateFloatNumber(num, fractionDigits)
 }
 
-// todo: deprecated, use formatDisplayNumber instead
-// e.g: formatDisplayNumber(number, { style: 'currency' | 'decimal', significantDigits: 6 })
+/** @deprecated use formatDisplayNumber instead
+ * @example formatDisplayNumber(number, { style: 'currency' | 'decimal', significantDigits: 6 })
+ */
 export function formattedNumLong(num: number, usd = false) {
   if (num === 0) {
     if (usd) {

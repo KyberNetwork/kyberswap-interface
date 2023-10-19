@@ -4,8 +4,9 @@ import JSBI from 'jsbi'
 
 import { BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
 
-// todo: deprecated, use formatDisplayNumber instead
-// e.g: formatDisplayNumber(num, { style: 'currency', significantDigits: 4 })
+/** @deprecated use formatDisplayNumber instead
+ * @example formatDisplayNumber(num, { style: 'currency', significantDigits: 4 })
+ */
 export const formatDollarAmount = (num: number | undefined, digits = 2) => {
   if (num === 0) return '$0.00'
   if (!num) return '-'
@@ -46,8 +47,9 @@ export function toString(x: number): string {
   return x.toString()
 }
 
-// todo: deprecated, use parseFraction instead
-// e.g: parseFraction(value)
+/** @deprecated use parseFraction instead
+ * @example parseFraction(value)
+ */
 export const uint256ToFraction = (value: string, decimals = RESERVE_USD_DECIMALS) =>
   new Fraction(value, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
 
