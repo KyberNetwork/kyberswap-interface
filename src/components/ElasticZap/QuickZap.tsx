@@ -509,7 +509,12 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                         : undefined
                     }
                     onClick={handleClick}
-                    disabled={!!error || approvalState === ApprovalState.PENDING || zapLoading}
+                    disabled={
+                      !!error ||
+                      approvalState === ApprovalState.PENDING ||
+                      zapLoading ||
+                      zapDetail.priceImpact?.isVeryHigh
+                    }
                   >
                     {renderActionName()}
                   </ButtonPrimary>

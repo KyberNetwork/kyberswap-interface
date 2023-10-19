@@ -31,6 +31,7 @@ import ProAmmPriceRangeConfirm from 'components/ProAmm/ProAmmPriceRangeConfirm'
 import Rating from 'components/Rating'
 import { RowBetween } from 'components/Row'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
+import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
@@ -574,10 +575,39 @@ export default function IncreaseLiquidity() {
       }
     }
   }
+
+  const zapDetail = useZapDetail({
+    pool: existingPosition?.pool,
+    position: existingPosition,
+    tokenIn: selectedCurrency?.wrapped.address,
+    tokenId,
+    amountIn,
+    zapResult,
+    poolAddress,
+    tickLower: existingPosition?.tickLower,
+    tickUpper: existingPosition?.tickUpper,
+    previousTicks: previousTicks,
+    aggregatorRoute: aggregatorData,
+  })
+
   const ZapButton = (
     <ButtonPrimary
       onClick={handleZap}
-      disabled={!!error || zapApprovalState === ApprovalState.PENDING || zapLoading}
+      backgroundColor={
+        zapApprovalState !== ApprovalState.APPROVED
+          ? undefined
+          : zapDetail.priceImpact.isVeryHigh
+          ? theme.red
+          : zapDetail.priceImpact.isHigh
+          ? theme.warning
+          : undefined
+      }
+      disabled={
+        !!error ||
+        zapApprovalState === ApprovalState.PENDING ||
+        zapLoading ||
+        (zapApprovalState === ApprovalState.APPROVED && !isDegenMode && zapDetail.priceImpact?.isVeryHigh)
+      }
       style={{ width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
     >
       {(() => {
@@ -602,19 +632,6 @@ export default function IncreaseLiquidity() {
     </ButtonPrimary>
   )
 
-  const zapDetail = useZapDetail({
-    pool: existingPosition?.pool,
-    position: existingPosition,
-    tokenIn: selectedCurrency?.wrapped.address,
-    tokenId,
-    amountIn,
-    zapResult,
-    poolAddress,
-    tickLower: existingPosition?.tickLower,
-    tickUpper: existingPosition?.tickUpper,
-    previousTicks: previousTicks,
-    aggregatorRoute: aggregatorData,
-  })
   if (!isEVM) return <Navigate to="/" />
 
   const inputAmountStyle = {
@@ -974,6 +991,19 @@ export default function IncreaseLiquidity() {
                       </Flex>
                     </WarningCard>
                   )}
+
+                  {method === 'zap' &&
+                    !!(
+                      zapDetail.priceImpact?.isVeryHigh ||
+                      zapDetail.priceImpact?.isHigh ||
+                      zapDetail.priceImpact?.isInvalid
+                    ) &&
+                    zapResult &&
+                    !zapLoading && (
+                      <>
+                        <PriceImpactNote priceImpact={zapDetail.priceImpact.value} /> <Flex marginBottom="1rem" />
+                      </>
+                    )}
 
                   <Flex justifyContent="flex-end">{method === 'pair' || !account ? <Buttons /> : ZapButton}</Flex>
                 </SecondColumn>
