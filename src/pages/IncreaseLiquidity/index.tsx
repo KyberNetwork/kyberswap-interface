@@ -679,7 +679,7 @@ export default function IncreaseLiquidity() {
         }
         content={() => (
           <Flex flexDirection={'column'} width="100%">
-            {errorMessage ? <TransactionErrorContent onDismiss={handleDissmissZap} message={zapError} /> : null}
+            {zapError ? <TransactionErrorContent onDismiss={handleDissmissZap} message={zapError} /> : null}
           </Flex>
         )}
       />
