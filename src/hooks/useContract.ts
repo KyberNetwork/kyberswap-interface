@@ -367,12 +367,11 @@ export function useProAmmNFTPositionManagerContract(withSignerIfPossible?: boole
   )
 }
 
-export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | null {
+export function useProAmmTickReader(): Contract | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
-  return useContract(
+  return useContractForReading(
     isEVM ? (networkInfo as EVMNetworkInfo).elastic.tickReader : undefined,
     TickReaderABI.abi,
-    withSignerIfPossible,
   )
 }
 
