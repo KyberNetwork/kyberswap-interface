@@ -113,7 +113,7 @@ export default function RewardCenter() {
             >
               <Flex width="fit-content" sx={{ gap: '4px' }}>
                 <MouseoverTooltip
-                  text={t`Total Available Rewards = Total Available Voting Rewards + Total Available Gas Refund`}
+                  text={t`Total Available Rewards = Total Available Voting Rewards + Total Available Gas Refund.`}
                 >
                   <BalanceTitle>
                     <Trans>Total Available Rewards</Trans>

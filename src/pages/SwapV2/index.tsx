@@ -558,7 +558,7 @@ export default function Swap() {
                             text={
                               <Trans>
                                 There was an issue while trying to find a price for these tokens. Please try again.
-                                Otherwise, you may select some other tokens to swap
+                                Otherwise, you may select some other tokens to swap.
                               </Trans>
                             }
                           >
@@ -702,7 +702,7 @@ export default function Swap() {
                                     ) : (
                                       <Trans>
                                         There was an issue while trying to find a price for these tokens. Please try
-                                        again. Otherwise, you may select some other tokens to swap
+                                        again. Otherwise, you may select some other tokens to swap.
                                       </Trans>
                                     )
                                   }

@@ -356,6 +356,7 @@ export default function SwapForm() {
                 <ExternalLink href={'https://axelar.network/blog/what-is-axlusdc-and-how-do-you-get-it'}>
                   here ↗
                 </ExternalLink>
+                .
               </Trans>
             </Text>
           }

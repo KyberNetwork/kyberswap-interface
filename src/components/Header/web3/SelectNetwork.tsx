@@ -95,14 +95,14 @@ function SelectNetwork(): JSX.Element | null {
       </NetworkSwitchContainer>
       <NetworkModal
         selectedId={chainId}
-        disabledMsg={t`Unsupported by your wallet`}
+        disabledMsg={t`Unsupported by your wallet.`}
         activeChainIds={walletSupportsChain}
       />
     </NetworkCard>
   )
   if (disableSelectNetwork)
     return (
-      <MouseoverTooltip text={t`Unable to switch network. Please try it on your wallet`}>{button}</MouseoverTooltip>
+      <MouseoverTooltip text={t`Unable to switch network. Please try it on your wallet.`}>{button}</MouseoverTooltip>
     )
   return button
 }

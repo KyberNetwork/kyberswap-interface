@@ -51,7 +51,7 @@ const WarningBrave = ({ token }: { token: Currency | undefined }) => {
             <NetworkLogo chainId={chainId} style={{ width: 16, height: 16 }} />
             {shortenAddress(chainId, token.wrapped.address, 5, false)}
             <CopyHelper toCopy={token.wrapped.address} />
-            <MouseoverTooltipDesktopOnly text={t`Import token in Brave wallet`}>
+            <MouseoverTooltipDesktopOnly text={t`Import token in Brave wallet.`}>
               <AddTokenToMetaMask token={token as Token} />
             </MouseoverTooltipDesktopOnly>
           </Flex>

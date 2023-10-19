@@ -196,7 +196,7 @@ const Row = ({
 
     return (
       <MouseoverTooltipDesktopOnly
-        text={t`Stake your liquidity positions (i.e. your NFT tokens) into the farm to start earning rewards`}
+        text={t`Stake your liquidity positions (i.e. your NFT tokens) into the farm to start earning rewards.`}
         placement="top"
         width="300px"
       >
@@ -218,7 +218,7 @@ const Row = ({
 
     return (
       <MouseoverTooltipDesktopOnly
-        text={t`Unstake your liquidity positions (i.e. your NFT tokens) from the farm`}
+        text={t`Unstake your liquidity positions (i.e. your NFT tokens) from the farm.`}
         placement="top"
         width="300px"
       >
@@ -280,7 +280,7 @@ const Row = ({
         <MouseoverTooltip
           text={
             <Text fontSize="12px" fontStyle="italic">
-              <Trans>You have {numberOutRangePos} out-of-range position(s)</Trans>
+              <Trans>You have {numberOutRangePos} out-of-range position(s).</Trans>
             </Text>
           }
         >

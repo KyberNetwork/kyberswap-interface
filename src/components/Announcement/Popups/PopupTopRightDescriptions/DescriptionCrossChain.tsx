@@ -31,7 +31,7 @@ const DescriptionCrossChain = (
     link: `${APP_PATHS.CROSS_CHAIN}?tab=${CrossChainTab.HISTORY}`,
     summary: isSuccess
       ? t`${amountIn} ${srcTokenSymbol} on ${srcChainName} has been successfully swapped to ${amountOut} ${dstTokenSymbol} on ${dstChainName}`
-      : t`There was an issue with swapping ${amountIn} ${srcTokenSymbol} on ${srcChainName} to ${amountOut} ${dstTokenSymbol} on ${dstChainName}. Your assets remain in your wallet`,
+      : t`There was an issue with swapping ${amountIn} ${srcTokenSymbol} on ${srcChainName} to ${amountOut} ${dstTokenSymbol} on ${dstChainName}. Your assets remain in your wallet.`,
   }
 }
 export default DescriptionCrossChain

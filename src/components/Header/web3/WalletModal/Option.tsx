@@ -169,7 +169,7 @@ const Option = ({
 
   if (walletKey === 'WALLET_CONNECT') {
     return (
-      <MouseoverTooltip placement="bottom" text={<Trans>Under development and unsupported by most wallets</Trans>}>
+      <MouseoverTooltip placement="bottom" text={<Trans>Under development and unsupported by most wallets.</Trans>}>
         {content}
       </MouseoverTooltip>
     )

@@ -147,7 +147,7 @@ export default function ElasticFarmv2({
             width={upToSmall ? '100%' : undefined}
           >
             <MouseoverTooltip
-              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract`}
+              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract.`}
             >
               <TextDashed fontSize="12px" fontWeight="500" color={theme.subText}>
                 <Trans>Deposited Liquidity</Trans>
@@ -346,7 +346,7 @@ export default function ElasticFarmv2({
               ) : sortDirection === SORT_DIRECTION.ASC ? (
                 <ArrowUp size={12} />
               ) : null)}
-            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
+            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees.`} />
           </ClickableText>
         </Flex>
 
@@ -365,7 +365,7 @@ export default function ElasticFarmv2({
                 <ArrowUp size={12} />
               ) : null)}
             <InfoHelper
-              text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+              text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
             />
           </ClickableText>
         </Flex>
