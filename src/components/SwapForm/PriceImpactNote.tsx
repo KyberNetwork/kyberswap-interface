@@ -1,15 +1,13 @@
 import { Trans } from '@lingui/macro'
 import { FC } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import Column from 'components/Column'
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
-import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { checkPriceImpact } from 'utils/prices'
 
 const TextUnderlineColor = styled(Text)`
@@ -39,8 +37,7 @@ type Props = {
 const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLink = false }) => {
   const priceImpactResult = checkPriceImpact(priceImpact)
   const theme = useTheme()
-  const navigate = useNavigate()
-  const { networkInfo } = useActiveWeb3React()
+  const switchToLimitOrder = useSwitchPairToLimitOrder()
 
   if (typeof priceImpact !== 'number') {
     return null
@@ -84,12 +81,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
     <Text>
       <Trans>
         Do you want to make a{' '}
-        <Text
-          as="b"
-          sx={{ cursor: 'pointer' }}
-          color={theme.primary}
-          onClick={() => navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}`)}
-        >
+        <Text as="b" sx={{ cursor: 'pointer' }} color={theme.primary} onClick={switchToLimitOrder}>
           Limit Order
         </Text>{' '}
         instead?
