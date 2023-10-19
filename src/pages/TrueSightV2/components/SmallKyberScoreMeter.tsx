@@ -71,7 +71,7 @@ function SmallKyberScoreMeter({ disabledTooltip, token }: { disabledTooltip?: bo
               </Column>
             ) : (
               <Text fontStyle="italic">
-                <Trans>KyberScore is not applicable for stablecoins</Trans>
+                <Trans>KyberScore is not applicable for stablecoins.</Trans>
               </Text>
             )
           }

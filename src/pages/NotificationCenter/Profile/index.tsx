@@ -254,7 +254,7 @@ export default function Profile() {
                     <Trans>Keep Current Profile</Trans>
                   </Text>
                   <Text fontSize={'12px'} color={theme.subText}>
-                    <Trans>Keep this profile active whenever you switch wallets</Trans>
+                    <Trans>Keep this profile active whenever you switch wallets.</Trans>
                   </Text>
                 </Column>
               </Flex>

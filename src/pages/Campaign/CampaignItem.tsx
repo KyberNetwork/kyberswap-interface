@@ -170,13 +170,13 @@ function CampaignItem({ campaign, onSelectCampaign, isSelected, style }: Campaig
           {campaign.competitionId && campaign.competitorId && campaign.status !== CampaignStatus.ENDED ? (
             <MouseoverTooltip
               placement="top"
-              text={<Trans>This campaign is participating in the Grant Campaign</Trans>}
+              text={<Trans>This campaign is participating in the Grant Campaign.</Trans>}
             >
               <GrantCampaignIcon width="16px" height="16px" />
             </MouseoverTooltip>
           ) : null}
           {hasBonusMultiplier && (
-            <MouseoverTooltip placement="top" text={<Trans>Point multiplier is in effect</Trans>}>
+            <MouseoverTooltip placement="top" text={<Trans>Point multiplier is in effect.</Trans>}>
               <StarMultiplierIcon />
             </MouseoverTooltip>
           )}

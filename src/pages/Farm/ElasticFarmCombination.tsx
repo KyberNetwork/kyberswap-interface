@@ -117,7 +117,7 @@ export const ElasticFarmCombination: FC = () => {
             <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}?type=${FARM_TAB.ENDED}`}>
               Ended
             </StyledInternalLink>{' '}
-            tab. To continue earning rewards in the new phase, you must retake your NFT position into the active farm
+            tab. To continue earning rewards in the new phase, you must retake your NFT position into the active farm.
           </Trans>
         </Text>
       )}

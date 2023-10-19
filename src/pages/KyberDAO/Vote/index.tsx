@@ -268,7 +268,7 @@ export default function Vote() {
                   fontSize={12}
                   placement="top"
                   text={t`Your voting power is calculated by
-[Your Staked KNC] / [Total Staked KNC] * 100%`}
+[Your Staked KNC] / [Total Staked KNC] * 100%.`}
                 />
               </Text>
 
@@ -350,13 +350,13 @@ export default function Vote() {
                     <InfoHelper
                       placement="top"
                       fontSize={12}
-                      text={t`You have to stake KNC to be able to vote and earn voting reward`}
+                      text={t`You have to stake KNC to be able to vote and earn voting reward.`}
                     />
                   ) : null}
                 </RowFit>
                 {isDelegated && (
                   <MouseoverTooltip
-                    text={t`You have already delegated your voting power to this address`}
+                    text={t`You have already delegated your voting power to this address.`}
                     placement="top"
                   >
                     <RowFit gap="4px" color={theme.subText}>
@@ -460,7 +460,7 @@ export default function Vote() {
           </Text>
         </AutoRow>
         <Text color={theme.subText} fontStyle="italic" fontSize={12} hidden={isMobile}>
-          <Trans>Note: Voting on KyberDAO is only available on Ethereum chain</Trans>
+          <Trans>Note: Voting on KyberDAO is only available on Ethereum chain.</Trans>
         </Text>
         <ProposalListComponent voteCallback={handleVote} />
         <SwitchToEthereumModal featureText={t`This action`} />

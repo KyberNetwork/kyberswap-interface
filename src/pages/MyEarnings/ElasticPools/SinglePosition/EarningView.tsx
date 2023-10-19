@@ -52,7 +52,7 @@ const EarningView: React.FC<CommonProps> = props => {
       >
         <Label $hasTooltip>
           <MouseoverTooltip
-            text={<Trans>Total earnings from both pool and farm (if applicable)</Trans>}
+            text={<Trans>Total earnings from both pool and farm (if applicable).</Trans>}
             placement="top"
           >
             <Trans>Total Earnings</Trans>

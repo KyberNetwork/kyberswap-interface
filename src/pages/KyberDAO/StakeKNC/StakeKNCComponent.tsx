@@ -542,7 +542,7 @@ export default function StakeKNCComponent() {
                 </Text>
                 {isDelegated && (
                   <MouseoverTooltip
-                    text={t`You have already delegated your voting power to this address`}
+                    text={t`You have already delegated your voting power to this address.`}
                     placement="top"
                   >
                     <DelegatedAddressBadge>
@@ -649,7 +649,7 @@ export default function StakeKNCComponent() {
               <Text>
                 <Trans>Voting power</Trans>{' '}
                 <InfoHelper
-                  text={t`Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%`}
+                  text={t`Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%.`}
                 />
               </Text>
               <Text>
