@@ -178,7 +178,7 @@ export default function ProAmmFee({
     }
   }
 
-  const collect = () => {
+  const collect = async () => {
     setShowPendingModal(true)
     setAttemptingTxn(true)
 
@@ -214,27 +214,28 @@ export default function ProAmmFee({
       value,
     }
 
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then((estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            handleBroadcastClaimSuccess(response)
-          })
-      })
-      .catch((error: any) => {
-        setShowPendingModal(true)
-        setAttemptingTxn(false)
-        setCollectFeeError(error?.message || JSON.stringify(error))
-        console.error(error)
-      })
+    try {
+      await library
+        .getSigner()
+        .estimateGas(txn)
+        .then((estimate: BigNumber) => {
+          const newTxn = {
+            ...txn,
+            gasLimit: calculateGasMargin(estimate),
+          }
+          return library
+            .getSigner()
+            .sendTransaction(newTxn)
+            .then((response: TransactionResponse) => {
+              handleBroadcastClaimSuccess(response)
+            })
+        })
+    } catch (error: any) {
+      setShowPendingModal(true)
+      setAttemptingTxn(false)
+      setCollectFeeError(error?.message || JSON.stringify(error))
+      console.error(error)
+    }
   }
   const hasNoFeeToCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
 
