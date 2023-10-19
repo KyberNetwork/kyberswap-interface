@@ -321,7 +321,7 @@ function MyPoolClassic() {
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <AutoRow>
               <InstructionText>
-                <Trans>Here you can view all your liquidity and staked balances in the Classic Pools</Trans>
+                <Trans>Here you can view all your liquidity and staked balances in the Classic Pools.</Trans>
                 {!upToSmall && (
                   <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                     <Flex alignItems="center">

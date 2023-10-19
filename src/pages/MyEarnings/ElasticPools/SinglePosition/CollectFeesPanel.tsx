@@ -291,7 +291,7 @@ const CollectFeesPanel: React.FC<Props> = ({
         >
           <MouseoverTooltip
             width="200px"
-            text={<Trans>Your fees are being automatically compounded so you earn more</Trans>}
+            text={<Trans>Your fees are being automatically compounded so you earn more.</Trans>}
             placement="top"
           >
             <Trans>Fees Earned</Trans>

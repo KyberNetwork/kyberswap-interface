@@ -140,23 +140,23 @@ export const Instruction = () => {
         <DetailWrapper isOpen={show}>
           <DetailItem>
             <BestPrice size={24} />
-            <Text flex={1}>Add liquidity in any price range you want and earn more with concentrated liquidity</Text>
+            <Text flex={1}>Add liquidity in any price range you want and earn more with concentrated liquidity.</Text>
           </DetailItem>
 
           <DetailItem>
             <LowestSlippage size={24} />
-            <Text flex={1}>Your trading fee earnings will be compounded automatically (in the full price range)</Text>
+            <Text flex={1}>Your trading fee earnings will be compounded automatically (in the full price range).</Text>
           </DetailItem>
 
           <DetailItem>
             <MoneyBagOutline size={24} color={theme.primary} />
-            <Text flex={1}>Collect your fee earnings whenever you want, without removing your initial liquidity</Text>
+            <Text flex={1}>Collect your fee earnings whenever you want, without removing your initial liquidity.</Text>
           </DetailItem>
 
           <DetailItem>
             <AntiSnippingAttack size={24} />
             <Text flex={1}>
-              We protect liquidity providers like you from sniping attacks so you continue to earn more trading fees
+              We protect liquidity providers like you from sniping attacks so you continue to earn more trading fees.
             </Text>
           </DetailItem>
         </DetailWrapper>
@@ -166,7 +166,7 @@ export const Instruction = () => {
             <BestPrice size={24} />
             <Text flex={1}>
               We amplify liquidity pools (using the AMP factor) to achieve high capital efficiency so you earn more
-              trading fees even with less liquidity
+              trading fees even with less liquidity.
             </Text>
           </DetailItem>
 
@@ -174,13 +174,13 @@ export const Instruction = () => {
             <ZicZac style={{ color: theme.primary }} />
             <Text flex={1}>
               You can create pools by setting your own static fees or by using dynamic fees. With dynamic fees, trading
-              fees are adjusted on-the-fly based on market conditions
+              fees are adjusted on-the-fly based on market conditions.
             </Text>
           </DetailItem>
 
           <DetailItem>
             <LowestSlippage size={24} />
-            <Text flex={1}>Your trading fee earnings will be compounded automatically</Text>
+            <Text flex={1}>Your trading fee earnings will be compounded automatically.</Text>
           </DetailItem>
         </DetailWrapperClassic>
       )}

@@ -79,7 +79,7 @@ export default function CampaignButtonWithOptions({
     selectedCampaignLeaderboard,
   } = useSelector((state: AppState) => state.campaigns)
   const transactions = useMemo(
-    () => (campaign ? transactionsState[parseInt(campaign.rewardChainIds)] ?? {} : {}),
+    () => (campaign ? transactionsState[Number(campaign.rewardChainIds) as ChainId] ?? {} : {}),
     [transactionsState, campaign],
   )
   const [claimingCampaignRewardId, setClaimingCampaignRewardId] = useSetClaimingCampaignRewardId()

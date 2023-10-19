@@ -252,7 +252,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
               ''
             )}
           </ClickableText>
-          <InfoHelper text={t`Estimated return based on yearly fees of the pool`} />
+          <InfoHelper text={t`Estimated return based on yearly fees of the pool.`} />
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText

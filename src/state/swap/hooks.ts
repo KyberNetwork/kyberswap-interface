@@ -268,7 +268,7 @@ function useDerivedSwapInfo(): {
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
-    inputError = t`Insufficient ${amountIn.currency.symbol} balance`
+    inputError = t`Insufficient ${amountIn.currency.symbol} balance.`
   }
 
   return {
