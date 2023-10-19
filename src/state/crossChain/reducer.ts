@@ -77,7 +77,7 @@ const DEFAULT_STATE: CrossChainState = {
   },
 
   crossChain: {
-    inputAmount: '',
+    inputAmount: '1',
     chains: [],
     tokens: [],
     currencyIn: undefined,
