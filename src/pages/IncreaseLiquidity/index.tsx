@@ -574,10 +574,39 @@ export default function IncreaseLiquidity() {
       }
     }
   }
+
+  const zapDetail = useZapDetail({
+    pool: existingPosition?.pool,
+    position: existingPosition,
+    tokenIn: selectedCurrency?.wrapped.address,
+    tokenId,
+    amountIn,
+    zapResult,
+    poolAddress,
+    tickLower: existingPosition?.tickLower,
+    tickUpper: existingPosition?.tickUpper,
+    previousTicks: previousTicks,
+    aggregatorRoute: aggregatorData,
+  })
+
   const ZapButton = (
     <ButtonPrimary
       onClick={handleZap}
-      disabled={!!error || zapApprovalState === ApprovalState.PENDING || zapLoading}
+      backgroundColor={
+        zapApprovalState !== ApprovalState.APPROVED
+          ? undefined
+          : zapDetail.priceImpact.isVeryHigh
+          ? theme.red
+          : zapDetail.priceImpact.isHigh
+          ? theme.warning
+          : undefined
+      }
+      disabled={
+        !!error ||
+        zapApprovalState === ApprovalState.PENDING ||
+        zapLoading ||
+        (zapApprovalState === ApprovalState.APPROVED && !isDegenMode && zapDetail.priceImpact?.isVeryHigh)
+      }
       style={{ width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
     >
       {(() => {
@@ -602,19 +631,6 @@ export default function IncreaseLiquidity() {
     </ButtonPrimary>
   )
 
-  const zapDetail = useZapDetail({
-    pool: existingPosition?.pool,
-    position: existingPosition,
-    tokenIn: selectedCurrency?.wrapped.address,
-    tokenId,
-    amountIn,
-    zapResult,
-    poolAddress,
-    tickLower: existingPosition?.tickLower,
-    tickUpper: existingPosition?.tickUpper,
-    previousTicks: previousTicks,
-    aggregatorRoute: aggregatorData,
-  })
   if (!isEVM) return <Navigate to="/" />
 
   const inputAmountStyle = {

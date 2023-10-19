@@ -44,6 +44,7 @@ import Rating from 'components/Rating'
 import Row, { RowBetween, RowFixed } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
+import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, {
@@ -1198,7 +1199,21 @@ export default function AddLiquidity() {
   const ZapButton = (
     <ButtonPrimary
       onClick={handleZap}
-      disabled={!!error || zapApprovalState === ApprovalState.PENDING || zapLoading}
+      backgroundColor={
+        zapApprovalState !== ApprovalState.APPROVED
+          ? undefined
+          : zapDetail.priceImpact.isVeryHigh
+          ? theme.red
+          : zapDetail.priceImpact.isHigh
+          ? theme.warning
+          : undefined
+      }
+      disabled={
+        !!error ||
+        zapApprovalState === ApprovalState.PENDING ||
+        zapLoading ||
+        (zapApprovalState === ApprovalState.APPROVED && !isDegenMode && zapDetail.priceImpact?.isVeryHigh)
+      }
       style={{ width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
     >
       {(() => {
@@ -1593,6 +1608,10 @@ export default function AddLiquidity() {
         {warnings}
         {tokenA && tokenB && <DisclaimerERC20 token0={tokenA.address} token1={tokenB.address} />}
 
+        {method === 'zap' &&
+          !!(zapDetail.priceImpact?.isVeryHigh || zapDetail.priceImpact?.isHigh || zapDetail.priceImpact?.isInvalid) &&
+          zapResult &&
+          !zapLoading && <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />}
         <Row justify="flex-end">{method === 'pair' || !account ? <Buttons /> : ZapButton}</Row>
       </Row>
     </>

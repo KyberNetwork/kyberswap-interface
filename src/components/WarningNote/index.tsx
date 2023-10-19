@@ -29,6 +29,7 @@ const Wrapper = styled.div<{ $level: SeverityLevel }>`
   font-size: 12px;
   line-height: 16px;
   padding: 12px 16px;
+  width: 100%;
 `
 
 type Props = {
