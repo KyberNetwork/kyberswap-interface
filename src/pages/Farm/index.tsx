@@ -131,7 +131,8 @@ const Farm = () => {
       .flat()
       .filter(
         item =>
-          (item.version === FairLaunchVersion.V2 && item.endTime > currentTimestamp) ||
+          ((item.version === FairLaunchVersion.V2 || item.version === FairLaunchVersion.V3) &&
+            item.endTime > currentTimestamp) ||
           (blockNumber && item.version === FairLaunchVersion.V1 && item.endBlock > blockNumber),
       )
       .forEach(current => {

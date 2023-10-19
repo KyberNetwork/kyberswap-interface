@@ -40,7 +40,7 @@ export interface FarmV1 {
 
 export interface FarmV2 {
   fairLaunchAddress: string
-  version: FairLaunchVersion.V2
+  version: FairLaunchVersion.V2 | FairLaunchVersion.V3
   pid: number
   id: string
   rewardTokens: Token[]

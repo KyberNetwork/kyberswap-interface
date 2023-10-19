@@ -42,19 +42,19 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const filterFarm = useCallback(
     (farm: Farm) => {
       const filterByTime =
-        farm.version === FairLaunchVersion.V2
-          ? currentTimestampRef.current &&
-            (qs.type === FARM_TAB.MY_FARMS
-              ? true
-              : active
-              ? farm.endTime >= currentTimestampRef.current
-              : farm.endTime < currentTimestampRef.current)
-          : blockNumberRef.current &&
+        farm.version === FairLaunchVersion.V1
+          ? blockNumberRef.current &&
             (qs.type === FARM_TAB.MY_FARMS
               ? true
               : active
               ? farm.endBlock >= blockNumberRef.current
               : farm.endBlock < blockNumberRef.current)
+          : currentTimestampRef.current &&
+            (qs.type === FARM_TAB.MY_FARMS
+              ? true
+              : active
+              ? farm.endTime >= currentTimestampRef.current
+              : farm.endTime < currentTimestampRef.current)
 
       const filterBySearchText = debouncedSearchText
         ? farm.token0?.symbol?.toLowerCase().includes(debouncedSearchText) ||

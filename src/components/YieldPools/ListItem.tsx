@@ -385,14 +385,16 @@ const ListItem = ({ farm }: ListItemProps) => {
             </Row>
             {/* ENDING IN */}
             <Column gap="6px">
-              {farm.version === FairLaunchVersion.V2 && farm.startTime > currentTimestamp ? (
+              {(farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3) &&
+              farm.startTime > currentTimestamp ? (
                 <>
                   <Text fontSize="12px" color={theme.warning}>
                     <Trans>New phase will start in</Trans>
                   </Text>
                   <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
                 </>
-              ) : farm.version === FairLaunchVersion.V2 && farm.endTime > currentTimestamp ? (
+              ) : (farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3) &&
+                farm.endTime > currentTimestamp ? (
                 <>
                   <Text color={theme.subText} fontSize="12px">
                     <Trans>Current phase will end in</Trans>
@@ -535,11 +537,13 @@ const ListItem = ({ farm }: ListItemProps) => {
             <Text fontSize={12} color={theme.subText} lineHeight="16px">
               <Trans>Staked TVL</Trans>
             </Text>
-            {farm.version === FairLaunchVersion.V2 && farm.startTime > currentTimestamp ? (
+            {(farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3) &&
+            farm.startTime > currentTimestamp ? (
               <Text fontSize={12} lineHeight="16px" color={theme.warning}>
                 <Trans>New phase will start in</Trans>
               </Text>
-            ) : farm.version === FairLaunchVersion.V2 && farm.endTime > currentTimestamp ? (
+            ) : (farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3) &&
+              farm.endTime > currentTimestamp ? (
               <Text fontSize={12} color={theme.subText} lineHeight="16px">
                 <Trans>Current phase will end in</Trans>
               </Text>
@@ -553,7 +557,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             <Text fontSize="16px" color={theme.text} lineHeight="20px">
               {formatDisplayNumber(liquidity, { style: 'currency', significantDigits: 6 })}
             </Text>
-            {farm.version === FairLaunchVersion.V2 ? (
+            {farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3 ? (
               farm.startTime > currentTimestamp ? (
                 <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
               ) : farm.endTime > currentTimestamp ? (

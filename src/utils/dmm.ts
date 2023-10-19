@@ -261,9 +261,9 @@ function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
 
   const farmRewardsPerTimeUnit: RewardPerTimeUnit[] = []
 
-  if (farm.version === FairLaunchVersion.V2) {
+  if (farm.version === FairLaunchVersion.V1) {
     farm.rewardTokens.forEach((token, index) => {
-      const amount = BigNumber.from(farm.rewardPerSeconds[index])
+      const amount = BigNumber.from(farm.rewardPerBlocks[index])
       if (farmRewardsPerTimeUnit[index]) {
         farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(amount)
       } else {
@@ -273,9 +273,9 @@ function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
         }
       }
     })
-  } else if (farm.rewardPerBlocks) {
+  } else {
     farm.rewardTokens.forEach((token, index) => {
-      const amount = BigNumber.from(farm.rewardPerBlocks[index])
+      const amount = BigNumber.from(farm.rewardPerSeconds[index])
       if (farmRewardsPerTimeUnit[index]) {
         farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(amount)
       } else {
@@ -303,7 +303,36 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
 
   let yearlyRewardUSD
 
-  if (farm.version === FairLaunchVersion.V2) {
+  if (farm.version === FairLaunchVersion.V1) {
+    // Check if pool is active for liquidity mining
+    const isLiquidityMiningActive =
+      currentBlock && farm.startBlock && farm.endBlock
+        ? farm.startBlock <= currentBlock && currentBlock <= farm.endBlock
+        : false
+
+    if (parseFloat(poolLiquidityUsd) === 0 || !isLiquidityMiningActive) {
+      return 0
+    }
+
+    if (!rewardsPerTimeUnit || rewardsPerTimeUnit.length === 0) {
+      return 0
+    }
+
+    yearlyRewardUSD = rewardsPerTimeUnit.reduce((total, rewardPerBlock, index) => {
+      if (!rewardPerBlock || !rewardPerBlock.amount) {
+        return total
+      }
+
+      if (isEVM && tokenPrices[index]) {
+        const rewardPerBlockAmount = TokenAmount.fromRawAmount(rewardPerBlock.token, rewardPerBlock.amount.toString())
+        const yearlyETHRewardAllocation =
+          parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR(chainId as EVM_NETWORK)
+        total += yearlyETHRewardAllocation * tokenPrices[index]
+      }
+
+      return total
+    }, 0)
+  } else {
     // FarmV2
 
     const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -334,35 +363,6 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
         )
         const yearlyETHRewardAllocation = parseFloat(rewardPerSecondAmount.toSignificant(6)) * SECONDS_PER_YEAR
         total += yearlyETHRewardAllocation * tokenPrices[rewardPerSecond.token.wrapped.address]
-      }
-
-      return total
-    }, 0)
-  } else {
-    // Check if pool is active for liquidity mining
-    const isLiquidityMiningActive =
-      currentBlock && farm.startBlock && farm.endBlock
-        ? farm.startBlock <= currentBlock && currentBlock <= farm.endBlock
-        : false
-
-    if (parseFloat(poolLiquidityUsd) === 0 || !isLiquidityMiningActive) {
-      return 0
-    }
-
-    if (!rewardsPerTimeUnit || rewardsPerTimeUnit.length === 0) {
-      return 0
-    }
-
-    yearlyRewardUSD = rewardsPerTimeUnit.reduce((total, rewardPerBlock, index) => {
-      if (!rewardPerBlock || !rewardPerBlock.amount) {
-        return total
-      }
-
-      if (isEVM && tokenPrices[index]) {
-        const rewardPerBlockAmount = TokenAmount.fromRawAmount(rewardPerBlock.token, rewardPerBlock.amount.toString())
-        const yearlyETHRewardAllocation =
-          parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR(chainId as EVM_NETWORK)
-        total += yearlyETHRewardAllocation * tokenPrices[index]
       }
 
       return total

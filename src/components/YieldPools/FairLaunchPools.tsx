@@ -154,7 +154,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   })
 
   const displayFarms = farmsList.sort((a, b) =>
-    a.version === FairLaunchVersion.V2 || b.version === FairLaunchVersion.V2 ? 0 : b.endBlock - a.endBlock,
+    a.version === FairLaunchVersion.V1 && b.version === FairLaunchVersion.V1 ? b.endBlock - a.endBlock : 0,
   )
 
   const ConditionListWrapper = viewMode === VIEW_MODE.LIST && above1200 ? ListItemWrapper : ClassicFarmGridWrapper
