@@ -427,7 +427,7 @@ export function CurrencySearch({
         </RowBetween>
         <Text style={{ color: theme.subText, fontSize: 12 }}>
           <Trans>
-            You can search and select <span style={{ color: theme.text }}>any token</span> on KyberSwap
+            You can search and select <span style={{ color: theme.text }}>any token</span> on KyberSwap.
           </Trans>
         </Text>
 

@@ -94,7 +94,7 @@ const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
     <FadeInAnimation>
       <Container>
         <Title>
-          <MouseoverTooltip text="Available for yield farming">
+          <MouseoverTooltip text="Available for yield farming.">
             <MoneyBag size={16} color={theme.apr} />
           </MouseoverTooltip>
 

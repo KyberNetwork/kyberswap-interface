@@ -207,8 +207,8 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
                     <InfoHelper
                       text={
                         active
-                          ? t`Total estimated return based on yearly fees and bonus rewards of the pool`
-                          : t`Estimated return based on yearly fees of the pool`
+                          ? t`Total estimated return based on yearly fees and bonus rewards of the pool.`
+                          : t`Estimated return based on yearly fees of the pool.`
                       }
                     />
                   </Row>

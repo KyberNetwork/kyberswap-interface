@@ -364,7 +364,7 @@ export default function ConfirmSwapModalContent({
                         text={
                           <Trans>
                             To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled
-                            for this trade. If you still wish to continue, you can turn on Degen Mode from Settings
+                            for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.
                           </Trans>
                         }
                       >

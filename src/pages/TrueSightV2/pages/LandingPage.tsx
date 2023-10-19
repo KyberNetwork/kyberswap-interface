@@ -615,7 +615,7 @@ export default function KyberAILandingPage() {
             <Trans>
               An intelligent platform that provides valuable insights on{' '}
               <span style={{ color: theme.text }}>4000+ Tokens</span> across{' '}
-              <span style={{ color: theme.text }}>7 Chains</span>
+              <span style={{ color: theme.text }}>7 Chains</span>.
             </Trans>
           </Text>
           <Row justify="center" gap="16px">
@@ -709,21 +709,21 @@ export default function KyberAILandingPage() {
               <li>
                 <CheckIcon />
                 <Trans>
-                  Search from over <span style={{ color: theme.text }}>4000+ tokens on 7 chains</span>
+                  Search from over <span style={{ color: theme.text }}>4000+ tokens on 7 chains.</span>
                 </Trans>
               </li>
               <li>
                 <CheckIcon />
                 <Trans>
                   Subscribe to <span style={{ color: theme.text }}>receive daily emails on the top tokens</span> as
-                  recommended by KyberAI
+                  recommended by KyberAI.
                 </Trans>
               </li>
               <li>
                 <CheckIcon />
                 <Trans>
                   <span style={{ color: theme.text }}>Monitor token prices - Set a price alert</span>, sit back and
-                  we&apos;ll notify you
+                  we&apos;ll notify you.
                 </Trans>
               </li>
               <li>
@@ -731,7 +731,7 @@ export default function KyberAILandingPage() {
                 <Trans>
                   {' '}
                   <span style={{ color: theme.text }}>Create a watchlist of your favorite tokens</span>, and analyze
-                  them quickly
+                  them quickly.
                 </Trans>
               </li>
             </StyledUL>
@@ -790,7 +790,7 @@ export default function KyberAILandingPage() {
                 <Trans>
                   Ready to experience{' '}
                   <span style={{ color: theme.primary, textShadow: `0 0 5px ${theme.primary}` }}>KyberAI</span>? <br />
-                  Get alpha before it happens
+                  Get alpha before it happens.
                 </Trans>
               </Text>
               <Row style={{ flex: 1 }}>

@@ -49,7 +49,9 @@ export default function RangeBadge({
       ) : inRange ? (
         <MouseoverTooltip
           text={
-            <Trans>The price of this pool is within your selected range. Your position is currently earning fees</Trans>
+            <Trans>
+              The price of this pool is within your selected range. Your position is currently earning fees.
+            </Trans>
           }
         >
           <Badge variant={BadgeVariant.PRIMARY} style={{ padding: hideText ? '4px' : undefined }}>
@@ -70,7 +72,7 @@ export default function RangeBadge({
           text={
             <Trans>
               The price of this pool is outside of your selected price range. Currently, your position is not earning
-              any fees or rewards
+              any fees or rewards.
             </Trans>
           }
         >

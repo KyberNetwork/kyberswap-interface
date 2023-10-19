@@ -72,7 +72,8 @@ const renderNotificationButton = (iconOnly: boolean) => {
         <div>
           <Trans>
             Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes
-            <Highlight>out-of-range</Highlight> or comes back <Highlight>in-range</Highlight>, you will receive an email
+            <Highlight>out-of-range</Highlight> or comes back <Highlight>in-range</Highlight>, you will receive an
+            email.
           </Trans>
         </div>
       }
@@ -227,7 +228,7 @@ export default function ProAmmPool() {
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
-            <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>
+            <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools.</Trans>
             {!upToSmall && (
               <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                 <Flex alignItems="center">
