@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import mixpanel from 'mixpanel-browser'
 import { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Save, X } from 'react-feather'
@@ -15,6 +16,7 @@ import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
@@ -63,7 +65,7 @@ export default function NetworkModal({
   const { isWrongNetwork } = useActiveWeb3React()
   const [requestSaveProfile] = useUpdateProfileMutation()
   const { userInfo } = useSessionInfo()
-
+  const { mixpanelHandler } = useMixpanel()
   const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
   const [isEdittingMobile, setIsEdittingMobile] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -80,12 +82,13 @@ export default function NetworkModal({
       const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
       if (chainInfo && !favoriteChains.includes(chainInfo)) {
         saveFavoriteChains([...favoriteChains, chainInfo.chainId.toString()])
+        mixpanelHandler(MIXPANEL_TYPE.ADD_FAVORITE_CHAIN, { fav_chain: chainInfo.name })
       }
     }
-    if (dropId === CHAINS_DROPZONE_ID) {
-      if (favoriteChains.some(fChainId => fChainId === chainId)) {
-        saveFavoriteChains([...favoriteChains.filter(fChainId => fChainId !== chainId)])
-      }
+    if (dropId === CHAINS_DROPZONE_ID && favoriteChains.some(fChainId => fChainId === chainId)) {
+      const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
+      saveFavoriteChains([...favoriteChains.filter(fChainId => fChainId !== chainId)])
+      chainInfo && mixpanelHandler(MIXPANEL_TYPE.REMOVE_FAVORITE_CHAIN, { remove_chain: chainInfo.name })
     }
   }
 
