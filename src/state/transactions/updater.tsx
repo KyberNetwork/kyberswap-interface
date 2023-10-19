@@ -1,4 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ParsedTransactionWithMeta } from '@solana/web3.js'
 import { findReplacementTx } from 'find-replacement-tx'
 import { useEffect, useMemo } from 'react'
@@ -46,7 +47,7 @@ export default function Updater(): null {
 
   const lastBlockNumber = useBlockNumber()
   const dispatch = useDispatch<AppDispatch>()
-  const transactionsState = useSelector<AppState, AppState['transactions'][number]>(
+  const transactionsState = useSelector<AppState, AppState['transactions'][ChainId]>(
     state => state.transactions[chainId],
   )
 

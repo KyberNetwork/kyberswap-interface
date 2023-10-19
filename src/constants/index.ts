@@ -325,6 +325,7 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.FANTOM,
         ChainId.LINEA,
         ChainId.BASE,
+        ChainId.SCROLL,
       ]
     : SUPPORTED_NETWORKS
 
