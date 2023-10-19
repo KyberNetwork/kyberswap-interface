@@ -271,7 +271,7 @@ export const ListView = ({
           </Text>
         </Text>
 
-        <div>
+        <div style={{ width: 'fit-content' }}>
           <MouseoverTooltip
             width="fit-content"
             text={
@@ -296,7 +296,7 @@ export const ListView = ({
                       whiteSpace: upToSmall ? 'wrap' : 'nowrap',
                     }}
                   >
-                    <Trans>Estimated return from trading fees if you participate in the pool</Trans>
+                    <Trans>Estimated return from trading fees if you participate in the pool.</Trans>
                   </Text>
                 </Flex>
 

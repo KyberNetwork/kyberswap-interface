@@ -131,7 +131,7 @@ const PositionRow = ({
           checked={selected}
         />
       ) : (
-        <MouseoverTooltip text="You will need to unstake this position first before you can withdraw it">
+        <MouseoverTooltip text="You will need to unstake this position first before you can withdraw it.">
           {disableCheckbox}
         </MouseoverTooltip>
       )}

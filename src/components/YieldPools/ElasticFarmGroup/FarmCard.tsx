@@ -134,7 +134,7 @@ const FarmCard = ({
                 <MouseoverTooltip
                   text={
                     <Text fontSize="12px" fontStyle="italic">
-                      <Trans>You have {numberOutRangePos} out-of-range position(s)</Trans>
+                      <Trans>You have {numberOutRangePos} out-of-range position(s).</Trans>
                     </Text>
                   }
                 >
@@ -148,7 +148,7 @@ const FarmCard = ({
                 <MouseoverTooltip
                   text={
                     <Text fontSize="12px" fontStyle="italic">
-                      <Trans>You have {numberInRangePos} in-range position(s)</Trans>
+                      <Trans>You have {numberInRangePos} in-range position(s).</Trans>
                     </Text>
                   }
                 >

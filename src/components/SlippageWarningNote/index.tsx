@@ -37,9 +37,9 @@ const SlippageWarningNote: FC<Props> = ({ className, rawSlippage, isStablePairSw
     return null
   }
 
-  let msg = 'is high. Your transaction may be front-run'
+  let msg = 'is high. Your transaction may be front-run.'
   if (slippageStatus === SLIPPAGE_STATUS.LOW) {
-    msg = 'is low. Your transaction may fail'
+    msg = 'is low. Your transaction may fail.'
   }
   const shortText = (
     <div>

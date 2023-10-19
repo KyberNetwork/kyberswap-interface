@@ -68,7 +68,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
           <MouseoverTooltip
             text={
               <Text>
-                <Trans>Transaction will revert if it is pending for longer than the indicated time</Trans>
+                <Trans>Transaction will revert if it is pending for longer than the indicated time.</Trans>
               </Text>
             }
             placement="right"

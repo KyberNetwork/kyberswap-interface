@@ -43,7 +43,7 @@ const AppHaveUpdate = () => {
   return (
     <Wrapper>
       <Text>
-        <Trans>New contents are available</Trans>
+        <Trans>New contents are available.</Trans>
       </Text>
       <ButtonPrimary
         style={{ width: 'fit-content', padding: '8px 20px', margin: 'auto', marginTop: '1rem' }}

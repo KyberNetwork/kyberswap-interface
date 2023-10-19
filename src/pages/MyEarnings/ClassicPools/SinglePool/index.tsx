@@ -277,7 +277,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
             <StatItem
               label={
                 <MouseoverTooltip
-                  text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+                  text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
                 >
                   <TextDashed>APR</TextDashed>
                 </MouseoverTooltip>

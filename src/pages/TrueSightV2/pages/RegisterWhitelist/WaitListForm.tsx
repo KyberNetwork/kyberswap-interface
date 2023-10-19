@@ -101,6 +101,7 @@ export default function EmailForm({
               >
                 here ↗
               </a>
+              .
             </Trans>
           </Text>
         </Column>

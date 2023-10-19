@@ -94,7 +94,7 @@ export default function SuggestItem({
       <Flex height="100%" tabIndex={0} className="no-blur" minWidth={20}>
         {account &&
           (isFullFavoritePair ? (
-            <MouseoverTooltipDesktopOnly text={t`You can only favorite up to three token pairs`}>
+            <MouseoverTooltipDesktopOnly text={t`You can only favorite up to three token pairs.`}>
               {star}
             </MouseoverTooltipDesktopOnly>
           ) : (

@@ -364,7 +364,7 @@ function BuyCrypto() {
                     <br />
                     <br />
                     On KyberSwap we support a list of wallets including: MetaMask, Coin98, Wallet Connect, Coinbase
-                    Wallet, Ledger and others
+                    Wallet, Ledger and others.
                   </Trans>
                 </Text>
 
@@ -464,7 +464,7 @@ function BuyCrypto() {
                   <br />
                   <br />
                   For support, please contact Transak{' '}
-                  <ExternalLink href="https://support.transak.com/">here</ExternalLink>
+                  <ExternalLink href="https://support.transak.com/">here</ExternalLink>.
                 </Text>
 
                 <Text color={'#A7B6BD'} marginTop="24px">

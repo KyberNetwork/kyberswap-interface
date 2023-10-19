@@ -73,11 +73,13 @@ export default function HeaderRightMenu({
 
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
 
   const { currencies, shareUrl } = useCurrenciesByPage()
   const { mixpanelHandler } = useMixpanel(currencies)
 
-  const onToggleActionTab = (tab: TAB) => setActiveTab(activeTab === tab ? (isLimitPage ? TAB.LIMIT : TAB.SWAP) : tab)
+  const onToggleActionTab = (tab: TAB) =>
+    setActiveTab(activeTab === tab ? (isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP) : tab)
 
   const [isDegenMode] = useDegenModeManager()
 
