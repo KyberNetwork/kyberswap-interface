@@ -42,7 +42,7 @@ const ContentItem = ({ text }: { text: ReactNode }) => {
       <CheckIcon>
         <Check color={theme.primary} size={14} />
       </CheckIcon>
-      <Text fontSize={'14px'} color={theme.subText}>
+      <Text fontSize={'14px'} color={theme.text}>
         {text}
       </Text>
     </Row>
@@ -55,10 +55,10 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
     <Wrapper>
       <Column gap="40px">
         <Column gap="10px" alignItems="center">
-          <Text textAlign={'center'} fontWeight={'500'} fontSize={'24px'} color={theme.subText}>
+          <Text textAlign={'center'} fontWeight={'500'} fontSize={'24px'} color={theme.text}>
             <Trans>Want to try our Limit Orders?</Trans>
           </Text>
-          <Text fontWeight={'700'} fontSize={'24px'} color={theme.subText}>
+          <Text fontWeight={'700'} fontSize={'24px'} color={theme.text}>
             <Trans>Get started!</Trans>
           </Text>
         </Column>
@@ -81,7 +81,7 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
       </Column>
 
       <Column gap="16px" width={'100%'}>
-        <Text fontSize={'14px'} textAlign={'center'} color={theme.subText}>
+        <Text fontSize={'14px'} textAlign={'center'} color={theme.text}>
           <Trans>
             Learn more about our limit orders <ExternalLink href={DOCS_LINKS.USER_GUIDE}>here</ExternalLink>
           </Trans>
