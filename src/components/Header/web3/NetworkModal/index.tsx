@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import mixpanel from 'mixpanel-browser'
 import { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Save, X } from 'react-feather'
