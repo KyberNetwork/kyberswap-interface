@@ -192,9 +192,9 @@ export default function DraggableNetworkButton({
       boxShadow: '0 0px 0px #00000060',
       filter: 'brightness(1)',
       scale: 1,
-      zIndex: 'unset',
-      x: 0,
-      y: 0,
+      zIndex: [2, 'unset'],
+      x: [0, 0],
+      y: [0, 0],
     },
   }
 
