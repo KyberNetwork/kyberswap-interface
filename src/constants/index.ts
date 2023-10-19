@@ -325,6 +325,7 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.FANTOM,
         ChainId.LINEA,
         ChainId.BASE,
+        ChainId.SCROLL,
       ]
     : SUPPORTED_NETWORKS
 
@@ -333,6 +334,7 @@ export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [
   ChainId.LINEA,
   ChainId.ZKEVM,
   ChainId.BASE,
+  ChainId.SCROLL,
 ]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'

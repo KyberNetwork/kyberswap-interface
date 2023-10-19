@@ -96,7 +96,7 @@ export default function TechnicalAnalysis() {
       candleSize: priceChartResolution,
       currency: liveChartTab === ChartTab.First ? 'USD' : 'BTC',
     },
-    { skip: !chain || !address },
+    { skip: !chain || !address, pollingInterval: 60000 },
   )
 
   const SRLevels: ISRLevel[] = useMemo(() => {

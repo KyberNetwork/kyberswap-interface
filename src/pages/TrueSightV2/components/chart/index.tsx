@@ -2781,9 +2781,8 @@ export const Prochart = ({
       const subscriptionDataLoaded = tvWidget?.activeChart()?.onDataLoaded()
       subscriptionDataLoaded?.subscribe(null, handleDataLoaded, true)
 
-      if (!showSRLevels) {
-        removeSRLevels()
-      } else {
+      removeSRLevels()
+      if (showSRLevels) {
         addSRLevels()
       }
     } catch (error) {}
