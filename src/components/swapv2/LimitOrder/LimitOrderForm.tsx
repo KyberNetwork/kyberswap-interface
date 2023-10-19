@@ -145,7 +145,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     removeOrderNeedCreated,
     resetState,
     setOrderEditing,
-    setInputValue,
+    setInputValue: setInputValueGlobal,
   } = useLimitActionHandlers()
   const { ordersNeedCreated, inputAmount: inputAmountGlobal } = useLimitState()
 
@@ -535,9 +535,9 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   useEffect(() => {
     if (inputAmountGlobal) {
       onSetInput(inputAmountGlobal)
-      setInputValue('')
+      setInputValueGlobal('')
     }
-  }, [inputAmountGlobal, onSetInput, setInputValue]) // when redux state change, ex: type and swap
+  }, [inputAmountGlobal, onSetInput, setInputValueGlobal]) // when redux state change, ex: type and swap
 
   useEffect(() => {
     return () => {
