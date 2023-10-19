@@ -70,7 +70,7 @@ const log10 = (n: Fraction): number => {
 }
 // - $ 123,456,222,333.44444 e+22 eur5
 const regex = /^\s*?\+?(-)?\s*?(\$)?\s*?([\d,]+)(?:\.(\d+))?\s*?(?:e\+?(\-?\d+))?\s*?(%|\w+?)?\s*?$/
-const parseNumPart = (str: string): string[] => {
+const parseNumPart = (str: string): [string, string, string, string, string, string] => {
   const parsedResult = regex.exec(str)
   if (parsedResult) {
     const [, negative, currency, integer, decimal, exponent, unit] = parsedResult
@@ -81,7 +81,7 @@ const parseNumPart = (str: string): string[] => {
 
 const parseString = (value: string): Fraction => {
   try {
-    const [negative, , integer, decimal, e] = parseNumPart(value)
+    const [negative, _currency, integer, decimal, e, _unit] = parseNumPart(value)
     const exponent = Number(e || '0') - decimal.length
     if (exponent > 0) {
       return new Fraction(negative + integer.replace(/,/g, '') + decimal + '0'.repeat(exponent), 1)
@@ -221,7 +221,7 @@ export const formatDisplayNumber = (
   // It might return number with longer fraction digits than maximumFractionDigits
   // Hence, we have to do an additional step that manually slice those oversize fraction digits
   if (fractionDigits !== undefined) {
-    const [negative, currency, integer, decimal, , unit] = parseNumPart(result)
+    const [negative, currency, integer, decimal, _exponent, unit] = parseNumPart(result)
     const trimedSlicedDecimal = decimal?.slice(0, fractionDigits).replace(/0+$/, '')
     if (trimedSlicedDecimal) return negative + currency + integer + '.' + trimedSlicedDecimal + unit
     return negative + currency + integer + unit
