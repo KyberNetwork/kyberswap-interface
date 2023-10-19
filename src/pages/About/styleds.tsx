@@ -89,7 +89,7 @@ export const StatisticWrapper = styled.div`
 `
 
 export const StatisticItem = styled.div`
-  background-color: ${({ theme }) => theme.background2};
+  background-color: ${({ theme }) => theme.background};
   flex: 1;
   border-radius: 8px;
   text-align: center;
@@ -110,7 +110,7 @@ export const ForTrader = styled.div`
 
 export const ForTraderInfo = styled(Flex)`
   margin-top: 20px;
-  background-color: ${({ theme }) => theme.background2};
+  background-color: ${({ theme }) => theme.background};
   padding: 20px 0;
   border-radius: 8px;
   justify-content: center;
@@ -156,7 +156,7 @@ export const ForLiquidityProviderItem = styled(Flex)`
   padding: 48px;
   border-radius: 20px;
   width: 100%;
-  background-color: ${({ theme }) => theme.background2};
+  background-color: ${({ theme }) => theme.background};
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 32px;
@@ -304,7 +304,7 @@ export const AboutKNC = styled.div`
 export const ExchangeWrapper = styled.div`
   margin: 28px 0px;
   height: 152px;
-  background: ${({ theme }) => theme.background2};
+  background: ${({ theme }) => theme.background};
   display: flex;
   border-radius: 8px;
 `
@@ -312,7 +312,7 @@ export const ExchangeWrapper = styled.div`
 export const MoreInfoWrapper = styled.div`
   display: flex;
   border-radius: 20px;
-  background: ${({ theme }) => theme.background2};
+  background: ${({ theme }) => theme.background};
   width: 100%;
   padding: 64px;
   margin-top: 100px;

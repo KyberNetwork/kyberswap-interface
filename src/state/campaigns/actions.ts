@@ -145,7 +145,7 @@ export const setLoadingCampaignData = createAction<boolean>('campaigns/setLoadin
 
 export const setLastTimeRefreshData = createAction('campaigns/setLastTimeRefreshData')
 
-export const setLoadingCampaignDataError = createAction<Error | undefined>('campaigns/setLoadingCampaignDataError')
+export const setLoadingCampaignDataError = createAction<boolean>('campaigns/setLoadingCampaignDataError')
 
 export const setSelectedCampaign = createAction<{ campaign: CampaignData }>('campaigns/setSelectedCampaign')
 
@@ -163,19 +163,6 @@ export const setSelectedCampaignLeaderboardLookupAddress = createAction<string>(
 )
 
 export const setClaimingCampaignRewardId = createAction<number | null>('campaigns/setClaimingCampaignRewardId')
-
-export const setSelectedCampaignLuckyWinners = createAction<{ luckyWinners: CampaignLuckyWinner[] }>(
-  'campaigns/setSelectedCampaignLuckyWinners',
-)
-export const setLoadingSelectedCampaignLuckyWinners = createAction<boolean>(
-  'campaigns/setLoadingSelectedCampaignLuckyWinners',
-)
-export const setSelectedCampaignLuckyWinnersPageNumber = createAction<number>(
-  'campaigns/setSelectedCampaignLuckyWinnersPageNumber',
-)
-export const setSelectedCampaignLuckyWinnersLookupAddress = createAction<string>(
-  'campaigns/setSelectedCampaignLuckyWinnersLookupAddress',
-)
 
 export const setRecaptchaCampaignId = createAction<number | undefined>('campaigns/setRecaptchaCampaignId')
 export const setRecaptchaCampaignLoading = createAction<boolean>('campaigns/setRecaptchaCampaignLoading')

@@ -112,7 +112,7 @@ export default function GasRefundBox() {
         >
           <Flex>
             <TextDashed>
-              <MouseoverTooltip width="fit-content" text={<Trans>Rewards available to claim</Trans>} placement="top">
+              <MouseoverTooltip width="fit-content" text={<Trans>Rewards available to claim.</Trans>} placement="top">
                 <Tab
                   active={selectedTab === KNCUtilityTabs.Available}
                   onClick={() => setSelectedTab(KNCUtilityTabs.Available)}
@@ -125,7 +125,7 @@ export default function GasRefundBox() {
             <TextDashed>
               <MouseoverTooltip
                 width="fit-content"
-                text={<Trans>Rewards to claim after the end of the countdown period</Trans>}
+                text={<Trans>Rewards to claim after the end of the countdown period.</Trans>}
                 placement="top"
               >
                 <Tab
@@ -138,7 +138,7 @@ export default function GasRefundBox() {
             </TextDashed>
             <Text sx={{ userSelect: 'none' }}>&nbsp;|&nbsp;</Text>
             <TextDashed>
-              <MouseoverTooltip width="fit-content" text={<Trans>Rewards successfully claimed</Trans>} placement="top">
+              <MouseoverTooltip width="fit-content" text={<Trans>Rewards successfully claimed.</Trans>} placement="top">
                 <Tab
                   active={selectedTab === KNCUtilityTabs.Claimed}
                   onClick={() => setSelectedTab(KNCUtilityTabs.Claimed)}
@@ -199,7 +199,7 @@ export default function GasRefundBox() {
                 )
               ) : (
                 <ButtonLight onClick={toggleWalletModal} padding="10px 12px">
-                  <Trans>Connect Wallet</Trans>
+                  <Trans>Connect</Trans>
                 </ButtonLight>
               )
             ) : selectedTab === KNCUtilityTabs.Pending && nextCycleStartTime ? (

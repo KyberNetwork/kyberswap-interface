@@ -14,13 +14,19 @@ type AnnouncementResponse<T extends PrivateAnnouncement | Announcement = Announc
 }
 
 const transformResponseAnnouncement = <T extends PrivateAnnouncement | Announcement = Announcement>(data: any) => {
-  const { metaMessages, notifications, ...rest } = data.data ?? {}
+  const { metaMessages, notifications, ...rest } = data.data || {}
   return {
     ...rest,
-    notifications: (metaMessages ?? notifications ?? []).map((e: any) => ({
-      ...e,
-      templateBody: JSON.parse(e.templateBody ?? '{}') ?? {},
-    })),
+    notifications: (metaMessages ?? notifications ?? []).map((e: any) => {
+      let templateBody = {}
+      try {
+        templateBody = JSON.parse(e.templateBody ?? '{}')
+      } catch (error) {}
+      return {
+        ...e,
+        templateBody,
+      }
+    }),
   } as AnnouncementResponse<T>
 }
 

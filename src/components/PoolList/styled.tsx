@@ -21,7 +21,7 @@ export const TableRow = styled.div`
 `
 
 export const DataText = styled(Flex)`
-  color: ${({ theme }) => theme.text7};
+  color: ${({ theme }) => theme.text5};
   flex-direction: column;
 `
 

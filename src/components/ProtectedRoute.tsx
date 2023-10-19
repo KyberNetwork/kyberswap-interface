@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import LocalLoader from 'components/LocalLoader'
+import { RTK_QUERY_TAGS } from 'constants/index'
+import { useInvalidateTagKyberAi } from 'hooks/useInvalidateTags'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
@@ -30,13 +32,15 @@ export const ProtectedRouteKyberAI = ({
   const { userInfo } = useSessionInfo()
   const loadedPage = useRef(false)
   const canAccessPage = isWhiteList || waitUtilAuthenEndOnly
+  const invalidateTags = useInvalidateTagKyberAi()
 
   useEffect(() => {
     // change account sign in => refresh participant info
     try {
       refetch()
+      invalidateTags([RTK_QUERY_TAGS.GET_WATCHLIST_TOKENS_KYBER_AI, RTK_QUERY_TAGS.GET_WATCHLIST_INFO_KYBER_AI])
     } catch (error) {}
-  }, [userInfo?.identityId, refetch])
+  }, [userInfo?.identityId, refetch, invalidateTags])
 
   if (loading && !loadedPage.current) return <LocalLoader />
   if (!canAccessPage) return <Navigate to={redirectUrl} replace />

@@ -15,7 +15,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'components/Tooltip'
-import { FARM_TAB, ZERO_ADDRESS } from 'constants/index'
+import { FARM_TAB, SORT_DIRECTION, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
@@ -72,11 +72,6 @@ enum SORT_FIELD {
   END_TIME = 'end_time',
   MY_DEPOSIT = 'my_deposit',
   MY_REWARD = 'my_reward',
-}
-
-enum SORT_DIRECTION {
-  ASC = 'asc',
-  DESC = 'desc',
 }
 
 const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShowStepGuide, tokenPrices }) => {
@@ -431,7 +426,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
               ) : null)}
           </ClickableText>
           <InfoHelper
-            text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+            text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
           />
         </Flex>
 
@@ -449,7 +444,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
                 <ArrowUp size={12} />
               ) : null)}
           </ClickableText>
-          <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
+          <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees.`} />
         </Flex>
 
         <Flex
@@ -542,7 +537,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
             alignItems={upToExtraSmall ? 'flex-start' : 'center'}
           >
             <MouseoverTooltip
-              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract`}
+              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract.`}
             >
               <TextDashed fontSize="12px" fontWeight="500" color={theme.subText}>
                 <Trans>Deposited Liquidity</Trans>

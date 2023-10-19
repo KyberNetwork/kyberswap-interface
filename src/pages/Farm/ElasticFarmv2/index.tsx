@@ -19,12 +19,13 @@ import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'compo
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClickableText, ElasticFarmV2TableHeader } from 'components/YieldPools/styleds'
+import { SORT_DIRECTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { SORT_DIRECTION, SORT_FIELD, useFarmV2Action, useFilteredFarmsV2 } from 'state/farms/elasticv2/hooks'
+import { SORT_FIELD, useFarmV2Action, useFilteredFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
@@ -83,6 +84,7 @@ export default function ElasticFarmv2({
 
   const rewardTokenAmounts: { [address: string]: CurrencyAmount<Currency> } = {}
   userInfo?.forEach(item => {
+    if (item.farmAddress !== farmAddress) return
     item.unclaimedRewards.forEach(rw => {
       const address = rw.currency.isNative ? rw.currency.symbol || 'eth' : rw.currency.wrapped.address
       if (!rewardTokenAmounts[address]) rewardTokenAmounts[address] = rw
@@ -92,6 +94,7 @@ export default function ElasticFarmv2({
 
   const depositedTokenAmounts: { [address: string]: CurrencyAmount<Currency> } = {}
   userInfo?.forEach(item => {
+    if (item.farmAddress !== farmAddress) return
     const address0 = item.position.amount0.currency.wrapped.address
     const address1 = item.position.amount1.currency.wrapped.address
     if (!depositedTokenAmounts[address0]) depositedTokenAmounts[address0] = item.position.amount0
@@ -144,7 +147,7 @@ export default function ElasticFarmv2({
             width={upToSmall ? '100%' : undefined}
           >
             <MouseoverTooltip
-              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract`}
+              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract.`}
             >
               <TextDashed fontSize="12px" fontWeight="500" color={theme.subText}>
                 <Trans>Deposited Liquidity</Trans>
@@ -239,6 +242,7 @@ export default function ElasticFarmv2({
             whiteSpace: 'nowrap',
             height: '38px',
             padding: '0 12px',
+            maxWidth: '140px',
           }}
           onClick={handleApprove}
           disabled
@@ -342,7 +346,7 @@ export default function ElasticFarmv2({
               ) : sortDirection === SORT_DIRECTION.ASC ? (
                 <ArrowUp size={12} />
               ) : null)}
-            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
+            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees.`} />
           </ClickableText>
         </Flex>
 
@@ -361,7 +365,7 @@ export default function ElasticFarmv2({
                 <ArrowUp size={12} />
               ) : null)}
             <InfoHelper
-              text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+              text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
             />
           </ClickableText>
         </Flex>

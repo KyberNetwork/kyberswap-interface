@@ -16,6 +16,7 @@ import VictorTran from 'assets/images/kyber_members/victor_tran.png'
 import { ReactComponent as LinkedInIcon } from 'assets/svg/linkedin.svg'
 import { ReactComponent as TwitterIcon } from 'assets/svg/solid_twitter_icon.svg'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 
 type Member = {
   name: string
@@ -186,14 +187,14 @@ const MemberView: React.FC<Member> = props => {
           }}
         >
           {props.handles.twitter && (
-            <a target="_blank" href={`https://twitter.com/${props.handles.twitter}/`} rel="noreferrer">
+            <ExternalLink target="_blank" href={`https://twitter.com/${props.handles.twitter}/`} rel="noreferrer">
               <TwitterIcon color={theme.text} />
-            </a>
+            </ExternalLink>
           )}
           {props.handles.linkedIn && (
-            <a target="_blank" href={`https://linkedin.com/in/${props.handles.linkedIn}`} rel="noreferrer">
+            <ExternalLink target="_blank" href={`https://linkedin.com/in/${props.handles.linkedIn}`} rel="noreferrer">
               <LinkedInIcon color={theme.text} />
-            </a>
+            </ExternalLink>
           )}
         </Flex>
       )}

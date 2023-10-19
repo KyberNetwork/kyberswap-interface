@@ -7,7 +7,6 @@ import { usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import MultichainLogoDark from 'assets/images/multichain_black.png'
 import MultichainLogoLight from 'assets/images/multichain_white.png'
 import { ReactComponent as ArrowUp } from 'assets/svg/arrow_up.svg'
 import { ButtonApprove, ButtonError, ButtonLight } from 'components/Button'
@@ -32,7 +31,6 @@ import { useBridgeOutputValue, useBridgeState, useBridgeStateHandler } from 'sta
 import { PoolBridgeValue, PoolValueOutMap } from 'state/crossChain/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
@@ -63,12 +61,11 @@ const ArrowWrapper = styled.div`
 
   background: ${({ theme }) => theme.buttonGray};
   border-radius: 999px;
-  filter: ${({ theme }) => (theme.darkMode ? 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' : 'unset')};
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16));
 `
 
 const Footer = () => {
   const theme = useTheme()
-  const isDark = useIsDarkMode()
   return (
     <Flex justifyContent={'space-between'}>
       <Flex alignItems={'center'} style={{ gap: 6 }}>
@@ -77,7 +74,7 @@ const Footer = () => {
         </Text>
         <ExternalLink href="https://multichain.org/">
           <img
-            src={isDark ? MultichainLogoLight : MultichainLogoDark}
+            src={MultichainLogoLight}
             alt="KyberSwap with multichain"
             height={13}
             style={{
@@ -239,15 +236,15 @@ export default function SwapForm() {
 
     if (!tokenInfoIn || !chainIdOut || !tokenInfoOut || inputNumber === 0) return
 
-    if (isNaN(inputNumber)) return t`Input amount is not valid`
+    if (isNaN(inputNumber)) return t`Input amount is not valid.`
 
     if (inputNumber < Number(tokenInfoOut.MinimumSwap)) {
       return t`The amount to bridge must be more than ${formattedNum(tokenInfoOut.MinimumSwap, false, 5)} ${
         tokenInfoIn.symbol
-      }`
+      }.`
     }
     if (inputNumber > Number(tokenInfoOut.MaximumSwap)) {
-      return t`The amount to bridge must be less than ${formattedNum(tokenInfoOut.MaximumSwap)} ${tokenInfoIn.symbol}`
+      return t`The amount to bridge must be less than ${formattedNum(tokenInfoOut.MaximumSwap)} ${tokenInfoIn.symbol}.`
     }
 
     if (tokenInfoOut.isLiquidity && tokenInfoOut.underlying) {
@@ -489,7 +486,7 @@ export default function SwapForm() {
             )}
             {!account ? (
               <ButtonLight onClick={toggleWalletModal}>
-                <Trans>Connect Wallet</Trans>
+                <Trans>Connect</Trans>
               </ButtonLight>
             ) : (
               showApproveFlow && (

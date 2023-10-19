@@ -15,9 +15,9 @@ const bttcInfo: EVMNetworkInfo = {
   aggregatorRoute: 'bttc',
   name: 'BitTorrent',
   icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/4877aa34-b675-4fb3-8de2-15ab8a8f6a53.svg',
-  iconDark: NOT_SUPPORT,
+
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/bttc-blocks',
   etherscanUrl: 'https://bttcscan.com',
   etherscanName: 'Bttcscan',

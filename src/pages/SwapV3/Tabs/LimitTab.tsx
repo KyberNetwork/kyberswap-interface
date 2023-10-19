@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useLocation } from 'react-router-dom'
-import { Text } from 'rebass'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
@@ -45,22 +44,26 @@ export default function LimitTab({ onClick }: Props) {
   }
 
   return (
-    <Tab id="limit-button" onClick={onClick} isActive={isLimitPage}>
-      <Text fontSize={20} fontWeight={500}>
-        <Trans>Limit</Trans>{' '}
-        {numberOfInsufficientFundOrders ? (
-          <MouseoverTooltip
-            placement="top"
-            text={
-              <Trans>
-                You have {numberOfInsufficientFundOrders} active orders that don&apos;t have sufficient funds
-              </Trans>
-            }
-          >
-            <WarningBadge>{numberOfInsufficientFundOrders}</WarningBadge>
-          </MouseoverTooltip>
-        ) : null}
-      </Text>
+    <Tab
+      id="limit-button"
+      data-testid="limit-button"
+      onClick={onClick}
+      isActive={isLimitPage}
+      style={{ display: 'flex', gap: '4px', fontSize: '20px', fontWeight: '500' }}
+    >
+      <Trans>Limit</Trans>{' '}
+      {!!numberOfInsufficientFundOrders && (
+        <MouseoverTooltip
+          placement="top"
+          text={
+            <Trans>
+              You have {numberOfInsufficientFundOrders} active orders that don&apos;t have sufficient funds.
+            </Trans>
+          }
+        >
+          <WarningBadge>{numberOfInsufficientFundOrders}</WarningBadge>
+        </MouseoverTooltip>
+      )}
     </Tab>
   )
 }

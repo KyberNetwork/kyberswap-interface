@@ -157,7 +157,7 @@ export default function StakeKNC() {
           </Text>
           <RowBetween align={isMobile ? 'flex-start' : 'center'} flexDirection={isMobile ? 'column' : 'row'} gap="12px">
             <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.warning}>
-              <Trans>Note: Staking KNC is only available on Ethereum chain</Trans>
+              <Trans>Note: Staking KNC is only available on Ethereum chain.</Trans>
             </Text>
             <NavLink to={APP_PATHS.ABOUT + '/knc'}>Read about KNC ↗</NavLink>
           </RowBetween>
@@ -249,6 +249,7 @@ export default function StakeKNC() {
                     >
                       here ↗
                     </NavLink>
+                    .
                   </Trans>
                 </Text>
               </Row>
@@ -289,9 +290,10 @@ export default function StakeKNC() {
               <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
                 <Trans>
                   You can access legacy KyberDAO v1 to read about previous KIPs{' '}
-                  <a href="https://legacy.kyber.org/vote" target="_blank" rel="noreferrer">
+                  <ExternalLink href="https://legacy.kyber.org/vote" target="_blank" rel="noreferrer">
                     here ↗
-                  </a>
+                  </ExternalLink>
+                  .
                 </Trans>
               </Text>
             </CardInfo>

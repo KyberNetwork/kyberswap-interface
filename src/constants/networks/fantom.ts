@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import fantomIcon from 'assets/networks/fantom.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -14,10 +15,9 @@ const fantomInfo: EVMNetworkInfo = {
   poolFarmRoute: 'fantom',
   aggregatorRoute: 'fantom',
   name: 'Fantom',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/779366f0-c120-4827-ac5e-9ed77ca202b91692929044916.png',
-  iconDark: NOT_SUPPORT,
+  icon: fantomIcon,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks',
   etherscanUrl: 'https://ftmscan.com',
   etherscanName: 'Ftmscan',

@@ -9,13 +9,15 @@ export const StarWithAnimation = ({
   size,
   disabled,
   wrapperStyle,
+  stopPropagation,
 }: {
   watched: boolean
-  loading: boolean
+  loading?: boolean
   onClick?: (e: any) => void
   size?: number
   disabled?: boolean
   wrapperStyle?: CSSProperties
+  stopPropagation?: boolean
 }) => {
   const theme = useTheme()
   const variants = {
@@ -37,7 +39,7 @@ export const StarWithAnimation = ({
       transition={{ scale: { type: 'spring', damping: 10, stiffness: 800, restDelta: 0.2 } }}
       style={{ ...wrapperStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
       onClick={e => {
-        e.stopPropagation()
+        stopPropagation && e.stopPropagation()
         if (!disabled) {
           onClick?.(e)
         }

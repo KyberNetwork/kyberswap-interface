@@ -7,7 +7,7 @@ import styled, { css } from 'styled-components'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
-import { useIsAcceptedTerm, useIsDarkMode } from 'state/user/hooks'
+import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
@@ -118,7 +118,6 @@ const Option = ({
   isOverridden?: boolean
   onSelected?: (walletKey: SUPPORTED_WALLET) => any
 }) => {
-  const isDarkMode = useIsDarkMode()
   const { walletKey: walletKeyConnected, isEVM, isSolana } = useActiveWeb3React()
   const isBraveBrowser = checkForBraveBrowser()
   const [isAcceptedTerm] = useIsAcceptedTerm()
@@ -126,7 +125,7 @@ const Option = ({
   const wallet = SUPPORTED_WALLETS[walletKey]
   const isConnected = !!walletKeyConnected && walletKey === walletKeyConnected
 
-  const icon = isDarkMode ? wallet.icon : wallet.iconLight
+  const icon = wallet.icon
 
   const content = (
     <OptionCardClickable
@@ -170,7 +169,7 @@ const Option = ({
 
   if (walletKey === 'WALLET_CONNECT') {
     return (
-      <MouseoverTooltip placement="bottom" text={<Trans>Under development and unsupported by most wallets</Trans>}>
+      <MouseoverTooltip placement="bottom" text={<Trans>Under development and unsupported by most wallets.</Trans>}>
         {content}
       </MouseoverTooltip>
     )

@@ -4,6 +4,8 @@ import { ArrowLeft, ExternalLink as LinkIconFeather, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, keyframes } from 'styled-components'
 
+import { navigateToUrl, validateRedirectURL } from 'utils/redirect'
+
 export const ButtonText = styled.button<{ color?: string; gap?: string }>`
   outline: none;
   border: none;
@@ -61,7 +63,7 @@ export const Button = styled.button.attrs<{ warning: boolean }, { backgroundColo
   }
 `
 
-export const CloseIcon = styled(X)<{ onClick: () => void }>`
+export const CloseIcon = styled(X)<{ onClick?: () => void }>`
   cursor: pointer;
 `
 
@@ -191,7 +193,7 @@ export function ExternalLink({
 }: Omit<HTMLProps<HTMLAnchorElement>, 'as' | 'ref'> & { href: string }) {
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
-      onClick && onClick(event)
+      onClick?.(event)
       // don't prevent default, don't redirect if it's a new tab
       if (target === '_blank' || event.ctrlKey || event.metaKey) {
       } else {
@@ -200,7 +202,15 @@ export function ExternalLink({
     },
     [target, onClick],
   )
-  return <StyledLink target={target} rel={rel} href={href} onClick={handleClick} {...rest} />
+  return (
+    <StyledLink
+      target={target}
+      rel={rel}
+      href={validateRedirectURL(href, { _dangerousSkipCheckWhitelist: true, allowRelativePath: true })}
+      onClick={handleClick}
+      {...rest}
+    />
+  )
 }
 
 export function ExternalLinkIcon({
@@ -217,14 +227,19 @@ export function ExternalLinkIcon({
         console.debug('Fired outbound link event', href)
       } else {
         event.preventDefault()
-
-        window.location.href = href
+        navigateToUrl(href, { _dangerousSkipCheckWhitelist: true, allowRelativePath: true })
       }
     },
     [href, target],
   )
   return (
-    <LinkIconWrapper target={target} rel={rel} href={href} onClick={handleClick} {...rest}>
+    <LinkIconWrapper
+      target={target}
+      rel={rel}
+      href={validateRedirectURL(href, { _dangerousSkipCheckWhitelist: true, allowRelativePath: true })}
+      onClick={handleClick}
+      {...rest}
+    >
       <LinkIcon color={color} />
     </LinkIconWrapper>
   )

@@ -1,14 +1,17 @@
 import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { commify } from 'ethers/lib/utils'
+import { useSearchParams } from 'react-router-dom'
 import { DefaultTheme } from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
+import { KyberAIListType } from 'pages/TrueSightV2/types'
+import { isInEnum } from 'utils/string'
 
-import { NETWORK_TO_CHAINID } from '../constants'
+import { KYBERSCORE_TAG_TYPE, NETWORK_TO_CHAINID } from '../constants'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
-  if (value === 0) return theme.darkMode ? theme.subText : theme.border
+  if (value === 0) return theme.subText
   if (value < 17) {
     return theme.red
   }
@@ -16,12 +19,28 @@ export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
     return '#FFA7C3'
   }
   if (value < 68) {
-    return theme.darkMode ? theme.text : theme.border
+    return theme.text
   }
   if (value < 84) {
     return '#8DE1C7'
   }
   return theme.primary
+}
+
+export const getTypeByKyberScore = (value: number): KYBERSCORE_TAG_TYPE => {
+  if (value < 17) {
+    return KYBERSCORE_TAG_TYPE.VERY_BEARISH
+  }
+  if (value < 34) {
+    return KYBERSCORE_TAG_TYPE.BEARISH
+  }
+  if (value < 68) {
+    return KYBERSCORE_TAG_TYPE.NEUTRAL
+  }
+  if (value < 84) {
+    return KYBERSCORE_TAG_TYPE.BULLISH
+  }
+  return KYBERSCORE_TAG_TYPE.VERY_BULLISH
 }
 
 export const formatShortNum = (num: number, fixed = 1): string => {
@@ -77,12 +96,12 @@ export const isReferrerCodeInvalid = (error: any) => error?.data?.code === 4040
 
 const mapErr: { [key: number]: string } = {
   4004: t`Verification code is wrong or expired. Please try again.`,
-  4040: t`Referral code is invalid`,
-  4090: t`This email address is already registered`,
+  4040: t`Referral code is invalid.`,
+  4090: t`This email address is already registered.`,
 }
 export const getErrorMessage = (error: any) => {
   const code = error?.data?.code
-  return mapErr[code] || t`Error occur, please try again`
+  return mapErr[code] || t`Error occur, please try again.`
 }
 
 export const navigateToSwapPage = ({ address, chain }: { address?: string; chain?: string }) => {
@@ -104,4 +123,22 @@ export const navigateToLimitPage = ({ address, chain }: { address?: string; chai
       `${APP_PATHS.LIMIT}/${formattedChain}?inputCurrency=${wethAddress}&outputCurrency=${address}`,
     '_blank',
   )
+}
+
+export const colorFundingRateText = (value: number, theme: DefaultTheme) => {
+  if (value > 0.015) return theme.primary
+  if (value > 0.005) return theme.text
+  return theme.red
+}
+
+export const useFormatParamsFromUrl = () => {
+  const [searchParams] = useSearchParams()
+  const { page, listType, sort, ...filter } = Object.fromEntries(searchParams)
+  const defaultTab = KyberAIListType.BULLISH
+  return {
+    page: +page || 1,
+    listType: (isInEnum(listType, KyberAIListType) ? listType : defaultTab) || defaultTab,
+    filter,
+    sort,
+  }
 }

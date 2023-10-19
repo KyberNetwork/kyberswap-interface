@@ -91,7 +91,7 @@ export default function SwapModalFooter({
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
               <MouseoverTooltip
                 width="200px"
-                text={<Trans>You will receive at least this amount or your transaction will revert</Trans>}
+                text={<Trans>You will receive at least this amount or your transaction will revert.</Trans>}
                 placement="right"
               >
                 <Trans>Minimum Received</Trans>

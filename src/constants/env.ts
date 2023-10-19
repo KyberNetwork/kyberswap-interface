@@ -39,8 +39,7 @@ export const ENV_LEVEL = !import.meta.env.VITE_TAG
   ? ENV_TYPE.DEV
   : ENV_TYPE.PROD
 
-export const LIMIT_ORDER_API_READ = required('LIMIT_ORDER_API_READ')
-export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')
+export const LIMIT_ORDER_API = required('LIMIT_ORDER_API')
 export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
 export const OAUTH_CLIENT_ID = required('OAUTH_CLIENT_ID')
@@ -63,7 +62,7 @@ type FirebaseConfig = {
   measurementId?: string
 }
 
-export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?: FirebaseConfig } } = {
+export const FIREBASE: { [key in EnvKeys]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?: FirebaseConfig } } = {
   development: {
     LIMIT_ORDER: {
       apiKey: 'AIzaSyBHRrinrQ3CXVrevZN442fjG0EZ-nYNNaU',
@@ -113,14 +112,17 @@ export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?:
   },
 }
 
-const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } = {
+type TemplateConfig = { [type in PrivateAnnouncementType]: string } & { EXCLUDE: string }
+const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   development: {
     [PrivateAnnouncementType.PRICE_ALERT]: '53',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
     [PrivateAnnouncementType.CROSS_CHAIN]: '48,49',
     [PrivateAnnouncementType.KYBER_AI]: '46',
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
+    [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,29,1,47,50,44,45',
   },
   staging: {
@@ -129,7 +131,9 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
     [PrivateAnnouncementType.CROSS_CHAIN]: '25,26',
     [PrivateAnnouncementType.KYBER_AI]: '27',
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
+    [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,11,1,28,29,22,23',
   },
   production: {
@@ -138,7 +142,9 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.CROSS_CHAIN]: '27,28',
     [PrivateAnnouncementType.KYBER_AI]: '26',
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '30',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
+    [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,16,19,9,25,24,21,22',
   },
 }
@@ -150,7 +156,7 @@ export enum EnvKeys {
 }
 export const ENV_KEY: EnvKeys = import.meta.env.VITE_ENV
 
-export const getAnnouncementsTemplateIds = (type: PrivateAnnouncementType | 'EXCLUDE') => {
+export const getAnnouncementsTemplateIds = (type: keyof TemplateConfig) => {
   return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]?.[type]
 }
 

@@ -495,6 +495,7 @@ export function useVotingInfo() {
     rewardStats: {
       knc: rewardStats ? +rewardStats.pending?.totalAmountInKNC + +rewardStats.liquidated?.totalAmountInKNC : 0,
       usd: rewardStats ? +rewardStats.pending?.totalAmountInUSD + +rewardStats.liquidated?.totalAmountInUSD : 0,
+      apr: rewardStats ? +rewardStats.apr : 0,
     },
   }
   return result
@@ -626,9 +627,16 @@ export function useClaimGasRefundRewards() {
     const rewardContractAddress = response.data.data.ContractAddress
     const encodedData = response.data.data.EncodedData
     try {
-      const tx = await sendEVMTransaction(account, library, rewardContractAddress, encodedData, BigNumber.from(0), {
-        name: ErrorName.GasRefundClaimError,
-        wallet: walletKey,
+      const tx = await sendEVMTransaction({
+        account,
+        library,
+        contractAddress: rewardContractAddress,
+        encodedData,
+        value: BigNumber.from(0),
+        sentryInfo: {
+          name: ErrorName.GasRefundClaimError,
+          wallet: walletKey,
+        },
       })
       if (!tx) throw new Error()
       addTransactionWithType({

@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import polygonIcon from 'assets/networks/polygon.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const NOT_SUPPORT = null
@@ -12,10 +13,9 @@ const maticInfo: EVMNetworkInfo = {
   poolFarmRoute: 'polygon',
   aggregatorRoute: 'polygon',
   name: 'Polygon PoS',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
-  iconDark: NOT_SUPPORT,
+  icon: polygonIcon,
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon',
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
@@ -69,6 +69,7 @@ const maticInfo: EVMNetworkInfo = {
       '0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43',
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
+    'farmV2.1S': [],
   },
   limitOrder: '*',
   averageBlockTimeInSeconds: 2.6,

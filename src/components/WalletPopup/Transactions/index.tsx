@@ -194,7 +194,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
           <Flex flexDirection="column" alignItems="center" color={theme.subText} sx={{ gap: 10, marginTop: '20px' }}>
             <Info size={32} />
             <Text fontSize={'14px'}>
-              <Trans>You have no Transaction History</Trans>
+              <Trans>You have no Transaction History.</Trans>
             </Text>
           </Flex>
         ) : (

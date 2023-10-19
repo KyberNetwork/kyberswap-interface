@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { memo, useMemo } from 'react'
 import { ArrowRight } from 'react-feather'
-import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
@@ -21,7 +20,6 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
-import { SUPPORTED_NETWORK_KYBERAI } from 'pages/TrueSightV2/constants/index'
 import { useTokenOverviewQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 import { useIsWhiteListKyberAI, useShowKyberAIBanner } from 'state/user/hooks'
@@ -37,8 +35,6 @@ const KyberAITokenBanner = ({
   const { chainId, account } = useActiveWeb3React()
   const { isWhiteList } = useIsWhiteListKyberAI()
   const isShowKyberAIBanner = useShowKyberAIBanner()
-
-  const navigate = useNavigate()
   const { mixpanelHandler } = useMixpanel()
   const chain = Object.keys(NETWORK_TO_CHAINID).find(i => NETWORK_TO_CHAINID[i] === chainId)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
@@ -70,7 +66,7 @@ const KyberAITokenBanner = ({
     { skip: !account || !isWhiteList || !chain || !isShowKyberAIBanner, refetchOnMountOrArgChange: true },
   )
 
-  const token: { kyberScore?: number; label?: string; address?: string; logo?: string; symbol?: string } | undefined =
+  const token: { kyberScore?: number; label?: string; assetId?: number; logo?: string; symbol?: string } | undefined =
     useMemo(() => {
       if (staticMode) {
         return undefined
@@ -90,7 +86,7 @@ const KyberAITokenBanner = ({
       return {
         kyberScore: token?.kyberScore?.score,
         label: token?.kyberScore?.label,
-        address: token?.address,
+        assetId: token?.assetId,
         logo: token?.logo,
         symbol: token?.symbol,
       }
@@ -101,24 +97,23 @@ const KyberAITokenBanner = ({
   if (staticMode && isStableCoin(currencyIn?.wrapped.address.toLowerCase())) return null
   const staticModeCurrency = !currencyIn || KNC[chainId].equals(currencyIn) ? NativeCurrencies[chainId] : currencyIn
   const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
+
+  const handleBannerClick = () => {
+    if (staticMode) {
+      window.open(APP_PATHS.KYBERAI_ABOUT, '_blank')
+    } else {
+      if (!token) return
+      window.open(APP_PATHS.KYBERAI_EXPLORE + '/' + token?.assetId, '_blank')
+    }
+    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SWAP_INSIGHT_CLICK, {
+      input_token: token0?.symbol?.toUpperCase(),
+      output_token: token1?.symbol?.toUpperCase(),
+    })
+  }
   return (
     <Wrapper>
       {above768 ? (
-        <Container
-          color={color}
-          onClick={() => {
-            mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SWAP_INSIGHT_CLICK, {
-              input_token: token0?.symbol?.toUpperCase(),
-              output_token: token1?.symbol?.toUpperCase(),
-            })
-            staticMode
-              ? window.open(APP_PATHS.KYBERAI_ABOUT, '_blank')
-              : window.open(
-                  APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address,
-                  '_blank',
-                )
-          }}
-        >
+        <Container color={color} onClick={handleBannerClick}>
           <RowFit gap="8px">
             {staticMode ? (
               <CurrencyLogo currency={staticModeCurrency} size={'32px'} />
@@ -174,37 +169,13 @@ const KyberAITokenBanner = ({
                 </Text>{' '}
                 here!{' '}
               </Trans>
-              <ArrowRight
-                size={14}
-                stroke={theme.primary}
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SWAP_INSIGHT_CLICK, {
-                    input_token: token0?.symbol?.toUpperCase(),
-                    output_token: token1?.symbol?.toUpperCase(),
-                  })
-
-                  navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
-                }}
-              />
+              <ArrowRight size={14} stroke={theme.primary} style={{ cursor: 'pointer' }} />
             </RowFit>
           </Column>
           <div style={{ width: '100px' }}></div>
         </Container>
       ) : (
-        <MobileContainer
-          color={color}
-          onClick={() => {
-            mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SWAP_INSIGHT_CLICK, {
-              input_token: token0?.symbol?.toUpperCase(),
-              output_token: token1?.symbol?.toUpperCase(),
-            })
-            window.open(
-              APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address,
-              '_blank',
-            )
-          }}
-        >
+        <MobileContainer color={color} onClick={handleBannerClick}>
           <RowBetween>
             <RowFit gap="8px">
               {staticMode ? (

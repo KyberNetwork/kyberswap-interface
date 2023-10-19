@@ -45,9 +45,17 @@ function ClassicElasticTab() {
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const showLegacyExplicit = upToMedium ? false : isFarmpage ? shouldShowFarmTab : shouldShowPositionTab
+  const dontShowLegacy = [ChainId.ZKEVM, ChainId.BASE, ChainId.LINEA, ChainId.SCROLL].includes(chainId)
 
-  const dontShowLegacy = [ChainId.ZKEVM, ChainId.BASE, ChainId.LINEA].includes(chainId)
+  const showLegacyExplicit =
+    upToMedium || dontShowLegacy ? false : isFarmpage ? shouldShowFarmTab : shouldShowPositionTab
+
+  useEffect(() => {
+    if (dontShowLegacy && tab === VERSION.ELASTIC_LEGACY) {
+      const newQs = { ...qs, tab: VERSION.ELASTIC }
+      navigate({ search: stringify(newQs) }, { replace: true })
+    }
+  }, [tab, dontShowLegacy, navigate, qs])
 
   const legacyTag = (small?: boolean) => (
     <Text

@@ -5,6 +5,7 @@ import { Flex, Text } from 'rebass'
 import { useGetClassicEarningQuery, useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
 import styled from 'styled-components'
 
+import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import {
   COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC,
   COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY,
@@ -12,7 +13,6 @@ import {
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import ChainSelect from 'pages/MyEarnings/ChainSelect'
-import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
 import { calculateEarningBreakdowns, calculateTicksOfAccountEarningsInMultipleChains } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'

@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
@@ -76,11 +76,17 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
       </InfoRow>
       <InfoRow>
         <Text color={theme.subText}>
+          <Trans>Quorum Status</Trans>
+        </Text>
+        <Text color={theme.text}>{proposal.vote_stats.quorum_status === 1 ? t`Reached` : t`Not Reached`}</Text>
+      </InfoRow>
+      <InfoRow>
+        <Text color={theme.subText}>
           <Trans>Your KIP Voting Power</Trans>{' '}
           <InfoHelper
             placement="top"
             text="Your KIP Voting Power is calculated by
-            [Your Staked KNC] / [Total Voted KNC in this KIP] * 100%"
+            [Your Staked KNC] / [Total Voted KNC in this KIP] * 100%."
           />
         </Text>
         <Text color={theme.text}>

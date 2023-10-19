@@ -16,7 +16,7 @@ import { THRESHOLD_HEADER, Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
+import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import KyberAINavItem from './KyberAINavItem'
@@ -176,7 +176,6 @@ const LogoIcon = styled.div`
 
 export default function Header() {
   const { networkInfo } = useActiveWeb3React()
-  const isDark = useIsDarkMode()
   const [holidayMode] = useHolidayMode()
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
@@ -194,15 +193,11 @@ export default function Header() {
         <Title to={`${APP_PATHS.SWAP}/${networkInfo.route}`}>
           {holidayMode ? (
             <LogoIcon>
-              <IconImage
-                isChristmas
-                src={isDark ? '/christmas-logo-dark.svg' : '/christmas-logo-light.svg'}
-                alt="logo"
-              />
+              <IconImage isChristmas src={'/christmas-logo-dark.svg'} alt="logo" />
             </LogoIcon>
           ) : (
             <LogoIcon>
-              <IconImage src={isDark ? '/logo-dark.svg' : '/logo.svg'} alt="logo" />
+              <IconImage src={'/logo-dark.svg'} alt="logo" />
             </LogoIcon>
           )}
         </Title>

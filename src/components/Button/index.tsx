@@ -83,6 +83,11 @@ const disabledPrimary = css<{
 export const ButtonPrimary = styled(Base)`
   background-color: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.textReverse};
+  &:hover {
+    color: ${({ theme }) => theme.textReverse};
+    filter: brightness(0.8);
+  }
+
   &:active {
     box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.primary)};
     background-color: ${({ theme }) => darken(0.1, theme.primary)};
@@ -385,5 +390,38 @@ export const ButtonApprove = ({
       confirmed={approval === ApprovalState.APPROVED && !forceApprove}
       text={approval === ApprovalState.PENDING ? t`Approving` : t`Approve ${tokenSymbol}`}
     />
+  )
+}
+
+const StyledButtonAction = styled(RebassButton)`
+  cursor: pointer;
+  appearance: none;
+  padding: 2px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  outline: none;
+  border-radius: 50%;
+  border: none;
+  color: unset;
+  transition: all 0.1s;
+  :hover {
+    background-color: ${({ theme }) => theme.subText + '20'};
+  }
+  :active {
+    background-color: ${({ theme }) => theme.subText + '10'};
+    transform: translateY(2px);
+  }
+`
+
+export const ButtonAction = ({
+  onClick,
+  children,
+  ...rest
+}: { onClick?: () => void; children: ReactNode } & ButtonProps) => {
+  return (
+    <StyledButtonAction onClick={onClick} {...rest}>
+      {children}
+    </StyledButtonAction>
   )
 }

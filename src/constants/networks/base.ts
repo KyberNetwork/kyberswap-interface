@@ -16,9 +16,9 @@ const base: EVMNetworkInfo = {
   aggregatorRoute: 'base',
   name: 'Base',
   icon: 'https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/in-product/Base_Network_Logo.svg',
-  iconDark: NOT_SUPPORT,
+
   iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
+
   defaultBlockSubgraph: 'https://base-graph.kyberengineering.io/subgraphs/name/kybernetwork/base-blocks',
   etherscanUrl: 'https://basescan.org',
   etherscanName: 'Base Explorer',

@@ -6,7 +6,6 @@ import { Flex, Text } from 'rebass'
 import { useSaveCrossChainTxsMutation } from 'services/crossChain'
 import styled from 'styled-components'
 
-import SquidLogoDark from 'assets/images/squid_dark.png'
 import SquidLogoLight from 'assets/images/squid_light.png'
 import { ReactComponent as ArrowUp } from 'assets/svg/arrow_up.svg'
 import { ButtonLight } from 'components/Button'
@@ -41,7 +40,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useCrossChainSetting, useDegenModeManager, useIsDarkMode } from 'state/user/hooks'
+import { useCrossChainSetting, useDegenModeManager } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
@@ -121,7 +120,6 @@ export default function SwapForm() {
   const { selectCurrencyIn, selectCurrencyOut, selectDestChain, setInputAmount } = useCrossChainHandlers()
 
   const toggleWalletModal = useWalletModalToggle()
-  const isDark = useIsDarkMode()
   const theme = useTheme()
 
   // modal and loading
@@ -358,6 +356,7 @@ export default function SwapForm() {
                 <ExternalLink href={'https://axelar.network/blog/what-is-axlusdc-and-how-do-you-get-it'}>
                   here ↗
                 </ExternalLink>
+                .
               </Trans>
             </Text>
           }
@@ -388,7 +387,7 @@ export default function SwapForm() {
           />
         ) : (
           <ButtonLight onClick={toggleWalletModal}>
-            <Trans>Connect Wallet</Trans>
+            <Trans>Connect</Trans>
           </ButtonLight>
         )}
 
@@ -405,7 +404,7 @@ export default function SwapForm() {
           >
             Powered by
             <ExternalLink href="https://squidrouter.com/" style={{ width: 'fit-content' }}>
-              <img src={isDark ? SquidLogoLight : SquidLogoDark} alt="kyberswap with squid" height={22} />
+              <img src={SquidLogoLight} alt="kyberswap with squid" height={22} />
             </ExternalLink>
           </Flex>
           <Text color={theme.primary} style={{ cursor: 'pointer', fontSize: 12, fontWeight: '500' }}>

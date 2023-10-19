@@ -14,7 +14,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useWalletSupportedChains } from 'hooks/web3/useWalletSupportedChains'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -70,7 +69,6 @@ const NetworkLabel = styled.div`
 function SelectNetwork(): JSX.Element | null {
   const { chainId, networkInfo } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
-  const isDarkMode = useIsDarkMode()
   const toggleNetworkModal = useNetworkModalToggle()
   const userEthBalance = useNativeBalance()
   const labelContent = useMemo(() => {
@@ -90,25 +88,21 @@ function SelectNetwork(): JSX.Element | null {
     >
       <NetworkSwitchContainer>
         <Row gap="10px">
-          <img
-            src={(isDarkMode && networkInfo.iconDark) || networkInfo.icon}
-            alt={networkInfo.name + ' logo'}
-            style={{ width: 20, height: 20 }}
-          />
+          <img src={networkInfo.icon} alt={networkInfo.name + ' logo'} style={{ width: 20, height: 20 }} />
           <NetworkLabel>{labelContent}</NetworkLabel>
         </Row>
         <DropdownIcon open={networkModalOpen} />
       </NetworkSwitchContainer>
       <NetworkModal
         selectedId={chainId}
-        disabledMsg={t`Unsupported by your wallet`}
+        disabledMsg={t`Unsupported by your wallet.`}
         activeChainIds={walletSupportsChain}
       />
     </NetworkCard>
   )
   if (disableSelectNetwork)
     return (
-      <MouseoverTooltip text={t`Unable to switch network. Please try it on your wallet`}>{button}</MouseoverTooltip>
+      <MouseoverTooltip text={t`Unable to switch network. Please try it on your wallet.`}>{button}</MouseoverTooltip>
     )
   return button
 }

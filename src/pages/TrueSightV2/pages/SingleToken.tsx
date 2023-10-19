@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -26,13 +26,11 @@ import KyberAIShareModal from '../components/KyberAIShareModal'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SwitchVariantDropdown from '../components/SwitchVariantDropdown'
 import { TokenOverview } from '../components/TokenOverview'
-import { StarWithAnimation } from '../components/WatchlistStar'
+import WatchlistButton from '../components/WatchlistButton'
 import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
 import { DEFAULT_EXPLORE_PAGE_TOKEN, MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
-import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
-import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation } from '../hooks/useKyberAIData'
 import { DiscoverTokenTab, IAssetOverview } from '../types'
 import { navigateToSwapPage } from '../utils'
 import OnChainAnalysis from './OnChainAnalysis'
@@ -64,7 +62,7 @@ export const HeaderButton = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background-color: ${({ theme }) => (theme.darkMode ? theme.buttonGray : theme.background)};
+  background-color: ${({ theme }) => theme.buttonGray};
   color: ${({ theme }) => theme.subText};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.16);
   :hover {
@@ -249,39 +247,12 @@ const TokenDescription = ({ description }: { description: string }) => {
 
 const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoading?: boolean }) => {
   const theme = useTheme()
-  const mixpanelHandler = useMixpanelKyberAI()
   const navigate = useNavigate()
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain, address } = useKyberAIAssetOverview()
-  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
-  const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
-  const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
-  const [isWatched, setIsWatched] = useState(false)
+  const { assetId } = useParams()
+  const { chain } = useKyberAIAssetOverview()
 
-  const handleStarClick = () => {
-    if (!token || !chain || !address) return
-    if (isWatched) {
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-        token_name: token.symbol?.toUpperCase(),
-        source: 'explore',
-        option: 'remove',
-      })
-      removeFromWatchlist({
-        tokenAddress: address,
-        chain,
-      }).then(() => setIsWatched(false))
-    } else {
-      if (!reachedMaxLimit) {
-        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-          token_name: token.symbol?.toUpperCase(),
-          source: 'explore',
-          option: 'add',
-        })
-        addToWatchlist({ tokenAddress: address, chain }).then(() => setIsWatched(true))
-      }
-    }
-  }
   const handleGoBackClick = () => {
     if (!!location?.state?.from) {
       navigate(location.state.from)
@@ -289,11 +260,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
       navigate({ pathname: APP_PATHS.KYBERAI_RANKINGS })
     }
   }
-  useEffect(() => {
-    if (token) {
-      setIsWatched(token.isWatched)
-    }
-  }, [token])
+
   return (
     <>
       <SimpleTooltip text={t`Go back Ranking page`} hideOnMobile>
@@ -301,25 +268,19 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
           <ChevronLeft size={24} />
         </ButtonIcon>
       </SimpleTooltip>
-      <SimpleTooltip
-        text={isWatched ? t`Remove from watchlist` : reachedMaxLimit ? t`Reached 30 tokens limit` : t`Add to watchlist`}
-        hideOnMobile
-      >
-        <StarWithAnimation
-          watched={isWatched}
-          loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
-          size={16}
-          disabled={!isWatched && reachedMaxLimit}
-          wrapperStyle={{
-            color: isWatched ? theme.primary : theme.subText,
-            backgroundColor: isWatched ? theme.primary + '33' : theme.darkMode ? theme.buttonGray : theme.background,
+      <WatchlistButton
+        assetId={assetId}
+        wrapperStyle={useMemo(() => {
+          return {
+            color: theme.subText,
+            backgroundColor: theme.buttonGray,
             height: above768 ? '36px' : '32px',
             width: above768 ? '36px' : '32px',
             borderRadius: '100%',
-          }}
-          onClick={handleStarClick}
-        />
-      </SimpleTooltip>
+          }
+        }, [above768, theme])}
+        symbol={token?.symbol}
+      />
       <div style={{ position: 'relative' }}>
         <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
           {token?.logo ? (
@@ -525,7 +486,7 @@ const TokenHeader = ({
               token_name: token?.symbol?.toUpperCase(),
               network: chain,
             })
-            navigateToSwapPage({ address: token?.address, chain })
+            navigateToSwapPage({ address, chain })
           }}
         >
           <RowFit gap="4px">

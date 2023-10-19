@@ -704,6 +704,14 @@ export default function AddLiquidity() {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
+  const priceDiff =
+    baseCurrency && quoteCurrency && tokenA && tokenB && price
+      ? Math.abs(
+          Number((isSorted ? price : price?.invert())?.toSignificant(18)) /
+            (usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address]) -
+            1,
+        )
+      : 0
   const isPriceDeviated =
     baseCurrency &&
     quoteCurrency &&
@@ -715,6 +723,7 @@ export default function AddLiquidity() {
         (usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address]) -
         1,
     ) >= 0.02
+
   const isFullRange = activeRange === RANGE.FULL_RANGE
   const isValid = !errorMessage && !invalidRange
   const isWarningButton = isPriceDeviated || isFullRange || outOfRange
@@ -722,7 +731,7 @@ export default function AddLiquidity() {
   const Buttons = () =>
     !account ? (
       <ButtonLight onClick={toggleWalletModal} width={upToMedium ? '100%' : 'fit-content'} minWidth="164px !important">
-        <Trans>Connect Wallet</Trans>
+        <Trans>Connect</Trans>
       </ButtonLight>
     ) : (
       <Flex
@@ -857,7 +866,10 @@ export default function AddLiquidity() {
                   {formatDisplayNumber(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], {
                     significantDigits: 4,
                   })}{' '}
-                  {quoteCurrency.symbol}). You might have high impermanent loss after you add liquidity to this pool
+                  {quoteCurrency.symbol}) by {(priceDiff * 100).toFixed(2)}%. Please consider the{' '}
+                  <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/impermanent-loss">
+                    impermanent loss
+                  </ExternalLink>
                 </Trans>
               )}
             </TYPE.black>
@@ -879,7 +891,7 @@ export default function AddLiquidity() {
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
-              <Trans>Invalid range selected. The min price must be lower than the max price</Trans>
+              <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
             </TYPE.black>
           </Flex>
         </WarningCard>
@@ -888,7 +900,7 @@ export default function AddLiquidity() {
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
-              <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions</Trans>
+              <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions.</Trans>
             </TYPE.black>
           </Flex>
         </WarningCard>
@@ -898,7 +910,7 @@ export default function AddLiquidity() {
             <AlertTriangle stroke={theme.warning} size="16px" />
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
-                Your position will not earn fees until the market price of the pool moves into your price range
+                Your position will not earn fees until the market price of the pool moves into your price range.
               </Trans>
             </TYPE.black>
           </Flex>
@@ -911,7 +923,7 @@ export default function AddLiquidity() {
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
                 Warning: The price range for this liquidity position is not eligible for farming rewards. To become
-                eligible for rewards, please match the farm’s active range(s)
+                eligible for rewards, please match the farm’s active range(s).
               </Trans>
             </TYPE.black>
           </Flex>
@@ -933,7 +945,7 @@ export default function AddLiquidity() {
                 >
                   Slippage
                 </TextUnderlineColor>
-                <TextUnderlineTransparent> is high. Your transaction may be front-run</TextUnderlineTransparent>
+                <TextUnderlineTransparent> is high. Your transaction may be front-run.</TextUnderlineTransparent>
               </Trans>
             </TYPE.black>
           </Flex>
@@ -982,7 +994,7 @@ export default function AddLiquidity() {
             <DynamicSection gap="md" disabled={disableRangeSelect}>
               <Flex sx={{ gap: '6px' }} alignItems="center" lineHeight={1.5}>
                 <MouseoverTooltip
-                  text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
+                  text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees.`}
                 >
                   <RangeTab active={!showFarmRangeSelect} role="button" onClick={() => setShowFarmRangeSelect(false)}>
                     {isFarmV2Available ? <Trans>Custom Ranges</Trans> : <Trans>Select a Range</Trans>}
@@ -1629,9 +1641,11 @@ export default function AddLiquidity() {
                     <Flex>{warnings}</Flex>
                   </Row>
                 )}
-                <Flex maxWidth={chartRef?.current?.clientWidth} alignSelf="flex-end">
-                  <DisclaimerERC20 />
-                </Flex>
+                {tokenA && tokenB && (
+                  <Flex maxWidth={chartRef?.current?.clientWidth} alignSelf="flex-end">
+                    <DisclaimerERC20 token0={tokenA.address} token1={tokenB.address} />
+                  </Flex>
+                )}
 
                 <Row justify="flex-end">
                   <Buttons />

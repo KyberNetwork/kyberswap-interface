@@ -41,7 +41,12 @@ export default function TruesightFooter() {
   const toggle = useWalletModalToggle()
   const { account } = useActiveWeb3React()
   const location = useLocation()
-  if (account || location.pathname.startsWith(APP_PATHS.MY_EARNINGS)) {
+  if (
+    account ||
+    [APP_PATHS.MY_EARNINGS, APP_PATHS.IAM_LOGIN, APP_PATHS.IAM_CONSENT, APP_PATHS.IAM_LOGOUT].some(path =>
+      location.pathname.startsWith(path),
+    )
+  ) {
     return null
   }
 

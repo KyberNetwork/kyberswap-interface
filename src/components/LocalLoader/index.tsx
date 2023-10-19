@@ -1,7 +1,5 @@
 import styled, { css, keyframes } from 'styled-components'
 
-import { useIsDarkMode } from 'state/user/hooks'
-
 const pulse = keyframes`
   0% { transform: scale(1); }
   60% { transform: scale(1.1); }
@@ -38,11 +36,10 @@ interface LocalLoaderProps {
 }
 
 const LocalLoader = ({ fill }: LocalLoaderProps) => {
-  const iseDark = useIsDarkMode()
   return (
     <Wrapper fill={fill}>
       <AnimatedImg>
-        <img src={iseDark ? '/logo-dark.svg' : '/logo.svg'} alt="loading-icon" />
+        <img src={'/logo-dark.svg'} alt="loading-icon" />
       </AnimatedImg>
     </Wrapper>
   )

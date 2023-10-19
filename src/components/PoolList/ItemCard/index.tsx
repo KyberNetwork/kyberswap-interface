@@ -155,7 +155,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
       )}
 
       {isWarning && (
-        <MouseoverTooltip text={`One of the tokens in the pool is close to 0%. Pool might become inactive soon`}>
+        <MouseoverTooltip text={`One of the tokens in the pool is close to 0%. Pool might become inactive soon.`}>
           <IconWrapper
             style={{
               background: theme.warning,
@@ -268,7 +268,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
               placement="right"
               text={
                 !isFarmingPool ? (
-                  <Trans>Estimated return from trading fees if you participate in the pool</Trans>
+                  <Trans>Estimated return from trading fees if you participate in the pool.</Trans>
                 ) : (
                   <APRTooltipContent farmAPR={farmAPR || 0} poolAPR={Number(oneYearFL)} />
                 )

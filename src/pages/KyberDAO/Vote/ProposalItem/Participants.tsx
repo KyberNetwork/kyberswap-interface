@@ -11,6 +11,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { useProposalInfoById } from 'hooks/kyberdao'
 import { ProposalType, VoteDetail } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
+import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
 const Wrapper = styled.div`
@@ -165,7 +166,9 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
         }
       })
   }, [proposalInfo])
-  const options = proposalInfo?.options
+  const options = proposalInfo?.options.map(
+    (option, index) => (proposalId ? HARDCODED_OPTION_TITLE[proposalId] : {})?.[index] || option,
+  )
 
   // flag to reduce fontsize when contents are too long
   const isLongText = useMemo(() => {
@@ -176,15 +179,21 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
   return (
     <Wrapper>
       {options && participants
-        ? options.map((o, index) => {
+        ? options.map((optionTitle, index) => {
             const sumPower = proposalInfo?.vote_stats.options.find(option => option.option === index)?.vote_count
             const isWonOption =
               proposalInfo?.proposal_type === ProposalType.BinaryProposal &&
               proposalInfo?.vote_stats?.options.reduce((max, o) => (o.vote_count > max.vote_count ? o : max)).option ===
                 index
             const filteredParticipants = participants.filter(p => p.option === index)
+            const hardCodedTitle = proposalId ? HARDCODED_OPTION_TITLE[proposalId]?.[index] : undefined
             return (
-              <OptionWrapper key={o} isWonOption={isWonOption} onClick={() => setModalIndex(index)} hasHoverStyle>
+              <OptionWrapper
+                key={optionTitle}
+                isWonOption={isWonOption}
+                onClick={() => setModalIndex(index)}
+                hasHoverStyle
+              >
                 <RowBetween>
                   <RowFit height={19}>
                     {isWonOption && <img alt="gold-medal" src={Gold} style={{ marginRight: '8px' }} />}
@@ -192,7 +201,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                       fontSize={isLongText ? '14px' : '16px'}
                       style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
                     >
-                      {o}
+                      {hardCodedTitle || optionTitle}
                     </Text>
                   </RowFit>
 
@@ -234,7 +243,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                   onDismiss={() => setModalIndex(null)}
                   isWonOption={isWonOption}
                   sumPower={sumPower}
-                  option={o}
+                  option={optionTitle}
                 />
               </OptionWrapper>
             )

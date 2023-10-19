@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid'
 
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
+import { CAMPAIGN_BASE_URL } from './env'
 import * as ENV from './env'
 import { EVM_MAINNET_NETWORKS, EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
 
@@ -134,8 +134,6 @@ export const BLACKLIST_WALLETS: string[] = [
   '0xCa0840578f57fE71599D29375e16783424023357',
 ]
 
-export const NetworkContextName = 'NETWORK'
-
 // default allowed slippage, in bips
 export const INITIAL_ALLOWED_SLIPPAGE = 50
 // 20 minutes, denominated in seconds
@@ -144,7 +142,6 @@ export const DEFAULT_DEADLINE_FROM_NOW = 60 * 20
 export const TIME_TO_REFRESH_SWAP_RATE = 10
 
 export const BIG_INT_ONE = JSBI.BigInt(1)
-export const BIG_INT_MINUS_ONE = JSBI.BigInt(-1)
 export const BIG_INT_ZERO = JSBI.BigInt(0)
 
 // one basis point
@@ -163,8 +160,6 @@ export const BUNDLE_ID = '1'
 export const COINGECKO_BFF_API_URL = `${ENV.BFF_API}/v1/coingecko/api/v3`
 export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
 
-export const KNC_COINGECKO_ID = 'kyber-network-crystal'
-
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 export const ETHER_ADDRESS_SOLANA = 'So11111111111111111111111111111111111111111'
 
@@ -180,34 +175,22 @@ export const RESERVE_USD_DECIMALS = 100
 export const DEFAULT_SIGNIFICANT = 6
 export const SUBGRAPH_AMP_MULTIPLIER = 10000
 export const AMP_LIQUIDITY_HINT = t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`
-export const AMP_HINT = t`Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range`
-export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs`
+export const AMP_HINT = t`Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range.`
+export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs.`
 
 export const sentryRequestId = uuid()
 
-export const TRENDING_SOON_ITEM_PER_PAGE = 10
-export const TRENDING_SOON_MAX_ITEMS = 50
-export const TRENDING_ITEM_PER_PAGE = 25
 export const CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE = 10
 export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
 
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
-export const CAMPAIGN_BASE_URL = `${CAMPAIGN_BASE_DOMAIN}/api/v1/campaigns`
 export const SWR_KEYS = {
-  getGrantProgramLeaderBoard: (id: number | string) => `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions/${id}/leaderboard`,
-  getListGrantPrograms: `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions`,
-  getGrantProgram: (id: number | string) => `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions/${id}`,
-  getListCampaign: CAMPAIGN_BASE_URL,
-  getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/leaderboard',
-  getLuckyWinners: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/lucky-winners',
-  getCampaignTransactions: (campaignId: number, limit: number, offset: number, account: string) =>
-    `${CAMPAIGN_BASE_URL}/${campaignId}/proofs?limit=${limit}&offset=${offset}&userAddress=${account}`,
+  getGrantProgramLeaderBoard: (id: number | string) => `${CAMPAIGN_BASE_URL}/api/v1/competitions/${id}/leaderboard`,
+  getListGrantPrograms: `${CAMPAIGN_BASE_URL}/api/v1/competitions`,
+  getGrantProgram: (id: number | string) => `${CAMPAIGN_BASE_URL}/api/v1/competitions/${id}`,
 }
-
-// Epsilon 0 is absolute permittivity of free space whose value is 8.854×10^-12 and unit is C^2N^-1m–2.
-export const EPSILON = 0.000000000008854
 
 // https://www.nasdaq.com/glossary/b/bip
 export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 1999
@@ -251,6 +234,10 @@ export const APP_PATHS = {
   PROFILE_MANAGE: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',
   VERIFY_AUTH: '/auth',
+
+  IAM_LOGIN: '/login',
+  IAM_LOGOUT: '/logout',
+  IAM_CONSENT: '/consent',
 } as const
 
 export const TERM_FILES_PATH = {
@@ -308,6 +295,13 @@ export const RTK_QUERY_TAGS = {
 
   // kyber ai
   GET_PARTICIPANT_INFO_KYBER_AI: 'GET_PARTICIPANT_INFO_KYBER_AI',
+  GET_WATCHLIST_TOKENS_KYBER_AI: 'GET_WATCHLIST_TOKENS_KYBER_AI',
+  GET_WATCHLIST_INFO_KYBER_AI: 'GET_WATCHLIST_INFO_KYBER_AI',
+  GET_TOKEN_OVERVIEW_KYBER_AI: 'GET_TOKEN_OVERVIEW_KYBER_AI',
+  GET_TOKEN_LIST_KYBER_AI: 'GET_TOKEN_LIST_KYBER_AI',
+
+  // limit order
+  GET_LIST_ORDERS: 'GET_LIST_ORDERS',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
@@ -331,6 +325,7 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.FANTOM,
         ChainId.LINEA,
         ChainId.BASE,
+        ChainId.SCROLL,
       ]
     : SUPPORTED_NETWORKS
 
@@ -339,6 +334,7 @@ export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [
   ChainId.LINEA,
   ChainId.ZKEVM,
   ChainId.BASE,
+  ChainId.SCROLL,
 ]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
@@ -396,6 +392,10 @@ export const ICON_IDS = [
   'twitter',
   'facebook',
   'discord',
+  'assignment',
+  'drag-indicator',
+  'pencil',
+  'trash',
 ] as const
 export type ICON_ID = typeof ICON_IDS[number]
 
@@ -408,4 +408,9 @@ export const FRAX_FARMS: { [chainId in ChainId]?: string[] } = {
   [ChainId.MATIC]: ['0xa5ebdde0f2e657d77bebeda085dd49f6decf8504'],
   [ChainId.ARBITRUM]: ['0x6a7dccf168fba624a81b293c2538d31427b5b4bd'],
   [ChainId.OPTIMISM]: ['0xa837d04a64acf66912d05cfd9b951e4e399ab680'],
+}
+
+export enum SORT_DIRECTION {
+  ASC = 'asc',
+  DESC = 'desc',
 }

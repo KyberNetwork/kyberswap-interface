@@ -1,16 +1,12 @@
 import { t } from '@lingui/macro'
 
 import { didUserReject } from 'constants/connectors/utils'
-
-function capitalizeFirstLetter(str?: string) {
-  const string = str || ''
-  return string.charAt(0).toUpperCase() + string.slice(1)
-}
+import { capitalizeFirstLetter } from 'utils/string'
 
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''
 
-  if (!error || error.includes('router: expired')) return 'An error occurred. Refresh the page and try again '
+  if (!error || error.includes('router: expired')) return 'An error occurred. Refresh the page and try again.'
 
   if (
     error.includes('mintotalamountout') ||
@@ -19,7 +15,7 @@ function parseKnownPattern(text: string): string | undefined {
     error.includes('code=call_exception') ||
     error.includes('none of the calls threw an error')
   )
-    return t`An error occurred. Try refreshing the price rate or increase max slippage`
+    return t`An error occurred. Try refreshing the price rate or increase max slippage.`
 
   if (
     error.includes('insufficient funds for intrinsic transaction cost') ||
@@ -34,14 +30,14 @@ function parseKnownPattern(text: string): string | undefined {
   if (didUserReject(error)) return t`User rejected the transaction.`
 
   // classic/elastic remove liquidity error
-  if (error.includes('insufficient')) return t`An error occurred. Please try increasing max slippage`
+  if (error.includes('insufficient')) return t`An error occurred. Please try increasing max slippage.`
 
-  if (error.includes('permit')) return t`An error occurred. Invalid Permit Signature`
+  if (error.includes('permit')) return t`An error occurred. Invalid Permit Signature.`
 
   if (error.includes('burn amount exceeds balance'))
-    return t`Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later`
+    return t`Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later.`
 
-  if (error === '[object Object]') return t`Something went wrong. Please try again`
+  if (error === '[object Object]') return t`Something went wrong. Please try again.`
 
   return undefined
 }

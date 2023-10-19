@@ -275,7 +275,7 @@ const LoadingHandleWrapper = ({
               <Column gap="14px" alignItems="center">
                 <Info size="38px" />
                 <Text fontSize="14px">
-                  <Trans>We couldn&apos;t find any information for this token</Trans>
+                  <Trans>We couldn&apos;t find any information for this token.</Trans>
                 </Text>
               </Column>
             )}
@@ -2684,7 +2684,7 @@ export const Prochart = ({
       fullscreen: false,
       autosize: true,
       studies_overrides: {},
-      theme: theme.darkMode ? 'Dark' : 'Light',
+      theme: 'Dark',
       custom_css_url: '/charting_library/style.css',
       timeframe: '1m',
       time_frames: [
@@ -2703,7 +2703,7 @@ export const Prochart = ({
     tvWidget.onChartReady(() => {
       tvWidget.applyOverrides({
         'paneProperties.backgroundType': 'solid',
-        'paneProperties.background': theme.darkMode ? theme.buttonBlack : theme.background,
+        'paneProperties.background': theme.buttonBlack,
         'mainSeriesProperties.priceLineColor': theme.blue,
         'mainSeriesProperties.candleStyle.upColor': theme.primary,
         'mainSeriesProperties.candleStyle.borderUpColor': theme.primary,
@@ -2781,9 +2781,8 @@ export const Prochart = ({
       const subscriptionDataLoaded = tvWidget?.activeChart()?.onDataLoaded()
       subscriptionDataLoaded?.subscribe(null, handleDataLoaded, true)
 
-      if (!showSRLevels) {
-        removeSRLevels()
-      } else {
+      removeSRLevels()
+      if (showSRLevels) {
         addSRLevels()
       }
     } catch (error) {}

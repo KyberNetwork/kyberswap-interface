@@ -79,7 +79,7 @@ export default function CampaignButtonWithOptions({
     selectedCampaignLeaderboard,
   } = useSelector((state: AppState) => state.campaigns)
   const transactions = useMemo(
-    () => (campaign ? transactionsState[parseInt(campaign.rewardChainIds)] ?? {} : {}),
+    () => (campaign ? transactionsState[Number(campaign.rewardChainIds) as ChainId] ?? {} : {}),
     [transactionsState, campaign],
   )
   const [claimingCampaignRewardId, setClaimingCampaignRewardId] = useSetClaimingCampaignRewardId()
@@ -190,27 +190,24 @@ export default function CampaignButtonWithOptions({
           }
           return
         }
-        await sendEVMTransaction(
+        const transactionResponse = await sendEVMTransaction({
           account,
           library,
-          rewardContractAddress,
+          contractAddress: rewardContractAddress,
           encodedData,
-          BigNumber.from(0),
-          { name: ErrorName.ClaimCampaignError, wallet: walletKey },
-          async transactionResponse => {
-            addClaimTransactionAndAddClaimRef(
-              transactionResponse.hash,
-              claimChainId,
-              rewardString,
-              rewardContractAddress,
-            )
-            const transactionReceipt = await transactionResponse.wait()
-            if (transactionReceipt.status === 1) {
-              addTemporaryClaimedRefs && addTemporaryClaimedRefs(refs)
-              updateCampaignStore()
-            }
+          value: BigNumber.from(0),
+          sentryInfo: {
+            name: ErrorName.ClaimCampaignError,
+            wallet: walletKey,
           },
-        )
+        })
+        if (!transactionResponse) throw new Error()
+        addClaimTransactionAndAddClaimRef(transactionResponse.hash, claimChainId, rewardString, rewardContractAddress)
+        const transactionReceipt = await transactionResponse.wait()
+        if (transactionReceipt.status === 1) {
+          addTemporaryClaimedRefs && addTemporaryClaimedRefs(refs)
+          updateCampaignStore()
+        }
       } catch (err) {
         console.error(err)
         setClaimingCampaignRewardId(null)

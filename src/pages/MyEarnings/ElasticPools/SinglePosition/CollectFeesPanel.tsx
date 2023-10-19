@@ -13,7 +13,10 @@ import { ButtonOutlined } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
+import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { config } from 'hooks/useElasticLegacy'
@@ -27,7 +30,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { updateChainId } from 'state/user/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin } from 'utils'
+import { basisPointsToPercent, buildFlagsForFarmV21, calculateGasMargin } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
@@ -46,6 +49,7 @@ type Props = {
 
 const FarmInterface = new Interface(PROMM_FARM_ABI)
 const FarmV2Interface = new Interface(FarmV2ABI)
+const FarmV21Interface = new Interface(FarmV21ABI)
 
 const CollectFeesPanel: React.FC<Props> = ({
   nftId,
@@ -141,13 +145,31 @@ const CollectFeesPanel: React.FC<Props> = ({
       return
     }
 
+    const isFarmV21 = (NETWORKS_INFO[chainId] as EVMNetworkInfo)?.elastic['farmV2.1S']
+      ?.map(item => item.toLowerCase())
+      .includes(farmAddress.toLowerCase())
+
     const amount0Min = feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage)))
     const amount1Min = feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
     try {
-      const encoded = (fId ? FarmV2Interface : FarmInterface).encodeFunctionData(
+      const encoded = (fId ? (isFarmV21 ? FarmV21Interface : FarmV2Interface) : FarmInterface).encodeFunctionData(
         'claimFee',
         fId
-          ? [fId, [nftId], amount0Min.quotient.toString(), amount1Min.quotient.toString(), deadline?.toString(), true]
+          ? isFarmV21
+            ? [
+                fId,
+                [nftId],
+                amount0Min.quotient.toString(),
+                amount1Min.quotient.toString(),
+                deadline?.toString(),
+                buildFlagsForFarmV21({
+                  isClaimFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+                  isSyncFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+                  isClaimReward: false,
+                  isReceiveNative: true,
+                }),
+              ]
+            : [fId, [nftId], amount0Min.quotient.toString(), amount1Min.quotient.toString(), deadline?.toString(), true]
           : [
               [nftId],
               amount0Min.quotient.toString(),
@@ -269,7 +291,7 @@ const CollectFeesPanel: React.FC<Props> = ({
         >
           <MouseoverTooltip
             width="200px"
-            text={<Trans>Your fees are being automatically compounded so you earn more</Trans>}
+            text={<Trans>Your fees are being automatically compounded so you earn more.</Trans>}
             placement="top"
           >
             <Trans>Fees Earned</Trans>

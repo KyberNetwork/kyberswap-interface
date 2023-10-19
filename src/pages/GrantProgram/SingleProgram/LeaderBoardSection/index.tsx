@@ -120,7 +120,7 @@ const LeaderBoardSection: React.FC<Props> = ({ programId, showRefreshTimer }) =>
                 color: theme.subText,
               }}
             >
-              <Trans>Currently there are no Projects</Trans>
+              <Trans>Currently there are no Projects.</Trans>
             </Text>
           </Flex>
         </AbsoluteContainer>

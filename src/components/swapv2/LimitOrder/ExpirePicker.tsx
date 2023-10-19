@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
+import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Calendar, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -44,8 +45,8 @@ const DefaultOptionContainer = styled.div`
 `
 
 const ResultContainer = styled.div`
-  border: ${({ theme }) => `1px solid ${theme.warning}`};
-  padding: 10px;
+  background-color: ${({ theme }) => rgba(theme.warning, 0.2)};
+  padding: 12px;
   border-radius: 20px;
   width: 100%;
   display: flex;
@@ -132,11 +133,10 @@ export default function DateTimePicker({
     menuStyle: {
       height: 250,
       overflow: 'scroll',
-      top: 'unset',
-      right: 'unset',
       textAlign: 'center',
       width: 'fit-content',
     } as CSSProperties,
+    placement: 'left',
   }
 
   const expireResult = defaultExpire ? Date.now() + defaultExpire * 1000 : date
