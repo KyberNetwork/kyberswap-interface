@@ -59,8 +59,9 @@ export function useZapInPoolResult(params?: {
 
   const [aggregatorOutputs, setAggregatorOutputs] = useState<Array<RouteSummary>>([])
 
+  const { tokenIn, tokenOut, poolAddress } = params || {}
   useEffect(() => {
-    if (params) {
+    if (tokenIn && tokenOut && poolAddress) {
       setAggregatorOutputs([])
       Promise.all(
         splitedAmount.map(item => {
@@ -68,11 +69,11 @@ export function useZapInPoolResult(params?: {
             url,
             authentication: false,
             params: {
-              tokenIn: params.tokenIn,
-              tokenOut: params.tokenOut,
+              tokenIn,
+              tokenOut,
               saveGas: '',
               amountIn: item.quotient.toString(),
-              excludedPools: params.poolAddress,
+              excludedPools: poolAddress,
             },
             clientId: 'kyberswap-zap',
           })
@@ -81,7 +82,7 @@ export function useZapInPoolResult(params?: {
         .then(res => res?.map(item => item?.data?.data?.routeSummary) || [])
         .then(res => setAggregatorOutputs(res.filter(Boolean) as Array<RouteSummary>))
     }
-  }, [params, splitedAmount, getRoute, url])
+  }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url])
 
   const callParams = useMemo(
     () =>

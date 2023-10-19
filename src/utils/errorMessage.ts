@@ -13,7 +13,7 @@ function parseKnownPattern(text: string): string | undefined {
     error.includes('err_limit_out') ||
     error.includes('return amount is not enough') ||
     error.includes('code=call_exception') ||
-    error.includes('none of the calls threw an error')
+    error.includes('none of the calls threw an error' || error.includes('failed to swap with aggr'))
   )
     return t`An error occurred. Try refreshing the price rate or increase max slippage.`
 
