@@ -72,7 +72,8 @@ const renderNotificationButton = (iconOnly: boolean) => {
         <div>
           <Trans>
             Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes
-            <Highlight>out-of-range</Highlight> or comes back <Highlight>in-range</Highlight>, you will receive an email
+            <Highlight>out-of-range</Highlight> or comes back <Highlight>in-range</Highlight>, you will receive an
+            email.
           </Trans>
         </div>
       }
