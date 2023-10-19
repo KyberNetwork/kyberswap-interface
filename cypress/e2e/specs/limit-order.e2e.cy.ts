@@ -90,7 +90,7 @@ describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
     })
 
     describe('Messages', () => {
-        it.only('Verify error message when insufficient balance', () => {
+        it('Verify error message when insufficient balance', () => {
             LimitOder.getBalanceIn((text) => {
                 LimitOder.setAmountIn(String(Number(text) + 1))
                 LimitOder.getInsufficientErrorMessage().should('be.visible')
