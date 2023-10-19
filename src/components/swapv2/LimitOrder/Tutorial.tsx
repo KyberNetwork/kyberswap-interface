@@ -64,7 +64,8 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
         </Column>
 
         <Column gap="12px">
-          <ContentItem text={t`Place limit orders on thousands of tokens`} />
+          <ContentItem text={t`Buy or sell tokens at the price you want`} />
+          <ContentItem text={t`Place orders on thousands on tokens for free`} />
           <ContentItem text={t`Get your orders filled without paying any gas fees`} />
           <ContentItem
             text={
@@ -82,11 +83,11 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
       <Column gap="16px" width={'100%'}>
         <Text fontSize={'14px'} textAlign={'center'} color={theme.subText}>
           <Trans>
-            Learn more about <ExternalLink href={DOCS_LINKS.USER_GUIDE}>KyberSwap Limit Order</ExternalLink>
+            Learn more about our limit orders <ExternalLink href={DOCS_LINKS.USER_GUIDE}>here</ExternalLink>
           </Trans>
         </Text>
         <ButtonPrimary height="40px" width={'100%'} onClick={onClose}>
-          <Trans>Get started with limit orders</Trans>
+          <Trans>Get Started</Trans>
         </ButtonPrimary>
       </Column>
     </Wrapper>
