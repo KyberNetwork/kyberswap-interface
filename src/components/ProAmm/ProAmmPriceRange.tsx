@@ -49,7 +49,7 @@ export default function ProAmmPriceRange({
             <Trans>Selected Price Range</Trans>
           </Text>
           <InfoHelper
-            text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
+            text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees.`}
             placement={'right'}
             size={12}
           ></InfoHelper>
@@ -94,7 +94,7 @@ export default function ProAmmPriceRange({
               <Trans>Min Price</Trans>
             </Text>
             <InfoHelper
-              text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}
+              text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price.`}
               placement={'right'}
               size={12}
             />
@@ -112,7 +112,7 @@ export default function ProAmmPriceRange({
               <Trans>Max Price</Trans>
             </Text>
             <InfoHelper
-              text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}
+              text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price.`}
               placement={'right'}
               size={12}
             />

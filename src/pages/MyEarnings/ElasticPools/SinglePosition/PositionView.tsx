@@ -224,7 +224,7 @@ const PositionView: React.FC<CommonProps> = props => {
             <Trans>My Liquidity Balance</Trans>
           </Label>
           <Label $hasTooltip>
-            <MouseoverTooltip width="fit-content" text={<Trans>Amount staked in a farm</Trans>} placement="top">
+            <MouseoverTooltip width="fit-content" text={<Trans>Amount staked in a farm.</Trans>} placement="top">
               <Trans>My Staked Balance</Trans>
             </MouseoverTooltip>
           </Label>

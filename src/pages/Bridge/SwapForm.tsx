@@ -236,15 +236,15 @@ export default function SwapForm() {
 
     if (!tokenInfoIn || !chainIdOut || !tokenInfoOut || inputNumber === 0) return
 
-    if (isNaN(inputNumber)) return t`Input amount is not valid`
+    if (isNaN(inputNumber)) return t`Input amount is not valid.`
 
     if (inputNumber < Number(tokenInfoOut.MinimumSwap)) {
       return t`The amount to bridge must be more than ${formattedNum(tokenInfoOut.MinimumSwap, false, 5)} ${
         tokenInfoIn.symbol
-      }`
+      }.`
     }
     if (inputNumber > Number(tokenInfoOut.MaximumSwap)) {
-      return t`The amount to bridge must be less than ${formattedNum(tokenInfoOut.MaximumSwap)} ${tokenInfoIn.symbol}`
+      return t`The amount to bridge must be less than ${formattedNum(tokenInfoOut.MaximumSwap)} ${tokenInfoIn.symbol}.`
     }
 
     if (tokenInfoOut.isLiquidity && tokenInfoOut.underlying) {

@@ -297,7 +297,7 @@ export default function ListLimitOrder() {
     <SubscribeNotificationButton
       iconOnly={false}
       style={{ margin: upToSmall ? 0 : '12px 12px 0px 12px' }}
-      subscribeTooltip={t`Subscribe to receive notifications on your limit orders`}
+      subscribeTooltip={t`Subscribe to receive notifications on your limit orders.`}
       trackingEvent={MIXPANEL_TYPE.LO_CLICK_SUBSCRIBE_BTN}
     />
   )
@@ -377,11 +377,11 @@ export default function ListLimitOrder() {
               <NoDataIcon />
               <Text marginTop={'10px'}>
                 {keyword ? (
-                  <Trans>No orders found</Trans>
+                  <Trans>No orders found.</Trans>
                 ) : isTabActive ? (
-                  <Trans>You don&apos;t have any open orders yet</Trans>
+                  <Trans>You don&apos;t have any open orders yet.</Trans>
                 ) : (
-                  <Trans>You don&apos;t have any order history</Trans>
+                  <Trans>You don&apos;t have any order history.</Trans>
                 )}
               </Text>
             </NoResultWrapper>

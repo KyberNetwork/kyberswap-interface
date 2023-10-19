@@ -76,7 +76,7 @@ export const APRTooltipContent = ({
             whiteSpace: upToSmall ? 'wrap' : 'nowrap',
           }}
         >
-          <Trans>Estimated return from trading fees if you participate in the pool</Trans>
+          <Trans>Estimated return from trading fees if you participate in the pool.</Trans>
         </Text>
       </Flex>
 
@@ -101,7 +101,7 @@ export const APRTooltipContent = ({
               whiteSpace: upToSmall ? 'wrap' : 'nowrap',
             }}
           >
-            <Trans>Estimated return from additional rewards if you also participate in the farm</Trans>
+            <Trans>Estimated return from additional rewards if you also participate in the farm.</Trans>
           </Text>
         </Flex>
       )}

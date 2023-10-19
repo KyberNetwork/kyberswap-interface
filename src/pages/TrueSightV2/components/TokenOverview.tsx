@@ -235,6 +235,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                       >
                         here ↗
                       </a>
+                      .
                     </Trans>
                   }
                   placement="top"
@@ -292,7 +293,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
                     ) : (
                       <>
                         <Text fontSize="12px" fontStyle="italic">
-                          <Trans>KyberScore is not applicable for stablecoins</Trans>
+                          <Trans>KyberScore is not applicable for stablecoins.</Trans>
                         </Text>
                       </>
                     )
@@ -430,7 +431,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
           </Row>
           <Row justify="center" marginBottom="38px">
             <Text fontSize="12px" lineHeight="16px" fontStyle="italic">
-              <Trans>Disclaimer: This should not be considered as financial advice</Trans>
+              <Trans>Disclaimer: This should not be considered as financial advice.</Trans>
             </Text>
           </Row>
         </>

@@ -124,7 +124,7 @@ const PriceRangeChart: React.FC<Props> = ({ position, disabled }) => {
       />
 
       <Flex justifyContent="space-between" fontSize={12} fontWeight="500">
-        <MouseoverTooltip text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}>
+        <MouseoverTooltip text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price.`}>
           <TextDashed color={theme.subText}>
             <Trans>Min Price</Trans>:{' '}
           </TextDashed>

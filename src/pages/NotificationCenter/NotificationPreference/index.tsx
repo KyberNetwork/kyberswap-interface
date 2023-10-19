@@ -369,7 +369,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
 
       <EmailColum>
         <Label>
-          <Trans>Enter your email address to receive notifications</Trans>
+          <Trans>Enter your email address to receive notifications.</Trans>
         </Label>
         <InputEmail
           disabled={isSignInEmail}
@@ -430,7 +430,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
             !getDiffChangeTopics(topicGroups).hasChanged
               ? ''
               : (needVerifyEmail || !userInfo?.email) && !isIncludePriceAlert()
-              ? t`You will need to verify your email address first`
+              ? t`You will need to verify your email address first.`
               : ''
           }
         />

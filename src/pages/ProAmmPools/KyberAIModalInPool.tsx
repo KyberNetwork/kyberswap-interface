@@ -176,7 +176,7 @@ const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; cu
           </RowBetween>
           <Row marginBottom="16px">
             <MouseoverTooltip
-              text={t`KyberScore algorithm measures the current trend of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token`}
+              text={t`KyberScore algorithm measures the current trend of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token.`}
               placement="top"
               width="350px"
             >

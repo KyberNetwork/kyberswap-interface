@@ -60,7 +60,7 @@ const summaryClaim = (txs: TransactionDetails) => {
 }
 
 const summaryStakeUnstakeFarm = (txs: TransactionDetails) => {
-  return txs.type === TRANSACTION_TYPE.STAKE ? t`Stake liquidity into farm` : t`Unstake liquidity from farm`
+  return txs.type === TRANSACTION_TYPE.STAKE ? t`Stake liquidity into farm` : t`Unstake liquidity from farm.`
 }
 
 // ex: elastic add liquidity 30 knc and 40 usdt
@@ -105,7 +105,7 @@ const summaryDelegateDao = (txs: TransactionDetails) => {
       ? t`undelegated your voting power`
       : t`delegated voting power to ${contract.slice(0, 6)}...${contract.slice(-4)}`
 
-  return { success: t`You have successfully ${summary}`, error: t`Error ${summary}` }
+  return { success: t`You have successfully ${summary}`, error: t`Error ${summary}.` }
 }
 
 const summaryCancelLimitOrder = (txs: TransactionDetails) => {
