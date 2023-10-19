@@ -182,9 +182,7 @@ export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean
           result[address] = promiseResult[index]
         })
 
-        if (latestChainId.current === chainId && Object.keys(farmsDataRef.current).length === 0) {
-          dispatch(setFarmsData(result))
-        }
+        dispatch(setFarmsData(result))
       } catch (err) {
         if (err instanceof AbortedError) return
         if (abortController.signal.aborted) return
