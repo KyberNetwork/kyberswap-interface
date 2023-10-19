@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -80,7 +81,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
                   ? poolInfo.rewardTokens.map((rw: string) =>
                       rw.toLowerCase() === ZERO_ADDRESS || rw.toLowerCase() === ETHER_ADDRESS.toLowerCase()
                         ? NativeCurrencies[chainId]
-                        : allTokens[rw],
+                        : allTokens[rw] || new Token(chainId, rw, 18, 'unknown', 'unknown'),
                     )
                   : rewardTokens) || [],
             }
