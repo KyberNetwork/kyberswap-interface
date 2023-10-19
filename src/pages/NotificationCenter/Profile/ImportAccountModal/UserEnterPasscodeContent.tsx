@@ -78,6 +78,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/profiles/sync-profile-across-devices">
             here
           </ExternalLink>
+          .
         </Trans>
       </Text>
 

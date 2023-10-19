@@ -195,7 +195,7 @@ export default function TechnicalAnalysis() {
         </SectionWrapper>
         <SectionWrapper
           show={tokenAnalysisSettings?.supportResistanceLevels}
-          title={t`Support & Resistance Levels`}
+          title={t`Support & Resistance Levels.`}
           subTitle={t`Note: These are estimated support / resistance levels only and should not be considered as financial advice`}
           description={
             <Trans>
@@ -242,7 +242,7 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           show={tokenAnalysisSettings?.liveDEXTrades}
           title={t`Live Trades`}
-          subTitle={t`Note:  Live trades may be slightly delayed`}
+          subTitle={t`Note:  Live trades may be slightly delayed.`}
           style={{ height: 'fit-content' }}
           shareContent={mobileMode => <DexTradesShareContent mobileMode={mobileMode} />}
           docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/technical-indicators/live-trades']}
@@ -252,7 +252,7 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           show={tokenAnalysisSettings?.fundingRateOnCEX}
           id={'fundingrate'}
-          title={t`Funding Rate on Centralized Exchanges`}
+          title={t`Funding Rate on Centralized Exchanges.`}
           description={
             <Trans>
               Funding rate is useful in identifying short-term trends.{' '}
@@ -286,7 +286,7 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           id={KYBERAI_CHART_ID.LIQUID_ON_CEX}
           show={tokenAnalysisSettings?.liquidationsOnCEX}
-          title={t`Liquidations on Centralized Exchanges`}
+          title={t`Liquidations on Centralized Exchanges.`}
           description={`Liquidations describe the forced closing of a trader's futures position due to the partial or total loss
           of their collateral. This happens when a trader has insufficient funds to keep a leveraged trade
           open. Leveraged trading is high risk & high reward. The higher the leverage, the easier it is for a trader to

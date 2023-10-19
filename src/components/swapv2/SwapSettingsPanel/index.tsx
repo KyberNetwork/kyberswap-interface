@@ -141,7 +141,7 @@ const SettingsPanel: React.FC<Props> = ({
               <RowBetween>
                 <RowFixed>
                   <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                    <MouseoverTooltip text={<Trans>Turn on to display KyberAI banner</Trans>} placement="right">
+                    <MouseoverTooltip text={<Trans>Turn on to display KyberAI banner.</Trans>} placement="right">
                       <Trans>KyberAI Banner</Trans>
                     </MouseoverTooltip>
                   </TextDashed>
@@ -151,7 +151,7 @@ const SettingsPanel: React.FC<Props> = ({
               <RowBetween>
                 <RowFixed>
                   <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                    <MouseoverTooltip text={<Trans>Turn on to display live chart</Trans>} placement="right">
+                    <MouseoverTooltip text={<Trans>Turn on to display live chart.</Trans>} placement="right">
                       <Trans>Live Chart</Trans>
                     </MouseoverTooltip>
                   </TextDashed>
@@ -163,7 +163,7 @@ const SettingsPanel: React.FC<Props> = ({
                   <RowBetween>
                     <RowFixed>
                       <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                        <MouseoverTooltip text={<Trans>Turn on to display trade route</Trans>} placement="right">
+                        <MouseoverTooltip text={<Trans>Turn on to display trade route.</Trans>} placement="right">
                           <Trans>Trade Route</Trans>
                         </MouseoverTooltip>
                       </TextDashed>

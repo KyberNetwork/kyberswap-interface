@@ -235,7 +235,7 @@ export default function DraggableNetworkButton({
       text={
         disabled && !isDragging
           ? isMaintenance
-            ? t`Chain under maintenance. We will be back as soon as possible`
+            ? t`Chain under maintenance. We will be back as soon as possible.`
             : disabledMsg
           : ''
       }
