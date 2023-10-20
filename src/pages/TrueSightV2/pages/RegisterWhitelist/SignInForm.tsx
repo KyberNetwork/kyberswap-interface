@@ -34,7 +34,10 @@ export default function SignInForm() {
         style={{ height: 36, width: '100%' }}
         isVerifiedEmail
       />
-      <ButtonPrimary onClick={() => signIn({ loginMethod: LoginMethod.EMAIL, account: inputEmail })} height={'36px'}>
+      <ButtonPrimary
+        onClick={() => inputEmail && !errorInput && signIn({ loginMethod: LoginMethod.EMAIL, account: inputEmail })}
+        height={'36px'}
+      >
         <Trans>Sign-In</Trans>
       </ButtonPrimary>
       <OrDivider />
