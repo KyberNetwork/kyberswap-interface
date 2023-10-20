@@ -164,5 +164,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.VERSION_TAG }}
           prerelease: false
-          title: 'KyberSwap Interface - ${{ env.VERSION_TAG }}'
+          name: 'KyberSwap Interface - ${{ env.VERSION_TAG }}'
           generate_release_notes: true
