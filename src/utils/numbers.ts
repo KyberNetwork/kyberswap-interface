@@ -1,9 +1,12 @@
 import { CurrencyAmount, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
+import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 
 import { BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
 
-// todo: deprecated, use formatDisplayNumber instead
+/** @deprecated use formatDisplayNumber instead
+ * @example formatDisplayNumber(num, { style: 'currency', significantDigits: 4 })
+ */
 export const formatDollarAmount = (num: number | undefined, digits = 2) => {
   if (num === 0) return '$0.00'
   if (!num) return '-'
@@ -26,7 +29,7 @@ export const formatDollarAmount = (num: number | undefined, digits = 2) => {
 // e.g: (123456789123456789123456789).toString() => 1.2345678912345679e+26
 //      toFixed(123456789123456789123456789) => 123456789123456800000000000
 // https://stackoverflow.com/a/1685917/8153505
-export function toFixed(x: number): string {
+export function toString(x: number): string {
   if (Math.abs(x) < 1.0) {
     const e = parseInt(x.toString().split('e-')[1])
     if (e) {
@@ -44,6 +47,9 @@ export function toFixed(x: number): string {
   return x.toString()
 }
 
+/** @deprecated use parseFraction instead
+ * @example parseFraction(value)
+ */
 export const uint256ToFraction = (value: string, decimals = RESERVE_USD_DECIMALS) =>
   new Fraction(value, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
 
@@ -64,19 +70,44 @@ const log10 = (n: Fraction): number => {
   const parsedN = Number(n.toSignificant(30))
   return Math.log10(parsedN)
 }
+// - $ 123,456,222,333.44444 e+22 eur5
+const regex = /^\s*?\+?(-)?\s*?(\$)?\s*?([\d,]+)(?:\.(\d+))?\s*?(?:e\+?(\-?\d+))?\s*?(%|\w+?)?\s*?$/
+const parseNumPart = (str: string): [string, string, string, string, string, string] => {
+  const parsedResult = regex.exec(str)
+  if (parsedResult) {
+    const [, negative, currency, integer, decimal, exponent, unit] = parsedResult
+    return [negative || '', currency || '', integer, decimal || '', exponent, unit || '']
+  }
+  return ['', '', '0', '', '', ''] // [negative, currency, integer, decimal, exponent, unit]
+}
 
-const parseNum = (value: FormatValue): Fraction => {
+const parseString = (value: string): Fraction => {
+  try {
+    const [negative, _currency, integer, decimal, e, _unit] = parseNumPart(value)
+    const exponent = Number(e || '0') - decimal.length
+    if (exponent > 0) {
+      return new Fraction(negative + integer.replace(/,/g, '') + decimal + '0'.repeat(exponent), 1)
+    }
+    return new Fraction(negative + integer.replace(/,/g, '') + decimal, 10 ** -exponent)
+  } catch (e) {
+    return new Fraction(0, 1)
+  }
+}
+
+export const parseFraction = (value: FormatValue): Fraction => {
   try {
     if (
       typeof value === 'string' ||
       typeof value === 'number' ||
+      value instanceof BigNumber ||
       value instanceof CurrencyAmount ||
       value instanceof Percent ||
       value instanceof Price
     ) {
       const valueStr = (() => {
-        if (typeof value === 'string') return toFixed(+value)
-        if (typeof value === 'number') return toFixed(value)
+        if (typeof value === 'string') return parseString(value).toFixed(18)
+        if (typeof value === 'number') return toString(value)
+        if (value instanceof BigNumber) return value.toString()
         if (value instanceof CurrencyAmount) return value.toFixed(value.currency.decimals)
         if (value instanceof Price) return value.toFixed(18)
         if (value instanceof Percent) return value.divide(100).toFixed(18)
@@ -94,13 +125,14 @@ const parseNum = (value: FormatValue): Fraction => {
   }
 }
 
-type FormatValue = string | number | bigint | JSBI | Fraction | undefined | null
+type FormatValue = string | number | bigint | JSBI | BigNumber | Fraction | undefined | null
 type FormatOptions = {
   style?: 'decimal' | 'currency' | 'percent'
   fractionDigits?: number // usually for percent  & currency styles
   significantDigits?: number // usually for decimal style
   fallback?: string
   allowNegative?: boolean
+  allowZero?: boolean
 }
 interface RequiredFraction extends FormatOptions {
   fractionDigits: number // usually for percent  & currency styles
@@ -132,6 +164,7 @@ export const formatDisplayNumber = (
     fractionDigits,
     fallback = '--',
     allowNegative = false,
+    allowZero = true,
   }: RequiredFraction | RequiredSignificant,
 ): string => {
   const currency = style === 'currency' ? '$' : ''
@@ -139,8 +172,9 @@ export const formatDisplayNumber = (
   const fallbackResult = `${currency}${fallback}${percent}`
 
   if (value === undefined || value === null || Number.isNaN(value)) return fallbackResult
-  const parsedFraction = parseNum(value)
+  const parsedFraction = parseFraction(value)
   if (!allowNegative && parsedFraction.lessThan(BIG_INT_ZERO)) return fallbackResult
+  if (!allowZero && parsedFraction.equalTo(BIG_INT_ZERO)) return fallbackResult
 
   const shownFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
   const absShownFraction = shownFraction.lessThan(0) ? shownFraction.multiply(-1) : shownFraction
@@ -155,7 +189,7 @@ export const formatDisplayNumber = (
       .slice(0, significantDigits || 6)
       .replace(/0+$/, '')
 
-    if (numberOfLeadingZeros > 2) {
+    if (numberOfLeadingZeros > 3) {
       const subscripts = numberOfLeadingZeros
         .toString()
         .split('')
@@ -169,8 +203,10 @@ export const formatDisplayNumber = (
     }${percent}`
   }
 
+  const thresholdLog = significantDigits || fractionDigits || 4
+  const threshold = thresholdLog > 1 ? 10 ** thresholdLog : 10_000
   const formatter = Intl.NumberFormat('en-US', {
-    notation: absShownFraction.greaterThan(10 ** (significantDigits || fractionDigits || 4)) ? 'compact' : 'standard',
+    notation: !absShownFraction.lessThan(threshold) ? 'compact' : 'standard',
     style,
     currency: 'USD',
     minimumFractionDigits: fractionDigits ? 0 : undefined,
@@ -187,20 +223,10 @@ export const formatDisplayNumber = (
   // It might return number with longer fraction digits than maximumFractionDigits
   // Hence, we have to do an additional step that manually slice those oversize fraction digits
   if (fractionDigits !== undefined) {
-    const [negative, currency, integer, decimal, unit] = parseNumPart(result)
+    const [negative, currency, integer, decimal, _exponent, unit] = parseNumPart(result)
     const trimedSlicedDecimal = decimal?.slice(0, fractionDigits).replace(/0+$/, '')
     if (trimedSlicedDecimal) return negative + currency + integer + '.' + trimedSlicedDecimal + unit
     return negative + currency + integer + unit
   }
   return result
-}
-
-const regex = /^(-\s*)?(\$\s*)?([\d,]+)(\.\d+)?\s*?(\w?.*?)$/
-const parseNumPart = (str: string): string[] => {
-  const parsedResult = regex.exec(str)
-  if (parsedResult) {
-    const [, negative, currency, integer, decimal, unit] = parsedResult
-    return [negative?.trim() || '', currency?.trim() || '', integer, decimal?.slice(1) || '', unit?.trim() || '']
-  }
-  return ['', '', '', '', '']
 }

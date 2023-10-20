@@ -25,7 +25,6 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useToken } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useFairLaunch from 'hooks/useFairLaunch'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -36,17 +35,17 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/classic/actions'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
-import { Farm, Reward } from 'state/farms/classic/types'
+import { FairLaunchVersion, Farm, Reward } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
-import { formattedNum, isAddressString, shortenAddress } from 'utils'
+import { isAddressString, shortenAddress } from 'utils'
 import { currencyIdFromAddress } from 'utils/currencyId'
 import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
-import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
+import { getFullDisplayBalance } from 'utils/formatBalance'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber, parseFraction } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { ModalContentWrapper } from './ElasticFarmModals/styled'
@@ -79,23 +78,20 @@ const ListItem = ({ farm }: ListItemProps) => {
   const above1200 = useMedia('(min-width: 1200px)')
   const dispatch = useAppDispatch()
 
-  const currency0 = useToken(farm.token0?.id) as Token
-  const currency1 = useToken(farm.token1?.id) as Token
+  const currency0 = unwrappedToken(farm.token0)
+  const currency1 = unwrappedToken(farm.token1)
 
   const poolAddressChecksum = isAddressString(chainId, farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
 
   const userStakedBalance = farm.userData?.stakedBalance
-    ? BigNumber.from(farm.userData?.stakedBalance)
+    ? BigNumber.from(farm.userData.stakedBalance)
     : BigNumber.from(0)
 
   const farmRewards = useFarmRewards([farm])
 
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
-  const lpTokenRatio = new Fraction(
-    farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
-  ).divide(
+  const lpTokenRatio = farm.totalStake.divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
@@ -130,8 +126,8 @@ const ListItem = ({ farm }: ListItemProps) => {
   const userStakedToken0Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve0)
   const userStakedToken1Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve1)
 
-  const userLPBalanceUSD = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
-  const userStakedBalanceUSD = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
+  const userLPBalanceUSD = lpUserLPBalanceRatio.multiply(parseFraction(farm.reserveUSD))
+  const userStakedBalanceUSD = lpUserStakedTokenRatio.multiply(parseFraction(farm.reserveUSD))
 
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
 
@@ -146,12 +142,9 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const amp = farm.amp / 10000
 
-  const pairSymbol =
-    currency0 && currency1
-      ? `${unwrappedToken(currency0).symbol}-${unwrappedToken(currency1).symbol} LP`
-      : `${farm.token0.symbol} - ${farm.token1.symbol} LP`
-  const symbol0 = currency0 ? unwrappedToken(currency0).symbol : farm.token0.symbol
-  const symbol1 = currency1 ? unwrappedToken(currency1).symbol : farm.token1.symbol
+  const symbol0 = currency0 ? currency0.symbol : farm.token0.symbol
+  const symbol1 = currency1 ? currency1.symbol : farm.token1.symbol
+  const pairSymbol = `${symbol0}-${symbol1} LP`
 
   const [depositValue, setDepositValue] = useState('')
   const [withdrawValue, setWithdrawValue] = useState('')
@@ -299,11 +292,11 @@ const ListItem = ({ farm }: ListItemProps) => {
   const usd = () => {
     switch (modalType) {
       case 'stake':
-        return formattedNum(userLPBalanceUSD.toString(), true)
+        return formatDisplayNumber(userLPBalanceUSD, { style: 'currency', significantDigits: 4 })
       case 'unstake':
-        return formattedNum(userStakedBalanceUSD.toString(), true)
+        return formatDisplayNumber(userStakedBalanceUSD, { style: 'currency', significantDigits: 4 })
       default:
-        return formattedNum(rewardUSD.toString(), true)
+        return formatDisplayNumber(rewardUSD, { style: 'currency', significantDigits: 4 })
     }
   }
 
@@ -315,16 +308,16 @@ const ListItem = ({ farm }: ListItemProps) => {
     <>
       {viewMode === VIEW_MODE.LIST && above1200 && (
         <>
-          <TableRow joined={!!userStakedBalanceUSD}>
+          <TableRow joined={userStakedBalanceUSD.greaterThan(0)}>
             {/* POOLS | AMP */}
             <Column gap="12px">
               <Row>
                 <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
                 <Link
                   to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
-                    farm.token0?.id,
+                    farm.token0?.address,
                     chainId,
-                  )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
+                  )}/${currencyIdFromAddress(farm.token1?.address, chainId)}/${farm.id}`}
                   style={{ textDecoration: 'none', marginRight: '6px' }}
                 >
                   {symbol0} - {symbol1}
@@ -372,12 +365,12 @@ const ListItem = ({ farm }: ListItemProps) => {
             {/* STAKED TVL */}
             <Row>
               <Text fontSize="14px" fontWeight={400}>
-                {formatDollarAmount(liquidity)}
+                {formatDisplayNumber(liquidity, { style: 'currency', significantDigits: 6 })}
               </Text>
             </Row>
             {/* AVG APR */}
             <Row color={theme.apr} gap="4px">
-              {apr.toFixed(2)}%
+              {formatDisplayNumber(apr / 100, { style: 'percent', fractionDigits: 2 })}
               {apr !== 0 && (
                 <MouseoverTooltip
                   width="fit-content"
@@ -392,14 +385,16 @@ const ListItem = ({ farm }: ListItemProps) => {
             </Row>
             {/* ENDING IN */}
             <Column gap="6px">
-              {farm.startTime > currentTimestamp ? (
+              {(farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3) &&
+              farm.startTime > currentTimestamp ? (
                 <>
                   <Text fontSize="12px" color={theme.warning}>
                     <Trans>New phase will start in</Trans>
                   </Text>
                   <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
                 </>
-              ) : farm.endTime > currentTimestamp ? (
+              ) : (farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3) &&
+                farm.endTime > currentTimestamp ? (
                 <>
                   <Text color={theme.subText} fontSize="12px">
                     <Trans>Current phase will end in</Trans>
@@ -415,7 +410,7 @@ const ListItem = ({ farm }: ListItemProps) => {
               )}
             </Column>
             {/* MY DEPOSIT | TARGET VOLUME */}
-            <Row>{formattedNum(userStakedBalanceUSD.toString(), true)}</Row>
+            <Row>{formatDisplayNumber(userStakedBalanceUSD, { style: 'currency', significantDigits: 4 })}</Row>
             {/* MY REWARDS */}
             <Column gap="8px" style={{ alignItems: 'end' }}>
               {farmRewards.map(reward => {
@@ -425,7 +420,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                       {chainId && reward.token.wrapped.address && (
                         <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
                       )}
-                      {getFullDisplayBalance(reward.amount, reward.token.decimals)}
+                      {formatDisplayNumber(parseFraction(reward.amount).divide(10 ** reward.token.decimals), {
+                        style: 'decimal',
+                        fractionDigits: 6,
+                      })}
                     </Row>
                   </div>
                 )
@@ -471,14 +469,14 @@ const ListItem = ({ farm }: ListItemProps) => {
         </>
       )}
       {(viewMode === VIEW_MODE.GRID || !above1200) && (
-        <FarmCard joined={!!userStakedBalanceUSD}>
+        <FarmCard joined={userStakedBalanceUSD.greaterThan(0)}>
           <Row marginBottom="12px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
             <Link
               to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
-                farm.token0?.id,
+                farm.token0?.address,
                 chainId,
-              )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
+              )}/${currencyIdFromAddress(farm.token1?.address, chainId)}/${farm.id}`}
               style={{ textDecoration: 'none', marginRight: '6px' }}
             >
               <Text fontSize="16px" fontWeight="500" marginRight="4px" color={theme.green}>
@@ -532,18 +530,20 @@ const ListItem = ({ farm }: ListItemProps) => {
           </RowBetween>
           <RowBetween marginBottom="16px">
             <Text fontSize={28} lineHeight="32px" color={theme.apr} fontWeight={500}>
-              {!!apr ? apr.toFixed(2) + '%' : '--'}
+              {formatDisplayNumber(apr / 100, { style: 'percent', fractionDigits: 2 })}
             </Text>
           </RowBetween>
           <RowBetween marginBottom="4px">
             <Text fontSize={12} color={theme.subText} lineHeight="16px">
               <Trans>Staked TVL</Trans>
             </Text>
-            {farm.startTime > currentTimestamp ? (
+            {(farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3) &&
+            farm.startTime > currentTimestamp ? (
               <Text fontSize={12} lineHeight="16px" color={theme.warning}>
                 <Trans>New phase will start in</Trans>
               </Text>
-            ) : farm.endTime > currentTimestamp ? (
+            ) : (farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3) &&
+              farm.endTime > currentTimestamp ? (
               <Text fontSize={12} color={theme.subText} lineHeight="16px">
                 <Trans>Current phase will end in</Trans>
               </Text>
@@ -555,9 +555,9 @@ const ListItem = ({ farm }: ListItemProps) => {
           </RowBetween>
           <RowBetween marginBottom="16px">
             <Text fontSize="16px" color={theme.text} lineHeight="20px">
-              {formatDollarAmount(liquidity)}
+              {formatDisplayNumber(liquidity, { style: 'currency', significantDigits: 6 })}
             </Text>
-            {farm.startTime !== undefined ? (
+            {farm.version === FairLaunchVersion.V2 || farm.version === FairLaunchVersion.V3 ? (
               farm.startTime > currentTimestamp ? (
                 <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
               ) : farm.endTime > currentTimestamp ? (
@@ -577,7 +577,7 @@ const ListItem = ({ farm }: ListItemProps) => {
           </RowBetween>
           <RowBetween marginBottom="16px">
             <Text fontSize="16px" color={theme.text} lineHeight="20px">
-              {!!userStakedBalanceUSD ? formatDollarAmount(userStakedBalanceUSD) : '--'}
+              {formatDisplayNumber(userStakedBalanceUSD, { style: 'currency', significantDigits: 6, allowZero: false })}
             </Text>
           </RowBetween>
           <RowBetween marginBottom="16px">
@@ -593,7 +593,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                         {chainId && reward.token.wrapped.address && (
                           <CurrencyLogo currency={reward.token} size="16px" />
                         )}
-                        {!!reward.amount && getFullDisplayBalance(reward.amount, reward.token.decimals)}
+                        {formatDisplayNumber(parseFraction(reward.amount).divide(10 ** reward.token.decimals), {
+                          style: 'decimal',
+                          fractionDigits: 6,
+                        })}
                       </RowFit>
                       {index !== arr.length - 1 && (
                         <div style={{ height: '10px', width: '1px', backgroundColor: theme.border }} />
@@ -664,7 +667,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                   <React.Fragment key={reward.token.wrapped.address}>
                     <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
                       {chainId && reward.token.wrapped.address && <CurrencyLogo currency={reward.token} size="16px" />}
-                      {getFullDisplayBalance(reward.amount, reward.token.decimals)}
+                      {formatDisplayNumber(parseFraction(reward.amount).divide(10 ** reward.token.decimals), {
+                        style: 'decimal',
+                        fractionDigits: 6,
+                      })}
                     </Flex>
                     {index !== farmRewards.length - 1 && <Text color={theme.subText}>|</Text>}
                   </React.Fragment>
@@ -676,7 +682,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                 <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
                   <CurrencyLogo currency={currency0} size="16px" />
                   <Text textAlign="right" fontSize="0.75rem" color={theme.subText}>
-                    {formatTokenBalance(modalType === 'stake' ? userToken0Balance : userStakedToken0Balance)}
+                    {formatDisplayNumber(modalType === 'stake' ? userToken0Balance : userStakedToken0Balance, {
+                      style: 'decimal',
+                      fractionDigits: 6,
+                    })}
                   </Text>
                 </Flex>
                 <Text color={theme.subText}>|</Text>
@@ -684,7 +693,10 @@ const ListItem = ({ farm }: ListItemProps) => {
                 <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
                   <CurrencyLogo currency={currency1} size="16px" />
                   <Text textAlign="right" fontSize="0.75rem" color={theme.subText}>
-                    {formatTokenBalance(modalType === 'stake' ? userToken1Balance : userStakedToken1Balance)}
+                    {formatDisplayNumber(modalType === 'stake' ? userToken1Balance : userStakedToken1Balance, {
+                      style: 'decimal',
+                      fractionDigits: 6,
+                    })}
                   </Text>
                 </Flex>
               </>
@@ -705,7 +717,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             </ButtonPrimary>
           ) : (
             <>
-              <Flex marginTop="20px">
+              <Flex marginTop="20px" flexDirection="column" sx={{ gap: '16px' }}>
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
                     <Trans>Connect</Trans>
@@ -794,9 +806,9 @@ const ListItem = ({ farm }: ListItemProps) => {
                 </ExternalLink>
                 <Link
                   to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
-                    farm.token0?.id,
+                    farm.token0?.address,
                     chainId,
-                  )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
+                  )}/${currencyIdFromAddress(farm.token1?.address, chainId)}/${farm.id}`}
                   style={{ textDecoration: 'none' }}
                 >
                   <GetLP style={{ textAlign: 'right' }}>

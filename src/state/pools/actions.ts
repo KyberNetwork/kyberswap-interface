@@ -1,12 +1,14 @@
 import { createAction } from '@reduxjs/toolkit'
 
-import { SubgraphPoolData, UserLiquidityPosition } from './hooks'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 
-export const updatePools = createAction<{ pools: SubgraphPoolData[] }>('pools/updatePools')
+import { UserLiquidityPosition } from './hooks'
+
+export const updatePools = createAction<{ pools: ClassicPoolData[] }>('pools/updatePools')
 export const setLoading = createAction<boolean>('pools/setLoading')
 export const setError = createAction<Error | undefined>('pools/setError')
 export const setSelectedPool = createAction<{
-  poolData: SubgraphPoolData
+  poolData: ClassicPoolData
   myLiquidity?: UserLiquidityPosition
 }>('pools/setSelectedPool')
 export const setSharedPoolId = createAction<{ poolId: string | undefined }>('pools/setSharedPoolId')

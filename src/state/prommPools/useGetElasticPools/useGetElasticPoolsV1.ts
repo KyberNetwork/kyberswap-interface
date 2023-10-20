@@ -9,7 +9,7 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { ElasticPoolDetail } from 'types/pool'
 import { getBlocksFromTimestamps } from 'utils'
 
-import { CommonReturn } from '.'
+import { CommonReturn } from './type'
 
 interface PoolDataResponse {
   pools: ProMMPoolFields[]

@@ -57,6 +57,8 @@ export enum MIXPANEL_TYPE {
   TOKEN_INFO_CHECKED,
   TOKEN_SWAP_LINK_SHARED,
   CHAIN_SWITCHED,
+  ADD_FAVORITE_CHAIN,
+  REMOVE_FAVORITE_CHAIN,
   CREATE_POOL_INITITATED,
   CREATE_POOL_COMPLETED,
   CREATE_POOL_LINK_SHARED,
@@ -352,6 +354,12 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         case MIXPANEL_TYPE.WALLET_CONNECTED:
           mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
           mixpanel.track('Wallet Connected', { source: location.pathname })
+          break
+        case MIXPANEL_TYPE.ADD_FAVORITE_CHAIN:
+          mixpanel.track('Favourite Chain - Add chain over favourite list success', payload)
+          break
+        case MIXPANEL_TYPE.REMOVE_FAVORITE_CHAIN:
+          mixpanel.track('Favourite Chain - Remove chain from favourite list success', payload)
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
           const { gasUsd, inputAmount, priceImpact, feeInfo } = (payload || {}) as {
