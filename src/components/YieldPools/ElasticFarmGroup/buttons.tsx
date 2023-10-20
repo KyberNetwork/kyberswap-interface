@@ -100,7 +100,7 @@ export const DepositButton: React.FC<React.ComponentPropsWithoutRef<'button'>> =
 
   return (
     <MouseoverTooltipDesktopOnly
-      text={t`Deposit your liquidity positions (i.e. your NFT tokens) into the farming contract. Then stake them into the farm`}
+      text={t`Deposit your liquidity positions (i.e. your NFT tokens) into the farming contract. Then stake them into the farm.`}
       style={{ flex: 1 }}
     >
       {renderButton()}
@@ -142,7 +142,7 @@ export const WithdrawButton: React.FC<React.ComponentPropsWithoutRef<'button'>> 
 
   return (
     <MouseoverTooltipDesktopOnly
-      text={t`Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract`}
+      text={t`Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract.`}
       style={{ flex: 1 }}
     >
       {renderButton()}

@@ -210,13 +210,13 @@ export default function KNCUtility() {
               <Li>
                 <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
                   <Trans>
-                    Value of each trade (calculated at the point of the trade) on KyberSwap has to be ≥ $200
+                    Value of each trade (calculated at the point of the trade) on KyberSwap has to be ≥ $200.
                   </Trans>
                 </Text>
               </Li>
               <Li>
                 <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
-                  <Trans>Trades only on Ethereum chain are applicable</Trans>
+                  <Trans>Trades only on Ethereum chain are applicable.</Trans>
                 </Text>
               </Li>
               <Li>

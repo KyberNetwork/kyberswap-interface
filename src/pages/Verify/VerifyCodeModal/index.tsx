@@ -101,7 +101,7 @@ export default function VerifyCodeModal({
   const [isTypingIos, setIsTypingIos] = useState(false)
   const isTypingAndroid = useMedia(`(max-height: 450px)`)
 
-  const [expiredDuration, setExpireDuration] = useState(defaultTime)
+  const [expiredDuration, setExpireDuration] = useState(0)
   const isSendMailError = error === ErrorType.SEND_EMAIL_ERROR
   const isVerifyMailError = error === ErrorType.VALIDATE_ERROR
   const isRateLimitError = error === ErrorType.RATE_LIMIT
@@ -122,7 +122,7 @@ export default function VerifyCodeModal({
       withNotify &&
         notify({
           title: t`Email Verified`,
-          summary: t`Your email has been verified successfully! You can now customize your preferences`,
+          summary: t`Your email has been verified successfully! You can now customize your preferences.`,
           type: NotificationType.SUCCESS,
         })
     },
@@ -193,7 +193,7 @@ export default function VerifyCodeModal({
   const header = (
     <RowBetween>
       <Text color={theme.text} fontWeight={'500'} fontSize={'20'}>
-        {verifySuccess ? verifySuccessTitle : <Trans>Verify your email address</Trans>}
+        {verifySuccess ? verifySuccessTitle : <Trans>Verify your email address.</Trans>}
       </Text>
       <X color={theme.text} cursor="pointer" onClick={onDismiss} />
     </RowBetween>

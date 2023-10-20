@@ -161,7 +161,7 @@ const ApprovalModal = ({
               <InfiniteAllowanceIcon />
             </RowFit>
             <MouseoverTooltip
-              text={t`You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless you have revoked it. This approve transaction will cost a gas fee`}
+              text={t`You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless you have revoked it. This approve transaction will cost a gas fee.`}
               placement="right"
             >
               <Text
@@ -183,7 +183,7 @@ const ApprovalModal = ({
             <Column gap="8px" flex="0 1 200px">
               <MouseoverTooltip
                 text={t`You wish to give KyberSwap permission to use up to the selected custom token
-                amount for transactions. Subsequent transactions exceeding this amount will require your permission again. This will cost gas fees`}
+                amount for transactions. Subsequent transactions exceeding this amount will require your permission again. This will cost gas fees.`}
                 placement="right"
               >
                 <Text

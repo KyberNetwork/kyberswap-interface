@@ -277,7 +277,7 @@ const tokenTypeList: {
     tooltip: theme => (
       <span>
         Tokens with the highest chance of price <span style={{ color: theme.text }}>increase</span> in the next 24H
-        (highest KyberScore)
+        (highest KyberScore).
       </span>
     ),
   },
@@ -288,7 +288,7 @@ const tokenTypeList: {
     tooltip: theme => (
       <span>
         Tokens with the highest chance of price <span style={{ color: theme.text }}>decrease</span> in the next 24H
-        (lowest KyberScore)
+        (lowest KyberScore).
       </span>
     ),
   },
@@ -300,7 +300,7 @@ const tokenTypeList: {
       <span>
         <Trans>
           Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
-          consecutive time periods. This may indicate a change in trend of the token
+          consecutive time periods. This may indicate a change in trend of the token.
         </Trans>
       </span>
     ),
@@ -312,7 +312,7 @@ const tokenTypeList: {
     tooltip: theme => (
       <span>
         Tokens with the highest <span style={{ color: theme.text }}>net deposits</span> to Centralized Exchanges in the
-        last 3 Days. Possible incoming sell pressure
+        last 3 Days. Possible incoming sell pressure.
       </span>
     ),
   },
@@ -323,7 +323,7 @@ const tokenTypeList: {
     tooltip: theme => (
       <span>
         Tokens with the highest <span style={{ color: theme.text }}>net withdrawals</span> from Centralized Exchanges in
-        the last 3 Days. Possible buy pressure
+        the last 3 Days. Possible buy pressure.
       </span>
     ),
   },
@@ -335,7 +335,7 @@ const tokenTypeList: {
       <span>
         <Trans>
           Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish &amp;
-          vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed
+          vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed.
         </Trans>
       </span>
     ),
@@ -346,7 +346,7 @@ const tokenTypeList: {
     icon: 'coin-bag',
     tooltip: theme => (
       <span>
-        Tokens with the <span style={{ color: theme.text }}>highest 24H trading volume</span>
+        Tokens with the <span style={{ color: theme.text }}>highest 24H trading volume</span>.
       </span>
     ),
   },
@@ -357,7 +357,7 @@ const tokenTypeList: {
     tooltip: theme => (
       <span>
         Tokens that could be <span style={{ color: theme.text }}>trending</span> in the near future. Trending indicates
-        interest in a token - it doesnt imply bullishness or bearishness
+        interest in a token - it doesnt imply bullishness or bearishness.
       </span>
     ),
   },
@@ -367,7 +367,7 @@ const tokenTypeList: {
     icon: 'flame',
     tooltip: theme => (
       <span>
-        Tokens that are <span style={{ color: theme.text }}>currently trending</span> in the market
+        Tokens that are <span style={{ color: theme.text }}>currently trending</span> in the market.
       </span>
     ),
   },
@@ -780,10 +780,10 @@ export default function TokenAnalysisList() {
     <>
       <TradeInfoWrapper>
         <Text fontSize="12px" color={theme.subText} fontWeight={500}>
-          <Trans>KyberScore will be updated every 4 hour</Trans>
+          <Trans>KyberScore will be updated every 4 hour.</Trans>
         </Text>
         <Text fontSize="12px" color={theme.subText} fontStyle="italic">
-          <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
+          <Trans>Disclaimer: The information here should not be treated as any form of financial advice.</Trans>
         </Text>
       </TradeInfoWrapper>
       <ListTokenWrapper>

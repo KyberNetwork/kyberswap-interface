@@ -28,6 +28,7 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.LINEA]: [WETH[ChainId.LINEA]],
   [ChainId.ZKEVM]: [WETH[ChainId.ZKEVM]],
   [ChainId.BASE]: [WETH[ChainId.BASE]],
+  [ChainId.SCROLL]: [WETH[ChainId.SCROLL]],
   [ChainId.SOLANA_DEVNET]: [WETH[ChainId.SOLANA_DEVNET]],
 }
 
@@ -179,4 +180,5 @@ export const SUGGESTED_BASES: ChainTokenList = {
     new Token(ChainId.LINEA, '0x7d43aabc515c356145049227cee54b608342c0ad', 18, 'BUSD', 'BUSD'),
   ],
   [ChainId.BASE]: [...WETH_ONLY[ChainId.BASE], USDC[ChainId.BASE], DAI[ChainId.BASE]],
+  [ChainId.SCROLL]: [...WETH_ONLY[ChainId.SCROLL], USDT[ChainId.SCROLL], USDC[ChainId.SCROLL], DAI[ChainId.SCROLL]],
 }
