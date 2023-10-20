@@ -6,7 +6,6 @@ import { capitalizeFirstLetter } from 'utils/string'
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''
 
-  if (error === 'There was an error with your transaction.') return 'There was an error with your transaction.'
   if (!error || error.includes('router: expired')) return 'An error occurred. Refresh the page and try again.'
 
   if (

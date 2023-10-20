@@ -14,11 +14,12 @@ import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
 import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { getContract } from 'utils/getContract'
+import { getContractForReading } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/sentry'
 import { formatSignature } from 'utils/transaction'
@@ -30,15 +31,16 @@ import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder }
 const useGetEncodeLimitOrder = () => {
   const { account } = useActiveWeb3React()
   const [getEncodeData] = useGetEncodeDataMutation()
-  const { library } = useWeb3React()
+  const { readProvider } = useKyberSwapConfig()
+
   return useCallback(
     async ({ orders, isCancelAll }: { orders: LimitOrder[]; isCancelAll: boolean | undefined }) => {
-      if (!library) throw new Error()
+      if (!readProvider) throw new Error()
       if (isCancelAll) {
         const contracts = [...new Set(orders.map(e => e.contractAddress))]
         const result = []
         for (const address of contracts) {
-          const limitOrderContract = getContract(address, LIMIT_ORDER_ABI, library, account)
+          const limitOrderContract = getContractForReading(address, LIMIT_ORDER_ABI, readProvider)
           const [{ encodedData }, nonce] = await Promise.all([
             getEncodeData({ orderIds: [], isCancelAll }).unwrap(),
             limitOrderContract?.nonce?.(account),
@@ -53,7 +55,7 @@ const useGetEncodeLimitOrder = () => {
       }).unwrap()
       return [{ encodedData, contractAddress: orders[0]?.contractAddress, nonce: '' }]
     },
-    [account, getEncodeData, library],
+    [account, getEncodeData, readProvider],
   )
 }
 
