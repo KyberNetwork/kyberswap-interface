@@ -24,7 +24,7 @@ export default function SignInForm() {
   const { signIn } = useLogin()
   const theme = useTheme()
   const openDownloadWalletModal = useOpenModal(ApplicationModal.DOWNLOAD_WALLET)
-  const { inputEmail, errorInput, onChangeEmail } = useValidateEmail('nguyenhoaidanh2096@gmail.com') // todo
+  const { inputEmail, errorInput, onChangeEmail } = useValidateEmail('')
   return (
     <Wrapper>
       <InputEmail
