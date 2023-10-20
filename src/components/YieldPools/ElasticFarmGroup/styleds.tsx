@@ -33,7 +33,8 @@ export const FarmList = styled.div<{ gridMode: boolean }>`
 `
 
 export const FeeTag = styled.div`
-  width: fit-content;
+  min-width: max-content;
+  width: max-content;
   border-radius: 999px;
   background: ${({ theme }) => theme.darkBlue + '33'};
   color: ${({ theme }) => theme.darkBlue};
@@ -41,7 +42,6 @@ export const FeeTag = styled.div`
   font-weight: 500;
   padding: 2px 6px;
   margin-left: 6px;
-  min-width: 36px;
   display: flex;
   align-items: center;
   gap: 4px;
