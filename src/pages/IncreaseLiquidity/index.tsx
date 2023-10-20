@@ -952,7 +952,7 @@ export default function IncreaseLiquidity() {
                             currency={selectedCurrency}
                             positionMax="top"
                             showCommonBases
-                            estimatedUsd=""
+                            estimatedUsd={formattedNum(zapDetail.amountInUsd, true)}
                             isSwitchMode
                             onSwitchCurrency={() => {
                               if (selectedCurrency?.isNative) {

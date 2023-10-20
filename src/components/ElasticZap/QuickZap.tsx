@@ -197,6 +197,8 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
     return isReverse ? currency0 : currency1
   }, [isReverse, currency0, currency1])
 
+  console.log(quoteCurrency && pool?.priceOf(quoteCurrency.wrapped).toSignificant())
+
   const [typedValue, setTypedValue] = useState('')
   const debouncedValue = useDebounce(typedValue, 300)
 

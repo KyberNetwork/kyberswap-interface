@@ -630,7 +630,8 @@ export default function AddLiquidity() {
   )
 
   const handleDismissConfirmation = useCallback(() => {
-    setShowConfirm(false)
+    if (method === 'zap') setShowZapConfirmation(false)
+    else setShowConfirm(false)
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onFieldAInput('')
@@ -638,7 +639,7 @@ export default function AddLiquidity() {
       navigate(`${APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=elastic`)
     }
     setTxHash('')
-  }, [navigate, networkInfo.route, onFieldAInput, txHash])
+  }, [navigate, networkInfo.route, onFieldAInput, txHash, method])
 
   const handleDismissConfirmationRef = useRef(handleDismissConfirmation)
 
@@ -1059,7 +1060,7 @@ export default function AddLiquidity() {
   const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
   const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapIn } = useZapInAction()
-  const [showZapPendingModal, setShowZapPendingModal] = useState(false)
+  const [showZapConfirmation, setShowZapConfirmation] = useState(false)
   const [zapError, setZapError] = useState('')
 
   const zapBalances = useCurrencyBalances(
@@ -1123,7 +1124,6 @@ export default function AddLiquidity() {
       pool
     ) {
       try {
-        setShowZapPendingModal(true)
         setAttemptingTxn(true)
         const { hash: txHash } = await zapIn(
           {
@@ -1177,7 +1177,7 @@ export default function AddLiquidity() {
   }
 
   const handleDissmissZap = () => {
-    setShowZapPendingModal(false)
+    setShowZapConfirmation(false)
     setTxHash('')
     setZapError('')
     setAttemptingTxn(false)
@@ -1196,9 +1196,14 @@ export default function AddLiquidity() {
     aggregatorRoute: aggregatorData,
   })
 
+  const zapPriceImpactNote = method === 'zap' &&
+    !!(zapDetail.priceImpact?.isVeryHigh || zapDetail.priceImpact?.isHigh || zapDetail.priceImpact?.isInvalid) &&
+    zapResult &&
+    !zapLoading && <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+
   const ZapButton = (
     <ButtonPrimary
-      onClick={handleZap}
+      onClick={() => setShowZapConfirmation(true)}
       backgroundColor={
         zapApprovalState !== ApprovalState.APPROVED
           ? undefined
@@ -1608,16 +1613,12 @@ export default function AddLiquidity() {
         {warnings}
         {tokenA && tokenB && <DisclaimerERC20 token0={tokenA.address} token1={tokenB.address} />}
 
-        {method === 'zap' &&
-          !!(zapDetail.priceImpact?.isVeryHigh || zapDetail.priceImpact?.isHigh || zapDetail.priceImpact?.isInvalid) &&
-          zapResult &&
-          !zapLoading && <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />}
+        {zapPriceImpactNote}
         <Row justify="flex-end">{method === 'pair' || !account ? <Buttons /> : ZapButton}</Row>
       </Row>
     </>
   )
 
-  // const [viewMode] = useViewMode()
   const viewMode = VIEW_MODE.LIST
   const [rotated, setRotated] = useState(false)
   const modalContent = () => {
@@ -2030,8 +2031,8 @@ export default function AddLiquidity() {
       <ElasticFarmV2Updater interval={false} />
 
       <TransactionConfirmationModal
-        isOpen={showZapPendingModal}
-        onDismiss={handleDissmissZap}
+        isOpen={showZapConfirmation}
+        onDismiss={handleDismissConfirmation}
         hash={txHash}
         attemptingTxn={attemptingTxn}
         pendingText={
@@ -2042,7 +2043,55 @@ export default function AddLiquidity() {
         }
         content={() => (
           <Flex flexDirection={'column'} width="100%">
-            {zapError ? <TransactionErrorContent onDismiss={handleDissmissZap} message={zapError} /> : null}
+            {zapError ? (
+              <TransactionErrorContent onDismiss={handleDissmissZap} message={zapError} />
+            ) : (
+              <ConfirmationModalContent
+                title={t`Add Liquidity`}
+                onDismiss={handleDissmissZap}
+                topContent={() => (
+                  <div style={{ marginTop: '1rem' }}>
+                    {!!zapDetail.newPosDraft && <ProAmmPoolInfo position={zapDetail.newPosDraft} />}
+                    <ProAmmPooledTokens
+                      liquidityValue0={
+                        selectedCurrency?.isNative
+                          ? CurrencyAmount.fromRawAmount(
+                              selectedCurrency,
+                              zapDetail.newPooledAmount0?.quotient.toString() || 0,
+                            )
+                          : zapDetail.newPooledAmount0
+                      }
+                      liquidityValue1={zapDetail.newPooledAmount1}
+                      title={t`New Liquidity Amount`}
+                    />
+                    {!!zapDetail.newPosDraft && (
+                      <ProAmmPriceRangeConfirm
+                        position={zapDetail.newPosDraft}
+                        ticksAtLimit={ticksAtLimit}
+                        zapDetail={zapDetail}
+                      />
+                    )}
+                  </div>
+                )}
+                showGridListOption={false}
+                bottomContent={() => (
+                  <Flex flexDirection="column" sx={{ gap: '12px' }}>
+                    {warnings}
+                    {zapPriceImpactNote}
+                    <ButtonError
+                      error={zapDetail.priceImpact.isVeryHigh}
+                      warning={isWarningButton || zapDetail.priceImpact.isHigh}
+                      id="btnSupply"
+                      onClick={handleZap}
+                    >
+                      <Text fontWeight={500}>
+                        <Trans>Supply</Trans>
+                      </Text>
+                    </ButtonError>
+                  </Flex>
+                )}
+              />
+            )}
           </Flex>
         )}
       />

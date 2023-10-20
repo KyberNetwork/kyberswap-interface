@@ -264,6 +264,7 @@ const disabledError = css`
 export const ButtonErrorStyle = styled(Base)`
   background-color: ${({ theme }) => theme.red};
   border: 1px solid ${({ theme }) => theme.red};
+  color: ${({ theme }) => theme.textReverse};
 
   &:focus {
     box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.red)};

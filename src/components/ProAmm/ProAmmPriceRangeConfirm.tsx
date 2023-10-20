@@ -8,6 +8,7 @@ import { ReactComponent as DoubleArrow } from 'assets/svg/double_arrow.svg'
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
+import { ZapDetail } from 'components/ElasticZap/ZapDetail'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
@@ -40,9 +41,11 @@ const Price = styled.div`
 export default function ProAmmPriceRangeConfirm({
   position,
   ticksAtLimit,
+  zapDetail,
 }: {
   position: Position
   ticksAtLimit: { [bound: string]: boolean | undefined }
+  zapDetail?: ZapDetail
 }) {
   const theme = useTheme()
 
@@ -113,6 +116,46 @@ export default function ProAmmPriceRangeConfirm({
           </TYPE.black>
         </Flex>
 
+        {zapDetail && (
+          <>
+            <Flex justifyContent="space-between" fontSize={12}>
+              <Text color={theme.subText}>Price Impact</Text>
+              <Text
+                fontWeight="500"
+                color={
+                  zapDetail.priceImpact.isVeryHigh
+                    ? theme.red
+                    : zapDetail.priceImpact.isHigh
+                    ? theme.warning
+                    : theme.text
+                }
+              >
+                {zapDetail.priceImpact.isInvalid
+                  ? '--'
+                  : zapDetail.priceImpact.value < 0.01
+                  ? '<0.01%'
+                  : zapDetail.priceImpact.value.toFixed(2) + '%'}
+              </Text>
+            </Flex>
+
+            <Flex justifyContent="space-between" fontSize={12}>
+              <Text color={theme.subText}>
+                <Trans>Est. Gas Fee</Trans>
+              </Text>
+
+              <Text fontSize={12} fontWeight="500">
+                {zapDetail.estimateGasUsd ? '$' + zapDetail.estimateGasUsd.toFixed(2) : '--'}
+              </Text>
+            </Flex>
+
+            <Flex justifyContent="space-between" fontSize={12}>
+              <Text color={theme.subText}>Zap Fee</Text>
+              <Text fontWeight="500" color={theme.primary}>
+                Free
+              </Text>
+            </Flex>
+          </>
+        )}
         <Divider />
 
         <Flex>

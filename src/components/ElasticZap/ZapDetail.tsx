@@ -47,6 +47,7 @@ export interface ZapDetail {
   newPooledAmount1: CurrencyAmount<Currency> | undefined
   zapResult: ZapResult | undefined
   skeleton: (w?: number) => ReactElement
+  newPosDraft: Position | undefined
 }
 
 export const useZapDetail = ({
@@ -218,6 +219,7 @@ export const useZapDetail = ({
     amountInUsd,
     newPooledAmount0,
     newPooledAmount1,
+    newPosDraft,
     skeleton,
   }
 }

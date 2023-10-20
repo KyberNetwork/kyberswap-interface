@@ -46,7 +46,7 @@ export const useFeeTierDistribution = (
       .then(res => {
         const feeArray: { feeTier: string; activePositions: number }[] = res?.data?.pools?.map(
           (item: { positionCount: string; closedPositionCount: string; feeTier: string }) => {
-            const activePositions = Number(item.positionCount) - Number(item.closedPositionCount)
+            const activePositions = Number(item.positionCount)
             return {
               feeTier: item.feeTier,
               activePositions,
@@ -55,6 +55,7 @@ export const useFeeTierDistribution = (
         )
 
         const totalPositions = feeArray.reduce((total, cur) => total + cur.activePositions, 0)
+        console.log(totalPositions)
 
         if (!totalPositions) return
         setFeeTierDistribution(
