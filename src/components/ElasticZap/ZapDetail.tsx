@@ -78,6 +78,16 @@ export const useZapDetail = ({
   const { chainId } = useActiveWeb3React()
   const { readProvider } = useKyberSwapConfig()
 
+  const equivalentQuoteAmount =
+    (amountIn &&
+      pool &&
+      amountIn
+        .multiply(
+          pool.priceOf(pool.token0.address.toLowerCase() === tokenIn?.toLowerCase() ? pool.token0 : pool.token1),
+        )
+        ?.quotient.toString()) ||
+    '0'
+
   const currency0 = pool?.token0 && unwrappedToken(pool.token0)
   const currency1 = pool?.token1 && unwrappedToken(pool.token1)
   const newPosDraft =
@@ -147,8 +157,7 @@ export const useZapDetail = ({
           tokenId: tokenId?.toString() || 0,
           tokenIn,
           amountIn: amount,
-          usedAmount0: result.usedAmount0.toString(),
-          usedAmount1: result.usedAmount1.toString(),
+          equivalentQuoteAmount,
           poolAddress,
           tickLower,
           tickUpper,
@@ -186,6 +195,7 @@ export const useZapDetail = ({
     tickLower,
     tickUpper,
     previousTicks,
+    equivalentQuoteAmount,
     readProvider,
     result,
     pool,

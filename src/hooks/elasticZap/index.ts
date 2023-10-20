@@ -171,8 +171,7 @@ export function useZapInAction() {
         tokenId = 0,
         tokenIn,
         amountIn,
-        usedAmount0,
-        usedAmount1,
+        equivalentQuoteAmount,
         poolAddress,
         tickUpper,
         tickLower,
@@ -184,8 +183,7 @@ export function useZapInAction() {
         tokenId?: number | string
         tokenIn: string
         amountIn: string
-        usedAmount0: string
-        usedAmount1: string
+        equivalentQuoteAmount: string
         poolAddress: string
         tickLower: number
         tickUpper: number
@@ -234,13 +232,12 @@ export function useZapInAction() {
 
         const zeros = '0'.repeat(128)
         const minZapAmount0 = JSBI.divide(
-          JSBI.multiply(JSBI.BigInt(usedAmount0), JSBI.BigInt(slippage)),
+          JSBI.multiply(JSBI.BigInt(amountIn), JSBI.BigInt(slippage)),
           JSBI.BigInt(10000),
         ).toString(2)
 
-        // temporary hardcode for 0
         const minZapAmount1 = JSBI.divide(
-          JSBI.multiply(JSBI.BigInt(usedAmount1), JSBI.BigInt(slippage)),
+          JSBI.multiply(JSBI.BigInt(equivalentQuoteAmount), JSBI.BigInt(slippage)),
           JSBI.BigInt(10000),
         ).toString(2)
 

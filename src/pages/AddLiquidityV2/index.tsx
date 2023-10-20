@@ -1038,6 +1038,9 @@ export default function AddLiquidity() {
   const debouncedValue = useDebounce(zapValue, 300)
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
+  const equivalentQuoteAmount =
+    amountIn && pool && selectedCurrency && amountIn.multiply(pool.priceOf(selectedCurrency.wrapped))
+
   const params = useMemo(() => {
     return poolAddress &&
       amountIn?.greaterThan('0') &&
@@ -1130,8 +1133,7 @@ export default function AddLiquidity() {
             tokenId: 0,
             tokenIn: selectedCurrency.wrapped.address,
             amountIn: amountIn.quotient.toString(),
-            usedAmount0: zapResult.usedAmount0.toString(),
-            usedAmount1: zapResult.usedAmount1.toString(),
+            equivalentQuoteAmount: equivalentQuoteAmount?.quotient.toString() || '0',
             poolAddress,
             tickLower,
             tickUpper,

@@ -457,6 +457,9 @@ export default function IncreaseLiquidity() {
   const debouncedValue = useDebounce(value, 300)
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
+  const equivalentQuoteAmount =
+    amountIn && pool && selectedCurrency && amountIn.multiply(pool.priceOf(selectedCurrency.wrapped))
+
   const tickLower = existingPosition?.tickLower
   const tickUpper = existingPosition?.tickUpper
 
@@ -529,8 +532,7 @@ export default function IncreaseLiquidity() {
             tokenId: tokenId.toString(),
             tokenIn: selectedCurrency.wrapped.address,
             amountIn: amountIn.quotient.toString(),
-            usedAmount0: zapResult.usedAmount0.toString(),
-            usedAmount1: zapResult.usedAmount1.toString(),
+            equivalentQuoteAmount: equivalentQuoteAmount?.quotient.toString() || '0',
             poolAddress,
             tickLower: existingPosition.tickLower,
             tickUpper: existingPosition.tickUpper,

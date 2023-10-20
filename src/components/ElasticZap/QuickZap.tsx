@@ -197,12 +197,12 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
     return isReverse ? currency0 : currency1
   }, [isReverse, currency0, currency1])
 
-  console.log(quoteCurrency && pool?.priceOf(quoteCurrency.wrapped).toSignificant())
-
   const [typedValue, setTypedValue] = useState('')
   const debouncedValue = useDebounce(typedValue, 300)
 
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
+  const equivalentQuoteAmount =
+    amountIn && pool && selectedCurrency && amountIn.multiply(pool.priceOf(selectedCurrency.wrapped))
 
   const [tickLower, tickUpper] = useTicksFromRange(selectedRange, pool || undefined)
   const tickReader = useProAmmTickReader()
@@ -305,8 +305,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
             tokenId: tokenId ? tokenId.toString() : 0,
             tokenIn: selectedCurrency.wrapped.address,
             amountIn: amountIn.quotient.toString(),
-            usedAmount0: result.usedAmount0.toString(),
-            usedAmount1: result.usedAmount1.toString(),
+            equivalentQuoteAmount: equivalentQuoteAmount?.quotient.toString() || '0',
             poolAddress,
             tickLower: vTickLower,
             tickUpper: vTickUpper,
