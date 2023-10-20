@@ -4,7 +4,8 @@ import { Box, Flex } from 'rebass'
 import { useTheme } from 'styled-components'
 
 import QuestionHelper from 'components/QuestionHelper'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
+import useChainsConfig from 'hooks/useChainsConfig'
 
 type Props = {
   fromChainID: number
@@ -12,6 +13,7 @@ type Props = {
 }
 const RouteCell: React.FC<Props> = ({ fromChainID, toChainID }) => {
   const theme = useTheme()
+  const { NETWORKS_INFO } = useChainsConfig()
 
   const renderChainIcon = (chainId: number) => {
     if (SUPPORTED_NETWORKS.includes(chainId)) {

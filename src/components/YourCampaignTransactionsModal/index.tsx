@@ -10,8 +10,8 @@ import styled, { css } from 'styled-components'
 
 import Modal from 'components/Modal'
 import { CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
@@ -44,6 +44,7 @@ export default function YourCampaignTransactionsModal() {
 
   const [isCopied, setCopied] = useCopyClipboard()
   const copiedText = useRef<string>()
+  const { NETWORKS_INFO } = useChainsConfig()
 
   return (
     <Modal isOpen={isYourCampaignTransactionModalOpen} onDismiss={toggleYourCampaignTransactionModal} maxWidth={900}>
