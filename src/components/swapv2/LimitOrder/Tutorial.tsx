@@ -65,7 +65,16 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
 
         <Column gap="12px">
           <ContentItem text={t`Buy or sell tokens at the price you want`} />
-          <ContentItem text={t`Place orders on thousands on tokens for free`} />
+          <ContentItem
+            text={
+              <Trans>
+                Place orders on thousands on tokens for{' '}
+                <Text as="span" fontWeight={'500'} color={theme.primary}>
+                  <Trans>FREE</Trans>
+                </Text>
+              </Trans>
+            }
+          />
           <ContentItem text={t`Get your orders filled without paying any gas fees`} />
           <ContentItem
             text={
