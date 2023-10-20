@@ -44,6 +44,7 @@ const scroll: EVMNetworkInfo = {
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
+    fairlaunchV3: ['0x80F00BF467520b5749363E1391f94B8d888F7C0E'],
   },
   elastic: {
     defaultSubgraph: 'https://scroll-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-scroll',
