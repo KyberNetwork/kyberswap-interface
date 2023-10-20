@@ -27,6 +27,9 @@ function parseKnownPattern(text: string): string | undefined {
   if (error.includes('header not found') || error.includes('swap failed'))
     return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
 
+  if (error.includes('underlying network changed'))
+    return t`Your chain is mismatched, please make sure your wallet is switch to the expected chain.`
+
   if (didUserReject(error)) return t`User rejected the transaction.`
 
   // classic/elastic remove liquidity error
