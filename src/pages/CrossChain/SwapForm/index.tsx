@@ -189,7 +189,9 @@ export default function SwapForm() {
       onTracking(MIXPANEL_TYPE.CROSS_CHAIN_TXS_SUBMITTED)
       setInputAmount('')
       setSwapState(state => ({ ...state, attemptingTxn: false, txHash: tx.hash }))
-      const tokenAmountOut = uint256ToFraction(outputAmount, currencyOut.decimals).toSignificant(6)
+      const tokenAmountOut = uint256ToFraction(outputAmount, currencyOut.decimals).toSignificant(
+        Math.min(6, currencyOut.decimals),
+      )
       const tokenAddressIn = getTokenAddress(currencyIn)
       const tokenAddressOut = getTokenAddress(currencyOut)
       addTransaction({
