@@ -18,7 +18,7 @@ import { MoneyBag } from 'components/Icons'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, DMM_ANALYTICS_URL, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import Position from 'pages/MyEarnings/ClassicPools/SinglePool/Position'
 import { StatItem } from 'pages/MyEarnings/ElasticPools/SinglePool'
@@ -84,6 +84,7 @@ const getCurrencyFromTokenAddress = (
 
 const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
   const theme = useTheme()
+  const { NETWORKS_INFO } = useChainsConfig()
   const networkInfo = NETWORKS_INFO[chainId]
   const [isExpanded, setExpanded] = useState(false)
   const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
