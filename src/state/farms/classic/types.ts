@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Token } from '@kyberswap/ks-sdk-core'
+import { Fraction, Token } from '@kyberswap/ks-sdk-core'
 
 export enum FairLaunchVersion {
   V1,
@@ -12,21 +12,19 @@ export enum RewardLockerVersion {
   V2,
 }
 
-interface FarmV1 {
+export interface FarmV1 {
   fairLaunchAddress: string
-  version: FairLaunchVersion
+  version: FairLaunchVersion.V1
   pid: number
   id: string
   rewardTokens: Token[]
   rewardPerBlocks: BigNumber[]
-  accRewardPerShares: BigNumber[]
-  totalStake: BigNumber
+  totalStake: Fraction
   stakeToken: string
   startBlock: number
   endBlock: number
-  lastRewardBlock: number
-  token0?: any
-  token1?: any
+  token0: Token
+  token1: Token
   amp: number
   reserve0: string
   reserve1: string
@@ -35,30 +33,24 @@ interface FarmV1 {
   oneDayFeeUSD?: string
   oneDayFeeUntracked?: string
   userData?: {
-    allowance?: string
-    tokenBalance?: string
     stakedBalance?: string
     rewards?: string[]
   }
-  time: string
 }
 
-interface FarmV2 {
+export interface FarmV2 {
   fairLaunchAddress: string
-  version: FairLaunchVersion
+  version: FairLaunchVersion.V2 | FairLaunchVersion.V3
   pid: number
   id: string
   rewardTokens: Token[]
   rewardPerSeconds: BigNumber[]
-  accRewardPerShares: BigNumber[]
-  totalStake: BigNumber
+  totalStake: Fraction
   stakeToken: string
-  generatedToken: string
   startTime: number
   endTime: number
-  lastRewardTime: number
-  token0?: any
-  token1?: any
+  token0: Token
+  token1: Token
   amp: number
   reserve0: string
   reserve1: string
@@ -67,17 +59,12 @@ interface FarmV2 {
   oneDayFeeUSD?: string
   oneDayFeeUntracked?: string
   userData?: {
-    allowance?: string
-    tokenBalance?: string
     stakedBalance?: string
     rewards?: string[]
   }
-  time: string
-  vestingDuration: number
-  rewardMultipliers: BigNumber[]
 }
 
-export interface Farm extends FarmV1, FarmV2 {}
+export type Farm = FarmV1 | FarmV2
 
 export interface Reward {
   token: Token

@@ -12,8 +12,8 @@ import { getFullDisplayBalance } from 'utils/formatBalance'
 const getTransactionExtraInfo = (farm: Farm | null, farmRewards: Reward[]): TransactionExtraInfoHarvestFarm => {
   return {
     contract: farm?.id,
-    tokenAddressIn: farm?.token0?.id,
-    tokenAddressOut: farm?.token1?.id,
+    tokenAddressIn: farm?.token0?.address,
+    tokenAddressOut: farm?.token1?.address,
     tokenSymbolIn: farm?.token0?.symbol,
     tokenSymbolOut: farm?.token1?.symbol,
     rewards: farmRewards

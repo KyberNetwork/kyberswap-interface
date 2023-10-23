@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
-import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -14,45 +14,12 @@ import {
 } from 'apollo/queries'
 import { ONLY_DYNAMIC_FEE_CHAINS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { ClassicPoolData, CommonReturn } from 'hooks/pool/classic/type'
 import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
 import { AppState } from 'state/index'
 import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
 
 import { setError, setLoading, setSharedPoolId, updatePools } from './actions'
-
-export interface SubgraphPoolData {
-  id: string
-  amp: string
-  fee: number
-  reserve0: string
-  reserve1: string
-  vReserve0: string
-  vReserve1: string
-  totalSupply: string
-  reserveUSD: string
-  volumeUSD: string
-  feeUSD: string
-  oneDayVolumeUSD: string
-  oneDayVolumeUntracked: string
-  oneDayFeeUSD: string
-  oneDayFeeUntracked: string
-  token0: {
-    id: string
-    symbol: string
-    name: string
-    decimals: string
-    totalLiquidity: string
-    derivedETH: string
-  }
-  token1: {
-    id: string
-    symbol: string
-    name: string
-    decimals: string
-    totalLiquidity: string
-    derivedETH: string
-  }
-}
 
 export interface UserLiquidityPosition {
   id: string
@@ -98,7 +65,7 @@ export function useUserLiquidityPositions(chainId?: ChainId): UserLiquidityPosit
   return useMemo(() => ({ loading, error, data }), [data, error, loading])
 }
 
-function parseData(data: any, oneDayData: any, ethPrice: any, oneDayBlock: any, chainId?: ChainId): SubgraphPoolData {
+function parseData(data: any, oneDayData: any, ethPrice: any, oneDayBlock: any, chainId: ChainId): ClassicPoolData {
   // get volume changes
   const oneDayVolumeUSD = get24hValue(data?.volumeUSD, oneDayData?.volumeUSD)
   const oneDayFeeUSD = get24hValue(data?.feeUSD, oneDayData?.feeUSD)
@@ -121,10 +88,10 @@ function parseData(data: any, oneDayData: any, ethPrice: any, oneDayBlock: any, 
     else data.oneDayVolumeUSD = 0
   }
 
-  if (chainId && WETH[chainId].address.toLowerCase() === data?.token0?.id) {
+  if (WETH[chainId].address.toLowerCase() === data?.token0?.id) {
     data.token0 = { ...data.token0, name: WETH[chainId].name, symbol: WETH[chainId].symbol }
   }
-  if (chainId && WETH[chainId].address.toLowerCase() === data?.token1?.id) {
+  if (WETH[chainId].address.toLowerCase() === data?.token1?.id) {
     data.token1 = { ...data.token1, name: WETH[chainId].name, symbol: WETH[chainId].symbol }
   }
 
@@ -138,10 +105,10 @@ export async function getBulkPoolDataFromPoolList(
   blockClient: ApolloClient<NormalizedCacheObject>,
   chainId: ChainId,
   ethPrice: string | undefined,
-): Promise<any> {
+): Promise<ClassicPoolData[]> {
   try {
     const current = await apolloClient.query({
-      query: POOLS_BULK_FROM_LIST(poolList, chainId && !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)),
+      query: POOLS_BULK_FROM_LIST(poolList, !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)),
       fetchPolicy: 'network-only',
     })
     let poolData
@@ -155,11 +122,7 @@ export async function getBulkPoolDataFromPoolList(
       const [oneDayResult] = await Promise.all(
         [b1].map(async block => {
           const result = apolloClient.query({
-            query: POOLS_HISTORICAL_BULK_FROM_LIST(
-              block,
-              poolList,
-              chainId && !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId),
-            ),
+            query: POOLS_HISTORICAL_BULK_FROM_LIST(block, poolList, !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)),
             fetchPolicy: 'network-only',
           })
           return result
@@ -185,6 +148,10 @@ export async function getBulkPoolDataFromPoolList(
 
             data = parseData(data, oneDayHistory, ethPrice, b1, chainId)
 
+            const token0 = data.token0
+            const token1 = data.token1
+            data.token0 = new Token(chainId, token0.id, Number(token0.decimals), token0.symbol, token0.name)
+            data.token1 = new Token(chainId, token1.id, Number(token1.decimals), token1.symbol, token1.name)
             return data
           }),
       )
@@ -197,7 +164,7 @@ export async function getBulkPoolDataFromPoolList(
   }
 }
 
-export async function getBulkPoolDataWithPagination(
+async function getBulkPoolDataWithPagination(
   isEnableBlockService: boolean,
   first: number,
   skip: number,
@@ -222,7 +189,7 @@ export async function getBulkPoolDataWithPagination(
                 first,
                 skip,
                 block,
-                chainId && !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId),
+                !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId),
               ),
               fetchPolicy: 'network-only',
             })
@@ -233,7 +200,7 @@ export async function getBulkPoolDataWithPagination(
         })
         .concat(
           apolloClient.query({
-            query: POOLS_BULK_WITH_PAGINATION(first, skip, chainId && !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)),
+            query: POOLS_BULK_WITH_PAGINATION(first, skip, !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)),
             fetchPolicy: 'network-only',
           }),
         ),
@@ -258,7 +225,10 @@ export async function getBulkPoolDataWithPagination(
           // }
 
           data = parseData(data, oneDayHistory, ethPrice, b1, chainId)
-
+          const token0 = data.token0
+          const token1 = data.token1
+          data.token0 = new Token(chainId, token0.id, Number(token0.decimals), token0.symbol, token0.name)
+          data.token1 = new Token(chainId, token1.id, Number(token1.decimals), token1.symbol, token1.name)
           return data
         }),
     )
@@ -304,11 +274,7 @@ function usePoolCountInSubgraph(): number {
   return poolCount
 }
 
-export function useAllPoolsData(): {
-  loading: AppState['pools']['loading']
-  error: AppState['pools']['error']
-  data: AppState['pools']['pools']
-} {
+export function useGetClassicPoolsSubgraph(): CommonReturn {
   const dispatch = useDispatch()
   const { chainId, isEVM, networkInfo } = useActiveWeb3React()
 
@@ -317,11 +283,12 @@ export function useAllPoolsData(): {
   const error = useSelector((state: AppState) => state.pools.error)
 
   const { currentPrice: ethPrice } = useETHPrice()
-  const { classicClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
+  const { classicClient, blockClient, isEnableBlockService, isEnableKNProtocol } = useKyberSwapConfig()
 
   const poolCountSubgraph = usePoolCountInSubgraph()
   useEffect(() => {
     if (!isEVM) return
+    if (isEnableKNProtocol) return
 
     const getPoolsData = async () => {
       try {
@@ -355,6 +322,7 @@ export function useAllPoolsData(): {
     getPoolsData()
   }, [
     chainId,
+    isEnableKNProtocol,
     dispatch,
     error,
     ethPrice,
@@ -380,13 +348,13 @@ export function useSinglePoolData(
 ): {
   loading: boolean
   error?: Error
-  data?: SubgraphPoolData
+  data?: ClassicPoolData
 } {
   const { chainId, isEVM, networkInfo } = useActiveWeb3React()
 
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | undefined>(undefined)
-  const [poolData, setPoolData] = useState<SubgraphPoolData>()
+  const [poolData, setPoolData] = useState<ClassicPoolData>()
   const { classicClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
 
   useEffect(() => {

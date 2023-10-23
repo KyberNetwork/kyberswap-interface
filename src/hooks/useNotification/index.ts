@@ -60,7 +60,7 @@ const useNotification = () => {
       id: Date.now() + i,
       isSubscribed: e?.topics?.every(e => e.isSubscribed),
       // special topic ids
-      isKyberAI: e?.topics?.some(e => e.id + '' === KYBER_AI_TOPIC_ID),
+      isKyberAI: e?.topics?.some(e => KYBER_AI_TOPIC_ID.includes(e.id + '')),
       isPriceAlert: e?.topics?.some(e => e.id + '' === PRICE_ALERT_TOPIC_ID),
       isPriceElasticPool: e?.topics?.some(e => e.id + '' === ELASTIC_POOL_TOPIC_ID),
     }))
