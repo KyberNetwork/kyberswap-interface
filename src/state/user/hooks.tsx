@@ -511,8 +511,7 @@ export const useIsWhiteListKyberAI = () => {
   const participantInfo = isError || loadingDebounced || !account ? participantDefault : rawData
   return {
     loading: loadingDebounced,
-    isWhiteList:
-      isLogin && (participantInfo?.status === ParticipantStatus.WHITELISTED || userInfo?.data?.hasAccessToKyberAI),
+    isWhiteList: true,
     isWaitList: isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
     refetch,
   }

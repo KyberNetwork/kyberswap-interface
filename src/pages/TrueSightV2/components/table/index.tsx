@@ -2,15 +2,16 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
+import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoingecko } from 'services/coingecko'
 import styled, { css } from 'styled-components'
 
-import { ButtonLight } from 'components/Button'
+import { ButtonAction, ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import Icon from 'components/Icons/Icon'
@@ -19,22 +20,20 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+import useCoingeckoAPI from 'hooks/useCoingeckoAPI'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
+import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoinmarketcap } from 'pages/TrueSightV2/hooks/useCoinmarketcapData'
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
-import {
-  useFundingRateQuery,
-  useGetLiquidityMarketsQuery,
-  useHolderListQuery,
-  useLiveDexTradesQuery,
-} from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
-import { IHolderList, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
+import { ChartTab, IHolderList, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
   calculateValueToColor,
   colorFundingRateText,
   formatLocaleStringNum,
+  formatShortNum,
   formatTokenPrice,
   navigateToSwapPage,
 } from 'pages/TrueSightV2/utils'
@@ -54,7 +53,6 @@ import WatchlistButton from '../WatchlistButton'
 const TableWrapper = styled.div`
   overflow-x: scroll;
   border-radius: 6px;
-
   ${({ theme }) => theme.mediaWidth.upToSmall`
     border-radius: 0;
     margin: -16px;
@@ -134,14 +132,16 @@ const LoadingHandleWrapper = ({
   hasData,
   children,
   height,
+  style,
 }: {
   isLoading: boolean
   hasData: boolean
   children: ReactNode
   height?: string
+  style?: CSSProperties
 }) => {
   return (
-    <TableWrapper>
+    <TableWrapper style={{ ...style, minHeight: height }}>
       <Table>
         {!hasData ? (
           <tr style={{ backgroundColor: 'unset' }}>
@@ -570,36 +570,134 @@ const TableTab = styled.div<{ active?: boolean }>`
         `}
 `
 
+enum LIQUIDITY_MARKETS_TYPE {
+  COINMARKETCAP,
+  COINGECKO,
+}
+
 export const LiquidityMarkets = () => {
-  const { data } = useGetLiquidityMarketsQuery({})
-  console.log('🚀 ~ file: index.tsx:575 ~ LiquidityMarkets ~ data:', data)
+  const theme = useTheme()
+  const [type, setType] = useState<LIQUIDITY_MARKETS_TYPE | undefined>()
+  const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
+  const { data: tokenOverview } = useKyberAIAssetOverview()
+
+  const { data, isLoading } = useGetLiquidityMarketsCoinmarketcap(
+    {
+      id: tokenOverview?.cmcId,
+      // centerType: activeTab === ChartTab.First ? 'dex' : activeTab === ChartTab.Second ? 'cex' : 'all',
+      category: activeTab === ChartTab.Third ? 'perpetual' : 'spot',
+    },
+    { skip: !tokenOverview?.cmcId && type !== LIQUIDITY_MARKETS_TYPE.COINMARKETCAP },
+  )
+
+  const coingeckoAPI = useCoingeckoAPI()
+
+  const { data: cgkData } = useGetLiquidityMarketsCoingecko(
+    { coingeckoAPI, id: tokenOverview?.cgkId },
+    { skip: !tokenOverview?.cgkId && type !== LIQUIDITY_MARKETS_TYPE.COINGECKO },
+  )
+
+  const marketPairs = data?.data?.market_pairs || []
+
+  const tabs: Array<{ title: string; tabId: ChartTab }> = useMemo(() => {
+    if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
+      return [
+        { title: t`Decentralized Exchanges`, tabId: ChartTab.First },
+        { title: t`Centralized Exchanges`, tabId: ChartTab.Second },
+        { title: t`Perpetual Markets`, tabId: ChartTab.Third },
+      ]
+    }
+    if (type === LIQUIDITY_MARKETS_TYPE.COINGECKO) {
+      return [
+        { title: t`Spot Markets`, tabId: ChartTab.First },
+        { title: t`Perpetual Markets`, tabId: ChartTab.Second },
+      ]
+    }
+    return []
+  }, [type])
+
+  useEffect(() => {
+    if (tokenOverview) {
+      setActiveTab(ChartTab.First)
+      if (tokenOverview.cmcId) {
+        setType(LIQUIDITY_MARKETS_TYPE.COINMARKETCAP)
+      } else if (tokenOverview.cgkId) {
+        setType(LIQUIDITY_MARKETS_TYPE.COINGECKO)
+      }
+    }
+  }, [tokenOverview])
 
   return (
     <>
-      <RowFit>
-        <TableTab active>DEX</TableTab>
-        <TableTab>CEX</TableTab>
-        <TableTab>Perpetual</TableTab>
-      </RowFit>
-      <LoadingHandleWrapper isLoading={false} hasData={true} height="500px">
-        <colgroup>
-          <col width="200px" />
-          <col width="120px" />
-          <col width="200px" />
-          <col width="200px" />
-          <col width="100px" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th>Exchange</th>
-            <th>Token Pair</th>
-            <th>Current Price</th>
-            <th>24h Volume</th>
-            <th style={{ textAlign: 'right' }}>Action</th>
-          </tr>
-        </thead>
-        <tbody style={{ fontSize: '14px', lineHeight: '20px' }}></tbody>
-      </LoadingHandleWrapper>
+      <Column margin="0px -16px -16px -16px">
+        <RowFit>
+          {tabs.map(tab => (
+            <TableTab key={tab.tabId} active={activeTab === tab.tabId} onClick={() => setActiveTab(tab.tabId)}>
+              {tab.title}
+            </TableTab>
+          ))}
+        </RowFit>
+        <LoadingHandleWrapper
+          isLoading={!!type && isLoading}
+          hasData={!!data?.data}
+          height="500px"
+          style={{ borderRadius: 0 }}
+        >
+          <colgroup>
+            <col width="200px" />
+            <col width="150px" />
+            <col width="150px" />
+            <col width="150px" />
+            <col width="100px" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Exchange</th>
+              <th>Token Pair</th>
+              <th>Current Price</th>
+              <th>24h Volume</th>
+              <th style={{ textAlign: 'right' }}>Action</th>
+            </tr>
+          </thead>
+          <tbody style={{ fontSize: '14px', lineHeight: '20px' }}>
+            {marketPairs.map((item: any, index: number) => {
+              return (
+                <tr key={index}>
+                  <td>
+                    <Row gap="12px">
+                      <img
+                        src={`https://s2.coinmarketcap.com/static/img/exchanges/64x64/${item.exchange.id}.png`}
+                        loading="lazy"
+                        alt="exchange logo"
+                        style={{ width: '36px', height: '36px' }}
+                      />
+                      <Text color={theme.text}>{item.exchange.name}</Text>
+                    </Row>
+                  </td>
+                  <td>
+                    <Text color={theme.text}>{item.market_pair}</Text>
+                  </td>
+                  <td>
+                    <Text color={theme.text}>
+                      ${formatTokenPrice(item.quote?.USD?.price / item.quote?.exchange_reported?.price)}
+                    </Text>
+                  </td>
+                  <td>
+                    <Text color={theme.text}>${formatShortNum(item.quote?.USD?.volume_24h)}</Text>
+                  </td>
+                  <td>
+                    <Row justify="flex-end">
+                      <ButtonAction color={theme.primary} style={{ padding: '6px' }}>
+                        <Icon id="truesight-v2" size={20} />
+                      </ButtonAction>
+                    </Row>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </LoadingHandleWrapper>
+      </Column>
     </>
   )
 }

@@ -62,7 +62,8 @@ export interface IAssetOverview {
     label: string
     ks3d: Array<IKyberScoreChart>
   }
-  isWatched: boolean
+  cmcId: string
+  cgkId: string
 }
 
 export interface ITokenList {
@@ -87,7 +88,6 @@ export interface ITokenList {
   prevKyberScore: number
   kyberScoreTag: string
   marketCap: number
-  isWatched: boolean
   cexNetflow24H: number
   cexNetflow3D: number
   discoveredOn?: number

@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { Placement } from '@popperjs/core'
 import { Portal } from '@reach/portal'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -5,6 +6,7 @@ import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
 import styled from 'styled-components'
 
+import Icon from 'components/Icons/Icon'
 import { Z_INDEXS } from 'constants/styles'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
@@ -27,17 +29,18 @@ const SelectWrapper = styled.div`
 `
 
 const SelectMenu = styled(motion.div)`
+  padding: 8px;
   border-radius: 16px;
   overflow: hidden;
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   z-index: 2;
   background: ${({ theme }) => theme.tabActive};
-  padding: 10px 0px;
   width: max-content;
 `
 
 const Option = styled.div<{ $selected: boolean }>`
-  padding: 10px 18px;
+  padding: 8px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
@@ -54,6 +57,33 @@ const SelectedWrap = styled.div`
   text-overflow: ellipsis;
   flex: 1;
   user-select: none;
+`
+
+const SearchWrapper = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.buttonGray};
+  margin-bottom: 8px;
+  transition: all 0.1s ease;
+  transition-property: background-color, color;
+  color: ${({ theme }) => theme.subText};
+  :hover {
+    background-color: ${({ theme }) => theme.buttonBlack};
+    color: ${({ theme }) => theme.text};
+  }
+  :focus-within {
+    background-color: ${({ theme }) => theme.buttonBlack};
+    color: ${({ theme }) => theme.text};
+  }
+  input {
+    width: 100%;
+    padding-inline-start: 40px;
+    line-height: 32px;
+    color: ${({ theme }) => theme.text};
+  }
 `
 export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void }
 
@@ -81,6 +111,7 @@ function Select({
   arrowColor,
   dropdownRender,
   onHideMenu,
+  withSearch,
   placement = 'bottom',
 }: {
   value?: string | number
@@ -96,10 +127,12 @@ function Select({
   forceMenuPlacementTop?: boolean
   arrowColor?: string
   placement?: string
+  withSearch?: boolean
   onHideMenu?: () => void // hide without changes
 }) {
   const [selected, setSelected] = useState(getOptionValue(options?.[0]))
   const [showMenu, setShowMenu] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
   const [menuPlacementTop] = useState(forceMenuPlacementTop)
 
   useEffect(() => {
@@ -116,30 +149,36 @@ function Select({
   const selectedInfo = options.find(item => getOptionValue(item) === selected)
 
   const renderMenu = () => {
-    return options.map(item => {
-      const value = getOptionValue(item)
-      const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        e.stopPropagation()
-        e.preventDefault()
-        setShowMenu(false)
-        if (item.onSelect) item.onSelect?.()
-        else {
-          setSelected(value)
-          onChange?.(value)
+    return options
+      .filter(item => {
+        if (!withSearch) return true
+        return item.label?.toString().toLowerCase().includes(searchValue)
+      })
+      .map(item => {
+        const value = getOptionValue(item)
+        const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
+          e.stopPropagation()
+          e.preventDefault()
+          setShowMenu(false)
+          setSearchValue('')
+          if (item.onSelect) item.onSelect?.()
+          else {
+            setSelected(value)
+            onChange?.(value)
+          }
         }
-      }
-      return (
-        <Option
-          key={value}
-          role="button"
-          $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
-          onClick={onClick}
-          style={optionStyle}
-        >
-          {optionRender ? optionRender(item) : getOptionLabel(item)}
-        </Option>
-      )
-    })
+        return (
+          <Option
+            key={value}
+            role="button"
+            $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
+            onClick={onClick}
+            style={optionStyle}
+          >
+            {optionRender ? optionRender(item) : getOptionLabel(item)}
+          </Option>
+        )
+      })
   }
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
@@ -180,6 +219,19 @@ function Select({
                 transition={{ duration: 0.1 }}
                 style={menuStyle}
               >
+                {withSearch && (
+                  <SearchWrapper onClick={e => e.stopPropagation()}>
+                    <span style={{ position: 'absolute', left: '8px' }}>
+                      <Icon id="search" />
+                    </span>
+                    <input
+                      placeholder={t`Search...`}
+                      style={{ background: 'transparent', outline: 'none', border: 'none' }}
+                      value={searchValue}
+                      onChange={e => setSearchValue(e.target.value)}
+                    />
+                  </SearchWrapper>
+                )}
                 <div>{dropdownRender ? dropdownRender(renderMenu()) : renderMenu()}</div>
               </SelectMenu>
             </div>

@@ -20,6 +20,7 @@ import tokenApi from 'services/token'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
+import coinmarketcapApi from 'pages/TrueSightV2/hooks/useCoinmarketcapData'
 import kyberAIApi from 'pages/TrueSightV2/hooks/useKyberAIData'
 
 import application from './application/reducer'
@@ -100,6 +101,7 @@ const store = configureStore({
 
     [campaignApi.reducerPath]: campaignApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
+    [coinmarketcapApi.reducerPath]: coinmarketcapApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
     [kyberDAO.reducerPath]: kyberDAO.reducer,
     [identifyApi.reducerPath]: identifyApi.reducer,
@@ -130,6 +132,7 @@ const store = configureStore({
       .concat(coingeckoApi.middleware)
       .concat(limitOrderApi.middleware)
       .concat(kyberAIApi.middleware)
+      .concat(coinmarketcapApi.middleware)
       .concat(campaignApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
       .concat(announcementApi.middleware)

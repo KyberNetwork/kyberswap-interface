@@ -173,6 +173,10 @@ export default function TokenFilter({
 
     return { allChainIds, listSelects, chainFilter }
   }, [data])
+  console.log(
+    '🚀 ~ file: index.tsx:175 ~ const{allChainIds,listSelects,chainFilter}=useMemo ~ listSelects:',
+    listSelects,
+  )
 
   // chains when f5, from url
   const defaultChains = useMemo(
@@ -251,6 +255,7 @@ export default function TokenFilter({
                 onChange={value => onChangeFilter(queryKey, value)}
                 optionStyle={{ fontSize: '14px' }}
                 menuStyle={menuStyle}
+                withSearch={queryKey === 'categories'}
               />
             ))}
             {isWatchlistTab && (

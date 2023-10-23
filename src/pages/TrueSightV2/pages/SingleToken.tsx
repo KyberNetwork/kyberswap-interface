@@ -510,9 +510,7 @@ export default function SingleToken() {
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { assetId } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.TechnicalAnalysis)
-
   const { data: token, isLoading, chain: chainParam, address: addressParam } = useKyberAIAssetOverview()
-
   const [viewAllTag, setViewAllTag] = useState(false)
 
   useEffect(() => {

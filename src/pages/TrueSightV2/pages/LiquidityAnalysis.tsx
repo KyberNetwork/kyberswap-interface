@@ -1,7 +1,6 @@
 import { t } from '@lingui/macro'
 import styled from 'styled-components'
 
-import useTheme from 'hooks/useTheme'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
 import { SectionWrapper } from '../components'
@@ -15,11 +14,11 @@ const Wrapper = styled.div`
 `
 
 export default function LiquidityAnalysis() {
-  const theme = useTheme()
   const tokenAnalysisSettings = useTokenAnalysisSettings()
   return (
     <Wrapper>
-      <SectionWrapper
+      {/* In development */}
+      {/* <SectionWrapper
         show={tokenAnalysisSettings?.liquidityProfile}
         id={KYBERAI_CHART_ID.LIQUIDITY_PROFILE}
         title={t`Liquidity Profile`}
@@ -29,7 +28,7 @@ export default function LiquidityAnalysis() {
         docsLinks={[]}
       >
         <LiquidityProfile />
-      </SectionWrapper>
+      </SectionWrapper> */}
       <SectionWrapper
         show={tokenAnalysisSettings?.markets}
         id={KYBERAI_CHART_ID.MARKETS}
@@ -38,6 +37,7 @@ export default function LiquidityAnalysis() {
         fullscreenButton
         // shareContent={numberOfTradesNodata ? undefined : () => <NumberofTradesChart noAnimation />}
         docsLinks={[]}
+        style={{ height: 'fit-content' }}
       >
         <LiquidityMarkets />
       </SectionWrapper>
