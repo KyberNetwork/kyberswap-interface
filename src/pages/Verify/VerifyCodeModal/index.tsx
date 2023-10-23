@@ -306,7 +306,7 @@ export default function VerifyCodeModal({
                 disabled={otp.length < 6 || isRateLimitError || verifying}
                 onClick={verify}
               >
-                <Trans>Verify</Trans>
+                {verifying ? <Trans>Verifying...</Trans> : <Trans>Verify</Trans>}
               </ButtonPrimary>
             )}
           </Content>
