@@ -21,7 +21,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import ZapDetail, { useZapDetail } from 'components/ElasticZap/ZapDetail'
+import { useZapDetail } from 'components/ElasticZap/ZapDetail'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Loader from 'components/Loader'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
@@ -78,7 +78,7 @@ import { MEDIA_WIDTHS, TYPE } from 'theme'
 import { calculateGasMargin, formattedNum, isAddressString, shortenAddress } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDollarAmount } from 'utils/numbers'
-import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
+import { SLIPPAGE_STATUS, checkRangeSlippage, formatSlippage } from 'utils/slippage'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -343,7 +343,9 @@ export default function IncreaseLiquidity() {
   }
 
   const handleDismissConfirmation = useCallback(() => {
-    setShowConfirm(false)
+    if (method === 'zap') setShowZapConfirmation(true)
+    else setShowConfirm(false)
+    setZapError('')
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onFieldAInput('')
@@ -351,7 +353,7 @@ export default function IncreaseLiquidity() {
       navigate('/myPools')
     }
     setTxHash('')
-  }, [navigate, onFieldAInput, txHash])
+  }, [navigate, onFieldAInput, txHash, method])
 
   const addIsUnsupported = false
 
@@ -485,14 +487,18 @@ export default function IncreaseLiquidity() {
   const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
   const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapIn } = useZapInAction()
-  const [showZapPendingModal, setShowZapPendingModal] = useState(false)
+  const [showZapConfirmation, setShowZapConfirmation] = useState(false)
   const [zapError, setZapError] = useState('')
 
   const zapBalances = useCurrencyBalances(
     useMemo(
       () => [
-        currencies[Field.CURRENCY_A],
-        currencies[Field.CURRENCY_B],
+        currencies[Field.CURRENCY_A]
+          ? unwrappedToken(currencies[Field.CURRENCY_A] as Currency)
+          : currencies[Field.CURRENCY_A],
+        currencies[Field.CURRENCY_B]
+          ? unwrappedToken(currencies[Field.CURRENCY_B] as Currency)
+          : currencies[Field.CURRENCY_B],
         currencies[Field.CURRENCY_A]?.wrapped,
         currencies[Field.CURRENCY_B]?.wrapped,
       ],
@@ -525,7 +531,6 @@ export default function IncreaseLiquidity() {
 
     if (selectedCurrency && tokenId && zapResult && amountIn?.quotient && existingPosition && previousTicks?.length) {
       try {
-        setShowZapPendingModal(true)
         setAttemptingTxn(true)
         const { hash: txHash } = await zapIn(
           {
@@ -594,7 +599,14 @@ export default function IncreaseLiquidity() {
 
   const ZapButton = (
     <ButtonPrimary
-      onClick={handleZap}
+      onClick={() => {
+        if (zapApprovalState === ApprovalState.NOT_APPROVED) {
+          zapApprove()
+          return
+        }
+
+        setShowZapConfirmation(true)
+      }}
       backgroundColor={
         zapApprovalState !== ApprovalState.APPROVED
           ? undefined
@@ -663,7 +675,7 @@ export default function IncreaseLiquidity() {
   }
 
   const handleDissmissZap = () => {
-    setShowZapPendingModal(false)
+    setShowZapConfirmation(false)
     setTxHash('')
     setZapError('')
     setAttemptingTxn(false)
@@ -683,11 +695,16 @@ export default function IncreaseLiquidity() {
     useWrapped ? token1?.wrapped.symbol : (token1 ? unwrappedToken(token1) : token1)?.symbol,
   )
 
+  const zapPriceImpactNote = method === 'zap' &&
+    !!(zapDetail.priceImpact?.isVeryHigh || zapDetail.priceImpact?.isHigh || zapDetail.priceImpact?.isInvalid) &&
+    zapResult &&
+    !zapLoading && <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+
   return (
     <>
       <TransactionConfirmationModal
-        isOpen={showZapPendingModal}
-        onDismiss={handleDissmissZap}
+        isOpen={showZapConfirmation}
+        onDismiss={handleDismissConfirmation}
         hash={txHash}
         attemptingTxn={attemptingTxn}
         pendingText={
@@ -698,7 +715,54 @@ export default function IncreaseLiquidity() {
         }
         content={() => (
           <Flex flexDirection={'column'} width="100%">
-            {zapError ? <TransactionErrorContent onDismiss={handleDissmissZap} message={zapError} /> : null}
+            {zapError ? (
+              <TransactionErrorContent onDismiss={handleDissmissZap} message={zapError} />
+            ) : (
+              <ConfirmationModalContent
+                title={t`Add Liquidity`}
+                onDismiss={handleDissmissZap}
+                topContent={() => (
+                  <div style={{ marginTop: '1rem' }}>
+                    {!!zapDetail.newPosDraft && <ProAmmPoolInfo position={zapDetail.newPosDraft} />}
+                    <ProAmmPooledTokens
+                      liquidityValue0={
+                        selectedCurrency?.isNative
+                          ? CurrencyAmount.fromRawAmount(
+                              selectedCurrency,
+                              zapDetail.newPooledAmount0?.quotient.toString() || 0,
+                            )
+                          : zapDetail.newPooledAmount0
+                      }
+                      liquidityValue1={zapDetail.newPooledAmount1}
+                      title={t`New Liquidity Amount`}
+                    />
+                    {!!zapDetail.newPosDraft && (
+                      <ProAmmPriceRangeConfirm
+                        position={zapDetail.newPosDraft}
+                        ticksAtLimit={ticksAtLimit}
+                        zapDetail={zapDetail}
+                      />
+                    )}
+                  </div>
+                )}
+                showGridListOption={false}
+                bottomContent={() => (
+                  <Flex flexDirection="column" sx={{ gap: '12px' }}>
+                    {zapPriceImpactNote}
+                    <ButtonError
+                      error={zapDetail.priceImpact.isVeryHigh}
+                      warning={zapDetail.priceImpact.isHigh}
+                      id="btnSupply"
+                      onClick={handleZap}
+                    >
+                      <Text fontWeight={500}>
+                        <Trans>Supply</Trans>
+                      </Text>
+                    </ButtonError>
+                  </Flex>
+                )}
+              />
+            )}
           </Flex>
         )}
       />
@@ -863,8 +927,6 @@ export default function IncreaseLiquidity() {
                       </Flex>
                     </Flex>
                   </BlackCard>
-
-                  {method === 'zap' && <ZapDetail zapLoading={zapLoading} zapDetail={zapDetail} />}
                 </FirstColumn>
 
                 <SecondColumn>
@@ -937,35 +999,107 @@ export default function IncreaseLiquidity() {
                           </div>
                         </>
                       ) : (
-                        <div style={inputAmountStyle}>
-                          <CurrencyInputPanel
-                            id="zap-increase-liquidity"
-                            value={value}
-                            onUserInput={v => {
-                              setValue(v)
-                            }}
-                            onMax={() => {
-                              const amount = zapBalances[balanceIndex]
-                              if (amount) setValue(maxAmountSpend(amount)?.toExact() || '')
-                            }}
-                            onHalf={() => {
-                              setValue(zapBalances[balanceIndex]?.divide('2').toExact() || '')
-                            }}
-                            currency={selectedCurrency}
-                            positionMax="top"
-                            showCommonBases
-                            estimatedUsd={formattedNum(zapDetail.amountInUsd, true)}
-                            isSwitchMode
-                            onSwitchCurrency={() => {
-                              if (selectedCurrency?.isNative) {
-                                setUseWrapped(true)
-                              } else {
-                                setUseWrapped(false)
-                                setIsReverse(prev => !prev)
-                              }
-                            }}
-                          />
-                        </div>
+                        <Flex sx={{ gap: '1rem', width: '100%' }} flexDirection={upToMedium ? 'column' : 'row'}>
+                          <div style={inputAmountStyle}>
+                            <CurrencyInputPanel
+                              id="zap-increase-liquidity"
+                              value={value}
+                              onUserInput={v => {
+                                setValue(v)
+                              }}
+                              onMax={() => {
+                                const amount = zapBalances[balanceIndex]
+                                if (amount) setValue(maxAmountSpend(amount)?.toExact() || '')
+                              }}
+                              onHalf={() => {
+                                setValue(zapBalances[balanceIndex]?.divide('2').toExact() || '')
+                              }}
+                              currency={selectedCurrency}
+                              positionMax="top"
+                              showCommonBases
+                              estimatedUsd={formattedNum(zapDetail.amountInUsd, true)}
+                              isSwitchMode
+                              onSwitchCurrency={() => {
+                                if (selectedCurrency?.isNative) {
+                                  setUseWrapped(true)
+                                } else {
+                                  setUseWrapped(false)
+                                  setIsReverse(prev => !prev)
+                                }
+                              }}
+                            />
+                          </div>
+                          <Flex
+                            flex={1}
+                            flexDirection="column"
+                            justifyContent="space-between"
+                            fontSize="12px"
+                            fontWeight="500"
+                          >
+                            <Flex justifyContent="space-between">
+                              <Text color={theme.subText}>Est. Pooled {pool?.token0.symbol}</Text>
+                              {zapLoading ? (
+                                zapDetail.skeleton()
+                              ) : !zapResult || !pool ? (
+                                '--'
+                              ) : (
+                                <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                                  <CurrencyLogo currency={unwrappedToken(pool.token0)} size="14px" />
+                                  <Text>
+                                    {zapDetail.newPooledAmount0?.toSignificant(10)} {unwrappedToken(pool.token0).symbol}
+                                  </Text>
+                                </Flex>
+                              )}
+                            </Flex>
+
+                            <Flex justifyContent="space-between">
+                              <Text color={theme.subText}>Est. Pooled {pool?.token1.symbol}</Text>
+                              {zapLoading ? (
+                                zapDetail.skeleton()
+                              ) : !zapResult || !pool ? (
+                                '--'
+                              ) : (
+                                <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                                  <CurrencyLogo currency={unwrappedToken(pool.token1)} size="14px" />
+                                  <Text>
+                                    {zapDetail.newPooledAmount1?.toSignificant(10)} {unwrappedToken(pool.token1).symbol}
+                                  </Text>
+                                </Flex>
+                              )}
+                            </Flex>
+
+                            <Flex justifyContent="space-between">
+                              <Text color={theme.subText}>Max Slippage</Text>
+                              <Text> {formatSlippage(allowedSlippage)}</Text>
+                            </Flex>
+
+                            <Flex justifyContent="space-between">
+                              <Text color={theme.subText}>Price Impact</Text>
+                              {zapLoading ? (
+                                zapDetail.skeleton(40)
+                              ) : !zapResult ? (
+                                '--'
+                              ) : (
+                                <Text
+                                  fontWeight="500"
+                                  color={
+                                    zapDetail.priceImpact.isVeryHigh
+                                      ? theme.red
+                                      : zapDetail.priceImpact.isHigh
+                                      ? theme.warning
+                                      : theme.text
+                                  }
+                                >
+                                  {zapDetail.priceImpact.isInvalid
+                                    ? '--'
+                                    : zapDetail.priceImpact.value < 0.01
+                                    ? '<0.01%'
+                                    : zapDetail.priceImpact.value.toFixed(2) + '%'}
+                                </Text>
+                              )}
+                            </Flex>
+                          </Flex>
+                        </Flex>
                       )}
                     </TokenInputWrapper>
                   </BlackCard>
@@ -994,18 +1128,7 @@ export default function IncreaseLiquidity() {
                     </WarningCard>
                   )}
 
-                  {method === 'zap' &&
-                    !!(
-                      zapDetail.priceImpact?.isVeryHigh ||
-                      zapDetail.priceImpact?.isHigh ||
-                      zapDetail.priceImpact?.isInvalid
-                    ) &&
-                    zapResult &&
-                    !zapLoading && (
-                      <>
-                        <PriceImpactNote priceImpact={zapDetail.priceImpact.value} /> <Flex marginBottom="1rem" />
-                      </>
-                    )}
+                  {zapPriceImpactNote}
 
                   <Flex justifyContent="flex-end">{method === 'pair' || !account ? <Buttons /> : ZapButton}</Flex>
                 </SecondColumn>
