@@ -100,10 +100,7 @@ export const useTotalApr = (farm: Farm) => {
   const poolAddressChecksum = isAddressString(chainId, farm.id)
   const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
-  const lpTokenRatio = new Fraction(
-    farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
-  ).divide(
+  const lpTokenRatio = farm.totalStake.divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),

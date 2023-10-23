@@ -87,7 +87,7 @@ import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { formatDisplayNumber, toFixed } from 'utils/numbers'
+import { formatDisplayNumber, toString } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -631,7 +631,7 @@ export default function AddLiquidity() {
 
   useEffect(() => {
     if (waitForMarketPrice && marketPrice) {
-      onStartPriceInput(toFixed(marketPrice))
+      onStartPriceInput(toString(marketPrice))
       setWaitForMarketPrice(false)
     }
   }, [waitForMarketPrice, marketPrice, onStartPriceInput])

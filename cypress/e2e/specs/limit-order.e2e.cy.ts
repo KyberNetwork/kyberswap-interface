@@ -8,7 +8,7 @@ const tokenSymbols = TOKEN_SYMBOLS[NETWORK]
 const tokenCatalog = new TokenCatalog();
 
 
-describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
+describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
     beforeEach(() => {
         SwapPage.open(DEFAULT_URL)
         SwapPage.goToLimitOrder()
@@ -85,6 +85,15 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
             LimitOder.setSellingRate('1.2345..67')
             LimitOder.getSellingRate().then((value) => {
                 cy.wrap(value).should('eq', '1.234567')
+            })
+        })
+    })
+
+    describe('Messages', () => {
+        it('Verify error message when insufficient balance', () => {
+            LimitOder.getBalanceIn((text) => {
+                LimitOder.setAmountIn(String(Number(text) + 1))
+                LimitOder.getInsufficientErrorMessage().should('be.visible')
             })
         })
     })
