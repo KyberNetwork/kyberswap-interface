@@ -45,7 +45,8 @@ export function useZapInPoolResult(params?: {
   const { networkInfo, chainId } = useActiveWeb3React()
   const zapHelperContract = useContractForReading((networkInfo as EVMNetworkInfo).elastic.zap?.helper, ZAP_HELPER_ABI)
 
-  const [getRoute, { isLoading: loadingAggregator }] = useLazyGetRouteQuery()
+  const [loadingAggregator, setLoadingAggregator] = useState(false)
+  const [getRoute] = useLazyGetRouteQuery()
 
   const { aggregatorDomain } = useKyberswapGlobalConfig()
   const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
@@ -63,6 +64,7 @@ export function useZapInPoolResult(params?: {
   useEffect(() => {
     if (tokenIn && tokenOut && poolAddress) {
       setAggregatorOutputs([])
+      setLoadingAggregator(true)
       Promise.all(
         splitedAmount.map(item => {
           return getRoute({
@@ -81,6 +83,9 @@ export function useZapInPoolResult(params?: {
       )
         .then(res => res?.map(item => item?.data?.data?.routeSummary) || [])
         .then(res => setAggregatorOutputs(res.filter(Boolean) as Array<RouteSummary>))
+        .finally(() => {
+          setTimeout(() => setLoadingAggregator(false), 100)
+        })
     }
   }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url])
 

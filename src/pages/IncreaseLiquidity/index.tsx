@@ -343,7 +343,7 @@ export default function IncreaseLiquidity() {
   }
 
   const handleDismissConfirmation = useCallback(() => {
-    if (method === 'zap') setShowZapConfirmation(true)
+    if (method === 'zap') setShowZapConfirmation(false)
     else setShowConfirm(false)
     setZapError('')
     // if there was a tx hash, we want to clear the input
@@ -640,8 +640,7 @@ export default function IncreaseLiquidity() {
               <Trans>Loading</Trans>
             </Dots>
           )
-        if (!!position) return <Trans>Increase Liquidity</Trans>
-        return <Trans>Add Liquidity</Trans>
+        return <Trans>Preview</Trans>
       })()}
     </ButtonPrimary>
   )

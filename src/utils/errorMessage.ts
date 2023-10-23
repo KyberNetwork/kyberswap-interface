@@ -6,6 +6,7 @@ import { capitalizeFirstLetter } from 'utils/string'
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''
 
+  console.log(text)
   if (!error || error.includes('router: expired')) return 'An error occurred. Refresh the page and try again.'
 
   if (
@@ -13,7 +14,8 @@ function parseKnownPattern(text: string): string | undefined {
     error.includes('err_limit_out') ||
     error.includes('return amount is not enough') ||
     error.includes('code=call_exception') ||
-    error.includes('none of the calls threw an error' || error.includes('failed to swap with aggr'))
+    error.includes('none of the calls threw an error') ||
+    error.includes('failed to swap with aggr')
   )
     return t`An error occurred. Try refreshing the price rate or increase max slippage.`
 
