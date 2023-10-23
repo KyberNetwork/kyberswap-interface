@@ -1,5 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
+import { Fraction, Token } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -8,6 +10,7 @@ import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 import { useFairLaunchContracts } from 'hooks/useContract'
 import { AppState } from 'state'
 import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
@@ -16,7 +19,7 @@ import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { getBulkPoolDataFromPoolList } from 'state/pools/hooks'
 
-export default function Updater({ isInterval = true }: { isInterval?: boolean }): null {
+export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean }): null {
   const dispatch = useAppDispatch()
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const fairLaunchContracts = useFairLaunchContracts()
@@ -67,8 +70,9 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
           if (isV2 || isV3) {
             return {
               ...poolInfo,
-              accRewardPerShares: poolInfo.accRewardPerShares.map((accRewardPerShare: BigNumber, index: number) =>
-                accRewardPerShare.div(isV3 ? poolInfo.multipliers[index] : poolInfo.rewardMultipliers[index]),
+              totalStake: new Fraction(
+                poolInfo.totalStake.toString(),
+                JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)),
               ),
               rewardPerSeconds: poolInfo.rewardPerSeconds.map((accRewardPerShare: BigNumber, index: number) =>
                 accRewardPerShare.div(isV3 ? poolInfo.multipliers[index] : poolInfo.rewardMultipliers[index]),
@@ -80,7 +84,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
                   ? poolInfo.rewardTokens.map((rw: string) =>
                       rw.toLowerCase() === ZERO_ADDRESS || rw.toLowerCase() === ETHER_ADDRESS.toLowerCase()
                         ? NativeCurrencies[chainId]
-                        : allTokens[rw],
+                        : allTokens[rw] || new Token(chainId, rw, 18, 'unknown', 'unknown'),
                     )
                   : rewardTokens) || [],
             }
@@ -88,6 +92,10 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
 
           return {
             ...poolInfo,
+            totalStake: new Fraction(
+              poolInfo.totalStake.toString(),
+              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)),
+            ),
             pid,
             fairLaunchVersion: FairLaunchVersion.V1,
             rewardTokens,
@@ -117,7 +125,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
 
       const poolAddresses = poolInfos.map(poolInfo => poolInfo.stakeToken.toLowerCase())
 
-      const farmsData = await getBulkPoolDataFromPoolList(
+      const poolsData: ClassicPoolData[] = await getBulkPoolDataFromPoolList(
         isEnableBlockService,
         poolAddresses,
         classicClient,
@@ -129,17 +137,17 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
 
       const farms: Farm[] = poolInfos.map((poolInfo, index) => {
         return {
-          ...farmsData.find(
-            (farmData: Farm) => farmData && farmData.id.toLowerCase() === poolInfo.stakeToken.toLowerCase(),
+          ...poolsData.find(
+            (poolData: ClassicPoolData) => poolData && poolData.id.toLowerCase() === poolInfo.stakeToken.toLowerCase(),
           ),
           ...poolInfo,
+          version: isV2 ? FairLaunchVersion.V2 : isV3 ? FairLaunchVersion.V3 : FairLaunchVersion.V1,
           rewardTokens: poolInfo.rewardTokens,
           fairLaunchAddress: contract.address,
           userData: {
             stakedBalance: stakedBalances[index],
             rewards: [FairLaunchVersion.V2, FairLaunchVersion.V3].includes(poolInfo.fairLaunchVersion)
-              ? pendingRewards[index] &&
-                pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
+              ? pendingRewards[index]?.map((pendingReward: BigNumber, pendingRewardIndex: number) =>
                   pendingReward.div(
                     isV3 ? poolInfo.multipliers[pendingRewardIndex] : poolInfo.rewardMultipliers[pendingRewardIndex],
                   ),
@@ -174,9 +182,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
           result[address] = promiseResult[index]
         })
 
-        if (latestChainId.current === chainId && Object.keys(farmsDataRef.current).length === 0) {
-          dispatch(setFarmsData(result))
-        }
+        dispatch(setFarmsData(result))
       } catch (err) {
         if (err instanceof AbortedError) return
         if (abortController.signal.aborted) return
@@ -187,6 +193,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
       dispatch(setLoading(false))
     }
 
+    dispatch(setFarmsData({}))
     checkForFarms()
 
     const i =

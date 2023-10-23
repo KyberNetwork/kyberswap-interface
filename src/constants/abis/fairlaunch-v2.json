@@ -426,56 +426,16 @@
         "name": "getPoolInfo",
         "outputs":
         [
-            {
-                "internalType": "uint256",
-                "name": "totalStake",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "stakeToken",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "generatedToken",
-                "type": "address"
-            },
-            {
-                "internalType": "uint32",
-                "name": "startTime",
-                "type": "uint32"
-            },
-            {
-                "internalType": "uint32",
-                "name": "endTime",
-                "type": "uint32"
-            },
-            {
-                "internalType": "uint32",
-                "name": "lastRewardTime",
-                "type": "uint32"
-            },
-            {
-                "internalType": "uint32",
-                "name": "vestingDuration",
-                "type": "uint32"
-            },
-            {
-                "internalType": "uint256[]",
-                "name": "rewardPerSeconds",
-                "type": "uint256[]"
-            },
-            {
-                "internalType": "uint256[]",
-                "name": "rewardMultipliers",
-                "type": "uint256[]"
-            },
-            {
-                "internalType": "uint256[]",
-                "name": "accRewardPerShares",
-                "type": "uint256[]"
-            }
+            { "internalType": "uint256", "name": "totalStake", "type": "uint256" },
+            { "internalType": "address", "name": "stakeToken", "type": "address" },
+            { "internalType": "address", "name": "generatedToken", "type": "address" },
+            { "internalType": "uint32", "name": "startTime", "type": "uint32" },
+            { "internalType": "uint32", "name": "endTime", "type": "uint32" },
+            { "internalType": "uint32", "name": "lastRewardTime", "type": "uint32" },
+            { "internalType": "uint32", "name": "vestingDuration", "type": "uint32" },
+            { "internalType": "uint256[]", "name": "rewardPerSeconds", "type": "uint256[]" },
+            { "internalType": "uint256[]", "name": "rewardMultipliers", "type": "uint256[]" },
+            { "internalType": "uint256[]", "name": "accRewardPerShares", "type": "uint256[]" }
         ],
         "stateMutability": "view",
         "type": "function"

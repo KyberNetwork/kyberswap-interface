@@ -52,7 +52,7 @@ const SwapV2 = lazy(() => import('./SwapV2'))
 const SwapV3 = lazy(() => import('./SwapV3'))
 // const Bridge = lazy(() => import('./Bridge'))
 const Pools = lazy(() => import('./Pools'))
-const MyPools = lazy(() => import('./Pool'))
+const MyPool = lazy(() => import('./MyPool'))
 const MyEarnings = lazy(() => import('./MyEarnings'))
 
 const Farm = lazy(() => import('./Farm'))
@@ -346,7 +346,7 @@ export default function App() {
                     <>
                       {/* My Pools Routes */}
                       <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPools />} />
+                      <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPool />} />
                     </>
 
                     <>

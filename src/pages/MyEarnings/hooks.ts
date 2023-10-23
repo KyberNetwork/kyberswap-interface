@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux'
 
 import { POOLS_BULK_WITH_PAGINATION, POOLS_HISTORICAL_BULK_WITH_PAGINATION, POOL_COUNT } from 'apollo/queries'
 import { didUserReject } from 'constants/connectors/utils'
-import { NETWORKS_INFO, ONLY_DYNAMIC_FEE_CHAINS, isEVM as isEVMChain } from 'constants/networks'
+import { ONLY_DYNAMIC_FEE_CHAINS, isEVM as isEVMChain } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { Position as SubgraphLegacyPosition, config, parsePosition } from 'hooks/useElasticLegacy'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -167,7 +167,6 @@ async function getBulkPoolDataWithPagination(
 function usePoolCountInSubgraph(chainId: ChainId): number {
   const [poolCount, setPoolCount] = useState(0)
   const isEVM = isEVMChain(chainId)
-  const networkInfo = NETWORKS_INFO[chainId]
   const { classicClient } = useKyberSwapConfig(chainId)
 
   useEffect(() => {
@@ -185,7 +184,7 @@ function usePoolCountInSubgraph(chainId: ChainId): number {
     }
 
     getPoolCount()
-  }, [networkInfo, isEVM, classicClient])
+  }, [chainId, isEVM, classicClient])
 
   return poolCount
 }
