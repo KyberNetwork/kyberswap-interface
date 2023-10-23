@@ -100,7 +100,7 @@ const TextUnderlineTransparent = styled(Text)`
 `
 
 export default function IncreaseLiquidity() {
-  const [method, setMethod] = useState<'pair' | 'zap'>('pair')
+  const [method, setMethod] = useState<'pair' | 'zap'>('zap')
   const { currencyIdB, currencyIdA, feeAmount: feeAmountFromUrl, tokenId } = useParams()
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()

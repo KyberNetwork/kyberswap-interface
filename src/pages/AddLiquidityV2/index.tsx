@@ -265,8 +265,8 @@ export default function AddLiquidity() {
     method === 'pair'
       ? positions.every(Boolean) && isFarmV2Available && !canJoinFarm
       : isFarmV2Available &&
-        tickUpper &&
-        tickLower &&
+        tickUpper !== undefined &&
+        tickLower !== undefined &&
         activeRanges.every(r => r.tickLower < tickLower || r.tickUpper > tickUpper)
 
   const previousTicks: number[] | undefined = useProAmmPreviousTicks(pool, position)
@@ -632,6 +632,7 @@ export default function AddLiquidity() {
   const handleDismissConfirmation = useCallback(() => {
     if (method === 'zap') setShowZapConfirmation(false)
     else setShowConfirm(false)
+    setZapError('')
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onFieldAInput('')
@@ -1205,7 +1206,14 @@ export default function AddLiquidity() {
 
   const ZapButton = (
     <ButtonPrimary
-      onClick={() => setShowZapConfirmation(true)}
+      onClick={() => {
+        if (zapApprovalState === ApprovalState.NOT_APPROVED) {
+          zapApprove()
+          return
+        }
+
+        setShowZapConfirmation(true)
+      }}
       backgroundColor={
         zapApprovalState !== ApprovalState.APPROVED
           ? undefined
