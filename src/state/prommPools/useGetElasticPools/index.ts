@@ -1,16 +1,8 @@
 import { useKyberSwapConfig } from 'state/application/hooks'
-import { ElasticPoolDetail } from 'types/pool'
 
+import { CommonReturn } from './type'
 import useGetElasticPoolsV1 from './useGetElasticPoolsV1'
 import useGetElasticPoolsV2 from './useGetElasticPoolsV2'
-
-export type CommonReturn = {
-  isLoading: boolean
-  isError: boolean
-  data?: {
-    [address: string]: ElasticPoolDetail
-  }
-}
 
 const useGetElasticPools = (poolAddresses: string[]): CommonReturn => {
   const { isEnableKNProtocol } = useKyberSwapConfig()

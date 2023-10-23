@@ -275,7 +275,7 @@ const LoadingHandleWrapper = ({
               <Column gap="14px" alignItems="center">
                 <Info size="38px" />
                 <Text fontSize="14px">
-                  <Trans>We couldn&apos;t find any information for this token</Trans>
+                  <Trans>We couldn&apos;t find any information for this token.</Trans>
                 </Text>
               </Column>
             )}
@@ -2781,9 +2781,8 @@ export const Prochart = ({
       const subscriptionDataLoaded = tvWidget?.activeChart()?.onDataLoaded()
       subscriptionDataLoaded?.subscribe(null, handleDataLoaded, true)
 
-      if (!showSRLevels) {
-        removeSRLevels()
-      } else {
+      removeSRLevels()
+      if (showSRLevels) {
         addSRLevels()
       }
     } catch (error) {}

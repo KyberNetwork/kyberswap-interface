@@ -116,7 +116,7 @@ export default function VerifyCodeModal({
       withNotify &&
         notify({
           title: t`Email Verified`,
-          summary: t`Your email has been verified successfully! You can now customize your preferences`,
+          summary: t`Your email has been verified successfully! You can now customize your preferences.`,
           type: NotificationType.SUCCESS,
         })
     },
@@ -185,7 +185,7 @@ export default function VerifyCodeModal({
   const header = (
     <RowBetween>
       <Text color={theme.text} fontWeight={'500'} fontSize={'20'}>
-        {verifySuccess ? verifySuccessTitle : <Trans>Verify your email address</Trans>}
+        {verifySuccess ? verifySuccessTitle : <Trans>Verify your email address.</Trans>}
       </Text>
       <X color={theme.text} cursor="pointer" onClick={onDismiss} />
     </RowBetween>

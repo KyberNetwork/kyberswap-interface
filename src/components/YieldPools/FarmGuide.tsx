@@ -42,7 +42,7 @@ const guideStepByVersion: Record<
     {
       content: (
         <Trans>
-          <Highlight>Identify</Highlight> the Elastic farm you would like to participate in
+          <Highlight>Identify</Highlight> the Elastic farm you would like to participate in.
         </Trans>
       ),
       icon: <Eye size={20} />,
@@ -53,7 +53,7 @@ const guideStepByVersion: Record<
         <Trans>
           <Highlight>Add liquidity</Highlight> to the corresponding{' '}
           {<StyledInternalLink to="/pools?tab=elastic">Elastic pool</StyledInternalLink>} and receive a NFT token for
-          your liquidity position
+          your liquidity position.
         </Trans>
       ), // todo: add network route
       icon: <Drop size={20} />,
@@ -63,7 +63,7 @@ const guideStepByVersion: Record<
       content: (
         <Trans>
           <Highlight>Approve</Highlight> the farming contract (if you haven&apos;t) to let it access your liquidity
-          positions (NFT tokens)
+          positions (NFT tokens).
         </Trans>
       ),
       icon: <Edit2 size={18} />,
@@ -73,7 +73,7 @@ const guideStepByVersion: Record<
       content: (
         <Trans>
           <Highlight>Deposit</Highlight> your liquidity position (NFT token) into the farming contract. Then{' '}
-          <Highlight>stake</Highlight> it into the farm
+          <Highlight>stake</Highlight> it into the farm.
         </Trans>
       ),
       icon: <Deposit width={20} height={20} />,
@@ -82,7 +82,7 @@ const guideStepByVersion: Record<
     {
       content: (
         <Trans>
-          <Highlight>Harvest</Highlight> your farming rewards whenever you want
+          <Highlight>Harvest</Highlight> your farming rewards whenever you want.
         </Trans>
       ),
       icon: <AgriCulture width={20} height={20} />,
@@ -93,7 +93,7 @@ const guideStepByVersion: Record<
         <Trans>
           <Highlight>Claim</Highlight> your farming rewards from the{' '}
           <StyledInternalLink to="/farms?type=vesting&tab=elastic">Vesting</StyledInternalLink> tab! Note: some farms
-          may have a vesting period
+          may have a vesting period.
         </Trans>
       ), //todo: add network route
       icon: <MoneyBagOutline size={20} />,
@@ -103,7 +103,7 @@ const guideStepByVersion: Record<
   [VERSION.ELASTIC_LEGACY]: [],
   [VERSION.CLASSIC]: [
     {
-      content: <Trans>Identify the Classic farm you would like to participate in</Trans>,
+      content: <Trans>Identify the Classic farm you would like to participate in.</Trans>,
       icon: <Eye size={20} />,
       title: 'Step 1',
     },
@@ -112,24 +112,24 @@ const guideStepByVersion: Record<
         <Trans>
           Add liquidity to the corresponding{' '}
           <StyledInternalLink to="/pools?tab=classic">Classic pool</StyledInternalLink> to receive Liquidity Provider
-          (LP) tokens
+          (LP) tokens.
         </Trans>
       ), //todo: add network route
       icon: <Drop size={20} />,
       title: 'Step 2',
     },
     {
-      content: <Trans>Stake your LP tokens in the farm you identified earlier</Trans>,
+      content: <Trans>Stake your LP tokens in the farm you identified earlier.</Trans>,
       icon: <Deposit width={20} height={20} />,
       title: 'Step 3',
     },
     {
-      content: <Trans>Harvest your farming rewards whenever you want</Trans>,
+      content: <Trans>Harvest your farming rewards whenever you want.</Trans>,
       icon: <AgriCulture width={20} height={20} />,
       title: 'Step 4',
     },
     {
-      content: <Trans>Claim your farming rewards! (Note: some farms may have a vesting period)</Trans>,
+      content: <Trans>Claim your farming rewards! (Note: some farms may have a vesting period).</Trans>,
       icon: <MoneyBagOutline size={20} />,
       title: 'Step 5',
     },
@@ -151,10 +151,10 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
             <>
               <Trans>
                 Deposit your liquidity from the Elastic Pools here, and then stake it to earn even more attractive
-                farming rewards. Learn about our farming mechanisms
+                farming rewards. Learn about our farming mechanisms.
               </Trans>{' '}
               <ExternalLink href="https://docs.kyberswap.com/guides/farming-mechanisms">
-                <Trans>here ↗</Trans>
+                <Trans>here ↗</Trans>.
               </ExternalLink>
             </>
           ) : (
@@ -163,7 +163,7 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
                 Deposit your liquidity from the Classic Pools here to earn even more attractive farming rewards.
               </Trans>{' '}
               <ExternalLink href="https://docs.kyberswap.com/classic/guides/yield-farming-guide">
-                <Trans>Learn More ↗</Trans>
+                <Trans>Learn More ↗</Trans>.
               </ExternalLink>
             </>
           )}

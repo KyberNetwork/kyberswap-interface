@@ -21,4 +21,26 @@ export const LimitOder = {
     getCurrentTokenBuy(text: myCallbackType<string>) {
         cy.getContent(LimitOrderLocators.dropdownTokenBuy, text)
     },
+
+    setAmountIn(value: string) {
+        cy.get(LimitOrderLocators.txtTokenSellAmount).type(value)
+    },
+
+    setSellingRate(text: string) {
+        cy.get(LimitOrderLocators.txtSellingRate).click().type(text)
+    },
+
+    getSellingRate() {
+        return cy.get(LimitOrderLocators.txtSellingRate).invoke('val').then(value => {
+            return value
+        })
+    },
+
+    getBalanceIn(text: myCallbackType<string>) {
+        cy.getContent(LimitOrderLocators.lblBalanceIn, text)
+    },
+
+    getInsufficientErrorMessage() {
+        return cy.get(LimitOrderLocators.lblErrorMessage)
+    }
 }

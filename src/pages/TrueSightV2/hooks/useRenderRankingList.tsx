@@ -246,7 +246,7 @@ const renderByColumnType: Record<
                       KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking into
                       account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the
                       score, more bullish the token in the short-term. Read more{' '}
-                      <a href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">here ↗</a>
+                      <a href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">here ↗</a>.
                     </Trans>
                   </span>
                 }

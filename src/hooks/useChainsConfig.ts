@@ -32,11 +32,21 @@ export default function useChainsConfig() {
         state: chainState,
       }
     })
+
+    const NETWORKS_INFO_WRAPPED = new Proxy(NETWORKS_INFO, {
+      get(target, p) {
+        const prop = p as any as ChainId
+        const info = chains.find(e => e.chainId === +prop)
+        return info || target[prop]
+      },
+    })
+
     return {
       activeChains: chains.filter(e => [ChainState.ACTIVE, ChainState.NEW].includes(e.state)),
       supportedChains: chains.filter(e =>
         [ChainState.ACTIVE, ChainState.NEW, ChainState.MAINTENANCE].includes(e.state),
       ),
+      NETWORKS_INFO: NETWORKS_INFO_WRAPPED, // todo danh, when chain setting from admin ready, update all place use this
     }
   }, [data, globalConfig])
 }

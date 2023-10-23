@@ -43,7 +43,7 @@ const Notice = ({ isFarm }: { isFarm?: boolean }) => {
           Elastic {isFarm ? 'Farms' : 'Pools'} (Legacy)
         </Text>
         . If you wish to participate in our {isFarm ? 'farms' : 'pools'}, check out our new and audited{' '}
-        <Link to={isFarm ? '/farms' : '/pools'}>Elastic {isFarm ? 'Farms' : 'Pools'}</Link>
+        <Link to={isFarm ? '/farms' : '/pools'}>Elastic {isFarm ? 'Farms' : 'Pools'}</Link>.
       </Trans>
     </Wrapper>
   )
@@ -62,7 +62,7 @@ const WarningNotice = () => {
         </ExternalLink>{' '}
         with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from
         Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited{' '}
-        <Link to="/pools">Elastic Pools</Link> where you can add liquidity normally instead
+        <Link to="/pools">Elastic Pools</Link> where you can add liquidity normally instead.
       </Trans>
     </Warning>
   )

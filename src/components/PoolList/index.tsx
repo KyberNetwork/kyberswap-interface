@@ -17,21 +17,22 @@ import { ClickableText } from 'components/YieldPools/styleds'
 import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY, SORT_DIRECTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
+import useGetClassicPools from 'hooks/pool/classic'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { useActiveAndUniqueFarmsData } from 'state/farms/classic/hooks'
 import { Field } from 'state/pair/actions'
 import {
-  SubgraphPoolData,
   UserLiquidityPosition,
-  useAllPoolsData,
   useResetPools,
   useSharedPoolIdManager,
   useUserLiquidityPositions,
 } from 'state/pools/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
+import { MEDIA_WIDTHS } from 'theme'
 import { getTradingFeeAPR } from 'utils/dmm'
 
 import ItemCard from './ItemCard'
@@ -64,6 +65,9 @@ const TableHeader = styled.div`
   z-index: 1;
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
   text-align: right;
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    grid-template-columns: 3fr 120px 80px 1fr 1fr 1fr 1fr;
+  `};
 `
 const Grid = styled.div`
   padding: 24px;
@@ -101,8 +105,9 @@ const ITEM_PER_PAGE = 12
 
 const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable }: PoolListProps) => {
   const above1000 = useMedia('(min-width: 1000px)')
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const { loading: loadingPoolsData, data: subgraphPoolsData } = useAllPoolsData()
+  const { loading: loadingPoolsData, data: classicPoolsData } = useGetClassicPools()
 
   const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
   const [viewMode] = useViewMode()
@@ -134,7 +139,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
   const sortDirection = sortOrder === SORT_DIRECTION.DESC
 
   const listComparator = useCallback(
-    (poolA: SubgraphPoolData, poolB: SubgraphPoolData): number => {
+    (poolA: ClassicPoolData, poolB: ClassicPoolData): number => {
       const feeA = poolA?.oneDayFeeUSD ? poolA?.oneDayFeeUSD : poolA?.oneDayFeeUntracked
       const feeB = poolB?.oneDayFeeUSD ? poolB?.oneDayFeeUSD : poolB?.oneDayFeeUntracked
       const a = transformedUserLiquidityPositions[poolA.id]
@@ -199,20 +204,29 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
           <InfoHelper text={AMP_HINT} />
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText onClick={() => handleSort(SORT_FIELD.TVL)} style={{ textAlign: 'right' }}>
-            <Trans>AMP LIQUIDITY</Trans>
-            <InfoHelper text={AMP_LIQUIDITY_HINT} />
-            <span style={{ marginLeft: '0.25rem' }}>|</span>
-            <span style={{ marginLeft: '0.25rem' }}>TVL</span>
-            {sortedColumn === SORT_FIELD.TVL ? (
-              !sortDirection ? (
-                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+          <ClickableText
+            onClick={() => handleSort(SORT_FIELD.TVL)}
+            style={{ textAlign: 'right' }}
+            flexDirection={upToLarge ? 'column' : 'row'}
+            alignItems="flex-end"
+          >
+            <Flex>
+              <Trans>AMP LIQUIDITY</Trans>
+              <InfoHelper text={AMP_LIQUIDITY_HINT} />
+            </Flex>
+            {upToLarge ? <span /> : <span style={{ marginLeft: '0.25rem' }}>|</span>}
+            <Flex>
+              <span style={{ marginLeft: '0.25rem' }}>TVL</span>
+              {sortedColumn === SORT_FIELD.TVL ? (
+                !sortDirection ? (
+                  <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+                ) : (
+                  <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+                )
               ) : (
-                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
-              )
-            ) : (
-              ''
-            )}
+                ''
+              )}
+            </Flex>
           </ClickableText>
         </Flex>
         <Flex
@@ -238,7 +252,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
               ''
             )}
           </ClickableText>
-          <InfoHelper text={t`Estimated return based on yearly fees of the pool`} />
+          <InfoHelper text={t`Estimated return based on yearly fees of the pool.`} />
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
@@ -305,8 +319,8 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   const [currentPage, setCurrentPage] = useState(1)
   const { stableCoins } = useStableCoins(chainId)
-  const sortedFilteredSubgraphPoolsData = useMemo(() => {
-    let res = [...subgraphPoolsData]
+  const sortedFilteredClassicPoolsData = useMemo(() => {
+    let res = [...classicPoolsData]
 
     if (isShowOnlyActiveFarmPools) {
       const farmAddresses = farms.map(farm => farm.id)
@@ -320,7 +334,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const wca = ca.wrapped
       const wcaAddress = wca && wca.address.toLowerCase()
       res = res.filter(
-        poolData => wcaAddress && (poolData.token0.id === wcaAddress || poolData.token1.id === wcaAddress),
+        poolData => wcaAddress && (poolData.token0.address === wcaAddress || poolData.token1.address === wcaAddress),
       )
     }
 
@@ -328,7 +342,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const wcb = cb.wrapped
       const wcbAddress = wcb && wcb.address.toLowerCase()
       res = res.filter(
-        poolData => wcbAddress && (poolData.token0.id === wcbAddress || poolData.token1.id === wcbAddress),
+        poolData => wcbAddress && (poolData.token0.address === wcbAddress || poolData.token1.address === wcbAddress),
       )
     }
 
@@ -336,8 +350,8 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const search = searchValue.toLowerCase()
 
       return (
-        poolData.token0.symbol.toLowerCase().includes(search) ||
-        poolData.token1.symbol.toLowerCase().includes(search) ||
+        poolData.token0.symbol?.toLowerCase().includes(search) ||
+        poolData.token1.symbol?.toLowerCase().includes(search) ||
         poolData.id.includes(search)
       )
     })
@@ -346,14 +360,15 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const stableList = isEVM ? stableCoins?.map(item => item.address.toLowerCase()) || [] : []
       res = res.filter(poolData => {
         return (
-          stableList.includes(poolData.token0.id.toLowerCase()) && stableList.includes(poolData.token1.id.toLowerCase())
+          stableList.includes(poolData.token0.address.toLowerCase()) &&
+          stableList.includes(poolData.token1.address.toLowerCase())
         )
       })
     }
 
     return res.sort(listComparator)
   }, [
-    subgraphPoolsData,
+    classicPoolsData,
     listComparator,
     isShowOnlyActiveFarmPools,
     currencies,
@@ -366,11 +381,11 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   const startIndex = (currentPage - 1) * ITEM_PER_PAGE
   const endIndex = currentPage * ITEM_PER_PAGE
-  const pageData = sortedFilteredSubgraphPoolsData.slice(startIndex, endIndex)
+  const pageData = sortedFilteredClassicPoolsData.slice(startIndex, endIndex)
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [chainId, subgraphPoolsData, currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable])
+  }, [chainId, classicPoolsData, currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable])
 
   const [sharedPoolId, setSharedPoolId] = useSharedPoolIdManager()
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
@@ -395,7 +410,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 
-  if (sortedFilteredSubgraphPoolsData.length === 0)
+  if (sortedFilteredClassicPoolsData.length === 0)
     return (
       <SelectPairInstructionWrapper>
         <div style={{ marginBottom: '1rem' }}>
@@ -435,7 +450,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
         pageSize={ITEM_PER_PAGE}
         onPageChange={newPage => setCurrentPage(newPage)}
         currentPage={currentPage}
-        totalCount={sortedFilteredSubgraphPoolsData.length}
+        totalCount={sortedFilteredClassicPoolsData.length}
         haveBg={above1000}
       />
       <PoolDetailModal />

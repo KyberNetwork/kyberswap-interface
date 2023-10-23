@@ -307,7 +307,7 @@ export default function CurrencyInputPanel({
               )}
               <Flex onClick={onMax ?? undefined} style={{ cursor: onMax ? 'pointer' : undefined }} alignItems="center">
                 <Wallet color={theme.subText} />
-                <Text fontWeight={500} color={theme.subText} marginLeft="4px">
+                <Text fontWeight={500} color={theme.subText} marginLeft="4px" data-testid="balance">
                   {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || balanceRef.current || 0}
                 </Text>
               </Flex>
@@ -319,6 +319,7 @@ export default function CurrencyInputPanel({
                 <NumericalInput
                   error={error}
                   className="token-amount-input"
+                  data-testid="token-amount-input"
                   value={value}
                   disabled={disabledInput}
                   maxLength={maxLength}

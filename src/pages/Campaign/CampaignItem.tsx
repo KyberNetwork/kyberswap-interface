@@ -14,7 +14,7 @@ import { ReactComponent as StarMultiplierIcon } from 'assets/svg/star_multiplier
 import ProgressBar from 'components/ProgressBar'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { DEFAULT_SIGNIFICANT, RESERVE_USD_DECIMALS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { CampaignData, CampaignStatus, CampaignUserInfoStatus, ConditionGroupsType } from 'state/campaigns/actions'
 
@@ -120,6 +120,7 @@ function CampaignItem({ campaign, onSelectCampaign, isSelected, style }: Campaig
     console.log(error)
   }
 
+  const { NETWORKS_INFO } = useChainsConfig()
   const isOngoing = campaign.status === CampaignStatus.ONGOING
   const rCampaignName = campaign.name
   const rCampaignStatus = campaign.status === CampaignStatus.UPCOMING ? t`Upcoming` : isOngoing ? t`Ongoing` : t`Ended`
@@ -170,13 +171,13 @@ function CampaignItem({ campaign, onSelectCampaign, isSelected, style }: Campaig
           {campaign.competitionId && campaign.competitorId && campaign.status !== CampaignStatus.ENDED ? (
             <MouseoverTooltip
               placement="top"
-              text={<Trans>This campaign is participating in the Grant Campaign</Trans>}
+              text={<Trans>This campaign is participating in the Grant Campaign.</Trans>}
             >
               <GrantCampaignIcon width="16px" height="16px" />
             </MouseoverTooltip>
           ) : null}
           {hasBonusMultiplier && (
-            <MouseoverTooltip placement="top" text={<Trans>Point multiplier is in effect</Trans>}>
+            <MouseoverTooltip placement="top" text={<Trans>Point multiplier is in effect.</Trans>}>
               <StarMultiplierIcon />
             </MouseoverTooltip>
           )}

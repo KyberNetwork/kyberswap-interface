@@ -215,7 +215,7 @@ export function useProMMFarmContract(address: string): Contract | null {
   return useContract(address, PROMM_FARM_ABI)
 }
 
-function useFairLaunchV1Contracts(withSignerIfPossible?: boolean): {
+function useFairLaunchV1Contracts(): {
   [key: string]: Contract
 } | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
@@ -223,11 +223,11 @@ function useFairLaunchV1Contracts(withSignerIfPossible?: boolean): {
   return useMultipleContracts(
     isEVM ? (networkInfo as EVMNetworkInfo).classic.fairlaunch : undefined,
     FAIRLAUNCH_ABI,
-    withSignerIfPossible,
+    false,
   )
 }
 
-function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
+function useFairLaunchV2Contracts(): {
   [key: string]: Contract
 } | null {
   const { networkInfo, isEVM } = useActiveWeb3React()
@@ -235,11 +235,11 @@ function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
   return useMultipleContracts(
     isEVM ? (networkInfo as EVMNetworkInfo).classic.fairlaunchV2 : undefined,
     FAIRLAUNCH_V2_ABI,
-    withSignerIfPossible,
+    false,
   )
 }
 
-function useFairLaunchV3Contracts(withSignerIfPossible?: boolean): {
+function useFairLaunchV3Contracts(): {
   [key: string]: Contract
 } | null {
   const { networkInfo, isEVM } = useActiveWeb3React()
@@ -249,16 +249,16 @@ function useFairLaunchV3Contracts(withSignerIfPossible?: boolean): {
       ? (networkInfo as EVMNetworkInfo).classic.fairlaunchV3
       : undefined,
     FAIRLAUNCH_V3_ABI,
-    withSignerIfPossible,
+    false,
   )
 }
 
-export function useFairLaunchContracts(withSignerIfPossible?: boolean): {
+export function useFairLaunchContracts(): {
   [key: string]: Contract
 } | null {
-  const fairLaunchV1Contracts = useFairLaunchV1Contracts(withSignerIfPossible)
-  const fairLaunchV2Contracts = useFairLaunchV2Contracts(withSignerIfPossible)
-  const fairLaunchV3Contracts = useFairLaunchV3Contracts(withSignerIfPossible)
+  const fairLaunchV1Contracts = useFairLaunchV1Contracts()
+  const fairLaunchV2Contracts = useFairLaunchV2Contracts()
+  const fairLaunchV3Contracts = useFairLaunchV3Contracts()
 
   const fairLaunchContracts = useMemo(() => {
     return { ...fairLaunchV1Contracts, ...fairLaunchV2Contracts, ...fairLaunchV3Contracts }

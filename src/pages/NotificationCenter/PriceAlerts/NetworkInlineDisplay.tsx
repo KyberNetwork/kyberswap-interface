@@ -2,13 +2,14 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Flex, Text } from 'rebass'
 
 import { NetworkLogo } from 'components/Logo'
-import { NETWORKS_INFO } from 'constants/networks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 
 type Props = {
   chainId: ChainId
 }
 const NetworkInlineDisplay: React.FC<Props> = ({ chainId }) => {
+  const { NETWORKS_INFO } = useChainsConfig()
   const { name } = NETWORKS_INFO[chainId]
   const theme = useTheme()
 

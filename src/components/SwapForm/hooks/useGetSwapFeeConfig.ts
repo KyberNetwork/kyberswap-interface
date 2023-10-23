@@ -88,7 +88,7 @@ const useGetSwapFeeConfig = () => {
       try {
         const result = await Promise.race([getSingleTokenScore(chainId, tokenAddress), timeoutReject(1_000)])
         if (result) {
-          return result as string
+          return result
         }
 
         return undefined

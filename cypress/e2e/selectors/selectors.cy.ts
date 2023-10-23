@@ -22,9 +22,13 @@ export const SwapPageLocators = {
 }
 
 export const LimitOrderLocators = {
+  txtTokenSellAmount: '[data-testid=limit-order-input-tokena] [data-testid=token-amount-input]',
   dropdownTokenSell: '[data-testid=limit-order-input-tokena] [data-testid=token-symbol-container]',
   dropdownTokenBuy: '[data-testid=limit-order-input-tokenb] [data-testid=token-symbol-container]',
-  btnLimit: '[data-testid=limit-button]'
+  btnLimit: '[data-testid=limit-button]',
+  txtSellingRate: '[data-testid=input-selling-rate]',
+  lblBalanceIn: '[data-testid=limit-order-input-tokena] [data-testid=balance]',
+  lblErrorMessage: '[data-testid=error-message]'
 }
 
 export const WalletLocators = {

@@ -56,7 +56,9 @@ export default function LimitTab({ onClick }: Props) {
         <MouseoverTooltip
           placement="top"
           text={
-            <Trans>You have {numberOfInsufficientFundOrders} active orders that don&apos;t have sufficient funds</Trans>
+            <Trans>
+              You have {numberOfInsufficientFundOrders} active orders that don&apos;t have sufficient funds.
+            </Trans>
           }
         >
           <WarningBadge>{numberOfInsufficientFundOrders}</WarningBadge>

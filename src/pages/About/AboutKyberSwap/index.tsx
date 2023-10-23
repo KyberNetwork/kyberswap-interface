@@ -850,19 +850,19 @@ function AboutKyberSwap() {
               <Flex marginTop="20px" alignItems="center">
                 <Enter />
                 <Text marginLeft="12px">
-                  <Trans>No KYC or sign-ups required</Trans>
+                  <Trans>No KYC or sign-ups required.</Trans>
                 </Text>
               </Flex>
               <Flex marginTop="20px" alignItems="center">
                 <BestPrice />
                 <Text marginLeft="12px">
-                  <Trans>No extra deposit or withdrawal fees</Trans>
+                  <Trans>No extra deposit or withdrawal fees.</Trans>
                 </Text>
               </Flex>
               <Flex marginTop="20px" alignItems="center">
                 <CircleFocus />
                 <Text marginLeft="12px">
-                  <Trans>List your tokens permissionlessly</Trans>
+                  <Trans>List your tokens permissionlessly.</Trans>
                 </Text>
               </Flex>
             </Flex>
@@ -967,7 +967,7 @@ function AboutKyberSwap() {
               >
                 <Trans>
                   KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product
-                  KyberSwap. It is the glue that connects different stakeholders in Kyber&apos;s ecosystem
+                  KyberSwap. It is the glue that connects different stakeholders in Kyber&apos;s ecosystem.
                 </Trans>
               </Text>
               <img
@@ -1015,6 +1015,11 @@ function AboutKyberSwap() {
               <img
                 src="https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/wordmark/Base_Wordmark_Blue.svg"
                 alt="Base"
+                width="100%"
+              />
+              <img
+                src="https://storage.googleapis.com/ks-setting-1d682dca/8f4656a9-aaeb-438c-a6c2-3af30cca26db1697596014388.png"
+                alt="Sroll"
                 width="100%"
               />
             </Powered>

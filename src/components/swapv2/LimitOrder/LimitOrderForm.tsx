@@ -661,7 +661,14 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
-        <Tooltip text={inputError} show={!!inputError} placement="top" style={styleTooltip} width="fit-content">
+        <Tooltip
+          text={inputError}
+          show={!!inputError}
+          placement="top"
+          style={styleTooltip}
+          width="fit-content"
+          dataTestId="error-message"
+        >
           <CurrencyInputPanel
             error={!!inputError}
             value={inputAmount}
@@ -739,6 +746,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
               <NumericalInput
                 maxLength={50}
                 style={{ fontSize: 14, height: INPUT_HEIGHT }}
+                data-testid="input-selling-rate"
                 value={displayRate}
                 onUserInput={onChangeRate}
                 onFocus={trackingTouchInput}

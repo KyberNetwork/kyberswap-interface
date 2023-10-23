@@ -20,7 +20,7 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
-import { Dots } from 'pages/Pool/styleds'
+import { Dots } from 'pages/MyPool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useDepositedNftsByFarm, useElasticFarms, useFarmAction, useUserInfoByFarm } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
@@ -426,7 +426,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
               ) : null)}
           </ClickableText>
           <InfoHelper
-            text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+            text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
           />
         </Flex>
 
@@ -444,7 +444,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
                 <ArrowUp size={12} />
               ) : null)}
           </ClickableText>
-          <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
+          <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees.`} />
         </Flex>
 
         <Flex
@@ -537,7 +537,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
             alignItems={upToExtraSmall ? 'flex-start' : 'center'}
           >
             <MouseoverTooltip
-              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract`}
+              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract.`}
             >
               <TextDashed fontSize="12px" fontWeight="500" color={theme.subText}>
                 <Trans>Deposited Liquidity</Trans>

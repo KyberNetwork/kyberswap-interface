@@ -14,13 +14,13 @@ import { OptionsContainer } from 'components'
 import { ButtonPrimary } from 'components/Button'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React, useWeb3Solana } from 'hooks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { Dots } from 'pages/Pool/styleds'
+import { Dots } from 'pages/MyPool/styleds'
 import { AppState } from 'state'
 import {
   CampaignData,
@@ -79,7 +79,7 @@ export default function CampaignButtonWithOptions({
     selectedCampaignLeaderboard,
   } = useSelector((state: AppState) => state.campaigns)
   const transactions = useMemo(
-    () => (campaign ? transactionsState[parseInt(campaign.rewardChainIds)] ?? {} : {}),
+    () => (campaign ? transactionsState[Number(campaign.rewardChainIds) as ChainId] ?? {} : {}),
     [transactionsState, campaign],
   )
   const [claimingCampaignRewardId, setClaimingCampaignRewardId] = useSetClaimingCampaignRewardId()
@@ -216,6 +216,7 @@ export default function CampaignButtonWithOptions({
   }
 
   const handleSwapNow = useSwapNowHandler()
+  const { NETWORKS_INFO } = useChainsConfig()
 
   return (
     <StyledPrimaryButton

@@ -175,8 +175,8 @@ export const RESERVE_USD_DECIMALS = 100
 export const DEFAULT_SIGNIFICANT = 6
 export const SUBGRAPH_AMP_MULTIPLIER = 10000
 export const AMP_LIQUIDITY_HINT = t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`
-export const AMP_HINT = t`Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range`
-export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs`
+export const AMP_HINT = t`Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range.`
+export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs.`
 
 export const sentryRequestId = uuid()
 
@@ -302,6 +302,8 @@ export const RTK_QUERY_TAGS = {
 
   // limit order
   GET_LIST_ORDERS: 'GET_LIST_ORDERS',
+
+  GET_FARM_V2: 'GET_FARM_V2',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
@@ -325,6 +327,7 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.FANTOM,
         ChainId.LINEA,
         ChainId.BASE,
+        ChainId.SCROLL,
       ]
     : SUPPORTED_NETWORKS
 
@@ -333,6 +336,7 @@ export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [
   ChainId.LINEA,
   ChainId.ZKEVM,
   ChainId.BASE,
+  ChainId.SCROLL,
 ]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
