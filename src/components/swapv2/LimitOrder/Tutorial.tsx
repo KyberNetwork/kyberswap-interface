@@ -64,7 +64,7 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
         </Column>
 
         <Column gap="12px">
-          <ContentItem text={t`Buy or sell tokens at the price you want`} />
+          <ContentItem text={t`Buy or sell tokens at the price you want.`} />
           <ContentItem
             text={
               <Trans>
@@ -72,10 +72,11 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
                 <Text as="span" fontWeight={'500'} color={theme.primary}>
                   <Trans>FREE</Trans>
                 </Text>
+                .
               </Trans>
             }
           />
-          <ContentItem text={t`Get your orders filled without paying any gas fees`} />
+          <ContentItem text={t`Get your orders filled without paying any gas fees.`} />
           <ContentItem
             text={
               <Trans>
@@ -83,6 +84,7 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
                 <Text as="span" fontWeight={'500'} color={theme.primary}>
                   <Trans>FREE</Trans>
                 </Text>
+                .
               </Trans>
             }
           />
@@ -92,7 +94,7 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
       <Column gap="16px" width={'100%'}>
         <Text fontSize={'14px'} textAlign={'center'} color={theme.text}>
           <Trans>
-            Learn more about our limit orders <ExternalLink href={DOCS_LINKS.USER_GUIDE}>here</ExternalLink>
+            Learn more about our limit orders <ExternalLink href={DOCS_LINKS.USER_GUIDE}>here</ExternalLink>.
           </Trans>
         </Text>
         <ButtonPrimary height="40px" width={'100%'} onClick={onClose}>

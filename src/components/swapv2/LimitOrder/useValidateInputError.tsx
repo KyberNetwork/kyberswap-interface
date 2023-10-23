@@ -1,5 +1,6 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
 
@@ -45,7 +46,7 @@ const useValidateInputError = ({
       const remainBalance = parsedActiveOrderMakingAmount ? balance?.subtract(parsedActiveOrderMakingAmount) : undefined
       if (parseInputAmount && remainBalance?.lessThan(parseInputAmount)) {
         const formatNum = formatDisplayNumber(remainBalance, {
-          style: 'currency',
+          style: 'decimal',
           fractionDigits: 6,
           allowNegative: true,
         })
@@ -54,7 +55,7 @@ const useValidateInputError = ({
             <Trans>
               You don&apos;t have sufficient {currencyIn?.symbol} balance. After your active orders, you have{' '}
               <Text as="b" color={theme.primary} onClick={() => setInputValue(remainBalance.toExact())}>
-                {Number(formatNum) !== 0 ? '~' : ''}
+                {!remainBalance.equalTo(JSBI.BigInt(0)) ? '~' : ''}
                 {formatNum} {currencyIn?.symbol}
               </Text>{' '}
               left.
