@@ -1,5 +1,4 @@
-import { createApi } from '@reduxjs/toolkit/query/react'
-import baseQueryOauth from 'services/baseQueryOauth'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { BLACKJACK_API } from 'constants/env'
 
@@ -17,7 +16,7 @@ type BlackjackResponse = {
 
 const blackjackApi = createApi({
   reducerPath: 'blackjackApi',
-  baseQuery: baseQueryOauth({
+  baseQuery: fetchBaseQuery({
     baseUrl: `${BLACKJACK_API}/v1`,
   }),
   endpoints: builder => ({
