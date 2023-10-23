@@ -44,7 +44,7 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
     return KyberOauth2.oauthUi.sendVerifyCode({
       email,
       flow: queryStringToObject(window.location.search).flow + '',
-      csrf: window.csrf,
+      csrf: flowStatus.csrf,
     })
   }
 

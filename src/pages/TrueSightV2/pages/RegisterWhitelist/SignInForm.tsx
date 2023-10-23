@@ -45,10 +45,12 @@ export default function SignInForm() {
         <Trans>Sign-In with Wallet</Trans>
       </ButtonLight>
       <Text color={theme.subText} fontSize={'12px'}>
-        Don&apos;t have a wallet?{' '}
-        <Text as="span" sx={{ cursor: 'pointer' }} color={theme.primary} onClick={openDownloadWalletModal}>
-          Get started here
-        </Text>
+        <Trans>
+          Don&apos;t have a wallet?{' '}
+          <Text as="span" sx={{ cursor: 'pointer' }} color={theme.primary} onClick={openDownloadWalletModal}>
+            Get started here
+          </Text>
+        </Trans>
       </Text>
       <DownloadWalletModal />
     </Wrapper>

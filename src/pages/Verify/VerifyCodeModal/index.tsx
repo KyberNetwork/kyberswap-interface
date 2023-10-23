@@ -76,8 +76,8 @@ export default function VerifyCodeModal({
   showVerifySuccess,
   verifySuccessTitle,
   verifySuccessContent,
-  sendCode,
-  verifyCode,
+  sendCodeFn,
+  verifyCodeFn,
   refreshProfile = true,
 }: {
   onVerifySuccess?: (() => Promise<any>) | (() => void)
@@ -87,8 +87,8 @@ export default function VerifyCodeModal({
   showVerifySuccess?: boolean
   verifySuccessTitle?: string
   verifySuccessContent?: ReactNode
-  sendCode?: (data: { email: string }) => Promise<any>
-  verifyCode?: (data: { email: string; code: string }) => Promise<void>
+  sendCodeFn?: (data: { email: string }) => Promise<any>
+  verifyCodeFn?: (data: { email: string; code: string }) => Promise<void>
   refreshProfile?: boolean
 }) {
   const theme = useTheme()
@@ -102,9 +102,11 @@ export default function VerifyCodeModal({
   const isTypingAndroid = useMedia(`(max-height: 450px)`)
 
   const [expiredDuration, setExpireDuration] = useState(0)
+
   const isSendMailError = error === ErrorType.SEND_EMAIL_ERROR
   const isVerifyMailError = error === ErrorType.VALIDATE_ERROR
   const isRateLimitError = error === ErrorType.RATE_LIMIT
+
   const canShowResend =
     !isSendMailError && !isRateLimitError && expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
 
@@ -133,7 +135,7 @@ export default function VerifyCodeModal({
     interval.current && clearInterval(interval.current)
     if (!email) return
     try {
-      const promise = sendCode ? sendCode({ email }) : sendOtp({ email }).unwrap()
+      const promise = sendCodeFn ? sendCodeFn({ email }) : sendOtp({ email }).unwrap()
       await promise
       setExpireDuration(defaultTime)
       setError(undefined)
@@ -141,7 +143,7 @@ export default function VerifyCodeModal({
       setExpireDuration(0)
       setError(!error?.status ? ErrorType.RATE_LIMIT : ErrorType.SEND_EMAIL_ERROR)
     }
-  }, [email, sendOtp, sendCode])
+  }, [email, sendOtp, sendCodeFn])
 
   const checkedRegisterStatus = useRef(false) // prevent spam
   const sendEmailWhenInit = useCallback(() => {
@@ -165,10 +167,12 @@ export default function VerifyCodeModal({
 
   const refreshProfileInfo = useRefreshProfile()
 
+  const [verifying, setIsVerifying] = useState(false)
   const verify = async () => {
+    if (!email || verifying) return
     try {
-      if (!email) return
-      const promise = verifyCode ? verifyCode({ code: otp, email }) : verifyOtp({ code: otp, email }).unwrap()
+      setIsVerifying(true)
+      const promise = verifyCodeFn ? verifyCodeFn({ code: otp, email }) : verifyOtp({ code: otp, email }).unwrap()
       await promise
       await (onVerifySuccess ? onVerifySuccess() : onDismiss())
       if (refreshProfile) {
@@ -182,10 +186,12 @@ export default function VerifyCodeModal({
         summary: getErrorMessage(error),
         type: NotificationType.ERROR,
       })
+    } finally {
+      setIsVerifying(false)
     }
   }
 
-  const onChange = (value: string) => {
+  const onChangeOTP = (value: string) => {
     isVerifyMailError && setError(undefined)
     setOtp(value)
   }
@@ -252,7 +258,7 @@ export default function VerifyCodeModal({
             <OTPInput
               containerStyle={{ justifyContent: 'space-between' }}
               value={otp}
-              onChange={onChange}
+              onChange={onChangeOTP}
               numInputs={6}
               renderInput={props => (
                 <Input
@@ -295,7 +301,11 @@ export default function VerifyCodeModal({
                 <Trans>Resend</Trans>
               </ButtonPrimary>
             ) : (
-              <ButtonPrimary height={'36px'} disabled={otp.length < 6 || isRateLimitError} onClick={verify}>
+              <ButtonPrimary
+                height={'36px'}
+                disabled={otp.length < 6 || isRateLimitError || verifying}
+                onClick={verify}
+              >
                 <Trans>Verify</Trans>
               </ButtonPrimary>
             )}

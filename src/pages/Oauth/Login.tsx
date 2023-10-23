@@ -33,6 +33,7 @@ const getErrorMsg = (error: any) => {
 export type FlowStatus = {
   processingSignIn: boolean
   flowReady: boolean
+  csrf: string
   autoLoginMethod: LoginMethod | undefined // not waiting for click btn
 }
 
@@ -45,6 +46,33 @@ const canAutoSignInEth = (loginMethods: LoginMethod[]) => {
   )
 }
 
+const getCsrfToken = (loginFlow: LoginFlow | undefined) =>
+  loginFlow?.ui?.nodes?.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? ''
+
+const extractAutoLoginMethod = (loginFlow: LoginFlow) => {
+  const loginMethods = getSupportLoginMethods(loginFlow)
+  let autoLoginMethod: LoginMethod | undefined
+
+  if (loginMethods.length === 1) {
+    if (loginMethods.includes(LoginMethod.ANONYMOUS)) {
+      throw new Error('Not found login method for this app')
+    }
+    if (loginMethods.includes(LoginMethod.GOOGLE)) {
+      autoLoginMethod = LoginMethod.GOOGLE
+    }
+  }
+  if (canAutoSignInEth(loginMethods)) {
+    autoLoginMethod = LoginMethod.ETH
+  }
+
+  // auto login method from url
+  const { type } = queryStringToObject(window.location.search)
+  if (!autoLoginMethod && isInEnum(type + '', LoginMethod) && loginMethods.includes(type)) {
+    autoLoginMethod = type as LoginMethod
+  }
+  return autoLoginMethod
+}
+
 export function Login() {
   const { account, chainId } = useActiveWeb3React()
   const { library: provider } = useWeb3React()
@@ -55,6 +83,7 @@ export function Login() {
     flowReady: false,
     autoLoginMethod: undefined,
     processingSignIn: false,
+    csrf: '',
   })
 
   const { wallet_address } = useParsedQueryString<{ wallet_address: string }>()
@@ -73,9 +102,8 @@ export function Login() {
         return
       }
       setFlowStatus(v => ({ ...v, processingSignIn: true }))
-      const { ui, challenge, issued_at } = authFormConfig
+      const { challenge, issued_at } = authFormConfig
       connectingWallet.current = true
-      const csrf = ui.nodes.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? ''
       const message = createSignMessage({
         address: account,
         chainId,
@@ -88,7 +116,7 @@ export function Login() {
       const resp = await KyberOauth2.oauthUi.loginEthereum({
         address: account,
         signature: formatSignature(signature),
-        csrf,
+        csrf: getCsrfToken(authFormConfig),
         chainId,
       })
 
@@ -108,7 +136,7 @@ export function Login() {
 
   useEffect(() => {
     const getFlowLogin = async () => {
-      const { error_description, type } = queryStringToObject(window.location.search)
+      const { error_description } = queryStringToObject(window.location.search)
       try {
         KyberOauth2.initialize({ mode: ENV_KEY })
         const loginFlow = await KyberOauth2.oauthUi.getFlowLogin()
@@ -116,30 +144,14 @@ export function Login() {
         setAuthFormConfig(loginFlow)
 
         const { client_id } = loginFlow.oauth_client
-        const loginMethods = getSupportLoginMethods(loginFlow)
-        window.csrf = loginFlow?.ui?.nodes?.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? '' // todo
-        let autoLoginMethod: LoginMethod | undefined
-        const isIncludeGoogle = loginMethods.includes(LoginMethod.GOOGLE)
-        const totalMethod = loginMethods.length
-        if (totalMethod === 1) {
-          if (loginMethods.includes(LoginMethod.ANONYMOUS)) {
-            throw new Error('Not found login method for this app')
-          }
-          if (isIncludeGoogle) {
-            autoLoginMethod = LoginMethod.GOOGLE
-          }
-        }
-        if (canAutoSignInEth(loginMethods)) {
-          autoLoginMethod = LoginMethod.ETH
-        }
-
-        // auto login method from url
-        if (!autoLoginMethod && isInEnum(type + '', LoginMethod) && loginMethods.includes(type)) {
-          autoLoginMethod = type as LoginMethod
-        }
-
         KyberOauth2.initialize({ clientId: client_id, mode: ENV_KEY })
-        setFlowStatus(v => ({ ...v, flowReady: true, autoLoginMethod }))
+
+        setFlowStatus(v => ({
+          ...v,
+          flowReady: true,
+          autoLoginMethod: extractAutoLoginMethod(loginFlow),
+          csrf: getCsrfToken(loginFlow),
+        }))
       } catch (error: any) {
         setError(error_description || getErrorMsg(error))
       }

@@ -103,8 +103,8 @@ export default function InputEmailWithVerification(
         isOpen={isShowVerify}
         onDismiss={onDismissVerifyModal}
         email={value}
-        sendCode={sendCode}
-        verifyCode={verifyCode}
+        sendCodeFn={sendCode}
+        verifyCodeFn={verifyCode}
       />
     </>
   )

@@ -46,7 +46,6 @@ interface Window {
   solana?: any
   recaptchaOptions?: any
   zESettings?: any
-  csrf: string // todo
 }
 
 declare module 'content-hash' {
