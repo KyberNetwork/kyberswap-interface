@@ -19,8 +19,8 @@ import Loader from 'components/Loader'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
@@ -63,6 +63,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
   const [isExpanded, setExpanded] = useState(false)
   const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
   const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
+  const { NETWORKS_INFO } = useChainsConfig()
 
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
 
