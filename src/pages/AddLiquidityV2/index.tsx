@@ -1070,8 +1070,12 @@ export default function AddLiquidity() {
   const zapBalances = useCurrencyBalances(
     useMemo(
       () => [
-        currencies[Field.CURRENCY_A],
-        currencies[Field.CURRENCY_B],
+        currencies[Field.CURRENCY_A]
+          ? unwrappedToken(currencies[Field.CURRENCY_A] as Currency)
+          : currencies[Field.CURRENCY_A],
+        currencies[Field.CURRENCY_B]
+          ? unwrappedToken(currencies[Field.CURRENCY_B] as Currency)
+          : currencies[Field.CURRENCY_B],
         currencies[Field.CURRENCY_A]?.wrapped,
         currencies[Field.CURRENCY_B]?.wrapped,
       ],
@@ -1088,7 +1092,7 @@ export default function AddLiquidity() {
   else if (!zapResult) error = <Trans>Insufficient Liquidity</Trans>
 
   const newPosDraft =
-    pool && zapResult && tickLower !== undefined && tickUpper !== undefined
+    pool && zapResult && tickLower !== undefined && tickUpper !== undefined && tickLower < tickUpper
       ? new Position({
           pool,
           tickLower,
