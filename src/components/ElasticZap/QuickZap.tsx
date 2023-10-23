@@ -33,6 +33,7 @@ import { useContract, useProAmmTickReader } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { RANGE } from 'state/mint/proamm/type'
@@ -73,6 +74,11 @@ const Content = styled.div`
   width: 100%;
 `
 
+const Overlay = styled.div<{ overlay: boolean }>`
+  opacity: ${({ overlay }) => (overlay ? 0.4 : 1)};
+  pointer-events: ${({ overlay }) => (overlay ? 'none' : '')};
+`
+
 export const QuickZapButton = ({
   onClick,
   size = 'medium',
@@ -94,6 +100,7 @@ type Props = {
   tokenId?: string | number | BigNumber
   isOpen: boolean
   onDismiss: () => void
+  expectedChainId?: number
 }
 
 export default function QuickZap(props: Props) {
@@ -102,9 +109,10 @@ export default function QuickZap(props: Props) {
   return <QuickZapModal {...props} />
 }
 
-function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
+function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainId }: Props) {
   const { chainId, networkInfo, account } = useActiveWeb3React()
   const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
+  const { changeNetwork } = useChangeNetwork()
   const theme = useTheme()
   const [selectedRange, setSelectedRange] = useState<RANGE | FARMING_RANGE | null>(null)
 
@@ -389,107 +397,109 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
             <LocalLoader />
           ) : (
             <>
-              <Flex justifyContent="space-between">
-                <Flex>
-                  <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
-                  <Text>
-                    {symbol0} - {symbol1}
-                  </Text>
-                </Flex>
-
-                {!!position && (
-                  <Text fontSize={12} fontWeight="500" color={outOfRange ? theme.warning : theme.primary}>
-                    #{tokenId?.toString()}
-                  </Text>
-                )}
-              </Flex>
-
-              <Text marginTop="12px" color={theme.subText} fontSize={12}>
-                <Trans>Add liquidity to the pool using a single token</Trans>
-              </Text>
-
-              {!!position ? (
-                <Text fontWeight="500" fontSize={14} marginTop="20px" marginBottom="12px">
-                  <Trans>Increase Liquidity</Trans>
-                </Text>
-              ) : (
-                <Text fontWeight="500" fontSize={14} marginTop="20px" marginBottom="12px">
-                  <Trans>Step 1. Deposit Your Liquidity</Trans>
-                </Text>
-              )}
-
-              <CurrencyInputPanel
-                id="quick-zap"
-                value={typedValue}
-                onUserInput={v => {
-                  setTypedValue(v)
-                }}
-                onMax={() => {
-                  setTypedValue(maxAmountSpend(balances[balanceIndex])?.toExact() || '')
-                }}
-                onHalf={() => {
-                  setTypedValue(balances[balanceIndex].divide('2').toExact())
-                }}
-                currency={selectedCurrency}
-                estimatedUsd={formattedNum(zapDetail.amountInUsd.toString(), true) || undefined}
-                positionMax="top"
-                showCommonBases
-                isSwitchMode
-                onSwitchCurrency={() => {
-                  if (selectedCurrency?.isNative) {
-                    setUseWrapped(true)
-                  } else {
-                    setUseWrapped(false)
-                    setIsReverse(prev => !prev)
-                  }
-                }}
-              />
-
-              {!position && pool && (
-                <>
-                  <Flex justifyContent="space-between" alignItems="center" marginTop="20px" marginBottom="12px">
-                    <Text fontWeight="500" fontSize={14}>
-                      <Trans>Step 2. Choose Price Range</Trans>
+              <Overlay overlay={!!expectedChainId && expectedChainId !== chainId}>
+                <Flex justifyContent="space-between">
+                  <Flex>
+                    <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
+                    <Text>
+                      {symbol0} - {symbol1}
                     </Text>
-
-                    <StyledInternalLink
-                      to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
-                        currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
-                      }/${currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''}/${pool?.fee}`}
-                    >
-                      <Text fontSize="12px" fontWeight="500">
-                        <Trans>Set a Custom Range</Trans> ↗
-                      </Text>
-                    </StyledInternalLink>
                   </Flex>
 
-                  <RangeSelector
-                    pool={pool}
-                    selectedRange={selectedRange}
-                    onChange={range => setSelectedRange(range)}
-                    farmV2={farmV2}
-                  />
-                </>
-              )}
+                  {!!position && (
+                    <Text fontSize={12} fontWeight="500" color={outOfRange ? theme.warning : theme.primary}>
+                      #{tokenId?.toString()}
+                    </Text>
+                  )}
+                </Flex>
 
-              <div style={{ margin: '20px -8px' }}>
-                <SlippageSettingGroup isWrapOrUnwrap={false} isStablePairSwap={false} />
-              </div>
+                <Text marginTop="12px" color={theme.subText} fontSize={12}>
+                  <Trans>Add liquidity to the pool using a single token</Trans>
+                </Text>
 
-              <ZapDetail zapLoading={zapLoading} zapDetail={zapDetail} />
+                {!!position ? (
+                  <Text fontWeight="500" fontSize={14} marginTop="20px" marginBottom="12px">
+                    <Trans>Increase Liquidity</Trans>
+                  </Text>
+                ) : (
+                  <Text fontWeight="500" fontSize={14} marginTop="20px" marginBottom="12px">
+                    <Trans>Step 1. Deposit Your Liquidity</Trans>
+                  </Text>
+                )}
 
-              {!!(
-                zapDetail.priceImpact?.isVeryHigh ||
-                zapDetail.priceImpact?.isHigh ||
-                zapDetail.priceImpact?.isInvalid
-              ) &&
-                result &&
-                !zapLoading && (
+                <CurrencyInputPanel
+                  id="quick-zap"
+                  value={typedValue}
+                  onUserInput={v => {
+                    setTypedValue(v)
+                  }}
+                  onMax={() => {
+                    setTypedValue(maxAmountSpend(balances[balanceIndex])?.toExact() || '')
+                  }}
+                  onHalf={() => {
+                    setTypedValue(balances[balanceIndex].divide('2').toExact())
+                  }}
+                  currency={selectedCurrency}
+                  estimatedUsd={formattedNum(zapDetail.amountInUsd.toString(), true) || undefined}
+                  positionMax="top"
+                  showCommonBases
+                  isSwitchMode
+                  onSwitchCurrency={() => {
+                    if (selectedCurrency?.isNative) {
+                      setUseWrapped(true)
+                    } else {
+                      setUseWrapped(false)
+                      setIsReverse(prev => !prev)
+                    }
+                  }}
+                />
+
+                {!position && pool && (
                   <>
-                    <Flex marginTop="1rem" />
-                    <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+                    <Flex justifyContent="space-between" alignItems="center" marginTop="20px" marginBottom="12px">
+                      <Text fontWeight="500" fontSize={14}>
+                        <Trans>Step 2. Choose Price Range</Trans>
+                      </Text>
+
+                      <StyledInternalLink
+                        to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
+                          currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
+                        }/${currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''}/${pool?.fee}`}
+                      >
+                        <Text fontSize="12px" fontWeight="500">
+                          <Trans>Set a Custom Range</Trans> ↗
+                        </Text>
+                      </StyledInternalLink>
+                    </Flex>
+
+                    <RangeSelector
+                      pool={pool}
+                      selectedRange={selectedRange}
+                      onChange={range => setSelectedRange(range)}
+                      farmV2={farmV2}
+                    />
                   </>
                 )}
+
+                <div style={{ margin: '20px -8px' }}>
+                  <SlippageSettingGroup isWrapOrUnwrap={false} isStablePairSwap={false} />
+                </div>
+
+                <ZapDetail zapLoading={zapLoading} zapDetail={zapDetail} />
+
+                {!!(
+                  zapDetail.priceImpact?.isVeryHigh ||
+                  zapDetail.priceImpact?.isHigh ||
+                  zapDetail.priceImpact?.isInvalid
+                ) &&
+                  result &&
+                  !zapLoading && (
+                    <>
+                      <Flex marginTop="1rem" />
+                      <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+                    </>
+                  )}
+              </Overlay>
 
               <Flex sx={{ gap: '1rem' }} marginTop="1.25rem">
                 <ButtonOutlined onClick={onDismiss}>
@@ -500,6 +510,8 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                   <ButtonLight onClick={toggleWalletModal}>
                     <Trans>Connect Wallet</Trans>
                   </ButtonLight>
+                ) : expectedChainId && expectedChainId !== chainId ? (
+                  <ButtonPrimary onClick={() => changeNetwork(expectedChainId)}>Switch Network</ButtonPrimary>
                 ) : (
                   <ButtonPrimary
                     backgroundColor={

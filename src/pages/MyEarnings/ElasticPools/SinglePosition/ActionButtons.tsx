@@ -136,6 +136,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         poolAddress={poolAddress}
         tokenId={nftId}
         isOpen={showQuickZap}
+        expectedChainId={chainId}
         onDismiss={() => setShowQuickZap(false)}
       />
     </ActionButtonsWrapper>

@@ -240,7 +240,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           borderRadius: mobileView ? 0 : '1rem',
         }}
       >
-        <QuickZap poolAddress={poolEarning.id} isOpen={showQuickZap} onDismiss={() => setShowQuickZap(false)} />
+        <QuickZap
+          poolAddress={poolEarning.id}
+          isOpen={showQuickZap}
+          onDismiss={() => setShowQuickZap(false)}
+          expectedChainId={chainId}
+        />
 
         <MobileStatWrapper padding={mobileView ? '1rem 0' : '1rem'}>
           <Flex
@@ -537,7 +542,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
       </Row>
       {isExpanded && isExpandable && positions}
 
-      <QuickZap poolAddress={poolEarning.id} isOpen={showQuickZap} onDismiss={() => setShowQuickZap(false)} />
+      <QuickZap
+        poolAddress={poolEarning.id}
+        isOpen={showQuickZap}
+        onDismiss={() => setShowQuickZap(false)}
+        expectedChainId={chainId}
+      />
     </Wrapper>
   )
 }
