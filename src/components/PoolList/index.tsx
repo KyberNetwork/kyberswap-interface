@@ -336,7 +336,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       res = res.filter(
         poolData =>
           wcaAddress &&
-          (poolData.token0.address === wcaAddress.toLowerCase() ||
+          (poolData.token0.address.toLowerCase() === wcaAddress ||
             poolData.token1.address.toLowerCase() === wcaAddress),
       )
     }
