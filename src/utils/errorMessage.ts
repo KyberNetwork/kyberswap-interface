@@ -44,7 +44,7 @@ function parseKnownPattern(text: string): string | undefined {
   if (matchPatterns(['header not found', 'swap failed'], error))
     return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
 
-  if (error.includes('underlying network changed'))
+  if (matchPatterns(['underlying network changed'], error))
     return t`Your chain is mismatched, please make sure your wallet is switch to the expected chain.`
 
   if (didUserReject(error)) return t`User rejected the transaction.`
