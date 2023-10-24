@@ -108,5 +108,6 @@ export function useLimitActionHandlers() {
     removeOrderNeedCreated,
     setOrderEditing,
     resetState,
+    setInputValue,
   }
 }

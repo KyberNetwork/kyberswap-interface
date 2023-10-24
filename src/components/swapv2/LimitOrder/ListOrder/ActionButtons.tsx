@@ -107,7 +107,14 @@ const ActionButtons = ({
 
   const iconExpand =
     ((isActiveTab && numberTxs >= 1) || (!isActiveTab && numberTxs > 1)) && !isChildren ? (
-      <IconWrap color={theme.subText} onClick={onExpand} style={itemStyle}>
+      <IconWrap
+        color={theme.subText}
+        onClick={e => {
+          e.stopPropagation()
+          onExpand?.()
+        }}
+        style={itemStyle}
+      >
         <DropdownArrowIcon rotate={!!expand} color={theme.subText} />
       </IconWrap>
     ) : null
@@ -131,7 +138,10 @@ const ActionButtons = ({
               <IconWrap
                 color={theme.primary}
                 style={itemStyle}
-                onClick={() => onEditOrder?.(order)}
+                onClick={e => {
+                  e.stopPropagation()
+                  onEditOrder?.(order)
+                }}
                 isDisabled={disabledCancel}
               >
                 <Edit3 color={disabledCancel ? theme.border : theme.primary} size={15} />
@@ -143,7 +153,10 @@ const ActionButtons = ({
               color={theme.red}
               style={itemStyle}
               isDisabled={disabledCancel}
-              onClick={() => onCancelOrder?.(order)}
+              onClick={e => {
+                e.stopPropagation()
+                onCancelOrder?.(order)
+              }}
             >
               <Trash color={disabledCancel ? theme.border : theme.red} size={15} />
             </IconWrap>

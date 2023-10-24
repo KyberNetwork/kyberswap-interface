@@ -73,5 +73,6 @@ export const DOCS_LINKS = {
   GASLESS_CANCEL:
     'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#gasless-cancel',
   HARD_CANCEL: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#hard-cancel',
-  USER_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/user-guides/cancel-limit-orders',
+  CANCEL_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/user-guides/cancel-limit-orders',
+  USER_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order',
 }
