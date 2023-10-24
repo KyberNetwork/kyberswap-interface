@@ -399,8 +399,9 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
   ])
 }
 
-const TutorialKeys = {
+export const TutorialKeys = {
   SHOWED_SWAP_GUIDE: 'showedTutorialSwapGuide',
+  SHOWED_LO_GUIDE: 'showedTutorialLO',
 }
 
 export default memo(function TutorialSwap() {
