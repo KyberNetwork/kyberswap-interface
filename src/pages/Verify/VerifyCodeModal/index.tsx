@@ -9,6 +9,7 @@ import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
+import Dots from 'components/Dots'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { TIMES_IN_SECS } from 'constants/index'
@@ -308,7 +309,13 @@ export default function VerifyCodeModal({
                 disabled={otp.length < 6 || isRateLimitError || verifying}
                 onClick={verify}
               >
-                {verifying ? <Trans>Verifying...</Trans> : <Trans>Verify</Trans>}
+                {verifying ? (
+                  <Dots>
+                    <Trans>Verifying</Trans>
+                  </Dots>
+                ) : (
+                  <Trans>Verify</Trans>
+                )}
               </ButtonPrimary>
             )}
           </Content>

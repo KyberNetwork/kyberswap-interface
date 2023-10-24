@@ -88,10 +88,10 @@ const useLogin = (autoLogin = false) => {
           title: t`Signed in successfully`,
           summary:
             desireAccount?.toLowerCase() === account?.toLowerCase()
-              ? t`Connected successfully with the current wallet address`
+              ? t`Connected successfully with the current wallet address.`
               : isGuest
-              ? t`Connected successfully with Guest Profile`
-              : t`Connected successfully with profile ${getProfileName(desireAccount, isGuest)}`,
+              ? t`Connected successfully with Guest Profile.`
+              : t`Connected successfully with profile ${getProfileName(desireAccount, isGuest)}.`,
         },
         10_000,
       )
