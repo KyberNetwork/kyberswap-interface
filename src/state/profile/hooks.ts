@@ -144,7 +144,7 @@ export const useProfileInfo = (): {
       name: account,
       id: account,
       profile: getCacheProfile(account, false),
-      type: isEmailValid(account) ? LoginMethod.EMAIL : LoginMethod.ETH, // todo find a best way, check all isEmailValid
+      type: isEmailValid(account) ? LoginMethod.EMAIL : LoginMethod.ETH,
     })
 
     const results = Object.keys(profileInfo?.wallet ?? {})
@@ -179,7 +179,7 @@ export const useProfileInfo = (): {
 export const useSignedAccountInfo = () => {
   const { isEVM } = useActiveWeb3React()
   const signedAccount = useSelector((state: AppState) => state.profile.signedAccount)
-  const signedMethod = useSelector((state: AppState) => state.profile.signedMethod)
+  const signedMethod = useSelector((state: AppState) => state.profile.signedMethod) as LoginMethod
 
   const { account } = useActiveWeb3React()
 

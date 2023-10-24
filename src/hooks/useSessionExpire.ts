@@ -30,7 +30,7 @@ export default function useSessionExpiredGlobal() {
           redirectSignIn(
             accountId || signedAccount,
             isEmailValid(accountId || signedAccount) ? LoginMethod.EMAIL : undefined,
-          ), // todo
+          ),
         onCancel: () => {
           signInAnonymous(KyberOauth2.getConnectedAnonymousAccounts()[0])
         },

@@ -1,7 +1,6 @@
 import { LoginFlow } from '@kybernetwork/oauth2'
 
 export const getSupportLoginMethods = (loginFlow: LoginFlow | undefined) => {
-  // todo check many case, remove
   return loginFlow?.oauth_client?.metadata?.allowed_login_methods ?? []
 }
 
