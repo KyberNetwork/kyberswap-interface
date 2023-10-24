@@ -4,7 +4,6 @@ import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 
-import CLAIM_REWARD_ABI from 'constants/abis/claim-reward.json'
 import ROUTER_DYNAMIC_FEE_ABI from 'constants/abis/dmm-router-dynamic-fee.json'
 import ROUTER_STATIC_FEE_ABI from 'constants/abis/dmm-router-static-fee.json'
 import KS_ROUTER_STATIC_FEE_ABI from 'constants/abis/ks-router-static-fee.json'
