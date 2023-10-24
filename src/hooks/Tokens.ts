@@ -12,7 +12,7 @@ import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/index'
-import { useBytes32TokenContract, useMulticallContract, useTokenContractForReading } from 'hooks/useContract'
+import { useBytes32TokenContract, useMulticallContract, useTokenReadingContract } from 'hooks/useContract'
 import { AppState } from 'state'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -180,7 +180,7 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 
   const address = isAddress(chainId, tokenAddress)
 
-  const tokenContract = useTokenContractForReading(address && tokenAddress !== ZERO_ADDRESS ? address : undefined)
+  const tokenContract = useTokenReadingContract(address && tokenAddress !== ZERO_ADDRESS ? address : undefined)
   const tokenContractBytes32 = useBytes32TokenContract(address ? address : undefined)
   const token =
     tokenAddress?.toLowerCase() === ZERO_ADDRESS || tokenAddress?.toLowerCase() === ETHER_ADDRESS.toLowerCase()

@@ -19,7 +19,7 @@ import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { getContractForReading } from 'utils/getContract'
+import { getReadingContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/sentry'
 import { formatSignature } from 'utils/transaction'
@@ -40,7 +40,7 @@ const useGetEncodeLimitOrder = () => {
         const contracts = [...new Set(orders.map(e => e.contractAddress))]
         const result = []
         for (const address of contracts) {
-          const limitOrderContract = getContractForReading(address, LIMIT_ORDER_ABI, readProvider)
+          const limitOrderContract = getReadingContract(address, LIMIT_ORDER_ABI, readProvider)
           const [{ encodedData }, nonce] = await Promise.all([
             getEncodeData({ orderIds: [], isCancelAll }).unwrap(),
             limitOrderContract?.nonce?.(account),

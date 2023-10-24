@@ -15,7 +15,7 @@ import { isEVM as isEVMNetwork } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useTokens } from 'hooks/Tokens'
-import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerSigningContract, useProMMFarmSigningContract } from 'hooks/useContract'
 import { usePools } from 'hooks/usePools'
 import { useProAmmPositionsFromTokenIds } from 'hooks/useProAmmPositions'
 import { useNotify } from 'state/application/hooks'
@@ -211,8 +211,8 @@ const getTransactionExtraInfo = (
 
 export const useFarmAction = (address: string) => {
   const addTransactionWithType = useTransactionAdder()
-  const contract = useProMMFarmContract(address)
-  const posManager = useProAmmNFTPositionManagerContract()
+  const contract = useProMMFarmSigningContract(address)
+  const posManager = useProAmmNFTPositionManagerSigningContract()
   const notify = useNotify()
 
   const approve = useCallback(async () => {

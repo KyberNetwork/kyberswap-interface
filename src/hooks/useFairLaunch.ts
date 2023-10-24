@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import { useCallback } from 'react'
 
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { useFairLaunchContract, useFairLaunchContractForReading } from 'hooks/useContract'
+import { useFairLaunchRadingContract, useFairLaunchSigningContract } from 'hooks/useContract'
 import { Farm, Reward } from 'state/farms/classic/types'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfoHarvestFarm } from 'state/transactions/type'
@@ -28,8 +28,8 @@ const getTransactionExtraInfo = (farm: Farm | null, farmRewards: Reward[]): Tran
 
 const useFairLaunch = (address: string) => {
   const addTransactionWithType = useTransactionAdder()
-  const fairLaunchContract = useFairLaunchContract(address)
-  const fairLaunchContractReading = useFairLaunchContractForReading(address)
+  const fairLaunchContract = useFairLaunchSigningContract(address)
+  const fairLaunchContractReading = useFairLaunchRadingContract(address)
 
   const getPoolLength = useCallback(async () => {
     try {

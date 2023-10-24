@@ -21,7 +21,7 @@ import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClickableText, ElasticFarmV2TableHeader } from 'components/YieldPools/styleds'
 import { SORT_DIRECTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/MyPool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -105,7 +105,7 @@ export default function ElasticFarmv2({
   })
 
   const { approve } = useFarmV2Action(farmAddress)
-  const posManager = useProAmmNFTPositionManagerContract()
+  const posManager = useProAmmNFTPositionManagerReadingContract()
   const [approvalTx, setApprovalTx] = useState('')
   const isApprovalTxPending = useIsTransactionPending(approvalTx)
   const res = useSingleCallResult(posManager, 'isApprovedForAll', [account, farmAddress])

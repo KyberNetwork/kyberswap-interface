@@ -53,7 +53,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
@@ -136,7 +136,7 @@ export default function AddLiquidity() {
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const [isDegenMode] = useDegenModeManager()
   const addTransactionWithType = useTransactionAdder()
-  const positionManager = useProAmmNFTPositionManagerContract()
+  const positionManager = useProAmmNFTPositionManagerReadingContract()
   const [showChart, setShowChart] = useState(false)
   const [positionIndex, setPositionIndex] = useState(0)
   const { mixpanelHandler } = useMixpanel()

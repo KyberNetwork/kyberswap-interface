@@ -40,7 +40,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import { useProAmmDerivedPositionInfo } from 'hooks/useProAmmDerivedPositionInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
@@ -105,7 +105,7 @@ export default function IncreaseLiquidity() {
     }
   }, [chainId, prevChainId, navigate])
 
-  const positionManager = useProAmmNFTPositionManagerContract()
+  const positionManager = useProAmmNFTPositionManagerReadingContract()
 
   // check for existing position if tokenId in url
   const { position: existingPositionDetails } = useProAmmPositionsFromTokenId(

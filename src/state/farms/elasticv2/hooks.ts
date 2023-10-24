@@ -8,7 +8,7 @@ import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { ELASTIC_FARM_TYPE, FARM_TAB, SORT_DIRECTION } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useActiveWeb3React } from 'hooks'
-import { useContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerSigningContract, useSigningContract } from 'hooks/useContract'
 import { useNotify } from 'state/application/hooks'
 import { useAppSelector } from 'state/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -213,8 +213,8 @@ export const useFilteredFarmsV2 = (farmAddress?: string) => {
 export const useFarmV2Action = (farmAddress: string) => {
   const { account } = useActiveWeb3React()
   const addTransactionWithType = useTransactionAdder()
-  const farmContract = useContract(farmAddress, FarmV2ABI)
-  const posManager = useProAmmNFTPositionManagerContract()
+  const farmContract = useSigningContract(farmAddress, FarmV2ABI)
+  const posManager = useProAmmNFTPositionManagerSigningContract()
   const notify = useNotify()
 
   const approve = useCallback(async () => {

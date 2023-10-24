@@ -16,7 +16,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
 import { useActiveWeb3React } from './index'
-import { useTokenContract } from './useContract'
+import { useTokenSigningContract } from './useContract'
 
 export enum ApprovalState {
   UNKNOWN,
@@ -60,7 +60,7 @@ export function useApproveCallback(
   }, [amountToApprove, currentAllowance, isSolana, pendingApproval, spender])
   const notify = useNotify()
 
-  const tokenContract = useTokenContract(token?.address)
+  const tokenContract = useTokenSigningContract(token?.address)
   const addTransactionWithType = useTransactionAdder()
 
   const approve = useCallback(

@@ -16,7 +16,7 @@ import { permitUpdate } from 'state/user/actions'
 import { usePermitData } from 'state/user/hooks'
 import { friendlyError } from 'utils/errorMessage'
 
-import { useContract } from './useContract'
+import { useReadingContract } from './useContract'
 import useMixpanel, { MIXPANEL_TYPE } from './useMixpanel'
 
 // 24 hours
@@ -34,7 +34,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const { library } = useWeb3React()
   const dispatch = useDispatch()
   const notify = useNotify()
-  const eipContract = useContract(currency?.address, EIP_2612, false)
+  const eipContract = useReadingContract(currency?.address, EIP_2612)
   const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
 
   const permitData = usePermitData(currency?.address)
