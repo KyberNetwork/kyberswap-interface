@@ -27,7 +27,7 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
     setIsShowVerify(false)
   }
 
-  const onVerifyEmail = (e: React.MouseEvent) => {
+  const onVerifyEmail = (e?: React.MouseEvent) => {
     e?.preventDefault?.()
     if (errorInput || isShowVerify || !inputEmail) return
     setIsShowVerify(true)
@@ -37,7 +37,7 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
 
   const onVerifyCode = async (data: { code: string; email: string }) => {
     const resp = await KyberOauth2.oauthUi.loginEmail(data)
-    console.debug('resp loginEmail', resp)
+    console.debug('oauth resp login email', resp)
   }
 
   const onSendCode = async ({ email }: { email: string }) => {

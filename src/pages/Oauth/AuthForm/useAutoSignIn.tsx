@@ -9,7 +9,7 @@ const useAutoSignIn = ({
   method,
   flowStatus: { flowReady, autoLoginMethod },
 }: {
-  onClick: (e?: any) => void // todo
+  onClick: (e?: React.MouseEvent) => void
   method: LoginMethod
   flowStatus: FlowStatus
 }) => {
