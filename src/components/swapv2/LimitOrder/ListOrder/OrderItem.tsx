@@ -1,8 +1,11 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
+import { rgba } from 'polished'
+import { stringify } from 'querystring'
 import { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties, DefaultTheme } from 'styled-components'
@@ -27,6 +30,10 @@ export const ItemWrapper = styled.div<{ hasBorder?: boolean; active?: boolean }>
   display: grid;
   gap: 10px;
   align-items: center;
+  cursor: pointer;
+  :hover {
+    background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
+  }
   ${({ theme, active }) => theme.mediaWidth.upToLarge`
     grid-template-columns: 1.5fr 1.5fr 1.5fr ${active ? '110px' : '80px'};
     .rate {
@@ -61,7 +68,7 @@ const Colum = styled.div`
 const TimeText = ({ time, style = {} }: { time: number; style?: CSSProperties }) => {
   const theme = useTheme()
   return (
-    <Flex fontWeight={'500'} color={theme.subText} style={style}>
+    <Flex fontWeight={'500'} color={theme.text} style={style}>
       <Text>{dayjs(time * 1000).format('DD/MM/YYYY')}</Text>
       &nbsp; <Text>{dayjs(time * 1000).format('HH:mm')}</Text>
     </Flex>
@@ -124,7 +131,7 @@ const AmountInfo = ({ order }: { order: LimitOrder }) => {
       <SingleAmountInfo
         decimals={makerAssetDecimals}
         plus={false}
-        color={theme.border}
+        color={theme.subText}
         logoUrl={makerAssetLogoURL}
         amount={makingAmount}
         symbol={makerAssetSymbol}
@@ -141,8 +148,8 @@ const TradeRateOrder = ({ order, style = {} }: { order: LimitOrder; style?: CSSP
   return (
     <Colum style={style}>
       <Flex style={{ gap: 6, cursor: 'pointer', alignItems: 'center' }} onClick={() => setInvert(!invert)}>
-        <Text color={theme.subText}>{!invert ? `${symbolOut}/${symbolIn}` : `${symbolIn}/${symbolOut}`}</Text>
-        <Repeat color={theme.subText} size={12} />
+        <Text color={theme.text}>{!invert ? `${symbolOut}/${symbolIn}` : `${symbolIn}/${symbolOut}`}</Text>
+        <Repeat color={theme.text} size={12} />
       </Flex>
       <Text color={theme.text}>{formatRateLimitOrder(order, invert)}</Text>
     </Colum>
@@ -239,6 +246,8 @@ export default function OrderItem({
     transactions = [],
     takerAssetSymbol,
     takerAssetDecimals,
+    takerAsset,
+    makerAsset,
   } = order
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
   const isOrderActive = isActiveStatus(order.status)
@@ -260,6 +269,16 @@ export default function OrderItem({
   const marketPrice = tokenPrices[order.takerAsset] / tokenPrices[order.makerAsset]
   const selectedPrice = Number(formatRateLimitOrder(order, false))
   const percent = ((marketPrice - selectedPrice) / marketPrice) * 100
+
+  const navigate = useNavigate()
+  const onClickOrder = () => {
+    navigate({
+      search: stringify({
+        inputCurrency: makerAsset,
+        outputCurrency: takerAsset,
+      }),
+    })
+  }
 
   const renderProgressComponent = () => {
     const getTooltipText = () => {
@@ -312,7 +331,7 @@ export default function OrderItem({
 
   if (upToSmall) {
     return (
-      <ItemWrapperMobile>
+      <ItemWrapperMobile onClick={onClickOrder}>
         <Flex justifyContent={'space-between'}>
           <AmountInfo order={order} />
           <ActionButtons
@@ -370,7 +389,11 @@ export default function OrderItem({
   }
   return (
     <>
-      <ItemWrapper hasBorder={isLast ? false : !transactions.length || !expand} active={hasOrderCancelling}>
+      <ItemWrapper
+        hasBorder={isLast ? false : !transactions.length || !expand}
+        active={hasOrderCancelling}
+        onClick={onClickOrder}
+      >
         <Flex alignItems={'center'} style={{ gap: 10 }}>
           <IndexText>{index + 1}</IndexText>
           <AmountInfo order={order} />

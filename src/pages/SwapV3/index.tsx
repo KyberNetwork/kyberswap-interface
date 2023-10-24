@@ -224,7 +224,7 @@ export default function Swap() {
             <AppBodyWrapped
               data-highlight={shouldHighlightSwapBox}
               id={TutorialIds.SWAP_FORM}
-              style={activeTab === TAB.INFO ? { padding: 0 } : undefined}
+              style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}
             >
               {isSwapPage && (
                 <PopulatedSwapForm

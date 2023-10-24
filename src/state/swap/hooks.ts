@@ -6,7 +6,7 @@ import JSBI from 'jsbi'
 import { ParsedUrlQuery } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { APP_PATHS, BAD_RECIPIENT_ADDRESSES } from 'constants/index'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
@@ -442,4 +442,19 @@ export const useCheckStablePairSwap = () => {
   const isStablePairSwap = isStableCoin(inputCurrencyId) && isStableCoin(outputCurrencyId)
 
   return isStablePairSwap
+}
+
+export const useSwitchPairToLimitOrder = () => {
+  const navigate = useNavigate()
+  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
+  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const { networkInfo } = useActiveWeb3React()
+
+  return useCallback(
+    () =>
+      navigate(
+        `${APP_PATHS.LIMIT}/${networkInfo.route}?inputCurrency=${inputCurrencyId}&outputCurrency=${outputCurrencyId}`,
+      ),
+    [networkInfo, inputCurrencyId, outputCurrencyId, navigate],
+  )
 }
