@@ -48,6 +48,8 @@ export interface ZapDetail {
   zapResult: ZapResult | undefined
   skeleton: (w?: number) => ReactElement
   newPosDraft: Position | undefined
+  token0IsNative: boolean
+  token1IsNative: boolean
 }
 
 export const useZapDetail = ({
@@ -230,6 +232,8 @@ export const useZapDetail = ({
     newPooledAmount0,
     newPooledAmount1,
     newPosDraft,
+    token0IsNative: !!(amountIn?.currency.isNative && amountIn?.currency.wrapped.address === pool?.token0.address),
+    token1IsNative: !!(amountIn?.currency.isNative && amountIn?.currency.wrapped.address === pool?.token1.address),
     skeleton,
   }
 }
@@ -254,22 +258,20 @@ export default function ZapDetail({
     newUsdValue,
     priceImpact,
     skeleton,
+    token0IsNative,
+    token1IsNative,
   } = zapDetail
 
   const theme = useTheme()
   const currency0 = pool?.token0 && unwrappedToken(pool.token0)
   const currency1 = pool?.token1 && unwrappedToken(pool.token1)
 
-  const symbol0 = getTokenSymbolWithHardcode(
-    pool?.token0.chainId,
-    pool?.token0?.wrapped.address,
-    currency0?.symbol || '',
-  )
-  const symbol1 = getTokenSymbolWithHardcode(
-    pool?.token0.chainId,
-    pool?.token1?.wrapped.address,
-    currency1?.symbol || '',
-  )
+  const symbol0 = token0IsNative
+    ? currency0?.symbol
+    : getTokenSymbolWithHardcode(pool?.token0.chainId, pool?.token0?.wrapped.address, currency0?.wrapped.symbol || '')
+  const symbol1 = token1IsNative
+    ? currency1?.symbol
+    : getTokenSymbolWithHardcode(pool?.token0.chainId, pool?.token1?.wrapped.address, currency1?.wrapped.symbol || '')
 
   return (
     <Detail sx={sx}>
