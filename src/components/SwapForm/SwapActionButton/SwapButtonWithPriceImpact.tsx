@@ -82,7 +82,7 @@ export const SwapButtonWithPriceImpact = ({
         onClick={onClick}
         disabled={shouldDisable}
         $minimal={minimal}
-        style={shouldDisable ? undefined : { background: theme.red }}
+        style={shouldDisable ? undefined : { background: theme.red, color: theme.text }}
       >
         <Trans>Swap Anyway</Trans>
       </CustomPrimaryButton>
