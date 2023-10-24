@@ -298,7 +298,7 @@ const useLogin = (autoLogin = false) => {
 
   const signInWrapped = useCallback(
     ({
-      account = undefined,
+      account,
       loginMethod = LoginMethod.ETH,
       showSessionExpired = false,
     }: {

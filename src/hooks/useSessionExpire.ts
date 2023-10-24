@@ -26,11 +26,10 @@ export default function useSessionExpiredGlobal() {
         title: t`Session Expired`,
         confirmText: t`Sign-in`,
         cancelText: t`Cancel`,
-        onConfirm: () =>
-          redirectSignIn(
-            accountId || signedAccount,
-            isEmailValid(accountId || signedAccount) ? LoginMethod.EMAIL : undefined,
-          ),
+        onConfirm: () => {
+          const account = accountId || signedAccount
+          redirectSignIn(account, isEmailValid(account) ? LoginMethod.EMAIL : undefined)
+        },
         onCancel: () => {
           signInAnonymous(KyberOauth2.getConnectedAnonymousAccounts()[0])
         },

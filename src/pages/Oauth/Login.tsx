@@ -198,7 +198,7 @@ export function Login() {
         <AuthForm
           formConfig={authFormConfig}
           flowStatus={flowStatus}
-          signInWithEth={signInWithEth} // todo move
+          signInWithEth={signInWithEth}
           disableEth={!!isMismatchEthAddress}
         />
       </Content>
