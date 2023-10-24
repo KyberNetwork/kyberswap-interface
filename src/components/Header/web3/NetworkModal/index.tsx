@@ -193,6 +193,7 @@ export default function NetworkModal({
       onDismiss={toggleNetworkModal}
       maxWidth={624}
       zindex={Z_INDEXS.MODAL}
+      minHeight="500px"
     >
       <Wrapper ref={wrapperRef}>
         <RowBetween>
@@ -247,13 +248,17 @@ export default function NetworkModal({
               }
             }}
             id={FAVORITE_DROPZONE_ID}
-            style={{ position: 'relative' }}
+            style={{ position: 'relative', minHeight: '50px' }}
           >
             <DropzoneOverlay show={dropIdDraggingOver === FAVORITE_DROPZONE_ID} text={t`Add to favorite`} />
             {favoriteChains.length === 0 ? (
-              <Row border={'1px dashed ' + theme.text + '32'} borderRadius="99px" padding="8px 12px" justify="center">
+              <Row border={'1px dashed ' + theme.text + '32'} borderRadius="99px" padding="16px 12px" justify="center">
                 <Text fontSize="10px" lineHeight="14px" color={theme.subText}>
-                  <Trans>Drag your favourite chain(s) here</Trans>
+                  {isMobile ? (
+                    <Trans>Select your favourite chain(s)</Trans>
+                  ) : (
+                    <Trans>Drag your favourite chain(s) here</Trans>
+                  )}
                 </Text>
               </Row>
             ) : (
@@ -285,7 +290,7 @@ export default function NetworkModal({
               }
             }}
             id={CHAINS_DROPZONE_ID}
-            style={{ position: 'relative' }}
+            style={{ position: 'relative', minHeight: '50px' }}
           >
             <DropzoneOverlay show={dropIdDraggingOver === CHAINS_DROPZONE_ID} text={t`Remove from favorite`} />
             <NetworkList>

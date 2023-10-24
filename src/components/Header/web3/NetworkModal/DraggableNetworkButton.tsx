@@ -1,7 +1,7 @@
 import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { PanInfo, motion, useAnimationControls, useDragControls } from 'framer-motion'
-import { throttle } from 'lodash'
+import throttle from 'lodash/throttle'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { MutableRefObject, RefObject, useState } from 'react'
@@ -204,8 +204,14 @@ export default function DraggableNetworkButton({
 
   const getDropIdDraggingOver = (panInfo: PanInfo) => {
     const currentEl: HTMLDivElement | undefined = droppableRefs.current?.find((el: HTMLDivElement) => {
+      const OFFSET = 25
       const { left, top, right, bottom } = el.getBoundingClientRect()
-      return left < panInfo.point.x && top < panInfo.point.y && right > panInfo.point.x && bottom > panInfo.point.y
+      return (
+        left < panInfo.point.x + OFFSET &&
+        top < panInfo.point.y + OFFSET &&
+        right > panInfo.point.x - OFFSET &&
+        bottom > panInfo.point.y - OFFSET
+      )
     })
     return currentEl
   }
@@ -218,7 +224,7 @@ export default function DraggableNetworkButton({
   const handleDrag = throttle((e: any, panInfo: PanInfo) => {
     const dropEl = getDropIdDraggingOver(panInfo)
     onDrag?.(dropEl?.id)
-  }, 100)
+  }, 40)
 
   const handleDragEnd = (e: any, panInfo: PanInfo) => {
     animateControls.start('normal')
