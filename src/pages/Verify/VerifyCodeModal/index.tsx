@@ -78,6 +78,7 @@ export default function VerifyCodeModal({
   verifySuccessContent,
   sendCodeFn,
   verifyCodeFn,
+  getErrorMsgFn,
   refreshProfile = true,
 }: {
   onVerifySuccess?: (() => Promise<any>) | (() => void)
@@ -89,6 +90,7 @@ export default function VerifyCodeModal({
   verifySuccessContent?: ReactNode
   sendCodeFn?: (data: { email: string }) => Promise<any>
   verifyCodeFn?: (data: { email: string; code: string }) => Promise<void>
+  getErrorMsgFn?: (err: any) => string
   refreshProfile?: boolean
 }) {
   const theme = useTheme()
@@ -183,7 +185,7 @@ export default function VerifyCodeModal({
       setError(ErrorType.VALIDATE_ERROR)
       notify({
         title: t`Error`,
-        summary: getErrorMessage(error),
+        summary: getErrorMsgFn?.(error) || getErrorMessage(error),
         type: NotificationType.ERROR,
       })
     } finally {

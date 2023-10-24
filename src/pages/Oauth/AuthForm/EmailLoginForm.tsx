@@ -9,7 +9,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useValidateEmail } from 'pages/NotificationCenter/NotificationPreference'
 import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPreference/InputEmail'
 import useAutoSignIn from 'pages/Oauth/AuthForm/useAutoSignIn'
-import { FlowStatus } from 'pages/Oauth/Login'
+import { FlowStatus, getIamErrorMsg } from 'pages/Oauth/Login'
 import { isEmailValid, queryStringToObject } from 'utils/string'
 
 const Wrapper = styled(Column)`
@@ -59,8 +59,9 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
         style={{ width: 340, height: 36 }}
         onDismissVerifyModal={onDismissVerifyModal}
         isShowVerify={isShowVerify}
-        sendCode={onSendCode}
-        verifyCode={onVerifyCode}
+        sendCodeFn={onSendCode}
+        verifyCodeFn={onVerifyCode}
+        getErrorMsgFn={getIamErrorMsg}
       />
       <ButtonPrimary height={'36px'} onClick={onVerifyEmail}>
         <Trans>Sign-In with Email</Trans>

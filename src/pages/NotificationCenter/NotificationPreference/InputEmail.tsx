@@ -91,11 +91,12 @@ export default function InputEmailWithVerification(
   props: Props & {
     isShowVerify: boolean
     onDismissVerifyModal: () => void
-    sendCode?: (data: { email: string }) => Promise<any>
-    verifyCode?: (data: { email: string; code: string }) => Promise<void>
+    sendCodeFn?: (data: { email: string }) => Promise<any>
+    verifyCodeFn?: (data: { email: string; code: string }) => Promise<void>
+    getErrorMsgFn?: (err: any) => string
   },
 ) {
-  const { value, isShowVerify, onDismissVerifyModal, sendCode, verifyCode } = props
+  const { value, isShowVerify, onDismissVerifyModal, sendCodeFn, verifyCodeFn, getErrorMsgFn } = props
   return (
     <>
       <InputEmail {...props} />
@@ -103,8 +104,9 @@ export default function InputEmailWithVerification(
         isOpen={isShowVerify}
         onDismiss={onDismissVerifyModal}
         email={value}
-        sendCodeFn={sendCode}
-        verifyCodeFn={verifyCode}
+        sendCodeFn={sendCodeFn}
+        verifyCodeFn={verifyCodeFn}
+        getErrorMsgFn={getErrorMsgFn}
       />
     </>
   )

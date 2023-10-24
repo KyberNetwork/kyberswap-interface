@@ -1,5 +1,5 @@
 import KyberOauth2, { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
-import { Trans } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Loader from 'components/Loader'
@@ -16,18 +16,14 @@ import { formatSignature } from 'utils/transaction'
 import AuthForm from './AuthForm'
 import { canAutoSignInEth, createSignMessage, extractAutoLoginMethod, getSupportLoginMethods } from './helpers'
 
-const getErrorMsg = (error: any) => {
+export const getIamErrorMsg = (error: any) => {
   const data = error?.response?.data
   const isExpired = data?.error?.id === 'self_service_flow_expired'
-  if (isExpired) {
-    return (
-      <span>
-        <Trans>Time to sign-in is Expired, please go back and try again.</Trans>
-      </span>
-    )
-  }
+  if (isExpired) return t`Time to sign-in is Expired, please go back and try again.`
 
-  return data?.ui?.messages?.[0]?.text || data?.error?.reason || data?.error?.message || error?.message || error + ''
+  const message = data?.ui?.messages?.[0]
+  if (message?.id === 4000001) return t`Verification code is wrong or expired. Please try again.`
+  return message?.text || data?.error?.reason || data?.error?.message || error?.message || error + ''
 }
 
 export type FlowStatus = {
@@ -93,7 +89,7 @@ export function Login() {
       }
     } catch (error: any) {
       if (!didUserReject(error)) {
-        setError(getErrorMsg(error))
+        setError(getIamErrorMsg(error))
       }
       console.error('signInWithEthereum err', error)
       connectingWallet.current = false
@@ -120,7 +116,7 @@ export function Login() {
         }))
       } catch (error: any) {
         const { error_description } = queryStringToObject(window.location.search)
-        setError(error_description || getErrorMsg(error))
+        setError(error_description || getIamErrorMsg(error))
       }
     }
     getFlowLogin()
