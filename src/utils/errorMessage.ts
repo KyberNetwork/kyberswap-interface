@@ -3,38 +3,58 @@ import { t } from '@lingui/macro'
 import { didUserReject } from 'constants/connectors/utils'
 import { capitalizeFirstLetter } from 'utils/string'
 
+const matchPatterns = (patterns: string[], error: string) =>
+  patterns.some(pattern => error.toLowerCase().includes(pattern.toLowerCase()))
+
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''
 
-  if (!error || error.includes('router: expired')) return 'An error occurred. Refresh the page and try again.'
+  if (!error || error.includes('router: expired')) return t`An error occurred. Refresh the page and try again.`
 
   if (
-    error.includes('mintotalamountout') ||
-    error.includes('err_limit_out') ||
-    error.includes('return amount is not enough') ||
-    error.includes('code=call_exception') ||
-    error.includes('none of the calls threw an error')
+    matchPatterns(
+      [
+        'mintotalamountout',
+        'err_limit_out',
+        'return amount is not enough',
+        'code=call_exception',
+        'none of the calls threw an error',
+      ],
+      error,
+    )
   )
     return t`An error occurred. Try refreshing the price rate or increase max slippage.`
 
   if (
-    error.includes('insufficient funds for intrinsic transaction cost') ||
-    error.includes('OutOfFund') ||
-    error.includes('insufficient balance for transfer')
+    matchPatterns(
+      ['The requested account and/or method has not been authorized by the user', 'From address mismatch'],
+      error,
+    )
+  )
+    return t`The requested account and/or method has not been authorized by the user.`
+
+  if (
+    matchPatterns(
+      ['insufficient funds for intrinsic transaction cost', 'OutOfFund', 'insufficient balance for transfer'],
+      error,
+    )
   )
     return t`Your current balance falls short of covering the required gas fee.`
 
-  if (error.includes('header not found') || error.includes('swap failed'))
+  if (matchPatterns(['header not found', 'swap failed'], error))
     return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
+
+  if (matchPatterns(['underlying network changed'], error))
+    return t`Your chain is mismatched, please make sure your wallet is switch to the expected chain.`
 
   if (didUserReject(error)) return t`User rejected the transaction.`
 
   // classic/elastic remove liquidity error
-  if (error.includes('insufficient')) return t`An error occurred. Please try increasing max slippage.`
+  if (matchPatterns(['insufficient'], error)) return t`An error occurred. Please try increasing max slippage.`
 
-  if (error.includes('permit')) return t`An error occurred. Invalid Permit Signature.`
+  if (matchPatterns(['permit'], error)) return t`An error occurred. Invalid Permit Signature.`
 
-  if (error.includes('burn amount exceeds balance'))
+  if (matchPatterns(['burn amount exceeds balance'], error))
     return t`Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later.`
 
   if (error === '[object Object]') return t`Something went wrong. Please try again.`

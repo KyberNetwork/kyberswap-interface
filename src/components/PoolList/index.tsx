@@ -334,7 +334,10 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const wca = ca.wrapped
       const wcaAddress = wca && wca.address.toLowerCase()
       res = res.filter(
-        poolData => wcaAddress && (poolData.token0.address === wcaAddress || poolData.token1.address === wcaAddress),
+        poolData =>
+          wcaAddress &&
+          (poolData.token0.address.toLowerCase() === wcaAddress ||
+            poolData.token1.address.toLowerCase() === wcaAddress),
       )
     }
 
@@ -342,7 +345,10 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       const wcb = cb.wrapped
       const wcbAddress = wcb && wcb.address.toLowerCase()
       res = res.filter(
-        poolData => wcbAddress && (poolData.token0.address === wcbAddress || poolData.token1.address === wcbAddress),
+        poolData =>
+          wcbAddress &&
+          (poolData.token0.address.toLowerCase() === wcbAddress ||
+            poolData.token1.address.toLowerCase() === wcbAddress),
       )
     }
 
