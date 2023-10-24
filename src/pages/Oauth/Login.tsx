@@ -10,11 +10,11 @@ import { initializeOauthKyberSwap } from 'hooks/useLogin'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { Container, Content, KyberLogo, TextDesc } from 'pages/Oauth/styled'
 import getShortenAddress from 'utils/getShortenAddress'
-import { isInEnum, queryStringToObject } from 'utils/string'
+import { queryStringToObject } from 'utils/string'
 import { formatSignature } from 'utils/transaction'
 
 import AuthForm from './AuthForm'
-import { createSignMessage, getSupportLoginMethods } from './helpers'
+import { canAutoSignInEth, createSignMessage, extractAutoLoginMethod, getSupportLoginMethods } from './helpers'
 
 const getErrorMsg = (error: any) => {
   const data = error?.response?.data
@@ -37,41 +37,8 @@ export type FlowStatus = {
   autoLoginMethod: LoginMethod | undefined // not waiting for click btn
 }
 
-const canAutoSignInEth = (loginMethods: LoginMethod[]) => {
-  const isIncludeEth = loginMethods.includes(LoginMethod.ETH)
-  const totalMethod = loginMethods.length
-  return (
-    (isIncludeEth && totalMethod === 1) ||
-    (isIncludeEth && totalMethod === 2 && loginMethods.includes(LoginMethod.ANONYMOUS))
-  )
-}
-
 const getCsrfToken = (loginFlow: LoginFlow | undefined) =>
   loginFlow?.ui?.nodes?.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? ''
-
-const extractAutoLoginMethod = (loginFlow: LoginFlow) => {
-  const loginMethods = getSupportLoginMethods(loginFlow)
-  let autoLoginMethod: LoginMethod | undefined
-
-  if (loginMethods.length === 1) {
-    if (loginMethods.includes(LoginMethod.ANONYMOUS)) {
-      throw new Error('Not found login method for this app')
-    }
-    if (loginMethods.includes(LoginMethod.GOOGLE)) {
-      autoLoginMethod = LoginMethod.GOOGLE
-    }
-  }
-  if (canAutoSignInEth(loginMethods)) {
-    autoLoginMethod = LoginMethod.ETH
-  }
-
-  // auto login method from url
-  const { type } = queryStringToObject(window.location.search)
-  if (!autoLoginMethod && isInEnum(type + '', LoginMethod) && loginMethods.includes(type)) {
-    autoLoginMethod = type as LoginMethod
-  }
-  return autoLoginMethod
-}
 
 export function Login() {
   const { account, chainId } = useActiveWeb3React()
@@ -136,7 +103,6 @@ export function Login() {
 
   useEffect(() => {
     const getFlowLogin = async () => {
-      const { error_description } = queryStringToObject(window.location.search)
       try {
         KyberOauth2.initialize({ mode: ENV_KEY })
         const loginFlow = await KyberOauth2.oauthUi.getFlowLogin()
@@ -153,6 +119,7 @@ export function Login() {
           csrf: getCsrfToken(loginFlow),
         }))
       } catch (error: any) {
+        const { error_description } = queryStringToObject(window.location.search)
         setError(error_description || getErrorMsg(error))
       }
     }
