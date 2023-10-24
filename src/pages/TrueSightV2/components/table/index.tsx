@@ -575,29 +575,41 @@ enum LIQUIDITY_MARKETS_TYPE {
   COINGECKO,
 }
 
-export const LiquidityMarkets = () => {
-  const theme = useTheme()
-  const [type, setType] = useState<LIQUIDITY_MARKETS_TYPE | undefined>()
-  const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
-  const { data: tokenOverview } = useKyberAIAssetOverview()
-
-  const { data, isLoading } = useGetLiquidityMarketsCoinmarketcap(
+const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_TYPE) => {
+  const { data: assetOverview } = useKyberAIAssetOverview()
+  const { data, isFetching: cmcFetching } = useGetLiquidityMarketsCoinmarketcap(
     {
-      id: tokenOverview?.cmcId,
+      id: assetOverview?.cmcId,
       // centerType: activeTab === ChartTab.First ? 'dex' : activeTab === ChartTab.Second ? 'cex' : 'all',
       category: activeTab === ChartTab.Third ? 'perpetual' : 'spot',
     },
-    { skip: !tokenOverview?.cmcId && type !== LIQUIDITY_MARKETS_TYPE.COINMARKETCAP },
-  )
-
-  const coingeckoAPI = useCoingeckoAPI()
-
-  const { data: cgkData } = useGetLiquidityMarketsCoingecko(
-    { coingeckoAPI, id: tokenOverview?.cgkId },
-    { skip: !tokenOverview?.cgkId && type !== LIQUIDITY_MARKETS_TYPE.COINGECKO },
+    { skip: !assetOverview?.cmcId && type !== LIQUIDITY_MARKETS_TYPE.COINMARKETCAP, refetchOnMountOrArgChange: true },
   )
 
   const marketPairs = data?.data?.market_pairs || []
+
+  const coingeckoAPI = useCoingeckoAPI()
+
+  const { data: cgkData, isFetching: cgkFetching } = useGetLiquidityMarketsCoingecko(
+    { coingeckoAPI, id: assetOverview?.cgkId },
+    { skip: !assetOverview?.cgkId && type !== LIQUIDITY_MARKETS_TYPE.COINGECKO, refetchOnMountOrArgChange: true },
+  )
+  return {
+    cmcData: marketPairs,
+    cgkData: cgkData?.tickers || [],
+    isFetching: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? cmcFetching : cgkFetching,
+    hasData: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? !!marketPairs?.length : !!cgkData?.tickers?.length,
+  }
+}
+
+export const LiquidityMarkets = () => {
+  const theme = useTheme()
+  const { data: assetOverview } = useKyberAIAssetOverview()
+
+  const [type, setType] = useState<LIQUIDITY_MARKETS_TYPE | undefined>()
+  const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
+
+  const { cmcData, cgkData, isFetching, hasData } = useLiquidityMarketsData(activeTab, type)
 
   const tabs: Array<{ title: string; tabId: ChartTab }> = useMemo(() => {
     if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
@@ -617,15 +629,15 @@ export const LiquidityMarkets = () => {
   }, [type])
 
   useEffect(() => {
-    if (tokenOverview) {
+    if (assetOverview) {
       setActiveTab(ChartTab.First)
-      if (tokenOverview.cmcId) {
+      if (assetOverview.cmcId) {
         setType(LIQUIDITY_MARKETS_TYPE.COINMARKETCAP)
-      } else if (tokenOverview.cgkId) {
+      } else if (assetOverview.cgkId) {
         setType(LIQUIDITY_MARKETS_TYPE.COINGECKO)
       }
     }
-  }, [tokenOverview])
+  }, [assetOverview])
 
   return (
     <>
@@ -637,12 +649,7 @@ export const LiquidityMarkets = () => {
             </TableTab>
           ))}
         </RowFit>
-        <LoadingHandleWrapper
-          isLoading={!!type && isLoading}
-          hasData={!!data?.data}
-          height="500px"
-          style={{ borderRadius: 0 }}
-        >
+        <LoadingHandleWrapper isLoading={isFetching} hasData={hasData} height="500px" style={{ borderRadius: 0 }}>
           <colgroup>
             <col width="200px" />
             <col width="150px" />
@@ -660,7 +667,7 @@ export const LiquidityMarkets = () => {
             </tr>
           </thead>
           <tbody style={{ fontSize: '14px', lineHeight: '20px' }}>
-            {marketPairs.map((item: any, index: number) => {
+            {cmcData.map((item: any, index: number) => {
               return (
                 <tr key={index}>
                   <td>
@@ -684,6 +691,39 @@ export const LiquidityMarkets = () => {
                   </td>
                   <td>
                     <Text color={theme.text}>${formatShortNum(item.quote?.USD?.volume_24h)}</Text>
+                  </td>
+                  <td>
+                    <Row justify="flex-end">
+                      <ButtonAction color={theme.primary} style={{ padding: '6px' }}>
+                        <Icon id="truesight-v2" size={20} />
+                      </ButtonAction>
+                    </Row>
+                  </td>
+                </tr>
+              )
+            })}
+            {cgkData.map((item: any, index: number) => {
+              return (
+                <tr key={index}>
+                  <td>
+                    <Row gap="12px">
+                      <img
+                        src={item.market.logo}
+                        loading="lazy"
+                        alt="exchange logo"
+                        style={{ width: '36px', height: '36px' }}
+                      />
+                      <Text color={theme.text}>{item.market.name}</Text>
+                    </Row>
+                  </td>
+                  <td>
+                    <Text color={theme.text}>{item.coin_id + '/' + item.target_coin_id}</Text>
+                  </td>
+                  <td>
+                    <Text color={theme.text}>${formatTokenPrice(item.converted_last.usd)}</Text>
+                  </td>
+                  <td>
+                    <Text color={theme.text}>${formatShortNum(item.converted_volume.usd)}</Text>
                   </td>
                   <td>
                     <Row justify="flex-end">

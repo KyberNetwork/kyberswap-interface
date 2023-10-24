@@ -40,7 +40,8 @@ const coingeckoApi = createApi({
     }),
     getLiquidityMarkets: builder.query({
       query: ({ coingeckoAPI, id }) => ({
-        url: `${coingeckoAPI}/coins/${id}/tickers`,
+        url: `${coingeckoAPI}/coins/${id}/tickers?include_exchange_logo=true`,
+        authentication: true,
       }),
     }),
     getSecurityTokenInfo: builder.query<SecurityInfo, { chainId: ChainId; address: string }>({

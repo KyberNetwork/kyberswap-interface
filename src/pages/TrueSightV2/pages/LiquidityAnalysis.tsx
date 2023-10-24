@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
 import { SectionWrapper } from '../components'
-import { LiquidityProfile } from '../components/chart'
 import { LiquidityMarkets } from '../components/table'
 import { KYBERAI_CHART_ID } from '../constants'
 
