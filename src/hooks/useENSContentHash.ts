@@ -18,7 +18,7 @@ export default function useENSContentHash(ensName?: string | null): { loading: b
       return [undefined]
     }
   }, [ensName])
-  const registrarContract = useENSRegistrarContract(false)
+  const registrarContract = useENSRegistrarContract()
   const resolverAddressResult = useSingleCallResult(registrarContract, 'resolver', ensNodeArgument)
   const resolverAddress = resolverAddressResult.result?.[0]
   const resolverContract = useENSResolverContract(

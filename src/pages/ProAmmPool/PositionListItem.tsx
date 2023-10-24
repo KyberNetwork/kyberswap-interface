@@ -20,7 +20,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
-import { useProMMFarmContract } from 'hooks/useContract'
+import { useProMMFarmContractForReading } from 'hooks/useContract'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePool } from 'hooks/usePools'
@@ -187,7 +187,7 @@ function PositionListItem({
       f.ranges.some(r => positionDetails.tickLower <= r.tickLower && positionDetails.tickUpper >= r.tickUpper),
   ).length
 
-  const farmContract = useProMMFarmContract(farmAddress)
+  const farmContract = useProMMFarmContractForReading(farmAddress)
 
   const tokenId = positionDetails.tokenId.toString()
 

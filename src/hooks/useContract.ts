@@ -141,14 +141,13 @@ export function useWETHContract(withSignerIfPossible?: boolean): Contract | null
 
 export function useArgentWalletDetectorContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContract(
+  return useContractForReading(
     chainId === ChainId.MAINNET ? ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS : undefined,
     ARGENT_WALLET_DETECTOR_ABI,
-    false,
   )
 }
 
-export function useENSRegistrarContract(withSignerIfPossible?: boolean): Contract | null {
+export function useENSRegistrarContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
   let address: string | undefined
   if (isEVM(chainId)) {
@@ -159,7 +158,7 @@ export function useENSRegistrarContract(withSignerIfPossible?: boolean): Contrac
         break
     }
   }
-  return useContract(address, ENS_ABI, withSignerIfPossible)
+  return useContractForReading(address, ENS_ABI)
 }
 
 export function useENSResolverContract(address: string | undefined): Contract | null {
@@ -222,6 +221,10 @@ export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContr
 
 export function useProMMFarmContract(address: string): Contract | null {
   return useContract(address, PROMM_FARM_ABI)
+}
+
+export function useProMMFarmContractForReading(address: string): Contract | null {
+  return useContractForReading(address, PROMM_FARM_ABI)
 }
 
 function useFairLaunchV1Contracts(): {
@@ -302,7 +305,7 @@ export const useFairLaunchVersion = (address: string): FairLaunchVersion => {
   return version
 }
 
-export function useFairLaunchContract(address: string, withSignerIfPossible?: boolean): Contract | null {
+function useFairLaunchABI(address: string) {
   const version = useFairLaunchVersion(address)
   let abi
 
@@ -320,8 +323,18 @@ export function useFairLaunchContract(address: string, withSignerIfPossible?: bo
       abi = FAIRLAUNCH_ABI
       break
   }
+  return abi
+}
+export function useFairLaunchContract(address: string): Contract | null {
+  const abi = useFairLaunchABI(address)
 
-  return useContract(address, abi, withSignerIfPossible)
+  return useContract(address, abi)
+}
+
+export function useFairLaunchContractForReading(address: string): Contract | null {
+  const abi = useFairLaunchABI(address)
+
+  return useContractForReading(address, abi)
 }
 
 export function useRewardLockerContracts(withSignerIfPossible?: boolean): {

@@ -21,7 +21,7 @@ import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
-import { useProMMFarmContract } from 'hooks/useContract'
+import { useProMMFarmContractForReading } from 'hooks/useContract'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
@@ -96,7 +96,7 @@ const Row = ({
     0,
   )
 
-  const contract = useProMMFarmContract(fairlaunchAddress)
+  const contract = useProMMFarmContractForReading(fairlaunchAddress)
   const [targetPercent, setTargetPercent] = useState('')
   const [targetPercentByNFT, setTargetPercentByNFT] = useState<{ [key: string]: string }>({})
   const [rowOpen, setRowOpen] = useState(false)
