@@ -184,7 +184,7 @@ export const useSignedAccountInfo = () => {
   const { account } = useActiveWeb3React()
 
   const isSigInGuest = signedMethod === LoginMethod.ANONYMOUS
-  const isSignInEmail = signedMethod === LoginMethod.EMAIL
+  const isSignInEmail = signedMethod === LoginMethod.EMAIL || signedMethod === LoginMethod.GOOGLE
 
   const isSignInEth = signedMethod === LoginMethod.ETH
   const isSignInDifferentWallet =
@@ -197,7 +197,6 @@ export const useSignedAccountInfo = () => {
     isSignInDifferentWallet,
     isSigInGuest,
     isSignInGuestDefault,
-    isSignInEmail,
     isSignInEth,
   }
 }

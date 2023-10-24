@@ -14,7 +14,6 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import {
   useIsAutoLoginAfterConnectWallet,
-  useSessionInfo,
   useSetConfirmChangeProfile,
   useSetPendingAuthentication,
 } from 'state/authen/hooks'
@@ -27,7 +26,6 @@ import {
   useSaveUserProfile,
   useSignedAccountInfo,
 } from 'state/profile/hooks'
-import { isAddress } from 'utils'
 import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 import { isEmailValid } from 'utils/string'
 
@@ -42,10 +40,9 @@ export const initializeOauthKyberSwap = () => {
 initializeOauthKyberSwap()
 
 const useLogin = (autoLogin = false) => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   const [createProfile] = useGetOrCreateProfileMutation()
-  // const [connectWalletToProfile] = useConnectWalletToProfileMutation()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
   const { signedMethod, signedAccount } = useSignedAccountInfo()
@@ -60,25 +57,16 @@ const useLogin = (autoLogin = false) => {
     async ({
       walletAddress,
       loginMethod,
-      session,
       account,
     }: {
       walletAddress: string | undefined
       loginMethod: LoginMethod
       account: string
-      session: any
     }) => {
       const isAnonymous = loginMethod === LoginMethod.ANONYMOUS
       try {
         const profile = await createProfile().unwrap()
-        if (loginMethod === LoginMethod.ETH && walletAddress && isAddress(chainId, walletAddress)) {
-          // await connectWalletToProfile({ walletAddress }) // temp off
-        }
-
         const formatProfile = { ...profile }
-        if (loginMethod === LoginMethod.EMAIL && session) {
-          formatProfile.email = session?.email ?? ''
-        }
         setProfile({ profile: formatProfile, isAnonymous, account })
       } catch (error) {
         const e = new Error('createProfile Error', { cause: error })
@@ -87,7 +75,7 @@ const useLogin = (autoLogin = false) => {
         setProfile({ profile: undefined, isAnonymous, account })
       }
     },
-    [createProfile, setProfile, chainId],
+    [createProfile, setProfile],
   )
 
   const showSignInSuccess = useCallback(
@@ -101,11 +89,9 @@ const useLogin = (autoLogin = false) => {
           summary:
             desireAccount?.toLowerCase() === account?.toLowerCase()
               ? t`Connected successfully with the current wallet address`
-              : loginMethod === LoginMethod.EMAIL
-              ? t`Connected successfully with email ${desireAccount}`
               : isGuest
               ? t`Connected successfully with Guest Profile`
-              : t`Connected successfully with profile${getProfileName(desireAccount, isGuest)}`,
+              : t`Connected successfully with profile ${getProfileName(desireAccount, isGuest)}`,
         },
         10_000,
       )
@@ -115,13 +101,11 @@ const useLogin = (autoLogin = false) => {
 
   const signInAnonymous = useCallback(
     async (guestAccountParam?: string, showSuccessMsg = true) => {
-      let userInfo
       const guestAccount = guestAccountParam || KEY_GUEST_DEFAULT
       let hasError = false
       try {
         setLoading(true)
-        const resp = await KyberOauth2.loginAnonymous(guestAccount === KEY_GUEST_DEFAULT ? undefined : guestAccount)
-        userInfo = resp.userInfo
+        await KyberOauth2.loginAnonymous(guestAccount === KEY_GUEST_DEFAULT ? undefined : guestAccount)
         saveSignedAccount({ account: guestAccount, method: LoginMethod.ANONYMOUS })
       } catch (error) {
         console.log('sign in anonymous err', error)
@@ -131,7 +115,6 @@ const useLogin = (autoLogin = false) => {
         await getProfile({
           walletAddress: account,
           account: guestAccount,
-          session: userInfo,
           loginMethod: LoginMethod.ANONYMOUS,
         })
         !hasError && showSuccessMsg && showSignInSuccess(guestAccount, LoginMethod.ANONYMOUS)
@@ -155,7 +138,6 @@ const useLogin = (autoLogin = false) => {
         await getProfile({
           walletAddress: respAccount,
           loginMethod,
-          session: userInfo,
           account: respAccount,
         })
         showSignInSuccess(respAccount, loginMethod)
@@ -346,9 +328,7 @@ export const useAutoLogin = () => {
   const { signedMethod, signedAccount } = useSignedAccountInfo()
   const qs = useParsedQueryString()
   const { account } = useActiveWeb3React()
-  const { userInfo } = useSessionInfo()
   const [isKeepCurrentProfile] = useIsKeepCurrentProfile()
-  // const [connectWalletToProfile] = useConnectWalletToProfileMutation()
   const { signIn, checkSessionSignIn, signInAnonymous } = useLogin(true)
 
   // auto try sign in when the first visit app, call once
@@ -376,15 +356,6 @@ export const useAutoLogin = () => {
     signIn({ account: accountSignAfterConnectedWallet })
     setAutoSignIn({ value: false, account: undefined })
   }, [account, needSignInAfterConnectWallet, accountSignAfterConnectedWallet, signIn, setAutoSignIn])
-
-  // call api connect-wallet to guest profile
-  useEffect(() => {
-    if (signedMethod === LoginMethod.ANONYMOUS && account && userInfo?.identityId) {
-      try {
-        // connectWalletToProfile({ walletAddress: account })
-      } catch (error) {}
-    }
-  }, [account, userInfo?.identityId, signedMethod])
 
   const setConfirm = useSetConfirmChangeProfile()
 
