@@ -41,13 +41,13 @@ export const OrDivider = () => {
 
 const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStatus, disableEth }) => {
   const { processingSignIn } = flowStatus
-  const loginMethods = getSupportLoginMethods(formConfig)
-
-  const hasEth = loginMethods.includes(LoginMethod.ETH)
-  const hasGoogle = loginMethods.includes(LoginMethod.GOOGLE)
-  const hasEmail = loginMethods.includes(LoginMethod.EMAIL)
 
   const nodes = useMemo(() => {
+    const loginMethods = getSupportLoginMethods(formConfig)
+    const hasEth = loginMethods.includes(LoginMethod.ETH)
+    const hasGoogle = loginMethods.includes(LoginMethod.GOOGLE)
+    const hasEmail = loginMethods.includes(LoginMethod.EMAIL)
+
     const nodes = []
     if (hasEmail) nodes.push(<EmailLoginForm flowStatus={flowStatus} />)
     if (hasEth)
@@ -62,7 +62,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStat
       )
     if (hasGoogle) nodes.push(<ButtonGoogle flowStatus={flowStatus} primary={!hasEmail && !hasEth} />)
     return nodes
-  }, [disableEth, flowStatus, hasEmail, hasEth, hasGoogle, processingSignIn, signInWithEth])
+  }, [disableEth, flowStatus, formConfig, processingSignIn, signInWithEth])
 
   if (!formConfig) return null
   const { ui } = formConfig
