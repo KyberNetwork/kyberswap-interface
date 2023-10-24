@@ -276,7 +276,6 @@ export default function Profile() {
                 value={nickname}
                 onChange={e => onChangeNickname(e.target.value)}
                 placeholder="Your nickname"
-                disabled={isSignInEmail}
               />
             </FormGroup>
 
@@ -295,7 +294,6 @@ export default function Profile() {
                 showVerifyModal={showVerifyModal}
                 onChange={onChangeEmailWrapp}
                 value={inputEmail}
-                disabled={isSignInEmail}
                 isVerifiedEmail={!!isVerifiedEmail}
                 isShowVerify={isShowVerify}
                 onDismissVerifyModal={onDismissVerifyModal}

@@ -1,4 +1,4 @@
-import KyberOauth2, { KyberOauth2Event } from '@kybernetwork/oauth2'
+import KyberOauth2, { KyberOauth2Event, LoginMethod } from '@kybernetwork/oauth2'
 import { t } from '@lingui/macro'
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -8,6 +8,7 @@ import { APP_PATHS } from 'constants/index'
 import useLogin from 'hooks/useLogin'
 import { ConfirmModalState } from 'state/application/reducer'
 import { useSignedAccountInfo } from 'state/profile/hooks'
+import { isEmailValid } from 'utils/string'
 
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()
@@ -25,7 +26,11 @@ export default function useSessionExpiredGlobal() {
         title: t`Session Expired`,
         confirmText: t`Sign-in`,
         cancelText: t`Cancel`,
-        onConfirm: () => redirectSignIn(accountId || signedAccount),
+        onConfirm: () =>
+          redirectSignIn(
+            accountId || signedAccount,
+            isEmailValid(accountId || signedAccount) ? LoginMethod.EMAIL : undefined,
+          ), // todo
         onCancel: () => {
           signInAnonymous(KyberOauth2.getConnectedAnonymousAccounts()[0])
         },
