@@ -91,7 +91,7 @@ export function useZapInPoolResult(params?: {
 
   const callParams = useMemo(
     () =>
-      params && !loadingAggregator
+      params && !loadingAggregator && params.tickLower < params.tickUpper
         ? [
             [
               params.poolAddress,

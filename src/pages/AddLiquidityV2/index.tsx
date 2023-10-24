@@ -1256,6 +1256,13 @@ export default function AddLiquidity() {
     </ButtonPrimary>
   )
 
+  const token0IsNative =
+    selectedCurrency?.isNative && selectedCurrency?.wrapped.address.toLowerCase() === pool?.token0.address.toLowerCase()
+  const zapSymbol0 = token0IsNative ? selectedCurrency.symbol : pool?.token0.symbol
+  const token1IsNative =
+    selectedCurrency?.isNative && selectedCurrency?.wrapped.address.toLowerCase() === pool?.token1.address.toLowerCase()
+  const zapSymbol1 = token1IsNative ? selectedCurrency.symbol : pool?.token1.symbol
+
   const chart = (
     <>
       {!noLiquidity && <MethodSelector method={method} setMethod={setMethod} sx={{ marginBottom: '1rem' }} />}
@@ -1553,32 +1560,38 @@ export default function AddLiquidity() {
                       fontWeight="500"
                     >
                       <Flex justifyContent="space-between">
-                        <Text color={theme.subText}>Est. Pooled {pool?.token0.symbol}</Text>
+                        <Text color={theme.subText}>Est. Pooled {zapSymbol0}</Text>
                         {zapLoading ? (
                           zapDetail.skeleton()
                         ) : !zapResult || !pool ? (
                           '--'
                         ) : (
                           <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                            <CurrencyLogo currency={unwrappedToken(pool.token0)} size="14px" />
+                            <CurrencyLogo
+                              currency={token0IsNative ? unwrappedToken(pool.token0) : pool.token0}
+                              size="14px"
+                            />
                             <Text>
-                              {zapDetail.newPooledAmount0?.toSignificant(10)} {unwrappedToken(pool.token0).symbol}
+                              {zapDetail.newPooledAmount0?.toSignificant(10)} {zapSymbol0}
                             </Text>
                           </Flex>
                         )}
                       </Flex>
 
                       <Flex justifyContent="space-between">
-                        <Text color={theme.subText}>Est. Pooled {pool?.token1.symbol}</Text>
+                        <Text color={theme.subText}>Est. Pooled {zapSymbol1}</Text>
                         {zapLoading ? (
                           zapDetail.skeleton()
                         ) : !zapResult || !pool ? (
                           '--'
                         ) : (
                           <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                            <CurrencyLogo currency={unwrappedToken(pool.token1)} size="14px" />
+                            <CurrencyLogo
+                              currency={token1IsNative ? unwrappedToken(pool.token1) : pool.token1}
+                              size="14px"
+                            />
                             <Text>
-                              {zapDetail.newPooledAmount1?.toSignificant(10)} {unwrappedToken(pool.token1).symbol}
+                              {zapDetail.newPooledAmount1?.toSignificant(10)} {zapSymbol1}
                             </Text>
                           </Flex>
                         )}
