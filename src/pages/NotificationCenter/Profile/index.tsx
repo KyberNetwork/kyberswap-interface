@@ -131,7 +131,7 @@ export default function Profile() {
   const [nickname, setNickName] = useState('')
   const { signOut } = useLogin()
   const navigate = useNavigate()
-  const { isSignInEmail, isSignInEth, signedAccount, isSigInGuest } = useSignedAccountInfo()
+  const { isSignInEth, signedAccount, isSigInGuest } = useSignedAccountInfo()
   const { totalGuest } = useProfileInfo()
   const canSignOut = !isSigInGuest || (isSigInGuest && totalGuest > 1)
 
@@ -305,12 +305,7 @@ export default function Profile() {
             <Label style={{ textAlign: 'center' }}>
               <Trans>Profile Picture</Trans>
             </Label>
-            <AvatarEdit
-              avatar={displayAvatar}
-              disabled={isSignInEmail}
-              handleFileChange={handleFileChange}
-              size={AVATAR_SIZE}
-            />
+            <AvatarEdit avatar={displayAvatar} handleFileChange={handleFileChange} size={AVATAR_SIZE} />
           </FormGroup>
         </ProfileContent>
 

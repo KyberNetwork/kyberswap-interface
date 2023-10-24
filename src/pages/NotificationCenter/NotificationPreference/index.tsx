@@ -22,7 +22,6 @@ import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPre
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
-import { useSignedAccountInfo } from 'state/profile/hooks'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { pushUnique } from 'utils'
 import { isEmailValid } from 'utils/string'
@@ -141,7 +140,6 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
 
   const { account } = useActiveWeb3React()
   const { userInfo, isLogin } = useSessionInfo()
-  const { isSignInEmail } = useSignedAccountInfo()
   const { isWhiteList } = useIsWhiteListKyberAI()
 
   const { inputEmail, errorInput, onChangeEmail, reset } = useValidateEmail(userInfo?.email)
@@ -372,7 +370,6 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
           <Trans>Enter your email address to receive notifications.</Trans>
         </Label>
         <InputEmailWithVerification
-          disabled={isSignInEmail}
           hasError={hasErrorInput}
           showVerifyModal={showVerifyModal}
           onChange={onChangeEmail}
