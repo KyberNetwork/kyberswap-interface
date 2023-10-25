@@ -10,6 +10,7 @@ import Column from 'components/Column'
 import { TokenLogoWithShadow } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { KyberAIListType } from 'pages/TrueSightV2/types'
 import { calculateValueToColor, getTypeByKyberScore } from 'pages/TrueSightV2/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -55,7 +56,12 @@ export const TokenInfo = ({
   )
 }
 
-function InboxItemBridge({
+export const useNavigateToMyWatchList = () => {
+  const navigate = useNavigate()
+  return () => navigate(`${APP_PATHS.KYBERAI_RANKINGS}?listType=${KyberAIListType.MYWATCHLIST}`)
+}
+
+function InboxItemKyberAIWatchlist({
   announcement,
   onRead,
   style,
@@ -66,9 +72,9 @@ function InboxItemBridge({
   const { assets = [] } = templateBody || {}
   const [token1, token2, token3] = assets
 
-  const navigate = useNavigate()
+  const navigateToWatchList = useNavigateToMyWatchList()
   const onClick = () => {
-    navigate(APP_PATHS.KYBERAI_RANKINGS)
+    navigateToWatchList()
     onRead(announcement, 'kyberAI_watchlist')
   }
 
@@ -94,4 +100,4 @@ function InboxItemBridge({
     </InboxItemWrapper>
   )
 }
-export default InboxItemBridge
+export default InboxItemKyberAIWatchlist

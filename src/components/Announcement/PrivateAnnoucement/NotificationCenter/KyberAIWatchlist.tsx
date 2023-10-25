@@ -1,15 +1,16 @@
 import { Trans } from '@lingui/macro'
 import { Fragment, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
-import { TokenInfo } from 'components/Announcement/PrivateAnnoucement/InboxItemKyberAIWatchList'
+import {
+  TokenInfo,
+  useNavigateToMyWatchList,
+} from 'components/Announcement/PrivateAnnoucement/InboxItemKyberAIWatchList'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
 import { AnnouncementTemplateKyberAIWatchlist } from 'components/Announcement/type'
-import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { formatTime } from 'utils/time'
 
@@ -29,7 +30,7 @@ export default function AnnouncementItem({
   const { sentAt, templateType, templateBody } = announcement
   const { assets = [] } = templateBody || {}
   const theme = useTheme()
-  const navigate = useNavigate()
+  const navigateToWatchList = useNavigateToMyWatchList()
   const [expand, setExpand] = useState(false)
   const slice = 3
   const minimalAssets = assets.slice(0, slice)
@@ -37,7 +38,7 @@ export default function AnnouncementItem({
   return (
     <Wrapper onClick={() => setExpand(!expand)}>
       <Flex justifyContent="space-between" width="100%">
-        <Title onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
+        <Title onClick={navigateToWatchList}>
           <InboxIcon type={templateType} />
           {title}
         </Title>
