@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -58,7 +59,10 @@ export const TokenInfo = ({
 
 export const useNavigateToMyWatchList = () => {
   const navigate = useNavigate()
-  return () => navigate(`${APP_PATHS.KYBERAI_RANKINGS}?listType=${KyberAIListType.MYWATCHLIST}`)
+  return useCallback(
+    () => navigate(`${APP_PATHS.KYBERAI_RANKINGS}?listType=${KyberAIListType.MYWATCHLIST}`),
+    [navigate],
+  )
 }
 
 function InboxItemKyberAIWatchlist({
