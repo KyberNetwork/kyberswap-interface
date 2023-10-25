@@ -580,13 +580,13 @@ const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_T
   const { data, isFetching: cmcFetching } = useGetLiquidityMarketsCoinmarketcap(
     {
       id: assetOverview?.cmcId,
-      // centerType: activeTab === ChartTab.First ? 'dex' : activeTab === ChartTab.Second ? 'cex' : 'all',
+      centerType: activeTab === ChartTab.First ? 'dex' : activeTab === ChartTab.Second ? 'cex' : 'all',
       category: activeTab === ChartTab.Third ? 'perpetual' : 'spot',
     },
     { skip: !assetOverview?.cmcId && type !== LIQUIDITY_MARKETS_TYPE.COINMARKETCAP, refetchOnMountOrArgChange: true },
   )
 
-  const marketPairs = data?.data?.market_pairs || []
+  const marketPairs = data?.data?.marketPairs || []
 
   const coingeckoAPI = useCoingeckoAPI()
 
@@ -610,6 +610,7 @@ export const LiquidityMarkets = () => {
   const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
 
   const { cmcData, cgkData, isFetching, hasData } = useLiquidityMarketsData(activeTab, type)
+  console.log('🚀 ~ file: index.tsx:613 ~ LiquidityMarkets ~ cmcData:', cmcData)
 
   const tabs: Array<{ title: string; tabId: ChartTab }> = useMemo(() => {
     if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
@@ -649,7 +650,12 @@ export const LiquidityMarkets = () => {
             </TableTab>
           ))}
         </RowFit>
-        <LoadingHandleWrapper isLoading={isFetching} hasData={hasData} height="500px" style={{ borderRadius: 0 }}>
+        <LoadingHandleWrapper
+          isLoading={isFetching}
+          hasData={!isFetching && hasData}
+          height="500px"
+          style={{ borderRadius: 0 }}
+        >
           <colgroup>
             <col width="200px" />
             <col width="150px" />
@@ -673,31 +679,44 @@ export const LiquidityMarkets = () => {
                   <td>
                     <Row gap="12px">
                       <img
-                        src={`https://s2.coinmarketcap.com/static/img/exchanges/64x64/${item.exchange.id}.png`}
+                        src={`https://s2.coinmarketcap.com/static/img/exchanges/64x64/${item.exchangeId}.png`}
                         loading="lazy"
                         alt="exchange logo"
                         style={{ width: '36px', height: '36px' }}
                       />
-                      <Text color={theme.text}>{item.exchange.name}</Text>
+                      <Text color={theme.text}>{item.exchangeName}</Text>
                     </Row>
                   </td>
                   <td>
-                    <Text color={theme.text}>{item.market_pair}</Text>
+                    <Text color={theme.text}>{item.marketPair}</Text>
                   </td>
                   <td>
-                    <Text color={theme.text}>
-                      ${formatTokenPrice(item.quote?.USD?.price / item.quote?.exchange_reported?.price)}
-                    </Text>
+                    <Text color={theme.text}>${formatTokenPrice(item.price)}</Text>
                   </td>
                   <td>
-                    <Text color={theme.text}>${formatShortNum(item.quote?.USD?.volume_24h)}</Text>
+                    <Text color={theme.text}>${formatShortNum(item.volumeUsd)}</Text>
                   </td>
                   <td>
-                    <Row justify="flex-end">
-                      <ButtonAction color={theme.primary} style={{ padding: '6px' }}>
-                        <Icon id="truesight-v2" size={20} />
-                      </ButtonAction>
-                    </Row>
+                    {activeTab === ChartTab.First && (
+                      <Row justify="flex-end">
+                        <ButtonAction
+                          as="a"
+                          href={item.marketUrl}
+                          target="_blank"
+                          color={theme.primary}
+                          style={{ padding: '6px' }}
+                        >
+                          <Icon id="truesight-v2" size={20} />
+                        </ButtonAction>
+                      </Row>
+                    )}
+                    {activeTab === ChartTab.Third && (
+                      <Row justify="flex-end">
+                        <Text color={theme.text}>
+                          {item.fundingRate ? (item.fundingRate * 100).toFixed(2) + '%' : '--'}
+                        </Text>
+                      </Row>
+                    )}
                   </td>
                 </tr>
               )
