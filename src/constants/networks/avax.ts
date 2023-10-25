@@ -74,6 +74,12 @@ const avaxInfo: EVMNetworkInfo = {
       '0x3d6afe2fb73ffed2e3dd00c501a174554e147a43',
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
+    zap: {
+      router: '0x48f6D7dAE56623Dde5a0D56B283165cAE1753D70',
+      validator: '0x1a91f5ADc7cB5763d35A26e98A18520CB9b67e70',
+      executor: '0x45a5B8Cf524EC574b40e80274F0F3856A679C5c4',
+      helper: '0x032c677619f72c670e4DA64126B48d906dfa952F',
+    },
   },
   limitOrder: '*',
   averageBlockTimeInSeconds: 1.85,
