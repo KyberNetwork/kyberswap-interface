@@ -114,8 +114,10 @@ export default function ElasticFarmv2({
   const handleApprove = async () => {
     if (!isApprovedForAll) {
       const tx = await approve()
-      setApprovalTx(tx)
-      mixpanel.track('ElasticFarmv2 - Approve Farming contract V2', { tx_hash: tx })
+      if (tx) {
+        setApprovalTx(tx)
+        mixpanel.track('ElasticFarmv2 - Approve Farming contract V2', { tx_hash: tx })
+      }
     }
   }
 

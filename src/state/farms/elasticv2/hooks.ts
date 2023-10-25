@@ -210,7 +210,15 @@ export const useFilteredFarmsV2 = (farmAddress?: string) => {
   }
 }
 
-export const useFarmV2Action = (farmAddress: string) => {
+export const useFarmV2Action = (
+  farmAddress: string,
+): {
+  approve: () => Promise<string | undefined>
+  deposit: (fId: number, rangeId: number, nftIds: number[]) => Promise<string>
+  updateLiquidity: (fId: number, rangeId: number, nftIds: number[]) => Promise<string>
+  withdraw: (fId: number, nftIds: number[]) => Promise<string>
+  harvest: (fId: number, nftIds: number[]) => Promise<string>
+} => {
   const { account } = useActiveWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const farmContract = useSigningContract(farmAddress, FarmV2ABI)
@@ -265,19 +273,10 @@ export const useFarmV2Action = (farmAddress: string) => {
         })
         return tx.hash
       } catch (error) {
-        const message = friendlyError(error)
-        notify(
-          {
-            title: t`Deposit Farm Error`,
-            summary: message,
-            type: NotificationType.ERROR,
-          },
-          8000,
-        )
         throw error
       }
     },
-    [farmContract, addTransactionWithType, account, notify],
+    [farmContract, addTransactionWithType, account],
   )
 
   const updateLiquidity = useCallback(
@@ -296,19 +295,10 @@ export const useFarmV2Action = (farmAddress: string) => {
         })
         return tx.hash
       } catch (error) {
-        const message = friendlyError(error)
-        notify(
-          {
-            title: t`Update Liquidity Error`,
-            summary: message,
-            type: NotificationType.ERROR,
-          },
-          8000,
-        )
         throw error
       }
     },
-    [addTransactionWithType, farmContract, notify],
+    [addTransactionWithType, farmContract],
   )
 
   const withdraw = useCallback(
@@ -328,19 +318,10 @@ export const useFarmV2Action = (farmAddress: string) => {
         })
         return tx.hash
       } catch (error) {
-        const message = friendlyError(error)
-        notify(
-          {
-            title: t`Withdraw Error`,
-            summary: message,
-            type: NotificationType.ERROR,
-          },
-          8000,
-        )
         throw error
       }
     },
-    [addTransactionWithType, farmContract, notify],
+    [addTransactionWithType, farmContract],
   )
 
   const harvest = useCallback(
@@ -358,19 +339,10 @@ export const useFarmV2Action = (farmAddress: string) => {
         addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST })
         return tx.hash
       } catch (error) {
-        const message = friendlyError(error)
-        notify(
-          {
-            title: t`Harvest Error`,
-            summary: message,
-            type: NotificationType.ERROR,
-          },
-          8000,
-        )
         throw error
       }
     },
-    [addTransactionWithType, farmContract, notify],
+    [addTransactionWithType, farmContract],
   )
 
   return { approve, deposit, withdraw, harvest, updateLiquidity }
