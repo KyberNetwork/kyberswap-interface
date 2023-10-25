@@ -66,8 +66,9 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
 
 type Props = {
   activeTab: TAB
+  setActiveTab: (tab: TAB) => void
 }
-export default function Tabs({ activeTab }: Props) {
+export default function Tabs({ activeTab, setActiveTab }: Props) {
   const navigateFn = useNavigate()
   const { networkInfo, chainId } = useActiveWeb3React()
   const qs = useParsedQueryString<{
@@ -77,10 +78,13 @@ export default function Tabs({ activeTab }: Props) {
 
   const { pathname } = useLocation()
 
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
+  const isParnetSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const onClickTab = (tab: TAB) => {
     if (activeTab === tab) {
+      return
+    }
+    if (isParnetSwap) {
+      setActiveTab(tab)
       return
     }
 
@@ -97,14 +101,16 @@ export default function Tabs({ activeTab }: Props) {
   return (
     <TabContainer>
       <TabWrapper>
-        <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={isSwapPage}>
+        <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={TAB.SWAP === activeTab}>
           <Text fontSize={20} fontWeight={500}>
             <Trans>Swap</Trans>
           </Text>
         </Tab>
-        {isSupportLimitOrder(chainId) && <LimitTab onClick={() => onClickTab(TAB.LIMIT)} />}
+        {isSupportLimitOrder(chainId) && (
+          <LimitTab onClick={() => onClickTab(TAB.LIMIT)} active={activeTab === TAB.LIMIT} />
+        )}
         {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
-          <Tab onClick={() => onClickTab(TAB.CROSS_CHAIN)} isActive={isCrossChainPage}>
+          <Tab onClick={() => onClickTab(TAB.CROSS_CHAIN)} isActive={activeTab === TAB.CROSS_CHAIN}>
             <Text fontSize={20} fontWeight={500}>
               <Trans>Cross-Chain</Trans>
             </Text>

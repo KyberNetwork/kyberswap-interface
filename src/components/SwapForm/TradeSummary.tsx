@@ -11,7 +11,7 @@ import Divider from 'components/Divider'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { APP_PATHS, BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
+import { APP_PATHS, BIPS_BASE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -95,19 +95,18 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
 }
 
 const SwapFee: React.FC = () => {
-  const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
-
-  if (!CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId)) {
-    return null
-  }
 
   const {
     formattedAmount: feeAmount = '',
     formattedAmountUsd: feeAmountUsd = '',
     currency = undefined,
   } = routeSummary?.fee || {}
+
+  if (!feeAmount) {
+    return null
+  }
 
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
 

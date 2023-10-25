@@ -50,6 +50,7 @@ const Consent = lazy(() => import('./Oauth/Consent'))
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV2 = lazy(() => import('./SwapV2'))
 const SwapV3 = lazy(() => import('./SwapV3'))
+const PartnerSwap = lazy(() => import('./PartnerSwap'))
 // const Bridge = lazy(() => import('./Bridge'))
 const Pools = lazy(() => import('./Pools'))
 const MyPool = lazy(() => import('./MyPool'))
@@ -247,7 +248,7 @@ export default function App() {
   const theme = useTheme()
 
   useGlobalMixpanelEvents()
-  const showFooter = !pathname.includes(APP_PATHS.ABOUT)
+  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !pathname.includes(APP_PATHS.PARTNER_SWAP)
   const [holidayMode] = useHolidayMode()
 
   const snowflake = new Image()
@@ -319,6 +320,7 @@ export default function App() {
                   <Routes>
                     {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
                     <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
+                    <Route path={`${APP_PATHS.PARTNER_SWAP}/:network`} element={<PartnerSwap />} />
                     {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
                       <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
                     )}

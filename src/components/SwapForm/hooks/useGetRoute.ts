@@ -1,6 +1,7 @@
 import { ChainId, Currency, CurrencyAmount, Price, WETH } from '@kyberswap/ks-sdk-core'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
@@ -91,6 +92,24 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
+  const [searchParams] = useSearchParams()
+
+  const feeAmount = searchParams.get('feeAmount') || ''
+  const chargeFeeBy = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.NONE
+  const isInBps = searchParams.get('isInBps') || ''
+  const feeReceiver = searchParams.get('feeReceiver') || ''
+
+  const feeConfigFromUrl = useMemo(() => {
+    if (feeAmount && chargeFeeBy && isInBps && feeReceiver)
+      return {
+        feeAmount,
+        chargeFeeBy,
+        isInBps,
+        feeReceiver,
+      }
+    return null
+  }, [feeAmount, chargeFeeBy, isInBps, feeReceiver])
+
   const [trigger, _result] = routeApi.useLazyGetRouteQuery()
   const aggregatorDomain = useRouteApiDomain()
 
@@ -156,8 +175,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     const tokenOutAddress = getRouteTokenAddressParam(currencyOut)
 
     const swapFeeConfig = await getSwapFeeConfig(chainId, tokenInAddress, tokenOutAddress)
-
-    const feeConfigParams = getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
+    const feeConfigParams = feeConfigFromUrl || getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
 
     const params: GetRouteParams = {
       tokenIn: tokenInAddress,
@@ -196,6 +214,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     parsedAmount?.currency,
     parsedAmount?.quotient,
     triggerDebounced,
+    feeConfigFromUrl,
   ])
 
   return { fetcher, result }
