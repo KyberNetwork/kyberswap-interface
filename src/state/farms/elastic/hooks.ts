@@ -209,7 +209,23 @@ const getTransactionExtraInfo = (
   return { pairs }
 }
 
-export const useFarmAction = (address: string) => {
+export const useFarmAction = (
+  address: string,
+): {
+  approve: () => Promise<string | undefined>
+  deposit: (positionDetails: PositionDetails[], positions: Position[]) => Promise<string | undefined>
+  withdraw: (positionDetails: PositionDetails[], positions: Position[]) => Promise<string | undefined>
+  emergencyWithdraw: (nftIds: BigNumber[]) => Promise<string | undefined>
+  depositAndJoin: (pid: BigNumber, selectedNFTs: StakeParam[]) => Promise<string | undefined>
+  stake: (pid: BigNumber, selectedNFTs: StakeParam[]) => Promise<string | undefined>
+  unstake: (pid: BigNumber, selectedNFTs: StakeParam[]) => Promise<string | undefined>
+  harvest: (
+    nftIds: BigNumber[],
+    poolIds: BigNumber[],
+    farm: FarmingPool | undefined,
+    farmRewards: CurrencyAmount<Currency>[],
+  ) => Promise<string | undefined>
+} => {
   const addTransactionWithType = useTransactionAdder()
   const contract = useProMMFarmSigningContract(address)
   const posManager = useProAmmNFTPositionManagerSigningContract()
@@ -244,7 +260,6 @@ export const useFarmAction = (address: string) => {
         },
         8000,
       )
-      throw error
     }
   }, [addTransactionWithType, address, posManager, notify])
 
@@ -281,7 +296,6 @@ export const useFarmAction = (address: string) => {
           },
           8000,
         )
-        throw error
       }
     },
     [addTransactionWithType, contract, notify],
@@ -319,7 +333,6 @@ export const useFarmAction = (address: string) => {
           },
           8000,
         )
-        throw error
       }
     },
     [addTransactionWithType, contract, notify],
@@ -352,7 +365,6 @@ export const useFarmAction = (address: string) => {
           },
           8000,
         )
-        throw error
       }
     },
     [addTransactionWithType, contract, address, notify],
@@ -391,7 +403,6 @@ export const useFarmAction = (address: string) => {
           },
           8000,
         )
-        throw error
       }
     },
     [addTransactionWithType, contract, notify],
@@ -431,7 +442,6 @@ export const useFarmAction = (address: string) => {
           },
           8000,
         )
-        throw error
       }
     },
     [addTransactionWithType, contract, notify],

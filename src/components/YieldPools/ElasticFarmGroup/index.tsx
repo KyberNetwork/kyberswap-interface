@@ -241,7 +241,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
   const handleApprove = async () => {
     if (!isApprovedForAll) {
       const tx = await approve()
-      setApprovalTx(tx)
+      tx && setApprovalTx(tx)
     }
   }
 
