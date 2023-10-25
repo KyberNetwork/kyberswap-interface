@@ -68,11 +68,11 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
           <ContentItem
             text={
               <Trans>
-                Place orders on thousands on tokens for{' '}
+                Place orders on thousands of tokens for{' '}
                 <Text as="span" fontWeight={'500'} color={theme.primary}>
-                  <Trans>FREE</Trans>
+                  <Trans>Free</Trans>
                 </Text>
-                .
+                !
               </Trans>
             }
           />
@@ -82,9 +82,9 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
               <Trans>
                 Cancel and edit orders for{' '}
                 <Text as="span" fontWeight={'500'} color={theme.primary}>
-                  <Trans>FREE</Trans>
+                  <Trans>Free</Trans>
                 </Text>
-                .
+                !
               </Trans>
             }
           />
