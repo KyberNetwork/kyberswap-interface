@@ -113,19 +113,28 @@ const VideoWrapper = styled.div`
   height: ${VIDEO_SIZE};
 `
 
-const Video = ({ url, title }: { url: string; title: string }) => (
-  <VideoWrapper>
-    <iframe
-      width="100%"
-      height="100%"
-      src={url} // todo xss
-      frameBorder="0"
-      title={title}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    />
-  </VideoWrapper>
-)
+const whitelistDomains = ['drive.google.com', 'www.youtube.com']
+const Video = ({ url, title }: { url: string; title: string }) => {
+  try {
+    const { host } = new URL(url)
+    if (!whitelistDomains.includes(host)) return null
+  } catch (error) {
+    return null
+  }
+  return (
+    <VideoWrapper>
+      <iframe
+        width="100%"
+        height="100%"
+        src={url}
+        frameBorder="0"
+        title={title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </VideoWrapper>
+  )
+}
 
 export default function CenterPopup({
   onDismiss,
