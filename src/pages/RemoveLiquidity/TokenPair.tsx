@@ -180,7 +180,6 @@ export default function TokenPair({
     ]
     const message = {
       owner: account,
-      TransactionErrorContent, // todo: ?? what is this
       spender: contractAddress,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),

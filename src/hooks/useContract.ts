@@ -384,5 +384,5 @@ export function useSwapETHContract(tokenAddress?: string): Contract | null {
 }
 
 export function useBridgeContract(routerToken?: any): Contract | null {
-  return useSigningContract(routerToken ? routerToken : undefined, RouterSwapAction) // todo namgold & danh: verify this
+  return useSigningContract(routerToken ? routerToken : undefined, RouterSwapAction)
 }
