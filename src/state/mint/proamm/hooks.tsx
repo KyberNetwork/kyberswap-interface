@@ -652,11 +652,12 @@ export function useProAmmDerivedMintInfo(
           maxDiff: Math.max(diffUpper, diffLower),
         }
       })
-      const minDiff = Math.min(
-        ...rangeValues
-          .filter(range => range.maxDiff <= MAX_DIFF_DETECT_TICK_RANGE[feeAmount])
-          .map(range => range.maxDiff),
-      )
+
+      const filterRange = rangeValues
+        .filter(range => range.maxDiff <= MAX_DIFF_DETECT_TICK_RANGE[feeAmount])
+        .map(range => range.maxDiff)
+      if (!filterRange.length) return null
+      const minDiff = Math.min(...filterRange)
 
       return rangeValues.find(range => range.maxDiff === minDiff)?.range ?? null
     }
