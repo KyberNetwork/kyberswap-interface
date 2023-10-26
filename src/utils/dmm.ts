@@ -251,7 +251,7 @@ export const getMyLiquidity = (
     (parseFloat(liquidityPosition.liquidityTokenBalance) * parseFloat(liquidityPosition.pool.reserveUSD)) /
     parseFloat(liquidityPosition.pool.totalSupply)
 
-  return formatDisplayNumber(myLiquidity, { style: 'currency', significantDigits: 4, allowZero: false })
+  return formatDisplayNumber(myLiquidity, { style: 'currency', significantDigits: 4, allowDisplayZero: false })
 }
 
 function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {

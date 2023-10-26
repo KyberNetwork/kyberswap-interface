@@ -6,21 +6,15 @@ import { useRequestWhiteListMutation } from 'services/kyberAISubscription'
 import styled from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
-import Column from 'components/Column'
-import DownloadWalletModal from 'components/DownloadWalletModal'
-import Row from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import useLogin from 'hooks/useLogin'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import SignInForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SignInForm'
 import SubscribeForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SubscribeForm'
 import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
-import { ApplicationModal } from 'state/application/actions'
-import { useOpenModal } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
-import { ButtonText } from 'theme'
 
 const ConnectWalletButton = styled(ButtonLight)`
   height: 36px;
@@ -32,7 +26,6 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
   const { isLogin } = useSessionInfo()
-  const { signIn } = useLogin()
 
   const { isWhiteList, isWaitList, loading: isCheckingPermission } = useIsWhiteListKyberAI()
 
@@ -42,7 +35,6 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
     referredByCode: '',
     showVerifySuccess: false,
   })
-  const openDownloadWalletModal = useOpenModal(ApplicationModal.DOWNLOAD_WALLET)
 
   const showVerify = (email: string, referredByCode: string, showVerifySuccess: boolean) => {
     setVerifyModalState({ isOpen: true, referredByCode, email, showVerifySuccess })
@@ -96,21 +88,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
       </ConnectWalletButton>
     )
 
-  if (!isLogin)
-    return (
-      <Column gap="20px" alignItems="center" width="fit-content" paddingTop="20px">
-        <ConnectWalletButton onClick={() => signIn()}>
-          <Trans>Sign-In to Continue</Trans>
-        </ConnectWalletButton>
-        <Row color={theme.subText} fontSize="14px" gap="4px" width="fit-content">
-          <span>Don&apos;t have a wallet?</span>
-          <ButtonText color={theme.primary} onClick={openDownloadWalletModal}>
-            Get started here
-          </ButtonText>
-        </Row>
-        <DownloadWalletModal />
-      </Column>
-    )
+  if (!isLogin) return <SignInForm />
 
   const btnGetStart = (
     <ConnectWalletButton

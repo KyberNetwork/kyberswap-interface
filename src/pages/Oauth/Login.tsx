@@ -1,5 +1,5 @@
 import KyberOauth2, { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
-import { Trans } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Loader from 'components/Loader'
@@ -14,27 +14,27 @@ import { queryStringToObject } from 'utils/string'
 import { formatSignature } from 'utils/transaction'
 
 import AuthForm from './AuthForm'
-import { createSignMessage, getSupportLoginMethods } from './helpers'
+import { canAutoSignInEth, createSignMessage, extractAutoLoginMethod, getSupportLoginMethods } from './helpers'
 
-const getErrorMsg = (error: any) => {
+export const getIamErrorMsg = (error: any) => {
   const data = error?.response?.data
   const isExpired = data?.error?.id === 'self_service_flow_expired'
-  if (isExpired) {
-    return (
-      <span>
-        <Trans>Time to sign-in is Expired, please go back and try again.</Trans>
-      </span>
-    )
-  }
+  if (isExpired) return t`Time to sign-in is Expired, please go back and try again.`
 
-  return data?.ui?.messages?.[0]?.text || data?.error?.reason || data?.error?.message || error?.message || error + ''
+  const message = data?.ui?.messages?.[0]
+  if (message?.id === 4000001) return t`Verification code is wrong or expired. Please try again.`
+  return message?.text || data?.error?.reason || data?.error?.message || error?.message || error + ''
 }
 
 export type FlowStatus = {
   processingSignIn: boolean
   flowReady: boolean
+  csrf: string
   autoLoginMethod: LoginMethod | undefined // not waiting for click btn
 }
+
+const getCsrfToken = (loginFlow: LoginFlow | undefined) =>
+  loginFlow?.ui?.nodes?.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? ''
 
 export function Login() {
   const { account, chainId } = useActiveWeb3React()
@@ -46,18 +46,15 @@ export function Login() {
     flowReady: false,
     autoLoginMethod: undefined,
     processingSignIn: false,
+    csrf: '',
   })
 
   const { wallet_address } = useParsedQueryString<{ wallet_address: string }>()
 
   const loginMethods = getSupportLoginMethods(authFormConfig)
-  const isSignInEth = loginMethods.includes(LoginMethod.ETH)
+  const showMsgSignInEth = account && canAutoSignInEth(loginMethods)
   const isMismatchEthAddress =
-    !loginMethods.includes(LoginMethod.GOOGLE) &&
-    isSignInEth &&
-    wallet_address &&
-    account &&
-    wallet_address?.toLowerCase() !== account?.toLowerCase()
+    showMsgSignInEth && wallet_address && wallet_address?.toLowerCase() !== account?.toLowerCase()
 
   const connectingWallet = useRef(false)
 
@@ -68,9 +65,8 @@ export function Login() {
         return
       }
       setFlowStatus(v => ({ ...v, processingSignIn: true }))
-      const { ui, challenge, issued_at } = authFormConfig
+      const { challenge, issued_at } = authFormConfig
       connectingWallet.current = true
-      const csrf = ui.nodes.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? ''
       const message = createSignMessage({
         address: account,
         chainId,
@@ -83,7 +79,7 @@ export function Login() {
       const resp = await KyberOauth2.oauthUi.loginEthereum({
         address: account,
         signature: formatSignature(signature),
-        csrf,
+        csrf: getCsrfToken(authFormConfig),
         chainId,
       })
 
@@ -93,7 +89,7 @@ export function Login() {
       }
     } catch (error: any) {
       if (!didUserReject(error)) {
-        setError(getErrorMsg(error))
+        setError(getIamErrorMsg(error))
       }
       console.error('signInWithEthereum err', error)
       connectingWallet.current = false
@@ -110,26 +106,17 @@ export function Login() {
         setAuthFormConfig(loginFlow)
 
         const { client_id } = loginFlow.oauth_client
-        const loginMethods = getSupportLoginMethods(loginFlow)
-
-        let autoLoginMethod: LoginMethod | undefined
-        const isIncludeGoogle = loginMethods.includes(LoginMethod.GOOGLE)
-        if (loginMethods.length === 1) {
-          if (loginMethods.includes(LoginMethod.ANONYMOUS)) {
-            throw new Error('Not found login method for this app')
-          }
-          if (isIncludeGoogle) {
-            autoLoginMethod = LoginMethod.GOOGLE
-          }
-        }
-        if (loginMethods.includes(LoginMethod.ETH) && !isIncludeGoogle) {
-          autoLoginMethod = LoginMethod.ETH
-        }
         KyberOauth2.initialize({ clientId: client_id, mode: ENV_KEY })
-        setFlowStatus(v => ({ ...v, flowReady: true, autoLoginMethod }))
+
+        setFlowStatus(v => ({
+          ...v,
+          flowReady: true,
+          autoLoginMethod: extractAutoLoginMethod(loginFlow),
+          csrf: getCsrfToken(loginFlow),
+        }))
       } catch (error: any) {
         const { error_description } = queryStringToObject(window.location.search)
-        setError(error_description || getErrorMsg(error))
+        setError(error_description || getIamErrorMsg(error))
       }
     }
     getFlowLogin()
@@ -166,7 +153,7 @@ export function Login() {
           <TextDesc style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Loader size="20px" /> Checking data ...
           </TextDesc>
-        ) : isSignInEth && account ? (
+        ) : showMsgSignInEth ? (
           renderEthMsg()
         ) : (
           appName && <TextDesc>Please sign in to continue with {appName}</TextDesc>
