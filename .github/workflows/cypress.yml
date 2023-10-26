@@ -70,10 +70,10 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js 18.15.0
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18.15.0
+          node-version: 20.9.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
 
@@ -84,9 +84,9 @@ jobs:
 
       - name: Install linux deps
         run: |
-            sudo apt-get install --no-install-recommends -y \
-            fluxbox \
-            xvfb
+          sudo apt-get install --no-install-recommends -y \
+          fluxbox \
+          xvfb
 
       - name: Yarn Build
         env:
@@ -118,14 +118,14 @@ jobs:
           yarn preview &
           yarn test-e2e -c baseUrl='http://127.0.0.1:4173/' -e grepTags=smoke,NETWORK=Ethereum
         env:
-            DISPLAY: :0.0
+          DISPLAY: :0.0
 
       - name: Archive e2e artifacts
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         if: always()
         with:
-            name: e2e-artifacts
-            path: |
-              cypress/videos
-              cypress/screenshots
+          name: e2e-artifacts
+          path: |
+            cypress/videos
+            cypress/screenshots
         continue-on-error: true
