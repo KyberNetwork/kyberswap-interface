@@ -369,7 +369,7 @@ function StakeModal({
       stakedLiquidity: e.staked.liquidity.toString(),
     }))
     if (type === 'stake') {
-      let txhash = ''
+      let txhash: string | undefined = undefined
       if (tab === 'deposit') txhash = await depositAndJoin(BigNumber.from(poolId), params)
       else txhash = await stake(BigNumber.from(poolId), params)
 

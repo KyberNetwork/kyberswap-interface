@@ -15,7 +15,7 @@ import { ETHER_ADDRESS, RTK_QUERY_TAGS, ZERO_ADDRESS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useContract, useMulticallContract } from 'hooks/useContract'
+import { useMulticallContract, useReadingContract } from 'hooks/useContract'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
@@ -109,7 +109,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
   const { elasticClient, isEnableKNProtocol } = useKyberSwapConfig()
 
   const multicallContract = useMulticallContract()
-  const farmv2QuoterContract = useContract(
+  const farmv2QuoterContract = useReadingContract(
     isEVM ? (networkInfo as EVMNetworkInfo).elastic.farmv2Quoter : undefined,
     FarmV2QuoterABI,
   )

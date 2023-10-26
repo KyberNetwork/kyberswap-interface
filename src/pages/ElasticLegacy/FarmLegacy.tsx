@@ -14,7 +14,7 @@ import { ELASTIC_BASE_FEE_UNIT, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
-import { useProMMFarmContract } from 'hooks/useContract'
+import { useProMMFarmSigningContract } from 'hooks/useContract'
 import { Position as SubgraphPosition, config, parsePosition } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -155,7 +155,7 @@ export default function FarmLegacy({
     }
   }
 
-  const farmContract = useProMMFarmContract(config[chainId]?.farmContract || '')
+  const farmContract = useProMMFarmSigningContract(config[chainId]?.farmContract || '')
 
   const handleWithdraw = async () => {
     setShowConfirmModal('withdraw')

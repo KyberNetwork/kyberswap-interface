@@ -18,6 +18,7 @@ import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -47,7 +48,7 @@ import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Wrapper } from 'pages/MyPool/styleds'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/actions'
 import { useBurnState, useDerivedZapOutInfo, useZapOutActionHandlers } from 'state/burn/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -58,8 +59,10 @@ import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { friendlyError } from 'utils/errorMessage'
 import { formatJSBIValue } from 'utils/formatBalance'
 import { getZapContract } from 'utils/getContract'
+import { formatDisplayNumber } from 'utils/numbers'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
 import { ErrorName } from 'utils/sentry'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
@@ -96,6 +99,7 @@ export default function ZapOut({
   const theme = useTheme()
 
   const [isDegenMode] = useDegenModeManager()
+  const notify = useNotify()
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
@@ -234,23 +238,32 @@ export default function ZapOut({
       message,
     })
 
-    library
-      .send('eth_signTypedData_v4', [account, data])
-      .then(splitSignature)
-      .then(signature => {
-        setSignatureData({
-          v: signature.v,
-          r: signature.r,
-          s: signature.s,
-          deadline: deadline.toNumber(),
+    try {
+      await library
+        .send('eth_signTypedData_v4', [account, data])
+        .then(splitSignature)
+        .then(signature => {
+          setSignatureData({
+            v: signature.v,
+            r: signature.r,
+            s: signature.s,
+            deadline: deadline.toNumber(),
+          })
         })
-      })
-      .catch((error: any) => {
-        // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
-        if (!didUserReject(error)) {
-          approveCallback()
-        }
-      })
+    } catch (error) {
+      if (didUserReject(error)) {
+        notify(
+          {
+            title: t`Approve failed`,
+            summary: friendlyError(error),
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
+      } else {
+        approveCallback()
+      }
+    }
   }
 
   // wrapped onUserInput to clear signatures
@@ -266,6 +279,7 @@ export default function ZapOut({
     (typedValue: string): void => onUserInput(Field.LIQUIDITY, typedValue),
     [onUserInput],
   )
+
   const onCurrencyInput = useCallback(
     (typedValue: string): void => onUserInput(independentTokenField, typedValue),
     [independentTokenField, onUserInput],
@@ -439,19 +453,20 @@ export default function ZapOut({
             setTxHash(response.hash)
           }
         })
-        .catch((err: Error) => {
+        .catch((error: Error) => {
           setAttemptingTxn(false)
-          // we only care if the error is something _other_ than the user rejected the tx
-          if (!didUserReject(err)) {
-            const e = new Error('zap out failed', { cause: err })
+
+          const message = error.message.includes('INSUFFICIENT')
+            ? t`Insufficient liquidity available. Please reload page or increase max slippage and try again!`
+            : error.message
+
+          setZapOutError(message)
+
+          if (!didUserReject(error)) {
+            console.error('Remove Classic Liquidity Error:', { message, error })
+            const e = new Error(friendlyError(message), { cause: error })
             e.name = ErrorName.RemoveClassicLiquidityError
             captureException(e, { extra: { args } })
-          }
-
-          if (err.message.includes('INSUFFICIENT_OUTPUT_AMOUNT')) {
-            setZapOutError(t`Insufficient Liquidity in the Liquidity Pool to Swap`)
-          } else {
-            setZapOutError(err?.message)
           }
         })
     }
@@ -662,7 +677,13 @@ export default function ZapOut({
                     </Text>
 
                     <Text fontSize={12} fontWeight={500}>
-                      <Trans>Balance</Trans>: {!userLiquidity ? <Loader /> : userLiquidity?.toSignificant(6)} LP Tokens
+                      <Trans>Balance</Trans>:{' '}
+                      {!userLiquidity ? (
+                        <Loader />
+                      ) : (
+                        formatDisplayNumber(userLiquidity, { style: 'decimal', significantDigits: 6 })
+                      )}{' '}
+                      LP Tokens
                     </Text>
                   </RowBetween>
                   <Row style={{ alignItems: 'flex-end' }}>
