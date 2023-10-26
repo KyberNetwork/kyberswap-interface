@@ -40,7 +40,7 @@ export default function AvatarEdit({
   handleFileChange,
   size,
 }: {
-  disabled: boolean
+  disabled?: boolean
   size: string
   avatar: string | undefined
   handleFileChange: (imgUrl: string, file: File) => void

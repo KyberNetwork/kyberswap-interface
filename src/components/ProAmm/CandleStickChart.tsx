@@ -125,7 +125,8 @@ const CandleStickChart = ({
           borderColor: 'rgba(197, 203, 206, 0.8)',
         },
         localization: {
-          priceFormatter: (val: number) => formatDisplayNumber(val, { significantDigits: 6, allowNegative: true }),
+          priceFormatter: (val: number) =>
+            formatDisplayNumber(val, { significantDigits: 6, allowDisplayNegative: true }),
         },
       })
 

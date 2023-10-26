@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Save, X } from 'react-feather'
@@ -31,6 +32,7 @@ const Wrapper = styled.div`
 const gap = isMobile ? '8px' : '16px'
 
 const NetworkList = styled.div`
+  min-height: 40px;
   display: flex;
   align-items: center;
   column-gap: ${gap};
@@ -44,6 +46,36 @@ const NetworkList = styled.div`
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 const CHAINS_DROPZONE_ID = 'chains-dropzone'
+
+const DropzoneOverlay = ({ show, text }: { show: boolean; text: string }) => {
+  const theme = useTheme()
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          exit={{ opacity: 0 }}
+          style={{
+            position: 'absolute',
+            inset: '-6px',
+            background: theme.background,
+            zIndex: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '16px',
+            fontWeight: 500,
+            borderRadius: '8px',
+          }}
+          transition={{ duration: 0.1 }}
+        >
+          {text}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
 
 export default function NetworkModal({
   activeChainIds,
@@ -65,6 +97,7 @@ export default function NetworkModal({
   const [requestSaveProfile] = useUpdateProfileMutation()
   const { userInfo } = useSessionInfo()
   const { mixpanelHandler } = useMixpanel()
+  const [dropIdDraggingOver, setDropIdDraggingOver] = useState<string | undefined>()
   const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
   const [isEdittingMobile, setIsEdittingMobile] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -76,30 +109,43 @@ export default function NetworkModal({
   const droppableRefs = useRef<HTMLDivElement[]>([])
   const { supportedChains } = useChainsConfig()
 
+  const handleDrag = (chainId: string, dropId?: string) => {
+    if (dropId === dropIdDraggingOver) return
+    if (dropId === FAVORITE_DROPZONE_ID && !favoriteChains.includes(chainId)) {
+      setDropIdDraggingOver(FAVORITE_DROPZONE_ID)
+    } else if (dropId === CHAINS_DROPZONE_ID && favoriteChains.includes(chainId)) {
+      setDropIdDraggingOver(CHAINS_DROPZONE_ID)
+    } else {
+      setDropIdDraggingOver(undefined)
+    }
+  }
   const handleDrop = (chainId: string, dropId: string) => {
+    setDropIdDraggingOver(undefined)
+    const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
     if (dropId === FAVORITE_DROPZONE_ID) {
-      const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
-      if (chainInfo && !favoriteChains.includes(chainInfo)) {
-        saveFavoriteChains([...favoriteChains, chainInfo.chainId.toString()])
+      if (chainInfo && !favoriteChains.includes(chainId)) {
+        saveFavoriteChains([...favoriteChains, chainId])
         mixpanelHandler(MIXPANEL_TYPE.ADD_FAVORITE_CHAIN, { fav_chain: chainInfo.name })
       }
     }
-    if (dropId === CHAINS_DROPZONE_ID && favoriteChains.some(fChainId => fChainId === chainId)) {
+    if (dropId === CHAINS_DROPZONE_ID && favoriteChains.includes(chainId)) {
       const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
-      saveFavoriteChains([...favoriteChains.filter(fChainId => fChainId !== chainId)])
+      saveFavoriteChains(favoriteChains.filter(fChainId => fChainId !== chainId))
       chainInfo && mixpanelHandler(MIXPANEL_TYPE.REMOVE_FAVORITE_CHAIN, { remove_chain: chainInfo.name })
     }
   }
 
   const handleFavoriteChangeMobile = (chainId: string, isAdding: boolean) => {
+    const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
     if (isAdding) {
-      const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
-      if (chainInfo && !favoriteChains.includes(chainInfo)) {
-        saveFavoriteChains([...favoriteChains, chainInfo.chainId.toString()])
+      if (chainInfo && !favoriteChains.includes(chainId)) {
+        saveFavoriteChains([...favoriteChains, chainId])
+        mixpanelHandler(MIXPANEL_TYPE.ADD_FAVORITE_CHAIN, { fav_chain: chainInfo.name })
       }
     } else {
-      if (favoriteChains.some(fChainId => fChainId === chainId)) {
-        saveFavoriteChains([...favoriteChains.filter(fChainId => fChainId !== chainId)])
+      if (chainInfo && favoriteChains.includes(chainId)) {
+        saveFavoriteChains(favoriteChains.filter(fChainId => fChainId !== chainId))
+        mixpanelHandler(MIXPANEL_TYPE.REMOVE_FAVORITE_CHAIN, { remove_chain: chainInfo.name })
       }
     }
   }
@@ -120,6 +166,9 @@ export default function NetworkModal({
         activeChainIds={activeChainIds}
         isSelected={selectedId === networkInfo.chainId}
         disabledMsg={disabledMsg}
+        onDrag={(dropId?: string) => {
+          handleDrag(networkInfo.chainId.toString(), dropId)
+        }}
         onDrop={(dropId: string) => {
           handleDrop(networkInfo.chainId.toString(), dropId)
         }}
@@ -144,7 +193,7 @@ export default function NetworkModal({
       onDismiss={toggleNetworkModal}
       maxWidth={624}
       zindex={Z_INDEXS.MODAL}
-      height="500px"
+      minHeight="500px"
     >
       <Wrapper ref={wrapperRef}>
         <RowBetween>
@@ -199,11 +248,17 @@ export default function NetworkModal({
               }
             }}
             id={FAVORITE_DROPZONE_ID}
+            style={{ position: 'relative', minHeight: '50px' }}
           >
+            <DropzoneOverlay show={dropIdDraggingOver === FAVORITE_DROPZONE_ID} text={t`Add to favorite`} />
             {favoriteChains.length === 0 ? (
-              <Row border={'1px dashed ' + theme.text + '32'} borderRadius="99px" padding="8px 12px" justify="center">
+              <Row border={'1px dashed ' + theme.text + '32'} borderRadius="99px" padding="16px 12px" justify="center">
                 <Text fontSize="10px" lineHeight="14px" color={theme.subText}>
-                  <Trans>Drag your favourite chain(s) here</Trans>
+                  {isMobile ? (
+                    <Trans>Select your favourite chain(s)</Trans>
+                  ) : (
+                    <Trans>Drag your favourite chain(s) here</Trans>
+                  )}
                 </Text>
               </Row>
             ) : (
@@ -228,20 +283,24 @@ export default function NetworkModal({
               <Trans>Please connect to the appropriate chain.</Trans>
             </TYPE.main>
           )}
-          <NetworkList
+          <div
             ref={ref => {
               if (ref) {
                 droppableRefs.current[1] = ref
               }
             }}
             id={CHAINS_DROPZONE_ID}
+            style={{ position: 'relative', minHeight: '50px' }}
           >
-            {supportedChains
-              .filter(chain => !favoriteChains.some(i => i === chain.chainId.toString()))
-              .map((networkInfo: NetworkInfo) => {
-                return renderNetworkButton(networkInfo, true)
-              })}
-          </NetworkList>
+            <DropzoneOverlay show={dropIdDraggingOver === CHAINS_DROPZONE_ID} text={t`Remove from favorite`} />
+            <NetworkList>
+              {supportedChains
+                .filter(chain => !favoriteChains.some(i => i === chain.chainId.toString()))
+                .map((networkInfo: NetworkInfo) => {
+                  return renderNetworkButton(networkInfo, true)
+                })}
+            </NetworkList>
+          </div>
         </Column>
       </Wrapper>
     </Modal>
