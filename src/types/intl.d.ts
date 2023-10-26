@@ -1,5 +1,5 @@
 declare namespace Intl {
   interface NumberFormatOptions {
-    roundingPriority: 'auto' | 'morePrecision' | 'lessPrecision'
+    roundingPriority?: 'auto' | 'morePrecision' | 'lessPrecision'
   }
 }

@@ -67,7 +67,7 @@ const subscriptMap: { [key: string]: string } = {
 }
 
 const log10 = (n: Fraction): number => {
-  const parsedN = Number(n.toSignificant(30))
+  const parsedN = Number(n.toFixed(100))
   return Math.log10(parsedN)
 }
 
@@ -91,14 +91,16 @@ const parseNumPart = (str: string): [string, string, string, string, string, str
 const parseString = (value: string): Fraction => {
   try {
     const [negative, _currency, integer, decimal, exponentUnit, e, _unit] = parseNumPart(value)
+    const trimedNumerator = (negative + integer.replace(/,/g, '') + decimal).replace(/^0+/, '').replace(/^-0+/, '-')
     const exponent =
       Number(e || '0') +
       Number(exponentUnit ? unitMapping[exponentUnit.toLowerCase().trim()] ?? '0' : '0') -
       decimal.length
+
     if (exponent > 0) {
-      return new Fraction(negative + integer.replace(/,/g, '') + decimal + '0'.repeat(exponent), 1)
+      return new Fraction(trimedNumerator + '0'.repeat(exponent), 1)
     }
-    return new Fraction(negative + integer.replace(/,/g, '') + decimal, 10 ** -exponent)
+    return new Fraction(trimedNumerator, '1' + '0'.repeat(-exponent))
   } catch (e) {
     return new Fraction(0, 1)
   }
@@ -115,12 +117,12 @@ export const parseFraction = (value: FormatValue): Fraction => {
       value instanceof Price
     ) {
       const valueStr = (() => {
-        if (typeof value === 'string') return parseString(value).toFixed(18)
+        if (typeof value === 'string') return parseString(value).toFixed(100)
         if (typeof value === 'number') return toString(value)
         if (value instanceof BigNumber) return value.toString()
         if (value instanceof CurrencyAmount) return value.toFixed(value.currency.decimals)
         if (value instanceof Price) return value.toFixed(18)
-        if (value instanceof Percent) return value.divide(100).toFixed(18)
+        if (value instanceof Percent) return value.divide(100).toFixed(100)
         return '0'
       })()
       return new Fraction(valueStr.replace('.', ''), '1' + '0'.repeat(valueStr.split('.')[1]?.length || 0))
@@ -190,13 +192,13 @@ export const formatDisplayNumber = (
   const absShownFraction = shownFraction.lessThan(0) ? shownFraction.multiply(-1) : shownFraction
 
   if (absShownFraction.lessThan(BIG_INT_ONE) && !shownFraction.equalTo(BIG_INT_ZERO)) {
-    const decimal = shownFraction.toSignificant(Math.max(30, significantDigits || 0, fractionDigits || 0)).split('.')[1]
+    const decimal = shownFraction.toFixed(100).split('.')[1]
     const negative = shownFraction.lessThan(BIG_INT_ZERO) ? '-' : ''
     const numberOfLeadingZeros = -Math.floor(log10(absShownFraction) + 1)
     const slicedDecimal = decimal
       .replace(/^0+/, '')
-      .slice(0, fractionDigits)
-      .slice(0, significantDigits || 6)
+      .slice(0, fractionDigits ? fractionDigits : 30)
+      .slice(0, significantDigits ? significantDigits : 30)
       .replace(/0+$/, '')
 
     if (numberOfLeadingZeros > 3) {
@@ -223,21 +225,8 @@ export const formatDisplayNumber = (
     maximumFractionDigits: fractionDigits,
     minimumSignificantDigits: significantDigits ? 1 : undefined,
     maximumSignificantDigits: significantDigits,
-    roundingPriority: 'lessPrecision',
+    roundingPriority: fractionDigits && significantDigits ? 'lessPrecision' : undefined,
   })
 
-  const result = formatter.format(
-    Number(parsedFraction.toSignificant(Math.max(30, significantDigits || 0, fractionDigits || 0))),
-  )
-
-  // Intl.NumberFormat does not handle maximumFractionDigits well when used along with maximumSignificantDigits
-  // It might return number with longer fraction digits than maximumFractionDigits
-  // Hence, we have to do an additional step that manually slice those oversize fraction digits
-  // if (fractionDigits !== undefined) {
-  //   const [negative, currency, integer, decimal, exponentUnit, _exponent, unit] = parseNumPart(result)
-  //   const trimedSlicedDecimal = decimal?.slice(0, fractionDigits).replace(/0+$/, '')
-  //   if (trimedSlicedDecimal) return negative + currency + integer + '.' + trimedSlicedDecimal + exponentUnit + unit
-  //   return negative + currency + integer + unit
-  // }
-  return result
+  return formatter.format(Number(parsedFraction.toFixed(100)))
 }
