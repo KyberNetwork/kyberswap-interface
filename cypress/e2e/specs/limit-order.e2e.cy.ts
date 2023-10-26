@@ -6,7 +6,7 @@ const tokenSymbols = TOKEN_SYMBOLS[NETWORK]
 
 const tokenCatalog = new TokenCatalog();
 
-describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
+describe(`Limit Order on ${NETWORK}`, { tags: TAG.smoke }, () => {
     beforeEach(() => {
         SwapPage.open(DEFAULT_URL)
         SwapPage.goToLimitOrder()
