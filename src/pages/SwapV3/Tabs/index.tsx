@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { stringify } from 'querystring'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -78,12 +78,21 @@ export default function Tabs({ activeTab, setActiveTab }: Props) {
 
   const { pathname } = useLocation()
 
-  const isParnetSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const isParnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+
+  const [searchParams] = useSearchParams()
+  let features = (searchParams.get('features') || '')
+    .split(',')
+    .filter(item => [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN].includes(item))
+  if (!features.length) features = [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN]
+
+  const show = (tab: TAB) => (isParnerSwap ? features.includes(tab) : true)
+
   const onClickTab = (tab: TAB) => {
     if (activeTab === tab) {
       return
     }
-    if (isParnetSwap) {
+    if (isParnerSwap) {
       setActiveTab(tab)
       return
     }
@@ -101,15 +110,17 @@ export default function Tabs({ activeTab, setActiveTab }: Props) {
   return (
     <TabContainer>
       <TabWrapper>
-        <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={TAB.SWAP === activeTab}>
-          <Text fontSize={20} fontWeight={500}>
-            <Trans>Swap</Trans>
-          </Text>
-        </Tab>
-        {isSupportLimitOrder(chainId) && (
+        {show(TAB.SWAP) && (
+          <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={TAB.SWAP === activeTab}>
+            <Text fontSize={20} fontWeight={500}>
+              <Trans>Swap</Trans>
+            </Text>
+          </Tab>
+        )}
+        {show(TAB.LIMIT) && isSupportLimitOrder(chainId) && (
           <LimitTab onClick={() => onClickTab(TAB.LIMIT)} active={activeTab === TAB.LIMIT} />
         )}
-        {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+        {show(TAB.CROSS_CHAIN) && CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
           <Tab onClick={() => onClickTab(TAB.CROSS_CHAIN)} isActive={activeTab === TAB.CROSS_CHAIN}>
             <Text fontSize={20} fontWeight={500}>
               <Trans>Cross-Chain</Trans>

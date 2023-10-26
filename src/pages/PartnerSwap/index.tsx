@@ -41,13 +41,11 @@ import useTokenNotInDefault from 'pages/SwapV3/useTokenNotInDefault'
 import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
-import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 
 import PopulatedSwapForm from '../SwapV3/PopulatedSwapForm'
-import KyberAIWidget from '../TrueSightV2/components/KyberAIWidget'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 
@@ -86,7 +84,6 @@ export default function Swap() {
   const { chainId } = useActiveWeb3React()
   const isShowTradeRoutes = useShowTradeRoutes()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
 
@@ -194,7 +191,7 @@ export default function Swap() {
       <PageWrapper>
         <Banner />
         <Container>
-          <SwapFormWrapper isShowTutorial={isShowTutorial}>
+          <SwapFormWrapper isShowTutorial={false}>
             <Header activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
 
             <AppBodyWrapped style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}>
@@ -276,7 +273,6 @@ export default function Swap() {
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
         </Flex>
-        <KyberAIWidget />
       </PageWrapper>
     </>
   )
