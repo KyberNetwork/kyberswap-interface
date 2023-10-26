@@ -48,17 +48,18 @@ const useValidateInputError = ({
         const formatNum = formatDisplayNumber(remainBalance, {
           style: 'decimal',
           fractionDigits: 6,
-          allowNegative: true,
+          allowDisplayNegative: true,
         })
         return (
           <Text sx={{ cursor: 'pointer' }}>
             <Trans>
-              You don&apos;t have sufficient {currencyIn?.symbol} balance. After your active orders, you have{' '}
+              Insufficient {currencyIn?.symbol} balance.
+              <br />
               <Text as="b" color={theme.primary} onClick={() => setInputValue(remainBalance.toExact())}>
                 {!remainBalance.equalTo(JSBI.BigInt(0)) ? '~' : ''}
                 {formatNum} {currencyIn?.symbol}
               </Text>{' '}
-              left.
+              remaining after deducting Active and Open orders.
             </Trans>
           </Text>
         )

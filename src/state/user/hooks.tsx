@@ -502,13 +502,13 @@ export const useIsWhiteListKyberAI = () => {
     userInfo && getParticipantInfoQuery()
   }, [getParticipantInfoQuery, userInfo])
 
-  const { account } = useActiveWeb3React()
   const [connectingWallet] = useIsConnectingWallet()
 
   const isLoading = isFetching || pendingAuthentication
   const loadingDebounced = useDebounce(isLoading, 500) || connectingWallet
 
-  const participantInfo = isError || loadingDebounced || !account ? participantDefault : rawData
+  const participantInfo = isError || loadingDebounced ? participantDefault : rawData
+
   return {
     loading: loadingDebounced,
     isWhiteList: true,

@@ -143,7 +143,7 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
           style: 'percent',
           fractionDigits: 2,
           significantDigits: 6,
-          allowNegative: true,
+          allowDisplayNegative: true,
         })
       : ''
 

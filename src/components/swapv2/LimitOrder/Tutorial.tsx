@@ -10,6 +10,7 @@ import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Row from 'components/Row'
 import { DOCS_LINKS } from 'components/swapv2/LimitOrder/const'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
@@ -50,6 +51,12 @@ const ContentItem = ({ text }: { text: ReactNode }) => {
 }
 export default function Tutorial({ onClose }: { onClose: () => void }) {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
+
+  const onGetStart = () => {
+    mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_GET_STARTED)
+    onClose()
+  }
 
   return (
     <Wrapper>
@@ -68,11 +75,11 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
           <ContentItem
             text={
               <Trans>
-                Place orders on thousands on tokens for{' '}
+                Place orders on thousands of tokens for{' '}
                 <Text as="span" fontWeight={'500'} color={theme.primary}>
-                  <Trans>FREE</Trans>
+                  <Trans>Free</Trans>
                 </Text>
-                .
+                !
               </Trans>
             }
           />
@@ -82,9 +89,9 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
               <Trans>
                 Cancel and edit orders for{' '}
                 <Text as="span" fontWeight={'500'} color={theme.primary}>
-                  <Trans>FREE</Trans>
+                  <Trans>Free</Trans>
                 </Text>
-                .
+                !
               </Trans>
             }
           />
@@ -97,7 +104,7 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
             Learn more about our limit orders <ExternalLink href={DOCS_LINKS.USER_GUIDE}>here</ExternalLink>.
           </Trans>
         </Text>
-        <ButtonPrimary height="40px" width={'100%'} onClick={onClose}>
+        <ButtonPrimary height="40px" width={'100%'} onClick={onGetStart}>
           <Trans>Get Started</Trans>
         </ButtonPrimary>
       </Column>
