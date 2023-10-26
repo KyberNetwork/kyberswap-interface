@@ -31,6 +31,13 @@ export const LimitOrderLocators = {
   lblErrorMessage: '[data-testid=error-message]'
 }
 
+export const CrossChainLocators = {
+  btnCrossChain: '[data-testid=cross-chain-tab]',
+  btnNetworkIn: '[data-testid=swap-currency-input] [data-testid=network-button]',
+  btnNetworkOut: '[data-testid=swap-currency-output] [data-testid=network-button]',
+  btnUnderstand: '[data-testid=understand-button]'
+}
+
 export const WalletLocators = {
   btnConnectWallet: '[data-testid=button-connect-wallet]',
   btnMetaMask: '[data-testid=connect-METAMASK]',
@@ -40,7 +47,7 @@ export const WalletLocators = {
 
 export const NetworkLocators = {
   btnSelectNetwork: '[data-testid=select-network]',
-  btnNetwork: '[data-testid=network-button]',
+  btnNetwork: '[data-testid=network-list]',
 }
 
 export const HeaderLocators = {

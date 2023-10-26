@@ -235,6 +235,7 @@ export default function NetworkModal({
               }
             }}
             id={CHAINS_DROPZONE_ID}
+            data-testid="network-list"
           >
             {supportedChains
               .filter(chain => !favoriteChains.some(i => i === chain.chainId.toString()))
