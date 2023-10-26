@@ -109,6 +109,7 @@ const App = () => {
         tokenList={[]}
         provider={ethersProvider}
         defaultTokenOut={defaultTokenOut[chainId]}
+        title={<div>Custom Title</div>}
         onTxSubmit={(hash, data) => {
           console.log(hash, data)
         }}

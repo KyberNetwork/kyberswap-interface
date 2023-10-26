@@ -1,4 +1,4 @@
-import { StrictMode, useState } from 'react'
+import { ReactNode, StrictMode, useState } from 'react'
 import styled, { ThemeProvider } from 'styled-components'
 import { defaultTheme, Theme } from '../../theme'
 import { ReactComponent as SettingIcon } from '../../assets/setting.svg'
@@ -150,6 +150,7 @@ export interface WidgetProps {
   feeSetting?: FeeSetting
   onTxSubmit?: (txHash: string, data: any) => void
   enableDexes?: string
+  title?: string | ReactNode
 }
 
 const Widget = ({
@@ -160,6 +161,7 @@ const Widget = ({
   onTxSubmit,
   enableRoute,
   enableDexes,
+  title,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
@@ -168,6 +170,7 @@ const Widget = ({
   onTxSubmit?: (txHash: string, data: any) => void
   enableRoute: boolean
   enableDexes?: string
+  title?: string | ReactNode
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null)
   const { chainId } = useActiveWeb3()
@@ -405,7 +408,7 @@ const Widget = ({
         </PoweredBy>
       </DialogWrapper>
       <Title>
-        Swap
+        {title || 'Swap'}
         <SettingBtn onClick={() => setShowModal(ModalType.SETTING)}>
           <SettingIcon />
         </SettingBtn>
@@ -665,6 +668,7 @@ export default function SwapWidget({
   onTxSubmit,
   enableRoute = true,
   enableDexes,
+  title,
 }: WidgetProps) {
   return (
     <StrictMode>
@@ -679,6 +683,7 @@ export default function SwapWidget({
               onTxSubmit={onTxSubmit}
               enableRoute={enableRoute}
               enableDexes={enableDexes}
+              title={title}
             />
           </TokenListProvider>
         </Web3Provider>
