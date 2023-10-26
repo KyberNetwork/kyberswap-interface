@@ -48,7 +48,7 @@ const useValidateInputError = ({
         const formatNum = formatDisplayNumber(remainBalance, {
           style: 'decimal',
           fractionDigits: 6,
-          allowNegative: true,
+          allowDisplayNegative: true,
         })
         return (
           <Text sx={{ cursor: 'pointer' }}>

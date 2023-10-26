@@ -46,7 +46,12 @@ export const TokenInfo = ({
             </Text>{' '}
             <Text as="span" color={+priceChange > 0 ? theme.apr : theme.red}>
               ({+priceChange > 0 && '+'}
-              {formatDisplayNumber(+priceChange / 100, { style: 'percent', fractionDigits: 2, allowNegative: true })})
+              {formatDisplayNumber(+priceChange / 100, {
+                style: 'percent',
+                fractionDigits: 2,
+                allowDisplayNegative: true,
+              })}
+              )
             </Text>
           </Text>
         )}

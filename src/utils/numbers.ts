@@ -141,8 +141,8 @@ type FormatOptions = {
   fractionDigits?: number // usually for percent  & currency styles
   significantDigits?: number // usually for decimal style
   fallback?: string
-  allowNegative?: boolean
-  allowZero?: boolean
+  allowDisplayNegative?: boolean
+  allowDisplayZero?: boolean
 }
 interface RequiredFraction extends FormatOptions {
   fractionDigits: number // usually for percent  & currency styles
@@ -173,8 +173,8 @@ export const formatDisplayNumber = (
     significantDigits,
     fractionDigits,
     fallback = '--',
-    allowNegative = false,
-    allowZero = true,
+    allowDisplayNegative = false,
+    allowDisplayZero = true,
   }: RequiredFraction | RequiredSignificant,
 ): string => {
   const currency = style === 'currency' ? '$' : ''
@@ -183,8 +183,8 @@ export const formatDisplayNumber = (
 
   if (value === undefined || value === null || Number.isNaN(value)) return fallbackResult
   const parsedFraction = parseFraction(value)
-  if (!allowNegative && parsedFraction.lessThan(BIG_INT_ZERO)) return fallbackResult
-  if (!allowZero && parsedFraction.equalTo(BIG_INT_ZERO)) return fallbackResult
+  if (!allowDisplayNegative && parsedFraction.lessThan(BIG_INT_ZERO)) return fallbackResult
+  if (!allowDisplayZero && parsedFraction.equalTo(BIG_INT_ZERO)) return fallbackResult
 
   const shownFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
   const absShownFraction = shownFraction.lessThan(0) ? shownFraction.multiply(-1) : shownFraction
@@ -223,6 +223,7 @@ export const formatDisplayNumber = (
     maximumFractionDigits: fractionDigits,
     minimumSignificantDigits: significantDigits ? 1 : undefined,
     maximumSignificantDigits: significantDigits,
+    roundingPriority: 'lessPrecision',
   })
 
   const result = formatter.format(
@@ -232,11 +233,11 @@ export const formatDisplayNumber = (
   // Intl.NumberFormat does not handle maximumFractionDigits well when used along with maximumSignificantDigits
   // It might return number with longer fraction digits than maximumFractionDigits
   // Hence, we have to do an additional step that manually slice those oversize fraction digits
-  if (fractionDigits !== undefined) {
-    const [negative, currency, integer, decimal, exponentUnit, _exponent, unit] = parseNumPart(result)
-    const trimedSlicedDecimal = decimal?.slice(0, fractionDigits).replace(/0+$/, '')
-    if (trimedSlicedDecimal) return negative + currency + integer + '.' + trimedSlicedDecimal + exponentUnit + unit
-    return negative + currency + integer + unit
-  }
+  // if (fractionDigits !== undefined) {
+  //   const [negative, currency, integer, decimal, exponentUnit, _exponent, unit] = parseNumPart(result)
+  //   const trimedSlicedDecimal = decimal?.slice(0, fractionDigits).replace(/0+$/, '')
+  //   if (trimedSlicedDecimal) return negative + currency + integer + '.' + trimedSlicedDecimal + exponentUnit + unit
+  //   return negative + currency + integer + unit
+  // }
   return result
 }
