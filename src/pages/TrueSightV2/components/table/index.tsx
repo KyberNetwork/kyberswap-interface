@@ -9,7 +9,7 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoingecko } from 'services/coingecko'
-import styled, { css } from 'styled-components'
+import styled, { DefaultTheme, css } from 'styled-components'
 
 import { ButtonAction, ButtonLight } from 'components/Button'
 import Column from 'components/Column'
@@ -129,12 +129,14 @@ const StyledLoadingWrapper = styled.div`
 
 const LoadingHandleWrapper = ({
   isLoading,
+  isFetching,
   hasData,
   children,
   height,
   style,
 }: {
   isLoading: boolean
+  isFetching?: boolean
   hasData: boolean
   children: ReactNode
   height?: string
@@ -142,7 +144,7 @@ const LoadingHandleWrapper = ({
 }) => {
   return (
     <TableWrapper style={{ ...style, minHeight: height }}>
-      <Table>
+      <Table style={{ opacity: isFetching ? 0.4 : 1 }}>
         {!hasData ? (
           <tr style={{ backgroundColor: 'unset' }}>
             <StyledLoadingWrapper style={height ? { height } : undefined}>
@@ -176,7 +178,6 @@ export const Top10HoldersTable = () => {
         <col style={{ width: '300px', minWidth: '150px' }} />
         <col style={{ width: '300px' }} />
         <col style={{ width: '300px' }} />
-        {/* <col style={{ width: '500px' }} /> */}
       </colgroup>
       <thead>
         <tr>
@@ -566,7 +567,7 @@ const TableTab = styled.div<{ active?: boolean }>`
         `
       : css`
           color: ${theme.subText};
-          background-color: ${theme.buttonBlack};
+          background-color: ${theme.background};
         `}
 `
 
@@ -583,7 +584,7 @@ const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_T
       centerType: activeTab === ChartTab.First ? 'dex' : activeTab === ChartTab.Second ? 'cex' : 'all',
       category: activeTab === ChartTab.Third ? 'perpetual' : 'spot',
     },
-    { skip: !assetOverview?.cmcId && type !== LIQUIDITY_MARKETS_TYPE.COINMARKETCAP, refetchOnMountOrArgChange: true },
+    { skip: !assetOverview?.cmcId && type !== LIQUIDITY_MARKETS_TYPE.COINMARKETCAP },
   )
 
   const marketPairs = data?.data?.marketPairs || []
@@ -591,9 +592,10 @@ const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_T
   const coingeckoAPI = useCoingeckoAPI()
 
   const { data: cgkData, isFetching: cgkFetching } = useGetLiquidityMarketsCoingecko(
-    { coingeckoAPI, id: assetOverview?.cgkId },
-    { skip: !assetOverview?.cgkId && type !== LIQUIDITY_MARKETS_TYPE.COINGECKO, refetchOnMountOrArgChange: true },
+    { coingeckoAPI, id: 'ethereum' },
+    { skip: !assetOverview?.cgkId && type !== LIQUIDITY_MARKETS_TYPE.COINGECKO },
   )
+  console.log('🚀 ~ file: index.tsx:595 ~ useLiquidityMarketsData ~ cgkData:', cgkData)
   return {
     cmcData: marketPairs,
     cgkData: cgkData?.tickers || [],
@@ -602,16 +604,7 @@ const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_T
   }
 }
 
-export const LiquidityMarkets = () => {
-  const theme = useTheme()
-  const { data: assetOverview } = useKyberAIAssetOverview()
-
-  const [type, setType] = useState<LIQUIDITY_MARKETS_TYPE | undefined>()
-  const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
-
-  const { cmcData, cgkData, isFetching, hasData } = useLiquidityMarketsData(activeTab, type)
-  console.log('🚀 ~ file: index.tsx:613 ~ LiquidityMarkets ~ cmcData:', cmcData)
-
+const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_TYPE) => {
   const tabs: Array<{ title: string; tabId: ChartTab }> = useMemo(() => {
     if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
       return [
@@ -628,6 +621,129 @@ export const LiquidityMarkets = () => {
     }
     return []
   }, [type])
+
+  const headers: Array<{ title: string; style?: CSSProperties }> = useMemo(() => {
+    if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
+      if (activeTab === ChartTab.First) {
+        return [
+          { title: t`Exchange` },
+          { title: t`Token pair` },
+          { title: t`Current price` },
+          { title: t`24h volume` },
+          { title: t`Action`, style: { textAlign: 'right' } },
+        ]
+      }
+      if (activeTab === ChartTab.Second) {
+        return [{ title: t`Exchange` }, { title: t`Token pair` }, { title: t`Current price` }, { title: t`24h volume` }]
+      }
+      if (activeTab === ChartTab.Third) {
+        return [
+          { title: t`Exchange` },
+          { title: t`Token pair` },
+          { title: t`Current price` },
+          { title: t`24h volume` },
+          { title: t`Funding rate` },
+        ]
+      }
+    }
+    if (type === LIQUIDITY_MARKETS_TYPE.COINGECKO) {
+      return [
+        { title: t`Exchange` },
+        { title: t`Token pair` },
+        { title: t`Current price` },
+        { title: t`24h volume` },
+        { title: t`Action`, style: { textAlign: 'right' } },
+      ]
+    }
+    return []
+  }, [type, activeTab])
+
+  const renderCMCRow = (item: any, index: number, theme: DefaultTheme) => (
+    <tr key={index}>
+      <td>
+        <Row gap="12px">
+          <img
+            src={`https://s2.coinmarketcap.com/static/img/exchanges/64x64/${item.exchangeId}.png`}
+            loading="lazy"
+            alt="exchange logo"
+            style={{ width: '36px', height: '36px' }}
+          />
+          <Text color={theme.text}>{item.exchangeName}</Text>
+        </Row>
+      </td>
+      <td>
+        <Text color={theme.text}>{item.marketPair}</Text>
+      </td>
+      <td>
+        <Text color={theme.text}>${formatTokenPrice(item.price)}</Text>
+      </td>
+      <td>
+        <Text color={theme.text}>${formatShortNum(item.volumeUsd)}</Text>
+      </td>
+      {activeTab === ChartTab.First && (
+        <td>
+          <Row justify="flex-end">
+            <ButtonAction as="a" href={item.marketUrl} target="_blank" color={theme.primary} style={{ padding: '6px' }}>
+              <Icon id="truesight-v2" size={20} />
+            </ButtonAction>
+          </Row>
+        </td>
+      )}
+      {activeTab === ChartTab.Third && (
+        <td>
+          <Row>
+            <Text color={theme.text}>{item.fundingRate ? (item.fundingRate * 100).toFixed(2) + '%' : '--'}</Text>
+          </Row>
+        </td>
+      )}
+    </tr>
+  )
+
+  const renderCGKRow = (item: any, index: number, theme: DefaultTheme) => (
+    <tr key={index}>
+      <td>
+        <Row gap="12px">
+          <img src={item.market.logo} loading="lazy" alt="exchange logo" style={{ width: '36px', height: '36px' }} />
+          <Text color={theme.text}>{item.market.name}</Text>
+        </Row>
+      </td>
+      <td>
+        <Text color={theme.text}>{item.base + '/' + item.target}</Text>
+      </td>
+      <td>
+        <Text color={theme.text}>${formatTokenPrice(item.converted_last.usd)}</Text>
+      </td>
+      <td>
+        <Text color={theme.text}>${formatShortNum(item.converted_volume.usd)}</Text>
+      </td>
+      <td>
+        <Row justify="flex-end">
+          <ButtonAction color={theme.primary} style={{ padding: '6px' }}>
+            <Icon id="truesight-v2" size={20} />
+          </ButtonAction>
+        </Row>
+      </td>
+    </tr>
+  )
+
+  return {
+    tabs,
+    headers,
+    renderCMCRow,
+    renderCGKRow,
+  }
+}
+
+export const LiquidityMarkets = () => {
+  const theme = useTheme()
+  const { data: assetOverview } = useKyberAIAssetOverview()
+
+  const [type, setType] = useState<LIQUIDITY_MARKETS_TYPE | undefined>()
+  const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
+
+  const { cmcData, cgkData, isFetching, hasData } = useLiquidityMarketsData(activeTab, type)
+  console.log('🚀 ~ file: index.tsx:738 ~ LiquidityMarkets ~ cgkData:', cgkData)
+  const { tabs, headers, renderCMCRow, renderCGKRow } = useRenderLiquidityMarkets(activeTab, type)
 
   useEffect(() => {
     if (assetOverview) {
@@ -651,109 +767,33 @@ export const LiquidityMarkets = () => {
           ))}
         </RowFit>
         <LoadingHandleWrapper
-          isLoading={isFetching}
-          hasData={!isFetching && hasData}
-          height="500px"
+          isLoading={isFetching && !hasData}
+          isFetching={isFetching && hasData}
+          hasData={hasData}
           style={{ borderRadius: 0 }}
         >
           <colgroup>
-            <col width="200px" />
-            <col width="150px" />
-            <col width="150px" />
-            <col width="150px" />
-            <col width="100px" />
+            {new Array(headers.length).fill(0).map((_, index) => (
+              <col key={index} />
+            ))}
           </colgroup>
           <thead>
             <tr>
-              <th>Exchange</th>
-              <th>Token Pair</th>
-              <th>Current Price</th>
-              <th>24h Volume</th>
-              <th style={{ textAlign: 'right' }}>Action</th>
+              {headers.map((item, index) => (
+                <th style={item.style} key={index}>
+                  {item.title}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody style={{ fontSize: '14px', lineHeight: '20px' }}>
-            {cmcData.map((item: any, index: number) => {
-              return (
-                <tr key={index}>
-                  <td>
-                    <Row gap="12px">
-                      <img
-                        src={`https://s2.coinmarketcap.com/static/img/exchanges/64x64/${item.exchangeId}.png`}
-                        loading="lazy"
-                        alt="exchange logo"
-                        style={{ width: '36px', height: '36px' }}
-                      />
-                      <Text color={theme.text}>{item.exchangeName}</Text>
-                    </Row>
-                  </td>
-                  <td>
-                    <Text color={theme.text}>{item.marketPair}</Text>
-                  </td>
-                  <td>
-                    <Text color={theme.text}>${formatTokenPrice(item.price)}</Text>
-                  </td>
-                  <td>
-                    <Text color={theme.text}>${formatShortNum(item.volumeUsd)}</Text>
-                  </td>
-                  <td>
-                    {activeTab === ChartTab.First && (
-                      <Row justify="flex-end">
-                        <ButtonAction
-                          as="a"
-                          href={item.marketUrl}
-                          target="_blank"
-                          color={theme.primary}
-                          style={{ padding: '6px' }}
-                        >
-                          <Icon id="truesight-v2" size={20} />
-                        </ButtonAction>
-                      </Row>
-                    )}
-                    {activeTab === ChartTab.Third && (
-                      <Row justify="flex-end">
-                        <Text color={theme.text}>
-                          {item.fundingRate ? (item.fundingRate * 100).toFixed(2) + '%' : '--'}
-                        </Text>
-                      </Row>
-                    )}
-                  </td>
-                </tr>
-              )
-            })}
-            {cgkData.map((item: any, index: number) => {
-              return (
-                <tr key={index}>
-                  <td>
-                    <Row gap="12px">
-                      <img
-                        src={item.market.logo}
-                        loading="lazy"
-                        alt="exchange logo"
-                        style={{ width: '36px', height: '36px' }}
-                      />
-                      <Text color={theme.text}>{item.market.name}</Text>
-                    </Row>
-                  </td>
-                  <td>
-                    <Text color={theme.text}>{item.coin_id + '/' + item.target_coin_id}</Text>
-                  </td>
-                  <td>
-                    <Text color={theme.text}>${formatTokenPrice(item.converted_last.usd)}</Text>
-                  </td>
-                  <td>
-                    <Text color={theme.text}>${formatShortNum(item.converted_volume.usd)}</Text>
-                  </td>
-                  <td>
-                    <Row justify="flex-end">
-                      <ButtonAction color={theme.primary} style={{ padding: '6px' }}>
-                        <Icon id="truesight-v2" size={20} />
-                      </ButtonAction>
-                    </Row>
-                  </td>
-                </tr>
-              )
-            })}
+            {type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP
+              ? cmcData.map((item: any, index: number) => {
+                  return renderCMCRow(item, index, theme)
+                })
+              : cgkData.map((item: any, index: number) => {
+                  return renderCGKRow(item, index, theme)
+                })}
           </tbody>
         </LoadingHandleWrapper>
       </Column>

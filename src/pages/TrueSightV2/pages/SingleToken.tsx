@@ -620,9 +620,11 @@ export default function SingleToken() {
             <DisplaySettings currentTab={currentTab} />
           </RowFit>
         </Row>
-        {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
-        {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
-        {currentTab === DiscoverTokenTab.LiquidityAnalysis && <LiquidityAnalysis />}
+        <div style={{ minHeight: '80vh' }}>
+          {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
+          {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
+          {currentTab === DiscoverTokenTab.LiquidityAnalysis && <LiquidityAnalysis />}
+        </div>
       </ChartStatesContext.Provider>
       <KyberAIShareModal
         isOpen={showShare}
