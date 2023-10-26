@@ -3,12 +3,15 @@ import { t } from '@lingui/macro'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { useMemo } from 'react'
 
+import { NotificationType } from 'components/Announcement/type'
 import { NativeCurrencies } from 'constants/tokens'
+import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { calculateGasMargin } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
 import { checkAndCreateUnwrapSOLInstruction, createWrapSOLInstructions } from 'utils/solanaInstructions'
 
 import { useActiveWeb3React, useWeb3Solana } from './index'
@@ -47,6 +50,7 @@ export default function useWrapCallback(
   const inputAmount = useMemo(() => tryParseAmount(typedValue, inputCurrency ?? undefined), [inputCurrency, typedValue])
   const addTransactionWithType = useTransactionAdder()
   const { connection } = useWeb3Solana()
+  const notify = useNotify()
 
   return useMemo(() => {
     if ((!wethContract && isEVM) || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
@@ -103,7 +107,16 @@ export default function useWrapCallback(
                   }
                   throw new Error()
                 } catch (error) {
-                  console.error('Could not deposit', error)
+                  const message = friendlyError(error)
+                  console.error('Wrap error:', { message, error })
+                  notify(
+                    {
+                      title: t`Wrap Error`,
+                      summary: message,
+                      type: NotificationType.ERROR,
+                    },
+                    8000,
+                  )
                   return
                 }
               }
@@ -164,7 +177,16 @@ export default function useWrapCallback(
                   }
                   throw new Error()
                 } catch (error) {
-                  console.error('Could not withdraw', error)
+                  const message = friendlyError(error)
+                  console.error('Unwrap error:', { message, error })
+                  notify(
+                    {
+                      title: t`Unwrap Error`,
+                      summary: message,
+                      type: NotificationType.ERROR,
+                    },
+                    8000,
+                  )
                   return
                 }
               }
@@ -192,5 +214,6 @@ export default function useWrapCallback(
     addTransactionWithType,
     forceWrap,
     connection,
+    notify,
   ])
 }

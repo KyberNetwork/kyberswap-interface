@@ -137,7 +137,7 @@ export default function Vote() {
   const [pendingText, setPendingText] = useState<string>('')
 
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
-  const [transactionError, setTransactionError] = useState()
+  const [transactionError, setTransactionError] = useState<string | undefined>(undefined)
   const totalStakedAmount = stakerInfo ? stakerInfo?.stake_amount + stakerInfo?.pending_stake_amount : 0
   const votePowerAmount: number = useMemo(
     () =>
@@ -187,7 +187,7 @@ export default function Vote() {
   }, [claimVotingRewards, remainingCumulativeAmount, toggleClaimConfirmModal])
 
   const handleVote = useCallback(
-    async (proposal_id: number, option: number) => {
+    async (proposal_id: number, option: number): Promise<boolean> => {
       // only can vote when user has staked amount
       setPendingText(t`Vote submitting`)
       setShowConfirm(true)
@@ -196,12 +196,13 @@ export default function Vote() {
         const tx = await vote(proposal_id, option)
         setAttemptingTxn(false)
         setTxHash(tx)
-        return Promise.resolve(true)
+        return true
       } catch (error) {
         setShowConfirm(false)
+        setAttemptingTxn(false)
         setTransactionError(error?.message)
         setTxHash(undefined)
-        return Promise.reject(error)
+        throw error
       }
     },
     [vote],

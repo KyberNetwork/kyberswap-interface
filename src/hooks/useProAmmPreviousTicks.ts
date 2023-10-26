@@ -1,4 +1,4 @@
-import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
@@ -88,7 +88,10 @@ export function useTotalFeeOwedByElasticPosition(
   pool: Pool | null | undefined,
   tokenID: string | undefined,
   asWETH = false,
-) {
+): {
+  feeOwed: [undefined, undefined] | [CurrencyAmount<Currency>, CurrencyAmount<Currency>]
+  loading: boolean
+} {
   const tickReader = useProAmmTickReader()
   const poolAddress = useProAmmPoolInfo(pool?.token0, pool?.token1, pool?.fee)
   const { chainId } = useActiveWeb3React()

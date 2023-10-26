@@ -57,7 +57,6 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
   )
 
   return {
-    zapContract,
     calculateZapInAmounts,
     calculateZapOutAmount,
   }

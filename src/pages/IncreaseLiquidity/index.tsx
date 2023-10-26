@@ -28,7 +28,10 @@ import ProAmmPriceRangeConfirm from 'components/ProAmm/ProAmmPriceRangeConfirm'
 import Rating from 'components/Rating'
 import { RowBetween } from 'components/Row'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
+import TransactionConfirmationModal, {
+  ConfirmationModalContent,
+  TransactionErrorContent,
+} from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS } from 'constants/index'
@@ -37,7 +40,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import { useProAmmDerivedPositionInfo } from 'hooks/useProAmmDerivedPositionInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
@@ -102,7 +105,7 @@ export default function IncreaseLiquidity() {
     }
   }, [chainId, prevChainId, navigate])
 
-  const positionManager = useProAmmNFTPositionManagerContract()
+  const positionManager = useProAmmNFTPositionManagerReadingContract()
 
   // check for existing position if tokenId in url
   const { position: existingPositionDetails } = useProAmmPositionsFromTokenId(
@@ -239,6 +242,11 @@ export default function IncreaseLiquidity() {
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
+  const [transactionError, setTransactionError] = useState<string | undefined>(undefined)
+  useEffect(() => {
+    if (!showConfirm) setTransactionError(undefined)
+  }, [showConfirm])
+
   async function onAdd() {
     if (!isEVM || !library || !account || !tokenId) {
       return
@@ -314,6 +322,7 @@ export default function IncreaseLiquidity() {
           if (!didUserReject(error)) {
             console.error(error)
           }
+          setTransactionError(error.message)
         })
     } else {
       return
@@ -426,57 +435,61 @@ export default function IncreaseLiquidity() {
         onDismiss={handleDismissConfirmation}
         attemptingTxn={attemptingTxn}
         hash={txHash}
-        content={() => (
-          <ConfirmationModalContent
-            title={t`Increase Liquidity`}
-            onDismiss={handleDismissConfirmation}
-            topContent={() =>
-              existingPosition && (
-                <div style={{ marginTop: '1rem' }}>
-                  <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} showRemoved={false} />
-                  <ProAmmPooledTokens
-                    liquidityValue0={parsedAmounts[Field.CURRENCY_A]}
-                    liquidityValue1={parsedAmounts[Field.CURRENCY_B]}
-                    title={t`Increase Amount`}
-                  />
-                  <ProAmmPriceRangeConfirm position={existingPosition} ticksAtLimit={ticksAtLimit} />
-                </div>
-              )
-            }
-            bottomContent={() => (
-              <>
-                {slippageStatus === SLIPPAGE_STATUS.HIGH && (
-                  <WarningCard padding="10px 16px" m="0 0 20px">
-                    <Flex alignItems="center">
-                      <AlertTriangle stroke={theme.warning} size="16px" />
-                      <TYPE.black ml="12px" fontSize="12px" flex={1}>
-                        <Trans>
-                          <TextUnderlineColor
-                            style={{ minWidth: 'max-content' }}
-                            as="a"
-                            href={SLIPPAGE_EXPLANATION_URL}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            Slippage
-                          </TextUnderlineColor>
-                          <TextUnderlineTransparent sx={{ ml: '0.5ch' }}>
-                            is high. Your transaction may be front-run
-                          </TextUnderlineTransparent>
-                        </Trans>
-                      </TYPE.black>
-                    </Flex>
-                  </WarningCard>
-                )}
-                <ButtonPrimary id="btnSupply" onClick={onAdd}>
-                  <Text fontWeight={500}>
-                    <Trans>Supply</Trans>
-                  </Text>
-                </ButtonPrimary>
-              </>
-            )}
-          />
-        )}
+        content={() =>
+          transactionError ? (
+            <TransactionErrorContent onDismiss={handleDismissConfirmation} message={transactionError} />
+          ) : (
+            <ConfirmationModalContent
+              title={t`Increase Liquidity`}
+              onDismiss={handleDismissConfirmation}
+              topContent={() =>
+                existingPosition && (
+                  <div style={{ marginTop: '1rem' }}>
+                    <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} showRemoved={false} />
+                    <ProAmmPooledTokens
+                      liquidityValue0={parsedAmounts[Field.CURRENCY_A]}
+                      liquidityValue1={parsedAmounts[Field.CURRENCY_B]}
+                      title={t`Increase Amount`}
+                    />
+                    <ProAmmPriceRangeConfirm position={existingPosition} ticksAtLimit={ticksAtLimit} />
+                  </div>
+                )
+              }
+              bottomContent={() => (
+                <>
+                  {slippageStatus === SLIPPAGE_STATUS.HIGH && (
+                    <WarningCard padding="10px 16px" m="0 0 20px">
+                      <Flex alignItems="center">
+                        <AlertTriangle stroke={theme.warning} size="16px" />
+                        <TYPE.black ml="12px" fontSize="12px" flex={1}>
+                          <Trans>
+                            <TextUnderlineColor
+                              style={{ minWidth: 'max-content' }}
+                              as="a"
+                              href={SLIPPAGE_EXPLANATION_URL}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Slippage
+                            </TextUnderlineColor>
+                            <TextUnderlineTransparent sx={{ ml: '0.5ch' }}>
+                              is high. Your transaction may be front-run
+                            </TextUnderlineTransparent>
+                          </Trans>
+                        </TYPE.black>
+                      </Flex>
+                    </WarningCard>
+                  )}
+                  <ButtonPrimary id="btnSupply" onClick={onAdd}>
+                    <Text fontWeight={500}>
+                      <Trans>Supply</Trans>
+                    </Text>
+                  </ButtonPrimary>
+                </>
+              )}
+            />
+          )
+        }
         pendingText={pendingText}
       />
       <Container>

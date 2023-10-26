@@ -10,6 +10,7 @@ import { AlertTriangle } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
@@ -35,7 +36,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import DisclaimerERC20 from 'pages/AddLiquidityV2/components/DisclaimerERC20'
 import { Dots, Wrapper } from 'pages/MyPool/styleds'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -45,6 +46,7 @@ import { useDegenModeManager, usePairAdderByTokens, useUserSlippageTolerance } f
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
 import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
+import { friendlyError } from 'utils/errorMessage'
 import {
   getDynamicFeeRouterContract,
   getOldStaticFeeRouterContract,
@@ -89,6 +91,7 @@ const TokenPair = ({
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
 
   const [isDegenMode] = useDegenModeManager()
+  const notify = useNotify()
 
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
@@ -310,20 +313,31 @@ const TokenPair = ({
           }
         }),
       )
-      .catch(err => {
+      .catch(error => {
         setAttemptingTxn(false)
-        const e = new Error('Classic: Add liquidity Error', { cause: err })
-        e.name = 'AddLiquidityError'
-        captureException(e, { extra: { args } })
-        // we only care if the error is something _other_ than the user rejected the tx
-        if (!didUserReject(error)) {
-          console.error(err)
+
+        const message = error.message.includes('INSUFFICIENT')
+          ? t`Insufficient liquidity available. Please reload page and try again!`
+          : friendlyError(error)
+
+        if (isDegenMode) {
+          notify(
+            {
+              title: t`Add Liquidity Error`,
+              summary: message,
+              type: NotificationType.ERROR,
+            },
+            8000,
+          )
+        } else {
+          setAddLiquidityError(message)
         }
 
-        if (err.message.includes('INSUFFICIENT')) {
-          setAddLiquidityError(t`Insufficient liquidity available. Please reload page and try again!`)
-        } else {
-          setAddLiquidityError(err?.message)
+        if (!didUserReject(error)) {
+          console.error('Add Liquidity error:', { message, error })
+          const e = new Error(message, { cause: error })
+          e.name = 'AddLiquidityError'
+          captureException(e, { extra: { args } })
         }
       })
   }
@@ -395,7 +409,11 @@ const TokenPair = ({
           </Text>
         </RowFlat>
         <Row>
-          <Text fontSize="24px">{'DMM ' + nativeA?.symbol + '/' + nativeB?.symbol + ' LP Tokens'}</Text>
+          <Text fontSize="24px">
+            <Trans>
+              DMM {nativeA?.symbol}/{nativeB?.symbol} LP Tokens
+            </Trans>
+          </Text>
         </Row>
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
           {t`Output is estimated. If the price changes by more than ${
