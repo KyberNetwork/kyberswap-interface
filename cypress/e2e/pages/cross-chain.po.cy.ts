@@ -28,13 +28,11 @@ export const CrossChain = {
     },
 
     checkLoadedPage() {
-        return cy.get('.recharts-surface', { timeout: 10000 }).should('be.visible').then($obj => {
+        return cy.get(CrossChainLocators.rechartsSurface, { timeout: 10000 }).should(() => { }).then($obj => {
             if ($obj.length > 0) {
                 return true
             }
-            else {
-                return false
-            }
+            return false
         })
     },
 

@@ -17,7 +17,6 @@ describe(`Cross-chain on ${NETWORK}`, { tags: TAG.regression }, () => {
     describe('Select network', () => {
         it('The network should be changed successfully', () => {
             const networkIn = CrossChain.changeNetwork([NETWORK])
-            console.log('networkIn: ', networkIn)
             CrossChain.selectNetworkIn(networkIn)
             CrossChain.getCurrentNetworkIn().then((currentNetworkIn) => {
                 expect(currentNetworkIn).to.equal(networkIn)
@@ -27,7 +26,6 @@ describe(`Cross-chain on ${NETWORK}`, { tags: TAG.regression }, () => {
                 const networkOut = CrossChain.changeNetwork([networkIn, currentNetworkOut])
                 cy.wait(1000)
                 CrossChain.selectNetworkOut(networkOut)
-                console.log('networkOut: ', networkOut)
                 CrossChain.getCurrentNetworkOut().then((currentNetworkOut) => {
                     expect(currentNetworkOut).to.equal(networkOut)
                 })
