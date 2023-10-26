@@ -1,8 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ReactNode, Suspense, lazy, useCallback, useMemo, useRef, useState } from 'react'
+import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -103,9 +103,15 @@ export default function Swap() {
     [searchParams, setSearchParams],
   )
 
-  const previousTab = usePreviousDistinct(activeTab)
+  const navigate = useNavigate()
+  const clientId = searchParams.get('clientId')
+  useEffect(() => {
+    if (!clientId) navigate('/')
+  }, [clientId, navigate])
 
   const isSetting = isSettingTab(activeTab)
+  const previousTab = usePreviousDistinct(!isSetting ? activeTab : undefined)
+
   const isSwapPage = activeTab === TAB.SWAP || (previousTab === TAB.SWAP && isSetting)
   const isLimitPage = activeTab === TAB.LIMIT || (previousTab === TAB.LIMIT && isSetting)
   const isCrossChainPage = activeTab === TAB.CROSS_CHAIN || (previousTab === TAB.CROSS_CHAIN && isSetting)

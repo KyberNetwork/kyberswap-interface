@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -70,6 +70,9 @@ type TooltipTextOfSwapFeeProps = {
   feeAmountText: string
 }
 export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
+  const [searchParams] = useSearchParams()
+  const clientId = searchParams.get('clientId')
+
   const feePercent = formatDisplayNumber(Number(feeBips) / Number(BIPS_BASE.toString()), {
     style: 'percent',
     fractionDigits: 2,
@@ -84,6 +87,10 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
 
   if (!feeAmountText || !feePercent) {
     return <Trans>Read more about the fees {hereLink}</Trans>
+  }
+
+  if (clientId) {
+    return <Trans>Swap fees charged by {clientId}.</Trans>
   }
 
   return (
