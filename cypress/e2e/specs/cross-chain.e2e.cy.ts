@@ -3,7 +3,7 @@ import { SwapPage } from "../pages/swap-page.po.cy"
 import { DEFAULT_URL, NETWORK, TAG } from "../selectors/constants.cy"
 
 
-describe(`Cross-chain on ${NETWORK}`, { tags: TAG.smoke }, () => {
+describe(`Cross-chain on ${NETWORK}`, { tags: TAG.regression }, () => {
     beforeEach(() => {
         SwapPage.open(DEFAULT_URL)
         SwapPage.goToCrossChain()
