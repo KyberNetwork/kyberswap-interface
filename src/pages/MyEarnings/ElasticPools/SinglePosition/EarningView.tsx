@@ -3,7 +3,6 @@ import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import CommonView, { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
@@ -13,6 +12,7 @@ import OriginalMyEarningsOverTimePanel from 'pages/MyEarnings/MyEarningsOverTime
 import { calculateEarningStatsTick } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick } from 'types/myEarnings'
+import { getNativeTokenLogo } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
@@ -24,7 +24,7 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
 const EarningView: React.FC<CommonProps> = props => {
   const { positionEarning, chainId } = props
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
-  const nativeLogo = useGetNativeTokenLogo(chainId)
+  const nativeLogo = getNativeTokenLogo(chainId)
 
   // format pool value
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {

@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import Loader from 'components/Loader'
 import { CurrencyRow } from 'components/SearchModal/CurrencyList'
+import { useActiveWeb3React } from 'hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
 
 const PanelTokenWrapper = styled.div`
@@ -55,6 +56,7 @@ function CurrencyList({
   loading: boolean
 }) {
   const ethBalance = useNativeBalance()
+  const { account } = useActiveWeb3React()
   return (
     <PanelTokenWrapper>
       {loading ? (
@@ -77,6 +79,7 @@ function CurrencyList({
           const balance = currency.isNative ? ethBalance : currencyBalances[currency.wrapped.address]
           return (
             <CurrencyRow
+              account={account}
               showFavoriteIcon={false}
               currency={currency}
               key={currency.wrapped.address + currency.symbol}
