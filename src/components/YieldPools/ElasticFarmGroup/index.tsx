@@ -18,7 +18,7 @@ import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'compo
 import { FARM_TAB, SORT_DIRECTION, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/MyPool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -228,7 +228,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
     })
 
   const toggleWalletModal = useWalletModalToggle()
-  const posManager = useProAmmNFTPositionManagerContract()
+  const posManager = useProAmmNFTPositionManagerReadingContract()
 
   const res = useSingleCallResult(posManager, 'isApprovedForAll', [account || ZERO_ADDRESS, address])
   const isApprovedForAll = res?.result?.[0]
@@ -241,7 +241,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
   const handleApprove = async () => {
     if (!isApprovedForAll) {
       const tx = await approve()
-      setApprovalTx(tx)
+      tx && setApprovalTx(tx)
     }
   }
 

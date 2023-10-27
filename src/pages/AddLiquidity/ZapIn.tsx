@@ -9,6 +9,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
@@ -36,7 +37,7 @@ import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Dots, Wrapper } from 'pages/MyPool/styleds'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
 import { useDerivedZapInInfo, useMintState, useZapInActionHandlers } from 'state/mint/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -48,6 +49,7 @@ import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
+import { friendlyError } from 'utils/errorMessage'
 import { getZapContract } from 'utils/getContract'
 import isZero from 'utils/isZero'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -87,6 +89,7 @@ const ZapIn = ({
   const [zapInError, setZapInError] = useState<string>('')
 
   const [isDegenMode] = useDegenModeManager()
+  const notify = useNotify()
 
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
@@ -277,21 +280,31 @@ const ZapIn = ({
           }
         }),
       )
-      .catch(err => {
+      .catch(error => {
         setAttemptingTxn(false)
-        const e = new Error('Classic: ZapIn liquidity Error', { cause: err })
-        e.name = 'ZapError'
-        captureException(e, { extra: { args } })
 
-        // we only care if the error is something _other_ than the user rejected the tx
-        if (!didUserReject(err)) {
-          console.error(err)
+        const message = error.message.includes('INSUFFICIENT_MINT_QTY')
+          ? t`Insufficient liquidity available. Please reload page and try again!`
+          : friendlyError(error)
+
+        if (isDegenMode) {
+          notify(
+            {
+              title: t`Add Liquidity Error`,
+              summary: message,
+              type: NotificationType.ERROR,
+            },
+            8000,
+          )
+        } else {
+          setZapInError(message)
         }
 
-        if (err.message.includes('INSUFFICIENT_MINT_QTY')) {
-          setZapInError(t`Insufficient liquidity available. Please reload page and try again!`)
-        } else {
-          setZapInError(err?.message)
+        if (!didUserReject(error)) {
+          console.error('Zap in error:', { message, error })
+          const e = new Error(message, { cause: error })
+          e.name = 'ZapError'
+          captureException(e, { extra: { args } })
         }
       })
   }
@@ -394,7 +407,11 @@ const ZapIn = ({
           </Text>
         </RowFlat>
         <Row>
-          <Text fontSize="24px">{'DMM ' + nativeA?.symbol + '/' + nativeB?.symbol + ' LP Tokens'}</Text>
+          <Text fontSize="24px">
+            <Trans>
+              DMM {nativeA?.symbol}/{nativeB?.symbol} LP Tokens
+            </Trans>
+          </Text>
         </Row>
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
           {t`Output is estimated. If the price changes by more than ${

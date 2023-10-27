@@ -14,8 +14,9 @@ import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { permitUpdate } from 'state/user/actions'
 import { usePermitData } from 'state/user/hooks'
+import { friendlyError } from 'utils/errorMessage'
 
-import { useContract } from './useContract'
+import { useReadingContract } from './useContract'
 import useMixpanel, { MIXPANEL_TYPE } from './useMixpanel'
 
 // 24 hours
@@ -33,7 +34,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const { library } = useWeb3React()
   const dispatch = useDispatch()
   const notify = useNotify()
-  const eipContract = useContract(currency?.address, EIP_2612, false)
+  const eipContract = useReadingContract(currency?.address, EIP_2612)
   const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
 
   const permitData = usePermitData(currency?.address)
@@ -90,7 +91,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       spender: routerAddress,
       value: parseUnits(currencyAmount.toExact(), currency.decimals).toString(),
       nonce: tokenNonceState.result[0].toNumber(),
-      deadline: deadline,
+      deadline,
     }
 
     const data = JSON.stringify({
@@ -158,8 +159,17 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
           account: account,
         }),
       )
-    } catch (e) {
-      console.log(e)
+    } catch (error) {
+      const message = friendlyError(error)
+      console.error('Permit error:', { message, error })
+      notify(
+        {
+          title: t`Permit Error`,
+          summary: message,
+          type: NotificationType.ERROR,
+        },
+        8000,
+      )
     }
   }, [
     account,
@@ -172,6 +182,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     dispatch,
     tokenNonceState.result,
     overwritedPermitData,
+    notify,
   ])
 
   return { permitState, permitCallback: signPermitCallback, permitData }
