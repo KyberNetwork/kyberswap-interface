@@ -5,7 +5,7 @@ import { ImageProps } from 'rebass'
 import styled from 'styled-components'
 
 import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
-import useChainsConfig from 'hooks/useChainsConfig'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
@@ -40,7 +40,6 @@ export default function Logo({ srcs, alt, ...rest }: LogoProps) {
 }
 
 export function NetworkLogo({ chainId, style = {} }: { chainId: ChainId; style?: CSSProperties }) {
-  const { NETWORKS_INFO } = useChainsConfig()
   const { icon } = NETWORKS_INFO[chainId]
   if (!icon) return null
   return <img src={icon} alt="Switch Network" style={style} />
