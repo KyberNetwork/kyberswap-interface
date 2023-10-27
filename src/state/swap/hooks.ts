@@ -1,8 +1,6 @@
-import { parseUnits } from '@ethersproject/units'
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import JSBI from 'jsbi'
 import { ParsedUrlQuery } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -35,6 +33,7 @@ import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
+import { parseFraction } from 'utils/numbers'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
 export function useSwapState(): AppState['swap'] {
@@ -146,21 +145,17 @@ export function useSwapActionHandlers(): {
 }
 
 // try to parse a user entered amount for a given token
-export function tryParseAmount<T extends Currency>(
-  value?: string,
-  currency?: T,
-  shouldParse = true,
-): CurrencyAmount<T> | undefined {
+export function tryParseAmount<T extends Currency>(value?: string, currency?: T): CurrencyAmount<T> | undefined {
   if (!value || !currency) {
     return undefined
   }
   try {
-    const typedValueParsed = shouldParse ? parseUnits(value, currency.decimals).toString() : value
-    if (typedValueParsed !== '0') {
-      return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(typedValueParsed))
-    }
+    const typedValueParsed = parseFraction(value)
+      .multiply(10 ** currency.decimals)
+      .toFixed(0)
+    const result = CurrencyAmount.fromRawAmount(currency, typedValueParsed)
+    return result
   } catch (error) {
-    if (error.message.includes('fractional component exceeds decimals')) return undefined
     // should fail if the user specifies too many decimal places of precision (or maybe exceed max uint?)
     console.debug(`Failed to parse input amount: "%s"`, value, error)
   }
