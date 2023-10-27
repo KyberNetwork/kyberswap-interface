@@ -14,7 +14,7 @@ import { ReactComponent as StarMultiplierIcon } from 'assets/svg/star_multiplier
 import ProgressBar from 'components/ProgressBar'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { DEFAULT_SIGNIFICANT, RESERVE_USD_DECIMALS } from 'constants/index'
-import useChainsConfig from 'hooks/useChainsConfig'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { CampaignData, CampaignStatus, CampaignUserInfoStatus, ConditionGroupsType } from 'state/campaigns/actions'
 
@@ -120,7 +120,6 @@ function CampaignItem({ campaign, onSelectCampaign, isSelected, style }: Campaig
     console.log(error)
   }
 
-  const { NETWORKS_INFO } = useChainsConfig()
   const isOngoing = campaign.status === CampaignStatus.ONGOING
   const rCampaignName = campaign.name
   const rCampaignStatus = campaign.status === CampaignStatus.UPCOMING ? t`Upcoming` : isOngoing ? t`Ongoing` : t`Ended`

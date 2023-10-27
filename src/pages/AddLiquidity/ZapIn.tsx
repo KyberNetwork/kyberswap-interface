@@ -180,7 +180,7 @@ const ZapIn = ({
   )
 
   const userInCurrencyAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
-    return tryParseAmount(typedValue, currencies[independentField]?.wrapped, true)
+    return tryParseAmount(typedValue, currencies[independentField]?.wrapped)
   }, [currencies, independentField, typedValue])
 
   const userIn = useMemo(() => {

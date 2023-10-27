@@ -13,7 +13,7 @@ import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
-import useChainsConfig from 'hooks/useChainsConfig'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { detectInjectedType, isEVMWallet, isSolanaWallet } from 'utils'
@@ -33,7 +33,6 @@ export function useActiveWeb3React(): {
   const rawChainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const isWrongNetwork = !isSupportedChainId(rawChainIdState)
   const chainIdState = isWrongNetwork ? ChainId.MAINNET : rawChainIdState
-  const { NETWORKS_INFO } = useChainsConfig()
   /**Hook for EVM infos */
   const {
     connector: connectedConnectorEVM,
