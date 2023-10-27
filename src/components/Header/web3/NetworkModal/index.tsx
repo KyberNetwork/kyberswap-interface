@@ -290,6 +290,7 @@ export default function NetworkModal({
               }
             }}
             id={CHAINS_DROPZONE_ID}
+            data-testid="network-list"
             style={{ position: 'relative', minHeight: '50px' }}
           >
             <DropzoneOverlay show={dropIdDraggingOver === CHAINS_DROPZONE_ID} text={t`Remove from favorite`} />
