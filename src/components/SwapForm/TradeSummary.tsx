@@ -186,6 +186,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
     }
   }, [hasTrade])
 
+  const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
   return (
     <Wrapper $visible={alreadyVisible} $disabled={!hasTrade}>
       <AutoColumn>
@@ -266,7 +267,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
             </TYPE.black>
           </RowBetween>
 
-          {isSupportKyberDao(chainId) && (
+          {!isPartnerSwap && isSupportKyberDao(chainId) && (
             <RowBetween>
               <RowFixed>
                 <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>

@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import routeApi from 'services/route'
 import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRoute'
 import { RouteSummary } from 'services/route/types/getRoute'
@@ -31,6 +32,8 @@ type Args = {
 
 const useBuildRoute = (args: Args) => {
   const { recipient, routeSummary, slippage, transactionTimeout, permit } = args
+  const [searchParams] = useSearchParams()
+  const clientId = searchParams.get('clientId')
   const { chainId, account } = useActiveWeb3React()
   const abortControllerRef = useRef(new AbortController())
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
@@ -58,7 +61,7 @@ const useBuildRoute = (args: Args) => {
       slippageTolerance: slippage,
       sender: account,
       recipient: to || account,
-      source: 'kyberswap',
+      source: clientId || 'kyberswap',
       skipSimulateTx: false,
       permit,
     }
@@ -90,6 +93,7 @@ const useBuildRoute = (args: Args) => {
       }
     }
   }, [
+    clientId,
     account,
     aggregatorDomain,
     chainId,
