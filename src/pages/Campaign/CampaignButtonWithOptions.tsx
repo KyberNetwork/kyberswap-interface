@@ -16,7 +16,7 @@ import { ButtonPrimary } from 'components/Button'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React, useWeb3Solana } from 'hooks'
-import useChainsConfig from 'hooks/useChainsConfig'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -230,7 +230,6 @@ export default function CampaignButtonWithOptions({
   }
 
   const handleSwapNow = useSwapNowHandler()
-  const { NETWORKS_INFO } = useChainsConfig()
 
   return (
     <StyledPrimaryButton
