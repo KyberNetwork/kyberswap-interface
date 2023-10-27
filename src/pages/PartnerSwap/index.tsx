@@ -26,10 +26,11 @@ import {
   SwapFormWrapper,
   highlight,
 } from 'components/swapv2/styleds'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
-import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChain from 'pages/CrossChain'
 import CrossChainLink from 'pages/CrossChain/CrossChainLink'
@@ -80,10 +81,28 @@ export const RoutingIconWrapper = styled(RoutingIcon)`
 `
 
 export default function Swap() {
-  useSyncNetworkParamWithStore()
   const { chainId } = useActiveWeb3React()
-  const isShowTradeRoutes = useShowTradeRoutes()
   const [searchParams, setSearchParams] = useSearchParams()
+
+  const requestChainId = searchParams.get('chainId')
+  const { changeNetwork } = useChangeNetwork()
+
+  const [triedToChangeNetwork, setTriedToChangeNetwork] = useState(false)
+
+  useEffect(() => {
+    // if wallet has already connected, request connect onnce
+    if (
+      !triedToChangeNetwork &&
+      requestChainId &&
+      SUPPORTED_NETWORKS.includes(+requestChainId) &&
+      chainId !== +requestChainId
+    ) {
+      setTriedToChangeNetwork(true)
+      changeNetwork(+requestChainId)
+    }
+  }, [chainId, requestChainId, changeNetwork, triedToChangeNetwork])
+
+  const isShowTradeRoutes = useShowTradeRoutes()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
 
