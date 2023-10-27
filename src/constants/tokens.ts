@@ -445,3 +445,8 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
 export const DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS = 10
+
+export const mKNC: { [chain in ChainId]?: string } = {
+  [ChainId.ARBITRUM]: '0x316772cFEc9A3E976FDE42C3Ba21F5A13aAaFf12',
+  [ChainId.AVAXMAINNET]: '0x39fC9e94Caeacb435842FADeDeCB783589F50f5f',
+}
