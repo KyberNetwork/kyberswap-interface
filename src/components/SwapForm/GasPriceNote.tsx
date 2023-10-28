@@ -29,21 +29,23 @@ const GasFeeAndPriceImpactNote: FC<Props> = ({ gasUsd = 0, priceImpact, isDegenM
     return <PriceImpactNote priceImpact={priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
 
   const limitOrderLink = (
-    <Trans>
-      Do you want to make a{' '}
-      <Text
-        as="span"
-        sx={{ cursor: 'pointer', fontWeight: 'bold' }}
-        color={theme.primary}
-        onClick={() => {
-          mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP)
-          switchToLimitOrder()
-        }}
-      >
-        Limit Order
-      </Text>{' '}
-      instead?
-    </Trans>
+    <Text>
+      <Trans>
+        Do you want to make a{' '}
+        <Text
+          as="span"
+          sx={{ cursor: 'pointer', fontWeight: 'bold' }}
+          color={theme.primary}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP)
+            switchToLimitOrder()
+          }}
+        >
+          Limit Order
+        </Text>{' '}
+        instead?
+      </Trans>
+    </Text>
   )
   return (
     <WarningNote
@@ -53,10 +55,10 @@ const GasFeeAndPriceImpactNote: FC<Props> = ({ gasUsd = 0, priceImpact, isDegenM
             <Trans>Gas fees and Price Impact are very high. You will lose your funds.</Trans>
           ) : (
             <Trans>Gas fees is very high. You will lose your funds.</Trans>
-          )}{' '}
-          {limitOrderLink}
+          )}
         </Text>
       }
+      longText={limitOrderLink}
     />
   )
 }
