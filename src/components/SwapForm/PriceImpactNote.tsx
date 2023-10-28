@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import Column from 'components/Column'
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { checkPriceImpact } from 'utils/prices'
@@ -38,6 +39,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
   const priceImpactResult = checkPriceImpact(priceImpact)
   const theme = useTheme()
   const switchToLimitOrder = useSwitchPairToLimitOrder()
+  const { mixpanelHandler } = useMixpanel()
 
   if (typeof priceImpact !== 'number') {
     return null
@@ -81,7 +83,15 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
     <Text>
       <Trans>
         Do you want to make a{' '}
-        <Text as="b" sx={{ cursor: 'pointer' }} color={theme.primary} onClick={switchToLimitOrder}>
+        <Text
+          as="b"
+          sx={{ cursor: 'pointer' }}
+          color={theme.primary}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP)
+            switchToLimitOrder()
+          }}
+        >
           Limit Order
         </Text>{' '}
         instead?
@@ -108,6 +118,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
         }
         longText={
           <Column gap="4px">
+            {limitOrderNote}
             <Text>
               {isDegenMode ? (
                 <Trans>
@@ -120,7 +131,6 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
                 </Trans>
               )}
             </Text>
-            {limitOrderNote}
           </Column>
         }
       />
