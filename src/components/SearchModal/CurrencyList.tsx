@@ -103,7 +103,7 @@ export function CurrencyRow({
   usdBalance,
   hoverColor,
   hideBalance,
-  account,
+  showLoading,
   isFavorite,
 }: {
   showImported?: boolean
@@ -121,7 +121,7 @@ export function CurrencyRow({
   usdBalance?: number
   hoverColor?: string
   hideBalance?: boolean
-  account?: string
+  showLoading?: boolean
   isFavorite?: boolean
 }) {
   const theme = useTheme()
@@ -136,7 +136,7 @@ export function CurrencyRow({
     '******'
   ) : currencyBalance ? (
     <Balance balance={currencyBalance} />
-  ) : account ? (
+  ) : showLoading ? (
     <Loader />
   ) : null
   const { symbol } = getDisplayTokenInfo(currency)
@@ -251,23 +251,17 @@ function CurrencyList({
         // whitelist
 
         const isFavorite = (() => {
-          if (!favoriteTokens) {
-            return false
-          }
-
-          if (currency.isToken) {
+          if (currency.isToken && favoriteTokens) {
             const addr = (currency as Token).address ?? ''
-            const addresses = favoriteTokens ?? []
-            return !!addresses?.includes(addr) || !!addresses?.includes(addr.toLowerCase())
+            return !!favoriteTokens?.includes(addr) || !!favoriteTokens?.includes(addr.toLowerCase())
           }
-
           return false
         })()
 
         return (
           <CurrencyRow
             isFavorite={isFavorite}
-            account={account}
+            showLoading={!!account}
             showImported={showImported}
             handleClickFavorite={handleClickFavorite}
             removeImportedToken={removeImportedToken}

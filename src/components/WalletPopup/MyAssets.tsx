@@ -61,7 +61,7 @@ export default function MyAssets({
   const nativeBalance = useNativeBalance()
   const navigate = useNavigate()
   const qs = useParsedQueryString()
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   if (hasNetworkIssue)
     return (
@@ -97,7 +97,6 @@ export default function MyAssets({
                   : undefined
               return (
                 <CurrencyRow
-                  account={account}
                   onSelect={() => {
                     navigate({ search: stringify({ ...qs, inputCurrency: currencyId(token, chainId) }) })
                   }}
