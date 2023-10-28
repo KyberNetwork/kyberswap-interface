@@ -6,6 +6,7 @@ import { Text } from 'rebass'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import WarningNote from 'components/WarningNote'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { checkPriceImpact } from 'utils/prices'
@@ -22,6 +23,7 @@ const GasFeeAndPriceImpactNote: FC<Props> = ({ gasUsd = 0, priceImpact, isDegenM
   const { chainId } = useActiveWeb3React()
   const switchToLimitOrder = useSwitchPairToLimitOrder()
   const { isHigh, isVeryHigh } = checkPriceImpact(priceImpact)
+  const { mixpanelHandler } = useMixpanel()
 
   if (+gasUsd < GAS_USD_THRESHOLD || chainId !== ChainId.MAINNET)
     return <PriceImpactNote priceImpact={priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
@@ -29,7 +31,15 @@ const GasFeeAndPriceImpactNote: FC<Props> = ({ gasUsd = 0, priceImpact, isDegenM
   const limitOrderLink = (
     <Trans>
       Do you want to make a{' '}
-      <Text as="span" sx={{ cursor: 'pointer', fontWeight: 'bold' }} color={theme.primary} onClick={switchToLimitOrder}>
+      <Text
+        as="span"
+        sx={{ cursor: 'pointer', fontWeight: 'bold' }}
+        color={theme.primary}
+        onClick={() => {
+          mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP)
+          switchToLimitOrder()
+        }}
+      >
         Limit Order
       </Text>{' '}
       instead?
