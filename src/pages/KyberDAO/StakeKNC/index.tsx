@@ -127,7 +127,7 @@ export default function StakeKNC() {
   const navigate = useNavigate()
   const { mixpanelHandler } = useMixpanel()
   const handleMigrateClick = () => {
-    switchToEthereum().then(() => {
+    switchToEthereum('Migrate').then(() => {
       toggleMigrationModal()
     })
   }

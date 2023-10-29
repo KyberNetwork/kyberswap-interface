@@ -187,7 +187,9 @@ export default function GasRefundBox() {
                     text={
                       <Trans>
                         Gas Refund Rewards is only available on Ethereum chain. Switch your network to continue{' '}
-                        <LinkStyledButton onClick={switchToEthereum}>here</LinkStyledButton>
+                        <LinkStyledButton onClick={() => switchToEthereum(t`Gas refund program`)}>
+                          here
+                        </LinkStyledButton>
                       </Trans>
                     }
                     width="244px"
@@ -256,7 +258,7 @@ export default function GasRefundBox() {
         </Flex>
       </RowBetween>
       <EligibleTxModal isOpen={isShowEligibleTx} closeModal={() => setShowEligibleTx(false)} />
-      <SwitchToEthereumModal featureText={t`Gas refund program`} />
+      <SwitchToEthereumModal />
     </Wrapper>
   )
 }

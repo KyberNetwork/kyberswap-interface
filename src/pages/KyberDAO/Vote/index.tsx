@@ -163,7 +163,7 @@ export default function Vote() {
   const isDelegated = stakerInfo && account ? stakerInfo.delegate?.toLowerCase() !== account.toLowerCase() : false
 
   const handleClaim = useCallback(() => {
-    switchToEthereum().then(() => {
+    switchToEthereum(t`Claim`).then(() => {
       mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_CLAIM_CLICK)
       toggleClaimConfirmModal()
     })
@@ -463,7 +463,7 @@ export default function Vote() {
           <Trans>Note: Voting on KyberDAO is only available on Ethereum chain.</Trans>
         </Text>
         <ProposalListComponent voteCallback={handleVote} />
-        <SwitchToEthereumModal featureText={t`This action`} />
+        <SwitchToEthereumModal />
         <ClaimConfirmModal amount={formatUnitsToFixed(remainingCumulativeAmount)} onConfirmClaim={handleConfirmClaim} />
         <TransactionConfirmationModal
           isOpen={showConfirm}

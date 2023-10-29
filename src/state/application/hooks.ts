@@ -39,6 +39,7 @@ import {
   updateETHPrice,
   updatePrommETHPrice,
 } from './actions'
+import { ModalParams } from './types'
 
 export function useBlockNumber(): number | undefined {
   const { chainId } = useActiveWeb3React()
@@ -46,7 +47,7 @@ export function useBlockNumber(): number | undefined {
   return useSelector((state: AppState) => state.application.blockNumber[chainId])
 }
 
-export const useCloseModal = (modal: ApplicationModal) => {
+export const useCloseModal = (modal: ApplicationModal): (() => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
   const onCloseModal = useCallback(() => {
@@ -61,10 +62,26 @@ export function useModalOpen(modal: ApplicationModal): boolean {
   return openModal === modal
 }
 
-export function useToggleModal(modal: ApplicationModal): () => void {
+export function useModalOpenParams<T extends ApplicationModal>(modal: T): ModalParams[T] | undefined {
+  const openModalParams = useSelector((state: AppState) => state.application.openModalParams[modal])
+  return openModalParams
+}
+
+type OpenModalReturnType<T extends ApplicationModal, U extends ModalParams[T]> = U extends undefined
+  ? () => void
+  : (params: U) => void
+
+export function useToggleModal<T extends ApplicationModal, U extends ModalParams[T]>(
+  modal: T,
+): OpenModalReturnType<T, U> {
   const open = useModalOpen(modal)
   const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(setOpenModal(open ? null : modal)), [dispatch, modal, open])
+  return useCallback(
+    (params?: U) => {
+      dispatch(setOpenModal({ modal: open ? null : modal, params }))
+    },
+    [dispatch, modal, open],
+  ) as OpenModalReturnType<T, U>
 }
 
 export function useToggleNotificationCenter() {
@@ -76,9 +93,16 @@ export function useToggleNotificationCenter() {
   }, [clearAllPopup, toggleNotificationCenter])
 }
 
-export function useOpenModal(modal: ApplicationModal): () => void {
+export function useOpenModal<T extends ApplicationModal, U extends ModalParams[T]>(
+  modal: T,
+): OpenModalReturnType<T, U> {
   const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(setOpenModal(modal)), [dispatch, modal])
+  return useCallback(
+    (params?: U) => {
+      dispatch(setOpenModal({ modal, params }))
+    },
+    [dispatch, modal],
+  ) as OpenModalReturnType<T, U>
 }
 
 export function useNetworkModalToggle(): () => void {
