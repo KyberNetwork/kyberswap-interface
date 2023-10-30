@@ -105,7 +105,7 @@ export default function RewardCenter() {
           console.error('Wrap error:', { message, error })
           notify(
             {
-              title: t`Wrap Error`,
+              title: t`Claim Error`,
               summary: message,
               type: NotificationType.ERROR,
             },
