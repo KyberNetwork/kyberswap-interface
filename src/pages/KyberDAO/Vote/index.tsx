@@ -163,7 +163,7 @@ export default function Vote() {
   const isDelegated = stakerInfo && account ? stakerInfo.delegate?.toLowerCase() !== account.toLowerCase() : false
 
   const handleClaim = useCallback(() => {
-    switchToEthereum(t`Claim`).then(() => {
+    switchToEthereum(t`Claim reward`).then(() => {
       mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_CLAIM_CLICK)
       toggleClaimConfirmModal()
     })
