@@ -256,7 +256,6 @@ export const SUPPORTED_WALLETS = {
     hooks: krystalWalletConnectV2Hooks,
     name: 'Krystal',
     icon: KRYSTAL,
-    installLink: 'https://wallet.krystal.app',
     readyState: detectKrystalWC,
   } as EVMWalletInfo,
   WALLET_CONNECT: {
