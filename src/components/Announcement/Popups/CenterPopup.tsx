@@ -111,6 +111,9 @@ const VIDEO_SIZE = `360px`
 const VideoWrapper = styled.div`
   width: 640px;
   height: ${VIDEO_SIZE};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    max-width: 100%;
+  `}
 `
 
 const whitelistDomains = ['drive.google.com', 'www.youtube.com']
