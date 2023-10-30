@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        network: ['Ethereum', 'Arbitrum', 'Optimism', 'Avalanche', 'BNB']
+        network: ['Ethereum', 'Arbitrum', 'Optimism', 'Avalanche', 'BNB Chain']
     steps:
       - name: Trigger Code Checkout
         uses: actions/checkout@v3

@@ -91,7 +91,7 @@ export function DisclaimerCrossChain() {
             liability for any losses incurred.
           </Trans>
         </TextWrapper>
-        <ButtonWarning style={{ marginTop: 20 }} onClick={handleClickUnderstand}>
+        <ButtonWarning style={{ marginTop: 20 }} onClick={handleClickUnderstand} data-testid="understand-button">
           <Trans>I Understand</Trans>
         </ButtonWarning>
       </Container>

@@ -40,7 +40,11 @@ import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { didUserReject } from 'constants/connectors/utils'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useContract, useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import {
+  useProAmmNFTPositionManagerReadingContract,
+  useProMMFarmSigningContract,
+  useSigningContract,
+} from 'hooks/useContract'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -148,7 +152,7 @@ export default function RemoveLiquidityProAmm() {
 
 function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
-  const positionManager = useProAmmNFTPositionManagerContract()
+  const positionManager = useProAmmNFTPositionManagerReadingContract()
   const theme = useTheme()
   const { networkInfo, account, chainId, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -265,11 +269,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [txnHash, setTxnHash] = useState<string | undefined>()
   const addTransactionWithType = useTransactionAdder()
 
-  const farmV1Contract = useProMMFarmContract(owner)
+  const farmV1Contract = useProMMFarmSigningContract(owner)
 
   const farmV2Address = isFarmV2 ? owner : undefined
-  const farmV2Contract = useContract(farmV2Address, FarmV2ABI)
-  const farmV21Contract = useContract(isFarmV21 ? owner : undefined, FarmV21ABI)
+  const farmV2Contract = useSigningContract(farmV2Address, FarmV2ABI)
+  const farmV21Contract = useSigningContract(isFarmV21 ? owner : undefined, FarmV21ABI)
 
   const handleBroadcastRemoveSuccess = (response: TransactionResponse) => {
     setAttemptingTxn(false)

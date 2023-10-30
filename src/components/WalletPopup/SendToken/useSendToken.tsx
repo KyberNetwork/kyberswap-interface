@@ -7,7 +7,7 @@ import { ethers } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useActiveWeb3React, useWeb3React, useWeb3Solana } from 'hooks'
-import { useTokenContract } from 'hooks/useContract'
+import { useTokenSigningContract } from 'hooks/useContract'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -16,7 +16,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
   const { account, isEVM, walletSolana, isSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [estimateGas, setGasFee] = useState<number | null>(null)
-  const tokenContract = useTokenContract(isSolana ? undefined : currency?.wrapped.address)
+  const tokenContract = useTokenSigningContract(isSolana ? undefined : currency?.wrapped.address)
   const addTransactionWithType = useTransactionAdder()
   const [isSending, setIsSending] = useState(false)
   const { publicKey } = useWallet()

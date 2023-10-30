@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
+import blackjackApi from 'services/blackjack'
 import blockServiceApi from 'services/blockService'
 import campaignApi from 'services/campaign'
 import coingeckoApi from 'services/coingecko'
@@ -123,6 +124,7 @@ const store = configureStore({
     [tokenApi.reducerPath]: tokenApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     [blockServiceApi.reducerPath]: blockServiceApi.reducer,
+    [blackjackApi.reducerPath]: blackjackApi.reducer,
     [knProtocolApi.reducerPath]: knProtocolApi.reducer,
   },
   middleware: getDefaultMiddleware =>
@@ -147,6 +149,7 @@ const store = configureStore({
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
       .concat(blockServiceApi.middleware)
+      .concat(blackjackApi.middleware)
       .concat(knProtocolApi.middleware),
   preloadedState,
 })

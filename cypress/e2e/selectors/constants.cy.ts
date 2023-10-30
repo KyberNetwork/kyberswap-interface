@@ -19,6 +19,8 @@ export const TOKEN_SYMBOLS = {
     'BNB': ['RICE', 'DAI', 'USDT', 'USDC', 'MAI']
 }
 
+export const NETWORK_LIST = ['Ethereum', 'Arbitrum', 'Optimism', 'Avalanche', 'BNB Chain', 'Polygon PoS', 'Fantom', 'Linea', 'Base']
+
 export const UNWHITELIST_TOKENS = {
     "Ethereum":
         [

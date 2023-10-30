@@ -13,7 +13,7 @@ import AddressInputPanel from 'components/AddressInputPanel'
 import { Clock } from 'components/Icons'
 import { AutoRow } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
-import GasPriceNote from 'components/SwapForm/GasPriceNote'
+import GasFeeAndPriceImpactNote from 'components/SwapForm/GasPriceNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
 import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
@@ -37,7 +37,6 @@ import { MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { currencyId } from 'utils/currencyId'
 
-import PriceImpactNote from './PriceImpactNote'
 import RefreshButton from './RefreshButton'
 import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
 import SwapActionButton from './SwapActionButton'
@@ -260,9 +259,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 
-          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
-
-          <GasPriceNote gasUsd={routeSummary?.gasUsd} />
+          <GasFeeAndPriceImpactNote
+            gasUsd={routeSummary?.gasUsd}
+            priceImpact={routeSummary?.priceImpact}
+            isDegenMode={isDegenMode}
+          />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
