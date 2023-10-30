@@ -91,7 +91,13 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
   const headers: Array<{ title: string; style?: CSSProperties }> = useMemo(() => {
     if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
       if (activeTab === ChartTab.First) {
-        return [{ title: t`Exchange` }, { title: t`Token pair` }, { title: t`Current price` }, { title: t`24h volume` }]
+        return [
+          { title: t`Exchange` },
+          { title: t`Token pair` },
+          { title: t`Current price` },
+          { title: t`24h volume` },
+          { title: t`Action`, style: { textAlign: 'right' } },
+        ]
       }
       if (activeTab === ChartTab.Second) {
         return [
@@ -146,13 +152,21 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
       <td>
         <Text color={theme.text}>${formatShortNum(item.volumeUsd)}</Text>
       </td>
-      {activeTab === ChartTab.Second && (
+      {(activeTab === ChartTab.Second || activeTab === ChartTab.First) && (
         <td>
-          <Row justify="flex-end">
-            <ButtonAction as="a" href={item.marketUrl} target="_blank" color={theme.primary} style={{ padding: '6px' }}>
-              <Icon id="truesight-v2" size={20} />
-            </ButtonAction>
-          </Row>
+          {item.marketUrl && (
+            <Row justify="flex-end">
+              <ButtonAction
+                as="a"
+                href={item.marketUrl}
+                target="_blank"
+                color={theme.primary}
+                style={{ padding: '6px' }}
+              >
+                <Icon id="truesight-v2" size={20} />
+              </ButtonAction>
+            </Row>
+          )}
         </td>
       )}
       {activeTab === ChartTab.Third && (
