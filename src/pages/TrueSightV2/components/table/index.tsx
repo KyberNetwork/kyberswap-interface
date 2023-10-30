@@ -2,39 +2,34 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { CSSProperties, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoingecko } from 'services/coingecko'
-import styled, { DefaultTheme, css } from 'styled-components'
+import styled, { css } from 'styled-components'
 
-import { ButtonAction, ButtonLight, ButtonPrimary } from 'components/Button'
+import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import Icon from 'components/Icons/Icon'
 import InfoHelper from 'components/InfoHelper'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
-import Row, { RowBetween, RowFit } from 'components/Row'
+import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import useCoingeckoAPI from 'hooks/useCoingeckoAPI'
-import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
-import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoinmarketcap } from 'pages/TrueSightV2/hooks/useCoinmarketcapData'
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
-import { ChartTab, IHolderList, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
+import { IHolderList, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
   calculateValueToColor,
   colorFundingRateText,
   formatLocaleStringNum,
-  formatShortNum,
   formatTokenPrice,
   navigateToSwapPage,
 } from 'pages/TrueSightV2/utils'
@@ -128,7 +123,7 @@ const StyledLoadingWrapper = styled.div`
   width: 100%;
 `
 
-const LoadingHandleWrapper = ({
+export const LoadingHandleWrapper = ({
   isLoading,
   isFetching,
   hasData,
@@ -547,281 +542,6 @@ export const LiveDEXTrades = () => {
         totalCount={data?.length || 10}
         onPageChange={page => setCurrentPage(page)}
       />
-    </>
-  )
-}
-
-const TableTab = styled.div<{ active?: boolean }>`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  padding: 12px 16px;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  :hover {
-    filter: brightness(1.2);
-  }
-  ${({ active, theme }) =>
-    active
-      ? css`
-          background-color: ${theme.primary + '40'};
-          color: ${theme.primary};
-          border-color: ${theme.primary};
-        `
-      : css`
-          color: ${theme.subText};
-          background-color: ${theme.background};
-        `}
-`
-
-enum LIQUIDITY_MARKETS_TYPE {
-  COINMARKETCAP,
-  COINGECKO,
-}
-
-const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_TYPE) => {
-  const { data: assetOverview } = useKyberAIAssetOverview()
-  const { data, isFetching: cmcFetching } = useGetLiquidityMarketsCoinmarketcap(
-    {
-      id: assetOverview?.cmcId,
-      centerType: activeTab === ChartTab.First ? 'dex' : activeTab === ChartTab.Second ? 'cex' : 'all',
-      category: activeTab === ChartTab.Third ? 'perpetual' : 'spot',
-    },
-    { skip: !assetOverview?.cmcId && type !== LIQUIDITY_MARKETS_TYPE.COINMARKETCAP },
-  )
-
-  const marketPairs = data?.data?.marketPairs || []
-
-  const coingeckoAPI = useCoingeckoAPI()
-
-  const { data: cgkData, isFetching: cgkFetching } = useGetLiquidityMarketsCoingecko(
-    { coingeckoAPI, id: 'ethereum' },
-    { skip: !assetOverview?.cgkId && type !== LIQUIDITY_MARKETS_TYPE.COINGECKO },
-  )
-  return {
-    cmcData: marketPairs,
-    cgkData: cgkData?.tickers.slice(0, 15) || [],
-    isFetching: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? cmcFetching : cgkFetching,
-    hasData: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? !!marketPairs?.length : !!cgkData?.tickers?.length,
-  }
-}
-
-const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_TYPE) => {
-  const tabs: Array<{ title: string; tabId: ChartTab }> = useMemo(() => {
-    if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
-      return [
-        { title: t`Decentralized Exchanges`, tabId: ChartTab.First },
-        { title: t`Centralized Exchanges`, tabId: ChartTab.Second },
-        { title: t`Perpetual Markets`, tabId: ChartTab.Third },
-      ]
-    }
-    if (type === LIQUIDITY_MARKETS_TYPE.COINGECKO) {
-      return [
-        { title: t`Spot Markets`, tabId: ChartTab.First },
-        { title: t`Perpetual Markets`, tabId: ChartTab.Second },
-      ]
-    }
-    return []
-  }, [type])
-
-  const headers: Array<{ title: string; style?: CSSProperties }> = useMemo(() => {
-    if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
-      if (activeTab === ChartTab.First) {
-        return [{ title: t`Exchange` }, { title: t`Token pair` }, { title: t`Current price` }, { title: t`24h volume` }]
-      }
-      if (activeTab === ChartTab.Second) {
-        return [
-          { title: t`Exchange` },
-          { title: t`Token pair` },
-          { title: t`Current price` },
-          { title: t`24h volume` },
-          { title: t`Action`, style: { textAlign: 'right' } },
-        ]
-      }
-      if (activeTab === ChartTab.Third) {
-        return [
-          { title: t`Exchange` },
-          { title: t`Token pair` },
-          { title: t`Current price` },
-          { title: t`24h volume` },
-          { title: t`Funding rate` },
-        ]
-      }
-    }
-    if (type === LIQUIDITY_MARKETS_TYPE.COINGECKO) {
-      return [
-        { title: t`Exchange` },
-        { title: t`Token pair` },
-        { title: t`Current price` },
-        { title: t`24h volume` },
-        { title: t`Action`, style: { textAlign: 'right' } },
-      ]
-    }
-    return []
-  }, [type, activeTab])
-
-  const renderCMCRow = (item: any, index: number, theme: DefaultTheme) => (
-    <tr key={index}>
-      <td>
-        <Row gap="12px">
-          <img
-            src={`https://s2.coinmarketcap.com/static/img/exchanges/64x64/${item.exchangeId}.png`}
-            loading="lazy"
-            alt="exchange logo"
-            style={{ width: '36px', height: '36px' }}
-          />
-          <Text color={theme.text}>{item.exchangeName}</Text>
-        </Row>
-      </td>
-      <td>
-        <Text color={theme.text}>{item.marketPair}</Text>
-      </td>
-      <td>
-        <Text color={theme.text}>${formatTokenPrice(item.price)}</Text>
-      </td>
-      <td>
-        <Text color={theme.text}>${formatShortNum(item.volumeUsd)}</Text>
-      </td>
-      {activeTab === ChartTab.Second && (
-        <td>
-          <Row justify="flex-end">
-            <ButtonAction as="a" href={item.marketUrl} target="_blank" color={theme.primary} style={{ padding: '6px' }}>
-              <Icon id="truesight-v2" size={20} />
-            </ButtonAction>
-          </Row>
-        </td>
-      )}
-      {activeTab === ChartTab.Third && (
-        <td>
-          <Row>
-            <Text color={theme.text}>{item.fundingRate ? (item.fundingRate * 100).toFixed(2) + '%' : '--'}</Text>
-          </Row>
-        </td>
-      )}
-    </tr>
-  )
-
-  const renderCGKRow = (item: any, index: number, theme: DefaultTheme) => (
-    <tr key={index}>
-      <td>
-        <Row gap="12px">
-          <img src={item.market.logo} loading="lazy" alt="exchange logo" style={{ width: '36px', height: '36px' }} />
-          <Text color={theme.text}>{item.market.name}</Text>
-        </Row>
-      </td>
-      <td>
-        <Text color={theme.text}>{item.base + '/' + item.target}</Text>
-      </td>
-      <td>
-        <Text color={theme.text}>${formatTokenPrice(item.converted_last.usd)}</Text>
-      </td>
-      <td>
-        <Text color={theme.text}>${formatShortNum(item.converted_volume.usd)}</Text>
-      </td>
-      <td>
-        <Row justify="flex-end">
-          <ButtonAction as="a" href={item.trade_url} color={theme.primary} style={{ padding: '6px' }}>
-            <Icon id="truesight-v2" size={20} />
-          </ButtonAction>
-        </Row>
-      </td>
-    </tr>
-  )
-
-  return {
-    tabs,
-    headers,
-    renderCMCRow,
-    renderCGKRow,
-  }
-}
-
-export const LiquidityMarkets = () => {
-  const theme = useTheme()
-  const mixpanelHandler = useMixpanelKyberAI()
-  const { data: assetOverview, chain, address } = useKyberAIAssetOverview()
-  const [type, setType] = useState<LIQUIDITY_MARKETS_TYPE | undefined>()
-  const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
-
-  const { cmcData, cgkData, isFetching, hasData } = useLiquidityMarketsData(activeTab, type)
-  const { tabs, headers, renderCMCRow, renderCGKRow } = useRenderLiquidityMarkets(activeTab, type)
-
-  useEffect(() => {
-    if (assetOverview) {
-      setActiveTab(ChartTab.First)
-      if (assetOverview.cmcId) {
-        setType(LIQUIDITY_MARKETS_TYPE.COINMARKETCAP)
-      } else if (assetOverview.cgkId) {
-        setType(LIQUIDITY_MARKETS_TYPE.COINGECKO)
-      }
-    }
-  }, [assetOverview])
-
-  return (
-    <>
-      <Column margin="0px -16px -16px -16px">
-        <RowBetween>
-          <RowFit>
-            {tabs.map(tab => (
-              <TableTab key={tab.tabId} active={activeTab === tab.tabId} onClick={() => setActiveTab(tab.tabId)}>
-                {tab.title}
-              </TableTab>
-            ))}
-          </RowFit>
-          {type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP && activeTab === ChartTab.First && (
-            <ButtonPrimary
-              height={'36px'}
-              width="fit-content"
-              gap="4px"
-              onClick={() => {
-                mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_SWAP_TOKEN_CLICK, {
-                  token_name: assetOverview?.symbol?.toUpperCase(),
-                  network: chain,
-                })
-                navigateToSwapPage({ address, chain })
-              }}
-              style={{ marginRight: '16px' }}
-            >
-              <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
-                <Icon id="swap" size={16} />
-                Swap {assetOverview?.symbol?.toUpperCase()}
-              </RowFit>
-            </ButtonPrimary>
-          )}
-        </RowBetween>
-
-        <LoadingHandleWrapper
-          isLoading={isFetching && !hasData}
-          isFetching={isFetching && hasData}
-          hasData={hasData}
-          style={{ borderRadius: 0 }}
-          minHeight="500px"
-        >
-          <colgroup>
-            {new Array(headers.length).fill(0).map((_, index) => (
-              <col key={index} />
-            ))}
-          </colgroup>
-          <thead>
-            <tr>
-              {headers.map((item, index) => (
-                <th style={item.style} key={index}>
-                  {item.title}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody style={{ fontSize: '14px', lineHeight: '20px' }}>
-            {type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP
-              ? cmcData.map((item: any, index: number) => {
-                  return renderCMCRow(item, index, theme)
-                })
-              : cgkData.map((item: any, index: number) => {
-                  return renderCGKRow(item, index, theme)
-                })}
-          </tbody>
-        </LoadingHandleWrapper>
-      </Column>
     </>
   )
 }

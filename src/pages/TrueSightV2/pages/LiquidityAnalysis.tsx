@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
 import { SectionWrapper } from '../components'
-import { LiquidityMarkets } from '../components/table'
+import LiquidityMarkets from '../components/table/LiquidityMarkets'
 import { KYBERAI_CHART_ID } from '../constants'
 
 const Wrapper = styled.div`
@@ -16,8 +16,8 @@ export default function LiquidityAnalysis() {
   const tokenAnalysisSettings = useTokenAnalysisSettings()
   return (
     <Wrapper>
-      {/* In development */}
-      {/* <SectionWrapper
+      {/* ----In development-----
+      <SectionWrapper
         show={tokenAnalysisSettings?.liquidityProfile}
         id={KYBERAI_CHART_ID.LIQUIDITY_PROFILE}
         title={t`Liquidity Profile`}
@@ -34,7 +34,6 @@ export default function LiquidityAnalysis() {
         title={t`Markets`}
         description={t`View all centralizeds and de-centralized markets on which the token can be traded.`}
         fullscreenButton
-        // shareContent={numberOfTradesNodata ? undefined : () => <NumberofTradesChart noAnimation />}
         docsLinks={[]}
         style={{ height: 'fit-content' }}
       >
