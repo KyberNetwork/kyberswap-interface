@@ -32,6 +32,7 @@ import {
   useWalletModalToggle,
 } from 'state/application/hooks'
 import { useIsConnectingWallet } from 'state/authen/hooks'
+import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
 
@@ -61,7 +62,7 @@ const ContentWrapper = styled.div`
 `
 
 const TermAndCondition = styled.div`
-  padding: 8px 16px;
+  padding: 8px;
   font-size: 12px;
   font-weight: 500;
   line-height: 16px;
@@ -156,6 +157,8 @@ export default function WalletModal() {
   const openNetworkModal = useOpenNetworkModal()
 
   const previousAccount = usePrevious(account)
+
+  const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
 
   const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
@@ -313,19 +316,33 @@ export default function WalletModal() {
           </CloseIcon>
         </RowBetween>
         {(walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET) && (
-          <TermAndCondition>
+          <TermAndCondition
+            onClick={() => {
+              if (!isAcceptedTerm) {
+                mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
+              }
+              setIsAcceptedTerm(!isAcceptedTerm)
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={isAcceptedTerm}
+              data-testid="accept-term"
+              style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
+            />
             <Text color={theme.subText}>
-              <Trans>
-                By connecting a wallet, you accept{' '}
-                <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
-                  KyberSwap&lsquo;s Terms of Use
-                </ExternalLink>{' '}
-                and consent to its{' '}
-                <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
-                  Privacy Policy
-                </ExternalLink>
-                . Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}
-              </Trans>
+              <Trans>Accept </Trans>{' '}
+              <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+                <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
+              </ExternalLink>{' '}
+              <Trans>and</Trans>{' '}
+              <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                <Trans>Privacy Policy</Trans>
+              </ExternalLink>
+              {'. '}
+              <Text fontSize={10} as="span">
+                <Trans>Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}</Trans>
+              </Text>
             </Text>
           </TermAndCondition>
         )}
