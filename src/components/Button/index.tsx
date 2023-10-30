@@ -83,15 +83,15 @@ const disabledPrimary = css<{
 `
 export const ButtonPrimary = styled(Base)`
   background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary};
-  color: ${({ theme }) => theme.textReverse};
+  color: ${({ theme, color }) => color || theme.textReverse};
   &:hover {
-    color: ${({ theme }) => theme.textReverse};
+    color: ${({ theme, color }) => color || theme.textReverse};
     filter: brightness(0.8);
   }
 
   &:active {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.primary)};
-    background-color: ${({ theme }) => darken(0.1, theme.primary)};
+    box-shadow: 0 0 0 1pt ${({ theme, backgroundColor }) => darken(0.1, backgroundColor || theme.primary)};
+    background-color: ${({ theme, backgroundColor }) => darken(0.1, backgroundColor || theme.primary)};
   }
   &:disabled {
     ${disabledPrimary}
@@ -264,7 +264,7 @@ const disabledError = css`
 export const ButtonErrorStyle = styled(Base)`
   background-color: ${({ theme }) => theme.red};
   border: 1px solid ${({ theme }) => theme.red};
-  color: ${({ theme }) => theme.textReverse};
+  color: ${({ theme }) => theme.text};
 
   &:focus {
     box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.red)};
