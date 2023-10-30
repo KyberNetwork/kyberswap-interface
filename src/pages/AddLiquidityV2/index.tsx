@@ -1706,6 +1706,10 @@ export default function AddLiquidity() {
     poolStatRef.current = poolStat
   }
 
+  useEffect(() => {
+    poolStatRef.current = undefined
+  }, [chainId])
+
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const userLiquidityPositionsQueryResult = useUserProMMPositions(usdPrices)
   const userPositions = useMemo(
