@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
-import { TIMES_IN_SECS } from 'constants/index'
+import { APP_PATHS, TIMES_IN_SECS } from 'constants/index'
 
 const LsKey = 'ack-announcements'
 export const getAnnouncementsAckMap = () => JSON.parse(localStorage[LsKey] || '{}')
@@ -28,6 +28,9 @@ export const isPopupCanShow = (
   chainId: ChainId,
   account: string | undefined,
 ) => {
+  if ([APP_PATHS.IAM_CONSENT, APP_PATHS.IAM_LOGIN, APP_PATHS.IAM_LOGOUT].includes(window.location.pathname))
+    return false
+
   const { templateBody = {}, metaMessageId } = popupInfo.content
   const { endAt, startAt, chainIds = [] } = templateBody as AnnouncementTemplatePopup
   const isRightChain = chainIds.includes(chainId + '')
