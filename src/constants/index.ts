@@ -205,6 +205,7 @@ export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show 
 export const APP_PATHS = {
   ABOUT: '/about',
   SWAP: '/swap',
+  PARTNER_SWAP: '/partner-swap',
   CAMPAIGN: '/campaigns',
   FIND_POOL: '/find',
   POOLS: '/pools',

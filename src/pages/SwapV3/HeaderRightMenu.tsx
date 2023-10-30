@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { Dispatch, RefObject, SetStateAction, useState } from 'react'
+import { RefObject, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { MoreHorizontal } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -64,7 +64,7 @@ export default function HeaderRightMenu({
   swapActionsRef,
 }: {
   activeTab: TAB
-  setActiveTab: Dispatch<SetStateAction<TAB>>
+  setActiveTab: (tab: TAB) => void
   swapActionsRef: RefObject<HTMLDivElement>
 }) {
   const theme = useTheme()

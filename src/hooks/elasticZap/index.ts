@@ -221,7 +221,6 @@ export function useZapInAction() {
               skipSimulateTx: false,
             },
             authentication: false,
-            clientId: 'kyberswap-zap',
           })) as { data: BuildRouteResult }
         }
 

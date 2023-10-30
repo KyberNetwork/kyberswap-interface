@@ -30,16 +30,16 @@ const routeApi = createApi({
     }),
     buildRoute: builder.mutation<
       BuildRouteResponse,
-      { url: string; payload: BuildRoutePayload; signal?: AbortSignal; authentication: boolean; clientId?: string }
+      { url: string; payload: BuildRoutePayload; signal?: AbortSignal; authentication: boolean }
     >({
-      query: ({ url, payload, signal, authentication, clientId }) => ({
+      query: ({ url, payload, signal, authentication }) => ({
         url,
         method: 'POST',
         body: payload,
         signal,
         authentication,
         headers: {
-          'x-client-id': clientId || 'kyberswap',
+          'x-client-id': payload.source || 'kyberswap',
         },
       }),
     }),
