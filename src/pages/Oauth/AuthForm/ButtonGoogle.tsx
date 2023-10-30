@@ -7,11 +7,11 @@ import useAutoSignIn from 'pages/Oauth/AuthForm/useAutoSignIn'
 import { FlowStatus } from 'pages/Oauth/Login'
 
 interface Props {
-  outline: boolean
+  primary: boolean
   flowStatus: FlowStatus
 }
 
-const ButtonGoogle: React.FC<Props> = ({ outline, flowStatus }) => {
+const ButtonGoogle: React.FC<Props> = ({ primary, flowStatus }) => {
   const ref = useRef<HTMLButtonElement>(null)
   const { autoLoginMethod } = flowStatus
   const isAutoLogin = autoLoginMethod === LoginMethod.GOOGLE
@@ -32,6 +32,6 @@ const ButtonGoogle: React.FC<Props> = ({ outline, flowStatus }) => {
     children: <Trans>Sign-In with Google</Trans>,
     style: isAutoLogin ? { opacity: 0 } : undefined,
   }
-  return React.createElement(outline ? ButtonOutlined : ButtonPrimary, props)
+  return React.createElement(primary ? ButtonPrimary : ButtonOutlined, props)
 }
 export default ButtonGoogle

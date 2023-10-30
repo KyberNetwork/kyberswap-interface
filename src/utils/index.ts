@@ -10,7 +10,7 @@ import blockServiceApi from 'services/blockService'
 
 import { GET_BLOCKS } from 'apollo/queries'
 import { ENV_KEY } from 'constants/env'
-import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
+import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
 import {
@@ -385,6 +385,13 @@ export const get24hValue = (valueNow: string, value24HoursAgo: string | undefine
   const currentChange = parseFloat(valueNow) - parseFloat(value24HoursAgo)
 
   return currentChange
+}
+
+export const getNativeTokenLogo = (chainId: ChainId) => {
+  return (
+    store.getState()?.lists?.mapWhitelistTokens?.[chainId]?.[ETHER_ADDRESS]?.logoURI ||
+    (chainId ? NETWORKS_INFO[chainId].nativeToken.logo : '')
+  )
 }
 
 export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string => {

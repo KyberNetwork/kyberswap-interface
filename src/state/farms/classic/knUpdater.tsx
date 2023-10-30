@@ -14,7 +14,7 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { setFarmsData, setLoading, setYieldPoolsError } from 'state/farms/classic/actions'
 import { FairLaunchVersion, Farm, FarmV1, FarmV2 } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
-import { getContractForReading } from 'utils/getContract'
+import { getReadingContract } from 'utils/getContract'
 import { parseFraction, toString } from 'utils/numbers'
 
 const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
@@ -88,7 +88,7 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
               if (!account) return {}
               if (!readProvider) return {}
               try {
-                const contract = getContractForReading(
+                const contract = getReadingContract(
                   fairLaunchAddress,
                   version === FairLaunchVersion.V1
                     ? FAIRLAUNCH_ABI

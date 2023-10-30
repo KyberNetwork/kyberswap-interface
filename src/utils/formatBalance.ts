@@ -4,7 +4,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
-export const getFullDisplayBalance = (balance: BigNumber, decimals = 18, significant = 6): string => {
+export const getFullDisplayBalance = (balance: BigNumber | string, decimals = 18, significant = 6): string => {
   if (!balance) {
     return '0'
   }

@@ -28,7 +28,16 @@ export const LimitOrderLocators = {
   btnLimit: '[data-testid=limit-button]',
   txtSellingRate: '[data-testid=input-selling-rate]',
   lblBalanceIn: '[data-testid=limit-order-input-tokena] [data-testid=balance]',
-  lblErrorMessage: '[data-testid=error-message]'
+  lblErrorMessage: '[data-testid=error-message]',
+  btnGetStarted: '[data-testid=get-started-button]'
+}
+
+export const CrossChainLocators = {
+  btnCrossChain: '[data-testid=cross-chain-tab]',
+  btnNetworkIn: '[data-testid=swap-currency-input] [data-testid=network-button]',
+  btnNetworkOut: '[data-testid=swap-currency-output] [data-testid=network-button]',
+  btnUnderstand: '[data-testid=understand-button]',
+  rechartsSurface: '.recharts-surface' //it's in the library so don't use data-testid
 }
 
 export const WalletLocators = {
@@ -40,7 +49,7 @@ export const WalletLocators = {
 
 export const NetworkLocators = {
   btnSelectNetwork: '[data-testid=select-network]',
-  btnNetwork: '[data-testid=network-button]',
+  btnNetwork: '[data-testid=network-list]',
 }
 
 export const HeaderLocators = {

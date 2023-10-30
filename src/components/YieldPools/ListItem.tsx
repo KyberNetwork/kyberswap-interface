@@ -577,7 +577,11 @@ const ListItem = ({ farm }: ListItemProps) => {
           </RowBetween>
           <RowBetween marginBottom="16px">
             <Text fontSize="16px" color={theme.text} lineHeight="20px">
-              {formatDisplayNumber(userStakedBalanceUSD, { style: 'currency', significantDigits: 6, allowZero: false })}
+              {formatDisplayNumber(userStakedBalanceUSD, {
+                style: 'currency',
+                significantDigits: 6,
+                allowDisplayZero: false,
+              })}
             </Text>
           </RowBetween>
           <RowBetween marginBottom="16px">

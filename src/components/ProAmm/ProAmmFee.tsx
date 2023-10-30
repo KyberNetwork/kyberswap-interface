@@ -19,7 +19,11 @@ import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useContract, useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import {
+  useProAmmNFTPositionManagerReadingContract,
+  useProMMFarmSigningContract,
+  useSigningContract,
+} from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useTheme from 'hooks/useTheme'
@@ -58,7 +62,7 @@ export default function ProAmmFee({
   const token0Shown = feeValue0?.currency || position.pool.token0
   const token1Shown = feeValue1?.currency || position.pool.token1
   const addTransactionWithType = useTransactionAdder()
-  const positionManager = useProAmmNFTPositionManagerContract()
+  const positionManager = useProAmmNFTPositionManagerReadingContract()
   const deadline = useTransactionDeadline() // custom from users settings
   const { mixpanelHandler } = useMixpanel()
 
@@ -105,7 +109,7 @@ export default function ProAmmFee({
     setTxnHash(response.hash)
   }
 
-  const farmContract = useProMMFarmContract(farmAddress || '')
+  const farmContract = useProMMFarmSigningContract(farmAddress || '')
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
   const { userInfo } = useElasticFarmsV2()
   const info = userInfo?.find(item => item.nftId.toString() === tokenId.toString())
@@ -115,8 +119,8 @@ export default function ProAmmFee({
     ?.map(item => item.toLowerCase())
     .includes(address?.toLowerCase())
 
-  const farmV2Contract = useContract(address, FarmV2ABI)
-  const farmV21Contract = useContract(address, FarmV21ABI)
+  const farmV2Contract = useSigningContract(address, FarmV2ABI)
+  const farmV21Contract = useSigningContract(address, FarmV21ABI)
 
   const collectFeeFromFarmContract = async () => {
     const isInFarmV2 = !!info
@@ -178,7 +182,7 @@ export default function ProAmmFee({
     }
   }
 
-  const collect = () => {
+  const collect = async () => {
     setShowPendingModal(true)
     setAttemptingTxn(true)
 
@@ -214,27 +218,28 @@ export default function ProAmmFee({
       value,
     }
 
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then((estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            handleBroadcastClaimSuccess(response)
-          })
-      })
-      .catch((error: any) => {
-        setShowPendingModal(true)
-        setAttemptingTxn(false)
-        setCollectFeeError(error?.message || JSON.stringify(error))
-        console.error(error)
-      })
+    try {
+      await library
+        .getSigner()
+        .estimateGas(txn)
+        .then((estimate: BigNumber) => {
+          const newTxn = {
+            ...txn,
+            gasLimit: calculateGasMargin(estimate),
+          }
+          return library
+            .getSigner()
+            .sendTransaction(newTxn)
+            .then((response: TransactionResponse) => {
+              handleBroadcastClaimSuccess(response)
+            })
+        })
+    } catch (error: any) {
+      setShowPendingModal(true)
+      setAttemptingTxn(false)
+      setCollectFeeError(error?.message || JSON.stringify(error))
+      console.error(error)
+    }
   }
   const hasNoFeeToCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
 

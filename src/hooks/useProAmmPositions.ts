@@ -11,7 +11,7 @@ import { useDepositedNfts, useElasticFarms, useJoinedPositions } from 'state/far
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
 
-import { useProAmmNFTPositionManagerContract } from './useContract'
+import { useProAmmNFTPositionManagerReadingContract } from './useContract'
 
 interface UseProAmmPositionsResults {
   loading: boolean
@@ -19,7 +19,7 @@ interface UseProAmmPositionsResults {
 }
 
 export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseProAmmPositionsResults {
-  const positionManager = useProAmmNFTPositionManagerContract()
+  const positionManager = useProAmmNFTPositionManagerReadingContract()
   const { isEVM, networkInfo } = useActiveWeb3React()
 
   const inputs = useMemo(() => (tokenIds ? tokenIds.map(tokenId => [tokenId]) : []), [tokenIds])
@@ -87,7 +87,7 @@ export function useProAmmPositionsFromTokenId(tokenId: BigNumber | undefined): U
 }
 
 export function useProAmmPositions(account: string | null | undefined): UseProAmmPositionsResults {
-  const positionManager = useProAmmNFTPositionManagerContract()
+  const positionManager = useProAmmNFTPositionManagerReadingContract()
   const { loading: balanceLoading, result: balanceResult } = useSingleCallResult(positionManager, 'balanceOf', [
     account ?? undefined,
   ])

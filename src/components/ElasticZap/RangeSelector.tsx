@@ -12,7 +12,7 @@ import useTheme from 'hooks/useTheme'
 import { RANGE_LIST, rangeData } from 'pages/AddLiquidityV2/constants'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { Bound, RANGE } from 'state/mint/proamm/type'
-import { getRangeTicks } from 'state/mint/proamm/utils'
+import { getRecommendedRangeTicks } from 'state/mint/proamm/utils'
 import { usePairFactor } from 'state/topTokens/hooks'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -58,7 +58,7 @@ export const useTicksFromRange = (range: RANGE | FARMING_RANGE | null, pool?: Po
   return isFullRange
     ? [tickSpaceLimits.LOWER, tickSpaceLimits.UPPER]
     : pool && range
-    ? (getRangeTicks(range, pool.token0, pool.token1, pool.tickCurrent, pairFactor).map(item =>
+    ? (getRecommendedRangeTicks(range, pool.token0, pool.token1, pool.tickCurrent, pairFactor).map(item =>
         nearestUsableTick(item, TICK_SPACINGS[pool?.fee || defaultFee]),
       ) as unknown as [number, number])
     : [0, 0]
@@ -163,7 +163,7 @@ export default function RangeSelector({
             const fullrange = item === RANGE.FULL_RANGE
             const [tickLower, tickUpper] = fullrange
               ? [tickSpaceLimits.LOWER, tickSpaceLimits.UPPER]
-              : getRangeTicks(item, pool.token0, pool.token1, pool.tickCurrent, pairFactor)
+              : getRecommendedRangeTicks(item, pool.token0, pool.token1, pool.tickCurrent, pairFactor)
 
             const parsedLower = tickToPrice(pool.token0, pool.token1, tickLower)
             const parsedUpper = tickToPrice(pool.token0, pool.token1, tickUpper)

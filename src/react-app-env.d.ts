@@ -47,13 +47,3 @@ interface Window {
   recaptchaOptions?: any
   zESettings?: any
 }
-
-declare module 'content-hash' {
-  function decode(x: string): string
-  function getCodec(x: string): string
-}
-
-declare module 'multihashes' {
-  function decode(buff: Uint8Array): { code: number; name: string; length: number; digest: Uint8Array }
-  function toB58String(hash: Uint8Array): string
-}

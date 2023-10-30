@@ -362,7 +362,9 @@ export function useToggleTopTrendingTokens(): () => void {
   return useCallback(() => dispatch(toggleTopTrendingTokens()), [dispatch])
 }
 
-export const useUserFavoriteTokens = (chainId: ChainId) => {
+export const useUserFavoriteTokens = (customChain?: ChainId) => {
+  const { chainId: currentChain } = useActiveWeb3React()
+  const chainId = customChain || currentChain
   const dispatch = useDispatch<AppDispatch>()
   const { favoriteTokensByChainIdv2: favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
   const { commonTokens } = useKyberSwapConfig(chainId)
@@ -502,13 +504,13 @@ export const useIsWhiteListKyberAI = () => {
     userInfo && getParticipantInfoQuery()
   }, [getParticipantInfoQuery, userInfo])
 
-  const { account } = useActiveWeb3React()
   const [connectingWallet] = useIsConnectingWallet()
 
   const isLoading = isFetching || pendingAuthentication
   const loadingDebounced = useDebounce(isLoading, 500) || connectingWallet
 
-  const participantInfo = isError || loadingDebounced || !account ? participantDefault : rawData
+  const participantInfo = isError || loadingDebounced ? participantDefault : rawData
+
   return {
     loading: loadingDebounced,
     isWhiteList:

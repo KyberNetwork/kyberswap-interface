@@ -1,4 +1,4 @@
-import { HeaderLocators, LimitOrderLocators, NetworkLocators, SwapPageLocators, TokenCatalogLocators, WalletLocators } from "../selectors/selectors.cy"
+import { CrossChainLocators, HeaderLocators, LimitOrderLocators, NetworkLocators, SwapPageLocators, TokenCatalogLocators, WalletLocators } from "../selectors/selectors.cy"
 
 export interface myCallbackType<T> {
     (myArgument: T): void
@@ -39,6 +39,10 @@ export const SwapPage = {
 
     goToLimitOrder() {
         cy.get(LimitOrderLocators.btnLimit).click()
+    },
+
+    goToCrossChain() {
+        cy.get(CrossChainLocators.btnCrossChain).click()
     },
 
     goToFarmPage() {

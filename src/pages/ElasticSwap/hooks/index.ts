@@ -12,7 +12,7 @@ import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
-import { useContractForReading } from 'hooks/useContract'
+import { useReadingContract } from 'hooks/useContract'
 import { PoolState, usePools } from 'hooks/usePools'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useNotify } from 'state/application/hooks'
@@ -22,7 +22,7 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { basisPointsToPercent, calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
-import { getContract } from 'utils/getContract'
+import { getSigningContract } from 'utils/getContract'
 import isZero from 'utils/isZero'
 
 const ROUTER_PRO_AMM = [
@@ -228,7 +228,7 @@ export function useElasticBestTrade<TTradeType extends TradeType>(
   )
   const { routes, loading: routesLoading } = useElasticAllRoutes(currencyIn, currencyOut)
 
-  const quoter = useContractForReading((networkInfo as EVMNetworkInfo).elastic.quoter, QuoterABI)
+  const quoter = useReadingContract((networkInfo as EVMNetworkInfo).elastic.quoter, QuoterABI)
 
   const quotesResults = useSingleContractWithCallData(
     quoter,
@@ -606,7 +606,7 @@ function useSwapCallArguments(
   return useMemo(() => {
     if (!trade || !account || !library || !account || !chainId || !deadline) return []
 
-    const routerProAmmContract: Contract | null = getContract(
+    const routerProAmmContract: Contract | null = getSigningContract(
       (networkInfo as EVMNetworkInfo).elastic.routers,
       ROUTER_PRO_AMM,
       library,

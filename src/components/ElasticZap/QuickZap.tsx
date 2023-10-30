@@ -29,7 +29,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { useZapInAction, useZapInPoolResult } from 'hooks/elasticZap'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { useContract, useProAmmTickReader } from 'hooks/useContract'
+import { useProAmmTickReader, useReadingContract } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -122,7 +122,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
     .find(farm => farm.poolAddress.toLowerCase() === poolAddress.toLowerCase())
 
   const toggleWalletModal = useWalletModalToggle()
-  const poolContract = useContract(poolAddress, abi)
+  const poolContract = useReadingContract(poolAddress, abi)
 
   const { loading: loadingPos, position: positionDetail } = useProAmmPositionsFromTokenId(
     tokenId ? BigNumber.from(tokenId) : undefined,

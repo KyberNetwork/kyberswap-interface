@@ -4,14 +4,17 @@ import { DEFAULT_URL, NETWORK, NORESULTS_TEXT, NOTOKENS_TEXT, TAG, TOKEN_SYMBOLS
 
 const tokenSymbols = TOKEN_SYMBOLS[NETWORK]
 
-
 const tokenCatalog = new TokenCatalog();
-
 
 describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
     beforeEach(() => {
         SwapPage.open(DEFAULT_URL)
         SwapPage.goToLimitOrder()
+        LimitOder.checkGetStartedDisplay().then((checked) => {
+            if (checked === true) {
+                LimitOder.clickGetStarted()
+            }
+        })
     })
 
     describe('Add/remove/select token with favorite tokens list', () => {

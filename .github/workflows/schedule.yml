@@ -12,15 +12,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        network: ['Ethereum', 'Arbitrum', 'Optimism', 'Avalanche', 'BNB']
+        network: ['Ethereum', 'Arbitrum', 'Optimism', 'Avalanche', 'BNB Chain']
     steps:
       - name: Trigger Code Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Node.js 18.15.0
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18.15.0
+          node-version: 20.9.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
 

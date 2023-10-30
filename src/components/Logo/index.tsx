@@ -4,9 +4,9 @@ import { HelpCircle } from 'react-feather'
 import { ImageProps } from 'rebass'
 import styled from 'styled-components'
 
-import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
-import useChainsConfig from 'hooks/useChainsConfig'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { getNativeTokenLogo } from 'utils'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
 
@@ -40,7 +40,6 @@ export default function Logo({ srcs, alt, ...rest }: LogoProps) {
 }
 
 export function NetworkLogo({ chainId, style = {} }: { chainId: ChainId; style?: CSSProperties }) {
-  const { NETWORKS_INFO } = useChainsConfig()
   const { icon } = NETWORKS_INFO[chainId]
   if (!icon) return null
   return <img src={icon} alt="Switch Network" style={style} />
@@ -52,7 +51,7 @@ export function TokenLogoWithChain(data: any) {
   const { tokenLogo: tokenLogoParam, chainId: chainParam, size, currency } = data
 
   const chainId: ChainId = currency?.chainId || chainParam
-  const nativeLogo = useGetNativeTokenLogo(chainId)
+  const nativeLogo = getNativeTokenLogo(chainId)
   const tokenLogo = (currency?.isNative ? nativeLogo : currency?.logoURI) || tokenLogoParam
   const ratio = 0.7
   const networkSize = ratio * parseInt(size + '')

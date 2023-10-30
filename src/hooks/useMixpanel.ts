@@ -205,6 +205,8 @@ export enum MIXPANEL_TYPE {
   LO_CLICK_SUBSCRIBE_BTN,
   LO_CLICK_CANCEL_TYPE,
   LO_CLICK_UPDATE_TYPE,
+  LO_CLICK_GET_STARTED,
+  LO_CLICK_WARNING_IN_SWAP,
 
   // Wallet UI
   WUI_WALLET_CLICK,
@@ -1131,6 +1133,14 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.LO_CLICK_UPDATE_TYPE: {
           mixpanel.track('Limit Order - Update Order Double Signature Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.LO_CLICK_GET_STARTED: {
+          mixpanel.track('Limit Order - Get Started Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP: {
+          mixpanel.track('Limit Order - Warning in Swap Click', payload)
           break
         }
 

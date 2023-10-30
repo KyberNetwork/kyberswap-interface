@@ -5,6 +5,19 @@ export interface myCallbackType<T> {
 }
 export const LimitOder = {
 
+    checkGetStartedDisplay() {
+        return cy.get(LimitOrderLocators.btnGetStarted, { timeout: 10000 }).should(() => { }).then($obj => {
+            if ($obj.length > 0) {
+                return true
+            }
+            return false
+        })
+    },
+
+    clickGetStarted() {
+        cy.get(LimitOrderLocators.btnGetStarted, { timeout: 10000 }).click({ force: true })
+    },
+
     selectTokenSell(): TokenCatalog {
         cy.selectToken(LimitOrderLocators.dropdownTokenSell)
         return new TokenCatalog()

@@ -77,7 +77,7 @@ export function tryParseTick(
 
 const log10001 = (num: number) => Math.log(num) / Math.log(1.0001)
 
-export const getRangeTicks = (
+export const getRecommendedRangeTicks = (
   range: RANGE,
   tokenA: Token,
   tokenB: Token,

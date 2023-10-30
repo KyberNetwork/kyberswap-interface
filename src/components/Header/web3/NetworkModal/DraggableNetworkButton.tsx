@@ -1,6 +1,7 @@
 import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { motion, useAnimationControls, useDragControls } from 'framer-motion'
+import { PanInfo, motion, useAnimationControls, useDragControls } from 'framer-motion'
+import throttle from 'lodash/throttle'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { MutableRefObject, RefObject, useState } from 'react'
@@ -120,6 +121,7 @@ export default function DraggableNetworkButton({
   customToggleModal,
   customOnSelectNetwork,
   onChangedNetwork,
+  onDrag,
   onDrop,
   onFavoriteClick,
 }: {
@@ -134,6 +136,7 @@ export default function DraggableNetworkButton({
   customToggleModal?: () => void
   customOnSelectNetwork?: (chainId: ChainId) => void
   onChangedNetwork?: () => void
+  onDrag?: (dropIndex?: string) => void
   onDrop?: (dropIndex: string) => void
   onFavoriteClick?: () => void
 }) {
@@ -186,7 +189,7 @@ export default function DraggableNetworkButton({
       boxShadow: '0 5px 10px #00000060',
       filter: 'brightness(0.8)',
       scale: 1.05,
-      zIndex: 2,
+      zIndex: 10,
     },
     normal: {
       boxShadow: '0 0px 0px #00000060',
@@ -195,36 +198,40 @@ export default function DraggableNetworkButton({
       zIndex: 'unset',
       x: 0,
       y: 0,
+      transition: { zIndex: { delay: 1 } },
     },
+  }
+
+  const getDropIdDraggingOver = (panInfo: PanInfo) => {
+    const currentEl: HTMLDivElement | undefined = droppableRefs.current?.find((el: HTMLDivElement) => {
+      const OFFSET = 25
+      const { left, top, right, bottom } = el.getBoundingClientRect()
+      return (
+        left < panInfo.point.x + OFFSET &&
+        top < panInfo.point.y + OFFSET &&
+        right > panInfo.point.x - OFFSET &&
+        bottom > panInfo.point.y - OFFSET
+      )
+    })
+    return currentEl
   }
 
   const handleDragStart = () => {
     animateControls.start('dragging')
     setIsDragging(true)
   }
-  const handleDragEnd = (e: any) => {
+
+  const handleDrag = throttle((e: any, panInfo: PanInfo) => {
+    const dropEl = getDropIdDraggingOver(panInfo)
+    onDrag?.(dropEl?.id)
+  }, 40)
+
+  const handleDragEnd = (e: any, panInfo: PanInfo) => {
     animateControls.start('normal')
 
-    const eventTarget = e.target as HTMLDivElement
-
-    if (!eventTarget) return
-
-    const droppedElPosition = [
-      eventTarget.getBoundingClientRect().left + eventTarget.getBoundingClientRect().width / 2,
-      eventTarget.getBoundingClientRect().top + eventTarget.getBoundingClientRect().height / 2,
-    ]
-
-    const currentEl: HTMLDivElement | undefined = droppableRefs.current?.find((el: HTMLDivElement) => {
-      const { left, top, right, bottom } = el.getBoundingClientRect()
-      return (
-        left < droppedElPosition[0] &&
-        top < droppedElPosition[1] &&
-        right > droppedElPosition[0] &&
-        bottom > droppedElPosition[1]
-      )
-    })
-    if (currentEl) {
-      onDrop?.(currentEl.id)
+    const dropEl = getDropIdDraggingOver(panInfo)
+    if (dropEl) {
+      onDrop?.(dropEl.id)
     }
   }
 
@@ -251,6 +258,7 @@ export default function DraggableNetworkButton({
         dragElastic={0}
         dragTransition={{ bounceStiffness: 500 }}
         onDragStart={handleDragStart}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         onLayoutAnimationStart={() => setIsDragging(true)}
         onLayoutAnimationComplete={() => setIsDragging(false)}
