@@ -452,6 +452,7 @@ export default function App() {
                 </Web3ReactManager>
               </BodyWrapper>
               {showFooter && <Footer />}
+              {!showFooter && <div style={{ marginBottom: '4rem' }} />}
 
               <TruesightFooter />
             </Suspense>

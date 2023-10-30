@@ -191,7 +191,8 @@ export default function ListLimitOrder() {
   const onSelectTab = (type: LimitOrderStatus) => {
     setOrderType(type)
     onReset()
-    navigate({ search: stringify(qs) }, { replace: true })
+    if (!window.location.pathname.includes(APP_PATHS.PARTNER_SWAP))
+      navigate({ search: stringify(qs) }, { replace: true })
   }
 
   const onChangeKeyword = (val: string) => {
