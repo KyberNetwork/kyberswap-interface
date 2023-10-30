@@ -67,7 +67,7 @@ const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_T
   )
   return {
     cmcData: marketPairs,
-    cgkData: cgkData?.tickers.slice(0, 15) || [],
+    cgkData: cgkData?.tickers.slice(0, 50) || [],
     isFetching: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? cmcFetching : cgkFetching,
     hasData: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? !!marketPairs?.length : !!cgkData?.tickers?.length,
   }
@@ -91,13 +91,7 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
   const headers: Array<{ title: string; style?: CSSProperties }> = useMemo(() => {
     if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
       if (activeTab === ChartTab.First) {
-        return [
-          { title: t`Exchange` },
-          { title: t`Token pair` },
-          { title: t`Current price` },
-          { title: t`24h volume` },
-          { title: t`Action`, style: { textAlign: 'right' } },
-        ]
+        return [{ title: t`Exchange` }, { title: t`Token pair` }, { title: t`Current price` }, { title: t`24h volume` }]
       }
       if (activeTab === ChartTab.Second) {
         return [
@@ -152,7 +146,7 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
       <td>
         <Text color={theme.text}>${formatShortNum(item.volumeUsd)}</Text>
       </td>
-      {(activeTab === ChartTab.Second || activeTab === ChartTab.First) && (
+      {activeTab === ChartTab.Second && (
         <td>
           {item.marketUrl && (
             <Row justify="flex-end">

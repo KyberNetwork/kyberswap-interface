@@ -15,7 +15,7 @@ const coinmarketcapApi = createApi({
         params: {
           id: id,
           start: 1,
-          limit: 15,
+          limit: 50,
           category: category || 'spot',
           centerType: centerType || 'all',
           sort: 'volume_24h_strict',
