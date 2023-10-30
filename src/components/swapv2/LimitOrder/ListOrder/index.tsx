@@ -19,7 +19,7 @@ import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
-import { EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { APP_PATHS, EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -293,7 +293,7 @@ export default function ListLimitOrder() {
   }, [totalOrderNotCancelling, orders, ordersUpdating])
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const subscribeBtn = (
+  const subscribeBtn = !window.location.pathname.includes(APP_PATHS.PARTNER_SWAP) && (
     <SubscribeNotificationButton
       iconOnly={false}
       style={{ margin: upToSmall ? 0 : '12px 12px 0px 12px' }}
