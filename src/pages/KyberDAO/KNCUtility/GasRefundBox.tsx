@@ -24,7 +24,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
 
-import SwitchToEthereumModal, { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
+import { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
 import TimerCountdown from '../TimerCountdown'
 import EligibleTxModal from './EligibleTxModal'
 import { KNCUtilityTabs } from './type'
@@ -258,7 +258,6 @@ export default function GasRefundBox() {
         </Flex>
       </RowBetween>
       <EligibleTxModal isOpen={isShowEligibleTx} closeModal={() => setShowEligibleTx(false)} />
-      <SwitchToEthereumModal />
     </Wrapper>
   )
 }

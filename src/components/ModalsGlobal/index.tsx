@@ -1,5 +1,5 @@
 import SwitchToEthereumModal from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 
-export default function Modal() {
+export default function ModalsGlobal() {
   return <SwitchToEthereumModal />
 }

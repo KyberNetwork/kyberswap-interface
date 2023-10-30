@@ -39,7 +39,7 @@ import { isAddress, shortenAddress } from 'utils'
 import KNCLogo from '../kncLogo'
 import DelegateConfirmModal from './DelegateConfirmModal'
 import MigrateModal from './MigrateModal'
-import SwitchToEthereumModal, { useSwitchToEthereum } from './SwitchToEthereumModal'
+import { useSwitchToEthereum } from './SwitchToEthereumModal'
 import YourTransactionsModal from './YourTransactionsModal'
 
 enum STAKE_TAB {
@@ -662,7 +662,6 @@ export default function StakeKNCComponent() {
           </AutoColumn>
         }
       />
-      <SwitchToEthereumModal />
       <DelegateConfirmModal
         address={delegateAddress}
         isUndelegate={isUndelegate.current}

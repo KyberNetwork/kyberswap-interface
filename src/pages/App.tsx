@@ -19,6 +19,7 @@ import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
 import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
+import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute, { ProtectedRouteKyberAI } from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
@@ -257,6 +258,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
+      <ModalsGlobal />
       {(BLACKLIST_WALLETS.includes(isAddressString(chainId, account)) ||
         BLACKLIST_WALLETS.includes(account?.toLowerCase() || '')) && (
         <Modal
