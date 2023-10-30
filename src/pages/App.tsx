@@ -42,17 +42,6 @@ import { isAddressString, isSupportLimitOrder, shortenAddress } from 'utils'
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import VerifyAuth from './Verify/VerifyAuth'
 
-const IframeTest = () => {
-  return (
-    <iframe
-      style={{ margin: 'auto' }}
-      width="500px"
-      height="900px"
-      src={`${window.location.origin}/partner-swap?tab=swap&inputCurrency=ETH&outputCurrency=0xe4DDDfe67E7164b0FE14E218d80dC4C08eDC01cB&isInBps=1&chargeFeeBy=currency_in&feeReceiver=0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9&feeAmount=500&clientId=viet-nv&chainId=42161`}
-    />
-  )
-}
-
 const Login = lazy(() => import('./Oauth/Login'))
 const Logout = lazy(() => import('./Oauth/Logout'))
 const Consent = lazy(() => import('./Oauth/Consent'))
@@ -444,8 +433,6 @@ export default function App() {
                     <Route path={APP_PATHS.IAM_LOGIN} element={<Login />} />
                     <Route path={APP_PATHS.IAM_LOGOUT} element={<Logout />} />
                     <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
-
-                    <Route path={'/iframe-test'} element={<IframeTest />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
