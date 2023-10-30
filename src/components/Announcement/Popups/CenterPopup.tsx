@@ -17,7 +17,7 @@ import { Z_INDEXS } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
-import { useNavigateToUrl } from 'utils/redirect'
+import { useNavigateToUrl, validateRedirectURL } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
 const Wrapper = styled.div`
@@ -120,7 +120,8 @@ const whitelistDomains = ['drive.google.com', 'www.youtube.com']
 const Video = ({ url, title }: { url: string; title: string }) => {
   try {
     const { host } = new URL(url)
-    if (!whitelistDomains.includes(host)) return null
+    if (!whitelistDomains.includes(host) || !validateRedirectURL(url, { _dangerousSkipCheckWhitelist: true }))
+      return null
   } catch (error) {
     return null
   }
