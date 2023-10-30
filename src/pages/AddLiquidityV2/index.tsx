@@ -1104,7 +1104,7 @@ export default function AddLiquidity() {
   const tickReader = useProAmmTickReader()
 
   const results = useSingleContractMultipleData(
-    tickLower !== undefined && tickUpper !== undefined ? tickReader : undefined,
+    poolAddress && tickLower !== undefined && tickUpper !== undefined ? tickReader : undefined,
     'getNearestInitializedTicks',
     [
       [poolAddress, tickLower],
