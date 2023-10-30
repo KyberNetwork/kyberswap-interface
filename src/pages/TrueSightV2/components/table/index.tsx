@@ -11,16 +11,17 @@ import { Text } from 'rebass'
 import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoingecko } from 'services/coingecko'
 import styled, { DefaultTheme, css } from 'styled-components'
 
-import { ButtonAction, ButtonLight } from 'components/Button'
+import { ButtonAction, ButtonLight, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import Icon from 'components/Icons/Icon'
 import InfoHelper from 'components/InfoHelper'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
-import Row, { RowFit } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useCoingeckoAPI from 'hooks/useCoingeckoAPI'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
@@ -133,6 +134,7 @@ const LoadingHandleWrapper = ({
   hasData,
   children,
   height,
+  minHeight,
   style,
 }: {
   isLoading: boolean
@@ -140,14 +142,15 @@ const LoadingHandleWrapper = ({
   hasData: boolean
   children: ReactNode
   height?: string
+  minHeight?: string
   style?: CSSProperties
 }) => {
   return (
-    <TableWrapper style={{ ...style, minHeight: height }}>
+    <TableWrapper style={{ ...style }}>
       <Table style={{ opacity: isFetching ? 0.4 : 1 }}>
         {!hasData ? (
           <tr style={{ backgroundColor: 'unset' }}>
-            <StyledLoadingWrapper style={height ? { height } : undefined}>
+            <StyledLoadingWrapper style={{ height: height, minHeight: minHeight }}>
               {isLoading ? (
                 <AnimatedLoader />
               ) : (
@@ -595,10 +598,9 @@ const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_T
     { coingeckoAPI, id: 'ethereum' },
     { skip: !assetOverview?.cgkId && type !== LIQUIDITY_MARKETS_TYPE.COINGECKO },
   )
-  console.log('🚀 ~ file: index.tsx:595 ~ useLiquidityMarketsData ~ cgkData:', cgkData)
   return {
     cmcData: marketPairs,
-    cgkData: cgkData?.tickers || [],
+    cgkData: cgkData?.tickers.slice(0, 15) || [],
     isFetching: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? cmcFetching : cgkFetching,
     hasData: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? !!marketPairs?.length : !!cgkData?.tickers?.length,
   }
@@ -625,6 +627,9 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
   const headers: Array<{ title: string; style?: CSSProperties }> = useMemo(() => {
     if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
       if (activeTab === ChartTab.First) {
+        return [{ title: t`Exchange` }, { title: t`Token pair` }, { title: t`Current price` }, { title: t`24h volume` }]
+      }
+      if (activeTab === ChartTab.Second) {
         return [
           { title: t`Exchange` },
           { title: t`Token pair` },
@@ -632,9 +637,6 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
           { title: t`24h volume` },
           { title: t`Action`, style: { textAlign: 'right' } },
         ]
-      }
-      if (activeTab === ChartTab.Second) {
-        return [{ title: t`Exchange` }, { title: t`Token pair` }, { title: t`Current price` }, { title: t`24h volume` }]
       }
       if (activeTab === ChartTab.Third) {
         return [
@@ -680,7 +682,7 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
       <td>
         <Text color={theme.text}>${formatShortNum(item.volumeUsd)}</Text>
       </td>
-      {activeTab === ChartTab.First && (
+      {activeTab === ChartTab.Second && (
         <td>
           <Row justify="flex-end">
             <ButtonAction as="a" href={item.marketUrl} target="_blank" color={theme.primary} style={{ padding: '6px' }}>
@@ -718,7 +720,7 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
       </td>
       <td>
         <Row justify="flex-end">
-          <ButtonAction color={theme.primary} style={{ padding: '6px' }}>
+          <ButtonAction as="a" href={item.trade_url} color={theme.primary} style={{ padding: '6px' }}>
             <Icon id="truesight-v2" size={20} />
           </ButtonAction>
         </Row>
@@ -736,13 +738,12 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
 
 export const LiquidityMarkets = () => {
   const theme = useTheme()
-  const { data: assetOverview } = useKyberAIAssetOverview()
-
+  const mixpanelHandler = useMixpanelKyberAI()
+  const { data: assetOverview, chain, address } = useKyberAIAssetOverview()
   const [type, setType] = useState<LIQUIDITY_MARKETS_TYPE | undefined>()
   const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
 
   const { cmcData, cgkData, isFetching, hasData } = useLiquidityMarketsData(activeTab, type)
-  console.log('🚀 ~ file: index.tsx:738 ~ LiquidityMarkets ~ cgkData:', cgkData)
   const { tabs, headers, renderCMCRow, renderCGKRow } = useRenderLiquidityMarkets(activeTab, type)
 
   useEffect(() => {
@@ -759,18 +760,42 @@ export const LiquidityMarkets = () => {
   return (
     <>
       <Column margin="0px -16px -16px -16px">
-        <RowFit>
-          {tabs.map(tab => (
-            <TableTab key={tab.tabId} active={activeTab === tab.tabId} onClick={() => setActiveTab(tab.tabId)}>
-              {tab.title}
-            </TableTab>
-          ))}
-        </RowFit>
+        <RowBetween>
+          <RowFit>
+            {tabs.map(tab => (
+              <TableTab key={tab.tabId} active={activeTab === tab.tabId} onClick={() => setActiveTab(tab.tabId)}>
+                {tab.title}
+              </TableTab>
+            ))}
+          </RowFit>
+          {type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP && activeTab === ChartTab.First && (
+            <ButtonPrimary
+              height={'36px'}
+              width="fit-content"
+              gap="4px"
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_SWAP_TOKEN_CLICK, {
+                  token_name: assetOverview?.symbol?.toUpperCase(),
+                  network: chain,
+                })
+                navigateToSwapPage({ address, chain })
+              }}
+              style={{ marginRight: '16px' }}
+            >
+              <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
+                <Icon id="swap" size={16} />
+                Swap {assetOverview?.symbol?.toUpperCase()}
+              </RowFit>
+            </ButtonPrimary>
+          )}
+        </RowBetween>
+
         <LoadingHandleWrapper
           isLoading={isFetching && !hasData}
           isFetching={isFetching && hasData}
           hasData={hasData}
           style={{ borderRadius: 0 }}
+          minHeight="500px"
         >
           <colgroup>
             {new Array(headers.length).fill(0).map((_, index) => (

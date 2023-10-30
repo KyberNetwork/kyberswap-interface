@@ -18,7 +18,7 @@ const coinmarketcapApi = createApi({
           limit: 15,
           category: category || 'spot',
           centerType: centerType || 'all',
-          sort: 'cmc_rank_advanced',
+          sort: 'volume_24h_strict',
           direction: 'desc',
           spotUntracked: 'true',
         },
