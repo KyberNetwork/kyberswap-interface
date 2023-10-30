@@ -14,7 +14,7 @@ import useTheme from 'hooks/useTheme'
 import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoinmarketcap } from 'pages/TrueSightV2/hooks/useCoinmarketcapData'
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import { ChartTab } from 'pages/TrueSightV2/types'
-import { formatShortNum, formatTokenPrice, navigateToSwapPage } from 'pages/TrueSightV2/utils'
+import { colorFundingRateText, formatShortNum, formatTokenPrice, navigateToSwapPage } from 'pages/TrueSightV2/utils'
 
 import { LoadingHandleWrapper } from '.'
 
@@ -158,7 +158,9 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
       {activeTab === ChartTab.Third && (
         <td>
           <Row>
-            <Text color={theme.text}>{item.fundingRate ? (item.fundingRate * 100).toFixed(2) + '%' : '--'}</Text>
+            <Text color={colorFundingRateText(item.fundingRate * 100, theme)}>
+              {item.fundingRate ? (item.fundingRate * 100).toFixed(2) + '%' : '--'}
+            </Text>
           </Row>
         </td>
       )}
