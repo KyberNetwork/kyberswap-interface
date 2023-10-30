@@ -62,7 +62,7 @@ const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_T
   const coingeckoAPI = useCoingeckoAPI()
 
   const { data: cgkData, isFetching: cgkFetching } = useGetLiquidityMarketsCoingecko(
-    { coingeckoAPI, id: 'ethereum' },
+    { coingeckoAPI, id: assetOverview?.cgkId },
     { skip: !assetOverview?.cgkId && type !== LIQUIDITY_MARKETS_TYPE.COINGECKO },
   )
   return {
@@ -184,7 +184,11 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
         </Row>
       </td>
       <td>
-        <Text color={theme.text}>{item.base + '/' + item.target}</Text>
+        <Text color={theme.text} style={{ textTransform: 'uppercase' }}>
+          {(item.base.startsWith('0X') ? item.coin_id : item.base) +
+            '/' +
+            (item.target.startsWith('0X') ? item.target_coin_id : item.target)}
+        </Text>
       </td>
       <td>
         <Text color={theme.text}>${formatTokenPrice(item.converted_last.usd)}</Text>
@@ -195,7 +199,7 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
       <td>
         <Row justify="flex-end">
           <ButtonAction as="a" href={item.trade_url} color={theme.primary} style={{ padding: '6px' }}>
-            <Icon id="truesight-v2" size={20} />
+            <Icon id="open-link" size={16} />
           </ButtonAction>
         </Row>
       </td>
