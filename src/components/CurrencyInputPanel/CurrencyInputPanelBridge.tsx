@@ -40,6 +40,7 @@ interface CurrencyInputPanelBridgeProps {
   usdValue?: string
   isCrossChain?: boolean
   tooltipNotSupportChain?: string
+  dataTestId?: string
 }
 
 const noop = () => {
@@ -80,6 +81,7 @@ export default function CurrencyInputPanelBridge({
   usdValue,
   isCrossChain,
   tooltipNotSupportChain,
+  dataTestId,
 }: CurrencyInputPanelBridgeProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { account } = useActiveWeb3React()
@@ -111,7 +113,7 @@ export default function CurrencyInputPanelBridge({
 
   return (
     <div style={{ width: '100%' }}>
-      <InputPanel id={id}>
+      <InputPanel id={id} data-testid={dataTestId}>
         <Container hideInput={false} selected={false} error={error}>
           <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
             <SelectNetwork
