@@ -36,7 +36,10 @@ export const calculateFeeFromBuildData = (
     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
   ).divide(BIPS_BASE)
 
-  const fee = currencyAmountToTakeFee.multiply(feeAmountFraction).toSignificant(RESERVE_USD_DECIMALS)
+  const fee = routeSummary.extraFee.isInBps
+    ? currencyAmountToTakeFee.multiply(feeAmountFraction).toSignificant(RESERVE_USD_DECIMALS)
+    : CurrencyAmount.fromRawAmount(currencyAmountToTakeFee.currency, routeSummary.extraFee.feeAmount)
+
   const feeUsd = buildData.feeUsd
 
   return {

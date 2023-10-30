@@ -373,7 +373,11 @@ export const useDefaultsFromURLSearch = ():
       return
     }
 
-    const parsed = queryParametersToSwapState(parsedQs, chainId, refPathname.current.startsWith(APP_PATHS.SWAP))
+    const parsed = queryParametersToSwapState(
+      parsedQs,
+      chainId,
+      refPathname.current.startsWith(APP_PATHS.SWAP) || refPathname.current.startsWith(APP_PATHS.PARTNER_SWAP),
+    )
 
     const outputCurrencyAddress = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]?.address || ''
 

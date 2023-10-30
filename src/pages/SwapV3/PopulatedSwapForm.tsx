@@ -1,7 +1,9 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
+import { APP_PATHS } from 'constants/index'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { useAppSelector } from 'state/hooks'
@@ -43,21 +45,39 @@ const PopulatedSwapForm: React.FC<Props> = ({
 
   useUpdateSlippageInStableCoinSwap()
 
-  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectTokenManually)
+  const { pathname } = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectTokenManually, isPartnerSwap)
   useResetCurrenciesOnRemoveImportedTokens(currencyIn, currencyOut, onResetSelectCurrency)
+
+  const outId =
+    searchParams.get('outputCurrency') || (currencyOut?.isNative ? currencyOut.symbol : currencyOut?.wrapped.address)
+  const inId =
+    searchParams.get('inputCurrency') || (currencyIn?.isNative ? currencyIn.symbol : currencyIn?.wrapped.address)
 
   const onChangeCurrencyIn = useCallback(
     (c: Currency) => {
-      onCurrencySelection(Field.INPUT, c)
+      if (isPartnerSwap) {
+        const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
+        if (value === outId) searchParams.set('outputCurrency', inId || '')
+        searchParams.set('inputCurrency', value)
+        setSearchParams(searchParams)
+      } else onCurrencySelection(Field.INPUT, c)
     },
-    [onCurrencySelection],
+    [searchParams, setSearchParams, isPartnerSwap, onCurrencySelection, inId, outId],
   )
 
   const onChangeCurrencyOut = useCallback(
     (c: Currency) => {
-      onCurrencySelection(Field.OUTPUT, c)
+      if (isPartnerSwap) {
+        const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
+        if (value === inId) searchParams.set('inputCurrency', outId || '')
+        searchParams.set('outputCurrency', value)
+        setSearchParams(searchParams)
+      } else onCurrencySelection(Field.OUTPUT, c)
     },
-    [onCurrencySelection],
+    [searchParams, setSearchParams, isPartnerSwap, onCurrencySelection, inId, outId],
   )
 
   const props: SwapFormProps = {

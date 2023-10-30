@@ -3,7 +3,7 @@ import { memo, useState } from 'react'
 
 import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
 import Tutorial from 'components/swapv2/LimitOrder/Tutorial'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { APP_PATHS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
@@ -20,7 +20,8 @@ function LimitOrderComp({ setIsSelectCurrencyManual, isSelectCurrencyManual }: P
 
   const { currencyIn, currencyOut } = useLimitState()
 
-  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectPair, isSelectCurrencyManual)
+  const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectPair, isSelectCurrencyManual, isPartnerSwap)
 
   const [showTutorial, setShowTutorial] = useState(!localStorage.getItem(TutorialKeys.SHOWED_LO_GUIDE))
 
