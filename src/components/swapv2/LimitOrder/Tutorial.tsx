@@ -104,7 +104,7 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
             Learn more about our limit orders <ExternalLink href={DOCS_LINKS.USER_GUIDE}>here</ExternalLink>.
           </Trans>
         </Text>
-        <ButtonPrimary height="40px" width={'100%'} onClick={onGetStart}>
+        <ButtonPrimary height="40px" width={'100%'} onClick={onGetStart} data-testid="get-started-button">
           <Trans>Get Started</Trans>
         </ButtonPrimary>
       </Column>

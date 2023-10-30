@@ -9,7 +9,7 @@ import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
 import Checkbox from 'components/CheckBox'
 import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
-import useChainsConfig from 'hooks/useChainsConfig'
+import useChainsConfig, { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 
 import { ApplyButton } from './ApplyButton'
@@ -112,8 +112,6 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
   const onHideMenu = useCallback(() => {
     setLocalSelectedChains(selectedChains)
   }, [selectedChains])
-
-  const { NETWORKS_INFO } = useChainsConfig()
 
   return (
     <StyledSelect

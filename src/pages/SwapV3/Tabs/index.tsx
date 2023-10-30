@@ -59,7 +59,7 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
     margin-right: 0;
   }
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`  
+  ${({ theme }) => theme.mediaWidth.upToSmall`
       padding: 0px 0.75rem;
   `}
 `
@@ -121,7 +121,11 @@ export default function Tabs({ activeTab, setActiveTab }: Props) {
           <LimitTab onClick={() => onClickTab(TAB.LIMIT)} active={activeTab === TAB.LIMIT} />
         )}
         {show(TAB.CROSS_CHAIN) && CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
-          <Tab onClick={() => onClickTab(TAB.CROSS_CHAIN)} isActive={activeTab === TAB.CROSS_CHAIN}>
+          <Tab
+            onClick={() => onClickTab(TAB.CROSS_CHAIN)}
+            isActive={activeTab === TAB.CROSS_CHAIN}
+            data-testid="cross-chain-tab"
+          >
             <Text fontSize={20} fontWeight={500}>
               <Trans>Cross-Chain</Trans>
             </Text>

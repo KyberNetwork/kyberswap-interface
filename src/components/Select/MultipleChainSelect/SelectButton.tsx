@@ -3,7 +3,7 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
-import useChainsConfig from 'hooks/useChainsConfig'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 
 import { MultipleChainSelectProps, StyledLogo } from '.'
@@ -26,7 +26,6 @@ const Label = styled.span<{ labelColor?: string }>`
 type Props = MultipleChainSelectProps
 const SelectButton: React.FC<Props> = ({ selectedChainIds, chainIds, activeRender, activeStyle, labelColor }) => {
   const theme = useTheme()
-  const { NETWORKS_INFO } = useChainsConfig()
 
   const renderButtonBody = () => {
     if (selectedChainIds.length === chainIds.length) {

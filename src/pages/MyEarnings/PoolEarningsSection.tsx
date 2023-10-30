@@ -6,7 +6,6 @@ import { Box, Flex } from 'rebass'
 import { HistoricalSingleData } from 'services/earning/types'
 import styled from 'styled-components'
 
-import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import { NativeCurrencies } from 'constants/tokens'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
@@ -15,7 +14,7 @@ import { useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
-import { isAddressString } from 'utils'
+import { getNativeTokenLogo, isAddressString } from 'utils'
 import { toString } from 'utils/numbers'
 
 import OriginalEarningsBreakdownPanel from './EarningsBreakdownPanel'
@@ -89,7 +88,7 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
-  const nativeLogo = useGetNativeTokenLogo(chainId)
+  const nativeLogo = getNativeTokenLogo(chainId)
 
   const [tokens, setTokens] = useState<{ [address: string]: WrappedTokenInfo }>({})
 

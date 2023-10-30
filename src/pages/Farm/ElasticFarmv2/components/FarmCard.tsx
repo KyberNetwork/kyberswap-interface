@@ -116,12 +116,15 @@ function FarmCard({
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const stakedPos = useUserFarmV2Info(farm.farmAddress, farm.fId)
+
   let amountToken0 = CurrencyAmount.fromRawAmount(farm.token0.wrapped, 0)
   let amountToken1 = CurrencyAmount.fromRawAmount(farm.token1.wrapped, 0)
 
   stakedPos.forEach(item => {
-    amountToken0 = amountToken0.add(item.position.amount0)
-    amountToken1 = amountToken1.add(item.position.amount1)
+    if (item.position.amount0?.currency.equals(amountToken0.currency))
+      amountToken0 = amountToken0.add(item.position.amount0)
+    if (item.position.amount1?.currency.equals(amountToken1.currency))
+      amountToken1 = amountToken1.add(item.position.amount1)
   })
 
   const canUnstake = stakedPos.length > 0
@@ -131,7 +134,10 @@ function FarmCard({
   const userTotalRewards = farm.totalRewards.map((item, index) => {
     return stakedPos
       .map(item => item.unclaimedRewards[index])
-      .reduce((total, cur) => total.add(cur), CurrencyAmount.fromRawAmount(item.currency, 0))
+      .reduce(
+        (total, cur) => (cur?.currency?.equals(total.currency) ? total.add(cur) : total),
+        CurrencyAmount.fromRawAmount(item.currency, 0),
+      )
   })
 
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
