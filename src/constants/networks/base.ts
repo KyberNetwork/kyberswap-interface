@@ -58,8 +58,8 @@ const base: EVMNetworkInfo = {
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
     farmV2S: ['0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43', '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd'],
     zap: {
-      router: '0x48f6D7dAE56623Dde5a0D56B283165cAE1753D70',
-      validator: '0x1a91f5ADc7cB5763d35A26e98A18520CB9b67e70',
+      router: '0x1a91f5ADc7cB5763d35A26e98A18520CB9b67e70',
+      validator: '0x45a5B8Cf524EC574b40e80274F0F3856A679C5c4',
       executor: '0x032c677619f72c670e4DA64126B48d906dfa952F',
       helper: '0xb99ad0a400aFF7cA5eD7d07410A81Ed7Fc8F7A0e',
     },
