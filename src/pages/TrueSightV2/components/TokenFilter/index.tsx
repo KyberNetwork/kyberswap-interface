@@ -173,10 +173,6 @@ export default function TokenFilter({
 
     return { allChainIds, listSelects, chainFilter }
   }, [data])
-  console.log(
-    '🚀 ~ file: index.tsx:175 ~ const{allChainIds,listSelects,chainFilter}=useMemo ~ listSelects:',
-    listSelects,
-  )
 
   // chains when f5, from url
   const defaultChains = useMemo(

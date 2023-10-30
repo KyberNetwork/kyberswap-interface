@@ -152,7 +152,7 @@ function Select({
     return options
       .filter(item => {
         if (!withSearch) return true
-        return item.label?.toString().toLowerCase().includes(searchValue)
+        return item.label?.toString().toLowerCase().includes(searchValue.toLowerCase())
       })
       .map(item => {
         const value = getOptionValue(item)

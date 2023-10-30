@@ -111,6 +111,7 @@ const TagWrapper = styled.div`
   gap: 8px;
   margin-bottom: 24px;
   overflow-x: scroll;
+  flex-wrap: wrap;
 `
 
 const TabButton = styled.div<{ active?: boolean }>`
