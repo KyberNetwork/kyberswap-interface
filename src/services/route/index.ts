@@ -16,14 +16,15 @@ const routeApi = createApi({
         url: string
         params: GetRouteParams
         authentication: boolean
+        clientId?: string
       }
     >({
-      query: ({ params, url, authentication }) => ({
+      query: ({ params, url, authentication, clientId }) => ({
         url,
         params,
         authentication,
         headers: {
-          'x-client-id': 'kyberswap',
+          'x-client-id': clientId || 'kyberswap',
         },
       }),
     }),
@@ -38,7 +39,7 @@ const routeApi = createApi({
         signal,
         authentication,
         headers: {
-          'x-client-id': 'kyberswap',
+          'x-client-id': payload.source || 'kyberswap',
         },
       }),
     }),
