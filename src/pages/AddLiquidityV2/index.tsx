@@ -1012,7 +1012,7 @@ export default function AddLiquidity() {
                         <Text>
                           <Trans>
                             Add your liquidity into one of the farming ranges to participate in Elastic Static Farm.
-                            Only positions that cover the range of the farm will earn maximum rewards. Learn more{' '}
+                            Only positions that cover the range of the farm will earn maximum rewards. Learn more{' '}
                             <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
                               here ↗
                             </ExternalLink>
@@ -1251,14 +1251,8 @@ export default function AddLiquidity() {
           <div style={{ marginTop: '1rem' }}>
             <ProAmmPoolInfo position={position} />
             <ProAmmPooledTokens
-              liquidityValue0={CurrencyAmount.fromRawAmount(
-                unwrappedToken(position.pool.token0),
-                position.amount0.quotient,
-              )}
-              liquidityValue1={CurrencyAmount.fromRawAmount(
-                unwrappedToken(position.pool.token1),
-                position.amount1.quotient,
-              )}
+              liquidityValue0={CurrencyAmount.fromRawAmount(position.pool.token0, position.amount0.quotient)}
+              liquidityValue1={CurrencyAmount.fromRawAmount(position.pool.token1, position.amount1.quotient)}
               title={t`New Liquidity Amount`}
             />
             <ProAmmPriceRangeConfirm position={position} ticksAtLimit={ticksAtLimit} />
