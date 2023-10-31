@@ -9,6 +9,7 @@ import { AlertTriangle, Plus } from 'react-feather'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { BlueCard, LightCard } from 'components/Card'
 import { AutoColumn, ColumnCenter } from 'components/Column'
@@ -34,8 +35,8 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import DisclaimerERC20 from 'pages/AddLiquidityV2/components/DisclaimerERC20'
-import { Dots, Wrapper } from 'pages/Pool/styleds'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { Dots, Wrapper } from 'pages/MyPool/styleds'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useDerivedPairInfo } from 'state/pair/hooks'
@@ -47,6 +48,7 @@ import { StyledInternalLink, TYPE } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
+import { friendlyError } from 'utils/errorMessage'
 import { getDynamicFeeRouterContract, getStaticFeeRouterContract } from 'utils/getContract'
 import isZero from 'utils/isZero'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -184,6 +186,7 @@ export default function CreatePool() {
 
   const addTransactionWithType = useTransactionAdder()
   const addPair = usePairAdderByTokens()
+  const notify = useNotify()
 
   async function onAdd() {
     // if (!pair) return
@@ -300,6 +303,15 @@ export default function CreatePool() {
         if (!didUserReject(error)) {
           console.error(error)
         }
+        const message = friendlyError(error)
+        notify(
+          {
+            title: t`Create Classic Pool Error`,
+            summary: message,
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
       })
   }
 

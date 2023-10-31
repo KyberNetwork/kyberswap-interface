@@ -35,9 +35,20 @@ interface TooltipProps extends Omit<PopoverProps, 'content'> {
   onMouseEnter?: React.MouseEventHandler<HTMLDivElement>
   onMouseLeave?: React.MouseEventHandler<HTMLDivElement>
   children?: React.ReactNode
+  dataTestId?: string
 }
 
-export default function Tooltip({ text, width, maxWidth, size, onMouseEnter, onMouseLeave, ...rest }: TooltipProps) {
+export default function Tooltip({
+  text,
+  width,
+  maxWidth,
+  size,
+  onMouseEnter,
+  onMouseLeave,
+  show,
+  dataTestId,
+  ...rest
+}: TooltipProps) {
   return (
     <Popover
       content={
@@ -48,11 +59,13 @@ export default function Tooltip({ text, width, maxWidth, size, onMouseEnter, onM
             size={size}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
+            data-testid={dataTestId}
           >
             {text}
           </TooltipContainer>
         ) : null
       }
+      show={!!text && show}
       {...rest}
     />
   )

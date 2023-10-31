@@ -21,13 +21,13 @@ export default function EmailForm({
 }: {
   showVerify: (email: string, code: string, showSuccess: boolean) => void
 }) {
+  const { userInfo } = useSessionInfo()
   const { mixpanelHandler } = useMixpanel()
-  const [inputEmail, setInputEmail] = useState('')
+  const [inputEmail, setInputEmail] = useState(userInfo?.email || '')
   const qs = useParsedQueryString<{ referrer: string }>()
   const [referredByCode, setCode] = useState(qs.referrer || '')
   const [errorInput, setErrorInput] = useState({ email: '', referredByCode: '' })
 
-  const { userInfo } = useSessionInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
 
   const [checkReferalCode] = useLazyCheckReferralCodeQuery()

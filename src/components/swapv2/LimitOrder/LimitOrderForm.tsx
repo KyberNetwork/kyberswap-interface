@@ -138,8 +138,15 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const notify = useNotify()
   const { mixpanelHandler } = useMixpanel()
 
-  const { setCurrencyIn, setCurrencyOut, switchCurrency, removeOrderNeedCreated, resetState, setOrderEditing } =
-    useLimitActionHandlers()
+  const {
+    setCurrencyIn,
+    setCurrencyOut,
+    switchCurrency,
+    removeOrderNeedCreated,
+    resetState,
+    setOrderEditing,
+    setInputValue: setInputValueGlobal,
+  } = useLimitActionHandlers()
   const { ordersNeedCreated, inputAmount: inputAmountGlobal } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
@@ -526,8 +533,11 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   }, [account, chainId, ordersNeedCreated, removeOrderNeedCreated, refreshActiveMakingAmount, isEdit])
 
   useEffect(() => {
-    if (inputAmountGlobal) onSetInput(inputAmountGlobal)
-  }, [inputAmountGlobal, onSetInput]) // when redux state change, ex: type and swap
+    if (inputAmountGlobal) {
+      onSetInput(inputAmountGlobal)
+      setInputValueGlobal('')
+    }
+  }, [inputAmountGlobal, onSetInput, setInputValueGlobal]) // when redux state change, ex: type and swap
 
   useEffect(() => {
     return () => {
@@ -661,7 +671,14 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
-        <Tooltip text={inputError} show={!!inputError} placement="top" style={styleTooltip} width="fit-content">
+        <Tooltip
+          text={inputError}
+          show={!!inputError}
+          placement="top"
+          style={styleTooltip}
+          width="fit-content"
+          dataTestId="error-message"
+        >
           <CurrencyInputPanel
             error={!!inputError}
             value={inputAmount}

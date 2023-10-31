@@ -10,7 +10,7 @@ import blockServiceApi from 'services/blockService'
 
 import { GET_BLOCKS } from 'apollo/queries'
 import { ENV_KEY } from 'constants/env'
-import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
+import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
 import {
@@ -152,8 +152,9 @@ const formatDollarSignificantAmount = (num: number, minDigits: number, maxDigits
   })
   return formatter.format(num)
 }
-
-// todo: deprecated, use formatDisplayNumber instead
+/** @deprecated use formatDisplayNumber instead
+ * @example formatDisplayNumber(number, { style: 'decimal', significantDigits: 2 })
+ */
 export function formatNumberWithPrecisionRange(number: number, minPrecision = 2, maxPrecision = 2) {
   const options = {
     minimumFractionDigits: minPrecision,
@@ -176,7 +177,9 @@ const truncateFloatNumber = (num: number, maximumFractionDigits = 6) => {
   return `${wholePart}.${fractionalPart.slice(0, maximumFractionDigits)}`
 }
 
-// todo: deprecated, use formatDisplayNumber instead
+/** @deprecated use formatDisplayNumber instead
+ * @example formatDisplayNumber(number, { style: 'currency' | 'decimal', significantDigits: 6 })
+ */
 export function formattedNum(number: string | number, usd = false, fractionDigits = 5): string {
   if (number === 0 || number === '' || number === undefined) {
     return usd ? '$0' : '0'
@@ -218,7 +221,9 @@ export function formattedNum(number: string | number, usd = false, fractionDigit
   return truncateFloatNumber(num, fractionDigits)
 }
 
-// todo: deprecated, use formatDisplayNumber instead
+/** @deprecated use formatDisplayNumber instead
+ * @example formatDisplayNumber(number, { style: 'currency' | 'decimal', significantDigits: 6 })
+ */
 export function formattedNumLong(num: number, usd = false) {
   if (num === 0) {
     if (usd) {
@@ -380,6 +385,13 @@ export const get24hValue = (valueNow: string, value24HoursAgo: string | undefine
   const currentChange = parseFloat(valueNow) - parseFloat(value24HoursAgo)
 
   return currentChange
+}
+
+export const getNativeTokenLogo = (chainId: ChainId) => {
+  return (
+    store.getState()?.lists?.mapWhitelistTokens?.[chainId]?.[ETHER_ADDRESS]?.logoURI ||
+    (chainId ? NETWORKS_INFO[chainId].nativeToken.logo : '')
+  )
 }
 
 export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string => {

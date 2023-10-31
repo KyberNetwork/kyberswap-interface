@@ -56,7 +56,7 @@ function Web3Network({
   const { name } = selectedChainId ? NETWORKS_INFO[selectedChainId] : { name: t`Select a network` }
   return (
     <>
-      <NetworkSwitchContainer onClick={() => chainIds.length && toggleNetworkModal()}>
+      <NetworkSwitchContainer data-testid="network-button" onClick={() => chainIds.length && toggleNetworkModal()}>
         {selectedChainId && (
           <NetworkLogo chainId={selectedChainId} style={{ width: 20, height: 20, marginRight: '8px' }} />
         )}

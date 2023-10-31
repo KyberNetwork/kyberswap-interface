@@ -6,7 +6,7 @@ export type UserProfile = {
   telegramUsername: string
   nickname: string
   avatarUrl: string
-  data: { hasAccessToKyberAI: boolean }
+  data?: { hasAccessToKyberAI: boolean; favouriteChainIds?: string[] }
 }
 export type ConfirmProfile = {
   showModal: boolean

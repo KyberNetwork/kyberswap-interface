@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { Dispatch, RefObject, SetStateAction, useState } from 'react'
+import { RefObject, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -27,7 +27,7 @@ export default function Header({
   swapActionsRef,
 }: {
   activeTab: TAB
-  setActiveTab: Dispatch<SetStateAction<TAB>>
+  setActiveTab: (tab: TAB) => void
   swapActionsRef: RefObject<HTMLDivElement>
 }) {
   const theme = useTheme()
@@ -35,14 +35,14 @@ export default function Header({
   const [isShowDegenBanner, setShowDegenBanner] = useState(true)
   const { pathname } = useLocation()
 
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
+  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeTab === TAB.LIMIT
+  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || activeTab == TAB.SWAP
 
   return (
     <>
       <ColumnCenter gap="sm">
         <RowBetween>
-          <Tabs activeTab={activeTab} />
+          <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
           <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
         </RowBetween>
         <RowBetween>

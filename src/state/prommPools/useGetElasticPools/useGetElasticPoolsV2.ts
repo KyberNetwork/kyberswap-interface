@@ -6,7 +6,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { ElasticPoolDetail } from 'types/pool'
 
-import { CommonReturn } from '.'
+import { CommonReturn } from './type'
 
 export type RawToken = {
   id: string

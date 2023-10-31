@@ -137,7 +137,7 @@ export default function Vote() {
   const [pendingText, setPendingText] = useState<string>('')
 
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
-  const [transactionError, setTransactionError] = useState()
+  const [transactionError, setTransactionError] = useState<string | undefined>(undefined)
   const totalStakedAmount = stakerInfo ? stakerInfo?.stake_amount + stakerInfo?.pending_stake_amount : 0
   const votePowerAmount: number = useMemo(
     () =>
@@ -187,7 +187,7 @@ export default function Vote() {
   }, [claimVotingRewards, remainingCumulativeAmount, toggleClaimConfirmModal])
 
   const handleVote = useCallback(
-    async (proposal_id: number, option: number) => {
+    async (proposal_id: number, option: number): Promise<boolean> => {
       // only can vote when user has staked amount
       setPendingText(t`Vote submitting`)
       setShowConfirm(true)
@@ -196,12 +196,13 @@ export default function Vote() {
         const tx = await vote(proposal_id, option)
         setAttemptingTxn(false)
         setTxHash(tx)
-        return Promise.resolve(true)
+        return true
       } catch (error) {
         setShowConfirm(false)
+        setAttemptingTxn(false)
         setTransactionError(error?.message)
         setTxHash(undefined)
-        return Promise.reject(error)
+        throw error
       }
     },
     [vote],
@@ -267,7 +268,7 @@ export default function Vote() {
                   fontSize={12}
                   placement="top"
                   text={t`Your voting power is calculated by
-[Your Staked KNC] / [Total Staked KNC] * 100%`}
+[Your Staked KNC] / [Total Staked KNC] * 100%.`}
                 />
               </Text>
 
@@ -349,13 +350,13 @@ export default function Vote() {
                     <InfoHelper
                       placement="top"
                       fontSize={12}
-                      text={t`You have to stake KNC to be able to vote and earn voting reward`}
+                      text={t`You have to stake KNC to be able to vote and earn voting reward.`}
                     />
                   ) : null}
                 </RowFit>
                 {isDelegated && (
                   <MouseoverTooltip
-                    text={t`You have already delegated your voting power to this address`}
+                    text={t`You have already delegated your voting power to this address.`}
                     placement="top"
                   >
                     <RowFit gap="4px" color={theme.subText}>
@@ -459,7 +460,7 @@ export default function Vote() {
           </Text>
         </AutoRow>
         <Text color={theme.subText} fontStyle="italic" fontSize={12} hidden={isMobile}>
-          <Trans>Note: Voting on KyberDAO is only available on Ethereum chain</Trans>
+          <Trans>Note: Voting on KyberDAO is only available on Ethereum chain.</Trans>
         </Text>
         <ProposalListComponent voteCallback={handleVote} />
         <SwitchToEthereumModal featureText={t`This action`} />

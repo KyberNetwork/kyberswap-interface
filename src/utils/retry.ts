@@ -68,7 +68,7 @@ export function retry<T>(
   }
 }
 
-export const timeoutReject = (ms: number, msg = 'timeout') => {
+export const timeoutReject = (ms: number, msg = 'timeout'): Promise<never> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       return reject(new Error(msg))

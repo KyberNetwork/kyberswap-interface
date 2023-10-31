@@ -18,7 +18,7 @@ import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import { config } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -70,7 +70,7 @@ const CollectFeesPanel: React.FC<Props> = ({
   const dispatch = useDispatch()
   const hasNoFeeToCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
   const { changeNetwork } = useChangeNetwork()
-  const positionManager = useProAmmNFTPositionManagerContract()
+  const positionManager = useProAmmNFTPositionManagerReadingContract()
   const deadline = useTransactionDeadline() // custom from users settings
   const [allowedSlippage] = useUserSlippageTolerance()
   const token0Shown = feeValue0?.currency || position.pool.token0
@@ -291,7 +291,7 @@ const CollectFeesPanel: React.FC<Props> = ({
         >
           <MouseoverTooltip
             width="200px"
-            text={<Trans>Your fees are being automatically compounded so you earn more</Trans>}
+            text={<Trans>Your fees are being automatically compounded so you earn more.</Trans>}
             placement="top"
           >
             <Trans>Fees Earned</Trans>

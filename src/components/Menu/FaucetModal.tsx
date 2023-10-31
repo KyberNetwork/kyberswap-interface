@@ -8,7 +8,6 @@ import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
-import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
@@ -21,7 +20,7 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNotify, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
-import { getTokenLogoURL, isAddress, shortenAddress } from 'utils'
+import { getNativeTokenLogo, getTokenLogoURL, isAddress, shortenAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
 
 const AddressWrapper = styled.div`
@@ -68,7 +67,7 @@ function FaucetModal() {
     return nativeToken
   }, [rewardData, chainId, account, allTokens])
 
-  const nativeLogo = useGetNativeTokenLogo(chainId)
+  const nativeLogo = getNativeTokenLogo(chainId)
   const tokenLogo = useMemo(() => {
     if (!token) return
     if (token.isNative) return nativeLogo

@@ -44,6 +44,7 @@ import { useCrossChainSetting, useDegenModeManager } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
+import { getFullDisplayBalance } from 'utils/formatBalance'
 import { uint256ToFraction } from 'utils/numbers'
 import { checkPriceImpact } from 'utils/prices'
 import { wait } from 'utils/retry'
@@ -189,7 +190,7 @@ export default function SwapForm() {
       onTracking(MIXPANEL_TYPE.CROSS_CHAIN_TXS_SUBMITTED)
       setInputAmount('')
       setSwapState(state => ({ ...state, attemptingTxn: false, txHash: tx.hash }))
-      const tokenAmountOut = uint256ToFraction(outputAmount, currencyOut.decimals).toSignificant(6)
+      const tokenAmountOut = getFullDisplayBalance(outputAmount, currencyOut.decimals, 6)
       const tokenAddressIn = getTokenAddress(currencyIn)
       const tokenAddressOut = getTokenAddress(currencyOut)
       addTransaction({
@@ -312,6 +313,7 @@ export default function SwapForm() {
             onMax={handleMaxInput}
             onCurrencySelect={onCurrencySelect}
             id="swap-currency-input"
+            dataTestId="swap-currency-input"
             usdValue={amountUsdIn ?? ''}
           />
         </Flex>
@@ -341,6 +343,7 @@ export default function SwapForm() {
             }
             onCurrencySelect={onCurrencySelectDest}
             id="swap-currency-output"
+            dataTestId="swap-currency-output"
             usdValue={amountUsdOut ?? ''}
           />
         </div>
@@ -356,6 +359,7 @@ export default function SwapForm() {
                 <ExternalLink href={'https://axelar.network/blog/what-is-axlusdc-and-how-do-you-get-it'}>
                   here ↗
                 </ExternalLink>
+                .
               </Trans>
             </Text>
           }

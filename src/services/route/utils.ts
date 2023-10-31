@@ -25,7 +25,9 @@ const calculateFee = (
     parseUnits(routeSummary.extraFee.feeAmount, RESERVE_USD_DECIMALS).toString(),
     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
   ).divide(BIPS_BASE)
-  const feeCurrencyAmount = currencyAmountToTakeFee.multiply(feeAmountFraction)
+  const feeCurrencyAmount = routeSummary.extraFee.isInBps
+    ? currencyAmountToTakeFee.multiply(feeAmountFraction)
+    : CurrencyAmount.fromRawAmount(currencyAmountToTakeFee.currency, routeSummary.extraFee.feeAmount)
 
   const feeAmountUsd = routeSummary.extraFee.feeAmountUsd
   return {

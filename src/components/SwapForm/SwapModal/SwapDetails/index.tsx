@@ -18,7 +18,7 @@ import { TooltipTextOfSwapFee } from 'components/SwapForm/TradeSummary'
 import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
-import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
@@ -107,6 +107,8 @@ export default function SwapDetails({
   const feeAmountWithSymbol =
     feeAmountFromBuild && currencyFromBuild?.symbol ? `${feeAmountFromBuild} ${currencyFromBuild.symbol}` : ''
 
+  const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
+
   return (
     <>
       <AutoColumn
@@ -153,7 +155,7 @@ export default function SwapDetails({
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
               <MouseoverTooltip
                 width="200px"
-                text={<Trans>You will receive at least this amount or your transaction will revert</Trans>}
+                text={<Trans>You will receive at least this amount or your transaction will revert.</Trans>}
                 placement="right"
               >
                 <Trans>Minimum Received</Trans>
@@ -224,7 +226,7 @@ export default function SwapDetails({
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction</Trans>} placement="right">
+                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
                   <Trans>Est. Gas Fee</Trans>
                 </MouseoverTooltip>
               </TextDashed>
@@ -245,7 +247,7 @@ export default function SwapDetails({
           </RowBetween>
         )}
 
-        {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) && (
+        {!!routeSummary?.extraFee?.feeAmount && (
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
@@ -326,7 +328,7 @@ export default function SwapDetails({
           </TYPE.black>
         </RowBetween>
 
-        {isSupportKyberDao(chainId) && account && Number(routeSummary?.amountInUsd || 0) > 200 && (
+        {!isPartnerSwap && isSupportKyberDao(chainId) && account && Number(routeSummary?.amountInUsd || 0) > 200 && (
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
@@ -364,7 +366,7 @@ export default function SwapDetails({
         <Divider />
         <RowBetween>
           <TextDashed fontSize={12} color={theme.subText}>
-            <MouseoverTooltip text={<Trans>Chain on which the swap will be executed</Trans>}>
+            <MouseoverTooltip text={<Trans>Chain on which the swap will be executed.</Trans>}>
               <Trans>Chain</Trans>
             </MouseoverTooltip>
           </TextDashed>
@@ -380,7 +382,7 @@ export default function SwapDetails({
               text={
                 <Trans>
                   The contract address that will be executing the swap. You can verify the contract in the block
-                  explorer
+                  explorer.
                 </Trans>
               }
             >

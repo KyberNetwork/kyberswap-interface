@@ -166,12 +166,12 @@ function Web3StatusInner() {
                         style={{ cursor: 'pointer', fontSize: '12px', color: theme.primary }}
                         onClick={e => {
                           e.stopPropagation()
-                          signIn(account)
+                          signIn({ account })
                         }}
                       >
                         sign-in
                       </span>{' '}
-                      to link your wallet to a profile. This will allow us to offer you a better experience
+                      to link your wallet to a profile. This will allow us to offer you a better experience.
                     </Trans>
                   </Text>
                 }

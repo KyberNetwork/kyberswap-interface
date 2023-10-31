@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { Dispatch, RefObject, SetStateAction, useState } from 'react'
+import { RefObject, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { MoreHorizontal } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -9,7 +9,6 @@ import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.sv
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
-import Tutorial, { TutorialType } from 'components/Tutorial'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
@@ -21,6 +20,7 @@ import { TAB } from 'pages/SwapV3/index'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
+import { ExternalLink } from 'theme'
 
 const SwapFormActions = styled.div<{ isShowHeaderMenu: boolean }>`
   display: flex;
@@ -64,7 +64,7 @@ export default function HeaderRightMenu({
   swapActionsRef,
 }: {
   activeTab: TAB
-  setActiveTab: Dispatch<SetStateAction<TAB>>
+  setActiveTab: (tab: TAB) => void
   swapActionsRef: RefObject<HTMLDivElement>
 }) {
   const theme = useTheme()
@@ -73,11 +73,13 @@ export default function HeaderRightMenu({
 
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
 
   const { currencies, shareUrl } = useCurrenciesByPage()
   const { mixpanelHandler } = useMixpanel(currencies)
 
-  const onToggleActionTab = (tab: TAB) => setActiveTab(activeTab === tab ? (isLimitPage ? TAB.LIMIT : TAB.SWAP) : tab)
+  const onToggleActionTab = (tab: TAB) =>
+    setActiveTab(activeTab === tab ? (isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP) : tab)
 
   const [isDegenMode] = useDegenModeManager()
 
@@ -107,16 +109,13 @@ export default function HeaderRightMenu({
       <ActionPanel>
         {isShowMenu && (
           <>
-            <Tutorial
-              type={TutorialType.SWAP}
-              customIcon={
-                <StyledActionButtonSwapForm onClick={() => mixpanelHandler(MIXPANEL_TYPE.SWAP_TUTORIAL_CLICK)}>
-                  <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content" disableTooltip={isMobile}>
-                    <TutorialIcon />
-                  </MouseoverTooltip>
-                </StyledActionButtonSwapForm>
-              }
-            />
+            <StyledActionButtonSwapForm onClick={() => mixpanelHandler(MIXPANEL_TYPE.SWAP_TUTORIAL_CLICK)}>
+              <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content" disableTooltip={isMobile}>
+                <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface">
+                  <TutorialIcon />
+                </ExternalLink>
+              </MouseoverTooltip>
+            </StyledActionButtonSwapForm>
             <TokenInfoIcon
               currencies={currencies}
               onClick={() => {

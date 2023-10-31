@@ -18,8 +18,8 @@ import Loader from 'components/Loader'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
@@ -282,7 +282,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
             <StatItem
               label={
                 <MouseoverTooltip
-                  text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+                  text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
                 >
                   <TextDashed>APR</TextDashed>
                 </MouseoverTooltip>

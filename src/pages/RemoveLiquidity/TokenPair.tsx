@@ -9,6 +9,7 @@ import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -35,8 +36,8 @@ import { usePairContract } from 'hooks/useContract'
 import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { Wrapper } from 'pages/Pool/styleds'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { Wrapper } from 'pages/MyPool/styleds'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/actions'
 import { useBurnActionHandlers, useBurnState, useDerivedBurnInfo } from 'state/burn/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -46,12 +47,14 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
+import { friendlyError } from 'utils/errorMessage'
 import { formatJSBIValue } from 'utils/formatBalance'
 import {
   getDynamicFeeRouterContract,
   getOldStaticFeeRouterContract,
   getStaticFeeRouterContract,
 } from 'utils/getContract'
+import { formatDisplayNumber } from 'utils/numbers'
 import { ErrorName } from 'utils/sentry'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 
@@ -90,6 +93,7 @@ export default function TokenPair({
   const currencyBIsWETH = !!currencyB?.equals(WETH[chainId])
 
   const theme = useTheme()
+  const notify = useNotify()
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
@@ -164,7 +168,7 @@ export default function TokenPair({
     const domain = {
       name: isStaticFeePair ? 'KyberSwap LP' : 'KyberDMM LP',
       version: '1',
-      chainId: chainId,
+      chainId,
       verifyingContract: pair.liquidityToken.address,
     }
     const Permit = [
@@ -176,7 +180,6 @@ export default function TokenPair({
     ]
     const message = {
       owner: account,
-      TransactionErrorContent,
       spender: contractAddress,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
@@ -192,23 +195,32 @@ export default function TokenPair({
       message,
     })
 
-    library
-      .send('eth_signTypedData_v4', [account, data])
-      .then(splitSignature)
-      .then(signature => {
-        setSignatureData({
-          v: signature.v,
-          r: signature.r,
-          s: signature.s,
-          deadline: deadline.toNumber(),
+    try {
+      await library
+        .send('eth_signTypedData_v4', [account, data])
+        .then(splitSignature)
+        .then(signature => {
+          setSignatureData({
+            v: signature.v,
+            r: signature.r,
+            s: signature.s,
+            deadline: deadline.toNumber(),
+          })
         })
-      })
-      .catch((error: any) => {
-        // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
-        if (!didUserReject(error)) {
-          approveCallback()
-        }
-      })
+    } catch (error) {
+      if (didUserReject(error)) {
+        notify(
+          {
+            title: t`Approve failed`,
+            summary: friendlyError(error),
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
+      } else {
+        approveCallback()
+      }
+    }
   }
 
   // wrapped onUserInput to clear signatures
@@ -395,21 +407,20 @@ export default function TokenPair({
             setTxHash(response.hash)
           }
         })
-        .catch((err: Error) => {
+        .catch((error: Error) => {
           setAttemptingTxn(false)
-          // we only care if the error is something _other_ than the user rejected the tx
-          if (!didUserReject(err)) {
-            const e = new Error('Remove Classic Liquidity Error', { cause: err })
+
+          const message = error.message.includes('INSUFFICIENT')
+            ? t`Insufficient liquidity available. Please reload page or increase max slippage and try again!`
+            : error.message
+
+          setRemoveLiquidityError(message)
+
+          if (!didUserReject(error)) {
+            console.error('Remove Classic Liquidity Error:', { message, error })
+            const e = new Error(friendlyError(error), { cause: error })
             e.name = ErrorName.RemoveClassicLiquidityError
             captureException(e, { extra: { args } })
-          }
-
-          if (err.message.includes('INSUFFICIENT')) {
-            setRemoveLiquidityError(
-              t`Insufficient liquidity available. Please reload page or increase max slippage and try again!`,
-            )
-          } else {
-            setRemoveLiquidityError(err?.message || JSON.stringify(err))
           }
         })
     }
@@ -602,7 +613,13 @@ export default function TokenPair({
                     </Text>
 
                     <Text fontSize={12} fontWeight={500}>
-                      <Trans>Balance</Trans>: {!userLiquidity ? <Loader /> : userLiquidity?.toSignificant(6)} LP Tokens
+                      <Trans>Balance</Trans>:{' '}
+                      {!userLiquidity ? (
+                        <Loader />
+                      ) : (
+                        formatDisplayNumber(userLiquidity, { style: 'decimal', significantDigits: 6 })
+                      )}{' '}
+                      LP Tokens
                     </Text>
                   </RowBetween>
                   <Row style={{ alignItems: 'flex-end' }}>

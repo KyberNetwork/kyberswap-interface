@@ -62,7 +62,12 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/no-unused-vars': [
       'warn',
-      { ignoreRestSiblings: true, argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      {
+        ignoreRestSiblings: true,
+        argsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        destructuredArrayIgnorePattern: '^_',
+      },
     ],
     'no-empty-function': 'off',
     '@typescript-eslint/no-empty-function': 'off',

@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { stringify } from 'querystring'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -59,15 +59,16 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
     margin-right: 0;
   }
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`  
+  ${({ theme }) => theme.mediaWidth.upToSmall`
       padding: 0px 0.75rem;
   `}
 `
 
 type Props = {
   activeTab: TAB
+  setActiveTab: (tab: TAB) => void
 }
-export default function Tabs({ activeTab }: Props) {
+export default function Tabs({ activeTab, setActiveTab }: Props) {
   const navigateFn = useNavigate()
   const { networkInfo, chainId } = useActiveWeb3React()
   const qs = useParsedQueryString<{
@@ -77,10 +78,22 @@ export default function Tabs({ activeTab }: Props) {
 
   const { pathname } = useLocation()
 
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
+  const isParnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+
+  const [searchParams] = useSearchParams()
+  let features = (searchParams.get('features') || '')
+    .split(',')
+    .filter(item => [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN].includes(item))
+  if (!features.length) features = [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN]
+
+  const show = (tab: TAB) => (isParnerSwap ? features.includes(tab) : true)
+
   const onClickTab = (tab: TAB) => {
     if (activeTab === tab) {
+      return
+    }
+    if (isParnerSwap) {
+      setActiveTab(tab)
       return
     }
 
@@ -97,14 +110,22 @@ export default function Tabs({ activeTab }: Props) {
   return (
     <TabContainer>
       <TabWrapper>
-        <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={isSwapPage}>
-          <Text fontSize={20} fontWeight={500}>
-            <Trans>Swap</Trans>
-          </Text>
-        </Tab>
-        {isSupportLimitOrder(chainId) && <LimitTab onClick={() => onClickTab(TAB.LIMIT)} />}
-        {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
-          <Tab onClick={() => onClickTab(TAB.CROSS_CHAIN)} isActive={isCrossChainPage}>
+        {show(TAB.SWAP) && (
+          <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={TAB.SWAP === activeTab}>
+            <Text fontSize={20} fontWeight={500}>
+              <Trans>Swap</Trans>
+            </Text>
+          </Tab>
+        )}
+        {show(TAB.LIMIT) && isSupportLimitOrder(chainId) && (
+          <LimitTab onClick={() => onClickTab(TAB.LIMIT)} active={activeTab === TAB.LIMIT} />
+        )}
+        {show(TAB.CROSS_CHAIN) && CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+          <Tab
+            onClick={() => onClickTab(TAB.CROSS_CHAIN)}
+            isActive={activeTab === TAB.CROSS_CHAIN}
+            data-testid="cross-chain-tab"
+          >
             <Text fontSize={20} fontWeight={500}>
               <Trans>Cross-Chain</Trans>
             </Text>

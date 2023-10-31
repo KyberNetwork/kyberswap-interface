@@ -3,7 +3,7 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 
 import { MultipleChainSelectProps, StyledLogo } from '.'

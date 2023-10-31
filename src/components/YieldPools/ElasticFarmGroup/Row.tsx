@@ -21,7 +21,7 @@ import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
-import { useProMMFarmContract } from 'hooks/useContract'
+import { useProMMFarmReadingContract } from 'hooks/useContract'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
@@ -96,7 +96,7 @@ const Row = ({
     0,
   )
 
-  const contract = useProMMFarmContract(fairlaunchAddress)
+  const contract = useProMMFarmReadingContract(fairlaunchAddress)
   const [targetPercent, setTargetPercent] = useState('')
   const [targetPercentByNFT, setTargetPercentByNFT] = useState<{ [key: string]: string }>({})
   const [rowOpen, setRowOpen] = useState(false)
@@ -196,7 +196,7 @@ const Row = ({
 
     return (
       <MouseoverTooltipDesktopOnly
-        text={t`Stake your liquidity positions (i.e. your NFT tokens) into the farm to start earning rewards`}
+        text={t`Stake your liquidity positions (i.e. your NFT tokens) into the farm to start earning rewards.`}
         placement="top"
         width="300px"
       >
@@ -218,7 +218,7 @@ const Row = ({
 
     return (
       <MouseoverTooltipDesktopOnly
-        text={t`Unstake your liquidity positions (i.e. your NFT tokens) from the farm`}
+        text={t`Unstake your liquidity positions (i.e. your NFT tokens) from the farm.`}
         placement="top"
         width="300px"
       >
@@ -280,7 +280,7 @@ const Row = ({
         <MouseoverTooltip
           text={
             <Text fontSize="12px" fontStyle="italic">
-              <Trans>You have {numberOutRangePos} out-of-range position(s)</Trans>
+              <Trans>You have {numberOutRangePos} out-of-range position(s).</Trans>
             </Text>
           }
         >

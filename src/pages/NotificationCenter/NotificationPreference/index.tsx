@@ -1,5 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,16 +12,16 @@ import Loader from 'components/Loader'
 import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import ActionButtons from 'pages/NotificationCenter/NotificationPreference/ActionButtons'
-import InputEmail from 'pages/NotificationCenter/NotificationPreference/InputEmail'
-import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
+import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPreference/InputEmail'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
-import { useSignedAccountInfo } from 'state/profile/hooks'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { pushUnique } from 'utils'
 import { isEmailValid } from 'utils/string'
@@ -107,8 +108,6 @@ export const useValidateEmail = (defaultEmail?: string) => {
   const [inputEmail, setInputEmail] = useState(defaultEmail || '')
   const [errorInput, setErrorInput] = useState<string | null>(null)
 
-  const theme = useTheme()
-
   const validateInput = useCallback((value: string) => {
     const isValid = isEmailValid(value)
     const errMsg = t`Please input a valid email address`
@@ -124,9 +123,6 @@ export const useValidateEmail = (defaultEmail?: string) => {
     [validateInput],
   )
 
-  const hasErrorInput = !!errorInput
-  const errorColor = hasErrorInput ? theme.red : theme.border
-
   const reset = useCallback(
     (email: string | undefined) => {
       setErrorInput(null)
@@ -135,7 +131,7 @@ export const useValidateEmail = (defaultEmail?: string) => {
     [defaultEmail],
   )
 
-  return { inputEmail: inputEmail.trim(), onChangeEmail, errorInput, errorColor, hasErrorInput, reset }
+  return { inputEmail: inputEmail.trim(), onChangeEmail, errorInput, reset }
 }
 
 function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => void }) {
@@ -144,9 +140,9 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
 
   const { account } = useActiveWeb3React()
   const { userInfo, isLogin } = useSessionInfo()
-  const { isSignInEmail } = useSignedAccountInfo()
   const { isWhiteList } = useIsWhiteListKyberAI()
 
+  const { inputEmail, errorInput, onChangeEmail, reset } = useValidateEmail(userInfo?.email)
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
     setIsShowVerify(true)
@@ -162,7 +158,8 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
   const { mixpanelHandler } = useMixpanel()
 
   const [emailPendingVerified, setEmailPendingVerified] = useState('')
-  const { inputEmail, errorInput, onChangeEmail, errorColor, reset, hasErrorInput } = useValidateEmail(userInfo?.email)
+
+  const hasErrorInput = !!errorInput
 
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
 
@@ -336,7 +333,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
   }, [topicGroupsGlobal])
 
   const totalTopic = commons.length + restrict.length
-  const renderTopic = (topic: Topic, disabled: boolean, disableTooltip?: string) => {
+  const renderTopic = (topic: Topic, disabled: boolean, disableTooltip?: ReactNode) => {
     return (
       <MouseoverTooltip text={disabled ? disableTooltip : ''} key={topic.id}>
         <TopicItem key={topic.id} htmlFor={`topic${topic.id}`} style={{ alignItems: 'flex-start' }}>
@@ -361,6 +358,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
     )
   }
 
+  const navigate = useNavigate()
   return (
     <Wrapper>
       <Text fontWeight={'500'} color={theme.text} fontSize="14px">
@@ -369,18 +367,22 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
 
       <EmailColum>
         <Label>
-          <Trans>Enter your email address to receive notifications</Trans>
+          <Trans>Enter your email address to receive notifications.</Trans>
         </Label>
-        <InputEmail
-          disabled={isSignInEmail}
+        <InputEmailWithVerification
           hasError={hasErrorInput}
           showVerifyModal={showVerifyModal}
-          errorColor={errorColor}
           onChange={onChangeEmail}
           value={inputEmail}
           isVerifiedEmail={!!isVerifiedEmail}
+          isShowVerify={isShowVerify}
+          onDismissVerifyModal={onDismissVerifyModal}
         />
-        {errorInput && <Label style={{ color: errorColor, margin: '7px 0px 0px 0px' }}>{errorInput}</Label>}
+        {errorInput && (
+          <Label style={{ color: errorInput ? theme.red : theme.border, margin: '7px 0px 0px 0px' }}>
+            {errorInput}
+          </Label>
+        )}
       </EmailColum>
       <Divider />
       <Column gap="16px">
@@ -401,11 +403,33 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
               const disableKyberAI = disableCheckbox || !isLogin || !isWhiteList
               return renderTopic(
                 topic,
-                (() => (topic.isKyberAI ? disableKyberAI : disableCheckbox || !isLogin))(),
-                topic.isKyberAI && disableKyberAI
-                  ? t`You must be whitelisted to subscribe/unsubscribe this topic`
-                  : t`These notifications can only be subscribed by a signed-in profile. Go to Profile tab to sign-in with your wallet
-                `,
+                topic.isKyberAI ? disableKyberAI : disableCheckbox || !isLogin,
+                topic.isKyberAI && disableKyberAI ? (
+                  <Trans>
+                    Before you can subscribe to KyberAI notifications, you need to be whitelisted. Register for KyberAI{' '}
+                    <Text
+                      sx={{ cursor: 'pointer' }}
+                      as="span"
+                      color={theme.primary}
+                      onClick={() => navigate(APP_PATHS.KYBERAI_ABOUT)}
+                    >
+                      here
+                    </Text>
+                  </Trans>
+                ) : (
+                  <Trans>
+                    Before you can subscribe to this notification, sign-in to a profile first. Go the{' '}
+                    <Text
+                      sx={{ cursor: 'pointer' }}
+                      as="span"
+                      color={theme.primary}
+                      onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)}
+                    >
+                      Profile
+                    </Text>{' '}
+                    tab to sign-in with your wallet
+                  </Trans>
+                ),
               )
             })}
           </GroupColum>
@@ -430,17 +454,11 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
             !getDiffChangeTopics(topicGroups).hasChanged
               ? ''
               : (needVerifyEmail || !userInfo?.email) && !isIncludePriceAlert()
-              ? t`You will need to verify your email address first`
+              ? t`You will need to verify your email address first.`
               : ''
           }
         />
       )}
-      <VerifyCodeModal
-        isOpen={isShowVerify}
-        onDismiss={onDismissVerifyModal}
-        email={inputEmail}
-        onVerifySuccess={onDismissVerifyModal}
-      />
     </Wrapper>
   )
 }

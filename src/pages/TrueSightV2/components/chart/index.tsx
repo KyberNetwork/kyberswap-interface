@@ -275,7 +275,7 @@ const LoadingHandleWrapper = ({
               <Column gap="14px" alignItems="center">
                 <Info size="38px" />
                 <Text fontSize="14px">
-                  <Trans>We couldn&apos;t find any information for this token</Trans>
+                  <Trans>We couldn&apos;t find any information for this token.</Trans>
                 </Text>
               </Column>
             )}
@@ -2812,5 +2812,60 @@ export const Prochart = ({
         }}
       />
     </ProLiveChartWrapper>
+  )
+}
+
+/* IN DEVELOPMENT */
+export const LiquidityProfile = () => {
+  const theme = useTheme()
+
+  const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.LIQUIDITY_PROFILE, {
+    showOptions: ['showPriceImpact', 'showBuy', 'showSell'],
+    noData: true,
+  })
+
+  const showPriceImpact = state?.showOptions?.includes('showPriceImpact')
+  const showBuy = state?.showOptions?.includes('showBuy')
+  const showSell = state?.showOptions?.includes('showSell')
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
+  return (
+    <ChartWrapper>
+      <LegendWrapper>
+        <LegendButton
+          text="Price Impact"
+          iconStyle={{ backgroundColor: rgba(theme.warning, 0.6) }}
+          enabled={showPriceImpact}
+          onClick={() =>
+            dispatch({ type: CHART_STATES_ACTION_TYPE.TOGGLE_OPTION, payload: { option: 'showPriceImpact' } })
+          }
+        />
+        <LegendButton
+          text="Buy"
+          iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+          enabled={showBuy}
+          onClick={() => dispatch({ type: CHART_STATES_ACTION_TYPE.TOGGLE_OPTION, payload: { option: 'showBuy' } })}
+        />
+        <LegendButton
+          text="Sell"
+          iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+          enabled={showSell}
+          onClick={() => dispatch({ type: CHART_STATES_ACTION_TYPE.TOGGLE_OPTION, payload: { option: 'showSell' } })}
+        />
+      </LegendWrapper>
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart
+          width={500}
+          height={400}
+          data={[]}
+          stackOffset="sign"
+          margin={above768 ? { top: 80, left: 20, right: 20 } : { top: 100, left: 10, right: 10, bottom: 10 }}
+        >
+          <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
+          <Customized component={KyberLogo} />
+          {/* IN DEVELOPMENT */}
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartWrapper>
   )
 }

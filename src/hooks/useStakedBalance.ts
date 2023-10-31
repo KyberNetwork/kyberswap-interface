@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useActiveWeb3React } from 'hooks'
 import { useBlockNumber } from 'state/application/hooks'
 
-import { useFairLaunchContract } from './useContract'
+import { useFairLaunchRadingContract } from './useContract'
 
 interface BalanceProps {
   value: BigNumber
@@ -16,7 +16,7 @@ const useStakedBalance = (contractAddress: string, pid: number, decimals = 18) =
   const [balance, setBalance] = useState<BalanceProps>({ value: BigNumber.from(0), decimals: 18 })
   const { account } = useActiveWeb3React()
   const currentBlockNumber = useBlockNumber()
-  const fairLaunchContract = useFairLaunchContract(contractAddress)
+  const fairLaunchContract = useFairLaunchRadingContract(contractAddress)
 
   const fetchBalance = useCallback(async () => {
     const getStaked = async (pid: number, owner: string | null | undefined): Promise<BalanceProps> => {

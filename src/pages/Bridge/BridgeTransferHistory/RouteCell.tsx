@@ -4,7 +4,8 @@ import { Box, Flex } from 'rebass'
 import { useTheme } from 'styled-components'
 
 import QuestionHelper from 'components/QuestionHelper'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 
 type Props = {
   fromChainID: number

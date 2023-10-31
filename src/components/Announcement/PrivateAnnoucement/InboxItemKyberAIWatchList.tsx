@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -10,6 +11,7 @@ import Column from 'components/Column'
 import { TokenLogoWithShadow } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { KyberAIListType } from 'pages/TrueSightV2/types'
 import { calculateValueToColor, getTypeByKyberScore } from 'pages/TrueSightV2/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -46,7 +48,12 @@ export const TokenInfo = ({
             </Text>{' '}
             <Text as="span" color={+priceChange > 0 ? theme.apr : theme.red}>
               ({+priceChange > 0 && '+'}
-              {formatDisplayNumber(+priceChange / 100, { style: 'percent', fractionDigits: 2, allowNegative: true })})
+              {formatDisplayNumber(+priceChange / 100, {
+                style: 'percent',
+                fractionDigits: 2,
+                allowDisplayNegative: true,
+              })}
+              )
             </Text>
           </Text>
         )}
@@ -55,7 +62,15 @@ export const TokenInfo = ({
   )
 }
 
-function InboxItemBridge({
+export const useNavigateToMyWatchList = () => {
+  const navigate = useNavigate()
+  return useCallback(
+    () => navigate(`${APP_PATHS.KYBERAI_RANKINGS}?listType=${KyberAIListType.MYWATCHLIST}`),
+    [navigate],
+  )
+}
+
+function InboxItemKyberAIWatchlist({
   announcement,
   onRead,
   style,
@@ -66,9 +81,9 @@ function InboxItemBridge({
   const { assets = [] } = templateBody || {}
   const [token1, token2, token3] = assets
 
-  const navigate = useNavigate()
+  const navigateToWatchList = useNavigateToMyWatchList()
   const onClick = () => {
-    navigate(APP_PATHS.KYBERAI_RANKINGS)
+    navigateToWatchList()
     onRead(announcement, 'kyberAI_watchlist')
   }
 
@@ -94,4 +109,4 @@ function InboxItemBridge({
     </InboxItemWrapper>
   )
 }
-export default InboxItemBridge
+export default InboxItemKyberAIWatchlist

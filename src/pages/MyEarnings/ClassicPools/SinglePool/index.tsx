@@ -18,7 +18,7 @@ import { MoneyBag } from 'components/Icons'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, DMM_ANALYTICS_URL, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import Position from 'pages/MyEarnings/ClassicPools/SinglePool/Position'
 import { StatItem } from 'pages/MyEarnings/ElasticPools/SinglePool'
@@ -277,7 +277,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
             <StatItem
               label={
                 <MouseoverTooltip
-                  text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+                  text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
                 >
                   <TextDashed>APR</TextDashed>
                 </MouseoverTooltip>

@@ -12,35 +12,36 @@ import { KYBERSCORE_TAG_TYPE, NETWORK_TO_CHAINID } from '../constants'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   if (value === 0) return theme.subText
-  if (value < 17) {
-    return theme.red
+
+  if (value > 83) {
+    return theme.primary
   }
-  if (value < 34) {
-    return '#FFA7C3'
-  }
-  if (value < 68) {
-    return theme.text
-  }
-  if (value < 84) {
+  if (value > 67) {
     return '#8DE1C7'
   }
-  return theme.primary
+  if (value > 33) {
+    return theme.text
+  }
+  if (value > 16) {
+    return '#FFA7C3'
+  }
+  return theme.red
 }
 
 export const getTypeByKyberScore = (value: number): KYBERSCORE_TAG_TYPE => {
-  if (value < 17) {
-    return KYBERSCORE_TAG_TYPE.VERY_BEARISH
+  if (value > 83) {
+    return KYBERSCORE_TAG_TYPE.VERY_BULLISH
   }
-  if (value < 34) {
-    return KYBERSCORE_TAG_TYPE.BEARISH
-  }
-  if (value < 68) {
-    return KYBERSCORE_TAG_TYPE.NEUTRAL
-  }
-  if (value < 84) {
+  if (value > 67) {
     return KYBERSCORE_TAG_TYPE.BULLISH
   }
-  return KYBERSCORE_TAG_TYPE.VERY_BULLISH
+  if (value > 33) {
+    return KYBERSCORE_TAG_TYPE.NEUTRAL
+  }
+  if (value > 16) {
+    return KYBERSCORE_TAG_TYPE.BEARISH
+  }
+  return KYBERSCORE_TAG_TYPE.VERY_BEARISH
 }
 
 export const formatShortNum = (num: number, fixed = 1): string => {
@@ -96,12 +97,12 @@ export const isReferrerCodeInvalid = (error: any) => error?.data?.code === 4040
 
 const mapErr: { [key: number]: string } = {
   4004: t`Verification code is wrong or expired. Please try again.`,
-  4040: t`Referral code is invalid`,
-  4090: t`This email address is already registered`,
+  4040: t`Referral code is invalid.`,
+  4090: t`This email address is already registered.`,
 }
 export const getErrorMessage = (error: any) => {
   const code = error?.data?.code
-  return mapErr[code] || t`Error occur, please try again`
+  return mapErr[code] || t`Error occur, please try again.`
 }
 
 export const navigateToSwapPage = ({ address, chain }: { address?: string; chain?: string }) => {

@@ -257,9 +257,13 @@ function ProposalItem({
       voteCallback?.(
         proposal.proposal_id,
         selectedOptions.map(i => i + 1).reduce((acc, item) => (acc += 1 << (item - 1)), 0),
-      ).then(() => {
-        setSelectedOptions([])
-      })
+      )
+        .then(() => {
+          setSelectedOptions([])
+        })
+        .catch(error => {
+          setErrorMessage(error.message)
+        })
   }, [selectedOptions, proposal.proposal_id, voteCallback])
 
   const votedOfCurrentProposal = useMemo(

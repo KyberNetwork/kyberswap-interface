@@ -62,6 +62,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true, isCrossC
                   <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
                     here ↗
                   </ExternalLink>
+                  .
                 </Trans>
               </Text>
             }
@@ -84,8 +85,8 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true, isCrossC
       {isWarning && (
         <Message data-warning={true} data-error={false}>
           {slippageStatus === SLIPPAGE_STATUS.HIGH
-            ? t`Slippage is high. Your transaction may be front-run`
-            : t`Slippage is low. Your transaction may fail`}
+            ? t`Slippage is high. Your transaction may be front-run.`
+            : t`Slippage is low. Your transaction may fail.`}
         </Message>
       )}
     </Flex>

@@ -300,7 +300,7 @@ export function useDerivedZapInInfo(
   }
 
   const userInCurrencyAmount = useMemo(() => {
-    return tryParseAmount(typedValue, currencies[independentField], true)
+    return tryParseAmount(typedValue, currencies[independentField])
   }, [currencies, independentField, typedValue])
 
   const userIn = useMemo(() => {
@@ -320,7 +320,6 @@ export function useDerivedZapInInfo(
   const independentAmount: CurrencyAmount<Currency> | undefined = tryParseAmount(
     zapInAmounts.amounts.tokenInAmount.toString(),
     currencies[independentField]?.wrapped,
-    false,
   )
 
   const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
@@ -333,7 +332,6 @@ export function useDerivedZapInInfo(
         const dependentTokenAmount = tryParseAmount(
           zapInAmounts.amounts.tokenOutAmount.toString(),
           currencies[dependentField]?.wrapped,
-          false,
         )
 
         return dependentTokenAmount

@@ -53,7 +53,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
@@ -87,7 +87,7 @@ import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { formatDisplayNumber, toFixed } from 'utils/numbers'
+import { formatDisplayNumber, toString } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -136,7 +136,7 @@ export default function AddLiquidity() {
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const [isDegenMode] = useDegenModeManager()
   const addTransactionWithType = useTransactionAdder()
-  const positionManager = useProAmmNFTPositionManagerContract()
+  const positionManager = useProAmmNFTPositionManagerReadingContract()
   const [showChart, setShowChart] = useState(false)
   const [positionIndex, setPositionIndex] = useState(0)
   const { mixpanelHandler } = useMixpanel()
@@ -631,7 +631,7 @@ export default function AddLiquidity() {
 
   useEffect(() => {
     if (waitForMarketPrice && marketPrice) {
-      onStartPriceInput(toFixed(marketPrice))
+      onStartPriceInput(toString(marketPrice))
       setWaitForMarketPrice(false)
     }
   }, [waitForMarketPrice, marketPrice, onStartPriceInput])
@@ -891,7 +891,7 @@ export default function AddLiquidity() {
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
-              <Trans>Invalid range selected. The min price must be lower than the max price</Trans>
+              <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
             </TYPE.black>
           </Flex>
         </WarningCard>
@@ -900,7 +900,7 @@ export default function AddLiquidity() {
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
-              <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions</Trans>
+              <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions.</Trans>
             </TYPE.black>
           </Flex>
         </WarningCard>
@@ -910,7 +910,7 @@ export default function AddLiquidity() {
             <AlertTriangle stroke={theme.warning} size="16px" />
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
-                Your position will not earn fees until the market price of the pool moves into your price range
+                Your position will not earn fees until the market price of the pool moves into your price range.
               </Trans>
             </TYPE.black>
           </Flex>
@@ -923,7 +923,7 @@ export default function AddLiquidity() {
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
                 Warning: The price range for this liquidity position is not eligible for farming rewards. To become
-                eligible for rewards, please match the farm’s active range(s)
+                eligible for rewards, please match the farm’s active range(s).
               </Trans>
             </TYPE.black>
           </Flex>
@@ -945,7 +945,7 @@ export default function AddLiquidity() {
                 >
                   Slippage
                 </TextUnderlineColor>
-                <TextUnderlineTransparent> is high. Your transaction may be front-run</TextUnderlineTransparent>
+                <TextUnderlineTransparent> is high. Your transaction may be front-run.</TextUnderlineTransparent>
               </Trans>
             </TYPE.black>
           </Flex>
@@ -994,7 +994,7 @@ export default function AddLiquidity() {
             <DynamicSection gap="md" disabled={disableRangeSelect}>
               <Flex sx={{ gap: '6px' }} alignItems="center" lineHeight={1.5}>
                 <MouseoverTooltip
-                  text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
+                  text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees.`}
                 >
                   <RangeTab active={!showFarmRangeSelect} role="button" onClick={() => setShowFarmRangeSelect(false)}>
                     {isFarmV2Available ? <Trans>Custom Ranges</Trans> : <Trans>Select a Range</Trans>}
@@ -1012,7 +1012,7 @@ export default function AddLiquidity() {
                         <Text>
                           <Trans>
                             Add your liquidity into one of the farming ranges to participate in Elastic Static Farm.
-                            Only positions that cover the range of the farm will earn maximum rewards. Learn more{' '}
+                            Only positions that cover the range of the farm will earn maximum rewards. Learn more{' '}
                             <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
                               here ↗
                             </ExternalLink>
