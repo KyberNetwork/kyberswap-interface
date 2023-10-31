@@ -27,20 +27,6 @@ export default function SignInForm() {
   const { inputEmail, errorInput, onChangeEmail } = useValidateEmail('')
   return (
     <Wrapper>
-      <InputEmail
-        value={inputEmail}
-        hasError={!!errorInput}
-        onChange={onChangeEmail}
-        style={{ height: 36, width: '100%' }}
-        isVerifiedEmail
-      />
-      <ButtonPrimary
-        onClick={() => inputEmail && !errorInput && signIn({ loginMethod: LoginMethod.EMAIL, account: inputEmail })}
-        height={'36px'}
-      >
-        <Trans>Sign-In</Trans>
-      </ButtonPrimary>
-      <OrDivider />
       <ButtonLight onClick={() => signIn()} height={'36px'}>
         <Trans>Sign-In with Wallet</Trans>
       </ButtonLight>
@@ -52,6 +38,22 @@ export default function SignInForm() {
           </Text>
         </Trans>
       </Text>
+
+      <OrDivider />
+
+      <InputEmail
+        value={inputEmail}
+        hasError={!!errorInput}
+        onChange={onChangeEmail}
+        style={{ height: 36, width: '100%' }}
+        isVerifiedEmail
+      />
+      <ButtonPrimary
+        onClick={() => inputEmail && !errorInput && signIn({ loginMethod: LoginMethod.EMAIL, account: inputEmail })}
+        height={'36px'}
+      >
+        <Trans>Sign-In with Email</Trans>
+      </ButtonPrimary>
       <DownloadWalletModal />
     </Wrapper>
   )

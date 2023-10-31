@@ -49,7 +49,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStat
     const hasEmail = loginMethods.includes(LoginMethod.EMAIL)
 
     const nodes = []
-    if (hasEmail) nodes.push(<EmailLoginForm flowStatus={flowStatus} />)
     if (hasEth)
       nodes.push(
         <ButtonEth
@@ -60,6 +59,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStat
           primary={!hasEmail}
         />,
       )
+    if (hasEmail) nodes.push(<EmailLoginForm flowStatus={flowStatus} />)
     if (hasGoogle) nodes.push(<ButtonGoogle flowStatus={flowStatus} primary={!hasEmail && !hasEth} />)
     return nodes
   }, [disableEth, flowStatus, formConfig, processingSignIn, signInWithEth])
