@@ -1091,16 +1091,6 @@ export default function AddLiquidity() {
   else if (balance && amountIn?.greaterThan(balance)) error = <Trans>Insufficient Balance</Trans>
   else if (!zapResult) error = <Trans>Insufficient Liquidity</Trans>
 
-  const newPosDraft =
-    pool && zapResult && tickLower !== undefined && tickUpper !== undefined && tickLower < tickUpper
-      ? new Position({
-          pool,
-          tickLower,
-          tickUpper,
-          liquidity: zapResult.liquidity.toString(),
-        })
-      : undefined
-
   const tickReader = useProAmmTickReader()
 
   const results = useSingleContractMultipleData(
@@ -1115,6 +1105,21 @@ export default function AddLiquidity() {
   const tickPreviousForZap = useMemo(() => {
     return results.map(call => call.result?.previous)
   }, [results])
+
+  const zapDetail = useZapDetail({
+    pool,
+    tokenIn: selectedCurrency?.wrapped?.address,
+    position: undefined,
+    zapResult,
+    amountIn,
+    poolAddress,
+    tickLower,
+    tickUpper,
+    previousTicks: tickPreviousForZap,
+    aggregatorRoute: aggregatorData,
+  })
+
+  const { newPosDraft } = zapDetail
 
   const handleZap = async () => {
     if (zapApprovalState === ApprovalState.NOT_APPROVED) {
@@ -1189,19 +1194,6 @@ export default function AddLiquidity() {
     setZapError('')
     setAttemptingTxn(false)
   }
-
-  const zapDetail = useZapDetail({
-    pool,
-    tokenIn: selectedCurrency?.wrapped?.address,
-    position: undefined,
-    zapResult,
-    amountIn,
-    poolAddress,
-    tickLower,
-    tickUpper,
-    previousTicks: tickPreviousForZap,
-    aggregatorRoute: aggregatorData,
-  })
 
   const zapPriceImpactNote = method === 'zap' &&
     !!(zapDetail.priceImpact?.isVeryHigh || zapDetail.priceImpact?.isHigh || zapDetail.priceImpact?.isInvalid) &&

@@ -26,6 +26,10 @@ export interface ZapResult {
   usedAmount1: BigNumber
   remainingAmount0: BigNumber
   remainingAmount1: BigNumber
+  currentTick: number
+  sqrtP: BigNumber
+  baseL: BigNumber
+  reinvestL: BigNumber
 }
 
 const zapRouterInterface = new Interface(ZAP_ROUTER_ABI)

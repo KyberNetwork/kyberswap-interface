@@ -92,10 +92,23 @@ export const useZapDetail = ({
 
   const currency0 = pool?.token0 && unwrappedToken(pool.token0)
   const currency1 = pool?.token1 && unwrappedToken(pool.token1)
+
+  const newPool =
+    pool && result
+      ? new Pool(
+          pool.token0,
+          pool.token1,
+          pool.fee,
+          result.sqrtP.toString(),
+          result.baseL.toString(),
+          result.reinvestL.toString(),
+          result.currentTick,
+        )
+      : undefined
   const newPosDraft =
-    pool && result && tickLower !== undefined && tickUpper !== undefined && tickLower < tickUpper
+    pool && result && newPool && tickLower !== undefined && tickUpper !== undefined && tickLower < tickUpper
       ? new Position({
-          pool,
+          pool: newPool,
           tickLower,
           tickUpper,
           liquidity: result.liquidity.toString(),

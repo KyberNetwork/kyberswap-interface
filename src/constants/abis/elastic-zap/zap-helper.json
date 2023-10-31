@@ -100,9 +100,36 @@
     "name": "getOptimalSwapAmountToZapIn",
     "outputs": [
       {
-        "internalType": "uint256",
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "swapAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "returnedAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint160",
+            "name": "sqrtP",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint256",
+            "name": "baseL",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reinvestL",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IKSElasticZapHelper.GetOptimalSwapAmountResults",
         "name": "",
-        "type": "uint256"
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -174,6 +201,26 @@
             "internalType": "uint256",
             "name": "remainingAmount1",
             "type": "uint256"
+          },
+          {
+            "internalType": "int24",
+            "name": "currentTick",
+            "type": "int24"
+          },
+          {
+            "internalType": "uint160",
+            "name": "sqrtP",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint256",
+            "name": "baseL",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reinvestL",
+            "type": "uint256"
           }
         ],
         "internalType": "struct IKSElasticZapHelper.ZapInResults",
@@ -181,7 +228,7 @@
         "type": "tuple"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {

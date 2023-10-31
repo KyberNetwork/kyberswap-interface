@@ -72,8 +72,8 @@ const maticInfo: EVMNetworkInfo = {
     zap: {
       router: '0x411c8FC7D5dDB3bE1263982805Af709586B6b40c',
       validator: '0x268D69745f8a30D30610F67fD9aC15646F32aB36',
-      executor: '0x5d14D54ee9086f4E05F7e1F295B865Cab4BED60d',
-      helper: '0xC0f38fA202962e2CC35C9A027AE1d3ACBE8cE946',
+      executor: '0xa241b62503B5A03409F084C11bb04fce55C18DaC',
+      helper: '0xa49664A25055fcBF698853e3a5611b9043016b6B',
     },
     'farmV2.1S': [],
   },

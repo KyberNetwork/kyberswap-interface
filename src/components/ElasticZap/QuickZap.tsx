@@ -288,15 +288,21 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
   const [errorMsg, setError] = useState('')
   const addTransactionWithType = useTransactionAdder()
 
-  const newPosDraft =
-    pool && result
-      ? new Position({
-          pool,
-          tickLower: vTickLower,
-          tickUpper: vTickUpper,
-          liquidity: result.liquidity.toString(),
-        })
-      : undefined
+  const zapDetail = useZapDetail({
+    pool,
+    tokenIn: selectedCurrency?.wrapped.address,
+    tokenId: tokenId?.toString(),
+    position,
+    zapResult: result,
+    amountIn,
+    poolAddress,
+    tickLower: vTickLower,
+    tickUpper: vTickUpper,
+    previousTicks: tickPrevious,
+    aggregatorRoute: aggregatorData,
+  })
+
+  const { newPosDraft } = zapDetail
 
   const handleClick = async () => {
     if (approvalState === ApprovalState.NOT_APPROVED) {
@@ -352,20 +358,6 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
       }
     }
   }
-
-  const zapDetail = useZapDetail({
-    pool,
-    tokenIn: selectedCurrency?.wrapped.address,
-    tokenId: tokenId?.toString(),
-    position,
-    zapResult: result,
-    amountIn,
-    poolAddress,
-    tickLower: vTickLower,
-    tickUpper: vTickUpper,
-    previousTicks: tickPrevious,
-    aggregatorRoute: aggregatorData,
-  })
 
   return (
     <Modal isOpen={isOpen}>

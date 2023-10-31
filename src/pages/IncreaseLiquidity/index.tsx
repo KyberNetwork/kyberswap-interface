@@ -1,6 +1,6 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
@@ -519,15 +519,19 @@ export default function IncreaseLiquidity() {
   else if (!amountIn) error = <Trans>Invalid Input</Trans>
   else if (balance && amountIn?.greaterThan(balance)) error = <Trans>Insufficient Balance</Trans>
 
-  const newPosDraft =
-    pool && zapResult && existingPosition
-      ? new Position({
-          pool,
-          tickLower: existingPosition.tickLower,
-          tickUpper: existingPosition.tickUpper,
-          liquidity: zapResult.liquidity.toString(),
-        })
-      : undefined
+  const zapDetail = useZapDetail({
+    pool: existingPosition?.pool,
+    position: existingPosition,
+    tokenIn: selectedCurrency?.wrapped.address,
+    tokenId,
+    amountIn,
+    zapResult,
+    poolAddress,
+    tickLower: existingPosition?.tickLower,
+    tickUpper: existingPosition?.tickUpper,
+    previousTicks: previousTicks,
+    aggregatorRoute: aggregatorData,
+  })
 
   const handleZap = async () => {
     if (zapApprovalState === ApprovalState.NOT_APPROVED) {
@@ -563,16 +567,18 @@ export default function IncreaseLiquidity() {
 
         setTxHash(txHash)
         setAttemptingTxn(false)
-        const tokenSymbolIn = newPosDraft ? unwrappedToken(newPosDraft.amount0.currency).symbol : ''
-        const tokenSymbolOut = newPosDraft ? unwrappedToken(newPosDraft?.amount1.currency).symbol : ''
+        const tokenSymbolIn = zapDetail.newPosDraft ? unwrappedToken(zapDetail.newPosDraft.amount0.currency).symbol : ''
+        const tokenSymbolOut = zapDetail.newPosDraft
+          ? unwrappedToken(zapDetail.newPosDraft?.amount1.currency).symbol
+          : ''
         addTransactionWithType({
           hash: txHash,
           type: TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
           extraInfo: {
-            tokenAmountIn: newPosDraft?.amount0.toSignificant(6) || '',
-            tokenAmountOut: newPosDraft?.amount1.toSignificant(6) || '',
-            tokenAddressIn: newPosDraft?.amount0.currency.wrapped.address || '',
-            tokenAddressOut: newPosDraft?.amount1.currency.wrapped.address || '',
+            tokenAmountIn: zapDetail.newPosDraft?.amount0.toSignificant(6) || '',
+            tokenAmountOut: zapDetail.newPosDraft?.amount1.toSignificant(6) || '',
+            tokenAddressIn: zapDetail.newPosDraft?.amount0.currency.wrapped.address || '',
+            tokenAddressOut: zapDetail.newPosDraft?.amount1.currency.wrapped.address || '',
             tokenSymbolIn,
             tokenSymbolOut,
             arbitrary: {
@@ -588,20 +594,6 @@ export default function IncreaseLiquidity() {
       }
     }
   }
-
-  const zapDetail = useZapDetail({
-    pool: existingPosition?.pool,
-    position: existingPosition,
-    tokenIn: selectedCurrency?.wrapped.address,
-    tokenId,
-    amountIn,
-    zapResult,
-    poolAddress,
-    tickLower: existingPosition?.tickLower,
-    tickUpper: existingPosition?.tickUpper,
-    previousTicks: previousTicks,
-    aggregatorRoute: aggregatorData,
-  })
 
   const ZapButton = (
     <ButtonPrimary
@@ -721,8 +713,8 @@ export default function IncreaseLiquidity() {
         attemptingTxn={attemptingTxn}
         pendingText={
           <Trans>
-            Supplying {newPosDraft?.amount0.toSignificant(6)} {symbol0} and {newPosDraft?.amount1.toSignificant(6)}{' '}
-            {symbol1}
+            Supplying {zapDetail.newPosDraft?.amount0.toSignificant(6)} {symbol0} and{' '}
+            {zapDetail.newPosDraft?.amount1.toSignificant(6)} {symbol1}
           </Trans>
         }
         content={() => (
