@@ -403,8 +403,8 @@ const StyledButtonAction = styled(RebassButton)<{ $color?: string }>`
   border-radius: 50%;
   border: none;
   transition: all 0.1s;
-  background-color: ${({ $color }) => $color + '32' || 'transparent'};
-  color: ${({ $color }) => $color || 'unset'};
+  background-color: ${({ $color }) => ($color ? $color + '32' : 'transparent')};
+  color: ${({ $color }) => ($color ? $color : 'unset')};
   :hover {
     background-color: ${({ theme, $color }) => ($color ? $color + '20' : theme.subText + '20')};
   }
