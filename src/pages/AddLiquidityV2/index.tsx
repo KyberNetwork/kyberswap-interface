@@ -1286,10 +1286,6 @@ export default function AddLiquidity() {
   }
 
   const poolStat = poolDatas?.[poolAddress] || poolDatas?.[poolAddress.toLowerCase()]
-  const poolStatRef = useRef(poolStat)
-  if (poolStat) {
-    poolStatRef.current = poolStat
-  }
 
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const userLiquidityPositionsQueryResult = useUserProMMPositions(usdPrices)
@@ -1594,14 +1590,14 @@ export default function AddLiquidity() {
                       </AutoColumn>
                     </AutoColumn>
                   ) : (
-                    poolStatRef.current && (
+                    poolStat && (
                       <>
                         <Flex sx={{ flex: 1, gap: '12px', flexDirection: 'column' }}>
                           <Text fontWeight={500} fontSize="12px">
                             <Trans>Pool Stats</Trans>
                           </Text>
                           <ProAmmPoolStat
-                            pool={poolStatRef.current}
+                            pool={poolStat}
                             onShared={openShareModal}
                             userPositions={userPositions}
                             onClickPoolAnalytics={() => {
