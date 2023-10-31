@@ -1,3 +1,4 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
@@ -12,10 +13,9 @@ import { ClickableText } from 'components/YieldPools/styleds'
 import useTheme from 'hooks/useTheme'
 import { Bound } from 'state/mint/proamm/type'
 import { MEDIA_WIDTHS } from 'theme'
-import { formattedNum } from 'utils'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { getTickToPrice } from 'utils/getTickToPrice'
-import { unwrappedToken } from 'utils/wrappedCurrency'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import PriceVisualizeAlignCurrent from './PriceVisualizeAlignCurrent'
 
@@ -83,6 +83,8 @@ const PositionListItem = ({
   usdPrices,
   ticksAtLimit,
   rotated,
+  baseCurrency,
+  quoteCurrency,
 }: {
   position: Position
   index: number
@@ -93,23 +95,40 @@ const PositionListItem = ({
     [bound in Bound]: boolean | undefined
   }
   rotated: boolean
+  baseCurrency: Currency
+  quoteCurrency: Currency
 }) => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const [isExpanded, setIsExpanded] = useState(false)
   const theme = useTheme()
-  const [tokenA, tokenB] = rotated
-    ? [position.amount1.currency, position.amount0.currency]
-    : [position.amount0.currency, position.amount1.currency]
+
+  const [tokenAmountA, tokenAmountB, currencyA, currencyB, tokenA, tokenB] = rotated
+    ? [
+        position.amount1,
+        position.amount0,
+        quoteCurrency,
+        baseCurrency,
+        position.amount1.currency,
+        position.amount0.currency,
+      ]
+    : [
+        position.amount0,
+        position.amount1,
+        baseCurrency,
+        quoteCurrency,
+        position.amount0.currency,
+        position.amount1.currency,
+      ]
+
   const usdValue =
     parseFloat(position.amount0.toSignificant(6)) * usdPrices[position.amount0.currency.address] +
     parseFloat(position.amount1.toSignificant(6)) * usdPrices[position.amount1.currency.address]
+
   const priceLower = getTickToPrice(tokenA, tokenB, position.tickLower)
   const priceUpper = getTickToPrice(tokenA, tokenB, position.tickUpper)
   const formattedLowerPrice = formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)
   const formattedUpperPrice = formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)
 
-  const currency0 = unwrappedToken(position.amount0.currency)
-  const currency1 = unwrappedToken(position.amount1.currency)
   if (!priceLower || !priceUpper) return null
 
   return (
@@ -118,23 +137,23 @@ const PositionListItem = ({
         <RowItem>
           <Text>{index + 1}</Text>
         </RowItem>
-        <RowItem>{formattedNum(usdValue.toString(), true)}</RowItem>
+        <RowItem>{formatDisplayNumber(usdValue, { style: 'currency', significantDigits: 4 })}</RowItem>
 
         {upToSmall ? null : (
           <>
             <RowItem>
               <Flex sx={{ gap: '4px' }} alignItems="center">
-                <CurrencyLogo currency={currency0} size="16px" />
+                <CurrencyLogo currency={currencyA} size="16px" />
                 <Text>
-                  {position.amount0.toSignificant(4)} {currency0.symbol}
+                  {tokenAmountA.toSignificant(4)} {currencyA.symbol}
                 </Text>
               </Flex>
             </RowItem>
             <RowItem>
               <Flex sx={{ gap: '4px' }} alignItems="center">
-                <CurrencyLogo currency={currency1} size="16px" />
+                <CurrencyLogo currency={currencyB} size="16px" />
                 <Text>
-                  {position.amount1.toSignificant(4)} {currency1.symbol}
+                  {tokenAmountB.toSignificant(4)} {currencyB.symbol}
                 </Text>
               </Flex>
             </RowItem>
@@ -161,20 +180,18 @@ const PositionListItem = ({
         <Flex flexDirection="column" width="100%" sx={{ gap: '12px' }}>
           <Flex justifyContent="space-between">
             <Flex sx={{ gap: '8px' }}>
-              {/* {position.amount0.currency.symbol} */}
               <Flex sx={{ gap: '4px' }} alignItems="center">
-                <CurrencyLogo currency={currency0} size="16px" />
+                <CurrencyLogo currency={currencyA} size="16px" />
                 <Text>
-                  {position.amount0.toSignificant(4)} {currency0.symbol}
+                  {tokenAmountA.toSignificant(4)} {currencyA.symbol}
                 </Text>
               </Flex>
             </Flex>
             <Flex sx={{ gap: '8px' }}>
-              {/* {position.amount1.currency.symbol} */}
               <Flex sx={{ gap: '4px' }} alignItems="center">
-                <CurrencyLogo currency={currency1} size="16px" />
+                <CurrencyLogo currency={currencyB} size="16px" />
                 <Text>
-                  {position.amount1.toSignificant(4)} {currency1.symbol}
+                  {tokenAmountB.toSignificant(4)} {currencyB.symbol}
                 </Text>
               </Flex>
             </Flex>
@@ -197,11 +214,13 @@ const PositionListItem = ({
   )
 }
 
-const ChartPositions = ({
+const ListPositions = ({
   positions,
   usdPrices,
   rotated,
   ticksAtLimits,
+  baseCurrency,
+  quoteCurrency,
 }: {
   positions: Position[]
   usdPrices: {
@@ -211,10 +230,10 @@ const ChartPositions = ({
     [bound in Bound]: (boolean | undefined)[]
   }
   rotated: boolean
+  baseCurrency: Currency
+  quoteCurrency: Currency
 }) => {
-  const [tokenA, tokenB] = rotated
-    ? [positions[0].amount1.currency, positions[0].amount0.currency]
-    : [positions[0].amount0.currency, positions[0].amount1.currency]
+  const [tokenA, tokenB] = rotated ? [quoteCurrency, baseCurrency] : [baseCurrency, quoteCurrency]
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const header = (
@@ -228,13 +247,8 @@ const ChartPositions = ({
 
       {upToSmall ? null : (
         <>
-          <RowItem alignItems="flex-start">
-            <Trans>{unwrappedToken(positions[0].amount0.currency).symbol}</Trans>
-          </RowItem>
-
-          <RowItem alignItems="flex-start">
-            <Trans>{unwrappedToken(positions[0].amount1.currency).symbol}</Trans>
-          </RowItem>
+          <RowItem alignItems="flex-start">{tokenA.symbol}</RowItem>
+          <RowItem alignItems="flex-start">{tokenB.symbol}</RowItem>
         </>
       )}
 
@@ -243,7 +257,7 @@ const ChartPositions = ({
           <Text>
             PRICE RANGE{' '}
             <Text as="span" sx={{ whiteSpace: 'nowrap' }}>
-              ({unwrappedToken(tokenB).symbol} per {unwrappedToken(tokenA).symbol})
+              ({quoteCurrency.symbol} per {baseCurrency.symbol})
             </Text>
           </Text>
         </Trans>
@@ -263,6 +277,8 @@ const ChartPositions = ({
           [Bound.LOWER]: ticksAtLimits[Bound.LOWER][index],
           [Bound.UPPER]: ticksAtLimits[Bound.UPPER][index],
         }}
+        baseCurrency={baseCurrency}
+        quoteCurrency={quoteCurrency}
       />
     )
   })
@@ -274,4 +290,4 @@ const ChartPositions = ({
   )
 }
 
-export default ChartPositions
+export default ListPositions

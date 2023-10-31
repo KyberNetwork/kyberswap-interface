@@ -29,7 +29,6 @@ import HoverInlineText from 'components/HoverInlineText'
 import { Swap as SwapIcon, TwoWayArrow } from 'components/Icons'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
-import ChartPositions from 'components/ProAmm/ChartPositions'
 import ListPositions from 'components/ProAmm/ListPositions'
 import PoolPriceChart from 'components/ProAmm/PoolPriceChart'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
@@ -81,7 +80,6 @@ import { usePairFactor } from 'state/topTokens/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
-import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -89,7 +87,6 @@ import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
-import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import DisclaimerERC20 from './components/DisclaimerERC20'
 import NewPoolNote from './components/NewPoolNote'
@@ -1241,10 +1238,9 @@ export default function AddLiquidity() {
     </ChartWrapper>
   )
 
-  // const [viewMode] = useViewMode()
-  const viewMode = VIEW_MODE.LIST
   const [rotated, setRotated] = useState(false)
   const modalContent = () => {
+    if (!baseCurrency || !quoteCurrency) return null
     if (!isMultiplePosition) {
       return (
         position && (
@@ -1252,11 +1248,11 @@ export default function AddLiquidity() {
             <ProAmmPoolInfo position={position} />
             <ProAmmPooledTokens
               liquidityValue0={CurrencyAmount.fromRawAmount(
-                unwrappedToken(position.pool.token0),
+                isSorted ? baseCurrency : quoteCurrency,
                 position.amount0.quotient,
               )}
               liquidityValue1={CurrencyAmount.fromRawAmount(
-                unwrappedToken(position.pool.token1),
+                isSorted ? quoteCurrency : baseCurrency,
                 position.amount1.quotient,
               )}
               title={t`New Liquidity Amount`}
@@ -1277,21 +1273,14 @@ export default function AddLiquidity() {
           setRotatedProp={setRotated}
           showRangeInfo={false}
         />
-        {viewMode === VIEW_MODE.LIST ? (
-          <ListPositions
-            positions={positionsValidated}
-            usdPrices={usdPrices}
-            ticksAtLimits={ticksAtLimits}
-            rotated={rotated}
-          />
-        ) : (
-          <ChartPositions
-            positions={positionsValidated}
-            usdPrices={usdPrices}
-            rotated={rotated}
-            ticksAtLimits={ticksAtLimits}
-          />
-        )}
+        <ListPositions
+          positions={positionsValidated}
+          usdPrices={usdPrices}
+          ticksAtLimits={ticksAtLimits}
+          rotated={rotated}
+          baseCurrency={baseCurrency}
+          quoteCurrency={quoteCurrency}
+        />
       </div>
     )
   }
