@@ -18,9 +18,6 @@ const Wrapper = styled(Column)`
   width: 340px;
   gap: 16px;
   align-items: center;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-   width: 100%;
-  `};
 `
 
 export default function SignInForm() {
