@@ -6,7 +6,6 @@ import styled from 'styled-components'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import DownloadWalletModal from 'components/DownloadWalletModal'
-import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { useValidateEmail } from 'pages/NotificationCenter/NotificationPreference'
@@ -26,12 +25,11 @@ const Wrapper = styled(Column)`
 
 export default function SignInForm() {
   const { signIn } = useLogin()
-  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const openDownloadWalletModal = useOpenModal(ApplicationModal.DOWNLOAD_WALLET)
   const { inputEmail, errorInput, onChangeEmail } = useValidateEmail('')
   return (
-    <Wrapper style={{ flexDirection: account ? 'column-reverse' : 'column' }}>
+    <Wrapper>
       <ButtonLight onClick={() => signIn()} height={'36px'}>
         <Trans>Sign-In with Wallet</Trans>
       </ButtonLight>
