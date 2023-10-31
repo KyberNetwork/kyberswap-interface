@@ -38,6 +38,12 @@ const coingeckoApi = createApi({
         authentication: true,
       }),
     }),
+    getLiquidityMarkets: builder.query({
+      query: ({ coingeckoAPI, id }) => ({
+        url: `${coingeckoAPI}/coins/${id}/tickers?include_exchange_logo=true`,
+        authentication: true,
+      }),
+    }),
     getSecurityTokenInfo: builder.query<SecurityInfo, { chainId: ChainId; address: string }>({
       query: ({ chainId, address }) => ({
         url: `https://api.gopluslabs.io/api/v1/token_security/${chainId}?contract_addresses=${address}`,
@@ -48,6 +54,6 @@ const coingeckoApi = createApi({
 })
 
 // todo danh (not for now) move basic chart api to this file
-export const { useGetMarketTokenInfoQuery, useGetSecurityTokenInfoQuery } = coingeckoApi
+export const { useGetMarketTokenInfoQuery, useGetLiquidityMarketsQuery, useGetSecurityTokenInfoQuery } = coingeckoApi
 
 export default coingeckoApi

@@ -122,6 +122,8 @@ export enum KYBERAI_CHART_ID {
   HOLDER_PIE_CHART = 'holdersPieChart',
   PRICE_CHART = 'priceChart',
   LIQUID_ON_CEX = 'liquidOnCEX',
+  LIQUIDITY_PROFILE = 'liquidityProfile',
+  MARKETS = 'markets',
 }
 
 export const Z_INDEX_KYBER_AI = {
