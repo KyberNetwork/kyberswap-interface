@@ -1,4 +1,5 @@
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
+import { useMemo } from 'react'
 
 import { PositionDetails } from 'types/position'
 
@@ -15,15 +16,20 @@ export function useProAmmDerivedPositionInfo(positionDetails: PositionDetails | 
   // construct pool data
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, positionDetails?.fee)
 
-  let position = undefined
-  if (pool && positionDetails) {
-    position = new Position({
-      pool,
-      liquidity: positionDetails.liquidity.toString(),
-      tickLower: positionDetails.tickLower,
-      tickUpper: positionDetails.tickUpper,
-    })
-  }
+  const liquidity = positionDetails?.liquidity.toString()
+  const tickLower = positionDetails?.tickLower
+  const tickUpper = positionDetails?.tickUpper
+  const position = useMemo(() => {
+    if (pool && liquidity && tickUpper !== undefined && tickLower !== undefined) {
+      return new Position({
+        pool,
+        liquidity,
+        tickLower,
+        tickUpper,
+      })
+    }
+    return undefined
+  }, [pool, liquidity, tickLower, tickUpper])
 
   return {
     position,
