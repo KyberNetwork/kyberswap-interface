@@ -7,6 +7,7 @@ import styled, { DefaultTheme, css } from 'styled-components'
 import { ButtonAction, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
+import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import useCoingeckoAPI from 'hooks/useCoingeckoAPI'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
@@ -67,7 +68,7 @@ const useLiquidityMarketsData = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS_T
   )
   return {
     cmcData: marketPairs,
-    cgkData: cgkData?.tickers.slice(0, 50) || [],
+    cgkData: cgkData?.tickers || [],
     isFetching: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? cmcFetching : cgkFetching,
     hasData: type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? !!marketPairs?.length : !!cgkData?.tickers?.length,
   }
@@ -91,10 +92,17 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
   const headers: Array<{ title: string; style?: CSSProperties }> = useMemo(() => {
     if (type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP) {
       if (activeTab === ChartTab.First) {
-        return [{ title: t`Exchange` }, { title: t`Token pair` }, { title: t`Current price` }, { title: t`24h volume` }]
+        return [
+          { title: '#' },
+          { title: t`Exchange` },
+          { title: t`Token pair` },
+          { title: t`Current price` },
+          { title: t`24h volume` },
+        ]
       }
       if (activeTab === ChartTab.Second) {
         return [
+          { title: '#' },
           { title: t`Exchange` },
           { title: t`Token pair` },
           { title: t`Current price` },
@@ -104,6 +112,7 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
       }
       if (activeTab === ChartTab.Third) {
         return [
+          { title: '#' },
           { title: t`Exchange` },
           { title: t`Token pair` },
           { title: t`Current price` },
@@ -114,6 +123,7 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
     }
     if (type === LIQUIDITY_MARKETS_TYPE.COINGECKO) {
       return [
+        { title: '#' },
         { title: t`Exchange` },
         { title: t`Token pair` },
         { title: t`Current price` },
@@ -126,6 +136,9 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
 
   const renderCMCRow = (item: any, index: number, theme: DefaultTheme) => (
     <tr key={index}>
+      <td>
+        <Text color={theme.text}>{index + 1}</Text>
+      </td>
       <td>
         <Row gap="12px">
           <img
@@ -157,7 +170,7 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
                 color={theme.primary}
                 style={{ padding: '6px' }}
               >
-                <Icon id="truesight-v2" size={20} />
+                <Icon id="open-link" size={16} />
               </ButtonAction>
             </Row>
           )}
@@ -177,6 +190,9 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
 
   const renderCGKRow = (item: any, index: number, theme: DefaultTheme) => (
     <tr key={index}>
+      <td>
+        <Text color={theme.text}>{index + 1}</Text>
+      </td>
       <td>
         <Row gap="12px">
           <img src={item.market.logo} loading="lazy" alt="exchange logo" style={{ width: '36px', height: '36px' }} />
@@ -214,12 +230,15 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
   }
 }
 
+const PAGE_SIZE = 10
+
 export default function LiquidityMarkets() {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
   const { data: assetOverview, chain, address } = useKyberAIAssetOverview()
   const [type, setType] = useState<LIQUIDITY_MARKETS_TYPE | undefined>()
   const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
+  const [page, setPage] = useState(1)
 
   const { cmcData, cgkData, isFetching, hasData } = useLiquidityMarketsData(activeTab, type)
   const { tabs, headers, renderCMCRow, renderCGKRow } = useRenderLiquidityMarkets(activeTab, type)
@@ -277,7 +296,7 @@ export default function LiquidityMarkets() {
         >
           <colgroup>
             {new Array(headers.length).fill(0).map((_, index) => (
-              <col key={index} />
+              <col key={index} style={{ width: index === 0 ? '50px' : 'unset' }} />
             ))}
           </colgroup>
           <thead>
@@ -291,14 +310,20 @@ export default function LiquidityMarkets() {
           </thead>
           <tbody style={{ fontSize: '14px', lineHeight: '20px' }}>
             {type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP
-              ? cmcData.map((item: any, index: number) => {
-                  return renderCMCRow(item, index, theme)
+              ? cmcData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item: any, index: number) => {
+                  return renderCMCRow(item, index + (page - 1) * PAGE_SIZE, theme)
                 })
-              : cgkData.map((item: any, index: number) => {
-                  return renderCGKRow(item, index, theme)
+              : cgkData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item: any, index: number) => {
+                  return renderCGKRow(item, index + (page - 1) * PAGE_SIZE, theme)
                 })}
           </tbody>
         </LoadingHandleWrapper>
+        <Pagination
+          currentPage={page}
+          onPageChange={setPage}
+          pageSize={PAGE_SIZE}
+          totalCount={type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP ? cmcData.length : cgkData.length}
+        />
       </Column>
     </>
   )
