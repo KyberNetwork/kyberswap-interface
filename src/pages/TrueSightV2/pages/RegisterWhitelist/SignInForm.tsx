@@ -32,35 +32,33 @@ export default function SignInForm() {
   const { inputEmail, errorInput, onChangeEmail } = useValidateEmail('')
   return (
     <Wrapper style={{ flexDirection: account ? 'column-reverse' : 'column' }}>
-      <Column gap="16px" width={'100%'}>
-        <InputEmail
-          value={inputEmail}
-          hasError={!!errorInput}
-          onChange={onChangeEmail}
-          style={{ height: 36, width: '100%' }}
-          isVerifiedEmail
-        />
-        <ButtonPrimary
-          onClick={() => inputEmail && !errorInput && signIn({ loginMethod: LoginMethod.EMAIL, account: inputEmail })}
-          height={'36px'}
-        >
-          <Trans>Sign-In with Email</Trans>
-        </ButtonPrimary>
-      </Column>
+      <ButtonLight onClick={() => signIn()} height={'36px'}>
+        <Trans>Sign-In with Wallet</Trans>
+      </ButtonLight>
+      <Text color={theme.subText} fontSize={'12px'}>
+        <Trans>
+          Don&apos;t have a wallet?{' '}
+          <Text as="span" sx={{ cursor: 'pointer' }} color={theme.primary} onClick={openDownloadWalletModal}>
+            Get started here
+          </Text>
+        </Trans>
+      </Text>
+
       <OrDivider />
-      <Column gap="16px" width={'100%'} alignItems={'center'}>
-        <ButtonLight onClick={() => signIn()} height={'36px'}>
-          <Trans>Sign-In with Wallet</Trans>
-        </ButtonLight>
-        <Text color={theme.subText} fontSize={'12px'}>
-          <Trans>
-            Don&apos;t have a wallet?{' '}
-            <Text as="span" sx={{ cursor: 'pointer' }} color={theme.primary} onClick={openDownloadWalletModal}>
-              Get started here
-            </Text>
-          </Trans>
-        </Text>
-      </Column>
+
+      <InputEmail
+        value={inputEmail}
+        hasError={!!errorInput}
+        onChange={onChangeEmail}
+        style={{ height: 36, width: '100%' }}
+        isVerifiedEmail
+      />
+      <ButtonPrimary
+        onClick={() => inputEmail && !errorInput && signIn({ loginMethod: LoginMethod.EMAIL, account: inputEmail })}
+        height={'36px'}
+      >
+        <Trans>Sign-In with Email</Trans>
+      </ButtonPrimary>
       <DownloadWalletModal />
     </Wrapper>
   )
