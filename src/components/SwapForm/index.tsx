@@ -37,6 +37,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { currencyId } from 'utils/currencyId'
 
+import MultichainKNCNote from './MultichainKNCNote'
 import RefreshButton from './RefreshButton'
 import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
 import SwapActionButton from './SwapActionButton'
@@ -268,6 +269,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             priceImpact={routeSummary?.priceImpact}
             isDegenMode={isDegenMode}
           />
+          <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}

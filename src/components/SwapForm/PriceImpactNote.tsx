@@ -17,7 +17,6 @@ const TextUnderlineColor = styled(Text)`
   cursor: pointer;
   color: ${({ theme }) => theme.text};
   font-weight: 500;
-  margin-right: 0.5ch;
 `
 
 const TextUnderlineTransparent = styled(Text)`
@@ -107,12 +106,10 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
         shortText={
           <Row alignItems="center" style={{ gap: '0.5ch' }}>
             <Trans>
-              <TextUnderlineTransparent>
-                <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
-                  Price Impact
-                </TextUnderlineColor>
-                is very high. You will lose funds!
-              </TextUnderlineTransparent>
+              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+                Price Impact
+              </TextUnderlineColor>
+              <TextUnderlineTransparent>is very high. You will lose funds!</TextUnderlineTransparent>
             </Trans>
           </Row>
         }
@@ -145,7 +142,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
         <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
           Price Impact
         </TextUnderlineColor>
-        <TextUnderlineTransparent> is high</TextUnderlineTransparent>
+        <TextUnderlineTransparent>is high</TextUnderlineTransparent>
       </Trans>
     </Row>
   )
