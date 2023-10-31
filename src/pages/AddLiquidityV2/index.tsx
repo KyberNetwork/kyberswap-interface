@@ -89,6 +89,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import DisclaimerERC20 from './components/DisclaimerERC20'
 import NewPoolNote from './components/NewPoolNote'
@@ -1250,8 +1251,14 @@ export default function AddLiquidity() {
           <div style={{ marginTop: '1rem' }}>
             <ProAmmPoolInfo position={position} />
             <ProAmmPooledTokens
-              liquidityValue0={CurrencyAmount.fromRawAmount(position.pool.token0, position.amount0.quotient)}
-              liquidityValue1={CurrencyAmount.fromRawAmount(position.pool.token1, position.amount1.quotient)}
+              liquidityValue0={CurrencyAmount.fromRawAmount(
+                unwrappedToken(position.pool.token0),
+                position.amount0.quotient,
+              )}
+              liquidityValue1={CurrencyAmount.fromRawAmount(
+                unwrappedToken(position.pool.token1),
+                position.amount1.quotient,
+              )}
               title={t`New Liquidity Amount`}
             />
             <ProAmmPriceRangeConfirm position={position} ticksAtLimit={ticksAtLimit} />
