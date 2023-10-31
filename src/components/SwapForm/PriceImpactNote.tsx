@@ -30,7 +30,7 @@ const PRICE_IMPACT_EXPLANATION_URL =
 
 type Props = {
   isDegenMode?: boolean
-  priceImpact: number | undefined
+  priceImpact: number | undefined | null
   showLimitOrderLink?: boolean
 }
 

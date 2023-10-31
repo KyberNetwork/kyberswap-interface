@@ -130,7 +130,10 @@ export const useZapDetail = ({
         +(newPooledAmount1?.toExact() || 0) * (prices[currency1.wrapped.address] || 0)
       : 0
 
-  const priceImpact = ((amountInUsd - amountUSDAfterSwap) * 100) / amountInUsd
+  const priceImpact =
+    !prices[currency0?.wrapped?.address || ''] || !prices[currency1?.wrapped?.address || '']
+      ? NaN
+      : ((amountInUsd - amountUSDAfterSwap) * 100) / amountInUsd
   const priceImpactRes = checkPriceImpact(priceImpact)
 
   const [gas, setGas] = useState('') // GWei
