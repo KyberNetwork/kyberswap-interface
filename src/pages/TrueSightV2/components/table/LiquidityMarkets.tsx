@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { CSSProperties, useEffect, useMemo, useState } from 'react'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoingecko } from 'services/coingecko'
 import styled, { DefaultTheme, css } from 'styled-components'
@@ -16,6 +17,7 @@ import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoinmarketcap } fr
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import { ChartTab } from 'pages/TrueSightV2/types'
 import { colorFundingRateText, formatShortNum, formatTokenPrice, navigateToSwapPage } from 'pages/TrueSightV2/utils'
+import { MEDIA_WIDTHS } from 'theme'
 
 import { LoadingHandleWrapper } from '.'
 
@@ -40,6 +42,13 @@ const TableTab = styled.div<{ active?: boolean }>`
           color: ${theme.subText};
           background-color: ${theme.background};
         `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 12px;
+    line-height:16px;
+    padding: 12px;
+    white-space: nowrap;
+  `}
 `
 
 enum LIQUIDITY_MARKETS_TYPE {
@@ -239,6 +248,7 @@ export default function LiquidityMarkets() {
   const [type, setType] = useState<LIQUIDITY_MARKETS_TYPE | undefined>()
   const [activeTab, setActiveTab] = useState<ChartTab>(ChartTab.First)
   const [page, setPage] = useState(1)
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { cmcData, cgkData, isFetching, hasData } = useLiquidityMarketsData(activeTab, type)
   const { tabs, headers, renderCMCRow, renderCGKRow } = useRenderLiquidityMarkets(activeTab, type)
@@ -257,8 +267,8 @@ export default function LiquidityMarkets() {
   return (
     <>
       <Column margin="0px -16px -16px -16px">
-        <RowBetween>
-          <RowFit>
+        <RowBetween overflowX="scroll" gap="16px">
+          <RowFit flexShrink={0}>
             {tabs.map(tab => (
               <TableTab key={tab.tabId} active={activeTab === tab.tabId} onClick={() => setActiveTab(tab.tabId)}>
                 {tab.title}
@@ -267,7 +277,7 @@ export default function LiquidityMarkets() {
           </RowFit>
           {type === LIQUIDITY_MARKETS_TYPE.COINMARKETCAP && activeTab === ChartTab.First && (
             <ButtonPrimary
-              height={'36px'}
+              height={above768 ? '36px' : '32px'}
               width="fit-content"
               gap="4px"
               onClick={() => {
@@ -277,7 +287,8 @@ export default function LiquidityMarkets() {
                 })
                 navigateToSwapPage({ address, chain })
               }}
-              style={{ marginRight: '16px' }}
+              style={{ marginRight: '16px', fontSize: above768 ? '16px' : '12px' }}
+              flexShrink={0}
             >
               <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
                 <Icon id="swap" size={16} />
@@ -291,7 +302,7 @@ export default function LiquidityMarkets() {
           isLoading={isFetching && !hasData}
           isFetching={isFetching && hasData}
           hasData={hasData}
-          style={{ borderRadius: 0 }}
+          style={{ borderRadius: 0, margin: 0, fontSize: above768 ? '16px' : '12px' }}
           minHeight="500px"
         >
           <colgroup>

@@ -32,7 +32,7 @@ export default function LiquidityAnalysis() {
         show={tokenAnalysisSettings?.markets}
         id={KYBERAI_CHART_ID.MARKETS}
         title={t`Markets`}
-        description={t`View all centralizeds and de-centralized markets on which the token can be traded.`}
+        description={t`View all token markets across decentralized and centralized exchanges.`}
         fullscreenButton
         docsLinks={[]}
         style={{ height: 'fit-content' }}

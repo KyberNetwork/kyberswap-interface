@@ -61,6 +61,7 @@ const Table = styled.table`
     font-size: 12px;
     line-height: 16px;
     font-weight: 500;
+    white-space: nowrap;
     color: ${({ theme }) => theme.subText};
     text-transform: uppercase;
     tr {
@@ -89,6 +90,7 @@ const Table = styled.table`
     tr{
       td, th{
         padding: 12px 16px;
+        font-size: 12px;
       }
     }
   `}
