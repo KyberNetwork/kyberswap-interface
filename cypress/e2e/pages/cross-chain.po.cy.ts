@@ -28,7 +28,7 @@ export const CrossChain = {
     },
 
     checkLoadedPage() {
-        return cy.get(CrossChainLocators.rechartsSurface, { timeout: 20000 }).should(() => { }).then($obj => {
+        return cy.get(CrossChainLocators.rechartsSurface, { timeout: 20000 }).should('be.visible').then($obj => {
             if ($obj.length > 0) {
                 return true
             }
