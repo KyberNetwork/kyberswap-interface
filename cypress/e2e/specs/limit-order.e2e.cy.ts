@@ -16,7 +16,7 @@ describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
 
     describe('Add/remove/select token with favorite tokens list', () => {
         beforeEach(() => {
-            if (NETWORK === 'BNB') {
+            if (NETWORK === 'BNB' || NETWORK === 'Ethereum') {
                 wallet.selectNetwork(NETWORK)
                 cy.allowMetamaskToSwitchNetwork().then(approved => {
                     expect(approved).to.be.true

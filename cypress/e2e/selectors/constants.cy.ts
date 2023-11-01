@@ -12,11 +12,11 @@ export enum TAG {
 }
 
 export const TOKEN_SYMBOLS = {
-    'Ethereum': ['BAND', 'DAI', 'USDT', 'USDC', '1INCH'],
-    'Arbitrum': ['ANGLE', 'DAI', 'USDT', 'USDC.e', 'MAI'],
-    'Optimism': ['BOB', 'DAI', 'USDT', 'USDC', 'MAI'],
-    'Avalanche': ['AAVE.e', 'sAVAX', 'USDT.e', 'USDC.e', 'MAI'],
-    'BNB': ['RICE', 'DAI', 'USDT', 'USDC', 'MAI']
+    'Ethereum': ['BAND', 'ETH', 'USDT', 'USDC', '1INCH'],
+    'Arbitrum': ['ANGLE', 'ARB', 'USDT', 'USDC.e', 'BOB'],
+    'Optimism': ['BOND', 'ETH', 'USDT', 'USDC', 'BOB'],
+    'Avalanche': ['AAVE.e', 'sAVAX', 'USDT.e', 'USDC.e', 'BUSD.e'],
+    'BNB': ['RICE', 'BUSD', 'USDT', 'USDC', 'BOB']
 }
 
 export const NETWORK_LIST = ['Ethereum', 'Arbitrum', 'Optimism', 'Avalanche', 'BNB Chain', 'Polygon PoS', 'Fantom', 'Linea', 'Base']

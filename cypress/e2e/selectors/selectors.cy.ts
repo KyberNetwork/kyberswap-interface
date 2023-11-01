@@ -4,6 +4,7 @@ export const TokenCatalogLocators = {
   txtToken: '[data-testid=token-search-input]',
   lblFavoriteToken: '[data-testid=favorite-token]',
   lblRowInWhiteList: '[data-testid=token-item]',
+  lblTokenSymbol: '[data-testid=token-symbol]',
   lblNotFound: '[data-testid=no-token-result]',
   iconFavorite: '[data-testid=button-favorite-token]',
   iconRemoveImportedToken: '[data-testid=button-remove-import-token]',
