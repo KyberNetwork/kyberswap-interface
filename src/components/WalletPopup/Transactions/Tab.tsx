@@ -1,5 +1,5 @@
 import { useCallback, useLayoutEffect, useState } from 'react'
-import styled, { css } from 'styled-components'
+import styled, { CSSProperties, css } from 'styled-components'
 
 import Row from 'components/Row'
 
@@ -14,9 +14,9 @@ const ListTab = styled.div`
 `
 
 type WrapperProps = {
-  $scrollable: boolean
-  $scrollLeft: boolean
-  $scrollRight: boolean
+  $scrollable?: boolean
+  $scrollLeft?: boolean
+  $scrollRight?: boolean
 }
 const TabWrapper = styled(Row).attrs<WrapperProps>(props => ({
   'data-scrollable': props.$scrollable,
@@ -116,6 +116,7 @@ interface TabProps<T extends string> {
   activeTab: T
   setActiveTab: React.Dispatch<React.SetStateAction<T>>
   tabs: readonly { readonly title: string; readonly value: T }[]
+  style?: CSSProperties
 }
 function Tab<T extends string>({ activeTab, setActiveTab, tabs }: TabProps<T>) {
   const [isScrollable, setScrollable] = useState(false)
@@ -156,6 +157,21 @@ function Tab<T extends string>({ activeTab, setActiveTab, tabs }: TabProps<T>) {
   return (
     <TabWrapper $scrollable={isScrollable} $scrollLeft={scrollLeft} $scrollRight={scrollRight}>
       <ListTab ref={listRef => setListRef(listRef)} onScroll={handleScroll}>
+        {tabs.map(tab => (
+          <TabItem key={tab.title} active={activeTab === tab.value} onClick={() => setActiveTab(tab.value)}>
+            {tab.title}
+          </TabItem>
+        ))}
+      </ListTab>
+    </TabWrapper>
+  )
+}
+
+// todo move to components
+export function Tabs<T extends string>({ activeTab, setActiveTab, tabs, style }: TabProps<T>) {
+  return (
+    <TabWrapper style={style}>
+      <ListTab>
         {tabs.map(tab => (
           <TabItem key={tab.title} active={activeTab === tab.value} onClick={() => setActiveTab(tab.value)}>
             {tab.title}

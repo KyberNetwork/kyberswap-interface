@@ -40,6 +40,7 @@ import VerifyAuth from './Verify/VerifyAuth'
 const Login = lazy(() => import('./Oauth/Login'))
 const Logout = lazy(() => import('./Oauth/Logout'))
 const Consent = lazy(() => import('./Oauth/Consent'))
+const PortfolioDetail = lazy(() => import('./NotificationCenter/Portfolio/PortfolioDetail'))
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
@@ -378,6 +379,14 @@ export default function App() {
                   element={
                     <ProtectedRoute>
                       <NotificationCenter />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path={`${APP_PATHS.PORTFOLIO}`}
+                  element={
+                    <ProtectedRoute>
+                      <PortfolioDetail />
                     </ProtectedRoute>
                   }
                 />

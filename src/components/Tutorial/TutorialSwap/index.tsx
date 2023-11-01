@@ -399,9 +399,12 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
   ])
 }
 
+// todo move
 export const TutorialKeys = {
   SHOWED_SWAP_GUIDE: 'showedTutorialSwapGuide',
   SHOWED_LO_GUIDE: 'showedTutorialLO',
+  SHOWED_PORTFOLIO_GUIDE: 'showedTutorialPortfolio',
+  SHOWED_PORTFOLIO_DISCLAIMER: 'showedDisclaimPortfolio',
 }
 
 export default memo(function TutorialSwap() {

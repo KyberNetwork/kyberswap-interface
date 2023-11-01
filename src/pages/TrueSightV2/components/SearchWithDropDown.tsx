@@ -1,11 +1,11 @@
-import { Trans, t } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
+import styled, { CSSProperties, css, keyframes } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import History from 'components/Icons/History'
@@ -281,21 +281,33 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
   )
 }
 
-const SearchResultTableWrapper = ({ header, children }: { header?: ReactNode; children?: ReactNode }) => {
+type TableColumn = { align: string; label: string; style: CSSProperties }
+
+const SearchResultTableWrapper = ({
+  header,
+  children,
+  columns,
+}: {
+  header?: ReactNode
+  children?: ReactNode
+  columns: TableColumn[]
+}) => {
   return (
     <DropdownSection>
       <colgroup>
         <col style={{ width: '200px', minWidth: 'fit-content' }} />
-        <col style={{ width: '100px', minWidth: 'auto' }} />
-        <col style={{ width: '100px' }} />
-        <col style={{ width: '60px' }} />
+        {columns.map(col => (
+          <col style={col.style} key={col.label} />
+        ))}
       </colgroup>
       <thead>
         <tr>
           <th>{header}</th>
-          <th style={{ textAlign: 'left' }}>KyberScore</th>
-          <th style={{ textAlign: 'left' }}>Price</th>
-          <th style={{ textAlign: 'right' }}>24H</th>
+          {columns.map(col => (
+            <th key={col.label} style={{ textAlign: col.align as CSSProperties['textAlign'] }}>
+              {col.label}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>{children}</tbody>
@@ -303,6 +315,11 @@ const SearchResultTableWrapper = ({ header, children }: { header?: ReactNode; ch
   )
 }
 
+const columns = [
+  { align: 'left', label: 'KyberScore', style: { width: '100px', minWidth: 'auto' } },
+  { align: 'left', label: 'Price', style: { width: '100px' } },
+  { align: 'right', label: '24H', style: { width: '60px' } },
+]
 let checkedNewData = false
 const SearchWithDropdown = () => {
   const theme = useTheme()
@@ -311,11 +328,6 @@ const SearchWithDropdown = () => {
 
   const [expanded, setExpanded] = useState(false)
   const [search, setSearch] = useState('')
-  const [height, setHeight] = useState(0)
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
   const debouncedSearch = useDebounce(search, 1000)
   const { data: searchResult, isFetching } = useSearchTokenQuery(
     { q: debouncedSearch, size: 10 },
@@ -361,6 +373,149 @@ const SearchWithDropdown = () => {
   const haveSearchResult = debouncedSearch !== '' && searchResult && searchResult.length > 0 && !isFetching
   const noSearchResult = debouncedSearch !== '' && searchResult && searchResult.length === 0 && !isFetching
   const isLoading = isFetching && search === debouncedSearch
+  const searchResultNode = (searchResult || []).map(item => (
+    <TokenItem
+      key={item.assetId}
+      token={item}
+      onClick={() => {
+        setExpanded(false)
+        saveToHistory(item)
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SEARCH_TOKEN_SUCCESS, {
+          token_name: item.symbol?.toUpperCase(),
+          source: pathname.includes(APP_PATHS.KYBERAI_EXPLORE) ? 'explore' : KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+          search_term: search,
+        })
+      }}
+    />
+  ))
+  const historyNode = (history || [])
+    .slice(0, 3)
+    .map((item, index) => <TokenItem key={index} token={item} onClick={() => setExpanded(false)} />)
+
+  const bullishNode = top5bullish?.data?.slice(0, 3).map((item, index) => (
+    <TokenItem
+      key={index}
+      token={formatTokenType(item)}
+      onClick={() => {
+        setExpanded(false)
+        saveToHistory(formatTokenType(item))
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SEARCH_TOKEN_SUCCESS, {
+          token_name: item.symbol?.toUpperCase(),
+          source: pathname.includes(APP_PATHS.KYBERAI_EXPLORE) ? 'explore' : KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+          token_type: 'bullish',
+        })
+      }}
+    />
+  ))
+
+  const bearishNode = top5bearish?.data?.slice(0, 3).map((item, index) => (
+    <TokenItem
+      key={index}
+      token={formatTokenType(item)}
+      onClick={() => {
+        setExpanded(false)
+        saveToHistory(formatTokenType(item))
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SEARCH_TOKEN_SUCCESS, {
+          token_name: item.symbol?.toUpperCase(),
+          source: pathname.includes(APP_PATHS.KYBERAI_EXPLORE) ? 'explore' : KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+          token_type: 'bearish',
+        })
+      }}
+    />
+  ))
+
+  // todo
+  const sections: any[] = haveSearchResult
+    ? [{ items: searchResultNode }]
+    : [
+        {
+          title: (
+            <RowFit color={theme.subText} gap="10px">
+              <History />
+              <Text fontSize="12px">Search History</Text>
+            </RowFit>
+          ),
+          items: historyNode,
+          renderWhenEmpty: !!history,
+        },
+        {
+          title: (
+            <RowFit color={theme.subText} gap="10px">
+              <Icon id="bullish" size={16} />
+              <Text fontSize="12px">Bullish Tokens</Text>
+            </RowFit>
+          ),
+          loading: isBullishLoading,
+          items: bullishNode,
+        },
+        {
+          title: (
+            <RowFit color={theme.subText} gap="10px">
+              <Icon id="bearish" size={16} />
+              <Text fontSize="12px">Bearish Tokens</Text>
+            </RowFit>
+          ),
+          loading: isBearishLoading,
+          items: bearishNode,
+        },
+      ]
+
+  return (
+    <SearchWithDropdownV2
+      columns={columns}
+      expanded={expanded}
+      setExpanded={setExpanded}
+      noSearchResult={!!noSearchResult}
+      noResultText={t`Oops, we couldnt find your token! We will regularly add new tokens that have achieved a certain
+      trading volume`}
+      searching={isLoading}
+      id="kyberai-search"
+      value={search}
+      onChange={setSearch}
+      placeholder={t`Search by token name, symbol or contract address`}
+      sections={sections}
+      searchLabel={t`Ape Smart!`}
+    />
+  )
+}
+
+type Section = { items: ReactNode[] | JSX.Element[]; title?: ReactNode; loading?: boolean; renderWhenEmpty?: boolean }
+
+// todo rename and move to component, memo, refactor props
+export const SearchWithDropdownV2 = ({
+  placeholder,
+  sections,
+  value: search,
+  onChange: setSearch,
+  id,
+  searchLabel,
+  searching,
+  noSearchResult,
+  noResultText,
+  expanded,
+  setExpanded,
+  columns,
+}: {
+  placeholder: string
+  id?: string
+  sections: Section[]
+  value: string
+  onChange: (value: string) => void
+  searchLabel?: string
+  searching: boolean
+  noSearchResult: boolean
+  noResultText: string
+  expanded: boolean
+  setExpanded: (v: boolean) => void
+  columns: TableColumn[]
+}) => {
+  const theme = useTheme()
+
+  const [height, setHeight] = useState(0)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   useOnClickOutside(wrapperRef, () => setExpanded(false))
@@ -375,12 +530,15 @@ const SearchWithDropdown = () => {
     return () => {
       inputEl.removeEventListener('focusin', onFocus)
     }
-  }, [])
+  }, [setExpanded])
 
-  const handleXClick = useCallback((e: any) => {
-    setSearch('')
-    e.stopPropagation()
-  }, [])
+  const handleXClick = useCallback(
+    (e: any) => {
+      setSearch('')
+      e.stopPropagation()
+    },
+    [setSearch],
+  )
 
   useEffect(() => {
     if (!dropdownRef.current) return
@@ -396,164 +554,58 @@ const SearchWithDropdown = () => {
     }
   }, [])
 
-  const DropdownContent = () => (
-    <div ref={contentRef} style={{ height: 'fit-content' }}>
-      {isLoading ? (
-        <>
-          <SearchResultTableWrapper>
-            <SkeletonRows />
-          </SearchResultTableWrapper>
-        </>
-      ) : haveSearchResult ? (
-        <>
-          <SearchResultTableWrapper>
-            {searchResult.map(item => (
-              <TokenItem
-                key={item.assetId}
-                token={item}
-                onClick={() => {
-                  setExpanded(false)
-                  saveToHistory(item)
-                  mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SEARCH_TOKEN_SUCCESS, {
-                    token_name: item.symbol?.toUpperCase(),
-                    source: pathname.includes(APP_PATHS.KYBERAI_EXPLORE)
-                      ? 'explore'
-                      : KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-                    search_term: search,
-                  })
-                }}
-              />
-            ))}
-          </SearchResultTableWrapper>
-        </>
-      ) : noSearchResult ? (
-        <>
-          <Row justify="center" height="360px">
-            <Text
-              fontSize={above768 ? '14px' : '12px'}
-              lineHeight={above768 ? '20px' : '16px'}
-              maxWidth="75%"
-              textAlign="center"
-            >
-              <Trans>
-                Oops, we couldnt find your token! We will regularly add new tokens that have achieved a certain trading
-                volume
-              </Trans>
-            </Text>
-          </Row>
-        </>
-      ) : (
-        <>
-          {history && (
-            <SearchResultTableWrapper
-              header={
-                <RowFit color={theme.subText} gap="10px">
-                  <History />
-                  <Text fontSize="12px">Search History</Text>
-                </RowFit>
-              }
-            >
-              {history.slice(0, 3).map((item, index) => (
-                <TokenItem key={index} token={item} onClick={() => setExpanded(false)} />
-              ))}
-            </SearchResultTableWrapper>
-          )}
-          <SearchResultTableWrapper
-            header={
-              <RowFit color={theme.subText} gap="10px">
-                <Icon id="bullish" size={16} />
-                <Text fontSize="12px">Bullish Tokens</Text>
-              </RowFit>
-            }
-          >
-            {isBullishLoading ? (
-              <SkeletonRows count={3} />
-            ) : (
-              top5bullish?.data?.slice(0, 3).map((item, index) => (
-                <TokenItem
-                  key={index}
-                  token={formatTokenType(item)}
-                  onClick={() => {
-                    setExpanded(false)
-                    saveToHistory(formatTokenType(item))
-                    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SEARCH_TOKEN_SUCCESS, {
-                      token_name: item.symbol?.toUpperCase(),
-                      source: pathname.includes(APP_PATHS.KYBERAI_EXPLORE)
-                        ? 'explore'
-                        : KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-                      token_type: 'bullish',
-                    })
-                  }}
-                />
-              ))
-            )}
-          </SearchResultTableWrapper>
-          <SearchResultTableWrapper
-            header={
-              <RowFit color={theme.subText} gap="10px">
-                <Icon id="bearish" size={16} />
-                <Text fontSize="12px">Bearish Tokens</Text>
-              </RowFit>
-            }
-          >
-            {isBearishLoading ? (
-              <SkeletonRows count={3} />
-            ) : (
-              top5bearish?.data?.slice(0, 3).map((item, index) => (
-                <TokenItem
-                  key={index}
-                  token={formatTokenType(item)}
-                  onClick={() => {
-                    setExpanded(false)
-                    saveToHistory(formatTokenType(item))
-                    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SEARCH_TOKEN_SUCCESS, {
-                      token_name: item.symbol?.toUpperCase(),
-                      source: pathname.includes(APP_PATHS.KYBERAI_EXPLORE)
-                        ? 'explore'
-                        : KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-                      token_type: 'bearish',
-                    })
-                  }}
-                />
-              ))
-            )}
-          </SearchResultTableWrapper>
-        </>
-      )}
-    </div>
-  )
-
   return (
-    <>
-      <Wrapper ref={wrapperRef} onClick={() => !expanded && inputRef.current?.focus()} expanded={expanded}>
-        <Input
-          type="text"
-          id="kyberai-search"
-          placeholder={t`Search by token name, symbol or contract address`}
-          value={search}
-          onChange={e => {
-            setSearch(e.target.value)
-          }}
-          autoComplete="off"
-          ref={inputRef}
-        />
-        <RowFit style={{ zIndex: 2 }}>
-          {search && (
-            <ButtonEmpty onClick={handleXClick} style={{ padding: '2px 4px', width: 'max-content' }}>
-              <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
-            </ButtonEmpty>
-          )}
-          <RowFit fontSize="14px" lineHeight={above768 ? '20px' : '16px'} fontWeight={500} gap="4px">
-            <Icon id="search" size={24} />
-            <Trans>Ape Smart!</Trans>
-          </RowFit>
+    <Wrapper ref={wrapperRef} onClick={() => !expanded && inputRef.current?.focus()} expanded={expanded}>
+      <Input
+        type="text"
+        id={id}
+        placeholder={placeholder}
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        autoComplete="off"
+        ref={inputRef}
+      />
+      <RowFit style={{ zIndex: 2 }}>
+        {search && (
+          <ButtonEmpty onClick={handleXClick} style={{ padding: '2px 4px', width: 'max-content' }}>
+            <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
+          </ButtonEmpty>
+        )}
+        <RowFit fontSize="14px" lineHeight={above768 ? '20px' : '16px'} fontWeight={500} gap="4px">
+          <Icon id="search" size={24} />
+          {searchLabel}
         </RowFit>
-        <DropdownWrapper expanded={expanded} ref={dropdownRef} height={height}>
-          <DropdownContent />
-          {expanded && <AnimationOnFocus />}
-        </DropdownWrapper>
-      </Wrapper>
-    </>
+      </RowFit>
+      <DropdownWrapper expanded={expanded} ref={dropdownRef} height={height}>
+        <div style={{ height: 'fit-content' }}>
+          {searching ? (
+            <SearchResultTableWrapper columns={columns}>
+              <SkeletonRows />
+            </SearchResultTableWrapper>
+          ) : noSearchResult ? (
+            <Row justify="center" height="360px">
+              <Text
+                fontSize={above768 ? '14px' : '12px'}
+                lineHeight={above768 ? '20px' : '16px'}
+                maxWidth="75%"
+                textAlign="center"
+              >
+                {noResultText}
+              </Text>
+            </Row>
+          ) : (
+            sections.map((el, i) =>
+              el.renderWhenEmpty === false ? null : (
+                <SearchResultTableWrapper header={el.title} key={i} columns={columns}>
+                  {el.loading ? <SkeletonRows count={3} /> : el.items}
+                </SearchResultTableWrapper>
+              ),
+            )
+          )}
+        </div>
+        {expanded && <AnimationOnFocus />}
+      </DropdownWrapper>
+    </Wrapper>
   )
 }
 

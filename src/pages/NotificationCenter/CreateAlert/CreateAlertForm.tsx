@@ -17,8 +17,10 @@ import RefreshButton from 'components/SwapForm/RefreshButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
 import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
+import { MAINNET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoWithAggregator } from 'hooks/useBaseTradeInfo'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification from 'hooks/useNotification'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -41,7 +43,6 @@ import {
   ConfirmAlertModalData,
   CreatePriceAlertPayload,
   DEFAULT_ALERT_COOLDOWN,
-  NETWORK_OPTIONS,
   PriceAlertStat,
   PriceAlertType,
   TYPE_OPTIONS,
@@ -182,6 +183,13 @@ export default function CreateAlert({
 
   const navigate = useNavigate()
 
+  const networkOptions = useMemo(() => {
+    return MAINNET_NETWORKS.map(id => ({
+      value: id,
+      label: NETWORKS_INFO[id].name,
+    }))
+  }, [])
+
   return (
     <>
       <Form>
@@ -196,7 +204,7 @@ export default function CreateAlert({
             <StyledSelect
               value={selectedChain}
               arrowColor={theme.subText}
-              options={NETWORK_OPTIONS}
+              options={networkOptions}
               onChange={chain => {
                 setSelectedChain(chain)
                 navigate({ search: '' }, { replace: true })

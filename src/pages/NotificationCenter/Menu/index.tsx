@@ -102,6 +102,12 @@ const menuItems: MenuItemType[] = [
       },
     ],
   },
+  {
+    route: PROFILE_MANAGE_ROUTES.PORTFOLIO,
+    icon: <ProfileIcon />,
+    title: t`Portfolio`,
+    childs: [],
+  },
 ].map(el => {
   return {
     ...el,

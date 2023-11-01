@@ -9,6 +9,7 @@ import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
 import Checkbox from 'components/CheckBox'
 import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { MAINNET_NETWORKS } from 'constants/networks'
 import useChainsConfig, { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 
@@ -74,8 +75,9 @@ const StyledSelect = styled(Select)`
   background-color: ${({ theme }) => theme.buttonGray};
 `
 
+const defaultChains = [...MAINNET_NETWORKS]
 const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, style, ...props }) => {
-  const { comingSoonList = [], selectedChainIds = [], handleChangeChains, chainIds = [], onTracking } = props
+  const { comingSoonList = [], selectedChainIds = [], handleChangeChains, chainIds = defaultChains, onTracking } = props
   const options = chainIds.map(id => ({ value: id, label: id }))
   const theme = useTheme()
   const selectedChains = selectedChainIds.filter(item => !comingSoonList.includes(item))

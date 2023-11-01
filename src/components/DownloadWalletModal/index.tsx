@@ -8,6 +8,7 @@ import Column from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import { connections } from 'constants/wallets'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useCloseModal, useModalOpen } from 'state/application/hooks'
@@ -41,6 +42,8 @@ export default function DownloadWalletModal() {
   const theme = useTheme()
   const isOpen = useModalOpen(ApplicationModal.DOWNLOAD_WALLET)
   const closeModal = useCloseModal(ApplicationModal.DOWNLOAD_WALLET)
+  const { account } = useActiveWeb3React()
+  if (!account) return null // todo move to global
   return (
     <Modal isOpen={isOpen} onDismiss={closeModal} maxWidth="600px">
       <Column width="100%" padding="30px 24px" overflowY="scroll">

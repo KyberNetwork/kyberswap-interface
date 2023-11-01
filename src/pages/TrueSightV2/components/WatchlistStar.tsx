@@ -4,14 +4,14 @@ import { useTheme } from 'styled-components'
 
 export const StarWithAnimation = ({
   loading,
-  watched,
+  active: watched,
   onClick,
   size,
   disabled,
   wrapperStyle,
   stopPropagation,
 }: {
-  watched: boolean
+  active: boolean
   loading?: boolean
   onClick?: (e: any) => void
   size?: number

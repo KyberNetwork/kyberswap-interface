@@ -166,7 +166,7 @@ const COLORS = [
   '#c0392b',
 ]
 
-type DataEntry = {
+export type DataEntry = {
   chainId?: ChainId
   logoUrl?: string
   symbol: string

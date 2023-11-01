@@ -1,17 +1,17 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
+import { t } from '@lingui/macro'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import EarningPieChart from 'components/EarningPieChart'
+import EarningPieChart, { DataEntry } from 'components/EarningPieChart'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { EarningsBreakdown } from 'types/myEarnings'
 import { formatDisplayNumber } from 'utils/numbers'
 
-type WrapperProps = { $columns: 1 | 2 }
+type WrapperProps = { $columns: 1 | 2; $border?: boolean }
 const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
   'data-columns': $columns,
 }))<WrapperProps>`
@@ -23,7 +23,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
   padding: 16px;
   border-radius: 24px;
   background-color: ${({ theme }) => theme.buttonBlack};
-  border: 1px solid ${({ theme }) => theme.border};
+  border: 1px solid ${({ theme, $border }) => ($border ? theme.border : 'transparent')};
 
   transition: all 500ms ease, background 0s, border 0s, color 0s;
 
@@ -48,9 +48,55 @@ type Token = {
   value: string
   percent: number
 }
-const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className, horizontalLayout }) => {
+// todo move to other file
+export const TokenAllocationChart = ({
+  className,
+  numberOfTokens,
+  isLoading,
+  horizontalLayout,
+  totalUsd,
+  data,
+  title,
+  border = true,
+}: {
+  className?: string
+  numberOfTokens: number
+  totalUsd: number
+  isLoading?: boolean
+  horizontalLayout?: boolean
+  data: DataEntry[]
+  title?: ReactNode
+  border?: boolean
+}) => {
   const theme = useTheme()
+  return (
+    <Wrapper className={className} $columns={numberOfTokens > 5 ? 2 : 1} $border={border}>
+      {title && (
+        <Text
+          sx={{
+            fontWeight: 500,
+            fontSize: '14px',
+            lineHeight: '20px',
+            color: theme.subText,
+          }}
+        >
+          {title}
+        </Text>
+      )}
+      {isLoading || !data ? (
+        <EarningPieChart horizontalLayout={horizontalLayout} isLoading />
+      ) : (
+        <EarningPieChart
+          horizontalLayout={horizontalLayout}
+          data={data}
+          totalValue={formatDisplayNumber(totalUsd || 0, { style: 'currency', significantDigits: 3 })}
+        />
+      )}
+    </Wrapper>
+  )
+}
 
+const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className, horizontalLayout }) => {
   const numberOfTokens = data?.breakdowns.length || 0
   const [tokens, setTokens] = useState<{ [chainId: string]: { [address: string]: WrappedTokenInfo } }>({})
 
@@ -98,53 +144,33 @@ const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className, h
     getData()
   }, [missingTokensByChainId])
 
-  return (
-    <Wrapper className={className} $columns={numberOfTokens > 5 ? 2 : 1}>
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          gap: '8px',
-        }}
-      >
-        <Flex
-          sx={{
-            width: '100%',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Text
-            sx={{
-              fontWeight: 500,
-              fontSize: '14px',
-              lineHeight: '20px',
-              color: theme.subText,
-            }}
-          >
-            <Trans>Tokens Breakdown</Trans>
-          </Text>
-        </Flex>
-      </Flex>
+  const formatData = useMemo(() => {
+    return (
+      data?.breakdowns.map(item => ({
+        ...item,
+        logoUrl:
+          item.chainId && item.address && !item.logoUrl ? tokens[item.chainId]?.[item.address]?.logoURI : item.logoUrl,
+        symbol:
+          item.chainId && item.address && !item.symbol
+            ? tokens[item.chainId]?.[item.address]?.symbol || ''
+            : item.symbol,
+      })) || []
+    )
+  }, [data, tokens])
 
-      {isLoading || !data ? (
-        <EarningPieChart horizontalLayout={horizontalLayout} isLoading />
-      ) : (
-        <EarningPieChart
-          horizontalLayout={horizontalLayout}
-          data={data.breakdowns.map(item => ({
-            ...item,
-            logoUrl:
-              item.chainId && item.address && !item.logoUrl
-                ? tokens[item.chainId]?.[item.address]?.logoURI
-                : item.logoUrl,
-            symbol:
-              item.chainId && item.address && !item.symbol
-                ? tokens[item.chainId]?.[item.address]?.symbol || ''
-                : item.symbol,
-          }))}
-          totalValue={formatDisplayNumber(data.totalValue, { style: 'currency', significantDigits: 3 })}
-        />
-      )}
-    </Wrapper>
+  return (
+    <TokenAllocationChart
+      {...{
+        border: true,
+        title: t`Tokens Breakdown`,
+        numberOfTokens,
+        isLoading,
+        className,
+        horizontalLayout,
+        totalUsd: data?.totalValue || 0,
+        data: formatData,
+      }}
+    />
   )
 }
 
