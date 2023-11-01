@@ -706,13 +706,15 @@ export default function IncreaseLiquidity() {
                 <Trans>404</Trans>
               </Text>
               <Text>
-                <Trans>There is no such position exists on {networkInfo.name}</Trans>
+                <Trans>
+                  Position {tokenId} does not exist on {networkInfo.name}
+                </Trans>
               </Text>
               <Text>
                 <Link to="#" onClick={toggleNetworkModal}>
-                  Switch network
+                  Switch chain
                 </Link>{' '}
-                or <Link to={APP_PATHS.MY_POOLS}>go back to My Pools</Link>
+                or <Link to={APP_PATHS.MY_POOLS}>Go back to My Pools</Link>
               </Text>
             </Flex>
           )}
