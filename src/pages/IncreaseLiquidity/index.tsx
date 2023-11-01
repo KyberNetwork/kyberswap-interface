@@ -702,7 +702,7 @@ export default function IncreaseLiquidity() {
             <Loader />
           ) : (
             <Flex flexDirection="column" sx={{ gap: '16px' }}>
-              <Text fontSize="28px" fontWeight="500">
+              <Text fontSize="48px" fontWeight="500">
                 <Trans>404</Trans>
               </Text>
               <Text>
