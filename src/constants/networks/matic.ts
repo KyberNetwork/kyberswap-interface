@@ -73,7 +73,7 @@ const maticInfo: EVMNetworkInfo = {
       router: '0x411c8FC7D5dDB3bE1263982805Af709586B6b40c',
       validator: '0x268D69745f8a30D30610F67fD9aC15646F32aB36',
       executor: '0xa241b62503B5A03409F084C11bb04fce55C18DaC',
-      helper: '0xa49664A25055fcBF698853e3a5611b9043016b6B',
+      helper: '0x13c7c37d1215273CC34B924dDd49Eb1761D8e905',
     },
     'farmV2.1S': [],
   },
