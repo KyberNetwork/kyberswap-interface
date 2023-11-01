@@ -106,16 +106,14 @@ export default function CampaignsUpdater() {
 
     if (selectedCampaign) {
       dispatch(setSelectedCampaign({ campaign: selectedCampaign }))
-    } else {
-      getCampaignById(selectedCampaignId)
-        .unwrap()
-        .then(data => {
-          dispatch(setSelectedCampaign({ campaign: data }))
-        })
-        .catch(() => {
-          navigateFirsOne()
-        })
+      return
     }
+    getCampaignById(selectedCampaignId)
+      .unwrap()
+      .then(data => {
+        dispatch(setSelectedCampaign({ campaign: data }))
+      })
+      .catch(navigateFirsOne)
   }, [currentCampaigns, dispatch, selectedCampaignId, navigate, getCampaignById])
 
   useEffect(() => {

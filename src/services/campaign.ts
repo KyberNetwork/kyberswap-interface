@@ -36,7 +36,9 @@ const formatRewards = (rewards: CampaignLeaderboardReward[]) =>
     }),
   ) || []
 
-const formatListCampaign = (response: CampaignData[]) => {
+const formatListCampaign = (data: CampaignData[]) => {
+  if (!data) return []
+  const response = Array.isArray(data) ? data : [data]
   const campaigns: CampaignData[] = response.map((item: CampaignData) => ({
     ...item,
     startTime: item.startTime * 1000,
@@ -213,7 +215,7 @@ const campaignApi = createApi({
       query: campaignId => ({
         url: `/${campaignId}`,
       }),
-      transformResponse: (data: any) => formatListCampaign(data?.data ? [data.data] : [])?.[0],
+      transformResponse: (data: any) => formatListCampaign(data?.data)?.[0],
     }),
     getLeaderboard: builder.query<
       any,
