@@ -85,6 +85,19 @@ const summaryLiquidity = (txs: TransactionDetails) => {
   }`
 }
 
+const zapInLiquidity = (txs: TransactionDetails) => {
+  const extraInfo = txs.extraInfo || {}
+  const {
+    tokenAmountIn = '',
+    tokenAmountOut = '',
+    tokenSymbolIn,
+    tokenSymbolOut,
+    zapAmountIn,
+    zapSymbolIn,
+  } = extraInfo as TransactionExtraInfo2Token
+  return `You have zapped ${zapAmountIn} ${zapSymbolIn} into ${tokenAmountIn} ${tokenSymbolIn} and ${tokenAmountOut} ${tokenSymbolOut} of liquidity to the pool`
+}
+
 const summaryCrossChain = (txs: TransactionDetails) => {
   const {
     tokenAmountIn,
@@ -152,6 +165,7 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY]: summaryLiquidity,
+  [TRANSACTION_TYPE.ELASTIC_ZAP_IN_LIQUIDITY]: zapInLiquidity,
   [TRANSACTION_TYPE.ELASTIC_COLLECT_FEE]: summaryLiquidity,
 
   [TRANSACTION_TYPE.STAKE]: summaryStakeUnstakeFarm,

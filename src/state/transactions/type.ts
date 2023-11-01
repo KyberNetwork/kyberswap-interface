@@ -29,6 +29,8 @@ export type TransactionExtraInfo2Token = {
   chainIdIn?: ChainId
   chainIdOut?: ChainId
   nftId?: string
+  zapAmountIn?: string
+  zapSymbolIn?: string
 }
 
 export type TransactionExtraInfoHarvestFarm = {
@@ -132,6 +134,7 @@ export enum TRANSACTION_TYPE {
   CLASSIC_REMOVE_LIQUIDITY = 'Classic Remove Liquidity',
   ELASTIC_REMOVE_LIQUIDITY = 'Elastic Remove Liquidity',
   ELASTIC_INCREASE_LIQUIDITY = 'Elastic Increase Liquidity',
+  ELASTIC_ZAP_IN_LIQUIDITY = 'Elastic Zap-in Liquidity',
   ELASTIC_COLLECT_FEE = 'Elastic Collect Fee',
 
   STAKE = 'Stake Into Farm',
@@ -173,6 +176,7 @@ export const GROUP_TRANSACTION_BY_TYPE = {
     TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
     TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
     TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
+    TRANSACTION_TYPE.ELASTIC_ZAP_IN_LIQUIDITY,
     TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
     TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
     TRANSACTION_TYPE.STAKE,

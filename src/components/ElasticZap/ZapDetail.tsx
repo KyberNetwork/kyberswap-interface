@@ -314,7 +314,7 @@ export default function ZapDetail({
       <Divider />
 
       <Flex justifyContent="space-between" fontSize={12}>
-        <Text color={theme.subText}>Pooled {symbol0}</Text>
+        <Text color={theme.subText}>Est. Pooled {symbol0}</Text>
 
         {zapLoading ? (
           skeleton()
@@ -336,7 +336,7 @@ export default function ZapDetail({
       </Flex>
 
       <Flex justifyContent="space-between" fontSize={12}>
-        <Text color={theme.subText}>Pooled {symbol1}</Text>
+        <Text color={theme.subText}>Est. Pooled {symbol1}</Text>
 
         {zapLoading ? (
           skeleton()
@@ -358,7 +358,7 @@ export default function ZapDetail({
       </Flex>
 
       <Flex justifyContent="space-between" fontSize={12}>
-        <Text color={theme.subText}>Liquidity Balance</Text>
+        <Text color={theme.subText}>Est. Liquidity Value</Text>
         {zapLoading ? (
           skeleton(120)
         ) : !result ? (

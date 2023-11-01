@@ -573,14 +573,17 @@ export default function IncreaseLiquidity() {
           : ''
         addTransactionWithType({
           hash: txHash,
-          type: TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
+          type: TRANSACTION_TYPE.ELASTIC_ZAP_IN_LIQUIDITY,
           extraInfo: {
+            zapAmountIn: amountIn.toSignificant(6) || '0',
+            zapSymbolIn: selectedCurrency?.symbol || '',
             tokenAmountIn: zapDetail.newPosDraft?.amount0.toSignificant(6) || '',
             tokenAmountOut: zapDetail.newPosDraft?.amount1.toSignificant(6) || '',
             tokenAddressIn: zapDetail.newPosDraft?.amount0.currency.wrapped.address || '',
             tokenAddressOut: zapDetail.newPosDraft?.amount1.currency.wrapped.address || '',
             tokenSymbolIn,
             tokenSymbolOut,
+            nftId: tokenId,
             arbitrary: {
               token_1: tokenSymbolIn,
               token_2: tokenSymbolOut,
@@ -722,8 +725,9 @@ export default function IncreaseLiquidity() {
         attemptingTxn={attemptingTxn}
         pendingText={
           <Trans>
-            Supplying {zapDetail.newPosDraft?.amount0.toSignificant(6)} {symbol0} and{' '}
-            {zapDetail.newPosDraft?.amount1.toSignificant(6)} {symbol1}
+            Zapping {amountIn?.toSignificant(6)} {selectedCurrency?.symbol} into{' '}
+            {zapDetail.newPosDraft?.amount0.toSignificant(6)} {symbol0} and{' '}
+            {zapDetail.newPosDraft?.amount1.toSignificant(6)} {symbol1} of liquidity to the pool
           </Trans>
         }
         content={() => (

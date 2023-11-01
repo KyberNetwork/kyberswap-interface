@@ -1166,8 +1166,10 @@ export default function AddLiquidity() {
         const tokenSymbolOut = newPosDraft ? unwrappedToken(newPosDraft.amount1.currency).symbol : ''
         addTransactionWithType({
           hash: txHash,
-          type: TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
+          type: TRANSACTION_TYPE.ELASTIC_ZAP_IN_LIQUIDITY,
           extraInfo: {
+            zapAmountIn: amountIn.toSignificant(6) || '0',
+            zapSymbolIn: selectedCurrency?.symbol || '',
             tokenAmountIn: newPosDraft?.amount0.toSignificant(6) || '',
             tokenAmountOut: newPosDraft?.amount1.toSignificant(6) || '',
             tokenAddressIn: newPosDraft?.amount0.currency.wrapped.address || '',
@@ -2069,8 +2071,8 @@ export default function AddLiquidity() {
         attemptingTxn={attemptingTxn}
         pendingText={
           <Trans>
-            Supplying {newPosDraft?.amount0.toSignificant(6)} {symbol0} and {newPosDraft?.amount1.toSignificant(6)}{' '}
-            {symbol1}
+            Zapping {amountIn?.toSignificant(6)} {selectedCurrency?.symbol} into {newPosDraft?.amount0.toSignificant(6)}{' '}
+            {symbol0} and {newPosDraft?.amount1.toSignificant(6)} {symbol1} of liquidity to the pool
           </Trans>
         }
         content={() => (
