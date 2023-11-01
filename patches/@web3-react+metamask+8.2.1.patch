@@ -1,5 +1,5 @@
 diff --git a/node_modules/@web3-react/metamask/dist/index.js b/node_modules/@web3-react/metamask/dist/index.js
-index c8476dd..a613ed1 100644
+index c8476dd..514b393 100644
 --- a/node_modules/@web3-react/metamask/dist/index.js
 +++ b/node_modules/@web3-react/metamask/dist/index.js
 @@ -64,7 +64,14 @@ class MetaMask extends types_1.Connector {
@@ -18,3 +18,11 @@ index c8476dd..a613ed1 100644
                      });
                      this.provider.on('disconnect', (error) => {
                          var _a;
+@@ -78,6 +85,7 @@ class MetaMask extends types_1.Connector {
+                         (_a = this.onError) === null || _a === void 0 ? void 0 : _a.call(this, error);
+                     });
+                     this.provider.on('chainChanged', (chainId) => {
++                        console.log('namgold web3 chainChanged',{ chainId })
+                         this.actions.update({ chainId: parseChainId(chainId) });
+                     });
+                     this.provider.on('accountsChanged', (accounts) => {
