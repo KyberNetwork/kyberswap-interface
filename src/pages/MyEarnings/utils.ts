@@ -16,7 +16,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
-import { isAddress } from 'utils'
+import { getNativeTokenLogo, isAddress } from 'utils'
 
 export const getToday = () => {
   return Math.floor(Date.now() / 1000 / 86400)
@@ -559,7 +559,7 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
 
               const isNative = currency.isNative || tokenAddress === WETH[chainId].address
               const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency.symbol) || 'NO SYMBOL'
-              const logoUrl = (isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency.logoURI) || ''
+              const logoUrl = (isNative ? getNativeTokenLogo(chainId) : currency.logoURI) || ''
 
               const tokenInfo: EarningStatsTick['tokens'][number] = {
                 logoUrl,

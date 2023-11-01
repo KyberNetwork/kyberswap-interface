@@ -251,6 +251,7 @@ export default function TokenFilter({
                 onChange={value => onChangeFilter(queryKey, value)}
                 optionStyle={{ fontSize: '14px' }}
                 menuStyle={menuStyle}
+                withSearch={queryKey === 'categories'}
               />
             ))}
             {isWatchlistTab && (

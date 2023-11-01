@@ -1012,7 +1012,7 @@ export default function AddLiquidity() {
                         <Text>
                           <Trans>
                             Add your liquidity into one of the farming ranges to participate in Elastic Static Farm.
-                            Only positions that cover the range of the farm will earn maximum rewards. Learn more{' '}
+                            Only positions that cover the range of the farm will earn maximum rewards. Learn more{' '}
                             <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
                               here ↗
                             </ExternalLink>

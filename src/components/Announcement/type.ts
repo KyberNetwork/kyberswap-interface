@@ -112,6 +112,7 @@ export type AnnouncementTemplatePopup = {
   name: string
   content: string
   thumbnailImageURL: string
+  thumbnailVideoURL?: string
   type: 'NORMAL' | 'CRITICAL'
   startAt: number
   endAt: number

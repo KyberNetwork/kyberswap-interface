@@ -68,7 +68,7 @@ function CurrencyLogo({
         src={getNativeTokenLogo(currency?.chainId)}
         size={size}
         style={style}
-        alt={`${currency.symbol}Logo`}
+        alt={`${currency.symbol} Logo`}
       />
     )
   }

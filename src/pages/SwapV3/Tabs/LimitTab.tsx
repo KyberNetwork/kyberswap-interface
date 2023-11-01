@@ -24,8 +24,9 @@ const WarningBadge = styled.span`
 
 type Props = {
   onClick: () => void
+  active?: boolean
 }
-export default function LimitTab({ onClick }: Props) {
+export default function LimitTab({ onClick, active }: Props) {
   const { chainId, account } = useActiveWeb3React()
   const { pathname } = useLocation()
 
@@ -48,7 +49,7 @@ export default function LimitTab({ onClick }: Props) {
       id="limit-button"
       data-testid="limit-button"
       onClick={onClick}
-      isActive={isLimitPage}
+      isActive={active || isLimitPage}
       style={{ display: 'flex', gap: '4px', fontSize: '20px', fontWeight: '500' }}
     >
       <Trans>Limit</Trans>{' '}

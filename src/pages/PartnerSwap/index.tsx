@@ -2,7 +2,8 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
-import { useLocation } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { usePreviousDistinct } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -10,70 +11,48 @@ import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
-import TutorialSwap from 'components/Tutorial/TutorialSwap'
-import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LimitOrder from 'components/swapv2/LimitOrder'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
-import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
+import { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import {
   Container,
   InfoComponentsWrapper,
-  KyberAIBannerWrapper,
-  LiveChartWrapper,
   PageWrapper,
   RoutesWrapper,
   SwapFormWrapper,
   highlight,
 } from 'components/swapv2/styleds'
-import { APP_PATHS, TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS } from 'constants/index'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChain from 'pages/CrossChain'
 import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
+import { TAB, isSettingTab } from 'pages/SwapV3'
 import Header from 'pages/SwapV3/Header'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import useTokenNotInDefault from 'pages/SwapV3/useTokenNotInDefault'
 import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
-import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useShowKyberAIBanner, useShowLiveChart, useShowTradeRoutes } from 'state/user/hooks'
+import { useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 
-import KyberAIWidget from '../TrueSightV2/components/KyberAIWidget'
-import PopulatedSwapForm from './PopulatedSwapForm'
+import PopulatedSwapForm from '../SwapV3/PopulatedSwapForm'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
-
-const LiveChart = lazy(() => import('components/LiveChart'))
-
-const KyberAITokenBanner = lazy(() => import('components/KyberAITokenBanner'))
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
 }
-
-export enum TAB {
-  SWAP = 'swap',
-  INFO = 'info',
-  SETTINGS = 'settings',
-  GAS_PRICE_TRACKER = 'gas_price_tracker',
-  LIQUIDITY_SOURCES = 'liquidity_sources',
-  LIMIT = 'limit',
-  CROSS_CHAIN = 'cross_chain',
-}
-
-export const isSettingTab = (tab: TAB) =>
-  [TAB.INFO, TAB.SETTINGS, TAB.GAS_PRICE_TRACKER, TAB.LIQUIDITY_SOURCES].includes(tab)
 
 export const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
@@ -103,38 +82,57 @@ export const RoutingIconWrapper = styled(RoutingIcon)`
 
 export default function Swap() {
   const { chainId } = useActiveWeb3React()
-  const isShowLiveChart = useShowLiveChart()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const requestChainId = searchParams.get('chainId')
+  const { changeNetwork } = useChangeNetwork()
+
+  const [triedToChangeNetwork, setTriedToChangeNetwork] = useState(false)
+
+  useEffect(() => {
+    // if wallet has already connected, request connect onnce
+    if (
+      !triedToChangeNetwork &&
+      requestChainId &&
+      SUPPORTED_NETWORKS.includes(+requestChainId) &&
+      chainId !== +requestChainId
+    ) {
+      setTriedToChangeNetwork(true)
+      changeNetwork(+requestChainId)
+    }
+  }, [chainId, requestChainId, changeNetwork, triedToChangeNetwork])
+
   const isShowTradeRoutes = useShowTradeRoutes()
-  const isShowKyberAIBanner = useShowKyberAIBanner()
-  const qs = useParsedQueryString<{ highlightBox: string }>()
-  const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
-
-  const { pathname } = useLocation()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
 
   const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
 
-  const shouldHighlightSwapBox = qs.highlightBox === 'true'
-
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
-
-  const getDefaultTab = useCallback(
-    () => (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : TAB.CROSS_CHAIN),
-    [isSwapPage, isLimitPage],
+  const activeTab = Object.values(TAB).includes(searchParams.get('tab')) ? (searchParams.get('tab') as TAB) : TAB.SWAP
+  const setActiveTab = useCallback(
+    (tab: TAB) => {
+      searchParams.set('tab', tab)
+      setSearchParams(searchParams)
+    },
+    [searchParams, setSearchParams],
   )
 
-  const [activeTab, setActiveTab] = useState<TAB>(getDefaultTab())
+  const navigate = useNavigate()
+  const clientId = searchParams.get('clientId')
+  useEffect(() => {
+    if (!clientId) navigate('/')
+  }, [clientId, navigate])
+
+  const isSetting = isSettingTab(activeTab)
+  const previousTab = usePreviousDistinct(!isSetting ? activeTab : undefined)
+
+  const isSwapPage = activeTab === TAB.SWAP || (previousTab === TAB.SWAP && isSetting)
+  const isLimitPage = activeTab === TAB.LIMIT || (previousTab === TAB.LIMIT && isSetting)
+  const isCrossChainPage = activeTab === TAB.CROSS_CHAIN || (previousTab === TAB.CROSS_CHAIN && isSetting)
 
   const { onSelectPair: onSelectPairLimit } = useLimitActionHandlers()
-
-  useEffect(() => {
-    setActiveTab(getDefaultTab())
-  }, [getDefaultTab])
 
   useDefaultsFromURLSearch()
 
@@ -192,7 +190,7 @@ export default function Swap() {
 
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
 
-  const onBackToSwapTab = () => setActiveTab(getDefaultTab())
+  const onBackToSwapTab = () => setActiveTab(previousTab || TAB.SWAP)
 
   const isShowModalImportToken =
     !isCrossChainPage && isLoadedTokenDefault && importTokensNotInDefault.length > 0 && showingPairSuggestionImport
@@ -204,7 +202,6 @@ export default function Swap() {
 
   return (
     <>
-      {isSwapPage && <TutorialSwap />}
       <TokenWarningModal
         isOpen={isShowModalImportToken}
         tokens={importTokensNotInDefault}
@@ -213,22 +210,10 @@ export default function Swap() {
       <PageWrapper>
         <Banner />
         <Container>
-          <SwapFormWrapper isShowTutorial={isShowTutorial}>
+          <SwapFormWrapper isShowTutorial={false}>
             <Header activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
 
-            {(isLimitPage || isSwapPage) && !TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS.includes(chainId) && (
-              <PairSuggestion
-                ref={refSuggestPair}
-                onSelectSuggestedPair={onSelectSuggestedPair}
-                setShowModalImportToken={setShowingPairSuggestionImport}
-              />
-            )}
-
-            <AppBodyWrapped
-              data-highlight={shouldHighlightSwapBox}
-              id={TutorialIds.SWAP_FORM}
-              style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}
-            >
+            <AppBodyWrapped style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}>
               {isSwapPage && (
                 <PopulatedSwapForm
                   onSelectSuggestedPair={onSelectSuggestedPair}
@@ -268,40 +253,8 @@ export default function Swap() {
           </SwapFormWrapper>
 
           <InfoComponents>
-            {isShowKyberAIBanner && (
-              <KyberAIBannerWrapper>
-                <Suspense
-                  fallback={
-                    <Skeleton
-                      height="84px"
-                      baseColor={theme.background}
-                      highlightColor={theme.buttonGray}
-                      borderRadius="24px"
-                    />
-                  }
-                >
-                  <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
-                </Suspense>
-              </KyberAIBannerWrapper>
-            )}
-            {isShowLiveChart && (
-              <LiveChartWrapper>
-                <Suspense
-                  fallback={
-                    <Skeleton
-                      height="100%"
-                      baseColor={theme.background}
-                      highlightColor={theme.buttonGray}
-                      borderRadius="1rem"
-                    />
-                  }
-                >
-                  <LiveChart currencies={currencies} enableProChart={isSwapPage} />
-                </Suspense>
-              </LiveChartWrapper>
-            )}
             {isShowTradeRoutes && isSwapPage && (
-              <RoutesWrapper isOpenChart={isShowLiveChart}>
+              <RoutesWrapper isOpenChart={false}>
                 <Flex flexDirection="column" width="100%">
                   <Flex alignItems={'center'}>
                     <RoutingIconWrapper />
@@ -339,7 +292,6 @@ export default function Swap() {
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
         </Flex>
-        <KyberAIWidget />
       </PageWrapper>
     </>
   )

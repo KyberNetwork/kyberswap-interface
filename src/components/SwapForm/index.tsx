@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
@@ -37,6 +37,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { currencyId } from 'utils/currencyId'
 
+import MultichainKNCNote from './MultichainKNCNote'
 import RefreshButton from './RefreshButton'
 import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
 import SwapActionButton from './SwapActionButton'
@@ -81,6 +82,8 @@ export type SwapFormProps = {
 }
 
 const SwapForm: React.FC<SwapFormProps> = props => {
+  const { pathname } = useLocation()
+  const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const {
     hidden,
     currencyIn,
@@ -216,24 +219,26 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               </Flex>
 
               <Flex sx={{ gap: '12px' }}>
-                <PriceAlertButton
-                  onClick={() =>
-                    navigate(
-                      `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
-                        amount: typedValue || undefined,
-                        inputCurrency: currencyId(currencyIn, chainId),
-                        outputCurrency: currencyId(currencyOut, chainId),
-                      })}`,
-                    )
-                  }
-                >
-                  <Clock size={14} color={theme.subText} />
-                  {upToExtraSmall ? null : (
-                    <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
-                      <Trans>Price Alert</Trans>
-                    </Text>
-                  )}
-                </PriceAlertButton>
+                {!isPartnerSwap && (
+                  <PriceAlertButton
+                    onClick={() =>
+                      navigate(
+                        `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
+                          amount: typedValue || undefined,
+                          inputCurrency: currencyId(currencyIn, chainId),
+                          outputCurrency: currencyId(currencyOut, chainId),
+                        })}`,
+                      )
+                    }
+                  >
+                    <Clock size={14} color={theme.subText} />
+                    {upToExtraSmall ? null : (
+                      <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+                        <Trans>Price Alert</Trans>
+                      </Text>
+                    )}
+                  </PriceAlertButton>
+                )}
                 <ReverseTokenSelectionButton onClick={() => currencyIn && handleChangeCurrencyOut(currencyIn)} />
               </Flex>
             </AutoRow>
@@ -264,6 +269,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             priceImpact={routeSummary?.priceImpact}
             isDegenMode={isDegenMode}
           />
+          <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
