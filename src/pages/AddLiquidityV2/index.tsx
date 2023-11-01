@@ -45,7 +45,7 @@ import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
 import { ELASTIC_NOT_SUPPORTED } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
@@ -497,8 +497,8 @@ export default function AddLiquidity() {
                       tokenAmountOut,
                       tokenSymbolIn: baseCurrency.symbol,
                       tokenSymbolOut: quoteCurrency.symbol,
-                      tokenAddressIn: baseCurrency.wrapped.address,
-                      tokenAddressOut: quoteCurrency.wrapped.address,
+                      tokenAddressIn: baseCurrency.isNative ? ETHER_ADDRESS : baseCurrency.address,
+                      tokenAddressOut: quoteCurrency.isNative ? ETHER_ADDRESS : quoteCurrency.address,
                     },
                   })
                 }
