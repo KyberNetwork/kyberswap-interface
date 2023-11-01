@@ -69,9 +69,15 @@ export default createReducer<CampaignsState>(initialState, builder =>
       }
     })
     .addCase(setCampaignDataByPage, (state, { payload: { campaigns, isReset } }) => {
+      const oldData = state.data
+      const newData = isReset
+        ? campaigns
+        : oldData.some(e => e.id === campaigns[0]?.id)
+        ? oldData
+        : oldData.concat(campaigns)
       return {
         ...state,
-        data: isReset ? campaigns : state.data.concat(campaigns),
+        data: newData,
       }
     })
     .addCase(setLoadingCampaignData, (state, { payload: loading }) => {
