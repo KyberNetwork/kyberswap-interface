@@ -102,14 +102,14 @@ const Description2Token = (transaction: TransactionDetails) => {
         symbol={tokenSymbolOut}
         amount={tokenAmountOut}
         plus={signTokenOut}
-        logoURL={tokenSymbolOut === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
+        logoURL={tokenAddressOut === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
       />
       <DeltaTokenAmount
         tokenAddress={tokenAddressIn}
         symbol={tokenSymbolIn}
         amount={tokenAmountIn}
         plus={signTokenIn}
-        logoURL={tokenSymbolIn === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
+        logoURL={tokenAddressIn === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
       />
     </>
   )
