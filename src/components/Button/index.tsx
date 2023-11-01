@@ -395,23 +395,23 @@ export const ButtonApprove = ({
   )
 }
 
-const StyledButtonAction = styled(RebassButton)`
+const StyledButtonAction = styled(RebassButton)<{ $color?: string }>`
   cursor: pointer;
   appearance: none;
   padding: 2px;
-  background-color: transparent;
   display: flex;
   align-items: center;
   outline: none;
   border-radius: 50%;
   border: none;
-  color: unset;
   transition: all 0.1s;
+  background-color: ${({ $color }) => ($color ? $color + '32' : 'transparent')};
+  color: ${({ $color }) => ($color ? $color : 'unset')};
   :hover {
-    background-color: ${({ theme }) => theme.subText + '20'};
+    background-color: ${({ theme, $color }) => ($color ? $color + '20' : theme.subText + '20')};
   }
   :active {
-    background-color: ${({ theme }) => theme.subText + '10'};
+    background-color: ${({ theme, $color }) => ($color ? $color + '10' : theme.subText + '10')};
     transform: translateY(2px);
   }
 `
@@ -419,10 +419,11 @@ const StyledButtonAction = styled(RebassButton)`
 export const ButtonAction = ({
   onClick,
   children,
+  color,
   ...rest
-}: { onClick?: () => void; children: ReactNode } & ButtonProps) => {
+}: { onClick?: () => void; children: ReactNode } & ButtonProps & { color?: string }) => {
   return (
-    <StyledButtonAction onClick={onClick} {...rest}>
+    <StyledButtonAction onClick={onClick} $color={color} {...rest}>
       {children}
     </StyledButtonAction>
   )

@@ -172,6 +172,8 @@ const initialState: UserState = {
     liveDEXTrades: true,
     fundingRateOnCEX: true,
     liquidationsOnCEX: true,
+    liquidityProfile: true,
+    markets: true,
   },
   favoriteTokensByChainId: {},
   favoriteTokensByChainIdv2: {},

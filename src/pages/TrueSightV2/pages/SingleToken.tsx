@@ -33,6 +33,7 @@ import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStat
 import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
 import { DiscoverTokenTab, IAssetOverview } from '../types'
 import { navigateToSwapPage } from '../utils'
+import LiquidityAnalysis from './LiquidityAnalysis'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
 
@@ -110,6 +111,7 @@ const TagWrapper = styled.div`
   gap: 8px;
   margin-bottom: 24px;
   overflow-x: scroll;
+  flex-wrap: wrap;
 `
 
 const TabButton = styled.div<{ active?: boolean }>`
@@ -509,9 +511,7 @@ export default function SingleToken() {
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { assetId } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.TechnicalAnalysis)
-
   const { data: token, isLoading, chain: chainParam, address: addressParam } = useKyberAIAssetOverview()
-
   const [viewAllTag, setViewAllTag] = useState(false)
 
   useEffect(() => {
@@ -607,6 +607,7 @@ export default function SingleToken() {
                       {
                         [DiscoverTokenTab.OnChainAnalysis]: 'on-chain' as const,
                         [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis' as const,
+                        [DiscoverTokenTab.LiquidityAnalysis]: 'liquidity-analysis' as const,
                       }[tab]
                     }
                     size={20}
@@ -620,8 +621,11 @@ export default function SingleToken() {
             <DisplaySettings currentTab={currentTab} />
           </RowFit>
         </Row>
-        {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
-        {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
+        <div style={{ minHeight: '80vh' }}>
+          {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
+          {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
+          {currentTab === DiscoverTokenTab.LiquidityAnalysis && <LiquidityAnalysis />}
+        </div>
       </ChartStatesContext.Provider>
       <KyberAIShareModal
         isOpen={showShare}

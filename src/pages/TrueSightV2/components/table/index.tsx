@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
@@ -49,7 +49,6 @@ import WatchlistButton from '../WatchlistButton'
 const TableWrapper = styled.div`
   overflow-x: scroll;
   border-radius: 6px;
-
   ${({ theme }) => theme.mediaWidth.upToSmall`
     border-radius: 0;
     margin: -16px;
@@ -62,6 +61,7 @@ const Table = styled.table`
     font-size: 12px;
     line-height: 16px;
     font-weight: 500;
+    white-space: nowrap;
     color: ${({ theme }) => theme.subText};
     text-transform: uppercase;
     tr {
@@ -90,6 +90,7 @@ const Table = styled.table`
     tr{
       td, th{
         padding: 12px 16px;
+        font-size: 12px;
       }
     }
   `}
@@ -124,23 +125,29 @@ const StyledLoadingWrapper = styled.div`
   width: 100%;
 `
 
-const LoadingHandleWrapper = ({
+export const LoadingHandleWrapper = ({
   isLoading,
+  isFetching,
   hasData,
   children,
   height,
+  minHeight,
+  style,
 }: {
   isLoading: boolean
+  isFetching?: boolean
   hasData: boolean
   children: ReactNode
   height?: string
+  minHeight?: string
+  style?: CSSProperties
 }) => {
   return (
-    <TableWrapper>
-      <Table>
+    <TableWrapper style={{ ...style }}>
+      <Table style={{ opacity: isFetching ? 0.4 : 1 }}>
         {!hasData ? (
           <tr style={{ backgroundColor: 'unset' }}>
-            <StyledLoadingWrapper style={height ? { height } : undefined}>
+            <StyledLoadingWrapper style={{ height: height, minHeight: minHeight }}>
               {isLoading ? (
                 <AnimatedLoader />
               ) : (
@@ -171,7 +178,6 @@ export const Top10HoldersTable = () => {
         <col style={{ width: '300px', minWidth: '150px' }} />
         <col style={{ width: '300px' }} />
         <col style={{ width: '300px' }} />
-        {/* <col style={{ width: '500px' }} /> */}
       </colgroup>
       <thead>
         <tr>
