@@ -11,7 +11,7 @@ describe('Metamask Extension tests', { tags: TAG.regression }, () => {
         SwapPage.connectWallet()
     })
 
-    it('Redirects to swap page when a user has already connected a wallet', () => {
+    it('Redirects to swap page when a user has already connected a wallet', { tags: TAG.smoke }, () => {
         cy.acceptMetamaskAccess()
         SwapPage.getStatusConnectedWallet()
         cy.url().should('include', '/swap')
