@@ -92,8 +92,8 @@ const PoolPriceChart = ({
   const [currentRate, setCurrentRate] = useState<{ price: string; time?: string } | null>(null)
   const theme = useTheme()
 
-  const formattedSymbol0 = shortString(poolData?.token0?.symbol, 5)
-  const formattedSymbol1 = shortString(poolData?.token1?.symbol, 5)
+  const formattedSymbol0 = shortString(poolData?.token0?.symbol, 7)
+  const formattedSymbol1 = shortString(poolData?.token1?.symbol, 7)
 
   const ratesData0 = ratesDatas?.[0]
   const ratesData1 = ratesDatas?.[1]
