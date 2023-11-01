@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -71,6 +72,17 @@ export default function TransactionSettings({ hoverBg }: Props) {
   const [showConfirmation, setShowConfirmation] = useState(false)
   const open = useModalOpen(ApplicationModal.TRANSACTION_SETTINGS)
 
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const showSetting = searchParams.get('showSetting')
+  useEffect(() => {
+    if (showSetting === 'true') {
+      toggle()
+    }
+    // only toggle one
+    // eslint-disable-next-line
+  }, [showSetting])
+
   const [isShowTooltip, setIsShowTooltip] = useState<boolean>(false)
   const showTooltip = useCallback(() => setIsShowTooltip(true), [setIsShowTooltip])
   const hideTooltip = useCallback(() => setIsShowTooltip(false), [setIsShowTooltip])
@@ -83,6 +95,11 @@ export default function TransactionSettings({ hoverBg }: Props) {
     }
 
     toggle()
+    if (showSetting === 'true') {
+      searchParams.delete('showSetting')
+      setSearchParams(searchParams, { replace: true })
+    }
+
     setShowConfirmation(true)
   }
   return (
@@ -113,7 +130,13 @@ export default function TransactionSettings({ hoverBg }: Props) {
           }
           customStyle={MenuFlyoutBrowserStyle}
           isOpen={open}
-          toggle={toggle}
+          toggle={() => {
+            toggle()
+            if (showSetting === 'true') {
+              searchParams.delete('showSetting')
+              setSearchParams(searchParams, { replace: true })
+            }
+          }}
           title={t`Advanced Settings`}
           mobileCustomStyle={{ paddingBottom: '40px' }}
           hasArrow
@@ -129,11 +152,16 @@ export default function TransactionSettings({ hoverBg }: Props) {
                     text={t`You can make trades with high price impact and without any confirmation prompts. Enable at your own risk`}
                     placement="right"
                   >
-                    <Trans>Advanced Mode</Trans>
+                    <Trans>Degen Mode</Trans>
                   </MouseoverTooltip>
                 </TextDashed>
               </Flex>
-              <Toggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleAdvancedMode} />
+              <Toggle
+                id="toggle-expert-mode-button"
+                isActive={isDegenMode}
+                toggle={handleToggleAdvancedMode}
+                highlight={showSetting === 'true'}
+              />
             </Flex>
           </SettingsWrapper>
         </MenuFlyout>

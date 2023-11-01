@@ -44,7 +44,7 @@ import Rating from 'components/Rating'
 import Row, { RowBetween, RowFixed } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
+import PriceImpactNote, { ZapHighPriceImpact } from 'components/SwapForm/PriceImpactNote'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, {
@@ -1198,7 +1198,15 @@ export default function AddLiquidity() {
   const zapPriceImpactNote = method === 'zap' &&
     !!(zapDetail.priceImpact?.isVeryHigh || zapDetail.priceImpact?.isHigh || zapDetail.priceImpact?.isInvalid) &&
     zapResult &&
-    !zapLoading && <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+    !zapLoading && (
+      <>
+        {zapDetail.priceImpact.isVeryHigh ? (
+          <ZapHighPriceImpact />
+        ) : (
+          <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+        )}
+      </>
+    )
 
   const ZapButton = (
     <ButtonPrimary

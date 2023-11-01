@@ -31,7 +31,7 @@ import ProAmmPriceRangeConfirm from 'components/ProAmm/ProAmmPriceRangeConfirm'
 import Rating from 'components/Rating'
 import { RowBetween } from 'components/Row'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
+import PriceImpactNote, { ZapHighPriceImpact } from 'components/SwapForm/PriceImpactNote'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
@@ -695,7 +695,16 @@ export default function IncreaseLiquidity() {
   const zapPriceImpactNote = method === 'zap' &&
     !!(zapDetail.priceImpact?.isVeryHigh || zapDetail.priceImpact?.isHigh || zapDetail.priceImpact?.isInvalid) &&
     zapResult &&
-    !zapLoading && <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+    !zapLoading && (
+      <>
+        {zapDetail.priceImpact.isVeryHigh ? (
+          <ZapHighPriceImpact />
+        ) : (
+          <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+        )}
+        <div style={{ marginBottom: '1rem' }} />
+      </>
+    )
 
   const token0IsNative =
     selectedCurrency?.isNative && selectedCurrency?.wrapped.address.toLowerCase() === pool?.token0.address.toLowerCase()

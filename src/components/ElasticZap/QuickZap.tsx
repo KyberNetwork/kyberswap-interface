@@ -360,9 +360,11 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
     }
   }
 
-  const addliquidityLink = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
-    currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
-  }/${currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''}/${pool?.fee}`
+  const addliquidityLink = `/${networkInfo.route}${
+    tokenId ? APP_PATHS.ELASTIC_INCREASE_LIQ : APP_PATHS.ELASTIC_CREATE_POOL
+  }/${currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''}/${
+    currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''
+  }/${pool?.fee}${tokenId ? `/${tokenId}` : ''}`
 
   return (
     <Modal isOpen={isOpen}>
@@ -504,7 +506,9 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
                                   Price Impact
                                 </TextUnderlineColor>{' '}
                                 is very high. You will lose funds! Please turn on{' '}
-                                <StyledInternalLink to="/">Degen Mode ↗</StyledInternalLink>
+                                <StyledInternalLink to={`${addliquidityLink}?showSetting=true`}>
+                                  Degen Mode ↗
+                                </StyledInternalLink>
                               </Trans>
                             </Text>
                           }
