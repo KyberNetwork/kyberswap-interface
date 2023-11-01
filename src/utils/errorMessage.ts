@@ -11,6 +11,9 @@ function parseKnownPattern(text: string): string | undefined {
 
   if (!error || error.includes('router: expired')) return t`An error occurred. Refresh the page and try again.`
 
+  if (matchPatterns(['already pending'], error))
+    return t`Request already pending on your wallet. Please open your wallet and approve it.`
+
   if (
     matchPatterns(
       [
