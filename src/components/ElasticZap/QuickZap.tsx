@@ -13,7 +13,7 @@ import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
-import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
+import PriceImpactNote, { PRICE_IMPACT_EXPLANATION_URL, TextUnderlineColor } from 'components/SwapForm/PriceImpactNote'
 import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -22,6 +22,7 @@ import {
   TransactionErrorContent,
   TransactionSubmittedContent,
 } from 'components/TransactionConfirmationModal'
+import WarningNote from 'components/WarningNote'
 import { abi } from 'constants/abis/v2/ProAmmPoolState.json'
 import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -359,6 +360,10 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
     }
   }
 
+  const addliquidityLink = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
+    currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
+  }/${currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''}/${pool?.fee}`
+
   return (
     <Modal isOpen={isOpen}>
       {attempingTx ? (
@@ -453,11 +458,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
                         <Trans>Step 2. Choose Price Range</Trans>
                       </Text>
 
-                      <StyledInternalLink
-                        to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
-                          currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
-                        }/${currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''}/${pool?.fee}`}
-                      >
+                      <StyledInternalLink to={addliquidityLink}>
                         <Text fontSize="12px" fontWeight="500">
                           <Trans>Set a Custom Range</Trans> ↗
                         </Text>
@@ -488,7 +489,29 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
                   !zapLoading && (
                     <>
                       <Flex marginTop="1rem" />
-                      <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+                      {zapDetail.priceImpact.isVeryHigh ? (
+                        <WarningNote
+                          level="serious"
+                          shortText={
+                            <Text>
+                              <Trans>
+                                <TextUnderlineColor
+                                  as="a"
+                                  href={PRICE_IMPACT_EXPLANATION_URL}
+                                  target="_blank"
+                                  rel="noreferrer noopener"
+                                >
+                                  Price Impact
+                                </TextUnderlineColor>{' '}
+                                is very high. You will lose funds! Please turn on{' '}
+                                <StyledInternalLink to="/">Degen Mode ↗</StyledInternalLink>
+                              </Trans>
+                            </Text>
+                          }
+                        />
+                      ) : (
+                        <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
+                      )}
                     </>
                   )}
               </Overlay>

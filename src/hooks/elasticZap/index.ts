@@ -289,7 +289,10 @@ export function useZapInAction() {
           aggregatorInfo =
             '0x0000000000000000000000000000000000000000000000000000000000000020' +
             abiEncoder
-              .encode(['address', 'bytes'], [aggregatorRes.data.data.routerAddress, aggregatorRes.data.data.data])
+              .encode(
+                ['address', 'uint256', 'bytes'],
+                [aggregatorRes.data.data.routerAddress, aggregatorRes.data.data.amountIn, aggregatorRes.data.data.data],
+              )
               .slice(2)
         }
 

@@ -11,7 +11,7 @@ import useTheme from 'hooks/useTheme'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { checkPriceImpact } from 'utils/prices'
 
-const TextUnderlineColor = styled(Text)`
+export const TextUnderlineColor = styled(Text)`
   border-bottom: 1px solid ${({ theme }) => theme.text};
   width: fit-content;
   cursor: pointer;
@@ -25,7 +25,7 @@ const TextUnderlineTransparent = styled(Text)`
   cursor: pointer;
 `
 
-const PRICE_IMPACT_EXPLANATION_URL =
+export const PRICE_IMPACT_EXPLANATION_URL =
   'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact'
 
 type Props = {
@@ -53,7 +53,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
           <Row alignItems="center" style={{ gap: '0.5ch' }}>
             <Trans>
               <TextUnderlineTransparent>Unable to calculate</TextUnderlineTransparent>
-              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
                 Price Impact
               </TextUnderlineColor>
             </Trans>
@@ -106,7 +106,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
         shortText={
           <Row alignItems="center" style={{ gap: '0.5ch' }}>
             <Trans>
-              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
                 Price Impact
               </TextUnderlineColor>
               <TextUnderlineTransparent>is very high. You will lose funds!</TextUnderlineTransparent>
