@@ -3,10 +3,10 @@ import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { ReactElement, useMemo, useState } from 'react'
-import { Zap } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as ZapIcon } from 'assets/svg/zap.svg'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Dots from 'components/Dots'
@@ -56,10 +56,10 @@ const QuickZapButtonWrapper = styled(ButtonOutlined)<{ size: 'small' | 'medium' 
   width: ${({ size }) => (size === 'small' ? '28px' : '36px')};
   max-width: ${({ size }) => (size === 'small' ? '28px' : '36px')};
   height: ${({ size }) => (size === 'small' ? '28px' : '36px')};
-  background: ${({ theme }) => rgba(theme.subText, 0.2)};
+  background: ${({ theme }) => rgba(theme.warning, 0.2)};
   color: ${({ theme }) => theme.subText};
 
-  border: 1px solid ${({ theme }) => rgba(theme.subText, 0.2)};
+  border: 1px solid ${({ theme }) => rgba(theme.warning, 0.2)};
 
   &:active {
     box-shadow: none;
@@ -90,7 +90,7 @@ export const QuickZapButton = ({
   return (
     <MouseoverTooltip text={<Trans>Quickly zap and add liquidity using only one token</Trans>}>
       <QuickZapButtonWrapper onClick={onClick} size={size}>
-        <Zap size={size === 'small' ? 16 : 20} />
+        <ZapIcon />
       </QuickZapButtonWrapper>
     </MouseoverTooltip>
   )

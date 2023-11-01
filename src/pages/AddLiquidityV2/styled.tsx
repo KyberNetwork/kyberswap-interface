@@ -3,8 +3,10 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties, css, keyframes, useTheme } from 'styled-components'
 
+import { ReactComponent as ZapIcon } from 'assets/svg/zap.svg'
 import { ButtonOutlined } from 'components/Button'
 import { AutoColumn } from 'components/Column'
+import InfoHelper from 'components/InfoHelper'
 import Input from 'components/NumericalInput'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -223,7 +225,7 @@ const MethodTabs = styled.div`
 
 const MethodTab = styled.div<{ active: boolean }>`
   background: ${({ theme, active }) => (active ? theme.tabActive : theme.buttonBlack)};
-  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
+  opacity: ${({ active }) => (active ? 1 : 0.6)};
   cursor: pointer;
   border-radius: 999px;
   display: flex;
@@ -276,7 +278,11 @@ export const MethodSelector = ({
             Token Pair
           </MethodTab>
           <MethodTab role="button" onClick={() => setMethod('zap')} active={method === 'zap'}>
-            Zap In
+            <Flex alignItems="center">
+              <ZapIcon />
+              <Text marginLeft="4px">Zap In</Text>
+              <InfoHelper text={<Trans>Add liquidity instantly using only one token!</Trans>} />
+            </Flex>
           </MethodTab>
         </MethodTabs>
       </Flex>
