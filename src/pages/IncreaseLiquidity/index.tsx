@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMedia, usePrevious } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -65,7 +65,7 @@ import {
   TokenId,
   TokenInputWrapper,
 } from 'pages/RemoveLiquidityProAmm/styled'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import { useProAmmDerivedMintInfo, useProAmmMintActionHandlers, useProAmmMintState } from 'state/mint/proamm/hooks'
 import { Field } from 'state/mint/proamm/type'
 import { useSingleCallResult } from 'state/multicall/hooks'
@@ -107,6 +107,7 @@ export default function IncreaseLiquidity() {
   const navigate = useNavigate()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
+  const toggleNetworkModal = useNetworkModalToggle()
   const [isDegenMode] = useDegenModeManager()
   const addTransactionWithType = useTransactionAdder()
 
@@ -121,7 +122,7 @@ export default function IncreaseLiquidity() {
   const positionManager = useProAmmNFTPositionManagerReadingContract()
 
   // check for existing position if tokenId in url
-  const { position: existingPositionDetails } = useProAmmPositionsFromTokenId(
+  const { position: existingPositionDetails, loading: loadingPosition } = useProAmmPositionsFromTokenId(
     tokenId ? BigNumber.from(tokenId) : undefined,
   )
 
@@ -135,7 +136,7 @@ export default function IncreaseLiquidity() {
       (networkInfo as EVMNetworkInfo).elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
     : false
 
-  const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
+  const { position: existingPosition, loading: loadingInfo } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
@@ -1161,8 +1162,25 @@ export default function IncreaseLiquidity() {
                 </SecondColumn>
               </GridColumn>
             </AutoColumn>
-          ) : (
+          ) : loadingPosition || loadingInfo ? (
             <Loader />
+          ) : (
+            <Flex flexDirection="column" sx={{ gap: '16px' }}>
+              <Text fontSize="48px" fontWeight="500">
+                <Trans>404</Trans>
+              </Text>
+              <Text>
+                <Trans>
+                  Position {tokenId} does not exist on {networkInfo.name}
+                </Trans>
+              </Text>
+              <Text>
+                <Link to="#" onClick={toggleNetworkModal}>
+                  Switch chain
+                </Link>{' '}
+                or <Link to={APP_PATHS.MY_POOLS}>Go back to My Pools</Link>
+              </Text>
+            </Flex>
           )}
         </Content>
       </Container>

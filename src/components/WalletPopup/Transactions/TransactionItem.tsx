@@ -18,7 +18,7 @@ import PoolFarmLink from 'components/WalletPopup/Transactions/PoolFarmLink'
 import Status from 'components/WalletPopup/Transactions/Status'
 import { isTxsPendingTooLong } from 'components/WalletPopup/Transactions/helper'
 import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { getAxelarScanUrl } from 'pages/CrossChain'
@@ -32,7 +32,7 @@ import {
   TransactionExtraInfoStakeFarm,
 } from 'state/transactions/type'
 import { ExternalLink, ExternalLinkIcon } from 'theme'
-import { getEtherscanLink } from 'utils'
+import { getEtherscanLink, getNativeTokenLogo } from 'utils'
 
 const ItemWrapper = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
@@ -77,7 +77,7 @@ const Description1Token = (transaction: TransactionDetails) => {
 
 //ex: +3knc -2usdt
 const Description2Token = (transaction: TransactionDetails) => {
-  const { extraInfo = {}, type } = transaction
+  const { extraInfo = {}, type, chainId } = transaction
   const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut, tokenAddressIn, tokenAddressOut } =
     extraInfo as TransactionExtraInfo2Token
 
@@ -103,12 +103,14 @@ const Description2Token = (transaction: TransactionDetails) => {
         symbol={tokenSymbolOut}
         amount={tokenAmountOut}
         plus={signTokenOut}
+        logoURL={tokenAddressOut === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
       />
       <DeltaTokenAmount
         tokenAddress={tokenAddressIn}
         symbol={tokenSymbolIn}
         amount={tokenAmountIn}
         plus={signTokenIn}
+        logoURL={tokenAddressIn === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
       />
     </>
   )
