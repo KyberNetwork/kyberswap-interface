@@ -209,6 +209,12 @@ const campaignApi = createApi({
       }),
       transformResponse: (data: any) => formatListCampaign(data?.data || []),
     }),
+    getCampaignById: builder.query<any, string>({
+      query: campaignId => ({
+        url: `/${campaignId}`,
+      }),
+      transformResponse: (data: any) => formatListCampaign(data?.data ? [data.data] : [])?.[0],
+    }),
     getLeaderboard: builder.query<
       any,
       { pageSize: number; pageNumber: number; userAddress: string; lookupAddress: string; campaignId: number }
@@ -255,6 +261,7 @@ export const {
   useGetLuckyWinnersQuery,
   useJoinCampaignMutation,
   useGetTxsCampaignQuery,
+  useLazyGetCampaignByIdQuery,
 } = campaignApi
 
 export default campaignApi
