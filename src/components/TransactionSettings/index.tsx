@@ -15,7 +15,7 @@ import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleTransactionSettingsMenu } from 'state/application/hooks'
-import { useDegenModeManager } from 'state/user/hooks'
+import { useAggregatorForZapSetting, useDegenModeManager } from 'state/user/hooks'
 
 import AdvanceModeModal from './AdvanceModeModal'
 
@@ -67,6 +67,7 @@ type Props = {
 export default function TransactionSettings({ hoverBg }: Props) {
   const theme = useTheme()
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
+  const [isUseAggregatorForZap, toggleAggregatorForZap] = useAggregatorForZapSetting()
   const toggle = useToggleTransactionSettingsMenu()
   // show confirmation view before turning on
   const [showConfirmation, setShowConfirmation] = useState(false)
@@ -162,6 +163,17 @@ export default function TransactionSettings({ hoverBg }: Props) {
                 toggle={handleToggleAdvancedMode}
                 highlight={showSetting === 'true'}
               />
+            </Flex>
+
+            <Flex justifyContent="space-between">
+              <Flex width="fit-content" alignItems="center">
+                <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                  <MouseoverTooltip text={t`Zap will include DEX aggregator to find the best price.`} placement="right">
+                    <Trans>Use Aggregator for Zaps</Trans>
+                  </MouseoverTooltip>
+                </TextDashed>
+              </Flex>
+              <Toggle id="toggle-aggregator-for-zap" isActive={isUseAggregatorForZap} toggle={toggleAggregatorForZap} />
             </Flex>
           </SettingsWrapper>
         </MenuFlyout>

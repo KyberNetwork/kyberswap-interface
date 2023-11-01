@@ -17,7 +17,7 @@ import { useReadingContract, useSigningContract } from 'hooks/useContract'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import { useAggregatorForZapSetting, useUserSlippageTolerance } from 'state/user/hooks'
 import { calculateGasMargin } from 'utils'
 
 export interface ZapResult {
@@ -49,6 +49,8 @@ export function useZapInPoolResult(params?: {
   const { networkInfo, chainId } = useActiveWeb3React()
   const zapHelperContract = useReadingContract((networkInfo as EVMNetworkInfo).elastic.zap?.helper, ZAP_HELPER_ABI)
 
+  const [useAggregatorForZap] = useAggregatorForZapSetting()
+
   const [loadingAggregator, setLoadingAggregator] = useState(false)
   const [getRoute] = useLazyGetRouteQuery()
 
@@ -66,7 +68,7 @@ export function useZapInPoolResult(params?: {
 
   const { tokenIn, tokenOut, poolAddress } = params || {}
   useEffect(() => {
-    if (tokenIn && tokenOut && poolAddress) {
+    if (tokenIn && tokenOut && poolAddress && useAggregatorForZap) {
       setAggregatorOutputs([])
       setLoadingAggregator(true)
       Promise.all(
@@ -91,7 +93,7 @@ export function useZapInPoolResult(params?: {
           setTimeout(() => setLoadingAggregator(false), 100)
         })
     }
-  }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url])
+  }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url, useAggregatorForZap])
 
   const callParams = useMemo(
     () =>
