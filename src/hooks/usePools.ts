@@ -9,10 +9,10 @@ import { useActiveWeb3React } from 'hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 
 export enum PoolState {
-  LOADING,
-  NOT_EXISTS,
-  EXISTS,
-  INVALID,
+  LOADING = 'LOADING',
+  NOT_EXISTS = 'NOT_EXISTS',
+  EXISTS = 'EXISTS',
+  INVALID = 'INVALID',
 }
 
 const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI.abi)
@@ -61,8 +61,8 @@ export function usePools(
       if (!token0 || !token1 || !fee) return [PoolState.INVALID, null]
       const { result: slot0, loading: slot0Loading, valid: slot0Valid } = slot0s[index]
       const { result: liquidity, loading: liquidityLoading, valid: liquidityValid } = liquidities[index]
-      if (!slot0Valid || !liquidityValid) return [PoolState.INVALID, null]
       if (slot0Loading || liquidityLoading) return [PoolState.LOADING, null]
+      if (!slot0Valid || !liquidityValid) return [PoolState.INVALID, null]
 
       if (!slot0 || !liquidity) return [PoolState.NOT_EXISTS, null]
       if (!slot0.sqrtP || slot0.sqrtP.eq(0)) return [PoolState.NOT_EXISTS, null]
