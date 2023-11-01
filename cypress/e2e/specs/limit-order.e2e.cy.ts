@@ -6,7 +6,8 @@ const tokenSymbols = TOKEN_SYMBOLS[NETWORK]
 
 const tokenCatalog = new TokenCatalog();
 
-const wallet = new Network()
+const netw = new Network()
+
 describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
     beforeEach(() => {
         SwapPage.open(DEFAULT_URL)
@@ -17,7 +18,7 @@ describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
     describe('Add/remove/select token with favorite tokens list', () => {
         beforeEach(() => {
             if (NETWORK === 'BNB' || NETWORK === 'Ethereum') {
-                wallet.selectNetwork(NETWORK)
+                netw.selectNetwork(NETWORK)
                 cy.allowMetamaskToSwitchNetwork().then(approved => {
                     expect(approved).to.be.true
                 })
