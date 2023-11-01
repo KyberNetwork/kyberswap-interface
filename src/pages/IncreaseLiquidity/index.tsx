@@ -112,7 +112,7 @@ export default function IncreaseLiquidity() {
   const { position: existingPositionDetails, loading: loadingPosition } = useProAmmPositionsFromTokenId(
     tokenId ? BigNumber.from(tokenId) : undefined,
   )
-  console.log('namgold existingPositionDetails', existingPositionDetails)
+
   const removed = existingPositionDetails?.liquidity?.eq(0)
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
