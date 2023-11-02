@@ -1201,7 +1201,7 @@ export default function AddLiquidity() {
     !zapLoading && (
       <>
         {zapDetail.priceImpact.isVeryHigh ? (
-          <ZapHighPriceImpact />
+          <ZapHighPriceImpact showInPopup={showZapConfirmation} />
         ) : (
           <PriceImpactNote priceImpact={zapDetail.priceImpact.value} />
         )}

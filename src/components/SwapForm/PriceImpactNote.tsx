@@ -156,7 +156,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
   return null
 }
 
-export const ZapHighPriceImpact = () => {
+export const ZapHighPriceImpact = ({ showInPopup }: { showInPopup?: boolean }) => {
   const [searchParams, setSearchParams] = useSearchParams()
   return (
     <WarningNote
@@ -167,17 +167,26 @@ export const ZapHighPriceImpact = () => {
             <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
               Price Impact
             </TextUnderlineColor>{' '}
-            is very high. You will lose funds! Please turn on{' '}
-            <StyledInternalLink
-              to="link is not important here"
-              onClick={e => {
-                e.preventDefault()
-                searchParams.set('showSetting', 'true')
-                setSearchParams(searchParams)
-              }}
-            >
-              Degen Mode ↗
-            </StyledInternalLink>
+            is very high. You will lose funds!{' '}
+            {showInPopup ? (
+              <Text>
+                You have turned on Degen Mode from settings. Trades with very high price impact can be executed
+              </Text>
+            ) : (
+              <>
+                Please turn on{' '}
+                <StyledInternalLink
+                  to="link is not important here"
+                  onClick={e => {
+                    e.preventDefault()
+                    searchParams.set('showSetting', 'true')
+                    setSearchParams(searchParams)
+                  }}
+                >
+                  Degen Mode ↗
+                </StyledInternalLink>
+              </>
+            )}
           </Trans>
         </Text>
       }
