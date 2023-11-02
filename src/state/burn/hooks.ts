@@ -359,6 +359,7 @@ export function useDerivedZapOutInfo(
   const independentTokenAmount: CurrencyAmount<Currency> | undefined = tryParseAmount(
     zapOutAmount.amount.toString(),
     currencies[independentTokenField],
+    false,
   )
 
   const dependentTokenAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
@@ -368,7 +369,7 @@ export function useDerivedZapOutInfo(
           ? JSBI.divide(JSBI.multiply(liquidityValueA.quotient, percentToRemove.numerator), percentToRemove.denominator)
           : JSBI.divide(JSBI.multiply(liquidityValueB.quotient, percentToRemove.numerator), percentToRemove.denominator)
 
-      return tryParseAmount(amount.toString(), currencies[dependentTokenField])
+      return tryParseAmount(amount.toString(), currencies[dependentTokenField], false)
     } else {
       return undefined
     }
