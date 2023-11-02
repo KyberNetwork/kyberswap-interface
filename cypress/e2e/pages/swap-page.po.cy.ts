@@ -118,7 +118,7 @@ export class TokenCatalog {
     }
 
     getWhitelistTokens(list: myCallbackType<string[]>) {
-        cy.getList(TokenCatalogLocators.lblRowInWhiteList, list)
+        cy.getList(TokenCatalogLocators.lblTokenSymbol, list)
     }
 
     getNoResultsFound(text: myCallbackType<string>) {

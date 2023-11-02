@@ -13,6 +13,6 @@ declare global {
 
 Cypress.Commands.add('connectWallet', () => {
   // feature changed => temporary comment
-  // cy.get(WalletLocators.chkAcceptTerm).click()
+  cy.get(WalletLocators.chkAcceptTerm).click()
   cy.get(WalletLocators.btnMetaMask).click()
 })

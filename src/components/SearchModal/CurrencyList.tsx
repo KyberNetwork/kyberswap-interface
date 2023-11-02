@@ -152,7 +152,7 @@ export function CurrencyRow({
       <Flex alignItems="center" style={{ gap: 8 }}>
         <CurrencyLogo currency={currency} size={'24px'} />
         <Column gap="2px">
-          <Text title={currency.name} fontWeight={500}>
+          <Text title={currency.name} fontWeight={500} data-testid="token-symbol">
             {customName || symbol}
           </Text>
           <DescText>{showImported ? balanceComponent : nativeCurrency?.name}</DescText>

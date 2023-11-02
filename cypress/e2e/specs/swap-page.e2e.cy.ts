@@ -14,6 +14,8 @@ const tokenCatalog = new TokenCatalog();
 describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
    beforeEach(() => {
       SwapPage.open(DEFAULT_URL)
+      SwapPage.connectWallet()
+      SwapPage.getStatusConnectedWallet()
    })
 
    describe('Select token in favorite tokens list', () => {
