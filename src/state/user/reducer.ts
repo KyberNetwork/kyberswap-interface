@@ -32,6 +32,7 @@ import {
   toggleLiveChart,
   toggleMyEarningChart,
   toggleTradeRoutes,
+  toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updateChainId,
   updateTokenAnalysisSettings,
@@ -63,6 +64,7 @@ export interface UserState {
 
   userDegenMode: boolean
   userDegenModeAutoDisableTimestamp: number
+  useAggregatorForZap: boolean
 
   // user defined slippage tolerance in bips, used in all txns
   userSlippageTolerance: number
@@ -148,6 +150,7 @@ export const CROSS_CHAIN_SETTING_DEFAULT = {
 
 const initialState: UserState = {
   userDegenMode: false,
+  useAggregatorForZap: true,
   userDegenModeAutoDisableTimestamp: 0,
   userLocale: null,
   userSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
@@ -356,5 +359,12 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleMyEarningChart, state => {
       state.myEarningChart = !state.myEarningChart
+    })
+    .addCase(toggleUseAggregatorForZap, state => {
+      if (state.useAggregatorForZap === undefined) {
+        state.useAggregatorForZap = false
+      } else {
+        state.useAggregatorForZap = !state.useAggregatorForZap
+      }
     }),
 )

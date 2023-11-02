@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { FC } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -9,9 +10,10 @@ import WarningNote from 'components/WarningNote'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
+import { StyledInternalLink } from 'theme'
 import { checkPriceImpact } from 'utils/prices'
 
-const TextUnderlineColor = styled(Text)`
+export const TextUnderlineColor = styled(Text)`
   border-bottom: 1px solid ${({ theme }) => theme.text};
   width: fit-content;
   cursor: pointer;
@@ -25,12 +27,12 @@ const TextUnderlineTransparent = styled(Text)`
   cursor: pointer;
 `
 
-const PRICE_IMPACT_EXPLANATION_URL =
+export const PRICE_IMPACT_EXPLANATION_URL =
   'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact'
 
 type Props = {
   isDegenMode?: boolean
-  priceImpact: number | undefined
+  priceImpact: number | undefined | null
   showLimitOrderLink?: boolean
 }
 
@@ -53,7 +55,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
           <Row alignItems="center" style={{ gap: '0.5ch' }}>
             <Trans>
               <TextUnderlineTransparent>Unable to calculate</TextUnderlineTransparent>
-              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
                 Price Impact
               </TextUnderlineColor>
             </Trans>
@@ -106,7 +108,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
         shortText={
           <Row alignItems="center" style={{ gap: '0.5ch' }}>
             <Trans>
-              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
                 Price Impact
               </TextUnderlineColor>
               <TextUnderlineTransparent>is very high. You will lose funds!</TextUnderlineTransparent>
@@ -152,6 +154,44 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
   }
 
   return null
+}
+
+export const ZapHighPriceImpact = ({ showInPopup }: { showInPopup?: boolean }) => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  return (
+    <WarningNote
+      level="serious"
+      shortText={
+        <Text>
+          <Trans>
+            <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
+              Price Impact
+            </TextUnderlineColor>{' '}
+            is very high. You will lose funds!{' '}
+            {showInPopup ? (
+              <Text>
+                You have turned on Degen Mode from settings. Trades with very high price impact can be executed
+              </Text>
+            ) : (
+              <>
+                Please turn on{' '}
+                <StyledInternalLink
+                  to="link is not important here"
+                  onClick={e => {
+                    e.preventDefault()
+                    searchParams.set('showSetting', 'true')
+                    setSearchParams(searchParams)
+                  }}
+                >
+                  Degen Mode ↗
+                </StyledInternalLink>
+              </>
+            )}
+          </Trans>
+        </Text>
+      }
+    />
+  )
 }
 
 export default PriceImpactNote

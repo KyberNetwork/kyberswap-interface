@@ -41,6 +41,7 @@ import {
   toggleMyEarningChart,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
+  toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updateTokenAnalysisSettings,
   updateUserDeadline,
@@ -129,6 +130,19 @@ export function useDegenModeManager(): [boolean, () => void] {
   }, [degenMode, dispatch, isStablePairSwap])
 
   return [degenMode, toggleSetDegenMode]
+}
+
+export function useAggregatorForZapSetting(): [boolean, () => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const isUseAggregatorForZap = useSelector<AppState, AppState['user']['useAggregatorForZap']>(
+    state => state.user.useAggregatorForZap,
+  )
+
+  const toggle = useCallback(() => {
+    dispatch(toggleUseAggregatorForZap())
+  }, [dispatch])
+
+  return [isUseAggregatorForZap === undefined ? true : isUseAggregatorForZap, toggle]
 }
 
 export function useUserSlippageTolerance(): [number, (slippage: number) => void] {

@@ -1,6 +1,6 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { AutoColumn } from 'components/Column'
@@ -13,7 +13,7 @@ import { Bound } from 'state/mint/proamm/type'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-export default function Chart({
+function Chart({
   position,
   ticksAtLimit,
 }: {
@@ -114,3 +114,5 @@ export default function Chart({
     </AutoColumn>
   )
 }
+
+export default React.memo(Chart)

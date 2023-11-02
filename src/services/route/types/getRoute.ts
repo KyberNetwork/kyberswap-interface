@@ -5,14 +5,15 @@ export type GetRouteParams = {
   tokenOut: string
   amountIn: string
   saveGas: string
-  includedSources: string
+  includedSources?: string
   excludedSources?: string
-  gasInclude: string
-  gasPrice: string
-  feeAmount: string
-  chargeFeeBy: ChargeFeeBy
-  isInBps: string
-  feeReceiver: string
+  excludedPools?: string
+  gasInclude?: string
+  gasPrice?: string
+  feeAmount?: string
+  chargeFeeBy?: ChargeFeeBy
+  isInBps?: string
+  feeReceiver?: string
   debug?: string
 }
 

@@ -21,6 +21,7 @@ function parseKnownPattern(text: string): string | undefined {
         'return amount is not enough',
         'code=call_exception',
         'none of the calls threw an error',
+        'failed to swap with aggr',
       ],
       error,
     )

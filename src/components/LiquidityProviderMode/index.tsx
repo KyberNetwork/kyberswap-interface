@@ -13,10 +13,12 @@ const LiquidityProviderMode = ({
   activeTab,
   setActiveTab,
   singleTokenInfo,
+  zapout,
 }: {
   activeTab: number
   setActiveTab: (activeTab: number) => void
   singleTokenInfo: string
+  zapout?: boolean
 }) => {
   const theme = useTheme()
   return (
@@ -25,7 +27,7 @@ const LiquidityProviderMode = ({
         <Trans>Token Pair</Trans>
       </Tab>
       <Tab active={activeTab === 1} onClick={() => setActiveTab(1)} role="button">
-        <Trans>Single Token</Trans>
+        {zapout ? <Trans>Zap Out</Trans> : <Trans>Zap In</Trans>}
         <InfoHelper
           text={singleTokenInfo}
           size={12}

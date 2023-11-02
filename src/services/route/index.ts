@@ -30,7 +30,7 @@ const routeApi = createApi({
     }),
     buildRoute: builder.mutation<
       BuildRouteResponse,
-      { url: string; payload: BuildRoutePayload; signal: AbortSignal; authentication: boolean }
+      { url: string; payload: BuildRoutePayload; signal?: AbortSignal; authentication: boolean }
     >({
       query: ({ url, payload, signal, authentication }) => ({
         url,
@@ -47,3 +47,5 @@ const routeApi = createApi({
 })
 
 export default routeApi
+
+export const { useLazyGetRouteQuery, useBuildRouteMutation } = routeApi
