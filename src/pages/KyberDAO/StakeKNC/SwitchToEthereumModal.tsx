@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
-import React, { useCallback } from 'react'
+import { Trans, t } from '@lingui/macro'
+import { useCallback } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -14,7 +14,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { useCloseModal, useModalOpen, useModalOpenParams, useToggleModal } from 'state/application/hooks'
 
 const Wrapper = styled.div`
   padding: 24px;
@@ -26,13 +26,13 @@ export const useSwitchToEthereum = () => {
 
   return {
     switchToEthereum: useCallback(
-      () =>
+      (featureText: string) =>
         new Promise(async (resolve: any, reject: any) => {
           if ([ChainId.GÖRLI, ChainId.MAINNET].includes(chainId)) {
             resolve()
           } else {
             reject()
-            toggleSwitchEthereumModal()
+            toggleSwitchEthereumModal({ featureText })
           }
         }),
       [chainId, toggleSwitchEthereumModal],
@@ -40,22 +40,23 @@ export const useSwitchToEthereum = () => {
   }
 }
 
-export default function SwitchToEthereumModal({ featureText }: { featureText: string }) {
+export default function SwitchToEthereumModal() {
   const { chainId } = useActiveWeb3React()
 
   const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.SWITCH_TO_ETHEREUM)
-  const toggleModal = useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
+  const closeModal = useCloseModal(ApplicationModal.SWITCH_TO_ETHEREUM)
+  const params = useModalOpenParams(ApplicationModal.SWITCH_TO_ETHEREUM)
   const { changeNetwork } = useChangeNetwork()
 
   const handleChangeToEthereum = useCallback(async () => {
     if (![ChainId.GÖRLI, ChainId.MAINNET].includes(chainId)) {
       await changeNetwork(ChainId.MAINNET)
-      toggleModal()
+      closeModal()
     }
-  }, [changeNetwork, toggleModal, chainId])
+  }, [changeNetwork, closeModal, chainId])
   return (
-    <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={90} maxWidth={500}>
+    <Modal isOpen={modalOpen} onDismiss={closeModal} minHeight={false} maxHeight={90} maxWidth={500}>
       <Wrapper>
         <AutoColumn gap="20px">
           <RowBetween>
@@ -65,12 +66,15 @@ export default function SwitchToEthereumModal({ featureText }: { featureText: st
                 <Trans>Switch Network</Trans>
               </Text>
             </AutoRow>
-            <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleModal}>
-              <X onClick={toggleModal} size={20} color={theme.subText} />
+            <Flex sx={{ cursor: 'pointer' }} role="button" onClick={closeModal}>
+              <X onClick={closeModal} size={20} color={theme.subText} />
             </Flex>
           </RowBetween>
           <Text fontSize={14} lineHeight="20px">
-            <Trans>{featureText} is only available on Ethereum chain. Please switch network to continue.</Trans>
+            <Trans>
+              {params?.featureText || t`This action`} is only available on Ethereum chain. Please switch network to
+              continue.
+            </Trans>
           </Text>
           <ButtonPrimary onClick={handleChangeToEthereum}>
             <Text fontSize={16}>

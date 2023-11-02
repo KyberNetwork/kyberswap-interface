@@ -246,7 +246,7 @@ function ProposalItem({
   }
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
-    switchToEthereum().then(() => {
+    switchToEthereum(t`This action`).then(() => {
       selectedOptions.length > 0 && setShowConfirmModal(true)
     })
   }, [switchToEthereum, setShowConfirmModal, selectedOptions])

@@ -4,12 +4,16 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useRewards } from 'hooks/useRewards'
 import useTheme from 'hooks/useTheme'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import { useNotify } from 'state/application/hooks'
 import { formatNumberWithPrecisionRange } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
 
 import CardBackground from './AccountInfo/CardBackground'
 import Tab from './Transactions/Tab'
@@ -79,20 +83,40 @@ const TABS = [
 export default function RewardCenter() {
   const { mixpanelHandler } = useMixpanel()
   const theme = useTheme()
+  const notify = useNotify()
   const [activeTab, setActiveTab] = useState<REWARD_TYPE>(REWARD_TYPE.VOTING_REWARDS)
   const { rewards, totalReward } = useRewards()
   const currentReward = rewards[activeTab]
+  const { switchToEthereum } = useSwitchToEthereum()
 
   const [claiming, setClaiming] = useState(false)
   const claimRewards = useCallback(async () => {
-    try {
-      setClaiming(true)
-      mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_CLAIM_CLICK, { source: 'wallet UI', token_amount: currentReward.knc })
-      await currentReward.claim()
-    } finally {
-      setClaiming(false)
-    }
-  }, [currentReward, mixpanelHandler])
+    switchToEthereum(t`Claim reward`)
+      .then(async () => {
+        try {
+          setClaiming(true)
+          mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_CLAIM_CLICK, {
+            source: 'wallet UI',
+            token_amount: currentReward.knc,
+          })
+          await currentReward.claim()
+        } catch (error) {
+          const message = friendlyError(error)
+          console.error('Wrap error:', { message, error })
+          notify(
+            {
+              title: t`Claim Error`,
+              summary: message,
+              type: NotificationType.ERROR,
+            },
+            8000,
+          )
+        } finally {
+          setClaiming(false)
+        }
+      })
+      .catch()
+  }, [currentReward, mixpanelHandler, notify, switchToEthereum])
 
   return (
     <Wrapper>

@@ -24,7 +24,7 @@ import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 
-import SwitchToEthereumModal, { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
+import { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
 import TimerCountdown from '../TimerCountdown'
 import KNCLogo from '../kncLogo'
 import ClaimConfirmModal from './ClaimConfirmModal'
@@ -163,7 +163,7 @@ export default function Vote() {
   const isDelegated = stakerInfo && account ? stakerInfo.delegate?.toLowerCase() !== account.toLowerCase() : false
 
   const handleClaim = useCallback(() => {
-    switchToEthereum().then(() => {
+    switchToEthereum(t`Claim reward`).then(() => {
       mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_CLAIM_CLICK)
       toggleClaimConfirmModal()
     })
@@ -463,7 +463,6 @@ export default function Vote() {
           <Trans>Note: Voting on KyberDAO is only available on Ethereum chain.</Trans>
         </Text>
         <ProposalListComponent voteCallback={handleVote} />
-        <SwitchToEthereumModal featureText={t`This action`} />
         <ClaimConfirmModal amount={formatUnitsToFixed(remainingCumulativeAmount)} onConfirmClaim={handleConfirmClaim} />
         <TransactionConfirmationModal
           isOpen={showConfirm}
