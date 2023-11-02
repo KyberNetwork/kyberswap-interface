@@ -56,10 +56,14 @@ const QuickZapButtonWrapper = styled(ButtonOutlined)<{ size: 'small' | 'medium' 
   width: ${({ size }) => (size === 'small' ? '28px' : '36px')};
   max-width: ${({ size }) => (size === 'small' ? '28px' : '36px')};
   height: ${({ size }) => (size === 'small' ? '28px' : '36px')};
-  background: ${({ theme }) => rgba(theme.warning, 0.2)};
-  color: ${({ theme }) => theme.subText};
+  background: ${({ theme, disabled }) => rgba(disabled ? theme.subText : theme.warning, 0.2)};
+  color: ${({ theme, disabled }) => (disabled ? theme.subText : '#FF9901')};
+  &:hover {
+    cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+    border: 1px solid ${({ theme, disabled }) => rgba(disabled ? theme.subText : theme.warning, 0.2)};
+  }
 
-  border: 1px solid ${({ theme }) => rgba(theme.warning, 0.2)};
+  border: 1px solid ${({ theme, disabled }) => rgba(disabled ? theme.subText : theme.warning, 0.2)};
 
   &:active {
     box-shadow: none;
@@ -87,9 +91,26 @@ export const QuickZapButton = ({
   onClick: (e: React.MouseEvent<HTMLElement>) => void
   size?: 'small' | 'medium'
 }) => {
+  const { networkInfo } = useActiveWeb3React()
+  const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
+  const theme = useTheme()
+
   return (
-    <MouseoverTooltip text={<Trans>Quickly zap and add liquidity using only one token</Trans>}>
-      <QuickZapButtonWrapper onClick={onClick} size={size}>
+    <MouseoverTooltip
+      text={
+        isZapAvailable ? (
+          <Trans>Quickly zap and add liquidity using only one token.</Trans>
+        ) : (
+          <Trans>Zap will be available soon.</Trans>
+        )
+      }
+    >
+      <QuickZapButtonWrapper
+        onClick={onClick}
+        size={size}
+        disabled={!isZapAvailable}
+        color={!isZapAvailable ? theme.subText : theme.warning}
+      >
         <ZapIcon />
       </QuickZapButtonWrapper>
     </MouseoverTooltip>

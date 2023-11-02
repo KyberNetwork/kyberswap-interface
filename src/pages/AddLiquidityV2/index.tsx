@@ -253,7 +253,14 @@ export default function AddLiquidity() {
   const defaultFId = Number(searchParams.get('fId') || '0')
   const range = activeRanges.find(i => i.index === activeRangeIndex && i.farm.fId === defaultFId)
 
-  const [method, setMethod] = useState<'pair' | 'zap'>('zap')
+  const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
+  const [method, setMethod] = useState<'pair' | 'zap'>(() => (isZapAvailable ? 'zap' : 'pair'))
+
+  useEffect(() => {
+    if (!isZapAvailable) {
+      setMethod('pair')
+    }
+  }, [isZapAvailable])
 
   const canJoinFarm =
     isFarmV2Available &&
