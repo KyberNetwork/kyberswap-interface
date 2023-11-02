@@ -1,12 +1,16 @@
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { CSSProperties } from 'styled-components'
 
 import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
 import TutorialModal from 'components/TutorialModal'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import Disclaimer from 'pages/NotificationCenter/Portfolio/Modals/Disclaimer'
 
 const textStyle: CSSProperties = {
   height: isMobile ? '35vh' : '168px',
@@ -69,17 +73,36 @@ const steps = [
   { text: <Step4 />, image: '', textStyle },
 ]
 
-export default function TutorialPortfolio() {
-  const [isOpen, setIsOpen] = useState(false)
-  const toggle = useCallback(() => setIsOpen(v => !v), [])
+export default function TutorialDisclaimer() {
+  const [isOpenTutorial, setIsOpenTutorial] = useState(false)
+  const toggleTutorial = useCallback(() => setIsOpenTutorial(v => !v), [])
+
+  const navigate = useNavigate()
+  const { account } = useActiveWeb3React()
+
+  const [showDisclaimer, setShowDisclaimer] = useState(!localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_DISCLAIMER))
+  const onConfirmDisclaimer = () => {
+    localStorage.setItem(TutorialKeys.SHOWED_PORTFOLIO_DISCLAIMER, '1')
+    setShowDisclaimer(false)
+  }
 
   useEffect(() => {
-    if (!localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE)) {
+    if (!showDisclaimer && !localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE)) {
       // auto show for first time all user
-      toggle()
+      toggleTutorial()
       localStorage.setItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE, '1')
     }
-  }, [toggle])
+  }, [toggleTutorial, showDisclaimer])
 
-  return <TutorialModal isOpen={isOpen} toggle={toggle} steps={steps} title={t`Welcome to My Portfolio`} />
+  return showDisclaimer ? (
+    <Disclaimer onConfirm={onConfirmDisclaimer} />
+  ) : (
+    <TutorialModal
+      isOpen={isOpenTutorial}
+      toggle={toggleTutorial}
+      steps={steps}
+      title={t`Welcome to My Portfolio`}
+      onFinished={() => navigate(`${APP_PATHS.PORTFOLIO}/${account}`)}
+    />
+  )
 }

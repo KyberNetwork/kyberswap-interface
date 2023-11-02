@@ -33,7 +33,6 @@ export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 580px;
 `
 
 export const SectionTitle = styled.div`
@@ -168,7 +167,7 @@ export const SectionWrapper = ({
   const docsLink = activeTab === ChartTab.Second && !!docsLinks[1] ? docsLinks[1] : docsLinks[0]
 
   return (
-    <StyledSectionWrapper show={show} ref={ref} id={id} style={style} className="section-wrapper">
+    <StyledSectionWrapper show={show} ref={ref} id={id} style={{ height: 580, ...style }} className="section-wrapper">
       {above768 ? (
         <>
           {/* DESKTOP */}

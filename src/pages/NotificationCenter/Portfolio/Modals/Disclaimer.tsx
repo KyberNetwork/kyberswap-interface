@@ -7,7 +7,6 @@ import styled from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import CheckBox from 'components/CheckBox'
 import ModalTemplate from 'components/Modal/ModalTemplate'
-import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
 
 const Container = styled.div`
   display: flex;
@@ -38,13 +37,7 @@ const Disclaimer = styled.div`
   transition: background-color 100ms linear;
 `
 
-export default function DisclaimerPortfolio() {
-  const showed = localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_DISCLAIMER)
-  const [show, setShow] = useState(!showed)
-  const handleClickUnderstand = () => {
-    localStorage.setItem(TutorialKeys.SHOWED_PORTFOLIO_DISCLAIMER, '1')
-    setShow(false)
-  }
+export default function DisclaimerPortfolio({ onConfirm }: { onConfirm: () => void }) {
   const [accepted, setAccepted] = useState(false)
 
   const handleClickDisclaimer = useCallback(() => {
@@ -53,7 +46,7 @@ export default function DisclaimerPortfolio() {
   }, [accepted])
 
   return (
-    <ModalTemplate isOpen={show} title={t`Disclaimer`} width="480px" showCloseButton={false}>
+    <ModalTemplate isOpen={true} title={t`Disclaimer`} width="480px" showCloseButton={false}>
       <Container>
         <TextWrapper>
           <Trans>
@@ -82,12 +75,7 @@ export default function DisclaimerPortfolio() {
           </Text>
         </Disclaimer>
 
-        <ButtonPrimary
-          height={'36px'}
-          disabled={!accepted}
-          onClick={handleClickUnderstand}
-          data-testid="understand-button"
-        >
+        <ButtonPrimary height={'36px'} disabled={!accepted} onClick={onConfirm} data-testid="understand-button">
           <Trans>Agree</Trans>
         </ButtonPrimary>
       </Container>

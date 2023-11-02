@@ -1,7 +1,8 @@
-import { ReactNode } from 'react'
+import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
+import Pagination from 'components/Pagination'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
@@ -35,27 +36,47 @@ const TRow = styled.tr<{ column: number }>`
 `
 
 export type TableColumn = {
-  title: string
+  title: ReactNode
   dataIndex: string
   align?: 'left' | 'center' | 'right'
-  tooltip?: string
-  render?: (item: any) => ReactNode
+  tooltip?: ReactNode
+  render?: (value: any, item: any) => ReactNode // todo
 }
 export default function Table<T>({
   data = [],
   columns = [],
   style,
+  totalItems,
+  pageSize = 10,
+  onPageChange,
 }: {
   data: T[]
   columns: TableColumn[]
   style?: CSSProperties
+  totalItems: number
+  pageSize?: number
+  onPageChange?: (v: number) => void
 }) {
+  const [currentPage, setCurrentPage] = useState(1)
   const theme = useTheme()
+
+  const onChangePageWrap = useCallback(
+    (page: number) => {
+      onPageChange?.(page)
+      setCurrentPage(page)
+    },
+    [onPageChange],
+  )
+
+  const filterData = useMemo(() => {
+    return data.length > pageSize ? data.slice((currentPage - 1) * pageSize, currentPage * pageSize) : data
+  }, [data, pageSize, currentPage])
+
   return (
     <table style={style}>
       <TableHeader column={columns.length}>
-        {columns.map(({ tooltip, title, align, dataIndex }) => (
-          <Thead key={dataIndex || title}>
+        {columns.map(({ tooltip, title, align, dataIndex }, i) => (
+          <Thead key={dataIndex || i}>
             <MouseoverTooltip width="fit-content" placement="top" text={tooltip}>
               <div
                 style={{
@@ -76,19 +97,36 @@ export default function Table<T>({
         ))}
       </TableHeader>
       <TBody>
-        {data.map((item, i) => (
+        {filterData.map((item, i) => (
           <TRow key={i} column={columns.length}>
             {columns.map(({ dataIndex, align, render }) => {
               const value = item[dataIndex as keyof T]
               return (
-                <td key={typeof value === 'string' ? value : i} style={{ textAlign: align || 'center' }}>
-                  {render ? render(item) : (value as ReactNode)}
+                <td
+                  key={typeof value === 'string' ? value : i}
+                  style={{
+                    textAlign: align || 'center',
+                    fontSize: '14px',
+                    display: 'grid',
+                    alignItems: 'center',
+                  }}
+                >
+                  {render ? render(value, item) : (value as ReactNode)}
                 </td>
               )
             })}
           </TRow>
         ))}
       </TBody>
+      {totalItems > pageSize && (
+        <Pagination
+          totalCount={totalItems}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          onPageChange={onChangePageWrap}
+          style={{ background: 'transparent' }}
+        />
+      )}
     </table>
   )
 }

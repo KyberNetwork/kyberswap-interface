@@ -1,5 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
+import { isMacOs } from 'react-device-detect'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -13,9 +14,17 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-import { SearchWithDropdownV2 } from 'pages/TrueSightV2/components/SearchWithDropDown'
+import { SearchWithDropdown } from 'pages/TrueSightV2/components/SearchWithDropDown'
 import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
 import { formatDisplayNumber } from 'utils/numbers'
+
+const ShortCut = styled.span`
+  background-color: ${({ theme }) => theme.buttonBlack};
+  color: ${({ theme }) => theme.subText};
+  border-radius: 16px;
+  padding: 2px 8px;
+  font-size: 10px;
+`
 
 const columns = [
   { align: 'left', label: 'Value', style: { width: '100px', minWidth: 'auto' } },
@@ -31,11 +40,17 @@ const DropdownItem = styled.tr`
     filter: brightness(1.3);
   }
 `
-const PortfolioItem = () => {
+const PortfolioItem = ({ onSelect }: { onSelect: () => void }) => {
   const theme = useTheme()
   const percent = 123.23
+  const navigate = useNavigate()
   return (
-    <DropdownItem>
+    <DropdownItem
+      onClick={() => {
+        navigate(`${APP_PATHS.PORTFOLIO}/${'0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723'}`)
+        onSelect()
+      }}
+    >
       <td>
         <Row alignItems="center" gap="6px">
           <StarWithAnimation size={18} active />
@@ -61,7 +76,7 @@ export default function Header() {
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState(false)
   const history = false
-  const mocks = new Array(4).fill(12).map(el => <PortfolioItem key={el} />)
+  const mocks = new Array(4).fill(12).map(el => <PortfolioItem key={el} onSelect={() => setExpanded(false)} />)
   const sections = history
     ? [
         {
@@ -104,7 +119,7 @@ export default function Header() {
           <Trans>My Portfolio</Trans>
         </Flex>
         <Row width={'fit-content'} gap="15px">
-          <SearchWithDropdownV2
+          <SearchWithDropdown
             searching={false}
             noResultText={t`No portfolio found.`}
             expanded={expanded}
@@ -115,6 +130,7 @@ export default function Header() {
             value={search}
             noSearchResult={false}
             onChange={setSearch}
+            searchIcon={<ShortCut>{isMacOs ? 'Cmd+K' : 'Ctrl+K'}</ShortCut>}
           />
           <ButtonOutlined
             height={'36px'}

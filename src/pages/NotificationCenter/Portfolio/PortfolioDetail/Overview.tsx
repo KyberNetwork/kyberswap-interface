@@ -7,11 +7,10 @@ import PortfolioItem2 from 'assets/images/portfolio/portfolio2.png'
 import PortfolioItem3 from 'assets/images/portfolio/portfolio3.png'
 import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
-import DownloadWalletModal from 'components/DownloadWalletModal'
 import Row from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { ApplicationModal } from 'state/application/actions'
-import { useOpenModal } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 const Title = styled.div`
   font-size: 48px;
@@ -25,7 +24,7 @@ const Card = styled.div`
   border-radius: 20px;
   background-color: ${({ theme }) => theme.background};
   width: 410px;
-  height: 350px;
+  min-height: 350px;
   padding: 40px 20px;
 `
 const CardItem = ({ title, icon, desc }: { title: string; icon: string; desc: string }) => {
@@ -35,7 +34,7 @@ const CardItem = ({ title, icon, desc }: { title: string; icon: string; desc: st
     <Card>
       <Column alignItems={'center'} gap="12px">
         <img src={icon} height={'100px'} />
-        <Text color={theme.text} fontSize={'20px'} fontWeight={'500'}>
+        <Text color={theme.text} fontSize={'20px'} fontWeight={'500'} textAlign={'center'}>
           {title}
         </Text>
       </Column>
@@ -48,7 +47,8 @@ const CardItem = ({ title, icon, desc }: { title: string; icon: string; desc: st
 
 export default function Overview() {
   const theme = useTheme()
-  const openDownloadWalletModal = useOpenModal(ApplicationModal.DOWNLOAD_WALLET)
+  const connectWallet = useWalletModalToggle()
+  const { account } = useActiveWeb3React()
   return (
     <Column alignItems={'center'} gap="60px">
       <Column gap="24px" alignItems={'center'}>
@@ -63,9 +63,11 @@ export default function Overview() {
         <Text color={theme.subText} fontWeight={'500'}>
           The one-stop solution for all your cryptocurrency portfolio management needs.
         </Text>
-        <ButtonPrimary width={'120px'} height={'36px'} onClick={openDownloadWalletModal}>
-          <Trans>Connect</Trans>
-        </ButtonPrimary>
+        {!account && (
+          <ButtonPrimary width={'120px'} height={'36px'} onClick={connectWallet}>
+            <Trans>Connect</Trans>
+          </ButtonPrimary>
+        )}
       </Column>
       <Row justify={'center'} gap="24px">
         <CardItem
@@ -84,7 +86,6 @@ export default function Overview() {
           desc={t`Manage all your assets on a single platform with support for multiple cryptocurrencies, protocols, and centralized exchange, eliminating the need for multiple wallets and exchanges.`}
         />
       </Row>
-      <DownloadWalletModal />
     </Column>
   )
 }

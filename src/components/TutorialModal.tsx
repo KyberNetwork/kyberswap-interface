@@ -160,7 +160,7 @@ function reducer(state: TutorialAnimationState, action: ActionTypes) {
   return state
 }
 
-// todo smooth page 1 anim, check kyberai
+// todo check kyberai
 const StepContent = ({ step, ...rest }: { step: TutorialStep; [k: string]: any }) => {
   const theme = useTheme()
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -204,10 +204,12 @@ const TutorialModal = ({
   isOpen,
   toggle,
   title,
+  onFinished,
 }: {
   steps: TutorialStep[]
   isOpen: boolean
   toggle: () => void
+  onFinished?: () => void
   title: ReactNode
 }) => {
   const theme = useTheme()
@@ -308,6 +310,7 @@ const TutorialModal = ({
                   dispatch(ActionTypes.NEXT_STEP)
                 } else {
                   toggle()
+                  onFinished?.()
                 }
               }}
             >

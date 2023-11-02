@@ -6,6 +6,9 @@ const CheckboxWrapper = styled.input`
   position: relative;
   transform: scale(1.35);
   accent-color: ${({ theme }) => theme.primary};
+  &:focus-visible {
+    outline-width: 0;
+  }
 
   :indeterminate::before {
     content: '';

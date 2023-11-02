@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
@@ -321,7 +321,7 @@ const columns = [
   { align: 'right', label: '24H', style: { width: '60px' } },
 ]
 let checkedNewData = false
-const SearchWithDropdown = () => {
+const SearchWithDropdownKyberAI = () => {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
   const { pathname } = useLocation()
@@ -461,7 +461,7 @@ const SearchWithDropdown = () => {
       ]
 
   return (
-    <SearchWithDropdownV2
+    <SearchWithDropdown
       columns={columns}
       expanded={expanded}
       setExpanded={setExpanded}
@@ -474,21 +474,25 @@ const SearchWithDropdown = () => {
       onChange={setSearch}
       placeholder={t`Search by token name, symbol or contract address`}
       sections={sections}
-      searchLabel={t`Ape Smart!`}
+      searchIcon={
+        <Trans>
+          <Icon id="search" size={24} /> Ape Smart!
+        </Trans>
+      }
     />
   )
 }
 
 type Section = { items: ReactNode[] | JSX.Element[]; title?: ReactNode; loading?: boolean; renderWhenEmpty?: boolean }
 
-// todo rename and move to component, memo, refactor props
-export const SearchWithDropdownV2 = ({
+// todo move to component, memo, refactor props
+export const SearchWithDropdown = ({
   placeholder,
   sections,
   value: search,
   onChange: setSearch,
   id,
-  searchLabel,
+  searchIcon,
   searching,
   noSearchResult,
   noResultText,
@@ -501,12 +505,12 @@ export const SearchWithDropdownV2 = ({
   sections: Section[]
   value: string
   onChange: (value: string) => void
-  searchLabel?: string
+  searchIcon?: ReactNode
   searching: boolean
   noSearchResult: boolean
   noResultText: string
   expanded: boolean
-  setExpanded: (v: boolean) => void
+  setExpanded: React.Dispatch<React.SetStateAction<boolean>>
   columns: TableColumn[]
 }) => {
   const theme = useTheme()
@@ -554,6 +558,20 @@ export const SearchWithDropdownV2 = ({
     }
   }, [])
 
+  useEffect(() => {
+    function onKeydown(e: KeyboardEvent) {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        // cmd+k or ctrl+k
+        e.preventDefault()
+        setExpanded(v => !v)
+      }
+    }
+    window.addEventListener('keydown', onKeydown)
+    return () => {
+      window.removeEventListener('keydown', onKeydown)
+    }
+  }, [setExpanded])
+
   return (
     <Wrapper ref={wrapperRef} onClick={() => !expanded && inputRef.current?.focus()} expanded={expanded}>
       <Input
@@ -572,8 +590,7 @@ export const SearchWithDropdownV2 = ({
           </ButtonEmpty>
         )}
         <RowFit fontSize="14px" lineHeight={above768 ? '20px' : '16px'} fontWeight={500} gap="4px">
-          <Icon id="search" size={24} />
-          {searchLabel}
+          {searchIcon || <Icon id="search" size={24} />}
         </RowFit>
       </RowFit>
       <DropdownWrapper expanded={expanded} ref={dropdownRef} height={height}>
@@ -609,4 +626,4 @@ export const SearchWithDropdownV2 = ({
   )
 }
 
-export default React.memo(SearchWithDropdown)
+export default React.memo(SearchWithDropdownKyberAI)

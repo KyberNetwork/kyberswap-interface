@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import EarningPieChart, { DataEntry } from 'components/EarningPieChart'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
@@ -58,6 +58,7 @@ export const TokenAllocationChart = ({
   data,
   title,
   border = true,
+  style,
 }: {
   className?: string
   numberOfTokens: number
@@ -67,10 +68,11 @@ export const TokenAllocationChart = ({
   data: DataEntry[]
   title?: ReactNode
   border?: boolean
+  style?: CSSProperties
 }) => {
   const theme = useTheme()
   return (
-    <Wrapper className={className} $columns={numberOfTokens > 5 ? 2 : 1} $border={border}>
+    <Wrapper className={className} $columns={numberOfTokens > 5 ? 2 : 1} $border={border} style={style}>
       {title && (
         <Text
           sx={{

@@ -390,6 +390,14 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path={`${APP_PATHS.PORTFOLIO}/:wallet`}
+                  element={
+                    <ProtectedRoute>
+                      <PortfolioDetail />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
                 {ENV_LEVEL === ENV_TYPE.LOCAL && <Route path="/icons" element={<Icons />} />}
