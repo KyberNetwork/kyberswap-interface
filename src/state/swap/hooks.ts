@@ -145,13 +145,17 @@ export function useSwapActionHandlers(): {
 }
 
 // try to parse a user entered amount for a given token
-export function tryParseAmount<T extends Currency>(value?: string, currency?: T): CurrencyAmount<T> | undefined {
+export function tryParseAmount<T extends Currency>(
+  value?: string,
+  currency?: T,
+  scaleDecimals = true,
+): CurrencyAmount<T> | undefined {
   if (!value || !currency) {
     return undefined
   }
   try {
     const typedValueParsed = parseFraction(value)
-      .multiply(10 ** currency.decimals)
+      .multiply(scaleDecimals ? 10 ** currency.decimals : 1)
       .toFixed(0)
     const result = CurrencyAmount.fromRawAmount(currency, typedValueParsed)
     return result
