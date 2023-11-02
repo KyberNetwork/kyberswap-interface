@@ -1,6 +1,14 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, CurrencyAmount, Fraction, TokenAmount, WETH, computePriceImpact } from '@kyberswap/ks-sdk-core'
+import {
+  Currency,
+  CurrencyAmount,
+  Fraction,
+  Percent,
+  TokenAmount,
+  WETH,
+  computePriceImpact,
+} from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { parseUnits } from 'ethers/lib/utils'
@@ -111,6 +119,9 @@ const ZapIn = ({
     isOldStaticFeeContract,
   } = useDerivedZapInInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
 
+  const independentAmount = parsedAmounts[independentField]
+  const dependentAmount = parsedAmounts[dependentField]
+
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B])
 
@@ -151,7 +162,7 @@ const ZapIn = ({
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
+    [dependentField]: noLiquidity ? otherTypedValue : dependentAmount?.toSignificant(6) ?? '',
   }
 
   // get the max amounts user can add
@@ -364,33 +375,30 @@ const ZapIn = ({
     userInCurrencyAmount && marketPrices[0] ? parseFloat(userInCurrencyAmount.toSignificant(6)) * marketPrices[0] : 0
 
   const tokenAPoolAllocUsd =
-    marketPrices[0] &&
-    parsedAmounts &&
-    parsedAmounts[independentField] &&
-    marketPrices[0] * parseFloat((parsedAmounts[independentField] as CurrencyAmount<Currency>).toSignificant(6))
+    marketPrices[0] && independentAmount && marketPrices[0] * parseFloat(independentAmount.toSignificant(6))
 
   const tokenBPoolAllocUsd =
-    marketPrices[1] &&
-    parsedAmounts &&
-    parsedAmounts[dependentField] &&
-    marketPrices[1] * parseFloat((parsedAmounts[dependentField] as CurrencyAmount<Currency>).toSignificant(6))
+    marketPrices[1] && dependentAmount && marketPrices[1] * parseFloat(dependentAmount.toSignificant(6))
 
   const estimatedUsdForPair: [number, number] =
     independentField === Field.CURRENCY_A
       ? [tokenAPoolAllocUsd || 0, tokenBPoolAllocUsd || 0]
       : [tokenBPoolAllocUsd || 0, tokenAPoolAllocUsd || 0]
 
-  const priceImpact =
+  const inAmount: CurrencyAmount<Currency> | undefined = userInCurrencyAmount?.subtract(
+    independentAmount ?? CurrencyAmount.fromRawAmount(userInCurrencyAmount.currency, 0),
+  )
+
+  const priceImpact: Percent | undefined =
     price &&
     userInCurrencyAmount &&
-    !!parsedAmounts[independentField] &&
-    !!parsedAmounts[dependentField] &&
-    !userInCurrencyAmount.lessThan(parsedAmounts[independentField] as CurrencyAmount<Currency>)
-      ? computePriceImpact(
-          independentField === Field.CURRENCY_A ? price : price.invert(),
-          userInCurrencyAmount?.subtract(parsedAmounts[independentField] as CurrencyAmount<Currency>),
-          parsedAmounts[dependentField] as CurrencyAmount<Currency>,
-        )
+    independentAmount &&
+    dependentAmount &&
+    inAmount &&
+    !inAmount.equalTo(0) &&
+    !dependentAmount.equalTo(0) &&
+    !userInCurrencyAmount.lessThan(independentAmount)
+      ? computePriceImpact(independentField === Field.CURRENCY_A ? price : price.invert(), inAmount, dependentAmount)
       : undefined
 
   const priceImpactWithoutFee = pair && priceImpact ? computePriceImpactWithoutFee([pair], priceImpact) : undefined
@@ -565,7 +573,7 @@ const ZapIn = ({
                     </TYPE.subHeader>
                   </TokenWrapper>
                   <TYPE.black fontWeight={400} fontSize={14}>
-                    {parsedAmounts[independentField]?.toSignificant(6)} (~
+                    {independentAmount?.toSignificant(6)} (~
                     {formattedNum((tokenAPoolAllocUsd || 0).toString(), true)})
                   </TYPE.black>
                 </AutoColumn>
@@ -578,7 +586,7 @@ const ZapIn = ({
                     </TYPE.subHeader>
                   </TokenWrapper>
                   <TYPE.black fontWeight={400} fontSize={14}>
-                    {parsedAmounts[dependentField]?.toSignificant(6)} (~
+                    {dependentAmount?.toSignificant(6)} (~
                     {formattedNum((tokenBPoolAllocUsd || 0).toString(), true)})
                   </TYPE.black>
                 </AutoColumn>
@@ -777,10 +785,7 @@ const ZapIn = ({
                     !isValid || approval !== ApprovalState.APPROVED || (priceImpactSeverity > 3 && !isDegenMode)
                   }
                   error={
-                    !!parsedAmounts[independentField] &&
-                    !!parsedAmounts[dependentField] &&
-                    !!pairAddress &&
-                    (!isValid || priceImpactSeverity > 2)
+                    !!independentAmount && !!dependentAmount && !!pairAddress && (!isValid || priceImpactSeverity > 2)
                   }
                 >
                   <Text fontSize={20} fontWeight={500}>
