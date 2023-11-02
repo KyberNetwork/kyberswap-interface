@@ -1252,7 +1252,7 @@ export default function AddLiquidity() {
               <Trans>Loading</Trans>
             </Dots>
           )
-        return <Trans>Add Liquidity</Trans>
+        return <Trans>Preview</Trans>
       })()}
     </ButtonPrimary>
   )

@@ -68,30 +68,33 @@ export function useZapInPoolResult(params?: {
 
   const { tokenIn, tokenOut, poolAddress } = params || {}
   useEffect(() => {
-    if (tokenIn && tokenOut && poolAddress && useAggregatorForZap) {
+    if (tokenIn && tokenOut && poolAddress) {
       setAggregatorOutputs([])
-      setLoadingAggregator(true)
-      Promise.all(
-        splitedAmount.map(item => {
-          return getRoute({
-            url,
-            authentication: false,
-            params: {
-              tokenIn,
-              tokenOut,
-              saveGas: '',
-              amountIn: item.quotient.toString(),
-              excludedPools: poolAddress,
-            },
-            clientId: 'kyberswap-zap',
+      if (useAggregatorForZap) {
+        setLoadingAggregator(true)
+
+        Promise.all(
+          splitedAmount.map(item => {
+            return getRoute({
+              url,
+              authentication: false,
+              params: {
+                tokenIn,
+                tokenOut,
+                saveGas: '',
+                amountIn: item.quotient.toString(),
+                excludedPools: poolAddress,
+              },
+              clientId: 'kyberswap-zap',
+            })
+          }),
+        )
+          .then(res => res?.map(item => item?.data?.data?.routeSummary) || [])
+          .then(res => setAggregatorOutputs(res.filter(Boolean) as Array<RouteSummary>))
+          .finally(() => {
+            setTimeout(() => setLoadingAggregator(false), 100)
           })
-        }),
-      )
-        .then(res => res?.map(item => item?.data?.data?.routeSummary) || [])
-        .then(res => setAggregatorOutputs(res.filter(Boolean) as Array<RouteSummary>))
-        .finally(() => {
-          setTimeout(() => setLoadingAggregator(false), 100)
-        })
+      }
     }
   }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url, useAggregatorForZap])
 
@@ -171,6 +174,7 @@ export function useZapInAction() {
   const [slippage] = useUserSlippageTolerance()
   const deadline = useTransactionDeadline() // custom from users settings
 
+  const [useAggregatorForZap] = useAggregatorForZapSetting()
   const [buildRoute] = useBuildRouteMutation()
 
   const { aggregatorDomain } = useKyberswapGlobalConfig()
@@ -214,7 +218,7 @@ export function useZapInAction() {
     ) => {
       if (zapRouterContract && account && library && executor) {
         let aggregatorRes = null
-        if (aggregatorRoute) {
+        if (aggregatorRoute && useAggregatorForZap) {
           aggregatorRes = (await buildRoute({
             url,
             payload: {
@@ -377,6 +381,7 @@ export function useZapInAction() {
       zapRouterContract,
       slippage,
       buildRoute,
+      useAggregatorForZap,
       url,
       library,
       zapRouterAddress,
