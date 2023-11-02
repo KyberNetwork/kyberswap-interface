@@ -55,7 +55,6 @@ export const useFeeTierDistribution = (
         )
 
         const totalPositions = feeArray.reduce((total, cur) => total + cur.activePositions, 0)
-        console.log(totalPositions)
 
         if (!totalPositions) return
         setFeeTierDistribution(

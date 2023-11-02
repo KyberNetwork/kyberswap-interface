@@ -159,8 +159,6 @@ export function useZapInPoolResult(params?: {
     }
   }, [data, loadingAggregator, aggregatorOutputs, params])
 
-  // TODO: Remove
-  console.log(bestRes)
   return bestRes
 }
 

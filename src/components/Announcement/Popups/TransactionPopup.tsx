@@ -95,7 +95,7 @@ const zapInLiquidity = (txs: TransactionDetails) => {
     zapAmountIn,
     zapSymbolIn,
   } = extraInfo as TransactionExtraInfo2Token
-  return `You have zapped ${zapAmountIn} ${zapSymbolIn} into ${tokenAmountIn} ${tokenSymbolIn} and ${tokenAmountOut} ${tokenSymbolOut} of liquidity to the pool`
+  return t`You have zapped ${zapAmountIn} ${zapSymbolIn} into ${tokenAmountIn} ${tokenSymbolIn} and ${tokenAmountOut} ${tokenSymbolOut} of liquidity to the pool.`
 }
 
 const summaryCrossChain = (txs: TransactionDetails) => {
