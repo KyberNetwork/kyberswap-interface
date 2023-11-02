@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
+import { AddEthereumChainParameter } from '@web3-react/types'
 import { useCallback } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -95,7 +96,7 @@ export function useChangeNetwork() {
       notify({
         title,
         type: NotificationType.ERROR,
-        summary: message,
+        summary: friendlyError(message),
       })
       customFailureCallback?.(error)
     },
@@ -128,9 +129,13 @@ export function useChangeNetwork() {
         nativeCurrency: {
           name: NETWORKS_INFO[desiredChainId].nativeToken.name,
           symbol: NETWORKS_INFO[desiredChainId].nativeToken.symbol,
-          decimals: NETWORKS_INFO[desiredChainId].nativeToken.decimal,
+          decimals: 18 as const,
         },
         blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
+      }
+      const addChainParameterWeb3: AddEthereumChainParameter = {
+        ...addChainParameter,
+        chainId: desiredChainId,
       }
 
       enum Solution {
@@ -138,7 +143,7 @@ export function useChangeNetwork() {
         provider_request = 'provider_request',
       }
       const solutions = {
-        [Solution.web3_react]: async () => await connector.activate(addChainParameter),
+        [Solution.web3_react]: async () => await connector.activate(addChainParameterWeb3),
         [Solution.provider_request]: async () => {
           const activeProvider = library?.provider ?? window.ethereum
           if (activeProvider?.request) {
@@ -214,7 +219,7 @@ export function useChangeNetwork() {
         extra: {
           wallet: walletEVM.walletKey,
           desiredChainId,
-          addChainParameter,
+          addChainParameterWeb3,
           friendlyMessages: errors.map(friendlyError),
           errors,
         },
