@@ -113,6 +113,7 @@ function Select({
   onHideMenu,
   withSearch,
   placement = 'bottom',
+  arrow = true,
 }: {
   value?: string | number
   className?: string
@@ -129,6 +130,7 @@ function Select({
   placement?: string
   withSearch?: boolean
   onHideMenu?: () => void // hide without changes
+  arrow?: boolean
 }) {
   const [selected, setSelected] = useState(getOptionValue(options?.[0]))
   const [showMenu, setShowMenu] = useState(false)
@@ -200,7 +202,7 @@ function Select({
       className={className}
     >
       <SelectedWrap>{activeRender ? activeRender(selectedInfo) : getOptionLabel(selectedInfo)}</SelectedWrap>
-      <DropdownArrowIcon rotate={showMenu} color={arrowColor} />
+      {arrow && <DropdownArrowIcon rotate={showMenu} color={arrowColor} />}
       <AnimatePresence>
         {showMenu && (
           <Portal>
