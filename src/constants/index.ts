@@ -131,7 +131,7 @@ export const CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE = 10
 export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
 
 export const ELASTIC_BASE_FEE_UNIT = 100_000
-export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
+export const KYBERSWAP_SOURCE = '{"source":"kyberswap-ui"}'
 
 export const SWR_KEYS = {
   getGrantProgramLeaderBoard: (id: number | string) => `${CAMPAIGN_BASE_URL}/api/v1/competitions/${id}/leaderboard`,
