@@ -1,7 +1,7 @@
 import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import React, { ReactNode, useCallback, useMemo, useState } from 'react'
 import { LogOut, UserPlus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -19,10 +19,9 @@ import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-import { ApplicationModal } from 'state/application/actions'
-import { useToggleModal } from 'state/application/hooks'
 import { ConnectedProfile, useProfileInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { isAddressString } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
 
@@ -118,139 +117,209 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
       
   `}
 `
+type DisplayProps = { title: string | undefined; description: string; avatarUrl: string | undefined }
 
-const ProfileItem = ({
-  data: { active, name: account, profile, id, type },
-  totalGuest,
-}: {
-  data: ConnectedProfile
-  totalGuest: number
-}) => {
+type ItemProps = {
+  data: DisplayProps
+  onClick: (data: any) => void
+  renderAction?: (data: any) => ReactNode
+  actionLabel?: string
+}
+
+const ProfileItem = ({ data, onClick, renderAction }: ItemProps) => {
+  const { title, description, avatarUrl } = data
   const theme = useTheme()
-  const navigate = useNavigate()
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
-  const { signIn, signOut } = useLogin()
   const [loading, setLoading] = useState(false)
-  const guest = type === LoginMethod.ANONYMOUS
 
-  const onClick = async () => {
-    if (active || loading) return
+  const wrappedOnClick = async () => {
+    if (loading) return
     setLoading(true)
-    await signIn({
-      account: id,
-      loginMethod: type,
-      showSessionExpired: true,
-    })
+    await onClick(data)
     setLoading(false)
-    toggleModal()
   }
 
-  const signOutBtn =
-    !active && (guest ? totalGuest > 1 : true) ? (
-      <LogOut
-        style={{ marginRight: active || upToMedium ? 0 : '10px' }}
-        color={active ? theme.text : theme.subText}
-        size={16}
-        onClick={e => {
-          e?.stopPropagation()
-          signOut(id, guest)
-        }}
-      />
-    ) : null
-
   return (
-    <ProfileItemWrapper active={active} onClick={onClick}>
-      {active && <CardBackground noLogo />}
+    <ProfileItemWrapper active={false} onClick={wrappedOnClick}>
       <Row width={'100%'} style={{ zIndex: 1 }}>
-        <Row gap={active ? '16px' : '12px'} align="center">
+        <Row gap={'12px'} align="center">
           <Flex style={{ width: 54, minWidth: 54 }} justifyContent="center">
-            <Avatar
-              url={profile?.avatarUrl}
-              size={active ? 54 : 40}
-              color={active ? theme.text : theme.subText}
-              loading={loading}
-            />
+            <Avatar url={avatarUrl} size={40} color={theme.subText} loading={loading} />
           </Flex>
           <Column gap="8px" minWidth={'unset'} flex={1}>
-            {profile?.nickname && (
-              <Text fontWeight={'bold'} fontSize={active ? '20px' : '16px'} color={active ? theme.text : theme.subText}>
-                {shortString(profile?.nickname ?? '', 18)}
+            {title && (
+              <Text fontWeight={'bold'} fontSize={'16px'} color={theme.subText}>
+                {shortString(title ?? '', 18)}
               </Text>
             )}
-            <Text
-              fontWeight={'500'}
-              fontSize={active ? '16px' : profile?.nickname ? '12px' : '16px'}
-              color={active ? theme.subText : theme.subText}
-            >
-              {type === LoginMethod.ETH ? getShortenAddress(account) : shortString(account, 20)}
+            <Text fontWeight={'500'} fontSize={title ? '12px' : '16px'} color={theme.subText}>
+              {description}
             </Text>
           </Column>
-          {active && signOutBtn}
         </Row>
-        {!active && signOutBtn}
+        {renderAction?.(data)}
       </Row>
-      {active && (
-        <Row width={'100%'}>
-          <ButtonLight
-            height={'36px'}
-            style={{ flex: 1 }}
-            onClick={e => {
-              e?.stopPropagation()
-              navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
-              toggleModal()
-            }}
-          >
-            <TransactionSettingsIcon size={20} fill={theme.primary} />
-            &nbsp;
-            <Trans>Edit current account</Trans>
-          </ButtonLight>
-        </Row>
-      )}
     </ProfileItemWrapper>
   )
 }
+
+const ProfileItemActive = ({ data, onClick, actionLabel }: ItemProps) => {
+  const theme = useTheme()
+  if (!data) return null
+  const { title, description, avatarUrl } = data
+  return (
+    <ProfileItemWrapper active>
+      <CardBackground noLogo />
+      <Row width={'100%'} style={{ zIndex: 1 }}>
+        <Row gap={'16px'} align="center">
+          <Flex style={{ width: 54, minWidth: 54 }} justifyContent="center">
+            <Avatar url={avatarUrl} size={54} color={theme.text} />
+          </Flex>
+          <Column gap="8px" minWidth={'unset'} flex={1}>
+            {title && (
+              <Text fontWeight={'bold'} fontSize={'20px'} color={theme.text}>
+                {shortString(title ?? '', 18)}
+              </Text>
+            )}
+            <Text fontWeight={'500'} fontSize={'16px'} color={theme.subText}>
+              {description}
+            </Text>
+          </Column>
+        </Row>
+      </Row>
+
+      <Row width={'100%'}>
+        <ButtonLight
+          height={'36px'}
+          style={{ flex: 1 }}
+          onClick={e => {
+            e?.stopPropagation()
+            onClick(data)
+          }}
+        >
+          <TransactionSettingsIcon size={20} fill={theme.primary} />
+          &nbsp;
+          {actionLabel}
+        </ButtonLight>
+      </Row>
+    </ProfileItemWrapper>
+  )
+}
+
 const ProfileContent = ({ scroll, toggleModal }: { scroll?: boolean; toggleModal: () => void }) => {
-  const { signIn, signOutAll } = useLogin()
+  const { signIn, signOutAll, signOut } = useLogin()
   const { profiles, totalGuest } = useProfileInfo()
   const { account, isEVM } = useActiveWeb3React()
+  const theme = useTheme()
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const navigate = useNavigate()
+
+  const renderAction = useCallback(
+    ({ id, type }: ConnectedProfile) => {
+      const guest = type === LoginMethod.ANONYMOUS
+      return (guest ? totalGuest > 1 : true) ? (
+        <LogOut
+          style={{ marginRight: upToMedium ? 0 : '10px' }}
+          color={theme.subText}
+          size={16}
+          onClick={e => {
+            e?.stopPropagation()
+            signOut(id, guest)
+          }}
+        />
+      ) : null
+    },
+    [signOut, totalGuest, theme, upToMedium],
+  )
+
+  const onItemClick = useCallback(
+    async (profile: ConnectedProfile) => {
+      await signIn({
+        account: profile.id,
+        loginMethod: profile.type,
+        showSessionExpired: true,
+      })
+      toggleModal()
+    },
+    [signIn, toggleModal],
+  )
+  const onItemActiveClick = useCallback(() => {
+    navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
+    toggleModal()
+  }, [navigate, toggleModal])
+
+  const formatProfile = useMemo(
+    () =>
+      profiles.map(el => ({
+        data: {
+          ...el,
+          title: el.profile?.nickname,
+          avatarUrl: el.profile?.avatarUrl,
+          description: isAddressString(1, el.name) ? getShortenAddress(el.name) : shortString(el.name, 20),
+        },
+        actionLabel: t`Edit current account`,
+        renderAction,
+        onClick: el.active ? onItemActiveClick : onItemClick,
+      })),
+    [profiles, renderAction, onItemClick, onItemActiveClick],
+  )
 
   if (!profiles.length) return null
-  const listNotActive = profiles.slice(1)
-  const totalAccount = profiles.length
 
+  const listNotActive = formatProfile.slice(1)
+  const totalAccount = formatProfile.length
+
+  return (
+    <ProfilePanel
+      scroll={!!scroll}
+      activeItem={formatProfile[0]}
+      actions={
+        <ActionWrapper hasBorder={profiles.length > 1}>
+          {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && isEVM && (
+            <ActionItem
+              onClick={() => {
+                toggleModal()
+                signIn()
+              }}
+            >
+              <UserPlus size={18} /> <Trans>Add Account</Trans>
+            </ActionItem>
+          )}
+          {totalAccount > 1 && (
+            <ActionItem
+              onClick={() => {
+                signOutAll()
+                toggleModal()
+              }}
+            >
+              <LogOut size={18} /> <Trans>Sign out of all accounts</Trans>
+            </ActionItem>
+          )}
+        </ActionWrapper>
+      }
+      options={listNotActive}
+    />
+  )
+}
+
+type Props = {
+  scroll: boolean
+  actions?: ReactNode
+  options: ItemProps[]
+  activeItem: ItemProps
+}
+
+export function ProfilePanel({ scroll, actions, activeItem, options = [] }: Props) {
   return (
     <ContentWrapper>
       <Column>
-        <ProfileItem data={profiles[0]} totalGuest={totalGuest} />
-        <ListProfile hasData={!!listNotActive.length} scroll={scroll}>
-          {listNotActive.map(data => (
-            <ProfileItem key={data.id} data={data} totalGuest={totalGuest} />
+        <ProfileItemActive {...activeItem} />
+        <ListProfile hasData={!!options.length} scroll={scroll}>
+          {options.map((el, i) => (
+            <ProfileItem {...el} key={i} />
           ))}
         </ListProfile>
       </Column>
-      <ActionWrapper hasBorder={profiles.length > 1}>
-        {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && isEVM && (
-          <ActionItem
-            onClick={() => {
-              toggleModal()
-              signIn()
-            }}
-          >
-            <UserPlus size={18} /> <Trans>Add Account</Trans>
-          </ActionItem>
-        )}
-        {totalAccount > 1 && (
-          <ActionItem
-            onClick={() => {
-              signOutAll()
-              toggleModal()
-            }}
-          >
-            <LogOut size={18} /> <Trans>Sign out of all accounts</Trans>
-          </ActionItem>
-        )}
-      </ActionWrapper>
+      {actions}
     </ContentWrapper>
   )
 }
