@@ -157,6 +157,8 @@ export function tryParseAmount<T extends Currency>(
     const typedValueParsed = parseFraction(value)
       .multiply(scaleDecimals ? 10 ** currency.decimals : 1)
       .toFixed(0)
+
+    if (typedValueParsed === '0') return undefined
     const result = CurrencyAmount.fromRawAmount(currency, typedValueParsed)
     return result
   } catch (error) {

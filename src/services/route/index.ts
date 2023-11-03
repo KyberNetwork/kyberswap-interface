@@ -24,7 +24,7 @@ const routeApi = createApi({
         params,
         authentication,
         headers: {
-          'x-client-id': clientId || 'kyberswap',
+          'x-client-id': clientId || 'kyberswap-ui',
         },
       }),
     }),
@@ -39,7 +39,7 @@ const routeApi = createApi({
         signal,
         authentication,
         headers: {
-          'x-client-id': payload.source || 'kyberswap',
+          'x-client-id': payload.source || 'kyberswap-ui',
         },
       }),
     }),
