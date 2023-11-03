@@ -1,13 +1,15 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Fragment, useState } from 'react'
 import { Plus, Save, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import Row, { RowBetween } from 'components/Row'
 import Toggle from 'components/Toggle'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { Tabs } from 'components/WalletPopup/Transactions/Tab'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
@@ -17,6 +19,7 @@ import PortfolioItem from 'pages/NotificationCenter/Portfolio/PortfolioItem'
 import { ButtonCancel, ButtonSave } from 'pages/NotificationCenter/Portfolio/buttons'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
+import { useNotify } from 'state/application/hooks'
 
 const ActionsWrapper = styled.div`
   display: flex;
@@ -62,6 +65,24 @@ const Divider = styled.div`
   `}
 `
 const THRESHOLD_OPTIONS = [1, 10, 100].map(el => ({ value: el + '', title: `< ${el}` }))
+
+const mock = {
+  name: 'Tét',
+  wallets: [
+    { id: 'string', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723', nickName: 'string' },
+    { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
+    { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
+    {
+      id: 'string 2 22323232323232323232323',
+      walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724',
+      nickName:
+        'string 2 string 2 22323232323232323232323 string 2 string 2 22323232323232323232323string 2 string 2 22323232323232323232323',
+    },
+  ],
+}
+const portfolios = new Array(2).fill(mock)
+const maximumPortfolio = 2
+
 export default function PortfolioSetting() {
   const [showCreate, setShowCreate] = useState(false)
   const [showAddWallet, setShowAddWallet] = useState(false)
@@ -78,13 +99,22 @@ export default function PortfolioSetting() {
 
   const navigate = useNavigate()
   const theme = useTheme()
-  const portfolios = [1, 2]
   const [threshold, setThreshold] = useState(THRESHOLD_OPTIONS[0].value)
   const [hideSmallBalance, setHideSmallBalance] = useState(true)
 
   const loading = false
   const savePortfolio = () => {}
   const disableBtnSave = loading /// || 'no change'
+  const canCreatePortfolio = portfolios.length < maximumPortfolio
+
+  const notify = useNotify()
+  const addPortfolio = () => {
+    notify({
+      type: NotificationType.SUCCESS,
+      title: t`Portfolio updated`,
+      summary: t`Your portfolio have been successfully updated`,
+    })
+  }
 
   return (
     <Wrapper>
@@ -96,23 +126,33 @@ export default function PortfolioSetting() {
           <Text fontWeight={'500'} fontSize="14px" color={theme.subText}>
             <Trans>
               Portfolios count:{' '}
-              <Text as={'span'} color={theme.text}>
-                {0}/{2}
+              <Text as={'span'} color={canCreatePortfolio ? theme.text : theme.warning}>
+                {portfolios.length}/{maximumPortfolio}
               </Text>
             </Trans>
           </Text>
-          <ButtonPrimary height={'36px'} width={'fit-content'} onClick={showModalCreatePortfolio}>
-            <Plus />
-            &nbsp;
-            <Trans>Create Portfolio</Trans>
-          </ButtonPrimary>
+          <MouseoverTooltip
+            text={canCreatePortfolio ? '' : t`You had added the maximum number of portfolio`}
+            placement="top"
+          >
+            <ButtonPrimary
+              height={'36px'}
+              width={'fit-content'}
+              disabled={!canCreatePortfolio}
+              onClick={canCreatePortfolio ? showModalCreatePortfolio : undefined}
+            >
+              <Plus />
+              &nbsp;
+              <Trans>Create Portfolio</Trans>
+            </ButtonPrimary>
+          </MouseoverTooltip>
         </Row>
       </Header>
       <WarningSignMessage /> {/** // todo message */}
       <Divider />
       {portfolios.map(item => (
         <Fragment key={item}>
-          <PortfolioItem showModalAddWalletPortfolio={showModalAddWalletPortfolio} />
+          <PortfolioItem showModalAddWalletPortfolio={showModalAddWalletPortfolio} portfolio={item} />
           <Divider />
         </Fragment>
       ))}
@@ -148,8 +188,12 @@ export default function PortfolioSetting() {
           Cancel
         </ButtonCancel>
       </ActionsWrapper>
-      <CreatePortfolioModal isOpen={showCreate} onDismiss={hideModalCreatePortfolio} />
-      <AddWalletPortfolioModal isOpen={showAddWallet} onDismiss={() => setShowAddWallet(false)} />
+      <CreatePortfolioModal isOpen={showCreate} onDismiss={hideModalCreatePortfolio} onConfirm={addPortfolio} />
+      <AddWalletPortfolioModal
+        isOpen={showAddWallet}
+        onDismiss={() => setShowAddWallet(false)}
+        onConfirm={addPortfolio}
+      />
     </Wrapper>
   )
 }
