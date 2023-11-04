@@ -53,6 +53,7 @@ export function useZapInPoolResult(params?: {
 
   const [loadingAggregator, setLoadingAggregator] = useState(false)
   const [getRoute] = useLazyGetRouteQuery()
+  const [slippage] = useUserSlippageTolerance()
 
   const { aggregatorDomain } = useKyberswapGlobalConfig()
   const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
@@ -67,7 +68,11 @@ export function useZapInPoolResult(params?: {
   const [aggregatorOutputs, setAggregatorOutputs] = useState<Array<RouteSummary>>([])
 
   const { tokenIn, tokenOut, poolAddress } = params || {}
-  useEffect(() => {
+
+  const getRoutes = useCallback(() => {
+    if (slippage) {
+      // added to refresh rate when slippage change, aggregator dont need this
+    }
     if (tokenIn && tokenOut && poolAddress) {
       setAggregatorOutputs([])
       if (useAggregatorForZap) {
@@ -96,7 +101,15 @@ export function useZapInPoolResult(params?: {
           })
       }
     }
-  }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url, useAggregatorForZap])
+  }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url, useAggregatorForZap, slippage])
+
+  useEffect(() => {
+    getRoutes()
+    const i = setInterval(() => {
+      getRoutes()
+    }, 10_000)
+    return () => i && clearInterval(i)
+  }, [getRoutes])
 
   const callParams = useMemo(
     () =>
