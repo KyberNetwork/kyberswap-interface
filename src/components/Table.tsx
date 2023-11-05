@@ -1,4 +1,5 @@
 import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
@@ -77,7 +78,7 @@ export default function Table<T>({
       <TableHeader column={columns.length}>
         {columns.map(({ tooltip, title, align, dataIndex }, i) => (
           <Thead key={dataIndex || i}>
-            <MouseoverTooltip width="fit-content" placement="top" text={tooltip}>
+            <MouseoverTooltip width="fit-content" placement="top" text={tooltip} maxWidth={isMobile ? '90vw' : '400px'}>
               <div
                 style={{
                   textAlign: align || 'center',

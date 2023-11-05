@@ -30,6 +30,8 @@ const BalanceGroup = styled.div`
 const browserCustomStyle = css`
   padding: 0;
   border-radius: 20px;
+  top: 120px;
+  right: unset;
   ${({ theme }) => theme.mediaWidth.upToLarge`
     top: unset;
     bottom: 3.5rem;
@@ -47,7 +49,7 @@ const AddressPanel = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   const accountText = (
-    <Text fontSize={'20px'} fontWeight={'500'} color={theme.text} sx={{ cursor: 'pointer' }}>
+    <Text fontSize={'20px'} fontWeight={'500'} color={theme.text} sx={{ cursor: 'pointer', userSelect: 'none' }}>
       {getShortenAddress(account ?? '')}
     </Text>
   )

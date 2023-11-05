@@ -11,8 +11,8 @@ export enum PriceAlertType {
 
 export enum PROFILE_MANAGE_ROUTES {
   PROFILE = '/profile',
-
   CREATE_ALERT = '/create-alert',
+  PORTFOLIO = '/portfolio',
 
   ALL_NOTIFICATION = '/notification',
   PREFERENCE = '/notification/preferences',
@@ -23,8 +23,7 @@ export enum PROFILE_MANAGE_ROUTES {
   BRIDGE = '/notification/bridge',
   KYBER_AI_TOKENS = '/notification/kyber-ai',
   KYBER_AI_WATCH_LIST = '/notification/kyber-ai-watch-list',
-  CROSS_CHAIN = '/cross-chain',
-  PORTFOLIO = '/portfolio',
+  CROSS_CHAIN = '/notification/cross-chain',
 }
 
 export type CreatePriceAlertPayload = {
