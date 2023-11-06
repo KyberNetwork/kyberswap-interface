@@ -19,7 +19,7 @@ import Select from 'components/Select'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { Portfolio } from 'pages/NotificationCenter/Portfolio/type'
+import { Portfolio, PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -47,21 +47,23 @@ const AddressPanel = ({
   portfolios,
   activePortfolio,
   onChangeWallet,
-  lastUpdatedAt,
+  data,
 }: {
   portfolios: Portfolio[]
   activePortfolio: Portfolio
   onChangeWallet: (v: string) => void
-  lastUpdatedAt: number | undefined
+  data: PortfolioWalletBalanceResponse | undefined
 }) => {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [showBalance, setShowBalance] = useState(true)
   const percent = 0.22332
-  const balance = 1234564646.23
+
   const navigate = useNavigate()
   const test = true
   const [isOpen, setIsOpen] = useState(false)
+
+  const { lastUpdatedAt, totalBalanceUsd } = data || {}
 
   const accountText = (
     <Text fontSize={'20px'} fontWeight={'500'} color={theme.text} sx={{ cursor: 'pointer', userSelect: 'none' }}>
@@ -157,7 +159,9 @@ const AddressPanel = ({
           <Flex sx={{ gap: '12px', alignItems: 'center' }}>
             <Avatar url={activePortfolio ? DefaultAvatar : ''} size={36} color={theme.subText} />
             <Text fontSize={'28px'} fontWeight={'500'}>
-              {showBalance ? formatDisplayNumber(balance, { style: 'currency', significantDigits: 3 }) : '******'}
+              {showBalance
+                ? formatDisplayNumber(totalBalanceUsd, { style: 'currency', significantDigits: 3 })
+                : '******'}
             </Text>
             <PercentBadge percent={percent} />
           </Flex>

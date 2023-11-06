@@ -81,7 +81,7 @@ export default function PortfolioDetail() {
           <AddressPanel
             portfolios={portfolios}
             activePortfolio={activePortfolio}
-            lastUpdatedAt={data?.lastUpdatedAt}
+            data={data}
             onChangeWallet={onChangeWallet}
           />
           <RowBetween>

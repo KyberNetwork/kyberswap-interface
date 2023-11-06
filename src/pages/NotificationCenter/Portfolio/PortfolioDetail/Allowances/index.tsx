@@ -1,7 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
+import { ethers } from 'ethers'
 import { rgba } from 'polished'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Trash } from 'react-feather'
 import { useGetTokenApprovalQuery } from 'services/portfolio'
 
@@ -9,13 +10,17 @@ import { ButtonAction } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
 import Row, { RowFit } from 'components/Row'
 import Table, { TableColumn } from 'components/Table'
+import { ERC20_ABI } from 'constants/abis/erc20'
 import { EMPTY_ARRAY } from 'constants/index'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
 import { TokenAllowAnce } from 'pages/NotificationCenter/Portfolio/type'
 import { Section } from 'pages/TrueSightV2/components'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
+import { getSigningContract } from 'utils/getContract'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
@@ -27,19 +32,25 @@ const SpenderCell = ({ value, item }: { value: string; item: TokenAllowAnce }) =
   )
 }
 
-const ActionButton = ({ item: { tokenAddress, amount } }: { item: TokenAllowAnce }) => {
+const ActionButton = ({
+  item,
+  revokeAllowance,
+}: {
+  item: TokenAllowAnce
+  revokeAllowance: (v: TokenAllowAnce) => void
+}) => {
   const theme = useTheme()
-  const onRevoke = () => {
-    alert(tokenAddress)
-  }
+  const { amount } = item
+  const disabled = !amount || amount === '0'
+  const color = disabled ? theme.border : theme.red
   return (
     <Row justify="flex-end">
       <ButtonAction
-        disabled={!amount}
-        onClick={onRevoke}
+        disabled={disabled}
+        onClick={() => revokeAllowance(item)}
         style={{
-          backgroundColor: rgba(theme.red, 0.2),
-          color: theme.red,
+          backgroundColor: rgba(color, 0.2),
+          color: color,
           width: '32px',
           height: '32px',
           display: 'flex',
@@ -52,7 +63,7 @@ const ActionButton = ({ item: { tokenAddress, amount } }: { item: TokenAllowAnce
   )
 }
 
-const columns: TableColumn[] = [
+const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn[] => [
   {
     title: t`Asset`,
     dataIndex: 'token',
@@ -65,7 +76,7 @@ const columns: TableColumn[] = [
     title: t`Allowance`,
     dataIndex: 'amount',
     render: ({ value, item }) =>
-      value.length > 3 * item.decimals // todo
+      value === ethers.constants.MaxUint256.toString()
         ? t`Unlimited`
         : formatDisplayNumber(uint256ToFraction(value, item.decimals), { style: 'decimal', significantDigits: 6 }), // todo uint256ToFraction
   },
@@ -83,13 +94,43 @@ const columns: TableColumn[] = [
     title: t`Revoke`,
     align: 'right',
     dataIndex: 'spenderAddress',
-    render: ActionButton,
+    render: ({ item }) => <ActionButton item={item} revokeAllowance={revokeAllowance} />,
   },
 ]
 
 export default function Allowances({ wallet }: { wallet: string }) {
   const { data } = useGetTokenApprovalQuery({ address: wallet }, { skip: !wallet })
   const theme = useTheme()
+
+  const { chainId: currentChain } = useActiveWeb3React()
+  const { library } = useWeb3React()
+  const { changeNetwork } = useChangeNetwork()
+
+  const revokeAllowance = useCallback(
+    async (data: TokenAllowAnce) => {
+      const { chainId } = data
+      const handleRevoke = async function ({ tokenAddress, spenderAddress, ownerAddress }: TokenAllowAnce) {
+        try {
+          if (!library) return
+          const tokenContract = getSigningContract(tokenAddress, ERC20_ABI, library, ownerAddress)
+          const tx = await tokenContract.approve(spenderAddress, ethers.constants.Zero)
+          await tx.wait()
+          // todo add transaction, loading
+        } catch (error) {
+          console.error('Error revoking allowance:', error)
+        }
+      }
+
+      if (currentChain !== chainId) changeNetwork(chainId, () => handleRevoke(data)) // todo not work
+      else handleRevoke(data)
+    },
+    [changeNetwork, currentChain, library],
+  )
+
+  const columns = useMemo(() => {
+    return getColumns(revokeAllowance)
+  }, [revokeAllowance])
+
   const formatData = useMemo(() => {
     if (!data) return EMPTY_ARRAY
     return data.approvals
