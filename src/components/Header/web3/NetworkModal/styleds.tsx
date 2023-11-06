@@ -1,6 +1,4 @@
 import { motion } from 'framer-motion'
-import { forwardRef } from 'react'
-import { isMobile } from 'react-device-detect'
 import styled from 'styled-components'
 
 export const Wrapper = styled.div`
@@ -28,14 +26,3 @@ export const NetworkList = styled(motion.div)`
     }
   `}
 `
-
-const GhostOptionWrapper = styled(motion.div)`
-  height: 60px;
-  background-color: #33333380;
-  border-radius: 16px;
-  z-index: 0;
-`
-
-export const GhostOption = forwardRef<HTMLDivElement>(({}, ref) => {
-  return <GhostOptionWrapper ref={ref} layout layoutId="ghost" />
-})
