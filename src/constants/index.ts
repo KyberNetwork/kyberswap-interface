@@ -187,7 +187,8 @@ export const APP_PATHS = {
   IAM_LOGOUT: '/logout',
   IAM_CONSENT: '/consent',
 
-  PORTFOLIO: '/portfolio',
+  PORTFOLIO: '/portfolios',
+  PROFILE: '/profiles',
 } as const
 
 export const TERM_FILES_PATH = {

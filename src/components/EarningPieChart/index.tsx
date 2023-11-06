@@ -170,7 +170,7 @@ export type DataEntry = {
   chainId?: ChainId
   logoUrl?: string
   symbol: string
-  value: string
+  value: string // usd
   percent: number
 }
 

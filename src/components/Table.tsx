@@ -41,7 +41,7 @@ export type TableColumn = {
   dataIndex: string
   align?: 'left' | 'center' | 'right'
   tooltip?: ReactNode
-  render?: (value: any, item: any) => ReactNode // todo
+  render?: (data: { value: any; item: any }) => ReactNode // todo
 }
 export default function Table<T>({
   data = [],
@@ -76,8 +76,8 @@ export default function Table<T>({
   return (
     <table style={style}>
       <TableHeader column={columns.length}>
-        {columns.map(({ tooltip, title, align, dataIndex }, i) => (
-          <Thead key={dataIndex || i}>
+        {columns.map(({ tooltip, title, align }, i) => (
+          <Thead key={i}>
             <MouseoverTooltip width="fit-content" placement="top" text={tooltip} maxWidth={isMobile ? '90vw' : '400px'}>
               <div
                 style={{
@@ -112,7 +112,7 @@ export default function Table<T>({
                     alignItems: 'center',
                   }}
                 >
-                  {render ? render(value, item) : (value as ReactNode)}
+                  {render ? render({ value, item }) : (value as ReactNode)}
                 </td>
               )
             })}

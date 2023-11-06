@@ -1,18 +1,24 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { stringify } from 'querystring'
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useGetPortfoliosQuery, useGetRealtimeBalanceQuery } from 'services/portfolio'
 import styled from 'styled-components'
 
 import { RowBetween } from 'components/Row'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
+import { EMPTY_ARRAY } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import AddressPanel from 'pages/NotificationCenter/Portfolio/PortfolioDetail/AddressPanel'
+import Allowances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Allowances'
 import ListTab from 'pages/NotificationCenter/Portfolio/PortfolioDetail/ListTab'
 import Overview from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Overview'
-import TokenAllocation from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TokenAllocation'
+import TokenAllocation from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
+import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
-import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/WalletInfo'
 import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/type'
+import { PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
 
 import Header from './Header'
 
@@ -31,15 +37,40 @@ const PageWrapper = styled.div`
 `};
 `
 
-export default function PortfolioDetail() {
-  const [activeTab, setTab] = useState(PortfolioTab.TOKEN)
+const Tokens = ({ data, isLoading }: { data: PortfolioWalletBalanceResponse | undefined; isLoading: boolean }) => {
+  return (
+    <>
+      <TokenAllocation balances={data?.balances} totalBalanceUsd={55} loading={isLoading} />
+      <WalletInfo balances={data?.balances} loading={isLoading} />
+    </>
+  )
+}
 
-  const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS]) // todo
-  const handleChangeChains = (values: ChainId[]) => {
-    setChainIds(values)
+export default function PortfolioDetail() {
+  const [activeTab, setTab] = useState(PortfolioTab.ALLOWANCES)
+  const { wallet, portfolioId } = useParams<{ wallet?: string; portfolioId?: string }>()
+  const qs = useParsedQueryString()
+  const { data: portfolios = EMPTY_ARRAY } = useGetPortfoliosQuery()
+
+  const walletParam = String(wallet || qs.wallet)
+
+  const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
+  const [search, setSearch] = useState(walletParam || portfolioId || '')
+
+  const { isLoading, data } = useGetRealtimeBalanceQuery({ query: String(search), chainIds }, { skip: !search })
+
+  const handleChangeChains = (chainIds: ChainId[]) => {
+    setChainIds(chainIds)
   }
-  const { wallet } = useParams<{ wallet: string }>()
-  const canShowOverview = !wallet
+
+  const navigate = useNavigate()
+  const onChangeWallet = (wallet: string) => {
+    setSearch(wallet)
+    navigate({ search: stringify({ ...qs, wallet }) }, { replace: true })
+  }
+
+  const canShowOverview = !wallet && !portfolioId
+  const activePortfolio = portfolios[0]
   return (
     <PageWrapper>
       <Header />
@@ -47,18 +78,22 @@ export default function PortfolioDetail() {
         <Overview />
       ) : (
         <>
-          <AddressPanel />
+          <AddressPanel
+            portfolios={portfolios}
+            activePortfolio={activePortfolio}
+            lastUpdatedAt={data?.lastUpdatedAt}
+            onChangeWallet={onChangeWallet}
+          />
           <RowBetween>
             <ListTab activeTab={activeTab} setTab={setTab} />
             <MultipleChainSelect
-              chainIds={chainIds}
               selectedChainIds={chainIds}
               handleChangeChains={handleChangeChains}
               style={{ height: '36px' }}
             />
           </RowBetween>
-          <TokenAllocation />
-          <WalletInfo />
+          {activeTab === PortfolioTab.TOKEN && <Tokens isLoading={isLoading} data={data} />}
+          {activeTab === PortfolioTab.ALLOWANCES && <Allowances wallet={walletParam} />}
         </>
       )}
 

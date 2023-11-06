@@ -77,6 +77,8 @@ const GrantProgramPage = lazy(() => import('pages/GrantProgram'))
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 const Icons = lazy(() => import('./Icons'))
 
+const portfolioRoutes = [APP_PATHS.PORTFOLIO, `${APP_PATHS.PORTFOLIO}/:portfolioId`, `${APP_PATHS.PROFILE}/:wallet`]
+
 const AppWrapper = styled.div`
   display: flex;
   flex-flow: column;
@@ -382,22 +384,18 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path={`${APP_PATHS.PORTFOLIO}`}
-                  element={
-                    <ProtectedRoute>
-                      <PortfolioDetail />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path={`${APP_PATHS.PORTFOLIO}/:wallet`}
-                  element={
-                    <ProtectedRoute>
-                      <PortfolioDetail />
-                    </ProtectedRoute>
-                  }
-                />
+                {portfolioRoutes.map(path => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <ProtectedRoute>
+                        <PortfolioDetail />
+                      </ProtectedRoute>
+                    }
+                  />
+                ))}
+
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
                 {ENV_LEVEL === ENV_TYPE.LOCAL && <Route path="/icons" element={<Icons />} />}

@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Edit2, Eye, MoreHorizontal, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -113,6 +113,19 @@ const WalletItem = ({
   )
 }
 
+export const useNavigateToPortfolioDetail = () => {
+  const navigate = useNavigate()
+  return useCallback(
+    ({ wallet, portfolioId }: { wallet?: string; portfolioId?: number }) => {
+      navigate(
+        portfolioId
+          ? `${APP_PATHS.PORTFOLIO}/${portfolioId}${wallet ? `?wallet=${wallet}` : ''}`
+          : `${APP_PATHS.PROFILE}/${wallet}`,
+      )
+    },
+    [navigate],
+  )
+}
 const PortfolioItem = ({
   showModalAddWalletPortfolio,
   portfolio,
@@ -121,7 +134,6 @@ const PortfolioItem = ({
   portfolio: Portfolio
 }) => {
   const theme = useTheme()
-  const navigate = useNavigate()
   const { wallets, name, id }: Portfolio = portfolio
   const maximumWallet = 4
 
@@ -136,7 +148,7 @@ const PortfolioItem = ({
       summary: t`Your portfolio have been successfully updated`,
     })
   }
-
+  const navigate = useNavigateToPortfolioDetail()
   const onChangePortfolioAction = (val: Actions) => {
     switch (val) {
       case Actions.Delete:
@@ -153,7 +165,7 @@ const PortfolioItem = ({
         setShowEditPortfolio(true)
         break
       case Actions.View:
-        navigate(`${APP_PATHS.PORTFOLIO}/${id}`)
+        navigate({ portfolioId: id })
         break
     }
   }
@@ -176,7 +188,7 @@ const PortfolioItem = ({
         setEditWallet(wallet)
         break
       case Actions.View:
-        navigate(`${APP_PATHS.PORTFOLIO}/${wallet.walletAddress}`)
+        navigate({ portfolioId: id, wallet: wallet.walletAddress })
         break
     }
   }

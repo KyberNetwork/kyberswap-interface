@@ -3,6 +3,7 @@ import { Fragment, useState } from 'react'
 import { Plus, Save, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
+import { useGetPortfoliosQuery } from 'services/portfolio'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -11,7 +12,7 @@ import Row, { RowBetween } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Tabs } from 'components/WalletPopup/Transactions/Tab'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import AddWalletPortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/AddWalletPortfolioModal'
 import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/CreatePortfolioModal'
@@ -66,26 +67,12 @@ const Divider = styled.div`
 `
 const THRESHOLD_OPTIONS = [1, 10, 100].map(el => ({ value: el + '', title: `< ${el}` }))
 
-const mock = {
-  name: 'Tét',
-  wallets: [
-    { id: 'string', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723', nickName: 'string' },
-    { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
-    { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
-    {
-      id: 'string 2 22323232323232323232323',
-      walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724',
-      nickName:
-        'string 2 string 2 22323232323232323232323 string 2 string 2 22323232323232323232323string 2 string 2 22323232323232323232323',
-    },
-  ],
-}
-const portfolios = new Array(2).fill(mock)
 const maximumPortfolio = 2
 
 export default function PortfolioSetting() {
   const [showCreate, setShowCreate] = useState(false)
   const [showAddWallet, setShowAddWallet] = useState(false)
+  const { data: portfolios = EMPTY_ARRAY } = useGetPortfoliosQuery()
 
   const showModalCreatePortfolio = () => {
     setShowCreate(true)

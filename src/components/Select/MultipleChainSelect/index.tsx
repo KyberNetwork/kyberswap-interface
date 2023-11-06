@@ -24,7 +24,7 @@ export const StyledLogo = styled.img`
 export type MultipleChainSelectProps = {
   className?: string
   comingSoonList?: ChainId[]
-  chainIds: ChainId[]
+  chainIds?: ChainId[]
   selectedChainIds: ChainId[]
   handleChangeChains: (v: ChainId[]) => void
   onTracking?: () => void
@@ -120,7 +120,7 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
       onHideMenu={onHideMenu}
       className={className}
       style={style}
-      activeRender={_ => <SelectButton {...props} />}
+      activeRender={_ => <SelectButton {...props} chainIds={chainIds} />}
       options={options}
       optionStyle={{ padding: 0 }}
       optionRender={item => {

@@ -13,6 +13,7 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio/PortfolioItem'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { SearchWithDropdown } from 'pages/TrueSightV2/components/SearchWithDropDown'
 import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
@@ -43,11 +44,13 @@ const DropdownItem = styled.tr`
 const PortfolioItem = ({ onSelect }: { onSelect: () => void }) => {
   const theme = useTheme()
   const percent = 123.23
-  const navigate = useNavigate()
+  const navigate = useNavigateToPortfolioDetail()
+  const address = '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723'
+
   return (
     <DropdownItem
       onClick={() => {
-        navigate(`${APP_PATHS.PORTFOLIO}/${'0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723'}`)
+        navigate({ wallet: address })
         onSelect()
       }}
     >
@@ -55,7 +58,7 @@ const PortfolioItem = ({ onSelect }: { onSelect: () => void }) => {
         <Row alignItems="center" gap="6px">
           <StarWithAnimation size={18} active />
           <Avatar url="" color={theme.subText} size={16} />
-          <Text color={theme.subText}>0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723</Text>
+          <Text color={theme.subText}>{address}</Text>
         </Row>
       </td>
       <td>

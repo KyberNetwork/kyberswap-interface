@@ -1,5 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
+import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -12,11 +13,15 @@ import Wallet from 'components/Icons/Wallet'
 import { TokenLogoWithChain } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
 import Table, { TableColumn } from 'components/Table'
+import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TokenAllocation'
+import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
+import { PortfolioWalletBalance, PortfolioWalletBalanceMap } from 'pages/NotificationCenter/Portfolio/type'
 import { Section } from 'pages/TrueSightV2/components'
+import { navigateToSwapPage } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
+import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
 const WalletLabel = styled.div`
   display: flex;
@@ -28,19 +33,24 @@ const WalletLabel = styled.div`
   padding: 2px 4px;
 `
 
-const TokenCell = () => {
+export const TokenCellWithWalletAddress = ({
+  item,
+}: {
+  item: {
+    logoUrl: string
+    chainId: number
+    walletAddress: string
+    symbol: string
+  }
+}) => {
   return (
     <Row gap="14px">
-      <TokenLogoWithChain
-        chainId={1}
-        size={'36px'}
-        tokenLogo="https://storage.googleapis.com/ks-setting-1d682dca/061620bb-15ab-4877-ae14-ea615e07a5291697781498049.png"
-      />
+      <TokenLogoWithChain chainId={item.chainId} size={'36px'} tokenLogo={item.logoUrl} />
       <Column gap="4px">
-        <Text fontWeight={'500'}>KNC</Text>
+        <Text fontWeight={'500'}>{item.symbol}</Text>
         <WalletLabel>
           <Wallet size={12} />
-          <Text>{getShortenAddress('0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723')}</Text>
+          <Text>{getShortenAddress(item.walletAddress || '')}</Text>
         </WalletLabel>
       </Column>
     </Row>
@@ -56,7 +66,7 @@ const ActionTitle = () => {
   )
 }
 
-const ActionButton = () => {
+const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWalletBalance }) => {
   const theme = useTheme()
   return (
     <Row justify="flex-end" gap="8px">
@@ -71,7 +81,10 @@ const ActionButton = () => {
       >
         <LiquidityIcon />
       </ButtonAction>
-      <ButtonAction style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '4px' }}>
+      <ButtonAction
+        style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '4px' }}
+        onClick={() => navigateToSwapPage({ chain: chainId, address: tokenAddress })}
+      >
         <Icon id="swap" size={16} color={theme.subText} />
       </ButtonAction>
     </Row>
@@ -79,10 +92,19 @@ const ActionButton = () => {
 }
 
 const columns: TableColumn[] = [
-  { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCell },
-  { title: t`Amount`, dataIndex: 'token' },
-  { title: t`Price`, dataIndex: 'balance' },
-  { title: t`Real Value`, dataIndex: 'token' },
+  { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCellWithWalletAddress },
+  {
+    title: t`Amount`,
+    dataIndex: 'amount',
+    render: ({ value, item }) =>
+      formatDisplayNumber(uint256ToFraction(value, item.decimals), { style: 'decimal', significantDigits: 6 }), // todo uint256ToFraction
+  },
+  { title: t`Price`, dataIndex: 'priceUsd' },
+  {
+    title: t`Real Value`,
+    dataIndex: 'amountUsd',
+    render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
+  },
   {
     title: t`Liquidity Score`,
     dataIndex: 'token',
@@ -124,8 +146,19 @@ const columns: TableColumn[] = [
     render: ActionButton,
   },
 ]
-export default function WalletInfo() {
+export default function WalletInfo({
+  balances,
+}: {
+  balances: PortfolioWalletBalanceMap | undefined
+  loading: boolean
+}) {
   const theme = useTheme()
+
+  const formatData = useMemo(() => {
+    if (!balances) return EMPTY_ARRAY
+    return Object.values(balances).flat()
+  }, [balances])
+
   return (
     <Section
       title={
@@ -135,12 +168,7 @@ export default function WalletInfo() {
         </RowFit>
       }
     >
-      <Table
-        data={new Array(10).fill({ token: 123, balance: 111 })}
-        columns={columns}
-        style={{ flex: 1 }}
-        totalItems={10}
-      />
+      <Table data={formatData} columns={columns} style={{ flex: 1 }} totalItems={formatData.length} />
     </Section>
   ) // todo update SectionWrapper can reuse
 }
