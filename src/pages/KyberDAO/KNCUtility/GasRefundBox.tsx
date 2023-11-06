@@ -24,7 +24,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
 
-import SwitchToEthereumModal, { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
+import { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
 import TimerCountdown from '../TimerCountdown'
 import EligibleTxModal from './EligibleTxModal'
 import { KNCUtilityTabs } from './type'
@@ -187,7 +187,9 @@ export default function GasRefundBox() {
                     text={
                       <Trans>
                         Gas Refund Rewards is only available on Ethereum chain. Switch your network to continue{' '}
-                        <LinkStyledButton onClick={switchToEthereum}>here</LinkStyledButton>
+                        <LinkStyledButton onClick={() => switchToEthereum(t`Gas refund program`)}>
+                          here
+                        </LinkStyledButton>
                       </Trans>
                     }
                     width="244px"
@@ -256,7 +258,6 @@ export default function GasRefundBox() {
         </Flex>
       </RowBetween>
       <EligibleTxModal isOpen={isShowEligibleTx} closeModal={() => setShowEligibleTx(false)} />
-      <SwitchToEthereumModal featureText={t`Gas refund program`} />
     </Wrapper>
   )
 }

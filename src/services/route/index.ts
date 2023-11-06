@@ -24,13 +24,13 @@ const routeApi = createApi({
         params,
         authentication,
         headers: {
-          'x-client-id': clientId || 'kyberswap',
+          'x-client-id': clientId || 'kyberswap-ui',
         },
       }),
     }),
     buildRoute: builder.mutation<
       BuildRouteResponse,
-      { url: string; payload: BuildRoutePayload; signal: AbortSignal; authentication: boolean }
+      { url: string; payload: BuildRoutePayload; signal?: AbortSignal; authentication: boolean }
     >({
       query: ({ url, payload, signal, authentication }) => ({
         url,
@@ -39,7 +39,7 @@ const routeApi = createApi({
         signal,
         authentication,
         headers: {
-          'x-client-id': payload.source || 'kyberswap',
+          'x-client-id': payload.source || 'kyberswap-ui',
         },
       }),
     }),
@@ -47,3 +47,5 @@ const routeApi = createApi({
 })
 
 export default routeApi
+
+export const { useLazyGetRouteQuery, useBuildRouteMutation } = routeApi

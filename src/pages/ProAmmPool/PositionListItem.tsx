@@ -11,6 +11,7 @@ import styled from 'styled-components'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { LightCard } from 'components/Card'
 import Divider from 'components/Divider'
+import QuickZap, { QuickZapButton } from 'components/ElasticZap/QuickZap'
 import ProAmmFee from 'components/ProAmm/ProAmmFee'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
@@ -303,10 +304,18 @@ function PositionListItem({
     return ''
   })()
 
+  const [showQuickZap, setShowQuickZap] = useState(false)
+
   if (!position || !priceLower || !priceUpper) return <ContentLoader />
 
   return (
     <StyledPositionCard>
+      <QuickZap
+        poolAddress={positionDetails.poolId}
+        tokenId={positionDetails.tokenId.toString()}
+        isOpen={showQuickZap}
+        onDismiss={() => setShowQuickZap(false)}
+      />
       <>
         <ProAmmPoolInfo
           position={position}
@@ -473,6 +482,8 @@ function PositionListItem({
                   <Trans>Increase Liquidity</Trans>
                 </Text>
               </ButtonPrimary>
+
+              <QuickZapButton onClick={() => setShowQuickZap(true)} />
             </ButtonGroup>
           )}
           <Divider sx={{ marginBottom: '20px' }} />

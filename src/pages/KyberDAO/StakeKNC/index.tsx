@@ -1,5 +1,5 @@
 import { commify, formatUnits } from '@ethersproject/units'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import Skeleton from 'react-loading-skeleton'
 import { NavLink, useNavigate } from 'react-router-dom'
@@ -127,7 +127,7 @@ export default function StakeKNC() {
   const navigate = useNavigate()
   const { mixpanelHandler } = useMixpanel()
   const handleMigrateClick = () => {
-    switchToEthereum().then(() => {
+    switchToEthereum(t`Migrate`).then(() => {
       toggleMigrationModal()
     })
   }
