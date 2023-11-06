@@ -8,7 +8,7 @@ export const useDragAndDrop = (
   dropRef: RefObject<HTMLDivElement>,
   onDrop: (newOrders: string[]) => void,
 ) => {
-  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall})`)
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const perRow = above768 ? 3 : 2
   //handleDrag function has closure problem, use ref to pass most recent value of items
   const ordersRef = useRef<string[]>([])
