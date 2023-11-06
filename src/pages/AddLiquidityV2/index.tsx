@@ -1247,7 +1247,13 @@ export default function AddLiquidity() {
 
         setShowZapConfirmation(true)
       }}
-      color={zapDetail.priceImpact?.isVeryHigh ? theme.text : undefined}
+      color={
+        zapApprovalState !== ApprovalState.APPROVED
+          ? theme.textReverse
+          : zapDetail.priceImpact?.isVeryHigh
+          ? theme.text
+          : undefined
+      }
       backgroundColor={
         zapApprovalState !== ApprovalState.APPROVED
           ? undefined

@@ -123,6 +123,15 @@ export const useZapDetail = ({
     newPooledAmount1 = newPooledAmount1.add(position.amount1)
   }
 
+  const remainAmount0 =
+    pool?.token0 &&
+    result?.remainingAmount0 &&
+    CurrencyAmount.fromRawAmount(pool.token0, result.remainingAmount0.toString())
+  const remainAmount1 =
+    pool?.token1 &&
+    result?.remainingAmount1 &&
+    CurrencyAmount.fromRawAmount(pool.token1, result.remainingAmount1.toString())
+
   const prices = useTokenPrices(
     [WETH[chainId].address, currency0?.wrapped.address, currency1?.wrapped.address].filter(Boolean) as string[],
   )
@@ -137,16 +146,22 @@ export const useZapDetail = ({
 
   const amountInUsd = +(amountIn?.toExact() || '0') * (prices[amountIn?.currency?.wrapped.address || ''] || 0)
 
-  const amountUSDAfterSwap =
+  const remainAmountUsd =
     currency0 && currency1
+      ? +(remainAmount0?.toExact() || 0) * (prices[currency0.wrapped.address] || 0) +
+        +(remainAmount1?.toExact() || 0) * (prices[currency1.wrapped.address] || 0)
+      : 0
+
+  const amountUsdAfterSwap =
+    (currency0 && currency1
       ? +(newPooledAmount0?.toExact() || 0) * (prices[currency0.wrapped.address] || 0) +
         +(newPooledAmount1?.toExact() || 0) * (prices[currency1.wrapped.address] || 0)
-      : 0
+      : 0) + remainAmountUsd
 
   const priceImpact =
     !prices[currency0?.wrapped?.address || ''] || !prices[currency1?.wrapped?.address || '']
       ? NaN
-      : ((amountInUsd - amountUSDAfterSwap) * 100) / amountInUsd
+      : ((amountInUsd - amountUsdAfterSwap) * 100) / amountInUsd
   const priceImpactRes = checkPriceImpact(priceImpact)
 
   const [gas, setGas] = useState('') // GWei
