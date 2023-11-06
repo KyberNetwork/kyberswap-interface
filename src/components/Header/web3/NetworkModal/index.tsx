@@ -20,8 +20,8 @@ import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { TYPE } from 'theme'
 
-import { DropzoneOverlay } from './components'
 import DraggableNetworkButton from './components/DraggableNetworkButton'
+import DropzoneOverlay from './components/DropzoneOverlay'
 import { useDragAndDrop } from './hooks'
 import { NetworkList, Wrapper } from './styleds'
 
@@ -44,9 +44,8 @@ export default function NetworkModal({
 }): JSX.Element | null {
   const theme = useTheme()
   const { isWrongNetwork } = useActiveWeb3React()
-  const [requestSaveProfile] = useUpdateProfileMutation()
-
   const { userInfo } = useSessionInfo()
+  const [requestSaveProfile] = useUpdateProfileMutation()
   const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
 
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -62,13 +61,14 @@ export default function NetworkModal({
     saveFavoriteChains(newOrders)
   }
 
-  const { handleDrag, orders, handleDrop, draggingItem, order } = useDragAndDrop(
+  const { orders, handleDrag, handleDrop, draggingItem, order } = useDragAndDrop(
     favoriteChains,
     favoriteDropRef,
     updateOder,
   )
-  const isDraggingOver = draggingItem !== undefined && !favoriteChains.includes(draggingItem) && order === undefined
-  const isDraggingOver2 = favoriteChains.includes(draggingItem) && order === undefined
+  const isDraggingAddToFavorite =
+    draggingItem !== undefined && !favoriteChains.includes(draggingItem) && order === undefined
+  const isDraggingRemoveFavorite = favoriteChains.includes(draggingItem) && order === undefined
 
   // todo: add mixpanel events
   // const handleFavoriteChangeMobile = (chainId: string, isAdding: boolean) => {
@@ -106,7 +106,7 @@ export default function NetworkModal({
           handleDrag(networkInfo.chainId.toString(), x || 0, y || 0)
         }}
         onDrop={() => {
-          if (isDraggingOver2) {
+          if (isDraggingRemoveFavorite) {
             setFavoriteChains([...favoriteChains.filter(_ => _ !== chainId)])
           }
           handleDrop()
@@ -141,7 +141,7 @@ export default function NetworkModal({
           </ButtonAction>
         </RowBetween>
 
-        <Column marginTop="16px" gap="8px">
+        <Column marginTop="16px" gap="8px" flexGrow={1}>
           <Row gap="12px">
             <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
               <Trans>Favorite Chain(s)</Trans>
@@ -149,8 +149,8 @@ export default function NetworkModal({
             <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
           </Row>
           <div ref={favoriteDropRef} id={FAVORITE_DROPZONE_ID} style={{ position: 'relative' }}>
-            <DropzoneOverlay show={isDraggingOver} text={t`Add to favorite`} />
-            {favoriteChains.length === 0 && !isDraggingOver ? (
+            <DropzoneOverlay show={isDraggingAddToFavorite} text={t`Add to favorite`} />
+            {favoriteChains.length === 0 && !isDraggingAddToFavorite ? (
               <Row
                 border={'1px dashed ' + theme.text + '32'}
                 borderRadius="16px"
@@ -191,8 +191,8 @@ export default function NetworkModal({
             </Text>
             <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
           </Row>
-          <div style={{ position: 'relative', marginBottom: '12px' }}>
-            <DropzoneOverlay show={isDraggingOver2} text={t`Remove from favorite`} />
+          <div style={{ position: 'relative', marginBottom: '12px', flexGrow: 1 }}>
+            <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
             {supportedChains.filter(chain => !favoriteChains.some(_ => _ === chain.chainId.toString())).length === 0 ? (
               <Row
                 border={'1px dashed ' + theme.text + '32'}

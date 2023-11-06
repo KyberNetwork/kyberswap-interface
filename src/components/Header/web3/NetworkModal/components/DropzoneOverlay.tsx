@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useTheme } from 'styled-components'
 
-export const DropzoneOverlay = ({ show, text }: { show: boolean; text: string }) => {
+import useTheme from 'hooks/useTheme'
+
+export default function DropzoneOverlay({ show, text }: { show: boolean; text: string }) {
   const theme = useTheme()
   return (
     <AnimatePresence>
@@ -22,7 +23,7 @@ export const DropzoneOverlay = ({ show, text }: { show: boolean; text: string })
             fontWeight: 500,
             borderRadius: '8px',
           }}
-          transition={{ duration: 0.1 }}
+          transition={{ duration: 0.15 }}
         >
           {text}
         </motion.div>
