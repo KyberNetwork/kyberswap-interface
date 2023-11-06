@@ -1,5 +1,6 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import mixpanel from 'mixpanel-browser'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { BarChart2, Plus, Share2 } from 'react-feather'
@@ -232,7 +233,17 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
       </DataText>
       <DataText alignItems="flex-end">{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</DataText>
       <ButtonWrapper>
-        <QuickZapButton onClick={() => setShowQuickZap(true)} size="small" />
+        <QuickZapButton
+          onClick={() => {
+            mixpanel.track('Zap - Click Quick Zap', {
+              token0: token0?.symbol || '',
+              token1: token1?.symbol || '',
+              source: 'pool_page',
+            })
+            setShowQuickZap(true)
+          }}
+          size="small"
+        />
         <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement={'top'} width={'fit-content'}>
           <ButtonEmpty
             padding="0"

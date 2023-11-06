@@ -172,6 +172,7 @@ export function useZapInPoolResult(params?: {
     }
   }, [data, loadingAggregator, aggregatorOutputs, params])
 
+  console.debug('Zap: best return from zap helper ', bestRes)
   return bestRes
 }
 

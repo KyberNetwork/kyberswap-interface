@@ -1,5 +1,6 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import mixpanel from 'mixpanel-browser'
 import { useMemo, useState } from 'react'
 import { BarChart2, MoreHorizontal, Plus, Share2 } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
@@ -271,7 +272,16 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           </Text>
         </ButtonLight>
 
-        <QuickZapButton onClick={() => setShowQuickZap(true)} />
+        <QuickZapButton
+          onClick={() => {
+            setShowQuickZap(true)
+            mixpanel.track('Zap - Click Quick Zap', {
+              token0: token0?.symbol || '',
+              token1: token1?.symbol || '',
+              source: 'pool_page',
+            })
+          }}
+        />
       </Flex>
     </Wrapper>
   )

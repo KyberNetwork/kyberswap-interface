@@ -12,6 +12,7 @@ import {
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
+import mixpanel from 'mixpanel-browser'
 import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -1044,6 +1045,19 @@ export default function AddLiquidity() {
   const debouncedValue = useDebounce(zapValue, 300)
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
+  useEffect(() => {
+    if (amountIn?.toExact()) {
+      mixpanel.track('Zap - Input detailed', {
+        token0: selectedCurrency?.symbol,
+        token1: quoteCurrency?.symbol,
+        zap_token: selectedCurrency?.symbol,
+        token_amount: amountIn.toExact(),
+        source: 'add_liquidity_page',
+      })
+    }
+    // eslint-disable-next-line
+  }, [amountIn?.toExact(), selectedCurrency])
+
   const equivalentQuoteAmount =
     amountIn && pool && selectedCurrency && amountIn.multiply(pool.priceOf(selectedCurrency.wrapped))
 
@@ -1186,6 +1200,14 @@ export default function AddLiquidity() {
               token_2: tokenSymbolOut,
             },
           },
+        })
+
+        mixpanel.track('Zap - Confirmed', {
+          token0: selectedCurrency?.symbol,
+          token1: quoteCurrency?.symbol,
+          zap_token: selectedCurrency?.symbol,
+          token_amount: amountIn.toExact(),
+          source: 'add_liquidity_page',
         })
       } catch (e) {
         console.error('zap error', e)
