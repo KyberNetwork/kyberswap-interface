@@ -9,6 +9,7 @@ import {
   PortfolioWalletBalance,
   PortfolioWalletBalanceResponse,
   TokenAllowAnceResponse,
+  TransactionHistoryResponse,
 } from 'pages/NotificationCenter/Portfolio/type'
 
 const mockBalance = {
@@ -85,6 +86,22 @@ const portfolioApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
+    getTransactions: builder.query<
+      TransactionHistoryResponse,
+      {
+        walletAddress: string
+        chainIds?: ChainId[]
+        limit: number
+        endTime: number
+        tokenAddress?: string
+        tokenSymbol?: string
+      }
+    >({
+      query: ({ chainIds, ...params }) => ({
+        url: `${KRYSTAL_API}/txHistory/getHistory`,
+        params: { ...params, chainIds: chainIds?.join(',') },
+      }),
+    }),
     createPortfolio: builder.mutation<Portfolio, void>({
       query: () => ({
         url: '/v1/profile/me',
@@ -110,6 +127,7 @@ export const {
   useUpdatePortfolioMutation,
   useGetRealtimeBalanceQuery,
   useGetTokenApprovalQuery,
+  useGetTransactionsQuery,
 } = portfolioApi
 
 export default portfolioApi

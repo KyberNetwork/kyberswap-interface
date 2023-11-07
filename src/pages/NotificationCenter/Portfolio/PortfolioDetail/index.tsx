@@ -16,6 +16,7 @@ import ListTab from 'pages/NotificationCenter/Portfolio/PortfolioDetail/ListTab'
 import Overview from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Overview'
 import TokenAllocation from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
 import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
+import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
 import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/type'
 import { PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
@@ -47,7 +48,7 @@ const Tokens = ({ data, isLoading }: { data: PortfolioWalletBalanceResponse | un
 }
 
 export default function PortfolioDetail() {
-  const [activeTab, setTab] = useState(PortfolioTab.ALLOWANCES)
+  const [activeTab, setTab] = useState(PortfolioTab.TRANSACTIONS)
   const { wallet, portfolioId } = useParams<{ wallet?: string; portfolioId?: string }>()
   const qs = useParsedQueryString()
   const { data: portfolios = EMPTY_ARRAY } = useGetPortfoliosQuery()
@@ -93,7 +94,8 @@ export default function PortfolioDetail() {
             />
           </RowBetween>
           {activeTab === PortfolioTab.TOKEN && <Tokens isLoading={isLoading} data={data} />}
-          {activeTab === PortfolioTab.ALLOWANCES && <Allowances wallet={walletParam} />}
+          {activeTab === PortfolioTab.ALLOWANCES && <Allowances wallet={walletParam} chainIds={chainIds} />}
+          {activeTab === PortfolioTab.TRANSACTIONS && <Transactions wallet={walletParam} chainIds={chainIds} />}
         </>
       )}
 

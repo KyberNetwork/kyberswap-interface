@@ -422,39 +422,25 @@ export const SectionWrapper = ({
 
 // todo move to another file
 export const Section = ({
-  show,
   title = '',
-  subTitle,
   id,
-  fullscreenButton,
-  tabs,
-  activeTab,
-  onTabClick,
-  onShareClick,
   children,
   style,
+  actions,
 }: {
-  show?: boolean
-  title?: ReactNode
-  subTitle?: string | ReactNode
+  title: ReactNode
   id?: string
-  fullscreenButton?: boolean
-  tabs?: string[]
-  activeTab?: ChartTab
-  onTabClick?: (tab: ChartTab) => void
-  onShareClick?: () => void
-  children?: React.ReactNode
+  children: ReactNode
   style?: React.CSSProperties
+  actions: ReactNode
 }) => {
   const theme = useTheme()
 
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const [showShareModal, setShowShareModal] = useState(false)
-  const [fullscreenMode, setFullscreenMode] = useState(false)
 
   return (
-    <StyledSectionWrapper show={show} ref={ref} id={id} style={style} className="section-wrapper">
+    <StyledSectionWrapper ref={ref} id={id} style={style} className="section-wrapper">
       {above768 ? (
         <>
           {/* DESKTOP */}
@@ -466,116 +452,28 @@ export const Section = ({
                 }}
                 gap="4px"
               >
-                {tabs ? (
-                  <RowFit>
-                    {tabs.map((item, index) => {
-                      return (
-                        <TabButton
-                          key={item}
-                          text={item}
-                          active={activeTab === index}
-                          onClick={() => onTabClick?.(index)}
-                          style={{ padding: '16px', fontSize: '16px', lineHeight: '16px', height: '48px' }}
-                        />
-                      )
-                    })}
-                  </RowFit>
-                ) : (
-                  <>
-                    <Text marginLeft="16px" style={{ whiteSpace: 'nowrap' }}>
-                      {title}
-                    </Text>
-                  </>
-                )}
+                <Text marginLeft="16px" style={{ whiteSpace: 'nowrap' }}>
+                  {title}
+                </Text>
               </RowFit>
               <RowFit color={theme.subText} gap="12px">
-                {subTitle && (
-                  <Text fontStyle="italic" fontSize="12px" lineHeight="16px" color={theme.subText} flexShrink={1}>
-                    {subTitle}
-                  </Text>
-                )}
-                {!fullscreenMode && (
-                  <ShareButton
-                    onClick={() => {
-                      onShareClick?.()
-                      setShowShareModal(true)
-                    }}
-                  />
-                )}
-                {fullscreenButton && (
-                  <FullscreenButton
-                    elementRef={ref}
-                    onClick={() => {
-                      setFullscreenMode(prev => !prev)
-                    }}
-                  />
-                )}
+                {actions}
               </RowFit>
             </RowBetween>
           </SectionTitle>
-          {tabs && activeTab !== undefined && title && (
-            <Row gap="4px">
-              <Text fontSize="16px" lineHeight="20px" color={theme.text} fontWeight={500}>
-                {tabs[activeTab] + ' ' + title}
-              </Text>
-            </Row>
-          )}
-          {children || <></>}
+          {children}
         </>
       ) : (
         <>
           {/* MOBILE */}
           <SectionTitle>
-            <Row
-              style={{
-                width: 'calc(100% + 32px)',
-                margin: '-16px -16px 16px -16px',
-              }}
-            >
-              {tabs?.map((item, index) => {
-                return (
-                  <TabButton
-                    key={item}
-                    text={item}
-                    active={activeTab === index}
-                    onClick={() => onTabClick?.(index)}
-                    style={{ flex: 1 }}
-                  />
-                )
-              })}
-            </Row>
             <RowBetween marginBottom="8px">
               <RowFit color={theme.subText} gap="12px">
-                {!fullscreenMode && (
-                  <ShareButton
-                    onClick={() => {
-                      onShareClick?.()
-                      setShowShareModal(true)
-                    }}
-                  />
-                )}
-                {fullscreenButton && (
-                  <FullscreenButton
-                    elementRef={ref}
-                    onClick={() => {
-                      setFullscreenMode(prev => !prev)
-                    }}
-                  />
-                )}
+                {actions}
               </RowFit>
             </RowBetween>
           </SectionTitle>
-          {children || <></>}
-          {fullscreenMode && (
-            <Modal isOpen={true} onDismiss={() => setFullscreenMode(false)} height="100vh">
-              <Column padding="16px" height="100%" width="100%">
-                <Row marginBottom="16px" justify="flex-end">
-                  <CloseIcon onClick={() => setFullscreenMode(false)} />
-                </Row>
-                {children}
-              </Column>
-            </Modal>
-          )}
+          {children}
         </>
       )}
     </StyledSectionWrapper>

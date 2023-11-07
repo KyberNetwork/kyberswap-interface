@@ -51,7 +51,13 @@ export default function SearchInput({
   const theme = useTheme()
   return (
     <SearchContainer style={style} className={className}>
-      <Input placeholder={placeholder} maxLength={maxLength} value={value} onChange={e => onChange(e.target.value)} />
+      <Input
+        placeholder={placeholder}
+        maxLength={maxLength}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        style={{ backgroundColor: style?.backgroundColor }}
+      />
       <Search color={theme.subText} size={16} style={{ minWidth: 16 }} />
     </SearchContainer>
   )

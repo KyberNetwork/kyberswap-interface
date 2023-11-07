@@ -3,7 +3,9 @@ import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
+import { ButtonAction } from 'components/Button'
 import { DataEntry } from 'components/EarningPieChart'
+import Icon from 'components/Icons/Icon'
 import LocalLoader from 'components/LocalLoader'
 import { TokenLogoWithChain } from 'components/Logo'
 import Row from 'components/Row'
@@ -38,7 +40,7 @@ const TokenCell = ({ item }: { item: PortfolioWalletBalance }) => {
   )
 }
 
-const columns: TableColumn[] = [
+const columns: TableColumn<PortfolioWalletBalance>[] = [
   { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCell },
   {
     title: t`Liquidity Score`,
@@ -98,6 +100,11 @@ export default function TokenAllocation({
           <Trans>Token Allocation</Trans>
         </Text>
       }
+      actions={
+        <ButtonAction>
+          <Icon id="share" size={14} />
+        </ButtonAction>
+      }
     >
       <Row gap="16px" align="flex-start">
         <TokenAllocationChart
@@ -114,7 +121,7 @@ export default function TokenAllocation({
         {loading ? (
           <LocalLoader />
         ) : (
-          <Table data={data} columns={columns} style={{ flex: 1 }} totalItems={data.length} pageSize={6} />
+          <Table data={data as any} columns={columns} style={{ flex: 1 }} totalItems={data.length} pageSize={6} /> // todo
         )}
       </Row>
     </Section>

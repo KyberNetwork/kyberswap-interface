@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -12,8 +12,10 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Wallet from 'components/Icons/Wallet'
 import { TokenLogoWithChain } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
+import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
 import { EMPTY_ARRAY } from 'constants/index'
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
 import { PortfolioWalletBalance, PortfolioWalletBalanceMap } from 'pages/NotificationCenter/Portfolio/type'
@@ -91,7 +93,7 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
   )
 }
 
-const columns: TableColumn[] = [
+const columns: TableColumn<PortfolioWalletBalance>[] = [
   { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCellWithWalletAddress },
   {
     title: t`Amount`,
@@ -154,10 +156,19 @@ export default function WalletInfo({
 }) {
   const theme = useTheme()
 
+  const [search, setSearch] = useState('')
+  const searchDebounce = useDebounce(search, 500)
   const formatData = useMemo(() => {
     if (!balances) return EMPTY_ARRAY
-    return Object.values(balances).flat()
-  }, [balances])
+    const list = Object.values(balances).flat()
+    return searchDebounce
+      ? list.filter(
+          e =>
+            e.symbol.toLowerCase().includes(searchDebounce.toLowerCase()) ||
+            e.tokenAddress.toLowerCase().includes(searchDebounce.toLowerCase()),
+        )
+      : list
+  }, [balances, searchDebounce])
 
   return (
     <Section
@@ -166,6 +177,19 @@ export default function WalletInfo({
           <Wallet />
           <Trans>Wallet</Trans>
         </RowFit>
+      }
+      actions={
+        <SearchInput
+          onChange={setSearch}
+          value={search}
+          placeholder={t`Search by token symbol or token address`}
+          style={{
+            width: 330,
+            height: 32,
+            backgroundColor: theme.buttonBlack,
+            border: `1px solid ${theme.buttonGray}`,
+          }}
+        />
       }
     >
       <Table data={formatData} columns={columns} style={{ flex: 1 }} totalItems={formatData.length} />

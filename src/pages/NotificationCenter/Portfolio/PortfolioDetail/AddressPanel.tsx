@@ -96,7 +96,7 @@ const AddressPanel = ({
   )
 
   const formatPortfolio = useMemo(() => {
-    return portfolios.map((el, i) => ({
+    return portfolios.map(el => ({
       data: { ...el, title: 'test', description: 'test', avatarUrl: '' },
       // todo raw data field instead ?
       renderAction,

@@ -53,3 +53,54 @@ export type TokenAllowAnce = {
 export type TokenAllowAnceResponse = {
   approvals: TokenAllowAnce[]
 }
+
+type TransactionToken = {
+  token: {
+    address: string
+    symbol: string
+    name: string
+    decimals: number
+    logo: string
+    tag: string
+  }
+  otherAddress: string
+  otherName: string
+  tokenType: string
+  amount: string
+  valueInUsd: number
+  currentPrice: number
+  historicalValueInUsd: number
+  historicalPrice: number
+}
+export type TransactionHistory = {
+  chain: {
+    chainName: string
+    chainId: number
+    chainLogo: string
+  }
+  walletAddress: string
+  txHash: string
+  blockTime: number
+  blockNumber: number
+  from: string
+  to: string
+  value: string
+  gas: number
+  gasUsed: number
+  gasPrice: string
+  nativeTokenPrice: number
+  historicalNativeTokenPrice: number
+  inputData: string
+  status: string
+  tokenTransfers: TransactionToken[]
+  contractInteraction: {
+    contractName: string
+    methodName: string
+  }
+  tag: string
+}
+
+export type TransactionHistoryResponse = {
+  data: TransactionHistory[]
+  timestamp: number
+}

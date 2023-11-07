@@ -36,12 +36,12 @@ const TRow = styled.tr<{ column: number }>`
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
 `
 
-export type TableColumn = {
+export type TableColumn<T> = {
   title: ReactNode
   dataIndex: string
   align?: 'left' | 'center' | 'right'
   tooltip?: ReactNode
-  render?: (data: { value: any; item: any }) => ReactNode // todo
+  render?: (data: { value: any; item: T }) => ReactNode // todo
 }
 export default function Table<T>({
   data = [],
@@ -52,7 +52,7 @@ export default function Table<T>({
   onPageChange,
 }: {
   data: T[]
-  columns: TableColumn[]
+  columns: TableColumn<T>[]
   style?: CSSProperties
   totalItems: number
   pageSize?: number

@@ -1,18 +1,21 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import { rgba } from 'polished'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useGetTokenApprovalQuery } from 'services/portfolio'
 
 import { ButtonAction } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
 import Row, { RowFit } from 'components/Row'
+import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
 import { ERC20_ABI } from 'constants/abis/erc20'
 import { EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
@@ -63,7 +66,7 @@ const ActionButton = ({
   )
 }
 
-const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn[] => [
+const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<TokenAllowAnce>[] => [
   {
     title: t`Asset`,
     dataIndex: 'token',
@@ -98,8 +101,8 @@ const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn[]
   },
 ]
 
-export default function Allowances({ wallet }: { wallet: string }) {
-  const { data } = useGetTokenApprovalQuery({ address: wallet }, { skip: !wallet })
+export default function Allowances({ wallet, chainIds }: { wallet: string; chainIds: ChainId[] }) {
+  const { data } = useGetTokenApprovalQuery({ address: wallet, chainIds }, { skip: !wallet })
   const theme = useTheme()
 
   const { chainId: currentChain } = useActiveWeb3React()
@@ -131,10 +134,18 @@ export default function Allowances({ wallet }: { wallet: string }) {
     return getColumns(revokeAllowance)
   }, [revokeAllowance])
 
+  const [search, setSearch] = useState('')
+  const searchDebounce = useDebounce(search, 500)
   const formatData = useMemo(() => {
     if (!data) return EMPTY_ARRAY
-    return data.approvals
-  }, [data])
+    return searchDebounce
+      ? data.approvals.filter(
+          e =>
+            e.symbol.toLowerCase().includes(searchDebounce.toLowerCase()) ||
+            e.tokenAddress.toLowerCase().includes(searchDebounce.toLowerCase()),
+        )
+      : data.approvals
+  }, [data, searchDebounce])
 
   return (
     <Section
@@ -143,6 +154,19 @@ export default function Allowances({ wallet }: { wallet: string }) {
           <CheckCircle size="14px" />
           <Trans>Token Allowances</Trans>
         </RowFit>
+      }
+      actions={
+        <SearchInput
+          onChange={setSearch}
+          value={search}
+          placeholder={t`Search by token symbol or token address`}
+          style={{
+            width: 330,
+            height: 32,
+            backgroundColor: theme.buttonBlack,
+            border: `1px solid ${theme.buttonGray}`,
+          }}
+        />
       }
     >
       <Table columns={columns} data={formatData} totalItems={formatData.length} />
