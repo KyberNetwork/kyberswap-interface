@@ -41,6 +41,9 @@ const StyledLink = styled(Link)<{ $isChildren?: boolean; $expand?: boolean; $isF
     $isChildren || $isFirstParent ? 'none' : `1px solid ${theme.border}`};
   border-bottom: ${({ theme, $isChildren, $expand }) =>
     $isChildren || !$expand ? 'none' : `1px solid ${theme.border}`};
+  &:focus-visible {
+    outline-width: 0;
+  }
 `
 
 type WrapperProps = {

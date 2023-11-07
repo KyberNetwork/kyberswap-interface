@@ -37,7 +37,6 @@ const Wrapper = styled.div`
   padding: 24px 24px;
   padding-bottom: 16px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0;
     padding-bottom: 16px;
   `}
 `
@@ -68,6 +67,12 @@ const Divider = styled.div`
 const THRESHOLD_OPTIONS = [1, 10, 100].map(el => ({ value: el + '', title: `< ${el}` }))
 
 const maximumPortfolio = 2
+
+const SettingWrapper = styled(RowBetween)`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+  `};
+`
 
 export default function PortfolioSetting() {
   const [showCreate, setShowCreate] = useState(false)
@@ -153,7 +158,7 @@ export default function PortfolioSetting() {
           <Divider />
         </Fragment>
       ))}
-      <RowBetween>
+      <SettingWrapper>
         <Row gap="16px">
           <Text fontSize={'14px'} color={theme.subText}>
             <Trans>Hide small token balances</Trans>
@@ -170,7 +175,7 @@ export default function PortfolioSetting() {
           </Text>
           <Tabs tabs={THRESHOLD_OPTIONS} style={{ width: 200 }} activeTab={threshold} setActiveTab={setThreshold} />
         </Row>
-      </RowBetween>
+      </SettingWrapper>
       <ActionsWrapper>
         <ButtonSave onClick={savePortfolio} disabled={disableBtnSave}>
           <Save size={16} style={{ marginRight: '4px' }} />

@@ -254,7 +254,9 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   return (
     <Column gap="24px">
       <Row gap="14px">
-        <Input value={name} disabled style={{ height: '36px' }} />
+        <Text fontSize={20} fontWeight={'500'} color={theme.text} sx={{ flex: 1 }}>
+          {name}
+        </Text>
         <MouseoverTooltip
           placement="top"
           text={!canAddWallet ? t`You had added the maximum number of wallet into a portfolio` : ''}
