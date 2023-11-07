@@ -5,6 +5,7 @@ import { Flex, Text } from 'rebass'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
+import Dots from 'components/Dots'
 import Input from 'components/Input'
 import ModalTemplate from 'components/Modal/ModalTemplate'
 import useTheme from 'hooks/useTheme'
@@ -18,7 +19,7 @@ const CreatePortfolioModal = ({
 }: {
   isOpen: boolean
   onDismiss: () => void
-  onConfirm: () => void
+  onConfirm: (data: { name: string }) => Promise<void>
   portfolio?: Portfolio
 }) => {
   const [name, setName] = useState(portfolio?.name || '')
@@ -38,6 +39,7 @@ const CreatePortfolioModal = ({
           <Trans>Enter your Portfolio name</Trans>
         </Text>
         <Input
+          style={{ height: '36px' }}
           value={name}
           onChange={e => setName(e.target.value)}
           placeholder={isEdit ? t`Edit Portfolio Name` : t`Portfolio Name`}
@@ -46,9 +48,13 @@ const CreatePortfolioModal = ({
     )
   }
 
-  const onCreate = () => {
-    onConfirm()
+  const [loading, setLoading] = useState(false)
+  const onCreate = async () => {
+    if (loading) return
+    setLoading(true)
+    await onConfirm({ name })
     handleDismiss()
+    setLoading(false)
   }
 
   return (
@@ -70,8 +76,16 @@ const CreatePortfolioModal = ({
           <Trans>Cancel</Trans>
         </ButtonOutlined>
 
-        <ButtonPrimary borderRadius="24px" height="36px" flex="1 1 100%" onClick={onCreate}>
-          {isEdit ? <Trans>Save</Trans> : <Trans>Create Portfolio</Trans>}
+        <ButtonPrimary borderRadius="24px" height="36px" flex="1 1 100%" onClick={onCreate} disabled={loading}>
+          {loading ? (
+            <Dots>
+              <Trans>Saving</Trans>
+            </Dots>
+          ) : isEdit ? (
+            <Trans>Save</Trans>
+          ) : (
+            <Trans>Create Portfolio</Trans>
+          )}
         </ButtonPrimary>
       </Flex>
     </ModalTemplate>

@@ -2,8 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { FileText, Link } from 'react-feather'
-import { ExternalLink as ExternalLinkIcon } from 'react-feather'
+import { ExternalLink as ExternalLinkIcon, FileText } from 'react-feather'
 import { Text } from 'rebass'
 import { useGetTransactionsQuery } from 'services/portfolio'
 
@@ -57,7 +56,7 @@ const columns: TableColumn<TransactionHistory>[] = [
   {
     title: t`Balance`,
     dataIndex: 'amount',
-    render: ({ value, item }) => 123, //formatDisplayNumber(uint256ToFraction(value, item.decimals), { style: 'decimal', significantDigits: 6 }), // todo uint256ToFraction
+    render: ({}) => 123, //formatDisplayNumber(uint256ToFraction(value, item.decimals), { style: 'decimal', significantDigits: 6 }), // todo uint256ToFraction
   },
   {
     title: t`Interaction`,

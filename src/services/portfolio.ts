@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
-import { BFF_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import {
   Portfolio,
@@ -25,31 +24,32 @@ const mockBalance = {
 const KRYSTAL_API = 'https://api.krystal.app/all/v1'
 const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
-  baseQuery: baseQueryOauth({ baseUrl: BFF_API }),
+  baseQuery: baseQueryOauth({ baseUrl: 'https://portfolio-service-api.dev.kyberengineering.io/api' }),
   tagTypes: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
   endpoints: builder => ({
     getPortfolios: builder.query<Portfolio[], void>({
       query: () => ({
-        url: 'https://ks-setting.dev.kyberengineering.io/api/v1/configurations/fetch',
-        params: { serviceCode: 'kyberswap-137' },
+        url: '/v1/portfolios',
+        params: { identityId: '88476844-cb54-4cd7-be10-9838ec1777b4' }, // todo
       }),
-      transformResponse: (_: any) => {
-        const mock: any = {
-          id: 1,
-          name: 'Tét',
-          wallets: [
-            { id: 'string', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723', nickName: 'string' },
-            { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
-            { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
-            {
-              id: 'string 2 22323232323232323232323',
-              walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724',
-              nickName:
-                'string 2 string 2 22323232323232323232323 string 2 string 2 22323232323232323232323string 2 string 2 22323232323232323232323',
-            },
-          ],
-        }
-        return [mock, mock]
+      transformResponse: (data: any) => {
+        // const mock: any = {
+        //   id: 1,
+        //   name: 'Tét',
+        //   wallets: [
+        //     { id: 'string', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723', nickName: 'string' },
+        //     { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
+        //     { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
+        //     {
+        //       id: 'string 2 22323232323232323232323',
+        //       walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724',
+        //       nickName:
+        //         'string 2 string 2 22323232323232323232323 string 2 string 2 22323232323232323232323string 2 string 2 22323232323232323232323',
+        //     },
+        //   ],
+        // }
+        // return [mock, mock]
+        return data?.data?.portfolios
       },
       providesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
@@ -102,22 +102,41 @@ const portfolioApi = createApi({
         params: { ...params, chainIds: chainIds?.join(',') },
       }),
     }),
-    createPortfolio: builder.mutation<Portfolio, void>({
+    createPortfolio: builder.mutation<void, { name: string }>({
       query: () => ({
-        url: '/v1/profile/me',
+        url: '/v1/portfolios',
         method: 'POST',
+        // body,
+        body: { identityId: '88476844-cb54-4cd7-be10-9838ec1777b4' },
       }),
-      transformResponse: (data: any) => data?.data?.profile,
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
-    updatePortfolio: builder.mutation<Portfolio, void>({
-      query: () => ({
-        url: '/v1/profile/me',
-        method: 'POST',
+    updatePortfolio: builder.mutation<Portfolio, { name: string; id: number }>({
+      query: ({ id, ...body }) => ({
+        url: `/v1/portfolios/${id}`,
+        method: 'PUT',
+        body: { ...body, identityId: '88476844-cb54-4cd7-be10-9838ec1777b4' }, // todo
       }),
-      transformResponse: (data: any) => data?.data?.profile,
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
+    deletePortfolio: builder.mutation<Portfolio, number>({
+      query: id => ({
+        url: `/v1/portfolios/${id}`,
+        method: 'DELETE',
+        body: { identityId: '88476844-cb54-4cd7-be10-9838ec1777b4' }, // todo
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
+    }),
+    addWalletToPortfolio: builder.mutation<Portfolio, { portfolioId: number; walletAddress: string; nickName: string }>(
+      {
+        query: ({ portfolioId, ...body }) => ({
+          url: `/v1/portfolios/${portfolioId}/wallets`,
+          method: 'POST',
+          body: { identityId: '88476844-cb54-4cd7-be10-9838ec1777b4', ...body }, // todo
+        }),
+        invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
+      },
+    ),
   }),
 })
 
@@ -128,6 +147,8 @@ export const {
   useGetRealtimeBalanceQuery,
   useGetTokenApprovalQuery,
   useGetTransactionsQuery,
+  useDeletePortfolioMutation,
+  useAddWalletToPortfolioMutation,
 } = portfolioApi
 
 export default portfolioApi

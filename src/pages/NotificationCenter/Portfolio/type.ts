@@ -7,7 +7,7 @@ export type Portfolio = {
   isHideDust: boolean
   dustThreshold: number
   isPublic: boolean
-  wallets: PortfolioWallet[]
+  wallets?: PortfolioWallet[]
 }
 
 export type PortfolioWalletBalance = {

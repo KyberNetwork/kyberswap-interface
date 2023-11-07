@@ -19,7 +19,7 @@ const AddWalletPortfolioModal = ({
   isOpen: boolean
   onDismiss: () => void
   wallet?: PortfolioWallet
-  onConfirm: () => void
+  onConfirm: (data: { walletAddress: string; nickName: string }) => Promise<void>
 }) => {
   const [name, setName] = useState('')
   const [walletAddress, setWalletAddress] = useState('')
@@ -48,6 +48,7 @@ const AddWalletPortfolioModal = ({
             <Trans>Enter your wallet address</Trans>
           </Text>
           <Input
+            style={{ height: '36px' }}
             value={walletAddress}
             onChange={e => setWalletAddress(e.target.value)}
             placeholder={t`Wallet address`}
@@ -57,14 +58,20 @@ const AddWalletPortfolioModal = ({
           <Text>
             <Trans>Wallet name (Optional)</Trans>
           </Text>
-          <Input value={name} onChange={e => setName(e.target.value)} placeholder={t`Wallet name`} maxLength={50} />
+          <Input
+            value={name}
+            style={{ height: '36px' }}
+            onChange={e => setName(e.target.value)}
+            placeholder={t`Wallet name`}
+            maxLength={50}
+          />
         </Column>
       </>
     )
   }
 
-  const onCreate = () => {
-    onConfirm()
+  const onCreate = async () => {
+    await onConfirm({ nickName: name, walletAddress })
     handleDismiss()
   }
 

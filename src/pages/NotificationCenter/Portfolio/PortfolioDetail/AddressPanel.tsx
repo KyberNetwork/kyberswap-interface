@@ -107,7 +107,7 @@ const AddressPanel = ({
   console.log(123, formatPortfolio)
 
   const wallets = useMemo(() => {
-    if (!activePortfolio) return EMPTY_ARRAY
+    if (!activePortfolio?.wallets) return EMPTY_ARRAY
     const opt = activePortfolio.wallets.map(wallet => ({
       label: wallet.nickName || getShortenAddress(wallet.walletAddress),
       value: wallet.walletAddress,

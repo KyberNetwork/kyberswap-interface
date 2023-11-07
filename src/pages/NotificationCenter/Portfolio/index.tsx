@@ -3,7 +3,7 @@ import { Fragment, useState } from 'react'
 import { Plus, Save, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import { useGetPortfoliosQuery } from 'services/portfolio'
+import { useCreatePortfolioMutation, useGetPortfoliosQuery } from 'services/portfolio'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -14,10 +14,10 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { Tabs } from 'components/WalletPopup/Transactions/Tab'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import AddWalletPortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/AddWalletPortfolioModal'
 import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/CreatePortfolioModal'
 import PortfolioItem from 'pages/NotificationCenter/Portfolio/PortfolioItem'
 import { ButtonCancel, ButtonSave } from 'pages/NotificationCenter/Portfolio/buttons'
+import { Portfolio } from 'pages/NotificationCenter/Portfolio/type'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { useNotify } from 'state/application/hooks'
@@ -71,17 +71,14 @@ const maximumPortfolio = 2
 
 export default function PortfolioSetting() {
   const [showCreate, setShowCreate] = useState(false)
-  const [showAddWallet, setShowAddWallet] = useState(false)
-  const { data: portfolios = EMPTY_ARRAY } = useGetPortfoliosQuery()
+  const { data } = useGetPortfoliosQuery()
+  const portfolios: Portfolio[] = data || EMPTY_ARRAY
 
   const showModalCreatePortfolio = () => {
     setShowCreate(true)
   }
   const hideModalCreatePortfolio = () => {
     setShowCreate(false)
-  }
-  const showModalAddWalletPortfolio = () => {
-    setShowAddWallet(true)
   }
 
   const navigate = useNavigate()
@@ -94,13 +91,23 @@ export default function PortfolioSetting() {
   const disableBtnSave = loading /// || 'no change'
   const canCreatePortfolio = portfolios.length < maximumPortfolio
 
+  const [createPortfolio] = useCreatePortfolioMutation()
   const notify = useNotify()
-  const addPortfolio = () => {
-    notify({
-      type: NotificationType.SUCCESS,
-      title: t`Portfolio updated`,
-      summary: t`Your portfolio have been successfully updated`,
-    })
+  const addPortfolio = async (data: { name: string }) => {
+    try {
+      await createPortfolio(data).unwrap()
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Portfolio created`,
+        summary: t`Your portfolio have been successfully created`,
+      })
+    } catch (error) {
+      notify({
+        type: NotificationType.ERROR,
+        title: t`Portfolio create failed`,
+        summary: t`Create portfolio failed, please try again.`,
+      })
+    }
   }
 
   return (
@@ -135,11 +142,14 @@ export default function PortfolioSetting() {
           </MouseoverTooltip>
         </Row>
       </Header>
-      <WarningSignMessage /> {/** // todo message */}
+      <WarningSignMessage
+        outline
+        msg={t`To enable more seamless DeFi experience, you can link your wallet to your profile by signing-in.`}
+      />
       <Divider />
       {portfolios.map(item => (
-        <Fragment key={item}>
-          <PortfolioItem showModalAddWalletPortfolio={showModalAddWalletPortfolio} portfolio={item} />
+        <Fragment key={item.id}>
+          <PortfolioItem portfolio={item} />
           <Divider />
         </Fragment>
       ))}
@@ -176,11 +186,6 @@ export default function PortfolioSetting() {
         </ButtonCancel>
       </ActionsWrapper>
       <CreatePortfolioModal isOpen={showCreate} onDismiss={hideModalCreatePortfolio} onConfirm={addPortfolio} />
-      <AddWalletPortfolioModal
-        isOpen={showAddWallet}
-        onDismiss={() => setShowAddWallet(false)}
-        onConfirm={addPortfolio}
-      />
     </Wrapper>
   )
 }

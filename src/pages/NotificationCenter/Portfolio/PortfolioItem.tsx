@@ -4,6 +4,11 @@ import { useCallback, useState } from 'react'
 import { Edit2, Eye, MoreHorizontal, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
+import {
+  useAddWalletToPortfolioMutation,
+  useDeletePortfolioMutation,
+  useUpdatePortfolioMutation,
+} from 'services/portfolio'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -126,27 +131,79 @@ export const useNavigateToPortfolioDetail = () => {
     [navigate],
   )
 }
-const PortfolioItem = ({
-  showModalAddWalletPortfolio,
-  portfolio,
-}: {
-  showModalAddWalletPortfolio: () => void
-  portfolio: Portfolio
-}) => {
+const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   const theme = useTheme()
-  const { wallets, name, id }: Portfolio = portfolio
+  const { wallets = [], name, id }: Portfolio = portfolio
   const maximumWallet = 4
 
   const [editWallet, setEditWallet] = useState<PortfolioWallet>()
+  const [showModalWallet, setShowModalWallet] = useState(false)
   const [showEditPortfolio, setShowEditPortfolio] = useState(false)
+
+  const showModalAddWalletPortfolio = (wallet?: PortfolioWallet) => {
+    setEditWallet(wallet)
+    setShowModalWallet(true)
+  }
+  const hideAddWalletModal = () => {
+    setShowModalWallet(false)
+    setEditWallet(undefined)
+  }
+
+  const [deletePortfolio] = useDeletePortfolioMutation()
+  const [addWallet] = useAddWalletToPortfolioMutation()
+  const [updatePortfolio] = useUpdatePortfolioMutation()
   const showConfirm = useShowConfirm()
   const notify = useNotify()
-  const savePortfolio = () => {
-    notify({
-      type: NotificationType.SUCCESS,
-      title: t`Portfolio updated`,
-      summary: t`Your portfolio have been successfully updated`,
-    })
+
+  const savePortfolio = async ({ name }: { name: string }) => {
+    try {
+      await updatePortfolio({ name, id }).unwrap()
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Portfolio updated`,
+        summary: t`Your portfolio have been successfully updated`,
+      })
+    } catch (error) {
+      notify({
+        type: NotificationType.ERROR,
+        title: t`Portfolio update failed`,
+        summary: t`Failed to update your portfolio, please try again.`,
+      })
+    }
+  }
+
+  const onAddWallet = async (data: { walletAddress: string; nickName: string }) => {
+    try {
+      await addWallet({ portfolioId: id, ...data }).unwrap()
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Portfolio updated`,
+        summary: t`Your portfolio has been successfully updated`,
+      })
+    } catch (error) {
+      notify({
+        type: NotificationType.ERROR,
+        title: t`Portfolio update failed`,
+        summary: t`Failed to update your portfolio, please try again.`,
+      })
+    }
+  }
+
+  const onDeletePortfolio = async () => {
+    try {
+      await deletePortfolio(id).unwrap()
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Portfolio deleted`,
+        summary: t`Your portfolio have been successfully deleted`,
+      })
+    } catch (error) {
+      notify({
+        type: NotificationType.ERROR,
+        title: t`Portfolio failed`,
+        summary: t`Failed to delete your portfolio, please try again.`,
+      })
+    }
   }
   const navigate = useNavigateToPortfolioDetail()
   const onChangePortfolioAction = (val: Actions) => {
@@ -158,7 +215,7 @@ const PortfolioItem = ({
           confirmText: t`Delete`,
           cancelText: t`Cancel`,
           content: t`Do you want to delete portfolio "${name}"?`,
-          onConfirm: () => {},
+          onConfirm: onDeletePortfolio,
         })
         break
       case Actions.Edit:
@@ -185,7 +242,7 @@ const PortfolioItem = ({
         })
         break
       case Actions.Edit:
-        setEditWallet(wallet)
+        showModalAddWalletPortfolio(wallet)
         break
       case Actions.View:
         navigate({ portfolioId: id, wallet: wallet.walletAddress })
@@ -207,7 +264,7 @@ const PortfolioItem = ({
             height={'36px'}
             sx={{ whiteSpace: 'nowrap' }}
             disabled={!canAddWallet}
-            onClick={canAddWallet ? showModalAddWalletPortfolio : undefined}
+            onClick={canAddWallet ? () => showModalAddWalletPortfolio() : undefined}
           >
             <Trans>Add Wallet</Trans>
           </ButtonLight>
@@ -235,26 +292,30 @@ const PortfolioItem = ({
           )}
         />
       </Row>
-      <Card>
-        <Text color={theme.subText} fontSize={'14px'}>
-          <Trans>
-            Wallet Count:{' '}
-            <Text as="span" color={canAddWallet ? theme.text : theme.warning}>
-              {wallets.length}/{maximumWallet}
-            </Text>
-          </Trans>
-        </Text>
-        <Row gap="14px">
-          {wallets.map(wallet => (
-            <WalletItem onChangeWalletAction={onChangeWalletAction} key={wallet.walletAddress} data={wallet} />
-          ))}
-        </Row>
-      </Card>
+
+      {wallets.length > 0 && (
+        <Card>
+          <Text color={theme.subText} fontSize={'14px'}>
+            <Trans>
+              Wallet Count:{' '}
+              <Text as="span" color={canAddWallet ? theme.text : theme.warning}>
+                {wallets.length}/{maximumWallet}
+              </Text>
+            </Trans>
+          </Text>
+
+          <Row gap="14px">
+            {wallets.map(wallet => (
+              <WalletItem onChangeWalletAction={onChangeWalletAction} key={wallet.walletAddress} data={wallet} />
+            ))}
+          </Row>
+        </Card>
+      )}
       <AddWalletPortfolioModal
-        isOpen={!!editWallet}
-        onDismiss={() => setEditWallet(undefined)}
+        isOpen={showModalWallet || !!editWallet}
+        onDismiss={hideAddWalletModal}
         wallet={editWallet}
-        onConfirm={savePortfolio}
+        onConfirm={onAddWallet}
       />
       <CreatePortfolioModal
         isOpen={showEditPortfolio}
