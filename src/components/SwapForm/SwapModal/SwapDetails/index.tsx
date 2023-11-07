@@ -109,6 +109,8 @@ export default function SwapDetails({
 
   const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
 
+  const feeAmount = routeSummary?.extraFee?.feeAmount
+
   return (
     <>
       <AutoColumn
@@ -247,7 +249,7 @@ export default function SwapDetails({
           </RowBetween>
         )}
 
-        {!!routeSummary?.extraFee?.feeAmount && (
+        {!!feeAmount && feeAmount !== '0' && (
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>

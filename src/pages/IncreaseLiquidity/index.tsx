@@ -4,6 +4,7 @@ import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
+import mixpanel from 'mixpanel-browser'
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
@@ -473,6 +474,19 @@ export default function IncreaseLiquidity() {
   const debouncedValue = useDebounce(value, 300)
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
+  useEffect(() => {
+    if (amountIn?.toExact()) {
+      mixpanel.track('Zap - Input detailed', {
+        token0: selectedCurrency?.symbol,
+        token1: quoteCurrency?.symbol,
+        zap_token: selectedCurrency?.symbol,
+        token_amount: amountIn.toExact(),
+        source: 'increase_liquidity_page',
+      })
+    }
+    // eslint-disable-next-line
+  }, [amountIn?.toExact(), selectedCurrency])
+
   const equivalentQuoteAmount =
     amountIn && pool && selectedCurrency && amountIn.multiply(pool.priceOf(selectedCurrency.wrapped))
 
@@ -597,6 +611,14 @@ export default function IncreaseLiquidity() {
               token_2: tokenSymbolOut,
             },
           },
+        })
+
+        mixpanel.track('Zap - Confirmed', {
+          token0: selectedCurrency?.symbol,
+          token1: quoteCurrency?.symbol,
+          zap_token: selectedCurrency?.symbol,
+          token_amount: amountIn.toExact(),
+          source: 'increase_liquidity_page',
         })
       } catch (e) {
         console.error('zap error', e)

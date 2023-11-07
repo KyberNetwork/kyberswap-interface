@@ -21,6 +21,7 @@ import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
+import { useAllTokens } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
@@ -73,6 +74,7 @@ const FarmCard = ({
   targetPercent,
   targetPercentByNFT,
 }: Props) => {
+  const allTokens = useAllTokens()
   const { chainId, networkInfo } = useActiveWeb3React()
   const [isRevertPrice, setIsRevertPrice] = useState(false)
   const theme = useTheme()
@@ -104,8 +106,16 @@ const FarmCard = ({
     pos => pos.pool.tickCurrent >= pos.tickLower && pos.pool.tickCurrent < pos.tickUpper,
   ).length
 
-  const token0Symbol = getTokenSymbolWithHardcode(chainId, pool?.token0?.wrapped?.address, pool.token0.symbol)
-  const token1Symbol = getTokenSymbolWithHardcode(chainId, pool?.token1?.wrapped?.address, pool.token1.symbol)
+  const token0Symbol = getTokenSymbolWithHardcode(
+    chainId,
+    pool?.token0?.wrapped?.address,
+    pool.token0.isNative ? pool.token0.symbol : allTokens[pool.token0.wrapped.address].symbol,
+  )
+  const token1Symbol = getTokenSymbolWithHardcode(
+    chainId,
+    pool?.token1?.wrapped?.address,
+    pool.token1.isNative ? pool.token1.symbol : allTokens[pool.token1.wrapped.address].symbol,
+  )
 
   return (
     <FlipCard flip={showPosition} joined={!!depositedPositions.length} data-testid={pool.id}>
