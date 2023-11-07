@@ -742,6 +742,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           <InputWrapper>
             <Flex justifyContent={'space-between'} alignItems="center">
               <DeltaRate
+                invert={rateInfo.invert}
                 symbol={(rateInfo.invert ? currencyOut?.symbol : currencyIn?.symbol) ?? ''}
                 marketPrice={tradeInfo}
                 rateInfo={rateInfo}
