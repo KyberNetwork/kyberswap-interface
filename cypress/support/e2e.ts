@@ -15,9 +15,12 @@
 import '@cypress/grep'
 import registerCypressGrep from '@cypress/grep/src/support'
 import '@synthetixio/synpress/support/index'
+import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector'
 
 import './commands'
 import './connectWalletCommands'
 import './selectTokenCommands'
+
+installLogsCollector()
 
 registerCypressGrep()
