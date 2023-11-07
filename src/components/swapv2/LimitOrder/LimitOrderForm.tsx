@@ -765,7 +765,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
               {currencyIn && currencyOut && (
                 <Flex style={{ gap: 6, cursor: 'pointer' }} onClick={() => onInvertRate(!rateInfo.invert)}>
                   <CurrencyLogo size={'18px'} currency={rateInfo.invert ? currencyIn : currencyOut} />
-                  <Text fontSize={14} color={theme.subText}>
+                  <Text fontSize={14} color={theme.subText} sx={{ userSelect: 'none' }}>
                     {rateInfo.invert ? currencyIn?.symbol : currencyOut?.symbol}
                   </Text>
                   <div>
