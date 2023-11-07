@@ -49,10 +49,12 @@ const DeltaRate = ({
   marketPrice,
   rateInfo,
   symbol,
+  invert,
 }: {
   marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
   symbol: string
+  invert: boolean
 }) => {
   const theme = useTheme()
 
@@ -65,7 +67,7 @@ const DeltaRate = ({
   )
   return (
     <Label style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-      <Trans>Sell {symbol} at rate</Trans>
+      {invert ? <Trans>Buy {symbol} at rate</Trans> : <Trans>Sell {symbol} at rate</Trans>}
       {percent ? (
         <>
           <Text as="span" color={color}>
