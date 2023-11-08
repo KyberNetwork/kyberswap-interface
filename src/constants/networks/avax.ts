@@ -23,7 +23,7 @@ const avaxInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'AVAX',
     name: 'AVAX',
-    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/31645e2e-9c40-4fdf-9ddf-50d24e5399e4.svg',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/e72081b5-cb5f-4fb6-b771-ac189bdfd7c81699420213175.png',
     decimal: 18,
     minForGas: 10 ** 16,
   },
