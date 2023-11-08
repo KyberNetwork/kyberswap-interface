@@ -141,29 +141,35 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
          })
       })
    })
+})
 
-   describe(`E2E Token Catalog`, () => {
-      it('Should be selected tokenIn and tokenOut to swap', { tags: TAG.smoke }, () => {
-         tokenCatalog.importNewTokens([arrAddress[2]])
-         SwapPage.getCurrentTokenIn((text) => {
-            expect(text).to.equal(arrSymbol[2])
-         })
+describe(`E2E Token Catalog`, () => {
+   beforeEach(() => {
+      SwapPage.open(DEFAULT_URL)
+      SwapPage.connectWallet()
+      cy.acceptMetamaskAccess()
+      SwapPage.getStatusConnectedWallet()
+   })
+   it('Should be selected tokenIn and tokenOut to swap', { tags: TAG.smoke }, () => {
+      tokenCatalog.importNewTokens([arrAddress[2]])
+      SwapPage.getCurrentTokenIn((text) => {
+         expect(text).to.equal(arrSymbol[2])
+      })
 
-         SwapPage.selectTokenOut().getFavoriteTokens((arr) => {
-            tokenCatalog.selectFavoriteToken(arr[1])
-            SwapPage.getCurrentTokenOut((text) => {
-               expect(text).to.equal(arr[1])
-            })
+      SwapPage.selectTokenOut().getFavoriteTokens((arr) => {
+         tokenCatalog.selectFavoriteToken(arr[1])
+         SwapPage.getCurrentTokenOut((text) => {
+            expect(text).to.equal(arr[1])
          })
+      })
 
-         SwapPage.selectTokenOut()
-         tokenCatalog.deleteImportedToken(arrSymbol[2])
-         tokenCatalog.getNoResultsFound((text) => {
-            expect(text).to.equal(NORESULTS_TEXT)
-         })
-         SwapPage.getCurrentTokenIn((text) => {
-            expect(text).to.equal(NOTOKENS_TEXT)
-         })
+      SwapPage.selectTokenOut()
+      tokenCatalog.deleteImportedToken(arrSymbol[2])
+      tokenCatalog.getNoResultsFound((text) => {
+         expect(text).to.equal(NORESULTS_TEXT)
+      })
+      SwapPage.getCurrentTokenIn((text) => {
+         expect(text).to.equal(NOTOKENS_TEXT)
       })
    })
 })

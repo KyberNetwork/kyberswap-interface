@@ -21,18 +21,11 @@ describe(`Cross-chain on ${NETWORK}`, { tags: TAG.regression }, () => {
             })
         })
         it('The network should be changed successfully', () => {
-            const networkIn = CrossChain.changeNetwork([NETWORK])
+            const networkIn = CrossChain.changeNetwork([NETWORK, DEFAULT_NETWORK])
             CrossChain.selectNetworkIn(networkIn)
-            if (networkIn != DEFAULT_NETWORK) {
-                cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
-                    expect(approved).to.be.true
-                })
-            }
-            else {
-                cy.allowMetamaskToSwitchNetwork().then(approved => {
-                    expect(approved).to.be.true
-                })
-            }
+            cy.allowMetamaskToSwitchNetwork().then(approved => {
+                expect(approved).to.be.true
+            })
             CrossChain.getCurrentNetworkIn().then((currentNetworkIn) => {
                 expect(currentNetworkIn).to.equal(networkIn)
             })
