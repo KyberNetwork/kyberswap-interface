@@ -4,6 +4,7 @@ export const PoolsPage = {
   },
   searchByPoolAddress(poolAddress: string) {
     cy.get('input[placeholder="Search by token name or pool address"]').type(poolAddress)
+    cy.wait(2000)
   },
   addLiquidity(poolAddress: string, amountIn: string) {
     PoolsPage.searchByPoolAddress(poolAddress)
