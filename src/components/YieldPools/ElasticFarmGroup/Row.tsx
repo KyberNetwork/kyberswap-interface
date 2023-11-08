@@ -311,12 +311,16 @@ const Row = ({
   const symbol0 = getTokenSymbolWithHardcode(
     chainId,
     farmingPool.token0.wrapped.address,
-    farmingPool.token0.isNative ? farmingPool.token0.symbol : allTokens[farmingPool.token0.wrapped.address].symbol,
+    farmingPool.token0.isNative
+      ? farmingPool.token0.symbol
+      : allTokens[farmingPool.token0.wrapped.address]?.symbol || farmingPool.token0.symbol,
   )
   const symbol1 = getTokenSymbolWithHardcode(
     chainId,
     farmingPool.token1.wrapped.address,
-    farmingPool.token1.isNative ? farmingPool.token1.symbol : allTokens[farmingPool.token1.wrapped.address].symbol,
+    farmingPool.token1.isNative
+      ? farmingPool.token1.symbol
+      : allTokens[farmingPool.token1.wrapped.address]?.symbol || farmingPool.token1.symbol,
   )
 
   return (
