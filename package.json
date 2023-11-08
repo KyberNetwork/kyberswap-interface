@@ -28,7 +28,7 @@
     "test-e2e": "synpress run -cf cypress.config.ts",
     "test-schedule": "synpress run -cf cypress.config.ts",
     "e2e:run": "synpress run -cf cypress.config.ts",
-    "e2e:zap": "node cypress/plugins/helper.js",
+    "e2e:zap": "node --test cypress/e2e/specs/zap-in-simulator-test.mjs",
     "e2e:sim": "yarn e2e:run && yarn e2e:zap"
   },
   "browserslist": [

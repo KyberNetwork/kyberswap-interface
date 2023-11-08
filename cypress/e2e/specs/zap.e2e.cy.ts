@@ -23,7 +23,7 @@ describe('Zap In', { tags: TAG.regression }, () => {
     // cy.visit('/arbitrum/elastic/add/ETH/0x912CE59144191C1204E64559FE8253a0e49E6548/250')// POOL ETH-ARB
     // cy.visit('https://kyberswap.com/arbitrum/elastic/add/0x5979D7b546E38E414F7E9822514be443A4800529/0x9cfB13E6c11054ac9fcB92BA89644F30775436e4/8')// POOL wstETH-axl.wstETH
     cy.visit(
-      '/arbitrum/elastic/add/0xaf88d065e77c8cC2239327C5EDb3A432268e5831/0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8/8',
+      '/arbitrum/elastic/add/0x912CE59144191C1204E64559FE8253a0e49E6548/0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8/1000',
     )
 
     cy.get('.css-moum56').click()
