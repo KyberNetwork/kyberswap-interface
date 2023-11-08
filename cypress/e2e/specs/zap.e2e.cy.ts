@@ -6,11 +6,9 @@ import { DEFAULT_NETWORK, DEFAULT_URL, NETWORK, TAG } from '../selectors/constan
 const wallet = new Network()
 
 describe('Zap In', { tags: TAG.zap }, () => {
-  beforeEach(() => {
+  before(() => {
     SwapPage.open(DEFAULT_URL)
     SwapPage.connectWallet()
-  })
-  it('simulate', function () {
     if (NETWORK !== DEFAULT_NETWORK) {
       cy.acceptMetamaskAccess()
 
@@ -19,16 +17,15 @@ describe('Zap In', { tags: TAG.zap }, () => {
       cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
         expect(approved).to.be.true
       })
+      SwapPage.goToPoolPage()
     }
-    cy.intercept('GET', '**/pools?**').as('get-pool-list')
+  })
+
+  it('Arbitrum: wstETH-axl.wstETH', function () {
+    PoolsPage.addLiquidity('0x83fe9065ed68506a0d2ece59cd71c43bbff6e450', '100')
+  })
+  it('Arbitrum: ETH-ARB', function () {
     SwapPage.goToPoolPage()
-    cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
-    cy.get('@get-pool-list')
-      .its('response.body')
-      .its('data.pools')
-      .its(0)
-      .then(pool => {
-        PoolsPage.addLiquidity(pool.id, '100')
-      })
+    PoolsPage.addLiquidity('0xdf03ca6c633f784ac5e062dd708b15728b488621', '100')
   })
 })
