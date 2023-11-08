@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
 import { Edit2, Eye, MoreHorizontal, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -7,7 +6,10 @@ import { Text } from 'rebass'
 import {
   useAddWalletToPortfolioMutation,
   useDeletePortfolioMutation,
+  useGetWalletsPortfoliosQuery,
+  useRemoveWalletFromPortfolioMutation,
   useUpdatePortfolioMutation,
+  useUpdateWalletToPortfolioMutation,
 } from 'services/portfolio'
 import styled from 'styled-components'
 
@@ -15,7 +17,6 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonAction, ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import { useShowConfirm } from 'components/ConfirmModal'
-import Input from 'components/Input'
 import Row from 'components/Row'
 import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -38,14 +39,6 @@ const Card = styled.div`
   flex-direction: column;
 `
 
-const Active = styled.div`
-  background-color: ${({ theme }) => theme.primary};
-  border-radius: 100%;
-  border: 2px solid ${({ theme }) => rgba(theme.primary, 0.5)};
-  min-width: 10px;
-  height: 10px;
-`
-
 const WalletCard = styled.div`
   display: flex;
   border-radius: 16px;
@@ -53,10 +46,13 @@ const WalletCard = styled.div`
   gap: 6px;
   align-items: center;
   justify-content: space-between;
-  background-color: ${({ theme }) => theme.buttonBlack};
+  background: ${({ theme }) => theme.background};
   display: flex;
   font-size: 14px;
-  flex: 1;
+  flex-basis: 210px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-basis: 100%;
+  `}
 `
 enum Actions {
   Edit,
@@ -102,9 +98,9 @@ const WalletItem = ({
   const { nickName } = data
   const theme = useTheme()
   return (
-    <WalletCard style={{ background: theme.background }}>
+    <WalletCard>
       <Row gap="6px" style={{ whiteSpace: 'nowrap' }}>
-        {shortString(nickName, 18)} <Active />
+        {shortString(nickName, 18)}
       </Row>
       <Select
         onChange={v => onChangeWalletAction(v, data)}
@@ -133,7 +129,9 @@ export const useNavigateToPortfolioDetail = () => {
 }
 const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   const theme = useTheme()
-  const { wallets = [], name, id }: Portfolio = portfolio
+  const { name, id }: Portfolio = portfolio
+  const { data: wallets = [] } = useGetWalletsPortfoliosQuery({ portfolioId: id })
+
   const maximumWallet = 4
 
   const [editWallet, setEditWallet] = useState<PortfolioWallet>()
@@ -151,34 +149,19 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
 
   const [deletePortfolio] = useDeletePortfolioMutation()
   const [addWallet] = useAddWalletToPortfolioMutation()
+  const [updateWallet] = useUpdateWalletToPortfolioMutation()
+  const [removeWallet] = useRemoveWalletFromPortfolioMutation()
   const [updatePortfolio] = useUpdatePortfolioMutation()
   const showConfirm = useShowConfirm()
   const notify = useNotify()
 
-  const savePortfolio = async ({ name }: { name: string }) => {
+  const onUpdatePortfolio = async ({ name }: { name: string }) => {
     try {
       await updatePortfolio({ name, id }).unwrap()
       notify({
         type: NotificationType.SUCCESS,
         title: t`Portfolio updated`,
         summary: t`Your portfolio have been successfully updated`,
-      })
-    } catch (error) {
-      notify({
-        type: NotificationType.ERROR,
-        title: t`Portfolio update failed`,
-        summary: t`Failed to update your portfolio, please try again.`,
-      })
-    }
-  }
-
-  const onAddWallet = async (data: { walletAddress: string; nickName: string }) => {
-    try {
-      await addWallet({ portfolioId: id, ...data }).unwrap()
-      notify({
-        type: NotificationType.SUCCESS,
-        title: t`Portfolio updated`,
-        summary: t`Your portfolio has been successfully updated`,
       })
     } catch (error) {
       notify({
@@ -205,6 +188,50 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
       })
     }
   }
+
+  const onDeleteWalletPortfolio = async (data: { walletAddress: string; portfolioId: number }) => {
+    try {
+      await removeWallet(data).unwrap()
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Portfolio updated`,
+        summary: t`Your portfolio has been successfully updated`,
+      })
+    } catch (error) {
+      notify({
+        type: NotificationType.ERROR,
+        title: t`Portfolio update failed`,
+        summary: t`Failed to update your portfolio, please try again.`,
+      })
+    }
+  }
+
+  const onAddUpdateWallet = async ({
+    walletId,
+    ...data
+  }: {
+    walletAddress: string
+    nickName: string
+    walletId?: number
+  }) => {
+    try {
+      await (walletId
+        ? updateWallet({ portfolioId: id, ...data }).unwrap()
+        : addWallet({ portfolioId: id, ...data }).unwrap())
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Portfolio updated`,
+        summary: t`Your portfolio has been successfully updated`,
+      })
+    } catch (error) {
+      notify({
+        type: NotificationType.ERROR,
+        title: t`Portfolio update failed`,
+        summary: t`Failed to update your portfolio, please try again.`,
+      })
+    }
+  }
+
   const navigate = useNavigateToPortfolioDetail()
   const onChangePortfolioAction = (val: Actions) => {
     switch (val) {
@@ -238,7 +265,7 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
           content: t`Do you want to delete wallet "${getShortenAddress(
             wallet.walletAddress,
           )}" from portfolio "${name}"?`,
-          onConfirm: () => {},
+          onConfirm: () => onDeleteWalletPortfolio({ walletAddress: wallet.walletAddress, portfolioId: id }),
         })
         break
       case Actions.Edit:
@@ -306,7 +333,7 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
             </Trans>
           </Text>
 
-          <Row gap="14px">
+          <Row gap="14px" flexWrap={'wrap'}>
             {wallets.map(wallet => (
               <WalletItem onChangeWalletAction={onChangeWalletAction} key={wallet.walletAddress} data={wallet} />
             ))}
@@ -317,13 +344,13 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
         isOpen={showModalWallet || !!editWallet}
         onDismiss={hideAddWalletModal}
         wallet={editWallet}
-        onConfirm={onAddWallet}
+        onConfirm={onAddUpdateWallet}
       />
       <CreatePortfolioModal
         isOpen={showEditPortfolio}
         onDismiss={() => setShowEditPortfolio(false)}
         portfolio={portfolio}
-        onConfirm={savePortfolio}
+        onConfirm={onUpdatePortfolio}
       />
     </Column>
   )

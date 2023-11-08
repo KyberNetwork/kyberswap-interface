@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
 
@@ -16,16 +16,22 @@ const CreatePortfolioModal = ({
   onDismiss,
   portfolio,
   onConfirm,
+  defaultName,
 }: {
   isOpen: boolean
   onDismiss: () => void
   onConfirm: (data: { name: string }) => Promise<void>
   portfolio?: Portfolio
+  defaultName?: string
 }) => {
   const [name, setName] = useState(portfolio?.name || '')
   const isEdit = !!portfolio
 
   const theme = useTheme()
+
+  useEffect(() => {
+    setName(defaultName || '')
+  }, [defaultName])
 
   const handleDismiss = () => {
     onDismiss()

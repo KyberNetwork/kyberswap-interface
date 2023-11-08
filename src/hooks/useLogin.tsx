@@ -66,8 +66,8 @@ const useLogin = (autoLogin = false) => {
       const isAnonymous = loginMethod === LoginMethod.ANONYMOUS
       try {
         const profile = await createProfile().unwrap()
-        const formatProfile = { ...profile }
-        setProfile({ profile: formatProfile, isAnonymous, account })
+        window.identityId = profile?.identityId // todo
+        setProfile({ profile, isAnonymous, account })
       } catch (error) {
         const e = new Error('createProfile Error', { cause: error })
         e.name = 'createProfile Error'
@@ -111,12 +111,12 @@ const useLogin = (autoLogin = false) => {
         console.log('sign in anonymous err', error)
         hasError = true
       } finally {
-        setLoading(false)
         await getProfile({
           walletAddress: account,
           account: guestAccount,
           loginMethod: LoginMethod.ANONYMOUS,
         })
+        setLoading(false) // todo
         !hasError && showSuccessMsg && showSignInSuccess(guestAccount, LoginMethod.ANONYMOUS)
       }
     },

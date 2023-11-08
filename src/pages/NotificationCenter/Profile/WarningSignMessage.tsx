@@ -34,8 +34,8 @@ const WarningSignMessage = ({ msg, outline }: { msg: ReactNode; outline?: boolea
   const { pendingAuthentication } = useSessionInfo()
   const { isSigInGuest } = useSignedAccountInfo()
   const { account, isSolana } = useActiveWeb3React()
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const btnWidth = upToMedium ? '45%' : '110px'
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const btnWidth = upToSmall ? '45%' : '110px'
   const theme = useTheme()
 
   if (pendingAuthentication || !isSigInGuest || isSolana) return null
@@ -50,11 +50,11 @@ const WarningSignMessage = ({ msg, outline }: { msg: ReactNode; outline?: boolea
   return (
     <WarningWrapper>
       <Row style={{ gap: '12px' }}>
-        {!upToMedium && <Info color={theme.subText} size={18} style={{ minWidth: '18px' }} />}
+        {!upToSmall && <Info color={theme.subText} size={18} style={{ minWidth: '18px' }} />}
         <Text fontSize={'12px'} lineHeight={'16px'}>
           <Trans>
             {msg}{' '}
-            {!upToMedium && (
+            {!upToSmall && (
               <>
                 Read more <ExternalLink href={DOC_URL}>here ↗</ExternalLink>
               </>
@@ -62,13 +62,13 @@ const WarningSignMessage = ({ msg, outline }: { msg: ReactNode; outline?: boolea
           </Trans>
         </Text>
       </Row>
-      <Row justify="space-between" width={upToMedium ? '100%' : 'fit-content'}>
-        {upToMedium && (
+      <Row justify="space-between" width={upToSmall ? '100%' : 'fit-content'}>
+        {upToSmall && (
           <ButtonOutlined width={btnWidth} height={'30px'} fontSize={'14px'} onClick={() => window.open(DOC_URL)}>
             <Trans>Read More</Trans>
           </ButtonOutlined>
         )}
-        {React.createElement(outline && !upToMedium ? ButtonOutlined : ButtonPrimary, propsBtn)}
+        {React.createElement(outline && !upToSmall ? ButtonOutlined : ButtonPrimary, propsBtn)}
       </Row>
     </WarningWrapper>
   )

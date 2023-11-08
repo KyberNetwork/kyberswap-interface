@@ -5,68 +5,33 @@ import baseQueryOauth from 'services/baseQueryOauth'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import {
   Portfolio,
+  PortfolioWallet,
   PortfolioWalletBalance,
   PortfolioWalletBalanceResponse,
   TokenAllowAnceResponse,
   TransactionHistoryResponse,
 } from 'pages/NotificationCenter/Portfolio/type'
 
-const mockBalance = {
-  chainId: '137',
-  tokenAddress: '0x1c954e8fe737f99f68fa1ccda3e51ebdb291948c',
-  amount: '11000000000000000000',
-  decimals: 18,
-  amountUsd: '5.5',
-  symbol: 'KNC',
-  logoUrl: 'https://storage.googleapis.com/ks-setting-1d682dca/061620bb-15ab-4877-ae14-ea615e07a5291697781498049.png',
-}
-
 const KRYSTAL_API = 'https://api.krystal.app/all/v1'
 const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
   baseQuery: baseQueryOauth({ baseUrl: 'https://portfolio-service-api.dev.kyberengineering.io/api' }),
-  tagTypes: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
+  tagTypes: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO, RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
   endpoints: builder => ({
     getPortfolios: builder.query<Portfolio[], void>({
       query: () => ({
         url: '/v1/portfolios',
-        params: { identityId: '88476844-cb54-4cd7-be10-9838ec1777b4' }, // todo
+        params: { identityId: window.identityId }, // todo
       }),
-      transformResponse: (data: any) => {
-        // const mock: any = {
-        //   id: 1,
-        //   name: 'Tét',
-        //   wallets: [
-        //     { id: 'string', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723', nickName: 'string' },
-        //     { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
-        //     { id: 'string 2', walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724', nickName: 'string 2' },
-        //     {
-        //       id: 'string 2 22323232323232323232323',
-        //       walletAddress: '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123724',
-        //       nickName:
-        //         'string 2 string 2 22323232323232323232323 string 2 string 2 22323232323232323232323string 2 string 2 22323232323232323232323',
-        //     },
-        //   ],
-        // }
-        // return [mock, mock]
-        return data?.data?.portfolios
-      },
+      transformResponse: (data: any) => data?.data?.portfolios,
       providesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
     getRealtimeBalance: builder.query<PortfolioWalletBalanceResponse, { query: string; chainIds?: ChainId[] }>({
       query: ({ query, chainIds }) => ({
-        url: 'https://ks-setting.dev.kyberengineering.io/api/v1/configurations/fetch',
-        params: { query, chainIds: chainIds?.join(','), serviceCode: 'kyberswap-137' },
+        url: `/v1/real-time-data/${query}`,
+        params: { chainIds: chainIds?.join(',') },
       }),
-      transformResponse: (_: any) => {
-        const data: any = {
-          data: {
-            balances: {
-              '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723': new Array(10).fill(mockBalance),
-              '0xD7724751a998f152c2D4515F612CfD92346594dc': new Array(10).fill(mockBalance),
-            },
-          },
-        }
+      transformResponse: (data: any) => {
         const balances = data?.data?.balances
         if (balances)
           Object.keys(balances).forEach(wallet => {
@@ -103,11 +68,11 @@ const portfolioApi = createApi({
       }),
     }),
     createPortfolio: builder.mutation<void, { name: string }>({
-      query: () => ({
+      query: body => ({
         url: '/v1/portfolios',
         method: 'POST',
-        // body,
-        body: { identityId: '88476844-cb54-4cd7-be10-9838ec1777b4' },
+        body,
+        params: { identityId: window.identityId }, // todo
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
@@ -115,7 +80,8 @@ const portfolioApi = createApi({
       query: ({ id, ...body }) => ({
         url: `/v1/portfolios/${id}`,
         method: 'PUT',
-        body: { ...body, identityId: '88476844-cb54-4cd7-be10-9838ec1777b4' }, // todo
+        body,
+        params: { identityId: window.identityId }, // todo
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
@@ -123,20 +89,50 @@ const portfolioApi = createApi({
       query: id => ({
         url: `/v1/portfolios/${id}`,
         method: 'DELETE',
-        body: { identityId: '88476844-cb54-4cd7-be10-9838ec1777b4' }, // todo
+        params: { identityId: window.identityId }, // todo
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
+    }),
+    // wallets
+    getWalletsPortfolios: builder.query<PortfolioWallet[], { portfolioId: number }>({
+      query: ({ portfolioId }) => ({
+        url: `/v1/portfolios/${portfolioId}/wallets`,
+        params: { identityId: window.identityId }, // todo
+      }),
+      transformResponse: (data: any) => data?.data?.wallets,
+      providesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
     }),
     addWalletToPortfolio: builder.mutation<Portfolio, { portfolioId: number; walletAddress: string; nickName: string }>(
       {
         query: ({ portfolioId, ...body }) => ({
           url: `/v1/portfolios/${portfolioId}/wallets`,
           method: 'POST',
-          body: { identityId: '88476844-cb54-4cd7-be10-9838ec1777b4', ...body }, // todo
+          body,
+          params: { identityId: window.identityId }, // todo
         }),
-        invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
+        invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
       },
     ),
+    updateWalletToPortfolio: builder.mutation<
+      Portfolio,
+      { portfolioId: number; walletAddress: string; nickName: string }
+    >({
+      query: ({ portfolioId, walletAddress, ...body }) => ({
+        url: `/v1/portfolios/${portfolioId}/wallets/${walletAddress}`,
+        method: 'PUT',
+        body,
+        params: { identityId: window.identityId }, // todo
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
+    }),
+    removeWalletFromPortfolio: builder.mutation<Portfolio, { portfolioId: number; walletAddress: string }>({
+      query: ({ portfolioId, walletAddress }) => ({
+        url: `/v1/portfolios/${portfolioId}/wallets/${walletAddress}`,
+        method: 'DELETE',
+        params: { identityId: window.identityId }, // todo
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
+    }),
   }),
 })
 
@@ -149,6 +145,9 @@ export const {
   useGetTransactionsQuery,
   useDeletePortfolioMutation,
   useAddWalletToPortfolioMutation,
+  useGetWalletsPortfoliosQuery,
+  useRemoveWalletFromPortfolioMutation,
+  useUpdateWalletToPortfolioMutation,
 } = portfolioApi
 
 export default portfolioApi

@@ -1,4 +1,9 @@
-export type PortfolioWallet = { id: string; walletAddress: string; nickName: string }
+export type PortfolioWallet = { id: number; walletAddress: string; nickName: string }
+
+export type PortfolioSetting = {
+  isHideDust: boolean
+  dustThreshold: number
+}
 
 export type Portfolio = {
   name: string
@@ -7,7 +12,6 @@ export type Portfolio = {
   isHideDust: boolean
   dustThreshold: number
   isPublic: boolean
-  wallets?: PortfolioWallet[]
 }
 
 export type PortfolioWalletBalance = {

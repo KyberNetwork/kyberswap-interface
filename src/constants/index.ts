@@ -258,6 +258,7 @@ export const RTK_QUERY_TAGS = {
 
   // portfolio
   GET_LIST_PORTFOLIO: 'GET_LIST_PORTFOLIO',
+  GET_LIST_WALLET_PORTFOLIO: 'GET_LIST_WALLET_PORTFOLIO',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {

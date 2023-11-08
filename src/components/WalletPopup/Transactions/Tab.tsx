@@ -112,7 +112,7 @@ const TabItem = styled.div<{ active: boolean }>`
       : null}
 `
 
-interface TabProps<T extends string> {
+interface TabProps<T extends string | number> {
   activeTab: T
   setActiveTab: React.Dispatch<React.SetStateAction<T>>
   tabs: readonly { readonly title: string; readonly value: T }[]
@@ -168,7 +168,7 @@ function Tab<T extends string>({ activeTab, setActiveTab, tabs }: TabProps<T>) {
 }
 
 // todo move to components
-export function Tabs<T extends string>({ activeTab, setActiveTab, tabs, style }: TabProps<T>) {
+export function Tabs<T extends string | number>({ activeTab, setActiveTab, tabs, style }: TabProps<T>) {
   return (
     <TabWrapper style={style}>
       <ListTab>

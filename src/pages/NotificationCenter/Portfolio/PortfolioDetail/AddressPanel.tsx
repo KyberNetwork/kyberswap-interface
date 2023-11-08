@@ -19,7 +19,7 @@ import Select from 'components/Select'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { Portfolio, PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
+import { Portfolio, PortfolioWallet, PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -104,16 +104,15 @@ const AddressPanel = ({
     }))
   }, [portfolios, renderAction, onClickPortfolio])
 
-  console.log(123, formatPortfolio)
-
   const wallets = useMemo(() => {
-    if (!activePortfolio?.wallets) return EMPTY_ARRAY
-    const opt = activePortfolio.wallets.map(wallet => ({
+    const wallets: PortfolioWallet[] = []
+    if (!wallets?.length) return EMPTY_ARRAY
+    const opt = wallets.map(wallet => ({
       label: wallet.nickName || getShortenAddress(wallet.walletAddress),
       value: wallet.walletAddress,
     }))
     return [{ label: t`All Wallets`, value: '' }, ...opt]
-  }, [activePortfolio])
+  }, [])
 
   return (
     <>

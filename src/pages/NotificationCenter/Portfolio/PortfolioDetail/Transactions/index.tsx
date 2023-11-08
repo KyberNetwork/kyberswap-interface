@@ -85,7 +85,6 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
     endTime: 0,
     ...query,
   })
-  console.log(123, data || EMPTY_ARRAY)
 
   return (
     <Section

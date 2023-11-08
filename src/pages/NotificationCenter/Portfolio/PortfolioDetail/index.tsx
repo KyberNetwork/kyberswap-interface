@@ -47,18 +47,28 @@ const Tokens = ({ data, isLoading }: { data: PortfolioWalletBalanceResponse | un
   )
 }
 
-export default function PortfolioDetail() {
-  const [activeTab, setTab] = useState(PortfolioTab.TRANSACTIONS)
+const useParseWalletPortfolioParam = () => {
   const { wallet, portfolioId } = useParams<{ wallet?: string; portfolioId?: string }>()
   const qs = useParsedQueryString()
+  const walletParam = String(wallet || qs.wallet || '')
+  console.log(123, wallet, qs.wallet)
+
+  return { wallet: walletParam, portfolioId }
+}
+
+export default function PortfolioDetail() {
+  const [activeTab, setTab] = useState(PortfolioTab.TRANSACTIONS)
+  const qs = useParsedQueryString()
+
+  const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const { data: portfolios = EMPTY_ARRAY } = useGetPortfoliosQuery()
 
-  const walletParam = String(wallet || qs.wallet)
-
   const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
-  const [search, setSearch] = useState(walletParam || portfolioId || '')
+  const [search, setSearch] = useState(wallet || portfolioId || '')
 
-  const { isLoading, data } = useGetRealtimeBalanceQuery({ query: String(search), chainIds }, { skip: !search })
+  const { isLoading, data } = useGetRealtimeBalanceQuery({ query: search, chainIds }, { skip: !search })
+
+  console.log(123, { search, portfolios, data, portfolioId, wallet })
 
   const handleChangeChains = (chainIds: ChainId[]) => {
     setChainIds(chainIds)
@@ -94,8 +104,8 @@ export default function PortfolioDetail() {
             />
           </RowBetween>
           {activeTab === PortfolioTab.TOKEN && <Tokens isLoading={isLoading} data={data} />}
-          {activeTab === PortfolioTab.ALLOWANCES && <Allowances wallet={walletParam} chainIds={chainIds} />}
-          {activeTab === PortfolioTab.TRANSACTIONS && <Transactions wallet={walletParam} chainIds={chainIds} />}
+          {activeTab === PortfolioTab.ALLOWANCES && <Allowances wallet={wallet} chainIds={chainIds} />}
+          {activeTab === PortfolioTab.TRANSACTIONS && <Transactions wallet={wallet} chainIds={chainIds} />}
         </>
       )}
 
