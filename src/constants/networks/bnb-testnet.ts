@@ -15,7 +15,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   poolFarmRoute: EMPTY,
   aggregatorRoute: 'bsc',
   name: 'BNB Testnet',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/a44a3dbc-9150-4278-8354-7b5953f9a1ab.svg',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/14c1b7c4-b66e-4169-b82e-ea6237f15b461699420601184.png',
 
   iconSelected: NOT_SUPPORT,
 
