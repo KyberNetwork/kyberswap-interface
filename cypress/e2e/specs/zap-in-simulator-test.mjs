@@ -11,7 +11,7 @@ testcases.forEach((testcase)=>{
   test(testcase, async () => {
     const zapInData = suite[testcase]
       .filter(log => {
-        return log.type == 'cons:debug' && log.message.includes('zap data')
+        return log.type == 'cons:debug' && log.message.includes('zap data') && log.severity.includes('success')
       })
       .slice(-1)
       .pop()['message'].replace('zap data,\n', '')
