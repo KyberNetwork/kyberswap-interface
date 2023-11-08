@@ -10,7 +10,7 @@ describe('Zap In', { tags: TAG.zap }, () => {
     SwapPage.open(DEFAULT_URL)
     SwapPage.connectWallet()
   })
-  it('Arbitrum USDC-USDC.e', function () {
+  it('simulate', function () {
     if (NETWORK !== DEFAULT_NETWORK) {
       cy.acceptMetamaskAccess()
 
@@ -20,13 +20,15 @@ describe('Zap In', { tags: TAG.zap }, () => {
         expect(approved).to.be.true
       })
     }
-
-    cy.visit(
-      '/arbitrum/elastic/add/0x912CE59144191C1204E64559FE8253a0e49E6548/0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8/1000',
-    )
-    cy.get('.css-moum56').click()
-    cy.get('[data-testid="token-amount-input"]').type('100')
-    //Wait to zap data encode
-    cy.wait(20000)
+    cy.intercept('GET', '**/pools?**').as('get-pool-list')
+    SwapPage.goToPoolPage()
+    cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
+    cy.get('@get-pool-list')
+      .its('response.body')
+      .its('data.pools')
+      .its(0)
+      .then(pool => {
+        PoolsPage.addLiquidity(pool.id, '100')
+      })
   })
 })

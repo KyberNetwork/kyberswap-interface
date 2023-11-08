@@ -273,10 +273,19 @@ async function estimateGas(input) {
     }
   }
 }
+
 function getTokenInFromZapEncodeData(zapInData) {
-  let decode = ksZapRouterInterface.decodeFunctionData('zapIn', zapInData['data'])
-  const tokenInAddress = decode[0][1]
-  return tokenInAddress
+  let funcSig = zapInData['data'].slice(0, 10)
+  switch (funcSig) {
+    case '0x0779b145':
+      return NATIVE_TOKEN_ADDRESS
+    case '0xbea67258':
+      let decode = ksZapRouterInterface.decodeFunctionData('zapIn', zapInData['data'])
+      const tokenInAddress = decode[0][1]
+      return tokenInAddress
+    default:
+      throw 'function selector'
+  }
 }
 module.exports = {
   simulateTenderly,

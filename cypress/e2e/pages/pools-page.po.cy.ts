@@ -1,11 +1,15 @@
 export const PoolsPage = {
   open(chain: string) {
-    cy.visit('/pools/' + chain,{
-    onBeforeLoad(win) {
-      cy.stub(win.console, 'log').as('consoleLog')
-      cy.stub(win.console, 'error').as('consoleError')
-    })
-    // cy.url().should('include', chain)
-    // cy.closeTutorialPopup()
+    cy.visit('/pools/' + chain)
+  },
+  searchByPoolAddress(poolAddress: string) {
+    cy.get('input[placeholder="Search by token name or pool address"]').type(poolAddress)
+  },
+  addLiquidity(poolAddress: string, amountIn: string) {
+    PoolsPage.searchByPoolAddress(poolAddress)
+    cy.get('button').contains('Add Liquidity').click()
+    cy.get('[role=button]').contains('Zap In').click()
+    cy.get('[data-testid="token-amount-input"]').type(amountIn)
+    cy.wait(20000)
   },
 }
