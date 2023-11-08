@@ -25,7 +25,7 @@ const fantomInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'FTM',
     name: 'FTM',
-    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/779366f0-c120-4827-ac5e-9ed77ca202b91692929044916.png',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/2cd8adf9-b4b0-41f7-b83d-4a13b4e9ca6f1699420090962.png',
     decimal: 18,
     minForGas: 10 ** 16,
   },

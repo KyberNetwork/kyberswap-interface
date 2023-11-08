@@ -15,7 +15,7 @@ const zkEvm: EVMNetworkInfo = {
   poolFarmRoute: 'polygon-zkevm',
   aggregatorRoute: 'polygon-zkevm',
   name: 'Polygon zkEVM',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/41cb81da-c7ed-4bc1-99ef-4bfe6d80861e1692928936919.svg',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png',
 
   iconSelected: NOT_SUPPORT,
 
