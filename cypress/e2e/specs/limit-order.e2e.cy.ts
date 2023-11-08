@@ -17,13 +17,15 @@ describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
 
     describe('Add/remove/select token with favorite tokens list', () => {
         beforeEach(() => {
-            if (NETWORK === 'BNB' || NETWORK === 'Ethereum') {
-                netw.selectNetwork(NETWORK)
+            netw.selectNetwork(NETWORK)
+            if (NETWORK === 'Ethereum') {
                 cy.allowMetamaskToSwitchNetwork().then(approved => {
                     expect(approved).to.be.true
                 })
             } else {
-                cy.changeMetamaskNetwork(NETWORK)
+                cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
+                    expect(approved).to.be.true
+                })
             }
             SwapPage.goToLimitOrder()
             LimitOder.checkGetStartedDisplay().then((checked) => {

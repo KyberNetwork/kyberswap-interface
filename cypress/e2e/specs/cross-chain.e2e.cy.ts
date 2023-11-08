@@ -6,17 +6,20 @@ describe(`Cross-chain on ${NETWORK}`, { tags: TAG.regression }, () => {
     beforeEach(() => {
         SwapPage.open(DEFAULT_URL)
         SwapPage.connectWallet()
-        SwapPage.getStatusConnectedWallet()
-
-        SwapPage.goToCrossChain()
-        CrossChain.checkLoadedPage().then((checked) => {
-            if (checked === true) {
-                CrossChain.closeUnderstandPopup()
-            }
-        })
     })
 
     describe('Select network', () => {
+        beforeEach(() => {
+            cy.acceptMetamaskAccess()
+            SwapPage.getStatusConnectedWallet()
+
+            SwapPage.goToCrossChain()
+            CrossChain.checkLoadedPage().then((checked) => {
+                if (checked === true) {
+                    CrossChain.closeUnderstandPopup()
+                }
+            })
+        })
         it('The network should be changed successfully', () => {
             const networkIn = CrossChain.changeNetwork([NETWORK])
             CrossChain.selectNetworkIn(networkIn)

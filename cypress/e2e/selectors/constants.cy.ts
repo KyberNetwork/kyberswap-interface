@@ -12,9 +12,9 @@ export enum TAG {
 }
 
 export const TOKEN_SYMBOLS = {
-    'Ethereum': ['BAND', 'ETH', 'USDT', 'USDC', '1INCH'],
+    'Ethereum': ['BAND', 'USDC', 'USDT', 'ETH', '1INCH'],
     'Arbitrum': ['ANGLE', 'ARB', 'USDT', 'USDC.e', 'BOB'],
-    'Optimism': ['BOND', 'ETH', 'USDT', 'USDC', 'BOB'],
+    'Optimism': ['BOND', 'USDC', 'USDT', 'ETH', 'BOB'],
     'Avalanche': ['AAVE.e', 'sAVAX', 'USDT.e', 'USDC.e', 'BUSD.e'],
     'BNB': ['RICE', 'BUSD', 'USDT', 'USDC', 'BOB']
 }
