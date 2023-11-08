@@ -257,18 +257,24 @@ export function useZapInAction() {
           : abiEncoder.encode(['address', 'int24', 'int24', 'uint128'], [account, tickLower, tickUpper, minLiquidity])
 
         const zeros = '0'.repeat(128)
+
+        // max(1, 0.00001% * amount)
+        const exp6 = JSBI.BigInt(1_000_000)
         const minZapAmount0 = JSBI.divide(
-          JSBI.multiply(JSBI.BigInt(amountIn), JSBI.BigInt(slippage)),
-          JSBI.BigInt(10000),
+          JSBI.multiply(JSBI.greaterThan(JSBI.BigInt(amountIn), exp6) ? JSBI.BigInt(amountIn) : exp6, JSBI.BigInt(1)),
+          exp6,
         ).toString(2)
 
         const minZapAmount1 = JSBI.divide(
-          JSBI.multiply(JSBI.BigInt(equivalentQuoteAmount), JSBI.BigInt(slippage)),
-          JSBI.BigInt(10000),
+          JSBI.multiply(
+            JSBI.greaterThan(JSBI.BigInt(equivalentQuoteAmount), exp6) ? JSBI.BigInt(equivalentQuoteAmount) : exp6,
+            JSBI.BigInt(1),
+          ),
+          exp6,
         ).toString(2)
 
-        const minZapAmount = JSBI.BigInt(
-          parseInt((zeros + minZapAmount0).slice(-128) + (zeros + minZapAmount1).slice(-128), 2),
+        const minZapAmount = BigInt(
+          '0b' + (zeros + minZapAmount0).slice(-128) + (zeros + minZapAmount1).slice(-128),
         ).toString()
 
         const zapExecutorData = abiEncoder.encode(
