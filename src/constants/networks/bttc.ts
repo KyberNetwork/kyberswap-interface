@@ -14,7 +14,7 @@ const bttcInfo: EVMNetworkInfo = {
   poolFarmRoute: 'bttc',
   aggregatorRoute: 'bttc',
   name: 'BitTorrent',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/8a936cf9-3e8f-4518-9fb2-8579c14fb8cd1699420035633.png',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/acc93879-119a-48ce-8a91-a4a6c0321c131699420171767.png',
 
   iconSelected: NOT_SUPPORT,
 
@@ -25,7 +25,7 @@ const bttcInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'BTT',
     name: 'BTT',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/acc93879-119a-48ce-8a91-a4a6c0321c131699420171767.png',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/1d9bbed0-0f29-48b9-b610-1bc35efcc41f.png',
     decimal: 18,
     minForGas: 10 ** 16,
   },
