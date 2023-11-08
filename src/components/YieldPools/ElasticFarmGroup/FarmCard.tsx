@@ -109,12 +109,12 @@ const FarmCard = ({
   const token0Symbol = getTokenSymbolWithHardcode(
     chainId,
     pool?.token0?.wrapped?.address,
-    pool.token0.isNative ? pool.token0.symbol : allTokens[pool.token0.wrapped.address].symbol,
+    pool.token0.isNative ? pool.token0.symbol : allTokens[pool.token0.wrapped.address]?.symbol || pool.token0.symbol,
   )
   const token1Symbol = getTokenSymbolWithHardcode(
     chainId,
     pool?.token1?.wrapped?.address,
-    pool.token1.isNative ? pool.token1.symbol : allTokens[pool.token1.wrapped.address].symbol,
+    pool.token1.isNative ? pool.token1.symbol : allTokens[pool.token1.wrapped.address]?.symbol || pool.token1.symbol,
   )
 
   return (
