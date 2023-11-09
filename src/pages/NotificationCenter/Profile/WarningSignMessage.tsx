@@ -96,11 +96,11 @@ const WarningSignMessage = ({ msg, outline }: { msg: ReactNode; outline?: boolea
         <Text fontSize={'12px'} lineHeight={'16px'}>
           <Trans>
             {msg}{' '}
-            {!upToSmall && (
+            {!upToSmall ? (
               <>
                 Read more <ExternalLink href={DOC_URL}>here ↗</ExternalLink>
               </>
-            )}
+            ) : null}
           </Trans>
         </Text>
       </Row>
