@@ -105,7 +105,7 @@ const WalletItem = ({
       <Select
         onChange={v => onChangeWalletAction(v, data)}
         menuStyle={{ width: 130 }}
-        options={options}
+        options={options.slice(0, -1)}
         style={{ padding: 0, background: 'transparent' }}
         arrow={false}
         activeRender={() => <MoreHorizontal size={16} color={theme.subText} />}
