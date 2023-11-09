@@ -583,7 +583,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
 
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
-                    <Trans>Connect Wallet</Trans>
+                    <Trans>Connect</Trans>
                   </ButtonLight>
                 ) : expectedChainId && expectedChainId !== chainId ? (
                   <ButtonPrimary onClick={() => changeNetwork(expectedChainId)}>Switch Network</ButtonPrimary>

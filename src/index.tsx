@@ -24,7 +24,6 @@ import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'cons
 import { ENV_TYPE } from 'constants/type'
 import { connections } from 'constants/wallets'
 
-import SEO from './components/SEO'
 import { sentryRequestId } from './constants'
 import { LanguageProvider } from './i18n'
 import App from './pages/App'
@@ -111,10 +110,6 @@ const ReactApp = () => {
 
   return (
     <StrictMode>
-      <SEO
-        title="KyberSwap - Trading Smart"
-        description="KyberSwap is DeFi‚Äôs first Dynamic Market Maker; a decentralized exchange protocol that provides frictionless crypto liquidity with extremely high flexibility and capital efficiency. KyberSwap is the first major protocol in Kyber‚Äôs liquidity hub."
-      />
       <FixedGlobalStyle />
       <Provider store={store}>
         <SolanaWalletContext>

@@ -89,13 +89,7 @@ const guideStepByVersion: Record<
       title: 'Step 5',
     },
     {
-      content: (
-        <Trans>
-          <Highlight>Claim</Highlight> your farming rewards from the{' '}
-          <StyledInternalLink to="/farms?type=vesting&tab=elastic">Vesting</StyledInternalLink> tab! Note: some farms
-          may have a vesting period.
-        </Trans>
-      ), //todo: add network route
+      content: <Trans>Claim your farming rewards by clicking the harvest button.</Trans>,
       icon: <MoneyBagOutline size={20} />,
       title: 'Step 6',
     },

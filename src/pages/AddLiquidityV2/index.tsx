@@ -810,9 +810,7 @@ export default function AddLiquidity() {
           )}
         <ButtonError
           id="btnSupply"
-          onClick={() => {
-            isDegenMode ? onAdd() : setShowConfirm(true)
-          }}
+          onClick={() => setShowConfirm(true)}
           disabled={
             !isValid ||
             (approvalA !== ApprovalState.APPROVED && (!depositADisabled || noLiquidity)) ||
@@ -824,7 +822,7 @@ export default function AddLiquidity() {
           width={upToMedium ? '100%' : 'fit-content'}
         >
           <Text fontWeight={500}>
-            {errorMessage ? errorMessage : isDegenMode ? <Trans>Supply</Trans> : <Trans>Preview</Trans>}
+            {errorMessage ? errorMessage : <Trans>Preview</Trans>}
           </Text>
         </ButtonError>
       </Flex>
