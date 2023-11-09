@@ -1434,6 +1434,7 @@ export default function AddLiquidity() {
                     <Text fontWeight={500} textAlign="center" fontSize={12}>
                       <HoverInlineText
                         maxCharacters={20}
+                        data-testid="current-price"
                         text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
                       />
                     </Text>
