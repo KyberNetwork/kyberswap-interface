@@ -22,7 +22,7 @@ import useTheme from 'hooks/useTheme'
 import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/CreatePortfolioModal'
 import PortfolioItem from 'pages/NotificationCenter/Portfolio/PortfolioItem'
 import { ButtonCancel, ButtonSave } from 'pages/NotificationCenter/Portfolio/buttons'
-import { Portfolio, PortfolioSetting } from 'pages/NotificationCenter/Portfolio/type'
+import { PortfolioSetting } from 'pages/NotificationCenter/Portfolio/type'
 import WarningSignMessage, { WarningConnectWalletMessage } from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
@@ -101,9 +101,8 @@ export default function PortfolioSettings() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const [showCreate, setShowCreate] = useState(false)
-  const { data, isLoading } = useGetPortfoliosQuery()
+  const { data: portfolios = EMPTY_ARRAY, isLoading } = useGetPortfoliosQuery()
   const loading = useShowLoadingAtLeastTime(isLoading, 1000)
-  const portfolios: Portfolio[] = data || EMPTY_ARRAY
 
   const { userInfo } = useSessionInfo()
   const invalidateTags = useInvalidateTagPortfolio()
@@ -260,7 +259,7 @@ export default function PortfolioSettings() {
         isOpen={showCreate}
         onDismiss={hideModalCreatePortfolio}
         onConfirm={addPortfolio}
-        defaultName={!portfolios.length ? t`My 1st Portfolio` : ''}
+        defaultName={!portfolios.length ? t`My 1st Portfolio` : portfolios.length === 1 ? t`My 2nd Portfolio` : ''}
       />
     </Wrapper>
   )

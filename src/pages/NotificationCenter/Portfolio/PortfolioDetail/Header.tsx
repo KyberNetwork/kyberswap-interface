@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { isMacOs } from 'react-device-detect'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -114,12 +114,14 @@ export default function Header() {
         },
       ]
 
+  const { pathname } = useLocation()
+
   return (
     <>
       <RowBetween align="center">
         <Flex color={theme.text} fontSize={'24px'} fontWeight={'500'} alignItems={'center'} sx={{ gap: '4px' }}>
           <PortfolioIcon />
-          <Trans>My Portfolio</Trans>
+          {pathname.startsWith(APP_PATHS.MY_PORTFOLIO) ? <Trans>My Portfolio</Trans> : <Trans>Portfolio</Trans>}
         </Flex>
         <Row width={'fit-content'} gap="15px">
           <SearchWithDropdown

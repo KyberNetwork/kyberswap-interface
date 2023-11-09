@@ -188,6 +188,7 @@ export const APP_PATHS = {
   IAM_CONSENT: '/consent',
 
   PORTFOLIO: '/portfolios',
+  MY_PORTFOLIO: '/my-portfolios',
   PROFILE: '/profiles',
 } as const
 

@@ -192,7 +192,12 @@ export default function WalletInfo({
         />
       }
     >
-      <Table data={formatData} columns={columns} style={{ flex: 1 }} totalItems={formatData.length} />
+      <Table
+        data={formatData}
+        columns={columns}
+        style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
+        totalItems={formatData.length}
+      />
     </Section>
   ) // todo update SectionWrapper can reuse
 }

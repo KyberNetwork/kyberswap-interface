@@ -169,7 +169,12 @@ export default function Allowances({ wallet, chainIds }: { wallet: string; chain
         />
       }
     >
-      <Table columns={columns} data={formatData} totalItems={formatData.length} />
+      <Table
+        columns={columns}
+        data={formatData}
+        totalItems={formatData.length}
+        style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
+      />
     </Section>
   )
 }

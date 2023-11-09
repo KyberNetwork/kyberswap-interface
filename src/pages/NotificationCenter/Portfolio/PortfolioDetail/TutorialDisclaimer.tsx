@@ -102,7 +102,7 @@ export default function TutorialDisclaimer() {
       toggle={toggleTutorial}
       steps={steps}
       title={t`Welcome to My Portfolio`}
-      onFinished={() => navigate(`${APP_PATHS.PORTFOLIO}/${account}`)}
+      onFinished={() => navigate(`${APP_PATHS.PROFILE}/${account}`)}
     />
   )
 }

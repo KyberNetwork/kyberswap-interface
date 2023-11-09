@@ -111,7 +111,7 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
       <Table
         data={data?.data || EMPTY_ARRAY}
         columns={columns}
-        style={{ flex: 1 }}
+        style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
         pageSize={pageSize}
         totalItems={pageSize}
       />

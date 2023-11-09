@@ -77,7 +77,13 @@ const GrantProgramPage = lazy(() => import('pages/GrantProgram'))
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 const Icons = lazy(() => import('./Icons'))
 
-const portfolioRoutes = [APP_PATHS.PORTFOLIO, `${APP_PATHS.PORTFOLIO}/:portfolioId`, `${APP_PATHS.PROFILE}/:wallet`]
+const portfolioRoutes = [
+  APP_PATHS.PORTFOLIO,
+  `${APP_PATHS.PORTFOLIO}/:portfolioId`,
+  APP_PATHS.MY_PORTFOLIO,
+  `${APP_PATHS.MY_PORTFOLIO}/:portfolioId`,
+  `${APP_PATHS.PROFILE}/:wallet`,
+]
 
 const AppWrapper = styled.div`
   display: flex;

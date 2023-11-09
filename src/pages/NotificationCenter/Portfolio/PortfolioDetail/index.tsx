@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { stringify } from 'querystring'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useGetPortfoliosQuery, useGetRealtimeBalanceQuery } from 'services/portfolio'
+import { useGetPortfoliosQuery, useGetRealtimeBalanceQuery, useGetWalletsPortfoliosQuery } from 'services/portfolio'
 import styled from 'styled-components'
 
 import { RowBetween } from 'components/Row'
@@ -20,6 +20,7 @@ import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tra
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
 import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/type'
 import { PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
+import { isAddress } from 'utils'
 
 import Header from './Header'
 
@@ -51,9 +52,7 @@ const useParseWalletPortfolioParam = () => {
   const { wallet, portfolioId } = useParams<{ wallet?: string; portfolioId?: string }>()
   const qs = useParsedQueryString()
   const walletParam = String(wallet || qs.wallet || '')
-  console.log(123, wallet, qs.wallet)
-
-  return { wallet: walletParam, portfolioId }
+  return { wallet: isAddress(ChainId.MAINNET, walletParam) || '', portfolioId }
 }
 
 export default function PortfolioDetail() {
@@ -62,11 +61,23 @@ export default function PortfolioDetail() {
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const { data: portfolios = EMPTY_ARRAY } = useGetPortfoliosQuery()
+  const activePortfolio = portfolios[0]
+
+  const { data: wallets = EMPTY_ARRAY, isLoading: isLoadingWallet } = useGetWalletsPortfoliosQuery(
+    { portfolioId: activePortfolio?.id },
+    { skip: !activePortfolio?.id },
+  )
+  const activeWallet = wallets[0]
 
   const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
   const [search, setSearch] = useState(wallet || portfolioId || '')
 
-  const { isLoading, data } = useGetRealtimeBalanceQuery({ query: search, chainIds }, { skip: !search })
+  const { isLoading: isLoadingPortfolio, data } = useGetRealtimeBalanceQuery(
+    { query: search, chainIds },
+    { skip: !search },
+  )
+
+  const isLoading = isLoadingPortfolio || isLoadingWallet
 
   console.log(123, { search, portfolios, data, portfolioId, wallet })
 
@@ -75,13 +86,15 @@ export default function PortfolioDetail() {
   }
 
   const navigate = useNavigate()
-  const onChangeWallet = (wallet: string) => {
-    setSearch(wallet)
-    navigate({ search: stringify({ ...qs, wallet }) }, { replace: true })
+  const onChangeWallet = (wallet?: string) => {
+    setSearch(wallet || '')
+    const newQs = { ...qs, wallet }
+    if (!newQs.wallet) delete newQs.wallet
+    navigate({ search: stringify(newQs) }, { replace: true })
   }
 
   const canShowOverview = !wallet && !portfolioId
-  const activePortfolio = portfolios[0]
+
   return (
     <PageWrapper>
       <Header />
@@ -90,8 +103,11 @@ export default function PortfolioDetail() {
       ) : (
         <>
           <AddressPanel
+            isLoading={isLoading}
+            wallets={wallets}
             portfolios={portfolios}
             activePortfolio={activePortfolio}
+            activeWallet={activeWallet}
             data={data}
             onChangeWallet={onChangeWallet}
           />

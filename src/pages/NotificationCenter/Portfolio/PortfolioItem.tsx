@@ -120,7 +120,7 @@ export const useNavigateToPortfolioDetail = () => {
     ({ wallet, portfolioId }: { wallet?: string; portfolioId?: number }) => {
       navigate(
         portfolioId
-          ? `${APP_PATHS.PORTFOLIO}/${portfolioId}${wallet ? `?wallet=${wallet}` : ''}`
+          ? `${APP_PATHS.MY_PORTFOLIO}/${portfolioId}${wallet ? `?wallet=${wallet}` : ''}`
           : `${APP_PATHS.PROFILE}/${wallet}`,
       )
     },

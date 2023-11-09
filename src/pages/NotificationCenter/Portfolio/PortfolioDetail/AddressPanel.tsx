@@ -16,8 +16,7 @@ import Wallet from 'components/Icons/Wallet'
 import MenuFlyout from 'components/MenuFlyout'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
-import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { Portfolio, PortfolioWallet, PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -46,28 +45,33 @@ const browserCustomStyle = css`
 const AddressPanel = ({
   portfolios,
   activePortfolio,
+  activeWallet,
   onChangeWallet,
   data,
+  wallets,
+  isLoading,
 }: {
+  isLoading: boolean
   portfolios: Portfolio[]
-  activePortfolio: Portfolio
+  wallets: PortfolioWallet[]
+  activeWallet: PortfolioWallet
+  activePortfolio: Portfolio | undefined
   onChangeWallet: (v: string) => void
   data: PortfolioWalletBalanceResponse | undefined
 }) => {
-  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [showBalance, setShowBalance] = useState(true)
   const percent = 0.22332
 
   const navigate = useNavigate()
-  const test = true
   const [isOpen, setIsOpen] = useState(false)
 
   const { lastUpdatedAt, totalBalanceUsd } = data || {}
+  console.log(123, activeWallet)
 
   const accountText = (
     <Text fontSize={'20px'} fontWeight={'500'} color={theme.text} sx={{ cursor: 'pointer', userSelect: 'none' }}>
-      {getShortenAddress(account ?? '')}
+      {isLoading ? '--' : activeWallet ? getShortenAddress(activeWallet.walletAddress) : activePortfolio?.name}
     </Text>
   )
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -89,35 +93,37 @@ const AddressPanel = ({
 
   const onClickPortfolio = useCallback(
     (data: Portfolio) => {
-      navigate(`${APP_PATHS.PORTFOLIO}/${data.id}`)
+      navigate(`${APP_PATHS.MY_PORTFOLIO}/${data.id}`)
       setIsOpen(false)
     },
     [navigate],
   )
 
   const formatPortfolio = useMemo(() => {
-    return portfolios.map(el => ({
-      data: { ...el, title: 'test', description: 'test', avatarUrl: '' },
-      // todo raw data field instead ?
-      renderAction,
-      onClick: onClickPortfolio,
-    }))
-  }, [portfolios, renderAction, onClickPortfolio])
+    return portfolios
+      .filter(el => el.id !== activePortfolio?.id)
+      .map(el => ({
+        data: { ...el, title: el.name, description: '$123', avatarUrl: '' },
+        // todo raw data field instead ?
+        renderAction,
+        onClick: onClickPortfolio,
+      }))
+  }, [portfolios, renderAction, onClickPortfolio, activePortfolio?.id])
 
-  const wallets = useMemo(() => {
-    const wallets: PortfolioWallet[] = []
-    if (!wallets?.length) return EMPTY_ARRAY
+  const walletsOpts = useMemo(() => {
     const opt = wallets.map(wallet => ({
       label: wallet.nickName || getShortenAddress(wallet.walletAddress),
       value: wallet.walletAddress,
     }))
     return [{ label: t`All Wallets`, value: '' }, ...opt]
-  }, [])
+  }, [wallets])
 
   return (
     <>
       <RowBetween>
-        {test ? (
+        {activeWallet || isLoading ? (
+          accountText
+        ) : (
           <MenuFlyout
             trigger={
               <RowFit>
@@ -136,15 +142,13 @@ const AddressPanel = ({
                 onClick: () => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`),
                 actionLabel: t`Portfolio Settings`,
                 data: {
-                  title: 'test',
+                  title: activePortfolio?.name,
                   description: formatDisplayNumber(123.123, { style: 'currency', fractionDigits: 2 }),
                   avatarUrl: DefaultAvatar,
                 },
               }}
             />
           </MenuFlyout>
-        ) : (
-          accountText
         )}
 
         {lastUpdatedAt && (
@@ -174,11 +178,11 @@ const AddressPanel = ({
           </Flex>
         </BalanceGroup>
 
-        {activePortfolio ? (
+        {walletsOpts.length && !activeWallet ? (
           <Select
             onChange={onChangeWallet}
             style={{ borderRadius: 24, background: theme.buttonGray, height: 36, minWidth: 150 }}
-            options={wallets}
+            options={walletsOpts}
             activeRender={item => (
               <Row gap="4px">
                 <Wallet />
