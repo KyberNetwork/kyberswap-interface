@@ -13,9 +13,9 @@ import AddressInputPanel from 'components/AddressInputPanel'
 import { Clock } from 'components/Icons'
 import { AutoRow } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
-import GasFeeAndPriceImpactNote from 'components/SwapForm/GasPriceNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
+import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
@@ -264,11 +264,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 
-          <GasFeeAndPriceImpactNote
-            gasUsd={routeSummary?.gasUsd}
-            priceImpact={routeSummary?.priceImpact}
-            isDegenMode={isDegenMode}
-          />
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} />
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
           <SwapActionButton
