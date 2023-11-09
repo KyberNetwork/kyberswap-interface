@@ -10,7 +10,6 @@ import Column from 'components/Column'
 import Row, { RowFit } from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
-import { parseFraction } from 'components/swapv2/LimitOrder/helpers'
 import { EMPTY_ARRAY } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import useDebounce from 'hooks/useDebounce'
@@ -21,7 +20,7 @@ import { Section } from 'pages/TrueSightV2/components'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
-import { formatDisplayNumber } from 'utils/numbers'
+import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
 const TxsHashCell = ({ item: { txHash, blockTime, chain } }: { item: TransactionHistory }) => {
   const theme = useTheme()
@@ -39,18 +38,39 @@ const TxsHashCell = ({ item: { txHash, blockTime, chain } }: { item: Transaction
   )
 }
 
-const GasFeeCell = ({
-  item: { gasPrice, chain, historicalNativeTokenPrice, gasUsed },
-}: {
-  item: TransactionHistory
-}) => {
+const GasFeeCell = ({ item: { gasPrice, chain, nativeTokenPrice, gasUsed } }: { item: TransactionHistory }) => {
+  if (gasPrice === '0') return null
   const native = NativeCurrencies[chain?.chainId as ChainId]
-  const totalGas = parseFraction(gasPrice, native.decimals).multiply(gasUsed)
+  const totalGas = uint256ToFraction(gasPrice, native.decimals).multiply(gasUsed) // todo
+  const usdValue = +totalGas.toSignificant(native.decimals) * nativeTokenPrice
   return (
     <>
-      {formatDisplayNumber(totalGas, { style: 'currency', significantDigits: 6 })} {native.symbol} (
-      {formatDisplayNumber(totalGas.multiply(historicalNativeTokenPrice), { style: 'currency', fractionDigits: 4 })})
+      {totalGas.toSignificant(6)} {native.symbol} (
+      {formatDisplayNumber(usdValue, { style: 'currency', fractionDigits: 2 })})
     </>
+  )
+}
+
+const getAction = ({ contractInteraction, tokenTransfers = [], tokenApproval, to }: TransactionHistory) => {
+  const methodName = contractInteraction?.methodName
+  switch (methodName) {
+    case 'approve':
+      return { type: tokenApproval?.amount === '0' ? t`Revoke` : t`Approve`, contract: tokenApproval?.spenderAddress }
+  }
+  if (tokenTransfers.length > 1) return { type: t`Contract Interaction`, contract: to }
+  if (tokenTransfers?.[0]) return { type: t`Receive`, contract: tokenTransfers[0].otherAddress }
+  return { type: methodName }
+}
+const InteractionCell = ({ item }: { item: TransactionHistory }) => {
+  const { type, contract = '' } = getAction(item)
+  const { chain } = item
+  return (
+    <Column gap="4px">
+      <Text sx={{ textTransform: 'capitalize' }}>{type}</Text>
+      <ExternalLink href={getEtherscanLink(chain.chainId, contract, 'address')}>
+        {getShortenAddress(contract)}
+      </ExternalLink>
+    </Column>
   )
 }
 
@@ -77,8 +97,7 @@ const columns: TableColumn<TransactionHistory>[] = [
   },
   {
     title: t`Interaction`,
-    dataIndex: 'amountUsd',
-    render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
+    render: InteractionCell,
   },
   {
     title: t`Txs Fee`,

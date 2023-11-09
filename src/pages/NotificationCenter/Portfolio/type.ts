@@ -101,6 +101,10 @@ export type TransactionHistory = {
     contractName: string
     methodName: string
   }
+  tokenApproval?: {
+    amount: string
+    spenderAddress: string
+  }
   tag: string
 }
 
