@@ -18,7 +18,7 @@ export const SwapPage = {
   open(url: string) {
     cy.visit('/' + url)
     cy.url().should('include', url)
-    // cy.closeTutorialPopup()
+    cy.closeTutorialPopup()
   },
 
   selectTokenIn(): TokenCatalog {
