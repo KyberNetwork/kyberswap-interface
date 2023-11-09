@@ -15,6 +15,7 @@ import Toggle from 'components/Toggle'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Tabs } from 'components/WalletPopup/Transactions/Tab'
 import { EMPTY_ARRAY, RTK_QUERY_TAGS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagPortfolio } from 'hooks/useInvalidateTags'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
@@ -22,7 +23,7 @@ import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/Crea
 import PortfolioItem from 'pages/NotificationCenter/Portfolio/PortfolioItem'
 import { ButtonCancel, ButtonSave } from 'pages/NotificationCenter/Portfolio/buttons'
 import { Portfolio, PortfolioSetting } from 'pages/NotificationCenter/Portfolio/type'
-import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
+import WarningSignMessage, { WarningConnectWalletMessage } from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -98,7 +99,7 @@ const settings: PortfolioSetting = { isHideDust: true, dustThreshold: 1 }
 export default function PortfolioSettings() {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
+  const { account } = useActiveWeb3React()
   const [showCreate, setShowCreate] = useState(false)
   const { data, isLoading } = useGetPortfoliosQuery()
   const loading = useShowLoadingAtLeastTime(isLoading, 1000)
@@ -139,7 +140,7 @@ export default function PortfolioSettings() {
 
   const hasChangeSettings = settings?.dustThreshold !== threshold || settings?.isHideDust !== hideSmallBalance
   const disableBtnSave = loading || !hasChangeSettings
-  const canCreatePortfolio = portfolios.length < maximumPortfolio && !loading
+  const canCreatePortfolio = !!account && portfolios.length < maximumPortfolio && !loading
 
   const [createPortfolio] = useCreatePortfolioMutation()
   const notify = useNotify()
@@ -194,10 +195,15 @@ export default function PortfolioSettings() {
           </MouseoverTooltip>
         </PortfolioStat>
       </Header>
-      <WarningSignMessage
-        outline
-        msg={t`To enable more seamless DeFi experience, you can link your wallet to your profile by signing-in.`}
-      />
+      {!account ? (
+        <WarningConnectWalletMessage msg={t`Connect to create your portfolio`} />
+      ) : (
+        <WarningSignMessage
+          outline
+          msg={t`To enable more seamless DeFi experience, you can link your wallet to your profile by signing-in.`}
+        />
+      )}
+
       <Divider />
 
       <Column style={{ minHeight: '46px', gap: '24px', justifyContent: 'center' }}>

@@ -11,6 +11,7 @@ import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -28,6 +29,47 @@ const WarningWrapper = styled.div`
     padding: 12px 14px;
   `}
 `
+
+const WarningConnectWrapper = styled.div`
+  border-radius: 24px;
+  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 14px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    gap: 10px;
+    padding: 12px 14px;
+  `}
+`
+export const WarningConnectWalletMessage = ({ msg, outline }: { msg: ReactNode; outline?: boolean }) => {
+  const { account } = useActiveWeb3React()
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const btnWidth = upToSmall ? '45%' : '110px'
+  const theme = useTheme()
+  const connectWallet = useWalletModalToggle()
+  if (account) return null
+
+  const propsBtn = {
+    fontSize: '14px',
+    width: btnWidth,
+    height: '30px',
+    onClick: connectWallet,
+    children: <Trans>Connect</Trans>,
+  }
+  return (
+    <WarningConnectWrapper>
+      <Row style={{ gap: upToSmall ? '8px' : '12px' }}>
+        <Info color={theme.subText} size={18} style={{ minWidth: '18px' }} />
+        <Text fontSize={'12px'} lineHeight={'16px'}>
+          <Trans>{msg}</Trans>
+        </Text>
+      </Row>
+      {React.createElement(outline && !upToSmall ? ButtonOutlined : ButtonPrimary, propsBtn)}
+    </WarningConnectWrapper>
+  )
+}
+
 const DOC_URL = 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/profiles'
 const WarningSignMessage = ({ msg, outline }: { msg: ReactNode; outline?: boolean }) => {
   const { signIn } = useLogin()
@@ -73,4 +115,5 @@ const WarningSignMessage = ({ msg, outline }: { msg: ReactNode; outline?: boolea
     </WarningWrapper>
   )
 }
+
 export default WarningSignMessage
