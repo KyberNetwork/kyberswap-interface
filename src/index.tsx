@@ -73,7 +73,7 @@ if (window.ethereum) {
   window.ethereum.autoRefreshOnNetworkChange = false
 }
 
-function Updaters() {
+export function Updaters() {
   return (
     <>
       <ListsUpdater />

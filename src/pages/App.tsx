@@ -153,6 +153,7 @@ const RoutesWithNetworkPrefix = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const location = useLocation()
 
+  console.log('viet-nv', location.pathname)
   useSyncNetworkParamWithStore()
 
   if (!network) {
@@ -189,10 +190,6 @@ const RoutesWithNetworkPrefix = () => {
 
       {!ELASTIC_NOT_SUPPORTED[chainId] && (
         <>
-          <Route
-            path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?/:feeAmount?`}
-            element={<RedirectElasticCreatePool />}
-          />
           <Route
             path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?`}
             element={<ElasticIncreaseLiquidity />}
@@ -306,6 +303,11 @@ export default function App() {
                 </>
 
                 <>
+                  <Route
+                    path={`/:network${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?/:feeAmount?`}
+                    element={<RedirectElasticCreatePool />}
+                  />
+
                   {/* These are old routes and will soon be deprecated - Check: RoutesWithNetworkParam */}
                   <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
                   <Route path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />

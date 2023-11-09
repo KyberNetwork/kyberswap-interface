@@ -41,6 +41,7 @@ export function useZapInPoolResult(params?: {
   amountIn: CurrencyAmount<Currency>
   tickLower: number
   tickUpper: number
+  skip?: boolean
 }): {
   loading: boolean
   aggregatorData: RouteSummary | null
@@ -67,13 +68,13 @@ export function useZapInPoolResult(params?: {
 
   const [aggregatorOutputs, setAggregatorOutputs] = useState<Array<RouteSummary>>([])
 
-  const { tokenIn, tokenOut, poolAddress } = params || {}
+  const { tokenIn, tokenOut, poolAddress, skip } = params || {}
 
   const getRoutes = useCallback(() => {
     if (slippage) {
       // added to refresh rate when slippage change, aggregator dont need this
     }
-    if (tokenIn && tokenOut && poolAddress) {
+    if (tokenIn && tokenOut && poolAddress && !skip) {
       setAggregatorOutputs([])
       if (useAggregatorForZap) {
         setLoadingAggregator(true)
@@ -101,7 +102,7 @@ export function useZapInPoolResult(params?: {
           })
       }
     }
-  }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url, useAggregatorForZap, slippage])
+  }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url, useAggregatorForZap, slippage, skip])
 
   useEffect(() => {
     getRoutes()

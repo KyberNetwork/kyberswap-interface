@@ -11,7 +11,7 @@ import Divider from 'components/Divider'
 import { GasStation } from 'components/Icons'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+import { useKyberChainId } from 'hooks'
 import { ZapResult, useZapInAction } from 'hooks/elasticZap'
 import useTheme from 'hooks/useTheme'
 import { useKyberSwapConfig } from 'state/application/hooks'
@@ -77,7 +77,7 @@ export const useZapDetail = ({
   tickUpper?: number
   previousTicks?: number[]
 }): ZapDetail => {
-  const { chainId } = useActiveWeb3React()
+  const chainId = useKyberChainId()
   const { readProvider } = useKyberSwapConfig()
 
   const equivalentQuoteAmount =

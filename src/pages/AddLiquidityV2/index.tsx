@@ -14,7 +14,7 @@ import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import mixpanel from 'mixpanel-browser'
 import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Repeat } from 'react-feather'
+import { AlertTriangle } from 'react-feather'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -27,9 +27,8 @@ import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { useZapDetail } from 'components/ElasticZap/ZapDetail'
-import FeeSelector from 'components/FeeSelector'
 import HoverInlineText from 'components/HoverInlineText'
-import { Swap as SwapIcon, TwoWayArrow } from 'components/Icons'
+import { TwoWayArrow } from 'components/Icons'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import ListPositions from 'components/ProAmm/ListPositions'
@@ -47,14 +46,10 @@ import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
 import PriceImpactNote, { ZapHighPriceImpact } from 'components/SwapForm/PriceImpactNote'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
-import TransactionConfirmationModal, {
-  ConfirmationModalContent,
-  TransactionErrorContent,
-} from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
 import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
-import { ELASTIC_NOT_SUPPORTED } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -69,9 +64,10 @@ import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useProAmmPreviousTicks, { useProAmmMultiplePreviousTicks } from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { convertTickToPrice } from 'pages/Farm/ElasticFarmv2/utils'
 import { ApplicationModal } from 'state/application/actions'
-import { useNotify, useOpenModal, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useOpenModal, useWalletModalToggle } from 'state/application/hooks'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
@@ -92,21 +88,21 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
-import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage, formatSlippage } from 'utils/slippage'
-import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
+import { getChainIdFromSlug } from 'utils/string'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import DisclaimerERC20 from './components/DisclaimerERC20'
 import NewPoolNote from './components/NewPoolNote'
+import { PoolSelection } from './components/PoolSelection'
+import { AddLiquidityTransactionConfirmModal, ZapConfirmTransactionModal } from './components/TransactionConfirmModal'
 import { RANGE_LIST, rangeData } from './constants'
 import {
-  ArrowWrapper,
   ChartBody,
   ChartWrapper,
   Container,
@@ -138,14 +134,15 @@ const TextUnderlineTransparent = styled(Text)`
 `
 
 export default function AddLiquidity() {
-  const { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl } = useParams()
+  const { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl, network } = useParams()
   const navigate = useNavigate()
-  const [rotate, setRotate] = useState(false)
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId: currentWalletChainId, isEVM } = useActiveWeb3React()
+  const chainId = getChainIdFromSlug(network) || currentWalletChainId
+
   const { library } = useWeb3React()
   const theme = useTheme()
-  const openNetworkModal = useOpenNetworkModal()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
+  const { changeNetwork } = useChangeNetwork()
   const [isDegenMode] = useDegenModeManager()
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerReadingContract()
@@ -254,7 +251,7 @@ export default function AddLiquidity() {
   const defaultFId = Number(searchParams.get('fId') || '0')
   const range = activeRanges.find(i => i.index === activeRangeIndex && i.farm.fId === defaultFId)
 
-  const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
+  const isZapAvailable = !!(NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic.zap
   const [method, setMethod] = useState<'pair' | 'zap'>(() => (isZapAvailable ? 'zap' : 'pair'))
 
   useEffect(() => {
@@ -389,7 +386,7 @@ export default function AddLiquidity() {
       : isMultiplePosition
       ? currencyAmountSum[Field.CURRENCY_A]
       : parsedAmounts_A,
-    isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
+    isEVM ? (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
 
   const [approvalB, approveBCallback] = useApproveCallback(
@@ -398,7 +395,7 @@ export default function AddLiquidity() {
       : isMultiplePosition
       ? currencyAmountSum[Field.CURRENCY_B]
       : parsedAmounts_B,
-    isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
+    isEVM ? (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
 
   const tokens = useMemo(
@@ -410,7 +407,10 @@ export default function AddLiquidity() {
     loading,
     fetchPrices,
     refetch,
-  } = useTokenPricesWithLoading(tokens.map(t => t?.wrapped.address || ''))
+  } = useTokenPricesWithLoading(
+    tokens.map(t => t?.wrapped.address || ''),
+    chainId,
+  )
   const marketPrice =
     usdPrices[quoteCurrency?.wrapped.address || ''] &&
     usdPrices[baseCurrency?.wrapped.address || ''] &&
@@ -444,7 +444,7 @@ export default function AddLiquidity() {
 
   const previousTicksParam = isMultiplePosition ? mutiplePreviousTicks : previousTicks
 
-  const { data: poolDatas } = useGetElasticPools([poolAddress])
+  const { data: poolDatas } = useGetElasticPools([poolAddress], chainId)
 
   const onAdd = useCallback(
     async function () {
@@ -470,7 +470,7 @@ export default function AddLiquidity() {
 
         //0.00283161
         const txn: { to: string; data: string; value: string } = {
-          to: (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
+          to: (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic.nonfungiblePositionManager,
           data: calldata,
           value,
         }
@@ -491,7 +491,7 @@ export default function AddLiquidity() {
               .sendTransaction(newTxn)
               .then((response: TransactionResponse) => {
                 onResetMintState()
-                navigate(`${APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=elastic`)
+                navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?tab=elastic`)
 
                 setAttemptingTxn(false)
                 if (noLiquidity) {
@@ -555,6 +555,7 @@ export default function AddLiquidity() {
     [
       isEVM,
       library,
+      chainId,
       account,
       positionManager,
       baseCurrency,
@@ -564,7 +565,6 @@ export default function AddLiquidity() {
       previousTicksParam,
       userSlippageTolerance,
       noLiquidity,
-      networkInfo,
       onResetMintState,
       navigate,
       parsedAmounts_A,
@@ -577,64 +577,6 @@ export default function AddLiquidity() {
     ],
   )
 
-  const handleCurrencySelect = useCallback(
-    (currencyNew: Currency, currencyIdOther?: string): (string | undefined)[] => {
-      const currencyIdNew = currencyId(currencyNew, chainId)
-
-      if (currencyIdNew === currencyIdOther) {
-        // not ideal, but for now clobber the other if the currency ids are equal
-        return [currencyIdNew, undefined]
-      } else {
-        // prevent weth + eth
-        const isETHOrWETHNew = currencyNew.isNative || (chainId && currencyIdNew === WETH[chainId]?.address)
-        const isETHOrWETHOther =
-          !!currencyIdOther &&
-          ((chainId && currencyIdOther === NativeCurrencies[chainId].symbol) ||
-            (chainId && currencyIdOther === WETH[chainId]?.address))
-
-        if (isETHOrWETHNew && isETHOrWETHOther) {
-          return [currencyIdNew, undefined]
-        } else {
-          return [currencyIdNew, currencyIdOther]
-        }
-      }
-    },
-    [chainId],
-  )
-
-  const handleCurrencyASelect = useCallback(
-    (currencyANew: Currency) => {
-      const [idA, idB] = handleCurrencySelect(currencyANew, currencyIdB)
-      if (idB === undefined) {
-        navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}`)
-      } else {
-        navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}/${idB}`)
-      }
-    },
-    [handleCurrencySelect, currencyIdB, navigate, networkInfo.route],
-  )
-
-  const handleCurrencyBSelect = useCallback(
-    (currencyBNew: Currency) => {
-      const [idB, idA] = handleCurrencySelect(currencyBNew, currencyIdA)
-      if (idA === undefined) {
-        navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${idB}`)
-      } else {
-        navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}/${idB}`)
-      }
-    },
-    [handleCurrencySelect, currencyIdA, navigate, networkInfo.route],
-  )
-
-  const handleFeePoolSelect = useCallback(
-    (newFeeAmount: FeeAmount) => {
-      onLeftRangeInput('')
-      onRightRangeInput('')
-      navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
-    },
-    [currencyIdA, currencyIdB, navigate, networkInfo.route, onLeftRangeInput, onRightRangeInput],
-  )
-
   const handleDismissConfirmation = useCallback(() => {
     if (method === 'zap') setShowZapConfirmation(false)
     else setShowConfirm(false)
@@ -643,10 +585,10 @@ export default function AddLiquidity() {
     if (txHash) {
       onFieldAInput('')
       // dont jump to pool page if creating
-      navigate(`${APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=elastic`)
+      navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?tab=elastic`)
     }
     setTxHash('')
-  }, [navigate, networkInfo.route, onFieldAInput, txHash, method])
+  }, [navigate, onFieldAInput, txHash, method, chainId])
 
   const handleDismissConfirmationRef = useRef(handleDismissConfirmation)
 
@@ -728,10 +670,7 @@ export default function AddLiquidity() {
     positions.length,
   ])
 
-  const upToXL = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXL}px)`)
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   const priceDiff =
     baseCurrency && quoteCurrency && tokenA && tokenB && price
@@ -761,6 +700,14 @@ export default function AddLiquidity() {
     !account ? (
       <ButtonLight onClick={toggleWalletModal} width={upToMedium ? '100%' : 'fit-content'} minWidth="164px !important">
         <Trans>Connect</Trans>
+      </ButtonLight>
+    ) : currentWalletChainId !== chainId ? (
+      <ButtonLight
+        width={upToMedium ? '100%' : 'fit-content'}
+        minWidth="164px !important"
+        onClick={() => changeNetwork(chainId)}
+      >
+        Switch to {NETWORKS_INFO[chainId].name}
       </ButtonLight>
     ) : (
       <Flex
@@ -999,7 +946,6 @@ export default function AddLiquidity() {
     </Flex>
   )
 
-  const disableFeeSelect = !currencyIdA || !currencyIdB
   const disableRangeSelect = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
   const hasTab = !noLiquidity && !disableRangeSelect
   const disableAmountSelect = disableRangeSelect || tickLower === undefined || tickUpper === undefined || invalidRange
@@ -1021,7 +967,7 @@ export default function AddLiquidity() {
       : currencyIdB
     return (
       chainId &&
-      navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${param1}/${param2}/${feeAmount}`, {
+      navigate(`/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}/${param1}/${param2}/${feeAmount}`, {
         replace: true,
       })
     )
@@ -1075,12 +1021,13 @@ export default function AddLiquidity() {
           amountIn,
           tickLower,
           tickUpper,
+          skip: method !== 'zap',
         }
       : undefined
-  }, [amountIn, poolAddress, selectedCurrency, quoteZapCurrency, tickLower, tickUpper])
+  }, [amountIn, poolAddress, selectedCurrency, quoteZapCurrency, tickLower, tickUpper, method])
 
   const { loading: zapLoading, result: zapResult, aggregatorData } = useZapInPoolResult(params)
-  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
+  const zapInContractAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic.zap?.router
   const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapIn } = useZapInAction()
   const [showZapConfirmation, setShowZapConfirmation] = useState(false)
@@ -1677,7 +1624,9 @@ export default function AddLiquidity() {
         {tokenA && tokenB && <DisclaimerERC20 token0={tokenA.address} token1={tokenB.address} />}
 
         {zapPriceImpactNote}
-        <Row justify="flex-end">{method === 'pair' || !account ? <Buttons /> : ZapButton}</Row>
+        <Row justify="flex-end">
+          {method === 'pair' || !account || currentWalletChainId !== chainId ? <Buttons /> : ZapButton}
+        </Row>
       </Row>
     </>
   )
@@ -1738,8 +1687,6 @@ export default function AddLiquidity() {
     [account, userLiquidityPositionsQueryResult],
   )
 
-  const tightTokenSelect = !upToMedium && upToLarge
-
   const onFarmRangeSelected = useCallback(
     (tickLower: number, tickUpper: number) => {
       const tickSpacing = TICK_SPACINGS[feeAmount]
@@ -1792,51 +1739,19 @@ export default function AddLiquidity() {
   }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected, positionsState, pIndex])
   if (!isEVM) return <Navigate to="/" />
 
-  const symbol0 = getTokenSymbolWithHardcode(
-    chainId,
-    pool?.token0?.wrapped.address,
-    useWrapped ? pool?.token0?.wrapped.symbol : (pool?.token0 ? unwrappedToken(pool.token0) : pool?.token0)?.symbol,
-  )
-  const symbol1 = getTokenSymbolWithHardcode(
-    chainId,
-    pool?.token1?.wrapped.address,
-    useWrapped ? pool?.token1?.wrapped.symbol : (pool?.token1 ? unwrappedToken(pool.token1) : pool?.token1)?.symbol,
-  )
-
   return (
     <>
-      <TransactionConfirmationModal
-        isOpen={showConfirm}
-        onDismiss={handleDismissConfirmation}
+      <AddLiquidityTransactionConfirmModal
+        warnings={warnings}
+        noLiquidity={!!noLiquidity}
+        showConfirm={showConfirm}
+        handleDismissConfirmation={handleDismissConfirmation}
         attemptingTxn={attemptingTxn}
-        hash={txHash}
-        maxWidth={isMultiplePosition ? 'unset' : undefined}
-        width={isMultiplePosition ? 'unset' : undefined}
-        content={() => (
-          <ConfirmationModalContent
-            title={!!noLiquidity ? t`Create a new pool` : t`Add Liquidity`}
-            onDismiss={handleDismissConfirmation}
-            topContent={modalContent}
-            showGridListOption={false}
-            bottomContent={() => (
-              <Flex flexDirection="column" sx={{ gap: '12px' }}>
-                {warnings}
-                <Row justify={isMultiplePosition ? 'flex-end' : 'flex-start'}>
-                  <ButtonError
-                    warning={isWarningButton}
-                    id="btnSupply"
-                    onClick={onAdd}
-                    width={isMultiplePosition ? '160px' : '100%'}
-                  >
-                    <Text fontWeight={500}>
-                      <Trans>Supply</Trans>
-                    </Text>
-                  </ButtonError>
-                </Row>
-              </Flex>
-            )}
-          />
-        )}
+        txHash={txHash}
+        isMultiplePosition={isMultiplePosition}
+        modalContent={modalContent}
+        isWarningButton={isWarningButton}
+        onAdd={onAdd}
         pendingText={pendingText}
       />
       <PageWrapper>
@@ -1848,303 +1763,148 @@ export default function AddLiquidity() {
           onCleared={() => {
             onFieldAInput('0')
             onFieldBInput('0')
-            navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}`)
+            navigate(`/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}`)
           }}
           tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
         />
         <Container>
-          {ELASTIC_NOT_SUPPORTED[chainId] ? (
-            <Flex
-              height="500px"
-              justifyContent="center"
-              alignItems="center"
-              flexDirection="column"
-              sx={{ gap: '16px' }}
-            >
-              <Text>{ELASTIC_NOT_SUPPORTED[chainId]}</Text>
-              <ButtonLight
-                onClick={openNetworkModal}
-                width={upToMedium ? '100%' : 'fit-content'}
-                minWidth="164px !important"
-              >
-                <Trans>Change network</Trans>
-              </ButtonLight>
-            </Flex>
-          ) : (
-            <>
-              <Flex sx={{ gap: '24px' }}>
-                <FlexLeft>
-                  <RowBetween>
-                    <Text fontSize={20}>
-                      <Trans>Choose pool</Trans>
-                    </Text>
-                    <div>
-                      <ButtonLight
-                        padding="2px 8px"
-                        as={ExternalLink}
-                        href={`${APP_PATHS.SWAP}/${networkInfo.route}?${
-                          currencyIdA ? `inputCurrency=${currencyIdA}` : ''
-                        }${currencyIdB ? `&outputCurrency=${currencyIdB}` : ''}`}
-                        onClick={() => {
+          <Flex sx={{ gap: '24px' }}>
+            <FlexLeft>
+              <PoolSelection
+                tokenA={tokenA}
+                tokenB={tokenB}
+                formattedAmounts={formattedAmounts}
+                onFieldAInput={onFieldAInput}
+                onFieldBInput={onFieldBInput}
+                currencies={currencies}
+                estimatedUsdCurrencyA={estimatedUsdCurrencyA}
+                estimatedUsdCurrencyB={estimatedUsdCurrencyB}
+                pricesAtTicks={pricesAtTicks}
+                onLeftRangeInput={onLeftRangeInput}
+                onRightRangeInput={onRightRangeInput}
+              />
+
+              {noLiquidity ? (
+                <AutoColumn gap="1rem">
+                  <AutoColumn gap="12px">
+                    <RowBetween>
+                      <Text fontWeight="500">
+                        <Trans>Set Starting Price</Trans>
+                      </Text>
+                    </RowBetween>
+                    <Flex
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <TYPE.body fontSize={12} textAlign="left" color={theme.subText} lineHeight="16px">
+                        <Trans>
+                          To initialize this pool, select a starting price for the pool then enter your liquidity price
+                          range.
+                        </Trans>
+                      </TYPE.body>
+                    </Flex>
+                  </AutoColumn>
+                  <AutoColumn gap="12px">
+                    <OutlineCard
+                      padding="12px 16px"
+                      style={{ borderRadius: '999px', backgroundColor: theme.buttonBlack, border: 'none' }}
+                    >
+                      <StyledInput
+                        className="start-price-input"
+                        value={startPriceTypedValue}
+                        onUserInput={onStartPriceInput}
+                      />
+                    </OutlineCard>
+
+                    <RowBetween>
+                      <Text fontWeight="500" color={theme.subText} fontSize="12px">
+                        <Trans>Starting Price</Trans>
+                      </Text>
+                      <TYPE.main>
+                        {price ? (
+                          <TYPE.main fontSize="14px">
+                            <RowFixed>
+                              <HoverInlineText
+                                maxCharacters={24}
+                                text={`1 ${baseCurrency?.symbol} = ${formatDisplayNumber(
+                                  invertPrice ? price.invert() : price,
+                                  {
+                                    significantDigits: 6,
+                                  },
+                                )} ${quoteCurrency?.symbol}`}
+                              />
+                            </RowFixed>
+                          </TYPE.main>
+                        ) : (
+                          '-'
+                        )}
+                      </TYPE.main>
+                    </RowBetween>
+                    <NewPoolNote
+                      loading={loading}
+                      onRefreshPrice={() => fetchPrices(tokens.map(t => t?.wrapped.address || ''))}
+                      marketPrice={marketPrice}
+                      baseCurrency={baseCurrency}
+                      quoteCurrency={quoteCurrency}
+                    />
+                  </AutoColumn>
+                </AutoColumn>
+              ) : (
+                poolStat && (
+                  <>
+                    <Flex sx={{ flex: 1, gap: '12px', flexDirection: 'column' }}>
+                      <Text fontWeight={500} fontSize="12px">
+                        <Trans>Pool Stats</Trans>
+                      </Text>
+                      <ProAmmPoolStat
+                        pool={poolStat}
+                        onShared={openShareModal}
+                        userPositions={userPositions}
+                        onClickPoolAnalytics={() => {
                           if (tokenA?.symbol && tokenB?.symbol)
-                            mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_SWAP, {
+                            mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC, {
                               token_1: tokenA?.symbol,
                               token_2: tokenB?.symbol,
                             })
                         }}
-                      >
-                        <Repeat size={16} />
-                        <Text marginLeft="4px">
-                          <Trans>Swap</Trans>
-                        </Text>
-                      </ButtonLight>
-                    </div>
-                  </RowBetween>
-                  <RowBetween
-                    sx={{ gap: upToXL ? (upToMedium ? '8px' : '4px') : '20px' }}
-                    flexDirection={upToXXSmall ? 'column' : 'row'}
-                  >
-                    <CurrencyInputPanel
-                      hideBalance
-                      value={formattedAmounts[Field.CURRENCY_A]}
-                      onUserInput={onFieldAInput}
-                      hideInput={true}
-                      onMax={null}
-                      onHalf={null}
-                      onCurrencySelect={handleCurrencyASelect}
-                      currency={currencies_A ?? null}
-                      id="add-liquidity-input-tokena"
-                      showCommonBases
-                      estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
-                      maxCurrencySymbolLength={6}
-                      tight={tightTokenSelect}
+                      />
+                    </Flex>
+                    <ShareModal
+                      url={`${window.location.origin}/pools/${NETWORKS_INFO[chainId].route}?search=${poolAddress}&tab=elastic`}
+                      title={t`Share this pool with your friends!`}
                     />
-
-                    <ArrowWrapper
-                      isVertical={!upToXXSmall}
-                      rotated={rotate}
-                      onClick={() => {
-                        if (!!rightPrice) {
-                          onLeftRangeInput(rightPrice?.invert().toString())
-                        }
-                        if (!!leftPrice) {
-                          onRightRangeInput(leftPrice?.invert().toString())
-                        }
-                        setRotate(prev => !prev)
-                      }}
-                    >
-                      {!currencyIdA && !currencyIdB ? (
-                        <SwapIcon size={upToMedium ? 12 : 24} color={theme.subText} />
-                      ) : (
-                        <StyledInternalLink
-                          replace
-                          to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdB}/${currencyIdA}/${feeAmount}`}
-                          style={{ color: 'inherit', display: 'flex' }}
-                        >
-                          <SwapIcon size={24} color={theme.subText} />
-                        </StyledInternalLink>
-                      )}
-                    </ArrowWrapper>
-
-                    <CurrencyInputPanel
-                      hideBalance
-                      value={formattedAmounts[Field.CURRENCY_B]}
-                      hideInput={true}
-                      onUserInput={onFieldBInput}
-                      onCurrencySelect={handleCurrencyBSelect}
-                      onMax={null}
-                      onHalf={null}
-                      positionMax="top"
-                      currency={currencies_B ?? null}
-                      id="add-liquidity-input-tokenb"
-                      showCommonBases
-                      estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
-                      maxCurrencySymbolLength={6}
-                      tight={tightTokenSelect}
-                    />
-                  </RowBetween>
-                  <DynamicSection disabled={disableFeeSelect} gap="md">
-                    <Text fontWeight={500} fontSize="12px">
-                      <Trans>Select fee tier</Trans>
-                    </Text>
-                    <FeeSelector
-                      feeAmount={feeAmount}
-                      onChange={handleFeePoolSelect}
-                      currencyA={currencies_A}
-                      currencyB={currencies_B}
-                    />
-                  </DynamicSection>
-
-                  {noLiquidity ? (
-                    <AutoColumn gap="1rem">
-                      <AutoColumn gap="12px">
-                        <RowBetween>
-                          <Text fontWeight="500">
-                            <Trans>Set Starting Price</Trans>
-                          </Text>
-                        </RowBetween>
-                        <Flex
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <TYPE.body fontSize={12} textAlign="left" color={theme.subText} lineHeight="16px">
-                            <Trans>
-                              To initialize this pool, select a starting price for the pool then enter your liquidity
-                              price range.
-                            </Trans>
-                          </TYPE.body>
-                        </Flex>
-                      </AutoColumn>
-                      <AutoColumn gap="12px">
-                        <OutlineCard
-                          padding="12px 16px"
-                          style={{ borderRadius: '999px', backgroundColor: theme.buttonBlack, border: 'none' }}
-                        >
-                          <StyledInput
-                            className="start-price-input"
-                            value={startPriceTypedValue}
-                            onUserInput={onStartPriceInput}
-                          />
-                        </OutlineCard>
-
-                        <RowBetween>
-                          <Text fontWeight="500" color={theme.subText} fontSize="12px">
-                            <Trans>Starting Price</Trans>
-                          </Text>
-                          <TYPE.main>
-                            {price ? (
-                              <TYPE.main fontSize="14px">
-                                <RowFixed>
-                                  <HoverInlineText
-                                    maxCharacters={24}
-                                    text={`1 ${baseCurrency?.symbol} = ${formatDisplayNumber(
-                                      invertPrice ? price.invert() : price,
-                                      {
-                                        significantDigits: 6,
-                                      },
-                                    )} ${quoteCurrency?.symbol}`}
-                                  />
-                                </RowFixed>
-                              </TYPE.main>
-                            ) : (
-                              '-'
-                            )}
-                          </TYPE.main>
-                        </RowBetween>
-                        <NewPoolNote
-                          loading={loading}
-                          onRefreshPrice={() => fetchPrices(tokens.map(t => t?.wrapped.address || ''))}
-                          marketPrice={marketPrice}
-                          baseCurrency={baseCurrency}
-                          quoteCurrency={quoteCurrency}
-                        />
-                      </AutoColumn>
-                    </AutoColumn>
-                  ) : (
-                    poolStat && (
-                      <>
-                        <Flex sx={{ flex: 1, gap: '12px', flexDirection: 'column' }}>
-                          <Text fontWeight={500} fontSize="12px">
-                            <Trans>Pool Stats</Trans>
-                          </Text>
-                          <ProAmmPoolStat
-                            pool={poolStat}
-                            onShared={openShareModal}
-                            userPositions={userPositions}
-                            onClickPoolAnalytics={() => {
-                              if (tokenA?.symbol && tokenB?.symbol)
-                                mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC, {
-                                  token_1: tokenA?.symbol,
-                                  token_2: tokenB?.symbol,
-                                })
-                            }}
-                          />
-                        </Flex>
-                        <ShareModal
-                          url={`${window.location.origin}/pools/${networkInfo.route}?search=${poolAddress}&tab=elastic`}
-                          title={t`Share this pool with your friends!`}
-                        />
-                      </>
-                    )
-                  )}
-                  {upToMedium && chart}
-                </FlexLeft>
-                {!upToMedium && <RightContainer gap="lg">{chart}</RightContainer>}
-              </Flex>
-            </>
-          )}
+                  </>
+                )
+              )}
+              {upToMedium && chart}
+            </FlexLeft>
+            {!upToMedium && <RightContainer gap="lg">{chart}</RightContainer>}
+          </Flex>
         </Container>
       </PageWrapper>
       <FarmUpdater interval={false} />
       <ElasticFarmV2Updater interval={false} />
 
-      <TransactionConfirmationModal
-        isOpen={showZapConfirmation}
-        onDismiss={handleDismissConfirmation}
-        hash={txHash}
+      <ZapConfirmTransactionModal
+        showZapConfirmation={showZapConfirmation}
+        handleDismissConfirmation={handleDismissConfirmation}
+        txHash={txHash}
         attemptingTxn={attemptingTxn}
-        pendingText={
-          <Trans>
-            Zapping {amountIn?.toSignificant(6)} {selectedCurrency?.symbol} into {newPosDraft?.amount0.toSignificant(6)}{' '}
-            {symbol0} and {newPosDraft?.amount1.toSignificant(6)} {symbol1} of liquidity to the pool
-          </Trans>
-        }
-        content={() => (
-          <Flex flexDirection={'column'} width="100%">
-            {zapError ? (
-              <TransactionErrorContent onDismiss={handleDissmissZap} message={zapError} />
-            ) : (
-              <ConfirmationModalContent
-                title={t`Add Liquidity`}
-                onDismiss={handleDissmissZap}
-                topContent={() => (
-                  <div style={{ marginTop: '1rem' }}>
-                    {!!zapDetail.newPosDraft && <ProAmmPoolInfo position={zapDetail.newPosDraft} />}
-                    <ProAmmPooledTokens
-                      liquidityValue0={
-                        selectedCurrency?.isNative
-                          ? CurrencyAmount.fromRawAmount(
-                              selectedCurrency,
-                              zapDetail.newPooledAmount0?.quotient.toString() || 0,
-                            )
-                          : zapDetail.newPooledAmount0
-                      }
-                      liquidityValue1={zapDetail.newPooledAmount1}
-                      title={t`New Liquidity Amount`}
-                    />
-                    {!!zapDetail.newPosDraft && (
-                      <ProAmmPriceRangeConfirm
-                        position={zapDetail.newPosDraft}
-                        ticksAtLimit={ticksAtLimit}
-                        zapDetail={zapDetail}
-                      />
-                    )}
-                  </div>
-                )}
-                showGridListOption={false}
-                bottomContent={() => (
-                  <Flex flexDirection="column" sx={{ gap: '12px' }}>
-                    {warnings}
-                    {zapPriceImpactNote}
-                    <ButtonError
-                      error={zapDetail.priceImpact.isVeryHigh}
-                      warning={isWarningButton || zapDetail.priceImpact.isHigh}
-                      id="btnSupply"
-                      onClick={handleZap}
-                    >
-                      <Text fontWeight={500}>
-                        <Trans>Supply</Trans>
-                      </Text>
-                    </ButtonError>
-                  </Flex>
-                )}
-              />
-            )}
-          </Flex>
-        )}
+        amountIn={amountIn}
+        selectedCurrency={selectedCurrency}
+        newPosDraft={newPosDraft}
+        zapError={zapError}
+        handleDissmissZap={handleDissmissZap}
+        zapDetail={zapDetail}
+        ticksAtLimit={ticksAtLimit}
+        warnings={warnings}
+        zapPriceImpactNote={zapPriceImpactNote}
+        handleZap={handleZap}
+        isWarningButton={isWarningButton}
+        useWrapped={useWrapped}
       />
     </>
   )

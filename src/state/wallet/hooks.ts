@@ -6,7 +6,7 @@ import ERC20_INTERFACE from 'constants/abis/erc20'
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
 import { isEVM as isEVMChain } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useKyberChainId } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useEthBalanceOfAnotherChain, useTokensBalanceOfAnotherChain } from 'hooks/bridge'
 import { useMulticallContract } from 'hooks/useContract'
@@ -16,25 +16,24 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils'
 import { isTokenNative } from 'utils/tokenInfo'
 
-import { useSOLBalance, useTokensBalanceSolana } from './solanaHooks'
+import { useTokensBalanceSolana } from './solanaHooks'
 
 export function useNativeBalance(customChain?: ChainId): CurrencyAmount<Currency> | undefined {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
-  const isEVM = isEVMChain(chainId)
   const isFetchOtherChain = chainId !== currentChain
 
   const userEthBalanceAnotherChain = useEthBalanceOfAnotherChain(isFetchOtherChain ? chainId : undefined)
   const userEthBalance = useETHBalance()
-  const userSolBalance = useSOLBalance()
+  // const userSolBalance = useSOLBalance()
 
   const evmBalance = isFetchOtherChain ? userEthBalanceAnotherChain : userEthBalance
-  return isEVM ? evmBalance : userSolBalance
+  return evmBalance
 }
 
 function useETHBalance(): CurrencyAmount<Currency> | undefined {
   const { chainId, account } = useActiveWeb3React()
-  const multicallContract = useMulticallContract()
+  const multicallContract = useMulticallContract(chainId)
 
   const addressParam: (string | undefined)[] = useMemo(
     () => (account && isAddress(chainId, account) ? [account] || [undefined] : [undefined]),
@@ -163,7 +162,8 @@ export function useCurrencyBalances(
   currencies?: (Currency | undefined)[],
   customChain?: ChainId,
 ): CurrencyAmount<Currency>[] {
-  const { account, chainId: currentChain } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
+  const currentChain = useKyberChainId()
   const chainId = customChain || currentChain
 
   const tokens: Token[] = useMemo(() => {

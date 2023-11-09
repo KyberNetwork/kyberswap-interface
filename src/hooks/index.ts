@@ -5,7 +5,7 @@ import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useCheckBlackjackQuery } from 'services/blackjack'
 
 import { blocto, gnosisSafe, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors/evm'
@@ -17,6 +17,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { detectInjectedType, isEVMWallet, isSolanaWallet } from 'utils'
+import { getChainIdFromSlug } from 'utils/string'
 
 export function useActiveWeb3React(): {
   chainId: ChainId
@@ -173,4 +174,17 @@ export function useWeb3React(): Web3React {
 export const useWeb3Solana = () => {
   const { connection } = useKyberSwapConfig()
   return { connection }
+}
+
+export const useKyberChainId = () => {
+  const { network } = useParams()
+  const { pathname } = location
+  const params = pathname.split('/')
+
+  const networkFromUrl = params.map(item => getChainIdFromSlug(item)).filter(Boolean)
+
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = getChainIdFromSlug(network) || networkFromUrl?.[0] || walletChainId
+
+  return chainId
 }
