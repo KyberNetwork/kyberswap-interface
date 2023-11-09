@@ -101,8 +101,8 @@ export default function PortfolioSettings() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const [showCreate, setShowCreate] = useState(false)
-  const { data: portfolios = EMPTY_ARRAY, isLoading } = useGetPortfoliosQuery()
-  const loading = useShowLoadingAtLeastTime(isLoading, 1000)
+  const { data: portfolios = EMPTY_ARRAY, isFetching } = useGetPortfoliosQuery()
+  const loading = useShowLoadingAtLeastTime(isFetching, 1000)
 
   const { userInfo } = useSessionInfo()
   const invalidateTags = useInvalidateTagPortfolio()
