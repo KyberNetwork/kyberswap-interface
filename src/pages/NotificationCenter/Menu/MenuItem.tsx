@@ -94,7 +94,7 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
   const { mixpanelHandler } = useMixpanel()
   const onClickMenu = (e: React.MouseEvent) => {
     e.stopPropagation()
-    isChildren && onChildrenClick?.()
+    if (isChildren || (!isChildren && childs?.length === 0)) onChildrenClick?.()
     if (onClick) {
       onClick()
       return

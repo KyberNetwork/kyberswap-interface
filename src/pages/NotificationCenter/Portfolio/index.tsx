@@ -251,7 +251,7 @@ export default function PortfolioSettings() {
           <Save size={16} style={{ marginRight: '4px' }} />
           {loading ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
         </ButtonSave>
-        <ButtonCancel onClick={resetSetting}>
+        <ButtonCancel onClick={resetSetting} disabled={disableBtnSave}>
           <X size={16} style={{ marginRight: '4px' }} />
           Cancel
         </ButtonCancel>
