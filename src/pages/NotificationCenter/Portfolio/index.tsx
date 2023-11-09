@@ -101,16 +101,17 @@ export default function PortfolioSettings() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const [showCreate, setShowCreate] = useState(false)
-  const { data: portfolios = EMPTY_ARRAY, isFetching } = useGetPortfoliosQuery()
+  const { data: portfolios = EMPTY_ARRAY, isFetching, refetch } = useGetPortfoliosQuery()
   const loading = useShowLoadingAtLeastTime(isFetching, 1000)
 
   const { userInfo } = useSessionInfo()
   const invalidateTags = useInvalidateTagPortfolio()
   useEffect(() => {
     try {
-      invalidateTags([RTK_QUERY_TAGS.GET_LIST_PORTFOLIO, RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO])
+      refetch()
+      invalidateTags([RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO])
     } catch (error) {}
-  }, [userInfo?.identityId, invalidateTags])
+  }, [userInfo?.identityId, invalidateTags, refetch])
 
   const showModalCreatePortfolio = () => {
     setShowCreate(true)
