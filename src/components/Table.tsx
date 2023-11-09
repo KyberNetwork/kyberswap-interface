@@ -38,7 +38,7 @@ const TRow = styled.tr<{ column: number }>`
 
 export type TableColumn<T> = {
   title: ReactNode
-  dataIndex: string
+  dataIndex?: string
   align?: 'left' | 'center' | 'right'
   tooltip?: ReactNode
   render?: (data: { value: any; item: T }) => ReactNode // todo
@@ -102,6 +102,10 @@ export default function Table<T>({
           <TRow key={i} column={columns.length}>
             {columns.map(({ dataIndex, align, render }) => {
               const value = item[dataIndex as keyof T]
+              let content = null
+              try {
+                content = render ? render({ value, item }) : (value as ReactNode)
+              } catch (error) {}
               return (
                 <td
                   key={typeof value === 'string' ? value : i}
@@ -112,7 +116,7 @@ export default function Table<T>({
                     alignItems: 'center',
                   }}
                 >
-                  {render ? render({ value, item }) : (value as ReactNode)}
+                  {content}
                 </td>
               )
             })}

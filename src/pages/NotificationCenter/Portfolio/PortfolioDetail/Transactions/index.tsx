@@ -10,7 +10,9 @@ import Column from 'components/Column'
 import Row, { RowFit } from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
+import { parseFraction } from 'components/swapv2/LimitOrder/helpers'
 import { EMPTY_ARRAY } from 'constants/index'
+import { NativeCurrencies } from 'constants/tokens'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
@@ -34,6 +36,21 @@ const TxsHashCell = ({ item: { txHash, blockTime, chain } }: { item: Transaction
         {dayjs(blockTime * 1000).format('DD/MM/YYYY HH:mm')}
       </Text>
     </Column>
+  )
+}
+
+const GasFeeCell = ({
+  item: { gasPrice, chain, historicalNativeTokenPrice, gasUsed },
+}: {
+  item: TransactionHistory
+}) => {
+  const native = NativeCurrencies[chain?.chainId as ChainId]
+  const totalGas = parseFraction(gasPrice, native.decimals).multiply(gasUsed)
+  return (
+    <>
+      {formatDisplayNumber(totalGas, { style: 'currency', significantDigits: 6 })} {native.symbol} (
+      {formatDisplayNumber(totalGas.multiply(historicalNativeTokenPrice), { style: 'currency', fractionDigits: 4 })})
+    </>
   )
 }
 
@@ -65,8 +82,7 @@ const columns: TableColumn<TransactionHistory>[] = [
   },
   {
     title: t`Txs Fee`,
-    dataIndex: 'amountUsd',
-    render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
+    render: GasFeeCell,
   },
 ]
 

@@ -11,6 +11,7 @@ import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
+import { ReactComponent as PortfolioIcon } from 'assets/svg/portfolio.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
@@ -395,22 +396,34 @@ export default function Menu() {
               </MenuItem>
             )}
             {showAnalytics && (
-              <MenuItem>
-                <NavDropDown
-                  icon={<PieChart />}
-                  link="#"
-                  title={t`Analytics`}
-                  options={[
-                    { link: DMM_ANALYTICS_URL[chainId], label: t`Liquidity`, external: true },
-                    {
-                      link: AGGREGATOR_ANALYTICS_URL,
-                      label: t`Aggregator`,
-                      external: true,
-                    },
-                  ]}
-                />
-              </MenuItem>
+              <>
+                <MenuItem
+                  onClick={() => {
+                    toggle()
+                    navigate(APP_PATHS.PORTFOLIO)
+                  }}
+                >
+                  <PortfolioIcon />
+                  <Trans>Portfolio</Trans>
+                </MenuItem>
+                <MenuItem>
+                  <NavDropDown
+                    icon={<PieChart />}
+                    link="#"
+                    title={t`Analytics`}
+                    options={[
+                      { link: DMM_ANALYTICS_URL[chainId], label: t`Liquidity`, external: true },
+                      {
+                        link: AGGREGATOR_ANALYTICS_URL,
+                        label: t`Aggregator`,
+                        external: true,
+                      },
+                    ]}
+                  />
+                </MenuItem>
+              </>
             )}
+
             {showAbout && (
               <MenuItem>
                 <NavDropDown

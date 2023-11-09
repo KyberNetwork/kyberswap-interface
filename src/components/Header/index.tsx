@@ -26,7 +26,7 @@ import AnalyticNavGroup from './groups/AnalyticNavGroup'
 import EarnNavGroup from './groups/EarnNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
-import { StyledNavExternalLink } from './styleds'
+import { StyledNavExternalLink, StyledNavLink } from './styleds'
 
 const HeaderFrame = styled.div<{ hide?: boolean }>`
   height: ${({ hide }) => (hide ? 0 : undefined)};
@@ -150,6 +150,14 @@ const BlogWrapper = styled.span`
   }
 `
 
+const PortfolioWrapper = styled.span`
+  display: flex;
+  align-items: center;
+  @media (max-width: ${THRESHOLD_HEADER.ANALYTIC}) {
+    display: none;
+  }
+`
+
 const Title = styled(Link)`
   display: flex;
   align-items: center;
@@ -224,6 +232,11 @@ export default function Header() {
             <KyberAINavItem />
             <CampaignNavGroup />
             <KyberDAONavGroup />
+            <PortfolioWrapper>
+              <StyledNavLink to={APP_PATHS.PORTFOLIO}>
+                <Trans>Portfolio</Trans>
+              </StyledNavLink>
+            </PortfolioWrapper>
             <AnalyticNavGroup />
             <AboutNavGroup />
             <BlogWrapper>
