@@ -4,13 +4,7 @@ import { Network, SwapPage } from '../pages/swap-page.po.cy'
 import { DEFAULT_NETWORK, DEFAULT_URL, NETWORK, TAG } from '../selectors/constants.cy'
 
 const wallet = new Network()
-type TestCase = {
-  id: string
-  pair: string
-  feeTier: string
-  customRange?: CustomRange
-  farmingRange?: FarmingRange
-}
+
 const DataSet = {
   Arbitrum: arbitrumTestCases,
 }
