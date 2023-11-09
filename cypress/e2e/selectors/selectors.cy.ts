@@ -70,4 +70,5 @@ export const PoolLocators = {
   txtPriceValue: 'input[data-testid="price-value"]',
   txtAmountIn: '[data-testid="token-amount-input"]',
   lblCurrentPrice: '[data-testid="current-price"]',
+  btnZapIn: '[data-testid="zap-in-btn"]',
 }

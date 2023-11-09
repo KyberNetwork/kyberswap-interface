@@ -27,12 +27,17 @@ export const PoolsPage = {
     cy.get(PoolLocators.txtPriceValue).eq(1).clear().type(farmingRange.maxPrice)
   },
   getCurrentPrice() {
-    return cy.get(PoolLocators.lblCurrentPrice)
+    return cy
+      .get(PoolLocators.lblCurrentPrice)
+      .invoke('text')
+      .then(currenPriceValue => {
+        return currenPriceValue
+      })
   },
   addLiquidity(poolAddress: string, amountIn: string, customRange?: CustomRange, farmingRange?: FarmingRange) {
     PoolsPage.searchByPoolAddress(poolAddress)
     cy.get('button').contains('Add Liquidity').click()
-    cy.get('[role=button]').contains('Zap In').click()
+    cy.get(PoolLocators.btnZapIn).click()
     if (typeof customRange != 'undefined') {
       PoolsPage.selectCustomRange(customRange)
     }
