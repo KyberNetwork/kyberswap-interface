@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { createApi } from '@reduxjs/toolkit/query/react'
-import baseQueryOauth from 'services/baseQueryOauth'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { RTK_QUERY_TAGS } from 'constants/index'
 import {
@@ -15,7 +14,7 @@ import {
 const KRYSTAL_API = 'https://api.krystal.app/all/v1'
 const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
-  baseQuery: baseQueryOauth({ baseUrl: 'https://portfolio-service-api.dev.kyberengineering.io/api' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://portfolio-service-api.dev.kyberengineering.io/api' }),
   tagTypes: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO, RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
   endpoints: builder => ({
     getPortfolios: builder.query<Portfolio[], void>({
