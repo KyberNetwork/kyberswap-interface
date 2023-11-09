@@ -95,12 +95,12 @@ const WalletItem = ({
   onChangeWalletAction: (v: Actions, wallet: PortfolioWallet) => void
   data: PortfolioWallet
 }) => {
-  const { nickName } = data
+  const { nickName, walletAddress } = data
   const theme = useTheme()
   return (
     <WalletCard>
       <Row gap="6px" style={{ whiteSpace: 'nowrap' }}>
-        {shortString(nickName, 18)}
+        {nickName ? shortString(nickName, 18) : getShortenAddress(walletAddress)}
       </Row>
       <Select
         onChange={v => onChangeWalletAction(v, data)}
