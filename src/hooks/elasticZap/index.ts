@@ -53,6 +53,7 @@ export function useZapInPoolResult(params?: {
 
   const [loadingAggregator, setLoadingAggregator] = useState(false)
   const [getRoute] = useLazyGetRouteQuery()
+  const [slippage] = useUserSlippageTolerance()
 
   const { aggregatorDomain } = useKyberswapGlobalConfig()
   const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
@@ -67,7 +68,11 @@ export function useZapInPoolResult(params?: {
   const [aggregatorOutputs, setAggregatorOutputs] = useState<Array<RouteSummary>>([])
 
   const { tokenIn, tokenOut, poolAddress } = params || {}
-  useEffect(() => {
+
+  const getRoutes = useCallback(() => {
+    if (slippage) {
+      // added to refresh rate when slippage change, aggregator dont need this
+    }
     if (tokenIn && tokenOut && poolAddress) {
       setAggregatorOutputs([])
       if (useAggregatorForZap) {
@@ -96,7 +101,15 @@ export function useZapInPoolResult(params?: {
           })
       }
     }
-  }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url, useAggregatorForZap])
+  }, [tokenIn, tokenOut, poolAddress, splitedAmount, getRoute, url, useAggregatorForZap, slippage])
+
+  useEffect(() => {
+    getRoutes()
+    const i = setInterval(() => {
+      getRoutes()
+    }, 10_000)
+    return () => i && clearInterval(i)
+  }, [getRoutes])
 
   const callParams = useMemo(
     () =>
@@ -159,6 +172,7 @@ export function useZapInPoolResult(params?: {
     }
   }, [data, loadingAggregator, aggregatorOutputs, params])
 
+  console.debug('Zap: best return from zap helper ', bestRes)
   return bestRes
 }
 
@@ -243,18 +257,24 @@ export function useZapInAction() {
           : abiEncoder.encode(['address', 'int24', 'int24', 'uint128'], [account, tickLower, tickUpper, minLiquidity])
 
         const zeros = '0'.repeat(128)
+
+        // max(1, 0.00001% * amount)
+        const exp6 = JSBI.BigInt(1_000_000)
         const minZapAmount0 = JSBI.divide(
-          JSBI.multiply(JSBI.BigInt(amountIn), JSBI.BigInt(slippage)),
-          JSBI.BigInt(10000),
+          JSBI.multiply(JSBI.greaterThan(JSBI.BigInt(amountIn), exp6) ? JSBI.BigInt(amountIn) : exp6, JSBI.BigInt(1)),
+          exp6,
         ).toString(2)
 
         const minZapAmount1 = JSBI.divide(
-          JSBI.multiply(JSBI.BigInt(equivalentQuoteAmount), JSBI.BigInt(slippage)),
-          JSBI.BigInt(10000),
+          JSBI.multiply(
+            JSBI.greaterThan(JSBI.BigInt(equivalentQuoteAmount), exp6) ? JSBI.BigInt(equivalentQuoteAmount) : exp6,
+            JSBI.BigInt(1),
+          ),
+          exp6,
         ).toString(2)
 
-        const minZapAmount = JSBI.BigInt(
-          parseInt((zeros + minZapAmount0).slice(-128) + (zeros + minZapAmount1).slice(-128), 2),
+        const minZapAmount = BigInt(
+          '0b' + (zeros + minZapAmount0).slice(-128) + (zeros + minZapAmount1).slice(-128),
         ).toString()
 
         const zapExecutorData = abiEncoder.encode(

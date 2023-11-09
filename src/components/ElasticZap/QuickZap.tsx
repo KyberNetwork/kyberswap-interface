@@ -1,8 +1,9 @@
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
+import mixpanel from 'mixpanel-browser'
 import { rgba } from 'polished'
-import { ReactElement, useMemo, useState } from 'react'
+import { ReactElement, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -231,6 +232,20 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
   const debouncedValue = useDebounce(typedValue, 300)
 
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
+
+  useEffect(() => {
+    if (amountIn?.toExact()) {
+      mixpanel.track('Zap - Input detailed', {
+        token0: selectedCurrency?.symbol,
+        token1: quoteCurrency?.symbol,
+        zap_token: selectedCurrency?.symbol,
+        token_amount: amountIn.toExact(),
+        source: tokenId ? 'my_pool_page' : 'pool_page',
+      })
+    }
+    // eslint-disable-next-line
+  }, [amountIn?.toExact(), selectedCurrency])
+
   const equivalentQuoteAmount =
     amountIn && pool && selectedCurrency && amountIn.multiply(pool.priceOf(selectedCurrency.wrapped))
 
@@ -376,6 +391,13 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
         })
 
         setAttempingTx(false)
+        mixpanel.track('Zap - Confirmed', {
+          token0: selectedCurrency?.symbol,
+          token1: quoteCurrency?.symbol,
+          zap_token: selectedCurrency?.symbol,
+          token_amount: amountIn.toExact(),
+          source: tokenId ? 'my_pool_page' : 'pool_page',
+        })
       } catch (e) {
         setAttempingTx(false)
         setError(e?.message || JSON.stringify(e))
@@ -545,13 +567,23 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
               </Overlay>
 
               <Flex sx={{ gap: '1rem' }} marginTop="1.25rem">
-                <ButtonOutlined onClick={onDismiss}>
+                <ButtonOutlined
+                  onClick={() => {
+                    mixpanel.track('Zap - Canceled', {
+                      source: tokenId ? 'my_pool_page' : 'pool_page',
+                      token0: pool?.token0.symbol,
+                      token1: pool?.token1.symbol,
+                      zap_token: selectedCurrency?.symbol,
+                    })
+                    onDismiss()
+                  }}
+                >
                   <Trans>Cancel</Trans>
                 </ButtonOutlined>
 
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
-                    <Trans>Connect Wallet</Trans>
+                    <Trans>Connect</Trans>
                   </ButtonLight>
                 ) : expectedChainId && expectedChainId !== chainId ? (
                   <ButtonPrimary onClick={() => changeNetwork(expectedChainId)}>Switch Network</ButtonPrimary>
