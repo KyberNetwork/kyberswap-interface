@@ -821,9 +821,7 @@ export default function AddLiquidity() {
           minWidth="164px"
           width={upToMedium ? '100%' : 'fit-content'}
         >
-          <Text fontWeight={500}>
-            {errorMessage ? errorMessage : <Trans>Preview</Trans>}
-          </Text>
+          <Text fontWeight={500}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
         </ButtonError>
       </Flex>
     )
