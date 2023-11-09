@@ -1,3 +1,13 @@
+export enum CustomRange {
+  FullRange = 'Full Range',
+  Safe = 'Safe',
+  Common = 'Common',
+  Expert = 'Expert',
+}
+export type FarmingRange = {
+  minPrice: string
+  maxPrice: string
+}
 export const PoolsPage = {
   open(chain: string) {
     cy.visit('/pools/' + chain)
@@ -6,10 +16,24 @@ export const PoolsPage = {
     cy.get('input[placeholder="Search by token name or pool address"]').clear().type(poolAddress)
     cy.wait(2000)
   },
-  addLiquidity(poolAddress: string, amountIn: string) {
+  selectCustomRange(range: CustomRange) {
+    cy.get('button').contains(range).click()
+  },
+  selectFarmingRange(farmingRange: FarmingRange) {
+    cy.get('[role=button]').contains('Farming Ranges').click()
+    cy.get('input.rate-input-0').eq(0).clear().type(farmingRange.minPrice)
+    cy.get('input.rate-input-0').eq(1).clear().type(farmingRange.maxPrice)
+  },
+  addLiquidity(poolAddress: string, amountIn: string, customRange?: CustomRange, farmingRange?: FarmingRange) {
     PoolsPage.searchByPoolAddress(poolAddress)
     cy.get('button').contains('Add Liquidity').click()
     cy.get('[role=button]').contains('Zap In').click()
+    if (typeof customRange != 'undefined') {
+      PoolsPage.selectCustomRange(customRange)
+    }
+    if (typeof farmingRange != 'undefined') {
+      PoolsPage.selectFarmingRange(farmingRange)
+    }
     cy.get('[data-testid="token-amount-input"]').type(amountIn)
     cy.wait(20000)
     cy.go('back')

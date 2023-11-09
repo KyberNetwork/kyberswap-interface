@@ -18,9 +18,6 @@ export default defineConfig({
   viewportWidth: 1920,
   viewportHeight: 1080,
   env: {
-    // ...process.env,
-    NETWORK: 'Arbitrum',
-
     grepFilterSpecs: true,
     grepOmitFiltered: true,
   },

@@ -2,7 +2,7 @@ export const UNWHITELIST_SYMBOL_TOKENS = ['KNNC', 'KCCN']
 export const NORESULTS_TEXT = 'No results found.'
 export const NOTOKENS_TEXT = 'Select a token'
 export const DEFAULT_NETWORK = 'Ethereum'
-export const NETWORK = Cypress.env('NETWORK')
+export const NETWORK: string = Cypress.env('NETWORK')
 export const DEFAULT_URL = `swap/${NETWORK}`.toLowerCase()
 
 export enum TAG {
