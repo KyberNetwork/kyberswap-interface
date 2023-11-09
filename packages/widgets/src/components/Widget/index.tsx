@@ -147,6 +147,7 @@ export interface WidgetProps {
   theme?: Theme
   defaultTokenIn?: string
   defaultTokenOut?: string
+  defaultSlippage?: number
   feeSetting?: FeeSetting
   onTxSubmit?: (txHash: string, data: any) => void
   enableDexes?: string
@@ -156,6 +157,7 @@ export interface WidgetProps {
 const Widget = ({
   defaultTokenIn,
   defaultTokenOut,
+  defaultSlippage,
   feeSetting,
   client,
   onTxSubmit,
@@ -171,6 +173,7 @@ const Widget = ({
   enableRoute: boolean
   enableDexes?: string
   title?: string | ReactNode
+  defaultSlippage?: number
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null)
   const { chainId } = useActiveWeb3()
@@ -201,6 +204,7 @@ const Widget = ({
   } = useSwap({
     defaultTokenIn,
     defaultTokenOut,
+    defaultSlippage,
     feeSetting,
     enableDexes,
   })
@@ -663,6 +667,7 @@ export default function SwapWidget({
   theme,
   defaultTokenIn,
   defaultTokenOut,
+  defaultSlippage,
   feeSetting,
   client,
   onTxSubmit,
@@ -678,6 +683,7 @@ export default function SwapWidget({
             <Widget
               defaultTokenIn={defaultTokenIn}
               defaultTokenOut={defaultTokenOut}
+              defaultSlippage={defaultSlippage}
               feeSetting={feeSetting}
               client={client}
               onTxSubmit={onTxSubmit}

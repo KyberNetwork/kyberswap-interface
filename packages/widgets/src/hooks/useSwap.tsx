@@ -127,11 +127,13 @@ export const useDexes = (enableDexes?: string) => {
 const useSwap = ({
   defaultTokenIn,
   defaultTokenOut,
+  defaultSlippage,
   feeSetting,
   enableDexes,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
+  defaultSlippage?: number
   feeSetting?: {
     chargeFeeBy: 'currency_in' | 'currency_out'
     feeAmount: number
@@ -173,7 +175,7 @@ const useSwap = ({
   const [loading, setLoading] = useState(false)
   const [trade, setTrade] = useState<Trade | null>(null)
   const [error, setError] = useState('')
-  const [slippage, setSlippage] = useState(50)
+  const [slippage, setSlippage] = useState(defaultSlippage || 50)
   const [deadline, setDeadline] = useState(20)
 
   const controllerRef = useRef<AbortController | null>()
