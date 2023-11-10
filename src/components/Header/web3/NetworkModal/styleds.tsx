@@ -6,6 +6,7 @@ export const Wrapper = styled.div`
   flex-direction: column;
   width: 100%;
   padding: 20px;
+  height: fit-content;
 `
 
 export const NetworkList = styled(motion.div)`
