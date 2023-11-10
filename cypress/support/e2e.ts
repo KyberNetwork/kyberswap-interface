@@ -21,6 +21,13 @@ import './commands'
 import './connectWalletCommands'
 import './selectTokenCommands'
 
-installLogsCollector()
+const configOption = {
+  collectTypes: ['cons:debug'],
+  filterLog: function (args: [installLogsCollector.LogType, string, installLogsCollector.Severity]) {
+    const [logType, message] = args
+    return logType === 'cons:debug' && message.includes('zap data')
+  },
+}
 
+installLogsCollector(configOption)
 registerCypressGrep()
