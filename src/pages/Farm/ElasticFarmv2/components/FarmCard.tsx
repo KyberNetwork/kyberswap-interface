@@ -29,6 +29,7 @@ import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { useAllTokens } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
@@ -208,6 +209,8 @@ function FarmCard({
 
   const range = farm.ranges.find(range => range.index === activeRangeIndex)
 
+  const allTokens = useAllTokens()
+
   return (
     <>
       <Wrapper hasRewards={canUnstake}>
@@ -221,8 +224,21 @@ function FarmCard({
                 }}
               >
                 <Text fontSize="16px" lineHeight="20px" color={theme.primary}>
-                  {getTokenSymbolWithHardcode(chainId, farm.token0.wrapped.address, farm.token0.symbol)} -{' '}
-                  {getTokenSymbolWithHardcode(chainId, farm.token1.wrapped.address, farm.token1.symbol)}
+                  {getTokenSymbolWithHardcode(
+                    chainId,
+                    farm.token0.wrapped.address,
+                    farm.token0.isNative
+                      ? farm.token0.symbol
+                      : allTokens[farm.token0.address]?.symbol || farm.token0.symbol,
+                  )}{' '}
+                  -{' '}
+                  {getTokenSymbolWithHardcode(
+                    chainId,
+                    farm.token1.wrapped.address,
+                    farm.token1.isNative
+                      ? farm.token1.symbol
+                      : allTokens[farm.token1.address]?.symbol || farm.token1.symbol,
+                  )}
                 </Text>
               </Link>
               <IconButton>

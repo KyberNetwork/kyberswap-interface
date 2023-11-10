@@ -61,7 +61,7 @@ const useBuildRoute = (args: Args) => {
       slippageTolerance: slippage,
       sender: account,
       recipient: to || account,
-      source: clientId || 'kyberswap-ui',
+      source: clientId || 'kyberswap',
       skipSimulateTx: false,
       permit,
     }

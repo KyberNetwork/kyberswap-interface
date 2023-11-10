@@ -12,6 +12,7 @@ import {
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
+import mixpanel from 'mixpanel-browser'
 import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -809,9 +810,7 @@ export default function AddLiquidity() {
           )}
         <ButtonError
           id="btnSupply"
-          onClick={() => {
-            isDegenMode ? onAdd() : setShowConfirm(true)
-          }}
+          onClick={() => setShowConfirm(true)}
           disabled={
             !isValid ||
             (approvalA !== ApprovalState.APPROVED && (!depositADisabled || noLiquidity)) ||
@@ -822,9 +821,7 @@ export default function AddLiquidity() {
           minWidth="164px"
           width={upToMedium ? '100%' : 'fit-content'}
         >
-          <Text fontWeight={500}>
-            {errorMessage ? errorMessage : isDegenMode ? <Trans>Supply</Trans> : <Trans>Preview</Trans>}
-          </Text>
+          <Text fontWeight={500}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
         </ButtonError>
       </Flex>
     )
@@ -1044,6 +1041,19 @@ export default function AddLiquidity() {
   const debouncedValue = useDebounce(zapValue, 300)
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
+  useEffect(() => {
+    if (amountIn?.toExact()) {
+      mixpanel.track('Zap - Input detailed', {
+        token0: selectedCurrency?.symbol,
+        token1: quoteCurrency?.symbol,
+        zap_token: selectedCurrency?.symbol,
+        token_amount: amountIn.toExact(),
+        source: 'add_liquidity_page',
+      })
+    }
+    // eslint-disable-next-line
+  }, [amountIn?.toExact(), selectedCurrency])
+
   const equivalentQuoteAmount =
     amountIn && pool && selectedCurrency && amountIn.multiply(pool.priceOf(selectedCurrency.wrapped))
 
@@ -1187,6 +1197,14 @@ export default function AddLiquidity() {
             },
           },
         })
+
+        mixpanel.track('Zap - Confirmed', {
+          token0: selectedCurrency?.symbol,
+          token1: quoteCurrency?.symbol,
+          zap_token: selectedCurrency?.symbol,
+          token_amount: amountIn.toExact(),
+          source: 'add_liquidity_page',
+        })
       } catch (e) {
         console.error('zap error', e)
         setAttemptingTxn(false)
@@ -1225,7 +1243,13 @@ export default function AddLiquidity() {
 
         setShowZapConfirmation(true)
       }}
-      color={zapDetail.priceImpact?.isVeryHigh ? theme.text : undefined}
+      color={
+        zapApprovalState !== ApprovalState.APPROVED
+          ? theme.textReverse
+          : zapDetail.priceImpact?.isVeryHigh
+          ? theme.text
+          : undefined
+      }
       backgroundColor={
         zapApprovalState !== ApprovalState.APPROVED
           ? undefined

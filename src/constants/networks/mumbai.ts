@@ -14,7 +14,7 @@ const mumbaiInfo: EVMNetworkInfo = {
   poolFarmRoute: EMPTY,
   aggregatorRoute: 'mumbai',
   name: 'Mumbai',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/8a936cf9-3e8f-4518-9fb2-8579c14fb8cd1699420035633.png',
 
   iconSelected: NOT_SUPPORT,
 
@@ -25,7 +25,7 @@ const mumbaiInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'MATIC',
     name: 'Polygon',
-    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/8a936cf9-3e8f-4518-9fb2-8579c14fb8cd1699420035633.png',
     decimal: 18,
     minForGas: 10 ** 16,
   },

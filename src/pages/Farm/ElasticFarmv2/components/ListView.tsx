@@ -27,6 +27,7 @@ import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { ElasticFarmV2TableRow } from 'components/YieldPools/styleds'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { useAllTokens } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
@@ -114,6 +115,8 @@ export const ListView = ({
   const [errorMessage, setErrorMessage] = useState('')
   const [attemptingTxn, setAttemptingTxn] = useState(false)
 
+  const allTokens = useAllTokens()
+
   const handleDismiss = () => {
     setTxHash('')
     setShowConfirmModal(false)
@@ -173,8 +176,21 @@ export const ListView = ({
             }}
           >
             <Text fontSize={14} fontWeight={500}>
-              {getTokenSymbolWithHardcode(chainId, farm.token0.wrapped.address, farm.token0.symbol)} -{' '}
-              {getTokenSymbolWithHardcode(chainId, farm.token1.wrapped.address, farm.token1.symbol)}
+              {getTokenSymbolWithHardcode(
+                chainId,
+                farm.token0.wrapped.address,
+                farm.token0.isNative
+                  ? farm.token0.symbol
+                  : allTokens[farm.token0.address]?.symbol || farm.token0.symbol,
+              )}{' '}
+              -{' '}
+              {getTokenSymbolWithHardcode(
+                chainId,
+                farm.token1.wrapped.address,
+                farm.token1.isNative
+                  ? farm.token1.symbol
+                  : allTokens[farm.token1.address]?.symbol || farm.token1.symbol,
+              )}
             </Text>
           </Link>
 

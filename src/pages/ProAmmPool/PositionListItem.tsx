@@ -2,6 +2,7 @@ import { Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
+import mixpanel from 'mixpanel-browser'
 import { stringify } from 'querystring'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -483,7 +484,16 @@ function PositionListItem({
                 </Text>
               </ButtonPrimary>
 
-              <QuickZapButton onClick={() => setShowQuickZap(true)} />
+              <QuickZapButton
+                onClick={() => {
+                  setShowQuickZap(true)
+                  mixpanel.track('Zap - Click Quick Zap', {
+                    token0: token0?.symbol || '',
+                    token1: token1?.symbol || '',
+                    source: 'my_pool_page',
+                  })
+                }}
+              />
             </ButtonGroup>
           )}
           <Divider sx={{ marginBottom: '20px' }} />

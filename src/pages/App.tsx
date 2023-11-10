@@ -241,7 +241,8 @@ export default function App() {
   }, [chainId, networkInfo.name])
 
   useGlobalMixpanelEvents()
-  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !pathname.includes(APP_PATHS.PARTNER_SWAP)
+  const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
+  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
   const [holidayMode] = useHolidayMode()
 
   const snowflake = new Image()
@@ -253,7 +254,7 @@ export default function App() {
       <AppWrapper>
         <ModalsGlobal />
         <ElasticLegacyNotice />
-        <TopBanner />
+        {!isPartnerSwap && <TopBanner />}
         <HeaderWrapper>
           <Header />
         </HeaderWrapper>
