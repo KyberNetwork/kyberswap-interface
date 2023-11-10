@@ -173,4 +173,7 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
       })
     })
   })
+  afterEach(() => {
+    cy.reload()
+  })
 })
