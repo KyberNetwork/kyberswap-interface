@@ -22,7 +22,6 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
   before(() => {
     SwapPage.open(DEFAULT_URL)
     SwapPage.connectWallet()
-    cy.acceptMetamaskAccess()
     SwapPage.getStatusConnectedWallet()
   })
 
