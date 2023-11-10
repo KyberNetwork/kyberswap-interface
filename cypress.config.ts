@@ -23,7 +23,6 @@ export default defineConfig({
   },
   e2e: {
     testIsolation: false,
-    baseUrl: 'https://kyberswap.com/',
     setupNodeEvents(on, config) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('@cypress/grep/src/plugin')(config)

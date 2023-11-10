@@ -1,4 +1,4 @@
-name: 'E2E Testing Schedule'
+name: 'E2E Regression'
 
 on:
   schedule:
