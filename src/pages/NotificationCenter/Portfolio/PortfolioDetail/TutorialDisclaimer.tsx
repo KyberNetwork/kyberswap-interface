@@ -41,7 +41,7 @@ const Step4 = () => {
         <li>Use the search bar to search for address you&apos;d like to explore and add to create a portfolio.</li>
         <li>Share your portfolio with different visual charts!</li>
         <li>Manage your portfolio by keeping track of token prices by setting up price alerts.</li>
-        <li>.Access KyberAI with supported tokens</li>
+        <li>Access KyberAI with supported tokens.</li>
       </ul>
       If you wish to view this guide again, you can enable it from the settings. Maximize your returns and minimize your
       risks with KyberSwap smart portfolio management!
