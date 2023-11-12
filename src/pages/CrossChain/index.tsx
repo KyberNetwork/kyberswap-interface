@@ -11,7 +11,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
-import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import { DisclaimerCrossChain } from '../Bridge/Disclaimer'
 import SwapForm from './SwapForm'
@@ -57,10 +57,12 @@ function CrossChain({ visible }: { visible: boolean }) {
         const { chains = [], tokens = [] } = squid
         const chainSupports = chains.map(e => Number(e.chainId)).filter(id => SUPPORTED_NETWORKS.includes(id))
         const formattedTokens: WrappedTokenInfo[] = []
-        tokens.forEach(token => {
-          if (typeof token.chainId === 'string' || !chainSupports.includes(token.chainId)) return
-          formattedTokens.push(new WrappedTokenInfo(token as TokenInfo))
+        tokens.forEach((token: any) => {
+          token.chainId = +token.chainId
+          if (!chainSupports.includes(token.chainId)) return
+          formattedTokens.push(new WrappedTokenInfo(token))
         })
+
         setCrossChainState({
           chains: chainSupports,
           tokens: formattedTokens,

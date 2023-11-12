@@ -1,4 +1,5 @@
-import { RouteResponse, Squid } from '@0xsquid/sdk'
+import { Squid } from '@0xsquid/sdk'
+import { RouteResponse } from '@0xsquid/sdk/dist/types'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 

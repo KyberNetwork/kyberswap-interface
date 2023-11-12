@@ -1,4 +1,3 @@
-import { RouteData } from '@0xsquid/sdk'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
@@ -16,6 +15,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useCrossChainState } from 'state/crossChain/hooks'
+import { RouteData } from 'state/crossChain/reducer'
 import { formattedNum } from 'utils'
 import { uint256ToFraction } from 'utils/numbers'
 

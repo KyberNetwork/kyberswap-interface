@@ -1,4 +1,3 @@
-import { RouteData } from '@0xsquid/sdk'
 import { NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
@@ -12,6 +11,7 @@ import RefreshButton from 'components/SwapForm/RefreshButton'
 import useTheme from 'hooks/useTheme'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useCrossChainState } from 'state/crossChain/hooks'
+import { RouteData } from 'state/crossChain/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { MEDIA_WIDTHS } from 'theme'
 

@@ -1,4 +1,4 @@
-import { RouteResponse } from '@0xsquid/sdk'
+import { RouteResponse } from '@0xsquid/sdk/dist/types'
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'

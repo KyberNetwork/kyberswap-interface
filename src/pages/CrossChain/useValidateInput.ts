@@ -1,4 +1,3 @@
-import { RouteData } from '@0xsquid/sdk'
 import { t } from '@lingui/macro'
 import { ReactNode, useMemo } from 'react'
 
@@ -7,6 +6,7 @@ import { useActiveWeb3React } from 'hooks'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
 import { useCrossChainState } from 'state/crossChain/hooks'
+import { RouteData } from 'state/crossChain/reducer'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 

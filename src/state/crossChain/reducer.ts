@@ -1,4 +1,5 @@
-import { RouteData, Squid } from '@0xsquid/sdk'
+import { Squid } from '@0xsquid/sdk'
+import { RouteResponse } from '@0xsquid/squid-types'
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
@@ -20,7 +21,7 @@ import {
 
 export type PoolBridgeValue = undefined | string | number | null
 export type PoolValueOutMap = { [address: string]: PoolBridgeValue }
-
+export type RouteData = RouteResponse['route']
 export type CrossChainCurrency = NativeCurrency | WrappedTokenInfo | undefined
 export type SwapCrossChainState = {
   chains: ChainId[]

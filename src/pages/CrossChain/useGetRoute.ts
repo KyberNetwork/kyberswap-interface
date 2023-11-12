@@ -1,4 +1,4 @@
-import { GetRoute, RouteResponse } from '@0xsquid/sdk'
+import { DexName, RouteRequest, RouteResponse } from '@0xsquid/sdk/dist/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -6,7 +6,7 @@ import { INPUT_DEBOUNCE_TIME } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
 
-export default function useGetRouteCrossChain(params: GetRoute | undefined) {
+export default function useGetRouteCrossChain(params: RouteRequest | undefined) {
   const [{ squidInstance, route, requestId }] = useCrossChainState()
   const { setTradeRoute } = useCrossChainHandlers()
   const [error, setError] = useState(false)
@@ -29,7 +29,7 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
         setLoading(true)
         setError(false)
         isRefresh && setTradeRoute(undefined)
-        route = await squidInstance.getRoute({ ...debounceParams, prefer: ['KYBERSWAP_AGGREGATOR'] })
+        route = await squidInstance.getRoute({ ...debounceParams, prefer: [DexName.KYBERSWAP_AGGREGATOR] })
 
         if (signal?.aborted) return
       } catch (error) {}

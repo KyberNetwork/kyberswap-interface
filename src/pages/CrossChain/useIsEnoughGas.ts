@@ -1,9 +1,9 @@
-import { RouteData } from '@0xsquid/sdk'
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { getRouInfo } from 'pages/CrossChain/helpers'
+import { RouteData } from 'state/crossChain/reducer'
 import { useNativeBalance } from 'state/wallet/hooks'
 
 export function useIsEnoughGas(route: RouteData | undefined) {

@@ -1,4 +1,4 @@
-import { GetRoute } from '@0xsquid/sdk'
+import { RouteRequest } from '@0xsquid/sdk/dist/types'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
@@ -19,7 +19,7 @@ import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePair
 import { formatDurationCrossChain } from 'components/swapv2/AdvancedSwapDetails'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { CROSS_CHAIN_CONFIG } from 'constants/env'
-import { INPUT_DEBOUNCE_TIME, TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { INPUT_DEBOUNCE_TIME, TRANSACTION_STATE_DEFAULT, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { captureExceptionCrossChain } from 'hooks/bridge/useBridgeCallback'
@@ -82,19 +82,23 @@ export default function SwapForm() {
   } = useCrossChainSetting()
   const isPairSupport = useIsTokensSupport()
   const debouncedInput = useDebounce(inputAmount, INPUT_DEBOUNCE_TIME)
-  const routeParams: GetRoute | undefined = useMemo(() => {
+  const routeParams: RouteRequest | undefined = useMemo(() => {
     if (!currencyIn || !currencyOut || !chainIdOut || !Number(debouncedInput) || !isPairSupport) return
     const parseAmount = tryParseAmount(debouncedInput, currencyIn)
     if (!parseAmount) return
     return {
-      fromChain: chainId,
-      toChain: chainIdOut,
+      fromAddress: account || ZERO_ADDRESS,
+      fromChain: chainId + '',
+      toChain: chainIdOut + '',
       fromToken: getTokenAddress(currencyIn),
       toToken: getTokenAddress(currencyOut),
       fromAmount: parseAmount?.quotient.toString() ?? '',
       toAddress: account ?? '',
-      slippage: slippageTolerance / 100,
-      enableExpress: enableExpressExecution,
+      slippageConfig: {
+        slippage: slippageTolerance / 100,
+        autoMode: 1,
+      },
+      enableBoost: enableExpressExecution,
       quoteOnly: !account,
     }
   }, [
@@ -183,7 +187,7 @@ export default function SwapForm() {
       if (!library || !squidInstance || !route || !inputAmount || !outputAmount || !currencyIn || !currencyOut) return
       setSwapState(state => ({ ...state, attemptingTxn: true }))
       onTracking(MIXPANEL_TYPE.CROSS_CHAIN_SWAP_CONFIRMED)
-      const tx = await squidInstance.executeRoute({
+      const tx: any = await squidInstance.executeRoute({
         signer: library.getSigner(),
         route,
       })

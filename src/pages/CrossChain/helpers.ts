@@ -1,6 +1,5 @@
-import { RouteData } from '@0xsquid/sdk'
-
 import { CrossChainTransferStatus } from 'pages/CrossChain/useTransferHistory'
+import { RouteData } from 'state/crossChain/reducer'
 
 const formatNumber = (number: string | undefined) => number?.replace(/,/g, '')
 
@@ -11,8 +10,8 @@ export const getRouInfo = (route: RouteData | undefined) => {
   const gasCosts = estimate?.gasCosts[0]
   const feeCosts = estimate?.feeCosts[0]
 
-  const gasFeeUsd = Number(gasCosts?.amountUSD || '0')
-  const crossChainFeeUsd = Number(feeCosts?.amountUSD || '0')
+  const gasFeeUsd = Number(gasCosts?.amountUsd || '0')
+  const crossChainFeeUsd = Number(feeCosts?.amountUsd || '0')
   const totalFeeUsd = gasFeeUsd + crossChainFeeUsd
 
   return {
@@ -29,7 +28,7 @@ export const getRouInfo = (route: RouteData | undefined) => {
     totalFeeUsd,
     gasFeeUsd,
     crossChainFeeUsd,
-    routeData: estimate?.route,
+    routeData: estimate?.actions || [],
   }
 }
 
