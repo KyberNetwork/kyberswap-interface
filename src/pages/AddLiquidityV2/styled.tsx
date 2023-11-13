@@ -298,7 +298,7 @@ export const MethodSelector = ({
           >
             <Flex alignItems="center" color={isZapAvailable ? theme.warning : theme.subText}>
               <ZapIcon />
-              <Text marginLeft="4px" color={theme.text}>
+              <Text marginLeft="4px" color={theme.text} data-testid="zap-in-btn">
                 Zap In
               </Text>
               <InfoHelper
