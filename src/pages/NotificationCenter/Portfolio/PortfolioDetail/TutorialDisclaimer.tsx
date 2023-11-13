@@ -95,12 +95,12 @@ export default function TutorialDisclaimer() {
   }
 
   useEffect(() => {
-    if (!showDisclaimer && !localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE)) {
+    if (!showDisclaimer && account && !localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE)) {
       // auto show for first time all user
       toggleTutorial()
       localStorage.setItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE, '1')
     }
-  }, [toggleTutorial, showDisclaimer])
+  }, [toggleTutorial, showDisclaimer, account])
 
   return showDisclaimer ? (
     <Disclaimer onConfirm={onConfirmDisclaimer} />
