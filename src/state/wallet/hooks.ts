@@ -123,8 +123,7 @@ export function useTokenBalancesWithLoadingIndicator(
     () =>
       account && tokens && tokens.length > 0
         ? tokens.reduce<{ [tokenAddress: string]: TokenAmount | undefined }>((memo, token, i) => {
-            const amount =
-              token.wrapped.address === balances?.[i]?.[0]?.currency.wrapped.address ? balances?.[i]?.[0] : undefined
+            const amount = balances?.[i]?.[0]?.currency.equals(token) ? balances?.[i]?.[0] : undefined
 
             if (amount) {
               memo[token.address] = amount

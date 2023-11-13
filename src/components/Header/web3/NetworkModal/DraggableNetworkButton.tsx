@@ -162,7 +162,6 @@ export default function DraggableNetworkButton({
       customOnSelectNetwork(chainId)
     } else if (getChainType(chainId) === getChainType(chainId)) {
       changeNetwork(chainId, () => {
-        // const { inputCurrency, outputCurrency, ...rest } = qs
         navigate(
           {
             search: stringify(qs),

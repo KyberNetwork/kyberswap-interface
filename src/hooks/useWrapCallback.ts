@@ -47,7 +47,7 @@ export default function useWrapCallback(
   const chainId = customChainId || walletChainId
   const provider = useProvider()
   const wethContract = useWETHContract(chainId)
-  const balance = useCurrencyBalance(inputCurrency ?? undefined, customChainId)
+  const balance = useCurrencyBalance(inputCurrency ?? undefined, chainId)
   // we can always parse the amount typed as the input currency, since wrapping is 1:1
   const inputAmount = useMemo(() => tryParseAmount(typedValue, inputCurrency ?? undefined), [inputCurrency, typedValue])
   const addTransactionWithType = useTransactionAdder()
