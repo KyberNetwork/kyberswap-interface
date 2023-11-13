@@ -7,10 +7,10 @@ import Pagination from 'components/Pagination'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
-const TableHeader = styled.thead<{ column: number }>`
+const TableHeader = styled.thead<{ column: number; templateColumn?: string }>`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: ${({ column }) => `repeat(${column}, 1fr)`};
+  grid-template-columns: ${({ templateColumn }) => templateColumn};
   padding: 16px 20px;
   font-size: 12px;
   align-items: center;
@@ -29,10 +29,10 @@ const Thead = styled.th`
   text-transform: uppercase;
   color: ${({ theme }) => theme.subText};
 `
-const TRow = styled.tr<{ column: number }>`
+const TRow = styled.tr<{ templateColumn: string }>`
   padding: 10px 20px;
   display: grid;
-  grid-template-columns: ${({ column }) => `repeat(${column}, 1fr)`};
+  grid-template-columns: ${({ templateColumn }) => templateColumn};
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
 `
 
@@ -42,6 +42,7 @@ export type TableColumn<T> = {
   align?: 'left' | 'center' | 'right'
   tooltip?: ReactNode
   render?: (data: { value: any; item: T }) => ReactNode // todo
+  style?: CSSProperties
 }
 export default function Table<T>({
   data = [],
@@ -50,6 +51,7 @@ export default function Table<T>({
   totalItems,
   pageSize = 10,
   onPageChange,
+  templateColumn,
 }: {
   data: T[]
   columns: TableColumn<T>[]
@@ -57,6 +59,7 @@ export default function Table<T>({
   totalItems: number
   pageSize?: number
   onPageChange?: (v: number) => void
+  templateColumn?: string
 }) {
   const [currentPage, setCurrentPage] = useState(1)
   const theme = useTheme()
@@ -73,16 +76,18 @@ export default function Table<T>({
     return data.length > pageSize ? data.slice((currentPage - 1) * pageSize, currentPage * pageSize) : data
   }, [data, pageSize, currentPage])
 
+  const templateColumnStr = templateColumn || `repeat(${columns.length}, 1fr)`
   return (
     <table style={style}>
-      <TableHeader column={columns.length}>
-        {columns.map(({ tooltip, title, align }, i) => (
+      <TableHeader column={columns.length} templateColumn={templateColumnStr}>
+        {columns.map(({ tooltip, title, align, style }, i) => (
           <Thead key={i}>
             <MouseoverTooltip width="fit-content" placement="top" text={tooltip} maxWidth={isMobile ? '90vw' : '400px'}>
               <div
                 style={{
                   textAlign: align || 'center',
                   width: '100%',
+                  ...style,
                 }}
               >
                 {tooltip ? (
@@ -99,8 +104,8 @@ export default function Table<T>({
       </TableHeader>
       <TBody>
         {filterData.map((item, i) => (
-          <TRow key={i} column={columns.length}>
-            {columns.map(({ dataIndex, align, render }) => {
+          <TRow key={i} templateColumn={templateColumnStr}>
+            {columns.map(({ dataIndex, align, render, style }) => {
               const value = item[dataIndex as keyof T]
               let content = null
               try {
@@ -114,6 +119,7 @@ export default function Table<T>({
                     fontSize: '14px',
                     display: 'grid',
                     alignItems: 'center',
+                    ...style,
                   }}
                 >
                   {content}

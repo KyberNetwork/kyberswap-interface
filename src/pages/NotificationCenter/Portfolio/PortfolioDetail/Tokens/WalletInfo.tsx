@@ -33,6 +33,7 @@ const WalletLabel = styled.div`
   font-size: 10px;
   font-weight: 500;
   padding: 2px 4px;
+  width: fit-content;
 `
 
 export const TokenCellWithWalletAddress = ({

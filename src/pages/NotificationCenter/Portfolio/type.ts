@@ -57,16 +57,18 @@ export type TokenAllowAnce = {
 export type TokenAllowAnceResponse = {
   approvals: TokenAllowAnce[]
 }
+type Token = {
+  address: string
+  symbol: string
+  name: string
+  decimals: number
+  logo: string
+  tag: string
+  nftTokenId?: number
+}
 
 type TransactionToken = {
-  token: {
-    address: string
-    symbol: string
-    name: string
-    decimals: number
-    logo: string
-    tag: string
-  }
+  token: Token
   otherAddress: string
   otherName: string
   tokenType: string
@@ -104,6 +106,7 @@ export type TransactionHistory = {
   tokenApproval?: {
     amount: string
     spenderAddress: string
+    token: Token
   }
   tag: string
 }

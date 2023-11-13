@@ -6,7 +6,12 @@ import { ExternalLink as ExternalLinkIcon, FileText } from 'react-feather'
 import { Text } from 'rebass'
 import { useGetTransactionsQuery } from 'services/portfolio'
 
+import DefaultAvatar from 'assets/images/default_avatar.png'
+import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
+import Badge, { BadgeVariant } from 'components/Badge'
 import Column from 'components/Column'
+import LocalLoader from 'components/LocalLoader'
+import Logo from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
@@ -15,12 +20,33 @@ import { NativeCurrencies } from 'constants/tokens'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
+import { formatAllowance } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/helpers'
 import { TransactionHistory } from 'pages/NotificationCenter/Portfolio/type'
 import { Section } from 'pages/TrueSightV2/components'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
+
+const getTxsAction = ({
+  contractInteraction = { methodName: '', contractName: '' },
+  tokenTransfers = [],
+  tokenApproval,
+  to,
+}: TransactionHistory) => {
+  const { contractName, methodName } = contractInteraction
+  switch (methodName) {
+    case 'approve':
+      return {
+        type: tokenApproval?.amount === '0' ? t`Revoke` : t`Approve`,
+        contract: tokenApproval?.spenderAddress,
+        contractName,
+      }
+  }
+  if (tokenTransfers.length > 1) return { type: methodName || t`Contract Interaction`, contract: to, contractName }
+  if (tokenTransfers?.[0]) return { type: t`Receive`, contract: tokenTransfers[0].otherAddress, contractName }
+  return { type: methodName, contractName }
+}
 
 const TxsHashCell = ({ item: { txHash, blockTime, chain } }: { item: TransactionHistory }) => {
   const theme = useTheme()
@@ -51,25 +77,67 @@ const GasFeeCell = ({ item: { gasPrice, chain, nativeTokenPrice, gasUsed } }: { 
   )
 }
 
-const getAction = ({ contractInteraction, tokenTransfers = [], tokenApproval, to }: TransactionHistory) => {
-  const methodName = contractInteraction?.methodName
-  switch (methodName) {
-    case 'approve':
-      return { type: tokenApproval?.amount === '0' ? t`Revoke` : t`Approve`, contract: tokenApproval?.spenderAddress }
-  }
-  if (tokenTransfers.length > 1) return { type: t`Contract Interaction`, contract: to }
-  if (tokenTransfers?.[0]) return { type: t`Receive`, contract: tokenTransfers[0].otherAddress }
-  return { type: methodName }
-}
 const InteractionCell = ({ item }: { item: TransactionHistory }) => {
-  const { type, contract = '' } = getAction(item)
-  const { chain } = item
+  const { contract = '', contractName } = getTxsAction(item)
+  const { chain, tag } = item
   return (
-    <Column gap="4px">
-      <Text sx={{ textTransform: 'capitalize' }}>{type}</Text>
+    <Column gap="4px" alignItems={'center'}>
       <ExternalLink href={getEtherscanLink(chain.chainId, contract, 'address')}>
-        {getShortenAddress(contract)}
+        {contractName || getShortenAddress(contract)}
       </ExternalLink>
+      {tag === 'SCAM' && (
+        <Badge variant={BadgeVariant.WARNING} style={{ width: 'fit-content', fontSize: 12 }}>
+          <Trans>Spam tx</Trans>
+        </Badge>
+      )}
+    </Column>
+  )
+}
+
+const BalanceCell = ({ item: { tokenTransfers = [], tokenApproval, status } }: { item: TransactionHistory }) => {
+  const logoStyle = { width: '20px', minWidth: '20px', height: '20px', borderRadius: '4px' }
+  const theme = useTheme()
+  return (
+    <Column gap="6px">
+      {status === 'failed' ? (
+        <Badge variant={BadgeVariant.NEGATIVE} style={{ width: 'fit-content', fontSize: '14px' }}>
+          <Trans>Failed</Trans>
+        </Badge>
+      ) : tokenApproval ? (
+        <Row gap="4px">
+          <Logo srcs={[tokenApproval.token.logo]} style={logoStyle} />{' '}
+          {formatAllowance(tokenApproval.amount, tokenApproval.token.decimals)} {tokenApproval?.token?.symbol}
+        </Row>
+      ) : (
+        tokenTransfers.map(({ token, historicalValueInUsd, amount }, i) => (
+          <Row gap="4px" key={i}>
+            {token.nftTokenId ? (
+              <NftIcon style={{ width: '18px', minWidth: '18px', height: '18px' }} />
+            ) : (
+              <Logo srcs={[token.logo]} style={logoStyle} />
+            )}
+            {!amount.startsWith('-') && '+'}
+            {formatDisplayNumber(uint256ToFraction(amount, token.decimals), {
+              // todo
+              style: 'decimal',
+              fractionDigits: 4,
+              allowDisplayNegative: true,
+            })}{' '}
+            {token.symbol}{' '}
+            {historicalValueInUsd ? (
+              <Text as="span" color={theme.subText}>
+                (
+                {formatDisplayNumber(historicalValueInUsd, {
+                  style: 'currency',
+                  fractionDigits: 6,
+                  allowDisplayNegative: true,
+                })}
+                )
+              </Text>
+            ) : null}
+          </Row>
+        ))
+      )}
     </Column>
   )
 }
@@ -79,11 +147,19 @@ const columns: TableColumn<TransactionHistory>[] = [
     title: t`Transaction`,
     dataIndex: 'token',
     align: 'left',
-    render: ({ item: { walletAddress, chain = {} } }) => (
-      <TokenCellWithWalletAddress
-        item={{ walletAddress, chainId: chain.chainId as ChainId, logoUrl: '', symbol: '' }}
-      />
-    ),
+    render: ({ item }) => {
+      const { walletAddress, chain } = item
+      return (
+        <TokenCellWithWalletAddress
+          item={{
+            walletAddress,
+            chainId: chain?.chainId as ChainId,
+            logoUrl: DefaultAvatar,
+            symbol: getTxsAction(item).type,
+          }}
+        />
+      )
+    },
   },
   {
     title: t`Txs Hash`,
@@ -93,7 +169,8 @@ const columns: TableColumn<TransactionHistory>[] = [
   {
     title: t`Balance`,
     dataIndex: 'amount',
-    render: ({}) => 123, //formatDisplayNumber(uint256ToFraction(value, item.decimals), { style: 'decimal', significantDigits: 6 }), // todo uint256ToFraction
+    align: 'left',
+    render: BalanceCell,
   },
   {
     title: t`Interaction`,
@@ -102,6 +179,7 @@ const columns: TableColumn<TransactionHistory>[] = [
   {
     title: t`Txs Fee`,
     render: GasFeeCell,
+    align: 'right',
   },
 ]
 
@@ -113,7 +191,7 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
 
   const isAddressSearch = searchDebounce && isAddress(ChainId.MAINNET, searchDebounce)
   const query = searchDebounce ? { [isAddressSearch ? 'tokenAddress' : 'tokenSymbol']: searchDebounce } : {}
-  const { data } = useGetTransactionsQuery({
+  const { data, isFetching } = useGetTransactionsQuery({
     chainIds,
     limit: pageSize,
     walletAddress: wallet,
@@ -143,13 +221,18 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
         />
       }
     >
-      <Table
-        data={data?.data || EMPTY_ARRAY}
-        columns={columns}
-        style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
-        pageSize={pageSize}
-        totalItems={pageSize}
-      />
+      {isFetching ? (
+        <LocalLoader />
+      ) : (
+        <Table
+          templateColumn={`0.5fr repeat(4, 1fr)`}
+          data={data?.data || EMPTY_ARRAY}
+          columns={columns}
+          style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
+          pageSize={pageSize}
+          totalItems={pageSize}
+        />
+      )}
     </Section>
   )
 }

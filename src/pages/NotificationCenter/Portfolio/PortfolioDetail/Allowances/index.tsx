@@ -9,6 +9,7 @@ import { useGetTokenApprovalQuery } from 'services/portfolio'
 
 import { ButtonAction } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
+import LocalLoader from 'components/LocalLoader'
 import Row, { RowFit } from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
@@ -19,13 +20,13 @@ import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
+import { formatAllowance } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/helpers'
 import { TokenAllowAnce } from 'pages/NotificationCenter/Portfolio/type'
 import { Section } from 'pages/TrueSightV2/components'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import { getSigningContract } from 'utils/getContract'
 import getShortenAddress from 'utils/getShortenAddress'
-import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
 const SpenderCell = ({ value, item }: { value: string; item: TokenAllowAnce }) => {
   return (
@@ -78,10 +79,7 @@ const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<T
   {
     title: t`Allowance`,
     dataIndex: 'amount',
-    render: ({ value, item }) =>
-      value === ethers.constants.MaxUint256.toString()
-        ? t`Unlimited`
-        : formatDisplayNumber(uint256ToFraction(value, item.decimals), { style: 'decimal', significantDigits: 6 }), // todo uint256ToFraction
+    render: ({ value, item }) => formatAllowance(value, item.decimals),
   },
   {
     title: t`Authorized Spender`,
@@ -102,7 +100,7 @@ const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<T
 ]
 
 export default function Allowances({ wallet, chainIds }: { wallet: string; chainIds: ChainId[] }) {
-  const { data } = useGetTokenApprovalQuery({ address: wallet, chainIds }, { skip: !wallet })
+  const { data, isFetching } = useGetTokenApprovalQuery({ address: wallet, chainIds }, { skip: !wallet })
   const theme = useTheme()
 
   const { chainId: currentChain } = useActiveWeb3React()
@@ -169,12 +167,16 @@ export default function Allowances({ wallet, chainIds }: { wallet: string; chain
         />
       }
     >
-      <Table
-        columns={columns}
-        data={formatData}
-        totalItems={formatData.length}
-        style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
-      />
+      {isFetching ? (
+        <LocalLoader />
+      ) : (
+        <Table
+          columns={columns}
+          data={formatData}
+          totalItems={formatData.length}
+          style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
+        />
+      )}
     </Section>
   )
 }
