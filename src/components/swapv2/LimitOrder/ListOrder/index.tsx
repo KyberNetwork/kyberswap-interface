@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -130,12 +131,13 @@ const SearchInputWrapped = styled(SearchInput)`
   `};
 `
 
-export default function ListLimitOrder() {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+export default function ListLimitOrder({ customChainId }: { customChainId?: ChainId }) {
+  const { account, chainId: walletChainId, networkInfo } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
   const [curPage, setCurPage] = useState(1)
 
   const { tab, ...qs } = useParsedQueryString<{ tab: LimitOrderStatus }>()
-  const [orderType, setOrderType] = useState<LimitOrderStatus>(tab ?? LimitOrderStatus.ACTIVE)
+  const [orderType, setOrderType] = useState<LimitOrderStatus>(LimitOrderStatus.ACTIVE)
   const [keyword, setKeyword] = useState('')
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
@@ -169,7 +171,7 @@ export default function ListLimitOrder() {
     return activeOrders.flatMap(order => [order.takerAsset, order.makerAsset])
   }, [orders])
 
-  const { refetch, data: tokenPrices } = useTokenPricesWithLoading(tokenAddresses)
+  const { refetch, data: tokenPrices } = useTokenPricesWithLoading(tokenAddresses, chainId)
   useEffect(() => {
     // Refresh token prices each 10 seconds
     const interval = setInterval(refetch, 10_000)

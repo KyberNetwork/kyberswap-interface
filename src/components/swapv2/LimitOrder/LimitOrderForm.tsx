@@ -224,7 +224,13 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       { skip: !currencyIn || !account },
     )
 
-  const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, inputAmount, true)
+  const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(
+    currencyIn,
+    currencyOut,
+    inputAmount,
+    true,
+    chainId,
+  )
   const showWrap = !!currencyIn?.isNative
 
   const onSetRate = (rate: string, invertRate: string) => {

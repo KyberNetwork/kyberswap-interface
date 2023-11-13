@@ -299,7 +299,7 @@ export default function Swap() {
                 </Flex>
               </RoutesWrapper>
             )}
-            {isLimitPage && <ListLimitOrder />}
+            {isLimitPage && <ListLimitOrder customChainId={expectedChainId} />}
             {isCrossChainPage && <CrossChainTransfersHistory />}
           </InfoComponents>
         </Container>
