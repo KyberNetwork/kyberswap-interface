@@ -123,7 +123,9 @@ export function useTokenBalancesWithLoadingIndicator(
     () =>
       account && tokens && tokens.length > 0
         ? tokens.reduce<{ [tokenAddress: string]: TokenAmount | undefined }>((memo, token, i) => {
-            const amount = balances?.[i]?.[0]
+            const amount =
+              token.wrapped.address === balances?.[i]?.[0]?.currency.wrapped.address ? balances?.[i]?.[0] : undefined
+
             if (amount) {
               memo[token.address] = amount
             }
@@ -140,6 +142,7 @@ export function useTokenBalancesWithLoadingIndicator(
   // This cache helps hooks which calling this hooks and depend on this result don't have to calculating again with new dependency changed
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const balanceResultCached = useMemo(() => balanceResult, [stringifyBalance(balanceResult)])
+  console.log(balanceResultCached)
 
   return [balanceResultCached, anyLoading]
 }
