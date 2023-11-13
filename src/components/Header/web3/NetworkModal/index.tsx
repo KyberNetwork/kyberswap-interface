@@ -14,6 +14,7 @@ import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
@@ -45,6 +46,7 @@ export default function NetworkModal({
   const theme = useTheme()
   const { isWrongNetwork } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
+  const { mixpanelHandler } = useMixpanel()
   const [requestSaveProfile] = useUpdateProfileMutation()
   const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
 
@@ -57,8 +59,8 @@ export default function NetworkModal({
   const favoriteDropRef = useRef<HTMLDivElement>(null)
   const { supportedChains } = useChainsConfig()
 
-  const updateOder = (newOrders: string[]) => {
-    saveFavoriteChains(newOrders)
+  const updateOder = (newOrders: string[], droppedItem: string) => {
+    saveFavoriteChains(newOrders, droppedItem)
   }
 
   const { orders, handleDrag, handleDrop, draggingItem, order } = useDragAndDrop(
@@ -70,26 +72,19 @@ export default function NetworkModal({
     draggingItem !== undefined && !favoriteChains.includes(draggingItem) && order === undefined
   const isDraggingRemoveFavorite = favoriteChains.includes(draggingItem) && order === undefined
 
-  // todo: add mixpanel events
-  // const handleFavoriteChangeMobile = (chainId: string, isAdding: boolean) => {
-  //   const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
-  //   if (isAdding) {
-  //     if (chainInfo && !favoriteChains.includes(chainId)) {
-  //       saveFavoriteChains([...favoriteChains, chainId])
-  //       mixpanelHandler(MIXPANEL_TYPE.ADD_FAVORITE_CHAIN, { fav_chain: chainInfo.name })
-  //     }
-  //   } else {
-  //     if (chainInfo && favoriteChains.includes(chainId)) {
-  //       saveFavoriteChains(favoriteChains.filter(fChainId => fChainId !== chainId))
-  //       mixpanelHandler(MIXPANEL_TYPE.REMOVE_FAVORITE_CHAIN, { remove_chain: chainInfo.name })
-  //     }
-  //   }
-  // }
-
-  const saveFavoriteChains = (chains: string[]) => {
+  const saveFavoriteChains = (chains: string[], updatedChain: string) => {
     const uniqueArray = Array.from(new Set(chains))
     requestSaveProfile({ data: { favouriteChainIds: uniqueArray } })
     setFavoriteChains(uniqueArray)
+    const chainInfo = supportedChains.find(chain => chain.chainId.toString() === draggingItem)
+
+    if (!chainInfo) return
+    if (chains.includes(updatedChain) && !favoriteChains.includes(updatedChain)) {
+      mixpanelHandler(MIXPANEL_TYPE.ADD_FAVORITE_CHAIN, { fav_chain: chainInfo.name })
+    }
+    if (!chains.includes(updatedChain)) {
+      mixpanelHandler(MIXPANEL_TYPE.REMOVE_FAVORITE_CHAIN, { remove_chain: chainInfo.name })
+    }
   }
 
   const renderNetworkButton = (networkInfo: NetworkInfo) => {
@@ -105,12 +100,7 @@ export default function NetworkModal({
         onDrag={(x: number, y: number) => {
           handleDrag(networkInfo.chainId.toString(), x || 0, y || 0)
         }}
-        onDrop={() => {
-          if (isDraggingRemoveFavorite) {
-            setFavoriteChains([...favoriteChains.filter(_ => _ !== chainId)])
-          }
-          handleDrop()
-        }}
+        onDrop={handleDrop}
         customToggleModal={customToggleModal}
         customOnSelectNetwork={customOnSelectNetwork}
         onChangedNetwork={toggleNetworkModal}

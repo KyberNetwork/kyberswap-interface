@@ -6,7 +6,7 @@ import { MEDIA_WIDTHS } from 'theme'
 export const useDragAndDrop = (
   items: string[],
   dropRef: RefObject<HTMLDivElement>,
-  onDrop: (newOrders: string[]) => void,
+  onDrop: (newOrders: string[], droppedItem: string) => void,
 ) => {
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const perRow = above768 ? 3 : 2
@@ -67,7 +67,12 @@ export const useDragAndDrop = (
     if (order !== undefined) {
       const newItems = items.filter(_ => _ !== draggingItem)
       const newOrders = [...newItems.slice(0, order), draggingItem, ...newItems.slice(order, newItems.length)]
-      onDrop?.(newOrders)
+      onDrop?.(newOrders, draggingItem)
+    } else {
+      onDrop?.(
+        items.filter(_ => _ !== draggingItem),
+        draggingItem,
+      )
     }
   }
 
