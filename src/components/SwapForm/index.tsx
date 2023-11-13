@@ -3,16 +3,15 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 import styled from 'styled-components'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
-import NetworkModal from 'components/Header/web3/NetworkModal'
 import { Clock } from 'components/Icons'
+import { NetworkSelector } from 'components/NetworkSelector'
 import { AutoRow } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
@@ -29,9 +28,7 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -62,20 +59,6 @@ const PriceAlertButton = styled.div`
   color: ${({ theme }) => theme.subText};
   align-items: center;
   height: fit-content;
-`
-
-const SelectNetwork = styled.div`
-  border: 999px;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 6px 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: ${({ theme }) => theme.subText};
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 999px;
-  cursor: pointer;
 `
 
 export type SwapFormProps = {
@@ -202,9 +185,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
-  const [isOpenNetworkModal, setIsOpenNetworkModal] = useState(false)
-  const [searchParams, setSearchParams] = useSearchParams()
-
   return (
     <SwapFormContextProvider
       slippage={slippage}
@@ -215,34 +195,10 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       isStablePairSwap={isStablePairSwap}
       isAdvancedMode={isDegenMode}
     >
-      <NetworkModal
-        selectedId={chainId}
-        customOnSelectNetwork={chain => {
-          searchParams.set('chainId', chain.toString())
-          searchParams.set('inputCurrency', NativeCurrencies[chain].symbol || 'eth')
-          searchParams.set('outputCurrency', DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chain]?.address || '')
-          setSearchParams(searchParams)
-        }}
-        isOpen={isOpenNetworkModal}
-        customToggleModal={() => setIsOpenNetworkModal(prev => !prev)}
-      />
-
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
           <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
-            {omniView ? (
-              <Flex justifyContent="space-between" alignItems="center">
-                <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                  <Trans>Choose a chain</Trans>
-                </Text>
-
-                <SelectNetwork role="button" onClick={() => setIsOpenNetworkModal(true)}>
-                  <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ height: '20px', width: '20px' }} />
-                  <Text>{NETWORKS_INFO[chainId].name}</Text>
-                  <DropdownSVG />
-                </SelectNetwork>
-              </Flex>
-            ) : null}
+            {omniView ? <NetworkSelector chainId={chainId} /> : null}
             <InputCurrencyPanel
               wrapType={wrapType}
               typedValue={typedValue}

@@ -48,8 +48,12 @@ function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currenc
   return { loading, tradeInfo, refetch }
 }
 
-export function useBaseTradeInfoLimitOrder(currencyIn: Currency | undefined, currencyOut: Currency | undefined) {
-  const { loading, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
+export function useBaseTradeInfoLimitOrder(
+  currencyIn: Currency | undefined,
+  currencyOut: Currency | undefined,
+  chainId?: ChainId,
+) {
+  const { loading, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut, chainId)
   const debouncedLoading = useDebounce(loading, 100) // prevent flip flop UI when loading from true to false
   return { loading: loading || debouncedLoading, tradeInfo }
 }

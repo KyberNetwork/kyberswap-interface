@@ -207,7 +207,7 @@ const SwapActionButton: React.FC<Props> = ({
     if (customChainId && customChainId !== chainId) {
       return (
         <ButtonLight onClick={() => changeNetwork(customChainId)}>
-          <Trans>Swich to {NETWORKS_INFO[customChainId].name}</Trans>
+          <Trans>Switch to {NETWORKS_INFO[customChainId].name}</Trans>
         </ButtonLight>
       )
     }

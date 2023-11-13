@@ -1,9 +1,10 @@
-import { Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
@@ -11,9 +12,11 @@ import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import ArrowRotate from 'components/ArrowRotate'
+import { ButtonLight } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
+import { NetworkSelector } from 'components/NetworkSelector'
 import NumericalInput from 'components/NumericalInput'
 import { RowBetween } from 'components/Row'
 import Select from 'components/Select'
@@ -28,14 +31,17 @@ import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInput
 import useWarningCreateOrder from 'components/swapv2/LimitOrder/useWarningCreateOrder'
 import useWrapEthStatus from 'components/swapv2/LimitOrder/useWrapEthStatus'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useTokenAllowance } from 'data/Allowances'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback from 'hooks/useWrapCallback'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { useNotify } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
@@ -129,26 +135,69 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     setFlowState,
     zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
     editOrderInfo,
-    // useUrlParams,
+    useUrlParams,
   },
   ref,
 ) {
+  const { changeNetwork } = useChangeNetwork()
   const isEdit = editOrderInfo?.isEdit || false // else create
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId: walletChainId, networkInfo } = useActiveWeb3React()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const urlChainId = searchParams.get('chainId')
+  const chainId: ChainId = useUrlParams
+    ? urlChainId && SUPPORTED_NETWORKS.includes(+urlChainId)
+      ? +urlChainId
+      : walletChainId
+    : walletChainId
+
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const notify = useNotify()
   const { mixpanelHandler } = useMixpanel()
 
   const {
-    setCurrencyIn,
-    setCurrencyOut,
-    switchCurrency,
+    setCurrencyIn: updateCurrencyIn,
+    setCurrencyOut: updateCurrencyOut,
+    switchCurrency: rotateCurrency,
     removeOrderNeedCreated,
     resetState,
     setOrderEditing,
     setInputValue: setInputValueGlobal,
   } = useLimitActionHandlers()
+
+  const setCurrencyIn = useCallback(
+    (currency: Currency | undefined) => {
+      if (useUrlParams) {
+        searchParams.set(
+          'inputCurrency',
+          !currency ? '' : currency.isNative ? currency.symbol || '' : currency.wrapped.address,
+        )
+        setSearchParams(searchParams)
+      } else updateCurrencyIn(currency)
+    },
+    [useUrlParams, searchParams, setSearchParams, updateCurrencyIn],
+  )
+
+  const setCurrencyOut = useCallback(
+    (currency: Currency | undefined) => {
+      if (useUrlParams) {
+        searchParams.set(
+          'outputCurrency',
+          !currency ? '' : currency.isNative ? currency.symbol || '' : currency.wrapped.address,
+        )
+        setSearchParams(searchParams)
+      } else updateCurrencyOut(currency)
+    },
+    [useUrlParams, searchParams, setSearchParams, updateCurrencyOut],
+  )
+
+  const switchCurrency = useCallback(() => {
+    if (useUrlParams) {
+      searchParams.set('outputCurrency', searchParams.get('inputCurrency') || '')
+      searchParams.set('inputCurrency', searchParams.get('outputCurrency') || '')
+      setSearchParams(searchParams)
+    } else rotateCurrency()
+  }, [useUrlParams, rotateCurrency, searchParams, setSearchParams])
 
   const { ordersNeedCreated, inputAmount: inputAmountGlobal } = useLimitState()
 
@@ -166,7 +215,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const [approvalSubmitted, setApprovalSubmitted] = useState(false)
   const { library } = useWeb3React()
 
-  const { loading: loadingTrade, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut)
+  const { loading: loadingTrade, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
 
   const { data: activeOrderMakingAmount = defaultActiveMakingAmount, refetch: getActiveMakingAmount } =
@@ -313,7 +362,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     return undefined
   }, [currencyIn, activeOrderMakingAmount, isEdit, orderInfo])
 
-  const balance = useCurrencyBalance(currencyIn)
+  const balance = useCurrencyBalance(currencyIn, chainId)
   const maxAmountInput = useMemo(() => {
     return maxAmountSpend(balance)
   }, [balance])
@@ -496,7 +545,18 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       outputAmount,
       expiredAt,
     })
-  }, [setOrderEditing, account, chainId, currencyIn, currencyOut, inputAmount, outputAmount, expiredAt, orderInfo?.id, isEdit])
+  }, [
+    setOrderEditing,
+    account,
+    chainId,
+    currencyIn,
+    currencyOut,
+    inputAmount,
+    outputAmount,
+    expiredAt,
+    orderInfo?.id,
+    isEdit,
+  ])
 
   // use ref to prevent too many api call when firebase update status
   const refSubmitCreateOrder = useRef(onSubmitCreateOrder)
@@ -610,29 +670,34 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     },
   }))
 
-  const renderActionBtn = () => (
-    <ActionButtonLimitOrder
-      {...{
-        currencyIn,
-        currencyOut,
-        approval,
-        showWrap,
-        isWrappingEth,
-        isNotFillAllInput,
-        approvalSubmitted,
-        hasInputError,
-        enoughAllowance,
-        checkingAllowance,
-        wrapInputError,
-        approveCallback,
-        onWrapToken,
-        showPreview,
-        showApproveFlow,
-        showWarning: warningMessage.length > 0,
-        editOrderInfo,
-      }}
-    />
-  )
+  const renderActionBtn = () =>
+    chainId !== walletChainId ? (
+      <ButtonLight onClick={() => changeNetwork(chainId)}>
+        <Trans>Switch to {NETWORKS_INFO[chainId].name}</Trans>
+      </ButtonLight>
+    ) : (
+      <ActionButtonLimitOrder
+        {...{
+          currencyIn,
+          currencyOut,
+          approval,
+          showWrap,
+          isWrappingEth,
+          isNotFillAllInput,
+          approvalSubmitted,
+          hasInputError,
+          enoughAllowance,
+          checkingAllowance,
+          wrapInputError,
+          approveCallback,
+          onWrapToken,
+          showPreview,
+          showApproveFlow,
+          showWarning: warningMessage.length > 0,
+          editOrderInfo,
+        }}
+      />
+    )
   const renderConfirmModal = (showConfirmContent = false) => (
     <ConfirmOrderModal
       flowState={flowState}
@@ -663,6 +728,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
+        {useUrlParams ? <NetworkSelector chainId={chainId} /> : null}
         <Tooltip
           text={inputError}
           show={!!inputError}
@@ -697,6 +763,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
               </Label>
             }
             positionLabel="in"
+            customChainId={chainId}
           />
         </Tooltip>
 
@@ -727,6 +794,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
               </Label>
             }
             positionLabel="in"
+            customChainId={chainId}
           />
         </Tooltip>
 
