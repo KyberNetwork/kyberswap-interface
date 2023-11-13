@@ -193,8 +193,10 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
   const switchCurrency = useCallback(() => {
     if (useUrlParams) {
-      searchParams.set('outputCurrency', searchParams.get('inputCurrency') || '')
-      searchParams.set('inputCurrency', searchParams.get('outputCurrency') || '')
+      const cin = searchParams.get('inputCurrency') || ''
+      const cout = searchParams.get('outputCurrency') || ''
+      searchParams.set('outputCurrency', cin)
+      searchParams.set('inputCurrency', cout)
       setSearchParams(searchParams)
     } else rotateCurrency()
   }, [useUrlParams, rotateCurrency, searchParams, setSearchParams])
