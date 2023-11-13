@@ -216,7 +216,12 @@ export default function Swap() {
         <Banner />
         <Container>
           <SwapFormWrapper isShowTutorial={false}>
-            <Header activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
+            <Header
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              swapActionsRef={swapActionsRef}
+              customChainId={expectedChainId}
+            />
 
             <AppBodyWrapped style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}>
               {isSwapPage && <SwapForm {...props} />}
@@ -236,7 +241,7 @@ export default function Swap() {
                 <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
               {activeTab === TAB.LIQUIDITY_SOURCES && (
-                <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
+                <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={expectedChainId} />
               )}
               {activeTab === TAB.LIMIT &&
                 (showTutorial ? (
