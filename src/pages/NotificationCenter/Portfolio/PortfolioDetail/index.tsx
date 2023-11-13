@@ -63,7 +63,7 @@ export default function PortfolioDetail() {
   const { data: portfolios = EMPTY_ARRAY } = useGetPortfoliosQuery()
   const activePortfolio = portfolios[0]
 
-  const { data: wallets = EMPTY_ARRAY, isLoading: isLoadingWallet } = useGetWalletsPortfoliosQuery(
+  const { data: wallets = EMPTY_ARRAY, isFetching: isLoadingWallet } = useGetWalletsPortfoliosQuery(
     { portfolioId: activePortfolio?.id },
     { skip: !activePortfolio?.id },
   )
@@ -72,14 +72,12 @@ export default function PortfolioDetail() {
   const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
   const [search, setSearch] = useState(wallet || portfolioId || '')
 
-  const { isLoading: isLoadingPortfolio, data } = useGetRealtimeBalanceQuery(
+  const { isFetching: isLoadingPortfolio, data } = useGetRealtimeBalanceQuery(
     { query: search, chainIds },
     { skip: !search },
   )
 
-  const isLoading = isLoadingPortfolio || isLoadingWallet
-
-  console.log(123, { search, portfolios, data, portfolioId, wallet })
+  const isLoading: boolean = isLoadingPortfolio || isLoadingWallet
 
   const handleChangeChains = (chainIds: ChainId[]) => {
     setChainIds(chainIds)

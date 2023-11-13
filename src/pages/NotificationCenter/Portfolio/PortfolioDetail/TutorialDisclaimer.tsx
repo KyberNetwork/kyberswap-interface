@@ -4,6 +4,11 @@ import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { CSSProperties } from 'styled-components'
 
+import tutorial1 from 'assets/images/truesight-v2/tutorial_1.png'
+import tutorial2 from 'assets/images/truesight-v2/tutorial_2.png'
+import tutorial3 from 'assets/images/truesight-v2/tutorial_3.png'
+import tutorial4 from 'assets/images/truesight-v2/tutorial_4.png'
+import tutorial5 from 'assets/images/truesight-v2/tutorial_5.png'
 import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
 import TutorialModal from 'components/TutorialModal'
 import { APP_PATHS } from 'constants/index'
@@ -51,29 +56,29 @@ const Step4 = () => {
 const steps = [
   {
     text: <Step1 />,
-    image: '',
+    image: tutorial1,
     textStyle,
     title: t`Welcome to My Portfolio`,
   },
   {
     text: t`Make sure to connect and sign in with your wallet to get the full experience on Portfolio Management. In this section, we will go through the steps to set up your portfolio. We will cover the basics of creating a portfolio and bundle multiple wallets together`,
-    image: '',
+    image: tutorial2,
     textStyle,
     title: t`Setting up your Portfolio`,
   },
   {
     text: t`Click on the dropdown box to switch between portfolios. Share your portfolio with your friends by selecting the Share icon. Choose from different visual charts and send it as a thumbnail`,
-    image: '',
+    image: tutorial3,
     textStyle,
     title: t`Switch between Portfolios`,
   },
   {
     text: t`Track and manage all your assets in one place with the Portfolio Management Dashboard on KyberSwap. The Dashboard’s Visual Charts offers a comprehensive overview of your holdings and defi-related activities, along with advanced filter and analytics options for selected wallets and portfolio across various protocols and chains supported by KyberSwap. You can now easily keep track of your assets and stay informed about your portfolio's performance`,
-    image: '',
+    image: tutorial4,
     textStyle,
     title: t`Explore (Dashboard, Visual Charts, Wallet)`,
   },
-  { text: <Step4 />, image: '', textStyle, title: t`Tutorial - Tips` },
+  { text: <Step4 />, image: tutorial5, textStyle, title: t`Tutorial - Tips` },
 ]
 
 export default function TutorialDisclaimer() {
