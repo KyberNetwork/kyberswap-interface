@@ -198,7 +198,7 @@ const StepContent = ({ step, ...rest }: { step: TutorialStep; [k: string]: any }
   )
 }
 
-type TutorialStep = { image: string; text: ReactNode; textStyle?: CSSProperties }
+type TutorialStep = { image: string; text: ReactNode; textStyle?: CSSProperties; title?: string }
 const TutorialModal = ({
   steps,
   isOpen,
@@ -225,12 +225,14 @@ const TutorialModal = ({
     }
   }, [isOpen])
 
+  const stepTitle = steps[step]?.title
+
   return (
     <Modal isOpen={isOpen} width="fit-content" maxWidth="fit-content" onDismiss={toggle}>
       <Wrapper>
         <RowBetween>
           <Row fontSize={above768 ? '20px' : '16px'} lineHeight="24px" color={theme.text} gap="6px">
-            {title}
+            {stepTitle || title}
           </Row>
           <div onClick={toggle} style={{ cursor: 'pointer' }}>
             <X />

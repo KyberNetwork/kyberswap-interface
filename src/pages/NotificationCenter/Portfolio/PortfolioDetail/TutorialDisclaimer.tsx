@@ -53,23 +53,27 @@ const steps = [
     text: <Step1 />,
     image: '',
     textStyle,
+    title: t`Welcome to My Portfolio`,
   },
   {
     text: t`Make sure to connect and sign in with your wallet to get the full experience on Portfolio Management. In this section, we will go through the steps to set up your portfolio. We will cover the basics of creating a portfolio and bundle multiple wallets together`,
     image: '',
     textStyle,
+    title: t`Setting up your Portfolio`,
   },
   {
     text: t`Click on the dropdown box to switch between portfolios. Share your portfolio with your friends by selecting the Share icon. Choose from different visual charts and send it as a thumbnail`,
     image: '',
     textStyle,
+    title: t`Switch between Portfolios`,
   },
   {
     text: t`Track and manage all your assets in one place with the Portfolio Management Dashboard on KyberSwap. The Dashboard’s Visual Charts offers a comprehensive overview of your holdings and defi-related activities, along with advanced filter and analytics options for selected wallets and portfolio across various protocols and chains supported by KyberSwap. You can now easily keep track of your assets and stay informed about your portfolio's performance`,
     image: '',
     textStyle,
+    title: t`Explore (Dashboard, Visual Charts, Wallet)`,
   },
-  { text: <Step4 />, image: '', textStyle },
+  { text: <Step4 />, image: '', textStyle, title: t`Tutorial - Tips` },
 ]
 
 export default function TutorialDisclaimer() {
@@ -100,7 +104,6 @@ export default function TutorialDisclaimer() {
       isOpen={isOpenTutorial}
       toggle={toggleTutorial}
       steps={steps}
-      title={t`Welcome to My Portfolio`}
       onFinished={() => navigate(`${APP_PATHS.PROFILE}/${account}`)}
     />
   )
