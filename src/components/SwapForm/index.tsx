@@ -29,6 +29,7 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
+import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
@@ -218,6 +219,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
         selectedId={chainId}
         customOnSelectNetwork={chain => {
           searchParams.set('chainId', chain.toString())
+          searchParams.set('inputCurrency', NativeCurrencies[chain].symbol || 'eth')
+          searchParams.set('outputCurrency', DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chain]?.address || '')
           setSearchParams(searchParams)
         }}
         isOpen={isOpenNetworkModal}
