@@ -499,6 +499,7 @@ export const SearchWithDropdown = ({
   expanded,
   setExpanded,
   columns,
+  style,
 }: {
   placeholder: string
   id?: string
@@ -512,6 +513,7 @@ export const SearchWithDropdown = ({
   expanded: boolean
   setExpanded: React.Dispatch<React.SetStateAction<boolean>>
   columns: TableColumn[]
+  style?: CSSProperties
 }) => {
   const theme = useTheme()
 
@@ -573,7 +575,7 @@ export const SearchWithDropdown = ({
   }, [setExpanded])
 
   return (
-    <Wrapper ref={wrapperRef} onClick={() => !expanded && inputRef.current?.focus()} expanded={expanded}>
+    <Wrapper ref={wrapperRef} onClick={() => !expanded && inputRef.current?.focus()} expanded={expanded} style={style}>
       <Input
         type="text"
         id={id}

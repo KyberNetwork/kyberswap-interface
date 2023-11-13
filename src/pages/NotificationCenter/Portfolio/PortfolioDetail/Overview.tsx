@@ -15,6 +15,10 @@ import { useWalletModalToggle } from 'state/application/hooks'
 const Title = styled.div`
   font-size: 48px;
   font-weight: 600;
+  text-align: center;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 28px;
+  `}
 `
 
 const Card = styled.div`
@@ -26,6 +30,9 @@ const Card = styled.div`
   width: 410px;
   min-height: 350px;
   padding: 40px 20px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
 `
 const CardItem = ({ title, icon, desc }: { title: string; icon: string; desc: string }) => {
   const theme = useTheme()
@@ -45,12 +52,28 @@ const CardItem = ({ title, icon, desc }: { title: string; icon: string; desc: st
   )
 }
 
+const CardWrapper = styled(Row)`
+  justify-content: center;
+  gap: 24px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+  `}
+`
+
+const Wrapper = styled(Column)`
+  gap: 60px;
+  align-items: center;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 40px;
+`}
+`
+
 export default function Overview() {
   const theme = useTheme()
   const connectWallet = useWalletModalToggle()
   const { account } = useActiveWeb3React()
   return (
-    <Column alignItems={'center'} gap="60px">
+    <Wrapper>
       <Column gap="24px" alignItems={'center'}>
         <Title>
           <Trans>
@@ -60,7 +83,7 @@ export default function Overview() {
             </Text>
           </Trans>
         </Title>
-        <Text color={theme.subText} fontWeight={'500'}>
+        <Text color={theme.subText} fontWeight={'500'} textAlign={'center'}>
           The one-stop solution for all your cryptocurrency portfolio management needs.
         </Text>
         {!account && (
@@ -69,7 +92,7 @@ export default function Overview() {
           </ButtonPrimary>
         )}
       </Column>
-      <Row justify={'center'} gap="24px">
+      <CardWrapper>
         <CardItem
           icon={PortfolioItem1}
           title={t`Easy Portfolio Management`}
@@ -85,7 +108,7 @@ export default function Overview() {
           title={t`Widespread Support`}
           desc={t`Manage all your assets on a single platform with support for multiple cryptocurrencies, protocols, and centralized exchange, eliminating the need for multiple wallets and exchanges.`}
         />
-      </Row>
-    </Column>
+      </CardWrapper>
+    </Wrapper>
   )
 }

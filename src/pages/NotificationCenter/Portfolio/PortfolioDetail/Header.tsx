@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { isMacOs } from 'react-device-detect'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -9,6 +10,7 @@ import { ReactComponent as PortfolioIcon } from 'assets/svg/portfolio.svg'
 import Avatar from 'components/Avatar'
 import { ButtonOutlined } from 'components/Button'
 import History from 'components/Icons/History'
+import Icon from 'components/Icons/Icon'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
@@ -17,6 +19,7 @@ import { useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { SearchWithDropdown } from 'pages/TrueSightV2/components/SearchWithDropDown'
 import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const ShortCut = styled.span`
@@ -78,6 +81,7 @@ export default function Header() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState(false)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const history = false
   const mocks = new Array(4).fill(12).map(el => <PortfolioItem key={el} onSelect={() => setExpanded(false)} />)
   const sections = history
@@ -116,6 +120,23 @@ export default function Header() {
 
   const { pathname } = useLocation()
 
+  const renderSearch = () => (
+    <SearchWithDropdown
+      searching={false}
+      noResultText={t`No portfolio found.`}
+      expanded={expanded}
+      setExpanded={setExpanded}
+      placeholder={t`Enter wallet address`}
+      sections={sections}
+      columns={columns}
+      value={search}
+      noSearchResult={false}
+      onChange={setSearch}
+      style={{ maxWidth: upToSmall ? '100%' : undefined }}
+      searchIcon={upToSmall ? <Icon id="search" /> : <ShortCut>{isMacOs ? 'Cmd+K' : 'Ctrl+K'}</ShortCut>}
+    />
+  )
+
   return (
     <>
       <RowBetween align="center">
@@ -124,30 +145,23 @@ export default function Header() {
           {pathname.startsWith(APP_PATHS.MY_PORTFOLIO) ? <Trans>My Portfolio</Trans> : <Trans>Portfolio</Trans>}
         </Flex>
         <Row width={'fit-content'} gap="15px">
-          <SearchWithDropdown
-            searching={false}
-            noResultText={t`No portfolio found.`}
-            expanded={expanded}
-            setExpanded={setExpanded}
-            placeholder={t`Enter wallet address`}
-            sections={sections}
-            columns={columns}
-            value={search}
-            noSearchResult={false}
-            onChange={setSearch}
-            searchIcon={<ShortCut>{isMacOs ? 'Cmd+K' : 'Ctrl+K'}</ShortCut>}
-          />
+          {!upToSmall && renderSearch()}
           <ButtonOutlined
             height={'36px'}
-            width={'116px'}
+            width={upToSmall ? '36px' : '116px'}
+            style={{ background: theme.buttonGray, border: 'none', minWidth: '36px' }}
             onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`)}
           >
-            <TransactionSettingsIcon fill={theme.subText} />
-            &nbsp;
-            <Trans>Setting</Trans>
+            <TransactionSettingsIcon fill={theme.subText} style={{ height: '20px', minWidth: '20px' }} />
+            {!upToSmall && (
+              <>
+                &nbsp;<Trans>Setting</Trans>
+              </>
+            )}
           </ButtonOutlined>
         </Row>
       </RowBetween>
+      {upToSmall && renderSearch()}
     </>
   )
 }

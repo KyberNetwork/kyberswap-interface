@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { CSSProperties } from 'styled-components'
@@ -13,7 +12,7 @@ import useTheme from 'hooks/useTheme'
 import Disclaimer from 'pages/NotificationCenter/Portfolio/Modals/Disclaimer'
 
 const textStyle: CSSProperties = {
-  height: isMobile ? '35vh' : '168px',
+  height: '168px',
 }
 
 const Step1 = () => {
