@@ -31,7 +31,7 @@ import { StyledNavExternalLink } from './styleds'
 const HeaderFrame = styled.div<{ hide?: boolean }>`
   height: ${({ hide }) => (hide ? 0 : undefined)};
   padding: ${({ hide }) => (hide ? 0 : '1rem')};
-  overflow: hidden;
+  overflow: ${({ hide }) => (hide ? 'hidden' : undefined)};
   display: grid;
   grid-template-columns: 1fr 120px;
   align-items: center;
