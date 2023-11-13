@@ -1,5 +1,7 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
 
+import { CROSS_CHAIN_CONFIG } from 'constants/env'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { getRouInfo } from 'pages/CrossChain/helpers'
@@ -18,6 +20,9 @@ export function useIsEnoughGas(route: RouteData | undefined) {
   return {
     gasFee,
     crossChainFee,
+    gasRefund: crossChainFee
+      ? crossChainFee.multiply(JSBI.BigInt(CROSS_CHAIN_CONFIG.GAS_REFUND)).divide(JSBI.BigInt(100))
+      : undefined,
     isEnoughEth:
       !route || !account
         ? true

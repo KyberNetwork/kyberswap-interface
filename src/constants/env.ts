@@ -170,4 +170,5 @@ export const CROSS_CHAIN_CONFIG = {
   AXELAR_SCAN_URL: isSupportTestNet ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/',
   API_DOMAIN: isSupportTestNet ? 'https://testnet.api.0xsquid.com' : 'https://v2.api.squidrouter.com',
   INTEGRATOR_ID: 'kyberswap-api',
+  GAS_REFUND: 25, // %
 }

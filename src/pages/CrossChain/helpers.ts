@@ -1,3 +1,4 @@
+import { CROSS_CHAIN_CONFIG } from 'constants/env'
 import { CrossChainTransferStatus } from 'pages/CrossChain/useTransferHistory'
 import { RouteData } from 'state/crossChain/reducer'
 
@@ -14,6 +15,8 @@ export const getRouInfo = (route: RouteData | undefined) => {
   const crossChainFeeUsd = Number(feeCosts?.amountUsd || '0')
   const totalFeeUsd = gasFeeUsd + crossChainFeeUsd
 
+  const gasRefundUsd = (CROSS_CHAIN_CONFIG.GAS_REFUND * crossChainFeeUsd) / 100
+
   return {
     amountUsdOut: formatNumber(estimate?.toAmountUSD),
     amountUsdIn: formatNumber(estimate?.fromAmountUSD),
@@ -25,9 +28,12 @@ export const getRouInfo = (route: RouteData | undefined) => {
     exchangeRate: estimate?.exchangeRate,
     gasCosts,
     feeCosts,
+
     totalFeeUsd,
     gasFeeUsd,
     crossChainFeeUsd,
+    gasRefundUsd,
+
     routeData: estimate?.actions || [],
   }
 }
