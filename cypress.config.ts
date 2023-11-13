@@ -13,6 +13,8 @@ export default defineConfig({
   },
   userAgent: 'synpress',
   chromeWebSecurity: true,
+  // video: false,
+  // videoCompression: false,
   viewportWidth: 1920,
   viewportHeight: 1080,
   env: {
@@ -20,10 +22,20 @@ export default defineConfig({
     grepOmitFiltered: true,
   },
   e2e: {
+    testIsolation: false,
     setupNodeEvents(on, config) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('@cypress/grep/src/plugin')(config)
       synpressPlugins(on, config)
+      const options = {
+        printLogsToFile: 'always',
+        outputRoot: config.projectRoot + '/target/',
+        specRoot: 'cypress/e2e/specs',
+        outputTarget: {
+          'cypress-logs|json': 'json',
+        },
+      }
+      require('cypress-terminal-report/src/installLogsPrinter')(on, options)
       on('after:run', async results => {
         if (results) {
           const register = new client.Registry()
