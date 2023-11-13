@@ -142,7 +142,6 @@ export function useTokenBalancesWithLoadingIndicator(
   // This cache helps hooks which calling this hooks and depend on this result don't have to calculating again with new dependency changed
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const balanceResultCached = useMemo(() => balanceResult, [stringifyBalance(balanceResult)])
-  console.log(balanceResultCached)
 
   return [balanceResultCached, anyLoading]
 }

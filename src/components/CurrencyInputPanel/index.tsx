@@ -252,8 +252,6 @@ export default function CurrencyInputPanel({
 
   const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined, customChainId)
 
-  console.log(currency?.name, selectedCurrencyBalance?.toExact())
-
   const theme = useTheme()
 
   const handleDismissSearch = useCallback(() => {
