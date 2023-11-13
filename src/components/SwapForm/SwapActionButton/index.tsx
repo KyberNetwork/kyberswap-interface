@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
@@ -14,10 +14,12 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { SwapCallbackError } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { PermitState, usePermit } from 'hooks/usePermit'
 import useTheme from 'hooks/useTheme'
 import { WrapType } from 'hooks/useWrapCallback'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ApprovalModal from 'pages/SwapV3/ApprovalModal'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
@@ -57,6 +59,7 @@ type Props = {
   setProcessingSwap: React.Dispatch<React.SetStateAction<boolean>>
   onWrap: (() => Promise<string | undefined>) | undefined
   buildRoute: () => Promise<BuildRouteResult>
+  customChainId?: ChainId
 }
 
 const SwapActionButton: React.FC<Props> = ({
@@ -80,9 +83,11 @@ const SwapActionButton: React.FC<Props> = ({
   setProcessingSwap,
   onWrap,
   buildRoute,
+  customChainId,
 }) => {
   const theme = useTheme()
-  const { account, walletKey } = useActiveWeb3React()
+  const { changeNetwork } = useChangeNetwork()
+  const { account, walletKey, chainId } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
@@ -195,6 +200,14 @@ const SwapActionButton: React.FC<Props> = ({
       return (
         <ButtonLight onClick={toggleWalletModal}>
           <Trans>Connect</Trans>
+        </ButtonLight>
+      )
+    }
+
+    if (customChainId && customChainId !== chainId) {
+      return (
+        <ButtonLight onClick={() => changeNetwork(customChainId)}>
+          <Trans>Switch to {NETWORKS_INFO[customChainId].name}</Trans>
         </ButtonLight>
       )
     }
