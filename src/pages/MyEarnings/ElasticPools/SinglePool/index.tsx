@@ -27,7 +27,7 @@ import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/Sh
 import Positions from 'pages/MyEarnings/Positions'
 import { WIDTHS } from 'pages/MyEarnings/constants'
 import { Badge, DownIcon, MobileStat, MobileStatWrapper, Row, Wrapper } from 'pages/MyEarnings/styled'
-import { ButtonIcon } from 'pages/Pools/styleds'
+import { ButtonIcon } from 'pages/Pools/Subgraph/styleds'
 import { useAppSelector } from 'state/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
