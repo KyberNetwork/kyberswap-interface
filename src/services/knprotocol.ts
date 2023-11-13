@@ -6,6 +6,9 @@ import { RTK_QUERY_TAGS } from 'constants/index'
 import { EVM_NETWORK, NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { SubgraphFarmV2 } from 'state/farms/elasticv2/types'
+import { ElasticPoolDetail } from 'types/pool'
+
+import { transformResponseAllChainElasticPool } from './utils/knprotocol'
 
 type Token = {
   id: string
@@ -95,7 +98,7 @@ const knProtocolApi = createApi({
       }),
       providesTags: [RTK_QUERY_TAGS.GET_FARM_V2],
     }),
-    getPoolClassic: builder.query<{ data: { pools: ClassicPoolKN[] } }, ChainId>({
+    getPoolClassic: builder.query<{ data: { pools: ClassicPoolKN[] | null | undefined } }, ChainId>({
       query: (chainId: EVM_NETWORK) => ({
         url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/classic/pools?includeLowTvl=true&perPage=10000&page=1`,
       }),
@@ -105,8 +108,25 @@ const knProtocolApi = createApi({
         url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/classic/farm-pools?perPage=1000&page=1`,
       }),
     }),
+    getAllPools: builder.query<
+      { [address: string]: ElasticPoolDetail },
+      {
+        chainIds: EVM_NETWORK[]
+        search: string
+        page: number
+        size: number
+      }
+    >({
+      query: ({ chainIds, search, page, size }) => ({
+        url: `/all-chain/api/v1/elastic/pools?chainNames=${chainIds
+          .map(chainId => NETWORKS_INFO[chainId].poolFarmRoute)
+          .join(',')}&includeLowTvl=true&page=${page}&perPage=${size}&search=${search}`,
+      }),
+      transformResponse: transformResponseAllChainElasticPool,
+    }),
   }),
 })
 
 export default knProtocolApi
-export const { useLazyGetFarmV2Query, useLazyGetFarmClassicQuery, useGetPoolClassicQuery } = knProtocolApi
+export const { useLazyGetFarmV2Query, useLazyGetFarmClassicQuery, useGetPoolClassicQuery, useGetAllPoolsQuery } =
+  knProtocolApi

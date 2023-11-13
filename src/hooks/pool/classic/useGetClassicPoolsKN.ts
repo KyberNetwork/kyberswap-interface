@@ -17,7 +17,7 @@ const useGetClassicPoolsKN = (): CommonReturn => {
   const { currentData, error, isFetching } = useGetPoolClassicQuery(chainId, { skip: !isEnableKNProtocol })
   const poolData: ClassicPoolData[] | undefined = useMemo(
     () =>
-      currentData?.data?.pools.map(pool => {
+      currentData?.data?.pools?.map(pool => {
         const oneDayVolumeUSD = toString(get24hValue(pool.volumeUsd, pool.volumeUsdOneDayAgo))
         const oneDayFeeUSD = toString(get24hValue(pool.feeUSD, pool.feesUsdOneDayAgo))
 

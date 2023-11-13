@@ -144,33 +144,6 @@ export default function ProAmmPoolList({
     .flat()
   const tokenPriceMap = useTokenPrices([...new Set(farmTokens.concat(poolTokens))])
 
-  const totalFarmRewardUSDByPoolId = useMemo(
-    () =>
-      farms
-        ?.map(farm => farm.pools)
-        .flat()
-        .filter(pool => pool.endTime > Date.now() / 1000)
-        .map(pool => {
-          const v = pool.totalRewards.reduce((acc, cur) => {
-            return acc + Number(cur.toExact()) * tokenPriceMap[cur.currency.wrapped.address]
-          }, 0)
-          const farmDuration = (pool.endTime - pool.startTime) / 86400
-
-          return {
-            poolAddress: pool.poolAddress,
-            value: (v * 365 * 100) / farmDuration,
-          }
-        })
-        .reduce((acc, cur) => {
-          return {
-            ...acc,
-            [cur.poolAddress]: cur.value,
-          }
-        }, {} as { [key: string]: number }) || {},
-
-    [farms, tokenPriceMap],
-  )
-
   const [searchParams, setSearchParams] = useSearchParams()
   const sortField = searchParams.get('orderBy') || SORT_FIELD.TVL
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
@@ -265,16 +238,10 @@ export default function ProAmmPoolList({
       })
     }
 
-    return filteredPools
-      .map(p => {
-        p.farmAPR = p.farmAPR ? p.farmAPR : (totalFarmRewardUSDByPoolId[p.address] || 0) / p.tvlUSD
-        return p
-      })
-      .sort(listComparator)
+    return filteredPools.sort(listComparator)
   }, [
     elasticFarmV2s,
     poolDatas,
-    totalFarmRewardUSDByPoolId,
     isShowOnlyActiveFarmPools,
     caId,
     cbId,

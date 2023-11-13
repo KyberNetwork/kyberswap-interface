@@ -1,4 +1,8 @@
+import { EVMNetworkInfo } from 'constants/networks/type'
+
 export type ElasticPoolDetail = {
+  chain?: EVMNetworkInfo['poolFarmRoute']
+
   address: string
   feeTier: number
 
