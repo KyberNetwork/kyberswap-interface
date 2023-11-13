@@ -210,7 +210,7 @@ const TutorialModal = ({
   isOpen: boolean
   toggle: () => void
   onFinished?: () => void
-  title: ReactNode
+  title?: ReactNode
 }) => {
   const theme = useTheme()
   const [{ step, animationState, swipe }, dispatch] = useReducer(reducer, initialState)
