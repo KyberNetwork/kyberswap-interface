@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 
@@ -10,10 +11,11 @@ import { uniqueArray } from 'utils/array'
 
 import { Dex, updateAllDexes } from '.'
 
-export default function Updater(): null {
+export default function Updater({ customChainId }: { customChainId?: ChainId }): null {
   const dispatch = useDispatch<AppDispatch>()
 
-  const { chainId } = useActiveWeb3React()
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
   const { data: dexes } = useLiquiditySources(chainId)
 
   // filterout kyberswap dexes, will hardcode

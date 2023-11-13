@@ -184,8 +184,11 @@ export function useCurrencyBalances(
   )
 }
 
-export function useCurrencyBalance(currency?: Currency): CurrencyAmount<Currency> | undefined {
-  return useCurrencyBalances(useMemo(() => [currency], [currency]))[0]
+export function useCurrencyBalance(currency?: Currency, chainId?: ChainId): CurrencyAmount<Currency> | undefined {
+  return useCurrencyBalances(
+    useMemo(() => [currency], [currency]),
+    chainId,
+  )[0]
 }
 
 // mimics useAllBalances

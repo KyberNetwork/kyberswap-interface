@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useEffect } from 'react'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -16,6 +16,7 @@ type Props = {
   balanceIn: CurrencyAmount<Currency> | undefined
   onChangeCurrencyIn: (c: Currency) => void
   setTypedValue: (v: string) => void
+  customChainId?: ChainId
 }
 const InputCurrencyPanel: React.FC<Props> = ({
   wrapType,
@@ -25,6 +26,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
   currencyOut,
   balanceIn,
   onChangeCurrencyIn,
+  customChainId,
 }) => {
   const { isSolana } = useActiveWeb3React()
 
@@ -64,6 +66,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
       dataTestId="swap-currency-input"
       showCommonBases={true}
       estimatedUsd={trade?.amountInUsd ? `${formattedNum(trade.amountInUsd.toString(), true)}` : undefined}
+      customChainId={customChainId}
     />
   )
 }

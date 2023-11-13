@@ -1,15 +1,17 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 import styled from 'styled-components'
 
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
+import NetworkModal from 'components/Header/web3/NetworkModal'
 import { Clock } from 'components/Icons'
 import { AutoRow } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
@@ -28,6 +30,7 @@ import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -59,6 +62,21 @@ const PriceAlertButton = styled.div`
   align-items: center;
   height: fit-content;
 `
+
+const SelectNetwork = styled.div`
+  border: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: ${({ theme }) => theme.subText};
+  background: ${({ theme }) => theme.buttonBlack};
+  border-radius: 999px;
+  cursor: pointer;
+`
+
 export type SwapFormProps = {
   hidden: boolean
 
@@ -79,6 +97,8 @@ export type SwapFormProps = {
   onChangeCurrencyIn: (c: Currency) => void
   onChangeCurrencyOut: (c: Currency) => void
   goToSettingsView: () => void
+  customChainId?: ChainId
+  omniView?: boolean
 }
 
 const SwapForm: React.FC<SwapFormProps> = props => {
@@ -97,9 +117,12 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     permit,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
+    customChainId,
+    omniView,
   } = props
 
-  const { isEVM, isSolana, chainId } = useActiveWeb3React()
+  const { isEVM, isSolana, chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
   const navigate = useNavigate()
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const { typedValue } = useSwapState()
@@ -120,7 +143,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   }, [onUserInput])
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
-  const { wrapType, inputError: wrapInputError, execute: onWrap } = useWrapCallback(currencyIn, currencyOut, typedValue)
+  const {
+    wrapType,
+    inputError: wrapInputError,
+    execute: onWrap,
+  } = useWrapCallback(currencyIn, currencyOut, typedValue, false, customChainId)
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
 
   const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
@@ -131,6 +158,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     isSaveGas,
     parsedAmount,
     isProcessingSwap,
+    customChain: chainId,
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
@@ -161,14 +189,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     parsedAmountFromTypedValue: parsedAmount,
   })
 
-  const handleChangeCurrencyIn = (c: Currency) => {
-    onChangeCurrencyIn(c)
-  }
-
-  const handleChangeCurrencyOut = (c: Currency) => {
-    onChangeCurrencyOut(c)
-  }
-
   const isSolanaUnwrap = isSolana && wrapType === WrapType.UNWRAP
   useEffect(() => {
     // reset value for unwrapping WSOL
@@ -181,6 +201,9 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
+  const [isOpenNetworkModal, setIsOpenNetworkModal] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+
   return (
     <SwapFormContextProvider
       slippage={slippage}
@@ -191,9 +214,32 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       isStablePairSwap={isStablePairSwap}
       isAdvancedMode={isDegenMode}
     >
+      <NetworkModal
+        selectedId={chainId}
+        customOnSelectNetwork={chain => {
+          searchParams.set('chainId', chain.toString())
+          setSearchParams(searchParams)
+        }}
+        isOpen={isOpenNetworkModal}
+        customToggleModal={() => setIsOpenNetworkModal(prev => !prev)}
+      />
+
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
           <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
+            {omniView ? (
+              <Flex justifyContent="space-between" alignItems="center">
+                <Text fontSize={12} fontWeight="500" color={theme.subText}>
+                  <Trans>Choose a chain</Trans>
+                </Text>
+
+                <SelectNetwork role="button" onClick={() => setIsOpenNetworkModal(true)}>
+                  <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ height: '20px', width: '20px' }} />
+                  <Text>{NETWORKS_INFO[chainId].name}</Text>
+                  <DropdownSVG />
+                </SelectNetwork>
+              </Flex>
+            ) : null}
             <InputCurrencyPanel
               wrapType={wrapType}
               typedValue={typedValue}
@@ -201,7 +247,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               currencyIn={currencyIn}
               currencyOut={currencyOut}
               balanceIn={balanceIn}
-              onChangeCurrencyIn={handleChangeCurrencyIn}
+              onChangeCurrencyIn={onChangeCurrencyIn}
+              customChainId={customChainId}
             />
 
             <AutoRow justify="space-between">
@@ -239,7 +286,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                     )}
                   </PriceAlertButton>
                 )}
-                <ReverseTokenSelectionButton onClick={() => currencyIn && handleChangeCurrencyOut(currencyIn)} />
+                <ReverseTokenSelectionButton onClick={() => currencyIn && onChangeCurrencyOut(currencyIn)} />
               </Flex>
             </AutoRow>
 
@@ -250,7 +297,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               currencyIn={currencyIn}
               currencyOut={currencyOut}
               amountOutUsd={routeSummary?.amountOutUsd}
-              onChangeCurrencyOut={handleChangeCurrencyOut}
+              onChangeCurrencyOut={onChangeCurrencyOut}
+              customChainId={customChainId}
             />
 
             {isDegenMode && isEVM && !isWrapOrUnwrap && (
@@ -284,6 +332,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             onWrap={onWrap}
             buildRoute={buildRoute}
             swapInputError={swapInputError}
+            customChainId={customChainId}
           />
 
           {!isWrapOrUnwrap && <TradeSummary routeSummary={routeSummary} slippage={slippage} />}

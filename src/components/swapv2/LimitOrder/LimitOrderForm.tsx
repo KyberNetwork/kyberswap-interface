@@ -89,6 +89,7 @@ type Props = {
   zIndexToolTip?: number
   defaultRate?: RateInfo
   editOrderInfo?: EditOrderInfo
+  useUrlParams?: boolean
 }
 
 const InputWrapper = styled.div`
@@ -128,6 +129,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     setFlowState,
     zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
     editOrderInfo,
+    // useUrlParams,
   },
   ref,
 ) {
@@ -147,6 +149,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     setOrderEditing,
     setInputValue: setInputValueGlobal,
   } = useLimitActionHandlers()
+
   const { ordersNeedCreated, inputAmount: inputAmountGlobal } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
@@ -493,18 +496,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       outputAmount,
       expiredAt,
     })
-  }, [
-    setOrderEditing,
-    account,
-    chainId,
-    currencyIn,
-    currencyOut,
-    inputAmount,
-    outputAmount,
-    expiredAt,
-    orderInfo?.id,
-    isEdit,
-  ])
+  }, [setOrderEditing, account, chainId, currencyIn, currencyOut, inputAmount, outputAmount, expiredAt, orderInfo?.id, isEdit])
 
   // use ref to prevent too many api call when firebase update status
   const refSubmitCreateOrder = useRef(onSubmitCreateOrder)

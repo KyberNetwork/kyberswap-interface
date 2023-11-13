@@ -1,4 +1,4 @@
-import { Currency, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { useMemo } from 'react'
@@ -36,13 +36,15 @@ export default function useWrapCallback(
   outputCurrency: Currency | undefined | null,
   typedValue: string | undefined,
   forceWrap = false,
+  customChainId?: ChainId,
 ): {
   wrapType: WrapType
   execute?: undefined | (() => Promise<string | undefined>)
   inputError?: string
   allowUnwrap?: boolean
 } {
-  const { chainId, isEVM, isSolana, account } = useActiveWeb3React()
+  const { chainId: walletChainId, isEVM, isSolana, account } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
   const provider = useProvider()
   const wethContract = useWETHContract()
   const balance = useCurrencyBalance(inputCurrency ?? undefined)

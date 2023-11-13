@@ -248,14 +248,14 @@ export default function CurrencyInputPanel({
 }: CurrencyInputPanelProps) {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
-  const { chainId, account } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
-  const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined)
+  const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined, customChainId)
   const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
 
   useEffect(() => {
     balanceRef.current = undefined
-  }, [chainId])
+  }, [customChainId])
 
   // Keep previous value of balance if rpc node was down
   useEffect(() => {
