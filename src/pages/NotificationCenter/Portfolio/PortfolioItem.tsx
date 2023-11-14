@@ -281,7 +281,7 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   return (
     <Column gap="24px">
       <Row gap="14px">
-        <Text fontSize={20} fontWeight={'500'} color={theme.text} sx={{ flex: 1 }}>
+        <Text fontSize={20} fontWeight={'500'} color={theme.text} sx={{ flex: 1, wordBreak: 'break-all' }}>
           {name}
         </Text>
         <MouseoverTooltip

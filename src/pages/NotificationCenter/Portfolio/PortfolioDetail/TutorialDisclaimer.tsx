@@ -109,7 +109,7 @@ export default function TutorialDisclaimer() {
       isOpen={isOpenTutorial}
       toggle={toggleTutorial}
       steps={steps}
-      onFinished={() => navigate(`${APP_PATHS.PROFILE}/${account}`)}
+      onFinished={() => navigate(account ? `${APP_PATHS.PROFILE}/${account}` : APP_PATHS.PORTFOLIO)}
     />
   )
 }

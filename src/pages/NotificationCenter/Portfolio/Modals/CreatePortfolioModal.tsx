@@ -45,6 +45,7 @@ const CreatePortfolioModal = ({
           <Trans>Enter your Portfolio name</Trans>
         </Text>
         <Input
+          maxLength={50}
           style={{ height: '36px' }}
           value={name}
           onChange={e => setName(e.target.value)}

@@ -70,7 +70,19 @@ const AddressPanel = ({
   console.log(123, activeWallet)
 
   const accountText = (
-    <Text fontSize={'20px'} fontWeight={'500'} color={theme.text} sx={{ cursor: 'pointer', userSelect: 'none' }}>
+    <Text
+      fontSize={'20px'}
+      fontWeight={'500'}
+      color={theme.text}
+      sx={{
+        cursor: 'pointer',
+        userSelect: 'none',
+        maxWidth: '250px',
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+      }}
+    >
       {isLoading ? '--' : activeWallet ? getShortenAddress(activeWallet.walletAddress) : activePortfolio?.name}
     </Text>
   )
