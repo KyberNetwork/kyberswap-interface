@@ -16,6 +16,7 @@ const Container = styled.div`
 const TextWrapper = styled.div`
   line-height: 20px;
   font-size: 14px;
+  color: ${({ theme }) => theme.subText};
 `
 
 const Disclaimer = styled.div`
@@ -54,15 +55,13 @@ export default function DisclaimerPortfolio({ onConfirm }: { onConfirm: () => vo
           </Trans>
         </TextWrapper>
         <TextWrapper>
-          <Trans>
-            Note that asset values can fluctuate greatly according to market conditions. While KyberSwap strives to
-            provide accurate and timely data, we are unable to guarantee its accuracy nor completeness.
-          </Trans>
+          <Trans>Note that asset values can experience significant fluctuations due to market conditions.</Trans>
         </TextWrapper>
 
         <TextWrapper>
           <Trans>
-            Users should conduct their own due diligence before investing based on the provided information.
+            KyberSwap strives to provide accurate and timely data, it&apos;s essential for users to conduct their own
+            research and due diligence before making investment decisions based on the provided information.
           </Trans>
         </TextWrapper>
 

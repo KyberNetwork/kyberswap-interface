@@ -2,9 +2,15 @@ import { Trans, t } from '@lingui/macro'
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import { Plus, Save, X } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import { useCreatePortfolioMutation, useGetPortfoliosQuery } from 'services/portfolio'
+import {
+  useClonePortfolioMutation,
+  useCreatePortfolioMutation,
+  useGetPortfoliosQuery,
+  useSearchPortfoliosQuery,
+} from 'services/portfolio'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -17,6 +23,7 @@ import { Tabs } from 'components/WalletPopup/Transactions/Tab'
 import { EMPTY_ARRAY, RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagPortfolio } from 'hooks/useInvalidateTags'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/CreatePortfolioModal'
@@ -120,6 +127,14 @@ export default function PortfolioSettings() {
     setShowCreate(false)
   }
 
+  const { cloneId = '' } = useParsedQueryString<{ cloneId: string }>()
+  const { data: clonePortfolio } = useSearchPortfoliosQuery({ id: cloneId }, { skip: !cloneId })
+  useEffect(() => {
+    if (clonePortfolio) {
+      setShowCreate(true)
+    }
+  }, [clonePortfolio])
+
   const theme = useTheme()
 
   const [threshold, setThreshold] = useState<string | number>(THRESHOLD_OPTIONS[0].value)
@@ -143,15 +158,23 @@ export default function PortfolioSettings() {
   const canCreatePortfolio = !!account && portfolios.length < maximumPortfolio && !loading
 
   const [createPortfolio] = useCreatePortfolioMutation()
+  const [clonePortfolioRequest] = useClonePortfolioMutation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const notify = useNotify()
   const addPortfolio = async (data: { name: string }) => {
     try {
-      await createPortfolio(data).unwrap()
+      await (clonePortfolio
+        ? clonePortfolioRequest({ ...data, portfolioId: clonePortfolio.id }).unwrap()
+        : createPortfolio(data).unwrap())
       notify({
         type: NotificationType.SUCCESS,
         title: t`Portfolio created`,
         summary: t`Your portfolio have been successfully created`,
       })
+      if (clonePortfolio) {
+        searchParams.delete('cloneId')
+        setSearchParams(searchParams)
+      }
     } catch (error) {
       notify({
         type: NotificationType.ERROR,
@@ -188,7 +211,7 @@ export default function PortfolioSettings() {
               disabled={!canCreatePortfolio}
               onClick={canCreatePortfolio ? showModalCreatePortfolio : undefined}
             >
-              <Plus />
+              <Plus size={16} />
               &nbsp;
               <Trans>Create Portfolio</Trans>
             </ButtonPrimary>

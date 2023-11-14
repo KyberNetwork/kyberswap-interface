@@ -81,6 +81,15 @@ const portfolioApi = createApi({
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
+    clonePortfolio: builder.mutation<void, { name: string; portfolioId: string }>({
+      query: body => ({
+        url: '/v1/portfolios/clone',
+        method: 'POST',
+        body,
+        params: { identityId: window.identityId }, // todo
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
+    }),
     updatePortfolio: builder.mutation<Portfolio, { name: string; id: string }>({
       query: ({ id, ...body }) => ({
         url: `/v1/portfolios/${id}`,
@@ -154,6 +163,7 @@ export const {
   useRemoveWalletFromPortfolioMutation,
   useUpdateWalletToPortfolioMutation,
   useSearchPortfoliosQuery,
+  useClonePortfolioMutation,
 } = portfolioApi
 
 export default portfolioApi

@@ -4,6 +4,7 @@ import { Eye, EyeOff, Plus, Share2, Trash } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useClonePortfolioMutation } from 'services/portfolio'
 import styled, { css } from 'styled-components'
 
 import DefaultAvatar from 'assets/images/default_avatar.png'
@@ -129,32 +130,34 @@ const AddressPanel = ({
       </ButtonPrimary>
     </MouseoverTooltip>
   )
+
   const renderBtnCreate = () => {
-    if (portfolioId)
-      return (
-        <Select
-          arrowColor={theme.textReverse}
-          style={{ background: theme.primary, borderRadius: 999, height: 36, fontWeight: '500', fontSize: 14 }}
-          options={[
-            {
-              label: t`Replicate this portfolio`,
-              onSelect: () => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`),
-            },
-            {
-              label: t`Create a blank portfolio`,
-              onSelect: () => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`),
-            },
-          ]}
-          activeRender={() => (
-            <Row color={theme.textReverse}>
-              <Plus size={18} />
-              &nbsp;
-              <Trans>Create Portfolio</Trans>
-            </Row>
-          )}
-        />
-      )
-    return renderBtn(() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`))
+    if (!portfolioId || !account || portfolios.some(e => e.id === portfolioId))
+      return renderBtn(() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`))
+    return (
+      <Select
+        arrowColor={theme.textReverse}
+        style={{ background: theme.primary, borderRadius: 999, height: 36, fontWeight: '500', fontSize: 14 }}
+        options={[
+          {
+            label: t`Replicate this portfolio`,
+            onSelect: () =>
+              navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}?cloneId=${portfolioId}`),
+          },
+          {
+            label: t`Create a blank portfolio`,
+            onSelect: () => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`),
+          },
+        ]}
+        activeRender={() => (
+          <Row color={theme.textReverse}>
+            <Plus size={18} />
+            &nbsp;
+            <Trans>Create Portfolio</Trans>
+          </Row>
+        )}
+      />
+    )
   }
 
   return (
