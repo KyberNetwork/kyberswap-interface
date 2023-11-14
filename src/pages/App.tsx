@@ -52,6 +52,7 @@ const MyPool = lazy(() => import('./MyPool'))
 const MyEarnings = lazy(() => import('./MyEarnings'))
 
 const Farm = lazy(() => import('./Farm'))
+const OmniFarms = lazy(() => import('./OmniFarms'))
 
 const PoolFinder = lazy(() => import('./PoolFinder'))
 const ElasticRemoveLiquidity = lazy(() => import('pages/RemoveLiquidityProAmm'))
@@ -298,6 +299,8 @@ export default function App() {
                   {/* Farms Routes */}
                   <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
                   <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
+
+                  <Route path={`${APP_PATHS.OMNI_FARMS}`} element={<OmniFarms />} />
                 </>
 
                 <>
