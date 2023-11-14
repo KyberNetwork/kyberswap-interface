@@ -89,6 +89,7 @@ export function useZapInPoolResult(params?: {
                 saveGas: '',
                 amountIn: item.quotient.toString(),
                 excludedPools: poolAddress,
+                gasInclude: 'true',
               },
               clientId: 'kyberswap-zap',
             })
@@ -357,6 +358,7 @@ export function useZapInAction() {
           value: options.zapWithNative ? amountIn : undefined,
           data: callData,
           to: zapRouterAddress,
+          minRefundAmounts,
         })
 
         const gasEstimated = await zapRouterContract.estimateGas[options.zapWithNative ? 'zapInWithNative' : 'zapIn'](
