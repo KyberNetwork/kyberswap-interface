@@ -15,7 +15,7 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio/PortfolioItem'
+import { useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio/helpers'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { SearchWithDropdown } from 'pages/TrueSightV2/components/SearchWithDropDown'
 import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
@@ -53,7 +53,7 @@ const PortfolioItem = ({ onSelect }: { onSelect: () => void }) => {
   return (
     <DropdownItem
       onClick={() => {
-        navigate({ wallet: address })
+        navigate({ wallet: address, myPortfolio: false })
         onSelect()
       }}
     >

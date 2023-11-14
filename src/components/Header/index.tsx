@@ -233,7 +233,7 @@ export default function Header() {
             <CampaignNavGroup />
             <KyberDAONavGroup />
             <PortfolioWrapper>
-              <StyledNavLink to={APP_PATHS.PORTFOLIO}>
+              <StyledNavLink to={APP_PATHS.MY_PORTFOLIO}>
                 <Trans>Portfolio</Trans>
               </StyledNavLink>
             </PortfolioWrapper>

@@ -189,7 +189,6 @@ export const APP_PATHS = {
 
   PORTFOLIO: '/portfolio',
   MY_PORTFOLIO: '/my-portfolio',
-  PROFILE: '/profiles',
 } as const
 
 export const TERM_FILES_PATH = {

@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { stringify } from 'querystring'
 import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import {
   useGetPortfoliosQuery,
   useGetRealtimeBalanceQuery,
@@ -10,11 +9,12 @@ import {
 } from 'services/portfolio'
 import styled from 'styled-components'
 
+import LocalLoader from 'components/LocalLoader'
 import { RowBetween } from 'components/Row'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
-import useParsedQueryString from 'hooks/useParsedQueryString'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import AddressPanel from 'pages/NotificationCenter/Portfolio/PortfolioDetail/AddressPanel'
 import Allowances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Allowances'
 import ListTab from 'pages/NotificationCenter/Portfolio/PortfolioDetail/ListTab'
@@ -23,8 +23,8 @@ import TokenAllocation from 'pages/NotificationCenter/Portfolio/PortfolioDetail/
 import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
 import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
-import { useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/helpers'
 import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/type'
+import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 import { PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
 
 import Header from './Header'
@@ -68,41 +68,46 @@ const useFetchPortfolio = () => {
     { portfolioId: portfolio?.id || '' },
     { skip: !portfolio?.id },
   )
+
+  const isLoading = useShowLoadingAtLeastTime(isLoadingWallet || isLoadingPortfolio || isLoadingMyPortfolio, 500)
   return {
-    portfolio: pathname.startsWith(APP_PATHS.PROFILE) ? undefined : portfolio,
+    portfolio: portfolio,
     myPortfolios: isMyPortfolioPage ? myPortfolios : EMPTY_ARRAY,
     wallets,
-    isLoading: isLoadingWallet || isLoadingPortfolio || isLoadingMyPortfolio,
+    isLoading,
   }
 }
 
 export default function PortfolioDetail() {
   const [activeTab, setTab] = useState(PortfolioTab.TRANSACTIONS)
-  const qs = useParsedQueryString()
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
-  const { portfolio: activePortfolio, myPortfolios: portfolios, wallets, isLoading: x } = useFetchPortfolio()
+  const {
+    portfolio: activePortfolio,
+    myPortfolios: portfolios,
+    wallets,
+    isLoading: isLoadingPortfolio,
+  } = useFetchPortfolio()
 
   const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
   const [search, setSearch] = useState(wallet || portfolioId || '')
 
-  const { isFetching: isLoadingPortfolio, data } = useGetRealtimeBalanceQuery(
+  const { isFetching: isLoadingRealtimeData, data } = useGetRealtimeBalanceQuery(
     { query: search, chainIds },
     { skip: !search },
   )
 
-  const isLoading: boolean = isLoadingPortfolio || x // todo
+  const isLoading: boolean = isLoadingPortfolio || isLoadingRealtimeData // todo
 
   const handleChangeChains = (chainIds: ChainId[]) => {
     setChainIds(chainIds)
   }
 
-  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const navigate = useNavigateToPortfolioDetail()
   const onChangeWallet = (wallet?: string) => {
     setSearch(wallet || '')
-    const newQs = { ...qs, wallet }
-    if (!newQs.wallet) delete newQs.wallet
-    navigate({ search: stringify(newQs) }, { replace: true })
+    navigate({ myPortfolio: pathname.startsWith(APP_PATHS.MY_PORTFOLIO), wallet, portfolioId })
   }
 
   const canShowOverview = !wallet && !portfolioId
@@ -110,7 +115,9 @@ export default function PortfolioDetail() {
   return (
     <PageWrapper>
       <Header />
-      {canShowOverview ? (
+      {isLoadingPortfolio ? (
+        <LocalLoader />
+      ) : canShowOverview ? (
         <Overview />
       ) : (
         <>
@@ -136,7 +143,7 @@ export default function PortfolioDetail() {
         </>
       )}
 
-      <TutorialDisclaimer />
+      <TutorialDisclaimer showOverview={canShowOverview} />
     </PageWrapper>
   )
 }

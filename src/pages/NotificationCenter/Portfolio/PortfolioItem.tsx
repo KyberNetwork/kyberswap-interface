@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { Edit2, Eye, MoreHorizontal, Trash } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import {
   useAddWalletToPortfolioMutation,
@@ -20,10 +19,10 @@ import { useShowConfirm } from 'components/ConfirmModal'
 import Row from 'components/Row'
 import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import AddWalletPortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/AddWalletPortfolioModal'
 import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/CreatePortfolioModal'
+import { useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio/helpers'
 import { Portfolio, PortfolioWallet } from 'pages/NotificationCenter/Portfolio/type'
 import { useNotify } from 'state/application/hooks'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -114,19 +113,6 @@ const WalletItem = ({
   )
 }
 
-export const useNavigateToPortfolioDetail = () => {
-  const navigate = useNavigate()
-  return useCallback(
-    ({ wallet, portfolioId }: { wallet?: string; portfolioId?: string }) => {
-      navigate(
-        portfolioId
-          ? `${APP_PATHS.MY_PORTFOLIO}/${portfolioId}${wallet ? `?wallet=${wallet}` : ''}`
-          : `${APP_PATHS.PROFILE}/${wallet}`,
-      )
-    },
-    [navigate],
-  )
-}
 const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   const theme = useTheme()
   const { name, id }: Portfolio = portfolio

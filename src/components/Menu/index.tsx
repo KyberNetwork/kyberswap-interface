@@ -400,7 +400,7 @@ export default function Menu() {
                 <MenuItem
                   onClick={() => {
                     toggle()
-                    navigate(APP_PATHS.PORTFOLIO)
+                    navigate(APP_PATHS.MY_PORTFOLIO)
                   }}
                 >
                   <PortfolioIcon />

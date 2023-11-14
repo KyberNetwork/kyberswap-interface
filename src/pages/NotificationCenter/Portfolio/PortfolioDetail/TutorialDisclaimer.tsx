@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
+import { useGetPortfoliosQuery } from 'services/portfolio'
 import { CSSProperties } from 'styled-components'
 
 import tutorial1 from 'assets/images/truesight-v2/tutorial_1.png'
@@ -11,15 +11,15 @@ import tutorial4 from 'assets/images/truesight-v2/tutorial_4.png'
 import tutorial5 from 'assets/images/truesight-v2/tutorial_5.png'
 import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
 import TutorialModal from 'components/TutorialModal'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import Disclaimer from 'pages/NotificationCenter/Portfolio/Modals/Disclaimer'
+import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 
 const textStyle: CSSProperties = {
   height: '168px',
 }
-
+// todo update image
 const Step1 = () => {
   const theme = useTheme()
   return (
@@ -81,11 +81,10 @@ const steps = [
   { text: <Step4 />, image: tutorial5, textStyle, title: t`Tutorial - Tips` },
 ]
 
-export default function TutorialDisclaimer() {
+export default function TutorialDisclaimer({ showOverview }: { showOverview: boolean }) {
   const [isOpenTutorial, setIsOpenTutorial] = useState(false)
   const toggleTutorial = useCallback(() => setIsOpenTutorial(v => !v), [])
 
-  const navigate = useNavigate()
   const { account } = useActiveWeb3React()
 
   const [showDisclaimer, setShowDisclaimer] = useState(!localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_DISCLAIMER))
@@ -94,22 +93,34 @@ export default function TutorialDisclaimer() {
     setShowDisclaimer(false)
   }
 
+  const { data } = useGetPortfoliosQuery()
+  const { portfolioId } = useParseWalletPortfolioParam()
+  const navigate = useNavigateToPortfolioDetail()
+  const onFinished = useCallback(() => {
+    if (portfolioId && !data?.some(el => el.id === portfolioId)) {
+      return
+    }
+    if (!data?.length) {
+      navigate({ wallet: account })
+      return
+    }
+    navigate({ portfolioId: data?.[0]?.id })
+  }, [account, data, navigate, portfolioId])
+
   useEffect(() => {
-    if (!showDisclaimer && account && !localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE)) {
+    const showedTutorial = localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE)
+    if (!showDisclaimer && account && !showedTutorial) {
       // auto show for first time all user
       toggleTutorial()
       localStorage.setItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE, '1')
+    } else if (!showDisclaimer && showedTutorial && showOverview) {
+      onFinished() // todo consider
     }
-  }, [toggleTutorial, showDisclaimer, account])
+  }, [toggleTutorial, showDisclaimer, account, onFinished, showOverview])
 
   return showDisclaimer ? (
     <Disclaimer onConfirm={onConfirmDisclaimer} />
   ) : (
-    <TutorialModal
-      isOpen={isOpenTutorial}
-      toggle={toggleTutorial}
-      steps={steps}
-      onFinished={() => navigate(account ? `${APP_PATHS.PROFILE}/${account}` : APP_PATHS.PORTFOLIO)}
-    />
+    <TutorialModal isOpen={isOpenTutorial} toggle={toggleTutorial} steps={steps} onFinished={onFinished} />
   )
 }
