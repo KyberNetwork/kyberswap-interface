@@ -31,6 +31,7 @@ import useTheme from 'hooks/useTheme'
 import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/CreatePortfolioModal'
 import PortfolioItem from 'pages/NotificationCenter/Portfolio/PortfolioItem'
 import { ButtonCancel, ButtonSave } from 'pages/NotificationCenter/Portfolio/buttons'
+import { MAXIMUM_PORTFOLIO } from 'pages/NotificationCenter/Portfolio/const'
 import WarningSignMessage, { WarningConnectWalletMessage } from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
@@ -83,8 +84,6 @@ const Divider = styled.div`
   `}
 `
 const THRESHOLD_OPTIONS = [1, 10, 100].map(el => ({ value: el, title: `< ${el}` }))
-
-const maximumPortfolio = 2
 
 const SettingWrapper = styled(RowBetween)`
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -173,7 +172,7 @@ export default function PortfolioSettings() {
 
   const hasChangeSettings = settings?.dustThreshold !== threshold || settings?.isHideDust !== hideSmallBalance
   const disableBtnSave = loading || !hasChangeSettings
-  const canCreatePortfolio = !!account && portfolios.length < maximumPortfolio && !loading
+  const canCreatePortfolio = !!account && portfolios.length < MAXIMUM_PORTFOLIO && !loading
 
   const [createPortfolio] = useCreatePortfolioMutation()
   const [clonePortfolioRequest] = useClonePortfolioMutation()
@@ -214,8 +213,8 @@ export default function PortfolioSettings() {
           <Text fontWeight={'500'} fontSize="14px" color={theme.subText}>
             <Trans>
               Portfolios count:{' '}
-              <Text as={'span'} color={portfolios.length < maximumPortfolio ? theme.text : theme.warning}>
-                {portfolios.length}/{maximumPortfolio}
+              <Text as={'span'} color={portfolios.length < MAXIMUM_PORTFOLIO ? theme.text : theme.warning}>
+                {portfolios.length}/{MAXIMUM_PORTFOLIO}
               </Text>
             </Trans>
           </Text>

@@ -16,7 +16,9 @@ const AddWalletPortfolioModal = ({
   onDismiss,
   wallet,
   onConfirm,
+  defaultWallet,
 }: {
+  defaultWallet?: string
   isOpen: boolean
   onDismiss: () => void
   wallet?: PortfolioWallet
@@ -30,6 +32,10 @@ const AddWalletPortfolioModal = ({
     setName(wallet.nickName)
     setWalletAddress(wallet.walletAddress)
   }, [wallet])
+
+  useEffect(() => {
+    setWalletAddress(defaultWallet || '')
+  }, [defaultWallet, isOpen])
 
   const isEdit = !!wallet
 

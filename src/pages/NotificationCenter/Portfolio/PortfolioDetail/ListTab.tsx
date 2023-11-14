@@ -9,7 +9,7 @@ import { ReactComponent as TokensIcon } from 'assets/svg/tokens_icon.svg'
 import { CheckCircle } from 'components/Icons'
 import { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/type'
+import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/type'
 
 const Divider = styled.div`
   height: 20px;

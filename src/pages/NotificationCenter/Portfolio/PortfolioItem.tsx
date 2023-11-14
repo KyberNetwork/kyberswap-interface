@@ -3,12 +3,10 @@ import { useState } from 'react'
 import { Edit2, Plus, Trash } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import {
-  useAddWalletToPortfolioMutation,
   useDeletePortfolioMutation,
   useGetWalletsPortfoliosQuery,
   useRemoveWalletFromPortfolioMutation,
   useUpdatePortfolioMutation,
-  useUpdateWalletToPortfolioMutation,
 } from 'services/portfolio'
 import styled from 'styled-components'
 
@@ -22,8 +20,8 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import AddWalletPortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/AddWalletPortfolioModal'
 import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/CreatePortfolioModal'
-import { useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio/helpers'
-import { Portfolio, PortfolioWallet } from 'pages/NotificationCenter/Portfolio/type'
+import { useAddWalletToPortfolio, useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio/helpers'
+import { Portfolio, PortfolioWallet, PortfolioWalletPayload } from 'pages/NotificationCenter/Portfolio/type'
 import { useNotify } from 'state/application/hooks'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
@@ -121,8 +119,6 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   }
 
   const [deletePortfolio] = useDeletePortfolioMutation()
-  const [addWallet] = useAddWalletToPortfolioMutation()
-  const [updateWallet] = useUpdateWalletToPortfolioMutation()
   const [removeWallet] = useRemoveWalletFromPortfolioMutation()
   const [updatePortfolio] = useUpdatePortfolioMutation()
   const showConfirm = useShowConfirm()
@@ -179,31 +175,8 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
     }
   }
 
-  const onAddUpdateWallet = async ({
-    walletId,
-    ...data
-  }: {
-    walletAddress: string
-    nickName: string
-    walletId?: number
-  }) => {
-    try {
-      await (walletId
-        ? updateWallet({ portfolioId: id, ...data }).unwrap()
-        : addWallet({ portfolioId: id, ...data }).unwrap())
-      notify({
-        type: NotificationType.SUCCESS,
-        title: t`Portfolio updated`,
-        summary: t`Your portfolio has been successfully updated`,
-      })
-    } catch (error) {
-      notify({
-        type: NotificationType.ERROR,
-        title: t`Portfolio update failed`,
-        summary: t`Failed to update your portfolio, please try again.`,
-      })
-    }
-  }
+  const _onAddUpdateWallet = useAddWalletToPortfolio()
+  const onAddUpdateWallet = (data: PortfolioWalletPayload) => _onAddUpdateWallet({ ...data, portfolioId: id })
 
   const navigate = useNavigateToPortfolioDetail()
   const onChangePortfolioAction = (val: Actions) => {

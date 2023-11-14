@@ -115,3 +115,18 @@ export type TransactionHistoryResponse = {
   data: TransactionHistory[]
   timestamp: number
 }
+
+export enum PortfolioTab {
+  TOKEN = 'Tokens',
+  LIQUIDITY = 'Liquidity',
+  NFT = 'NFTs',
+  TRANSACTIONS = 'Transactions',
+  ALLOWANCES = 'Allowances',
+}
+
+export type PortfolioWalletPayload = {
+  walletAddress: string
+  nickName: string
+  walletId?: number
+  portfolioId?: string
+}

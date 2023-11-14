@@ -27,9 +27,8 @@ import TokenAllocation from 'pages/NotificationCenter/Portfolio/PortfolioDetail/
 import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
 import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
-import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/type'
 import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
-import { PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
+import { PortfolioTab, PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
 import getShortenAddress from 'utils/getShortenAddress'
 
 import Header from './Header'
@@ -64,11 +63,7 @@ const useFetchPortfolio = () => {
     { id: portfolioId || '' },
     { skip: !portfolioId },
   )
-  const { pathname } = useLocation()
-  const isMyPortfolioPage = pathname.startsWith(APP_PATHS.MY_PORTFOLIO)
-  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingPortfolio } = useGetPortfoliosQuery(undefined, {
-    skip: !isMyPortfolioPage,
-  })
+  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingPortfolio } = useGetPortfoliosQuery()
   const { data: wallets = EMPTY_ARRAY, isFetching: isLoadingWallet } = useGetWalletsPortfoliosQuery(
     { portfolioId: portfolio?.id || '' },
     { skip: !portfolio?.id },
@@ -77,7 +72,7 @@ const useFetchPortfolio = () => {
   const isLoading = useShowLoadingAtLeastTime(isLoadingWallet || isLoadingPortfolio || isLoadingMyPortfolio, 500)
   return {
     portfolio: !portfolioId ? undefined : portfolio,
-    myPortfolios: isMyPortfolioPage ? myPortfolios : EMPTY_ARRAY,
+    myPortfolios: myPortfolios,
     wallets,
     isLoading,
   }
@@ -87,12 +82,7 @@ export default function PortfolioDetail() {
   const [activeTab, setTab] = useState(PortfolioTab.TRANSACTIONS)
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
-  const {
-    portfolio: activePortfolio,
-    myPortfolios: portfolios,
-    wallets,
-    isLoading: isLoadingPortfolio,
-  } = useFetchPortfolio()
+  const { portfolio: activePortfolio, myPortfolios, wallets, isLoading: isLoadingPortfolio } = useFetchPortfolio()
 
   const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
   const [search, setSearch] = useState(wallet || portfolioId || '')
@@ -137,7 +127,7 @@ export default function PortfolioDetail() {
           <AddressPanel
             isLoading={isLoading}
             wallets={wallets}
-            portfolios={portfolios}
+            myPortfolios={myPortfolios}
             activePortfolio={activePortfolio}
             data={data}
             onChangeWallet={onChangeWallet}
