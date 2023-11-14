@@ -109,10 +109,18 @@ export default function PortfolioSettings() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const [showCreate, setShowCreate] = useState(false)
+
   const { data: portfolios = EMPTY_ARRAY, isFetching, refetch } = useGetPortfoliosQuery()
   const { data: settings, refetch: refetchSetting } = useGetPortfoliosSettingsQuery()
 
-  const loading = useShowLoadingAtLeastTime(isFetching, 700)
+  const { cloneId = '', wallet } = useParsedQueryString<{ cloneId: string; wallet: string }>()
+  const loading = useShowLoadingAtLeastTime(isFetching, wallet ? 0 : 700)
+  const { data: clonePortfolio } = useSearchPortfoliosQuery({ id: cloneId }, { skip: !cloneId })
+  useEffect(() => {
+    if (clonePortfolio || isAddress(ChainId.MAINNET, wallet)) {
+      setShowCreate(true)
+    }
+  }, [clonePortfolio, wallet])
 
   const { userInfo } = useSessionInfo()
   const invalidateTags = useInvalidateTagPortfolio()
@@ -130,14 +138,6 @@ export default function PortfolioSettings() {
   const hideModalCreatePortfolio = () => {
     setShowCreate(false)
   }
-
-  const { cloneId = '', wallet } = useParsedQueryString<{ cloneId: string; wallet: string }>()
-  const { data: clonePortfolio } = useSearchPortfoliosQuery({ id: cloneId }, { skip: !cloneId })
-  useEffect(() => {
-    if (clonePortfolio || isAddress(ChainId.MAINNET, wallet)) {
-      setShowCreate(true)
-    }
-  }, [clonePortfolio, wallet])
 
   const theme = useTheme()
 

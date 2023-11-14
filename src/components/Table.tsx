@@ -1,8 +1,10 @@
+import { Trans } from '@lingui/macro'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
+import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
 import Pagination from 'components/Pagination'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -103,31 +105,53 @@ export default function Table<T>({
         ))}
       </TableHeader>
       <TBody>
-        {filterData.map((item, i) => (
-          <TRow key={i} templateColumn={templateColumnStr}>
-            {columns.map(({ dataIndex, align, render, style }) => {
-              const value = item[dataIndex as keyof T]
-              let content = null
-              try {
-                content = render ? render({ value, item }) : (value as ReactNode)
-              } catch (error) {}
-              return (
-                <td
-                  key={typeof value === 'string' ? value : i}
-                  style={{
-                    textAlign: align || 'center',
-                    fontSize: '14px',
-                    display: 'grid',
-                    alignItems: 'center',
-                    ...style,
-                  }}
-                >
-                  {content}
-                </td>
-              )
-            })}
-          </TRow>
-        ))}
+        {filterData.length ? (
+          filterData.map((item, i) => (
+            <TRow key={i} templateColumn={templateColumnStr}>
+              {columns.map(({ dataIndex, align, render, style }) => {
+                const value = item[dataIndex as keyof T]
+                let content = null
+                try {
+                  content = render ? render({ value, item }) : (value as ReactNode)
+                } catch (error) {}
+                return (
+                  <td
+                    key={typeof value === 'string' ? value : i}
+                    style={{
+                      textAlign: align || 'center',
+                      fontSize: '14px',
+                      display: 'grid',
+                      alignItems: 'center',
+                      ...style,
+                    }}
+                  >
+                    {content}
+                  </td>
+                )
+              })}
+            </TRow>
+          ))
+        ) : (
+          <tr>
+            <td
+              colSpan={columns.length}
+              style={{
+                display: 'flex',
+                gap: '10px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
+                color: theme.subText,
+                padding: '50px 0px',
+              }}
+            >
+              <NoDataIcon />
+              <Text fontSize={'14px'}>
+                <Trans>No data found</Trans>
+              </Text>
+            </td>
+          </tr>
+        )}
       </TBody>
       {totalItems > pageSize && (
         <Pagination
