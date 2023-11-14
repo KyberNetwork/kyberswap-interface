@@ -123,7 +123,8 @@ export function useTokenBalancesWithLoadingIndicator(
     () =>
       account && tokens && tokens.length > 0
         ? tokens.reduce<{ [tokenAddress: string]: TokenAmount | undefined }>((memo, token, i) => {
-            const amount = balances?.[i]?.[0]
+            const amount = balances?.[i]?.[0]?.currency.equals(token) ? balances?.[i]?.[0] : undefined
+
             if (amount) {
               memo[token.address] = amount
             }
@@ -184,8 +185,11 @@ export function useCurrencyBalances(
   )
 }
 
-export function useCurrencyBalance(currency?: Currency): CurrencyAmount<Currency> | undefined {
-  return useCurrencyBalances(useMemo(() => [currency], [currency]))[0]
+export function useCurrencyBalance(currency?: Currency, chainId?: ChainId): CurrencyAmount<Currency> | undefined {
+  return useCurrencyBalances(
+    useMemo(() => [currency], [currency]),
+    chainId,
+  )[0]
 }
 
 // mimics useAllBalances

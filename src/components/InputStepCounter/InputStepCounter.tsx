@@ -159,6 +159,7 @@ const StepCounter = ({
             <RowBetween>
               <StyledInput
                 className="rate-input-0"
+                data-testid="price-value"
                 value={localValue}
                 fontSize="20px"
                 disabled={locked}

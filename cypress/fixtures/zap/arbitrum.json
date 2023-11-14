@@ -1,0 +1,26 @@
+[
+  {
+    "id": "0x83fe9065ed68506a0d2ece59cd71c43bbff6e450",
+    "amountIn": "100",
+    "pair": "wstETH-axl.wstET",
+    "feeTier": "0.008%",
+    "farmingRange": {
+      "minPrice": "0.999",
+      "maxPrice": "1.2"
+    }
+  },
+  {
+    "id": "0xdf03ca6c633f784ac5e062dd708b15728b488621",
+    "amountIn": "100",
+    "pair": "ETH-ARB",
+    "feeTier": "0.25%",
+    "customRange": "Full Range"
+  },
+  {
+    "id": "0xc23f1d198477c0bcae0cac2ec734ceda438a8990",
+    "amountIn": "100",
+    "pair": "USDC-USDC.e",
+    "feeTier": "0.008%",
+    "customRange": "Safe"
+  }
+]

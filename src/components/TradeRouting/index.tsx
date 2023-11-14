@@ -122,10 +122,20 @@ interface RoutingProps {
   currencyOut: Currency | undefined
   inputAmount: CurrencyAmount<Currency> | undefined
   outputAmount: CurrencyAmount<Currency> | undefined
+  customChainId?: ChainId
 }
 
-const Routing = ({ tradeComposition, maxHeight, inputAmount, outputAmount, currencyIn, currencyOut }: RoutingProps) => {
-  const { chainId } = useActiveWeb3React()
+const Routing = ({
+  customChainId,
+  tradeComposition,
+  maxHeight,
+  inputAmount,
+  outputAmount,
+  currencyIn,
+  currencyOut,
+}: RoutingProps) => {
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
   const shadowRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -197,7 +207,7 @@ const Routing = ({ tradeComposition, maxHeight, inputAmount, outputAmount, curre
 }
 
 const TokenRoute = ({ token }: { token: Token }) => {
-  const currency = useCurrencyV2(token.wrapped.address)
+  const currency = useCurrencyV2(token.wrapped.address, token.chainId)
   return (
     <StyledToken
       style={{ marginRight: 0 }}
