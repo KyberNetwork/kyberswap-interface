@@ -25,6 +25,12 @@ const portfolioApi = createApi({
       transformResponse: (data: any) => data?.data?.portfolios,
       providesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
+    searchPortfolios: builder.query<Portfolio, { id: string }>({
+      query: ({ id }) => ({
+        url: `/v1/portfolios/${id}`,
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
     getRealtimeBalance: builder.query<PortfolioWalletBalanceResponse, { query: string; chainIds?: ChainId[] }>({
       query: ({ query, chainIds }) => ({
         url: `/v1/real-time-data/${query}`,
@@ -75,7 +81,7 @@ const portfolioApi = createApi({
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
-    updatePortfolio: builder.mutation<Portfolio, { name: string; id: number }>({
+    updatePortfolio: builder.mutation<Portfolio, { name: string; id: string }>({
       query: ({ id, ...body }) => ({
         url: `/v1/portfolios/${id}`,
         method: 'PUT',
@@ -84,7 +90,7 @@ const portfolioApi = createApi({
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
-    deletePortfolio: builder.mutation<Portfolio, number>({
+    deletePortfolio: builder.mutation<Portfolio, string>({
       query: id => ({
         url: `/v1/portfolios/${id}`,
         method: 'DELETE',
@@ -93,7 +99,7 @@ const portfolioApi = createApi({
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
     // wallets
-    getWalletsPortfolios: builder.query<PortfolioWallet[], { portfolioId: number }>({
+    getWalletsPortfolios: builder.query<PortfolioWallet[], { portfolioId: string }>({
       query: ({ portfolioId }) => ({
         url: `/v1/portfolios/${portfolioId}/wallets`,
         params: { identityId: window.identityId }, // todo
@@ -101,7 +107,7 @@ const portfolioApi = createApi({
       transformResponse: (data: any) => data?.data?.wallets,
       providesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
     }),
-    addWalletToPortfolio: builder.mutation<Portfolio, { portfolioId: number; walletAddress: string; nickName: string }>(
+    addWalletToPortfolio: builder.mutation<Portfolio, { portfolioId: string; walletAddress: string; nickName: string }>(
       {
         query: ({ portfolioId, ...body }) => ({
           url: `/v1/portfolios/${portfolioId}/wallets`,
@@ -114,7 +120,7 @@ const portfolioApi = createApi({
     ),
     updateWalletToPortfolio: builder.mutation<
       Portfolio,
-      { portfolioId: number; walletAddress: string; nickName: string }
+      { portfolioId: string; walletAddress: string; nickName: string }
     >({
       query: ({ portfolioId, walletAddress, ...body }) => ({
         url: `/v1/portfolios/${portfolioId}/wallets/${walletAddress}`,
@@ -124,7 +130,7 @@ const portfolioApi = createApi({
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
     }),
-    removeWalletFromPortfolio: builder.mutation<Portfolio, { portfolioId: number; walletAddress: string }>({
+    removeWalletFromPortfolio: builder.mutation<Portfolio, { portfolioId: string; walletAddress: string }>({
       query: ({ portfolioId, walletAddress }) => ({
         url: `/v1/portfolios/${portfolioId}/wallets/${walletAddress}`,
         method: 'DELETE',
@@ -147,6 +153,7 @@ export const {
   useGetWalletsPortfoliosQuery,
   useRemoveWalletFromPortfolioMutation,
   useUpdateWalletToPortfolioMutation,
+  useSearchPortfoliosQuery,
 } = portfolioApi
 
 export default portfolioApi

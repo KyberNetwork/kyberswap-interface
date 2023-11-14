@@ -117,7 +117,7 @@ const WalletItem = ({
 export const useNavigateToPortfolioDetail = () => {
   const navigate = useNavigate()
   return useCallback(
-    ({ wallet, portfolioId }: { wallet?: string; portfolioId?: number }) => {
+    ({ wallet, portfolioId }: { wallet?: string; portfolioId?: string }) => {
       navigate(
         portfolioId
           ? `${APP_PATHS.MY_PORTFOLIO}/${portfolioId}${wallet ? `?wallet=${wallet}` : ''}`
@@ -189,7 +189,7 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
     }
   }
 
-  const onDeleteWalletPortfolio = async (data: { walletAddress: string; portfolioId: number }) => {
+  const onDeleteWalletPortfolio = async (data: { walletAddress: string; portfolioId: string }) => {
     try {
       await removeWallet(data).unwrap()
       notify({

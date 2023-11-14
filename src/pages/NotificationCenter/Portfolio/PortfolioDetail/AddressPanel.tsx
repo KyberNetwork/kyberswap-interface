@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { Eye, EyeOff, Plus, Share2, Trash } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -9,7 +9,6 @@ import styled, { css } from 'styled-components'
 import DefaultAvatar from 'assets/images/default_avatar.png'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import Avatar from 'components/Avatar'
-import { PercentBadge } from 'components/Badge'
 import { ButtonAction, ButtonPrimary } from 'components/Button'
 import { ProfilePanel } from 'components/Header/web3/SignWallet/ProfileContent'
 import Wallet from 'components/Icons/Wallet'
@@ -18,6 +17,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/helpers'
 import { Portfolio, PortfolioWallet, PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
@@ -45,7 +45,6 @@ const browserCustomStyle = css`
 const AddressPanel = ({
   portfolios,
   activePortfolio,
-  activeWallet,
   onChangeWallet,
   data,
   wallets,
@@ -54,20 +53,19 @@ const AddressPanel = ({
   isLoading: boolean
   portfolios: Portfolio[]
   wallets: PortfolioWallet[]
-  activeWallet: PortfolioWallet
   activePortfolio: Portfolio | undefined
   onChangeWallet: (v: string) => void
   data: PortfolioWalletBalanceResponse | undefined
 }) => {
   const theme = useTheme()
   const [showBalance, setShowBalance] = useState(true)
-  const percent = 0.22332
 
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
-
+  const { pathname } = useLocation()
+  const isMyPortfolioPage = pathname.startsWith(APP_PATHS.MY_PORTFOLIO)
+  const { wallet } = useParseWalletPortfolioParam()
   const { lastUpdatedAt, totalBalanceUsd } = data || {}
-  console.log(123, activeWallet)
 
   const accountText = (
     <Text
@@ -83,7 +81,7 @@ const AddressPanel = ({
         whiteSpace: 'nowrap',
       }}
     >
-      {isLoading ? '--' : activeWallet ? getShortenAddress(activeWallet.walletAddress) : activePortfolio?.name}
+      {isLoading ? '--' : activePortfolio?.name || getShortenAddress(wallet)}
     </Text>
   )
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -133,7 +131,7 @@ const AddressPanel = ({
   return (
     <>
       <RowBetween>
-        {activeWallet || isLoading ? (
+        {isLoading || !isMyPortfolioPage ? (
           accountText
         ) : (
           <MenuFlyout
@@ -178,7 +176,6 @@ const AddressPanel = ({
                 ? formatDisplayNumber(totalBalanceUsd, { style: 'currency', significantDigits: 3 })
                 : '******'}
             </Text>
-            <PercentBadge percent={percent} />
           </Flex>
           <Flex sx={{ gap: '8px' }}>
             <ButtonAction style={{ padding: '8px' }} onClick={() => setShowBalance(!showBalance)}>
@@ -190,7 +187,7 @@ const AddressPanel = ({
           </Flex>
         </BalanceGroup>
 
-        {walletsOpts.length && !activeWallet ? (
+        {walletsOpts.length ? (
           <Select
             onChange={onChangeWallet}
             style={{ borderRadius: 24, background: theme.buttonGray, height: 36, minWidth: 150 }}

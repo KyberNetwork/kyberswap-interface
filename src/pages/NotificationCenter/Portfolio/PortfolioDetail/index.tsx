@@ -1,13 +1,18 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { stringify } from 'querystring'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useGetPortfoliosQuery, useGetRealtimeBalanceQuery, useGetWalletsPortfoliosQuery } from 'services/portfolio'
+import { useLocation, useNavigate } from 'react-router-dom'
+import {
+  useGetPortfoliosQuery,
+  useGetRealtimeBalanceQuery,
+  useGetWalletsPortfoliosQuery,
+  useSearchPortfoliosQuery,
+} from 'services/portfolio'
 import styled from 'styled-components'
 
 import { RowBetween } from 'components/Row'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
-import { EMPTY_ARRAY } from 'constants/index'
+import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import AddressPanel from 'pages/NotificationCenter/Portfolio/PortfolioDetail/AddressPanel'
@@ -18,9 +23,9 @@ import TokenAllocation from 'pages/NotificationCenter/Portfolio/PortfolioDetail/
 import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
 import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
+import { useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/helpers'
 import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/type'
 import { PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
-import { isAddress } from 'utils'
 
 import Header from './Header'
 
@@ -48,11 +53,27 @@ const Tokens = ({ data, isLoading }: { data: PortfolioWalletBalanceResponse | un
   )
 }
 
-const useParseWalletPortfolioParam = () => {
-  const { wallet, portfolioId } = useParams<{ wallet?: string; portfolioId?: string }>()
-  const qs = useParsedQueryString()
-  const walletParam = String(wallet || qs.wallet || '')
-  return { wallet: isAddress(ChainId.MAINNET, walletParam) || '', portfolioId }
+const useFetchPortfolio = () => {
+  const { portfolioId } = useParseWalletPortfolioParam()
+  const { data: portfolio, isFetching: isLoadingMyPortfolio } = useSearchPortfoliosQuery(
+    { id: portfolioId || '' },
+    { skip: !portfolioId },
+  )
+  const { pathname } = useLocation()
+  const isMyPortfolioPage = pathname.startsWith(APP_PATHS.MY_PORTFOLIO)
+  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingPortfolio } = useGetPortfoliosQuery(undefined, {
+    skip: !isMyPortfolioPage,
+  })
+  const { data: wallets = EMPTY_ARRAY, isFetching: isLoadingWallet } = useGetWalletsPortfoliosQuery(
+    { portfolioId: portfolio?.id || '' },
+    { skip: !portfolio?.id },
+  )
+  return {
+    portfolio: pathname.startsWith(APP_PATHS.PROFILE) ? undefined : portfolio,
+    myPortfolios: isMyPortfolioPage ? myPortfolios : EMPTY_ARRAY,
+    wallets,
+    isLoading: isLoadingWallet || isLoadingPortfolio || isLoadingMyPortfolio,
+  }
 }
 
 export default function PortfolioDetail() {
@@ -60,14 +81,7 @@ export default function PortfolioDetail() {
   const qs = useParsedQueryString()
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
-  const { data: portfolios = EMPTY_ARRAY } = useGetPortfoliosQuery()
-  const activePortfolio = portfolios[0]
-
-  const { data: wallets = EMPTY_ARRAY, isFetching: isLoadingWallet } = useGetWalletsPortfoliosQuery(
-    { portfolioId: activePortfolio?.id },
-    { skip: !activePortfolio?.id },
-  )
-  const activeWallet = wallets[0]
+  const { portfolio: activePortfolio, myPortfolios: portfolios, wallets, isLoading: x } = useFetchPortfolio()
 
   const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
   const [search, setSearch] = useState(wallet || portfolioId || '')
@@ -77,7 +91,7 @@ export default function PortfolioDetail() {
     { skip: !search },
   )
 
-  const isLoading: boolean = isLoadingPortfolio || isLoadingWallet
+  const isLoading: boolean = isLoadingPortfolio || x // todo
 
   const handleChangeChains = (chainIds: ChainId[]) => {
     setChainIds(chainIds)
@@ -105,7 +119,6 @@ export default function PortfolioDetail() {
             wallets={wallets}
             portfolios={portfolios}
             activePortfolio={activePortfolio}
-            activeWallet={activeWallet}
             data={data}
             onChangeWallet={onChangeWallet}
           />

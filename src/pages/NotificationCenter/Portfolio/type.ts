@@ -7,7 +7,7 @@ export type PortfolioSetting = {
 
 export type Portfolio = {
   name: string
-  id: number
+  id: string
   identityId: string
   isHideDust: boolean
   dustThreshold: number
