@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
@@ -22,19 +23,40 @@ import { PortfolioWalletBalance, PortfolioWalletBalanceMap } from 'pages/Notific
 import { Section } from 'pages/TrueSightV2/components'
 import { navigateToSwapPage } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
+import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
-const WalletLabel = styled.div`
+const WalletLabelWrapper = styled.div<{ color: string }>`
   display: flex;
   gap: 2px;
-  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
+  background-color: ${({ color, theme }) => rgba(color === theme.text ? theme.subText : color, 0.2)};
+  color: ${({ color }) => color};
   border-radius: 16px;
   font-size: 10px;
   font-weight: 500;
   padding: 2px 4px;
   width: fit-content;
 `
+
+export const WalletLabel = ({
+  color,
+  walletAddress,
+  chainId,
+}: {
+  color: string
+  walletAddress: string
+  chainId: ChainId
+}) => {
+  return (
+    <WalletLabelWrapper color={color}>
+      <Wallet size={12} />
+      <ExternalLink href={getEtherscanLink(chainId, walletAddress, 'address')}>
+        <Text color={color}>{getShortenAddress(walletAddress || '')}</Text>
+      </ExternalLink>
+    </WalletLabelWrapper>
+  )
+}
 
 export const TokenCellWithWalletAddress = ({
   item,
@@ -46,15 +68,13 @@ export const TokenCellWithWalletAddress = ({
     symbol: string
   }
 }) => {
+  const theme = useTheme()
   return (
     <Row gap="14px">
       <TokenLogoWithChain chainId={item.chainId} size={'36px'} tokenLogo={item.logoUrl} />
       <Column gap="4px">
         <Text fontWeight={'500'}>{item.symbol}</Text>
-        <WalletLabel>
-          <Wallet size={12} />
-          <Text>{getShortenAddress(item.walletAddress || '')}</Text>
-        </WalletLabel>
+        <WalletLabel color={theme.text} walletAddress={item.walletAddress} chainId={item.chainId} />
       </Column>
     </Row>
   )

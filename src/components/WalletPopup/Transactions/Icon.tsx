@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Repeat } from 'react-feather'
+import { FileText, Repeat } from 'react-feather'
 import { DefaultTheme } from 'styled-components'
 
 import { ReactComponent as ApproveIcon } from 'assets/svg/approve_icon.svg'
@@ -23,10 +23,10 @@ const MAP_ICON_BY_GROUP: { [group in TRANSACTION_GROUP]: ReactNode } = {
   [TRANSACTION_GROUP.OTHER]: null,
 }
 
-const MAP_ICON_BY_TYPE: (theme: DefaultTheme) => Partial<Record<TRANSACTION_TYPE, ReactNode>> = (
-  theme: DefaultTheme,
+const MAP_ICON_BY_TYPE: (theme?: DefaultTheme) => Partial<Record<TRANSACTION_TYPE, ReactNode>> = (
+  theme?: DefaultTheme,
 ) => ({
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} color={theme.subText} />,
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} color={theme?.subText} />,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: <IconFailure size={18} />,
   [TRANSACTION_TYPE.BRIDGE]: <BridgeIcon />,
   [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: <CrossChain />,
@@ -36,6 +36,7 @@ const MAP_ICON_BY_TYPE: (theme: DefaultTheme) => Partial<Record<TRANSACTION_TYPE
   [TRANSACTION_TYPE.KYBERDAO_STAKE]: <StakeIcon size={18} />,
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: <ThunderIcon />,
   [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: <StakeIcon size={18} style={{ transform: 'scaleY(-1)' }} />,
+  [TRANSACTION_TYPE.SWAP]: <Repeat size={16} />,
 })
 
 const Icon = ({ txs }: { txs: TransactionDetails }) => {
@@ -43,4 +44,13 @@ const Icon = ({ txs }: { txs: TransactionDetails }) => {
   const icon = MAP_ICON_BY_TYPE(theme)[txs.type] || MAP_ICON_BY_GROUP[txs.group] || <Repeat size={16} />
   return icon as JSX.Element
 }
+// todo have a task to remove wallet txs
+
+// todo
+export const getTxsIcon = (type: any) => {
+  const map = MAP_ICON_BY_TYPE()
+  const key = Object.keys(map).find(key => key.toLowerCase() === type.toLowerCase()) as TRANSACTION_TYPE
+  return map[key] || <FileText size={16} />
+}
+
 export default Icon
