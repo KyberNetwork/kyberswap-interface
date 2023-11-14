@@ -1,6 +1,9 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Edit2, Plus, Trash } from 'react-feather'
+import Skeleton from 'react-loading-skeleton'
+import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import {
   useDeletePortfolioMutation,
@@ -15,8 +18,9 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonAction, ButtonLight, ButtonOutlined } from 'components/Button'
 import Column from 'components/Column'
 import { useShowConfirm } from 'components/ConfirmModal'
-import Row from 'components/Row'
+import Row, { RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import AddWalletPortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/AddWalletPortfolioModal'
 import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/CreatePortfolioModal'
@@ -34,8 +38,13 @@ const Card = styled.div`
   background-color: ${({ theme }) => theme.buttonBlack};
   display: flex;
   flex-direction: column;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    .skeleton {
+      width: 100%;
+    }
+  `}
 `
-
+const defaultWalletWidth = '210px'
 const WalletCard = styled.div`
   display: flex;
   border-radius: 16px;
@@ -46,7 +55,7 @@ const WalletCard = styled.div`
   background: ${({ theme }) => theme.background};
   display: flex;
   font-size: 14px;
-  flex-basis: 210px;
+  flex-basis: ${defaultWalletWidth};
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-basis: 100%;
   `}
@@ -98,10 +107,34 @@ const WalletItem = ({
   )
 }
 
+const TitleGroup = styled(Row)`
+  gap: 14px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+  `}
+`
+
+const ActionsGroup = styled(RowFit)`
+  gap: 14px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    justify-content: space-between;
+    width: 100%;
+  `}
+`
+
 const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   const theme = useTheme()
   const { name, id }: Portfolio = portfolio
-  const { data: wallets = [] } = useGetWalletsPortfoliosQuery({ portfolioId: id })
+  const { data: wallets = [], isFetching: isLoadingWallets } = useGetWalletsPortfoliosQuery({ portfolioId: id })
+  const { portfolioId, wallet } = useParsedQueryString<{ portfolioId: string; wallet: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
+  useEffect(() => {
+    if (portfolioId === id) {
+      searchParams.delete('portfolioId')
+      setSearchParams(searchParams)
+      showModalAddWalletPortfolio()
+    }
+  }, [portfolioId, id, searchParams, setSearchParams])
 
   const maximumWallet = 4
 
@@ -176,7 +209,11 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   }
 
   const _onAddUpdateWallet = useAddWalletToPortfolio()
-  const onAddUpdateWallet = (data: PortfolioWalletPayload) => _onAddUpdateWallet({ ...data, portfolioId: id })
+  const onAddUpdateWallet = async (data: PortfolioWalletPayload) => {
+    await _onAddUpdateWallet({ ...data, portfolioId: id })
+    searchParams.delete('wallet')
+    setSearchParams(searchParams)
+  }
 
   const navigate = useNavigateToPortfolioDetail()
   const onChangePortfolioAction = (val: Actions) => {
@@ -223,7 +260,7 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   const canAddWallet = wallets.length < maximumWallet
   return (
     <Column gap="24px">
-      <Row gap="14px">
+      <TitleGroup>
         <Row fontSize={20} fontWeight={'500'} color={theme.text} sx={{ flex: 1, wordBreak: 'break-all', gap: '14px' }}>
           {name}
           <ActionButtons
@@ -231,52 +268,82 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
             onEdit={() => onChangePortfolioAction(Actions.Edit)}
           />
         </Row>
-        <MouseoverTooltip
-          placement="top"
-          text={!canAddWallet ? t`You had added the maximum number of wallet into a portfolio` : ''}
-        >
-          <ButtonLight
+        <ActionsGroup>
+          <MouseoverTooltip
+            placement="top"
+            text={!canAddWallet ? t`You had added the maximum number of wallet into a portfolio` : ''}
+          >
+            <ButtonLight
+              width={'120px'}
+              height={'36px'}
+              sx={{ whiteSpace: 'nowrap' }}
+              disabled={!canAddWallet}
+              onClick={canAddWallet ? () => showModalAddWalletPortfolio() : undefined}
+            >
+              <Plus size={16} />
+              &nbsp;<Trans>Add Wallet</Trans>
+            </ButtonLight>
+          </MouseoverTooltip>
+          <ButtonOutlined
             width={'120px'}
             height={'36px'}
             sx={{ whiteSpace: 'nowrap' }}
             disabled={!canAddWallet}
-            onClick={canAddWallet ? () => showModalAddWalletPortfolio() : undefined}
+            onClick={() => navigate({ portfolioId: id })}
           >
-            <Plus size={16} />
-            &nbsp;<Trans>Add Wallet</Trans>
-          </ButtonLight>
-        </MouseoverTooltip>
-        <ButtonOutlined
-          width={'120px'}
-          height={'36px'}
-          sx={{ whiteSpace: 'nowrap' }}
-          disabled={!canAddWallet}
-          onClick={() => navigate({ portfolioId: id })}
-        >
-          <PortfolioIcon />
-          &nbsp;<Trans>Dashboard</Trans>
-        </ButtonOutlined>
-      </Row>
+            <PortfolioIcon />
+            &nbsp;<Trans>Dashboard</Trans>
+          </ButtonOutlined>
+        </ActionsGroup>
+      </TitleGroup>
 
-      {wallets.length > 0 && (
-        <Card>
-          <Text color={theme.subText} fontSize={'14px'}>
-            <Trans>
-              Wallet Count:{' '}
-              <Text as="span" color={canAddWallet ? theme.text : theme.warning}>
-                {wallets.length}/{maximumWallet}
-              </Text>
-            </Trans>
-          </Text>
+      <Card>
+        <Text color={theme.subText} fontSize={'14px'}>
+          <Trans>
+            Wallet Count:{' '}
+            <Text as="span" color={canAddWallet ? theme.text : theme.warning}>
+              {wallets.length}/{maximumWallet}
+            </Text>
+          </Trans>
+        </Text>
 
-          <Row gap="14px" flexWrap={'wrap'}>
-            {wallets.map(wallet => (
+        <Row gap="14px" flexWrap={'wrap'}>
+          {isLoadingWallets ? (
+            new Array(isMobile ? 1 : 3)
+              .fill(0)
+              .map((_, i) => (
+                <Skeleton
+                  containerClassName="skeleton"
+                  key={i}
+                  width={isMobile ? '100%' : defaultWalletWidth}
+                  height="52px"
+                  baseColor={theme.background}
+                  highlightColor={theme.buttonGray}
+                  borderRadius="1rem"
+                />
+              ))
+          ) : wallets.length ? (
+            wallets.map(wallet => (
               <WalletItem onChangeWalletAction={onChangeWalletAction} key={wallet.walletAddress} data={wallet} />
-            ))}
-          </Row>
-        </Card>
-      )}
+            ))
+          ) : (
+            <Row
+              color={theme.subText}
+              fontSize={'14px'}
+              width={'100%'}
+              justify={'center'}
+              height={'52px'}
+              alignItems={'center'}
+              textAlign={'center'}
+            >
+              <Trans>You haven&apos;t added any wallets to your portfolio yet</Trans>
+            </Row>
+          )}
+        </Row>
+      </Card>
+
       <AddWalletPortfolioModal
+        defaultWallet={wallet || undefined}
         isOpen={showModalWallet || !!editWallet}
         onDismiss={hideAddWalletModal}
         wallet={editWallet}

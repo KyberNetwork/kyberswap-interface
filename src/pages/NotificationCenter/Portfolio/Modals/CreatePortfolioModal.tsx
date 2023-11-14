@@ -57,7 +57,7 @@ const CreatePortfolioModal = ({
 
   const [loading, setLoading] = useState(false)
   const onCreate = async () => {
-    if (loading) return
+    if (loading || !name) return
     setLoading(true)
     await onConfirm({ name })
     handleDismiss()

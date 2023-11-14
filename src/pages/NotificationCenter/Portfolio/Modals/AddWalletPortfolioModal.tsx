@@ -80,7 +80,7 @@ const AddWalletPortfolioModal = ({
 
   const [loading, setLoading] = useState(false)
   const onCreate = async () => {
-    if (loading) return
+    if (loading || !walletAddress) return
     setLoading(true)
     await onConfirm({ nickName: name, walletAddress, walletId: wallet?.id })
     handleDismiss()

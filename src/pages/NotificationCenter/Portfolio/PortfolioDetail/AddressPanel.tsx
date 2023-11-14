@@ -1,17 +1,19 @@
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
-import { Eye, EyeOff, Plus, Share2, Trash } from 'react-feather'
+import { Eye, EyeOff, Plus, Share2 } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import DefaultAvatar from 'assets/images/default_avatar.png'
+import { NotificationType } from 'components/Announcement/type'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import Avatar from 'components/Avatar'
 import { ButtonAction, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import { ProfilePanel } from 'components/Header/web3/SignWallet/ProfileContent'
+import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import Select, { SelectOption } from 'components/Select'
@@ -29,6 +31,7 @@ import {
   PortfolioWalletPayload,
 } from 'pages/NotificationCenter/Portfolio/type'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
+import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -67,6 +70,26 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
   const onAddWallet = (data: PortfolioWalletPayload) => _onAddWallet({ ...data, portfolioId: walletInfo.portfolioId })
   const isMaximum = portfolios.length >= MAXIMUM_PORTFOLIO
 
+  const addWalletOptions: SelectOption[] = useMemo(() => {
+    const opts = portfolios.map(el => ({
+      label: el.name,
+      onSelect: () => {
+        setWalletInfo({ walletAddress: wallet, portfolioId: el.id })
+      },
+      subLabel: t`$123 (fake)`,
+    }))
+    if (opts.length < MAXIMUM_PORTFOLIO) {
+      opts.push({
+        label: t`A new portfolio`,
+        onSelect: () => {
+          navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}?wallet=${wallet}`)
+        },
+        subLabel: '',
+      })
+    }
+    return opts
+  }, [portfolios, wallet, navigate])
+
   if (!account || portfolios.some(e => e.id === portfolioId) || isMaximum)
     return (
       <MouseoverTooltip
@@ -102,12 +125,7 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
       onSelect: () => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`),
     },
   ]
-  const addWalletOptions: SelectOption[] = portfolios.map(el => ({
-    label: el.name,
-    onSelect: () => {
-      setWalletInfo({ walletAddress: wallet, portfolioId: el.id })
-    },
-  }))
+
   const props = {
     arrowColor: theme.textReverse,
     style: { background: theme.primary, borderRadius: 999, height: 36, fontWeight: '500', fontSize: 14 },
@@ -129,9 +147,9 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
           )}
           optionRender={item => {
             return (
-              <Column gap="4px">
+              <Column gap="4px" sx={{ minHeight: '40px' }} justifyContent={'center'}>
                 <Text fontSize={'16px'}>{item?.label}</Text>
-                <Text fontSize={'12px'}>$123</Text>
+                {item?.subLabel && <Text fontSize={'12px'}>{item?.subLabel}</Text>}
               </Column>
             )
           }}
@@ -215,25 +233,31 @@ const AddressPanel = ({
 
   const renderAction = useCallback(
     () => (
-      <Trash
-        style={{ marginRight: upToMedium ? 0 : '10px' }}
-        color={theme.subText}
-        size={16}
+      <TransactionSettingsIcon
+        style={{ marginRight: upToMedium ? 0 : '10px', color: theme.subText }}
+        size={22}
         onClick={e => {
           e?.stopPropagation()
           setIsOpen(!isOpen)
+          navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`)
         }}
       />
     ),
-    [isOpen, theme, upToMedium],
+    [isOpen, theme, upToMedium, navigate],
   )
 
+  const notify = useNotify()
   const onClickPortfolio = useCallback(
     (data: Portfolio) => {
       navigate(`${APP_PATHS.MY_PORTFOLIO}/${data.id}`)
       setIsOpen(false)
+      notify({
+        title: t`Portfolio switched`,
+        summary: t`Switched successfully to ${data.name}`,
+        type: NotificationType.SUCCESS,
+      })
     },
-    [navigate],
+    [navigate, notify],
   )
 
   const formatPortfolio = useMemo(() => {

@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import { Plus, Save, X } from 'react-feather'
@@ -36,6 +37,7 @@ import WarningSignMessage, { WarningConnectWalletMessage } from 'pages/Notificat
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { isAddress } from 'utils'
 
 const ActionsWrapper = styled.div`
   display: flex;
@@ -110,7 +112,7 @@ export default function PortfolioSettings() {
   const { data: portfolios = EMPTY_ARRAY, isFetching, refetch } = useGetPortfoliosQuery()
   const { data: settings, refetch: refetchSetting } = useGetPortfoliosSettingsQuery()
 
-  const loading = useShowLoadingAtLeastTime(isFetching, 1000)
+  const loading = useShowLoadingAtLeastTime(isFetching, 700)
 
   const { userInfo } = useSessionInfo()
   const invalidateTags = useInvalidateTagPortfolio()
@@ -129,13 +131,13 @@ export default function PortfolioSettings() {
     setShowCreate(false)
   }
 
-  const { cloneId = '' } = useParsedQueryString<{ cloneId: string }>()
+  const { cloneId = '', wallet } = useParsedQueryString<{ cloneId: string; wallet: string }>()
   const { data: clonePortfolio } = useSearchPortfoliosQuery({ id: cloneId }, { skip: !cloneId })
   useEffect(() => {
-    if (clonePortfolio) {
+    if (clonePortfolio || isAddress(ChainId.MAINNET, wallet)) {
       setShowCreate(true)
     }
-  }, [clonePortfolio])
+  }, [clonePortfolio, wallet])
 
   const theme = useTheme()
 
@@ -180,7 +182,7 @@ export default function PortfolioSettings() {
   const notify = useNotify()
   const addPortfolio = async (data: { name: string }) => {
     try {
-      await (clonePortfolio
+      const resp = await (clonePortfolio
         ? clonePortfolioRequest({ ...data, portfolioId: clonePortfolio.id }).unwrap()
         : createPortfolio(data).unwrap())
       notify({
@@ -190,6 +192,10 @@ export default function PortfolioSettings() {
       })
       if (clonePortfolio) {
         searchParams.delete('cloneId')
+        setSearchParams(searchParams)
+      }
+      if (wallet && resp?.id) {
+        searchParams.set('portfolioId', resp.id)
         setSearchParams(searchParams)
       }
     } catch (error) {
@@ -248,7 +254,7 @@ export default function PortfolioSettings() {
 
       <Column style={{ minHeight: '46px', gap: '24px', justifyContent: 'center' }}>
         {loading ? (
-          <Skeleton height="46px" baseColor={theme.background} highlightColor={theme.buttonGray} borderRadius="1rem" />
+          <Skeleton height="176px" baseColor={theme.background} highlightColor={theme.buttonGray} borderRadius="1rem" />
         ) : !portfolios.length ? (
           <Text color={theme.subText} width={'100%'} textAlign={'center'}>
             <Trans>You don&apos;t have any portfolio.</Trans>

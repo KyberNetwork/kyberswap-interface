@@ -85,7 +85,7 @@ const SearchWrapper = styled.div`
     color: ${({ theme }) => theme.text};
   }
 `
-export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void }
+export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void; subLabel?: ReactNode }
 
 const getOptionValue = (option: SelectOption | undefined) => {
   if (!option) return ''

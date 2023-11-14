@@ -36,13 +36,14 @@ const portfolioApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
-    createPortfolio: builder.mutation<void, { name: string }>({
+    createPortfolio: builder.mutation<{ id: string }, { name: string }>({
       query: body => ({
         url: '/v1/portfolios',
         method: 'POST',
         body,
         params: { identityId: window.identityId }, // todo
       }),
+      transformResponse: (data: any) => data?.data,
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
     clonePortfolio: builder.mutation<void, { name: string; portfolioId: string }>({
