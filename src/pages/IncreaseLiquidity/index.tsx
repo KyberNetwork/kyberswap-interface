@@ -1100,7 +1100,7 @@ export default function IncreaseLiquidity() {
                                     size="14px"
                                   />
                                   <Text>
-                                    {zapDetail.newPooledAmount0?.toSignificant(10)} {zapSymbol0}
+                                    {zapDetail.newPosDraft?.amount0?.toSignificant(10)} {zapSymbol0}
                                   </Text>
                                 </Flex>
                               )}
@@ -1119,7 +1119,7 @@ export default function IncreaseLiquidity() {
                                     size="14px"
                                   />
                                   <Text>
-                                    {zapDetail.newPooledAmount1?.toSignificant(10)} {zapSymbol1}
+                                    {zapDetail.newPosDraft?.amount1?.toSignificant(10)} {zapSymbol1}
                                   </Text>
                                 </Flex>
                               )}
