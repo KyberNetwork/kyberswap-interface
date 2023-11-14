@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import { Edit, Edit2, Eye, MoreHorizontal, Plus, Trash } from 'react-feather'
+import { Edit2, Plus, Trash } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import {
   useAddWalletToPortfolioMutation,

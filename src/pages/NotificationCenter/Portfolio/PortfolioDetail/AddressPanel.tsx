@@ -4,7 +4,6 @@ import { Eye, EyeOff, Plus, Share2, Trash } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useClonePortfolioMutation } from 'services/portfolio'
 import styled, { css } from 'styled-components'
 
 import DefaultAvatar from 'assets/images/default_avatar.png'

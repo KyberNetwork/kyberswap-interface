@@ -9,7 +9,9 @@ import {
   useClonePortfolioMutation,
   useCreatePortfolioMutation,
   useGetPortfoliosQuery,
+  useGetPortfoliosSettingsQuery,
   useSearchPortfoliosQuery,
+  useUpdatePortfoliosSettingsMutation,
 } from 'services/portfolio'
 import styled from 'styled-components'
 
@@ -29,7 +31,6 @@ import useTheme from 'hooks/useTheme'
 import CreatePortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/CreatePortfolioModal'
 import PortfolioItem from 'pages/NotificationCenter/Portfolio/PortfolioItem'
 import { ButtonCancel, ButtonSave } from 'pages/NotificationCenter/Portfolio/buttons'
-import { PortfolioSetting } from 'pages/NotificationCenter/Portfolio/type'
 import WarningSignMessage, { WarningConnectWalletMessage } from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
@@ -102,13 +103,14 @@ const BalanceThreshold = styled(Row)`
   `};
 `
 
-const settings: PortfolioSetting = { isHideDust: true, dustThreshold: 1 }
 export default function PortfolioSettings() {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const [showCreate, setShowCreate] = useState(false)
   const { data: portfolios = EMPTY_ARRAY, isFetching, refetch } = useGetPortfoliosQuery()
+  const { data: settings, refetch: refetchSetting } = useGetPortfoliosSettingsQuery()
+
   const loading = useShowLoadingAtLeastTime(isFetching, 1000)
 
   const { userInfo } = useSessionInfo()
@@ -116,9 +118,10 @@ export default function PortfolioSettings() {
   useEffect(() => {
     try {
       refetch()
+      refetchSetting()
       invalidateTags([RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO])
     } catch (error) {}
-  }, [userInfo?.identityId, invalidateTags, refetch])
+  }, [userInfo?.identityId, invalidateTags, refetch, refetchSetting])
 
   const showModalCreatePortfolio = () => {
     setShowCreate(true)
@@ -141,16 +144,31 @@ export default function PortfolioSettings() {
   const [hideSmallBalance, setHideSmallBalance] = useState(true)
 
   const resetSetting = useCallback(() => {
+    if (!settings) return
     setHideSmallBalance(settings.isHideDust)
     setThreshold(settings.dustThreshold)
-  }, [])
+  }, [settings])
 
   useEffect(() => {
     resetSetting()
   }, [resetSetting])
 
-  const savePortfolioSetting = () => {
-    alert('in dev, wait for Dungz')
+  const [saveSetting] = useUpdatePortfoliosSettingsMutation()
+  const savePortfolioSetting = async () => {
+    try {
+      await saveSetting({ dustThreshold: +threshold, isHideDust: hideSmallBalance }).unwrap()
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Portfolio setting saved`,
+        summary: t`Your portfolio settings have been successfully saved`,
+      })
+    } catch (error) {
+      notify({
+        type: NotificationType.ERROR,
+        title: t`Portfolio save failed`,
+        summary: t`Create portfolio settings save failed, please try again.`,
+      })
+    }
   }
 
   const hasChangeSettings = settings?.dustThreshold !== threshold || settings?.isHideDust !== hideSmallBalance
