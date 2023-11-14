@@ -24,14 +24,14 @@ const CreatePortfolioModal = ({
   portfolio?: Portfolio
   defaultName?: string
 }) => {
-  const [name, setName] = useState(portfolio?.name || '')
+  const [name, setName] = useState('')
   const isEdit = !!portfolio
 
   const theme = useTheme()
 
   useEffect(() => {
     setName(defaultName || '')
-  }, [defaultName])
+  }, [defaultName, isOpen])
 
   const handleDismiss = () => {
     onDismiss()

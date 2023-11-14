@@ -7,7 +7,7 @@ import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import { ReactComponent as TokensIcon } from 'assets/svg/tokens_icon.svg'
 import { CheckCircle } from 'components/Icons'
-import Row from 'components/Row'
+import { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/type'
 
@@ -51,13 +51,13 @@ const options = [
 ]
 export default function ListTab({ activeTab, setTab }: { activeTab: PortfolioTab; setTab: (v: PortfolioTab) => void }) {
   return (
-    <Row gap="10px" align="center">
+    <RowFit gap="10px" align="center">
       {options.map((item, i) => (
         <Fragment key={item.value}>
           <TabItem data={item} active={item.value === activeTab} onClick={() => setTab(item.value)} />
           {i !== options.length - 1 ? <Divider /> : null}
         </Fragment>
       ))}
-    </Row>
+    </RowFit>
   )
 }

@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import { Edit2, Eye, MoreHorizontal, Trash } from 'react-feather'
-import { Text } from 'rebass'
+import { Edit, Edit2, Eye, MoreHorizontal, Plus, Trash } from 'react-feather'
+import { Flex, Text } from 'rebass'
 import {
   useAddWalletToPortfolioMutation,
   useDeletePortfolioMutation,
@@ -12,12 +12,12 @@ import {
 } from 'services/portfolio'
 import styled from 'styled-components'
 
+import { ReactComponent as PortfolioIcon } from 'assets/svg/portfolio.svg'
 import { NotificationType } from 'components/Announcement/type'
-import { ButtonAction, ButtonLight } from 'components/Button'
+import { ButtonAction, ButtonLight, ButtonOutlined } from 'components/Button'
 import Column from 'components/Column'
 import { useShowConfirm } from 'components/ConfirmModal'
 import Row from 'components/Row'
-import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import AddWalletPortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/AddWalletPortfolioModal'
@@ -58,35 +58,27 @@ enum Actions {
   Delete,
   View,
 }
-const options = [
-  {
-    label: (
-      <Row alignItems={'center'} gap="6px">
-        <Edit2 size={13} />
-        <Trans>Edit</Trans>
-      </Row>
-    ),
-    value: Actions.Edit,
-  },
-  {
-    label: (
-      <Row alignItems={'center'} gap="6px">
-        <Trash size={13} />
-        <Trans>Delete</Trans>
-      </Row>
-    ),
-    value: Actions.Delete,
-  },
-  {
-    label: (
-      <Row alignItems={'center'} gap="6px">
-        <Eye size={13} />
-        <Trans>View Detail</Trans>
-      </Row>
-    ),
-    value: Actions.View,
-  },
-]
+
+const ActionButtons = ({ onDelete, onEdit }: { onDelete: () => void; onEdit: () => void }) => {
+  const theme = useTheme()
+  return (
+    <Flex sx={{ gap: '4px', minWidth: 'unset' }}>
+      <ButtonAction
+        style={{ width: 28, minWidth: 28, height: 28, display: 'flex', justifyContent: 'center' }}
+        onClick={onEdit}
+      >
+        <Edit2 size={16} color={theme.subText} />
+      </ButtonAction>
+      <ButtonAction
+        style={{ width: 28, minWidth: 28, height: 28, display: 'flex', justifyContent: 'center' }}
+        onClick={onDelete}
+      >
+        <Trash size={16} color={theme.subText} />
+      </ButtonAction>
+    </Flex>
+  )
+}
+
 const WalletItem = ({
   onChangeWalletAction,
   data,
@@ -95,19 +87,14 @@ const WalletItem = ({
   data: PortfolioWallet
 }) => {
   const { nickName, walletAddress } = data
-  const theme = useTheme()
   return (
     <WalletCard>
       <Row gap="6px" style={{ whiteSpace: 'nowrap' }}>
         {nickName ? shortString(nickName, 18) : getShortenAddress(walletAddress)}
       </Row>
-      <Select
-        onChange={v => onChangeWalletAction(v, data)}
-        menuStyle={{ width: 130 }}
-        options={options.slice(0, -1)}
-        style={{ padding: 0, background: 'transparent' }}
-        arrow={false}
-        activeRender={() => <MoreHorizontal size={16} color={theme.subText} />}
+      <ActionButtons
+        onDelete={() => onChangeWalletAction(Actions.Delete, data)}
+        onEdit={() => onChangeWalletAction(Actions.Edit, data)}
       />
     </WalletCard>
   )
@@ -257,9 +244,6 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
       case Actions.Edit:
         showModalAddWalletPortfolio(wallet)
         break
-      case Actions.View:
-        navigate({ portfolioId: id, wallet: wallet.walletAddress })
-        break
     }
   }
 
@@ -267,9 +251,13 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   return (
     <Column gap="24px">
       <Row gap="14px">
-        <Text fontSize={20} fontWeight={'500'} color={theme.text} sx={{ flex: 1, wordBreak: 'break-all' }}>
+        <Row fontSize={20} fontWeight={'500'} color={theme.text} sx={{ flex: 1, wordBreak: 'break-all', gap: '14px' }}>
           {name}
-        </Text>
+          <ActionButtons
+            onDelete={() => onChangePortfolioAction(Actions.Delete)}
+            onEdit={() => onChangePortfolioAction(Actions.Edit)}
+          />
+        </Row>
         <MouseoverTooltip
           placement="top"
           text={!canAddWallet ? t`You had added the maximum number of wallet into a portfolio` : ''}
@@ -281,31 +269,20 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
             disabled={!canAddWallet}
             onClick={canAddWallet ? () => showModalAddWalletPortfolio() : undefined}
           >
-            <Trans>Add Wallet</Trans>
+            <Plus size={16} />
+            &nbsp;<Trans>Add Wallet</Trans>
           </ButtonLight>
         </MouseoverTooltip>
-
-        <Select
-          menuStyle={{ width: 130 }}
-          options={options}
-          style={{ padding: 0, background: 'transparent' }}
-          arrow={false}
-          onChange={onChangePortfolioAction}
-          activeRender={() => (
-            <ButtonAction
-              style={{
-                border: `1px solid ${theme.border}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: '36px',
-                height: '36px',
-              }}
-            >
-              <MoreHorizontal size={16} color={theme.subText} />
-            </ButtonAction>
-          )}
-        />
+        <ButtonOutlined
+          width={'120px'}
+          height={'36px'}
+          sx={{ whiteSpace: 'nowrap' }}
+          disabled={!canAddWallet}
+          onClick={() => navigate({ portfolioId: id })}
+        >
+          <PortfolioIcon />
+          &nbsp;<Trans>Dashboard</Trans>
+        </ButtonOutlined>
       </Row>
 
       {wallets.length > 0 && (
@@ -336,6 +313,7 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
         isOpen={showEditPortfolio}
         onDismiss={() => setShowEditPortfolio(false)}
         portfolio={portfolio}
+        defaultName={portfolio.name}
         onConfirm={onUpdatePortfolio}
       />
     </Column>

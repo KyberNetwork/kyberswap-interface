@@ -11,11 +11,12 @@ import { DropdownArrowIcon } from 'components/ArrowRotate'
 import Avatar from 'components/Avatar'
 import { ButtonAction, ButtonPrimary } from 'components/Button'
 import { ProfilePanel } from 'components/Header/web3/SignWallet/ProfileContent'
-import Wallet from 'components/Icons/Wallet'
 import MenuFlyout from 'components/MenuFlyout'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 import { Portfolio, PortfolioWallet, PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
@@ -45,9 +46,7 @@ const browserCustomStyle = css`
 const AddressPanel = ({
   portfolios,
   activePortfolio,
-  onChangeWallet,
   data,
-  wallets,
   isLoading,
 }: {
   isLoading: boolean
@@ -64,8 +63,9 @@ const AddressPanel = ({
   const [isOpen, setIsOpen] = useState(false)
   const { pathname } = useLocation()
   const isMyPortfolioPage = pathname.startsWith(APP_PATHS.MY_PORTFOLIO)
-  const { wallet } = useParseWalletPortfolioParam()
+  const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const { lastUpdatedAt, totalBalanceUsd } = data || {}
+  const { account } = useActiveWeb3React()
 
   const accountText = (
     <Text
@@ -120,13 +120,42 @@ const AddressPanel = ({
       }))
   }, [portfolios, renderAction, onClickPortfolio, activePortfolio?.id])
 
-  const walletsOpts = useMemo(() => {
-    const opt = wallets.map(wallet => ({
-      label: wallet.nickName || getShortenAddress(wallet.walletAddress),
-      value: wallet.walletAddress,
-    }))
-    return [{ label: t`All Wallets`, value: '' }, ...opt]
-  }, [wallets])
+  const renderBtn = (onClick?: () => void) => (
+    <MouseoverTooltip text={!account ? t`Connect your wallet to create portfolio.` : ''} placement="top">
+      <ButtonPrimary height={'36px'} width={'fit-content'} disabled={!account} onClick={onClick}>
+        <Plus size={18} />
+        &nbsp;
+        <Trans>Create Portfolio</Trans>
+      </ButtonPrimary>
+    </MouseoverTooltip>
+  )
+  const renderBtnCreate = () => {
+    if (portfolioId)
+      return (
+        <Select
+          arrowColor={theme.textReverse}
+          style={{ background: theme.primary, borderRadius: 999, height: 36, fontWeight: '500', fontSize: 14 }}
+          options={[
+            {
+              label: t`Replicate this portfolio`,
+              onSelect: () => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`),
+            },
+            {
+              label: t`Create a blank portfolio`,
+              onSelect: () => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`),
+            },
+          ]}
+          activeRender={() => (
+            <Row color={theme.textReverse}>
+              <Plus size={18} />
+              &nbsp;
+              <Trans>Create Portfolio</Trans>
+            </Row>
+          )}
+        />
+      )
+    return renderBtn(() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`))
+  }
 
   return (
     <>
@@ -177,39 +206,20 @@ const AddressPanel = ({
                 : '******'}
             </Text>
           </Flex>
-          <Flex sx={{ gap: '8px' }}>
-            <ButtonAction style={{ padding: '8px' }} onClick={() => setShowBalance(!showBalance)}>
-              {showBalance ? <EyeOff size={20} color={theme.subText} /> : <Eye size={20} color={theme.subText} />}
-            </ButtonAction>
-            <ButtonAction style={{ padding: '8px' }}>
-              <Share2 color={theme.subText} size={20} />
-            </ButtonAction>
-          </Flex>
         </BalanceGroup>
 
-        {walletsOpts.length ? (
-          <Select
-            onChange={onChangeWallet}
-            style={{ borderRadius: 24, background: theme.buttonGray, height: 36, minWidth: 150 }}
-            options={walletsOpts}
-            activeRender={item => (
-              <Row gap="4px">
-                <Wallet />
-                {item?.label}
-              </Row>
-            )}
-          />
-        ) : (
-          <ButtonPrimary
-            height={'36px'}
-            width={'fit-content'}
-            onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`)}
+        <RowFit gap="12px">
+          <ButtonAction
+            style={{ padding: '8px', background: theme.buttonGray }}
+            onClick={() => setShowBalance(!showBalance)}
           >
-            <Plus />
-            &nbsp;
-            <Trans>Create Portfolio</Trans>
-          </ButtonPrimary>
-        )}
+            {showBalance ? <EyeOff size={18} color={theme.subText} /> : <Eye size={18} color={theme.subText} />}
+          </ButtonAction>
+          <ButtonAction style={{ padding: '8px', background: theme.buttonGray }}>
+            <Share2 color={theme.subText} size={18} />
+          </ButtonAction>
+          {renderBtnCreate()}
+        </RowFit>
       </RowBetween>
     </>
   )

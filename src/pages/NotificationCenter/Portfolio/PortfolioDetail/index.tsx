@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useState } from 'react'
+import { t } from '@lingui/macro'
+import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import {
   useGetPortfoliosQuery,
@@ -9,12 +10,15 @@ import {
 } from 'services/portfolio'
 import styled from 'styled-components'
 
+import Wallet from 'components/Icons/Wallet'
 import LocalLoader from 'components/LocalLoader'
-import { RowBetween } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
+import Select from 'components/Select'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
+import useTheme from 'hooks/useTheme'
 import AddressPanel from 'pages/NotificationCenter/Portfolio/PortfolioDetail/AddressPanel'
 import Allowances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Allowances'
 import ListTab from 'pages/NotificationCenter/Portfolio/PortfolioDetail/ListTab'
@@ -26,6 +30,7 @@ import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDeta
 import { PortfolioTab } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/type'
 import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 import { PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
+import getShortenAddress from 'utils/getShortenAddress'
 
 import Header from './Header'
 
@@ -71,7 +76,7 @@ const useFetchPortfolio = () => {
 
   const isLoading = useShowLoadingAtLeastTime(isLoadingWallet || isLoadingPortfolio || isLoadingMyPortfolio, 500)
   return {
-    portfolio: portfolio,
+    portfolio: !portfolioId ? undefined : portfolio,
     myPortfolios: isMyPortfolioPage ? myPortfolios : EMPTY_ARRAY,
     wallets,
     isLoading,
@@ -109,8 +114,16 @@ export default function PortfolioDetail() {
     setSearch(wallet || '')
     navigate({ myPortfolio: pathname.startsWith(APP_PATHS.MY_PORTFOLIO), wallet, portfolioId })
   }
-
+  const theme = useTheme()
   const canShowOverview = !wallet && !portfolioId
+
+  const walletsOpts = useMemo(() => {
+    const opt = wallets.map(wallet => ({
+      label: wallet.nickName || getShortenAddress(wallet.walletAddress),
+      value: wallet.walletAddress,
+    }))
+    return [{ label: t`All Wallets`, value: '' }, ...opt]
+  }, [wallets])
 
   return (
     <PageWrapper>
@@ -131,11 +144,24 @@ export default function PortfolioDetail() {
           />
           <RowBetween>
             <ListTab activeTab={activeTab} setTab={setTab} />
-            <MultipleChainSelect
-              selectedChainIds={chainIds}
-              handleChangeChains={handleChangeChains}
-              style={{ height: '36px' }}
-            />
+            <RowFit gap="12px">
+              <Select
+                onChange={onChangeWallet}
+                style={{ borderRadius: 24, background: theme.buttonGray, height: 36, minWidth: 150 }}
+                options={walletsOpts}
+                activeRender={item => (
+                  <Row gap="6px" fontSize={'14px'} fontWeight={'500'}>
+                    <Wallet />
+                    {item?.label}
+                  </Row>
+                )}
+              />
+              <MultipleChainSelect
+                selectedChainIds={chainIds}
+                handleChangeChains={handleChangeChains}
+                style={{ height: '36px' }}
+              />
+            </RowFit>
           </RowBetween>
           {activeTab === PortfolioTab.TOKEN && <Tokens isLoading={isLoading} data={data} />}
           {activeTab === PortfolioTab.ALLOWANCES && <Allowances wallet={wallet} chainIds={chainIds} />}
