@@ -176,6 +176,7 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
                 as="a"
                 href={item.marketUrl}
                 target="_blank"
+                rel="noreferrer"
                 color={theme.primary}
                 style={{ padding: '6px' }}
               >
@@ -223,7 +224,14 @@ const useRenderLiquidityMarkets = (activeTab: ChartTab, type?: LIQUIDITY_MARKETS
       </td>
       <td>
         <Row justify="flex-end">
-          <ButtonAction as="a" href={item.trade_url} color={theme.primary} style={{ padding: '6px' }}>
+          <ButtonAction
+            as="a"
+            href={item.trade_url}
+            target="_blank"
+            rel="noreferrer"
+            color={theme.primary}
+            style={{ padding: '6px' }}
+          >
             <Icon id="open-link" size={16} />
           </ButtonAction>
         </Row>

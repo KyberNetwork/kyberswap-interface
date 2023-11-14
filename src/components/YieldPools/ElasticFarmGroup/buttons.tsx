@@ -184,7 +184,7 @@ export const ConnectWalletButton: React.FC<React.ComponentPropsWithoutRef<'butto
 }) => {
   return (
     <BtnLight style={{ flex: 1, height: '38px', padding: '8px 16px' }} onClick={onClick} {...others}>
-      <Trans>Connect Wallet</Trans>
+      <Trans>Connect</Trans>
     </BtnLight>
   )
 }

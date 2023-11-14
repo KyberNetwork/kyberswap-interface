@@ -7,7 +7,7 @@ import { AutoColumn } from 'components/Column'
 import Row, { RowBetween } from 'components/Row'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { useCloseModal, useModalOpen, useToggleModal } from 'state/application/hooks'
 import { TYPE } from 'theme'
 
 const StyledIcon = styled(Flex)`
@@ -64,7 +64,7 @@ type DropdownSelectPropsType = {
   setActive?: any
   color?: any
   optionTitles?: any
-  name?: ApplicationModal
+  name?: ApplicationModal.TIME_DROPDOWN
 }
 
 const DropdownSelect = ({
@@ -79,11 +79,12 @@ const DropdownSelect = ({
   const theme = useTheme()
   const open = useModalOpen(name)
   const toggle = useToggleModal(name)
+  const close = useCloseModal(name)
 
-  useOnClickOutside(node, open ? toggle : undefined)
+  useOnClickOutside(node, open ? close : undefined)
 
   return (
-    <Wrapper color={color}>
+    <Wrapper color={color} ref={node}>
       <RowBetween onClick={toggle} justify="center">
         <TYPE.main>{optionTitles && optionTitles[active] ? optionTitles[active] : active}</TYPE.main>
         <StyledIcon alignItems="center">
@@ -91,7 +92,7 @@ const DropdownSelect = ({
         </StyledIcon>
       </RowBetween>
       {open && (
-        <Dropdown ref={node}>
+        <Dropdown>
           <AutoColumn gap="16px">
             {Object.keys(options).map((key, index) => {
               const option = options[key]
@@ -99,7 +100,7 @@ const DropdownSelect = ({
                 option !== active && (
                   <Row
                     onClick={() => {
-                      toggle()
+                      close()
                       setActive(option)
                     }}
                     key={index}

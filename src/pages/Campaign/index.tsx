@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useGetCampaignsQuery, useGetLeaderboardQuery } from 'services/campaign'
+import { useGetCampaignsQuery, useGetLeaderboardQuery, useLazyGetCampaignByIdQuery } from 'services/campaign'
 
 import { APP_PATHS, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -90,6 +90,7 @@ export default function CampaignsUpdater() {
     dispatch(setCampaignDataByPage({ campaigns: campaignData || [], isReset: queryParams.offset === 0 }))
   }, [campaignData, dispatch, queryParams.offset])
 
+  const [getCampaignById] = useLazyGetCampaignByIdQuery()
   useEffect(() => {
     if (!currentCampaigns?.length) return
     const navigateFirsOne = () => {
@@ -102,12 +103,18 @@ export default function CampaignsUpdater() {
       return
     }
     const selectedCampaign = currentCampaigns.find(campaign => campaign.id.toString() === selectedCampaignId)
+
     if (selectedCampaign) {
       dispatch(setSelectedCampaign({ campaign: selectedCampaign }))
-    } else {
-      navigateFirsOne()
+      return
     }
-  }, [currentCampaigns, dispatch, selectedCampaignId, navigate])
+    getCampaignById(selectedCampaignId)
+      .unwrap()
+      .then(data => {
+        dispatch(setSelectedCampaign({ campaign: data }))
+      })
+      .catch(navigateFirsOne)
+  }, [currentCampaigns, dispatch, selectedCampaignId, navigate, getCampaignById])
 
   useEffect(() => {
     if (isLoadingCampaignData === false) dispatch(setLoadingCampaignData(isLoadingCampaignData))

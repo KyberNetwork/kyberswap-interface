@@ -10,11 +10,11 @@ import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
-import ModalConfirm from 'components/ConfirmModal'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
 import Loader from 'components/LocalLoader'
+import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute, { ProtectedRouteKyberAI } from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
@@ -241,7 +241,8 @@ export default function App() {
   }, [chainId, networkInfo.name])
 
   useGlobalMixpanelEvents()
-  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !pathname.includes(APP_PATHS.PARTNER_SWAP)
+  const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
+  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
   const [holidayMode] = useHolidayMode()
 
   const snowflake = new Image()
@@ -251,8 +252,9 @@ export default function App() {
     <ErrorBoundary>
       <AppHaveUpdate />
       <AppWrapper>
+        <ModalsGlobal />
         <ElasticLegacyNotice />
-        <TopBanner />
+        {!isPartnerSwap && <TopBanner />}
         <HeaderWrapper>
           <Header />
         </HeaderWrapper>
@@ -396,7 +398,6 @@ export default function App() {
 
           <TruesightFooter />
         </Suspense>
-        <ModalConfirm />
       </AppWrapper>
     </ErrorBoundary>
   )

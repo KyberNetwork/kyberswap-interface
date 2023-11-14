@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useLocation } from 'react-router-dom'
@@ -25,11 +26,13 @@ const WarningBadge = styled.span`
 type Props = {
   onClick: () => void
   active?: boolean
+  customChainId?: ChainId
 }
-export default function LimitTab({ onClick, active }: Props) {
-  const { chainId, account } = useActiveWeb3React()
+export default function LimitTab({ onClick, active, customChainId }: Props) {
+  const { chainId: walletChainId, account } = useActiveWeb3React()
   const { pathname } = useLocation()
 
+  const chainId = customChainId || walletChainId
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const isSupport = isSupportLimitOrder(chainId)
 

@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { RefObject, useState } from 'react'
@@ -25,10 +26,12 @@ export default function Header({
   activeTab,
   setActiveTab,
   swapActionsRef,
+  customChainId,
 }: {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
   swapActionsRef: RefObject<HTMLDivElement>
+  customChainId?: ChainId
 }) {
   const theme = useTheme()
   const [isDegenMode] = useDegenModeManager()
@@ -42,7 +45,7 @@ export default function Header({
     <>
       <ColumnCenter gap="sm">
         <RowBetween>
-          <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          <Tabs activeTab={activeTab} setActiveTab={setActiveTab} customChainId={customChainId} />
           <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
         </RowBetween>
         <RowBetween>

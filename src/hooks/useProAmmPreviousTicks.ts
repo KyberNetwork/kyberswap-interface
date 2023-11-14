@@ -42,6 +42,7 @@ export default function useProAmmPreviousTicks(
     return undefined
   }, [results, loading, error, pool])
 }
+
 export function useProAmmMultiplePreviousTicks(
   pool: Pool | null | undefined,
   positions: (Position | undefined)[],

@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
 import { Text } from 'rebass'
@@ -27,6 +27,7 @@ type Props = {
   amountOutUsd: string | undefined
 
   onChangeCurrencyOut: (c: Currency) => void
+  customChainId?: ChainId
 }
 
 const OutputCurrencyPanel: React.FC<Props> = ({
@@ -37,8 +38,10 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   currencyOut,
   amountOutUsd,
   onChangeCurrencyOut,
+  customChainId,
 }) => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
 
   // showWrap = true if this swap is either WRAP or UNWRAP
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
@@ -101,6 +104,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         </Label>
       }
       positionLabel="in"
+      customChainId={customChainId}
     />
   )
 }

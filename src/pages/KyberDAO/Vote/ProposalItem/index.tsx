@@ -188,7 +188,7 @@ const VoteButton = ({
   )
 }
 
-const FORCED_TO_BINARY_OPTION_PROPOSALS = [14, 15, 17, 18, 19]
+const FORCED_TO_BINARY_OPTION_PROPOSALS = [14, 15, 17, 18, 19, 20]
 
 function ProposalItem({
   proposal,
@@ -246,7 +246,7 @@ function ProposalItem({
   }
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
-    switchToEthereum().then(() => {
+    switchToEthereum(t`This action`).then(() => {
       selectedOptions.length > 0 && setShowConfirmModal(true)
     })
   }, [switchToEthereum, setShowConfirmModal, selectedOptions])

@@ -22,6 +22,7 @@ export interface SerializedPair {
 export const updateUserDegenMode = createAction<{ userDegenMode: boolean; isStablePairSwap: boolean }>(
   'user/updateUserDegenMode',
 )
+export const toggleUseAggregatorForZap = createAction('user/toggleUseAggregatorForZap')
 export const updateUserLocale = createAction<{ userLocale: SupportedLocale }>('user/updateUserLocale')
 export const updateUserSlippageTolerance = createAction<{ userSlippageTolerance: number }>(
   'user/updateUserSlippageTolerance',

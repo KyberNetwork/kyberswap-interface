@@ -126,8 +126,9 @@ export function useTokenReadingContract(tokenAddress?: string, customChainId?: C
   return useReadingContract(tokenAddress, ERC20_ABI, customChainId)
 }
 
-export function useWETHContract(): Contract | null {
-  const { chainId } = useActiveWeb3React()
+export function useWETHContract(customChainId?: ChainId): Contract | null {
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
   return useSigningContract(isEVM(chainId) ? WETH[chainId].address : undefined, WETH_ABI)
 }
 

@@ -23,7 +23,7 @@ const maticInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'MATIC',
     name: 'Polygon',
-    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/10d6d017-945d-470d-87eb-6a6f89ce8b7e.png',
     decimal: 18,
     minForGas: 10 ** 17,
   },
@@ -69,6 +69,12 @@ const maticInfo: EVMNetworkInfo = {
       '0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43',
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
+    zap: {
+      router: '0x30C5322E4e08AD500c348007f92f120ab4E2b79e',
+      validator: '0xf0096e5B4AAfeEA1DF557264091569ba125c1172',
+      executor: '0x4f097F7074D52952006a0763312724929Ff95Cf0',
+      helper: '0x4E8419EFa0b0A149Dad77b689D37AF17f762f20A',
+    },
     'farmV2.1S': [],
   },
   limitOrder: '*',

@@ -1,9 +1,16 @@
-import { Flex } from 'rebass'
-import styled, { css, keyframes, useTheme } from 'styled-components'
+import { Trans } from '@lingui/macro'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+import styled, { CSSProperties, css, keyframes, useTheme } from 'styled-components'
 
+import { ReactComponent as ZapIcon } from 'assets/svg/zap.svg'
 import { ButtonOutlined } from 'components/Button'
 import { AutoColumn } from 'components/Column'
+import InfoHelper from 'components/InfoHelper'
 import Input from 'components/NumericalInput'
+import { EVMNetworkInfo } from 'constants/networks/type'
+import { useActiveWeb3React } from 'hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 0 2rem 1rem;
@@ -209,3 +216,104 @@ export const RangeTab = styled.div<{ active: boolean }>`
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
   cursor: pointer;
 `
+
+const MethodTabs = styled.div`
+  border-radius: 999px;
+  border: 1px solid ${({ theme }) => theme.border};
+  background: ${({ theme }) => theme.buttonBlack};
+  padding: 2px;
+  display: flex;
+`
+
+const MethodTab = styled.div<{ active: boolean; disabled?: boolean }>`
+  background: ${({ theme, active }) => (active ? theme.tabActive : theme.buttonBlack)};
+  opacity: ${({ active }) => (active ? 1 : 0.6)};
+  cursor: pointer;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  padding: 2px;
+  min-width: 96px;
+
+  ${({ disabled }) =>
+    disabled
+      ? css`
+          opacity: 0.6;
+          cursor: not-allowed;
+        `
+      : undefined}
+`
+
+export const MethodSelector = ({
+  method,
+  setMethod,
+  sx,
+}: {
+  method: 'zap' | 'pair'
+  setMethod: (method: 'pair' | 'zap') => void
+  sx?: CSSProperties
+}) => {
+  const theme = useTheme()
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const { networkInfo } = useActiveWeb3React()
+  const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
+
+  return (
+    <Flex
+      justifyContent="space-between"
+      alignItems="center"
+      sx={{
+        marginBottom: '0.75rem',
+        ...sx,
+      }}
+    >
+      {!upToExtraSmall && (
+        <Text fontWeight="500" fontSize={20}>
+          <Trans>Your Position</Trans>
+        </Text>
+      )}
+      <Flex
+        sx={{ gap: '8px' }}
+        alignItems="center"
+        justifyContent={upToExtraSmall ? 'space-between' : undefined}
+        flex={upToExtraSmall ? 1 : undefined}
+      >
+        <Text fontSize="12px" fontWeight="500" color={theme.subText}>
+          Add liquidity by:
+        </Text>
+        <MethodTabs>
+          <MethodTab role="button" onClick={() => setMethod('pair')} active={method === 'pair'}>
+            Token Pair
+          </MethodTab>
+          <MethodTab
+            role="button"
+            onClick={() => isZapAvailable && setMethod('zap')}
+            active={method === 'zap'}
+            disabled={!isZapAvailable}
+          >
+            <Flex alignItems="center" color={isZapAvailable ? theme.warning : theme.subText}>
+              <ZapIcon />
+              <Text marginLeft="4px" color={theme.text} data-testid="zap-in-btn">
+                Zap In
+              </Text>
+              <InfoHelper
+                text={
+                  isZapAvailable ? (
+                    <Trans>Add liquidity instantly using only one token!</Trans>
+                  ) : (
+                    <Trans>Zap will be available soon.</Trans>
+                  )
+                }
+              />
+            </Flex>
+          </MethodTab>
+        </MethodTabs>
+      </Flex>
+    </Flex>
+  )
+}

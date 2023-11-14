@@ -36,7 +36,9 @@ const formatRewards = (rewards: CampaignLeaderboardReward[]) =>
     }),
   ) || []
 
-const formatListCampaign = (response: CampaignData[]) => {
+const formatListCampaign = (data: CampaignData[]) => {
+  if (!data) return []
+  const response = Array.isArray(data) ? data : [data]
   const campaigns: CampaignData[] = response.map((item: CampaignData) => ({
     ...item,
     startTime: item.startTime * 1000,
@@ -209,6 +211,12 @@ const campaignApi = createApi({
       }),
       transformResponse: (data: any) => formatListCampaign(data?.data || []),
     }),
+    getCampaignById: builder.query<any, string>({
+      query: campaignId => ({
+        url: `/${campaignId}`,
+      }),
+      transformResponse: (data: any) => formatListCampaign(data?.data)?.[0],
+    }),
     getLeaderboard: builder.query<
       any,
       { pageSize: number; pageNumber: number; userAddress: string; lookupAddress: string; campaignId: number }
@@ -255,6 +263,7 @@ export const {
   useGetLuckyWinnersQuery,
   useJoinCampaignMutation,
   useGetTxsCampaignQuery,
+  useLazyGetCampaignByIdQuery,
 } = campaignApi
 
 export default campaignApi
