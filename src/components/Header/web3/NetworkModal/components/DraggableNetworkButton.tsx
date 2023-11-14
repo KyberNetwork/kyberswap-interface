@@ -1,12 +1,10 @@
 import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { PanInfo, motion, useAnimationControls, useDragControls } from 'framer-motion'
-import throttle from 'lodash/throttle'
+import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { MutableRefObject, RefObject, useState } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Minus, Plus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -38,18 +36,18 @@ const MaintainLabel = styled.span`
 `
 
 const ListItem = styled(motion.div)<{ selected?: boolean; $disabled?: boolean; $dragging?: boolean }>`
-  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px 8px;
-  border-radius: 999px;
+  padding: 12px;
+  width: 100%;
+  border-radius: 16px;
   overflow: hidden;
   white-space: nowrap;
   font-size: 14px;
-  height: 36px;
+  height: 60px;
   color: ${({ theme }) => theme.subText};
-  background-color: ${({ theme }) => theme.tableHeader};
+  background-color: ${({ theme }) => theme.background};
   user-select: none;
   cursor: pointer;
   gap: 6px;
@@ -64,18 +62,13 @@ const ListItem = styled(motion.div)<{ selected?: boolean; $disabled?: boolean; $
   }
 
   ${({ theme, selected }) =>
-    selected
-      ? css`
-          background-color: ${theme.buttonBlack};
-          & > div {
-            color: ${theme.text};
-          }
-        `
-      : css`
-          :hover {
-            background-color: ${theme.background};
-          }
-        `}
+    selected &&
+    css`
+      background-color: ${theme.buttonBlack};
+      & > div {
+        color: ${theme.text};
+      }
+    `}
 
   ${({ $disabled }) =>
     $disabled &&
@@ -86,6 +79,8 @@ const ListItem = styled(motion.div)<{ selected?: boolean; $disabled?: boolean; $
     
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 12px;
+    height: 54px;
+    padding: 8px;
   `};
 `
 
@@ -109,23 +104,18 @@ const WalletWrapper = styled.div`
   }
 `
 
-export default function DraggableNetworkButton({
-  droppableRefs,
+const DraggableNetworkButton = ({
   networkInfo,
   activeChainIds,
   isSelected,
   disabledMsg,
-  isEdittingMobile,
-  isAddButton,
   dragConstraints,
   customToggleModal,
   customOnSelectNetwork,
   onChangedNetwork,
   onDrag,
   onDrop,
-  onFavoriteClick,
 }: {
-  droppableRefs: MutableRefObject<HTMLDivElement[]>
   networkInfo: NetworkInfo
   activeChainIds?: ChainId[]
   isSelected?: boolean
@@ -136,18 +126,19 @@ export default function DraggableNetworkButton({
   customToggleModal?: () => void
   customOnSelectNetwork?: (chainId: ChainId) => void
   onChangedNetwork?: () => void
-  onDrag?: (dropIndex?: string) => void
-  onDrop?: (dropIndex: string) => void
+  onDrag?: (x: number, y: number) => void
+  onDrop?: () => void
   onFavoriteClick?: () => void
-}) {
+}) => {
   const theme = useTheme()
   const { isWrongNetwork, walletSolana, walletEVM } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
+  const [dragging, setDragging] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const dragControls = useDragControls()
+  const animationControls = useAnimationControls()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
-  const [isDragging, setIsDragging] = useState(false)
-  const dragControls = useDragControls()
-  const animateControls = useAnimationControls()
   const { state, icon, chainId, name } = networkInfo
   const isMaintenance = state === ChainState.MAINTENANCE
   const disabled = (activeChainIds ? !activeChainIds?.includes(chainId) : false) || isMaintenance
@@ -185,61 +176,47 @@ export default function DraggableNetworkButton({
 
   const variants = {
     dragging: {
-      boxShadow: '0 5px 10px #00000060',
-      filter: 'brightness(0.8)',
-      scale: 1.05,
-      zIndex: 10,
+      zIndex: 100,
+    },
+    longpress: {
+      x: [-10, 10, -10, 10, -10, 10, -10, 10, -10, 10, 0],
+      transition: { duration: 2 },
     },
     normal: {
-      boxShadow: '0 0px 0px #00000060',
-      filter: 'brightness(1)',
-      scale: 1,
-      zIndex: 'unset',
       x: 0,
       y: 0,
-      transition: { zIndex: { delay: 1 } },
+      zIndex: 1,
+      transition: { zIndex: { delay: 0.5 } },
     },
-  }
-
-  const getDropIdDraggingOver = (panInfo: PanInfo) => {
-    const currentEl: HTMLDivElement | undefined = droppableRefs.current?.find((el: HTMLDivElement) => {
-      const OFFSET = 25
-      const { left, top, right, bottom } = el.getBoundingClientRect()
-      return (
-        left < panInfo.point.x + OFFSET &&
-        top < panInfo.point.y + OFFSET &&
-        right > panInfo.point.x - OFFSET &&
-        bottom > panInfo.point.y - OFFSET
-      )
-    })
-    return currentEl
   }
 
   const handleDragStart = () => {
-    animateControls.start('dragging')
-    setIsDragging(true)
+    setDragging(true)
   }
 
-  const handleDrag = throttle((e: any, panInfo: PanInfo) => {
-    const dropEl = getDropIdDraggingOver(panInfo)
-    onDrag?.(dropEl?.id)
-  }, 40)
-
-  const handleDragEnd = (e: any, panInfo: PanInfo) => {
-    animateControls.start('normal')
-
-    const dropEl = getDropIdDraggingOver(panInfo)
-    if (dropEl) {
-      onDrop?.(dropEl.id)
-    }
+  const handleDrag = () => {
+    if (!ref.current) return
+    const { x, y, width, height } = ref.current.getBoundingClientRect()
+    const centerX = x + width / 2
+    const centerY = y + height / 2
+    onDrag?.(centerX, centerY)
   }
+
+  const handleDragEnd = (e: any) => {
+    e.stopPropagation()
+    setDragging(false)
+    onDrop?.()
+  }
+  useEffect(() => {
+    animationControls.start(dragging ? 'dragging' : 'normal')
+  }, [dragging, animationControls])
 
   return (
     <MouseoverTooltip
       style={{ zIndex: Z_INDEXS.MODAL + 1 }}
       key={networkInfo.chainId}
       text={
-        disabled && !isDragging
+        disabled && !dragging
           ? isMaintenance
             ? t`Chain under maintenance. We will be back as soon as possible.`
             : disabledMsg
@@ -248,76 +225,88 @@ export default function DraggableNetworkButton({
       width="fit-content"
       placement="top"
     >
-      <ListItem
-        drag
-        dragListener={false}
-        dragMomentum={false}
-        dragControls={dragControls}
-        dragConstraints={dragConstraints}
-        dragElastic={0}
-        dragTransition={{ bounceStiffness: 500 }}
-        onDragStart={handleDragStart}
-        onDrag={handleDrag}
-        onDragEnd={handleDragEnd}
-        onLayoutAnimationStart={() => setIsDragging(true)}
-        onLayoutAnimationComplete={() => setIsDragging(false)}
-        layoutId={networkInfo.chainId.toString() + networkInfo.route}
-        selected={selected}
-        animate={animateControls}
-        transition={{ type: 'spring', damping: 50, stiffness: 1000 }}
+      <motion.div
+        animate={dragging ? 'dragging' : 'normal'}
         variants={variants}
-        style={{ boxShadow: '0 0px 0px #00000060' }}
-        onClick={() => !selected && !isDragging && handleChainSelect()}
-        $disabled={disabled}
+        style={{ position: 'relative', width: '100%', zIndex: 1 }}
       >
-        <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px' }} />
-        <Row flexGrow={1} gap="6px">
-          <Text as="span" textAlign="left">
-            {name}
-          </Text>
-          {state === ChainState.NEW && (
-            <NewLabel>
-              <Trans>New</Trans>
-            </NewLabel>
-          )}
-          {isMaintenance && (
-            <MaintainLabel>
-              <Trans>Maintainance</Trans>
-            </MaintainLabel>
-          )}
-          {selected && !walletKey && <CircleGreen />}
-          {walletKey && (
-            <WalletWrapper>
-              <img src={SUPPORTED_WALLETS[walletKey].icon} alt={SUPPORTED_WALLETS[walletKey].name + ' icon'} />
-            </WalletWrapper>
-          )}
-        </Row>
-        {isMobile ? (
-          isEdittingMobile && (
-            <div
-              style={{ height: '16px' }}
-              onClick={e => {
-                e.stopPropagation()
-                onFavoriteClick?.()
-              }}
-            >
-              {isAddButton ? <Plus size={16} color={theme.subText} /> : <Minus size={16} color={theme.subText} />}
-            </div>
-          )
-        ) : (
+        {dragging && (
           <div
-            className="drag-button"
-            style={{ cursor: 'grab' }}
-            onPointerDown={e => {
-              dragControls.start(e)
-              e.stopPropagation()
+            key="ghost"
+            style={{
+              width: '100%',
+              inset: '0',
+              backgroundColor: theme.tableHeader + '80',
+              borderRadius: '16px',
+              position: 'absolute',
             }}
-            onClick={e => e.stopPropagation()}
-          >
-            <Icon id="drag-indicator" color={theme.border} />
-          </div>
+          />
         )}
-      </ListItem>
+        <ListItem
+          ref={ref}
+          key={networkInfo.chainId.toString()}
+          drag
+          layoutId={networkInfo.chainId.toString()}
+          dragMomentum={false}
+          dragControls={dragControls}
+          dragConstraints={dragConstraints}
+          dragElastic={0}
+          onDragStart={handleDragStart}
+          onDrag={handleDrag}
+          onDragEnd={handleDragEnd}
+          selected={selected}
+          transition={{
+            type: 'spring',
+            damping: 20,
+            stiffness: 150,
+          }}
+          whileDrag={{
+            backgroundColor: theme.tableHeader,
+            boxShadow: '0 5px 15px #00000060',
+            border: '1px solid ' + theme.primary,
+            scale: 1.05,
+          }}
+          whileHover={{
+            backgroundColor: theme.tableHeader,
+          }}
+          animate={animationControls}
+          variants={variants}
+          style={{ boxShadow: '0 0px 0px #00000060', zIndex: 1 }}
+          onClick={() => !selected && !dragging && handleChainSelect()}
+          onMouseUp={e => e.preventDefault()}
+          $disabled={disabled}
+        >
+          <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px' }} />
+          <Row flexGrow={1} gap="6px">
+            <Text as="span" textAlign="left">
+              {name}
+            </Text>
+            {state === ChainState.NEW && (
+              <NewLabel>
+                <Trans>New</Trans>
+              </NewLabel>
+            )}
+            {isMaintenance && (
+              <MaintainLabel>
+                <Trans>Maintainance</Trans>
+              </MaintainLabel>
+            )}
+            {selected && !walletKey && <CircleGreen />}
+            {walletKey && (
+              <WalletWrapper>
+                <img src={SUPPORTED_WALLETS[walletKey].icon} alt={SUPPORTED_WALLETS[walletKey].name + ' icon'} />
+              </WalletWrapper>
+            )}
+          </Row>
+          {!isMobile && (
+            <div className="drag-button" style={{ cursor: 'grab' }}>
+              <Icon id="drag-indicator" color={theme.border} />
+            </div>
+          )}
+        </ListItem>
+      </motion.div>
     </MouseoverTooltip>
   )
 }
+
+export default DraggableNetworkButton
