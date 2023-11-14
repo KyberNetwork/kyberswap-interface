@@ -37,7 +37,7 @@ interface CurrencyInputPanelBridgeProps {
   currency: WrappedTokenInfo | undefined
   tokens: WrappedTokenInfo[]
   loadingToken: boolean
-  usdValue?: string
+  usdValue?: string | number
   isCrossChain?: boolean
   tooltipNotSupportChain?: string
   dataTestId?: string

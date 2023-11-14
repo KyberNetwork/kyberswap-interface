@@ -19,7 +19,6 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import TradePrice from 'pages/CrossChain/TradePrice'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
 import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/crossChain/hooks'
 import { RouteData } from 'state/crossChain/reducer'
@@ -309,15 +308,14 @@ export function TradeSummaryCrossChain({
   const { chainId } = useActiveWeb3React()
 
   const [show, setShow] = useState(true)
-  const { duration, minReceive, priceImpact, totalFeeUsd, gasFeeUsd, crossChainFeeUsd, gasRefundUsd } =
-    getRouInfo(route)
 
   const nativeToken = NativeCurrencies[chainId]
   const { isEnoughEth, gasFee, crossChainFee, gasRefund } = useIsEnoughGas(route)
 
   const colorGasFee = isEnoughEth ? theme.subText : theme.warning
 
-  const [{ currencyOut }] = useCrossChainState()
+  const [{ currencyOut, formatRoute }] = useCrossChainState()
+  const { duration, minReceive, priceImpact, totalFeeUsd, gasFeeUsd, crossChainFeeUsd, gasRefundUsd } = formatRoute
 
   return (
     <AutoColumn style={style}>

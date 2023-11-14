@@ -43,3 +43,6 @@ export const setInputAmountCrossChain = createAction<string>('crosschain/setInpu
 
 export const selectDestChainCrossChain = createAction<ChainId | undefined>('crosschain/selectDestChainCrossChain')
 export const setRoute = createAction<RouteResponse | undefined>('crosschain/setRoute')
+
+export type TokenUsdParams = { tokenIn: number | undefined; tokenOut: number | undefined }
+export const setPriceUsd = createAction<TokenUsdParams>('crosschain/setPriceUsd')

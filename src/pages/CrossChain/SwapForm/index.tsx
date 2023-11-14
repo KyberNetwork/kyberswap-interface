@@ -31,7 +31,6 @@ import { ConfirmCrossChainModal } from 'pages/Bridge/ComfirmBridgeModal'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import TradeTypeSelection from 'pages/CrossChain/SwapForm/TradeTypeSelection'
 import TradePrice from 'pages/CrossChain/TradePrice'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import useGetRouteCrossChain from 'pages/CrossChain/useGetRoute'
 import useValidateInput, { useIsTokensSupport } from 'pages/CrossChain/useValidateInput'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -74,6 +73,7 @@ export default function SwapForm() {
       chainIdOut,
       squidInstance,
       inputAmount,
+      formatRoute,
     },
   ] = useCrossChainState()
 
@@ -120,8 +120,7 @@ export default function SwapForm() {
     loading: gettingRoute,
     requestId,
   } = useGetRouteCrossChain(routeParams)
-  const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate, priceImpact, duration, totalFeeUsd } =
-    getRouInfo(route)
+  const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate, priceImpact, duration, totalFeeUsd } = formatRoute
   const { selectCurrencyIn, selectCurrencyOut, selectDestChain, setInputAmount } = useCrossChainHandlers()
 
   const toggleWalletModal = useWalletModalToggle()

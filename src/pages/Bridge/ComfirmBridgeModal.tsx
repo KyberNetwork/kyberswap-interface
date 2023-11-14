@@ -19,7 +19,6 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import SwapBrief from 'pages/CrossChain/SwapBriefCrossChain'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/crossChain/hooks'
 import { RouteData } from 'state/crossChain/reducer'
 import { useDegenModeManager } from 'state/user/hooks'
@@ -312,8 +311,8 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
   const theme = useTheme()
   const [accepted, setAccepted] = useState(false)
   const { chainId } = useActiveWeb3React()
-  const [{ chainIdOut, currencyIn, currencyOut }] = useCrossChainState()
-  const { inputAmount, outputAmount, priceImpact } = getRouInfo(route)
+  const [{ chainIdOut, currencyIn, currencyOut, formatRoute }] = useCrossChainState()
+  const { inputAmount, outputAmount, priceImpact } = formatRoute
   const [isDegenMode] = useDegenModeManager()
   const { mixpanelHandler } = useMixpanel()
 
@@ -344,7 +343,7 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
               <Trans>Please review the details of your swap:</Trans>
             </Text>
 
-            <SwapBrief route={route} />
+            <SwapBrief />
 
             <TradeSummaryCrossChain
               route={route}

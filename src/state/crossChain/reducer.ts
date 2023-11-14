@@ -6,6 +6,7 @@ import { createReducer } from '@reduxjs/toolkit'
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
+import { FormatRouteCrossChain, getRouInfo } from 'pages/CrossChain/helpers'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import {
@@ -16,6 +17,7 @@ import {
   setBridgeState,
   setCrossChainState,
   setInputAmountCrossChain,
+  setPriceUsd,
   setRoute,
 } from './actions'
 
@@ -32,8 +34,11 @@ export type SwapCrossChainState = {
   loadingToken: boolean
   squidInstance: Squid | undefined
   route: RouteData | undefined
+  formatRoute: FormatRouteCrossChain | undefined
   requestId: string
   inputAmount: string
+  tokenInPriceUsd: number | undefined
+  tokenOutPriceUsd: number | undefined
 }
 
 export type BridgeState = {
@@ -88,6 +93,9 @@ const DEFAULT_STATE: CrossChainState = {
     squidInstance: undefined,
     route: undefined,
     requestId: '',
+    tokenInPriceUsd: undefined,
+    tokenOutPriceUsd: undefined,
+    formatRoute: getRouInfo(undefined, undefined, undefined),
   },
 }
 
@@ -144,5 +152,9 @@ export default createReducer(DEFAULT_STATE, builder =>
     .addCase(setRoute, (state, { payload }) => {
       state.crossChain.route = payload?.route
       state.crossChain.requestId = payload?.requestId || ''
+    })
+    .addCase(setPriceUsd, (state, { payload }) => {
+      state.crossChain.tokenInPriceUsd = payload.tokenIn
+      state.crossChain.tokenOutPriceUsd = payload.tokenOut
     }),
 )

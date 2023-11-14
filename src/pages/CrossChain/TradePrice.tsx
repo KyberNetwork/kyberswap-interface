@@ -9,7 +9,6 @@ import Dots from 'components/Dots'
 import { TokenLogoWithChain } from 'components/Logo'
 import RefreshButton from 'components/SwapForm/RefreshButton'
 import useTheme from 'hooks/useTheme'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useCrossChainState } from 'state/crossChain/hooks'
 import { RouteData } from 'state/crossChain/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -34,11 +33,11 @@ export default function TradePrice({
 }: TradePriceProps) {
   const theme = useTheme()
   const [showInverted, setShowInverted] = useState<boolean>(false)
-  const { exchangeRate } = getRouInfo(route)
+  const [{ currencyIn, currencyOut, chainIdOut, formatRoute }] = useCrossChainState()
+  const { exchangeRate } = formatRoute
   let formattedPrice
   const price = exchangeRate ? Number(exchangeRate) : undefined
   if (price) formattedPrice = showInverted ? (1 / price).toPrecision(6) : price?.toPrecision(6)
-  const [{ currencyIn, currencyOut, chainIdOut }] = useCrossChainState()
 
   const currencyLeft = showInverted ? currencyOut : currencyIn
   const currencyRight = showInverted ? currencyIn : currencyOut

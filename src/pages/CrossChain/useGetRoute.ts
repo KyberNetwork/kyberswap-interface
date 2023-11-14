@@ -8,11 +8,35 @@ import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hook
 
 export default function useGetRouteCrossChain(params: RouteRequest | undefined) {
   const [{ squidInstance, route, requestId }] = useCrossChainState()
-  const { setTradeRoute } = useCrossChainHandlers()
+  const { setTradeRoute, setPriceUsd } = useCrossChainHandlers()
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(false)
   const controller = useRef(new AbortController())
+  const controllerPrice = useRef(new AbortController())
   const debounceParams = useDebounce(params, INPUT_DEBOUNCE_TIME)
+
+  const getTokenPrice = useCallback(async () => {
+    if (!squidInstance || !debounceParams) {
+      setPriceUsd({ tokenIn: undefined, tokenOut: undefined })
+      return
+    }
+    let signal: AbortSignal | undefined
+    try {
+      controllerPrice.current?.abort?.()
+      controllerPrice.current = new AbortController()
+      signal = controllerPrice.current.signal
+      const { fromChain, toChain, fromToken, toToken } = debounceParams
+      const [tokenPriceIn, tokenPriceOut] = await Promise.all([
+        squidInstance.getTokenPrice({ tokenAddress: fromToken, chainId: fromChain }),
+        squidInstance.getTokenPrice({ tokenAddress: toToken, chainId: toChain }),
+      ])
+      if (signal?.aborted) return
+      setPriceUsd({ tokenIn: tokenPriceIn, tokenOut: tokenPriceOut })
+    } catch (error) {
+      if (signal?.aborted) return
+      setPriceUsd({ tokenIn: undefined, tokenOut: undefined })
+    }
+  }, [squidInstance, debounceParams, setPriceUsd])
 
   const getRoute = useCallback(
     async (isRefresh = true) => {
@@ -56,5 +80,15 @@ export default function useGetRouteCrossChain(params: RouteRequest | undefined) 
     getRoute()
   }, [getRoute])
 
-  return { route, requestId, getRoute: getRouteDebounce, error, loading }
+  useEffect(() => {
+    getTokenPrice()
+  }, [getTokenPrice])
+
+  return {
+    route,
+    requestId,
+    getRoute: getRouteDebounce,
+    error,
+    loading,
+  }
 }

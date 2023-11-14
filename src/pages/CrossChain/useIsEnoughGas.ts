@@ -4,14 +4,15 @@ import JSBI from 'jsbi'
 import { CROSS_CHAIN_CONFIG } from 'constants/env'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { getRouInfo } from 'pages/CrossChain/helpers'
+import { useCrossChainState } from 'state/crossChain/hooks'
 import { RouteData } from 'state/crossChain/reducer'
 import { useNativeBalance } from 'state/wallet/hooks'
 
 export function useIsEnoughGas(route: RouteData | undefined) {
   const { chainId, account } = useActiveWeb3React()
   const nativeToken = NativeCurrencies[chainId]
-  const { gasCosts, feeCosts } = getRouInfo(route)
+  const [{ formatRoute }] = useCrossChainState()
+  const { gasCosts, feeCosts } = formatRoute
 
   const ethBalance = useNativeBalance()
   const gasFee = nativeToken ? CurrencyAmount.fromRawAmount(nativeToken, gasCosts?.amount || '0') : undefined

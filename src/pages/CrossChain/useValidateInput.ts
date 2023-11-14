@@ -3,7 +3,6 @@ import { ReactNode, useMemo } from 'react'
 
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
 import { useCrossChainState } from 'state/crossChain/hooks'
 import { RouteData } from 'state/crossChain/reducer'
@@ -30,11 +29,12 @@ export default function useValidateInput({
   route: RouteData | undefined
   errorGetRoute: boolean
 }) {
-  const [{ loadingToken, listTokenIn, listTokenOut, currencyIn, chainIdOut, currencyOut }] = useCrossChainState()
+  const [{ loadingToken, listTokenIn, listTokenOut, currencyIn, chainIdOut, currencyOut, formatRoute }] =
+    useCrossChainState()
   const balance = useCurrencyBalance(currencyIn)
   const { chainId, account } = useActiveWeb3React()
   const { isEnoughEth } = useIsEnoughGas(route)
-  const { amountUsdIn } = getRouInfo(route)
+  const { amountUsdIn } = formatRoute
   const showErrorGas = !isEnoughEth && route
   const isTokenSupport = useIsTokensSupport()
 
@@ -59,7 +59,7 @@ export default function useValidateInput({
     const parseAmount = tryParseAmount(inputAmount, currencyIn)
     if (!parseAmount) return { state: 'warn', tip: t`Input amount is not valid` }
 
-    if (amountUsdIn && +amountUsdIn.replace(/,/g, '') > 100_000)
+    if (Number(amountUsdIn) > 100_000)
       return {
         state: 'error',
         tip: t`Transaction size is currently limited to $100,000.`,

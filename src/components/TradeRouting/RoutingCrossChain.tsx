@@ -24,7 +24,6 @@ import {
   StyledWrap,
   StyledWrapToken,
 } from 'components/TradeRouting/styled'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useCrossChainState } from 'state/crossChain/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -114,7 +113,7 @@ const RoutingCrossChain = () => {
   const shadowRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const [{ route, currencyIn, currencyOut }] = useCrossChainState()
+  const [{ route, currencyIn, currencyOut, formatRoute }] = useCrossChainState()
 
   const renderTokenInfo = (currency: typeof currencyIn, amount: string | undefined, reverseOrder?: boolean) => {
     if (!currency) return null
@@ -128,7 +127,7 @@ const RoutingCrossChain = () => {
     )
   }
 
-  const { routeData, inputAmount, outputAmount } = getRouInfo(route)
+  const { routeData, inputAmount, outputAmount } = formatRoute
 
   const numRoute = routeData?.length || 0
   const hasRoutes = chainIdOut && numRoute > 0
