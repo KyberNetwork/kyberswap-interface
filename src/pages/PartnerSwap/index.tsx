@@ -31,8 +31,10 @@ import {
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrencyV2 } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChain from 'pages/CrossChain'
 import CrossChainLink from 'pages/CrossChain/CrossChainLink'
@@ -86,6 +88,8 @@ export const RoutingIconWrapper = styled(RoutingIcon)`
 `
 
 export default function Swap() {
+  const { account, chainId: walletChainId } = useActiveWeb3React()
+  const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const chainIdFromParam = searchParams.get('chainId')
@@ -93,6 +97,13 @@ export default function Swap() {
   const outputTokenFromParam = searchParams.get('outputCurrency')
   const expectedChainId =
     chainIdFromParam && SUPPORTED_NETWORKS.includes(+chainIdFromParam) ? +chainIdFromParam : ChainId.MAINNET
+
+  // sync form chainId and wallet chainId when disconnected
+  useEffect(() => {
+    if (!account && walletChainId !== expectedChainId) {
+      changeNetwork(expectedChainId)
+    }
+  }, [account, walletChainId, expectedChainId, changeNetwork])
 
   const currencyIn =
     useCurrencyV2(inputTokenFromParam || undefined, expectedChainId) || NativeCurrencies[expectedChainId as ChainId]
@@ -135,19 +146,7 @@ export default function Swap() {
 
   const theme = useTheme()
 
-  // dismiss warning if all imported tokens are in active lists
   const allTokens = useAllTokens()
-
-  // const handleConfirmTokenWarning = useCallback(
-  //   (tokens: Currency[]) => {
-  //     // handleDismissTokenWarning()
-  //     if (isLimitPage) {
-  //       onSelectPairLimit(tokens[0], tokens[1])
-  //       setIsSelectCurrencyManually(true)
-  //     }
-  //   },
-  //   [isLimitPage, onSelectPairLimit],
-  // )
 
   const onBackToSwapTab = () => setActiveTab(previousTab || TAB.SWAP)
 
