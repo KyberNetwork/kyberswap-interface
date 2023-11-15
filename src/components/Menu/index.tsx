@@ -58,6 +58,7 @@ const MenuItem = styled.li`
   align-items: center;
   color: ${({ theme }) => theme.subText};
   font-size: 15px;
+  cursor: pointer;
 
   svg {
     margin-right: 8px;

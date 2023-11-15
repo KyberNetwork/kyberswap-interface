@@ -52,7 +52,7 @@ export function capitalizeFirstLetter(str?: string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
-export function isULIDString(str: string) {
+export function isULIDString(str = '') {
   const ulidPattern = /[0-7][0-9A-HJKMNP-TV-Z]{25}/
   return ulidPattern.test(str)
 }

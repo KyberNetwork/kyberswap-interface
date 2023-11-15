@@ -10,6 +10,7 @@ import { APP_PATHS } from 'constants/index'
 import { useNotify } from 'state/application/hooks'
 import { isAddress } from 'utils'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
+import { isULIDString } from 'utils/string'
 
 export const formatAllowance = (value: string, decimals: number) =>
   value === ethers.constants.MaxUint256.toString()
@@ -19,7 +20,10 @@ export const formatAllowance = (value: string, decimals: number) =>
 export const useParseWalletPortfolioParam = () => {
   const { portfolioId, wallet: walletParam } = useParams<{ wallet?: string; portfolioId?: string }>()
   const wallet = isAddress(ChainId.MAINNET, walletParam) || isAddress(ChainId.MAINNET, portfolioId) || ''
-  return { wallet, portfolioId: isAddress(ChainId.MAINNET, portfolioId) ? '' : portfolioId }
+  return {
+    wallet,
+    portfolioId: isAddress(ChainId.MAINNET, portfolioId) || !isULIDString(portfolioId) ? '' : portfolioId,
+  }
 }
 
 export const useNavigateToPortfolioDetail = () => {
