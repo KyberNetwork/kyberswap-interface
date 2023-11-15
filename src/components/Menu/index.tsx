@@ -65,7 +65,10 @@ const MenuItem = styled.li`
     height: 16px;
     width: 16px;
   }
-
+  :hover {
+    text-decoration: none;
+    color: ${({ theme }) => theme.text};
+  }
   a {
     color: ${({ theme }) => theme.subText};
     display: flex;
