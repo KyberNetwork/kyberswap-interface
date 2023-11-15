@@ -196,7 +196,7 @@ export default function NetworkModal({
                 </Text>
               </Row>
             ) : (
-              <NetworkList>
+              <NetworkList data-testid="network-list">
                 {supportedChains
                   .filter(chain => !favoriteChains.some(_ => _ === chain.chainId.toString()))
                   .map((networkInfo: NetworkInfo) => {

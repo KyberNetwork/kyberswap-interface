@@ -7,8 +7,12 @@ const tokenCatalog = new TokenCatalog()
 const farm = new FarmPage()
 
 describe('Intercept', { tags: TAG.regression }, () => {
-   beforeEach(() => {
+   before(() => {
       SwapPage.open(DEFAULT_URL)
+   })
+
+   afterEach(() => {
+      cy.reload()
    })
    describe('Swap', () => {
       it('Should get route successfully', () => {
