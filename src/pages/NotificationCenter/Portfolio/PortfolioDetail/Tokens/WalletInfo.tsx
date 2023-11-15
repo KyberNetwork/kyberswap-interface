@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { ButtonAction } from 'components/Button'
@@ -60,6 +60,8 @@ export const WalletLabel = ({
 
 export const TokenCellWithWalletAddress = ({
   item,
+  walletColor,
+  style,
 }: {
   item: {
     logoUrl: string
@@ -67,14 +69,16 @@ export const TokenCellWithWalletAddress = ({
     walletAddress: string
     symbol: string
   }
+  walletColor?: string
+  style?: CSSProperties
 }) => {
   const theme = useTheme()
   return (
-    <Row gap="14px">
+    <Row gap="14px" style={style}>
       <TokenLogoWithChain chainId={item.chainId} size={'36px'} tokenLogo={item.logoUrl} />
       <Column gap="4px">
         <Text fontWeight={'500'}>{item.symbol}</Text>
-        <WalletLabel color={theme.text} walletAddress={item.walletAddress} chainId={item.chainId} />
+        <WalletLabel color={walletColor || theme.text} walletAddress={item.walletAddress} chainId={item.chainId} />
       </Column>
     </Row>
   )

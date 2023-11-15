@@ -1,3 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
+
 export type PortfolioWallet = { id: number; walletAddress: string; nickName: string }
 
 export type PortfolioSetting = {
@@ -129,4 +131,55 @@ export type PortfolioWalletPayload = {
   nickName: string
   walletId?: number
   portfolioId?: string
+}
+
+type NFTCollectionDetail = {
+  address: string
+  name: string
+  slug: string
+  marketplace: string
+  description: string
+  updateAt: string
+  banner: string
+  thumbnail: string
+  floorPrice: null
+  externalLink: string
+  twitter: string
+  instagram: string
+  isVerified: false
+  discordUrl: string
+  chainId: number
+}
+export type NFTDetail = {
+  chainID: ChainId
+  chainLogo: string
+  collectibleAddress: string
+  collectibleName: string
+  currentPrice: null
+  externalData: { name: ''; description: ''; image: ''; animation: ''; attributes: null }
+  favorite: false
+  lastSalePrice: null
+  ownerAddress: string
+  paymentToken: string
+  tokenBalance: string
+  tokenID: string
+  tokenUrl: string
+}
+export type NFTBalance = {
+  wallet: string
+  collectibleName: string
+  collectibleAddress: string
+  collectibleSymbol: string
+  collectibleLogo: string
+  collectionDetail: NFTCollectionDetail
+  nftType: null
+  items: NFTDetail[]
+  totalNFT: number
+  chainID: ChainId
+}
+
+export type NftCollectionResponse = {
+  data: NFTBalance[]
+  totalData: number
+  timestamp: number
 }

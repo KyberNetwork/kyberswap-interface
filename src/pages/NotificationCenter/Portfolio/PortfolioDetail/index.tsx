@@ -22,6 +22,7 @@ import useTheme from 'hooks/useTheme'
 import AddressPanel from 'pages/NotificationCenter/Portfolio/PortfolioDetail/AddressPanel'
 import Allowances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Allowances'
 import ListTab from 'pages/NotificationCenter/Portfolio/PortfolioDetail/ListTab'
+import Nft from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft'
 import Overview from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Overview'
 import TokenAllocation from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
 import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
@@ -79,7 +80,7 @@ const useFetchPortfolio = () => {
 }
 
 export default function PortfolioDetail() {
-  const [activeTab, setTab] = useState(PortfolioTab.TRANSACTIONS)
+  const [activeTab, setTab] = useState(PortfolioTab.NFT)
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const { portfolio: activePortfolio, myPortfolios, wallets, isLoading: isLoadingPortfolio } = useFetchPortfolio()
@@ -156,6 +157,7 @@ export default function PortfolioDetail() {
           {activeTab === PortfolioTab.TOKEN && <Tokens isLoading={isLoading} data={data} />}
           {activeTab === PortfolioTab.ALLOWANCES && <Allowances wallet={wallet} chainIds={chainIds} />}
           {activeTab === PortfolioTab.TRANSACTIONS && <Transactions wallet={wallet} chainIds={chainIds} />}
+          {activeTab === PortfolioTab.NFT && <Nft wallet={wallet} chainIds={chainIds} />}
         </>
       )}
 

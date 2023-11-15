@@ -3,6 +3,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { RTK_QUERY_TAGS } from 'constants/index'
 import {
+  NFTBalance,
+  NftCollectionResponse,
   Portfolio,
   PortfolioSetting,
   PortfolioWallet,
@@ -188,6 +190,36 @@ const portfolioApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
+    getNftCollections: builder.query<
+      NftCollectionResponse,
+      { addresses: string[]; chainIds?: ChainId[]; page: number; pageSize: number; search: string }
+    >({
+      query: ({ chainIds, ...params }) => ({
+        url: `${KRYSTAL_API}/balance/listNftCollection`,
+        params: { ...params, chainIds: chainIds?.join(','), withNft: false },
+      }),
+      transformResponse: (data: any) => {
+        data.data = data.data.map((chain: any) => chain.balances).flat()
+        return data
+      },
+    }),
+    getNftCollectionDetail: builder.query<
+      NFTBalance,
+      {
+        address: string
+        chainId: ChainId
+        page: number
+        pageSize: number
+        search: string
+        collectionAddress: string
+      }
+    >({
+      query: params => ({
+        url: `${KRYSTAL_API}/balance/listNftInCollection`,
+        params,
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
     getTransactions: builder.query<
       TransactionHistoryResponse,
       {
@@ -227,6 +259,8 @@ export const {
   useGetTrendingPortfoliosQuery,
   useSearchPortfolioQuery,
   useToggleFavoritePortfolioMutation,
+  useGetNftCollectionsQuery,
+  useGetNftCollectionDetailQuery,
 } = portfolioApi
 
 export default portfolioApi
