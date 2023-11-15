@@ -28,14 +28,14 @@ const AddWalletPortfolioModal = ({
   const [walletAddress, setWalletAddress] = useState('')
 
   useEffect(() => {
+    setWalletAddress(defaultWallet || '')
+  }, [defaultWallet, isOpen])
+
+  useEffect(() => {
     if (!wallet) return
     setName(wallet.nickName)
     setWalletAddress(wallet.walletAddress)
   }, [wallet])
-
-  useEffect(() => {
-    setWalletAddress(defaultWallet || '')
-  }, [defaultWallet, isOpen])
 
   const isEdit = !!wallet
 

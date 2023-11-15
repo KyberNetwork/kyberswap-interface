@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
-import { isMacOs } from 'react-device-detect'
+import { isMacOs, isMobile } from 'react-device-detect'
 import { Star } from 'react-feather'
 import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -30,6 +30,7 @@ import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { isAddress } from 'utils'
+import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
 import { isULIDString } from 'utils/string'
 
@@ -97,7 +98,7 @@ const PortfolioItem = ({
         <Row alignItems="center" gap="6px">
           <StarWithAnimation size={18} active={isFavorite} onClick={onToggleFavorite} stopPropagation />
           <Avatar url="" color={theme.subText} size={16} />
-          <Text color={theme.subText}>{displayName}</Text>
+          <Text color={theme.subText}>{isMobile ? getShortenAddress(displayName) : displayName}</Text>
         </Row>
       </td>
       <td style={{ textAlign: 'right' }}>
@@ -174,6 +175,7 @@ export default function Search() {
     history?.map(e => <PortfolioItem favorites={favorites} key={getPortfolioId(e)} onSelect={onSelect} data={e} />) ||
     EMPTY_ARRAY
 
+  // todo memo, and kyberAI
   const sections: SearchSection[] = searchData?.length
     ? [
         {
