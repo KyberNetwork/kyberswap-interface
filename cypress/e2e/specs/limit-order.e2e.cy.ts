@@ -9,29 +9,32 @@ const tokenCatalog = new TokenCatalog();
 const netw = new Network()
 
 describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
-    beforeEach(() => {
+    before(() => {
         SwapPage.open(DEFAULT_URL)
         SwapPage.connectWallet()
         SwapPage.getStatusConnectedWallet()
+        if (NETWORK === 'BNB' || NETWORK === 'Ethereum') {
+            netw.selectNetwork(NETWORK)
+            cy.allowMetamaskToSwitchNetwork().then(approved => {
+                expect(approved).to.be.true
+            })
+        } else {
+            cy.changeMetamaskNetwork(NETWORK)
+        }
+        SwapPage.goToLimitOrder()
+        LimitOder.checkGetStartedDisplay().then((checked) => {
+            if (checked === true) {
+                LimitOder.clickGetStarted()
+            }
+        })
     })
 
-    describe('Add/remove/select token with favorite tokens list', () => {
-        beforeEach(() => {
-            if (NETWORK === 'BNB' || NETWORK === 'Ethereum') {
-                netw.selectNetwork(NETWORK)
-                cy.allowMetamaskToSwitchNetwork().then(approved => {
-                    expect(approved).to.be.true
-                })
-            } else {
-                cy.changeMetamaskNetwork(NETWORK)
-            }
-            SwapPage.goToLimitOrder()
-            LimitOder.checkGetStartedDisplay().then((checked) => {
-                if (checked === true) {
-                    LimitOder.clickGetStarted()
-                }
-            })
-        })
+    afterEach(() => {
+        cy.reload(false)
+        SwapPage.getStatusConnectedWallet()
+    })
+
+    describe('Add/remove/select token', () => {
         it('Should be added, selected and removed favorite token sell', () => {
             LimitOder.selectTokenSell().addFavoriteToken([tokenSymbols[0], tokenSymbols[4]])
             tokenCatalog.getFavoriteTokens((list) => {
@@ -48,16 +51,7 @@ describe(`Limit Order on ${NETWORK}`, { tags: TAG.regression }, () => {
                 expect(list).not.to.include.members([tokenSymbols[0]])
             })
         })
-    })
-    describe('Add/remove/select token with favorite tokens list', () => {
-        beforeEach(() => {
-            SwapPage.goToLimitOrder()
-            LimitOder.checkGetStartedDisplay().then((checked) => {
-                if (checked === true) {
-                    LimitOder.clickGetStarted()
-                }
-            })
-        })
+
         it('Should be added, selected and removed favorite token buy', () => {
             LimitOder.selectTokenBuy().addFavoriteToken([tokenSymbols[0], tokenSymbols[4]])
             tokenCatalog.getFavoriteTokens((list) => {
