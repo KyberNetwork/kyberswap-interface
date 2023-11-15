@@ -9,9 +9,9 @@ import { Text } from 'rebass'
 import {
   useClonePortfolioMutation,
   useCreatePortfolioMutation,
+  useGetPortfolioByIdQuery,
   useGetPortfoliosQuery,
   useGetPortfoliosSettingsQuery,
-  useSearchPortfoliosQuery,
   useUpdatePortfoliosSettingsMutation,
 } from 'services/portfolio'
 import styled from 'styled-components'
@@ -110,12 +110,12 @@ export default function PortfolioSettings() {
   const { account } = useActiveWeb3React()
   const [showCreate, setShowCreate] = useState(false)
 
-  const { data: portfolios = EMPTY_ARRAY, isFetching, refetch } = useGetPortfoliosQuery()
+  const { data: portfolios = EMPTY_ARRAY, isLoading: isFetching, refetch } = useGetPortfoliosQuery()
   const { data: settings, refetch: refetchSetting } = useGetPortfoliosSettingsQuery()
 
   const { cloneId = '', wallet } = useParsedQueryString<{ cloneId: string; wallet: string }>()
   const loading = useShowLoadingAtLeastTime(isFetching, wallet ? 0 : 700)
-  const { data: clonePortfolio } = useSearchPortfoliosQuery({ id: cloneId }, { skip: !cloneId })
+  const { data: clonePortfolio } = useGetPortfolioByIdQuery({ id: cloneId }, { skip: !cloneId })
   useEffect(() => {
     if (clonePortfolio || isAddress(ChainId.MAINNET, wallet)) {
       setShowCreate(true)
@@ -128,7 +128,7 @@ export default function PortfolioSettings() {
     try {
       refetch()
       refetchSetting()
-      invalidateTags([RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO])
+      invalidateTags([RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO, RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO])
     } catch (error) {}
   }, [userInfo?.identityId, invalidateTags, refetch, refetchSetting])
 

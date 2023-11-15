@@ -436,7 +436,7 @@ const SearchWithDropdownKyberAI = () => {
             </RowFit>
           ),
           items: historyNode,
-          renderWhenEmpty: !!history,
+          show: !!history,
         },
         {
           title: (
@@ -483,7 +483,12 @@ const SearchWithDropdownKyberAI = () => {
   )
 }
 
-type Section = { items: ReactNode[] | JSX.Element[]; title?: ReactNode; loading?: boolean; renderWhenEmpty?: boolean }
+export type SearchSection = {
+  items: ReactNode[] | JSX.Element[]
+  title?: ReactNode
+  loading?: boolean
+  show?: boolean
+}
 
 // todo move to component, memo, refactor props
 export const SearchWithDropdown = ({
@@ -503,13 +508,13 @@ export const SearchWithDropdown = ({
 }: {
   placeholder: string
   id?: string
-  sections: Section[]
+  sections: SearchSection[]
   value: string
   onChange: (value: string) => void
   searchIcon?: ReactNode
   searching: boolean
   noSearchResult: boolean
-  noResultText: string
+  noResultText: ReactNode
   expanded: boolean
   setExpanded: React.Dispatch<React.SetStateAction<boolean>>
   columns: TableColumn[]
@@ -604,6 +609,7 @@ export const SearchWithDropdown = ({
           ) : noSearchResult ? (
             <Row justify="center" height="360px">
               <Text
+                color={theme.subText}
                 fontSize={above768 ? '14px' : '12px'}
                 lineHeight={above768 ? '20px' : '16px'}
                 maxWidth="75%"
@@ -614,7 +620,7 @@ export const SearchWithDropdown = ({
             </Row>
           ) : (
             sections.map((el, i) =>
-              el.renderWhenEmpty === false ? null : (
+              el.show === false ? null : (
                 <SearchResultTableWrapper header={el.title} key={i} columns={columns}>
                   {el.loading ? <SkeletonRows count={3} /> : el.items}
                 </SearchResultTableWrapper>

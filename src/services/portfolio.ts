@@ -20,6 +20,7 @@ const portfolioApi = createApi({
     RTK_QUERY_TAGS.GET_LIST_PORTFOLIO,
     RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO,
     RTK_QUERY_TAGS.GET_SETTING_PORTFOLIO,
+    RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO,
   ],
   endpoints: builder => ({
     getPortfolios: builder.query<Portfolio[], void>({
@@ -30,11 +31,42 @@ const portfolioApi = createApi({
       transformResponse: (data: any) => data?.data?.portfolios,
       providesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
-    searchPortfolios: builder.query<Portfolio, { id: string }>({
+    getPortfolioById: builder.query<Portfolio, { id: string }>({
       query: ({ id }) => ({
         url: `/v1/portfolios/${id}`,
       }),
       transformResponse: (data: any) => data?.data,
+    }),
+    searchPortfolio: builder.query<Portfolio[], { name: string }>({
+      query: params => ({
+        url: `/v1/portfolios/search`,
+        params,
+      }),
+      transformResponse: (data: any) => data?.data?.portfolios,
+    }),
+    getTrendingPortfolios: builder.query<Portfolio[], void>({
+      query: () => ({
+        url: `/v1/trending`,
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
+    getFavoritesPortfolios: builder.query<string[], void>({
+      query: () => ({
+        url: `/v1/favorites`,
+        params: { identityId: window.identityId }, // todo
+      }),
+      transformResponse: (data: any) => data?.data?.favorites?.map((e: { value: string }) => e.value),
+      providesTags: [RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO],
+    }),
+    toggleFavoritePortfolio: builder.mutation<{ id: string }, { value: string; isAdd: boolean }>({
+      query: ({ isAdd, ...body }) => ({
+        url: '/v1/favorites',
+        method: isAdd ? 'POST' : 'DELETE',
+        body,
+        params: { identityId: window.identityId }, // todo
+      }),
+      transformResponse: (data: any) => data?.data,
+      invalidatesTags: [RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO],
     }),
     createPortfolio: builder.mutation<{ id: string }, { name: string }>({
       query: body => ({
@@ -187,10 +219,14 @@ export const {
   useGetWalletsPortfoliosQuery,
   useRemoveWalletFromPortfolioMutation,
   useUpdateWalletToPortfolioMutation,
-  useSearchPortfoliosQuery,
+  useGetPortfolioByIdQuery,
   useClonePortfolioMutation,
   useGetPortfoliosSettingsQuery,
   useUpdatePortfoliosSettingsMutation,
+  useGetFavoritesPortfoliosQuery,
+  useGetTrendingPortfoliosQuery,
+  useSearchPortfolioQuery,
+  useToggleFavoritePortfolioMutation,
 } = portfolioApi
 
 export default portfolioApi

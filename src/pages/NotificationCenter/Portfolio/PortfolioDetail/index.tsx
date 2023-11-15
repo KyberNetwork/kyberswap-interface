@@ -3,10 +3,10 @@ import { t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import {
+  useGetPortfolioByIdQuery,
   useGetPortfoliosQuery,
   useGetRealtimeBalanceQuery,
   useGetWalletsPortfoliosQuery,
-  useSearchPortfoliosQuery,
 } from 'services/portfolio'
 import styled from 'styled-components'
 
@@ -59,7 +59,7 @@ const Tokens = ({ data, isLoading }: { data: PortfolioWalletBalanceResponse | un
 
 const useFetchPortfolio = () => {
   const { portfolioId } = useParseWalletPortfolioParam()
-  const { data: portfolio, isFetching: isLoadingMyPortfolio } = useSearchPortfoliosQuery(
+  const { data: portfolio, isFetching: isLoadingMyPortfolio } = useGetPortfolioByIdQuery(
     { id: portfolioId || '' },
     { skip: !portfolioId },
   )

@@ -4,6 +4,12 @@ import { isMacOs } from 'react-device-detect'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import {
+  useGetFavoritesPortfoliosQuery,
+  useGetTrendingPortfoliosQuery,
+  useSearchPortfolioQuery,
+  useToggleFavoritePortfolioMutation,
+} from 'services/portfolio'
 import styled from 'styled-components'
 
 import { ReactComponent as PortfolioIcon } from 'assets/svg/portfolio.svg'
@@ -13,11 +19,14 @@ import History from 'components/Icons/History'
 import Icon from 'components/Icons/Icon'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
+import useDebounce from 'hooks/useDebounce'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import { useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio/helpers'
+import { Portfolio } from 'pages/NotificationCenter/Portfolio/type'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-import { SearchWithDropdown } from 'pages/TrueSightV2/components/SearchWithDropDown'
+import { SearchSection, SearchWithDropdown } from 'pages/TrueSightV2/components/SearchWithDropDown'
 import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -30,10 +39,7 @@ const ShortCut = styled.span`
   font-size: 10px;
 `
 
-const columns = [
-  { align: 'left', label: 'Value', style: { width: '100px', minWidth: 'auto' } },
-  { align: 'right', label: '24H', style: { width: '60px' } },
-]
+const columns = [{ align: 'right', label: 'Value', style: { width: '100px', minWidth: 'auto' } }]
 const DropdownItem = styled.tr`
   padding: 6px;
   background-color: ${({ theme }) => theme.tableHeader};
@@ -44,33 +50,46 @@ const DropdownItem = styled.tr`
     filter: brightness(1.3);
   }
 `
-const PortfolioItem = ({ onSelect }: { onSelect: () => void }) => {
+const PortfolioItem = ({
+  onSelect,
+  data,
+  favorites,
+}: {
+  onSelect: () => void
+  data: Portfolio | string
+  favorites: string[]
+}) => {
   const theme = useTheme()
-  const percent = 123.23
   const navigate = useNavigateToPortfolioDetail()
-  const address = '0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723'
+  const portfolio = data as Portfolio
+  const displayName = typeof data === 'string' ? data : portfolio.name
+  const id = typeof data === 'string' ? data : portfolio.id
+  const [toggleFavorite, { isLoading }] = useToggleFavoritePortfolioMutation()
+  const isFavorite = favorites.includes(id)
+
+  const onToggleFavorite = async () => {
+    try {
+      if (isLoading) return
+      await toggleFavorite({ value: id, isAdd: !isFavorite }).unwrap()
+    } catch (error) {}
+  }
 
   return (
     <DropdownItem
       onClick={() => {
-        navigate({ wallet: address, myPortfolio: false })
+        navigate({ portfolioId: id, myPortfolio: false })
         onSelect()
       }}
     >
       <td>
         <Row alignItems="center" gap="6px">
-          <StarWithAnimation size={18} active />
+          <StarWithAnimation size={18} active={isFavorite} onClick={onToggleFavorite} stopPropagation />
           <Avatar url="" color={theme.subText} size={16} />
-          <Text color={theme.subText}>{address}</Text>
+          <Text color={theme.subText}>{displayName}</Text>
         </Row>
       </td>
-      <td>
-        <Text color={theme.subText}>{formatDisplayNumber(1234567.23, { style: 'decimal', fractionDigits: 2 })}</Text>
-      </td>
       <td style={{ textAlign: 'right' }}>
-        <Text color={percent > 0 ? theme.primary : theme.red}>
-          {formatDisplayNumber(percent, { style: 'percent', fractionDigits: 2 })}
-        </Text>
+        <Text color={theme.subText}>{formatDisplayNumber(1234567.23, { style: 'decimal', fractionDigits: 2 })}</Text>
       </td>
     </DropdownItem>
   )
@@ -83,8 +102,44 @@ export default function Header() {
   const [expanded, setExpanded] = useState(false)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const history = false
-  const mocks = new Array(4).fill(12).map(el => <PortfolioItem key={el} onSelect={() => setExpanded(false)} />)
-  const sections = history
+  const { data: favorites = EMPTY_ARRAY, isLoading: isLoadingFavorite } = useGetFavoritesPortfoliosQuery(undefined, {
+    skip: !expanded,
+  })
+  const { data: trending = EMPTY_ARRAY, isFetching: isLoadingTrending } = useGetTrendingPortfoliosQuery(undefined, {
+    skip: !expanded,
+  })
+
+  const searchDebounced = useDebounce(search, 500)
+  const { data: searchData = EMPTY_ARRAY, isFetching: isLoadingSearch } = useSearchPortfolioQuery(
+    { name: searchDebounced },
+    {
+      skip: !searchDebounced,
+    },
+  )
+  const isSearching = useShowLoadingAtLeastTime(isLoadingSearch, 500)
+
+  const itemTrending = trending.map(e => (
+    <PortfolioItem favorites={favorites} key={e} onSelect={() => setExpanded(false)} data={e} />
+  ))
+  const itemSearch = searchData.map(e => (
+    <PortfolioItem favorites={favorites} key={e} onSelect={() => setExpanded(false)} data={e} />
+  ))
+  const itemFavorite = favorites.map(e => (
+    <PortfolioItem favorites={favorites} key={e} onSelect={() => setExpanded(false)} data={e} />
+  ))
+
+  const sections: SearchSection[] = searchData?.length
+    ? [
+        {
+          items: itemSearch,
+          title: (
+            <RowFit>
+              <Text fontSize="12px">Search Result</Text>
+            </RowFit>
+          ),
+        },
+      ]
+    : history
     ? [
         {
           title: (
@@ -94,7 +149,7 @@ export default function Header() {
             </RowFit>
           ),
           items: [],
-          renderWhenEmpty: !!history,
+          show: !!history,
         },
       ]
     : [
@@ -105,7 +160,9 @@ export default function Header() {
               <Text fontSize="12px">Favorites</Text>
             </RowFit>
           ),
-          items: mocks,
+          items: itemFavorite,
+          loading: isLoadingFavorite,
+          show: !!favorites.length && !isLoadingFavorite,
         },
         {
           title: (
@@ -114,7 +171,8 @@ export default function Header() {
               <Text fontSize="12px">Trending</Text>
             </RowFit>
           ),
-          items: mocks,
+          items: itemTrending,
+          loading: isLoadingTrending,
         },
       ]
 
@@ -122,15 +180,21 @@ export default function Header() {
 
   const renderSearch = () => (
     <SearchWithDropdown
-      searching={false}
-      noResultText={t`No portfolio found.`}
+      searching={isSearching}
+      noResultText={
+        <Trans>
+          Oops, we couldnt find your address or portfolio!
+          <br />
+          You can try searching for another address or portfolio
+        </Trans>
+      }
       expanded={expanded}
       setExpanded={setExpanded}
-      placeholder={t`Enter wallet address`}
+      placeholder={t`Enter wallet address or portfolio ID`}
       sections={sections}
       columns={columns}
       value={search}
-      noSearchResult={false}
+      noSearchResult={!!(searchDebounced && !isSearching && !searchData?.length)}
       onChange={setSearch}
       style={{ maxWidth: upToSmall ? '100%' : undefined }}
       searchIcon={upToSmall ? <Icon id="search" /> : <ShortCut>{isMacOs ? 'Cmd+K' : 'Ctrl+K'}</ShortCut>}
