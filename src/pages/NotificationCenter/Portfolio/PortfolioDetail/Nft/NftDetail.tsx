@@ -1,10 +1,11 @@
 import { Trans, t } from '@lingui/macro'
+import { Send } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import NFTLogoDefault from 'assets/images/portfolio/nft_logo.png'
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
-import { ButtonAction } from 'components/Button'
+import { ButtonAction, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -167,6 +168,11 @@ export default function NftDetail({
               </AttributeLabel>
               <Value>-</Value>
             </Row>
+
+            <ButtonPrimary height={'36px'} width={'150px'}>
+              <Send size={17} />
+              &nbsp;Transfer
+            </ButtonPrimary>
           </Column>
           {externalData?.attributes && (
             <>
