@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -9,8 +10,11 @@ import NFTLogoDefault from 'assets/images/portfolio/nft_logo.png'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { NFTBalance, NFTDetail } from 'pages/NotificationCenter/Portfolio/type'
+import NoData from 'pages/NotificationCenter/Portfolio/PortfolioDetail/NoData'
+import { NFTDetail } from 'pages/NotificationCenter/Portfolio/type'
+import { isAddress } from 'utils'
 
 const ItemWrapper = styled(Column)`
   border-radius: 20px;
@@ -51,29 +55,38 @@ const Wrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  flex: 1;
 `
 
 const pageSize = 20
-export default function ListNft({ nftCollection }: { nftCollection: NFTBalance }) {
-  const { chainID, wallet, collectibleAddress } = nftCollection
+export default function ListNft({ search }: { search: string }) {
+  const {
+    colId = '',
+    chainId,
+    wallet = '',
+  } = useParsedQueryString<{ nftId: string; colId: string; chainId: string; wallet: string }>()
   const [page, setPage] = useState(1)
-  const { data, isFetching } = useGetNftCollectionDetailQuery({
-    address: wallet,
-    search: '',
-    chainId: chainID,
-    collectionAddress: collectibleAddress,
-    page,
-    pageSize,
-  })
+  const { data, isFetching } = useGetNftCollectionDetailQuery(
+    {
+      address: wallet,
+      search,
+      chainId: +(chainId || ChainId.MAINNET) as ChainId,
+      collectionAddress: colId,
+      page,
+      pageSize,
+    },
+    { skip: !isAddress(ChainId.MAINNET, colId) || !chainId || !isAddress(ChainId.MAINNET, wallet) },
+  )
 
   return (
     <>
-      {isFetching && <LocalLoader />}
-      <Wrapper style={{ justifyContent: Number(data?.items?.length) > 3 ? 'space-around' : 'flex-start' }}>
-        {data?.items.map(el => (
-          <NftItem data={el} key={el.collectibleAddress} />
-        ))}
-      </Wrapper>
+      {isFetching ? (
+        <LocalLoader />
+      ) : (
+        <Wrapper style={{ justifyContent: Number(data?.items?.length) > 3 ? 'space-around' : 'flex-start' }}>
+          {data?.items?.length ? data?.items.map(el => <NftItem data={el} key={el.collectibleAddress} />) : <NoData />}
+        </Wrapper>
+      )}
       <Pagination totalCount={data?.totalNFT || 0} currentPage={page} onPageChange={setPage} pageSize={pageSize} />
     </>
   )

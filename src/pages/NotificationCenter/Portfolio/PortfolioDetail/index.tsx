@@ -17,6 +17,7 @@ import Select from 'components/Select'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import AddressPanel from 'pages/NotificationCenter/Portfolio/PortfolioDetail/AddressPanel'
@@ -36,6 +37,7 @@ import {
   PortfolioWalletBalanceResponse,
 } from 'pages/NotificationCenter/Portfolio/type'
 import getShortenAddress from 'utils/getShortenAddress'
+import { isInEnum } from 'utils/string'
 
 import Header from './Header'
 
@@ -43,7 +45,7 @@ const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: 24px 36px 0;
+  padding: 24px 36px;
   gap: 24px;
   width: 100%;
   max-width: 1464px;
@@ -90,11 +92,14 @@ const useFetchPortfolio = (): {
 }
 
 export default function PortfolioDetail() {
-  const [activeTab, setTab] = useState(PortfolioTab.NFT)
+  const { tab = '' } = useParsedQueryString<{ tab: string }>()
+  const [activeTab, setTab] = useState(isInEnum(tab, PortfolioTab) ? tab : PortfolioTab.TOKEN)
 
   const [, setSearchParams] = useSearchParams()
   const onChangeTab = (tab: PortfolioTab) => {
-    setSearchParams(new URLSearchParams()) // reset params
+    const params = new URLSearchParams()
+    params.set('tab', tab)
+    setSearchParams(params) // reset params
     setTab(tab)
   }
 
@@ -113,7 +118,7 @@ export default function PortfolioDetail() {
     { skip: !queryBalance },
   )
 
-  const isLoading: boolean = isLoadingPortfolio || isLoadingRealtimeData // todo
+  const isLoading: boolean = isLoadingPortfolio || isLoadingRealtimeData
 
   const handleChangeChains = (chainIds: ChainId[]) => {
     setChainIds(chainIds)

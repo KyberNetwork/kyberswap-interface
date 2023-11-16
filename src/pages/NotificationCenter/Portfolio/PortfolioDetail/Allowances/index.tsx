@@ -44,8 +44,9 @@ const ActionButton = ({
   revokeAllowance: (v: TokenAllowAnce) => void
 }) => {
   const theme = useTheme()
-  const { amount } = item
-  const disabled = !amount || amount === '0'
+  const { amount, ownerAddress } = item
+  const { account } = useActiveWeb3React()
+  const disabled = !amount || amount === '0' || account?.toLowerCase() !== ownerAddress.toLowerCase()
   const color = disabled ? theme.border : theme.red
   return (
     <Row justify="flex-end">

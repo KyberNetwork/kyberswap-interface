@@ -1,13 +1,13 @@
 import { Trans } from '@lingui/macro'
+import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import NFTLogoDefault from 'assets/images/portfolio/nft_logo.png'
-import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
-import Column from 'components/Column'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import NoData from 'pages/NotificationCenter/Portfolio/PortfolioDetail/NoData'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
 import { NFTBalance } from 'pages/NotificationCenter/Portfolio/type'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -52,7 +52,6 @@ export default function ListCollection({
   page,
   pageSize,
   onPageChange,
-  onSelect,
   totalItems,
 }: {
   data: NFTBalance[]
@@ -60,27 +59,21 @@ export default function ListCollection({
   page: number
   totalItems: number
   onPageChange: (v: number) => void
-  onSelect: (v: NFTBalance) => void
 }) {
-  const theme = useTheme()
+  const [params, setParams] = useSearchParams()
+  const onSelect = (val: NFTBalance) => {
+    params.set('colId', val.collectibleAddress)
+    params.set('chainId', val.chainID + '')
+    params.set('wallet', val.wallet)
+    params.set('colName', val.collectibleName)
+    setParams(params)
+  }
   return (
     <>
       {data.length ? (
         data.map(el => <NftCollection data={el} key={el.collectibleAddress} onSelect={() => onSelect(el)} />)
       ) : (
-        <Column
-          justifyContent="center"
-          alignItems={'center'}
-          color={theme.subText}
-          fontSize={'12px'}
-          gap="8px"
-          flex={1}
-        >
-          <NoDataIcon />
-          <Text fontSize={'14px'}>
-            <Trans>No data found</Trans>
-          </Text>
-        </Column>
+        <NoData />
       )}
       <Pagination onPageChange={onPageChange} currentPage={page} pageSize={pageSize} totalCount={totalItems} />
     </>
