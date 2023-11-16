@@ -7,7 +7,7 @@ import { uint256ToFraction } from 'utils/numbers'
 
 const calcUsd = (usdPrice: number | undefined, amount: string | undefined, decimals: number | undefined) =>
   usdPrice && amount && decimals
-    ? usdPrice * parseFloat(uint256ToFraction(amount, decimals).toFixed(decimals)) // todo
+    ? usdPrice * parseFloat(uint256ToFraction(amount, decimals).toFixed(decimals))
     : undefined
 
 export type FormatRouteCrossChain = {
