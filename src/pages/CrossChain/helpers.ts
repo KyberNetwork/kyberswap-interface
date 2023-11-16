@@ -29,11 +29,15 @@ export type FormatRouteCrossChain = {
 
   routeData: RouteActionResponse[]
 }
-export const getRouInfo = (
-  route: RouteData | undefined,
-  tokenPriceIn: number | undefined,
-  tokenPriceOut: number | undefined,
-): FormatRouteCrossChain => {
+export const getRouInfo = ({
+  route,
+  tokenPriceIn,
+  tokenPriceOut,
+}: {
+  route?: RouteData
+  tokenPriceIn?: number
+  tokenPriceOut?: number
+} = {}): FormatRouteCrossChain => {
   const estimate = route?.estimate
   const priceImpact = estimate?.aggregatePriceImpact
 

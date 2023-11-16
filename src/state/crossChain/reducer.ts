@@ -95,7 +95,7 @@ const DEFAULT_STATE: CrossChainState = {
     requestId: '',
     tokenInPriceUsd: undefined,
     tokenOutPriceUsd: undefined,
-    formatRoute: getRouInfo(undefined, undefined, undefined),
+    formatRoute: getRouInfo(),
   },
 }
 

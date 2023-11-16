@@ -116,7 +116,7 @@ export function useCrossChainState(): [
   const listTokenOut = useMemo(() => tokens.filter(e => e.chainId === chainIdOut), [tokens, chainIdOut])
   const listTokenIn = useMemo(() => tokens.filter(e => e.chainId === chainId), [tokens, chainId])
   const formatRoute = useMemo(
-    () => getRouInfo(route, tokenInPriceUsd, tokenOutPriceUsd),
+    () => getRouInfo({ route, tokenPriceIn: tokenInPriceUsd, tokenPriceOut: tokenOutPriceUsd }),
     [route, tokenInPriceUsd, tokenOutPriceUsd],
   )
   return [{ ...crossChain, listChainOut, listTokenOut, listTokenIn, formatRoute }, setState]
