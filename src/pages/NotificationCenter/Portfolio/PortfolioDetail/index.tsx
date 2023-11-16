@@ -29,7 +29,12 @@ import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Token
 import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
 import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
-import { PortfolioTab, PortfolioWalletBalanceResponse } from 'pages/NotificationCenter/Portfolio/type'
+import {
+  Portfolio,
+  PortfolioTab,
+  PortfolioWallet,
+  PortfolioWalletBalanceResponse,
+} from 'pages/NotificationCenter/Portfolio/type'
 import getShortenAddress from 'utils/getShortenAddress'
 
 import Header from './Header'
@@ -58,7 +63,12 @@ const Tokens = ({ data, isLoading }: { data: PortfolioWalletBalanceResponse | un
   )
 }
 
-const useFetchPortfolio = () => {
+const useFetchPortfolio = (): {
+  wallets: PortfolioWallet[]
+  isLoading: boolean
+  portfolio: Portfolio | undefined
+  myPortfolios: Portfolio[]
+} => {
   const { portfolioId } = useParseWalletPortfolioParam()
   const { data: portfolio, isFetching: isLoadingMyPortfolio } = useGetPortfolioByIdQuery(
     { id: portfolioId || '' },
@@ -84,6 +94,10 @@ export default function PortfolioDetail() {
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const { portfolio: activePortfolio, myPortfolios, wallets, isLoading: isLoadingPortfolio } = useFetchPortfolio()
+  const walletsQuery = useMemo(
+    () => (wallet ? [wallet] : wallets.length ? wallets.map(e => e.walletAddress) : EMPTY_ARRAY),
+    [wallets, wallet],
+  )
 
   const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
   const [search, setSearch] = useState(wallet || portfolioId || '')
@@ -136,17 +150,19 @@ export default function PortfolioDetail() {
           <RowBetween>
             <ListTab activeTab={activeTab} setTab={setTab} />
             <RowFit gap="12px">
-              <Select
-                onChange={onChangeWallet}
-                style={{ borderRadius: 24, background: theme.buttonGray, height: 36, minWidth: 150 }}
-                options={walletsOpts}
-                activeRender={item => (
-                  <Row gap="6px" fontSize={'14px'} fontWeight={'500'}>
-                    <Wallet />
-                    {item?.label}
-                  </Row>
-                )}
-              />
+              {portfolioId && (
+                <Select
+                  onChange={onChangeWallet}
+                  style={{ borderRadius: 24, background: theme.buttonGray, height: 36, minWidth: 150 }}
+                  options={walletsOpts}
+                  activeRender={item => (
+                    <Row gap="6px" fontSize={'14px'} fontWeight={'500'}>
+                      <Wallet />
+                      {item?.label}
+                    </Row>
+                  )}
+                />
+              )}
               <MultipleChainSelect
                 selectedChainIds={chainIds}
                 handleChangeChains={handleChangeChains}
@@ -155,9 +171,9 @@ export default function PortfolioDetail() {
             </RowFit>
           </RowBetween>
           {activeTab === PortfolioTab.TOKEN && <Tokens isLoading={isLoading} data={data} />}
-          {activeTab === PortfolioTab.ALLOWANCES && <Allowances wallet={wallet} chainIds={chainIds} />}
+          {activeTab === PortfolioTab.ALLOWANCES && <Allowances walletAddresses={walletsQuery} chainIds={chainIds} />}
           {activeTab === PortfolioTab.TRANSACTIONS && <Transactions wallet={wallet} chainIds={chainIds} />}
-          {activeTab === PortfolioTab.NFT && <Nft wallet={wallet} chainIds={chainIds} />}
+          {activeTab === PortfolioTab.NFT && <Nft walletAddresses={walletsQuery} chainIds={chainIds} />}
         </>
       )}
 

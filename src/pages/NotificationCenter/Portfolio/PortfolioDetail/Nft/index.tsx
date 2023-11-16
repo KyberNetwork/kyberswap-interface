@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import NFTLogoDefault from 'assets/images/portfolio/nft_logo.png'
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
+import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
@@ -58,20 +59,20 @@ const NftCollection = ({
 
 // todo all tab search multi address
 const pageSize = 10
-export default function Nft({ wallet, chainIds }: { wallet: string; chainIds: ChainId[] }) {
+export default function Nft({ walletAddresses, chainIds }: { walletAddresses: string[]; chainIds: ChainId[] }) {
   const [search, setSearch] = useState('')
   const searchDebounce = useDebounce(search, 500)
   const [currentNft, setCurrentNft] = useState<NFTBalance>()
   const [page, setPage] = useState(1)
   const { data, isFetching } = useGetNftCollectionsQuery(
     {
-      addresses: [wallet],
+      addresses: walletAddresses,
       chainIds,
       page,
       pageSize,
       search: searchDebounce,
     },
-    { skip: !wallet },
+    { skip: !walletAddresses?.length },
   )
 
   const theme = useTheme()
@@ -114,11 +115,19 @@ export default function Nft({ wallet, chainIds }: { wallet: string; chainIds: Ch
                 <NftCollection data={el} key={el.collectibleAddress} onSelect={() => setCurrentNft(el)} />
               ))
             ) : (
-              <Row justify="center">
-                <Text color={theme.subText} fontSize={'12px'}>
-                  <Trans>No NFT found</Trans>
+              <Column
+                justifyContent="center"
+                alignItems={'center'}
+                color={theme.subText}
+                fontSize={'12px'}
+                gap="8px"
+                flex={1}
+              >
+                <NoDataIcon />
+                <Text fontSize={'14px'}>
+                  <Trans>No data found</Trans>
                 </Text>
-              </Row>
+              </Column>
             )}
             <Pagination
               onPageChange={setPage}

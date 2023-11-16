@@ -186,13 +186,16 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
 
   const isAddressSearch = searchDebounce && isAddress(ChainId.MAINNET, searchDebounce)
   const query = searchDebounce ? { [isAddressSearch ? 'tokenAddress' : 'tokenSymbol']: searchDebounce } : {}
-  const { data, isFetching } = useGetTransactionsQuery({
-    chainIds,
-    limit: pageSize,
-    walletAddress: wallet,
-    endTime: 0,
-    ...query,
-  })
+  const { data, isFetching } = useGetTransactionsQuery(
+    {
+      chainIds,
+      limit: pageSize,
+      walletAddress: wallet,
+      endTime: 0,
+      ...query,
+    },
+    { skip: !wallet },
+  )
 
   return (
     <Section

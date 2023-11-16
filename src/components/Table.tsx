@@ -108,7 +108,7 @@ export default function Table<T>({
         {filterData.length ? (
           filterData.map((item, i) => (
             <TRow key={i} templateColumn={templateColumnStr}>
-              {columns.map(({ dataIndex, align, render, style }) => {
+              {columns.map(({ dataIndex, align, render, style }, j) => {
                 const value = item[dataIndex as keyof T]
                 let content = null
                 try {
@@ -116,7 +116,7 @@ export default function Table<T>({
                 } catch (error) {}
                 return (
                   <td
-                    key={typeof value === 'string' ? value : i}
+                    key={`${i}${j}`}
                     style={{
                       textAlign: align || 'center',
                       fontSize: '14px',

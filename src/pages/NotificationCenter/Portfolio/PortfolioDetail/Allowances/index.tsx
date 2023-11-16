@@ -3,9 +3,9 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import { rgba } from 'polished'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
-import { useGetTokenApprovalQuery } from 'services/portfolio'
+import { useLazyGetTokenApprovalQuery } from 'services/portfolio'
 
 import { ButtonAction } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
@@ -99,8 +99,33 @@ const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<T
   },
 ]
 
-export default function Allowances({ wallet, chainIds }: { wallet: string; chainIds: ChainId[] }) {
-  const { data, isFetching } = useGetTokenApprovalQuery({ address: wallet, chainIds }, { skip: !wallet })
+const useFetchAllowance = ({ wallets, chainIds }: { wallets: string[]; chainIds: ChainId[] }) => {
+  const [data, setData] = useState<TokenAllowAnce[]>([])
+  const [fetchAllowance, { isFetching }] = useLazyGetTokenApprovalQuery()
+  useEffect(() => {
+    const controller = new AbortController()
+    const signal = controller.signal
+    async function fetchData() {
+      try {
+        if (!wallets.length) {
+          throw new Error('Empty addresses')
+        }
+        const resp = await Promise.all(wallets.map(address => fetchAllowance({ chainIds, address }).unwrap()))
+        if (signal.aborted) return
+        setData(resp.map(e => e.approvals).flat())
+      } catch (error) {
+        if (signal.aborted) return
+        setData([])
+      }
+    }
+    fetchData()
+    return () => controller.abort()
+  }, [wallets, chainIds, fetchAllowance])
+
+  return { data, isFetching }
+}
+export default function Allowances({ walletAddresses, chainIds }: { walletAddresses: string[]; chainIds: ChainId[] }) {
+  const { data, isFetching } = useFetchAllowance({ wallets: walletAddresses, chainIds })
   const theme = useTheme()
 
   const { chainId: currentChain } = useActiveWeb3React()
@@ -137,12 +162,12 @@ export default function Allowances({ wallet, chainIds }: { wallet: string; chain
   const formatData = useMemo(() => {
     if (!data) return EMPTY_ARRAY
     return searchDebounce
-      ? data.approvals.filter(
+      ? data.filter(
           e =>
             e.symbol.toLowerCase().includes(searchDebounce.toLowerCase()) ||
             e.tokenAddress.toLowerCase().includes(searchDebounce.toLowerCase()),
         )
-      : data.approvals
+      : data
   }, [data, searchDebounce])
 
   return (

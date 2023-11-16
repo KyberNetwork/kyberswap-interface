@@ -168,7 +168,7 @@ const portfolioApi = createApi({
     getRealtimeBalance: builder.query<PortfolioWalletBalanceResponse, { query: string; chainIds?: ChainId[] }>({
       query: ({ query, chainIds }) => ({
         url: `/v1/real-time-data/${query}`,
-        params: { chainIds: chainIds?.join(',') },
+        params: { chainIds },
       }),
       transformResponse: (data: any) => {
         const balances = data?.data?.balances
@@ -184,9 +184,9 @@ const portfolioApi = createApi({
       },
     }),
     getTokenApproval: builder.query<TokenAllowAnceResponse, { address: string; chainIds?: ChainId[] }>({
-      query: ({ address, chainIds }) => ({
+      query: params => ({
         url: `${KRYSTAL_API}/approval/list`,
-        params: { address, chainIds: chainIds?.join(',') },
+        params,
       }),
       transformResponse: (data: any) => data?.data,
     }),
@@ -194,9 +194,9 @@ const portfolioApi = createApi({
       NftCollectionResponse,
       { addresses: string[]; chainIds?: ChainId[]; page: number; pageSize: number; search: string }
     >({
-      query: ({ chainIds, ...params }) => ({
+      query: params => ({
         url: `${KRYSTAL_API}/balance/listNftCollection`,
-        params: { ...params, chainIds: chainIds?.join(','), withNft: false },
+        params: { ...params, withNft: false },
       }),
       transformResponse: (data: any) => {
         data.data = data.data.map((chain: any) => chain.balances).flat()
@@ -231,9 +231,9 @@ const portfolioApi = createApi({
         tokenSymbol?: string
       }
     >({
-      query: ({ chainIds, ...params }) => ({
+      query: params => ({
         url: `${KRYSTAL_API}/txHistory/getHistory`,
-        params: { ...params, chainIds: chainIds?.join(',') },
+        params,
       }),
     }),
   }),
@@ -244,7 +244,7 @@ export const {
   useCreatePortfolioMutation,
   useUpdatePortfolioMutation,
   useGetRealtimeBalanceQuery,
-  useGetTokenApprovalQuery,
+  useLazyGetTokenApprovalQuery,
   useGetTransactionsQuery,
   useDeletePortfolioMutation,
   useAddWalletToPortfolioMutation,

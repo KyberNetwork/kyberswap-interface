@@ -12,10 +12,13 @@ import { isAddress } from 'utils'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 import { isULIDString } from 'utils/string'
 
-export const formatAllowance = (value: string, decimals: number) =>
-  value === ethers.constants.MaxUint256.toString()
+export const formatAllowance = (value: string, decimals: number) => {
+  return ethers.BigNumber.from(value).gte(
+    ethers.BigNumber.from('1000000000000000000000000000000000000000000000000000000000000000'),
+  )
     ? t`Unlimited`
     : formatDisplayNumber(uint256ToFraction(value, decimals), { style: 'decimal', significantDigits: 6 }) // todo uint256ToFraction
+}
 
 export const useParseWalletPortfolioParam = () => {
   const { portfolioId, wallet: walletParam } = useParams<{ wallet?: string; portfolioId?: string }>()
