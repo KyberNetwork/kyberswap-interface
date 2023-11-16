@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useGetNftCollectionDetailQuery } from 'services/portfolio'
 import styled from 'styled-components'
@@ -17,11 +18,23 @@ const ItemWrapper = styled(Column)`
   flex-basis: 300px;
   padding: 16px;
   gap: 12px;
+  cursor: pointer;
 `
-const NftItem = ({ data: { tokenID, collectibleName, externalData } }: { data: NFTDetail }) => {
+const NftItem = ({
+  data: { tokenID, collectibleName, externalData, collectibleAddress, chainID },
+}: {
+  data: NFTDetail
+}) => {
   const theme = useTheme()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const onClick = () => {
+    searchParams.set('nftId', tokenID)
+    searchParams.set('token', collectibleAddress)
+    searchParams.set('chainId', chainID + '')
+    setSearchParams(searchParams)
+  }
   return (
-    <ItemWrapper>
+    <ItemWrapper onClick={onClick}>
       <img style={{ height: 200, borderRadius: 20, objectFit: 'cover' }} src={externalData?.image || NFTLogoDefault} />
       <Text fontSize={'20px'} color={theme.text} fontWeight={'500'}>
         <Trans>

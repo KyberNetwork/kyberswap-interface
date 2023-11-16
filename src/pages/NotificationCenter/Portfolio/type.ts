@@ -150,13 +150,20 @@ type NFTCollectionDetail = {
   discordUrl: string
   chainId: number
 }
+
+export type NFTAttributes = { trait_type: string; value: string }
 export type NFTDetail = {
   chainID: ChainId
-  chainLogo: string
   collectibleAddress: string
   collectibleName: string
   currentPrice: null
-  externalData: { name: ''; description: ''; image: ''; animation: ''; attributes: null }
+  externalData: {
+    name: string
+    description: string
+    image: string
+    animation: string
+    attributes: NFTAttributes[] | null
+  }
   favorite: false
   lastSalePrice: null
   ownerAddress: string
@@ -174,6 +181,19 @@ export type NFTBalance = {
   collectionDetail: NFTCollectionDetail
   nftType: null
   items: NFTDetail[]
+  totalNFT: number
+  chainID: ChainId
+}
+
+export type NFTTokenDetail = {
+  wallet: string
+  collectibleName: string
+  collectibleAddress: string
+  collectibleSymbol: string
+  collectibleLogo: string
+  collectionDetail: NFTCollectionDetail
+  nftType: string
+  item: NFTDetail
   totalNFT: number
   chainID: ChainId
 }

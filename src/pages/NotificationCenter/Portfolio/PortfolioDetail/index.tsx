@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import {
   useGetPortfolioByIdQuery,
   useGetPortfoliosQuery,
@@ -90,7 +90,13 @@ const useFetchPortfolio = (): {
 }
 
 export default function PortfolioDetail() {
-  const [activeTab, setTab] = useState(PortfolioTab.TRANSACTIONS)
+  const [activeTab, setTab] = useState(PortfolioTab.NFT)
+
+  const [, setSearchParams] = useSearchParams()
+  const onChangeTab = (tab: PortfolioTab) => {
+    setSearchParams(new URLSearchParams()) // reset params
+    setTab(tab)
+  }
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const { portfolio: activePortfolio, myPortfolios, wallets, isLoading: isLoadingPortfolio } = useFetchPortfolio()
@@ -149,7 +155,7 @@ export default function PortfolioDetail() {
             onChangeWallet={onChangeWallet}
           />
           <RowBetween>
-            <ListTab activeTab={activeTab} setTab={setTab} />
+            <ListTab activeTab={activeTab} setTab={onChangeTab} />
             <RowFit gap="12px">
               {portfolioId && walletsOpts.length && (
                 <Select
