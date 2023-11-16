@@ -54,6 +54,8 @@ export default function Table<T>({
   pageSize = 10,
   onPageChange,
   templateColumn,
+  pagination = true,
+  rowStyle,
 }: {
   data: T[]
   columns: TableColumn<T>[]
@@ -62,6 +64,8 @@ export default function Table<T>({
   pageSize?: number
   onPageChange?: (v: number) => void
   templateColumn?: string
+  pagination?: boolean
+  rowStyle?: (record: T, index: number) => CSSProperties | undefined
 }) {
   const [currentPage, setCurrentPage] = useState(1)
   const theme = useTheme()
@@ -107,7 +111,7 @@ export default function Table<T>({
       <TBody>
         {filterData.length ? (
           filterData.map((item, i) => (
-            <TRow key={i} templateColumn={templateColumnStr}>
+            <TRow key={i} templateColumn={templateColumnStr} style={rowStyle?.(item, i)}>
               {columns.map(({ dataIndex, align, render, style }, j) => {
                 const value = item[dataIndex as keyof T]
                 let content = null
@@ -153,7 +157,7 @@ export default function Table<T>({
           </tr>
         )}
       </TBody>
-      {totalItems > pageSize && (
+      {pagination && totalItems > pageSize && (
         <Pagination
           totalCount={totalItems}
           pageSize={pageSize}

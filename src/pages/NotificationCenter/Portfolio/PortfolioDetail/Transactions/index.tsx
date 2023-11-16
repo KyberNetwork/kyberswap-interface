@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ExternalLink as ExternalLinkIcon, FileText } from 'react-feather'
 import { Text } from 'rebass'
 import { useGetTransactionsQuery } from 'services/portfolio'
@@ -9,6 +9,7 @@ import { useGetTransactionsQuery } from 'services/portfolio'
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import Badge, { BadgeVariant } from 'components/Badge'
 import Column from 'components/Column'
+import Dots from 'components/Dots'
 import LocalLoader from 'components/LocalLoader'
 import Logo, { NetworkLogo } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
@@ -24,7 +25,7 @@ import { formatAllowance } from 'pages/NotificationCenter/Portfolio/helpers'
 import { TransactionHistory } from 'pages/NotificationCenter/Portfolio/type'
 import { Section } from 'pages/TrueSightV2/components'
 import { ExternalLink } from 'theme'
-import { getEtherscanLink, isAddress } from 'utils'
+import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
@@ -43,7 +44,8 @@ const getTxsAction = ({
         contractName,
       }
   }
-  if (tokenTransfers.length > 1) return { type: methodName || `contractInteraction`, contract: to, contractName }
+  const type = methodName || `contractInteraction`
+  if (tokenTransfers.length > 1) return { type, contract: to, contractName }
   if (tokenTransfers?.[0])
     return {
       type: 'receive',
@@ -51,7 +53,7 @@ const getTxsAction = ({
       contractName,
       prefix: t`from`,
     }
-  return { type: methodName, contractName }
+  return { type, contractName, contract: tokenApproval?.spenderAddress }
 }
 
 const TxsHashCell = ({ item: { txHash, blockTime, chain, walletAddress } }: { item: TransactionHistory }) => {
@@ -178,24 +180,39 @@ const columns: TableColumn<TransactionHistory>[] = [
   },
 ]
 
-const pageSize = 20
+const pageSize = 10
 export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]; wallet: string }) {
   const theme = useTheme()
+
   const [search, setSearch] = useState('')
   const searchDebounce = useDebounce(search, 500)
 
-  const isAddressSearch = searchDebounce && isAddress(ChainId.MAINNET, searchDebounce)
-  const query = searchDebounce ? { [isAddressSearch ? 'tokenAddress' : 'tokenSymbol']: searchDebounce } : {}
-  const { data, isFetching } = useGetTransactionsQuery(
+  const [endTime, setEndTime] = useState(0)
+  const { data, isLoading, isFetching } = useGetTransactionsQuery(
     {
-      chainIds,
       limit: pageSize,
+      endTime,
+      chainIds,
       walletAddress: wallet,
-      endTime: 0,
-      ...query,
+      tokenAddress: searchDebounce, // todo symbol+name
     },
     { skip: !wallet },
   )
+  const [visibleData, setVisibleDat] = useState<TransactionHistory[]>([])
+
+  useEffect(() => {
+    setVisibleDat([])
+    setEndTime(0)
+  }, [wallet, chainIds, searchDebounce])
+
+  useEffect(() => {
+    const list = data?.data || EMPTY_ARRAY
+    setVisibleDat(v => v.concat(list))
+  }, [data])
+
+  const lastItemTime = visibleData[visibleData.length - 1]?.blockTime
+  const onLoadMore = () => !isFetching && setEndTime(lastItemTime ? lastItemTime - 1 : 0)
+  const totalItemInPage = data?.data?.length || 0
 
   return (
     <Section
@@ -219,17 +236,33 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
         />
       }
     >
-      {isFetching ? (
+      {isLoading ? (
         <LocalLoader />
       ) : (
-        <Table
-          templateColumn={`0.75fr 1fr 0.75fr 0.75fr`}
-          data={data?.data || EMPTY_ARRAY}
-          columns={columns}
-          style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
-          pageSize={pageSize}
-          totalItems={pageSize}
-        />
+        <>
+          <Table
+            pagination={false}
+            templateColumn={`0.75fr 1fr 0.75fr 0.75fr`}
+            data={visibleData}
+            columns={columns}
+            style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
+            pageSize={visibleData.length}
+            totalItems={pageSize}
+            rowStyle={record => (record.tag === 'SCAM' ? { opacity: 0.4 } : undefined)}
+          />
+
+          {totalItemInPage >= pageSize && (
+            <Text onClick={onLoadMore} color={theme.primary} sx={{ cursor: 'pointer', textAlign: 'center' }}>
+              {isFetching ? (
+                <Dots>
+                  <Trans>Loading</Trans>
+                </Dots>
+              ) : (
+                <Trans>Show more</Trans>
+              )}
+            </Text>
+          )}
+        </>
       )}
     </Section>
   )

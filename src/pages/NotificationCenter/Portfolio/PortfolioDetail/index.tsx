@@ -90,7 +90,7 @@ const useFetchPortfolio = (): {
 }
 
 export default function PortfolioDetail() {
-  const [activeTab, setTab] = useState(PortfolioTab.NFT)
+  const [activeTab, setTab] = useState(PortfolioTab.TRANSACTIONS)
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const { portfolio: activePortfolio, myPortfolios, wallets, isLoading: isLoadingPortfolio } = useFetchPortfolio()
@@ -100,11 +100,11 @@ export default function PortfolioDetail() {
   )
 
   const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
-  const [search, setSearch] = useState(wallet || portfolioId || '')
 
+  const queryBalance = wallet || portfolioId || ''
   const { isFetching: isLoadingRealtimeData, data } = useGetRealtimeBalanceQuery(
-    { query: search, chainIds },
-    { skip: !search },
+    { query: queryBalance, chainIds },
+    { skip: !queryBalance },
   )
 
   const isLoading: boolean = isLoadingPortfolio || isLoadingRealtimeData // todo
@@ -116,7 +116,6 @@ export default function PortfolioDetail() {
   const { pathname } = useLocation()
   const navigate = useNavigateToPortfolioDetail()
   const onChangeWallet = (wallet?: string) => {
-    setSearch(wallet || '')
     navigate({ myPortfolio: pathname.startsWith(APP_PATHS.MY_PORTFOLIO), wallet, portfolioId })
   }
   const theme = useTheme()
@@ -124,11 +123,13 @@ export default function PortfolioDetail() {
 
   const walletsOpts = useMemo(() => {
     const opt = wallets.map(wallet => ({
-      label: wallet.nickName || getShortenAddress(wallet.walletAddress),
+      label: wallet.nickName
+        ? `${wallet.nickName} - ${getShortenAddress(wallet.walletAddress)}`
+        : getShortenAddress(wallet.walletAddress),
       value: wallet.walletAddress,
     }))
-    return [{ label: t`All Wallets`, value: '' }, ...opt]
-  }, [wallets])
+    return activeTab === PortfolioTab.TRANSACTIONS ? opt : [{ label: t`All Wallets`, value: '' }, ...opt]
+  }, [wallets, activeTab])
 
   return (
     <PageWrapper>
@@ -150,7 +151,7 @@ export default function PortfolioDetail() {
           <RowBetween>
             <ListTab activeTab={activeTab} setTab={setTab} />
             <RowFit gap="12px">
-              {portfolioId && (
+              {portfolioId && walletsOpts.length && (
                 <Select
                   onChange={onChangeWallet}
                   style={{ borderRadius: 24, background: theme.buttonGray, height: 36, minWidth: 150 }}
@@ -172,7 +173,9 @@ export default function PortfolioDetail() {
           </RowBetween>
           {activeTab === PortfolioTab.TOKEN && <Tokens isLoading={isLoading} data={data} />}
           {activeTab === PortfolioTab.ALLOWANCES && <Allowances walletAddresses={walletsQuery} chainIds={chainIds} />}
-          {activeTab === PortfolioTab.TRANSACTIONS && <Transactions wallet={wallet} chainIds={chainIds} />}
+          {activeTab === PortfolioTab.TRANSACTIONS && (
+            <Transactions wallet={wallet || wallets?.[0].walletAddress} chainIds={chainIds} />
+          )}
           {activeTab === PortfolioTab.NFT && <Nft walletAddresses={walletsQuery} chainIds={chainIds} />}
         </>
       )}
