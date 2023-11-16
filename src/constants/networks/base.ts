@@ -64,7 +64,7 @@ const base: EVMNetworkInfo = {
       helper: '0x4E8419EFa0b0A149Dad77b689D37AF17f762f20A',
     },
   },
-  limitOrder: NOT_SUPPORT,
+  limitOrder: '*',
   averageBlockTimeInSeconds: 2, // dont use for base
   coingeckoNetworkId: 'base',
   coingeckoNativeTokenId: 'ethereum',
