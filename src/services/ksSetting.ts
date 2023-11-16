@@ -50,10 +50,19 @@ export type KyberswapGlobalConfigurationResponse = {
 
 export interface TokenListResponse<T = TokenInfo> {
   data: {
-    pageination: {
+    pagination: {
       totalItems: number
     }
     tokens: Array<T>
+  }
+}
+
+export interface TokenImportResponse<T = TokenInfo> {
+  data: {
+    tokens: {
+      data: T
+      errorMsg: string
+    }[]
   }
 }
 
@@ -113,7 +122,7 @@ const ksSettingApi = createApi({
         params: { ...params, chainIds: chainId },
       }),
     }),
-    importToken: builder.mutation<TokenListResponse, Array<{ chainId: string; address: string }>>({
+    importToken: builder.mutation<TokenImportResponse, Array<{ chainId: string; address: string }>>({
       query: tokens => ({
         url: `/tokens/import`,
         body: { tokens },
