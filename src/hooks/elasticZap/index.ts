@@ -89,6 +89,7 @@ export function useZapInPoolResult(params?: {
                 saveGas: '',
                 amountIn: item.quotient.toString(),
                 excludedPools: poolAddress,
+                gasInclude: 'true',
               },
               clientId: 'kyberswap-zap',
             })
@@ -273,9 +274,10 @@ export function useZapInAction() {
           exp6,
         ).toString(2)
 
-        const minZapAmount = BigInt(
+        const minZapAmounts = BigInt(
           '0b' + (zeros + minZapAmount0).slice(-128) + (zeros + minZapAmount1).slice(-128),
         ).toString()
+        const minRefundAmounts = minZapAmounts
 
         const zapExecutorData = abiEncoder.encode(
           [
@@ -284,6 +286,7 @@ export function useZapInAction() {
             'tupple(address token0,int24 fee,address token1)',
             'uint256',
             'address',
+            'uint256',
             'uint256',
             'uint256',
             'int24',
@@ -299,7 +302,8 @@ export function useZapInAction() {
             tokenId,
             account,
             1,
-            minZapAmount,
+            minZapAmounts,
+            minRefundAmounts,
             tickLower,
             tickUpper,
             tickPrevious,
@@ -354,6 +358,7 @@ export function useZapInAction() {
           value: options.zapWithNative ? amountIn : undefined,
           data: callData,
           to: zapRouterAddress,
+          minRefundAmounts,
         })
 
         const gasEstimated = await zapRouterContract.estimateGas[options.zapWithNative ? 'zapInWithNative' : 'zapIn'](

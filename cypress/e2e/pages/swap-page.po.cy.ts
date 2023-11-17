@@ -134,4 +134,8 @@ export class TokenCatalog {
   getNoResultsFound(text: myCallbackType<string>) {
     cy.getContent(TokenCatalogLocators.lblNotFound, text)
   }
+
+  closePopup() {
+    cy.get(TokenCatalogLocators.iconClosePopup).click()
+  }
 }
