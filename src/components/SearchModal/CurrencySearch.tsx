@@ -423,7 +423,7 @@ export function CurrencySearch({
               }
             />
           </Text>
-          <CloseIcon onClick={onDismiss} />
+          <CloseIcon onClick={onDismiss} data-testid="close-icon" />
         </RowBetween>
         <Text style={{ color: theme.subText, fontSize: 12 }}>
           <Trans>
