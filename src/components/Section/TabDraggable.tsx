@@ -41,7 +41,7 @@ export type TabITem<T extends string = string> = {
   tooltip?: (theme: DefaultTheme) => ReactNode
   title: string
 }
-const ARROW_SIZE = 40
+const ARROW_SIZE = 44
 
 export default function TabDraggable<T extends string>({
   activeTab,
@@ -122,7 +122,7 @@ export default function TabDraggable<T extends string>({
                 text={title}
                 active={activeTab === type}
                 key={type}
-                style={{ fontSize: '14px', padding: '0 12px' }}
+                style={{ fontSize: '14px', padding: '4px 12px', height: ARROW_SIZE }}
                 {...props}
                 ref={el => {
                   if (el) {

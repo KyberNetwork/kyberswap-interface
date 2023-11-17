@@ -13,13 +13,12 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Wallet from 'components/Icons/Wallet'
 import { TokenLogoWithChain } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
-import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
 import { EMPTY_ARRAY } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
-import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
+import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { PortfolioWalletBalance, PortfolioWalletBalanceMap } from 'pages/NotificationCenter/Portfolio/type'
 import { navigateToSwapPage } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
@@ -203,8 +202,9 @@ export default function WalletInfo({
           <Trans>Wallet</Trans>
         </RowFit>
       }
+      contentStyle={{ padding: 0 }}
       actions={
-        <SearchInput
+        <SearchPortFolio
           onChange={setSearch}
           value={search}
           placeholder={t`Search by token symbol or token address`}
@@ -217,12 +217,7 @@ export default function WalletInfo({
         />
       }
     >
-      <Table
-        data={formatData}
-        columns={columns}
-        style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
-        totalItems={formatData.length}
-      />
+      <Table data={formatData} columns={columns} totalItems={formatData.length} />
     </PortfolioSection>
   )
 }

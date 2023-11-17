@@ -8,7 +8,6 @@ import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
 import { RowFit } from 'components/Row'
-import SearchInput from 'components/SearchInput'
 import { EMPTY_ARRAY } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -18,7 +17,7 @@ import ListCollection from 'pages/NotificationCenter/Portfolio/PortfolioDetail/N
 import ListNft from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/ListNft'
 import NftDetail from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/NftDetail'
 import useGetNftBreadcrumbData from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/useGetNftBreadcrumbData'
-import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
+import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 
 const Container = styled(Column)`
   gap: 16px;
@@ -69,16 +68,10 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
               </RowFit>
             }
             actions={
-              <SearchInput
+              <SearchPortFolio
                 onChange={setSearch}
                 value={search}
                 placeholder={colId ? t`Search by name or token ID` : t`Search collection`}
-                style={{
-                  width: 330,
-                  height: 32,
-                  backgroundColor: theme.buttonBlack,
-                  border: `1px solid ${theme.buttonGray}`,
-                }}
               />
             }
           >

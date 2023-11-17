@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
 import { useLazyGetTokenApprovalQuery } from 'services/portfolio'
 
@@ -11,7 +12,6 @@ import { ButtonAction } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
 import LocalLoader from 'components/LocalLoader'
 import Row, { RowFit } from 'components/Row'
-import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
 import { ERC20_ABI } from 'constants/abis/erc20'
 import { EMPTY_ARRAY } from 'constants/index'
@@ -20,7 +20,7 @@ import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
-import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
+import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { formatAllowance } from 'pages/NotificationCenter/Portfolio/helpers'
 import { TokenAllowAnce } from 'pages/NotificationCenter/Portfolio/type'
 import { ExternalLink } from 'theme'
@@ -76,6 +76,7 @@ const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<T
     render: ({ item }: { item: TokenAllowAnce }) => (
       <TokenCellWithWalletAddress item={{ ...item, logoUrl: item.logo, walletAddress: item.ownerAddress }} />
     ),
+    sticky: true,
   },
   {
     title: t`Allowance`,
@@ -86,6 +87,7 @@ const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<T
     title: t`Authorized Spender`,
     dataIndex: 'spenderAddress',
     render: SpenderCell,
+    style: isMobile ? { width: 200 } : undefined,
   },
   {
     title: t`Last Updated`,
@@ -179,30 +181,12 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
           <Trans>Token Allowances</Trans>
         </RowFit>
       }
+      contentStyle={{ padding: 0 }}
       actions={
-        <SearchInput
-          onChange={setSearch}
-          value={search}
-          placeholder={t`Search by token symbol or token address`}
-          style={{
-            width: 330,
-            height: 32,
-            backgroundColor: theme.buttonBlack,
-            border: `1px solid ${theme.buttonGray}`,
-          }}
-        />
+        <SearchPortFolio onChange={setSearch} value={search} placeholder={t`Search by token symbol or token address`} />
       }
     >
-      {isFetching ? (
-        <LocalLoader />
-      ) : (
-        <Table
-          columns={columns}
-          data={formatData}
-          totalItems={formatData.length}
-          style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
-        />
-      )}
+      {isFetching ? <LocalLoader /> : <Table columns={columns} data={formatData} totalItems={formatData.length} />}
     </PortfolioSection>
   )
 }

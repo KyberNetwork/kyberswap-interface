@@ -88,7 +88,13 @@ export default function ListNft({ search }: { search: string }) {
           {data?.items?.length ? data?.items.map(el => <NftItem data={el} key={el.collectibleAddress} />) : <NoData />}
         </Wrapper>
       )}
-      <Pagination totalCount={data?.totalNFT || 0} currentPage={page} onPageChange={setPage} pageSize={pageSize} />
+      <Pagination
+        totalCount={data?.totalNFT || 0}
+        currentPage={page}
+        onPageChange={setPage}
+        pageSize={pageSize}
+        style={{ background: 'transparent' }}
+      />
     </>
   )
 }

@@ -1,4 +1,5 @@
 import React, { Dispatch, ReactNode, SetStateAction, useRef } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -10,23 +11,24 @@ const SectionTitle = styled.div`
   font-size: 16px;
   line-height: 20px;
   font-weight: 500;
-  margin: 0px -16px;
-  padding: 0px 16px 16px 16px;
+  padding: 16px 16px 16px 16px;
   border-bottom: 1px solid ${({ theme }) => theme.border + '80'};
   color: ${({ theme }) => theme.text};
+`
+
+const Content = styled.div`
+  padding: 16px 16px 16px 16px;
 `
 
 const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   display: ${({ show }) => (show ?? 'auto' ? 'auto' : 'none !important')};
   content-visibility: auto;
-  padding: 16px;
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.border};
   background: linear-gradient(332deg, rgb(32 32 32) 0%, rgba(15, 15, 15, 1) 80%);
   margin-bottom: 36px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
 `
 
 export type SectionProps = {
@@ -34,6 +36,7 @@ export type SectionProps = {
   id?: string
   children: ReactNode
   style?: React.CSSProperties
+  contentStyle?: React.CSSProperties
   actions: ReactNode
   tabs?: TabITem[]
   activeTab?: string
@@ -45,6 +48,7 @@ export default function Section({
   id,
   children,
   style,
+  contentStyle,
   actions,
   tabs,
   activeTab,
@@ -52,34 +56,38 @@ export default function Section({
 }: SectionProps) {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
-
+  const renderAction = () => (
+    <RowFit color={theme.subText} gap="12px" style={{ zIndex: 1 }}>
+      {actions}
+    </RowFit>
+  )
   return (
     <StyledSectionWrapper ref={ref} id={id} style={style} className="section-wrapper">
-      <SectionTitle style={{ padding: tabs ? `0px 16px 0 16px` : undefined }}>
-        <RowBetween style={{ flexWrap: 'wrap', gap: '12px' }}>
-          {tabs && activeTab ? (
+      <SectionTitle
+        style={{
+          padding: tabs ? `0px 16px 0 0` : undefined,
+          background: isMobile && tabs ? theme.background : undefined,
+        }}
+      >
+        {tabs && activeTab ? (
+          <RowBetween gap="12px">
             <RowFit
               style={{
-                margin: '-16px -16px 0 -16px',
-                paddingRight: '16px',
                 color: theme.subText,
-                background: theme.background,
               }}
             >
               <TabDraggable tabs={tabs} activeTab={activeTab} onChange={onTabClick} />
-              {actions}
             </RowFit>
-          ) : (
-            <>
-              <Text style={{ whiteSpace: 'nowrap' }}>{title}</Text>
-              <RowFit color={theme.subText} gap="12px" style={{ marginTop: tabs ? '-16px' : undefined }}>
-                {actions}
-              </RowFit>
-            </>
-          )}
-        </RowBetween>
+            {renderAction()}
+          </RowBetween>
+        ) : (
+          <RowBetween style={{ flexWrap: 'wrap', gap: '12px' }}>
+            <Text style={{ whiteSpace: 'nowrap' }}>{title}</Text>
+            {renderAction()}
+          </RowBetween>
+        )}
       </SectionTitle>
-      {children}
+      <Content style={contentStyle}>{children}</Content>
     </StyledSectionWrapper>
   )
 }

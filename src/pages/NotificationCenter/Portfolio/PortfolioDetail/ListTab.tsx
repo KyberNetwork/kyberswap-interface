@@ -66,6 +66,7 @@ export default function ListTab({ activeTab, setTab }: { activeTab: PortfolioTab
   if (upToSmall)
     return (
       <Select
+        value={activeTab}
         onChange={setTab}
         options={selectOptions}
         style={{ background: theme.buttonGray, height: '36px', borderRadius: 24, width: '100%' }}

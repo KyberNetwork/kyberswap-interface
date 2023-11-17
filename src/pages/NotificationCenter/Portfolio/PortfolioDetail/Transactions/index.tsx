@@ -14,7 +14,6 @@ import Dots from 'components/Dots'
 import LocalLoader from 'components/LocalLoader'
 import Logo, { NetworkLogo } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
-import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
 import { getTxsIcon } from 'components/WalletPopup/Transactions/Icon'
 import { EMPTY_ARRAY } from 'constants/index'
@@ -22,7 +21,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { WalletLabel } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
-import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
+import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { formatAllowance } from 'pages/NotificationCenter/Portfolio/helpers'
 import { TransactionHistory } from 'pages/NotificationCenter/Portfolio/type'
 import { ExternalLink } from 'theme'
@@ -96,7 +95,7 @@ const InteractionCell = ({ item }: { item: TransactionHistory }) => {
   const { chain, tag } = item
   const theme = useTheme()
   return (
-    <Column gap="4px" alignItems={isMobile ? 'flex-end' : undefined}>
+    <Column gap="4px">
       <RowFit gap="4px">
         {getTxsIcon(type)}
         {type}
@@ -161,26 +160,24 @@ const columns: TableColumn<TransactionHistory>[] = [
     dataIndex: 'txHash',
     render: TxsHashCell,
     align: 'left',
+    sticky: true,
+    style: isMobile ? { width: 140 } : undefined,
   },
   {
     title: t`Interaction`,
     render: InteractionCell,
-    align: isMobile ? 'right' : 'left',
+    style: isMobile ? { width: 140 } : undefined,
+    align: 'left',
   },
-]
-if (!isMobile) {
-  columns.push({
+  {
     title: t`Result`,
     dataIndex: 'amount',
     align: 'left',
     render: BalanceCell,
-  })
-  columns.push({
-    title: t`Txs Fee`,
-    render: GasFeeCell,
-    align: 'right',
-  })
-}
+    style: isMobile ? { width: 140 } : undefined,
+  },
+  { title: t`Txs Fee`, render: GasFeeCell, align: 'right', style: isMobile ? { width: 200 } : undefined },
+]
 
 const pageSize = 10
 export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]; wallet: string }) {
@@ -224,18 +221,9 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
           <Trans>Transactions</Trans>
         </RowFit>
       }
+      contentStyle={{ padding: '0 0 16px 0' }}
       actions={
-        <SearchInput
-          onChange={setSearch}
-          value={search}
-          placeholder={t`Search by token symbol or token address`}
-          style={{
-            width: 330,
-            height: 32,
-            backgroundColor: theme.buttonBlack,
-            border: `1px solid ${theme.buttonGray}`,
-          }}
-        />
+        <SearchPortFolio onChange={setSearch} value={search} placeholder={t`Search by token symbol or token address`} />
       }
     >
       {isLoading ? (
@@ -244,17 +232,20 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
         <>
           <Table
             pagination={false}
-            templateColumn={isMobile ? `1fr 1fr` : `0.75fr 1fr 0.75fr 0.75fr`}
+            headerStyle={{ borderRadius: isMobile ? 0 : undefined }}
             data={visibleData}
             columns={columns}
-            style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
             pageSize={visibleData.length}
             totalItems={pageSize}
             rowStyle={record => (record.tag === 'SCAM' ? { opacity: 0.4 } : undefined)}
           />
 
           {totalItemInPage >= pageSize && (
-            <Text onClick={onLoadMore} color={theme.primary} sx={{ cursor: 'pointer', textAlign: 'center' }}>
+            <Text
+              onClick={onLoadMore}
+              color={theme.primary}
+              sx={{ cursor: 'pointer', textAlign: 'center', marginTop: '12px' }}
+            >
               {isFetching ? (
                 <Dots>
                   <Trans>Loading</Trans>

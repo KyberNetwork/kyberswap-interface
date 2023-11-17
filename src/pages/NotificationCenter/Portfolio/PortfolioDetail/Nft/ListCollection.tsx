@@ -79,7 +79,13 @@ export default function ListCollection({
       ) : (
         <NoData />
       )}
-      <Pagination onPageChange={onPageChange} currentPage={page} pageSize={pageSize} totalCount={totalItems} />
+      <Pagination
+        onPageChange={onPageChange}
+        currentPage={page}
+        pageSize={pageSize}
+        totalCount={totalItems}
+        style={{ background: 'transparent' }}
+      />
     </>
   )
 }

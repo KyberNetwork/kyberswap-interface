@@ -33,6 +33,15 @@ const Input = styled.input`
     color: ${({ theme }) => theme.disableText};
   }
 `
+
+export type SearchInputProps = {
+  maxLength?: number
+  placeholder: string
+  value: string
+  onChange: (val: string) => void
+  style?: CSSProperties
+  className?: string
+}
 export default function SearchInput({
   value,
   maxLength = 255,
@@ -40,14 +49,7 @@ export default function SearchInput({
   placeholder,
   style = {},
   className,
-}: {
-  maxLength?: number
-  placeholder: string
-  value: string
-  onChange: (val: string) => void
-  style?: CSSProperties
-  className?: string
-}) {
+}: SearchInputProps) {
   const theme = useTheme()
   return (
     <SearchContainer style={style} className={className}>
