@@ -99,6 +99,7 @@ const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<T
     align: 'right',
     dataIndex: 'spenderAddress',
     render: ({ item }) => <ActionButton item={item} revokeAllowance={revokeAllowance} />,
+    style: { width: 40 },
   },
 ]
 

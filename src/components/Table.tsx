@@ -111,18 +111,11 @@ export default function Table<T>({
     return data.length > pageSize ? data.slice((currentPage - 1) * pageSize, currentPage * pageSize) : data
   }, [data, pageSize, currentPage])
 
+  const defaultStyle = { width: columns.some(e => e.style) ? undefined : `${100 / columns.length}%` }
   return (
     <Column flex={1}>
       <Column flex={1} style={{ width: '100%', overflowX: 'scroll' }}>
         <TableWrapper style={style}>
-          <colgroup>
-            {columns.map(({ style }, i) => (
-              <col
-                key={i}
-                style={{ padding: '10px 20px', ...(style || { width: `calc(100% / ${columns.length})` }) }}
-              />
-            ))}
-          </colgroup>
           <TableHeader column={columns.length} style={headerStyle}>
             {columns.map(({ tooltip, title, align, style, sticky }, i) => (
               <Thead key={i} style={style} data-sticky={sticky}>
@@ -155,7 +148,7 @@ export default function Table<T>({
             {filterData.length
               ? filterData.map((item, i) => (
                   <TRow key={i} style={rowStyle?.(item, i)}>
-                    {columns.map(({ dataIndex, align, render, style, sticky }, j) => {
+                    {columns.map(({ dataIndex, align, render, style = defaultStyle, sticky }, j) => {
                       const value = item[dataIndex as keyof T]
                       let content = null
                       try {
