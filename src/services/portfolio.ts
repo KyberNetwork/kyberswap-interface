@@ -52,13 +52,13 @@ const portfolioApi = createApi({
     }),
     getTrendingPortfolios: builder.query<Portfolio[], void>({
       query: () => ({
-        url: `/v1/trending`, // todo
+        url: `https://portfolio-service-api.dev.kyberengineering.io/api/v1/trending`, // todo
       }),
       transformResponse: (data: any) => data?.data,
     }),
     getFavoritesPortfolios: builder.query<string[], void>({
       query: () => ({
-        url: `/v1/favorites`,
+        url: `https://portfolio-service-api.dev.kyberengineering.io/api/v1/favorites`, // todo
         params: { identityId: window.identityId }, // todo
       }),
       transformResponse: (data: any) => data?.data?.favorites?.map((e: { value: string }) => e.value),
@@ -66,10 +66,10 @@ const portfolioApi = createApi({
     }),
     toggleFavoritePortfolio: builder.mutation<{ id: string }, { value: string; isAdd: boolean }>({
       query: ({ isAdd, ...body }) => ({
-        url: '/v1/favorites',
+        url: '/favorites',
         method: isAdd ? 'POST' : 'DELETE',
         body,
-        params: { identityId: window.identityId }, // todo
+        authentication: true,
       }),
       transformResponse: (data: any) => data?.data,
       invalidatesTags: [RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO],
