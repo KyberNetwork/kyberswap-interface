@@ -1,5 +1,10 @@
-import { useCallback } from 'react'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
+
+import { MAINNET_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { chainIdByRoute } from 'pages/MyEarnings/utils'
 
 export enum FarmType {
   All = 'all',
@@ -16,29 +21,75 @@ export enum ProtocolType {
   Classic = 'classic',
 }
 
+export enum FarmStatus {
+  Active = 'active',
+  Ended = 'ended',
+}
+
 interface FarmFilter {
-  farmType: FarmType
-  protocolType: ProtocolType
+  type: FarmType
+  protocol: ProtocolType
+  chainNames: string
+  chainIds: ChainId[]
+  search: string
+  page: number
+  perPage: number
+  status: FarmStatus
 }
 
 interface SetFilterParams {
-  farmType?: FarmType | undefined
-  protocolType?: ProtocolType | undefined
+  type?: FarmType
+  protocol?: ProtocolType
+  chainIds?: ChainId[]
+  search?: string
+  page?: number
+  perPage?: number
+  status?: FarmStatus
 }
 
 export default function useFarmFilters(): [FarmFilter, (filters: SetFilterParams) => void] {
   const [searchParams, setSearchParams] = useSearchParams()
-  const farmTypeUrl = searchParams.get('farmType')
-  const protocolTypeUrl = searchParams.get('farmType')
-  const farmType: FarmType = Object.values(FarmType).includes(farmTypeUrl) ? farmTypeUrl : FarmType.All
-  const protocolType: ProtocolType = Object.values(ProtocolType).includes(protocolTypeUrl)
+  const statusFromUrl = searchParams.get('status') || ''
+  const search = searchParams.get('search') || ''
+  const pageFromUrl = searchParams.get('page') || '1'
+  const perPageFromUrl = searchParams.get('perPage') || '10'
+  const page = Number.isNaN(+pageFromUrl) ? 1 : +pageFromUrl
+  const perPage = Number.isNaN(+perPageFromUrl) ? 10 : +perPageFromUrl
+
+  const farmTypeUrl = searchParams.get('type')
+  const protocolTypeUrl = searchParams.get('protocol')
+  const type: FarmType = Object.values(FarmType).includes(farmTypeUrl) ? farmTypeUrl : FarmType.All
+  const protocol: ProtocolType = Object.values(ProtocolType).includes(protocolTypeUrl)
     ? protocolTypeUrl
     : ProtocolType.All
+
+  const status = Object.values(FarmStatus).includes(statusFromUrl) ? statusFromUrl : FarmStatus.Active
+
+  const chainFromUrl = searchParams.get('chainNames') || ''
+
+  const chainIds = useMemo(() => {
+    const temp = chainFromUrl
+      .split(',')
+      .map(item => chainIdByRoute[item])
+      .filter(Boolean)
+
+    if (!temp.length) return [...MAINNET_NETWORKS]
+    return temp
+  }, [chainFromUrl])
+
+  const chainNames = useMemo(() => {
+    return chainIds.map(item => NETWORKS_INFO[item].aggregatorRoute).join(',')
+  }, [chainIds])
 
   const setFarmFilters = useCallback(
     (filters: SetFilterParams) => {
       Object.keys(filters).forEach(key => {
-        searchParams.set(key, (filters as any)[key] || '')
+        if (key === 'chainIds') {
+          const chainIds = filters[key]
+          if (chainIds?.length) {
+            searchParams.set('chainNames', chainIds.map(item => NETWORKS_INFO[item].aggregatorRoute).join(','))
+          }
+        } else searchParams.set(key, (filters as any)[key] || '')
       })
 
       setSearchParams(searchParams)
@@ -48,8 +99,14 @@ export default function useFarmFilters(): [FarmFilter, (filters: SetFilterParams
 
   return [
     {
-      farmType,
-      protocolType,
+      type,
+      protocol,
+      chainIds,
+      chainNames,
+      search,
+      page,
+      perPage,
+      status,
     },
     setFarmFilters,
   ]
