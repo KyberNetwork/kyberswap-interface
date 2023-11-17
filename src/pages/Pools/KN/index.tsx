@@ -156,7 +156,7 @@ const KNPools = () => {
 
   const { chainId } = useActiveWeb3React()
 
-  const { currentData, isLoading } = useGetAllPoolsQuery({
+  const { data, isLoading } = useGetAllPoolsQuery({
     chainIds: chainIds.length ? chainIds : isEVM(chainId) ? [chainId] : [],
     search,
     page,
@@ -172,7 +172,7 @@ const KNPools = () => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const data = useGlobalData()
+  const statData = useGlobalData()
 
   const [searchState, setSearchState] = useState(search)
 
@@ -402,7 +402,7 @@ const KNPools = () => {
                 &nbsp;
                 <Text fontSize={14} fontWeight={500} lineHeight="20px" color={theme.text}>
                   ~
-                  {formatDisplayNumber(data?.dmmFactories[0].totalLiquidityUSD, {
+                  {formatDisplayNumber(statData?.dmmFactories[0].totalLiquidityUSD, {
                     style: 'currency',
                     fractionDigits: 2,
                     significantDigits: 12,
@@ -426,7 +426,7 @@ const KNPools = () => {
                 &nbsp;
                 <Text fontSize={14} fontWeight={500} lineHeight="20px" color={theme.text}>
                   ~
-                  {formatDisplayNumber(data?.dmmFactories[0].last24hPoolVolume, {
+                  {formatDisplayNumber(statData?.dmmFactories[0].last24hPoolVolume, {
                     style: 'currency',
                     fractionDigits: 2,
                     significantDigits: 12,
@@ -439,7 +439,7 @@ const KNPools = () => {
         {responsiveFilterGroup}
         <Flex>
           <PoolList
-            pools={currentData}
+            pools={data}
             loading={isLoading}
             page={page}
             sortBy={sortBy}
