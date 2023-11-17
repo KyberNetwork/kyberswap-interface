@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -81,6 +81,13 @@ const Content = styled(Row)`
     align-items: center;
   `}
 `
+
+enum AllocationTab {
+  TOKEN = `Token Allocation`,
+  CHAIN = `Chain Allocation`,
+  LIQUIDITY_SCORE = `Liquidity Score Ratio`,
+}
+
 export default function TokenAllocation({
   balances,
   totalBalanceUsd = 0,
@@ -101,14 +108,25 @@ export default function TokenAllocation({
     return mapData
   }, [balances, totalBalanceUsd])
 
-  const theme = useTheme()
+  const [tab, setTab] = useState<string>(AllocationTab.TOKEN)
   return (
     <PortfolioSection
-      title={
-        <Text color={theme.subText}>
-          <Trans>Token Allocation</Trans>
-        </Text>
-      }
+      tabs={[
+        {
+          title: AllocationTab.TOKEN,
+          type: AllocationTab.TOKEN,
+        },
+        {
+          title: AllocationTab.CHAIN,
+          type: AllocationTab.CHAIN,
+        },
+        {
+          title: AllocationTab.LIQUIDITY_SCORE,
+          type: AllocationTab.LIQUIDITY_SCORE,
+        },
+      ]}
+      activeTab={tab}
+      onTabClick={setTab}
       actions={
         <ButtonAction>
           <Icon id="share" size={14} />

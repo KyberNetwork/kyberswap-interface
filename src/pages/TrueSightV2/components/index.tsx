@@ -35,7 +35,7 @@ export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   gap: 16px;
 `
 
-export const SectionTitle = styled.div`
+const SectionTitle = styled.div`
   font-size: 16px;
   line-height: 20px;
   font-weight: 500;
@@ -44,7 +44,7 @@ export const SectionTitle = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border + '80'};
   color: ${({ theme }) => theme.text};
 `
-export const SectionDescription = styled.div<{ show?: boolean }>`
+const SectionDescription = styled.div<{ show?: boolean }>`
   font-size: 14px;
   line-height: 20px;
   text-overflow: ellipsis;
@@ -77,7 +77,7 @@ const ButtonWrapper = styled.div`
   }
 `
 
-export const FullscreenButton = React.memo(function FCButton({
+const FullscreenButton = React.memo(function FCButton({
   elementRef,
   onClick,
 }: {
@@ -416,33 +416,6 @@ export const SectionWrapper = ({
           }
         />
       )}
-    </StyledSectionWrapper>
-  )
-}
-
-// todo move to another file
-export type SectionProps = {
-  title: ReactNode
-  id?: string
-  children: ReactNode
-  style?: React.CSSProperties
-  actions: ReactNode
-}
-export const Section = ({ title = '', id, children, style, actions }: SectionProps) => {
-  const theme = useTheme()
-  const ref = useRef<HTMLDivElement>(null)
-
-  return (
-    <StyledSectionWrapper ref={ref} id={id} style={style} className="section-wrapper">
-      <SectionTitle>
-        <RowBetween style={{ flexWrap: 'wrap', gap: '12px' }}>
-          <Text style={{ whiteSpace: 'nowrap' }}>{title}</Text>
-          <RowFit color={theme.subText} gap="12px">
-            {actions}
-          </RowFit>
-        </RowBetween>
-      </SectionTitle>
-      {children}
     </StyledSectionWrapper>
   )
 }
