@@ -157,73 +157,84 @@ export default function NftDetail() {
           )}
         </Column>
         <DescColumn>
-          <RowBetween>
-            <Text fontSize={'20px'} fontWeight={'500'} color={theme.text}>
-              {name}
-            </Text>
-
-            <RowFit color={theme.subText} gap="10px">
-              <ButtonAction onClick={isFetching ? undefined : refetch} style={{ padding: '4px' }}>
-                <RefreshIcon style={{ width: '18px', height: '18px' }} />
-              </ButtonAction>
-
-              <ButtonAction onClick={isFetching ? undefined : refetch} style={{ padding: '4px' }}>
-                <ExternalLinkIcon
-                  size={18}
-                  href={`${getEtherscanLink(chainID, collectibleAddress, 'token')}?a=${tokenID}`}
-                  color={theme.subText}
-                />
-              </ButtonAction>
-            </RowFit>
-          </RowBetween>
-
-          <Divider />
-
-          <Column gap="12px">
-            <Row>
-              <AttributeLabel>
-                <Trans>Token ID</Trans>
-              </AttributeLabel>
-              <Value>{tokenID}</Value>
-            </Row>
-
-            <Row>
-              <AttributeLabel>
-                <Trans>Chain</Trans>
-              </AttributeLabel>
-              <Value>{NETWORKS_INFO[chainID].name}</Value>
-            </Row>
-
-            <Row>
-              <AttributeLabel>
-                <Trans>Last Sales Price</Trans>
-              </AttributeLabel>
-              <Value>{lastSalePrice ? `${lastSalePrice} ${paymentToken}` : '--'}</Value>
-            </Row>
-
-            <Row>
-              <AttributeLabel>
-                <Trans>Current Price</Trans>
-              </AttributeLabel>
-              <Value>{currentPrice ? `${currentPrice} ${paymentToken}` : '--'}</Value>
-            </Row>
-
-            <ButtonPrimary height={'36px'} width={'150px'}>
-              <Send size={17} />
-              &nbsp;Transfer
-            </ButtonPrimary>
-          </Column>
-          {externalData?.attributes && (
+          {isFetching ? (
+            <Skeleton
+              height="500px"
+              baseColor={theme.background}
+              highlightColor={theme.buttonGray}
+              borderRadius="1rem"
+            />
+          ) : (
             <>
+              <RowBetween>
+                <Text fontSize={'20px'} fontWeight={'500'} color={theme.text}>
+                  {name}
+                </Text>
+
+                <RowFit color={theme.subText} gap="10px">
+                  <ButtonAction onClick={isFetching ? undefined : refetch} style={{ padding: '4px' }}>
+                    <RefreshIcon style={{ width: '18px', height: '18px' }} />
+                  </ButtonAction>
+
+                  <ButtonAction onClick={isFetching ? undefined : refetch} style={{ padding: '4px' }}>
+                    <ExternalLinkIcon
+                      size={18}
+                      href={`${getEtherscanLink(chainID, collectibleAddress, 'token')}?a=${tokenID}`}
+                      color={theme.subText}
+                    />
+                  </ButtonAction>
+                </RowFit>
+              </RowBetween>
+
               <Divider />
-              <Value>
-                <Trans>Attributes</Trans>
-              </Value>
-              <Row flexWrap={'wrap'} gap="16px">
-                {externalData?.attributes?.map(el => (
-                  <Attribute key={el.trait_type} data={el} />
-                ))}
-              </Row>
+
+              <Column gap="12px">
+                <Row>
+                  <AttributeLabel>
+                    <Trans>Token ID</Trans>
+                  </AttributeLabel>
+                  <Value>{tokenID}</Value>
+                </Row>
+
+                <Row>
+                  <AttributeLabel>
+                    <Trans>Chain</Trans>
+                  </AttributeLabel>
+                  <Value>{NETWORKS_INFO[chainID].name}</Value>
+                </Row>
+
+                <Row>
+                  <AttributeLabel>
+                    <Trans>Last Sales Price</Trans>
+                  </AttributeLabel>
+                  <Value>{lastSalePrice ? `${lastSalePrice} ${paymentToken}` : '--'}</Value>
+                </Row>
+
+                <Row>
+                  <AttributeLabel>
+                    <Trans>Current Price</Trans>
+                  </AttributeLabel>
+                  <Value>{currentPrice ? `${currentPrice} ${paymentToken}` : '--'}</Value>
+                </Row>
+
+                <ButtonPrimary height={'36px'} width={'150px'}>
+                  <Send size={17} />
+                  &nbsp;Transfer
+                </ButtonPrimary>
+              </Column>
+              {externalData?.attributes && (
+                <>
+                  <Divider />
+                  <Value>
+                    <Trans>Attributes</Trans>
+                  </Value>
+                  <Row flexWrap={'wrap'} gap="16px">
+                    {externalData?.attributes?.map(el => (
+                      <Attribute key={el.trait_type} data={el} />
+                    ))}
+                  </Row>
+                </>
+              )}
             </>
           )}
         </DescColumn>
