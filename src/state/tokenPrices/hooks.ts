@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PRICE_API } from 'constants/env'
 import { NETWORKS_INFO, isEVM as isEVMChain } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
+import { useKyberChainId } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { isAddressString } from 'utils'
@@ -25,7 +25,7 @@ export const useTokenPricesWithLoading = (
 } => {
   const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
-  const { chainId: currentChain } = useActiveWeb3React()
+  const currentChain = useKyberChainId()
   const chainId = customChain || currentChain
   const isEVM = isEVMChain(chainId)
 

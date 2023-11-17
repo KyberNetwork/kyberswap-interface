@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useGetKyberswapConfigurationQuery } from 'services/ksSetting'
 
-import { useActiveWeb3React, useWeb3Solana } from 'hooks'
+import { useActiveWeb3React, useKyberChainId, useWeb3Solana } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { useKyberSwapConfig } from 'state/application/hooks'
@@ -10,9 +10,10 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { updateBlockNumber } from './actions'
 
 export default function Updater(): null {
-  const { chainId, isEVM, isSolana } = useActiveWeb3React()
+  const { isEVM, isSolana } = useActiveWeb3React()
+  const chainId = useKyberChainId()
 
-  const { readProvider } = useKyberSwapConfig()
+  const { readProvider } = useKyberSwapConfig(chainId)
   const dispatch = useDispatch()
   const { connection } = useWeb3Solana()
 

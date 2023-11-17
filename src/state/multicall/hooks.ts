@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { EMPTY_ARRAY } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useKyberChainId } from 'hooks'
 import { AppDispatch, AppState } from 'state/index'
 
 import {
@@ -52,8 +52,14 @@ export const NEVER_RELOAD: ListenerOptions = {
 }
 
 // the lowest level call for subscribing to contract data
-export function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
-  const { chainId, isEVM } = useActiveWeb3React()
+export function useCallsData(
+  calls: (Call | undefined)[],
+  options?: ListenerOptions,
+  customChainId?: ChainId,
+): CallResult[] {
+  const urlChainId = useKyberChainId()
+  const chainId = customChainId || urlChainId
+  const { isEVM } = useActiveWeb3React()
   const callResults = useSelector<AppState, AppState['multicall']['callResults'][ChainId]>(
     state => state.multicall.callResults?.[chainId],
   )
@@ -263,6 +269,7 @@ export function useSingleCallResult(
   methodName: string,
   inputs?: OptionalMethodInputs,
   options?: ListenerOptions,
+  customChainId?: ChainId,
 ): CallState {
   const { isEVM } = useActiveWeb3React()
   const fragment = useMemo(
@@ -282,7 +289,7 @@ export function useSingleCallResult(
       : EMPTY_ARRAY
   }, [isEVM, contract, fragment, inputs, gasRequired])
 
-  const { valid, data, blockNumber } = useCallsData(calls, options)[0] || {}
+  const { valid, data, blockNumber } = useCallsData(calls, options, customChainId)[0] || {}
 
   return useMemo(() => {
     return toCallState({ valid, data, blockNumber }, contract?.interface, fragment)

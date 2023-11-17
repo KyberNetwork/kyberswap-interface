@@ -3,7 +3,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useActiveWeb3React } from 'hooks'
+import { useKyberChainId } from 'hooks'
 import { useMulticallContract } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
 import { useBlockNumber } from 'state/application/hooks'
@@ -152,7 +152,7 @@ export default function Updater(): null {
   // wait for listeners to settle before triggering updates
   const debouncedListeners = useDebounce(state.callListeners, 100)
   const latestBlockNumber = useBlockNumber()
-  const { chainId } = useActiveWeb3React()
+  const chainId = useKyberChainId()
   const multicallContract = useMulticallContract()
   const cancellations = useRef<{ blockNumber: number; cancellations: (() => void)[] }>()
 

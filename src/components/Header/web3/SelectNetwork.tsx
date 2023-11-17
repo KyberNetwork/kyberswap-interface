@@ -70,7 +70,7 @@ function SelectNetwork(): JSX.Element | null {
   const { chainId, networkInfo } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
-  const userEthBalance = useNativeBalance()
+  const userEthBalance = useNativeBalance(chainId)
   const labelContent = useMemo(() => {
     if (!userEthBalance) return networkInfo.name
     const balanceFixedStr = formatDisplayNumber(userEthBalance, { significantDigits: 6 })
