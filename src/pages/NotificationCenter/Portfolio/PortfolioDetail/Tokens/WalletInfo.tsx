@@ -19,8 +19,8 @@ import { EMPTY_ARRAY } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
+import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { PortfolioWalletBalance, PortfolioWalletBalanceMap } from 'pages/NotificationCenter/Portfolio/type'
-import { Section } from 'pages/TrueSightV2/components'
 import { navigateToSwapPage } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
@@ -196,7 +196,7 @@ export default function WalletInfo({
   }, [balances, searchDebounce])
 
   return (
-    <Section
+    <PortfolioSection
       title={
         <RowFit gap="4px" color={theme.subText}>
           <Wallet />
@@ -223,6 +223,6 @@ export default function WalletInfo({
         style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
         totalItems={formatData.length}
       />
-    </Section>
-  ) // todo update SectionWrapper can reuse
+    </PortfolioSection>
+  )
 }

@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { useGetNftCollectionsQuery } from 'services/portfolio'
+import styled from 'styled-components'
 
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import Column from 'components/Column'
@@ -17,8 +18,16 @@ import ListCollection from 'pages/NotificationCenter/Portfolio/PortfolioDetail/N
 import ListNft from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/ListNft'
 import NftDetail from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/NftDetail'
 import useGetNftBreadcrumbData from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/useGetNftBreadcrumbData'
-import { Section } from 'pages/TrueSightV2/components'
+import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 
+const Container = styled(Column)`
+  gap: 16px;
+  flex: 1;
+  padding: 0px 8px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 0;
+  `}
+`
 const pageSize = 10
 export default function Nft({ walletAddresses, chainIds }: { walletAddresses: string[]; chainIds: ChainId[] }) {
   const [search, setSearch] = useState('')
@@ -51,7 +60,7 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
       ) : (
         <>
           <Breadcrumb items={itemsBreadcrumb} />
-          <Section
+          <PortfolioSection
             style={{ minHeight: '300px' }}
             title={
               <RowFit gap="4px" color={theme.subText} alignItems={'center'}>
@@ -73,7 +82,7 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
               />
             }
           >
-            <Column gap="16px" style={{ padding: '0px 8px', flex: 1 }}>
+            <Container>
               {isFetching ? (
                 <LocalLoader />
               ) : colId ? (
@@ -87,8 +96,8 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
                   totalItems={data?.totalData || 0}
                 />
               )}
-            </Column>
-          </Section>
+            </Container>
+          </PortfolioSection>
         </>
       )}
     </Column>

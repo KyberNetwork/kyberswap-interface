@@ -91,6 +91,23 @@ const nftDefault: NFTTokenDetail = {
   collectionDetail: {} as any,
   item: { externalData: { name: '', description: '', image: '', animation: '', attributes: null } } as any,
 }
+
+const Wrapper = styled(RowBetween)`
+  gap: 24px;
+  align-items: flex-start;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+    flex-direction: column;
+  `}
+`
+
+const DescColumn = styled(Column)`
+  flex: 1;
+  gap: 24px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `};
+`
 export default function NftDetail() {
   const { colId = '', chainId, nftId = '' } = useParsedQueryString<{ nftId: string; colId: string; chainId: string }>()
 
@@ -116,103 +133,101 @@ export default function NftDetail() {
   return (
     <>
       <Breadcrumb items={itemsBreadcrumb} />
-      <Column gap="24px">
-        <RowBetween gap="24px" align={'flex-start'}>
-          <Column width={'360px'} gap="16px" justifyContent={'flex-start'}>
-            <Card>
-              {isFetching ? (
-                <Skeleton
-                  height="328px"
-                  baseColor={theme.background}
-                  highlightColor={theme.buttonGray}
-                  borderRadius="1rem"
-                />
-              ) : (
-                <NFTImage src={externalData.image || NFTLogoDefault} />
-              )}
+      <Wrapper>
+        <Column width={'min(360px, 100%)'} gap="16px" justifyContent={'flex-start'}>
+          <Card>
+            {isFetching ? (
+              <Skeleton
+                height="328px"
+                baseColor={theme.background}
+                highlightColor={theme.buttonGray}
+                borderRadius="1rem"
+              />
+            ) : (
+              <NFTImage src={externalData.image || NFTLogoDefault} />
+            )}
+          </Card>
+          {externalData.description && (
+            <Card style={{ gap: '12px', display: 'flex', flexDirection: 'column' }}>
+              <Value>
+                <Trans>Description</Trans>
+              </Value>
+              <Label>{externalData.description}</Label>
             </Card>
-            {externalData.description && (
-              <Card style={{ gap: '12px', display: 'flex', flexDirection: 'column' }}>
-                <Value>
-                  <Trans>Description</Trans>
-                </Value>
-                <Label>{externalData.description}</Label>
-              </Card>
-            )}
+          )}
+        </Column>
+        <DescColumn>
+          <RowBetween>
+            <Text fontSize={'20px'} fontWeight={'500'} color={theme.text}>
+              {name}
+            </Text>
+
+            <RowFit color={theme.subText} gap="10px">
+              <ButtonAction onClick={isFetching ? undefined : refetch} style={{ padding: '4px' }}>
+                <RefreshIcon style={{ width: '18px', height: '18px' }} />
+              </ButtonAction>
+
+              <ButtonAction onClick={isFetching ? undefined : refetch} style={{ padding: '4px' }}>
+                <ExternalLinkIcon
+                  size={18}
+                  href={`${getEtherscanLink(chainID, collectibleAddress, 'token')}?a=${tokenID}`}
+                  color={theme.subText}
+                />
+              </ButtonAction>
+            </RowFit>
+          </RowBetween>
+
+          <Divider />
+
+          <Column gap="12px">
+            <Row>
+              <AttributeLabel>
+                <Trans>Token ID</Trans>
+              </AttributeLabel>
+              <Value>{tokenID}</Value>
+            </Row>
+
+            <Row>
+              <AttributeLabel>
+                <Trans>Chain</Trans>
+              </AttributeLabel>
+              <Value>{NETWORKS_INFO[chainID].name}</Value>
+            </Row>
+
+            <Row>
+              <AttributeLabel>
+                <Trans>Last Sales Price</Trans>
+              </AttributeLabel>
+              <Value>{lastSalePrice ? `${lastSalePrice} ${paymentToken}` : '--'}</Value>
+            </Row>
+
+            <Row>
+              <AttributeLabel>
+                <Trans>Current Price</Trans>
+              </AttributeLabel>
+              <Value>{currentPrice ? `${currentPrice} ${paymentToken}` : '--'}</Value>
+            </Row>
+
+            <ButtonPrimary height={'36px'} width={'150px'}>
+              <Send size={17} />
+              &nbsp;Transfer
+            </ButtonPrimary>
           </Column>
-          <Column flex={1} gap="24px">
-            <RowBetween>
-              <Text fontSize={'20px'} fontWeight={'500'} color={theme.text}>
-                {name}
-              </Text>
-
-              <RowFit color={theme.subText} gap="10px">
-                <ButtonAction onClick={isFetching ? undefined : refetch} style={{ padding: '4px' }}>
-                  <RefreshIcon style={{ width: '18px', height: '18px' }} />
-                </ButtonAction>
-
-                <ButtonAction onClick={isFetching ? undefined : refetch} style={{ padding: '4px' }}>
-                  <ExternalLinkIcon
-                    size={18}
-                    href={`${getEtherscanLink(chainID, collectibleAddress, 'token')}?a=${tokenID}`}
-                    color={theme.subText}
-                  />
-                </ButtonAction>
-              </RowFit>
-            </RowBetween>
-
-            <Divider />
-
-            <Column gap="12px">
-              <Row>
-                <AttributeLabel>
-                  <Trans>Token ID</Trans>
-                </AttributeLabel>
-                <Value>{tokenID}</Value>
+          {externalData?.attributes && (
+            <>
+              <Divider />
+              <Value>
+                <Trans>Attributes</Trans>
+              </Value>
+              <Row flexWrap={'wrap'} gap="16px">
+                {externalData?.attributes?.map(el => (
+                  <Attribute key={el.trait_type} data={el} />
+                ))}
               </Row>
-
-              <Row>
-                <AttributeLabel>
-                  <Trans>Chain</Trans>
-                </AttributeLabel>
-                <Value>{NETWORKS_INFO[chainID].name}</Value>
-              </Row>
-
-              <Row>
-                <AttributeLabel>
-                  <Trans>Last Sales Price</Trans>
-                </AttributeLabel>
-                <Value>{lastSalePrice ? `${lastSalePrice} ${paymentToken}` : '--'}</Value>
-              </Row>
-
-              <Row>
-                <AttributeLabel>
-                  <Trans>Current Price</Trans>
-                </AttributeLabel>
-                <Value>{currentPrice ? `${currentPrice} ${paymentToken}` : '--'}</Value>
-              </Row>
-
-              <ButtonPrimary height={'36px'} width={'150px'}>
-                <Send size={17} />
-                &nbsp;Transfer
-              </ButtonPrimary>
-            </Column>
-            {externalData?.attributes && (
-              <>
-                <Divider />
-                <Value>
-                  <Trans>Attributes</Trans>
-                </Value>
-                <Row flexWrap={'wrap'} gap="16px">
-                  {externalData?.attributes?.map(el => (
-                    <Attribute key={el.trait_type} data={el} />
-                  ))}
-                </Row>
-              </>
-            )}
-          </Column>
-        </RowBetween>
-      </Column>
+            </>
+          )}
+        </DescColumn>
+      </Wrapper>
     </>
   )
 }

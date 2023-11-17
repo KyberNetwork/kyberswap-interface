@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { ButtonAction } from 'components/Button'
@@ -13,8 +14,8 @@ import Table, { TableColumn } from 'components/Table'
 import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { TokenAllocationChart } from 'pages/MyEarnings/EarningsBreakdownPanel'
+import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { PortfolioWalletBalance, PortfolioWalletBalanceMap } from 'pages/NotificationCenter/Portfolio/type'
-import { Section } from 'pages/TrueSightV2/components'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
@@ -72,6 +73,14 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
   },
 ]
 
+const Content = styled(Row)`
+  gap: 16px;
+  align-items: flex-start;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    align-items: center;
+  `}
+`
 export default function TokenAllocation({
   balances,
   totalBalanceUsd = 0,
@@ -94,7 +103,7 @@ export default function TokenAllocation({
 
   const theme = useTheme()
   return (
-    <Section
+    <PortfolioSection
       title={
         <Text color={theme.subText}>
           <Trans>Token Allocation</Trans>
@@ -106,7 +115,7 @@ export default function TokenAllocation({
         </ButtonAction>
       }
     >
-      <Row gap="16px" align="flex-start">
+      <Content>
         <TokenAllocationChart
           style={{ background: 'transparent' }}
           {...{
@@ -123,7 +132,7 @@ export default function TokenAllocation({
         ) : (
           <Table data={data as any} columns={columns} style={{ flex: 1 }} totalItems={data.length} pageSize={6} /> // todo
         )}
-      </Row>
-    </Section>
-  ) // todo update SectionWrapper can reuse
+      </Content>
+    </PortfolioSection>
+  )
 }

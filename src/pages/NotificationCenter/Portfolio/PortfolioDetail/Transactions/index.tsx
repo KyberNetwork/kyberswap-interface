@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { ExternalLink as ExternalLinkIcon, FileText } from 'react-feather'
 import { Text } from 'rebass'
 import { useGetTransactionsQuery } from 'services/portfolio'
@@ -21,9 +22,9 @@ import { NativeCurrencies } from 'constants/tokens'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { WalletLabel } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
+import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { formatAllowance } from 'pages/NotificationCenter/Portfolio/helpers'
 import { TransactionHistory } from 'pages/NotificationCenter/Portfolio/type'
-import { Section } from 'pages/TrueSightV2/components'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -95,11 +96,11 @@ const InteractionCell = ({ item }: { item: TransactionHistory }) => {
   const { chain, tag } = item
   const theme = useTheme()
   return (
-    <Column gap="4px">
-      <Row gap="4px">
+    <Column gap="4px" alignItems={isMobile ? 'flex-end' : undefined}>
+      <RowFit gap="4px">
         {getTxsIcon(type)}
         {type}
-      </Row>
+      </RowFit>
       <ExternalLink href={getEtherscanLink(chain.chainId, contract, 'address')} style={{ color: theme.subText }}>
         {prefix} {contractName || getShortenAddress(contract)}
       </ExternalLink>
@@ -164,21 +165,22 @@ const columns: TableColumn<TransactionHistory>[] = [
   {
     title: t`Interaction`,
     render: InteractionCell,
-    align: 'left',
+    align: isMobile ? 'right' : 'left',
   },
-  {
+]
+if (!isMobile) {
+  columns.push({
     title: t`Result`,
     dataIndex: 'amount',
     align: 'left',
     render: BalanceCell,
-  },
-
-  {
+  })
+  columns.push({
     title: t`Txs Fee`,
     render: GasFeeCell,
     align: 'right',
-  },
-]
+  })
+}
 
 const pageSize = 10
 export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]; wallet: string }) {
@@ -215,7 +217,7 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
   const totalItemInPage = data?.data?.length || 0
 
   return (
-    <Section
+    <PortfolioSection
       title={
         <RowFit gap="4px" color={theme.subText}>
           <FileText size={16} />
@@ -242,7 +244,7 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
         <>
           <Table
             pagination={false}
-            templateColumn={`0.75fr 1fr 0.75fr 0.75fr`}
+            templateColumn={isMobile ? `1fr 1fr` : `0.75fr 1fr 0.75fr 0.75fr`}
             data={visibleData}
             columns={columns}
             style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
@@ -264,6 +266,6 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
           )}
         </>
       )}
-    </Section>
+    </PortfolioSection>
   )
 }

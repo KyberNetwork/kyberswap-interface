@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { isMobile } from 'react-device-detect'
 import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -17,6 +18,9 @@ const CollectionWrapper = styled(Row)`
   border-radius: 16px;
   padding: 16px 20px;
   cursor: pointer;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 14px;
+  `}
 `
 const NftCollection = ({
   data: { collectionDetail, wallet, collectibleName, chainID, totalNFT, collectibleAddress },
@@ -40,7 +44,7 @@ const NftCollection = ({
       />
       <RowFit>
         <Text fontSize={'14px'} color={theme.subText}>
-          <Trans>Owned NFTs: {totalNFT}</Trans>
+          {isMobile ? <Trans>NFTs: {totalNFT}</Trans> : <Trans>Owned NFTs: {totalNFT}</Trans>}
         </Text>
       </RowFit>
     </CollectionWrapper>

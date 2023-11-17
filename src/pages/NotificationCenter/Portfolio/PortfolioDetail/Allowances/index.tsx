@@ -20,9 +20,9 @@ import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
+import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { formatAllowance } from 'pages/NotificationCenter/Portfolio/helpers'
 import { TokenAllowAnce } from 'pages/NotificationCenter/Portfolio/type'
-import { Section } from 'pages/TrueSightV2/components'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import { getSigningContract } from 'utils/getContract'
@@ -172,7 +172,7 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
   }, [data, searchDebounce])
 
   return (
-    <Section
+    <PortfolioSection
       title={
         <RowFit gap="4px" color={theme.subText} alignItems={'center'}>
           <CheckCircle size="14px" />
@@ -203,6 +203,6 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
           style={{ flex: 1, marginLeft: '-16px', marginRight: '-16px' }}
         />
       )}
-    </Section>
+    </PortfolioSection>
   )
 }

@@ -421,61 +421,28 @@ export const SectionWrapper = ({
 }
 
 // todo move to another file
-export const Section = ({
-  title = '',
-  id,
-  children,
-  style,
-  actions,
-}: {
+export type SectionProps = {
   title: ReactNode
   id?: string
   children: ReactNode
   style?: React.CSSProperties
   actions: ReactNode
-}) => {
+}
+export const Section = ({ title = '', id, children, style, actions }: SectionProps) => {
   const theme = useTheme()
-
   const ref = useRef<HTMLDivElement>(null)
-  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
     <StyledSectionWrapper ref={ref} id={id} style={style} className="section-wrapper">
-      {above768 ? (
-        <>
-          {/* DESKTOP */}
-          <SectionTitle>
-            <RowBetween style={{ height: '16px' }}>
-              <RowFit
-                style={{
-                  margin: '-16px',
-                }}
-                gap="4px"
-              >
-                <Text marginLeft="16px" style={{ whiteSpace: 'nowrap' }}>
-                  {title}
-                </Text>
-              </RowFit>
-              <RowFit color={theme.subText} gap="12px">
-                {actions}
-              </RowFit>
-            </RowBetween>
-          </SectionTitle>
-          {children}
-        </>
-      ) : (
-        <>
-          {/* MOBILE */}
-          <SectionTitle>
-            <RowBetween marginBottom="8px">
-              <RowFit color={theme.subText} gap="12px">
-                {actions}
-              </RowFit>
-            </RowBetween>
-          </SectionTitle>
-          {children}
-        </>
-      )}
+      <SectionTitle>
+        <RowBetween style={{ flexWrap: 'wrap', gap: '12px' }}>
+          <Text style={{ whiteSpace: 'nowrap' }}>{title}</Text>
+          <RowFit color={theme.subText} gap="12px">
+            {actions}
+          </RowFit>
+        </RowBetween>
+      </SectionTitle>
+      {children}
     </StyledSectionWrapper>
   )
 }

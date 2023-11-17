@@ -12,7 +12,7 @@ import styled from 'styled-components'
 
 import Wallet from 'components/Icons/Wallet'
 import LocalLoader from 'components/LocalLoader'
-import Row, { RowBetween, RowFit } from 'components/Row'
+import Row, { RowBetween } from 'components/Row'
 import Select from 'components/Select'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
@@ -91,6 +91,15 @@ const useFetchPortfolio = (): {
   }
 }
 
+const ChainWalletSelect = styled(Row)`
+  gap: 12px;
+  width: fit-content;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+    justify-content: space-between;
+`};
+`
+
 export default function PortfolioDetail() {
   const { tab = '' } = useParsedQueryString<{ tab: string }>()
   const [activeTab, setTab] = useState(isInEnum(tab, PortfolioTab) ? tab : PortfolioTab.TOKEN)
@@ -159,9 +168,9 @@ export default function PortfolioDetail() {
             data={data}
             onChangeWallet={onChangeWallet}
           />
-          <RowBetween>
+          <RowBetween flexWrap={'wrap'} gap="16px">
             <ListTab activeTab={activeTab} setTab={onChangeTab} />
-            <RowFit gap="12px">
+            <ChainWalletSelect>
               {portfolioId && walletsOpts.length && (
                 <Select
                   onChange={onChangeWallet}
@@ -180,7 +189,7 @@ export default function PortfolioDetail() {
                 handleChangeChains={handleChangeChains}
                 style={{ height: '36px' }}
               />
-            </RowFit>
+            </ChainWalletSelect>
           </RowBetween>
           {activeTab === PortfolioTab.TOKEN && <Tokens isLoading={isLoading} data={data} />}
           {activeTab === PortfolioTab.ALLOWANCES && <Allowances walletAddresses={walletsQuery} chainIds={chainIds} />}

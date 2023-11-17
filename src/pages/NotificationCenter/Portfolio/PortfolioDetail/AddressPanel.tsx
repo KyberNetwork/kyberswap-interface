@@ -54,7 +54,16 @@ const browserCustomStyle = css`
   `};
 `
 
+const ActionGroups = styled(Row)`
+  gap: 12px;
+  width: fit-content;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `};
+`
+
 const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -93,6 +102,9 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
   if (!account || portfolios.some(e => e.id === portfolioId) || isMaximum)
     return (
       <MouseoverTooltip
+        containerStyle={{
+          flex: upToSmall ? 1 : undefined,
+        }}
         text={
           !account
             ? t`Connect your wallet to create portfolio.`
@@ -128,7 +140,14 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
 
   const props = {
     arrowColor: theme.textReverse,
-    style: { background: theme.primary, borderRadius: 999, height: 36, fontWeight: '500', fontSize: 14 },
+    style: {
+      background: theme.primary,
+      borderRadius: 999,
+      height: 36,
+      fontWeight: '500',
+      fontSize: 14,
+      flex: upToSmall ? 1 : undefined,
+    },
   }
 
   if (wallet) {
@@ -230,6 +249,7 @@ const AddressPanel = ({
     </Text>
   )
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const renderAction = useCallback(
     () => (
@@ -271,9 +291,20 @@ const AddressPanel = ({
       }))
   }, [myPortfolios, renderAction, onClickPortfolio, activePortfolio?.id])
 
+  const balance = (
+    <BalanceGroup>
+      <Flex sx={{ gap: '12px', alignItems: 'center' }}>
+        {!upToSmall && <Avatar url={activePortfolio ? DefaultAvatar : ''} size={36} color={theme.subText} />}
+        <Text fontSize={'28px'} fontWeight={'500'}>
+          {showBalance ? formatDisplayNumber(totalBalanceUsd, { style: 'currency', significantDigits: 3 }) : '******'}
+        </Text>
+      </Flex>
+    </BalanceGroup>
+  )
+
   return (
     <>
-      <RowBetween>
+      <RowBetween flexDirection={upToSmall ? 'column' : 'row'} align={upToSmall ? 'flex-start' : 'center'} gap="8px">
         {isLoading || !isMyPortfolioPage ? (
           accountText
         ) : (
@@ -304,25 +335,17 @@ const AddressPanel = ({
           </MenuFlyout>
         )}
 
-        {lastUpdatedAt && (
-          <Text fontSize={'12px'} color={theme.subText} fontStyle={'italic'}>
-            <Trans>Data last refreshed: {formatTime(lastUpdatedAt)}</Trans>
-          </Text>
-        )}
-      </RowBetween>
-      <RowBetween>
-        <BalanceGroup>
-          <Flex sx={{ gap: '12px', alignItems: 'center' }}>
-            <Avatar url={activePortfolio ? DefaultAvatar : ''} size={36} color={theme.subText} />
-            <Text fontSize={'28px'} fontWeight={'500'}>
-              {showBalance
-                ? formatDisplayNumber(totalBalanceUsd, { style: 'currency', significantDigits: 3 })
-                : '******'}
-            </Text>
-          </Flex>
-        </BalanceGroup>
+        {upToSmall && balance}
 
-        <RowFit gap="12px">
+        <Text fontSize={'12px'} color={theme.subText} fontStyle={'italic'}>
+          <Trans>Data last refreshed: {lastUpdatedAt ? formatTime(lastUpdatedAt) : '-'}</Trans>
+        </Text>
+      </RowBetween>
+
+      <RowBetween>
+        {!upToSmall && balance}
+
+        <ActionGroups>
           <ButtonAction
             style={{ padding: '8px', background: theme.buttonGray }}
             onClick={() => setShowBalance(!showBalance)}
@@ -333,7 +356,7 @@ const AddressPanel = ({
             <Share2 color={theme.subText} size={18} />
           </ButtonAction>
           <ButtonCreatePortfolio portfolios={myPortfolios} />
-        </RowFit>
+        </ActionGroups>
       </RowBetween>
     </>
   )

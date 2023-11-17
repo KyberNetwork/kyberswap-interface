@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useGetNftCollectionDetailQuery } from 'services/portfolio'
@@ -19,7 +20,7 @@ import { isAddress } from 'utils'
 const ItemWrapper = styled(Column)`
   border-radius: 20px;
   background-color: ${({ theme }) => theme.buttonGray};
-  flex-basis: 300px;
+  flex-basis: min(100vw, 300px);
   padding: 16px;
   gap: 12px;
   cursor: pointer;
@@ -58,7 +59,7 @@ const Wrapper = styled.div`
   flex: 1;
 `
 
-const pageSize = 20
+const pageSize = isMobile ? 5 : 20
 export default function ListNft({ search }: { search: string }) {
   const {
     colId = '',

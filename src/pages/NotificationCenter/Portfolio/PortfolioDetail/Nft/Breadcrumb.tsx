@@ -6,6 +6,7 @@ import styled from 'styled-components'
 const Wrapper = styled.div`
   display: flex;
   gap: 4px;
+  flex-wrap: wrap;
 `
 
 const ItemWrapper = styled.div`
@@ -14,6 +15,7 @@ const ItemWrapper = styled.div`
   font-size: 14px;
   line-height: 16px;
   font-weight: 500;
+  white-space: nowrap;
   color: ${({ theme }) => theme.text};
   :hover {
     color: ${({ theme }) => theme.primary};
@@ -33,7 +35,7 @@ export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
       {items.map((el, i) => (
         <Fragment key={i}>
           <Item data={el} />
-          {i !== items.length - 1 && <ChevronRight size={18} />}
+          {i !== items.length - 1 && <ChevronRight size={18} style={{ minWidth: 18 }} />}
         </Fragment>
       ))}
     </Wrapper>
