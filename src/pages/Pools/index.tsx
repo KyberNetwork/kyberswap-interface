@@ -1,12 +1,13 @@
 import ErrorBoundary from 'components/ErrorBoundary'
-import { useKyberSwapConfig } from 'state/application/hooks'
+import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 
 import KNPools from './KN'
 import SubgraphPools from './Subgraph'
 
 const Pools = () => {
-  const { isEnableKNProtocol } = useKyberSwapConfig()
-  if (isEnableKNProtocol) {
+  const { isEnableOmniPool } = useKyberswapGlobalConfig()
+
+  if (isEnableOmniPool) {
     return (
       <ErrorBoundary>
         <KNPools />
