@@ -307,7 +307,7 @@ export const fetchTokenByAddress = async (address: string, chainId: ChainId, _si
       ksSettingApi.endpoints.importToken.initiate([{ chainId: chainId.toString(), address }]),
     )
     if ('data' in importTokenRes) {
-      token = importTokenRes.data.data.tokens[0]?.data
+      token = importTokenRes.data?.data.tokens[0]
     }
   }
   return token ? formatAndCacheToken(token) : undefined
