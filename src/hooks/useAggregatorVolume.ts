@@ -5,6 +5,7 @@ import { AGGREGATOR_STATS_API } from 'constants/env'
 interface VolumeResponse {
   totalVolume: string
   last24hVolume: string
+  last24hPoolVolume: string
 }
 
 export default function useAggregatorVolume(): VolumeResponse {

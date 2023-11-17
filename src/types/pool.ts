@@ -2,7 +2,7 @@ import { EVMNetworkInfo } from 'constants/networks/type'
 
 export type ElasticPoolDetail = {
   chain?: EVMNetworkInfo['poolFarmRoute']
-
+  protocol?: 'elastic'
   address: string
   feeTier: number
 
@@ -28,16 +28,9 @@ export type ElasticPoolDetail = {
 
   tvlUSD: number
 
+  volumeUSDLast: number
   volumeUSDLast24h: number
   tvlUSDLast24h: number
-
-  // prices
-  token0Price: number
-  token1Price: number
-
-  // token amounts
-  tvlToken0: number
-  tvlToken1: number
 
   apr: number
   farmAPR?: number

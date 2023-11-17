@@ -1,9 +1,7 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp } from 'react-feather'
 import { Navigate, useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,33 +9,25 @@ import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
+import ItemCard from 'components/PoolList/ItemCard'
+import ListItem from 'components/PoolList/ListItem'
 import ShareModal from 'components/ShareModal'
 import { SORT_DIRECTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useStableCoins } from 'hooks/Tokens'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
-import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
-import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
-import { Field } from 'state/mint/proamm/type'
-import { useTopPoolAddresses, useUserProMMPositions } from 'state/prommPools/hooks'
-import useGetElasticPools from 'state/prommPools/useGetElasticPools'
+import { useElasticFarms } from 'state/farms/elastic/hooks'
+import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
+import { useUserProMMPositions } from 'state/prommPools/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
-import { MEDIA_WIDTHS } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
 
-import { SelectPairInstructionWrapper } from '../styleds'
-import ProAmmPoolCardItem from './CardItem'
-import ProAmmPoolListItem from './ListItem'
-
-type PoolListProps = {
-  currencies: { [field in Field]?: Currency }
-  searchValue: string
-  isShowOnlyActiveFarmPools: boolean
-  onlyShowStable: boolean
-}
+import ProAmmPoolCardItem from './ElasticPools/CardItem'
+import ProAmmPoolListItem from './ElasticPools/ListItem'
+import { ITEM_PER_PAGE, SORT_FIELD } from './const'
+import { SelectPairInstructionWrapper } from './styleds'
 
 const PageWrapper = styled.div`
   overflow: hidden;
@@ -49,6 +39,7 @@ const PageWrapper = styled.div`
   }
 
   border: 1px solid ${({ theme }) => theme.border};
+  width: 100%;
 `
 
 const TableHeader = styled.div`
@@ -102,29 +93,31 @@ const Grid = styled.div`
   `};
 `
 
-enum SORT_FIELD {
-  TVL = 'tvl',
-  APR = 'apr',
-  VOLUME = 'volume',
-  FEE = 'fee',
-  MY_LIQUIDITY = 'my_liquidity',
-}
-
-export default function ProAmmPoolList({
-  currencies,
-  searchValue,
-  isShowOnlyActiveFarmPools,
-  onlyShowStable,
-}: PoolListProps) {
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-
-  const [viewMode] = useViewMode()
-
-  const { loading, addresses } = useTopPoolAddresses()
-  const { isLoading: poolDataLoading, data: poolDatas } = useGetElasticPools(addresses || [])
+export default function PoolList({
+  pools,
+  loading,
+  page,
+  sortBy,
+  sortType,
+  timeframe,
+  view,
+}: {
+  pools:
+    | {
+        [address: string]: ClassicPoolData | ElasticPoolDetail
+      }
+    | undefined
+  loading: boolean
+  page: number
+  sortBy: '' | 'apr' | 'tvl' | 'volume' | 'fees' | 'id'
+  sortType: '' | 'asc' | 'desc'
+  timeframe: '24h' | '7d' | '30d'
+  view: 'list' | 'grid'
+}) {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { account, isEVM, networkInfo } = useActiveWeb3React()
 
   const { farms } = useElasticFarms()
-  const { farms: elasticFarmV2s } = useElasticFarmsV2()
   const farmTokens = [
     ...new Set(
       farms
@@ -137,22 +130,13 @@ export default function ProAmmPoolList({
         ])
         .flat() || [],
     ),
-  ]
+  ] //todo namgold: remove
 
-  const poolTokens = Object.values(poolDatas || {})
+  const poolTokens = Object.values(pools || {})
     .map(item => [item.token0.address, item.token1.address])
     .flat()
   const tokenPriceMap = useTokenPrices([...new Set(farmTokens.concat(poolTokens))])
 
-  const [searchParams, setSearchParams] = useSearchParams()
-  const sortField = searchParams.get('orderBy') || SORT_FIELD.TVL
-  const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
-
-  const caId = currencies[Field.CURRENCY_A]?.wrapped.address.toLowerCase()
-  const cbId = currencies[Field.CURRENCY_B]?.wrapped.address.toLowerCase()
-
-  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
-  const { stableCoins } = useStableCoins(chainId)
   const userLiquidityPositionsQueryResult = useUserProMMPositions(tokenPriceMap)
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
   const userPositions = useMemo(
@@ -160,104 +144,22 @@ export default function ProAmmPoolList({
     [account, userLiquidityPositionsQueryResult],
   )
 
-  const isSortDesc = sortDirection === SORT_DIRECTION.DESC
-  const listComparator = useCallback(
-    (poolA: ElasticPoolDetail, poolB: ElasticPoolDetail): number => {
-      switch (sortField) {
-        case SORT_FIELD.TVL:
-          return poolA.tvlUSD > poolB.tvlUSD ? (isSortDesc ? -1 : 1) * 1 : (isSortDesc ? -1 : 1) * -1
-        case SORT_FIELD.VOLUME:
-          return poolA.volumeUSDLast24h > poolB.volumeUSDLast24h
-            ? (isSortDesc ? -1 : 1) * 1
-            : (isSortDesc ? -1 : 1) * -1
-        case SORT_FIELD.FEE:
-          return poolA.volumeUSDLast24h * poolA.feeTier > poolB.volumeUSDLast24h * poolB.feeTier
-            ? (isSortDesc ? -1 : 1) * 1
-            : (isSortDesc ? -1 : 1) * -1
-        case SORT_FIELD.APR:
-          const a = poolA.apr + (poolA.farmAPR || 0)
-          const b = poolB.apr + (poolB.farmAPR || 0)
-          return a > b ? (isSortDesc ? -1 : 1) * 1 : (isSortDesc ? -1 : 1) * -1
-        case SORT_FIELD.MY_LIQUIDITY:
-          const t1 = userPositions[poolA.address] || 0
-          const t2 = userPositions[poolB.address] || 0
-          return (t1 - t2) * (isSortDesc ? -1 : 1)
-
-        default:
-          break
-      }
-
-      return 0
-    },
-    [isSortDesc, sortField, userPositions],
+  const userLiquidityPositionsClassicQueryResult = useUserLiquidityPositions()
+  const loadingUserLiquidityPositions = !account ? false : userLiquidityPositionsClassicQueryResult.loading
+  const userLiquidityPositions = useMemo(
+    () => (!account ? { liquidityPositions: [] } : userLiquidityPositionsClassicQueryResult.data),
+    [account, userLiquidityPositionsClassicQueryResult],
   )
 
-  const anyLoading = loading || poolDataLoading || loadingUserPositions
+  const isSortDesc = sortType === SORT_DIRECTION.DESC
 
-  const filteredData = useMemo(() => {
-    let filteredPools = Object.values(poolDatas || {}).filter(
-      pool =>
-        pool.address.toLowerCase() === searchValue ||
-        pool.token0.name.toLowerCase().includes(searchValue) ||
-        pool.token0.symbol.toLowerCase().includes(searchValue) ||
-        pool.token1.name.toLowerCase().includes(searchValue) ||
-        pool.token1.symbol.toLowerCase().includes(searchValue),
-    )
-
-    if (isShowOnlyActiveFarmPools) {
-      const activePoolFarmAddress =
-        farms
-          ?.map(farm => farm.pools)
-          .flat()
-          .filter(item => item.endTime > +new Date() / 1000)
-          .map(item => item.poolAddress.toLowerCase()) || []
-      const activeFarmV2Addresses =
-        elasticFarmV2s
-          ?.filter(item => item.endTime > Date.now() / 1000 && !item.isSettled)
-          .map(farm => farm.poolAddress) || []
-      filteredPools = filteredPools.filter(pool =>
-        [...activePoolFarmAddress, ...activeFarmV2Addresses].includes(pool.address.toLowerCase()),
-      )
-    }
-
-    if (caId && cbId && caId === cbId) filteredPools = []
-    else {
-      if (caId)
-        filteredPools = filteredPools.filter(pool => pool.token0.address === caId || pool.token1.address === caId)
-      if (cbId)
-        filteredPools = filteredPools.filter(pool => pool.token0.address === cbId || pool.token1.address === cbId)
-    }
-
-    if (onlyShowStable) {
-      const stableList = chainId ? stableCoins?.map(item => item.address.toLowerCase()) || [] : []
-      filteredPools = filteredPools.filter(poolData => {
-        return (
-          stableList.includes(poolData.token0.address.toLowerCase()) &&
-          stableList.includes(poolData.token1.address.toLowerCase())
-        )
-      })
-    }
-
-    return filteredPools.sort(listComparator)
-  }, [
-    elasticFarmV2s,
-    poolDatas,
-    isShowOnlyActiveFarmPools,
-    caId,
-    cbId,
-    onlyShowStable,
-    searchValue,
-    farms,
-    stableCoins,
-    chainId,
-    listComparator,
-  ])
+  const anyLoading = loading || loadingUserPositions || loadingUserLiquidityPositions
 
   const handleSort = (field: SORT_FIELD) => {
     const direction =
-      sortField !== field
+      sortBy !== field
         ? SORT_DIRECTION.DESC
-        : sortDirection === SORT_DIRECTION.DESC
+        : sortType === SORT_DIRECTION.DESC
         ? SORT_DIRECTION.ASC
         : SORT_DIRECTION.DESC
 
@@ -267,7 +169,7 @@ export default function ProAmmPoolList({
   }
 
   const renderHeader = () => {
-    return viewMode === VIEW_MODE.LIST && !upToMedium ? (
+    return view === VIEW_MODE.LIST ? (
       <TableHeader>
         <Flex alignItems="center">
           <ClickableText>
@@ -277,7 +179,7 @@ export default function ProAmmPoolList({
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText style={{ textAlign: 'right' }} onClick={() => handleSort(SORT_FIELD.TVL)}>
             <span>TVL</span>
-            {sortField === SORT_FIELD.TVL ? (
+            {sortBy === SORT_FIELD.TVL ? (
               !isSortDesc ? (
                 <ArrowUp size="14" style={{ marginLeft: '2px' }} />
               ) : (
@@ -296,7 +198,7 @@ export default function ProAmmPoolList({
             }}
           >
             <Trans>APR</Trans>
-            {sortField === SORT_FIELD.APR ? (
+            {sortBy === SORT_FIELD.APR ? (
               !isSortDesc ? (
                 <ArrowUp size="14" style={{ marginLeft: '2px' }} />
               ) : (
@@ -314,7 +216,7 @@ export default function ProAmmPoolList({
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText onClick={() => handleSort(SORT_FIELD.VOLUME)}>
             <Trans>VOLUME (24H)</Trans>
-            {sortField === SORT_FIELD.VOLUME ? (
+            {sortBy === SORT_FIELD.VOLUME ? (
               !isSortDesc ? (
                 <ArrowUp size="14" style={{ marginLeft: '2px' }} />
               ) : (
@@ -328,21 +230,7 @@ export default function ProAmmPoolList({
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText onClick={() => handleSort(SORT_FIELD.FEE)}>
             <Trans>FEES (24H)</Trans>
-            {sortField === SORT_FIELD.FEE ? (
-              !isSortDesc ? (
-                <ArrowUp size="14" style={{ marginLeft: '2px' }} />
-              ) : (
-                <ArrowDown size="14" style={{ marginLeft: '2px' }} />
-              )
-            ) : (
-              ''
-            )}
-          </ClickableText>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText onClick={() => handleSort(SORT_FIELD.MY_LIQUIDITY)}>
-            <Trans>MY LIQUIDITY</Trans>
-            {sortField === SORT_FIELD.MY_LIQUIDITY ? (
+            {sortBy === SORT_FIELD.FEE ? (
               !isSortDesc ? (
                 <ArrowUp size="14" style={{ marginLeft: '2px' }} />
               ) : (
@@ -362,11 +250,20 @@ export default function ProAmmPoolList({
     ) : null
   }
 
-  const ITEM_PER_PAGE = 12
-  const [page, setPage] = useState(1)
+  const searchParamsRef = useRef(searchParams)
+  searchParamsRef.current = searchParams
+  const setPage = useCallback(
+    (page: number) => {
+      if (page && page > 1) searchParamsRef.current.set('page', String(page))
+      else searchParamsRef.current.delete('page')
+      setSearchParams(searchParamsRef.current, { replace: true })
+    },
+    [setSearchParams],
+  )
+
   useEffect(() => {
     setPage(1)
-  }, [chainId, currencies, searchValue, onlyShowStable])
+  }, [pools, setPage])
 
   const [sharedPoolId, setSharedPoolId] = useState('')
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
@@ -389,11 +286,21 @@ export default function ProAmmPoolList({
     }
   }, [isShareModalOpen, setSharedPoolId])
 
+  const transformedUserLiquidityPositions: {
+    [key: string]: UserLiquidityPosition
+  } = useMemo(() => {
+    if (!userLiquidityPositions) return {}
+
+    return userLiquidityPositions.liquidityPositions.reduce((acc, position) => {
+      acc[position.pool.id] = position
+      return acc
+    }, {} as { [key: string]: UserLiquidityPosition })
+  }, [userLiquidityPositions])
+
   if (!isEVM) return <Navigate to="/" />
+  const poolsList = Object.values(pools || {})
 
-  const pageData = filteredData.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
-
-  if (!anyLoading && !filteredData.length) {
+  if (!anyLoading && !poolsList.length) {
     return (
       <SelectPairInstructionWrapper>
         <div style={{ marginBottom: '1rem' }}>
@@ -409,31 +316,51 @@ export default function ProAmmPoolList({
   return (
     <PageWrapper>
       {renderHeader()}
-      {anyLoading && !filteredData.length && <LocalLoader />}
-      {viewMode === VIEW_MODE.LIST && !upToMedium ? (
-        pageData.map(p => (
-          <ProAmmPoolListItem key={p.address} pool={p} onShared={setSharedPoolId} userPositions={userPositions} />
-        ))
+      {anyLoading && !poolsList.length && <LocalLoader />}
+      {view === VIEW_MODE.LIST ? (
+        poolsList.map(pool => {
+          if (pool.protocol === 'elastic')
+            return (
+              <ProAmmPoolListItem
+                key={pool.address}
+                pool={pool}
+                onShared={setSharedPoolId}
+                userPositions={userPositions}
+              />
+            )
+          if (pool.protocol === 'classic')
+            return <ListItem key={pool.id} poolData={pool} userLiquidityPositions={transformedUserLiquidityPositions} />
+
+          return null
+        })
       ) : (
         <Grid>
-          {pageData.map(p => (
-            <ProAmmPoolCardItem key={p.address} pool={p} onShared={setSharedPoolId} userPositions={userPositions} />
-          ))}
+          {poolsList.map(pool => {
+            if (pool.protocol === 'elastic')
+              return (
+                <ProAmmPoolCardItem
+                  key={pool.address}
+                  pool={pool}
+                  onShared={setSharedPoolId}
+                  userPositions={userPositions}
+                  timeframe={timeframe}
+                />
+              )
+            if (pool.protocol === 'classic')
+              return <ItemCard poolData={pool} key={pool.id} myLiquidity={transformedUserLiquidityPositions[pool.id]} />
+
+            return null
+          })}
         </Grid>
       )}
-      {!!filteredData.length && (
-        <Pagination
-          onPageChange={setPage}
-          totalCount={filteredData.length}
-          currentPage={page}
-          pageSize={ITEM_PER_PAGE}
-        />
+
+      {!!poolsList.length && (
+        <Pagination onPageChange={setPage} totalCount={poolsList.length} currentPage={page} pageSize={ITEM_PER_PAGE} />
       )}
       <ShareModal
         url={shareUrl}
         title={sharedPoolId ? t`Share this pool with your friends!` : t`Share this list of pools with your friends`}
       />
-      <FarmUpdater interval={false} />
     </PageWrapper>
   )
 }

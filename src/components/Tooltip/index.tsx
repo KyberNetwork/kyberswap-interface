@@ -6,10 +6,10 @@ import styled from 'styled-components'
 import Popover, { PopoverProps } from 'components/Popover'
 import Row from 'components/Row'
 
-const TooltipContainer = styled.div<{ width?: string; maxWidth?: string; size?: number }>`
+const TooltipContainer = styled.div<{ width?: string; maxWidth?: string; size?: number; padding?: string }>`
   width: ${({ width }) => width || '228px'};
   max-width: ${({ maxWidth }) => maxWidth || ''};
-  padding: 0.5rem 0.75rem;
+  padding: ${({ padding }) => padding || '0.5rem 0.75rem'};
   line-height: 150%;
   font-weight: 400;
   font-size: ${({ size }) => size || 12}px;
@@ -36,6 +36,7 @@ interface TooltipProps extends Omit<PopoverProps, 'content'> {
   onMouseLeave?: React.MouseEventHandler<HTMLDivElement>
   children?: React.ReactNode
   dataTestId?: string
+  padding?: string
 }
 
 export default function Tooltip({
@@ -47,6 +48,7 @@ export default function Tooltip({
   onMouseLeave,
   show,
   dataTestId,
+  padding,
   ...rest
 }: TooltipProps) {
   return (
@@ -60,6 +62,7 @@ export default function Tooltip({
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             data-testid={dataTestId}
+            padding={padding}
           >
             {text}
           </TooltipContainer>

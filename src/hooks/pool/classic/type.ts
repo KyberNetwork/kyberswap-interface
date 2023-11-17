@@ -2,6 +2,7 @@ import { Token } from '@kyberswap/ks-sdk-core'
 
 export interface ClassicPoolData {
   id: string
+  protocol?: 'classic'
   amp: string
   fee: number
   reserve0: string

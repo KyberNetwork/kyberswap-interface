@@ -5,45 +5,11 @@ import { POOL_FARM_BASE_URL } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { EVM_NETWORK, NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 import { SubgraphFarmV2 } from 'state/farms/elasticv2/types'
 import { ElasticPoolDetail } from 'types/pool'
 
-import { transformResponseAllChainElasticPool } from './utils/knprotocol'
-
-type Token = {
-  id: string
-  symbol: string
-  name: string
-  decimals: string
-  priceUSD: string
-}
-
-export type ClassicPoolKN = {
-  id: string
-  fee: string
-  feeUSD: string
-  feesUsdOneDayAgo: string
-  feesUsdTwoDaysAgo: string
-  feeUSD0: string
-  feeUSD1: string
-  feeAmount0: string
-  feeAmount1: string
-  token0: Token
-  token1: Token
-  reserve0: string
-  reserve1: string
-  vReserve0: string
-  vReserve1: string
-  totalSupply: string
-  pair: string
-  reserveUSD: string
-  volumeUsd: string
-  volumeUsdOneDayAgo: string
-  volumeUsdTwoDaysAgo: string
-  amp: string
-  apr: string
-  farmApr: string
-}
+import { AllChainClassicPool, Token, transformResponseAllChainAllPool } from './utils/knprotocol'
 
 export type ClassicFarmKN = {
   id: string
@@ -98,7 +64,10 @@ const knProtocolApi = createApi({
       }),
       providesTags: [RTK_QUERY_TAGS.GET_FARM_V2],
     }),
-    getPoolClassic: builder.query<{ data: { pools: ClassicPoolKN[] | null | undefined } }, ChainId>({
+    getPoolClassic: builder.query<
+      { data: { pools: Omit<AllChainClassicPool, 'protocol'>[] | null | undefined } },
+      ChainId
+    >({
       query: (chainId: EVM_NETWORK) => ({
         url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/classic/pools?includeLowTvl=true&perPage=10000&page=1`,
       }),
@@ -109,20 +78,27 @@ const knProtocolApi = createApi({
       }),
     }),
     getAllPools: builder.query<
-      { [address: string]: ElasticPoolDetail },
+      { [address: string]: ClassicPoolData | ElasticPoolDetail },
       {
         chainIds: EVM_NETWORK[]
         search: string
         page: number
         size: number
+        protocol?: '' | 'elastic' | 'classic'
+        type?: '' | 'farm' | 'stable' | 'lsd'
+        sortBy?: '' | 'apr' | 'tvl' | 'volume' | 'fees' | 'id'
+        sortType?: '' | 'asc' | 'desc'
+        timeframe?: '24h' | '7d' | '30d'
       }
     >({
-      query: ({ chainIds, search, page, size }) => ({
-        url: `/all-chain/api/v1/elastic/pools?chainNames=${chainIds
+      query: ({ chainIds, search, page, size, protocol, type, sortBy, sortType }) => ({
+        url: `/all-chain/api/v1/pools?chainNames=${chainIds
           .map(chainId => NETWORKS_INFO[chainId].poolFarmRoute)
-          .join(',')}&includeLowTvl=true&page=${page}&perPage=${size}&search=${search}`,
+          .join(',')}&includeLowTvl=true&page=${page}&perPage=${size}${search ? '&search=' + search : ''}${
+          protocol ? '&protocol=' + protocol : ''
+        }${type ? '&type=' + type : ''}${sortBy ? '&sortBy=' + sortBy : ''}${sortType ? '&sortType=' + sortType : ''}`,
       }),
-      transformResponse: transformResponseAllChainElasticPool,
+      transformResponse: transformResponseAllChainAllPool,
     }),
   }),
 })

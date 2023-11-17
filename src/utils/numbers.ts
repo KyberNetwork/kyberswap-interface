@@ -5,7 +5,7 @@ import JSBI from 'jsbi'
 import { BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
 
 /** @deprecated use formatDisplayNumber instead
- * @example formatDisplayNumber(num, { style: 'currency', significantDigits: 4 })
+ * @example formatDisplayNumber(num, { style: 'currency', fractionDigits: 2 })
  */
 export const formatDollarAmount = (num: number | undefined, digits = 2) => {
   if (num === 0) return '$0.00'

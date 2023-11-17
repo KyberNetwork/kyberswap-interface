@@ -3,6 +3,7 @@ import { useGetAllPoolsQuery } from 'services/knprotocol'
 import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
+import { ElasticPoolDetail } from 'types/pool'
 
 import { CommonReturn } from './type'
 import useGetElasticPoolsV1 from './useGetElasticPoolsV1'
@@ -21,13 +22,16 @@ const useGetElasticPools = (
     search: '',
     page: 1,
     size: 1000,
+    protocol: 'elastic',
   })
 
   if (isEnableKNProtocol) {
     return {
       isLoading: isLoading,
       isError: !!error,
-      data: currentData,
+      data: currentData as {
+        [address: string]: ElasticPoolDetail
+      },
     }
   }
 

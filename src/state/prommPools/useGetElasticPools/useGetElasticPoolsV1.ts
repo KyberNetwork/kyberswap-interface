@@ -81,9 +81,6 @@ const parsedPoolData = (
           100
         : 0
 
-    const tvlToken0 = current ? parseFloat(current.totalValueLockedToken0) : 0
-    const tvlToken1 = current ? parseFloat(current.totalValueLockedToken1) : 0
-
     const feeTier = current ? parseInt(current.feeTier) : 0
 
     if (current) {
@@ -107,13 +104,10 @@ const parsedPoolData = (
           symbol: current.token1.symbol,
           decimals: parseInt(current.token1.decimals),
         },
-        token0Price: parseFloat(current.token0Price),
-        token1Price: parseFloat(current.token1Price),
         tvlUSD: parseFloat(current.totalValueLockedUSD),
+        volumeUSDLast: volumeUSDLast24h,
         volumeUSDLast24h,
         tvlUSDLast24h,
-        tvlToken0,
-        tvlToken1,
         apr: tvlUSD > 0 ? (volumeUSDLast24h * (feeTier / ELASTIC_BASE_FEE_UNIT) * 100 * 365) / tvlUSD : 0,
       }
     }

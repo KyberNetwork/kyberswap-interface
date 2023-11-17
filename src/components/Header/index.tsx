@@ -47,7 +47,6 @@ const HeaderFrame = styled.div<{ hide?: boolean }>`
     padding: ${hide ? 0 : '1rem'};
     width: calc(100%);
     position: relative;
-    
   `};
 
   ${({ theme, hide }) => theme.mediaWidth.upToExtraSmall`

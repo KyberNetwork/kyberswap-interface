@@ -19,6 +19,7 @@ interface GlobalData {
     totalLiquidityETH: string
     totalAmplifiedLiquidityUSD: string
     totalAmplifiedLiquidityETH: string
+    last24hPoolVolume: string
     [key: string]: string
   }[]
   aggregatorData?: {
@@ -93,6 +94,7 @@ export function useGlobalData() {
               totalLiquidityETH: getSumValues(queryResult, 'totalLiquidityETH'),
               totalAmplifiedLiquidityUSD: getSumValues(queryResult, 'totalAmplifiedLiquidityUSD'),
               totalAmplifiedLiquidityETH: getSumValues(queryResult, 'totalAmplifiedLiquidityETH'),
+              last24hPoolVolume: aggregatorData.last24hPoolVolume,
             },
           ],
         },
