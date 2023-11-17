@@ -1,6 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 
+import { BFF_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import {
   NFTBalance,
@@ -18,7 +20,7 @@ import {
 const KRYSTAL_API = 'https://api.krystal.app/all/v1'
 const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://portfolio-service-api.dev.kyberengineering.io/api' }),
+  baseQuery: baseQueryOauthDynamic({ baseUrl: `${BFF_API}/v1/portfolio-service` }),
   tagTypes: [
     RTK_QUERY_TAGS.GET_LIST_PORTFOLIO,
     RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO,
@@ -28,28 +30,29 @@ const portfolioApi = createApi({
   endpoints: builder => ({
     getPortfolios: builder.query<Portfolio[], void>({
       query: () => ({
-        url: '/v1/portfolios',
-        params: { identityId: window.identityId }, // todo
+        url: '/portfolios',
+        authentication: true,
       }),
       transformResponse: (data: any) => data?.data?.portfolios,
       providesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
     getPortfolioById: builder.query<Portfolio, { id: string }>({
       query: ({ id }) => ({
-        url: `/v1/portfolios/${id}`,
+        url: `/portfolios/${id}`,
+        authentication: true,
       }),
       transformResponse: (data: any) => data?.data,
     }),
     searchPortfolio: builder.query<Portfolio[], { name: string }>({
       query: params => ({
-        url: `/v1/portfolios/search`,
+        url: `https://portfolio-service-api.dev.kyberengineering.io/api/v1/portfolios/search`, // todo
         params,
       }),
       transformResponse: (data: any) => data?.data?.portfolios,
     }),
     getTrendingPortfolios: builder.query<Portfolio[], void>({
       query: () => ({
-        url: `/v1/trending`,
+        url: `/v1/trending`, // todo
       }),
       transformResponse: (data: any) => data?.data,
     }),
@@ -73,63 +76,63 @@ const portfolioApi = createApi({
     }),
     createPortfolio: builder.mutation<{ id: string }, { name: string }>({
       query: body => ({
-        url: '/v1/portfolios',
+        url: '/portfolios',
         method: 'POST',
         body,
-        params: { identityId: window.identityId }, // todo
+        authentication: true,
       }),
       transformResponse: (data: any) => data?.data,
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
     clonePortfolio: builder.mutation<void, { name: string; portfolioId: string }>({
       query: body => ({
-        url: '/v1/portfolios/clone',
+        url: '/portfolios/clone',
         method: 'POST',
         body,
-        params: { identityId: window.identityId }, // todo
+        authentication: true,
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
     updatePortfolio: builder.mutation<Portfolio, { name: string; id: string }>({
       query: ({ id, ...body }) => ({
-        url: `/v1/portfolios/${id}`,
+        url: `/portfolios/${id}`,
         method: 'PUT',
         body,
-        params: { identityId: window.identityId }, // todo
+        authentication: true,
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
     deletePortfolio: builder.mutation<Portfolio, string>({
       query: id => ({
-        url: `/v1/portfolios/${id}`,
+        url: `/portfolios/${id}`,
         method: 'DELETE',
-        params: { identityId: window.identityId }, // todo
+        authentication: true,
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_PORTFOLIO],
     }),
     // setting
     getPortfoliosSettings: builder.query<PortfolioSetting, void>({
       query: () => ({
-        url: '/v1/settings',
-        params: { identityId: window.identityId }, // todo
+        url: '/settings',
+        authentication: true,
       }),
       transformResponse: (data: any) => data?.data,
       providesTags: [RTK_QUERY_TAGS.GET_SETTING_PORTFOLIO],
     }),
     updatePortfoliosSettings: builder.mutation<PortfolioSetting, PortfolioSetting>({
       query: body => ({
-        url: `/v1/settings`,
+        url: `/settings`,
         method: 'PUT',
         body,
-        params: { identityId: window.identityId }, // todo
+        authentication: true,
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_SETTING_PORTFOLIO],
     }),
     // wallets
     getWalletsPortfolios: builder.query<PortfolioWallet[], { portfolioId: string }>({
       query: ({ portfolioId }) => ({
-        url: `/v1/portfolios/${portfolioId}/wallets`,
-        params: { identityId: window.identityId }, // todo
+        url: `/portfolios/${portfolioId}/wallets`,
+        authentication: true,
       }),
       transformResponse: (data: any) => data?.data?.wallets,
       providesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
@@ -137,10 +140,10 @@ const portfolioApi = createApi({
     addWalletToPortfolio: builder.mutation<Portfolio, { portfolioId: string; walletAddress: string; nickName: string }>(
       {
         query: ({ portfolioId, ...body }) => ({
-          url: `/v1/portfolios/${portfolioId}/wallets`,
+          url: `/portfolios/${portfolioId}/wallets`,
           method: 'POST',
           body,
-          params: { identityId: window.identityId }, // todo
+          authentication: true,
         }),
         invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
       },
@@ -150,18 +153,18 @@ const portfolioApi = createApi({
       { portfolioId: string; walletAddress: string; nickName: string }
     >({
       query: ({ portfolioId, walletAddress, ...body }) => ({
-        url: `/v1/portfolios/${portfolioId}/wallets/${walletAddress}`,
+        url: `/portfolios/${portfolioId}/wallets/${walletAddress}`,
         method: 'PUT',
         body,
-        params: { identityId: window.identityId }, // todo
+        authentication: true,
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
     }),
     removeWalletFromPortfolio: builder.mutation<Portfolio, { portfolioId: string; walletAddress: string }>({
       query: ({ portfolioId, walletAddress }) => ({
-        url: `/v1/portfolios/${portfolioId}/wallets/${walletAddress}`,
+        url: `/portfolios/${portfolioId}/wallets/${walletAddress}`,
         method: 'DELETE',
-        params: { identityId: window.identityId }, // todo
+        authentication: true,
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
     }),
