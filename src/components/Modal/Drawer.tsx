@@ -85,40 +85,38 @@ export default function Drawer({
   return (
     <>
       {trigger}
-      {
-        <AnimatePresence>
-          {isOpen && (
-            <StyledDialogOverlay
-              zindex={zindex}
-              onDismiss={onDismiss}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+      <AnimatePresence>
+        {isOpen && (
+          <StyledDialogOverlay
+            zindex={zindex}
+            onDismiss={onDismiss}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <StyledDialogContent
+              width={width}
+              bgColor={bgColor}
+              className={className}
+              initial={{ x: -window.innerWidth }}
+              animate={{ x: 0 }}
+              exit={{ x: -window.innerWidth }}
               transition={{ duration: 0.3 }}
             >
-              <StyledDialogContent
-                width={width}
-                bgColor={bgColor}
-                className={className}
-                initial={{ x: -window.innerWidth }}
-                animate={{ x: 0 }}
-                exit={{ x: -window.innerWidth }}
-                transition={{ duration: 0.3 }}
-              >
-                <Column width={'100%'} gap="12px">
-                  <Row width={'100%'} justify="space-between">
-                    <Text fontWeight={'500'} color={theme.text}>
-                      <Trans>{title}</Trans>
-                    </Text>
-                    <X style={{ cursor: 'pointer' }} size={18} color={theme.subText} onClick={onDismiss} />
-                  </Row>
-                  <div>{children}</div>
-                </Column>
-              </StyledDialogContent>
-            </StyledDialogOverlay>
-          )}
-        </AnimatePresence>
-      }
+              <Column width={'100%'} gap="12px">
+                <Row width={'100%'} justify="space-between">
+                  <Text fontWeight={'500'} color={theme.text}>
+                    <Trans>{title}</Trans>
+                  </Text>
+                  <X style={{ cursor: 'pointer' }} size={18} color={theme.subText} onClick={onDismiss} />
+                </Row>
+                <div>{children}</div>
+              </Column>
+            </StyledDialogContent>
+          </StyledDialogOverlay>
+        )}
+      </AnimatePresence>
     </>
   )
 }

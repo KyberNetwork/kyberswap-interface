@@ -2,7 +2,7 @@ import { X } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ModalCenter, ModalProps } from 'components/Modal'
+import Modal, { ModalProps } from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 
@@ -18,23 +18,23 @@ const Wrapper = styled.div`
 // modal with close, title
 const ModalTemplate = ({
   title,
-  showCloseButton = true,
+  closeButton = true,
   ...props
-}: ModalProps & { title: string; showCloseButton?: boolean }) => {
+}: ModalProps & { title: string; closeButton?: boolean }) => {
   const theme = useTheme()
   const { children, onDismiss } = props
   return (
-    <ModalCenter {...props}>
+    <Modal {...props}>
       <Wrapper>
         <RowBetween>
           <Text fontSize={20} fontWeight={400}>
             {title}
           </Text>
-          {showCloseButton && <X color={theme.subText} onClick={onDismiss} cursor={'pointer'} />}
+          {closeButton && <X color={theme.subText} onClick={onDismiss} cursor={'pointer'} />}
         </RowBetween>
         {children}
       </Wrapper>
-    </ModalCenter>
+    </Modal>
   )
 }
 

@@ -47,7 +47,7 @@ export default function DisclaimerPortfolio({ onConfirm }: { onConfirm: () => vo
   }, [accepted])
 
   return (
-    <ModalTemplate isOpen={true} title={t`Disclaimer`} width="480px" showCloseButton={false}>
+    <ModalTemplate isOpen={true} title={t`Disclaimer`} width="480px" closeButton={false}>
       <Container>
         <TextWrapper>
           <Trans>
