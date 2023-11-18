@@ -6,7 +6,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
@@ -17,6 +17,7 @@ import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import Row from 'components/Row'
 import SearchInput from 'components/SearchInput'
+import Section from 'components/Section'
 import Select from 'components/Select'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
@@ -43,7 +44,6 @@ import { calcPercentFilledOrder, getPayloadTracking, isActiveStatus } from '../h
 import { LimitOrder, LimitOrderStatus } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
-import TabSelector from './TabSelector'
 import TableHeader from './TableHeader'
 
 const Wrapper = styled.div`
@@ -51,12 +51,8 @@ const Wrapper = styled.div`
   flex-direction: column;
   border-radius: 20px;
   gap: 1rem;
-  border: 1px solid ${({ theme }) => theme.border};
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin-left: -16px;
     width: 100vw;
-    border-left: none;
-    border-right: none;
   `};
 `
 
@@ -130,7 +126,10 @@ const SearchInputWrapped = styled(SearchInput)`
      max-width: unset;
   `};
 `
-
+const tabs = [
+  { type: LimitOrderStatus.ACTIVE, title: t`Active Orders` },
+  { type: LimitOrderStatus.CLOSED, title: t`Order History` },
+]
 export default function ListLimitOrder({ customChainId }: { customChainId?: ChainId }) {
   const { account, chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
@@ -301,7 +300,7 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
   const subscribeBtn = !isPartnerSwap && (
     <SubscribeNotificationButton
       iconOnly={false}
-      style={{ margin: upToSmall ? 0 : '12px 12px 0px 12px' }}
+      style={{ margin: 0 }}
       subscribeTooltip={t`Subscribe to receive notifications on your limit orders.`}
       trackingEvent={MIXPANEL_TYPE.LO_CLICK_SUBSCRIBE_BTN}
     />
@@ -310,89 +309,91 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
   const theme = useTheme()
 
   return (
-    <Wrapper>
-      <Flex justifyContent={'space-between'} alignItems="flex-start">
-        <TabSelector
-          setActiveTab={onSelectTab}
-          activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
-        />
-        {!upToSmall && subscribeBtn}
-      </Flex>
-
-      <SearchFilter>
-        <Row width={upToSmall ? '100%' : 'fit-content'} alignItems="center" gap="8px" justify={'space-between'}>
-          {upToSmall && subscribeBtn}
-          <SelectFilter
-            key={orderType}
-            options={isTabActive ? ACTIVE_ORDER_OPTIONS : CLOSE_ORDER_OPTIONS}
-            value={orderType}
-            onChange={setOrderType}
+    <Section<LimitOrderStatus>
+      style={{ background: 'transparent', margin: upToSmall ? '0 -16px' : undefined }}
+      onTabClick={onSelectTab}
+      tabs={tabs}
+      activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
+      actions={!upToSmall && subscribeBtn}
+      contentStyle={{ margin: '0 -16px', paddingBottom: 0 }}
+    >
+      <Wrapper>
+        <SearchFilter>
+          <Row width={upToSmall ? '100%' : 'fit-content'} alignItems="center" gap="8px" justify={'space-between'}>
+            {upToSmall && subscribeBtn}
+            <SelectFilter
+              key={orderType}
+              options={isTabActive ? ACTIVE_ORDER_OPTIONS : CLOSE_ORDER_OPTIONS}
+              value={orderType}
+              onChange={setOrderType}
+            />
+          </Row>
+          <SearchInputWrapped
+            placeholder={t`Search by token symbol or token address`}
+            maxLength={255}
+            value={keyword}
+            onChange={onChangeKeyword}
           />
-        </Row>
-        <SearchInputWrapped
-          placeholder={t`Search by token symbol or token address`}
-          maxLength={255}
-          value={keyword}
-          onChange={onChangeKeyword}
-        />
-      </SearchFilter>
-      {loading ? (
-        <LocalLoader />
-      ) : (
-        <div>
-          <TableHeader />
-          <Column>
-            {orders.map((order, index) => (
-              <OrderItem
-                isLast={index === orders.length - 1}
-                isOrderCancelling={isOrderCancelling}
-                index={index + (curPage - 1) * PAGE_SIZE}
-                key={order.id}
-                order={order}
-                onCancelOrder={showConfirmCancel}
-                onEditOrder={showEditOrderModal}
-                tokenPrices={tokenPrices}
-                hasOrderCancelling={orders.some(isOrderCancelling)}
-              />
-            ))}
-          </Column>
-          {orders.length !== 0 ? (
-            <TableFooter isTabActive={isTabActive}>
-              {isTabActive && (
-                <ButtonCancelAll color={theme.red} onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
-                  <Trash size={15} />
-                  <Text marginLeft={'5px'}>
-                    <Trans>Cancel All</Trans>
-                  </Text>
-                </ButtonCancelAll>
-              )}
-              {totalOrder > PAGE_SIZE && (
-                <Pagination
-                  haveBg={false}
-                  onPageChange={onPageChange}
-                  totalCount={totalOrder}
-                  currentPage={curPage}
-                  pageSize={PAGE_SIZE}
-                  style={{ padding: '0' }}
+        </SearchFilter>
+
+        {loading ? (
+          <LocalLoader />
+        ) : (
+          <div>
+            <TableHeader />
+            <Column>
+              {orders.map((order, index) => (
+                <OrderItem
+                  isLast={index === orders.length - 1}
+                  isOrderCancelling={isOrderCancelling}
+                  index={index + (curPage - 1) * PAGE_SIZE}
+                  key={order.id}
+                  order={order}
+                  onCancelOrder={showConfirmCancel}
+                  onEditOrder={showEditOrderModal}
+                  tokenPrices={tokenPrices}
+                  hasOrderCancelling={orders.some(isOrderCancelling)}
                 />
-              )}
-            </TableFooter>
-          ) : (
-            <NoResultWrapper>
-              <NoDataIcon />
-              <Text marginTop={'10px'}>
-                {keyword ? (
-                  <Trans>No orders found.</Trans>
-                ) : isTabActive ? (
-                  <Trans>You don&apos;t have any open orders yet.</Trans>
-                ) : (
-                  <Trans>You don&apos;t have any order history.</Trans>
+              ))}
+            </Column>
+            {orders.length !== 0 ? (
+              <TableFooter isTabActive={isTabActive}>
+                {isTabActive && (
+                  <ButtonCancelAll color={theme.red} onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
+                    <Trash size={15} />
+                    <Text marginLeft={'5px'}>
+                      <Trans>Cancel All</Trans>
+                    </Text>
+                  </ButtonCancelAll>
                 )}
-              </Text>
-            </NoResultWrapper>
-          )}
-        </div>
-      )}
+                {totalOrder > PAGE_SIZE && (
+                  <Pagination
+                    haveBg={false}
+                    onPageChange={onPageChange}
+                    totalCount={totalOrder}
+                    currentPage={curPage}
+                    pageSize={PAGE_SIZE}
+                    style={{ padding: '0' }}
+                  />
+                )}
+              </TableFooter>
+            ) : (
+              <NoResultWrapper>
+                <NoDataIcon />
+                <Text marginTop={'10px'}>
+                  {keyword ? (
+                    <Trans>No orders found.</Trans>
+                  ) : isTabActive ? (
+                    <Trans>You don&apos;t have any open orders yet.</Trans>
+                  ) : (
+                    <Trans>You don&apos;t have any order history.</Trans>
+                  )}
+                </Text>
+              </NoResultWrapper>
+            )}
+          </div>
+        )}
+      </Wrapper>
 
       <CancelOrderModal
         isOpen={isOpenCancel}
@@ -424,6 +425,6 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
           }`}
         />
       )}
-    </Wrapper>
+    </Section>
   )
 }

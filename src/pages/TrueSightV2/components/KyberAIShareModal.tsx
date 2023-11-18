@@ -193,13 +193,7 @@ type ShareData = {
   blob?: Blob
 }
 
-export default function KyberAIShareModal({
-  title,
-  content,
-  isOpen,
-  onClose,
-  onShareClick,
-}: {
+export default function KyberAIShareModal(props: {
   title?: string
   content?: (mobileMode?: boolean) => ReactNode
   isOpen: boolean
@@ -209,124 +203,7 @@ export default function KyberAIShareModal({
   const theme = useTheme()
   const { chain } = useParams()
   const { data: tokenOverview } = useKyberAIAssetOverview()
-
-  const ref = useRef<HTMLDivElement>(null)
-  const refMobile = useRef<HTMLDivElement>(null)
-  const [loading, setLoading] = useState(true)
-  const [isError, setIsError] = useState(false)
-  const [isMobileMode, setIsMobileMode] = useState(isMobile)
-  const [mobileData, setMobileData] = useState<ShareData>({})
-  const [desktopData, setDesktopData] = useState<ShareData>({})
-  const shareImage = useShareImage()
-  const [createShareLink] = useCreateShareLinkMutation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const sharingUrl = (isMobileMode ? mobileData.shareUrl : desktopData.shareUrl) || ''
-  const imageUrl = (isMobileMode ? mobileData.imageUrl : desktopData.imageUrl) || ''
-  const blob = isMobileMode ? mobileData.blob : desktopData.blob
-
-  const handleGenerateImageDesktop = useCallback(
-    async (shareUrl: string) => {
-      if (ref.current) {
-        setIsError(false)
-        const shareId = shareUrl?.split('/').pop()
-
-        if (!shareId) {
-          setLoading(false)
-          setIsError(true)
-        }
-        try {
-          const { imageUrl, blob } = await shareImage(ref.current, SHARE_TYPE.KYBER_AI, shareId)
-          setDesktopData(prev => {
-            return { ...prev, imageUrl, blob }
-          })
-        } catch (err) {
-          console.log(err)
-          setLoading(false)
-          setIsError(true)
-        }
-      } else {
-        setLoading(false)
-      }
-    },
-    [shareImage],
-  )
-
-  const handleGenerateImageMobile = useCallback(
-    async (shareUrl: string) => {
-      if (refMobile.current) {
-        setIsError(false)
-        const shareId = shareUrl?.split('/').pop()
-        if (!shareId) return
-        try {
-          const { imageUrl, blob } = await shareImage(refMobile.current, SHARE_TYPE.KYBER_AI, shareId)
-          setMobileData(prev => {
-            return { ...prev, imageUrl, blob }
-          })
-        } catch (err) {
-          console.log(err)
-          setLoading(false)
-          setIsError(true)
-        }
-      } else {
-        setLoading(false)
-      }
-    },
-    [shareImage],
-  )
-
-  useEffect(() => {
-    let timeout: NodeJS.Timeout
-    const createShareFunction = async () => {
-      if (!isOpen) {
-        timeout = setTimeout(() => {
-          setLoading(true)
-          setIsError(false)
-          setIsMobileMode(isMobile)
-          setDesktopData({})
-          setMobileData({})
-        }, 400)
-      }
-      if (isOpen) {
-        if ((isMobileMode && !mobileData.shareUrl) || (!isMobileMode && !desktopData.shareUrl)) {
-          setLoading(true)
-          setIsError(false)
-          const shareUrl = await createShareLink({
-            redirectURL: window.location.href,
-            type: SHARE_TYPE.KYBER_AI,
-          }).unwrap()
-          if (isMobileMode && !mobileData.shareUrl) {
-            setMobileData({ shareUrl })
-          } else {
-            setDesktopData({ shareUrl })
-          }
-          timeout = setTimeout(() => {
-            isMobileMode ? handleGenerateImageMobile(shareUrl) : handleGenerateImageDesktop(shareUrl)
-          }, 1000)
-        }
-      }
-    }
-    createShareFunction()
-    return () => {
-      timeout && clearTimeout(timeout)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, isMobileMode])
-
-  const [, staticCopy] = useCopyClipboard()
-  const handleCopyClick = () => {
-    staticCopy(sharingUrl || '')
-    onShareClick?.('copy to clipboard')
-  }
-  const handleImageCopyClick = () => {
-    if (blob) {
-      const clipboardItem = new ClipboardItem({ ['image/png']: blob })
-      navigator.clipboard.write([clipboardItem])
-    }
-  }
-  const handleDownloadClick = () => {
-    downloadImage(blob, 'kyberAI_share_image.png')
-  }
-
   const TokenInfo = () => (
     <>
       {tokenOverview && (
@@ -373,6 +250,154 @@ export default function KyberAIShareModal({
       )}
     </>
   )
+
+  return (
+    <ShareModal
+      {...props}
+      shareType={SHARE_TYPE.KYBER_AI}
+      titleLogo={<TokenInfo />}
+      imageImage="kyberAI_share_image.png"
+    />
+  )
+}
+
+// todo move another file
+export function ShareModal({
+  title,
+  content,
+  isOpen,
+  onClose,
+  onShareClick,
+  shareType,
+  imageImage,
+  titleLogo,
+}: {
+  title?: string
+  content?: (mobileMode?: boolean) => ReactNode
+  isOpen: boolean
+  onClose?: () => void
+  onShareClick?: (network: string) => void
+  shareType: SHARE_TYPE
+  imageImage: string
+  titleLogo: ReactNode
+}) {
+  const theme = useTheme()
+  const ref = useRef<HTMLDivElement>(null)
+  const refMobile = useRef<HTMLDivElement>(null)
+  const [loading, setLoading] = useState(true)
+  const [isError, setIsError] = useState(false)
+  const [isMobileMode, setIsMobileMode] = useState(isMobile)
+  const [mobileData, setMobileData] = useState<ShareData>({})
+  const [desktopData, setDesktopData] = useState<ShareData>({})
+  const shareImage = useShareImage()
+  const [createShareLink] = useCreateShareLinkMutation()
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+  const sharingUrl = (isMobileMode ? mobileData.shareUrl : desktopData.shareUrl) || ''
+  const imageUrl = (isMobileMode ? mobileData.imageUrl : desktopData.imageUrl) || ''
+  const blob = isMobileMode ? mobileData.blob : desktopData.blob
+
+  const handleGenerateImageDesktop = useCallback(
+    async (shareUrl: string) => {
+      if (ref.current) {
+        setIsError(false)
+        const shareId = shareUrl?.split('/').pop()
+
+        if (!shareId) {
+          setLoading(false)
+          setIsError(true)
+        }
+        try {
+          const { imageUrl, blob } = await shareImage(ref.current, shareType, shareId)
+          setDesktopData(prev => {
+            return { ...prev, imageUrl, blob }
+          })
+        } catch (err) {
+          console.log(err)
+          setLoading(false)
+          setIsError(true)
+        }
+      } else {
+        setLoading(false)
+      }
+    },
+    [shareImage, shareType],
+  )
+
+  const handleGenerateImageMobile = useCallback(
+    async (shareUrl: string) => {
+      if (refMobile.current) {
+        setIsError(false)
+        const shareId = shareUrl?.split('/').pop()
+        if (!shareId) return
+        try {
+          const { imageUrl, blob } = await shareImage(refMobile.current, shareType, shareId)
+          setMobileData(prev => {
+            return { ...prev, imageUrl, blob }
+          })
+        } catch (err) {
+          console.log(err)
+          setLoading(false)
+          setIsError(true)
+        }
+      } else {
+        setLoading(false)
+      }
+    },
+    [shareImage, shareType],
+  )
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout
+    const createShareFunction = async () => {
+      if (!isOpen) {
+        timeout = setTimeout(() => {
+          setLoading(true)
+          setIsError(false)
+          setIsMobileMode(isMobile)
+          setDesktopData({})
+          setMobileData({})
+        }, 400)
+      }
+      if (isOpen) {
+        if ((isMobileMode && !mobileData.shareUrl) || (!isMobileMode && !desktopData.shareUrl)) {
+          setLoading(true)
+          setIsError(false)
+          const shareUrl = await createShareLink({
+            redirectURL: window.location.href,
+            type: shareType,
+          }).unwrap()
+          if (isMobileMode && !mobileData.shareUrl) {
+            setMobileData({ shareUrl })
+          } else {
+            setDesktopData({ shareUrl })
+          }
+          timeout = setTimeout(() => {
+            isMobileMode ? handleGenerateImageMobile(shareUrl) : handleGenerateImageDesktop(shareUrl)
+          }, 1000)
+        }
+      }
+    }
+    createShareFunction()
+    return () => {
+      timeout && clearTimeout(timeout)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, isMobileMode])
+
+  const [, staticCopy] = useCopyClipboard()
+  const handleCopyClick = () => {
+    staticCopy(sharingUrl || '')
+    onShareClick?.('copy to clipboard')
+  }
+  const handleImageCopyClick = () => {
+    if (blob) {
+      const clipboardItem = new ClipboardItem({ ['image/png']: blob })
+      navigator.clipboard.write([clipboardItem])
+    }
+  }
+  const handleDownloadClick = () => {
+    downloadImage(blob, imageImage)
+  }
 
   useEffect(() => {
     if (imageUrl) {
@@ -427,9 +452,7 @@ export default function KyberAIShareModal({
           {loading &&
             (isMobileMode ? (
               <ImageInnerMobile ref={refMobile}>
-                <RowFit gap="8px">
-                  <TokenInfo />
-                </RowFit>
+                <RowFit gap="8px">{titleLogo}</RowFit>
 
                 <Column
                   style={{
@@ -467,7 +490,7 @@ export default function KyberAIShareModal({
               <ImageInner ref={ref}>
                 <RowBetween style={{ zIndex: 2 }}>
                   <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
-                    <TokenInfo />
+                    {titleLogo}
                   </RowFit>
                   <RowFit gap="20px">
                     <KyberSwapShareLogo />

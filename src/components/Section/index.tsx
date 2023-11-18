@@ -31,19 +31,19 @@ const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   flex-direction: column;
 `
 
-export type SectionProps = {
+export type SectionProps<T extends string = string> = {
   title?: ReactNode
   id?: string
   children: ReactNode
   style?: React.CSSProperties
   contentStyle?: React.CSSProperties
   actions: ReactNode
-  tabs?: TabITem[]
-  activeTab?: string
-  onTabClick?: (val: string) => void | Dispatch<SetStateAction<string>>
+  tabs?: TabITem<T>[]
+  activeTab?: T
+  onTabClick?: (val: T) => void | Dispatch<SetStateAction<T>>
 }
 
-export default function Section({
+export default function Section<T extends string = string>({
   title = '',
   id,
   children,
@@ -53,7 +53,7 @@ export default function Section({
   tabs,
   activeTab,
   onTabClick,
-}: SectionProps) {
+}: SectionProps<T>) {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
   const renderAction = () => (
