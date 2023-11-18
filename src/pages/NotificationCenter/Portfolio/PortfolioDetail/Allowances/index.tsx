@@ -3,13 +3,14 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
 import { useLazyGetTokenApprovalQuery } from 'services/portfolio'
 
 import { ButtonAction } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
+import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
 import Row, { RowFit } from 'components/Row'
 import Table, { TableColumn } from 'components/Table'
@@ -17,12 +18,15 @@ import { ERC20_ABI } from 'constants/abis/erc20'
 import { EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { formatAllowance } from 'pages/NotificationCenter/Portfolio/helpers'
 import { TokenAllowAnce } from 'pages/NotificationCenter/Portfolio/type'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import { getSigningContract } from 'utils/getContract'
@@ -46,13 +50,20 @@ const ActionButton = ({
   const theme = useTheme()
   const { amount, ownerAddress } = item
   const { account } = useActiveWeb3React()
-  const disabled = !amount || amount === '0' || account?.toLowerCase() !== ownerAddress.toLowerCase()
+  const [loading, setLoading] = useState(false)
+  const onClick = async () => {
+    setLoading(true)
+    await revokeAllowance(item)
+    setLoading(false)
+  }
+
+  const disabled = loading || !amount || amount === '0' || account?.toLowerCase() !== ownerAddress.toLowerCase()
   const color = disabled ? theme.border : theme.red
   return (
     <Row justify="flex-end">
       <ButtonAction
         disabled={disabled}
-        onClick={() => revokeAllowance(item)}
+        onClick={onClick}
         style={{
           backgroundColor: rgba(color, 0.2),
           color: color,
@@ -62,7 +73,7 @@ const ActionButton = ({
           justifyContent: 'center',
         }}
       >
-        <Trash size={14} />
+        {loading ? <Loader /> : <Trash size={14} />}
       </ButtonAction>
     </Row>
   )
@@ -106,10 +117,14 @@ const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<T
 const useFetchAllowance = ({ wallets, chainIds }: { wallets: string[]; chainIds: ChainId[] }) => {
   const [data, setData] = useState<TokenAllowAnce[]>([])
   const [fetchAllowance, { isFetching }] = useLazyGetTokenApprovalQuery()
-  useEffect(() => {
-    const controller = new AbortController()
-    const signal = controller.signal
-    async function fetchData() {
+  const loading = useShowLoadingAtLeastTime(isFetching, 300)
+  const controller = useRef(new AbortController())
+
+  const fetchData = useCallback(
+    async function () {
+      controller.current.abort()
+      controller.current = new AbortController()
+      const signal = controller.current.signal
       try {
         if (!wallets.length) {
           throw new Error('Empty addresses')
@@ -121,40 +136,52 @@ const useFetchAllowance = ({ wallets, chainIds }: { wallets: string[]; chainIds:
         if (signal.aborted) return
         setData([])
       }
-    }
-    fetchData()
-    return () => controller.abort()
-  }, [wallets, chainIds, fetchAllowance])
+    },
+    [chainIds, wallets, fetchAllowance],
+  )
 
-  return { data, isFetching }
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  return { data, isFetching: loading, refetch: fetchData }
 }
 export default function Allowances({ walletAddresses, chainIds }: { walletAddresses: string[]; chainIds: ChainId[] }) {
-  const { data, isFetching } = useFetchAllowance({ wallets: walletAddresses, chainIds })
+  const { data, isFetching, refetch } = useFetchAllowance({ wallets: walletAddresses, chainIds })
   const theme = useTheme()
 
   const { chainId: currentChain } = useActiveWeb3React()
   const { library } = useWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
+  const addTransactionWithType = useTransactionAdder()
   const revokeAllowance = useCallback(
     async (data: TokenAllowAnce) => {
       const { chainId } = data
-      const handleRevoke = async function ({ tokenAddress, spenderAddress, ownerAddress }: TokenAllowAnce) {
+      const handleRevoke = async function ({ tokenAddress, spenderAddress, ownerAddress, symbol }: TokenAllowAnce) {
         try {
           if (!library) return
           const tokenContract = getSigningContract(tokenAddress, ERC20_ABI, library, ownerAddress)
           const tx = await tokenContract.approve(spenderAddress, ethers.constants.Zero)
+          addTransactionWithType({
+            hash: tx.hash,
+            type: TRANSACTION_TYPE.APPROVE,
+            extraInfo: {
+              tokenSymbol: symbol,
+              tokenAddress,
+              contract: spenderAddress,
+            },
+          })
           await tx.wait()
-          // todo add transaction, loading
+          refetch()
         } catch (error) {
           console.error('Error revoking allowance:', error)
         }
       }
-
-      if (currentChain !== chainId) changeNetwork(chainId, () => handleRevoke(data)) // todo not work
-      else handleRevoke(data)
+      if (currentChain !== chainId) return changeNetwork(chainId, () => handleRevoke(data), undefined, true) // todo not work
+      return handleRevoke(data)
     },
-    [changeNetwork, currentChain, library],
+    [changeNetwork, currentChain, library, addTransactionWithType, refetch],
   )
 
   const columns = useMemo(() => {

@@ -19,6 +19,7 @@ import { getTxsIcon } from 'components/WalletPopup/Transactions/Icon'
 import { EMPTY_ARRAY } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import useDebounce from 'hooks/useDebounce'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import { WalletLabel } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
@@ -197,6 +198,7 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
     },
     { skip: !wallet },
   )
+  const loading = useShowLoadingAtLeastTime(isLoading, 300)
   const [visibleData, setVisibleDat] = useState<TransactionHistory[]>([])
 
   useEffect(() => {
@@ -226,7 +228,7 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
         <SearchPortFolio onChange={setSearch} value={search} placeholder={t`Search by token symbol or token address`} />
       }
     >
-      {isLoading ? (
+      {loading ? (
         <LocalLoader />
       ) : (
         <>
