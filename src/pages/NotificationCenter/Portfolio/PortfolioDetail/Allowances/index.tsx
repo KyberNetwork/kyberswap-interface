@@ -196,7 +196,9 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
       ? data.filter(
           e =>
             e.symbol.toLowerCase().includes(searchDebounce.toLowerCase()) ||
-            e.tokenAddress.toLowerCase().includes(searchDebounce.toLowerCase()),
+            e.spenderName.toLowerCase().includes(searchDebounce.toLowerCase()) ||
+            e.tokenAddress.toLowerCase() === searchDebounce.toLowerCase() ||
+            e.spenderAddress.toLowerCase() === searchDebounce.toLowerCase(),
         )
       : data
   }, [data, searchDebounce])
