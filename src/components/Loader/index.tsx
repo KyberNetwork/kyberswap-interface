@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { CSSProperties, keyframes } from 'styled-components'
 
 const rotate = keyframes`
   from {
@@ -32,6 +32,7 @@ export default function Loader({
   stroke?: string
   strokeWidth?: string
   [k: string]: any
+  style?: CSSProperties
 }) {
   const sWN = Number(strokeWidth)
   // viewbox for stroke width:

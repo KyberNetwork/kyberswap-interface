@@ -172,7 +172,7 @@ function CampaignItem({ campaign, onSelectCampaign, isSelected, style }: Campaig
               placement="top"
               text={<Trans>This campaign is participating in the Grant Campaign.</Trans>}
             >
-              <GrantCampaignIcon width="16px" height="16px" />
+              <GrantCampaignIcon width="16px" height="16px" color={theme.primary} />
             </MouseoverTooltip>
           ) : null}
           {hasBonusMultiplier && (

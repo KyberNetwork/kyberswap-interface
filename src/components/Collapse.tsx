@@ -109,24 +109,26 @@ export const CollapseItem: React.FC<Props> = ({
   )
 }
 
-export type ToggleItemType = { title: React.ReactNode; content: ReactNode | string }
+export type ToggleItemType = { title: React.ReactNode; content: ReactNode | string; style?: CSSProperties }
 // open one, close the others
 const ToggleCollapse = ({
   data,
-  itemActiveStyle = {},
-  itemStyle = {},
+  itemActiveStyle,
+  itemStyle,
+  style,
 }: {
   data: ToggleItemType[]
   itemActiveStyle?: CSSProperties
   itemStyle?: CSSProperties
+  style?: CSSProperties
 }) => {
   const [expandedIndex, setExpandedIndex] = useState(0)
   return (
-    <div>
+    <div style={style}>
       {data.map((item, index) => {
         const isActive = expandedIndex === index
         return (
-          <ItemWrapper key={index} style={isActive ? { ...itemStyle, ...itemActiveStyle } : itemStyle}>
+          <ItemWrapper key={index} style={{ ...itemStyle, ...item.style, ...(isActive ? itemActiveStyle : {}) }}>
             <Header
               onClick={() => {
                 setExpandedIndex(isActive ? -1 : index)

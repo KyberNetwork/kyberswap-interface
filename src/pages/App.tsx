@@ -69,6 +69,7 @@ const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
 const KNCUtility = lazy(() => import('pages/KyberDAO/KNCUtility'))
 const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
+const AirdropCampaign = lazy(() => import('pages/AirdropCampaign'))
 const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
 const Campaign = lazy(() => import('pages/Campaign'))
@@ -327,6 +328,9 @@ export default function App() {
                 <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
                 <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                 <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
+
+                <Route path={APP_PATHS.AIRDROP_CAMPAIGN} element={<AirdropCampaign />} />
+
                 <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
                 <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
                 <Route

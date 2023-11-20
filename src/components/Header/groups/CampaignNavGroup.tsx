@@ -3,6 +3,9 @@ import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
+import { ReactComponent as AirdropIcon } from 'assets/svg/airdrop.svg'
+import { ReactComponent as GrantCampaignIcon } from 'assets/svg/grant_campaign.svg'
+import Icon from 'components/Icons/Icon'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 
@@ -34,11 +37,22 @@ const CampaignNavGroup = () => {
           }}
         >
           <StyledNavLink id="campaigns" to={APP_PATHS.CAMPAIGN}>
-            <Trans>Trading Campaigns</Trans>
+            <Flex sx={{ gap: '10px' }} alignItems="center">
+              <Icon id="speaker" /> <Trans>Trading Campaigns</Trans>
+            </Flex>
           </StyledNavLink>
 
           <StyledNavLink id="project-trading-grant" to={APP_PATHS.GRANT_PROGRAMS}>
-            <Trans>Trading Grant Campaign</Trans>
+            <Flex sx={{ gap: '12px' }} alignItems="center">
+              <GrantCampaignIcon style={{ width: '20px' }} /> <Trans>Trading Grant Campaign</Trans>
+            </Flex>
+          </StyledNavLink>
+
+          <StyledNavLink id="airdrop-campaigns" to={APP_PATHS.AIRDROP_CAMPAIGN}>
+            <Flex sx={{ gap: '14px', paddingLeft: '1px' }} alignItems="center">
+              <AirdropIcon style={{ width: '18px', height: '18px' }} />
+              <Trans>Airdrop Campaign</Trans>
+            </Flex>
           </StyledNavLink>
         </Flex>
       }

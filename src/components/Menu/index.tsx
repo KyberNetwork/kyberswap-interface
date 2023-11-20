@@ -374,6 +374,14 @@ export default function Menu() {
                         </Text>
                       ),
                     },
+                    {
+                      link: APP_PATHS.AIRDROP_CAMPAIGN,
+                      label: (
+                        <Text as="span">
+                          <Trans>Airdrop Campaign</Trans>
+                        </Text>
+                      ),
+                    },
                   ]}
                 />
               </MenuItem>
