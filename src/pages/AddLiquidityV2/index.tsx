@@ -1839,6 +1839,7 @@ export default function AddLiquidity() {
       <PageWrapper>
         <AddRemoveTabs
           hideShare
+          isElastic
           alignTitle="left"
           action={!!noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD}
           showTooltip={true}

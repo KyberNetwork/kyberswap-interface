@@ -879,6 +879,7 @@ export default function IncreaseLiquidity() {
       <Container>
         <AddRemoveTabs
           hideShare
+          isElastic
           alignTitle="left"
           action={LiquidityAction.INCREASE}
           showTooltip={false}

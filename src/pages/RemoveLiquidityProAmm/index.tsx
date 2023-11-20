@@ -601,6 +601,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       <Container>
         <AddRemoveTabs
           hideShare
+          isElastic
           alignTitle="left"
           action={LiquidityAction.REMOVE}
           showTooltip={false}
