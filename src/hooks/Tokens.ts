@@ -294,7 +294,7 @@ export const findCacheToken = (address: string) => {
   return cacheTokens[address] || cacheTokens[address.toLowerCase()]
 }
 
-export const fetchTokenByAddress = async (address: string, chainId: ChainId, _signal?: AbortSignal) => {
+export const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
   if (address === ZERO_ADDRESS) return NativeCurrencies[chainId]
   const findToken = findCacheToken(address)
   if (findToken && findToken.chainId === chainId) return findToken

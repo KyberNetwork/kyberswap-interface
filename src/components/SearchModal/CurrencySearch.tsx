@@ -102,7 +102,7 @@ const fetchTokens = async (
 ): Promise<WrappedTokenInfo[]> => {
   try {
     if (search && chainId && isAddress(chainId, search)) {
-      const token = await fetchTokenByAddress(search, chainId, signal)
+      const token = await fetchTokenByAddress(search, chainId)
       return token ? [token as WrappedTokenInfo] : []
     }
     const params: { query: string; isWhitelisted?: boolean; pageSize: number; page: number; chainIds: string } = {
