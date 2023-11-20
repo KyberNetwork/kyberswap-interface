@@ -61,10 +61,11 @@ const MenuFlyoutBrowserStyle = css`
 `
 
 type Props = {
+  isElastic?: boolean
   hoverBg?: string
 }
 
-export default function TransactionSettings({ hoverBg }: Props) {
+export default function TransactionSettings({ isElastic, hoverBg }: Props) {
   const theme = useTheme()
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
   const [isUseAggregatorForZap, toggleAggregatorForZap] = useAggregatorForZapSetting()
@@ -165,16 +166,25 @@ export default function TransactionSettings({ hoverBg }: Props) {
               />
             </Flex>
 
-            <Flex justifyContent="space-between">
-              <Flex width="fit-content" alignItems="center">
-                <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                  <MouseoverTooltip text={t`Zap will include DEX aggregator to find the best price.`} placement="right">
-                    <Trans>Use Aggregator for Zaps</Trans>
-                  </MouseoverTooltip>
-                </TextDashed>
+            {isElastic && (
+              <Flex justifyContent="space-between">
+                <Flex width="fit-content" alignItems="center">
+                  <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                    <MouseoverTooltip
+                      text={t`Zap will include DEX aggregator to find the best price.`}
+                      placement="right"
+                    >
+                      <Trans>Use Aggregator for Zaps</Trans>
+                    </MouseoverTooltip>
+                  </TextDashed>
+                </Flex>
+                <Toggle
+                  id="toggle-aggregator-for-zap"
+                  isActive={isUseAggregatorForZap}
+                  toggle={toggleAggregatorForZap}
+                />
               </Flex>
-              <Toggle id="toggle-aggregator-for-zap" isActive={isUseAggregatorForZap} toggle={toggleAggregatorForZap} />
-            </Flex>
+            )}
           </SettingsWrapper>
         </MenuFlyout>
       </StyledMenu>

@@ -102,7 +102,7 @@ const TextUnderlineTransparent = styled(Text)`
 
 export default function IncreaseLiquidity() {
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
-  const [method, setMethod] = useState<'pair' | 'zap'>('zap')
+  const [method, setMethod] = useState<'pair' | 'zap'>('pair')
   const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
   useEffect(() => {
     if (!isZapAvailable) {
@@ -879,6 +879,7 @@ export default function IncreaseLiquidity() {
       <Container>
         <AddRemoveTabs
           hideShare
+          isElastic
           alignTitle="left"
           action={LiquidityAction.INCREASE}
           showTooltip={false}
