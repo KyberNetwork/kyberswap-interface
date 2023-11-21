@@ -27,6 +27,9 @@ export const updateUserLocale = createAction<{ userLocale: SupportedLocale }>('u
 export const updateUserSlippageTolerance = createAction<{ userSlippageTolerance: number }>(
   'user/updateUserSlippageTolerance',
 )
+export const updatePoolSlippageTolerance = createAction<{ poolSlippageTolerance: number }>(
+  'user/updatePoolSlippageTolerance',
+)
 
 export const updateUserDeadline = createAction<{ userDeadline: number }>('user/updateUserDeadline')
 export const addSerializedToken = createAction<{ serializedToken: SerializedToken }>('user/addSerializedToken')

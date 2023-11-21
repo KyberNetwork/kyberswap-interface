@@ -15,6 +15,7 @@ import {
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
+import usePageLocation from 'hooks/usePageLocation'
 import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
@@ -43,6 +44,7 @@ import {
   toggleTradeRoutes,
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
+  updatePoolSlippageTolerance,
   updateTokenAnalysisSettings,
   updateUserDeadline,
   updateUserDegenMode,
@@ -147,6 +149,8 @@ export function useAggregatorForZapSetting(): [boolean, () => void] {
 
 export function useUserSlippageTolerance(): [number, (slippage: number) => void] {
   const dispatch = useDispatch<AppDispatch>()
+  const [poolSlippageTolerance, setPoolSlippageTolerance] = usePoolSlippageTolerance()
+
   const userSlippageTolerance = useSelector<AppState, AppState['user']['userSlippageTolerance']>(state => {
     return state.user.userSlippageTolerance
   })
@@ -158,7 +162,27 @@ export function useUserSlippageTolerance(): [number, (slippage: number) => void]
     [dispatch],
   )
 
-  return [userSlippageTolerance, setUserSlippageTolerance]
+  const { isSwapPage } = usePageLocation()
+  if (isSwapPage) {
+    return [userSlippageTolerance, setUserSlippageTolerance]
+  }
+  return [poolSlippageTolerance, setPoolSlippageTolerance]
+}
+
+export function usePoolSlippageTolerance(): [number, (slippage: number) => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const poolSlippageTolerance = useSelector<AppState, AppState['user']['poolSlippageTolerance']>(state => {
+    return state.user.poolSlippageTolerance
+  })
+
+  const setPoolSlippageTolerance = useCallback(
+    (poolSlippageTolerance: number) => {
+      dispatch(updatePoolSlippageTolerance({ poolSlippageTolerance }))
+    },
+    [dispatch],
+  )
+
+  return [poolSlippageTolerance, setPoolSlippageTolerance]
 }
 
 export function useUserTransactionTTL(): [number, (slippage: number) => void] {
@@ -461,10 +485,12 @@ export const useCrossChainSetting = () => {
   return { setting, setExpressExecutionMode, setRawSlippage, toggleSlippageControlPinned }
 }
 
-export const useSlippageSettingByPage = (isCrossChain = false) => {
+export const useSlippageSettingByPage = () => {
   const dispatch = useDispatch()
-  const isPinSlippageSwap = useAppSelector(state => state.user.isSlippageControlPinned)
+  const { isCrossChain } = usePageLocation()
   const [rawSlippageSwap, setRawSlippageSwap] = useUserSlippageTolerance()
+
+  const isPinSlippageSwap = useAppSelector(state => state.user.isSlippageControlPinned)
   const togglePinSlippageSwap = () => {
     dispatch(pinSlippageControl(!isSlippageControlPinned))
   }
@@ -475,12 +501,17 @@ export const useSlippageSettingByPage = (isCrossChain = false) => {
     toggleSlippageControlPinned: togglePinnedSlippageCrossChain,
   } = useCrossChainSetting()
 
-  const isSlippageControlPinned = isCrossChain ? isPinSlippageCrossChain : isPinSlippageSwap
   const rawSlippage = isCrossChain ? rawSlippageSwapCrossChain : rawSlippageSwap
   const setRawSlippage = isCrossChain ? setRawSlippageCrossChain : setRawSlippageSwap
+  const isSlippageControlPinned = isCrossChain ? isPinSlippageCrossChain : isPinSlippageSwap
   const togglePinSlippage = isCrossChain ? togglePinnedSlippageCrossChain : togglePinSlippageSwap
 
-  return { setRawSlippage, rawSlippage, isSlippageControlPinned, togglePinSlippage }
+  return {
+    rawSlippage,
+    setRawSlippage,
+    isSlippageControlPinned,
+    togglePinSlippage,
+  }
 }
 
 const participantDefault = {

@@ -35,6 +35,7 @@ import {
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updateChainId,
+  updatePoolSlippageTolerance,
   updateTokenAnalysisSettings,
   updateUserDeadline,
   updateUserDegenMode,
@@ -66,8 +67,9 @@ export interface UserState {
   userDegenModeAutoDisableTimestamp: number
   useAggregatorForZap: boolean
 
-  // user defined slippage tolerance in bips, used in all txns
-  userSlippageTolerance: number
+  // user defined slippage tolerance in bips, used in SWAP page
+  userSlippageTolerance: number // For SWAP page
+  poolSlippageTolerance: number // For POOL and other pages
 
   // deadline set by user in minutes, used in all txns
   userDeadline: number
@@ -154,6 +156,7 @@ const initialState: UserState = {
   userDegenModeAutoDisableTimestamp: 0,
   userLocale: null,
   userSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
+  poolSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
   userDeadline: DEFAULT_DEADLINE_FROM_NOW,
   tokens: {},
   pairs: {},
@@ -236,6 +239,10 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateUserSlippageTolerance, (state, action) => {
       state.userSlippageTolerance = action.payload.userSlippageTolerance
+      state.timestamp = currentTimestamp()
+    })
+    .addCase(updatePoolSlippageTolerance, (state, action) => {
+      state.poolSlippageTolerance = action.payload.poolSlippageTolerance
       state.timestamp = currentTimestamp()
     })
     .addCase(updateUserDeadline, (state, action) => {
