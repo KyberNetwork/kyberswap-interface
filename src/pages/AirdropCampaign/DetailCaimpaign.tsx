@@ -137,17 +137,17 @@ export default function DetailCampaign() {
             <KNCLogo /> KNC
           </KncButton>
         </Reward>
-      </Column>
 
-      {!account ? (
-        <ButtonPrimary width={'110px'} height={'36px'} onClick={connectWallet}>
-          <Trans>Connect</Trans>
-        </ButtonPrimary>
-      ) : (
-        <ButtonPrimary width={'110px'} height={'36px'} onClick={onClaimReward} disabled={disableClaim}>
-          <Trans>Claim Now</Trans>
-        </ButtonPrimary>
-      )}
+        {!account ? (
+          <ButtonPrimary width={'110px'} height={'36px'} onClick={connectWallet}>
+            <Trans>Connect</Trans>
+          </ButtonPrimary>
+        ) : (
+          <ButtonPrimary width={'110px'} height={'36px'} onClick={onClaimReward} disabled={disableClaim}>
+            <Trans>Claim Now</Trans>
+          </ButtonPrimary>
+        )}
+      </Column>
     </Wrapper>
   )
 }
