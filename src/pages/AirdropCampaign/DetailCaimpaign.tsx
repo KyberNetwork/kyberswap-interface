@@ -10,6 +10,7 @@ import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import KNCLogo from 'pages/KyberDAO/kncLogo'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
 const Label = styled.span`
@@ -54,6 +55,7 @@ const Wrapper = styled(Column)`
 export default function DetailCampaign() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
+  const connectWallet = useWalletModalToggle()
   const { data } = useCheckAirdropQuery({ address: account || '' }, { skip: !account })
   const total = data?.totalRewards
   const deadlineClaim = Date.now() // todo and format time
@@ -112,9 +114,15 @@ export default function DetailCampaign() {
         </Reward>
       </Column>
 
-      <ButtonPrimary width={'110px'} height={'36px'} onClick={claimReward} disabled={disableClaim}>
-        <Trans>Claim Now</Trans>
-      </ButtonPrimary>
+      {!account ? (
+        <ButtonPrimary width={'110px'} height={'36px'} onClick={connectWallet}>
+          <Trans>Connect</Trans>
+        </ButtonPrimary>
+      ) : (
+        <ButtonPrimary width={'110px'} height={'36px'} onClick={claimReward} disabled={disableClaim}>
+          <Trans>Claim Now</Trans>
+        </ButtonPrimary>
+      )}
     </Wrapper>
   )
 }
