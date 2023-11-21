@@ -159,7 +159,7 @@ function AirdropCampaign() {
 
         <Column gap="16px" width="100%">
           <Text as="h2" fontWeight="500" fontSize={['28px', '28px']}>
-            <Trans>FAQ</Trans>
+            <Trans>Terms and Conditions</Trans>
           </Text>
           <Column gap="56px">
             <ul style={{ paddingInlineStart: '20px', marginBlockStart: 0 }}>

@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { ExternalLink } from 'theme'
 
 function BoxInViewMotion({
   delay = 0,
@@ -135,12 +136,14 @@ export default function BannerCarousel() {
       <View className="inViewChild">
         {banners.map((el, i) => (
           <BannerWrapper key={el} animate={list[(count + i) % 3]}>
-            <Image
-              src={`https://kyberswap-landingpage.vercel.app/_next/image?url=%2Fassets%2Fimages%2Fbanner${
-                i + 1
-              }.jpg&w=3840&q=100`}
-              alt="banner"
-            />
+            <ExternalLink href="https://kyberswap.com/">
+              <Image
+                src={`https://kyberswap-landingpage.vercel.app/_next/image?url=%2Fassets%2Fimages%2Fbanner${
+                  i + 1
+                }.jpg&w=3840&q=100`}
+                alt="banner"
+              />
+            </ExternalLink>
           </BannerWrapper>
         ))}
 

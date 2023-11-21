@@ -20,7 +20,7 @@ const Label = styled.span`
 
 const Reward = styled.div`
   display: flex;
-  width: min-content(500px, 50%);
+  width: min(500px, 100%);
   padding: 8px 12px;
   align-items: center;
   gap: 4px;
@@ -43,6 +43,14 @@ const KncButton = styled.span`
   gap: 8px;
 `
 
+const Wrapper = styled(Column)`
+  gap: 32px;
+  flex: 1;
+  height: 100%;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
+`
 export default function DetailCampaign() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -54,7 +62,7 @@ export default function DetailCampaign() {
     if (disableClaim) return
   }
   return (
-    <Column gap="32px" flex={1} height={'100%'}>
+    <Wrapper>
       <Text fontSize={['28px', '48px']} lineHeight={['32px', '56px']} fontWeight="600">
         <Trans>
           Kyber Network 6Y
@@ -107,6 +115,6 @@ export default function DetailCampaign() {
       <ButtonPrimary width={'110px'} height={'36px'} onClick={claimReward} disabled={disableClaim}>
         <Trans>Claim Now</Trans>
       </ButtonPrimary>
-    </Column>
+    </Wrapper>
   )
 }
