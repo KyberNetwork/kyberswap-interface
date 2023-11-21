@@ -11,7 +11,7 @@ export enum FarmType {
   Kyber = 'kyber',
   Joint = 'joint',
   Partner = 'partner',
-  MyFarm = 'my_farm',
+  MyFarm = 'mine',
 }
 
 export enum ProtocolType {

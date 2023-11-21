@@ -21,7 +21,12 @@ export default function FarmList() {
   const { account } = useActiveWeb3React()
   const [{ chainIds, ...filters }, setFarmFilters] = useFarmFilters()
 
-  const { data } = useGetFarmsQuery({ ...filters, account })
+  const { data } = useGetFarmsQuery(
+    { ...filters, account },
+    {
+      pollingInterval: 10_000,
+    },
+  )
 
   return (
     <FarmTable>

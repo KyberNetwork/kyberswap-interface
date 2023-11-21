@@ -17,6 +17,8 @@ import { useActiveWeb3React } from 'hooks'
 import useFarmFilters, { FarmStatus, FarmType, ProtocolType } from 'hooks/farms/useFarmFilters'
 import useTheme from 'hooks/useTheme'
 
+import { FilterGroup, FilterItem } from '../styled'
+
 const FilterRow1 = styled.div({
   display: 'flex',
   justifyContent: 'space-between',
@@ -29,38 +31,6 @@ const FilterRow2 = styled.div({
   gap: '1rem',
   display: 'flex',
 })
-
-const FilterGroup = styled.div(({ theme }) => ({
-  display: 'flex',
-  borderRadius: '999px',
-  padding: '2px',
-  border: `1px solid ${theme.border}`,
-  width: 'fit-content',
-}))
-
-const FilterItem = styled.button<{ active: boolean }>(({ active, theme }) => ({
-  all: 'unset',
-  borderRadius: '999px',
-  padding: '8px 10px',
-  fontSize: '12px',
-  fontWeight: '500',
-  color: active ? theme.text : theme.subText,
-  background: active ? theme.tabActive : 'transparent',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '4px',
-  transition: 'all 0.3s ease',
-
-  '> svg': {
-    width: 16,
-    height: 16,
-    path: {
-      fill: 'currentcolor',
-      fillOpacity: 1,
-    },
-  },
-}))
 
 export default function FarmFilter() {
   const { chainId: walletChainId } = useActiveWeb3React()
