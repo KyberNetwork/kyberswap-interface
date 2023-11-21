@@ -11,7 +11,7 @@ describe('Intercept', { tags: TAG.regression }, () => {
       SwapPage.open(DEFAULT_URL)
    })
 
-   afterEach(() => {
+   beforeEach(() => {
       cy.reload()
    })
    describe('Swap', () => {
@@ -46,27 +46,27 @@ describe('Intercept', { tags: TAG.regression }, () => {
       })
    })
 
-   describe('My Pools', () => {
-      it('Should get farm list successfully', () => {
-         cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
-         SwapPage.goToMyPoolsPage()
-         cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
-      })
-   })
-
    describe('Farms', () => {
       it('Should get pool, farm list successfully', () => {
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
          SwapPage.goToFarmPage()
          cy.get('[data-testid=farm-block]')
-            .should(_ => {})
+            .should(_ => { })
             .then($list => {
                if ($list.length) {
                   cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
                }
                cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
             })
+      })
+   })
+
+   describe('My Pools', () => {
+      it('Should get farm list successfully', () => {
+         cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
+         SwapPage.goToMyPoolsPage()
+         cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
       })
    })
 })
