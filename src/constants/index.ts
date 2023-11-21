@@ -254,6 +254,9 @@ export const RTK_QUERY_TAGS = {
   GET_LIST_ORDERS: 'GET_LIST_ORDERS',
 
   GET_FARM_V2: 'GET_FARM_V2',
+
+  // reward
+  GET_AIRDROP_INFO: 'GET_AIRDROP_INFO',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {

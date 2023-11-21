@@ -116,7 +116,7 @@ const View = styled.div`
 `
 const list = ['center', 'right', 'left']
 
-const banners = [1, 2, 3]
+const banners = [1, 2, 3] // todo
 export default function BannerCarousel() {
   const [count, setCount] = useState(99999)
   useEffect(() => {

@@ -6,11 +6,15 @@ import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
+import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { useClaimRewards } from 'hooks/kyberdao'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
 const Label = styled.span`
@@ -60,9 +64,32 @@ export default function DetailCampaign() {
   const total = data?.totalRewards
   const deadlineClaim = Date.now() // todo and format time
   const disableClaim = !total || Date.now() > deadlineClaim
-  const claimReward = () => {
-    if (disableClaim) return
+  const kncAmount = total
+    ? formatDisplayNumber(uint256ToFraction(total, 18), { style: 'decimal', significantDigits: 6 })
+    : '0.00'
+  const addTransactionWithType = useTransactionAdder()
+  const claimReward = useClaimRewards()
+  const onClaimReward = async () => {
+    if (disableClaim || !account) return alert('In dev')
+    try {
+      const hash = await claimReward({
+        wallet: account,
+        chainId: String(ChainId.MATIC),
+        clientCode: '6th-anniversary',
+        ref: '',
+      })
+      addTransactionWithType({
+        hash,
+        type: TRANSACTION_TYPE.CLAIM_REWARD,
+        extraInfo: {
+          tokenAddress: KNC[ChainId.MATIC].address,
+          tokenAmount: kncAmount,
+          tokenSymbol: 'KNC',
+        },
+      })
+    } catch (error) {}
   }
+
   return (
     <Wrapper>
       <Text fontSize={['28px', '48px']} lineHeight={['32px', '56px']} fontWeight="600">
@@ -104,9 +131,7 @@ export default function DetailCampaign() {
         <Label>You are Eligible to:</Label>
         <Reward>
           <Text fontSize={'24px'} fontWeight={'500'} color={theme.subText}>
-            {total
-              ? formatDisplayNumber(uint256ToFraction(total, 18), { style: 'decimal', significantDigits: 6 })
-              : '0.00'}
+            {kncAmount}
           </Text>
           <KncButton>
             <KNCLogo /> KNC
@@ -119,7 +144,7 @@ export default function DetailCampaign() {
           <Trans>Connect</Trans>
         </ButtonPrimary>
       ) : (
-        <ButtonPrimary width={'110px'} height={'36px'} onClick={claimReward} disabled={disableClaim}>
+        <ButtonPrimary width={'110px'} height={'36px'} onClick={onClaimReward} disabled={disableClaim}>
           <Trans>Claim Now</Trans>
         </ButtonPrimary>
       )}

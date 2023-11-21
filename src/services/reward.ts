@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { REWARD_SERVICE_API } from 'constants/env'
+import { RTK_QUERY_TAGS } from 'constants/index'
 
 export type AirdropData = {
   totalRewards: string
@@ -26,6 +27,7 @@ export type AirdropData = {
 const rewardApi = createApi({
   reducerPath: 'rewardApi',
   baseQuery: fetchBaseQuery({ baseUrl: `${REWARD_SERVICE_API}` }),
+  tagTypes: [RTK_QUERY_TAGS.GET_AIRDROP_INFO],
   endpoints: builder => ({
     checkAirdrop: builder.query<AirdropData, { address: string }>({
       query: params => ({
@@ -33,6 +35,7 @@ const rewardApi = createApi({
         url: '/airdrop/6th-anniversary',
       }),
       transformResponse: (data: any) => data?.data,
+      providesTags: [RTK_QUERY_TAGS.GET_AIRDROP_INFO],
     }),
     claimReward: builder.mutation<void, { wallet: string; chainId: string; clientCode: string; ref: string }>({
       query: params => ({
@@ -40,11 +43,11 @@ const rewardApi = createApi({
         url: '/rewards/claim',
         method: 'POST',
       }),
-      transformResponse: (data: any) => data?.data,
+      invalidatesTags: [RTK_QUERY_TAGS.GET_AIRDROP_INFO],
     }),
   }),
 })
 
-export const { useCheckAirdropQuery } = rewardApi
+export const { useCheckAirdropQuery, useClaimRewardMutation } = rewardApi
 
 export default rewardApi

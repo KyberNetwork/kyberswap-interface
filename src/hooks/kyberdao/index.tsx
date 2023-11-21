@@ -12,6 +12,7 @@ import kyberDAOApi, {
   useGetGasRefundRewardInfoQuery,
   useGetGasRefundTierInfoQuery,
 } from 'services/kyberDAO'
+import { useClaimRewardMutation } from 'services/reward'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 
@@ -599,6 +600,51 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
       knc: aggregateValue([claimableReward, pendingReward, claimedReward], 'knc'),
     },
   }
+}
+
+// todo move
+export function useClaimRewards() {
+  const { account, walletKey } = useActiveWeb3React()
+  const { library } = useWeb3React()
+  const notify = useNotify()
+  const [claimReward] = useClaimRewardMutation()
+
+  return useCallback(
+    async (payload: { wallet: string; chainId: string; clientCode: string; ref: string }): Promise<string> => {
+      if (!account || !library) throw new Error(t`Invalid claim`)
+
+      try {
+        const response: any = claimReward(payload).unwrap()
+        if (response?.data?.code !== 200000) throw new Error(response?.data?.message)
+
+        const rewardContractAddress = response.data.data.ContractAddress
+        const encodedData = response.data.data.EncodedData
+        const tx = await sendEVMTransaction({
+          account,
+          library,
+          contractAddress: rewardContractAddress,
+          encodedData,
+          value: BigNumber.from(0),
+          sentryInfo: {
+            name: ErrorName.ClaimCampaignError,
+            wallet: walletKey,
+          },
+        })
+        if (!tx) throw new Error()
+        return tx.hash as string
+      } catch (error) {
+        const message = friendlyError(error)
+        console.error('Claim error:', { message, error })
+        notify({
+          title: t`Claim Error`,
+          summary: message,
+          type: NotificationType.ERROR,
+        })
+        throw error
+      }
+    },
+    [account, library, notify, walletKey, claimReward],
+  )
 }
 
 export function useClaimGasRefundRewards() {
