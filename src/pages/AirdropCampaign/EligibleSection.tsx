@@ -189,7 +189,7 @@ export default function EligibleSection() {
                   {
                     title: (
                       <Trans>
-                        Makers with total filled volume falling within the range of <b>$10- &lt;$50</b>
+                        Makers with total filled volume falling within the range of <b>$10 - &lt;$50</b>
                       </Trans>
                     ),
                   },

@@ -9,7 +9,7 @@ export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 20px 16px;
+    padding: 32px 16px;
     gap: 60px;
   `};
 `

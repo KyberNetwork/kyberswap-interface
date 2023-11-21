@@ -154,7 +154,14 @@ function AirdropCampaign() {
           <Text as="h2" fontWeight="500" fontSize={['28px', '28px']}>
             <Trans>FAQ</Trans>
           </Text>
-          <FAQ questions={questions} style={{ background: 'transparent', border: `1px solid ${theme.border}` }} />
+          <FAQ
+            questions={questions}
+            style={{
+              background: 'transparent',
+              border: upToSmall ? undefined : `1px solid ${theme.border}`,
+              padding: upToSmall ? 0 : undefined,
+            }}
+          />
         </Column>
 
         <Column gap="16px" width="100%">

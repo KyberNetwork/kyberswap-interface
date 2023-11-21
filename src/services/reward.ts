@@ -34,6 +34,14 @@ const rewardApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
+    claimReward: builder.mutation<void, { wallet: string; chainId: string; clientCode: string; ref: string }>({
+      query: params => ({
+        params,
+        url: '/rewards/claim',
+        method: 'POST',
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
   }),
 })
 
