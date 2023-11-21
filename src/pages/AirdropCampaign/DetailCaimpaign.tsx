@@ -56,7 +56,7 @@ export default function DetailCampaign() {
   const { account } = useActiveWeb3React()
   const { data } = useCheckAirdropQuery({ address: account || '' }, { skip: !account })
   const total = data?.totalRewards
-  const deadlineClaim = Date.now()
+  const deadlineClaim = Date.now() // todo and format time
   const disableClaim = !total || Date.now() > deadlineClaim
   const claimReward = () => {
     if (disableClaim) return
@@ -104,7 +104,7 @@ export default function DetailCampaign() {
           <Text fontSize={'24px'} fontWeight={'500'} color={theme.subText}>
             {total
               ? formatDisplayNumber(uint256ToFraction(total, 18), { style: 'decimal', significantDigits: 6 })
-              : '--'}
+              : '0.00'}
           </Text>
           <KncButton>
             <KNCLogo /> KNC

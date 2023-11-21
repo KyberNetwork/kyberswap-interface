@@ -1,8 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import Video from 'assets/videos/background.mp4'
 import { ButtonPrimary } from 'components/Button'
@@ -56,16 +54,16 @@ export enum AirdropTabs {
   ENDED,
 }
 
-const Tab = styled(Text)<{ active: boolean }>`
-  font-size: 24px;
-  font-weight: 500;
-  cursor: pointer;
-  color: ${({ active, theme }) => (active ? theme.primary : theme.subText)};
-`
+// const Tab = styled(Text)<{ active: boolean }>`
+//   font-size: 24px;
+//   font-weight: 500;
+//   cursor: pointer;
+//   color: ${({ active, theme }) => (active ? theme.primary : theme.subText)};
+// `
 
 function AirdropCampaign() {
   const { account } = useActiveWeb3React()
-  const [tab, setTab] = useState(AirdropTabs.ACTIVE)
+  // const [tab, setTab] = useState(AirdropTabs.ACTIVE)
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const connectWallet = useWalletModalToggle()
@@ -124,7 +122,7 @@ function AirdropCampaign() {
         </Row>
 
         <Column gap="24px">
-          <Row gap="12px" justify={upToSmall ? 'center' : undefined}>
+          {/* <Row gap="12px" justify={upToSmall ? 'center' : undefined}>
             <Tab active={tab === AirdropTabs.ACTIVE} onClick={() => setTab(AirdropTabs.ACTIVE)}>
               <Trans>Active</Trans>
             </Tab>
@@ -132,21 +130,11 @@ function AirdropCampaign() {
             <Tab active={tab === AirdropTabs.ENDED} onClick={() => setTab(AirdropTabs.ENDED)}>
               <Trans>Ended</Trans>
             </Tab>
-          </Row>
+          </Row> */}
 
           <Row gap="24px" flexDirection={upToSmall ? 'column' : 'row'} align={'flex-start'}>
-            {tab === AirdropTabs.ENDED ? (
-              <Row justify="center" height={'100px'}>
-                <Text fontSize={'14px'} color={theme.subText}>
-                  No campaign found
-                </Text>
-              </Row>
-            ) : (
-              <>
-                <DetailCampaign />
-                <EligibleSection />
-              </>
-            )}
+            <DetailCampaign />
+            <EligibleSection />
           </Row>
         </Column>
 
