@@ -84,6 +84,9 @@ export default function useFarmFilters(): [FarmFilter, (filters: SetFilterParams
   const setFarmFilters = useCallback(
     (filters: SetFilterParams) => {
       Object.keys(filters).forEach(key => {
+        if (key !== 'page') {
+          searchParams.set('page', '1')
+        }
         if (key === 'chainIds') {
           const chainIds = filters[key]
           if (chainIds?.length) {
