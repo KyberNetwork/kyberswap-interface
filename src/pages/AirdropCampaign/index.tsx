@@ -19,22 +19,35 @@ import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 import { AboutPage, Wrapper } from './styleds'
 
+// todo add a link
 const questions = [
   {
     title: t`Who can be eligible for the 6th-anniversary KyberSwap Airdrop?`,
     content: t`Eligibility for KyberSwap airdrops may vary from one campaign to another. Typically, participants need to meet specific requirements set by KyberSwap, such as holding a minimum amount of KNC tokens or completing certain tasks(LPs, Swap, Limit Order, KyberAI). Eligibility details for each airdrop campaign are usually provided in the campaign's terms and conditions.`,
   },
   {
-    title: t`Any Airdrop campaign after the 6th-anniversary KyberSwap Airdrop?`,
-    content: t`The KyberSwap team is planning various programs for Monthly quality users and highly active users, including loyal KyberSwap users, after the 6th-anniversary KyberSwap Airdrop.`,
+    title: t`Why did I not get rewarded, although I use KyberSwap?`,
+    content: t`Eligibility depends on criteria set by KyberSwap, based on KyberDAO Governance votes and allocations, and may evolve with each release. It also depends on when the eligibility snapshot is taken.`,
   },
   {
-    title: t`What about Monthly quality users and loyal KyberSwap users?`,
-    content: t`Eligibility depends on calculations by KyberSwap and may change. If you're an active user who frequently uses KyberSwap, you can be eligible for the next Airdrop.`,
+    title: t`Any Airdrop campaign after the 6th-anniversary KyberSwap Airdrop?`,
+    content: (
+      <Trans>
+        <Text as="p">
+          The KyberSwap team is planning various programs for Monthly quality users and highly active users, including
+          loyal KyberSwap users, after the 6th-anniversary KyberSwap Airdrop.
+        </Text>
+        <Text as="p" marginTop={'10px'}>
+          [Hint] If you missed this airdrop, why not participate and claim a 6th-year anniversary NFT? Stay tuned for a
+          surprise in the next airdrop in 2024.{' '}
+          <ExternalLink href="/todo">Click here to join 6th-year anniversary NFT campaign!</ExternalLink>
+        </Text>
+      </Trans>
+    ),
   },
   {
     title: t`What KyberSwap Airdrop campaigns are available?`,
-    content: t`KyberSwap periodically conducts airdrop campaigns to promote its platform and incentivize user engagement. These campaigns can vary in terms of the tasks or conditions required to participate. To stay updated on available airdrop campaigns, you can visit the official KyberSwap website, follow their social media channels, or subscribe to their newsletters.`,
+    content: t`KyberSwap may periodically conduct airdrop campaigns to reward users who support the platform through usage and referral. To reward genuine users, any airdrops that do happen will be announced retroactively after criteria and snapshots are set. Stay updated on available airdrop campaigns by visiting KyberSwap.com regularly and following our official channels.`,
   },
   {
     title: t`How do I participate in KyberSwap airdrop campaigns in the future?`,
@@ -42,7 +55,7 @@ const questions = [
   },
   {
     title: t`Are KyberSwap Airdrops free, or do I need to pay for participation?`,
-    content: t`KyberSwap Airdrops are typically free, meaning you don't need to pay to participate. However, you may need to meet certain eligibility criteria or complete specific tasks to qualify for an airdrop.`,
+    content: t`Aside from eligibility criteria, there are no fees charged to participate or claim the reward from KyberSwap`,
   },
   {
     title: t`How can I check if I've received the tokens from a KyberSwap Airdrop?`,
