@@ -35,6 +35,7 @@ import {
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updateChainId,
+  updatePoolDegenMode,
   updatePoolSlippageTolerance,
   updateTokenAnalysisSettings,
   updateUserDeadline,
@@ -65,6 +66,8 @@ export interface UserState {
 
   userDegenMode: boolean
   userDegenModeAutoDisableTimestamp: number
+  poolDegenMode: boolean
+  poolDegenModeAutoDisableTimestamp: number
   useAggregatorForZap: boolean
 
   // user defined slippage tolerance in bips, used in SWAP page
@@ -151,9 +154,11 @@ export const CROSS_CHAIN_SETTING_DEFAULT = {
 }
 
 const initialState: UserState = {
-  userDegenMode: false,
-  useAggregatorForZap: true,
+  userDegenMode: false, // For SWAP page
   userDegenModeAutoDisableTimestamp: 0,
+  poolDegenMode: false, // For POOL and other pages
+  poolDegenModeAutoDisableTimestamp: 0,
+  useAggregatorForZap: true,
   userLocale: null,
   userSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
   poolSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
@@ -229,6 +234,24 @@ export default createReducer(initialState, builder =>
           state.userSlippageTolerance = Math.min(state.userSlippageTolerance, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP)
         } else {
           state.userSlippageTolerance = Math.min(state.userSlippageTolerance, DEFAULT_SLIPPAGE)
+        }
+      }
+      state.timestamp = currentTimestamp()
+    })
+    .addCase(updatePoolDegenMode, (state, action) => {
+      state.poolDegenMode = action.payload.poolDegenMode
+      if (action.payload.poolDegenMode) {
+        state.poolDegenModeAutoDisableTimestamp = Date.now() + AUTO_DISABLE_DEGEN_MODE_MINUTES * 60 * 1000
+      } else {
+        // If max slippage <= 19.99%, no need update slippage.
+        if (state.poolSlippageTolerance <= MAX_NORMAL_SLIPPAGE_IN_BIPS) {
+          return
+        }
+        // Else, update to default slippage.
+        if (action.payload.isStablePairSwap) {
+          state.poolSlippageTolerance = Math.min(state.poolSlippageTolerance, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP)
+        } else {
+          state.poolSlippageTolerance = Math.min(state.poolSlippageTolerance, DEFAULT_SLIPPAGE)
         }
       }
       state.timestamp = currentTimestamp()
