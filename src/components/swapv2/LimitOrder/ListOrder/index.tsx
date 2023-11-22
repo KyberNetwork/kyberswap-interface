@@ -399,6 +399,7 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
         flowState={flowState}
         onDismiss={hideConfirmCancel}
         onSubmit={onCancelOrder}
+        customChainId={customChainId}
         order={currentOrder}
         isCancelAll={isCancelAll}
       />
@@ -407,6 +408,7 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
         <EditOrderModal
           flowState={flowState}
           setFlowState={setFlowState}
+          customChainId={customChainId}
           isOpen={isOpenEdit}
           onDismiss={hideEditModal}
           onSubmit={onCancelOrder}
