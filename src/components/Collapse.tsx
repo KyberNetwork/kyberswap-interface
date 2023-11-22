@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode, useState } from 'react'
+import React, { CSSProperties, ReactNode, useEffect, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import styled, { css } from 'styled-components'
 
@@ -116,13 +116,18 @@ const ToggleCollapse = ({
   itemActiveStyle,
   itemStyle,
   style,
+  defaultExpand = 0,
 }: {
   data: ToggleItemType[]
   itemActiveStyle?: CSSProperties
   itemStyle?: CSSProperties
   style?: CSSProperties
+  defaultExpand?: number
 }) => {
-  const [expandedIndex, setExpandedIndex] = useState(0)
+  const [expandedIndex, setExpandedIndex] = useState(defaultExpand)
+  useEffect(() => {
+    setExpandedIndex(defaultExpand)
+  }, [defaultExpand])
   return (
     <div style={style}>
       {data.map((item, index) => {

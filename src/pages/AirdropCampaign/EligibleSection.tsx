@@ -1,8 +1,8 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { Check, X } from 'react-feather'
 import { Text } from 'rebass'
-import { useCheckAirdropQuery } from 'services/reward'
+import { AirdropData, useCheckAirdropQuery } from 'services/reward'
 
 import ToggleCollapse from 'components/Collapse'
 import Column from 'components/Column'
@@ -65,11 +65,184 @@ const Content = ({
   )
 }
 
+const getItems = (data: AirdropData | undefined, isFetching: boolean) => {
+  const rewardDetail = data?.details
+  return [
+    {
+      title: <Title eligible={!!rewardDetail?.liquidity?.level} checking={isFetching} title={t`Providing Liquidity`} />,
+      content: (
+        <Content
+          checking={isFetching}
+          currentLevel={rewardDetail?.liquidity?.level}
+          items={[
+            {
+              title: (
+                <Trans>
+                  Added liquidity with total deposits falling within the range of <b>≥$1,000 - &lt;5,000</b>, and held
+                  positions for 10 days.
+                </Trans>
+              ),
+            },
+            {
+              title: (
+                <Trans>
+                  Added liquidity with total deposits falling within the range of <b>≥$5,000 - &lt;10,000</b> and held
+                  positions for 10 days.
+                </Trans>
+              ),
+            },
+            {
+              title: (
+                <Trans>
+                  Added liquidity with total deposits falling within the range of <b>≥$10,000 - &lt;100,000</b> and held
+                  positions for 10 days.
+                </Trans>
+              ),
+            },
+            {
+              title: (
+                <Trans>
+                  Added <b>$100,000</b> or more in total deposits and held positions for 10 days .
+                </Trans>
+              ),
+            },
+          ]}
+        />
+      ),
+    },
+    {
+      title: (
+        <Title
+          eligible={!!rewardDetail?.aggregator?.level}
+          checking={isFetching}
+          title={t`Swapping via Kyberswap UI`}
+        />
+      ),
+      content: (
+        <Content
+          checking={isFetching}
+          currentLevel={rewardDetail?.aggregator?.level}
+          items={[
+            {
+              title: (
+                <Trans>
+                  Swapped at least 3 times within a month (any month) + Minimum <b>$10K - &lt;20k vol.</b>
+                </Trans>
+              ),
+            },
+            {
+              title: (
+                <Trans>
+                  Swapped at least 3 times within a month (any month) + Minimum <b>$20k - &lt;50k vol.</b>
+                </Trans>
+              ),
+            },
+            {
+              title: (
+                <Trans>
+                  Swapped at least 3 times within a month (any month) + Minimum <b>$50K - &lt;200k vol.</b>
+                </Trans>
+              ),
+            },
+            {
+              title: (
+                <Trans>
+                  Swapped at least 3 times within a month (any month) + Minimum <b>$200k vol.</b>
+                </Trans>
+              ),
+            },
+          ]}
+        />
+      ),
+    },
+    {
+      title: (
+        <Title
+          eligible={!!rewardDetail?.limitOrder?.level}
+          checking={isFetching}
+          title={t`Engaging with Limit Orders`}
+        />
+      ),
+      content: (
+        <Content
+          checking={isFetching}
+          currentLevel={rewardDetail?.limitOrder?.level}
+          items={[
+            {
+              title: (
+                <Trans>
+                  Makers with total filled volume falling within the range of <b>$10 - &lt;$50</b>
+                </Trans>
+              ),
+            },
+            {
+              title: (
+                <Trans>
+                  Makers with total filled volume falling within the range of <b>$50 - &lt;200</b>
+                </Trans>
+              ),
+            },
+            {
+              title: (
+                <Trans>
+                  Makers with total filled volume falling within the range of <b>$200 - &lt;500</b>
+                </Trans>
+              ),
+            },
+            {
+              title: (
+                <Trans>
+                  Makers with total filled volume of at least <b>$500</b>
+                </Trans>
+              ),
+            },
+          ]}
+        />
+      ),
+    },
+    {
+      title: (
+        <Title
+          eligible={!!rewardDetail?.kyberAI?.level}
+          checking={isFetching}
+          title={t`Referring KyberAI to friends`}
+        />
+      ),
+      content: (
+        <Content
+          checking={isFetching}
+          currentLevel={rewardDetail?.kyberAI?.level}
+          items={[
+            {
+              title: t`Referred 1 to less than 5 friends`,
+            },
+            {
+              title: t`Referred 5 to less than 10 friends`,
+            },
+            {
+              title: t`Referred 10 to less than 50 friends`,
+            },
+            {
+              title: t`Referred 50 and more friends`,
+            },
+          ]}
+        />
+      ),
+      style: { borderBottom: 'none' },
+    },
+  ]
+}
+
 export default function EligibleSection() {
   const { account } = useActiveWeb3React()
   const { data, isFetching } = useCheckAirdropQuery({ address: account || '' }, { skip: !account })
-  const rewardDetail = data?.details
   const theme = useTheme()
+  const { items, defaultExpand } = useMemo(() => {
+    const items = getItems(data, isFetching)
+    const index = items.findIndex(e => e.title.props.eligible)
+    const defaultExpand = index === -1 ? 0 : index
+    return { items, defaultExpand }
+  }, [isFetching, data])
 
   return (
     <Column flex={1} gap="24px">
@@ -77,178 +250,14 @@ export default function EligibleSection() {
         <Trans>Criteria</Trans>
       </Text>
       <ToggleCollapse
+        defaultExpand={defaultExpand}
         style={{
           borderRadius: 20,
           border: `1px solid ${theme.border}`,
           overflow: 'hidden',
         }}
         itemStyle={{ borderBottom: `1px solid ${theme.border}`, padding: 16 }}
-        data={[
-          {
-            title: (
-              <Title eligible={!!rewardDetail?.liquidity?.level} checking={isFetching} title={t`Providing Liquidity`} />
-            ),
-            content: (
-              <Content
-                checking={isFetching}
-                currentLevel={rewardDetail?.liquidity?.level}
-                items={[
-                  {
-                    title: (
-                      <Trans>
-                        Added liquidity with total deposits falling within the range of <b>≥$1,000 - &lt;5,000</b>, and
-                        held positions for 10 days.
-                      </Trans>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Trans>
-                        Added liquidity with total deposits falling within the range of <b>≥$5,000 - &lt;10,000</b> and
-                        held positions for 10 days.
-                      </Trans>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Trans>
-                        Added liquidity with total deposits falling within the range of <b>≥$10,000 - &lt;100,000</b>{' '}
-                        and held positions for 10 days.
-                      </Trans>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Trans>
-                        Added <b>$100,000</b> or more in total deposits and held positions for 10 days .
-                      </Trans>
-                    ),
-                  },
-                ]}
-              />
-            ),
-          },
-          {
-            title: (
-              <Title
-                eligible={!!rewardDetail?.aggregator?.level}
-                checking={isFetching}
-                title={t`Swapping via Kyberswap UI`}
-              />
-            ),
-            content: (
-              <Content
-                checking={isFetching}
-                currentLevel={rewardDetail?.aggregator?.level}
-                items={[
-                  {
-                    title: (
-                      <Trans>
-                        Swapped at least 3 times within a month (any month) + Minimum <b>$10K - &lt;20k vol.</b>
-                      </Trans>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Trans>
-                        Swapped at least 3 times within a month (any month) + Minimum <b>$20k - &lt;50k vol.</b>
-                      </Trans>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Trans>
-                        Swapped at least 3 times within a month (any month) + Minimum <b>$50K - &lt;200k vol.</b>
-                      </Trans>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Trans>
-                        Swapped at least 3 times within a month (any month) + Minimum <b>$200k vol.</b>
-                      </Trans>
-                    ),
-                  },
-                ]}
-              />
-            ),
-          },
-          {
-            title: (
-              <Title
-                eligible={!!rewardDetail?.limitOrder?.level}
-                checking={isFetching}
-                title={t`Engaging with Limit Orders`}
-              />
-            ),
-            content: (
-              <Content
-                checking={isFetching}
-                currentLevel={rewardDetail?.limitOrder?.level}
-                items={[
-                  {
-                    title: (
-                      <Trans>
-                        Makers with total filled volume falling within the range of <b>$10 - &lt;$50</b>
-                      </Trans>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Trans>
-                        Makers with total filled volume falling within the range of <b>$50 - &lt;200</b>
-                      </Trans>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Trans>
-                        Makers with total filled volume falling within the range of <b>$200 - &lt;500</b>
-                      </Trans>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Trans>
-                        Makers with total filled volume of at least <b>$500</b>
-                      </Trans>
-                    ),
-                  },
-                ]}
-              />
-            ),
-          },
-          {
-            title: (
-              <Title
-                eligible={!!rewardDetail?.kyberAI?.level}
-                checking={isFetching}
-                title={t`Referring KyberAI to friends`}
-              />
-            ),
-            content: (
-              <Content
-                checking={isFetching}
-                currentLevel={rewardDetail?.kyberAI?.level}
-                items={[
-                  {
-                    title: t`Referred 1 to less than 5 friends`,
-                  },
-                  {
-                    title: t`Referred 5 to less than 10 friends`,
-                  },
-                  {
-                    title: t`Referred 10 to less than 50 friends`,
-                  },
-                  {
-                    title: t`Referred 50 and more friends`,
-                  },
-                ]}
-              />
-            ),
-            style: { borderBottom: 'none' },
-          },
-        ]}
+        data={items}
       />
     </Column>
   )
