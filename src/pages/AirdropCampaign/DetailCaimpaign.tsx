@@ -107,7 +107,7 @@ export default function DetailCampaign() {
               <Label>Unlock Date:</Label>
             </Trans>
           </Text>
-          <Text color={theme.text}>20/20/2023 12:00 AM (GMT+8).</Text>
+          <Text color={theme.text}>6 Dec 2023. 9:00 PM UTC.</Text>
         </Column>
         <Column gap="8px">
           <Text>
@@ -115,7 +115,7 @@ export default function DetailCampaign() {
               <Label>Deadline to claim Rewards:</Label>
             </Trans>
           </Text>
-          <Text color={theme.text}>20/20/2023 12:00 AM (GMT+8).</Text>
+          <Text color={theme.text}>6 Feb 2024 9:00 PM UTC.</Text>
         </Column>
         <Column gap="8px">
           <Text>
