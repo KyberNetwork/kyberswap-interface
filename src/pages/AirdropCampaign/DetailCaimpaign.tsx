@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
+import Row from 'components/Row'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useClaimRewards } from 'hooks/kyberdao'
@@ -22,6 +23,16 @@ const Label = styled.span`
   color: ${({ theme }) => theme.subText};
   font-weight: 400;
   font-size: 16px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 14px;
+  `}
+`
+
+const Value = styled.span`
+  color: ${({ theme }) => theme.text};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 14px;
+  `}
 `
 
 const Reward = styled.div`
@@ -58,8 +69,8 @@ const Wrapper = styled(Column)`
   `}
 `
 
-const unlockDate = Date.UTC(2023, 11, 6, 21, 0, 0)
-const deadline = Date.UTC(2024, 1, 6, 21, 0, 0)
+const unlockDate = Date.UTC(2023, 10, 30, 21, 0, 0)
+const deadline = Date.UTC(2024, 1, 29, 21, 0, 0)
 
 export default function DetailCampaign() {
   const theme = useTheme()
@@ -73,9 +84,12 @@ export default function DetailCampaign() {
     : '0.00'
   const addTransactionWithType = useTransactionAdder()
   const claimReward = useClaimRewards()
+
+  // todo check change network
   const onClaimReward = async () => {
     if (disableClaim || !account) return
     if (Math.random()) alert('In dev') // todo
+
     try {
       const hash = await claimReward({
         wallet: account,
@@ -106,30 +120,27 @@ export default function DetailCampaign() {
       </Text>
 
       <Column gap="16px">
-        <Column gap="8px">
-          <Text>
-            <Trans>
-              <Label>Unlock Date:</Label>
-            </Trans>
-          </Text>
-          <Text color={theme.text}>{dayjs.utc(unlockDate).format(`D MMM YYYY, hh:mm a UTC`)}</Text>
-        </Column>
-        <Column gap="8px">
-          <Text>
-            <Trans>
-              <Label>Deadline to claim Rewards:</Label>
-            </Trans>
-          </Text>
-          <Text color={theme.text}>{dayjs.utc(deadline).format(`D MMM YYYY, hh:mm a UTC`)}</Text>
-        </Column>
-        <Column gap="8px">
-          <Text>
-            <Trans>
-              <Label>Rewards to be claim on:</Label>
-            </Trans>
-          </Text>
-          <Text color={theme.text}>{NETWORKS_INFO[ChainId.MATIC].name} chain</Text>
-        </Column>
+        <Row gap="6px">
+          <Label>
+            <Trans>Snapshot Time:</Trans> <Value>May 1, 2023 - October 1, 2023</Value>
+          </Label>
+        </Row>
+        <Row gap="6px">
+          <Label>
+            <Trans>Unlock Date:</Trans> <Value>{dayjs.utc(unlockDate).format(`D MMM YYYY, hh:mm a UTC`)}</Value>
+          </Label>
+        </Row>
+        <Row gap="6px">
+          <Label>
+            <Trans>Deadline to claim Rewards:</Trans>{' '}
+            <Value>{dayjs.utc(deadline).format(`D MMM YYYY, hh:mm a UTC`)}</Value>
+          </Label>
+        </Row>
+        <Row gap="6px">
+          <Label>
+            <Trans>Rewards to be claim on:</Trans> <Value>{NETWORKS_INFO[ChainId.MATIC].name} chain</Value>
+          </Label>
+        </Row>
       </Column>
 
       <Column gap="12px">
