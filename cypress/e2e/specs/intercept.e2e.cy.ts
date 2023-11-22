@@ -9,9 +9,10 @@ const farm = new FarmPage()
 describe('Intercept', { tags: TAG.regression }, () => {
    before(() => {
       SwapPage.open(DEFAULT_URL)
+      // cy.setCookie('myCookie', 'cookieValue');
    })
-
    beforeEach(() => {
+      cy.clearCookies()
       cy.reload()
    })
    describe('Swap', () => {
