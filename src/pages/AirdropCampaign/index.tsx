@@ -109,17 +109,17 @@ function AirdropCampaign() {
         >
           <Column alignItems="flex-start" gap="16px">
             <Text as="h1" fontSize={'20px'} fontWeight="500">
-              <Trans>Airdrop Campaign</Trans>
+              <Trans>Rewarding KyberSwap Users</Trans>
             </Text>
             <Text as="h1" fontSize={['28px', '48px']} lineHeight={['32px', '56px']} fontWeight="600">
               <Trans>
-                KyberSwap Airdrop
+                KyberSwap Airdrops
                 <br />
-                Campaign
+                Claims Page
               </Trans>
             </Text>
             <Text fontSize={'16px'} color={theme.subText} fontWeight="400">
-              <Trans>Sky&apos;s the Limit: Join the Airdrop Adventure!</Trans>
+              <Trans>A Loyal KyberSwap User? Connect Wallet & Check Your Airdrop Eligibility Now.</Trans>
             </Text>
             {!account && (
               <ButtonPrimary onClick={connectWallet} width={'94px'} height={'36px'}>
