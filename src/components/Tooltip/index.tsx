@@ -28,6 +28,7 @@ export const TextDotted = styled(Text)<{ $underlineColor?: string }>`
 interface TooltipProps extends Omit<PopoverProps, 'content'> {
   text: string | ReactNode
   delay?: number
+  wrapperWidth?: string
   width?: string
   maxWidth?: string
   size?: number

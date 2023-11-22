@@ -19,12 +19,12 @@ interface GlobalData {
     totalLiquidityETH: string
     totalAmplifiedLiquidityUSD: string
     totalAmplifiedLiquidityETH: string
-    last24hPoolVolume: string
     [key: string]: string
   }[]
   aggregatorData?: {
     totalVolume?: string
     last24hVolume?: string
+    last24hPoolVolume: string
     maxApr?: {
       value: number
       id: string
@@ -94,7 +94,6 @@ export function useGlobalData() {
               totalLiquidityETH: getSumValues(queryResult, 'totalLiquidityETH'),
               totalAmplifiedLiquidityUSD: getSumValues(queryResult, 'totalAmplifiedLiquidityUSD'),
               totalAmplifiedLiquidityETH: getSumValues(queryResult, 'totalAmplifiedLiquidityETH'),
-              last24hPoolVolume: aggregatorData.last24hPoolVolume,
             },
           ],
         },
@@ -109,6 +108,7 @@ export function useGlobalData() {
         aggregatorData: {
           totalVolume: aggregatorData?.totalVolume,
           last24hVolume: aggregatorData?.last24hVolume,
+          last24hPoolVolume: aggregatorData?.last24hPoolVolume,
           maxApr: aggregatorAPR?.max_apr,
           totalEarnings: aggregatorAPR?.total_earnings,
         },

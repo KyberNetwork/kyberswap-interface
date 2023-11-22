@@ -198,10 +198,10 @@ export default function ProAmmPoolList({
     let filteredPools = Object.values(poolDatas || {}).filter(
       pool =>
         pool.address.toLowerCase() === searchValue ||
-        pool.token0.name.toLowerCase().includes(searchValue) ||
-        pool.token0.symbol.toLowerCase().includes(searchValue) ||
-        pool.token1.name.toLowerCase().includes(searchValue) ||
-        pool.token1.symbol.toLowerCase().includes(searchValue),
+        pool.token0.name?.toLowerCase().includes(searchValue) ||
+        pool.token0.symbol?.toLowerCase().includes(searchValue) ||
+        pool.token1.name?.toLowerCase().includes(searchValue) ||
+        pool.token1.symbol?.toLowerCase().includes(searchValue),
     )
 
     if (isShowOnlyActiveFarmPools) {

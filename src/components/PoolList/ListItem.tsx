@@ -28,7 +28,7 @@ import { setSelectedPool } from 'state/pools/actions'
 import { UserLiquidityPosition, useSharedPoolIdManager } from 'state/pools/hooks'
 import { shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
-import { getMyLiquidity, getTradingFeeAPR, parseSubgraphPoolData } from 'utils/dmm'
+import { getMyLiquidity, getTradingFeeAPR, parseClassicPoolData } from 'utils/dmm'
 import { formatDisplayNumber, parseFraction } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
@@ -53,7 +53,7 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
 
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(chainId, poolData.id, 3)
-  const { currency0, currency1, reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(
+  const { currency0, currency1, reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseClassicPoolData(
     poolData,
     chainId,
   )

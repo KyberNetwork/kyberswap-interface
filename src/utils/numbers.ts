@@ -145,6 +145,7 @@ type FormatOptions = {
   fallback?: string
   allowDisplayNegative?: boolean
   allowDisplayZero?: boolean
+  mergeZeros?: number
 }
 interface RequiredFraction extends FormatOptions {
   fractionDigits: number // usually for percent  & currency styles
@@ -174,19 +175,21 @@ export const formatDisplayNumber = (
     style = 'decimal',
     significantDigits,
     fractionDigits,
-    fallback = '--',
+    fallback,
     allowDisplayNegative = false,
     allowDisplayZero = true,
+    mergeZeros = 3,
   }: RequiredFraction | RequiredSignificant,
 ): string => {
   const currency = style === 'currency' ? '$' : ''
   const percent = style === 'percent' ? '%' : ''
-  const fallbackResult = `${currency}${fallback}${percent}`
+  const fallbackResult = fallback || `${currency}--${percent}`
 
   if (value === undefined || value === null || Number.isNaN(value)) return fallbackResult
   const parsedFraction = parseFraction(value)
   if (!allowDisplayNegative && parsedFraction.lessThan(BIG_INT_ZERO)) return fallbackResult
   if (!allowDisplayZero && parsedFraction.equalTo(BIG_INT_ZERO)) return fallbackResult
+  if (parsedFraction.greaterThan(JSBI.BigInt(10 ** 24))) return fallbackResult
 
   const shownFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
   const absShownFraction = shownFraction.lessThan(0) ? shownFraction.multiply(-1) : shownFraction
@@ -201,7 +204,7 @@ export const formatDisplayNumber = (
       .slice(0, significantDigits ? significantDigits : 30)
       .replace(/0+$/, '')
 
-    if (numberOfLeadingZeros > 3) {
+    if (numberOfLeadingZeros > mergeZeros) {
       const subscripts = numberOfLeadingZeros
         .toString()
         .split('')

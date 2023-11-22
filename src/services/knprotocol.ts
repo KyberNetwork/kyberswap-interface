@@ -9,7 +9,7 @@ import { ClassicPoolData } from 'hooks/pool/classic/type'
 import { SubgraphFarmV2 } from 'state/farms/elasticv2/types'
 import { ElasticPoolDetail } from 'types/pool'
 
-import { AllChainClassicPool, Token, transformResponseAllChainAllPool } from './utils/knprotocol'
+import { AllChainClassicPool, KNToken, transformResponseAllChainAllPool } from './utils/knprotocol'
 
 export type ClassicFarmKN = {
   id: string
@@ -26,8 +26,8 @@ export type ClassicFarmKN = {
     feeUSD1: string
     feeAmount0: string
     feeAmount1: string
-    token0: Token
-    token1: Token
+    token0: KNToken
+    token1: KNToken
     reserve0: string
     reserve1: string
     vReserve0: string
@@ -43,7 +43,7 @@ export type ClassicFarmKN = {
     apr: string
     farmApr: string
   }
-  rewardTokens: Token[]
+  rewardTokens: KNToken[]
   rewardPerUnits: number[]
   stakedAmount: string
   stakedTvl: string
@@ -78,25 +78,37 @@ const knProtocolApi = createApi({
       }),
     }),
     getAllPools: builder.query<
-      { [address: string]: ClassicPoolData | ElasticPoolDetail },
+      { pools: { [address: string]: ClassicPoolData | ElasticPoolDetail }; pagination: { totalRecords: number } },
       {
         chainIds: EVM_NETWORK[]
-        search: string
+        search?: string
         page: number
         size: number
-        protocol?: '' | 'elastic' | 'classic'
-        type?: '' | 'farm' | 'stable' | 'lsd'
-        sortBy?: '' | 'apr' | 'tvl' | 'volume' | 'fees' | 'id'
-        sortType?: '' | 'asc' | 'desc'
+        protocol?: 'elastic' | 'classic'
+        sortBy?: 'apr' | 'tvl' | 'volume' | 'fees' | 'myLiquidity'
+        sortType?: 'asc' | 'desc'
         timeframe?: '24h' | '7d' | '30d'
+        type?: 'farming' | 'stable' | 'lsd' | 'mine'
+        account?: string
       }
     >({
-      query: ({ chainIds, search, page, size, protocol, type, sortBy, sortType }) => ({
-        url: `/all-chain/api/v1/pools?chainNames=${chainIds
-          .map(chainId => NETWORKS_INFO[chainId].poolFarmRoute)
-          .join(',')}&includeLowTvl=true&page=${page}&perPage=${size}${search ? '&search=' + search : ''}${
-          protocol ? '&protocol=' + protocol : ''
-        }${type ? '&type=' + type : ''}${sortBy ? '&sortBy=' + sortBy : ''}${sortType ? '&sortType=' + sortType : ''}`,
+      query: ({ chainIds, search, page, size, protocol, type, sortBy, sortType, account, timeframe }) => ({
+        url: `/all-chain/api/v1/pools`,
+        params: {
+          chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].poolFarmRoute).join(','),
+          page,
+          perPage: size,
+          search,
+          protocol,
+          type,
+          sortBy: ['tvl', 'myLiquidity'].includes(sortBy)
+            ? sortBy
+            : ['apr', 'volume', 'fees'].includes(sortBy) && timeframe
+            ? sortBy + (timeframe === '24h' ? '1d' : timeframe)
+            : undefined,
+          sortType,
+          account,
+        },
       }),
       transformResponse: transformResponseAllChainAllPool,
     }),

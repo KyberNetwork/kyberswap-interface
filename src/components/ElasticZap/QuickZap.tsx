@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -26,6 +27,7 @@ import {
 import WarningNote from 'components/WarningNote'
 import { abi } from 'constants/abis/v2/ProAmmPoolState.json'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
@@ -52,7 +54,7 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 import RangeSelector, { FARMING_RANGE, useTicksFromRange } from './RangeSelector'
 import ZapDetail, { useZapDetail } from './ZapDetail'
 
-const QuickZapButtonWrapper = styled(ButtonOutlined)<{ size: 'small' | 'medium' }>`
+export const QuickZapButtonWrapper = styled(ButtonOutlined)<{ size: 'small' | 'medium' }>`
   padding: 0;
   width: ${({ size }) => (size === 'small' ? '28px' : '36px')};
   max-width: ${({ size }) => (size === 'small' ? '28px' : '36px')};
@@ -88,12 +90,15 @@ const Overlay = styled.div<{ overlay: boolean }>`
 export const QuickZapButton = ({
   onClick,
   size = 'medium',
+  customChainId,
 }: {
+  customChainId?: ChainId
   onClick: (e: React.MouseEvent<HTMLElement>) => void
   size?: 'small' | 'medium'
 }) => {
-  const { networkInfo } = useActiveWeb3React()
-  const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
+  const { chainId: activeChainId } = useActiveWeb3React()
+  const chainId = customChainId || activeChainId
+  const isZapAvailable = !!(NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic.zap
   const theme = useTheme()
 
   const tmp = true
@@ -106,6 +111,7 @@ export const QuickZapButton = ({
           <Trans>Zap will be available soon.</Trans>
         )
       }
+      width="fit-content"
     >
       <QuickZapButtonWrapper
         onClick={onClick}

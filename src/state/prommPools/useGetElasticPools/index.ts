@@ -8,10 +8,7 @@ import { ElasticPoolDetail } from 'types/pool'
 import { CommonReturn } from './type'
 import useGetElasticPoolsV1 from './useGetElasticPoolsV1'
 
-const useGetElasticPools = (
-  poolAddresses: string[],
-  // page: number, size: number
-): CommonReturn => {
+const useGetElasticPools = (poolAddresses: string[]): CommonReturn => {
   const { chainId } = useActiveWeb3React()
   const { isEnableKNProtocol } = useKyberSwapConfig()
 
@@ -19,9 +16,8 @@ const useGetElasticPools = (
 
   const { currentData, error, isLoading } = useGetAllPoolsQuery({
     chainIds: isEVM(chainId) ? [chainId] : [],
-    search: '',
     page: 1,
-    size: 1000,
+    size: 10000,
     protocol: 'elastic',
   })
 
@@ -29,9 +25,11 @@ const useGetElasticPools = (
     return {
       isLoading: isLoading,
       isError: !!error,
-      data: currentData as {
-        [address: string]: ElasticPoolDetail
-      },
+      data: currentData?.pools as
+        | {
+            [address: string]: ElasticPoolDetail
+          }
+        | undefined,
     }
   }
 

@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client'
+import { Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useEffect, useRef, useState } from 'react'
 
@@ -92,19 +93,22 @@ const parsedPoolData = (
         reinvestL: current.reinvestL,
         tick: parseFloat(current.tick),
 
-        token0: {
-          address: current.token0.id,
-          name: current.token0.name,
-          symbol: current.token0.symbol,
-          decimals: parseInt(current.token0.decimals),
-        },
-        token1: {
-          address: current.token1.id,
-          name: current.token1.name,
-          symbol: current.token1.symbol,
-          decimals: parseInt(current.token1.decimals),
-        },
+        token0: new Token(
+          1,
+          current.token0.id,
+          Number(current.token0.decimals),
+          current.token0.symbol,
+          current.token0.name,
+        ),
+        token1: new Token(
+          1,
+          current.token1.id,
+          Number(current.token1.decimals),
+          current.token1.symbol,
+          current.token1.name,
+        ),
         tvlUSD: parseFloat(current.totalValueLockedUSD),
+        feeUSDLast: 0,
         volumeUSDLast: volumeUSDLast24h,
         volumeUSDLast24h,
         tvlUSDLast24h,

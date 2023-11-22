@@ -46,7 +46,7 @@ import {
   feeRangeCalc,
   getMyLiquidity,
   getTradingFeeAPR,
-  parseSubgraphPoolData,
+  parseClassicPoolData,
   priceRangeCalcBySubgraphPool,
   useFarmApr,
 } from 'utils/dmm'
@@ -86,7 +86,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(chainId, poolData.id, 3)
   const { currency0, currency1, reserve0, virtualReserve0, reserve1, virtualReserve1, totalSupply } =
-    parseSubgraphPoolData(poolData, chainId)
+    parseClassicPoolData(poolData, chainId)
   const realPercentToken0 =
     reserve0 && virtualReserve0 && reserve1 && virtualReserve1
       ? reserve0.asFraction

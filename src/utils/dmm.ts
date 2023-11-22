@@ -37,7 +37,7 @@ export function priceRangeCalc(
   return [price.asFraction.multiply(temp.multiply(temp)), price?.divide(temp.multiply(temp))]
 }
 
-export function parseSubgraphPoolData(
+export function parseClassicPoolData(
   poolData: ClassicPoolData,
   chainId: ChainId,
 ): {
@@ -82,7 +82,7 @@ function getToken0MinPrice(pool: Pair | ClassicPoolData): Fraction {
           .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction),
       )
   } else {
-    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseClassicPoolData(pool, 1) // chainId doesn't matter.
     if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
       const temp = virtualReserve1.subtract(reserve1).divide(reserve1.decimalScale).asFraction
       return temp
@@ -112,7 +112,7 @@ function getToken0MaxPrice(pool: Pair | ClassicPoolData): Fraction {
       .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction)
       .divide(temp.multiply(temp))
   } else {
-    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseClassicPoolData(pool, 1) // chainId doesn't matter.
     if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
       const temp = virtualReserve0.subtract(reserve0).divide(virtualReserve0.decimalScale).asFraction
 
@@ -143,7 +143,7 @@ function getToken1MinPrice(pool: Pair | ClassicPoolData): Fraction {
           .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction),
       )
   } else {
-    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseClassicPoolData(pool, 1) // chainId doesn't matter.
     if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
       const temp = virtualReserve0.subtract(reserve0).divide(reserve0.decimalScale).asFraction
       return temp
@@ -174,7 +174,7 @@ function getToken1MaxPrice(pool: Pair | ClassicPoolData): Fraction {
       .divide(temp)
       .divide(temp)
   } else {
-    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseClassicPoolData(pool, 1) // chainId doesn't matter.
     if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
       const temp = virtualReserve1.subtract(reserve1).divide(reserve1.decimalScale).asFraction
 

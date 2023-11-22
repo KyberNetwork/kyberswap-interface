@@ -15,7 +15,7 @@ const useGetClassicPoolsKN = (): CommonReturn => {
   const { isEnableKNProtocol } = useKyberSwapConfig()
 
   const { currentData, error, isFetching } = useGetPoolClassicQuery(chainId, { skip: !isEnableKNProtocol })
-  const poolData: ClassicPoolData[] | undefined = useMemo(
+  const poolData: ClassicPoolData[] = useMemo(
     () =>
       currentData?.data?.pools?.map(pool => {
         const oneDayVolumeUSD = toString(get24hValue(pool.volumeUsd, pool.volumeUsdOneDayAgo))
@@ -47,6 +47,10 @@ const useGetClassicPoolsKN = (): CommonReturn => {
             pool.token1.id === ZERO_ADDRESS
               ? WETH[chainId]
               : new Token(chainId, pool.token1.id, Number(pool.token1.decimals), pool.token1.symbol, pool.token1.name),
+          address: pool.id,
+          feeUSDLast: Number(pool.feeUSD),
+          volumeUSDLast: Number(pool.volumeUsd),
+          apr: Number(pool.apr),
         }
       }) ?? [],
     [currentData?.data?.pools, chainId],

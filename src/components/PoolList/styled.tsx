@@ -3,8 +3,8 @@ import styled from 'styled-components'
 
 export const TableRow = styled.div`
   display: grid;
-  grid-gap: 1.5rem;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
+  grid-gap: 1rem;
+  grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 1fr;
   padding: 12px 16px;
   font-size: 14px;
   align-items: center;
@@ -19,13 +19,14 @@ export const TableRow = styled.div`
     border-bottom-left-radius: 20px;
   }
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 3fr 120px 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 1fr;
   `};
 `
 
 export const DataText = styled(Flex)`
   color: ${({ theme }) => theme.text5};
   flex-direction: column;
+  justify-content: center;
 `
 
 export const ButtonWrapper = styled(Flex)`

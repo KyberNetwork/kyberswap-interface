@@ -12,10 +12,10 @@ import { useActiveWeb3React } from 'hooks'
 import { MoneyBag } from './Icons'
 import { MouseoverTooltip } from './Tooltip'
 
-const FarmAvailableTag = styled.div<{ padding: string }>`
+const FarmAvailableTag = styled.div<{ padding: string; height?: string }>`
   border-radius: 999px;
   padding: ${({ padding }) => padding};
-  height: 20px;
+  height: ${({ height }) => height || '20px'};
   background: ${({ theme }) => transparentize(0.7, theme.primary)};
   color: ${({ theme }) => theme.primary};
   font-size: 12px;
@@ -30,16 +30,20 @@ export const FarmTag = ({
   noTooltip,
   noText,
   chainId,
+  padding,
+  height,
 }: {
   address?: string
   noTooltip?: boolean
   noText?: boolean
   chainId?: ChainId
+  padding?: string
+  height?: string
 }) => {
   const { chainId: currentChainId } = useActiveWeb3React()
 
   const tag = (
-    <FarmAvailableTag padding={noText ? '2px 4px' : '4px 8px'}>
+    <FarmAvailableTag padding={padding || (noText ? '2px 4px' : '4px 8px')} height={height}>
       <MoneyBag size={12} />
       {!noText && <Trans>Farming</Trans>}
     </FarmAvailableTag>
