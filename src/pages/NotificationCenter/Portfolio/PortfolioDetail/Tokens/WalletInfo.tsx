@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
+import { useGetTokenAllocationQuery } from 'services/portfolio'
 import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
@@ -11,6 +12,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Wallet from 'components/Icons/Wallet'
+import LocalLoader from 'components/LocalLoader'
 import { TokenLogoWithChain } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
 import Table, { TableColumn } from 'components/Table'
@@ -19,12 +21,12 @@ import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
-import { PortfolioWalletBalance, PortfolioWalletBalanceMap } from 'pages/NotificationCenter/Portfolio/type'
+import { PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
 import { navigateToSwapPage } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
-import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const WalletLabelWrapper = styled.div<{ color: string }>`
   display: flex;
@@ -118,17 +120,25 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
 }
 
 const columns: TableColumn<PortfolioWalletBalance>[] = [
-  { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCellWithWalletAddress },
+  {
+    title: t`Token`,
+    dataIndex: 'token',
+    align: 'left',
+    render: ({ item: { tokenLogo, tokenSymbol, chainId } }) => (
+      <TokenCellWithWalletAddress
+        item={{ logoUrl: tokenLogo, symbol: tokenSymbol, walletAddress: '0x test', chainId }}
+      />
+    ),
+  },
   {
     title: t`Amount`,
     dataIndex: 'amount',
-    render: ({ value, item }) =>
-      formatDisplayNumber(uint256ToFraction(value, item.decimals), { style: 'decimal', significantDigits: 6 }), // todo uint256ToFraction
+    render: ({ value }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
   },
   { title: t`Price`, dataIndex: 'priceUsd' },
   {
     title: t`Real Value`,
-    dataIndex: 'amountUsd',
+    dataIndex: 'valueUsd',
     render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
   },
   {
@@ -172,27 +182,27 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
     render: ActionButton,
   },
 ]
-export default function WalletInfo({
-  balances,
-}: {
-  balances: PortfolioWalletBalanceMap | undefined
-  loading: boolean
-}) {
+export default function WalletInfo({ walletAddresses, chainIds }: { walletAddresses: string[]; chainIds: ChainId[] }) {
   const theme = useTheme()
+  const { data, isFetching } = useGetTokenAllocationQuery(
+    // todo
+    { walletAddresses, chainIds },
+    { skip: !walletAddresses.length, refetchOnMountOrArgChange: true },
+  )
 
   const [search, setSearch] = useState('')
   const searchDebounce = useDebounce(search, 500)
   const formatData = useMemo(() => {
-    if (!balances) return EMPTY_ARRAY
-    const list = Object.values(balances).flat()
+    if (!data?.balances?.length) return EMPTY_ARRAY
+    const list = data.balances
     return searchDebounce
       ? list.filter(
           e =>
-            e.symbol.toLowerCase().includes(searchDebounce.toLowerCase()) ||
+            e.tokenSymbol.toLowerCase().includes(searchDebounce.toLowerCase()) ||
             e.tokenAddress.toLowerCase().includes(searchDebounce.toLowerCase()),
         )
       : list
-  }, [balances, searchDebounce])
+  }, [data, searchDebounce])
 
   return (
     <PortfolioSection
@@ -217,7 +227,7 @@ export default function WalletInfo({
         />
       }
     >
-      <Table data={formatData} columns={columns} totalItems={formatData.length} />
+      {isFetching ? <LocalLoader /> : <Table data={formatData} columns={columns} totalItems={formatData.length} />}
     </PortfolioSection>
   )
 }

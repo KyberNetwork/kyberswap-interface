@@ -9,9 +9,9 @@ import {
   NFTTokenDetail,
   NftCollectionResponse,
   Portfolio,
+  PortfolioChainBalanceResponse,
   PortfolioSetting,
   PortfolioWallet,
-  PortfolioWalletBalance,
   PortfolioWalletBalanceResponse,
   TokenAllowAnceResponse,
   TransactionHistoryResponse,
@@ -169,23 +169,35 @@ const portfolioApi = createApi({
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO],
     }),
     // metadata
-    getRealtimeBalance: builder.query<PortfolioWalletBalanceResponse, { query: string; chainIds?: ChainId[] }>({
-      query: ({ query, chainIds }) => ({
-        url: `/v1/real-time-data/${query}`,
-        params: { chainIds },
+    getRealtimeBalance: builder.query<PortfolioWalletBalanceResponse, { walletAddresses: string[] }>({
+      query: ({ walletAddresses }) => ({
+        url: `${BFF_API}/v1/wallet-service/balances/realtime/total`,
+        params: { walletAddresses: walletAddresses.join(',') },
+        authentication: true,
       }),
-      transformResponse: (data: any) => {
-        const balances = data?.data?.balances
-        if (balances)
-          Object.keys(balances).forEach(wallet => {
-            data.data.balances[wallet] = balances[wallet].map((el: PortfolioWalletBalance) => ({
-              ...el,
-              walletAddress: wallet,
-              chainId: +el.chainId,
-            }))
-          })
-        return data?.data
-      },
+      transformResponse: (data: any) => data?.data,
+    }),
+    getTokenAllocation: builder.query<
+      PortfolioWalletBalanceResponse,
+      { walletAddresses: string[]; chainIds: ChainId[] }
+    >({
+      query: ({ walletAddresses, chainIds }) => ({
+        url: `${BFF_API}/v1/wallet-service/balances/realtime/tokens`,
+        params: { walletAddresses: walletAddresses.join(','), chainIds: chainIds.join(',') },
+        authentication: true,
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
+    getChainsAllocation: builder.query<
+      PortfolioChainBalanceResponse,
+      { walletAddresses: string[]; chainIds: ChainId[] }
+    >({
+      query: ({ walletAddresses, chainIds }) => ({
+        url: `${BFF_API}/v1/wallet-service/balances/realtime/chains`,
+        params: { walletAddresses: walletAddresses.join(','), chainIds: chainIds.join(',') },
+        authentication: true,
+      }),
+      transformResponse: (data: any) => data?.data,
     }),
     getTokenApproval: builder.query<TokenAllowAnceResponse, { address: string; chainIds?: ChainId[] }>({
       query: params => ({
@@ -280,6 +292,8 @@ export const {
   useGetNftCollectionsQuery,
   useGetNftCollectionDetailQuery,
   useGetNftDetailQuery,
+  useGetTokenAllocationQuery,
+  useGetChainsAllocationQuery,
 } = portfolioApi
 
 export default portfolioApi

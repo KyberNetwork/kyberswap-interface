@@ -112,6 +112,7 @@ export default function Table<T>({
   }, [data, pageSize, currentPage])
 
   const defaultStyle = { width: columns.some(e => e.style) ? undefined : `${100 / columns.length}%` }
+
   return (
     <Column flex={1}>
       <Column flex={1} style={{ width: '100%', overflowX: 'scroll' }}>
@@ -192,13 +193,14 @@ export default function Table<T>({
           </Text>
         </Row>
       )}
-      {pagination && totalItems > pageSize && (
+      {pagination && (
         <Pagination
           totalCount={totalItems}
           pageSize={pageSize}
           currentPage={currentPage}
           onPageChange={onChangePageWrap}
           style={{ background: 'transparent' }}
+          hideWhen1Page={false}
         />
       )}
     </Column>

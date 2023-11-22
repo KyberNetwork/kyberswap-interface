@@ -229,7 +229,7 @@ const AddressPanel = ({
   const { pathname } = useLocation()
   const isMyPortfolioPage = pathname.startsWith(APP_PATHS.MY_PORTFOLIO)
   const { wallet } = useParseWalletPortfolioParam()
-  const { lastUpdatedAt, totalBalanceUsd } = data || {}
+  const { lastUpdatedAt, totalUsd } = data || {}
 
   const accountText = (
     <Text
@@ -296,7 +296,7 @@ const AddressPanel = ({
       <Flex sx={{ gap: '12px', alignItems: 'center' }}>
         {!upToSmall && <Avatar url={activePortfolio ? DefaultAvatar : ''} size={36} color={theme.subText} />}
         <Text fontSize={'28px'} fontWeight={'500'}>
-          {showBalance ? formatDisplayNumber(totalBalanceUsd, { style: 'currency', significantDigits: 3 }) : '******'}
+          {showBalance ? formatDisplayNumber(totalUsd, { style: 'currency', significantDigits: 3 }) : '******'}
         </Text>
       </Flex>
     </BalanceGroup>

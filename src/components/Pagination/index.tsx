@@ -17,6 +17,7 @@ export default function Pagination({
   style = {},
   haveBg = true,
   className,
+  hideWhen1Page = true,
 }: {
   onPageChange: (newPage: number) => void
   totalCount: number
@@ -26,6 +27,7 @@ export default function Pagination({
   style?: CSSProperties
   haveBg?: boolean
   className?: string
+  hideWhen1Page?: boolean
 }) {
   const upToExtraSmall = useMedia('(max-width: 576px)')
 
@@ -42,7 +44,7 @@ export default function Pagination({
   const lastPage = paginationRange[paginationRange.length - 1] as number
 
   // If there are less than 2 times in pagination range we shall not render the component
-  if (currentPage === 0 || paginationRange.length < 2) {
+  if (currentPage === 0 || (paginationRange.length < 2 && hideWhen1Page)) {
     return null
   }
 

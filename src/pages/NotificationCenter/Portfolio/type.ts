@@ -21,21 +21,29 @@ export type PortfolioWalletBalance = {
   tokenAddress: string
   amount: string
   decimals: number
-  amountUsd: string
+  valueUsd: string
   priceUsd: string
-  symbol: string
-  logoUrl: string
+  tokenSymbol: string
+  tokenLogo: string
   walletAddress: string // custom
 }
 
-export type PortfolioWalletBalanceResponse = {
-  totalBalanceUsd: number
-  lastUpdatedAt: number
-  balances: PortfolioWalletBalanceMap
+export type PortfolioChainBalance = {
+  chainId: ChainId
+  percentage: string
+  valueUsd: string
 }
 
-export type PortfolioWalletBalanceMap = {
-  [wallet: string]: PortfolioWalletBalance[]
+export type PortfolioWalletBalanceResponse = {
+  totalUsd: number
+  lastUpdatedAt: number
+  balances?: PortfolioWalletBalance[]
+}
+
+export type PortfolioChainBalanceResponse = {
+  totalUsd: number
+  lastUpdatedAt: number
+  balances?: PortfolioChainBalance[]
 }
 
 export type TokenAllowAnce = {

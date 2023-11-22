@@ -1,6 +1,8 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
+import { useGetChainsAllocationQuery, useGetTokenAllocationQuery } from 'services/portfolio'
 import styled from 'styled-components'
 
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
@@ -8,16 +10,17 @@ import { ButtonAction } from 'components/Button'
 import { DataEntry } from 'components/EarningPieChart'
 import Icon from 'components/Icons/Icon'
 import LocalLoader from 'components/LocalLoader'
-import { TokenLogoWithChain } from 'components/Logo'
+import { NetworkLogo, TokenLogoWithChain } from 'components/Logo'
 import Row from 'components/Row'
 import Table, { TableColumn } from 'components/Table'
 import { EMPTY_ARRAY } from 'constants/index'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { TokenAllocationChart } from 'pages/MyEarnings/EarningsBreakdownPanel'
 import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
-import { PortfolioWalletBalance, PortfolioWalletBalanceMap } from 'pages/NotificationCenter/Portfolio/type'
+import { PortfolioChainBalance, PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
 import { ExternalLink } from 'theme'
-import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export const LiquidityScore = () => {
   const theme = useTheme()
@@ -33,9 +36,9 @@ const TokenCell = ({ item }: { item: PortfolioWalletBalance }) => {
   const theme = useTheme()
   return (
     <Row gap="8px">
-      <TokenLogoWithChain chainId={item.chainId} size={'24px'} tokenLogo={item.logoUrl} />
+      <TokenLogoWithChain chainId={item.chainId} size={'24px'} tokenLogo={item.tokenLogo} />
       <Text fontSize={'14px'} fontWeight={'500'} color={theme.text}>
-        {item.symbol}
+        {item.tokenSymbol}
       </Text>
     </Row>
   )
@@ -57,12 +60,37 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
   {
     title: t`Balance`,
     dataIndex: 'amount',
-    render: ({ value, item }) =>
-      formatDisplayNumber(uint256ToFraction(value, item.decimals), { style: 'decimal', significantDigits: 6 }), // todo uint256ToFraction
+    render: ({ value }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
   },
   {
     title: t`Value`,
-    dataIndex: 'amountUsd',
+    dataIndex: 'valueUsd',
+    render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
+  },
+  {
+    title: t`Asset Ratio`,
+    align: 'right',
+    dataIndex: 'percent',
+    render: ({ value }) => formatDisplayNumber(value, { style: 'percent', fractionDigits: 2 }),
+  },
+]
+
+const ChainCell = ({ item: { chainId } }: { item: PortfolioChainBalance }) => {
+  const theme = useTheme()
+  return (
+    <Row gap="8px">
+      <NetworkLogo chainId={chainId} style={{ width: '24px' }} />
+      <Text fontSize={'14px'} fontWeight={'500'} color={theme.text}>
+        {NETWORKS_INFO[chainId].name}
+      </Text>
+    </Row>
+  )
+}
+const columnsChains: TableColumn<PortfolioChainBalance>[] = [
+  { title: t`Token`, dataIndex: 'token', align: 'left', render: ChainCell },
+  {
+    title: t`Value`,
+    dataIndex: 'valueUsd',
     render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
   },
   {
@@ -88,27 +116,69 @@ enum AllocationTab {
   LIQUIDITY_SCORE = `Liquidity Score Ratio`,
 }
 
+const formatPercent = (arr: any[]) => {
+  let totalPercent = 0
+  return arr.map((e: any, i: number) => {
+    const percent = i === arr.length - 1 ? 1 - totalPercent : e.percent
+    if (i !== arr.length - 1) totalPercent += percent
+    return { ...e, percent }
+  })
+}
+
 export default function TokenAllocation({
-  balances,
-  totalBalanceUsd = 0,
-  loading,
+  walletAddresses,
+  chainIds,
 }: {
-  totalBalanceUsd: number
-  loading: boolean
-  balances: PortfolioWalletBalanceMap | undefined
+  walletAddresses: string[]
+  chainIds: ChainId[]
 }) {
-  const data: DataEntry[] = useMemo(() => {
-    if (!balances) return EMPTY_ARRAY
-    const mapData = Object.values(balances)
-      .flat()
-      .map(el => {
-        return { ...el, percent: +el.amountUsd / totalBalanceUsd, value: el.amountUsd }
-      })
-
-    return mapData
-  }, [balances, totalBalanceUsd])
-
   const [tab, setTab] = useState<string>(AllocationTab.TOKEN)
+  const isTokenTab = tab === AllocationTab.TOKEN
+  const { data: dataTokens, isFetching: isFetchingTokens } = useGetTokenAllocationQuery(
+    { walletAddresses, chainIds },
+    { skip: !walletAddresses.length || !isTokenTab, refetchOnMountOrArgChange: true },
+  )
+  const { data: dataChains, isFetching: isFetchingChain } = useGetChainsAllocationQuery(
+    { walletAddresses, chainIds },
+    { skip: !walletAddresses.length, refetchOnMountOrArgChange: true },
+  )
+  const isFetching = isFetchingTokens || isFetchingChain
+  const data = isTokenTab ? dataTokens : dataChains
+
+  const formatData: DataEntry[] = useMemo(() => {
+    const data = isTokenTab ? dataTokens : dataChains
+    if (!data?.balances?.length) return EMPTY_ARRAY
+    if (isTokenTab) {
+      const balances = dataTokens?.balances || EMPTY_ARRAY
+      const result = balances?.map(el => {
+        return {
+          ...el,
+          percent: +el.valueUsd / data.totalUsd,
+          value: el.valueUsd,
+          symbol: el.tokenSymbol,
+          logoUrl: el.tokenLogo,
+        }
+      })
+      return formatPercent(result)
+    }
+    const balances: PortfolioChainBalance[] = dataChains?.balances || EMPTY_ARRAY
+    const result = balances?.map(el => {
+      const percent = +el.valueUsd / data.totalUsd
+      return {
+        ...el,
+        percent,
+        value: el.valueUsd,
+        symbol: NETWORKS_INFO[el.chainId].name,
+        logoUrl: NETWORKS_INFO[el.chainId].icon,
+      }
+    })
+    return formatPercent(result)
+  }, [dataTokens, dataChains, isTokenTab])
+  console.log(
+    123,
+    formatData.map(e => e.percent).reduce((rs, c) => rs + c, 0),
+  )
+
   return (
     <PortfolioSection
       tabs={[
@@ -120,10 +190,10 @@ export default function TokenAllocation({
           title: AllocationTab.CHAIN,
           type: AllocationTab.CHAIN,
         },
-        {
-          title: AllocationTab.LIQUIDITY_SCORE,
-          type: AllocationTab.LIQUIDITY_SCORE,
-        },
+        // {
+        //   title: AllocationTab.LIQUIDITY_SCORE,
+        //   type: AllocationTab.LIQUIDITY_SCORE,
+        // },
       ]}
       activeTab={tab}
       onTabClick={setTab}
@@ -137,18 +207,25 @@ export default function TokenAllocation({
         <TokenAllocationChart
           style={{ background: 'transparent' }}
           {...{
-            data,
-            isLoading: loading,
+            data: formatData,
+            isLoading: isFetching,
             horizontalLayout: false,
-            numberOfTokens: data.length,
-            totalUsd: totalBalanceUsd,
+            numberOfTokens: formatData.length,
+            totalUsd: data?.totalUsd || 0,
             border: false,
+            column: 2,
           }}
         />
-        {loading ? (
+        {isFetching ? (
           <LocalLoader />
         ) : (
-          <Table data={data as any} columns={columns} style={{ flex: 1 }} totalItems={data.length} pageSize={6} /> // todo
+          <Table
+            data={formatData}
+            columns={(isTokenTab ? columns : columnsChains) as any} // todo
+            style={{ flex: 1 }}
+            totalItems={formatData.length}
+            pageSize={6}
+          /> // todo
         )}
       </Content>
     </PortfolioSection>

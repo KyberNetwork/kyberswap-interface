@@ -11,7 +11,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { EarningsBreakdown } from 'types/myEarnings'
 import { formatDisplayNumber } from 'utils/numbers'
 
-type WrapperProps = { $columns: 1 | 2; $border?: boolean }
+type WrapperProps = { $columns: number; $border?: boolean }
 const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
   'data-columns': $columns,
 }))<WrapperProps>`
@@ -59,6 +59,7 @@ export const TokenAllocationChart = ({
   title,
   border = true,
   style,
+  column,
 }: {
   className?: string
   numberOfTokens: number
@@ -69,10 +70,11 @@ export const TokenAllocationChart = ({
   title?: ReactNode
   border?: boolean
   style?: CSSProperties
+  column?: number
 }) => {
   const theme = useTheme()
   return (
-    <Wrapper className={className} $columns={numberOfTokens > 5 ? 2 : 1} $border={border} style={style}>
+    <Wrapper className={className} $columns={column || (numberOfTokens > 5 ? 2 : 1)} $border={border} style={style}>
       {title && (
         <Text
           sx={{

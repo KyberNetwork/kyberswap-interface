@@ -16,7 +16,6 @@ import Row, { RowBetween } from 'components/Row'
 import Select from 'components/Select'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
-import { MAINNET_NETWORKS } from 'constants/networks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
@@ -30,12 +29,7 @@ import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Token
 import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
 import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
-import {
-  Portfolio,
-  PortfolioTab,
-  PortfolioWallet,
-  PortfolioWalletBalanceResponse,
-} from 'pages/NotificationCenter/Portfolio/type'
+import { Portfolio, PortfolioTab, PortfolioWallet } from 'pages/NotificationCenter/Portfolio/type'
 import getShortenAddress from 'utils/getShortenAddress'
 import { isInEnum } from 'utils/string'
 
@@ -56,11 +50,11 @@ const PageWrapper = styled.div`
 `};
 `
 
-const Tokens = ({ data, isLoading }: { data: PortfolioWalletBalanceResponse | undefined; isLoading: boolean }) => {
+const Tokens = (props: { walletAddresses: string[]; chainIds: ChainId[] }) => {
   return (
     <>
-      <TokenAllocation balances={data?.balances} totalBalanceUsd={55} loading={isLoading} />
-      <WalletInfo balances={data?.balances} loading={isLoading} />
+      <TokenAllocation {...props} />
+      <WalletInfo {...props} />
     </>
   )
 }
@@ -99,7 +93,16 @@ const ChainWalletSelect = styled(Row)`
     justify-content: space-between;
 `};
 `
-
+// todo
+const chainSupport = [
+  ChainId.MAINNET,
+  ChainId.ARBITRUM,
+  ChainId.OPTIMISM,
+  ChainId.MATIC,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXMAINNET,
+  ChainId.FANTOM,
+]
 export default function PortfolioDetail() {
   const { tab = '' } = useParsedQueryString<{ tab: string }>()
   const [activeTab, setTab] = useState(isInEnum(tab, PortfolioTab) ? tab : PortfolioTab.TOKEN)
@@ -114,17 +117,16 @@ export default function PortfolioDetail() {
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const { portfolio: activePortfolio, myPortfolios, wallets, isLoading: isLoadingPortfolio } = useFetchPortfolio()
-  const walletsQuery = useMemo(
+  const walletsQuery: string[] = useMemo(
     () => (wallet ? [wallet] : wallets.length ? wallets.map(e => e.walletAddress) : EMPTY_ARRAY),
     [wallets, wallet],
   )
 
-  const [chainIds, setChainIds] = useState<ChainId[]>([...MAINNET_NETWORKS])
+  const [chainIds, setChainIds] = useState<ChainId[]>([...chainSupport])
 
-  const queryBalance = wallet || portfolioId || ''
   const { isFetching: isLoadingRealtimeData, data } = useGetRealtimeBalanceQuery(
-    { query: queryBalance, chainIds },
-    { skip: !queryBalance },
+    { walletAddresses: walletsQuery },
+    { skip: !walletsQuery.length, refetchOnMountOrArgChange: true },
   )
 
   const isLoading: boolean = isLoadingPortfolio || isLoadingRealtimeData
@@ -185,13 +187,14 @@ export default function PortfolioDetail() {
                 />
               )}
               <MultipleChainSelect
+                chainIds={chainSupport}
                 selectedChainIds={chainIds}
                 handleChangeChains={handleChangeChains}
                 style={{ height: '36px' }}
               />
             </ChainWalletSelect>
           </RowBetween>
-          {activeTab === PortfolioTab.TOKEN && <Tokens isLoading={isLoading} data={data} />}
+          {activeTab === PortfolioTab.TOKEN && <Tokens walletAddresses={walletsQuery} chainIds={chainIds} />}
           {activeTab === PortfolioTab.ALLOWANCES && <Allowances walletAddresses={walletsQuery} chainIds={chainIds} />}
           {activeTab === PortfolioTab.TRANSACTIONS && (
             <Transactions wallet={wallet || wallets?.[0].walletAddress} chainIds={chainIds} />
