@@ -235,14 +235,13 @@ const getItems = (data: AirdropData | undefined, isFetching: boolean) => {
 
 export default function EligibleSection() {
   const { account } = useActiveWeb3React()
-  const { data, isFetching } = useCheckAirdropQuery({ address: account || '' }, { skip: !account })
+  const { currentData, isFetching } = useCheckAirdropQuery({ address: account || '' }, { skip: !account })
   const theme = useTheme()
   const { items, defaultExpand } = useMemo(() => {
-    const items = getItems(data, isFetching)
-    const index = items.findIndex(e => e.title.props.eligible)
-    const defaultExpand = index === -1 ? 0 : index
+    const items = getItems(currentData, isFetching)
+    const defaultExpand = items.findIndex(e => e.title.props.eligible)
     return { items, defaultExpand }
-  }, [isFetching, data])
+  }, [isFetching, currentData])
 
   return (
     <Column flex={1} gap="24px">

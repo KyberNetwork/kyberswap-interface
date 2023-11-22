@@ -60,8 +60,8 @@ export default function DetailCampaign() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const connectWallet = useWalletModalToggle()
-  const { data } = useCheckAirdropQuery({ address: account || '' }, { skip: !account })
-  const total = data?.totalRewards
+  const { currentData } = useCheckAirdropQuery({ address: account || '' }, { skip: !account })
+  const total = currentData?.totalRewards
   const deadlineClaim = Date.now() // todo and format time
   const disableClaim = !total || Date.now() > deadlineClaim
   const kncAmount = total
@@ -70,7 +70,8 @@ export default function DetailCampaign() {
   const addTransactionWithType = useTransactionAdder()
   const claimReward = useClaimRewards()
   const onClaimReward = async () => {
-    if (disableClaim || !account) return alert('In dev')
+    if (disableClaim || !account) return
+    if (Math.random()) alert('In dev') // todo
     try {
       const hash = await claimReward({
         wallet: account,
