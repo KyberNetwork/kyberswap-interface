@@ -5,8 +5,13 @@ const tokenCatalog = new TokenCatalog()
 const farm = new FarmPage()
 
 describe('Intercept', { tags: TAG.regression }, () => {
-   before(() => {
+   beforeEach(() => {
       SwapPage.open(DEFAULT_URL)
+   })
+
+   afterEach(() => {
+      cy.clearCookies();
+      cy.clearLocalStorage();
    })
 
    describe('Swap', () => {
@@ -18,16 +23,16 @@ describe('Intercept', { tags: TAG.regression }, () => {
 
    describe('Pools', () => {
       it('Should get pool, farm list successfully', () => {
-         SwapPage.goToPoolPage()
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
+         SwapPage.goToPoolPage()
          cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
          cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
       })
 
       it('Should be displayed APR and TVL values', () => {
-         cy.reload()
          cy.intercept('GET', '**/pools?**').as('get-pools')
+         SwapPage.goToPoolPage()
          cy.wait('@get-pools', { timeout: 20000 }).its('response.body.data').then(response => {
             const totalPools = response.pools.length;
             const count = response.pools.reduce((acc: number, pool: { totalValueLockedUsd: string; apr: string }) => {
@@ -41,9 +46,16 @@ describe('Intercept', { tags: TAG.regression }, () => {
       })
    })
 
+   describe('My Pools', () => {
+      it('Should get farm list successfully', () => {
+         cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
+         SwapPage.goToMyPoolsPage()
+         cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
+      })
+   })
+
    describe('Farms', () => {
       it('Should get pool, farm list successfully', () => {
-         cy.reload()
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
          SwapPage.goToFarmPage()
@@ -55,15 +67,6 @@ describe('Intercept', { tags: TAG.regression }, () => {
                }
                cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
             })
-      })
-   })
-
-   describe('My Pools', () => {
-      it('Should get farm list successfully', () => {
-         cy.reload()
-         cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
-         SwapPage.goToMyPoolsPage()
-         cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
       })
    })
 })
