@@ -256,7 +256,9 @@ export const useProcessCancelOrder = ({
       const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
       if (expired) {
         setExpiredTime(expired)
-        if (expired * 1000 < Date.now()) setCancelStatus(CancelStatus.CANCEL_DONE)
+        if (expired * 1000 < Date.now()) {
+          isEdit ? onDismiss() : setCancelStatus(CancelStatus.CANCEL_DONE)
+        }
       } else onDismiss()
     } catch (error) {
       if (signal.aborted) return
