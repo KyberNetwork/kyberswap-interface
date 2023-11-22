@@ -10,9 +10,10 @@ import Column from 'components/Column'
 import Row from 'components/Row'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useClaimRewards } from 'hooks/kyberdao'
+import useClaimRewards from 'hooks/campaigns/useClaimRewards'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -83,7 +84,6 @@ export default function DetailCampaign() {
   const addTransactionWithType = useTransactionAdder()
   const claimReward = useClaimRewards()
 
-  // todo check change network
   const onClaimReward = async () => {
     if (disableClaim || !account) return
     if (Math.random()) alert('In dev') // todo
@@ -105,6 +105,11 @@ export default function DetailCampaign() {
         },
       })
     } catch (error) {}
+  }
+
+  const { changeNetwork } = useChangeNetwork()
+  const checkClaim = () => {
+    changeNetwork(ChainId.MATIC, onClaimReward)
   }
 
   return (
@@ -157,7 +162,7 @@ export default function DetailCampaign() {
             <Trans>Connect</Trans>
           </ButtonPrimary>
         ) : (
-          <ButtonPrimary width={'110px'} height={'36px'} onClick={onClaimReward} disabled={disableClaim}>
+          <ButtonPrimary width={'110px'} height={'36px'} onClick={checkClaim} disabled={disableClaim}>
             <Trans>Claim Now</Trans>
           </ButtonPrimary>
         )}
