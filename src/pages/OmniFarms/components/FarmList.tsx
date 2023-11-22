@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { Text } from 'rebass'
-import { useGetFarmsQuery } from 'services/knprotocol'
+import { NormalizedFarm, useGetFarmsQuery } from 'services/knprotocol'
 import styled from 'styled-components'
 
 import Pagination from 'components/Pagination'
@@ -29,14 +29,14 @@ const Row = styled(HeaderWrapper)(({ theme }) => ({
   height: '70px',
 }))
 
-export default function FarmList() {
+export default function FarmList({ onHarvest }: { onHarvest: (farm: NormalizedFarm) => void }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [{ chainIds, ...filters }, setFarmFilters] = useFarmFilters()
 
   const params = useMemo(() => ({ ...filters, account }), [filters, account])
 
-  const { data, isLoading, isFetching } = useGetFarmsQuery(params, {
+  const { data, isLoading } = useGetFarmsQuery(params, {
     pollingInterval: 10_000,
   })
 
@@ -58,7 +58,7 @@ export default function FarmList() {
     <FarmTable>
       <FarmTableHeader />
 
-      {isLoading || isFetching ? (
+      {isLoading ? (
         [...Array(10).keys()].map(i => (
           <Row key={i}>
             {skeleton('80%', 'left')}
@@ -72,7 +72,13 @@ export default function FarmList() {
         ))
       ) : data?.farmPools.length ? (
         data?.farmPools.map(farm => {
-          return <FarmTableRow farm={farm} key={`${farm.chain.name}_${farm.protocol}_${farm.id}`} />
+          return (
+            <FarmTableRow
+              farm={farm}
+              key={`${farm.chain.name}_${farm.protocol}_${farm.id}`}
+              onHarvest={() => onHarvest(farm)}
+            />
+          )
         })
       ) : (
         <Text padding="3rem" display="flex" alignItems="center" justifyContent="center" color={theme.subText}>

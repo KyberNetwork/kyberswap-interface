@@ -6,7 +6,7 @@ import { POOL_FARM_BASE_URL } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { EVM_NETWORK, NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
-import { ProtocolType } from 'hooks/farms/useFarmFilters'
+import { FarmType, ProtocolType } from 'hooks/farms/useFarmFilters'
 import { chainIdByRoute } from 'pages/MyEarnings/utils'
 import { SubgraphFarmV2 } from 'state/farms/elasticv2/types'
 
@@ -87,6 +87,8 @@ export type ClassicFarmKN = {
 
 interface GetFarmParams {
   account?: string
+  type: FarmType
+  protocol?: ProtocolType
   perPage: number
   page: number
   chainNames: string
@@ -245,6 +247,14 @@ export interface NormalizedFarm {
   }>
 }
 
+export interface PositionTotal {
+  amountUSD: string
+  depositedUSD: string
+  pendingRewardUSD: string
+  stakedUSD: string
+  pendingFeeUSD: string
+}
+
 const knProtocolApi = createApi({
   reducerPath: 'knProtocol',
   baseQuery: fetchBaseQuery({ baseUrl: POOL_FARM_BASE_URL }),
@@ -269,12 +279,25 @@ const knProtocolApi = createApi({
       }),
     }),
 
-    getFarms: builder.query<{ farmPools: NormalizedFarm[]; pagination: { totalRecords: number } }, GetFarmParams>({
+    getFarms: builder.query<
+      {
+        farmPools: NormalizedFarm[]
+        pagination: { totalRecords: number }
+        positionTotal: PositionTotal
+      },
+      GetFarmParams
+    >({
       query: params => ({
         url: `/all-chain/api/v1/farm-pools`,
         params,
       }),
-      transformResponse: (response: { data: { farmPools: FarmKn[]; pagination: { totalRecords: number } } }) => {
+      transformResponse: (response: {
+        data: {
+          farmPools: FarmKn[]
+          pagination: { totalRecords: number }
+          positionTotal: PositionTotal
+        }
+      }) => {
         const raw = response.data
 
         const convertTokenBEToTokenSDK = (chainId: ChainId, token: TokenKn) => {
@@ -341,7 +364,6 @@ const knProtocolApi = createApi({
                 if (farm.protocol === ProtocolType.Static) {
                   const stakedRange =
                     farm.ranges.find(r => item.farmV2DepositedPositions?.[0].range.id === r.id)?.weight || '1'
-                  console.log(stakedRange)
                   stakedLiq = BigNumber.from(item.farmV2DepositedPositions?.[0].liquidity || '0').div(
                     BigNumber.from(stakedRange),
                   )

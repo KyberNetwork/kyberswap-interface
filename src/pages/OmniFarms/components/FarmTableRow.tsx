@@ -36,7 +36,7 @@ const Row = styled(HeaderWrapper)(({ theme }) => ({
   borderBottom: `1px solid ${theme.border}`,
 }))
 
-const getFeeOrAMPTag = (pool: NormalizedFarm) => {
+export const getFeeOrAMPTag = (pool: NormalizedFarm) => {
   if (pool.protocol === ProtocolType.Classic && 'amp' in pool.pool) {
     return `AMP ${pool.pool.amp}`
   }
@@ -45,7 +45,7 @@ const getFeeOrAMPTag = (pool: NormalizedFarm) => {
   return ''
 }
 
-export default function FarmTableRow({ farm }: { farm: NormalizedFarm }) {
+export default function FarmTableRow({ farm, onHarvest }: { farm: NormalizedFarm; onHarvest: () => void }) {
   const { account } = useActiveWeb3React()
   const [showStake, setShowStake] = useState(false)
   const [showUnStake, setShowUnStake] = useState(false)
@@ -80,7 +80,7 @@ export default function FarmTableRow({ farm }: { farm: NormalizedFarm }) {
     item =>
       item.joinedPositions?.length ||
       !!item.depositedPosition ||
-      !!item.farmV2DepositedPositions?.some(dp => dp.pendingRewards.some(rw => rw !== '0')),
+      !!item.farmV2DepositedPositions?.some(dp => dp.pendingRewards?.some(rw => rw !== '0')),
   )
 
   const hasRewards = farm.rewardAmounts.some(rw => rw.toExact() !== '0')
@@ -212,7 +212,7 @@ export default function FarmTableRow({ farm }: { farm: NormalizedFarm }) {
               colorScheme={ButtonColorScheme.APR}
               disabled={!hasRewards}
               onClick={() => {
-                // handleHarvest()
+                onHarvest()
                 mixpanel.track('ElasticFarmV2 - Harvest Clicked', mixpanelPayload)
               }}
             >

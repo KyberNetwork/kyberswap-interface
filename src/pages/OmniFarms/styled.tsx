@@ -5,6 +5,7 @@ export const PageTitle = styled.h1(({ theme }) => ({
   fontSize: 24,
   fontWeight: '500',
   color: theme.text,
+  marginTop: 0,
 }))
 
 export const ChainLogo = styled.img<{ size?: number }>(({ size }) => ({

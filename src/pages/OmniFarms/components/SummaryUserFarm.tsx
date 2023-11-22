@@ -1,7 +1,9 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Fragment } from 'react'
+import Skeleton from 'react-loading-skeleton'
 import { Flex, Text } from 'rebass'
+import { PositionTotal } from 'services/knprotocol'
 import styled from 'styled-components'
 
 import { ButtonLight, ButtonOutlined } from 'components/Button'
@@ -67,8 +69,29 @@ const rewards = [
   },
 ]
 
-export default function SummaryUserFarm() {
+export default function SummaryUserFarm({
+  isLoading,
+  positionTotal,
+  onClickHarvest,
+  disabled,
+}: {
+  isLoading: boolean
+  positionTotal: PositionTotal | undefined
+  onClickHarvest: () => void
+  disabled: boolean
+}) {
   const theme = useTheme()
+
+  const skeleton = (
+    <Skeleton
+      width="70px"
+      height="14px"
+      baseColor={theme.border}
+      highlightColor={theme.buttonGray}
+      borderRadius="999px"
+    />
+  )
+
   return (
     <Wrapper>
       <Flex sx={{ gap: '4px' }} fontSize="1rem" fontWeight="500">
@@ -86,7 +109,15 @@ export default function SummaryUserFarm() {
           <Text color={theme.subText}>
             <Trans>My Staked Liquidity</Trans>
           </Text>
-          <Text fontWeight="500">~${formatDisplayNumber(13041994, { style: 'decimal', significantDigits: 10 })}</Text>
+          {isLoading ? (
+            skeleton
+          ) : !positionTotal?.depositedUSD ? (
+            '--'
+          ) : (
+            <Text fontWeight="500">
+              ~${formatDisplayNumber(positionTotal.depositedUSD, { style: 'decimal', significantDigits: 7 })}
+            </Text>
+          )}
         </InfoItem>
 
         <InfoItem justifyContent="space-between" paddingLeft="1rem">
@@ -94,10 +125,19 @@ export default function SummaryUserFarm() {
             <Text color={theme.subText}>
               <Trans>My Rewards</Trans>
             </Text>
-            <Text fontWeight="500">~${formatDisplayNumber(13041994, { style: 'decimal', significantDigits: 10 })}</Text>
+            {isLoading ? (
+              skeleton
+            ) : !positionTotal?.pendingRewardUSD ? (
+              '--'
+            ) : (
+              <Text fontWeight="500">
+                ~$
+                {formatDisplayNumber(positionTotal.pendingRewardUSD, { style: 'decimal', significantDigits: 6 })}
+              </Text>
+            )}
           </Flex>
 
-          <ButtonLight padding="6px 12px" width="fit-content">
+          <ButtonLight padding="6px 12px" width="fit-content" onClick={onClickHarvest} disabled={disabled}>
             <Trans>Harvest All</Trans>
           </ButtonLight>
         </InfoItem>
