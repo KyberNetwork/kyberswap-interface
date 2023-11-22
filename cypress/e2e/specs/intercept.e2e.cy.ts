@@ -9,11 +9,13 @@ const farm = new FarmPage()
 describe('Intercept', { tags: TAG.regression }, () => {
    before(() => {
       SwapPage.open(DEFAULT_URL)
-      // cy.setCookie('myCookie', 'cookieValue');
    })
    beforeEach(() => {
-      cy.clearCookies()
       cy.reload()
+      cy.setCookie('myCookie', 'cookieValue');
+   })
+   afterEach(() => {
+      cy.clearCookie('myCookie')
    })
    describe('Swap', () => {
       it('Should get route successfully', () => {
