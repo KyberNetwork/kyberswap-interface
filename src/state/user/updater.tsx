@@ -5,7 +5,7 @@ import { useInterval } from 'react-use'
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import { AppDispatch, AppState } from 'state/index'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
-import { usePoolSlippageTolerance, useUserSlippageTolerance } from 'state/user/hooks'
+import { usePoolSlippageTolerance, useSwapSlippageTolerance } from 'state/user/hooks'
 
 import { updatePoolDegenMode, updateUserDegenMode } from './actions'
 
@@ -25,7 +25,7 @@ export default function Updater(): null {
     AppState['user']['poolDegenModeAutoDisableTimestamp']
   >(state => state.user.poolDegenModeAutoDisableTimestamp)
 
-  const [swapSlippageTolerance, setSwapSlippageTolerance] = useUserSlippageTolerance(false)
+  const [swapSlippageTolerance, setSwapSlippageTolerance] = useSwapSlippageTolerance()
   const [poolSlippageTolerance, setPoolSlippageTolerance] = usePoolSlippageTolerance()
 
   const autoDisableSwapDegenMode = useCallback(() => {

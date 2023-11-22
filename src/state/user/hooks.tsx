@@ -124,23 +124,37 @@ export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void
 }
 
 export function useDegenModeManager(): [boolean, () => void] {
+  const [swapDegenMode, toggleSwapDegenMode] = useSwapDegenMode()
+  const [poolDegenMode, togglePoolDegenMode] = usePoolDegenMode()
+
+  const { isSwapPage } = usePageLocation()
+  if (isSwapPage) {
+    return [swapDegenMode, toggleSwapDegenMode]
+  }
+  return [poolDegenMode, togglePoolDegenMode]
+}
+
+export function useSwapDegenMode(): [boolean, () => void] {
   const dispatch = useDispatch<AppDispatch>()
   const isStablePairSwap = useCheckStablePairSwap()
 
-  const swapDegenMode = useSelector<AppState, AppState['user']['userDegenMode']>(state => state.user.userDegenMode)
-  const toggleSwapDegenMode = useCallback(() => {
-    dispatch(updateUserDegenMode({ userDegenMode: !swapDegenMode, isStablePairSwap }))
-  }, [swapDegenMode, dispatch, isStablePairSwap])
+  const userDegenMode = useSelector<AppState, AppState['user']['userDegenMode']>(state => state.user.userDegenMode)
+  const toggleUserDegenMode = useCallback(() => {
+    dispatch(updateUserDegenMode({ userDegenMode: !userDegenMode, isStablePairSwap }))
+  }, [userDegenMode, dispatch, isStablePairSwap])
+
+  return [userDegenMode, toggleUserDegenMode]
+}
+
+export function usePoolDegenMode(): [boolean, () => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const isStablePairSwap = useCheckStablePairSwap()
 
   const poolDegenMode = useSelector<AppState, AppState['user']['poolDegenMode']>(state => state.user.poolDegenMode)
   const togglePoolDegenMode = useCallback(() => {
     dispatch(updatePoolDegenMode({ poolDegenMode: !poolDegenMode, isStablePairSwap }))
   }, [poolDegenMode, dispatch, isStablePairSwap])
 
-  const { isSwapPage } = usePageLocation()
-  if (isSwapPage) {
-    return [swapDegenMode, toggleSwapDegenMode]
-  }
   return [poolDegenMode, togglePoolDegenMode]
 }
 
@@ -157,25 +171,28 @@ export function useAggregatorForZapSetting(): [boolean, () => void] {
   return [isUseAggregatorForZap === undefined ? true : isUseAggregatorForZap, toggle]
 }
 
-export function useUserSlippageTolerance(useLocation = true): [number, (slippage: number) => void] {
-  const dispatch = useDispatch<AppDispatch>()
+export function useUserSlippageTolerance(): [number, (slippage: number) => void] {
+  const [swapSlippageTolerance, setSwapSlippageTolerance] = useSwapSlippageTolerance()
   const [poolSlippageTolerance, setPoolSlippageTolerance] = usePoolSlippageTolerance()
 
+  const { isSwapPage } = usePageLocation()
+  if (isSwapPage) {
+    return [swapSlippageTolerance, setSwapSlippageTolerance]
+  }
+  return [poolSlippageTolerance, setPoolSlippageTolerance]
+}
+
+export function useSwapSlippageTolerance(): [number, (slippage: number) => void] {
+  const dispatch = useDispatch<AppDispatch>()
   const userSlippageTolerance = useSelector<AppState, AppState['user']['userSlippageTolerance']>(state => {
     return state.user.userSlippageTolerance
   })
-
   const setUserSlippageTolerance = useCallback(
     (userSlippageTolerance: number) => {
       dispatch(updateUserSlippageTolerance({ userSlippageTolerance }))
     },
     [dispatch],
   )
-
-  const { isSwapPage } = usePageLocation()
-  if (useLocation && !isSwapPage) {
-    return [poolSlippageTolerance, setPoolSlippageTolerance]
-  }
   return [userSlippageTolerance, setUserSlippageTolerance]
 }
 
@@ -184,14 +201,12 @@ export function usePoolSlippageTolerance(): [number, (slippage: number) => void]
   const poolSlippageTolerance = useSelector<AppState, AppState['user']['poolSlippageTolerance']>(state => {
     return state.user.poolSlippageTolerance
   })
-
   const setPoolSlippageTolerance = useCallback(
     (poolSlippageTolerance: number) => {
       dispatch(updatePoolSlippageTolerance({ poolSlippageTolerance }))
     },
     [dispatch],
   )
-
   return [poolSlippageTolerance, setPoolSlippageTolerance]
 }
 
