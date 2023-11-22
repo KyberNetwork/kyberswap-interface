@@ -114,9 +114,23 @@ const View = styled.div`
     overflow: hidden;
   `}
 `
-const list = ['center', 'right', 'left']
+const animationName = ['center', 'right', 'left']
 
-const banners = [1, 2, 3] // todo
+const banners = [
+  {
+    url: `https://kyberswap-landingpage.vercel.app/_next/image?url=%2Fassets%2Fimages%2Fbanner1.jpg&w=3840&q=100`,
+    ctaUrl: 'https://kyberswap-landingpage.vercel.app',
+  },
+  {
+    url: `https://kyberswap-landingpage.vercel.app/_next/image?url=%2Fassets%2Fimages%2Fbanner2.jpg&w=3840&q=100`,
+    ctaUrl: 'https://kyberswap-landingpage.vercel.app',
+  },
+  {
+    url: `https://kyberswap-landingpage.vercel.app/_next/image?url=%2Fassets%2Fimages%2Fbanner3.jpg&w=3840&q=100`,
+    ctaUrl: 'https://kyberswap-landingpage.vercel.app',
+  },
+] // todo
+
 export default function BannerCarousel() {
   const [count, setCount] = useState(99999)
   useEffect(() => {
@@ -135,14 +149,9 @@ export default function BannerCarousel() {
     <BoxInViewMotion delay={0.5}>
       <View className="inViewChild">
         {banners.map((el, i) => (
-          <BannerWrapper key={el} animate={list[(count + i) % 3]}>
-            <ExternalLink href="https://kyberswap.com/">
-              <Image
-                src={`https://kyberswap-landingpage.vercel.app/_next/image?url=%2Fassets%2Fimages%2Fbanner${
-                  i + 1
-                }.jpg&w=3840&q=100`}
-                alt="banner"
-              />
+          <BannerWrapper key={el.url} animate={animationName[(count + i) % 3]}>
+            <ExternalLink href={el.ctaUrl}>
+              <Image src={el.url} alt="banner" />
             </ExternalLink>
           </BannerWrapper>
         ))}
