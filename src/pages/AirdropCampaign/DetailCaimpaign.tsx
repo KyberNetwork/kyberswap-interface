@@ -23,15 +23,13 @@ const Label = styled.span`
   color: ${({ theme }) => theme.subText};
   font-weight: 400;
   font-size: 16px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 14px;
-  `}
 `
 
 const Value = styled.span`
   color: ${({ theme }) => theme.text};
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 14px;
+    display: block;
+    padding-top: 6px;
   `}
 `
 
