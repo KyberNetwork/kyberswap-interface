@@ -40,7 +40,7 @@ const questions = [
         <Text as="p" marginTop={'10px'}>
           [Hint] If you missed this airdrop, why not participate and claim a 6th-year anniversary NFT? Stay tuned for a
           surprise in the next airdrop in 2024.{' '}
-          <ExternalLink href="/todo">Click here to join 6th-year anniversary NFT campaign!</ExternalLink>
+          <ExternalLink href="/">Click here to join 6th-year anniversary NFT campaign!</ExternalLink>
         </Text>
       </Trans>
     ),

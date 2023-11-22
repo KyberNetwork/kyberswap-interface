@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { Text } from 'rebass'
 import { useCheckAirdropQuery } from 'services/reward'
 import styled from 'styled-components'
@@ -56,14 +57,17 @@ const Wrapper = styled(Column)`
     width: 100%;
   `}
 `
+
+const unlockDate = Date.UTC(2023, 11, 6, 21, 0, 0)
+const deadline = Date.UTC(2024, 1, 6, 21, 0, 0)
+
 export default function DetailCampaign() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const connectWallet = useWalletModalToggle()
   const { currentData } = useCheckAirdropQuery({ address: account || '' }, { skip: !account })
   const total = currentData?.totalRewards
-  const deadlineClaim = Date.now() // todo and format time
-  const disableClaim = !total || Date.now() > deadlineClaim
+  const disableClaim = !total || Date.now() > deadline
   const kncAmount = total
     ? formatDisplayNumber(uint256ToFraction(total, 18), { style: 'decimal', significantDigits: 6 })
     : '0.00'
@@ -108,7 +112,7 @@ export default function DetailCampaign() {
               <Label>Unlock Date:</Label>
             </Trans>
           </Text>
-          <Text color={theme.text}>6 Dec 2023, 9:00 pm UTC</Text>
+          <Text color={theme.text}>{dayjs.utc(unlockDate).format(`D MMM YYYY, hh:mm a UTC`)}</Text>
         </Column>
         <Column gap="8px">
           <Text>
@@ -116,7 +120,7 @@ export default function DetailCampaign() {
               <Label>Deadline to claim Rewards:</Label>
             </Trans>
           </Text>
-          <Text color={theme.text}>6 Feb 2024, 9:00 pm UTC</Text>
+          <Text color={theme.text}>{dayjs.utc(deadline).format(`D MMM YYYY, hh:mm a UTC`)}</Text>
         </Column>
         <Column gap="8px">
           <Text>
