@@ -181,7 +181,7 @@ const CancelButtons = ({
         isEdit={isEdit}
         gasAmountDisplay={gasAmountDisplay}
         buttonGasless={
-          <ButtonPrimary {...propsGasless} onClick={onDismiss}>
+          <ButtonPrimary {...propsGasless} color={undefined} onClick={onDismiss}>
             <Check size={18} />
             &nbsp;
             <Trans>Close</Trans>

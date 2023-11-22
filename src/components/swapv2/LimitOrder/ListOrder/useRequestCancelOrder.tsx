@@ -254,8 +254,10 @@ export const useProcessCancelOrder = ({
       if (signal.aborted) return
       setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
       const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
-      if (expired) setExpiredTime(expired)
-      else onDismiss()
+      if (expired) {
+        setExpiredTime(expired)
+        if (expired * 1000 < Date.now()) setCancelStatus(CancelStatus.CANCEL_DONE)
+      } else onDismiss()
     } catch (error) {
       if (signal.aborted) return
       setExpiredTime(0)
