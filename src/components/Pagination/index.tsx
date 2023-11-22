@@ -17,9 +17,12 @@ export default function Pagination({
   style = {},
   haveBg = true,
   className,
-  hideWhen1Page = true,
+  hideWhenSinglePage = true,
+  onNext,
+  onBack,
+  disableBack,
+  disableNext,
 }: {
-  onPageChange: (newPage: number) => void
   totalCount: number
   siblingCount?: number
   currentPage: number
@@ -27,7 +30,12 @@ export default function Pagination({
   style?: CSSProperties
   haveBg?: boolean
   className?: string
-  hideWhen1Page?: boolean
+  hideWhenSinglePage?: boolean
+  onPageChange: (newPage: number) => void
+  onNext?: () => void
+  onBack?: () => void
+  disableBack?: boolean
+  disableNext?: boolean
 }) {
   const upToExtraSmall = useMedia('(max-width: 576px)')
 
@@ -44,7 +52,7 @@ export default function Pagination({
   const lastPage = paginationRange[paginationRange.length - 1] as number
 
   // If there are less than 2 times in pagination range we shall not render the component
-  if (currentPage === 0 || (paginationRange.length < 2 && hideWhen1Page)) {
+  if (currentPage === 0 || (paginationRange.length < 2 && hideWhenSinglePage)) {
     return null
   }
 
@@ -56,19 +64,29 @@ export default function Pagination({
     onPageChange(lastPage)
   }
 
-  const onNext = () => {
-    if (currentPage < paginationRange[paginationRange.length - 1]) {
+  const prevNextStyle = !!onBack && !!onNext
+
+  const handleNext = () => {
+    if (prevNextStyle) {
+      onNext()
+      return
+    }
+    if (Number(currentPage) < Number(paginationRange[paginationRange.length - 1])) {
       onPageChange(currentPage + 1)
     }
   }
 
-  const onPrevious = () => {
+  const handleBack = () => {
+    if (prevNextStyle) {
+      onBack()
+      return
+    }
     if (currentPage > 1) {
       onPageChange(currentPage - 1)
     }
   }
 
-  if (upToExtraSmall) {
+  if (upToExtraSmall && !prevNextStyle) {
     return (
       <PaginationContainer
         className={className}
@@ -80,7 +98,7 @@ export default function Pagination({
           </PaginationButton>
         </PaginationItem>
 
-        <PaginationItem $disabled={currentPage === 1} onClick={onPrevious}>
+        <PaginationItem $disabled={currentPage === 1} onClick={handleBack}>
           <PaginationButton haveBg={haveBg}>
             <ChevronLeft width={16} color={theme.subText} />
           </PaginationButton>
@@ -88,7 +106,7 @@ export default function Pagination({
 
         <PaginationInputOnMobile page={currentPage} lastPage={lastPage} setPage={onPageChange} />
 
-        <PaginationItem $disabled={currentPage === lastPage} onClick={onNext}>
+        <PaginationItem $disabled={currentPage === lastPage} onClick={handleNext}>
           <PaginationButton haveBg={haveBg}>
             <ChevronRight width={16} color={theme.subText} />
           </PaginationButton>
@@ -105,28 +123,29 @@ export default function Pagination({
 
   return (
     <PaginationContainer className={className} style={{ background: haveBg ? undefined : 'transparent', ...style }}>
-      <PaginationItem $disabled={currentPage === 1} onClick={onPrevious}>
+      <PaginationItem $disabled={prevNextStyle ? disableBack : currentPage === 1} onClick={handleBack}>
         <PaginationButton haveBg={haveBg}>
           <ChevronLeft width={16} color={theme.subText} />
         </PaginationButton>
       </PaginationItem>
-      {paginationRange.map((pageNumber, index) => {
-        if (pageNumber === DOTS) {
-          return <PaginationItem key={index.toString()}>&#8230;</PaginationItem>
-        }
-        return (
-          <PaginationItem
-            key={index.toString()}
-            $selected={pageNumber === currentPage}
-            onClick={() => onPageChange(pageNumber as number)}
-          >
-            <PaginationButton haveBg={haveBg} active={pageNumber === currentPage}>
-              {pageNumber}
-            </PaginationButton>
-          </PaginationItem>
-        )
-      })}
-      <PaginationItem $disabled={currentPage === lastPage} onClick={onNext}>
+      {!prevNextStyle &&
+        paginationRange.map((pageNumber, index) => {
+          if (pageNumber === DOTS) {
+            return <PaginationItem key={index.toString()}>&#8230;</PaginationItem>
+          }
+          return (
+            <PaginationItem
+              key={index.toString()}
+              $selected={pageNumber === currentPage}
+              onClick={() => onPageChange(pageNumber as number)}
+            >
+              <PaginationButton haveBg={haveBg} active={pageNumber === currentPage}>
+                {pageNumber}
+              </PaginationButton>
+            </PaginationItem>
+          )
+        })}
+      <PaginationItem $disabled={prevNextStyle ? disableNext : currentPage === lastPage} onClick={handleNext}>
         <PaginationButton haveBg={haveBg}>
           <ChevronRight width={16} color={theme.subText} />
         </PaginationButton>

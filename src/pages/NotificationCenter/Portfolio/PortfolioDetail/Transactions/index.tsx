@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ExternalLink as ExternalLinkIcon, FileText } from 'react-feather'
 import { Text } from 'rebass'
@@ -10,7 +10,6 @@ import { useGetTransactionsQuery } from 'services/portfolio'
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import Badge, { BadgeVariant } from 'components/Badge'
 import Column from 'components/Column'
-import Dots from 'components/Dots'
 import LocalLoader from 'components/LocalLoader'
 import Logo, { NetworkLogo } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
@@ -180,14 +179,14 @@ const columns: TableColumn<TransactionHistory>[] = [
   { title: t`Txs Fee`, render: GasFeeCell, align: 'right', style: isMobile ? { width: 200 } : undefined },
 ]
 
-const pageSize = 10
+const pageSize = 8
 export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]; wallet: string }) {
   const theme = useTheme()
-
   const [search, setSearch] = useState('')
   const searchDebounce = useDebounce(search, 500)
-
   const [endTime, setEndTime] = useState(0)
+  const lastEndTime = useRef<number[]>([])
+
   const { data, isLoading, isFetching } = useGetTransactionsQuery(
     {
       limit: pageSize,
@@ -199,21 +198,28 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
     { skip: !wallet },
   )
   const loading = useShowLoadingAtLeastTime(isLoading, 300)
-  const [visibleData, setVisibleDat] = useState<TransactionHistory[]>([])
+  const visibleData: TransactionHistory[] = data?.data || EMPTY_ARRAY
 
   useEffect(() => {
-    setVisibleDat([])
     setEndTime(0)
   }, [wallet, chainIds, searchDebounce])
 
-  useEffect(() => {
-    const list = data?.data || EMPTY_ARRAY
-    setVisibleDat(v => v.concat(list))
-  }, [data])
-
-  const lastItemTime = visibleData[visibleData.length - 1]?.blockTime
-  const onLoadMore = () => !isFetching && setEndTime(lastItemTime ? lastItemTime - 1 : 0)
-  const totalItemInPage = data?.data?.length || 0
+  const onNext = () => {
+    if (isFetching) return
+    const lastItemTime = visibleData[visibleData.length - 1]?.blockTime
+    setEndTime(v => {
+      if (lastItemTime - 1 !== v) {
+        lastEndTime.current.push(endTime)
+        return lastItemTime - 1
+      }
+      return v
+    })
+  }
+  const onBack = () => {
+    if (isFetching) return
+    const time = lastEndTime.current.pop()
+    time !== undefined && setEndTime(time)
+  }
 
   return (
     <PortfolioSection
@@ -223,7 +229,7 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
           <Trans>Transactions</Trans>
         </RowFit>
       }
-      contentStyle={{ padding: '0 0 16px 0' }}
+      contentStyle={{ padding: '0' }}
       actions={
         <SearchPortFolio onChange={setSearch} value={search} placeholder={t`Search by token symbol or token address`} />
       }
@@ -231,33 +237,20 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
       {loading ? (
         <LocalLoader />
       ) : (
-        <>
-          <Table
-            pagination={false}
-            headerStyle={{ borderRadius: isMobile ? 0 : undefined }}
-            data={visibleData}
-            columns={columns}
-            pageSize={visibleData.length}
-            totalItems={pageSize}
-            rowStyle={record => (record.tag === 'SCAM' ? { opacity: 0.4 } : undefined)}
-          />
-
-          {totalItemInPage >= pageSize && (
-            <Text
-              onClick={onLoadMore}
-              color={theme.primary}
-              sx={{ cursor: 'pointer', textAlign: 'center', marginTop: '12px' }}
-            >
-              {isFetching ? (
-                <Dots>
-                  <Trans>Loading</Trans>
-                </Dots>
-              ) : (
-                <Trans>Show more</Trans>
-              )}
-            </Text>
-          )}
-        </>
+        <Table
+          headerStyle={{ borderRadius: isMobile ? 0 : undefined }}
+          data={visibleData}
+          columns={columns}
+          pageSize={pageSize}
+          rowStyle={record => (record.tag === 'SCAM' ? { opacity: 0.4 } : undefined)}
+          loading={isFetching}
+          pagination={{
+            onNext,
+            onBack,
+            disableNext: visibleData.length < pageSize,
+            disableBack: !lastEndTime.current.length,
+          }}
+        />
       )}
     </PortfolioSection>
   )

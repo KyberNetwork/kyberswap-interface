@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { darken, rgba } from 'polished'
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { HelpCircle } from 'react-feather'
 import { PieChart, pieChartDefaultProps } from 'react-minimal-pie-chart'
 import { Flex, Text } from 'rebass'
@@ -165,6 +165,7 @@ const COLORS = [
   '#fee440',
   '#c0392b',
 ]
+const getColor = (i: number) => COLORS[i % COLORS.length]
 
 export type DataEntry = {
   chainId?: ChainId
@@ -220,7 +221,7 @@ const EarningPieChart: React.FC<Props> = ({
     }
 
     return data.map((entry, i) => {
-      const color = selectedIndex === i ? darken(0.15, COLORS[i]) : COLORS[i]
+      const color = selectedIndex === i ? darken(0.15, getColor(i)) : getColor(i)
 
       return {
         title: entry.symbol,
@@ -238,7 +239,7 @@ const EarningPieChart: React.FC<Props> = ({
     const coloredData = data.map((entry, i) => {
       return {
         ...entry,
-        color: COLORS[i],
+        color: getColor(i),
       }
     })
 
@@ -329,7 +330,6 @@ const EarningPieChart: React.FC<Props> = ({
               if (!columnData.length) {
                 return null
               }
-
               return (
                 <LegendsColumn key={columnIndex}>
                   {columnData.map((entry, i) => {
@@ -411,7 +411,6 @@ const EarningPieChart: React.FC<Props> = ({
             if (!columnData.length) {
               return null
             }
-
             return (
               <LegendsColumn key={columnIndex}>
                 {columnData.map((entry, i) => {
@@ -439,4 +438,4 @@ const EarningPieChart: React.FC<Props> = ({
   )
 }
 
-export default EarningPieChart
+export default memo(EarningPieChart)

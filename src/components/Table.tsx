@@ -6,6 +6,7 @@ import styled, { CSSProperties, css } from 'styled-components'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
 import Column from 'components/Column'
+import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -75,6 +76,24 @@ const Td = styled.td`
   padding: 10px 20px;
   z-index: 0;
 `
+
+const LoadingWrapper = styled(Row)`
+  position: absolute;
+  inset: 0 0 0 0;
+  background: ${({ theme }) => theme.background};
+  opacity: 0.8;
+  z-index: 2;
+  border-radius: 20px;
+  padding-top: min(25vh, 25%);
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100vw;
+    border-radius: 0;
+  `}
+`
+
 export default function Table<T>({
   data = [],
   columns = [],
@@ -83,18 +102,27 @@ export default function Table<T>({
   totalItems,
   pageSize = 10,
   onPageChange,
-  pagination = true,
   rowStyle,
+  loading,
+  pagination,
 }: {
   data: T[]
   columns: TableColumn<T>[]
   style?: CSSProperties
   headerStyle?: CSSProperties
-  totalItems: number
+  totalItems?: number
   pageSize?: number
   onPageChange?: (v: number) => void
-  pagination?: boolean
   rowStyle?: (record: T, index: number) => CSSProperties | undefined
+  loading?: boolean
+  pagination?: {
+    show?: boolean
+    onNext?: () => void
+    onBack?: () => void
+    disableBack?: boolean
+    disableNext?: boolean
+    hideWhenSinglePage?: boolean
+  }
 }) {
   const [currentPage, setCurrentPage] = useState(1)
   const theme = useTheme()
@@ -113,9 +141,10 @@ export default function Table<T>({
 
   const defaultStyle = { width: columns.some(e => e.style) ? undefined : `${100 / columns.length}%` }
 
+  const { show: showPagination = true, hideWhenSinglePage = false, ...paginationProps } = pagination || {}
   return (
     <Column flex={1}>
-      <Column flex={1} style={{ width: '100%', overflowX: 'scroll' }}>
+      <Column flex={1} style={{ width: '100%', overflowX: 'scroll', position: 'relative' }}>
         <TableWrapper style={style}>
           <TableHeader column={columns.length} style={headerStyle}>
             {columns.map(({ tooltip, title, align, style, sticky }, i) => (
@@ -173,6 +202,11 @@ export default function Table<T>({
               : null}
           </TBody>
         </TableWrapper>
+        {loading && (
+          <LoadingWrapper>
+            <AnimatedLoader />
+          </LoadingWrapper>
+        )}
       </Column>
       {filterData.length === 0 && (
         <Row
@@ -193,14 +227,15 @@ export default function Table<T>({
           </Text>
         </Row>
       )}
-      {pagination && (
+      {showPagination && (
         <Pagination
-          totalCount={totalItems}
+          totalCount={totalItems ?? pageSize}
           pageSize={pageSize}
           currentPage={currentPage}
           onPageChange={onChangePageWrap}
           style={{ background: 'transparent' }}
-          hideWhen1Page={false}
+          hideWhenSinglePage={hideWhenSinglePage}
+          {...paginationProps}
         />
       )}
     </Column>

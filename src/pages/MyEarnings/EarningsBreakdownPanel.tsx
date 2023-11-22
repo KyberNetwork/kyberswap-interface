@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { ReactNode, memo, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
@@ -49,7 +49,7 @@ type Token = {
   percent: number
 }
 // todo move to other file
-export const TokenAllocationChart = ({
+const TokenAllocationChartLocal = ({
   className,
   numberOfTokens,
   isLoading,
@@ -99,6 +99,7 @@ export const TokenAllocationChart = ({
     </Wrapper>
   )
 }
+export const TokenAllocationChart = memo(TokenAllocationChartLocal)
 
 const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className, horizontalLayout }) => {
   const numberOfTokens = data?.breakdowns.length || 0

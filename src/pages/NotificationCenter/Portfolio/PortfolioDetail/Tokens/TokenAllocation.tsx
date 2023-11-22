@@ -15,6 +15,7 @@ import Row from 'components/Row'
 import Table, { TableColumn } from 'components/Table'
 import { EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import { TokenAllocationChart } from 'pages/MyEarnings/EarningsBreakdownPanel'
 import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
@@ -116,15 +117,6 @@ enum AllocationTab {
   LIQUIDITY_SCORE = `Liquidity Score Ratio`,
 }
 
-const formatPercent = (arr: any[]) => {
-  let totalPercent = 0
-  return arr.map((e: any, i: number) => {
-    const percent = i === arr.length - 1 ? 1 - totalPercent : e.percent
-    if (i !== arr.length - 1) totalPercent += percent
-    return { ...e, percent }
-  })
-}
-
 export default function TokenAllocation({
   walletAddresses,
   chainIds,
@@ -142,7 +134,7 @@ export default function TokenAllocation({
     { walletAddresses, chainIds },
     { skip: !walletAddresses.length, refetchOnMountOrArgChange: true },
   )
-  const isFetching = isFetchingTokens || isFetchingChain
+  const isFetching = useShowLoadingAtLeastTime(isFetchingTokens || isFetchingChain, 500)
   const data = isTokenTab ? dataTokens : dataChains
 
   const formatData: DataEntry[] = useMemo(() => {
@@ -150,34 +142,27 @@ export default function TokenAllocation({
     if (!data?.balances?.length) return EMPTY_ARRAY
     if (isTokenTab) {
       const balances = dataTokens?.balances || EMPTY_ARRAY
-      const result = balances?.map(el => {
+      return balances?.map(el => {
         return {
           ...el,
-          percent: +el.valueUsd / data.totalUsd,
+          percent: +el.percentage,
           value: el.valueUsd,
           symbol: el.tokenSymbol,
           logoUrl: el.tokenLogo,
         }
       })
-      return formatPercent(result)
     }
     const balances: PortfolioChainBalance[] = dataChains?.balances || EMPTY_ARRAY
-    const result = balances?.map(el => {
-      const percent = +el.valueUsd / data.totalUsd
+    return balances?.map(el => {
       return {
         ...el,
-        percent,
+        percent: +el.percentage,
         value: el.valueUsd,
         symbol: NETWORKS_INFO[el.chainId].name,
         logoUrl: NETWORKS_INFO[el.chainId].icon,
       }
     })
-    return formatPercent(result)
   }, [dataTokens, dataChains, isTokenTab])
-  console.log(
-    123,
-    formatData.map(e => e.percent).reduce((rs, c) => rs + c, 0),
-  )
 
   return (
     <PortfolioSection
@@ -205,15 +190,15 @@ export default function TokenAllocation({
     >
       <Content>
         <TokenAllocationChart
-          style={{ background: 'transparent' }}
           {...{
+            style: { background: 'transparent', minWidth: 380 },
             data: formatData,
             isLoading: isFetching,
             horizontalLayout: false,
             numberOfTokens: formatData.length,
             totalUsd: data?.totalUsd || 0,
             border: false,
-            column: 2,
+            // column: 2,
           }}
         />
         {isFetching ? (
@@ -225,6 +210,7 @@ export default function TokenAllocation({
             style={{ flex: 1 }}
             totalItems={formatData.length}
             pageSize={6}
+            pagination={{ hideWhenSinglePage: true }}
           /> // todo
         )}
       </Content>
