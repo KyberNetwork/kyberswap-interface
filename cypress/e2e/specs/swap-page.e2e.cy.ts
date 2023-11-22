@@ -37,15 +37,18 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
 
         it('Should be selected tokenOut in favorite tokens list successfully', () => {
             SwapPage.selectTokenOut().getFavoriteTokens(arr => {
-                tokenCatalog.selectFavoriteToken(arr[2])
+                tokenCatalog.selectFavoriteToken(arr[0])
                 SwapPage.getCurrentTokenOut(text => {
-                    expect(text).to.equal(arr[2])
+                    expect(text).to.equal(arr[0])
                 })
             })
         })
     })
 
     describe('Remove/add token with favorite tokens list', () => {
+        afterEach(() => {
+            tokenCatalog.closePopup()
+        })
         it('Should be removed tokenIn from favorite tokens list', () => {
             SwapPage.selectTokenIn().getFavoriteTokens(arr => {
                 tokenCatalog.removeFavoriteToken(arr[1])
@@ -54,7 +57,6 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
                     expect(list).not.to.include.members([arr[1]])
                 })
             })
-            tokenCatalog.closePopup()
         })
 
         it('Should be added tokenIn to favorite tokens list', () => {
@@ -62,7 +64,6 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
             tokenCatalog.getFavoriteTokens(list => {
                 expect(list).to.include.members([tokenSymbols[0]])
             })
-            tokenCatalog.closePopup()
         })
 
         it('Should be removed tokenOut from favorite tokens list', () => {
@@ -73,15 +74,13 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
                     expect(list).not.to.include.members([arr[2]])
                 })
             })
-            tokenCatalog.closePopup()
         })
 
         it('Should be added tokenOut to favorite tokens list', () => {
-            SwapPage.selectTokenOut().addFavoriteToken([tokenSymbols[0]])
+            SwapPage.selectTokenOut().addFavoriteToken([tokenSymbols[4]])
             tokenCatalog.getFavoriteTokens(list => {
-                expect(list).to.include.members([tokenSymbols[0]])
+                expect(list).to.include.members([tokenSymbols[4]])
             })
-            tokenCatalog.closePopup()
         })
     })
 
