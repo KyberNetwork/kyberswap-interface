@@ -181,7 +181,6 @@ export default function TokenAllocation({
   const filterBalance = useFilterBalances()
 
   const { chartData, tableData }: { chartData: DataEntry[]; tableData: DataEntry[] } = useMemo(() => {
-    if (!data?.balances?.length) return { chartData: EMPTY_ARRAY, tableData: EMPTY_ARRAY }
     return filterBalance(data?.balances || EMPTY_ARRAY)
   }, [data, filterBalance])
 
