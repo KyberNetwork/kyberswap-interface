@@ -101,15 +101,16 @@ export function useTokenBalancesWithLoadingIndicator(
   const chainId = customChain || currentChain
 
   const tokens = useMemo(() => {
-    return tokenParams?.[0]?.chainId === chainId ? tokenParams : EMPTY_ARRAY
+    return tokenParams?.[0]?.chainId === chainId ? tokenParams : []
   }, [tokenParams, chainId])
 
   const isFetchOtherChain = chainId !== currentChain
 
-  const balancesCurrentChain = useTokensBalance(isFetchOtherChain ? EMPTY_ARRAY : tokens, chainId)
+  const balancesCurrentChain = useTokensBalance(isFetchOtherChain ? [] : tokens, chainId)
+
   const [balancesOtherChain, isLoadingAnotherChain] = useTokensBalanceOfAnotherChain(
     chainId,
-    isFetchOtherChain ? tokens : EMPTY_ARRAY,
+    isFetchOtherChain ? tokens : [],
   )
 
   const balances = isFetchOtherChain ? balancesOtherChain : balancesCurrentChain

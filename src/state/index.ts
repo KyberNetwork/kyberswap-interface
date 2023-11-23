@@ -5,6 +5,7 @@ import blackjackApi from 'services/blackjack'
 import blockServiceApi from 'services/blockService'
 import campaignApi from 'services/campaign'
 import coingeckoApi from 'services/coingecko'
+import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
 import earningApi from 'services/earning'
 import geckoTerminalApi from 'services/geckoTermial'
@@ -98,6 +99,7 @@ const store = configureStore({
     [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [coingeckoApi.reducerPath]: coingeckoApi.reducer,
+    [contractQuery.reducerPath]: contractQuery.reducer,
     [limitOrderApi.reducerPath]: limitOrderApi.reducer,
 
     [campaignApi.reducerPath]: campaignApi.reducer,
@@ -132,6 +134,7 @@ const store = configureStore({
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
       .concat(coingeckoApi.middleware)
+      .concat(contractQuery.middleware)
       .concat(limitOrderApi.middleware)
       .concat(kyberAIApi.middleware)
       .concat(coinmarketcapApi.middleware)

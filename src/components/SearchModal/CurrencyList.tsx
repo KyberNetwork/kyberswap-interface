@@ -230,7 +230,7 @@ function CurrencyList({
   const canShowBalance = customChainId && customChainId !== chainId ? isEVM(customChainId) === isEVM(chainId) : true
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
 
-  const Row: any = useCallback(
+  const Row = useCallback(
     function TokenRow({ style, currency, currencyBalance }: TokenRowProps) {
       const isSelected = Boolean(currency && selectedCurrency?.equals(currency))
       const otherSelected = Boolean(currency && otherCurrency?.equals(currency))
