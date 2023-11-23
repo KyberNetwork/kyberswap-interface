@@ -173,7 +173,7 @@ export function CurrencySearch({
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
 
-  const fetchERC20TokenFromRPC = useFetchERC20TokenFromRPC()
+  const fetchERC20TokenFromRPC = useFetchERC20TokenFromRPC(chainId)
 
   // input eth => output filter weth, input weth => output filter eth
   const filterWrapFunc = useCallback(
