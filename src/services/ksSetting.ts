@@ -50,10 +50,19 @@ export type KyberswapGlobalConfigurationResponse = {
 
 export interface TokenListResponse<T = TokenInfo> {
   data: {
-    pageination: {
+    pagination?: {
       totalItems: number
     }
     tokens: Array<T>
+  }
+}
+
+export interface TokenImportResponse<T = TokenInfo> {
+  data: {
+    tokens: {
+      data: T
+      errorMsg: string
+    }[]
   }
 }
 
@@ -119,6 +128,13 @@ const ksSettingApi = createApi({
         body: { tokens },
         method: 'POST',
       }),
+      transformResponse: (response: TokenImportResponse): TokenListResponse => {
+        const tokens: TokenInfo[] = response.data.tokens.map(token => ({
+          ...token.data,
+          chainId: Number(token.data.chainId),
+        }))
+        return { data: { tokens } }
+      },
     }),
     getTopTokens: builder.query<TokenListResponse<TopToken>, { chainId: number; page: number }>({
       query: params => ({

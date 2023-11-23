@@ -5,37 +5,37 @@ import { AutoColumn } from 'components/Column'
 import NumericalInput from 'components/NumericalInput'
 
 export const PageWrapper = styled.div`
-  padding: 16px 16px 100px;
+  padding: 28px 16px 100px;
   width: 100%;
 
   @media only screen and (min-width: 768px) {
-    padding: 16px 16px 100px;
+    padding: 24px 16px 100px;
   }
 
   @media only screen and (min-width: 1000px) {
-    padding: 16px 32px 100px;
+    padding: 24px 32px 100px;
   }
 
   @media only screen and (min-width: 1366px) {
-    padding: 16px 215px 50px;
+    padding: 24px 215px 50px;
   }
 
   @media only screen and (min-width: 1440px) {
-    padding: 16px 252px 50px;
+    padding: 24px 252px 50px;
   }
 `
 
 export const Container = styled.div`
   max-width: 936px;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 4px 20px 24px;
   background: ${({ theme }) => theme.background};
   box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
     0px 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 8px;
+  border-radius: 20px;
 
   @media only screen and (min-width: 1000px) {
-    padding: 24px;
+    padding: 4px 24px 24px;
   }
 `
 
