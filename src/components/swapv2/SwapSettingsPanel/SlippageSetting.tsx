@@ -29,12 +29,10 @@ const Message = styled.div`
 
 type Props = {
   shouldShowPinButton?: boolean
-  isCrossChain?: boolean
 }
 
-const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true, isCrossChain = false }) => {
-  const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } =
-    useSlippageSettingByPage(isCrossChain)
+const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
+  const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } = useSlippageSettingByPage()
 
   const isStablePairSwap = useCheckStablePairSwap()
   const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap)
