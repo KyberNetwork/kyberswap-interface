@@ -7,7 +7,6 @@ import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo,
 import { Trash } from 'react-feather'
 import { usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useImportTokenMutation } from 'services/ksSetting'
 import styled from 'styled-components'
 
 import Column from 'components/Column'
@@ -312,7 +311,6 @@ export function CurrencySearch({
   }, [fetchFavoriteTokenFromAddress])
 
   const abortControllerRef = useRef(new AbortController())
-  const [importTokensToKsSettings] = useImportTokenMutation()
   const fetchListTokens = useCallback(
     async (page?: number) => {
       const nextPage = (page ?? pageCount) + 1
@@ -335,15 +333,6 @@ export function CurrencySearch({
                 symbol: rawToken.symbol || 'UNKNOWN',
               }),
             )
-
-            importTokensToKsSettings([
-              {
-                chainId: String(rawToken.chainId),
-                address: rawToken.address,
-              },
-            ]).catch(err => {
-              console.error('import token err', err)
-            })
           }
         }
       } else {
@@ -354,16 +343,7 @@ export function CurrencySearch({
       setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(tokens))
       setHasMoreToken(tokens.length === PAGE_SIZE && !!debouncedQuery)
     },
-    [
-      isImportedTab,
-      chainId,
-      debouncedQuery,
-      defaultTokens,
-      fetchERC20TokenFromRPC,
-      isQueryValidEVMAddress,
-      pageCount,
-      importTokensToKsSettings,
-    ],
+    [isImportedTab, chainId, debouncedQuery, defaultTokens, fetchERC20TokenFromRPC, isQueryValidEVMAddress, pageCount],
   )
 
   const [hasMoreToken, setHasMoreToken] = useState(false)
