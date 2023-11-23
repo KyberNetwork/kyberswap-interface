@@ -166,11 +166,7 @@ const CancelButtons = ({
       </ButtonWrapper>
     )
 
-  const propsGasless = {
-    color: cancelType === CancelOrderType.GAS_LESS_CANCEL ? theme.primary : undefined,
-    height: '40px',
-    width: '100%',
-  }
+  const propsGasless = { height: '40px', width: '100%' }
   const propsHardCancel = { style: { height: '40px', width: '100%' }, disabled: disabledHardCancel }
 
   if (isCountDown)
@@ -217,6 +213,7 @@ const CancelButtons = ({
             >
               <ButtonOutlined
                 {...propsGasless}
+                color={cancelType === CancelOrderType.GAS_LESS_CANCEL ? theme.primary : undefined}
                 onClick={() => onSetType(CancelOrderType.GAS_LESS_CANCEL)}
                 $disabled={disabledGasLessCancel}
                 disabled={disabledGasLessCancel}
