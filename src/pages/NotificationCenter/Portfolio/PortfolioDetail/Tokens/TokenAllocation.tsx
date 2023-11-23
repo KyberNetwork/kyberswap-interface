@@ -8,9 +8,7 @@ import { useGetChainsAllocationQuery, useGetTokenAllocationQuery } from 'service
 import styled from 'styled-components'
 
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
-import { ButtonAction } from 'components/Button'
 import { DataEntry } from 'components/EarningPieChart'
-import Icon from 'components/Icons/Icon'
 import LocalLoader from 'components/LocalLoader'
 import { NetworkLogo, TokenLogoWithChain } from 'components/Logo'
 import Row from 'components/Row'
@@ -158,7 +156,11 @@ export default function TokenAllocation({
   const [tab, setTab] = useState<string>(AllocationTab.TOKEN)
   const isTokenTab = tab === AllocationTab.TOKEN
 
-  const { data: dataTokens, isFetching: isFetchingTokens } = useGetTokenAllocationQuery(
+  const {
+    data: dataTokens,
+    isLoading: isLoadingTokens,
+    isFetching: isFetchingTokens,
+  } = useGetTokenAllocationQuery(
     { walletAddresses, chainIds },
     {
       skip: !walletAddresses.length || !isTokenTab,
@@ -166,7 +168,11 @@ export default function TokenAllocation({
       pollingInterval: PORTFOLIO_POLLING_INTERVAL,
     },
   )
-  const { data: dataChains, isFetching: isFetchingChain } = useGetChainsAllocationQuery(
+  const {
+    data: dataChains,
+    isLoading: isLoadingChain,
+    isFetching: isFetchingchains,
+  } = useGetChainsAllocationQuery(
     { walletAddresses, chainIds },
     {
       skip: !walletAddresses.length || tab !== AllocationTab.CHAIN,
@@ -175,7 +181,9 @@ export default function TokenAllocation({
     },
   )
 
-  const isLoading = useShowLoadingAtLeastTime(isFetchingTokens || isFetchingChain, 400)
+  const isLoading = useShowLoadingAtLeastTime(isLoadingTokens || isLoadingChain, 400)
+  const isFetching = useShowLoadingAtLeastTime(isFetchingTokens || isFetchingchains, 400)
+
   const data = isTokenTab ? dataTokens : dataChains
 
   const filterBalance = useFilterBalances()
@@ -189,11 +197,6 @@ export default function TokenAllocation({
       tabs={tabs}
       activeTab={tab}
       onTabClick={setTab}
-      actions={
-        <ButtonAction>
-          <Icon id="share" size={14} />
-        </ButtonAction>
-      }
       contentStyle={upToSmall ? { padding: 0 } : undefined}
     >
       <Content>
@@ -201,7 +204,7 @@ export default function TokenAllocation({
           {...{
             style: { background: 'transparent', minWidth: 380 },
             data: chartData,
-            isLoading,
+            isLoading: isFetching,
             horizontalLayout: upToSmall,
             numberOfTokens: chartData.length,
             totalUsd: data?.totalUsd || 0,

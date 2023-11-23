@@ -37,7 +37,7 @@ export type SectionProps<T extends string = string> = {
   children: ReactNode
   style?: React.CSSProperties
   contentStyle?: React.CSSProperties
-  actions: ReactNode
+  actions?: ReactNode
   tabs?: TabITem<T>[]
   activeTab?: T
   onTabClick?: (val: T) => void | Dispatch<SetStateAction<T>>
@@ -56,11 +56,12 @@ export default function Section<T extends string = string>({
 }: SectionProps<T>) {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
-  const renderAction = () => (
-    <RowFit color={theme.subText} gap="12px" style={{ zIndex: 1 }}>
-      {actions}
-    </RowFit>
-  )
+  const renderAction = () =>
+    actions ? (
+      <RowFit color={theme.subText} gap="12px" style={{ zIndex: 1 }}>
+        {actions}
+      </RowFit>
+    ) : null
   return (
     <StyledSectionWrapper ref={ref} id={id} style={style} className="section-wrapper">
       <SectionTitle
