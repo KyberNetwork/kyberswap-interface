@@ -225,7 +225,13 @@ export default function PortfolioSettings() {
             </Trans>
           </Text>
           <MouseoverTooltip
-            text={canCreatePortfolio ? '' : t`You had added the maximum number of portfolio`}
+            text={
+              canCreatePortfolio
+                ? ''
+                : !account
+                ? t`Connect wallet to create portfolio`
+                : t`You had added the maximum number of portfolio`
+            }
             placement="top"
           >
             <ButtonPrimary
