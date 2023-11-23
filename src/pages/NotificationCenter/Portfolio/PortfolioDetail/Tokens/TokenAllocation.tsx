@@ -168,10 +168,14 @@ export default function TokenAllocation({
   )
   const { data: dataChains, isFetching: isFetchingChain } = useGetChainsAllocationQuery(
     { walletAddresses, chainIds },
-    { skip: !walletAddresses.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
+    {
+      skip: !walletAddresses.length || tab !== AllocationTab.CHAIN,
+      refetchOnMountOrArgChange: true,
+      pollingInterval: PORTFOLIO_POLLING_INTERVAL,
+    },
   )
 
-  const isLoading = useShowLoadingAtLeastTime(isFetchingTokens || isFetchingChain, 500)
+  const isLoading = useShowLoadingAtLeastTime(isFetchingTokens || isFetchingChain, 400)
   const data = isTokenTab ? dataTokens : dataChains
 
   const filterBalance = useFilterBalances()
