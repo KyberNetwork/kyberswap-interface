@@ -27,6 +27,7 @@ import Overview from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Overvie
 import Tokens from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens'
 import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
+import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 import { Portfolio, PortfolioTab, PortfolioWallet } from 'pages/NotificationCenter/Portfolio/type'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -114,9 +115,9 @@ export default function PortfolioDetail() {
 
   const [chainIds, setChainIds] = useState<ChainId[]>([...chainSupport])
 
-  const { isFetching: isLoadingRealtimeData, data } = useGetRealtimeBalanceQuery(
+  const { isLoading: isLoadingRealtimeData, data } = useGetRealtimeBalanceQuery(
     { walletAddresses: walletsQuery },
-    { skip: !walletsQuery.length, refetchOnMountOrArgChange: true },
+    { skip: !walletsQuery.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
   )
 
   const isLoading: boolean = isLoadingPortfolio || isLoadingRealtimeData

@@ -23,6 +23,7 @@ import useTheme from 'hooks/useTheme'
 import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
 import useFilterBalances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/useFilterBalances'
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
+import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
 import { navigateToSwapPage } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
@@ -198,7 +199,7 @@ export default function WalletInfo({ walletAddresses, chainIds }: { walletAddres
   const { data, isFetching } = useGetTokenAllocationQuery(
     // todo
     { walletAddresses, chainIds },
-    { skip: !walletAddresses.length, refetchOnMountOrArgChange: true },
+    { skip: !walletAddresses.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
   )
 
   const [search, setSearch] = useState('')

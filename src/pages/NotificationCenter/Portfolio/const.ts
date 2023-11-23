@@ -1,1 +1,3 @@
 export const MAXIMUM_PORTFOLIO = 2
+
+export const PORTFOLIO_POLLING_INTERVAL = 30_000

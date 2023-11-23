@@ -59,7 +59,6 @@ const TokenAllocationChartLocal = ({
   title,
   border = true,
   style,
-  column,
 }: {
   className?: string
   numberOfTokens: number
@@ -70,11 +69,11 @@ const TokenAllocationChartLocal = ({
   title?: ReactNode
   border?: boolean
   style?: CSSProperties
-  column?: number
 }) => {
   const theme = useTheme()
+  const totalColumn = horizontalLayout && numberOfTokens <= 6 ? 1 : numberOfTokens >= 4 ? 2 : 1
   return (
-    <Wrapper className={className} $columns={column || (numberOfTokens > 5 ? 2 : 1)} $border={border} style={style}>
+    <Wrapper className={className} $columns={totalColumn} $border={border} style={style}>
       {title && (
         <Text
           sx={{
@@ -88,9 +87,10 @@ const TokenAllocationChartLocal = ({
         </Text>
       )}
       {isLoading || !data ? (
-        <EarningPieChart horizontalLayout={horizontalLayout} isLoading />
+        <EarningPieChart horizontalLayout={horizontalLayout} isLoading totalColumn={totalColumn} />
       ) : (
         <EarningPieChart
+          totalColumn={totalColumn}
           horizontalLayout={horizontalLayout}
           data={data}
           totalValue={formatDisplayNumber(totalUsd || 0, { style: 'currency', significantDigits: 3 })}

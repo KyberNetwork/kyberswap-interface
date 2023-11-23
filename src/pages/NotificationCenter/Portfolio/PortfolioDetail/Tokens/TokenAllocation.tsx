@@ -22,6 +22,7 @@ import useTheme from 'hooks/useTheme'
 import { TokenAllocationChart } from 'pages/MyEarnings/EarningsBreakdownPanel'
 import useFilterBalances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/useFilterBalances'
 import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
+import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { PortfolioChainBalance, PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -29,7 +30,12 @@ import { formatDisplayNumber } from 'utils/numbers'
 export const LiquidityScore = () => {
   const theme = useTheme()
   return (
-    <Flex alignItems={'center'} justifyContent={'center'} sx={{ gap: '6px' }} color={theme.primary}>
+    <Flex
+      alignItems={'center'}
+      justifyContent={'center'}
+      sx={{ gap: '6px', whiteSpace: 'nowrap' }}
+      color={theme.primary}
+    >
       <LiquidityIcon />
       <Trans>High Liquidity</Trans>
     </Flex>
@@ -77,7 +83,7 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
   {
     title: t`Asset Ratio`,
     align: 'right',
-    dataIndex: 'percent',
+    dataIndex: 'percentage',
     render: ({ value }) => formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
     style: isMobile ? { width: 80 } : undefined,
   },
@@ -105,7 +111,7 @@ const columnsChains: TableColumn<PortfolioChainBalance>[] = [
   {
     title: t`Asset Ratio`,
     align: 'right',
-    dataIndex: 'percent',
+    dataIndex: 'percentage',
     render: ({ value }) => formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
     style: isMobile ? { width: 80 } : undefined,
   },
@@ -121,8 +127,8 @@ const Content = styled(Row)`
 `
 
 enum AllocationTab {
-  TOKEN = `Token Allocation`,
-  CHAIN = `Chain Allocation`,
+  TOKEN = `Token Distribution`,
+  CHAIN = `Chain Distribution`,
   LIQUIDITY_SCORE = `Liquidity Score Ratio`,
 }
 
@@ -154,46 +160,26 @@ export default function TokenAllocation({
 
   const { data: dataTokens, isFetching: isFetchingTokens } = useGetTokenAllocationQuery(
     { walletAddresses, chainIds },
-    { skip: !walletAddresses.length || !isTokenTab, refetchOnMountOrArgChange: true },
+    {
+      skip: !walletAddresses.length || !isTokenTab,
+      refetchOnMountOrArgChange: true,
+      pollingInterval: PORTFOLIO_POLLING_INTERVAL,
+    },
   )
   const { data: dataChains, isFetching: isFetchingChain } = useGetChainsAllocationQuery(
     { walletAddresses, chainIds },
-    { skip: !walletAddresses.length, refetchOnMountOrArgChange: true },
+    { skip: !walletAddresses.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
   )
 
-  const isFetching = useShowLoadingAtLeastTime(isFetchingTokens || isFetchingChain, 500)
+  const isLoading = useShowLoadingAtLeastTime(isFetchingTokens || isFetchingChain, 500)
   const data = isTokenTab ? dataTokens : dataChains
 
   const filterBalance = useFilterBalances()
 
   const { chartData, tableData }: { chartData: DataEntry[]; tableData: DataEntry[] } = useMemo(() => {
-    const data = isTokenTab ? dataTokens : dataChains
     if (!data?.balances?.length) return { chartData: EMPTY_ARRAY, tableData: EMPTY_ARRAY }
-    if (isTokenTab) {
-      const balances: PortfolioWalletBalance[] = dataTokens?.balances || EMPTY_ARRAY
-      const result = balances?.map(el => {
-        return {
-          ...el,
-          percent: +el.percentage,
-          value: el.valueUsd,
-          symbol: el.tokenSymbol,
-          logoUrl: el.tokenLogo,
-        }
-      })
-      return filterBalance(result)
-    }
-    const balances: PortfolioChainBalance[] = dataChains?.balances || EMPTY_ARRAY
-    const result = balances?.map(el => {
-      return {
-        ...el,
-        percent: +el.percentage,
-        value: el.valueUsd,
-        symbol: NETWORKS_INFO[el.chainId].name,
-        logoUrl: NETWORKS_INFO[el.chainId].icon,
-      }
-    })
-    return filterBalance(result)
-  }, [dataTokens, dataChains, isTokenTab, filterBalance])
+    return filterBalance(data?.balances || EMPTY_ARRAY)
+  }, [data, filterBalance])
 
   return (
     <PortfolioSection
@@ -212,15 +198,14 @@ export default function TokenAllocation({
           {...{
             style: { background: 'transparent', minWidth: 380 },
             data: chartData,
-            isLoading: isFetching,
-            horizontalLayout: false,
+            isLoading,
+            horizontalLayout: upToSmall,
             numberOfTokens: chartData.length,
             totalUsd: data?.totalUsd || 0,
             border: false,
-            // column: 2,
           }}
         />
-        {isFetching ? (
+        {isLoading ? (
           <LocalLoader />
         ) : (
           <Table
