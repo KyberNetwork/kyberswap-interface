@@ -25,6 +25,7 @@ export type PortfolioWalletBalance = {
   priceUsd: string
   tokenSymbol: string
   tokenLogo: string
+  percentage: string
   walletAddress: string // custom
 }
 

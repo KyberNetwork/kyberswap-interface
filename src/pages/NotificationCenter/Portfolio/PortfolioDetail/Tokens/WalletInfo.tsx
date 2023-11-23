@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
 import { useGetTokenAllocationQuery } from 'services/portfolio'
 import styled, { CSSProperties } from 'styled-components'
@@ -20,6 +21,7 @@ import { EMPTY_ARRAY } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
+import useFilterBalances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/useFilterBalances'
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
 import { navigateToSwapPage } from 'pages/TrueSightV2/utils'
@@ -106,12 +108,15 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
           width: '24px',
           height: '24px',
         }}
+        onClick={() => alert('in dev')}
       >
         <LiquidityIcon />
       </ButtonAction>
       <ButtonAction
         style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '4px' }}
-        onClick={() => navigateToSwapPage({ chain: chainId, address: tokenAddress })}
+        onClick={() => {
+          navigateToSwapPage({ chain: chainId, address: tokenAddress })
+        }}
       >
         <Icon id="swap" size={16} color={theme.subText} />
       </ButtonAction>
@@ -129,17 +134,21 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
         item={{ logoUrl: tokenLogo, symbol: tokenSymbol, walletAddress: '0x test', chainId }}
       />
     ),
+    sticky: true,
+    style: isMobile ? { width: 140 } : undefined,
   },
   {
     title: t`Amount`,
     dataIndex: 'amount',
     render: ({ value }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
+    style: isMobile ? { width: 120 } : undefined,
   },
   { title: t`Price`, dataIndex: 'priceUsd' },
   {
     title: t`Real Value`,
     dataIndex: 'valueUsd',
     render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
+    style: isMobile ? { width: 120 } : undefined,
   },
   {
     title: t`Liquidity Score`,
@@ -151,6 +160,7 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
         significantly impacting its price. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
       </Trans>
     ),
+    style: isMobile ? { width: 120 } : undefined,
   },
   {
     title: t`24H Volatility Score`,
@@ -162,6 +172,7 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
         <ExternalLink href="/todo">here ↗</ExternalLink>
       </Trans>
     ),
+    style: isMobile ? { width: 120 } : undefined,
   },
   {
     title: t`KyberScore`,
@@ -192,6 +203,8 @@ export default function WalletInfo({ walletAddresses, chainIds }: { walletAddres
 
   const [search, setSearch] = useState('')
   const searchDebounce = useDebounce(search, 500)
+
+  const filterBalance = useFilterBalances()
   const formatData = useMemo(() => {
     if (!data?.balances?.length) return EMPTY_ARRAY
     const list = data.balances
@@ -201,8 +214,8 @@ export default function WalletInfo({ walletAddresses, chainIds }: { walletAddres
             e.tokenSymbol.toLowerCase().includes(searchDebounce.toLowerCase()) ||
             e.tokenAddress.toLowerCase().includes(searchDebounce.toLowerCase()),
         )
-      : list
-  }, [data, searchDebounce])
+      : filterBalance(list).tableData
+  }, [data, searchDebounce, filterBalance])
 
   return (
     <PortfolioSection

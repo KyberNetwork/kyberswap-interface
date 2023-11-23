@@ -24,8 +24,7 @@ import Allowances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Allow
 import ListTab from 'pages/NotificationCenter/Portfolio/PortfolioDetail/ListTab'
 import Nft from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft'
 import Overview from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Overview'
-import TokenAllocation from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
-import WalletInfo from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
+import Tokens from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens'
 import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
 import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
@@ -49,15 +48,6 @@ const PageWrapper = styled.div`
     padding: 20px 16px;
 `};
 `
-
-const Tokens = (props: { walletAddresses: string[]; chainIds: ChainId[] }) => {
-  return (
-    <>
-      <TokenAllocation {...props} />
-      <WalletInfo {...props} />
-    </>
-  )
-}
 
 const useFetchPortfolio = (): {
   wallets: PortfolioWallet[]

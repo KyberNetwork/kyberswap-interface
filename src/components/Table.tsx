@@ -143,9 +143,9 @@ export default function Table<T>({
 
   const { show: showPagination = true, hideWhenSinglePage = false, ...paginationProps } = pagination || {}
   return (
-    <Column flex={1}>
+    <Column flex={1} style={style}>
       <Column flex={1} style={{ width: '100%', overflowX: 'scroll', position: 'relative' }}>
-        <TableWrapper style={style}>
+        <TableWrapper>
           <TableHeader column={columns.length} style={headerStyle}>
             {columns.map(({ tooltip, title, align, style, sticky }, i) => (
               <Thead key={i} style={style} data-sticky={sticky}>

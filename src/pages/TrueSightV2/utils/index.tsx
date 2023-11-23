@@ -109,7 +109,7 @@ export const getErrorMessage = (error: any) => {
 // todo move to global
 export const navigateToSwapPage = ({ address, chain }: { address?: string; chain?: string | number }) => {
   if (!address || !chain) return
-  const chainId: ChainId | undefined = typeof chain === 'number' ? chain : getChainIdFromSlug(chain)
+  const chainId: ChainId | undefined = !isNaN(+chain) ? +chain : getChainIdFromSlug(chain as string)
   if (!chainId) return
   window.open(
     window.location.origin +
