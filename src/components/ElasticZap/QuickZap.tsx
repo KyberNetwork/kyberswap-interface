@@ -96,7 +96,8 @@ export const QuickZapButton = ({
   const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
   const theme = useTheme()
 
-  return (
+  const tmp = true
+  return tmp ? null : (
     <MouseoverTooltip
       text={
         isZapAvailable ? (
