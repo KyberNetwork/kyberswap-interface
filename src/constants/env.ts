@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import invariant from 'tiny-invariant'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
-import { isAddressString } from 'utils'
+import { isAddressString } from 'utils/address'
 
 import { ENV_TYPE } from './type'
 
