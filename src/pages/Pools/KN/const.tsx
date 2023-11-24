@@ -60,6 +60,8 @@ export enum SORT_FIELD {
   VOLUME = 'volume',
   FEE = 'fees',
   MY_LIQUIDITY = 'myLiquidity',
+  MY_POOL_APR = 'myPoolApr',
+  MY_FARM_APR = 'myFarmApr',
 }
 
 export const poolSortText: { [protocol in SORT_FIELD]: ReactNode } = {
@@ -68,4 +70,6 @@ export const poolSortText: { [protocol in SORT_FIELD]: ReactNode } = {
   [SORT_FIELD.VOLUME]: t`Volume`,
   [SORT_FIELD.FEE]: t`Fee`,
   [SORT_FIELD.MY_LIQUIDITY]: t`My liquidity`,
+  [SORT_FIELD.MY_POOL_APR]: t`My Pool APR`,
+  [SORT_FIELD.MY_FARM_APR]: t`My Farm APR`,
 }

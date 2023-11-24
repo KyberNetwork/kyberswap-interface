@@ -29,6 +29,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import CreatePoolsButton from './CreatePoolsButton'
 import PoolList from './PoolList'
+import PositionsList from './PositionsList'
 import {
   ITEM_PER_PAGE,
   POOL_TIMEFRAME,
@@ -109,9 +110,15 @@ const validateParams = (
     ? type
     : undefined
   const validatedSortBy: SORT_FIELD | undefined =
-    [SORT_FIELD.TVL, SORT_FIELD.APR, SORT_FIELD.VOLUME, SORT_FIELD.FEE, SORT_FIELD.MY_LIQUIDITY].find(
-      field => field.toLowerCase() === sortBy.toLowerCase(),
-    ) || SORT_FIELD.TVL
+    [
+      SORT_FIELD.TVL,
+      SORT_FIELD.APR,
+      SORT_FIELD.VOLUME,
+      SORT_FIELD.FEE,
+      SORT_FIELD.MY_LIQUIDITY,
+      SORT_FIELD.MY_POOL_APR,
+      SORT_FIELD.MY_FARM_APR,
+    ].find(field => field.toLowerCase() === sortBy.toLowerCase()) || SORT_FIELD.TVL
   const validatedSortType: SORT_DIRECTION | undefined = ([SORT_DIRECTION.ASC, SORT_DIRECTION.DESC] as const).includes(
     sortType,
   )
@@ -707,6 +714,17 @@ const KNPools = () => {
                 )}
               </Text>
             </Flex>
+          ) : type === POOL_TYPE.MY_POSITIONS ? (
+            <PositionsList
+              data={data}
+              loading={isFetching}
+              page={page}
+              setPage={setPage}
+              sortBy={sortBy}
+              sortType={sortType}
+              timeframe={timeframe}
+              view={view}
+            />
           ) : (
             <PoolList
               data={data}

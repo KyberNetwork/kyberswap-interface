@@ -85,7 +85,7 @@ const knProtocolApi = createApi({
         page: number
         size: number
         protocol?: 'elastic' | 'classic'
-        sortBy?: 'apr' | 'tvl' | 'volume' | 'fees' | 'myLiquidity'
+        sortBy?: 'apr' | 'tvl' | 'volume' | 'fees' | 'myLiquidity' | 'myPoolApr' | 'myFarmApr'
         sortType?: 'asc' | 'desc'
         timeframe?: '24h' | '7d' | '30d'
         type?: 'farming' | 'stable' | 'lsd' | 'mine'

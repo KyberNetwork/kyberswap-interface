@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled, { DefaultTheme, css, keyframes } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -103,7 +103,7 @@ export const Tag = styled(Flex)<{ color: string; backgroundColor: string }>`
 export const TableHeader = styled.div`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 1fr 1fr;
   padding: 16px 24px 16px 0;
   font-size: 12px;
   align-items: center;
@@ -129,7 +129,7 @@ export const TableHeader = styled.div`
 export const TableRow = styled.div`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 1fr 1fr;
   padding: 24px 24px 24px 0;
   font-size: 14px;
   align-items: center;
@@ -148,4 +148,22 @@ export const TableRow = styled.div`
     position: sticky;
     left: 0;
   }
+`
+
+export const ClickableText = styled(Text)<{ onClick?: any }>`
+  display: flex;
+  align-items: center;
+  color: ${({ theme }) => theme.subText};
+
+  ${({ onClick }) =>
+    onClick &&
+    css`
+      &:hover {
+        cursor: pointer;
+        opacity: 0.6;
+      }
+    `}
+
+  user-select: none;
+  text-transform: uppercase;
 `

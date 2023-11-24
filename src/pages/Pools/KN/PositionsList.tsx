@@ -9,7 +9,6 @@ import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
 import ShareModal from 'components/ShareModal'
-import { MouseoverTooltip, TextDotted } from 'components/Tooltip'
 import { SORT_DIRECTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ClassicPoolData } from 'hooks/pool/classic/type'
@@ -19,11 +18,11 @@ import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ElasticPoolDetail } from 'types/pool'
 
-import ClassicGridItem from './ClassicPools/GridItem'
-import ClassicListItem from './ClassicPools/ListItem'
-import ElasticGridItem from './ElasticPools/GridItem'
-import ElasticListItem from './ElasticPools/ListItem'
-import { ITEM_PER_PAGE, POOL_TIMEFRAME, SORT_FIELD, poolTimeframeText } from './const'
+import ClassicGridItem from './Positions/ClassicPositions/GridItem'
+import ClassicListItem from './Positions/ClassicPositions/ListItem'
+import ElasticGridItem from './Positions/ElasticPositions/GridItem'
+import ElasticListItem from './Positions/ElasticPositions/ListItem'
+import { ITEM_PER_PAGE, POOL_TIMEFRAME, SORT_FIELD } from './const'
 import { ClickableText, TableHeader } from './styleds'
 
 const PageWrapper = styled.div`
@@ -43,15 +42,7 @@ const BodyWrapper = styled.div`
   width: 100%;
 `
 
-const Grid = styled.div`
-  padding: 24px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 24px;
-  background: ${({ theme }) => theme.background};
-`
-
-function PoolList({
+function PositionsList({
   data,
   loading,
   page,
@@ -111,50 +102,31 @@ function PoolList({
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <MouseoverTooltip
-            text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
-          >
-            <ClickableText style={{ textAlign: 'right' }} onClick={() => handleSort(SORT_FIELD.TVL)}>
-              <TextDotted>
-                <Trans>TVL</Trans>
-              </TextDotted>
-              {sortBy === SORT_FIELD.TVL && sortArrow}
-            </ClickableText>
-          </MouseoverTooltip>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
-          <MouseoverTooltip
-            text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm.`}
-          >
-            <ClickableText
-              onClick={() => handleSort(SORT_FIELD.APR)}
-              style={{
-                paddingRight: '14px', // leave some space for the money bag in the value rows
-              }}
-            >
-              <TextDotted>
-                <Trans>APR ({poolTimeframeText[timeframe]})</Trans>
-              </TextDotted>
-              {sortBy === SORT_FIELD.APR && sortArrow}
-            </ClickableText>
-          </MouseoverTooltip>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText onClick={() => handleSort(SORT_FIELD.VOLUME)}>
-            <Trans>VOLUME ({poolTimeframeText[timeframe]})</Trans>
-            {sortBy === SORT_FIELD.VOLUME && sortArrow}
-          </ClickableText>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText onClick={() => handleSort(SORT_FIELD.FEE)}>
-            <Trans>FEES ({poolTimeframeText[timeframe]})</Trans>
-            {sortBy === SORT_FIELD.FEE && sortArrow}
-          </ClickableText>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText onClick={() => handleSort(SORT_FIELD.MY_LIQUIDITY)}>
+          <ClickableText style={{ textAlign: 'right' }} onClick={() => handleSort(SORT_FIELD.MY_LIQUIDITY)}>
             <Trans>MY LIQUIDITY</Trans>
             {sortBy === SORT_FIELD.MY_LIQUIDITY && sortArrow}
+          </ClickableText>
+        </Flex>
+        <Flex alignItems="center" justifyContent="flex-end">
+          <ClickableText style={{ textAlign: 'right' }}>
+            <Trans>PROFIT & LOSS</Trans>
+          </ClickableText>
+        </Flex>
+        <Flex alignItems="center" justifyContent="flex-end">
+          <ClickableText style={{ textAlign: 'right' }}>
+            <Trans>PRICE RANGE</Trans>
+          </ClickableText>
+        </Flex>
+        <Flex alignItems="center" justifyContent="flex-end">
+          <ClickableText style={{ textAlign: 'right' }} onClick={() => handleSort(SORT_FIELD.MY_POOL_APR)}>
+            <Trans>MY POOL APR</Trans>
+            {sortBy === SORT_FIELD.MY_POOL_APR && sortArrow}
+          </ClickableText>
+        </Flex>
+        <Flex alignItems="center" justifyContent="flex-end">
+          <ClickableText style={{ textAlign: 'right' }} onClick={() => handleSort(SORT_FIELD.MY_FARM_APR)}>
+            <Trans>MY FARM APR</Trans>
+            {sortBy === SORT_FIELD.MY_FARM_APR && sortArrow}
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
@@ -186,6 +158,58 @@ function PoolList({
 
   if (!isEVM) return <Navigate to="/" />
   const poolsList = Object.values(data?.pools || {})
+  const positionsList = poolsList
+    .map(pool => {
+      if (!pool.positions) return null
+      if (pool.protocol === 'elastic') {
+        return pool.positions.map(position => {
+          if (view === VIEW_MODE.LIST) {
+            return (
+              <ElasticListItem
+                key={pool.address + '_' + position.id}
+                pool={pool}
+                position={position}
+                onShared={setSharedPoolId}
+              />
+            )
+          }
+          return (
+            <ElasticGridItem
+              key={pool.address + '_' + position.id}
+              pool={pool}
+              position={position}
+              onShared={setSharedPoolId}
+              timeframe={timeframe}
+            />
+          )
+        })
+      } else if (pool.protocol === 'classic') {
+        return pool.positions.map(position => {
+          if (view === VIEW_MODE.LIST) {
+            return (
+              <ClassicListItem
+                key={pool.address + '_' + position.id}
+                pool={pool}
+                position={position}
+                onShared={setSharedPoolId}
+              />
+            )
+          }
+          return (
+            <ClassicGridItem
+              key={pool.address + '_' + position.id}
+              pool={pool}
+              position={position}
+              timeframe={timeframe}
+              onShared={setSharedPoolId}
+            />
+          )
+        })
+      }
+      return null
+    })
+    .flat(1)
+    .filter(Boolean) as JSX.Element[]
 
   return (
     <PageWrapper>
@@ -193,7 +217,7 @@ function PoolList({
         {renderHeader()}
         {loading ? (
           <LocalLoader />
-        ) : !poolsList.length ? (
+        ) : !positionsList.length ? (
           <Flex
             backgroundColor={theme.background}
             justifyContent="center"
@@ -201,42 +225,11 @@ function PoolList({
             sx={{ borderRadius: '20px', width: '100%', height: '400px' }}
           >
             <Text color={theme.subText}>
-              <Trans>No Pools found</Trans>
+              <Trans>No Position found</Trans>
             </Text>
           </Flex>
         ) : (
-          <>
-            {view === VIEW_MODE.LIST ? (
-              poolsList.map(pool => {
-                if (pool.protocol === 'elastic')
-                  return <ElasticListItem key={pool.address} pool={pool} onShared={setSharedPoolId} />
-                if (pool.protocol === 'classic')
-                  return <ClassicListItem key={pool.id} pool={pool} onShared={setSharedPoolId} />
-
-                return null
-              })
-            ) : (
-              <Grid>
-                {poolsList.map(pool => {
-                  if (pool.protocol === 'elastic')
-                    return (
-                      <ElasticGridItem
-                        key={pool.address}
-                        pool={pool}
-                        onShared={setSharedPoolId}
-                        timeframe={timeframe}
-                      />
-                    )
-                  if (pool.protocol === 'classic')
-                    return (
-                      <ClassicGridItem pool={pool} key={pool.id} timeframe={timeframe} onShared={setSharedPoolId} />
-                    )
-
-                  return null
-                })}
-              </Grid>
-            )}
-          </>
+          positionsList
         )}
 
         <ShareModal
@@ -255,4 +248,4 @@ function PoolList({
     </PageWrapper>
   )
 }
-export default PoolList
+export default PositionsList
