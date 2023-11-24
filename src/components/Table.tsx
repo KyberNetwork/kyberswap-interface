@@ -97,7 +97,7 @@ const LoadingWrapper = styled(Row)`
 export default function Table<T>({
   data = [],
   columns = [],
-  style,
+  style: tableStyle,
   headerStyle,
   totalItems,
   pageSize = 10,
@@ -145,7 +145,7 @@ export default function Table<T>({
 
   const { show: showPagination = true, hideWhenSinglePage = false, ...paginationProps } = pagination || {}
   return (
-    <Column flex={1} style={style}>
+    <Column flex={1} style={tableStyle}>
       <Column flex={1} style={{ width: '100%', overflowX: 'scroll', position: 'relative' }}>
         <TableWrapper>
           <TableHeader column={columns.length} style={headerStyle}>
@@ -192,6 +192,7 @@ export default function Table<T>({
                           key={`${i}${j}`}
                           style={{
                             textAlign: align || 'center',
+                            background: tableStyle?.background, // todo consider
                             ...style,
                           }}
                         >

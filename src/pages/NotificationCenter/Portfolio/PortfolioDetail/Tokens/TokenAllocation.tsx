@@ -219,7 +219,7 @@ export default function TokenAllocation({
           <Table
             data={tableData}
             columns={(isTokenTab ? columns : columnsChains) as any} // todo
-            style={{ flex: 1, overflowX: 'auto', width: '100%' }}
+            style={{ flex: 1, overflowX: 'auto', width: '100%', background: isMobile ? undefined : 'transparent' }}
             totalItems={tableData.length}
             pageSize={6}
             pagination={{ hideWhenSinglePage: true }}
