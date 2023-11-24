@@ -82,7 +82,8 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
     title: t`Asset Ratio`,
     align: 'right',
     dataIndex: 'percentage',
-    render: ({ value }) => formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
+    render: ({ value }) =>
+      value === '0' ? '<0.01%' : formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
     style: isMobile ? { width: 80 } : undefined,
   },
 ]
@@ -110,7 +111,8 @@ const columnsChains: TableColumn<PortfolioChainBalance>[] = [
     title: t`Asset Ratio`,
     align: 'right',
     dataIndex: 'percentage',
-    render: ({ value }) => formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
+    render: ({ value }) =>
+      value === '0' ? '<0.01%' : formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
     style: isMobile ? { width: 80 } : undefined,
   },
 ]
