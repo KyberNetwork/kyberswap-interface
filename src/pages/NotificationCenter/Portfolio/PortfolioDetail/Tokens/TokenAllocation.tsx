@@ -35,7 +35,7 @@ export const LiquidityScore = () => {
       color={theme.primary}
     >
       <LiquidityIcon />
-      <Trans>High Liquidity</Trans>
+      <Trans>Test Test</Trans>
     </Flex>
   )
 }

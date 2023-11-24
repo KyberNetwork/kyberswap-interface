@@ -212,3 +212,9 @@ export type NftCollectionResponse = {
   totalData: number
   timestamp: number
 }
+
+export type PortfolioSearchData = {
+  id: string
+  name: string
+  totalUsd: string
+}

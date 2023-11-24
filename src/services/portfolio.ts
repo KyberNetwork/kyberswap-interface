@@ -10,6 +10,7 @@ import {
   NftCollectionResponse,
   Portfolio,
   PortfolioChainBalanceResponse,
+  PortfolioSearchData,
   PortfolioSetting,
   PortfolioWallet,
   PortfolioWalletBalanceResponse,
@@ -43,23 +44,25 @@ const portfolioApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
-    searchPortfolio: builder.query<Portfolio[], { name: string }>({
+    searchPortfolio: builder.query<PortfolioSearchData[], { value: string }>({
       query: params => ({
-        url: `https://portfolio-service-api.dev.kyberengineering.io/api/v1/portfolios/search`, // todo
+        url: `/search`,
         params,
-      }),
-      transformResponse: (data: any) => data?.data?.portfolios,
-    }),
-    getTrendingPortfolios: builder.query<Portfolio[], void>({
-      query: () => ({
-        url: `https://portfolio-service-api.dev.kyberengineering.io/api/v1/trending`, // todo
+        authentication: true,
       }),
       transformResponse: (data: any) => data?.data,
     }),
-    getFavoritesPortfolios: builder.query<string[], void>({
+    getTrendingPortfolios: builder.query<PortfolioSearchData[], void>({
       query: () => ({
-        url: `https://portfolio-service-api.dev.kyberengineering.io/api/v1/favorites`, // todo
-        params: { identityId: window.identityId }, // todo
+        url: `/search/trending`,
+        authentication: true,
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
+    getFavoritesPortfolios: builder.query<PortfolioSearchData[], void>({
+      query: () => ({
+        url: `/search/favorites`,
+        authentication: true,
       }),
       transformResponse: (data: any) => data?.data?.favorites?.map((e: { value: string }) => e.value),
       providesTags: [RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO],

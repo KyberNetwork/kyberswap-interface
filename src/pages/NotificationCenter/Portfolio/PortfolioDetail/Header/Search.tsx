@@ -1,13 +1,11 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { isMacOs, isMobile } from 'react-device-detect'
 import { Star } from 'react-feather'
 import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
 import {
   useGetFavoritesPortfoliosQuery,
-  useGetPortfolioByIdQuery,
   useGetTrendingPortfoliosQuery,
   useSearchPortfolioQuery,
   useToggleFavoritePortfolioMutation,
@@ -24,15 +22,13 @@ import useDebounce from 'hooks/useDebounce'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import { useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio/helpers'
-import { Portfolio } from 'pages/NotificationCenter/Portfolio/type'
+import { PortfolioSearchData } from 'pages/NotificationCenter/Portfolio/type'
 import { SearchSection, SearchWithDropdown } from 'pages/TrueSightV2/components/SearchWithDropDown'
 import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
-import { isULIDString } from 'utils/string'
 
 const ShortCut = styled.span`
   background-color: ${({ theme }) => theme.buttonBlack};
@@ -54,21 +50,20 @@ const DropdownItem = styled.tr`
   }
 `
 
-const getPortfolioId = (data: Portfolio | string) => (typeof data === 'string' ? data : data.id)
+const getPortfolioId = (data: PortfolioSearchData) => data.id || data.name
 
 const PortfolioItem = ({
   onSelect,
   data,
   favorites,
 }: {
-  onSelect: (v: Portfolio | string) => void
-  data: Portfolio | string
+  onSelect: (v: PortfolioSearchData) => void
+  data: PortfolioSearchData
   favorites: string[]
 }) => {
   const theme = useTheme()
   const navigate = useNavigateToPortfolioDetail()
-  const portfolio = data as Portfolio
-  const displayName = typeof data === 'string' ? data : portfolio.name
+  const displayName = data.name || data.id
   const id = getPortfolioId(data)
   const [toggleFavorite, { isLoading }] = useToggleFavoritePortfolioMutation()
   const isFavorite = favorites.includes(id)
@@ -102,7 +97,9 @@ const PortfolioItem = ({
         </Row>
       </td>
       <td style={{ textAlign: 'right' }}>
-        <Text color={theme.subText}>{formatDisplayNumber(1234567.23, { style: 'decimal', fractionDigits: 2 })}</Text>
+        <Text color={theme.subText}>
+          {formatDisplayNumber(data.totalUsd, { style: 'currency', fractionDigits: 2 })}
+        </Text>
       </td>
     </DropdownItem>
   )
@@ -113,14 +110,10 @@ export default function Search() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState(false)
-  const [history, setHistory] = useLocalStorage<Array<Portfolio | string>>('portfolio-history', [])
+  const [history, setHistory] = useLocalStorage<Array<PortfolioSearchData>>('portfolios-history', [])
   const searchDebounced = useDebounce(search, 500)
 
-  const isSearchByAddress = !!isAddress(ChainId.MAINNET, searchDebounced)
-  const isSearchById = searchDebounced && isULIDString(searchDebounced)
-  const isSearchByName = searchDebounced && !isSearchByAddress && !isSearchById
-
-  const saveToHistory = (data: Portfolio | string) => {
+  const saveToHistory = (data: PortfolioSearchData) => {
     const list = history || []
     if (!list.some(t => getPortfolioId(t) === getPortfolioId(data))) {
       setHistory([data, ...list].slice(0, 3))
@@ -133,29 +126,18 @@ export default function Search() {
     skip: !expanded,
   })
 
-  const { data: searchDataByName = EMPTY_ARRAY, isFetching: isLoadingSearch } = useSearchPortfolioQuery(
-    { name: searchDebounced },
+  const { data = EMPTY_ARRAY, isFetching: isLoadingSearch } = useSearchPortfolioQuery(
+    { value: searchDebounced },
     {
-      skip: !isSearchByName,
-    },
-  )
-  const { data: searchDataById, isFetching: isLoadingSearchById } = useGetPortfolioByIdQuery(
-    { id: searchDebounced },
-    {
-      skip: !isSearchById,
+      skip: !searchDebounced,
     },
   )
 
-  const searchData = useMemo(() => {
-    return (
-      (isSearchByAddress ? [searchDebounced] : isSearchById && searchDataById ? [searchDataById] : searchDataByName) ||
-      EMPTY_ARRAY
-    )
-  }, [searchDataByName, searchDataById, isSearchById, isSearchByAddress, searchDebounced])
+  const searchData = searchDebounced ? data : EMPTY_ARRAY
 
-  const isSearching = useShowLoadingAtLeastTime(isLoadingSearch || isLoadingSearchById, 500)
+  const isSearching = useShowLoadingAtLeastTime(isLoadingSearch, 500)
 
-  const onSelect = (data: Portfolio | string) => {
+  const onSelect = (data: PortfolioSearchData) => {
     setExpanded(false)
     setTimeout(() => {
       saveToHistory(data)
@@ -224,6 +206,7 @@ export default function Search() {
           ),
           items: itemTrending,
           loading: isLoadingTrending,
+          show: !!trending.length && !isLoadingTrending,
         },
       ]
   return (
