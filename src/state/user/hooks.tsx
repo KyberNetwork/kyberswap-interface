@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useGetParticipantInfoQuery, useLazyGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
 import { SUGGESTED_BASES } from 'constants/bases'
-import { TERM_FILES_PATH } from 'constants/index'
+import { INITIAL_ALLOWED_SLIPPAGE, TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { PINNED_PAIRS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -199,7 +199,7 @@ export function useSwapSlippageTolerance(): [number, (slippage: number) => void]
 export function usePoolSlippageTolerance(): [number, (slippage: number) => void] {
   const dispatch = useDispatch<AppDispatch>()
   const poolSlippageTolerance = useSelector<AppState, AppState['user']['poolSlippageTolerance']>(state => {
-    return state.user.poolSlippageTolerance
+    return state.user.poolSlippageTolerance || INITIAL_ALLOWED_SLIPPAGE
   })
   const setPoolSlippageTolerance = useCallback(
     (poolSlippageTolerance: number) => {
