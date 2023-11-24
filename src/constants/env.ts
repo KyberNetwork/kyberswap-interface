@@ -164,7 +164,7 @@ export const getAnnouncementsTemplateIds = (type: keyof TemplateConfig) => {
 }
 
 const mock = localStorage.getItem('mock')?.split(',') ?? []
-export const MOCK_ACCOUNT_EVM = isAddressString(1, mock[0]?.trim())
+export const MOCK_ACCOUNT_EVM = isAddressString(ChainId.MAINNET, mock[0]?.trim())
 export const MOCK_ACCOUNT_SOLANA = isAddressString(ChainId.SOLANA, mock[1]?.trim())
 
 const isSupportTestNet = ENV_LEVEL < ENV_TYPE.PROD && new URLSearchParams(window.location.search).get('test')
