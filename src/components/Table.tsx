@@ -105,6 +105,7 @@ export default function Table<T>({
   rowStyle,
   loading,
   pagination,
+  emptyMsg,
 }: {
   data: T[]
   columns: TableColumn<T>[]
@@ -123,6 +124,7 @@ export default function Table<T>({
     disableNext?: boolean
     hideWhenSinglePage?: boolean
   }
+  emptyMsg?: string
 }) {
   const [currentPage, setCurrentPage] = useState(1)
   const theme = useTheme()
@@ -222,9 +224,7 @@ export default function Table<T>({
           }}
         >
           <NoDataIcon />
-          <Text fontSize={'14px'}>
-            <Trans>No data found</Trans>
-          </Text>
+          <Text fontSize={'14px'}>{emptyMsg || <Trans>No data found</Trans>}</Text>
         </Row>
       )}
       {showPagination && (

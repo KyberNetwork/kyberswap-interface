@@ -64,7 +64,7 @@ const portfolioApi = createApi({
         url: `/search/favorites`,
         authentication: true,
       }),
-      transformResponse: (data: any) => data?.data?.favorites?.map((e: { value: string }) => e.value),
+      transformResponse: (data: any) => data?.data,
       providesTags: [RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO],
     }),
     toggleFavoritePortfolio: builder.mutation<{ id: string }, { value: string; isAdd: boolean }>({

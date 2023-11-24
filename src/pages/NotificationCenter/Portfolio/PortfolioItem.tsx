@@ -288,7 +288,6 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
             width={'120px'}
             height={'36px'}
             sx={{ whiteSpace: 'nowrap' }}
-            disabled={!canAddWallet}
             onClick={() => navigate({ portfolioId: id })}
           >
             <PortfolioIcon />
