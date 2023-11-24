@@ -1,15 +1,19 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
+import { Text } from 'rebass'
 import {
   useGetPortfolioByIdQuery,
   useGetPortfoliosQuery,
   useGetRealtimeBalanceQuery,
   useGetWalletsPortfoliosQuery,
 } from 'services/portfolio'
+import { SHARE_TYPE } from 'services/social'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import Wallet from 'components/Icons/Wallet'
 import LocalLoader from 'components/LocalLoader'
 import Row, { RowBetween } from 'components/Row'
@@ -30,7 +34,10 @@ import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDeta
 import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 import { Portfolio, PortfolioTab, PortfolioWallet } from 'pages/NotificationCenter/Portfolio/type'
+import { ShareModal } from 'pages/TrueSightV2/components/KyberAIShareModal'
+import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
+import { formatDisplayNumber } from 'utils/numbers'
 import { isInEnum } from 'utils/string'
 
 import Header from './Header'
@@ -94,9 +101,12 @@ const chainSupport = [
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
 ]
+
 export default function PortfolioDetail() {
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { tab = '' } = useParsedQueryString<{ tab: string }>()
   const [activeTab, setTab] = useState(isInEnum(tab, PortfolioTab) ? tab : PortfolioTab.TOKEN)
+  const [showShare, setShowShare] = useState(false)
 
   const [, setSearchParams] = useSearchParams()
   const onChangeTab = (tab: PortfolioTab) => {
@@ -127,9 +137,10 @@ export default function PortfolioDetail() {
   }
 
   const { pathname } = useLocation()
+  const isMyPortfolioPage = pathname.startsWith(APP_PATHS.MY_PORTFOLIO)
   const navigate = useNavigateToPortfolioDetail()
   const onChangeWallet = (wallet?: string) => {
-    navigate({ myPortfolio: pathname.startsWith(APP_PATHS.MY_PORTFOLIO), wallet, portfolioId })
+    navigate({ myPortfolio: isMyPortfolioPage, wallet, portfolioId })
   }
   const theme = useTheme()
   const canShowOverview = !wallet && !portfolioId
@@ -144,6 +155,11 @@ export default function PortfolioDetail() {
     return activeTab === PortfolioTab.TRANSACTIONS ? opt : [{ label: t`All Wallets`, value: '' }, ...opt]
   }, [wallets, activeTab])
 
+  const props = {
+    walletAddresses: walletsQuery,
+    chainIds,
+    mobile: upToSmall,
+  }
   return (
     <PageWrapper>
       <Header />
@@ -158,6 +174,7 @@ export default function PortfolioDetail() {
             wallets={wallets}
             myPortfolios={myPortfolios}
             activePortfolio={activePortfolio}
+            onShare={() => setShowShare(true)}
             data={data}
             onChangeWallet={onChangeWallet}
           />
@@ -185,16 +202,38 @@ export default function PortfolioDetail() {
               />
             </ChainWalletSelect>
           </RowBetween>
-          {activeTab === PortfolioTab.TOKEN && <Tokens walletAddresses={walletsQuery} chainIds={chainIds} />}
-          {activeTab === PortfolioTab.ALLOWANCES && <Allowances walletAddresses={walletsQuery} chainIds={chainIds} />}
+          {activeTab === PortfolioTab.TOKEN && <Tokens {...props} />}
+          {activeTab === PortfolioTab.ALLOWANCES && <Allowances {...props} />}
           {activeTab === PortfolioTab.TRANSACTIONS && (
             <Transactions wallet={wallet || wallets?.[0].walletAddress} chainIds={chainIds} />
           )}
-          {activeTab === PortfolioTab.NFT && <Nft walletAddresses={walletsQuery} chainIds={chainIds} />}
+          {activeTab === PortfolioTab.NFT && <Nft {...props} />}
         </>
       )}
-
       <TutorialDisclaimer showOverview={canShowOverview} />
+      <ShareModal
+        isOpen={showShare}
+        onClose={() => setShowShare(false)}
+        content={mobile => <Tokens {...props} shareMode mobile={mobile} />}
+        shareType={SHARE_TYPE.KYBER_AI} // todo
+        imageImage={'my_portfolio.png'}
+        titleLogo={
+          <Column gap="8px">
+            <Text fontSize={'20px'}>
+              {isMyPortfolioPage ? (
+                <Trans>My Portfolio</Trans>
+              ) : (
+                <Trans>Portfolio {activePortfolio?.name || activePortfolio?.id}</Trans>
+              )}
+            </Text>
+            {data && (
+              <Text fontSize={'28px'}>
+                {formatDisplayNumber(data.totalUsd, { style: 'currency', fractionDigits: 2 })}
+              </Text>
+            )}
+          </Column>
+        }
+      />
     </PageWrapper>
   )
 }

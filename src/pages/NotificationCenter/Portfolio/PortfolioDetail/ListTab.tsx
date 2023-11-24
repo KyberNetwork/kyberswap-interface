@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { Fragment, ReactNode } from 'react'
 import { FileText } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -19,9 +20,9 @@ const Divider = styled.div`
   width: 2px;
   background-color: ${({ theme }) => theme.border};
 `
-type TabType = { value: PortfolioTab; icon: ReactNode }
+type TabType = { value: PortfolioTab; icon: ReactNode; title: string }
 const TabItem = ({
-  data: { icon, value },
+  data: { icon, title },
   active,
   onClick,
 }: {
@@ -39,28 +40,28 @@ const TabItem = ({
     >
       {icon}
       <Text as="span" fontSize={'24px'} fontWeight={'500'}>
-        {value}
+        {title}
       </Text>
     </Flex>
   )
 }
 
-// tod change value
 const options = [
-  { value: PortfolioTab.TOKEN, icon: <TokensIcon /> },
+  { value: PortfolioTab.TOKEN, icon: <TokensIcon />, title: t`Tokens` },
   // { value: PortfolioTab.LIQUIDITY, icon: <LiquidityIcon style={{ width: 16, height: 16 }} /> },
-  { value: PortfolioTab.NFT, icon: <NftIcon style={{ width: 16, height: 16 }} /> },
-  { value: PortfolioTab.TRANSACTIONS, icon: <FileText size={16} /> },
-  { value: PortfolioTab.ALLOWANCES, icon: <CheckCircle size={'16px'} /> },
+  { value: PortfolioTab.NFT, icon: <NftIcon style={{ width: 16, height: 16 }} />, title: t`NFTs` },
+  { value: PortfolioTab.TRANSACTIONS, icon: <FileText size={16} />, title: t`Transactions` },
+  { value: PortfolioTab.ALLOWANCES, icon: <CheckCircle size={'16px'} />, title: t`Allowances` },
 ]
 const selectOptions = options.map(e => ({
   ...e,
   label: (
     <Row alignItems={'center'} fontSize={'14px'} gap="8px" fontWeight={'500'}>
-      {e.icon} {e.value}
+      {e.icon} {e.title}
     </Row>
   ),
 }))
+
 export default function ListTab({ activeTab, setTab }: { activeTab: PortfolioTab; setTab: (v: PortfolioTab) => void }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()

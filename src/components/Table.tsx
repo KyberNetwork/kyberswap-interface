@@ -70,7 +70,7 @@ const TableWrapper = styled.table`
 `
 
 const Td = styled.td`
-  background: ${({ theme }) => theme.buttonBlack};
+  background: ${({ theme }) => theme.background};
   font-size: 14px;
   align-items: center;
   padding: 10px 20px;

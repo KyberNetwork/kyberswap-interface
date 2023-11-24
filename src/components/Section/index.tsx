@@ -40,6 +40,7 @@ export type SectionProps<T extends string = string> = {
   actions?: ReactNode
   tabs?: TabITem<T>[]
   activeTab?: T
+  showHeader?: boolean
   onTabClick?: (val: T) => void | Dispatch<SetStateAction<T>>
 }
 
@@ -53,6 +54,7 @@ export default function Section<T extends string = string>({
   tabs,
   activeTab,
   onTabClick,
+  showHeader = true,
 }: SectionProps<T>) {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
@@ -64,30 +66,32 @@ export default function Section<T extends string = string>({
     ) : null
   return (
     <StyledSectionWrapper ref={ref} id={id} style={style} className="section-wrapper">
-      <SectionTitle
-        style={{
-          padding: tabs ? `0px 16px 0 0` : undefined,
-          background: isMobile && tabs ? theme.background : undefined,
-        }}
-      >
-        {tabs && activeTab ? (
-          <RowBetween gap="12px">
-            <RowFit
-              style={{
-                color: theme.subText,
-              }}
-            >
-              <TabDraggable tabs={tabs} activeTab={activeTab} onChange={onTabClick} />
-            </RowFit>
-            {renderAction()}
-          </RowBetween>
-        ) : (
-          <RowBetween style={{ flexWrap: 'wrap', gap: '12px' }}>
-            <Text style={{ whiteSpace: 'nowrap' }}>{title}</Text>
-            {renderAction()}
-          </RowBetween>
-        )}
-      </SectionTitle>
+      {showHeader && (
+        <SectionTitle
+          style={{
+            padding: tabs ? `0px 16px 0 0` : undefined,
+            background: isMobile && tabs ? theme.background : undefined,
+          }}
+        >
+          {tabs && activeTab ? (
+            <RowBetween gap="12px">
+              <RowFit
+                style={{
+                  color: theme.subText,
+                }}
+              >
+                <TabDraggable tabs={tabs} activeTab={activeTab} onChange={onTabClick} />
+              </RowFit>
+              {renderAction()}
+            </RowBetween>
+          ) : (
+            <RowBetween style={{ flexWrap: 'wrap', gap: '12px' }}>
+              <Text style={{ whiteSpace: 'nowrap' }}>{title}</Text>
+              {renderAction()}
+            </RowBetween>
+          )}
+        </SectionTitle>
+      )}
       <Content style={contentStyle}>{children}</Content>
     </StyledSectionWrapper>
   )

@@ -128,11 +128,11 @@ export type TransactionHistoryResponse = {
 }
 
 export enum PortfolioTab {
-  TOKEN = 'Tokens',
-  LIQUIDITY = 'Liquidity',
-  NFT = 'NFTs',
-  TRANSACTIONS = 'Transactions',
-  ALLOWANCES = 'Allowances',
+  TOKEN = 'tokens',
+  LIQUIDITY = 'liquidity',
+  NFT = 'nft',
+  TRANSACTIONS = 'transactions',
+  ALLOWANCES = 'allowances',
 }
 
 export type PortfolioWalletPayload = {

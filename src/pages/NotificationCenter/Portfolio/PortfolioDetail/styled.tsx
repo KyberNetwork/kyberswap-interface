@@ -23,16 +23,15 @@ export const SearchPortFolio = (props: SearchInputProps) => {
   )
 }
 
-export function PortfolioSection(props: SectionProps) {
-  const customStyle: CSSProperties = isMobile
-    ? {
-        marginLeft: '-16px',
-        marginRight: '-16px',
-        borderLeft: 'none',
-        borderRight: 'none',
-        borderRadius: 0,
-      }
-    : {}
-
-  return <Section {...props} style={{ ...props.style, ...customStyle }} />
+export const SECTION_STYLE: CSSProperties = isMobile
+  ? {
+      marginLeft: '-16px',
+      marginRight: '-16px',
+      borderLeft: 'none',
+      borderRight: 'none',
+      borderRadius: 0,
+    }
+  : {}
+export function PortfolioSection<T extends string = string>(props: SectionProps<T>) {
+  return <Section<T> {...props} style={{ ...props.style, ...SECTION_STYLE }} />
 }

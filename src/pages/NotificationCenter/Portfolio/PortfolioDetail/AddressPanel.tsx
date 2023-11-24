@@ -187,7 +187,7 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
           isOpen={!!walletInfo?.walletAddress}
           onDismiss={onDismiss}
           onConfirm={onAddWallet}
-          defaultWallet={walletInfo.walletAddress}
+          defaultWallet={walletInfo?.walletAddress}
         />
       </>
     )
@@ -213,6 +213,7 @@ const AddressPanel = ({
   activePortfolio,
   data,
   isLoading,
+  onShare,
 }: {
   isLoading: boolean
   myPortfolios: Portfolio[]
@@ -220,6 +221,7 @@ const AddressPanel = ({
   activePortfolio: Portfolio | undefined
   onChangeWallet: (v: string) => void
   data: PortfolioWalletBalanceResponse | undefined
+  onShare: () => void
 }) => {
   const theme = useTheme()
   const [showBalance, setShowBalance] = useState(true)
@@ -352,7 +354,7 @@ const AddressPanel = ({
           >
             {showBalance ? <EyeOff size={18} color={theme.subText} /> : <Eye size={18} color={theme.subText} />}
           </ButtonAction>
-          <ButtonAction style={{ padding: '8px', background: theme.buttonGray }}>
+          <ButtonAction style={{ padding: '8px', background: theme.buttonGray }} onClick={onShare}>
             <Share2 color={theme.subText} size={18} />
           </ButtonAction>
           <ButtonCreatePortfolio portfolios={myPortfolios} />

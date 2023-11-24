@@ -1,17 +1,18 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useMedia } from 'react-use'
+import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useGetChainsAllocationQuery, useGetTokenAllocationQuery } from 'services/portfolio'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { DataEntry } from 'components/EarningPieChart'
 import LocalLoader from 'components/LocalLoader'
 import { NetworkLogo, TokenLogoWithChain } from 'components/Logo'
 import Row from 'components/Row'
+import Section from 'components/Section'
 import Table, { TableColumn } from 'components/Table'
 import { EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -19,11 +20,11 @@ import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import { TokenAllocationChart } from 'pages/MyEarnings/EarningsBreakdownPanel'
 import useFilterBalances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/useFilterBalances'
-import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
+import { SECTION_STYLE } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { PortfolioChainBalance, PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
-import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
+import { isInEnum } from 'utils/string'
 
 export const LiquidityScore = () => {
   const theme = useTheme()
@@ -52,43 +53,48 @@ const TokenCell = ({ item }: { item: PortfolioWalletBalance }) => {
   )
 }
 
-const columns: TableColumn<PortfolioWalletBalance>[] = [
-  { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCell, sticky: true },
-  // {
-  //   title: t`Liquidity Score`,
-  //   tooltip: (
-  //     <Trans>
-  //       Liquidity Score of a token refers to how easily that token can be bought or sold in the market without
-  //       significantly impacting its price. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
-  //     </Trans>
-  //   ),
-  //   dataIndex: 'test',
-  //   render: LiquidityScore,
-  //   style: isMobile ? { width: 120 } : undefined,
-  // },
-  {
-    title: t`Balance`,
-    dataIndex: 'amount',
-    render: ({ value }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
-    style: isMobile ? { width: 100 } : undefined,
-    align: 'left',
-  },
-  {
-    title: t`Value`,
-    dataIndex: 'valueUsd',
-    render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
-    style: isMobile ? { width: 100 } : undefined,
-    align: 'left',
-  },
-  {
-    title: t`Asset Ratio`,
-    align: 'right',
-    dataIndex: 'percentage',
-    render: ({ value }) =>
-      value === '0' ? '<0.01%' : formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
-    style: isMobile ? { width: 80 } : undefined,
-  },
-]
+const getTokenColumns = (isMobile: boolean, shareMode: boolean) => {
+  const sticky = !shareMode
+  const columnsTokens: TableColumn<PortfolioWalletBalance>[] = [
+    { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCell, sticky },
+    // {
+    //   title: t`Liquidity Score`,
+    //   tooltip: (
+    //     <Trans>
+    //       Liquidity Score of a token refers to how easily that token can be bought or sold in the market without
+    //       significantly impacting its price. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
+    //     </Trans>
+    //   ),
+    //   dataIndex: 'test',
+    //   render: LiquidityScore,
+    //   style: isMobile ? { width: 120 } : undefined,
+    // },
+    {
+      title: t`Balance`,
+      dataIndex: 'amount',
+      render: ({ value }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
+      style: sticky ? { width: 100 } : undefined,
+      align: 'left',
+    },
+    {
+      title: t`Value`,
+      dataIndex: 'valueUsd',
+      render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
+      style: sticky ? { width: 100 } : undefined,
+      align: 'left',
+    },
+    {
+      title: t`Ratio`,
+      align: 'right',
+      dataIndex: 'percentage',
+      render: ({ value }) =>
+        value === '0' ? '<0.01%' : formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
+      style: sticky ? { width: 80 } : undefined,
+    },
+  ]
+  const fieldShareMode = ['token', 'percentage', 'valueUsd']
+  return shareMode ? columnsTokens.filter(el => fieldShareMode.includes(el.dataIndex)) : columnsTokens
+}
 
 const ChainCell = ({ item: { chainId } }: { item: PortfolioChainBalance }) => {
   const theme = useTheme()
@@ -110,7 +116,7 @@ const columnsChains: TableColumn<PortfolioChainBalance>[] = [
     style: isMobile ? { width: 100 } : undefined,
   },
   {
-    title: t`Asset Ratio`,
+    title: t`Ratio`,
     align: 'right',
     dataIndex: 'percentage',
     render: ({ value }) =>
@@ -119,46 +125,55 @@ const columnsChains: TableColumn<PortfolioChainBalance>[] = [
   },
 ]
 
-const Content = styled(Row)`
+const Content = styled(Row)<{ mobile: boolean }>`
   gap: 16px;
   align-items: flex-start;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    align-items: center;
-  `}
+  ${({ mobile }) =>
+    mobile &&
+    css`
+      flex-direction: column;
+      align-items: center;
+    `}
 `
 
 enum AllocationTab {
-  TOKEN = `Token Distribution`,
-  CHAIN = `Chain Distribution`,
-  LIQUIDITY_SCORE = `Liquidity Score Ratio`,
+  TOKEN = `token`,
+  CHAIN = `chain`,
+  // LIQUIDITY_SCORE = `liquidity-score`,
 }
 
-const tabs = [
-  {
-    title: AllocationTab.TOKEN,
-    type: AllocationTab.TOKEN,
-  },
-  {
-    title: AllocationTab.CHAIN,
-    type: AllocationTab.CHAIN,
-  },
-  // {
-  //   title: AllocationTab.LIQUIDITY_SCORE,
-  //   type: AllocationTab.LIQUIDITY_SCORE,
-  // },
-]
+const mapTitle = {
+  [AllocationTab.TOKEN]: t`Token Distribution`,
+  [AllocationTab.CHAIN]: t`Chain Distribution`,
+  // [AllocationTab.LIQUIDITY_SCORE]: t`Liquidity Score`,
+}
+
+const tabs = Object.keys(mapTitle).map(key => ({ title: mapTitle[key], type: key }))
 
 export default function TokenAllocation({
   walletAddresses,
   chainIds,
+  shareMode,
+  mobile,
 }: {
   walletAddresses: string[]
   chainIds: ChainId[]
+  shareMode?: boolean
+  mobile?: boolean
 }) {
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const [tab, setTab] = useState<string>(AllocationTab.TOKEN)
+  const [params, setParams] = useSearchParams()
+  const type = params.get('type') || AllocationTab.TOKEN
+  const [tab, setTab] = useState<AllocationTab>(isInEnum(type, AllocationTab) ? type : AllocationTab.TOKEN)
   const isTokenTab = tab === AllocationTab.TOKEN
+
+  const onChangeTab = useCallback(
+    (tab: AllocationTab) => {
+      setTab(tab)
+      params.set('type', tab)
+      setParams(params)
+    },
+    [setParams, params],
+  )
 
   const {
     data: dataTokens,
@@ -196,20 +211,33 @@ export default function TokenAllocation({
     return filterBalance(data?.balances || EMPTY_ARRAY)
   }, [data, filterBalance])
 
+  const tableColumns = useMemo(() => {
+    return isTokenTab ? getTokenColumns(!!mobile, !!shareMode) : columnsChains
+  }, [isTokenTab, shareMode, mobile])
+
+  const sectionProps = shareMode
+    ? {
+        title: mapTitle[tab],
+        style: mobile
+          ? { width: '100%', flex: 1, background: 'transparent', border: 'none' }
+          : { width: '100%', flex: 1 },
+        showHeader: !mobile,
+      }
+    : {
+        tabs,
+        activeTab: tab,
+        onTabClick: onChangeTab,
+        style: SECTION_STYLE,
+      }
   return (
-    <PortfolioSection
-      tabs={tabs}
-      activeTab={tab}
-      onTabClick={setTab}
-      contentStyle={upToSmall ? { padding: 0 } : undefined}
-    >
-      <Content>
+    <Section<AllocationTab> {...sectionProps} contentStyle={mobile ? { padding: 0 } : undefined}>
+      <Content mobile={!!mobile}>
         <TokenAllocationChart
           {...{
             style: { background: 'transparent', minWidth: 380 },
             data: chartData,
             isLoading: isFetching,
-            horizontalLayout: upToSmall,
+            horizontalLayout: mobile,
             numberOfTokens: chartData.length,
             totalUsd: data?.totalUsd || 0,
             border: false,
@@ -220,15 +248,15 @@ export default function TokenAllocation({
         ) : (
           <Table
             data={tableData}
-            columns={(isTokenTab ? columns : columnsChains) as any} // todo
-            style={{ flex: 1, overflowX: 'auto', width: '100%', background: isMobile ? undefined : 'transparent' }}
+            columns={tableColumns as any} // todo
+            style={{ flex: 1, overflowX: 'auto', width: '100%', background: mobile ? undefined : 'transparent' }}
             totalItems={tableData.length}
             pageSize={6}
-            pagination={{ hideWhenSinglePage: true }}
+            pagination={{ hideWhenSinglePage: true, show: !shareMode }}
             emptyMsg={t`No data with your balance threshold.`}
           /> // todo
         )}
       </Content>
-    </PortfolioSection>
+    </Section>
   )
 }
