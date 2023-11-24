@@ -1,6 +1,8 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import invariant from 'tiny-invariant'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
+import { isAddressString } from 'utils/address'
 
 import { ENV_TYPE } from './type'
 
@@ -162,8 +164,8 @@ export const getAnnouncementsTemplateIds = (type: keyof TemplateConfig) => {
 }
 
 const mock = localStorage.getItem('mock')?.split(',') ?? []
-export const MOCK_ACCOUNT_EVM = mock[0] ?? ''
-export const MOCK_ACCOUNT_SOLANA = mock[1] ?? ''
+export const MOCK_ACCOUNT_EVM = isAddressString(ChainId.MAINNET, mock[0]?.trim())
+export const MOCK_ACCOUNT_SOLANA = isAddressString(ChainId.SOLANA, mock[1]?.trim())
 
 const isSupportTestNet = ENV_LEVEL < ENV_TYPE.PROD && new URLSearchParams(window.location.search).get('test')
 export const CROSS_CHAIN_CONFIG = {
