@@ -259,6 +259,16 @@ export default function KyberAIShareModal(props: {
       shareType={SHARE_TYPE.KYBER_AI}
       titleLogo={<TokenInfo />}
       imageImage="kyberAI_share_image.png"
+      kyberswapLogoTitle={
+        <Trans>
+          <Text as="span" color={theme.text}>
+            KyberAI |
+          </Text>{' '}
+          <Text color={theme.subText} as={'span'}>
+            Ape Smart
+          </Text>
+        </Trans>
+      }
     />
   )
 }
@@ -274,6 +284,7 @@ export function ShareModal({
   shareType,
   imageImage,
   titleLogo,
+  kyberswapLogoTitle,
 }: {
   title?: string
   content?: (mobileMode?: boolean) => ReactNode
@@ -283,6 +294,7 @@ export function ShareModal({
   shareType: SHARE_TYPE
   imageImage: string
   titleLogo: ReactNode
+  kyberswapLogoTitle: ReactNode
 }) {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
@@ -412,7 +424,7 @@ export function ShareModal({
       </Column>
       <Row>
         <RowBetween gap="20px">
-          <KyberSwapShareLogo height="80" width="200" />
+          <KyberSwapShareLogo width={200} title={kyberswapLogoTitle} />
           <div style={{ borderRadius: '6px', overflow: 'hidden' }}>
             <QRCode
               value={sharingUrl}
@@ -434,7 +446,7 @@ export function ShareModal({
           {titleLogo}
         </RowFit>
         <RowFit gap="20px">
-          <KyberSwapShareLogo />
+          <KyberSwapShareLogo title={kyberswapLogoTitle} />
           <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
             <QRCode
               value={sharingUrl}

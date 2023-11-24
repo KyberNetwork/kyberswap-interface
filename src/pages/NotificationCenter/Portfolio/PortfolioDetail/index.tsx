@@ -233,6 +233,7 @@ export default function PortfolioDetail() {
             )}
           </Column>
         }
+        kyberswapLogoTitle={'Portfolio'}
       />
     </PageWrapper>
   )
