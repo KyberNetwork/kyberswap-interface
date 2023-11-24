@@ -1,6 +1,6 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { BigNumber } from '@ethersproject/bignumber'
-import { ChainId, Currency, CurrencyAmount, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
