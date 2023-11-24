@@ -71,12 +71,14 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
     dataIndex: 'amount',
     render: ({ value }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
     style: isMobile ? { width: 100 } : undefined,
+    align: 'left',
   },
   {
     title: t`Value`,
     dataIndex: 'valueUsd',
     render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
     style: isMobile ? { width: 100 } : undefined,
+    align: 'left',
   },
   {
     title: t`Asset Ratio`,

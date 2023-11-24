@@ -296,7 +296,7 @@ const AddressPanel = ({
       <Flex sx={{ gap: '12px', alignItems: 'center' }}>
         {!upToSmall && <Avatar url={activePortfolio ? DefaultAvatar : ''} size={36} color={theme.subText} />}
         <Text fontSize={'28px'} fontWeight={'500'}>
-          {showBalance ? formatDisplayNumber(totalUsd, { style: 'currency', significantDigits: 3 }) : '******'}
+          {showBalance ? formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }) : '******'}
         </Text>
       </Flex>
     </BalanceGroup>
