@@ -20,7 +20,7 @@ import Table, { TableColumn } from 'components/Table'
 import { EMPTY_ARRAY } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
+// import { LiquidityScore } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
 import useFilterBalances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/useFilterBalances'
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
@@ -155,30 +155,30 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
     render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
     style: isMobile ? { width: 120 } : undefined,
   },
-  {
-    title: t`Liquidity Score`,
-    dataIndex: 'token',
-    render: LiquidityScore,
-    tooltip: (
-      <Trans>
-        Liquidity Score of a token refers to how easily that token can be bought or sold in the market without
-        significantly impacting its price. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
-      </Trans>
-    ),
-    style: isMobile ? { width: 120 } : undefined,
-  },
-  {
-    title: t`24H Volatility Score`,
-    dataIndex: 'token',
-    render: () => 'test',
-    tooltip: (
-      <Trans>
-        Volatility score measures the price volatility of the token. Find out more about the score{' '}
-        <ExternalLink href="/todo">here ↗</ExternalLink>
-      </Trans>
-    ),
-    style: isMobile ? { width: 120 } : undefined,
-  },
+  // {
+  //   title: t`Liquidity Score`,
+  //   dataIndex: 'token',
+  //   render: LiquidityScore,
+  //   tooltip: (
+  //     <Trans>
+  //       Liquidity Score of a token refers to how easily that token can be bought or sold in the market without
+  //       significantly impacting its price. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
+  //     </Trans>
+  //   ),
+  //   style: isMobile ? { width: 120 } : undefined,
+  // },
+  // {
+  //   title: t`24H Volatility Score`,
+  //   dataIndex: 'token',
+  //   render: () => 'test',
+  //   tooltip: (
+  //     <Trans>
+  //       Volatility score measures the price volatility of the token. Find out more about the score{' '}
+  //       <ExternalLink href="/todo">here ↗</ExternalLink>
+  //     </Trans>
+  //   ),
+  //   style: isMobile ? { width: 120 } : undefined,
+  // },
   {
     title: t`KyberScore`,
     dataIndex: 'token',

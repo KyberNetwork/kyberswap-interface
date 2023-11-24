@@ -22,7 +22,7 @@ import useFilterBalances from 'pages/NotificationCenter/Portfolio/PortfolioDetai
 import { PortfolioSection } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { PortfolioChainBalance, PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
-import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const LiquidityScore = () => {
@@ -54,18 +54,18 @@ const TokenCell = ({ item }: { item: PortfolioWalletBalance }) => {
 
 const columns: TableColumn<PortfolioWalletBalance>[] = [
   { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCell, sticky: true },
-  {
-    title: t`Liquidity Score`,
-    tooltip: (
-      <Trans>
-        Liquidity Score of a token refers to how easily that token can be bought or sold in the market without
-        significantly impacting its price. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
-      </Trans>
-    ),
-    dataIndex: 'test',
-    render: LiquidityScore,
-    style: isMobile ? { width: 120 } : undefined,
-  },
+  // {
+  //   title: t`Liquidity Score`,
+  //   tooltip: (
+  //     <Trans>
+  //       Liquidity Score of a token refers to how easily that token can be bought or sold in the market without
+  //       significantly impacting its price. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
+  //     </Trans>
+  //   ),
+  //   dataIndex: 'test',
+  //   render: LiquidityScore,
+  //   style: isMobile ? { width: 120 } : undefined,
+  // },
   {
     title: t`Balance`,
     dataIndex: 'amount',

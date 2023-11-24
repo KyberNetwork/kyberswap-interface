@@ -287,10 +287,12 @@ const SearchResultTableWrapper = ({
   header,
   children,
   columns,
+  searching,
 }: {
   header?: ReactNode
   children?: ReactNode
   columns: TableColumn[]
+  searching?: boolean
 }) => {
   return (
     <DropdownSection>
@@ -300,16 +302,18 @@ const SearchResultTableWrapper = ({
           <col style={col.style} key={col.label} />
         ))}
       </colgroup>
-      <thead>
-        <tr>
-          <th>{header}</th>
-          {columns.map(col => (
-            <th key={col.label} style={{ textAlign: col.align as CSSProperties['textAlign'] }}>
-              {col.label}
-            </th>
-          ))}
-        </tr>
-      </thead>
+      {!searching && (
+        <thead>
+          <tr>
+            <th>{header}</th>
+            {columns.map(col => (
+              <th key={col.label} style={{ textAlign: col.align as CSSProperties['textAlign'] }}>
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+      )}
       <tbody>{children}</tbody>
     </DropdownSection>
   )
@@ -603,7 +607,7 @@ export const SearchWithDropdown = ({
       <DropdownWrapper expanded={expanded} ref={dropdownRef} height={height}>
         <div style={{ height: 'fit-content' }}>
           {searching ? (
-            <SearchResultTableWrapper columns={columns}>
+            <SearchResultTableWrapper columns={columns} searching={searching}>
               <SkeletonRows />
             </SearchResultTableWrapper>
           ) : noSearchResult ? (

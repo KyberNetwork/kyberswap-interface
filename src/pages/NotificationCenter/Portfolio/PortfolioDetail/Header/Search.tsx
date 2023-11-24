@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { isMacOs, isMobile } from 'react-device-detect'
@@ -27,6 +28,7 @@ import { SearchSection, SearchWithDropdown } from 'pages/TrueSightV2/components/
 import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -93,7 +95,13 @@ const PortfolioItem = ({
         <Row alignItems="center" gap="6px">
           <StarWithAnimation size={18} active={isFavorite} onClick={onToggleFavorite} stopPropagation />
           <Avatar url="" color={theme.subText} size={16} />
-          <Text color={theme.subText}>{isMobile ? getShortenAddress(displayName) : displayName}</Text>
+          <Text color={theme.subText}>
+            {isMobile
+              ? isAddress(ChainId.MAINNET, displayName)
+                ? getShortenAddress(displayName)
+                : displayName
+              : displayName}
+          </Text>
         </Row>
       </td>
       <td style={{ textAlign: 'right' }}>
@@ -135,7 +143,7 @@ export default function Search() {
 
   const searchData = searchDebounced ? data : EMPTY_ARRAY
 
-  const isSearching = useShowLoadingAtLeastTime(isLoadingSearch, 500)
+  const isSearching = useShowLoadingAtLeastTime(isLoadingSearch || isLoadingFavorite || isLoadingTrending, 500)
 
   const onSelect = (data: PortfolioSearchData) => {
     setExpanded(false)
