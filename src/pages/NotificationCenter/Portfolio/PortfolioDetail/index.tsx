@@ -133,6 +133,8 @@ export default function PortfolioDetail() {
     { skip: !walletsQuery.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
   )
 
+  const totalUsd = data?.totalUsd || 0
+
   const isLoading: boolean = isLoadingPortfolio || isLoadingRealtimeData
 
   const handleChangeChains = (chainIds: ChainId[]) => {
@@ -169,13 +171,13 @@ export default function PortfolioDetail() {
   const shareContents = useMemo(() => {
     return [
       (mobile: boolean | undefined) => (
-        <TokenAllocation {...props} shareMode mobile={mobile} defaultTab={AllocationTab.TOKEN} />
+        <TokenAllocation {...props} shareMode mobile={mobile} defaultTab={AllocationTab.TOKEN} totalUsd={totalUsd} />
       ),
       (mobile: boolean | undefined) => (
-        <TokenAllocation {...props} shareMode mobile={mobile} defaultTab={AllocationTab.CHAIN} />
+        <TokenAllocation {...props} shareMode mobile={mobile} defaultTab={AllocationTab.CHAIN} totalUsd={totalUsd} />
       ),
     ]
-  }, [props])
+  }, [props, totalUsd])
 
   return (
     <PageWrapper>
@@ -219,7 +221,7 @@ export default function PortfolioDetail() {
               />
             </ChainWalletSelect>
           </RowBetween>
-          {activeTab === PortfolioTab.TOKEN && <Tokens {...props} />}
+          {activeTab === PortfolioTab.TOKEN && <Tokens {...props} totalUsd={totalUsd} />}
           {activeTab === PortfolioTab.ALLOWANCES && <Allowances {...props} />}
           {activeTab === PortfolioTab.TRANSACTIONS && (
             <Transactions wallet={wallet || wallets?.[0].walletAddress} chainIds={chainIds} />

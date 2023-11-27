@@ -156,12 +156,14 @@ export default function TokenAllocation({
   shareMode,
   mobile,
   defaultTab,
+  totalUsd,
 }: {
   walletAddresses: string[]
   chainIds: ChainId[]
   shareMode?: boolean
   mobile?: boolean
   defaultTab?: AllocationTab
+  totalUsd: number
 }) {
   const [params, setParams] = useSearchParams()
   const type = params.get('type') || AllocationTab.TOKEN
@@ -243,7 +245,7 @@ export default function TokenAllocation({
             isLoading: isFetching,
             horizontalLayout: mobile,
             numberOfTokens: chartData.length,
-            totalUsd: data?.totalUsd || 0,
+            totalUsd: totalUsd || data?.totalUsd || 0,
             border: false,
           }}
         />
