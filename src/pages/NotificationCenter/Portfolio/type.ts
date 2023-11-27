@@ -26,7 +26,11 @@ export type PortfolioWalletBalance = {
   tokenSymbol: string
   tokenLogo: string
   percentage: string
-  walletAddress: string // custom
+  // wallet info section
+  kyberScore?: number
+  kyberScoreTag?: number
+  kyberScoreCreatedAt?: number
+  walletAddress: string
 }
 
 export type PortfolioChainBalance = {

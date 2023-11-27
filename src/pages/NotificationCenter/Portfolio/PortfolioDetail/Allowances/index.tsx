@@ -1,4 +1,3 @@
-import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
@@ -48,7 +47,7 @@ const ActionButton = ({
   refetch,
 }: {
   item: TokenAllowAnce
-  revokeAllowance: (v: TokenAllowAnce) => TransactionResponse
+  revokeAllowance: (v: TokenAllowAnce) => void
   refetch: any // todo
 }) => {
   const theme = useTheme()
@@ -95,7 +94,7 @@ const ActionButton = ({
   )
 }
 
-const getColumns = (revokeAllowance: any, refetch: any): TableColumn<TokenAllowAnce>[] => [
+const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void, refetch: any): TableColumn<TokenAllowAnce>[] => [
   // todo
   {
     title: t`Asset`,
@@ -189,7 +188,6 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
               contract: spenderAddress,
             },
           })
-          return tx
         } catch (error) {
           console.error('Error revoking allowance:', error)
         }

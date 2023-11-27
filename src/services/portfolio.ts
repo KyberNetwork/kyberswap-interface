@@ -202,6 +202,17 @@ const portfolioApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
+    getWalletsAllocation: builder.query<
+      PortfolioWalletBalanceResponse,
+      { walletAddresses: string[]; chainIds: ChainId[] }
+    >({
+      query: ({ walletAddresses, chainIds }) => ({
+        url: `${BFF_API}/v1/wallet-service/balances/realtime/wallets`,
+        params: { walletAddresses: walletAddresses.join(','), chainIds: chainIds.join(',') },
+        authentication: true,
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
     getTokenApproval: builder.query<TokenAllowAnceResponse, { address: string; chainIds?: ChainId[] }>({
       query: params => ({
         url: `${KRYSTAL_API}/approval/list`,
@@ -297,6 +308,7 @@ export const {
   useGetNftDetailQuery,
   useGetTokenAllocationQuery,
   useGetChainsAllocationQuery,
+  useGetWalletsAllocationQuery,
 } = portfolioApi
 
 export default portfolioApi

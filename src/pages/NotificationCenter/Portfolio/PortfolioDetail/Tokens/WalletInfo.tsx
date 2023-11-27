@@ -4,10 +4,10 @@ import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
-import { useGetTokenAllocationQuery } from 'services/portfolio'
+import { useGetWalletsAllocationQuery } from 'services/portfolio'
 import styled, { CSSProperties } from 'styled-components'
 
-import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
+// import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { ButtonAction } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
@@ -25,7 +25,8 @@ import useFilterBalances from 'pages/NotificationCenter/Portfolio/PortfolioDetai
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
-import { navigateToSwapPage } from 'pages/TrueSightV2/utils'
+import SmallKyberScoreMeter from 'pages/TrueSightV2/components/SmallKyberScoreMeter'
+import { calculateValueToColor, navigateToSwapPage } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -101,7 +102,7 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
   const theme = useTheme()
   return (
     <Row justify="flex-end" gap="8px">
-      <ButtonAction
+      {/* <ButtonAction
         style={{
           backgroundColor: rgba(theme.primary, 0.2),
           padding: '4px 6px',
@@ -112,7 +113,7 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
         onClick={() => alert('in dev')}
       >
         <LiquidityIcon />
-      </ButtonAction>
+      </ButtonAction> */}
       <ButtonAction
         style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '4px' }}
         onClick={() => {
@@ -125,15 +126,30 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
   )
 }
 
+const KyberScore = ({
+  item: { kyberScore = 0, kyberScoreTag, priceUsd, kyberScoreCreatedAt = 0 },
+}: {
+  item: PortfolioWalletBalance
+}) => {
+  const theme = useTheme()
+  // todo
+  return (
+    <Column style={{ alignItems: 'center' }}>
+      <SmallKyberScoreMeter token={{ kyberScore, createdAt: kyberScoreCreatedAt, price: +priceUsd } as any} />
+      <Text color={calculateValueToColor(kyberScore, theme)} fontSize="14px" fontWeight={500}>
+        {kyberScoreTag || 'Not Applicable'}
+      </Text>
+    </Column>
+  )
+}
+
 const columns: TableColumn<PortfolioWalletBalance>[] = [
   {
     title: t`Token`,
     dataIndex: 'token',
     align: 'left',
-    render: ({ item: { tokenLogo, tokenSymbol, chainId } }) => (
-      <TokenCellWithWalletAddress
-        item={{ logoUrl: tokenLogo, symbol: tokenSymbol, walletAddress: '0x test', chainId }}
-      />
+    render: ({ item: { tokenLogo, tokenSymbol, chainId, walletAddress } }) => (
+      <TokenCellWithWalletAddress item={{ logoUrl: tokenLogo, symbol: tokenSymbol, walletAddress, chainId }} />
     ),
     sticky: true,
     style: isMobile ? { width: 140 } : undefined,
@@ -143,17 +159,21 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
     dataIndex: 'amount',
     render: ({ value }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
     style: isMobile ? { width: 120 } : undefined,
+    align: 'left',
   },
   {
     title: t`Price`,
     dataIndex: 'priceUsd',
     render: ({ value }) => formatDisplayNumber(value, { style: 'currency', significantDigits: 2 }),
+    align: 'left',
+    style: isMobile ? { width: 120 } : undefined,
   },
   {
     title: t`Real Value`,
     dataIndex: 'valueUsd',
     render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
     style: isMobile ? { width: 120 } : undefined,
+    align: 'left',
   },
   // {
   //   title: t`Liquidity Score`,
@@ -181,8 +201,8 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
   // },
   {
     title: t`KyberScore`,
-    dataIndex: 'token',
-    render: () => 'test',
+    dataIndex: 'kyberScore',
+    render: KyberScore,
     tooltip: (
       <Trans>
         KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking into account multiple
@@ -190,6 +210,7 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
         token in the short-term. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
       </Trans>
     ),
+    style: isMobile ? { width: 120 } : undefined,
   },
   {
     title: <ActionTitle />,
@@ -200,7 +221,7 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
 ]
 export default function WalletInfo({ walletAddresses, chainIds }: { walletAddresses: string[]; chainIds: ChainId[] }) {
   const theme = useTheme()
-  const { data, isFetching } = useGetTokenAllocationQuery(
+  const { data, isFetching } = useGetWalletsAllocationQuery(
     // todo
     { walletAddresses, chainIds },
     { skip: !walletAddresses.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
