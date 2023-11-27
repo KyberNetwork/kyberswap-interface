@@ -1,3 +1,4 @@
+import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
@@ -6,6 +7,7 @@ import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
+import { usePrevious } from 'react-use'
 import { useLazyGetTokenApprovalQuery } from 'services/portfolio'
 
 import { ButtonAction } from 'components/Button'
@@ -25,7 +27,7 @@ import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/P
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { formatAllowance } from 'pages/NotificationCenter/Portfolio/helpers'
 import { TokenAllowAnce } from 'pages/NotificationCenter/Portfolio/type'
-import { useTransactionAdder } from 'state/transactions/hooks'
+import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
@@ -43,21 +45,37 @@ const SpenderCell = ({ value, item }: { value: string; item: TokenAllowAnce }) =
 const ActionButton = ({
   item,
   revokeAllowance,
+  refetch,
 }: {
   item: TokenAllowAnce
-  revokeAllowance: (v: TokenAllowAnce) => void
+  revokeAllowance: (v: TokenAllowAnce) => TransactionResponse
+  refetch: any // todo
 }) => {
   const theme = useTheme()
-  const { amount, ownerAddress } = item
+  const { amount, ownerAddress, tokenAddress, spenderAddress } = item
+  const pendingApproval = useHasPendingApproval(tokenAddress, spenderAddress)
+  const [approveSuccess, setApproveSuccess] = useState(false)
+
+  const prev = usePrevious(pendingApproval)
+  useEffect(() => {
+    if (!pendingApproval && prev) {
+      setApproveSuccess(true)
+    }
+  }, [pendingApproval, prev, refetch])
+
   const { account } = useActiveWeb3React()
   const [loading, setLoading] = useState(false)
   const onClick = async () => {
     setLoading(true)
-    await revokeAllowance(item)
+    const tx = await revokeAllowance(item)
+    await tx.wait()
+    refetch()
     setLoading(false)
   }
+  const isLoading = pendingApproval || loading
 
-  const disabled = loading || !amount || amount === '0' || account?.toLowerCase() !== ownerAddress.toLowerCase()
+  const disabled =
+    approveSuccess || isLoading || !amount || amount === '0' || account?.toLowerCase() !== ownerAddress.toLowerCase()
   const color = disabled ? theme.border : theme.red
   return (
     <Row justify="flex-end">
@@ -73,13 +91,14 @@ const ActionButton = ({
           justifyContent: 'center',
         }}
       >
-        {loading ? <Loader /> : <Trash size={14} />}
+        {isLoading ? <Loader /> : <Trash size={14} />}
       </ButtonAction>
     </Row>
   )
 }
 
-const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<TokenAllowAnce>[] => [
+const getColumns = (revokeAllowance: any, refetch: any): TableColumn<TokenAllowAnce>[] => [
+  // todo
   {
     title: t`Asset`,
     dataIndex: 'token',
@@ -109,7 +128,7 @@ const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void): TableColumn<T
     title: t`Revoke`,
     align: 'right',
     dataIndex: 'spenderAddress',
-    render: ({ item }) => <ActionButton item={item} revokeAllowance={revokeAllowance} />,
+    render: ({ item }) => <ActionButton item={item} revokeAllowance={revokeAllowance} refetch={refetch} />,
     style: { width: 40 },
   },
 ]
@@ -172,8 +191,7 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
               contract: spenderAddress,
             },
           })
-          await tx.wait()
-          refetch()
+          return tx
         } catch (error) {
           console.error('Error revoking allowance:', error)
         }
@@ -181,12 +199,12 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
       if (currentChain !== chainId) return changeNetwork(chainId, () => handleRevoke(data), undefined, true) // todo not work
       return handleRevoke(data)
     },
-    [changeNetwork, currentChain, library, addTransactionWithType, refetch],
+    [changeNetwork, currentChain, library, addTransactionWithType],
   )
 
   const columns = useMemo(() => {
-    return getColumns(revokeAllowance)
-  }, [revokeAllowance])
+    return getColumns(revokeAllowance, refetch)
+  }, [revokeAllowance, refetch])
 
   const [search, setSearch] = useState('')
   const searchDebounce = useDebounce(search, 500)
