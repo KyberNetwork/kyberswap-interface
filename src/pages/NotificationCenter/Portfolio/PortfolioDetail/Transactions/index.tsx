@@ -50,7 +50,7 @@ const getTxsAction = ({
     return {
       type: 'receive',
       contract: tokenTransfers[0].otherAddress,
-      contractName,
+      contractName: contractName || tokenTransfers[0].otherName,
       prefix: t`from`,
     }
   return { type, contractName, contract: tokenApproval?.spenderAddress }
@@ -77,10 +77,10 @@ const TxsHashCell = ({ item: { txHash, blockTime, chain, walletAddress } }: { it
   )
 }
 
-const GasFeeCell = ({ item: { gasPrice, chain, nativeTokenPrice, gasUsed } }: { item: TransactionHistory }) => {
+const GasFeeCell = ({ item: { gasPrice, chain, nativeTokenPrice, gasUsed, gas } }: { item: TransactionHistory }) => {
   if (gasPrice === '0') return null
   const native = NativeCurrencies[chain?.chainId as ChainId]
-  const totalGas = uint256ToFraction(gasPrice, native.decimals).multiply(gasUsed) // todo
+  const totalGas = uint256ToFraction(gasPrice, native.decimals).multiply(gasUsed || gas) // todo
   const usdValue = +totalGas.toSignificant(native.decimals) * nativeTokenPrice
   return (
     <>

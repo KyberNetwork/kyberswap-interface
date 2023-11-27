@@ -17,10 +17,10 @@ import NoData from 'pages/NotificationCenter/Portfolio/PortfolioDetail/NoData'
 import { NFTDetail } from 'pages/NotificationCenter/Portfolio/type'
 import { isAddress } from 'utils'
 
+const ITEM_SIZE = `min(100vw, 300px)`
 const ItemWrapper = styled(Column)`
   border-radius: 20px;
   background-color: ${({ theme }) => theme.buttonGray};
-  flex-basis: min(100vw, 300px);
   padding: 16px;
   gap: 12px;
   cursor: pointer;
@@ -53,10 +53,10 @@ const NftItem = ({
   )
 }
 const Wrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  flex: 1;
+  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, ${ITEM_SIZE});
+  justify-content: space-around;
 `
 
 const pageSize = isMobile ? 5 : 20
@@ -84,7 +84,7 @@ export default function ListNft({ search }: { search: string }) {
       {isFetching ? (
         <LocalLoader />
       ) : (
-        <Wrapper style={{ justifyContent: Number(data?.items?.length) > 3 ? 'space-around' : 'flex-start' }}>
+        <Wrapper>
           {data?.items?.length ? data?.items.map(el => <NftItem data={el} key={el.collectibleAddress} />) : <NoData />}
         </Wrapper>
       )}

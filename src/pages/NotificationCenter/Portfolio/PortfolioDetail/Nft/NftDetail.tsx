@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { useState } from 'react'
 import { Send } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { Text } from 'rebass'
@@ -11,11 +12,14 @@ import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
 import { ButtonAction, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import Breadcrumb from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/Breadcrumb'
+import SendNftModal from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/SendNftModal'
 import useGetNftBreadcrumbData from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/useGetNftBreadcrumbData'
+import { useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 import { NFTAttributes, NFTTokenDetail } from 'pages/NotificationCenter/Portfolio/type'
 import { ExternalLinkIcon } from 'theme'
 import { getEtherscanLink, isAddress } from 'utils'
@@ -108,8 +112,11 @@ const DescColumn = styled(Column)`
     width: 100%;
   `};
 `
+
 export default function NftDetail() {
   const { colId = '', chainId, nftId = '' } = useParsedQueryString<{ nftId: string; colId: string; chainId: string }>()
+  const { account } = useActiveWeb3React()
+  const [showSend, setShowSend] = useState(false)
 
   const skipDetail = !nftId || !isAddress(ChainId.MAINNET, colId) || !chainId
   const { data, isFetching, refetch } = useGetNftDetailQuery(
@@ -121,6 +128,7 @@ export default function NftDetail() {
     { skip: skipDetail },
   )
   const itemsBreadcrumb = useGetNftBreadcrumbData({ nftDetail: data })
+  const { wallet } = useParseWalletPortfolioParam()
 
   const theme = useTheme()
   const {
@@ -216,11 +224,12 @@ export default function NftDetail() {
                   </AttributeLabel>
                   <Value>{currentPrice ? `${currentPrice} ${paymentToken}` : '--'}</Value>
                 </Row>
-
-                <ButtonPrimary height={'36px'} width={'150px'}>
-                  <Send size={17} />
-                  &nbsp;Transfer
-                </ButtonPrimary>
+                {account && account?.toLowerCase() === wallet?.toLowerCase() && (
+                  <ButtonPrimary height={'36px'} width={'150px'} onClick={() => setShowSend(true)}>
+                    <Send size={17} />
+                    &nbsp;Transfer
+                  </ButtonPrimary>
+                )}
               </Column>
               {externalData?.attributes && (
                 <>
@@ -238,6 +247,7 @@ export default function NftDetail() {
             </>
           )}
         </DescColumn>
+        {data && <SendNftModal isOpen={showSend} onDismiss={() => setShowSend(false)} data={data} />}
       </Wrapper>
     </>
   )

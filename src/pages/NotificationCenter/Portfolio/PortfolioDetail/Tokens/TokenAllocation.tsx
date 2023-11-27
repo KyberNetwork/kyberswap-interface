@@ -53,8 +53,8 @@ const TokenCell = ({ item }: { item: PortfolioWalletBalance }) => {
   )
 }
 
-const getTokenColumns = (isMobile: boolean, shareMode: boolean) => {
-  const sticky = !shareMode
+const getTokenColumns = (mobile: boolean, shareMode: boolean) => {
+  const sticky = !shareMode && mobile
   const columnsTokens: TableColumn<PortfolioWalletBalance>[] = [
     { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCell, sticky },
     // {
