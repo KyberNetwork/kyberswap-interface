@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
-import { SUGGESTED_BASES } from 'constants/bases'
 import {
   DEFAULT_DEADLINE_FROM_NOW,
   DEFAULT_SLIPPAGE,
@@ -141,11 +140,6 @@ export interface UserState {
 function pairKey(token0Address: string, token1Address: string) {
   return `${token0Address};${token1Address}`
 }
-
-export const getFavoriteTokenDefault = (chainId: ChainId) => ({
-  addresses: SUGGESTED_BASES[chainId].map(e => e.address),
-  includeNativeToken: true,
-})
 
 export const CROSS_CHAIN_SETTING_DEFAULT = {
   isSlippageControlPinned: true,
