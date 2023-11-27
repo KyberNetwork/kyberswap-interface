@@ -9,6 +9,7 @@ import { Trash } from 'react-feather'
 import { usePrevious } from 'react-use'
 import { useLazyGetTokenApprovalQuery } from 'services/portfolio'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonAction } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
 import Loader from 'components/Loader'
@@ -26,10 +27,12 @@ import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/P
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import { formatAllowance } from 'pages/NotificationCenter/Portfolio/helpers'
 import { TokenAllowAnce } from 'pages/NotificationCenter/Portfolio/type'
+import { useNotify } from 'state/application/hooks'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
 import { getSigningContract } from 'utils/getContract'
 import getShortenAddress from 'utils/getShortenAddress'
 
@@ -169,7 +172,7 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
   const { chainId: currentChain } = useActiveWeb3React()
   const { library } = useWeb3React()
   const { changeNetwork } = useChangeNetwork()
-
+  const notify = useNotify()
   const addTransactionWithType = useTransactionAdder()
   const revokeAllowance = useCallback(
     async (data: TokenAllowAnce) => {
@@ -189,13 +192,14 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
             },
           })
         } catch (error) {
+          notify({ type: NotificationType.ERROR, title: t`Revoke Allowance Error`, summary: friendlyError(error) })
           console.error('Error revoking allowance:', error)
         }
       }
       if (currentChain !== chainId) return changeNetwork(chainId, () => handleRevoke(data), undefined, true) // todo not work
       return handleRevoke(data)
     },
-    [changeNetwork, currentChain, library, addTransactionWithType],
+    [changeNetwork, currentChain, library, addTransactionWithType, notify],
   )
 
   const columns = useMemo(() => {

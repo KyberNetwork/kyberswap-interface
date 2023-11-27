@@ -1,29 +1,31 @@
 import { Trans } from '@lingui/macro'
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { rgba } from 'polished'
+import { ReactNode, forwardRef, useCallback, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { X } from 'react-feather'
+import { Check, X } from 'react-feather'
 import { QRCode } from 'react-qrcode-logo'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { SHARE_TYPE, useCreateShareLinkMutation } from 'services/social'
 import styled, { css } from 'styled-components'
-import { Autoplay, Navigation, Pagination } from 'swiper'
+import { Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
 import modalBackground from 'assets/images/truesight-v2/modal_background.png'
 import modalBackgroundMobile from 'assets/images/truesight-v2/modal_background_mobile.png'
 import Column from 'components/Column'
-import CopyHelper from 'components/Copy'
 import Icon from 'components/Icons/Icon'
+import LoadingIcon from 'components/Loader'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { getSocialShareUrls } from 'components/ShareModal'
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
+import useCopyClipboard from 'hooks/useCopyClipboard'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 import { downloadImage } from 'utils/index'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
@@ -101,6 +103,28 @@ const IconButton = styled.div<{ disabled?: boolean }>`
       }
     `}
 `
+
+const SIZES = {
+  VIEW_WIDTH_PC: 840,
+  WIDTH_PC: 1050,
+
+  HEIGHT_MB: 800,
+  VIEW_HEIGHT_MB: 620,
+
+  THRESHOLD_HEIGHT_MB_SMALL: 1000,
+  HEIGHT_MB_SMALL: 480,
+
+  THRESHOLD_HEIGHT_MB_XX_SMALL: 700,
+  HEIGHT_MB_XX_SMALL: 410,
+}
+
+const getSmallHeightSize = (size: number) => css`
+  height: ${size}px;
+  .swiper-wrapper {
+    height: ${size}px;
+    max-height: 100%;
+  }
+`
 const ImageWrapper = styled.div<{ isMobileMode?: boolean }>`
   max-height: 80vh;
   position: relative;
@@ -113,16 +137,49 @@ const ImageWrapper = styled.div<{ isMobileMode?: boolean }>`
   ${({ isMobileMode }) =>
     isMobileMode
       ? css`
-          height: 620px;
           aspect-ratio: 1/2;
+          ${getSmallHeightSize(SIZES.VIEW_HEIGHT_MB)}
         `
       : css`
-          height: 490px;
-          width: 840px;
+          width: ${SIZES.VIEW_WIDTH_PC}px;
+          ${getSmallHeightSize(490)}
         `}
+
+  @media screen and (max-height: ${SIZES.THRESHOLD_HEIGHT_MB_SMALL}px) {
+    ${getSmallHeightSize(SIZES.HEIGHT_MB_SMALL)}
+  }
+  @media screen and (max-height: ${SIZES.THRESHOLD_HEIGHT_MB_XX_SMALL}px) {
+    ${getSmallHeightSize(SIZES.HEIGHT_MB_XX_SMALL)}
+  }
+
+  --swiper-navigation-size: 12px;
+
+  .swiper-button-prev,
+  .swiper-button-next {
+    color: #ffffff;
+    background: ${({ theme }) => rgba(theme.subText, 0.2)};
+    width: 32px;
+    height: 32px;
+    margin-top: 0;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    :hover {
+      filter: brightness(1.2);
+    }
+  }
+
+  .swiper-pagination-bullet {
+    background: ${({ theme }) => theme.subText};
+  }
+
+  .swiper-pagination-bullet-active {
+    border-radius: 4px;
+    background: ${({ theme }) => theme.primary};
+  }
 `
+
 const ImageInner = styled.div`
-  width: 1050px;
+  width: ${SIZES.WIDTH_PC}px;
   height: 612px;
   aspect-ratio: 1050/612;
   background-color: ${({ theme }) => theme.background};
@@ -144,7 +201,7 @@ const ImageInner = styled.div`
 
 const ImageInnerMobile = styled.div`
   width: 400px;
-  height: 800px;
+  height: ${SIZES.HEIGHT_MB}px;
   aspect-ratio: 1/2;
   background-color: ${({ theme }) => theme.background};
   display: flex;
@@ -192,9 +249,9 @@ const Loader = styled.div`
 `
 
 type ShareData = {
-  shareUrl?: string
-  imageUrl?: string
-  blob?: Blob
+  shareUrl?: string[]
+  imageUrl?: string[]
+  blob?: Blob[]
 }
 
 export default function KyberAIShareModal(props: {
@@ -260,7 +317,7 @@ export default function KyberAIShareModal(props: {
       {...props}
       shareType={SHARE_TYPE.KYBER_AI}
       titleLogo={<TokenInfo />}
-      imageImage="kyberAI_share_image.png"
+      imageName="kyberAI_share_image.png"
       kyberswapLogoTitle={
         <Trans>
           <Text as="span" color={theme.text}>
@@ -275,9 +332,198 @@ export default function KyberAIShareModal(props: {
   )
 }
 
-const debug = true
-// todo move another file, check open popup auto upload image ???, my earning
+const ShareUrlPanel = ({
+  sharingUrl,
+  disabled,
+  isCopied,
+  loadingType,
+  onClickShareSocial,
+}: {
+  sharingUrl: string
+  disabled: boolean
+  isCopied: boolean | undefined
+  loadingType: ShareType | undefined
+  onClickShareSocial: (v: ShareType) => void
+}) => {
+  const theme = useTheme()
+  return (
+    <Row gap="12px">
+      <InputWrapper>
+        <Input value={sharingUrl} autoFocus={false} disabled={!sharingUrl} />
+      </InputWrapper>
+      {itemShares.map(type => (
+        <IconButton disabled={disabled} key={type} onClick={() => onClickShareSocial?.(type)}>
+          {loadingType === type ? <LoadingIcon /> : <Icon id={type as any} size={20} />}
+        </IconButton>
+      ))}
+      <IconButton disabled={disabled} onClick={() => onClickShareSocial?.(ShareType.COPY)}>
+        {loadingType === ShareType.COPY ? (
+          <LoadingIcon />
+        ) : isCopied ? (
+          <Check size={'20px'} color={theme.primary} />
+        ) : (
+          <Icon id="copy" size={20} />
+        )}
+      </IconButton>
+    </Row>
+  )
+}
 
+const ShareImage = ({ imageUrl }: { imageUrl: string }) =>
+  imageUrl ? (
+    <div
+      style={{
+        backgroundImage: `url(${imageUrl})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        height: '100%',
+        width: '100%',
+        borderRadius: '8px',
+      }}
+    />
+  ) : null
+
+type ContentProps = {
+  content?: RenderContent | RenderContent[]
+  isMobileMode: boolean
+  kyberswapLogoTitle: ReactNode
+  titleLogo: ReactNode
+  title?: string
+  sharingUrl: string
+  shareIndex: number
+  setShareIndex: (v: number) => void
+}
+
+type RenderSlideProps = { render: RenderContent; scale?: number; ref?: React.ForwardedRef<HTMLDivElement> }
+const NodeContents = forwardRef<HTMLDivElement, ContentProps>(
+  ({ content, isMobileMode, setShareIndex, kyberswapLogoTitle, titleLogo, title, sharingUrl, shareIndex }, ref) => {
+    const upToSmall = useMedia(`(max-width:${MEDIA_WIDTHS.upToSmall}px)`)
+    const mobileSmall = useMedia(`(max-height:${SIZES.THRESHOLD_HEIGHT_MB_SMALL}px)`)
+    const mobileXXSmall = useMedia(`(max-height:${SIZES.THRESHOLD_HEIGHT_MB_XX_SMALL}px)`)
+
+    const renderMobile = ({ render, scale, ref }: RenderSlideProps) => (
+      <ImageInnerMobile ref={ref} className="share-mobile" style={scale ? { transform: `scale(${scale})` } : undefined}>
+        <RowFit gap="8px">{titleLogo}</RowFit>
+
+        <Column
+          style={{
+            zIndex: 2,
+            width: '100%',
+            overflow: 'hidden',
+            flex: 1,
+            justifyContent: 'center',
+          }}
+          gap="24px"
+        >
+          <Row>
+            <Text fontSize="24px" lineHeight="28px" style={{ whiteSpace: 'nowrap' }}>
+              {title}
+            </Text>
+          </Row>
+          {render?.(true)}
+        </Column>
+        <Row>
+          <RowBetween gap="20px">
+            <KyberSwapShareLogo width={200} title={kyberswapLogoTitle} />
+            <div style={{ borderRadius: '6px', overflow: 'hidden' }}>
+              <QRCode
+                value={sharingUrl}
+                size={100}
+                quietZone={4}
+                ecLevel="L"
+                style={{ display: 'block', borderRadius: '6px' }}
+              />
+            </div>
+          </RowBetween>
+        </Row>
+      </ImageInnerMobile>
+    )
+
+    const renderPc = ({ render, scale, ref }: RenderSlideProps) => (
+      <ImageInner ref={ref} className="share-pc" style={scale ? { transform: `scale(${scale})` } : undefined}>
+        <RowBetween style={{ zIndex: 2 }}>
+          <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
+            {titleLogo}
+          </RowFit>
+          <RowFit gap="20px">
+            <KyberSwapShareLogo title={kyberswapLogoTitle} />
+            <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
+              <QRCode
+                value={sharingUrl}
+                size={100}
+                quietZone={4}
+                ecLevel="L"
+                style={{ display: 'block', borderRadius: '6px' }}
+              />
+            </div>
+          </RowFit>
+        </RowBetween>
+        <Row>
+          <Text fontSize="24px" lineHeight="28px">
+            {title}
+          </Text>
+        </Row>
+        <Row style={{ zIndex: 2, width: '100%', alignItems: 'stretch', flex: 1 }}>{render?.(false)}</Row>
+      </ImageInner>
+    )
+
+    if (Array.isArray(content) && content.length > 1)
+      return (
+        <Swiper
+          style={{ maxHeight: '100%' }}
+          slidesPerView={1}
+          navigation={true}
+          pagination={true}
+          loop={true}
+          modules={[Navigation, Pagination]}
+          onSlideChangeTransitionEnd={val => {
+            setShareIndex(val.realIndex)
+          }}
+        >
+          {content.map((render, index) => {
+            // todo move this to css ???
+            const contentWidth = upToSmall ? window.innerWidth - 40 : SIZES.VIEW_WIDTH_PC
+            const contentHeight = mobileXXSmall
+              ? SIZES.HEIGHT_MB_XX_SMALL
+              : mobileSmall
+              ? SIZES.HEIGHT_MB_SMALL
+              : SIZES.VIEW_HEIGHT_MB
+
+            const getScale = (currentSize: number, expectSize: number) =>
+              (currentSize / expectSize) ** (currentSize > expectSize ? -1 : 1)
+
+            const scale = isMobileMode
+              ? getScale(SIZES.HEIGHT_MB, contentHeight)
+              : getScale(contentWidth, SIZES.WIDTH_PC)
+            const props = { render, scale, ref: index === shareIndex ? ref : null }
+            return (
+              <SwiperSlide key={index} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {isMobileMode ? renderMobile(props) : renderPc(props)}
+              </SwiperSlide>
+            )
+          })}
+        </Swiper>
+      )
+
+    const params = { render: content as RenderContent, ref }
+    return isMobileMode ? renderMobile(params) : renderPc(params)
+  },
+)
+
+const debug = false
+// todo move another file, check open popup auto upload image ???, my earning, split file
+enum ShareType {
+  TELEGRAM = 'telegram',
+  FB = 'facebook',
+  DISCORD = 'discord',
+  TWITTER = 'twitter',
+  COPY = 'copy to clipboard',
+  DOWNLOAD_IMAGE = 'download image',
+  COPY_IMAGE = 'copy image',
+}
+const itemShares = [ShareType.TELEGRAM, ShareType.TWITTER, ShareType.FB, ShareType.DISCORD]
+type ShareResponse = { imageUrl?: string; blob?: Blob; shareUrl?: string }
 type RenderContent = (mobileMode?: boolean) => ReactNode
 export function ShareModal({
   title,
@@ -286,7 +532,7 @@ export function ShareModal({
   onClose,
   onShareClick,
   shareType,
-  imageImage,
+  imageName,
   titleLogo,
   kyberswapLogoTitle,
 }: {
@@ -296,14 +542,16 @@ export function ShareModal({
   onClose?: () => void
   onShareClick?: (network: string) => void
   shareType: SHARE_TYPE
-  imageImage: string
+  imageName: string
   titleLogo: ReactNode
   kyberswapLogoTitle: ReactNode
 }) {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
-  const refMobile = useRef<HTMLDivElement>(null)
-  const [loading, setLoading] = useState(true)
+  const refImgWrapper = useRef<HTMLDivElement>(null)
+  const autoUpload = !(debug || Array.isArray(content))
+
+  const [loading, setLoading] = useState(autoUpload)
   const [isError, setIsError] = useState(false)
   const [isMobileMode, setIsMobileMode] = useState(isMobile)
   const [mobileData, setMobileData] = useState<ShareData>({})
@@ -311,11 +559,17 @@ export function ShareModal({
   const shareImage = useShareImage()
   const [createShareLink] = useCreateShareLinkMutation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { blob, imageUrl = '', shareUrl: sharingUrl = '' } = isMobileMode ? mobileData : desktopData
+
+  const [shareIndex, setShareIndex] = useState(0)
+  const shareData = isMobileMode ? mobileData : desktopData
+
+  const blob = shareData?.blob?.[shareIndex]
+  const imageUrl = shareData?.imageUrl?.[shareIndex] || ''
+  const sharingUrl = shareData?.shareUrl?.[shareIndex] || ''
 
   const handleGenerateImage = useCallback(
-    async (shareUrl: string, mobile: boolean) => {
-      const element = mobile ? refMobile.current : ref.current
+    async (shareUrl: string, mobile: boolean): Promise<ShareResponse> => {
+      const element = ref.current
       if (element) {
         setIsError(false)
         const shareId = shareUrl?.split('/').pop()
@@ -326,9 +580,15 @@ export function ShareModal({
         }
         try {
           const { imageUrl, blob } = await shareImage(element, shareType, shareId)
-          mobile
-            ? setMobileData(prev => ({ ...prev, imageUrl, blob }))
-            : setDesktopData(prev => ({ ...prev, imageUrl, blob }))
+          const fn = (prev: ShareData) => {
+            const imageUrls = prev.imageUrl || []
+            const blobs = prev.blob || []
+            imageUrls[shareIndex] = imageUrl
+            blobs[shareIndex] = blob
+            return { ...prev, imageUrl: imageUrls, blob: blobs }
+          }
+          mobile ? setMobileData(fn) : setDesktopData(fn)
+          return { imageUrl, blob, shareUrl }
         } catch (err) {
           console.log(err)
           setLoading(false)
@@ -337,58 +597,116 @@ export function ShareModal({
       } else {
         setLoading(false)
       }
+      return {}
     },
-    [shareImage, shareType],
+    [shareImage, shareType, shareIndex],
   )
 
-  useEffect(() => {
-    let timeout: NodeJS.Timeout
-    const createShareFunction = async () => {
-      if (!isOpen) {
-        timeout = setTimeout(() => {
-          setLoading(true)
-          setIsError(false)
-          setIsMobileMode(isMobile)
-          setDesktopData({})
-          setMobileData({})
-        }, 400)
-        return
-      }
-      if ((isMobileMode && !mobileData.shareUrl) || (!isMobileMode && !desktopData.shareUrl)) {
+  const timeout = useRef<NodeJS.Timeout>()
+  const createShareFunction = async (callback?: (data: ShareResponse) => void) => {
+    if (loading && !autoUpload) return
+    timeout.current && clearTimeout(timeout.current)
+    if (!isOpen) {
+      timeout.current = setTimeout(() => {
         setLoading(true)
         setIsError(false)
-        const shareUrl = await createShareLink({
-          redirectURL: ENV_LEVEL === ENV_TYPE.LOCAL ? 'https://kyberswap.com' : window.location.href,
-          type: shareType,
-        }).unwrap()
-        if (isMobileMode && !mobileData.shareUrl) {
-          setMobileData({ shareUrl })
-        } else {
-          setDesktopData({ shareUrl })
-        }
-        timeout = setTimeout(() => {
-          handleGenerateImage(shareUrl, isMobileMode)
-        }, 1000)
-      }
+        setIsMobileMode(isMobile)
+        setDesktopData({})
+        setMobileData({})
+      }, 400)
+      return
     }
-    !debug && createShareFunction()
-    return () => {
-      timeout && clearTimeout(timeout)
+    if (sharingUrl) return
+    setLoading(true)
+    setIsError(false)
+    const shareUrl = await createShareLink({
+      redirectURL: ENV_LEVEL === ENV_TYPE.LOCAL ? 'https://kyberswap.com' : window.location.href,
+      type: shareType,
+    }).unwrap()
+    const fn = (prev: ShareData) => {
+      const shareUrls = prev.shareUrl || []
+      shareUrls[shareIndex] = shareUrl
+      return { ...prev, shareUrl: shareUrls }
     }
+    if (isMobileMode) {
+      setMobileData(fn)
+    } else {
+      setDesktopData(fn)
+    }
+    timeout.current = setTimeout(async () => {
+      const data = await handleGenerateImage(shareUrl, isMobileMode)
+      callback?.(data)
+    }, 1000)
+  }
+
+  useEffect(() => {
+    autoUpload && createShareFunction()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isMobileMode])
 
-  const handleCopyClick = () => {
-    onShareClick?.('copy to clipboard')
-  }
-  const handleImageCopyClick = () => {
+  const copyImage = (blob: Blob | undefined) => {
     if (blob) {
       const clipboardItem = new ClipboardItem({ ['image/png']: blob })
       navigator.clipboard.write([clipboardItem])
     }
   }
+
+  const [loadingType, setLoadingType] = useState<ShareType>()
+  const handleImageCopyClick = () => {
+    if (!blob) {
+      setLoadingType(ShareType.COPY_IMAGE)
+      createShareFunction(({ blob }) => {
+        copyImage(blob)
+        setLoadingType(undefined)
+      })
+      return
+    }
+    copyImage(blob)
+  }
+
+  const [isCopied, setCopied] = useCopyClipboard(2000)
+  const callbackShareSocial = (shareType: ShareType, sharingUrl = '') => {
+    const { facebook, telegram, discord, twitter } = getSocialShareUrls(sharingUrl)
+    onShareClick?.(shareType)
+    switch (shareType) {
+      case ShareType.FB:
+        window.open(facebook)
+        break
+      case ShareType.TELEGRAM:
+        window.open(telegram)
+        break
+      case ShareType.DISCORD:
+        window.open(discord)
+        break
+      case ShareType.TWITTER:
+        window.open(twitter)
+        break
+      case ShareType.COPY:
+        setCopied(sharingUrl)
+        break
+    }
+  }
+  const onClickShareSocial = (shareType: ShareType) => {
+    if (sharingUrl) callbackShareSocial(shareType, sharingUrl)
+    else {
+      setLoadingType(shareType)
+      createShareFunction(({ shareUrl }) => {
+        callbackShareSocial(shareType, shareUrl)
+        setLoadingType(undefined)
+      })
+    }
+  }
+
   const handleDownloadClick = () => {
-    downloadImage(blob, imageImage)
+    if (!blob) {
+      setLoadingType(ShareType.DOWNLOAD_IMAGE)
+      createShareFunction(({ blob }) => {
+        downloadImage(blob, imageName)
+        setLoadingType(undefined)
+      })
+      return
+    }
+    downloadImage(blob, imageName)
   }
 
   useEffect(() => {
@@ -401,115 +719,23 @@ export function ShareModal({
     }
   }, [imageUrl])
 
-  const { facebook, telegram, discord, twitter } = getSocialShareUrls(sharingUrl)
+  const disableShareSocial = autoUpload ? !sharingUrl : false
+  const disableDownloadImage = autoUpload ? !blob : false
 
-  const renderMobile = (content: RenderContent) => (
-    <ImageInnerMobile ref={refMobile} className="share-mobile">
-      <RowFit gap="8px">{titleLogo}</RowFit>
-
-      <Column
-        style={{
-          zIndex: 2,
-          width: '100%',
-          overflow: 'hidden',
-          flex: 1,
-          justifyContent: 'center',
-        }}
-        gap="24px"
-      >
-        <Row>
-          <Text fontSize="24px" lineHeight="28px" style={{ whiteSpace: 'nowrap' }}>
-            {title}
-          </Text>
-        </Row>
-        {content?.(true)}
-      </Column>
-      <Row>
-        <RowBetween gap="20px">
-          <KyberSwapShareLogo width={200} title={kyberswapLogoTitle} />
-          <div style={{ borderRadius: '6px', overflow: 'hidden' }}>
-            <QRCode
-              value={sharingUrl}
-              size={100}
-              quietZone={4}
-              ecLevel="L"
-              style={{ display: 'block', borderRadius: '6px' }}
-            />
-          </div>
-        </RowBetween>
-      </Row>
-    </ImageInnerMobile>
-  )
-
-  const renderPc = (content: RenderContent) => (
-    <ImageInner ref={ref} className="share-pc">
-      <RowBetween style={{ zIndex: 2 }}>
-        <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
-          {titleLogo}
-        </RowFit>
-        <RowFit gap="20px">
-          <KyberSwapShareLogo title={kyberswapLogoTitle} />
-          <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
-            <QRCode
-              value={sharingUrl}
-              size={100}
-              quietZone={4}
-              ecLevel="L"
-              style={{ display: 'block', borderRadius: '6px' }}
-            />
-          </div>
-        </RowFit>
-      </RowBetween>
-      <Row>
-        <Text fontSize="24px" lineHeight="28px">
-          {title}
-        </Text>
-      </Row>
-      <Row style={{ zIndex: 2, width: '100%', alignItems: 'stretch', flex: 1 }}>{content?.(false)}</Row>
-    </ImageInner>
-  )
-
-  console.log(123, content)
-
-  const renderContent = () =>
-    Array.isArray(content) && content.length > 1 ? (
-      <Swiper
-        autoplay={{ delay: 5000 }}
-        slidesPerView={1}
-        navigation={true}
-        pagination={true}
-        loop={true}
-        modules={[Navigation, Pagination, Autoplay]}
-      >
-        {content.map((render, index) => (
-          <SwiperSlide key={index}>
-            <Wrapper>{isMobileMode ? renderMobile(render) : renderPc(render)}</Wrapper>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    ) : isMobileMode ? (
-      renderMobile(content as RenderContent)
-    ) : (
-      renderPc(content as RenderContent)
-    )
-
-  const renderImage = () =>
-    imageUrl ? (
-      <div
-        style={{
-          backgroundImage: `url(${imageUrl})`,
-          backgroundSize: 'contain',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          height: '100%',
-          width: '100%',
-          borderRadius: '8px',
-        }}
-      />
-    ) : null
-
+  const propsContents = {
+    isMobileMode,
+    content,
+    setShareIndex,
+    kyberswapLogoTitle,
+    titleLogo,
+    title,
+    sharingUrl,
+    ref,
+    shareIndex,
+    isOpen,
+  } // todo too many title
   return (
-    <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw" maxHeight="80vh" onDismiss={onClose}>
+    <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw" maxHeight={'90vh'} onDismiss={onClose}>
       <Wrapper>
         <RowBetween>
           <Text>
@@ -517,40 +743,20 @@ export function ShareModal({
           </Text>
           <X style={{ cursor: 'pointer' }} onClick={() => onClose?.()} />
         </RowBetween>
-        <Row gap="12px">
-          <InputWrapper>
-            <Input value={sharingUrl} autoFocus={false} disabled={!sharingUrl} />
-          </InputWrapper>
-          <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('telegram')}>
-            <ExternalLink href={telegram}>
-              <Icon id="telegram" size={20} />
-            </ExternalLink>
-          </IconButton>
-          <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('twitter')}>
-            <ExternalLink href={twitter}>
-              <Icon id="twitter" size={20} />
-            </ExternalLink>
-          </IconButton>
-          <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('facebook')}>
-            <ExternalLink href={facebook}>
-              <Icon id="facebook" size={20} />
-            </ExternalLink>
-          </IconButton>
-          <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('discord')}>
-            <ExternalLink href={discord}>
-              <Icon id="discord" size={20} />
-            </ExternalLink>
-          </IconButton>
-          <IconButton disabled={!sharingUrl} onClick={handleCopyClick}>
-            <CopyHelper toCopy={sharingUrl} size={18} margin="0" />
-          </IconButton>
-        </Row>
-        <ImageWrapper isMobileMode={isMobileMode}>
-          {debug ? (
-            <div style={{ transform: 'scale(0.5)' }}>{renderContent()}</div>
-          ) : loading ? (
+        <ShareUrlPanel
+          {...{
+            sharingUrl,
+            disabled: disableShareSocial,
+            isCopied: !!isCopied,
+            loadingType,
+            onClickShareSocial,
+          }}
+        />
+
+        <ImageWrapper isMobileMode={isMobileMode} ref={refImgWrapper}>
+          {loading ? (
             <>
-              {renderContent()}
+              <NodeContents {...propsContents} />
               <Loader>
                 <Text fontSize={above768 ? '16px' : '12px'} textAlign="center">
                   <LoadingTextAnimation />
@@ -561,20 +767,23 @@ export function ShareModal({
             <Loader>
               <Text>Some errors have occurred, please try again later!</Text>
             </Loader>
+          ) : !autoUpload ? (
+            <NodeContents {...propsContents} />
           ) : (
-            renderImage()
+            <ShareImage imageUrl={imageUrl} />
           )}
         </ImageWrapper>
+
         <RowBetween style={{ color: theme.subText }}>
           <IconButton onClick={() => setIsMobileMode(prev => !prev)}>
             <Icon id="devices" size={20} />
           </IconButton>
           <RowFit gap="12px">
-            <IconButton disabled={!blob} onClick={handleDownloadClick}>
-              <Icon id="download" size={20} />
+            <IconButton disabled={disableDownloadImage} onClick={handleDownloadClick}>
+              {loadingType === ShareType.DOWNLOAD_IMAGE ? <LoadingIcon /> : <Icon id="download" size={20} />}
             </IconButton>
-            <IconButton disabled={!blob} onClick={handleImageCopyClick}>
-              <Icon id="copy" size={20} />
+            <IconButton disabled={disableDownloadImage} onClick={handleImageCopyClick}>
+              {loadingType === ShareType.COPY_IMAGE ? <LoadingIcon /> : <Icon id="copy" size={20} />}
             </IconButton>
           </RowFit>
         </RowBetween>

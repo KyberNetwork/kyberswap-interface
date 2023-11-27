@@ -235,7 +235,7 @@ export default function PortfolioDetail() {
         onClose={() => setShowShare(false)}
         content={shareContents}
         shareType={SHARE_TYPE.KYBER_AI} // todo
-        imageImage={'my_portfolio.png'}
+        imageName={'my_portfolio.png'}
         titleLogo={
           <Column gap="8px">
             <Text fontSize={'20px'}>

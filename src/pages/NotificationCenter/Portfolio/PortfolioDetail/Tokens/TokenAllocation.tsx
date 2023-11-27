@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useGetChainsAllocationQuery, useGetTokenAllocationQuery } from 'services/portfolio'
@@ -107,23 +106,28 @@ const ChainCell = ({ item: { chainId } }: { item: PortfolioChainBalance }) => {
     </Row>
   )
 }
-const columnsChains: TableColumn<PortfolioChainBalance>[] = [
-  { title: t`Chain`, dataIndex: 'token', align: 'left', render: ChainCell, sticky: true },
-  {
-    title: t`Value`,
-    dataIndex: 'valueUsd',
-    render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
-    style: isMobile ? { width: 100 } : undefined,
-  },
-  {
-    title: t`Ratio`,
-    align: 'right',
-    dataIndex: 'percentage',
-    render: ({ value }) =>
-      value === '0' ? '<0.01%' : formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
-    style: isMobile ? { width: 80 } : undefined,
-  },
-]
+
+const getChainColumns = (mobile: boolean, shareMode: boolean) => {
+  const sticky = !shareMode && mobile
+  const columnsChains: TableColumn<PortfolioChainBalance>[] = [
+    { title: t`Chain`, dataIndex: 'token', align: 'left', render: ChainCell, sticky },
+    {
+      title: t`Value`,
+      dataIndex: 'valueUsd',
+      render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
+      style: sticky ? { width: 100 } : undefined,
+    },
+    {
+      title: t`Ratio`,
+      align: 'right',
+      dataIndex: 'percentage',
+      render: ({ value }) =>
+        value === '0' ? '<0.01%' : formatDisplayNumber(value / 100, { style: 'percent', fractionDigits: 2 }),
+      style: sticky ? { width: 80 } : undefined,
+    },
+  ]
+  return columnsChains
+}
 
 const Content = styled(Row)<{ mobile: boolean }>`
   gap: 16px;
@@ -189,8 +193,8 @@ export default function TokenAllocation({
     { walletAddresses, chainIds },
     {
       skip: !walletAddresses.length || !isTokenTab,
-      refetchOnMountOrArgChange: true,
-      pollingInterval: PORTFOLIO_POLLING_INTERVAL,
+      refetchOnMountOrArgChange: !shareMode,
+      pollingInterval: shareMode ? undefined : PORTFOLIO_POLLING_INTERVAL,
     },
   )
   const {
@@ -201,8 +205,8 @@ export default function TokenAllocation({
     { walletAddresses, chainIds },
     {
       skip: !walletAddresses.length || tab !== AllocationTab.CHAIN,
-      refetchOnMountOrArgChange: true,
-      pollingInterval: PORTFOLIO_POLLING_INTERVAL,
+      refetchOnMountOrArgChange: !shareMode,
+      pollingInterval: shareMode ? undefined : PORTFOLIO_POLLING_INTERVAL,
     },
   )
 
@@ -218,7 +222,7 @@ export default function TokenAllocation({
   }, [data, filterBalance])
 
   const tableColumns = useMemo(() => {
-    return isTokenTab ? getTokenColumns(!!mobile, !!shareMode) : columnsChains
+    return isTokenTab ? getTokenColumns(!!mobile, !!shareMode) : getChainColumns(!!mobile, !!shareMode)
   }, [isTokenTab, shareMode, mobile])
 
   const sectionProps = shareMode
