@@ -8,6 +8,8 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { SHARE_TYPE, useCreateShareLinkMutation } from 'services/social'
 import styled, { css } from 'styled-components'
+import { Autoplay, Navigation, Pagination } from 'swiper'
+import { Swiper, SwiperSlide } from 'swiper/react'
 
 import modalBackground from 'assets/images/truesight-v2/modal_background.png'
 import modalBackgroundMobile from 'assets/images/truesight-v2/modal_background_mobile.png'
@@ -273,8 +275,10 @@ export default function KyberAIShareModal(props: {
   )
 }
 
-const debug = false
-// todo move another file, check open popup auto upload image ???
+const debug = true
+// todo move another file, check open popup auto upload image ???, my earning
+
+type RenderContent = (mobileMode?: boolean) => ReactNode
 export function ShareModal({
   title,
   content,
@@ -287,7 +291,7 @@ export function ShareModal({
   kyberswapLogoTitle,
 }: {
   title?: string
-  content?: (mobileMode?: boolean) => ReactNode
+  content?: RenderContent | RenderContent[]
   isOpen: boolean
   onClose?: () => void
   onShareClick?: (network: string) => void
@@ -307,9 +311,7 @@ export function ShareModal({
   const shareImage = useShareImage()
   const [createShareLink] = useCreateShareLinkMutation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const sharingUrl = (isMobileMode ? mobileData.shareUrl : desktopData.shareUrl) || ''
-  const imageUrl = (isMobileMode ? mobileData.imageUrl : desktopData.imageUrl) || ''
-  const blob = isMobileMode ? mobileData.blob : desktopData.blob
+  const { blob, imageUrl = '', shareUrl: sharingUrl = '' } = isMobileMode ? mobileData : desktopData
 
   const handleGenerateImage = useCallback(
     async (shareUrl: string, mobile: boolean) => {
@@ -401,7 +403,7 @@ export function ShareModal({
 
   const { facebook, telegram, discord, twitter } = getSocialShareUrls(sharingUrl)
 
-  const renderMobile = () => (
+  const renderMobile = (content: RenderContent) => (
     <ImageInnerMobile ref={refMobile} className="share-mobile">
       <RowFit gap="8px">{titleLogo}</RowFit>
 
@@ -439,7 +441,7 @@ export function ShareModal({
     </ImageInnerMobile>
   )
 
-  const renderPc = () => (
+  const renderPc = (content: RenderContent) => (
     <ImageInner ref={ref} className="share-pc">
       <RowBetween style={{ zIndex: 2 }}>
         <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
@@ -467,7 +469,29 @@ export function ShareModal({
     </ImageInner>
   )
 
-  const renderContent = () => (isMobileMode ? renderMobile() : renderPc())
+  console.log(123, content)
+
+  const renderContent = () =>
+    Array.isArray(content) && content.length > 1 ? (
+      <Swiper
+        autoplay={{ delay: 5000 }}
+        slidesPerView={1}
+        navigation={true}
+        pagination={true}
+        loop={true}
+        modules={[Navigation, Pagination, Autoplay]}
+      >
+        {content.map((render, index) => (
+          <SwiperSlide key={index}>
+            <Wrapper>{isMobileMode ? renderMobile(render) : renderPc(render)}</Wrapper>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    ) : isMobileMode ? (
+      renderMobile(content as RenderContent)
+    ) : (
+      renderPc(content as RenderContent)
+    )
 
   const renderImage = () =>
     imageUrl ? (

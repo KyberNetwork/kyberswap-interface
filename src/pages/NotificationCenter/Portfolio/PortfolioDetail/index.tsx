@@ -29,6 +29,9 @@ import ListTab from 'pages/NotificationCenter/Portfolio/PortfolioDetail/ListTab'
 import Nft from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft'
 import Overview from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Overview'
 import Tokens from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens'
+import TokenAllocation, {
+  AllocationTab,
+} from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
 import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
 import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
@@ -155,11 +158,25 @@ export default function PortfolioDetail() {
     return activeTab === PortfolioTab.TRANSACTIONS ? opt : [{ label: t`All Wallets`, value: '' }, ...opt]
   }, [wallets, activeTab])
 
-  const props = {
-    walletAddresses: walletsQuery,
-    chainIds,
-    mobile: upToSmall,
-  }
+  const props = useMemo(() => {
+    return {
+      walletAddresses: walletsQuery,
+      chainIds,
+      mobile: upToSmall,
+    }
+  }, [walletsQuery, upToSmall, chainIds])
+
+  const shareContents = useMemo(() => {
+    return [
+      (mobile: boolean | undefined) => (
+        <TokenAllocation {...props} shareMode mobile={mobile} defaultTab={AllocationTab.TOKEN} />
+      ),
+      (mobile: boolean | undefined) => (
+        <TokenAllocation {...props} shareMode mobile={mobile} defaultTab={AllocationTab.CHAIN} />
+      ),
+    ]
+  }, [props])
+
   return (
     <PageWrapper>
       <Header />
@@ -214,7 +231,7 @@ export default function PortfolioDetail() {
       <ShareModal
         isOpen={showShare}
         onClose={() => setShowShare(false)}
-        content={mobile => <Tokens {...props} shareMode mobile={mobile} />}
+        content={shareContents}
         shareType={SHARE_TYPE.KYBER_AI} // todo
         imageImage={'my_portfolio.png'}
         titleLogo={

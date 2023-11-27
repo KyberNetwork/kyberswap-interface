@@ -93,7 +93,7 @@ const TokenAllocationChartLocal = ({
           totalColumn={totalColumn}
           horizontalLayout={horizontalLayout}
           data={data}
-          totalValue={formatDisplayNumber(totalUsd || 0, { style: 'currency', significantDigits: 3 })}
+          totalValue={formatDisplayNumber(totalUsd || 0, { style: 'currency', fractionDigits: 2 })}
         />
       )}
     </Wrapper>

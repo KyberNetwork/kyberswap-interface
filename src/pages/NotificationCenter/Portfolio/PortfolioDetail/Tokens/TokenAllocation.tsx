@@ -136,7 +136,7 @@ const Content = styled(Row)<{ mobile: boolean }>`
     `}
 `
 
-enum AllocationTab {
+export enum AllocationTab {
   TOKEN = `token`,
   CHAIN = `chain`,
   // LIQUIDITY_SCORE = `liquidity-score`,
@@ -155,15 +155,19 @@ export default function TokenAllocation({
   chainIds,
   shareMode,
   mobile,
+  defaultTab,
 }: {
   walletAddresses: string[]
   chainIds: ChainId[]
   shareMode?: boolean
   mobile?: boolean
+  defaultTab?: AllocationTab
 }) {
   const [params, setParams] = useSearchParams()
   const type = params.get('type') || AllocationTab.TOKEN
-  const [tab, setTab] = useState<AllocationTab>(isInEnum(type, AllocationTab) ? type : AllocationTab.TOKEN)
+  const [tab, setTab] = useState<AllocationTab>(
+    defaultTab || (isInEnum(type, AllocationTab) ? type : AllocationTab.TOKEN),
+  )
   const isTokenTab = tab === AllocationTab.TOKEN
 
   const onChangeTab = useCallback(
