@@ -1,6 +1,8 @@
+import { Contract } from '@ethersproject/contracts'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import contractQuery from 'services/contractQuery'
 
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { NativeCurrencies } from 'constants/tokens'
@@ -45,7 +47,7 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
   return balance
 }
 
-export const useTokenBalanceOfAnotherChain = (chainId: ChainId | undefined, token: WrappedTokenInfo | undefined) => {
+export const useTokenBalanceOfAnotherChain = (chainId?: ChainId, token?: WrappedTokenInfo) => {
   const isNative = isTokenNative(token, chainId)
   const param = useMemo(() => (token && !isNative ? [token] : []), [token, isNative])
 
@@ -57,56 +59,49 @@ export const useTokenBalanceOfAnotherChain = (chainId: ChainId | undefined, toke
   }, [balances, ethBalance, isNative])
 }
 
-const EMPTY_ARRAY: TokenAmountLoading[] = []
+export type FetchBalancesArg = {
+  account?: string
+  tokens: Currency[]
+  multicallContract: Contract | null
+  chainId?: ChainId
+}
+
+export const fetchBalancesQuery = async ({ account, tokens, multicallContract }: FetchBalancesArg) => {
+  if (!account || !tokens.length || !multicallContract) return []
+  const calls: CallParam[] = tokens.map(token => ({
+    callData: ERC20_INTERFACE.encodeFunctionData('balanceOf', [account]),
+    target: token.wrapped.address,
+    fragment: 'balanceOf',
+    key: token.wrapped.address,
+  }))
+  const { results } = await fetchChunk(
+    multicallContract,
+    calls.map(call => ({ address: call.target, callData: call.callData })),
+    undefined as any,
+  )
+  const result = formatResult(results, calls)
+  const balances = tokens.map(token => {
+    const balance = result[token.wrapped.address]
+    return [balance ? CurrencyAmount.fromRawAmount(token, JSBI.BigInt(balance)) : undefined, false]
+  })
+  return balances as TokenAmountLoading[]
+}
 
 export const useTokensBalanceOfAnotherChain = (
   chainId: ChainId | undefined,
   tokens: Currency[],
 ): [TokenAmountLoading[], boolean] => {
-  const [balances, setBalances] = useState<TokenAmountLoading[]>([])
   const { account } = useActiveWeb3React()
   const multicallContract = useMulticallContract(chainId)
-  const [loading, setLoading] = useState(false)
 
-  const getBalance = useCallback(async () => {
-    try {
-      setBalances(EMPTY_ARRAY)
-      if (!chainId || !account || !tokens.length || !multicallContract) {
-        return
-      }
-      setLoading(true)
-      const calls: CallParam[] = tokens.map(token => ({
-        callData: ERC20_INTERFACE.encodeFunctionData('balanceOf', [account]),
-        target: token.wrapped.address,
-        fragment: 'balanceOf',
-        key: token.wrapped.address,
-      }))
+  const { data: balances = [], isLoading } = contractQuery.useFetchBalancesQuery({
+    account,
+    tokens,
+    multicallContract,
+    chainId,
+  })
 
-      const { results } = await fetchChunk(
-        multicallContract,
-        calls.map(e => ({ address: e.target, callData: e.callData })),
-        undefined as any,
-      )
-
-      const result = formatResult(results, calls)
-      const balances = tokens.map(token => {
-        const balance = result[token.wrapped.address]
-        return [balance ? CurrencyAmount.fromRawAmount(token, JSBI.BigInt(balance)) : undefined, false]
-      })
-      setBalances(balances as TokenAmountLoading[])
-      return
-    } catch (error) {
-      console.error('get balance chain err', { chainId, error })
-    } finally {
-      setLoading(false)
-    }
-  }, [chainId, tokens, account, multicallContract])
-
-  useEffect(() => {
-    getBalance()
-  }, [getBalance])
-
-  return [balances, loading]
+  return [balances, isLoading]
 }
 
 type TokenList = { anytoken: string; underlying: string }[]

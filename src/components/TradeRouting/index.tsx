@@ -41,7 +41,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
   const contentRef = useRef<HTMLDivElement>(null)
   const shadowRef = useRef<HTMLDivElement>(null)
 
-  const allDexes = useAllDexes()
+  const allDexes = useAllDexes(chainId)
   const handleShadow = useShadow(scrollRef, shadowRef, contentRef)
 
   useEffect(() => {
