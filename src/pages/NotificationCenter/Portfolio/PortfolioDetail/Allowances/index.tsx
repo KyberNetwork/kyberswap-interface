@@ -60,6 +60,7 @@ const ActionButton = ({
   useEffect(() => {
     if (!pendingApproval && prev) {
       setApproveSuccess(true)
+      setLoading(false)
     }
   }, [pendingApproval, prev, refetch])
 
@@ -67,10 +68,7 @@ const ActionButton = ({
   const [loading, setLoading] = useState(false)
   const onClick = async () => {
     setLoading(true)
-    const tx = await revokeAllowance(item)
-    await tx.wait()
-    refetch()
-    setLoading(false)
+    revokeAllowance(item)
   }
   const isLoading = pendingApproval || loading
 
