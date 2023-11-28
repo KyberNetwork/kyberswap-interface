@@ -19,8 +19,8 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   iconSelected: NOT_SUPPORT,
 
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-block-fuji',
-  etherscanUrl: 'https://testnet.snowtrace.io',
-  etherscanName: 'Snowtrace',
+  etherscanUrl: 'https://testnet.avascan.info/blockchain/c',
+  etherscanName: 'Avascan',
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'AVAX',

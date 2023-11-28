@@ -17,8 +17,8 @@ const avaxInfo: EVMNetworkInfo = {
   iconSelected: NOT_SUPPORT,
 
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks',
-  etherscanUrl: 'https://snowtrace.io',
-  etherscanName: 'Snowtrace',
+  etherscanUrl: 'https://avascan.info/blockchain/c',
+  etherscanName: 'Avascan',
   bridgeURL: 'https://core.app/bridge',
   nativeToken: {
     symbol: 'AVAX',
