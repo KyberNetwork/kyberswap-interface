@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
-import { blocto, bloctoInject, gnosisSafe, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors/evm'
+import { blocto, bloctoInject, gnosisSafe, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors'
 import { BLOCTO_SUPPORTED_NETWORKS, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useWeb3React } from 'hooks'
 

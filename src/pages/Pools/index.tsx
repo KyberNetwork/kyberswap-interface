@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { Plus, Share2 } from 'react-feather'
-import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
@@ -77,7 +77,7 @@ const Pools = () => {
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const theme = useTheme()
 
-  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`) // 768
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`) // 576
@@ -167,8 +167,6 @@ const Pools = () => {
 
     navigate(url)
   }
-
-  if (!isEVM) return <Navigate to="/" />
 
   const TutorialAndShare = (
     <Flex sx={{ gap: '24px' }}>

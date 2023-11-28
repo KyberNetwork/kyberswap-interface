@@ -8,7 +8,6 @@ import { ButtonOutlined } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import Input from 'components/NumericalInput'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -261,7 +260,7 @@ export const MethodSelector = ({
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const { networkInfo } = useActiveWeb3React()
-  const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
+  const isZapAvailable = !!networkInfo.elastic.zap
 
   return (
     <Flex

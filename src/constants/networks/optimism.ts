@@ -2,12 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import optimismIcon from 'assets/networks/optimism.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const optimismInfo: EVMNetworkInfo = {
+const optimismInfo: NetworkInfo = {
   chainId: ChainId.OPTIMISM,
   route: 'optimism',
   ksSettingRoute: 'optimism',

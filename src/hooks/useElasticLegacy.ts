@@ -9,7 +9,6 @@ import { useEffect, useRef, useState } from 'react'
 
 import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import { didUserReject } from 'constants/connectors/utils'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -278,7 +277,7 @@ export function usePositionFees(positions: Position[]) {
       const fragment = tickReaderInterface.getFunction('getTotalFeesOwedToPosition')
       const callParams = positions.map(item => {
         return {
-          target: (networkInfo as EVMNetworkInfo).elastic.tickReader,
+          target: networkInfo.elastic.tickReader,
           callData: tickReaderInterface.encodeFunctionData(fragment, [
             config[chainId].positionManagerContract,
             item.pool.id,

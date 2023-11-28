@@ -67,7 +67,7 @@ interface ListItemProps {
 }
 
 const ListItem = ({ farm }: ListItemProps) => {
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
@@ -177,7 +177,7 @@ const ListItem = ({ farm }: ListItemProps) => {
     [balance.decimals, chainId, depositValue, pairAddressChecksum, pairSymbol, isStakeInvalidAmount],
   )
 
-  const [approvalState, approve] = useApproveCallback(amountToApprove, isEVM ? farm.fairLaunchAddress : undefined)
+  const [approvalState, approve] = useApproveCallback(amountToApprove, farm.fairLaunchAddress)
 
   let isUnstakeInvalidAmount
 

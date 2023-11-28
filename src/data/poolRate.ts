@@ -2,7 +2,7 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import dayjs from 'dayjs'
 
 import { HOURLY_POOL_RATES } from 'apollo/queries'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 import { getBlocksFromTimestamps, splitQuery } from 'utils'
 
 import { Block, PoolRatesEntry } from './type'
@@ -17,7 +17,7 @@ export const getHourlyRateData = async (
   poolAddress: string,
   startTime: number,
   frequency: number,
-  networkInfo: EVMNetworkInfo,
+  networkInfo: NetworkInfo,
   elasticClient: ApolloClient<NormalizedCacheObject>,
   blockClient: ApolloClient<NormalizedCacheObject>,
 ): Promise<[PoolRatesEntry[], PoolRatesEntry[]] | undefined> => {

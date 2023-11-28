@@ -19,7 +19,6 @@ import { BrowserRouter } from 'react-router-dom'
 import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 
-import SolanaWalletContext from 'components/SolanaWalletContext'
 import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { connections } from 'constants/wallets'
@@ -112,19 +111,17 @@ const ReactApp = () => {
     <StrictMode>
       <FixedGlobalStyle />
       <Provider store={store}>
-        <SolanaWalletContext>
-          <BrowserRouter>
-            <LanguageProvider>
-              <Web3ReactProvider connectors={connectors} key={key}>
-                <Updaters />
-                <ThemeProvider>
-                  <ThemedGlobalStyle />
-                  <App />
-                </ThemeProvider>
-              </Web3ReactProvider>
-            </LanguageProvider>
-          </BrowserRouter>
-        </SolanaWalletContext>
+        <BrowserRouter>
+          <LanguageProvider>
+            <Web3ReactProvider connectors={connectors} key={key}>
+              <Updaters />
+              <ThemeProvider>
+                <ThemedGlobalStyle />
+                <App />
+              </ThemeProvider>
+            </Web3ReactProvider>
+          </LanguageProvider>
+        </BrowserRouter>
       </Provider>
     </StrictMode>
   )

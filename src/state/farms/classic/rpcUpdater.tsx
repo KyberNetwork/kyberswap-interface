@@ -6,7 +6,6 @@ import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
 import { AbortedError, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -21,7 +20,7 @@ import { getBulkPoolDataFromPoolList } from 'state/pools/hooks'
 
 export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean }): null {
   const dispatch = useAppDispatch()
-  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const fairLaunchContracts = useFairLaunchContracts()
   const ethPrice = useETHPrice()
   const ethPriceRef = useRef(ethPrice.currentPrice)
@@ -39,14 +38,12 @@ export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean
   latestChainId.current = chainId
 
   useEffect(() => {
-    if (!isEVM) return
     console.count('running farm updater')
     const abortController = new AbortController()
 
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
-      const isV3 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV3?.includes(contract.address)
+      const isV3 = networkInfo.classic.fairlaunchV3?.includes(contract.address)
 
-      if (!isEVM) return []
       let rewardTokenAddresses: string[] = []
       if (!isV3) rewardTokenAddresses = await contract?.getRewardTokens()
       if (abortController.signal.aborted) throw new AbortedError()
@@ -55,7 +52,7 @@ export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean
 
       const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
-      const isV2 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV2.includes(contract.address)
+      const isV2 = networkInfo.classic.fairlaunchV2.includes(contract.address)
 
       const rewardTokens = rewardTokenAddresses
         .map(address =>
@@ -211,7 +208,6 @@ export default function RPCUpdater({ isInterval = true }: { isInterval?: boolean
     chainId,
     fairLaunchContracts,
     account,
-    isEVM,
     networkInfo,
     classicClient,
     blockClient,

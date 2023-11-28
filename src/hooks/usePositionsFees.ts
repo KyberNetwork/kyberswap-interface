@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react'
 
 import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { config } from 'hooks/useElasticLegacy'
 
@@ -27,8 +26,8 @@ export function usePositionsFees(
     [tokenId: string]: [string, string]
   }>(() => positions.reduce((acc, item) => ({ ...acc, [item.id]: ['0', '0'] }), {}))
 
-  let tickReaderAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo)?.elastic.tickReader
-  let nftManagerContract = (NETWORKS_INFO[chainId] as EVMNetworkInfo)?.elastic.nonfungiblePositionManager
+  let tickReaderAddress = NETWORKS_INFO[chainId]?.elastic.tickReader
+  let nftManagerContract = NETWORKS_INFO[chainId]?.elastic.nonfungiblePositionManager
 
   if (isLegacy) {
     tickReaderAddress = config[chainId].tickReaderContract

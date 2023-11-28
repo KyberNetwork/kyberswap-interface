@@ -18,7 +18,7 @@ import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
@@ -255,7 +255,6 @@ function StakeModal({
   const allDepositedPositions = useDepositedNftsByFarm(selectedFarmAddress)
 
   const depositedNfts: ExplicitNFT[] = useMemo(() => {
-    if (!isEVM(chainId)) return []
     const joinedPositions = userFarmInfo?.[selectedFarmAddress]?.joinedPositions?.[poolId] || []
     const depositedPositions =
       allDepositedPositions.filter(pos => {

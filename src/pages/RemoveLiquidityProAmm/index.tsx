@@ -39,7 +39,6 @@ import { TutorialType } from 'components/Tutorial'
 import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { didUserReject } from 'constants/connectors/utils'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import {
   useProAmmNFTPositionManagerReadingContract,
@@ -157,7 +156,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const theme = useTheme()
   const [claimFee, setIsClaimFee] = useState(false)
 
-  const { networkInfo, account, chainId, isEVM } = useActiveWeb3React()
+  const { networkInfo, account, chainId } = useActiveWeb3React()
   useEffect(() => {
     if (chainId === ChainId.LINEA || chainId === ChainId.SCROLL) {
       setIsClaimFee(true)
@@ -169,18 +168,10 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
-  const isFarmV2 = (networkInfo as EVMNetworkInfo).elastic.farmV2S
-    ?.map(item => item.toLowerCase())
-    .includes(owner?.toLowerCase())
-  const isFarmV21 = (networkInfo as EVMNetworkInfo).elastic['farmV2.1S']
-    ?.map(item => item.toLowerCase())
-    .includes(owner?.toLowerCase())
+  const isFarmV2 = networkInfo.elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
+  const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
 
-  const ownByFarm = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) ||
-      isFarmV2 ||
-      isFarmV21
-    : false
+  const ownByFarm = networkInfo.elastic.farms.flat().includes(isAddressString(chainId, owner)) || isFarmV2 || isFarmV21
 
   const ownsNFT = owner === account || ownByFarm
 
@@ -506,8 +497,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const isWarningSlippage = checkWarningSlippage(allowedSlippage, false)
   const slippageStatus = checkRangeSlippage(allowedSlippage, false)
-
-  if (!isEVM) return <Navigate to="/" />
 
   return (
     <>

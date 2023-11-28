@@ -13,7 +13,6 @@ import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
 import { KS_SETTING_API } from 'constants/env'
-import { isEVM } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -154,7 +153,7 @@ export function CurrencySearch({
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
-  const isQueryValidEVMAddress = isEVM(chainId) && !!isAddress(chainId, debouncedQuery)
+  const isQueryValidEVMAddress = !!isAddress(chainId, debouncedQuery)
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 

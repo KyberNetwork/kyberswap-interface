@@ -5,7 +5,6 @@ import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { ALL_TICKS, Tick } from 'apollo/queries/promm'
-import { isEVM as isEVMNetwork } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { usePoolv2 } from 'hooks/usePoolv2'
 import { useKyberSwapConfig } from 'state/application/hooks'
@@ -31,7 +30,6 @@ const getActiveTick = (tickCurrent: number | undefined, feeAmount: FeeAmount | u
 // Fetches all ticks for a given pool
 function useAllV3Ticks(chainId: ChainId, poolAddress = '') {
   const { elasticClient } = useKyberSwapConfig(chainId)
-  const isEVM = isEVMNetwork(chainId)
 
   const {
     loading: isLoading,
@@ -40,7 +38,7 @@ function useAllV3Ticks(chainId: ChainId, poolAddress = '') {
   } = useQuery(ALL_TICKS(poolAddress.toLowerCase()), {
     client: elasticClient,
     pollInterval: 30_000,
-    skip: !isEVM || !poolAddress,
+    skip: !poolAddress,
   })
 
   return {

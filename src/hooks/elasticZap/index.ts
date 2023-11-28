@@ -11,7 +11,6 @@ import ZAP_ROUTER_ABI from 'constants/abis/elastic-zap/router.json'
 import ZAP_HELPER_ABI from 'constants/abis/elastic-zap/zap-helper.json'
 import { AGGREGATOR_API_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract, useSigningContract } from 'hooks/useContract'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
@@ -47,7 +46,7 @@ export function useZapInPoolResult(params?: {
   result: ZapResult | undefined
 } {
   const { networkInfo, chainId } = useActiveWeb3React()
-  const zapHelperContract = useReadingContract((networkInfo as EVMNetworkInfo).elastic.zap?.helper, ZAP_HELPER_ABI)
+  const zapHelperContract = useReadingContract(networkInfo.elastic.zap?.helper, ZAP_HELPER_ABI)
 
   const [useAggregatorForZap] = useAggregatorForZapSetting()
 
@@ -180,10 +179,10 @@ export function useZapInPoolResult(params?: {
 export function useZapInAction() {
   const { networkInfo, account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const { router: zapRouterAddress, validator, executor } = (networkInfo as EVMNetworkInfo).elastic?.zap || {}
+  const { router: zapRouterAddress, validator, executor } = networkInfo.elastic?.zap || {}
   const zapRouterContract = useSigningContract(zapRouterAddress, ZAP_ROUTER_ABI)
 
-  const posManagerAddress = (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager
+  const posManagerAddress = networkInfo.elastic.nonfungiblePositionManager
   const [slippage] = useUserSlippageTolerance()
   const deadline = useTransactionDeadline() // custom from users settings
 

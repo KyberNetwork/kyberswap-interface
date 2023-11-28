@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp } from 'react-feather'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -178,7 +178,7 @@ export default function ProAmmPoolList({
   const caId = currencies[Field.CURRENCY_A]?.wrapped.address.toLowerCase()
   const cbId = currencies[Field.CURRENCY_B]?.wrapped.address.toLowerCase()
 
-  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const { stableCoins } = useStableCoins(chainId)
   const userLiquidityPositionsQueryResult = useUserProMMPositions(tokenPriceMap)
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
@@ -421,8 +421,6 @@ export default function ProAmmPoolList({
       setSharedPoolId('')
     }
   }, [isShareModalOpen, setSharedPoolId])
-
-  if (!isEVM) return <Navigate to="/" />
 
   const pageData = filteredData.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
 

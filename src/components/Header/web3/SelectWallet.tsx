@@ -102,11 +102,11 @@ const AccountElement = styled.div`
 `
 
 function Web3StatusInner() {
-  const { chainId, account, walletKey, isEVM, isWrongNetwork } = useActiveWeb3React()
+  const { chainId, account, walletKey, isWrongNetwork } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { signIn } = useLogin()
-  const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
+  const { ENSName } = useENSName(account ?? undefined)
   const theme = useTheme()
 
   const allTransactions = useAllTransactions()

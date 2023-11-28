@@ -5,7 +5,7 @@ import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
@@ -188,7 +188,7 @@ export default function PoolCombination() {
 
 function MyPoolClassic() {
   const theme = useTheme()
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   const under768 = useMedia('(max-width:768px)')
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
@@ -312,7 +312,6 @@ function MyPoolClassic() {
 
   const upToSmall = useMedia('(max-width: 768px)')
 
-  if (!isEVM) return <Navigate to="/" replace />
   return (
     <>
       <ClassicFarmUpdater isInterval={false} />

@@ -21,13 +21,12 @@ const usePoolTransactionsStat = (
     }[]
   | 0
   | undefined => {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const [data, setData] = useState<RecentPoolTxsResult | null>(null)
   const { elasticClient } = useKyberSwapConfig()
 
   useEffect(() => {
     const controller = new AbortController()
-    if (!isEVM) return
     const fetch = async () => {
       setData(null)
       const data = await elasticClient.query<RecentPoolTxsResult>({
@@ -40,7 +39,7 @@ const usePoolTransactionsStat = (
     }
     fetch()
     return () => controller.abort()
-  }, [isEVM, networkInfo, poolAddress, elasticClient])
+  }, [networkInfo, poolAddress, elasticClient])
 
   const result = useMemo(() => {
     if (!data) return undefined

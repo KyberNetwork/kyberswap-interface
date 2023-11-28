@@ -12,7 +12,6 @@ import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import { RowBetween, RowFixed } from 'components/Row'
-import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -225,9 +224,8 @@ function CurrencyList({
   customChainId?: ChainId
 }) {
   const currencyBalances = useCurrencyBalances(currencies, customChainId)
-  const { chainId, account } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const tokenImports = useUserAddedTokens(customChainId)
-  const canShowBalance = customChainId && customChainId !== chainId ? isEVM(customChainId) === isEVM(chainId) : true
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
 
   const Row = useCallback(
@@ -268,7 +266,7 @@ function CurrencyList({
             style={{ ...style, ...itemStyle }}
             currency={currency}
             currencyBalance={currencyBalance}
-            customBalance={canShowBalance ? undefined : <div />}
+            customBalance={<div />}
             isSelected={isSelected}
             showFavoriteIcon={showFavoriteIcon}
             onSelect={onCurrencySelect}
@@ -290,7 +288,6 @@ function CurrencyList({
       itemStyle,
       showFavoriteIcon,
       tokenImports,
-      canShowBalance,
       account,
       favoriteTokens,
     ],
