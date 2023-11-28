@@ -24,6 +24,7 @@ import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/c
 import { PortfolioChainBalance, PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
 import { formatDisplayNumber } from 'utils/numbers'
 import { isInEnum } from 'utils/string'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 export const LiquidityScore = () => {
   const theme = useTheme()
@@ -40,11 +41,15 @@ export const LiquidityScore = () => {
   )
 }
 
-const TokenCell = ({ item }: { item: PortfolioWalletBalance }) => {
+const TokenCell = ({ item, shareMode }: { item: PortfolioWalletBalance; shareMode: boolean }) => {
   const theme = useTheme()
   return (
     <Row gap="8px">
-      <TokenLogoWithChain chainId={item.chainId} size={'24px'} tokenLogo={item.tokenLogo} />
+      <TokenLogoWithChain
+        chainId={item.chainId}
+        size={'24px'}
+        tokenLogo={shareMode ? getProxyTokenLogo(item.tokenLogo) : item.tokenLogo}
+      />
       <Text fontSize={'14px'} fontWeight={'500'} color={theme.text}>
         {item.tokenSymbol}
       </Text>
@@ -55,7 +60,13 @@ const TokenCell = ({ item }: { item: PortfolioWalletBalance }) => {
 const getTokenColumns = (mobile: boolean, shareMode: boolean) => {
   const sticky = !shareMode && mobile
   const columnsTokens: TableColumn<PortfolioWalletBalance>[] = [
-    { title: t`Token`, dataIndex: 'token', align: 'left', render: TokenCell, sticky },
+    {
+      title: t`Token`,
+      dataIndex: 'token',
+      align: 'left',
+      render: props => <TokenCell shareMode={shareMode} {...props} />,
+      sticky,
+    },
     // {
     //   title: t`Liquidity Score`,
     //   tooltip: (
@@ -251,6 +262,7 @@ export default function TokenAllocation({
             numberOfTokens: chartData.length,
             totalUsd: totalUsd || data?.totalUsd || 0,
             border: false,
+            shareMode,
           }}
         />
         {isLoading ? (

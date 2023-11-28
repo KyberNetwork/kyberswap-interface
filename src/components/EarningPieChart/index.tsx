@@ -12,6 +12,7 @@ import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { formatDisplayNumber } from 'utils/numbers'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 const LegendsWrapper = styled.div`
   display: flex;
@@ -182,6 +183,7 @@ type Props = {
   data?: DataEntry[]
   horizontalLayout?: boolean
   totalColumn: number
+  shareMode?: boolean
 }
 
 const customStyles: React.CSSProperties = { transition: 'all .3s', cursor: 'pointer' }
@@ -202,6 +204,7 @@ const EarningPieChart: React.FC<Props> = ({
   isLoading = false,
   horizontalLayout,
   totalColumn,
+  shareMode,
 }) => {
   const [selectedIndex, setSelectedIndex] = useState<number>(-1)
   const [isHoveringChart, setHoveringChart] = useState(false)
@@ -289,7 +292,7 @@ const EarningPieChart: React.FC<Props> = ({
                     active={selectedIndex === index}
                     key={index}
                     chainId={entry.chainId}
-                    logoUrl={entry.logoUrl}
+                    logoUrl={shareMode ? getProxyTokenLogo(entry.logoUrl) : entry.logoUrl}
                     label={entry.symbol}
                     value={entry.value}
                     percent={entry.percent}

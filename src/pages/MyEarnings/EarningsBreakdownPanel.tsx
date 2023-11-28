@@ -59,6 +59,7 @@ const TokenAllocationChartLocal = ({
   title,
   border = true,
   style,
+  shareMode,
 }: {
   className?: string
   numberOfTokens: number
@@ -69,6 +70,7 @@ const TokenAllocationChartLocal = ({
   title?: ReactNode
   border?: boolean
   style?: CSSProperties
+  shareMode?: boolean
 }) => {
   const theme = useTheme()
   const totalColumn = horizontalLayout && numberOfTokens <= 6 ? 1 : numberOfTokens >= 4 ? 2 : 1
@@ -93,6 +95,7 @@ const TokenAllocationChartLocal = ({
           totalColumn={totalColumn}
           horizontalLayout={horizontalLayout}
           data={data}
+          shareMode={shareMode}
           totalValue={formatDisplayNumber(totalUsd || 0, { style: 'currency', fractionDigits: 2 })}
         />
       )}
