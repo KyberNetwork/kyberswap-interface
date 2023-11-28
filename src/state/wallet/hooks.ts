@@ -107,6 +107,7 @@ export function useTokenBalancesWithLoadingIndicator(
   const isFetchOtherChain = chainId !== currentChain
 
   const balancesCurrentChain = useTokensBalance(isFetchOtherChain ? EMPTY_ARRAY : tokens, chainId)
+
   const [balancesOtherChain, isLoadingAnotherChain] = useTokensBalanceOfAnotherChain(
     chainId,
     isFetchOtherChain ? tokens : EMPTY_ARRAY,

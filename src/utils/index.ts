@@ -1,8 +1,7 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { BigNumber } from '@ethersproject/bignumber'
-import { ChainId, Currency, CurrencyAmount, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
-import { PublicKey } from '@solana/web3.js'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
@@ -26,32 +25,9 @@ import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 import { chunk } from 'utils/array'
 
-export const isWalletAddressSolana = async (addr: string) => {
-  try {
-    if (!addr) return false
-    const publicKey = new PublicKey(addr)
-    return await PublicKey.isOnCurve(publicKey.toBytes())
-  } catch (err) {
-    return false
-  }
-}
+import { isAddress, isAddressString, isWalletAddressSolana } from './address'
 
-// returns the checksummed address if the address is valid, otherwise returns false
-export function isAddress(chainId: ChainId, value: any): string | false {
-  try {
-    return new Token(chainId, value, 0).address
-  } catch {
-    return false
-  }
-}
-
-export function isAddressString(chainId: ChainId, value: any): string {
-  try {
-    return new Token(chainId, value, 0).address
-  } catch {
-    return ''
-  }
-}
+export { isAddress, isWalletAddressSolana, isAddressString }
 
 export function getEtherscanLink(
   chainId: ChainId,

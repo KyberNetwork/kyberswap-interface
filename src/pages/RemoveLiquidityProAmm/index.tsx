@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
@@ -29,6 +29,7 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { RowBetween } from 'components/Row'
 import Slider from 'components/Slider'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
+import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
@@ -154,7 +155,15 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const positionManager = useProAmmNFTPositionManagerReadingContract()
   const theme = useTheme()
+  const [claimFee, setIsClaimFee] = useState(false)
+
   const { networkInfo, account, chainId, isEVM } = useActiveWeb3React()
+  useEffect(() => {
+    if (chainId === ChainId.LINEA || chainId === ChainId.SCROLL) {
+      setIsClaimFee(true)
+    }
+  }, [chainId])
+
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
@@ -317,9 +326,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             buildFlagsForFarmV21({
-              isClaimFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+              isClaimFee: claimFee && !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
               isSyncFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-              isClaimReward: true,
+              isClaimReward: claimFee,
               isReceiveNative: !receiveWETH,
             }),
           ]
@@ -330,7 +339,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount0Min.quotient.toString(),
             amount1Min.quotient.toString(),
             deadline.toString(),
-            feeValue0?.greaterThan('0'),
+            claimFee ? feeValue0?.greaterThan('0') : 0,
             !receiveWETH,
           ]
         : [
@@ -340,7 +349,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             !receiveWETH,
-            [feeValue0?.greaterThan('0'), true],
+            [claimFee && feeValue0?.greaterThan('0'), claimFee],
           ]
 
       const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
@@ -409,7 +418,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         recipient: account,
         deadline: deadline.toString(),
         isRemovingLiquid: true,
-        havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
+        havingFee: claimFee && !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
       },
     })
     const txn = {
@@ -434,6 +443,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           })
       })
       .catch((error: any) => {
+        console.log('error', error)
         setAttemptingTxn(false)
 
         if (!didUserReject(error)) {
@@ -467,8 +477,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     <Trans>
       Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
       {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
-      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO) ? <br /> : ''}
-      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)
+      {claimFee && (feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)) ? <br /> : ''}
+      {claimFee && (feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO))
         ? `Collecting fee of ${feeValue0?.toSignificant(6)} ${
             feeValue0?.currency?.symbol
           } and ${feeValue1?.toSignificant(6)} ${feeValue1?.currency?.symbol}`
@@ -523,13 +533,15 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     title={t`Remove Amount`}
                   />
                   {positionSDK ? (
-                    <ProAmmFee
-                      totalFeeRewardUSD={totalFeeRewardUSD}
-                      feeValue0={feeValue0}
-                      feeValue1={feeValue1}
-                      position={positionSDK}
-                      tokenId={tokenId}
-                    />
+                    claimFee ? (
+                      <ProAmmFee
+                        totalFeeRewardUSD={totalFeeRewardUSD}
+                        feeValue0={feeValue0}
+                        feeValue1={feeValue1}
+                        position={positionSDK}
+                        tokenId={tokenId}
+                      />
+                    ) : null
                   ) : (
                     <Loader />
                   )}
@@ -780,6 +792,18 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                         />
                       </div>
                     </TokenInputWrapper>
+
+                    <Flex alignItems="center" sx={{ gap: '12px' }} marginTop="0.75rem">
+                      <Text fontSize="12px" fontWeight="500">
+                        Claim Your Fees Earned
+                      </Text>
+                      <Toggle
+                        isActive={claimFee}
+                        toggle={() => {
+                          setIsClaimFee(prev => !prev)
+                        }}
+                      />
+                    </Flex>
                   </AmoutToRemoveContent>
 
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (

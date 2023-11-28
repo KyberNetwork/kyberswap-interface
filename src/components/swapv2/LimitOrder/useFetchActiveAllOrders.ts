@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useGetLOConfigQuery, useGetListOrdersQuery } from 'services/limitOrder'
 
@@ -18,10 +19,10 @@ export const useIsSupportSoftCancelOrder = () => {
   )
 }
 
-export default function useAllActiveOrders(disabled = false) {
+export default function useAllActiveOrders(disabled = false, customChainId?: ChainId) {
   const { account, chainId } = useActiveWeb3React()
   const { data } = useGetListOrdersQuery(
-    { chainId, maker: account, status: LimitOrderStatus.ACTIVE, pageSize: 100 },
+    { chainId: customChainId ?? chainId, maker: account, status: LimitOrderStatus.ACTIVE, pageSize: 100 },
     { skip: !account || disabled },
   )
 
