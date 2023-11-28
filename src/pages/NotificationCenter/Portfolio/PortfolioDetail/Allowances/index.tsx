@@ -196,7 +196,7 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
           console.error('Error revoking allowance:', error)
         }
       }
-      if (currentChain !== chainId) return changeNetwork(chainId, () => handleRevoke(data), undefined, true) // todo not work
+      if (currentChain !== chainId) return changeNetwork(chainId, () => handleRevoke(data), undefined, true)
       return handleRevoke(data)
     },
     [changeNetwork, currentChain, library, addTransactionWithType, notify],
@@ -234,7 +234,11 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
         <SearchPortFolio onChange={setSearch} value={search} placeholder={t`Search by token symbol or token address`} />
       }
     >
-      {isFetching ? <LocalLoader /> : <Table columns={columns} data={formatData} totalItems={formatData.length} />}
+      {isFetching ? (
+        <LocalLoader style={{ height: 300 }} />
+      ) : (
+        <Table columns={columns} data={formatData} totalItems={formatData.length} />
+      )}
     </PortfolioSection>
   )
 }

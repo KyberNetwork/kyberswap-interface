@@ -34,7 +34,7 @@ export const useNavigateToPortfolioDetail = () => {
   return useCallback(
     ({ wallet, portfolioId, myPortfolio = true }: { wallet?: string; portfolioId?: string; myPortfolio?: boolean }) => {
       const path = myPortfolio ? APP_PATHS.MY_PORTFOLIO : APP_PATHS.PORTFOLIO
-      navigate(portfolioId ? `${path}/${portfolioId}${wallet ? `/${wallet}` : ''}` : `${path}/${wallet}`)
+      navigate([path, portfolioId, wallet].filter(Boolean).join('/')) // path/id/wallet or path/wallet
     },
     [navigate],
   )

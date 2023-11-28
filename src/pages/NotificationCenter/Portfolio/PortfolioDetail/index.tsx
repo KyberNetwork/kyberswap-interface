@@ -1,47 +1,23 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
+import { useCallback, useEffect, useState } from 'react'
 import { Text } from 'rebass'
-import {
-  useGetPortfolioByIdQuery,
-  useGetPortfoliosQuery,
-  useGetRealtimeBalanceQuery,
-  useGetWalletsPortfoliosQuery,
-} from 'services/portfolio'
-import { SHARE_TYPE } from 'services/social'
-import styled from 'styled-components'
+import { useGetPortfoliosQuery } from 'services/portfolio'
+import styled, { CSSProperties } from 'styled-components'
 
-import Column from 'components/Column'
-import Wallet from 'components/Icons/Wallet'
+import tutorial1 from 'assets/images/truesight-v2/tutorial_1.png'
+import tutorial2 from 'assets/images/truesight-v2/tutorial_2.png'
+import tutorial3 from 'assets/images/truesight-v2/tutorial_3.png'
+import tutorial4 from 'assets/images/truesight-v2/tutorial_4.png'
+import tutorial5 from 'assets/images/truesight-v2/tutorial_5.png'
 import LocalLoader from 'components/LocalLoader'
-import Row, { RowBetween } from 'components/Row'
-import Select from 'components/Select'
-import MultipleChainSelect from 'components/Select/MultipleChainSelect'
-import ShareImageModal from 'components/ShareModal/ShareImageModal'
-import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
-import useParsedQueryString from 'hooks/useParsedQueryString'
-import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
+import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
+import TutorialModal from 'components/TutorialModal'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import AddressPanel from 'pages/NotificationCenter/Portfolio/PortfolioDetail/AddressPanel'
-import Allowances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Allowances'
-import ListTab from 'pages/NotificationCenter/Portfolio/PortfolioDetail/ListTab'
-import Nft from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft'
+import DisclaimerPortfolio from 'pages/NotificationCenter/Portfolio/Modals/Disclaimer'
 import Overview from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Overview'
-import Tokens from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens'
-import TokenAllocation, {
-  AllocationTab,
-} from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
-import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
-import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDetail/TutorialDisclaimer'
-import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
+import PortfolioStat from 'pages/NotificationCenter/Portfolio/PortfolioDetail/PortfolioStat'
 import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
-import { Portfolio, PortfolioTab, PortfolioWallet } from 'pages/NotificationCenter/Portfolio/type'
-import { MEDIA_WIDTHS } from 'theme'
-import getShortenAddress from 'utils/getShortenAddress'
-import { formatDisplayNumber } from 'utils/numbers'
-import { isInEnum } from 'utils/string'
 
 import Header from './Header'
 
@@ -60,200 +36,117 @@ const PageWrapper = styled.div`
 `};
 `
 
-const useFetchPortfolio = (): {
-  wallets: PortfolioWallet[]
-  isLoading: boolean
-  portfolio: Portfolio | undefined
-  myPortfolios: Portfolio[]
-} => {
-  const { portfolioId } = useParseWalletPortfolioParam()
-  const { data: portfolio, isFetching: isLoadingMyPortfolio } = useGetPortfolioByIdQuery(
-    { id: portfolioId || '' },
-    { skip: !portfolioId },
+const textStyle: CSSProperties = {
+  height: '168px',
+}
+// todo update image
+const Step1 = () => {
+  const theme = useTheme()
+  return (
+    <Trans>
+      We are thrilled to introduce you to{' '}
+      <Text as="span" color={theme.text}>
+        My Portfolio
+      </Text>{' '}
+      feature, designed to help you track your investments and stay on top of your financial goals. With this tool, you
+      can easily monitor your portfolio&apos;s performance and make informed decisions about your investments.
+      <br /> To help you get started, we recommend watching our tutorial, which will guide you through the process of
+      setting up and using our portfolio feature. This tutorial will provide you with all the information you need to
+      get the most out of this powerful tool.
+    </Trans>
   )
-  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingPortfolio } = useGetPortfoliosQuery()
-  const { data: wallets = EMPTY_ARRAY, isFetching: isLoadingWallet } = useGetWalletsPortfoliosQuery(
-    { portfolioId: portfolio?.id || '' },
-    { skip: !portfolio?.id },
-  )
-
-  const isLoading = useShowLoadingAtLeastTime(isLoadingWallet || isLoadingPortfolio || isLoadingMyPortfolio, 500)
-  return {
-    portfolio: !portfolioId ? undefined : portfolio,
-    myPortfolios: myPortfolios,
-    wallets,
-    isLoading,
-  }
 }
 
-const ChainWalletSelect = styled(Row)`
-  gap: 12px;
-  width: fit-content;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-    justify-content: space-between;
-`};
-`
-// todo
-const chainSupport = [
-  ChainId.MAINNET,
-  ChainId.ARBITRUM,
-  ChainId.OPTIMISM,
-  ChainId.MATIC,
-  ChainId.BSCMAINNET,
-  ChainId.AVAXMAINNET,
-  ChainId.FANTOM,
+const Step4 = () => {
+  return (
+    <Trans>
+      Here are some useful pointers to optimize your portfolio management:
+      <ul>
+        <li>Use the search bar to search for address you&apos;d like to explore and add to create a portfolio.</li>
+        <li>Share your portfolio with different visual charts!</li>
+        <li>Manage your portfolio by keeping track of token prices by setting up price alerts.</li>
+        <li>Access KyberAI with supported tokens.</li>
+      </ul>
+      If you wish to view this guide again, you can enable it from the settings. Maximize your returns and minimize your
+      risks with KyberSwap smart portfolio management!
+    </Trans>
+  )
+}
+
+const steps = [
+  {
+    text: <Step1 />,
+    image: tutorial1,
+    textStyle,
+    title: t`Welcome to My Portfolio`,
+  },
+  {
+    text: t`Make sure to connect and sign in with your wallet to get the full experience on Portfolio Management. In this section, we will go through the steps to set up your portfolio. We will cover the basics of creating a portfolio and bundle multiple wallets together`,
+    image: tutorial2,
+    textStyle,
+    title: t`Setting up your Portfolio`,
+  },
+  {
+    text: t`Click on the dropdown box to switch between portfolios. Share your portfolio with your friends by selecting the Share icon. Choose from different visual charts and send it as a thumbnail`,
+    image: tutorial3,
+    textStyle,
+    title: t`Switch between Portfolios`,
+  },
+  {
+    text: t`Track and manage all your assets in one place with the Portfolio Management Dashboard on KyberSwap. The Dashboard’s Visual Charts offers a comprehensive overview of your holdings and defi-related activities, along with advanced filter and analytics options for selected wallets and portfolio across various protocols and chains supported by KyberSwap. You can now easily keep track of your assets and stay informed about your portfolio's performance`,
+    image: tutorial4,
+    textStyle,
+    title: t`Explore (Dashboard, Visual Charts, Wallet)`,
+  },
+  { text: <Step4 />, image: tutorial5, textStyle, title: t`Tutorial - Tips` },
 ]
 
 export default function PortfolioDetail() {
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { tab = '' } = useParsedQueryString<{ tab: string }>()
-  const [activeTab, setTab] = useState(isInEnum(tab, PortfolioTab) ? tab : PortfolioTab.TOKEN)
-  const [showShare, setShowShare] = useState(false)
-
-  const [, setSearchParams] = useSearchParams()
-  const onChangeTab = (tab: PortfolioTab) => {
-    const params = new URLSearchParams()
-    params.set('tab', tab)
-    setSearchParams(params) // reset params
-    setTab(tab)
-  }
-
+  const { account } = useActiveWeb3React()
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
-  const { portfolio: activePortfolio, myPortfolios, wallets, isLoading: isLoadingPortfolio } = useFetchPortfolio()
-  const walletsQuery: string[] = useMemo(
-    () => (wallet ? [wallet] : wallets.length ? wallets.map(e => e.walletAddress) : EMPTY_ARRAY),
-    [wallets, wallet],
-  )
+  const showOverview = !wallet && !portfolioId
 
-  const [chainIds, setChainIds] = useState<ChainId[]>([...chainSupport])
-
-  const { isLoading: isLoadingRealtimeData, data } = useGetRealtimeBalanceQuery(
-    { walletAddresses: walletsQuery },
-    { skip: !walletsQuery.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
-  )
-
-  const totalUsd = data?.totalUsd || 0
-
-  const isLoading: boolean = isLoadingPortfolio || isLoadingRealtimeData
-
-  const handleChangeChains = (chainIds: ChainId[]) => {
-    setChainIds(chainIds)
-  }
-
-  const { pathname } = useLocation()
-  const isMyPortfolioPage = pathname.startsWith(APP_PATHS.MY_PORTFOLIO)
+  const { data, isLoading } = useGetPortfoliosQuery()
   const navigate = useNavigateToPortfolioDetail()
-  const onChangeWallet = (wallet?: string) => {
-    navigate({ myPortfolio: isMyPortfolioPage, wallet, portfolioId })
-  }
-  const theme = useTheme()
-  const canShowOverview = !wallet && !portfolioId
-
-  const walletsOpts = useMemo(() => {
-    const opt = wallets.map(wallet => ({
-      label: wallet.nickName
-        ? `${wallet.nickName} - ${getShortenAddress(wallet.walletAddress)}`
-        : getShortenAddress(wallet.walletAddress),
-      value: wallet.walletAddress,
-    }))
-    return activeTab === PortfolioTab.TRANSACTIONS ? opt : [{ label: t`All Wallets`, value: '' }, ...opt]
-  }, [wallets, activeTab])
-
-  const props = useMemo(() => {
-    return {
-      walletAddresses: walletsQuery,
-      chainIds,
-      mobile: upToSmall,
+  const navigateToMyPortfolio = useCallback(() => {
+    if (portfolioId && !data?.some(el => el.id === portfolioId)) {
+      return
     }
-  }, [walletsQuery, upToSmall, chainIds])
+    if (!data?.length) {
+      navigate({ wallet: account })
+      return
+    }
+    navigate({ portfolioId: data?.[0]?.id })
+  }, [account, data, navigate, portfolioId])
 
-  const shareContents = useMemo(() => {
-    return [
-      (mobile: boolean | undefined) => (
-        <TokenAllocation {...props} shareMode mobile={mobile} defaultTab={AllocationTab.TOKEN} totalUsd={totalUsd} />
-      ),
-      (mobile: boolean | undefined) => (
-        <TokenAllocation {...props} shareMode mobile={mobile} defaultTab={AllocationTab.CHAIN} totalUsd={totalUsd} />
-      ),
-    ]
-  }, [props, totalUsd])
+  const [showTutorialState, setShowTutorial] = useState(!localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE))
+  const showTutorial = showTutorialState && account
+  const [showDisclaimer, setShowDisclaimer] = useState(!localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_DISCLAIMER))
+
+  const onDismissTutorial = useCallback(() => {
+    setShowTutorial(false)
+    localStorage.setItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE, '1')
+    navigateToMyPortfolio()
+  }, [navigateToMyPortfolio])
+
+  const onConfirmDisclaimer = () => {
+    setShowDisclaimer(false)
+    localStorage.setItem(TutorialKeys.SHOWED_PORTFOLIO_DISCLAIMER, '1')
+  }
+
+  useEffect(() => {
+    if (!showDisclaimer && !showTutorial && showOverview) navigateToMyPortfolio()
+  }, [showDisclaimer, showTutorial, showOverview, navigateToMyPortfolio])
 
   return (
     <PageWrapper>
       <Header />
-      {isLoadingPortfolio ? (
-        <LocalLoader />
-      ) : canShowOverview ? (
-        <Overview />
+      {isLoading ? <LocalLoader /> : showOverview ? <Overview /> : <PortfolioStat />}
+      {showDisclaimer ? (
+        <DisclaimerPortfolio onConfirm={onConfirmDisclaimer} />
       ) : (
-        <>
-          <AddressPanel
-            isLoading={isLoading}
-            wallets={wallets}
-            myPortfolios={myPortfolios}
-            activePortfolio={activePortfolio}
-            onShare={() => setShowShare(true)}
-            data={data}
-            onChangeWallet={onChangeWallet}
-          />
-          <RowBetween flexWrap={'wrap'} gap="16px">
-            <ListTab activeTab={activeTab} setTab={onChangeTab} />
-            <ChainWalletSelect>
-              {portfolioId && walletsOpts.length && (
-                <Select
-                  onChange={onChangeWallet}
-                  style={{ borderRadius: 24, background: theme.buttonGray, height: 36, minWidth: 150 }}
-                  options={walletsOpts}
-                  activeRender={item => (
-                    <Row gap="6px" fontSize={'14px'} fontWeight={'500'}>
-                      <Wallet />
-                      {item?.label}
-                    </Row>
-                  )}
-                />
-              )}
-              <MultipleChainSelect
-                chainIds={chainSupport}
-                selectedChainIds={chainIds}
-                handleChangeChains={handleChangeChains}
-                style={{ height: '36px' }}
-              />
-            </ChainWalletSelect>
-          </RowBetween>
-          {activeTab === PortfolioTab.TOKEN && <Tokens {...props} totalUsd={totalUsd} />}
-          {activeTab === PortfolioTab.ALLOWANCES && <Allowances {...props} />}
-          {activeTab === PortfolioTab.TRANSACTIONS && (
-            <Transactions wallet={wallet || wallets?.[0].walletAddress} chainIds={chainIds} />
-          )}
-          {activeTab === PortfolioTab.NFT && <Nft {...props} />}
-        </>
+        <TutorialModal isOpen={!!showTutorial} onDismiss={onDismissTutorial} steps={steps} />
       )}
-      <TutorialDisclaimer showOverview={canShowOverview} />
-      <ShareImageModal
-        isOpen={showShare}
-        onClose={() => setShowShare(false)}
-        content={shareContents}
-        shareType={SHARE_TYPE.PORTFOLIO}
-        imageName={'portfolio.png'}
-        titleLogo={
-          <Column gap="8px">
-            <Text fontSize={'20px'}>
-              {isMyPortfolioPage ? (
-                <Trans>My Portfolio</Trans>
-              ) : (
-                <Trans>Portfolio {activePortfolio?.name || activePortfolio?.id}</Trans>
-              )}
-            </Text>
-            {data && (
-              <Text fontSize={'28px'}>
-                {formatDisplayNumber(data.totalUsd, { style: 'currency', fractionDigits: 2 })}
-              </Text>
-            )}
-          </Column>
-        }
-        kyberswapLogoTitle={'Portfolio'}
-      />
     </PageWrapper>
   )
 }

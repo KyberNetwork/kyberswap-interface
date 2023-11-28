@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 
 import { ReactComponent as PortfolioIcon } from 'assets/svg/portfolio.svg'
 import { ButtonOutlined } from 'components/Button'
@@ -24,7 +24,9 @@ export default function Header() {
       <RowBetween align="center">
         <Flex color={theme.text} fontSize={'24px'} fontWeight={'500'} alignItems={'center'} sx={{ gap: '4px' }}>
           <PortfolioIcon />
-          {pathname.startsWith(APP_PATHS.MY_PORTFOLIO) ? <Trans>My Portfolio</Trans> : <Trans>Portfolio</Trans>}
+          <Text sx={{ whiteSpace: 'nowrap' }}>
+            {pathname.startsWith(APP_PATHS.MY_PORTFOLIO) ? <Trans>My Portfolio</Trans> : <Trans>Portfolio</Trans>}
+          </Text>
         </Flex>
         <Row width={'fit-content'} gap="15px">
           {!upToSmall && <Search />}

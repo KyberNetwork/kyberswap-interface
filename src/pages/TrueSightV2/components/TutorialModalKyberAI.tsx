@@ -139,7 +139,7 @@ const TutorialModalKyberAI = () => {
     <TutorialModal
       steps={steps}
       isOpen={isOpen}
-      toggle={toggle}
+      onDismiss={toggle}
       title={
         <>
           <Trans>

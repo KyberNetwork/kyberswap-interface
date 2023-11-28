@@ -77,7 +77,7 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
           >
             <Container>
               {isFetching ? (
-                <LocalLoader />
+                <LocalLoader style={{ height: 300 }} />
               ) : colId ? (
                 <ListNft search={searchDebounce} />
               ) : (

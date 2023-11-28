@@ -233,7 +233,7 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
       actions={<SearchPortFolio onChange={setSearch} value={search} placeholder={t`Search by token address`} />}
     >
       {loading ? (
-        <LocalLoader />
+        <LocalLoader style={{ height: 300 }} />
       ) : (
         <Table
           headerStyle={{ borderRadius: isMobile ? 0 : undefined }}

@@ -202,13 +202,13 @@ type TutorialStep = { image: string; text: ReactNode; textStyle?: CSSProperties;
 const TutorialModal = ({
   steps,
   isOpen,
-  toggle,
+  onDismiss,
   title,
   onFinished,
 }: {
   steps: TutorialStep[]
   isOpen: boolean
-  toggle: () => void
+  onDismiss: () => void
   onFinished?: () => void
   title?: ReactNode
 }) => {
@@ -228,13 +228,13 @@ const TutorialModal = ({
   const stepTitle = steps[step]?.title
 
   return (
-    <Modal isOpen={isOpen} width="fit-content" maxWidth="fit-content" onDismiss={toggle}>
+    <Modal isOpen={isOpen} width="fit-content" maxWidth="fit-content" onDismiss={onDismiss}>
       <Wrapper>
         <RowBetween>
           <Row fontSize={above768 ? '20px' : '16px'} lineHeight="24px" color={theme.text} gap="6px">
             {stepTitle || title}
           </Row>
-          <div onClick={toggle} style={{ cursor: 'pointer' }}>
+          <div onClick={onDismiss} style={{ cursor: 'pointer' }}>
             <X />
           </div>
         </RowBetween>
@@ -276,7 +276,7 @@ const TutorialModal = ({
         </Row>
         {step === 0 ? (
           <Row justify="center" gap="20px">
-            <ButtonOutlined width="160px" onClick={toggle} height={'42px'}>
+            <ButtonOutlined width="160px" onClick={onDismiss} height={'42px'}>
               <Text fontSize={above768 ? '14px' : '12px'} lineHeight={above768 ? '20px' : '14px'}>
                 <Trans>Maybe later</Trans>
               </Text>
@@ -311,7 +311,7 @@ const TutorialModal = ({
                 if (step < steps.length - 1) {
                   dispatch(ActionTypes.NEXT_STEP)
                 } else {
-                  toggle()
+                  onDismiss()
                   onFinished?.()
                 }
               }}
