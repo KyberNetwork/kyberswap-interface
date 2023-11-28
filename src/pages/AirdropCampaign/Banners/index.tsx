@@ -1,9 +1,11 @@
 import { motion, stagger, useAnimate, useInView } from 'framer-motion'
 import { rgba } from 'polished'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { useGetPromoteBannersQuery } from 'services/commonService'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { EMPTY_ARRAY } from 'constants/index'
 import { ExternalLink } from 'theme'
 
 function BoxInViewMotion({
@@ -116,22 +118,13 @@ const View = styled.div`
 `
 const animationName = ['center', 'right', 'left']
 
-const banners = [
-  {
-    url: `https://kyberswap-landingpage.vercel.app/_next/image?url=%2Fassets%2Fimages%2Fbanner1.jpg&w=3840&q=100`,
-    ctaUrl: 'https://kyberswap-landingpage.vercel.app',
-  },
-  {
-    url: `https://kyberswap-landingpage.vercel.app/_next/image?url=%2Fassets%2Fimages%2Fbanner2.jpg&w=3840&q=100`,
-    ctaUrl: 'https://kyberswap-landingpage.vercel.app',
-  },
-  {
-    url: `https://kyberswap-landingpage.vercel.app/_next/image?url=%2Fassets%2Fimages%2Fbanner3.jpg&w=3840&q=100`,
-    ctaUrl: 'https://kyberswap-landingpage.vercel.app',
-  },
-] // todo
-
 export default function BannerCarousel() {
+  const { data = EMPTY_ARRAY } = useGetPromoteBannersQuery()
+  const banners = useMemo(() => {
+    const [item1, item2, item3] = data
+    return [item1, item2 || item1, item3 || item1].filter(Boolean)
+  }, [data])
+
   const [count, setCount] = useState(99999)
   useEffect(() => {
     const nextStep = () => {
@@ -145,26 +138,31 @@ export default function BannerCarousel() {
     }
   }, [count])
 
+  if (!banners.length) return null
+
   return (
     <BoxInViewMotion delay={0.5}>
       <View className="inViewChild">
         {banners.map((el, i) => (
-          <BannerWrapper key={el.url} animate={animationName[(count + i) % 3]}>
+          <BannerWrapper key={i} animate={animationName[(count + i) % 3]}>
             <ExternalLink href={el.ctaUrl}>
               <Image src={el.url} alt="banner" />
             </ExternalLink>
           </BannerWrapper>
         ))}
-
-        <ArrowIcon onClick={() => setCount(prev => prev - 1)} />
-        <ArrowIcon
-          style={{
-            transform: 'rotate(-90deg)',
-            left: 'unset',
-            right: 0,
-          }}
-          onClick={() => setCount(prev => prev + 1)}
-        />
+        {banners.length > 1 && (
+          <>
+            <ArrowIcon onClick={() => setCount(prev => prev - 1)} />
+            <ArrowIcon
+              style={{
+                transform: 'rotate(-90deg)',
+                left: 'unset',
+                right: 0,
+              }}
+              onClick={() => setCount(prev => prev + 1)}
+            />
+          </>
+        )}
       </View>
     </BoxInViewMotion>
   )
