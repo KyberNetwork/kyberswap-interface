@@ -101,7 +101,7 @@ const Legend: React.FC<LegendProps> = ({
           justifyContent: 'center',
         }}
       >
-        {logoUrl ? <Logo srcs={[logoUrl]} style={{ width: 14, height: 14 }} /> : <HelpCircle />}
+        {logoUrl ? <Logo srcs={[logoUrl]} style={{ width: 14, height: 14, borderRadius: '4px' }} /> : <HelpCircle />}
         {chainId && (
           <NetworkLogo
             chainId={chainId}

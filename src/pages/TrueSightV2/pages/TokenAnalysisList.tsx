@@ -20,6 +20,7 @@ import useTheme from 'hooks/useTheme'
 import { StyledSectionWrapper } from 'pages/TrueSightV2/components'
 import TokenFilter from 'pages/TrueSightV2/components/TokenFilter'
 import { MEDIA_WIDTHS } from 'theme'
+import { navigateToSwapPage } from 'utils/redirect'
 
 import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
@@ -31,7 +32,7 @@ import { DEFAULT_PARAMS_BY_TAB, KYBERAI_LISTYPE_TO_MIXPANEL, SORT_FIELD, Z_INDEX
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import useRenderRankingList from '../hooks/useRenderRankingList'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
-import { navigateToSwapPage, useFormatParamsFromUrl } from '../utils'
+import { useFormatParamsFromUrl } from '../utils'
 
 const SIZE_MOBILE = '1080px'
 

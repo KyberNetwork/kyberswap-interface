@@ -16,8 +16,9 @@ import useTheme from 'hooks/useTheme'
 import { useGetLiquidityMarketsQuery as useGetLiquidityMarketsCoinmarketcap } from 'pages/TrueSightV2/hooks/useCoinmarketcapData'
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import { ChartTab } from 'pages/TrueSightV2/types'
-import { colorFundingRateText, formatShortNum, formatTokenPrice, navigateToSwapPage } from 'pages/TrueSightV2/utils'
+import { colorFundingRateText, formatShortNum, formatTokenPrice } from 'pages/TrueSightV2/utils'
 import { MEDIA_WIDTHS } from 'theme'
+import { navigateToSwapPage } from 'utils/redirect'
 
 import { LoadingHandleWrapper } from '.'
 

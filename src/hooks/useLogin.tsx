@@ -66,7 +66,6 @@ const useLogin = (autoLogin = false) => {
       const isAnonymous = loginMethod === LoginMethod.ANONYMOUS
       try {
         const profile = await createProfile().unwrap()
-        window.identityId = profile?.identityId // todo
         setProfile({ profile, isAnonymous, account })
       } catch (error) {
         const e = new Error('createProfile Error', { cause: error })

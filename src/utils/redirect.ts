@@ -1,9 +1,12 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { getChainIdFromSlug } from 'utils/string'
 
 const whiteListDomains = [/https:\/\/(.+?\.)?kyberswap\.com$/, /https:\/\/(.+)\.kyberengineering\.io$/]
 
@@ -72,5 +75,16 @@ export const useNavigateToUrl = () => {
       } catch (error) {}
     },
     [changeNetwork, currentChain, redirect],
+  )
+}
+
+export const navigateToSwapPage = ({ address, chain }: { address?: string; chain?: string | number }) => {
+  if (!address || !chain) return
+  const chainId: ChainId | undefined = !isNaN(+chain) ? +chain : getChainIdFromSlug(chain as string)
+  if (!chainId) return
+  window.open(
+    window.location.origin +
+      `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}?inputCurrency=${WETH[chainId].address}&outputCurrency=${address}`,
+    '_blank',
   )
 }

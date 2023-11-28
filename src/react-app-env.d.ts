@@ -46,5 +46,4 @@ interface Window {
   solana?: any
   recaptchaOptions?: any
   zESettings?: any
-  identityId: any // todo
 }

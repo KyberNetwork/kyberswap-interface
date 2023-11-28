@@ -1,13 +1,12 @@
-import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
+import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { commify } from 'ethers/lib/utils'
 import { useSearchParams } from 'react-router-dom'
 import { DefaultTheme } from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { KyberAIListType } from 'pages/TrueSightV2/types'
-import { getChainIdFromSlug, isInEnum } from 'utils/string'
+import { isInEnum } from 'utils/string'
 
 import { KYBERSCORE_TAG_TYPE, NETWORK_TO_CHAINID } from '../constants'
 
@@ -104,18 +103,6 @@ const mapErr: { [key: number]: string } = {
 export const getErrorMessage = (error: any) => {
   const code = error?.data?.code
   return mapErr[code] || t`Error occur, please try again.`
-}
-
-// todo move to global
-export const navigateToSwapPage = ({ address, chain }: { address?: string; chain?: string | number }) => {
-  if (!address || !chain) return
-  const chainId: ChainId | undefined = !isNaN(+chain) ? +chain : getChainIdFromSlug(chain as string)
-  if (!chainId) return
-  window.open(
-    window.location.origin +
-      `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}?inputCurrency=${WETH[chainId].address}&outputCurrency=${address}`,
-    '_blank',
-  )
 }
 
 export const navigateToLimitPage = ({ address, chain }: { address?: string; chain?: string }) => {

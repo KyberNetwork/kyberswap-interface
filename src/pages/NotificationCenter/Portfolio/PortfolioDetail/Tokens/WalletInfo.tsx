@@ -26,11 +26,12 @@ import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Port
 import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
 import SmallKyberScoreMeter from 'pages/TrueSightV2/components/SmallKyberScoreMeter'
-import { calculateValueToColor, navigateToSwapPage } from 'pages/TrueSightV2/utils'
+import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
+import { navigateToSwapPage } from 'utils/redirect'
 
 const WalletLabelWrapper = styled.div<{ color: string }>`
   display: flex;
@@ -222,7 +223,6 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
 export default function WalletInfo({ walletAddresses, chainIds }: { walletAddresses: string[]; chainIds: ChainId[] }) {
   const theme = useTheme()
   const { data, isFetching } = useGetWalletsAllocationQuery(
-    // todo
     { walletAddresses, chainIds },
     { skip: !walletAddresses.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
   )
@@ -266,7 +266,11 @@ export default function WalletInfo({ walletAddresses, chainIds }: { walletAddres
         />
       }
     >
-      {isFetching ? <LocalLoader /> : <Table data={formatData} columns={columns} totalItems={formatData.length} />}
+      {isFetching ? (
+        <LocalLoader style={{ height: 300 }} />
+      ) : (
+        <Table data={formatData} columns={columns} totalItems={formatData.length} />
+      )}
     </PortfolioSection>
   )
 }
