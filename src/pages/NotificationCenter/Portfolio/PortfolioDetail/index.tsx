@@ -19,6 +19,7 @@ import LocalLoader from 'components/LocalLoader'
 import Row, { RowBetween } from 'components/Row'
 import Select from 'components/Select'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
+import ShareImageModal from 'components/ShareModal/ShareImageModal'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
@@ -37,7 +38,6 @@ import TutorialDisclaimer from 'pages/NotificationCenter/Portfolio/PortfolioDeta
 import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 import { Portfolio, PortfolioTab, PortfolioWallet } from 'pages/NotificationCenter/Portfolio/type'
-import { ShareModal } from 'pages/TrueSightV2/components/KyberAIShareModal'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -230,12 +230,12 @@ export default function PortfolioDetail() {
         </>
       )}
       <TutorialDisclaimer showOverview={canShowOverview} />
-      <ShareModal
+      <ShareImageModal
         isOpen={showShare}
         onClose={() => setShowShare(false)}
         content={shareContents}
-        shareType={SHARE_TYPE.KYBER_AI} // todo
-        imageName={'my_portfolio.png'}
+        shareType={SHARE_TYPE.PORTFOLIO}
+        imageName={'portfolio.png'}
         titleLogo={
           <Column gap="8px">
             <Text fontSize={'20px'}>
