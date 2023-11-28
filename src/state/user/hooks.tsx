@@ -3,10 +3,8 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetParticipantInfoQuery, useLazyGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
-import { SUGGESTED_BASES } from 'constants/bases'
 import { INITIAL_ALLOWED_SLIPPAGE, TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
-import { PINNED_PAIRS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import {
@@ -322,9 +320,6 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
   const { chainId } = useActiveWeb3React()
   const allTokens = useAllTokens()
 
-  // pinned pairs
-  const pinnedPairs = useMemo(() => (chainId ? PINNED_PAIRS[chainId] ?? [] : []), [chainId])
-
   const { data: userLiquidityPositions } = useUserLiquidityPositions()
 
   // get pairs that has liquidity
@@ -360,10 +355,7 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
     })
   }, [savedSerializedPairs, chainId])
 
-  const combinedList = useMemo(
-    () => userPairs.concat(generatedPairs).concat(pinnedPairs),
-    [generatedPairs, pinnedPairs, userPairs],
-  )
+  const combinedList = useMemo(() => userPairs.concat(generatedPairs), [generatedPairs, userPairs])
 
   return useMemo(() => {
     // dedupes pairs of tokens in the combined list
@@ -428,19 +420,16 @@ export const useUserFavoriteTokens = (customChain?: ChainId) => {
   const dispatch = useDispatch<AppDispatch>()
   const { favoriteTokensByChainIdv2: favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
   const { commonTokens } = useKyberSwapConfig(chainId)
-  const defaultTokens = useMemo(() => {
-    return commonTokens || SUGGESTED_BASES[chainId || ChainId.MAINNET].map(e => e.address)
-  }, [commonTokens, chainId])
 
   const favoriteTokens = useMemo(() => {
     if (!chainId) return undefined
     const favoritedTokens = favoriteTokensByChainId?.[chainId] || {}
-    const favoritedTokenAddresses = defaultTokens
+    const favoritedTokenAddresses = (commonTokens || [])
       .filter(address => favoritedTokens[address.toLowerCase()] !== false)
       .concat(Object.keys(favoritedTokens).filter(address => favoritedTokens[address]))
 
     return [...new Set(favoritedTokenAddresses.map(a => a.toLowerCase()))]
-  }, [chainId, favoriteTokensByChainId, defaultTokens])
+  }, [chainId, favoriteTokensByChainId, commonTokens])
 
   const toggleFavoriteToken = useCallback(
     (payload: ToggleFavoriteTokenPayload) => {
