@@ -88,8 +88,8 @@ export default function SwapForm() {
     if (!parseAmount) return
     return {
       fromAddress: account || ZERO_ADDRESS,
-      fromChain: chainId + '',
-      toChain: chainIdOut + '',
+      fromChain: chainId.toString(),
+      toChain: chainIdOut.toString(),
       fromToken: getTokenAddress(currencyIn),
       toToken: getTokenAddress(currencyOut),
       fromAmount: parseAmount?.quotient.toString() ?? '',
