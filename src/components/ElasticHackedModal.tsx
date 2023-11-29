@@ -42,7 +42,8 @@ const ElasticHackedModal = ({ isOpen, onClose, onConfirm }: Props) => {
         </Text>
         <Text marginTop="8px" textAlign="center" fontSize={14} lineHeight="20px" color={theme.subText}>
           <Trans>
-            {`Adding liquidity to Elastic Pools and staking in Elastic Farms is temporarily unavailable. Kindly visit 'My Pool' for prompt removal of your liquidity.`}
+            Adding liquidity to Elastic Pools and staking in Elastic Farms is temporarily unavailable. Kindly visit
+            &quot;My Pool&quot; for prompt removal of your liquidity.
           </Trans>
         </Text>
 

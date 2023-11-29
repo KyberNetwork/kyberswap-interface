@@ -49,6 +49,13 @@ function ClassicElasticTab() {
     tab === VERSION.ELASTIC && !notSupportedElasticMsg && !skipAlert,
   )
 
+  useEffect(() => {
+    if (!notSupportedElasticMsg) {
+      setOpenElasticHacked(!skipAlert)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notSupportedElasticMsg])
+
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const dontShowLegacy = [ChainId.ZKEVM, ChainId.BASE, ChainId.LINEA, ChainId.SCROLL].includes(chainId)
