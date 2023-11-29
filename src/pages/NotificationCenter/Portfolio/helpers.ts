@@ -3,10 +3,16 @@ import { t } from '@lingui/macro'
 import { ethers } from 'ethers'
 import { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useAddWalletToPortfolioMutation, useUpdateWalletToPortfolioMutation } from 'services/portfolio'
+import {
+  useAddWalletToPortfolioMutation,
+  useLazyGetPortfoliosQuery,
+  useUpdateWalletToPortfolioMutation,
+} from 'services/portfolio'
 
 import { NotificationType } from 'components/Announcement/type'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import { Portfolio } from 'pages/NotificationCenter/Portfolio/type'
 import { useNotify } from 'state/application/hooks'
 import { isAddress } from 'utils'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
@@ -43,6 +49,38 @@ export const useNavigateToPortfolioDetail = () => {
     },
     [navigate],
   )
+}
+
+export const useNavigateToMyFirstPortfolio = () => {
+  const { portfolioId } = useParseWalletPortfolioParam()
+  const { account } = useActiveWeb3React()
+  const navigate = useNavigateToPortfolioDetail()
+
+  return useCallback(
+    (data: Portfolio[] | undefined) => {
+      if (!account || (portfolioId && !data?.some(el => el.id === portfolioId))) {
+        return
+      }
+      if (!data?.length) {
+        navigate({ wallet: account })
+        return
+      }
+      navigate({ portfolioId: data?.[0]?.id })
+    },
+    [account, navigate, portfolioId],
+  )
+}
+
+export const useLazyNavigateToMyFirstPortfolio = () => {
+  const navigate = useNavigateToMyFirstPortfolio()
+  const [getPortfolio] = useLazyGetPortfoliosQuery()
+
+  return useCallback(async () => {
+    try {
+      const { data } = await getPortfolio()
+      navigate(data)
+    } catch (error) {}
+  }, [navigate, getPortfolio])
 }
 
 export const useAddWalletToPortfolio = () => {

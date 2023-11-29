@@ -17,6 +17,7 @@ import { THRESHOLD_HEADER, Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { useLazyNavigateToMyFirstPortfolio } from 'pages/NotificationCenter/Portfolio/helpers'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -192,7 +193,7 @@ export default function Header() {
   const theme = useTheme()
   const { pathname } = useLocation()
   const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
-
+  const navigateToMyPortFolio = useLazyNavigateToMyFirstPortfolio()
   const { mixpanelHandler } = useMixpanel()
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
@@ -233,7 +234,7 @@ export default function Header() {
             <CampaignNavGroup />
             <KyberDAONavGroup />
             <PortfolioWrapper>
-              <StyledNavLink to={APP_PATHS.MY_PORTFOLIO}>
+              <StyledNavLink to="#" onClick={navigateToMyPortFolio}>
                 <Trans>Portfolio</Trans>
               </StyledNavLink>
             </PortfolioWrapper>

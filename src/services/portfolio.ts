@@ -285,6 +285,7 @@ const portfolioApi = createApi({
 
 export const {
   useGetPortfoliosQuery,
+  useLazyGetPortfoliosQuery,
   useCreatePortfolioMutation,
   useUpdatePortfolioMutation,
   useGetRealtimeBalanceQuery,

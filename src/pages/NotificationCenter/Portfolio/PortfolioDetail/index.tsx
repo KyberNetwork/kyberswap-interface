@@ -13,11 +13,12 @@ import LocalLoader from 'components/LocalLoader'
 import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
 import TutorialModal from 'components/TutorialModal'
 import { useActiveWeb3React } from 'hooks'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import DisclaimerPortfolio from 'pages/NotificationCenter/Portfolio/Modals/Disclaimer'
 import Overview from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Overview'
 import PortfolioStat from 'pages/NotificationCenter/Portfolio/PortfolioDetail/PortfolioStat'
-import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
+import { useNavigateToMyFirstPortfolio, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 
 import Header from './Header'
 
@@ -106,18 +107,10 @@ export default function PortfolioDetail() {
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const showOverview = !wallet && !portfolioId
 
-  const { data, isLoading } = useGetPortfoliosQuery()
-  const navigate = useNavigateToPortfolioDetail()
-  const navigateToMyPortfolio = useCallback(() => {
-    if (!account || (portfolioId && !data?.some(el => el.id === portfolioId))) {
-      return
-    }
-    if (!data?.length) {
-      navigate({ wallet: account })
-      return
-    }
-    navigate({ portfolioId: data?.[0]?.id })
-  }, [account, data, navigate, portfolioId])
+  const { isLoading: loading, data } = useGetPortfoliosQuery()
+  const isLoading = useShowLoadingAtLeastTime(loading, 300)
+  const navigate = useNavigateToMyFirstPortfolio()
+  const navigateToMyPortfolio = useCallback(() => navigate(data), [data, navigate])
 
   const [showTutorialState, setShowTutorial] = useState(!localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE))
   const showTutorial = showTutorialState && account

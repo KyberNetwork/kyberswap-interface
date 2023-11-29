@@ -36,6 +36,7 @@ import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { useLazyNavigateToMyFirstPortfolio } from 'pages/NotificationCenter/Portfolio/helpers'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -226,6 +227,7 @@ export default function Menu() {
 
   const { mixpanelHandler } = useMixpanel()
   const navigate = useNavigate()
+  const navigateToMyPortFolio = useLazyNavigateToMyFirstPortfolio()
 
   const setShowTutorialSwapGuide = useTutorialSwapGuide()[1]
   const openTutorialSwapGuide = () => {
@@ -404,7 +406,7 @@ export default function Menu() {
                 <MenuItem
                   onClick={() => {
                     toggle()
-                    navigate(APP_PATHS.MY_PORTFOLIO)
+                    navigateToMyPortFolio()
                   }}
                 >
                   <PortfolioIcon />
