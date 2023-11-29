@@ -25,26 +25,29 @@ import { PoolClassicIcon, PoolElasticIcon } from './Icons'
 import { MouseoverTooltip } from './Tooltip'
 
 function ClassicElasticTab() {
+  const navigate = useNavigate()
+  const theme = useTheme()
+  const location = useLocation()
+  const isFarmPage = location.pathname.startsWith(APP_PATHS.FARMS)
+  const isMyPoolPage = location.pathname.startsWith(APP_PATHS.MY_POOLS)
+
   const { positions, farmPositions } = useElasticLegacy(false)
   const { claimInfo } = useElasticCompensationData(false)
   const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
   const shouldShowPositionTab = !!positions.length
 
-  const { tab: tabQS = VERSION.ELASTIC, skipAlert, ...qs } = useParsedQueryString<{ tab: string }>()
+  const {
+    tab: tabQS = isMyPoolPage ? VERSION.ELASTIC : VERSION.CLASSIC,
+    skipAlert,
+    ...qs
+  } = useParsedQueryString<{ tab: string }>()
 
   const tab = isInEnum(tabQS, VERSION) ? tabQS : VERSION.ELASTIC
 
   const { chainId } = useActiveWeb3React()
   const notSupportedElasticMsg = ELASTIC_NOT_SUPPORTED()[chainId]
-
   const notSupportedClassicMsg = CLASSIC_NOT_SUPPORTED()[chainId]
 
-  const theme = useTheme()
-  const location = useLocation()
-  const navigate = useNavigate()
-
-  const isFarmPage = location.pathname.startsWith(APP_PATHS.FARMS)
-  const isMyPoolPage = location.pathname.startsWith(APP_PATHS.MY_POOLS)
   const [isOpenElasticHacked, setOpenElasticHacked] = useState(
     isMyPoolPage ? false : tab === VERSION.ELASTIC && !notSupportedElasticMsg && !skipAlert,
   )
