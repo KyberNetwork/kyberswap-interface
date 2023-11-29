@@ -204,7 +204,7 @@ export default function PortfolioStat() {
       )}
       {activeTab === PortfolioTab.NFT && <Nft {...props} />}
       <ShareImageModal
-        redirectUrl={getPortfolioDetailUrl({ portfolioId, wallet, myPortfolio: false })}
+        redirectUrl={`${window.location.origin}${getPortfolioDetailUrl({ portfolioId, wallet, myPortfolio: false })}`}
         isOpen={showShare}
         onClose={() => setShowShare(false)}
         content={shareContents}
