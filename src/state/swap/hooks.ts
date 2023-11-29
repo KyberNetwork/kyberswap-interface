@@ -4,7 +4,7 @@ import { t } from '@lingui/macro'
 import { ParsedUrlQuery } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { APP_PATHS, BAD_RECIPIENT_ADDRESSES } from 'constants/index'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
@@ -13,6 +13,7 @@ import { useCurrencyV2, useStableCoins } from 'hooks/Tokens'
 import { useTradeExactIn } from 'hooks/Trades'
 import useENS from 'hooks/useENS'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { getUrlMatchParams } from 'hooks/useSyncTokenSymbolToUrl'
 import { AppDispatch, AppState } from 'state/index'
 import {
   Field,
@@ -340,8 +341,10 @@ export const useDefaultsFromURLSearch = ():
   | undefined => {
   // TODO: this hook is called more than 100 times just on startup, need to check
 
-  const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch()
+  const params = useParams()
+  const { fromCurrency, toCurrency } = getUrlMatchParams(params)
+  const { chainId } = useActiveWeb3React()
 
   // this is already memo-ed
   const parsedQs = useParsedQueryString()
@@ -392,6 +395,7 @@ export const useDefaultsFromURLSearch = ():
       outputCurrencyId = outputCurrencyAddress
     }
 
+    if (fromCurrency || toCurrency) return
     dispatch(
       replaceSwapState({
         field: parsed.independentField,
@@ -407,7 +411,7 @@ export const useDefaultsFromURLSearch = ():
       outputCurrencyId,
     })
     // can not add `currencies` && pathname as dependency here because it will retrigger replaceSwapState => got some issue when we have in/outputCurrency on URL
-  }, [dispatch, chainId, parsedQs])
+  }, [dispatch, chainId, parsedQs, fromCurrency, toCurrency])
 
   return result
 }

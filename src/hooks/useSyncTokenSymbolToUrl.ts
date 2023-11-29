@@ -20,7 +20,7 @@ type TokenSymbolParams = {
   network: string
 }
 
-const getUrlMatchParams = (params: Params): TokenSymbolParams => {
+export const getUrlMatchParams = (params: Params): TokenSymbolParams => {
   const currencyParam = (params.currency || '').toLowerCase()
   const network: string = convertToSlug(params.network || '')
 
@@ -124,9 +124,9 @@ export default function useSyncTokenSymbolToUrl(
       network === NETWORKS_INFO[chainId].route &&
       !disabled
     ) {
-      // call once
       setTimeout(() => findTokenPairFromUrl(chainId))
-      checkedTokenFromUrlWhenInit.current = true
+      // This should call many times when swap token pair
+      checkedTokenFromUrlWhenInit.current = false
     }
   }, [allTokens, findTokenPairFromUrl, chainId, isLoadedTokenDefault, disabled, network])
 
