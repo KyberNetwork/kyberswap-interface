@@ -165,7 +165,7 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
   {
     title: t`Price`,
     dataIndex: 'priceUsd',
-    render: ({ value }) => formatDisplayNumber(value, { style: 'currency', significantDigits: 2 }),
+    render: ({ value }) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 }),
     align: 'left',
     style: isMobile ? { width: 120 } : undefined,
   },
