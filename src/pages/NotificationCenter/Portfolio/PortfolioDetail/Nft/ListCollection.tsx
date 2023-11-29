@@ -1,52 +1,68 @@
 import { Trans } from '@lingui/macro'
-import { isMobile } from 'react-device-detect'
 import { useSearchParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import NFTLogoDefault from 'assets/images/portfolio/nft_logo.png'
+import Column from 'components/Column'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import NoData from 'pages/NotificationCenter/Portfolio/PortfolioDetail/NoData'
 import { TokenCellWithWalletAddress } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/WalletInfo'
 import { NFTBalance } from 'pages/NotificationCenter/Portfolio/type'
+import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 
-const CollectionWrapper = styled(Row)`
-  background-color: ${({ theme }) => theme.buttonGray};
-  border-radius: 16px;
-  padding: 16px 20px;
+const CollectionWrapper = styled(Row)<{ hasMorePage: boolean }>`
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+  padding: 20px;
   cursor: pointer;
+  ${({ hasMorePage }) =>
+    !hasMorePage &&
+    css`
+      :last-of-type {
+        border-bottom: none;
+      }
+    `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 14px;
-  `}
+  `};
 `
 const NftCollection = ({
   data: { collectionDetail, wallet, collectibleName, chainID, totalNFT, collectibleAddress },
   onSelect,
+  hasMorePage,
 }: {
   data: NFTBalance
   onSelect: () => void
+  hasMorePage: boolean
 }) => {
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
+
+  const totalNft = (
+    <Text fontSize={'14px'} fontWeight={'500'} color={theme.text}>
+      <Trans>Owned NFTs: {totalNFT}</Trans>
+    </Text>
+  )
   return (
-    <CollectionWrapper onClick={onSelect}>
-      <TokenCellWithWalletAddress
-        style={{ width: 'fit-content', flex: 1 }}
-        item={{
-          chainId: chainID,
-          logoUrl: collectionDetail?.thumbnail || NFTLogoDefault,
-          walletAddress: wallet,
-          symbol: collectibleName || getShortenAddress(collectibleAddress),
-        }}
-        walletColor={theme.primary}
-      />
-      <RowFit>
-        <Text fontSize={'14px'} color={theme.subText}>
-          {isMobile ? <Trans>NFTs: {totalNFT}</Trans> : <Trans>Owned NFTs: {totalNFT}</Trans>}
-        </Text>
-      </RowFit>
+    <CollectionWrapper onClick={onSelect} hasMorePage={hasMorePage}>
+      <Column gap="8px" flex={1}>
+        <TokenCellWithWalletAddress
+          style={{ width: 'fit-content', flex: 1 }}
+          item={{
+            chainId: chainID,
+            logoUrl: collectionDetail?.thumbnail || NFTLogoDefault,
+            walletAddress: wallet,
+            symbol: collectibleName || getShortenAddress(collectibleAddress),
+          }}
+          walletColor={theme.primary}
+        />
+        {upToSmall && <Row style={{ paddingLeft: '50px' }}>{totalNft}</Row>}
+      </Column>
+      {!upToSmall && <RowFit>{totalNft}</RowFit>}
     </CollectionWrapper>
   )
 }
@@ -75,7 +91,14 @@ export default function ListCollection({
   return (
     <>
       {data.length ? (
-        data.map(el => <NftCollection data={el} key={el.collectibleAddress} onSelect={() => onSelect(el)} />)
+        data.map(el => (
+          <NftCollection
+            data={el}
+            key={el.collectibleAddress}
+            onSelect={() => onSelect(el)}
+            hasMorePage={totalItems > pageSize}
+          />
+        ))
       ) : (
         <NoData />
       )}

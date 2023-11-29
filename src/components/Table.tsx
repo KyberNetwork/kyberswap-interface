@@ -149,32 +149,34 @@ export default function Table<T>({
       <Column flex={1} style={{ width: '100%', overflowX: 'scroll', position: 'relative' }}>
         <TableWrapper>
           <TableHeader column={columns.length} style={headerStyle}>
-            {columns.map(({ tooltip, title, align, style, sticky }, i) => (
-              <Thead key={i} style={style} data-sticky={sticky}>
-                <MouseoverTooltip
-                  width="fit-content"
-                  placement="top"
-                  text={tooltip}
-                  maxWidth={isMobile ? '90vw' : '400px'}
-                >
-                  <div
-                    style={{
-                      textAlign: align || 'center',
-                      width: '100%',
-                      ...style,
-                    }}
+            <TRow>
+              {columns.map(({ tooltip, title, align, style, sticky }, i) => (
+                <Thead key={i} style={style} data-sticky={sticky}>
+                  <MouseoverTooltip
+                    width="fit-content"
+                    placement="top"
+                    text={tooltip}
+                    maxWidth={isMobile ? '90vw' : '400px'}
                   >
-                    {tooltip ? (
-                      <Text as="span" sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-                        {title}
-                      </Text>
-                    ) : (
-                      title
-                    )}
-                  </div>
-                </MouseoverTooltip>
-              </Thead>
-            ))}
+                    <div
+                      style={{
+                        textAlign: align || 'center',
+                        width: '100%',
+                        ...style,
+                      }}
+                    >
+                      {tooltip ? (
+                        <Text as="span" sx={{ borderBottom: `1px dotted ${theme.border}` }}>
+                          {title}
+                        </Text>
+                      ) : (
+                        title
+                      )}
+                    </div>
+                  </MouseoverTooltip>
+                </Thead>
+              ))}
+            </TRow>
           </TableHeader>
           <TBody>
             {filterData.length

@@ -20,9 +20,8 @@ import useGetNftBreadcrumbData from 'pages/NotificationCenter/Portfolio/Portfoli
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 
 const Container = styled(Column)`
-  gap: 16px;
   flex: 1;
-  padding: 0px 8px;
+  padding: 0px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 0;
   `}
@@ -61,6 +60,7 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
           <Breadcrumb items={itemsBreadcrumb} />
           <PortfolioSection
             style={{ minHeight: '300px' }}
+            contentStyle={{ padding: 0 }}
             title={
               <RowFit gap="4px" color={theme.subText} alignItems={'center'}>
                 <NftIcon style={{ width: 18, height: 18 }} />
