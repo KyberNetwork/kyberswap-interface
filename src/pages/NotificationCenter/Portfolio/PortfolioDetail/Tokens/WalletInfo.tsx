@@ -156,7 +156,7 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
     style: isMobile ? { width: 140 } : undefined,
   },
   {
-    title: t`Amount`,
+    title: t`Balance`,
     dataIndex: 'amount',
     render: ({ value }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
     style: isMobile ? { width: 120 } : undefined,
@@ -170,7 +170,7 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
     style: isMobile ? { width: 120 } : undefined,
   },
   {
-    title: t`Real Value`,
+    title: t`Value`,
     dataIndex: 'valueUsd',
     render: ({ value }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
     style: isMobile ? { width: 120 } : undefined,

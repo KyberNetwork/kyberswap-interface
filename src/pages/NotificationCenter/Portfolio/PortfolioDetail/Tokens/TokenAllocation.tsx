@@ -94,7 +94,7 @@ const getTokenColumns = (mobile: boolean, shareMode: boolean) => {
       align: 'left',
     },
     {
-      title: t`Ratio`,
+      title: shareMode ? t`Asset` : t`Asset Ratio`,
       align: 'right',
       dataIndex: 'percentage',
       render: ({ value }) =>
@@ -129,7 +129,7 @@ const getChainColumns = (mobile: boolean, shareMode: boolean) => {
       style: sticky ? { width: 100 } : undefined,
     },
     {
-      title: t`Ratio`,
+      title: shareMode ? t`Asset` : t`Asset Ratio`,
       align: 'right',
       dataIndex: 'percentage',
       render: ({ value }) =>
