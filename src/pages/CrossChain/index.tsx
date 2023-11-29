@@ -57,10 +57,10 @@ function CrossChain({ visible }: { visible: boolean }) {
         const { chains = [], tokens = [] } = squid
         const chainSupports = chains.map(e => Number(e.chainId)).filter(id => SUPPORTED_NETWORKS.includes(id))
         const formattedTokens: WrappedTokenInfo[] = []
-        tokens.forEach((token: any) => {
-          token.chainId = +token.chainId
-          if (!chainSupports.includes(token.chainId)) return
-          formattedTokens.push(new WrappedTokenInfo(token))
+        tokens.forEach(token => {
+          const formatToken = { ...token, chainId: +token.chainId }
+          if (!chainSupports.includes(formatToken.chainId)) return
+          formattedTokens.push(new WrappedTokenInfo(formatToken))
         })
 
         setCrossChainState({
