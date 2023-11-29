@@ -18,8 +18,12 @@ const ProtectedRoute = ({ children }: Props) => {
   const loaded = useRef(false)
   const invalidateTags = useInvalidateTagPortfolio()
 
+  const isInit = useRef(false)
   useEffect(() => {
-    // change account sign in => refresh participant info
+    if (!isInit.current) {
+      isInit.current = true
+      return
+    }
     try {
       invalidateTags([
         RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO,
