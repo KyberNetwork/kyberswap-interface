@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Navigate } from 'react-router-dom'
+import { usePrevious } from 'react-use'
 
 import LocalLoader from 'components/LocalLoader'
 import { RTK_QUERY_TAGS } from 'constants/index'
@@ -12,27 +13,31 @@ type Props = {
   redirectUrl?: string
 }
 
-// wait utils sign in eth/anonymous done (error/success)
-const ProtectedRoute = ({ children }: Props) => {
-  const { pendingAuthentication, userInfo } = useSessionInfo()
-  const loaded = useRef(false)
+// todo generic it
+const useSubscribeChangeUserInfo = () => {
+  const { userInfo } = useSessionInfo()
   const invalidateTags = useInvalidateTagPortfolio()
+  const prevIdentityId = usePrevious(userInfo?.identityId)
 
-  const isInit = useRef(false)
   useEffect(() => {
-    if (!isInit.current) {
-      isInit.current = true
-      return
+    if (prevIdentityId && prevIdentityId !== userInfo?.identityId) {
+      try {
+        invalidateTags([
+          RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO,
+          RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO,
+          RTK_QUERY_TAGS.GET_SETTING_PORTFOLIO,
+          RTK_QUERY_TAGS.GET_LIST_PORTFOLIO,
+        ])
+      } catch (error) {}
     }
-    try {
-      invalidateTags([
-        RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO,
-        RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO,
-        RTK_QUERY_TAGS.GET_SETTING_PORTFOLIO,
-        RTK_QUERY_TAGS.GET_LIST_PORTFOLIO,
-      ])
-    } catch (error) {}
-  }, [userInfo?.identityId, invalidateTags])
+  }, [userInfo?.identityId, invalidateTags, prevIdentityId])
+}
+
+// wait until sign in eth/anonymous done (error/success)
+const ProtectedRoute = ({ children }: Props) => {
+  const { pendingAuthentication } = useSessionInfo()
+  const loaded = useRef(false)
+  useSubscribeChangeUserInfo()
 
   if (pendingAuthentication && !loaded.current) return <LocalLoader />
   loaded.current = true
