@@ -16,7 +16,6 @@ import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { isInEnum } from 'utils/string'
@@ -36,13 +35,9 @@ function ClassicElasticTab() {
   const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
   const shouldShowPositionTab = !!positions.length
 
-  const {
-    tab: tabQS = isMyPoolPage ? VERSION.ELASTIC : VERSION.CLASSIC,
-    skipAlert,
-    ...qs
-  } = useParsedQueryString<{ tab: string }>()
-
-  const tab = isInEnum(tabQS, VERSION) ? tabQS : VERSION.ELASTIC
+  const params = Object.fromEntries(new URLSearchParams(location.search))
+  const { tabQs, skipAlert, ...qs } = params
+  const tab = isInEnum(tabQs, VERSION) ? tabQs : VERSION.ELASTIC
 
   const { chainId } = useActiveWeb3React()
   const notSupportedElasticMsg = ELASTIC_NOT_SUPPORTED()[chainId]
