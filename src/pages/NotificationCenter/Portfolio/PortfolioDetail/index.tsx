@@ -109,7 +109,7 @@ export default function PortfolioDetail() {
   const { data, isLoading } = useGetPortfoliosQuery()
   const navigate = useNavigateToPortfolioDetail()
   const navigateToMyPortfolio = useCallback(() => {
-    if (portfolioId && !data?.some(el => el.id === portfolioId)) {
+    if (!account || (portfolioId && !data?.some(el => el.id === portfolioId))) {
       return
     }
     if (!data?.length) {
