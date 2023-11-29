@@ -30,12 +30,12 @@ function ClassicElasticTab() {
   const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
   const shouldShowPositionTab = !!positions.length
 
-  const { tab: tabQS = VERSION.ELASTIC, ...qs } = useParsedQueryString<{ tab: string }>()
+  const { tab: tabQS = VERSION.ELASTIC, skipAlert, ...qs } = useParsedQueryString<{ tab: string }>()
 
   const tab = isInEnum(tabQS, VERSION) ? tabQS : VERSION.ELASTIC
 
   const { chainId } = useActiveWeb3React()
-  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId]
+  const notSupportedElasticMsg = ELASTIC_NOT_SUPPORTED[chainId]
 
   const notSupportedClassicMsg = CLASSIC_NOT_SUPPORTED[chainId]
 
@@ -45,7 +45,9 @@ function ClassicElasticTab() {
 
   const isFarmPage = location.pathname.startsWith(APP_PATHS.FARMS)
   const isMyPoolPage = location.pathname.startsWith(APP_PATHS.MY_POOLS)
-  const [isOpenElasticHacked, setOpenElasticHacked] = useState(tab === VERSION.ELASTIC && !isMyPoolPage)
+  const [isOpenElasticHacked, setOpenElasticHacked] = useState(
+    tab === VERSION.ELASTIC && !notSupportedElasticMsg && !skipAlert,
+  )
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -81,13 +83,13 @@ function ClassicElasticTab() {
 
   const handleSwitchTab = (version: VERSION) => {
     if (!!notSupportedClassicMsg && version === VERSION.CLASSIC) return
-    if (!!notSupportedMsg && version !== VERSION.CLASSIC) return
+    if (!!notSupportedElasticMsg && version !== VERSION.CLASSIC) return
     const newQs = { ...qs, tab: version }
     navigate({ search: stringify(newQs) }, { replace: true })
   }
 
   const getColorOfElasticTab = () => {
-    if (!!notSupportedMsg) {
+    if (!!notSupportedElasticMsg) {
       return theme.disableText
     }
 
@@ -118,7 +120,7 @@ function ClassicElasticTab() {
   }
 
   const getColorOfLegacyElasticTab = () => {
-    if (!!notSupportedMsg) {
+    if (!!notSupportedElasticMsg) {
       return theme.disableText
     }
 
@@ -132,11 +134,11 @@ function ClassicElasticTab() {
     if (!!notSupportedClassicMsg && tab === VERSION.CLASSIC) {
       const newQs = { ...qs, tab: VERSION.ELASTIC }
       navigate({ search: stringify(newQs) }, { replace: true })
-    } else if (!!notSupportedMsg && tab !== VERSION.CLASSIC) {
+    } else if (!!notSupportedElasticMsg && tab !== VERSION.CLASSIC) {
       const newQs = { ...qs, tab: VERSION.CLASSIC }
       navigate({ search: stringify(newQs) }, { replace: true })
     }
-  }, [navigate, notSupportedMsg, notSupportedClassicMsg, qs, tab])
+  }, [navigate, notSupportedElasticMsg, notSupportedClassicMsg, qs, tab])
 
   return (
     <Flex width="max-content">
@@ -148,7 +150,7 @@ function ClassicElasticTab() {
             ? ''
             : tab === VERSION.CLASSIC && notSupportedClassicMsg
             ? notSupportedClassicMsg
-            : notSupportedMsg ||
+            : notSupportedElasticMsg ||
               (!showLegacyExplicit ? (
                 <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
                   <Flex
@@ -196,7 +198,7 @@ function ClassicElasticTab() {
             marginLeft="4px"
             role="button"
             style={{
-              cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
+              cursor: !!notSupportedElasticMsg ? 'not-allowed' : 'pointer',
             }}
           >
             {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
@@ -213,7 +215,7 @@ function ClassicElasticTab() {
 
       {showLegacyExplicit && (
         <>
-          <MouseoverTooltip text={notSupportedMsg || ''} placement="top">
+          <MouseoverTooltip text={notSupportedElasticMsg || ''} placement="top">
             <Flex
               sx={{ position: 'relative' }}
               alignItems={'center'}
@@ -230,7 +232,7 @@ function ClassicElasticTab() {
                 marginLeft="4px"
                 role="button"
                 style={{
-                  cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
+                  cursor: !!notSupportedElasticMsg ? 'not-allowed' : 'pointer',
                 }}
               >
                 {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
@@ -277,7 +279,7 @@ function ClassicElasticTab() {
         onConfirm={() => {
           setOpenElasticHacked(false)
           if (!isMyPoolPage) {
-            navigate(APP_PATHS.MY_POOLS)
+            navigate({ pathname: APP_PATHS.MY_POOLS, search: 'skipAlert=1' })
           }
         }}
       />
