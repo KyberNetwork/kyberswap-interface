@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -338,11 +338,14 @@ const SearchWithDropdownKyberAI = () => {
     { skip: debouncedSearch === '' },
   )
   const [history, setHistory] = useLocalStorage<Array<ITokenSearchResult>>('kyberai-search-history')
-  const saveToHistory = (token: ITokenSearchResult) => {
-    if (!(history && history.some(t => t.assetId === token.assetId))) {
-      setHistory([token, ...(history || [])].slice(0, 3))
-    }
-  }
+  const saveToHistory = useCallback(
+    (token: ITokenSearchResult) => {
+      if (!(history && history.some(t => t.assetId === token.assetId))) {
+        setHistory([token, ...(history || [])].slice(0, 3))
+      }
+    },
+    [history, setHistory],
+  )
 
   const [getTokenData] = useLazySearchTokenQuery()
   useEffect(() => {
