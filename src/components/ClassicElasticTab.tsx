@@ -1,10 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { stringify } from 'querystring'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -27,6 +26,7 @@ function ClassicElasticTab() {
   const navigate = useNavigate()
   const theme = useTheme()
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const isFarmPage = location.pathname.startsWith(APP_PATHS.FARMS)
   const isMyPoolPage = location.pathname.startsWith(APP_PATHS.MY_POOLS)
 
@@ -35,7 +35,7 @@ function ClassicElasticTab() {
   const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
   const shouldShowPositionTab = !!positions.length
 
-  const params = Object.fromEntries(new URLSearchParams(location.search))
+  const params = Object.fromEntries(searchParams)
   const { tab: tabQs = isMyPoolPage ? VERSION.ELASTIC : VERSION.CLASSIC, skipAlert, ...qs } = params
   const tab = isInEnum(tabQs, VERSION) ? tabQs : VERSION.ELASTIC
 
@@ -68,9 +68,9 @@ function ClassicElasticTab() {
   useEffect(() => {
     if (dontShowLegacy && tab === VERSION.ELASTIC_LEGACY) {
       const newQs = { ...qs, tab: VERSION.ELASTIC }
-      navigate({ search: stringify(newQs) }, { replace: true })
+      setSearchParams(newQs)
     }
-  }, [tab, dontShowLegacy, navigate, qs])
+  }, [tab, dontShowLegacy, setSearchParams, qs])
 
   const legacyTag = (small?: boolean) => (
     <Text
@@ -94,7 +94,7 @@ function ClassicElasticTab() {
     if (!!notSupportedClassicMsg && version === VERSION.CLASSIC) return
     if (!!notSupportedElasticMsg && version !== VERSION.CLASSIC) return
     const newQs = { ...qs, tab: version }
-    navigate({ search: stringify(newQs) }, { replace: true })
+    setSearchParams(newQs)
   }
 
   const getColorOfElasticTab = () => {
@@ -142,12 +142,12 @@ function ClassicElasticTab() {
   useEffect(() => {
     if (!!notSupportedClassicMsg && tab === VERSION.CLASSIC) {
       const newQs = { ...qs, tab: VERSION.ELASTIC }
-      navigate({ search: stringify(newQs) }, { replace: true })
+      setSearchParams(newQs)
     } else if (!!notSupportedElasticMsg && tab !== VERSION.CLASSIC) {
       const newQs = { ...qs, tab: VERSION.CLASSIC }
-      navigate({ search: stringify(newQs) }, { replace: true })
+      setSearchParams(newQs)
     }
-  }, [navigate, notSupportedElasticMsg, notSupportedClassicMsg, qs, tab])
+  }, [setSearchParams, notSupportedElasticMsg, notSupportedClassicMsg, qs, tab])
 
   return (
     <Flex width="max-content">
