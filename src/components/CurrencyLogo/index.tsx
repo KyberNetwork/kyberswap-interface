@@ -3,6 +3,7 @@ import React, { memo, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 
 import Logo from 'components/Logo'
+import { useAllTokens } from 'hooks/Tokens'
 import useHttpLocations from 'hooks/useHttpLocations'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getNativeTokenLogo, getTokenLogoURL } from 'utils'
@@ -35,6 +36,11 @@ function CurrencyLogo({
   style?: React.CSSProperties
   useProxy?: boolean
 }) {
+  const allTokens = useAllTokens(false, currency?.chainId)
+
+  const token = allTokens[currency?.wrapped.address || '']
+  const logoFromBE = token?.logoURI
+
   const wrapWithProxy = useCallback(
     <T extends string | undefined>(uri: T): T | string => {
       if (!useProxy || !uri) {
@@ -52,15 +58,16 @@ function CurrencyLogo({
   const srcs: string[] = useMemo(() => {
     if (currency?.isNative) return []
 
+    const res = logoFromBE ? [logoFromBE] : []
     if (currency?.isToken) {
       if (logoURI) {
-        return [...uriLocations, wrapWithProxy(getTokenLogoURL(currency.address, currency.chainId))]
+        return [...res, ...uriLocations, wrapWithProxy(getTokenLogoURL(currency.address, currency.chainId))]
       }
-      return [wrapWithProxy(getTokenLogoURL((currency as any)?.address, currency.chainId))]
+      return [...res, wrapWithProxy(getTokenLogoURL((currency as any)?.address, currency.chainId))]
     }
 
     return []
-  }, [currency, logoURI, uriLocations, wrapWithProxy])
+  }, [currency, logoURI, uriLocations, wrapWithProxy, logoFromBE])
 
   if (currency?.isNative) {
     return (

@@ -17,7 +17,7 @@ interface TabsProps {
 }
 
 const Wrapper = styled.div(({ theme }) => ({
-  borderRadius: '20px',
+  borderRadius: '1rem',
   background: theme.buttonBlack,
   overflow: 'hidden',
   display: 'flex',
