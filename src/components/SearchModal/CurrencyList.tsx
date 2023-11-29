@@ -266,7 +266,6 @@ function CurrencyList({
             style={{ ...style, ...itemStyle }}
             currency={currency}
             currencyBalance={currencyBalance}
-            customBalance={<div />}
             isSelected={isSelected}
             showFavoriteIcon={showFavoriteIcon}
             onSelect={onCurrencySelect}

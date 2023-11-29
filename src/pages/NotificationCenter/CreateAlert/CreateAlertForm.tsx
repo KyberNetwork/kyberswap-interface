@@ -211,6 +211,13 @@ export default function CreateAlert({
                   </Text>
                 </Flex>
               )}
+              optionRender={item => {
+                return (
+                  <MouseoverTooltip text="">
+                    <Text sx={{ padding: '10px 18px', cursor: 'pointer' }}>{item?.label}</Text>
+                  </MouseoverTooltip>
+                )
+              }}
             />
 
             <Flex sx={{ gap: '12px' }}>
