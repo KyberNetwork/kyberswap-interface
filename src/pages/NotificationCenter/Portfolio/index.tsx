@@ -23,9 +23,8 @@ import Row, { RowBetween } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Tabs } from 'components/WalletPopup/Transactions/Tab'
-import { EMPTY_ARRAY, RTK_QUERY_TAGS } from 'constants/index'
+import { EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useInvalidateTagPortfolio } from 'hooks/useInvalidateTags'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
@@ -35,7 +34,6 @@ import { ButtonCancel, ButtonSave } from 'pages/NotificationCenter/Portfolio/but
 import { MAXIMUM_PORTFOLIO } from 'pages/NotificationCenter/Portfolio/const'
 import WarningSignMessage, { WarningConnectWalletMessage } from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { useNotify } from 'state/application/hooks'
-import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { isAddress } from 'utils'
 
@@ -110,8 +108,8 @@ export default function PortfolioSettings() {
   const { account } = useActiveWeb3React()
   const [showCreate, setShowCreate] = useState(false)
 
-  const { data: portfolios = EMPTY_ARRAY, isLoading: isFetching, refetch } = useGetPortfoliosQuery()
-  const { data: settings, refetch: refetchSetting } = useGetPortfoliosSettingsQuery()
+  const { data: portfolios = EMPTY_ARRAY, isLoading: isFetching } = useGetPortfoliosQuery()
+  const { data: settings } = useGetPortfoliosSettingsQuery()
 
   const { cloneId = '', wallet } = useParsedQueryString<{ cloneId: string; wallet: string }>()
   const loading = useShowLoadingAtLeastTime(isFetching, wallet ? 0 : 700)
@@ -121,16 +119,6 @@ export default function PortfolioSettings() {
       setShowCreate(true)
     }
   }, [clonePortfolio, wallet])
-
-  const { userInfo } = useSessionInfo()
-  const invalidateTags = useInvalidateTagPortfolio()
-  useEffect(() => {
-    try {
-      refetch()
-      refetchSetting()
-      invalidateTags([RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO, RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO])
-    } catch (error) {}
-  }, [userInfo?.identityId, invalidateTags, refetch, refetchSetting])
 
   const showModalCreatePortfolio = () => {
     setShowCreate(true)

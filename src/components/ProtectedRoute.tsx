@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom'
 
 import LocalLoader from 'components/LocalLoader'
 import { RTK_QUERY_TAGS } from 'constants/index'
-import { useInvalidateTagKyberAi } from 'hooks/useInvalidateTags'
+import { useInvalidateTagKyberAi, useInvalidateTagPortfolio } from 'hooks/useInvalidateTags'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
@@ -14,8 +14,22 @@ type Props = {
 
 // wait utils sign in eth/anonymous done (error/success)
 const ProtectedRoute = ({ children }: Props) => {
-  const { pendingAuthentication } = useSessionInfo()
+  const { pendingAuthentication, userInfo } = useSessionInfo()
   const loaded = useRef(false)
+  const invalidateTags = useInvalidateTagPortfolio()
+
+  useEffect(() => {
+    // change account sign in => refresh participant info
+    try {
+      invalidateTags([
+        RTK_QUERY_TAGS.GET_LIST_WALLET_PORTFOLIO,
+        RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO,
+        RTK_QUERY_TAGS.GET_SETTING_PORTFOLIO,
+        RTK_QUERY_TAGS.GET_LIST_PORTFOLIO,
+      ])
+    } catch (error) {}
+  }, [userInfo?.identityId, invalidateTags])
+
   if (pendingAuthentication && !loaded.current) return <LocalLoader />
   loaded.current = true
   return children
