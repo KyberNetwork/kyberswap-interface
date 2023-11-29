@@ -234,7 +234,13 @@ export default function Header() {
             <CampaignNavGroup />
             <KyberDAONavGroup />
             <PortfolioWrapper>
-              <StyledNavLink to="" onClick={navigateToMyPortFolio}>
+              <StyledNavLink
+                to=""
+                onClick={e => {
+                  e.preventDefault()
+                  navigateToMyPortFolio()
+                }}
+              >
                 <Trans>Portfolio</Trans>
               </StyledNavLink>
             </PortfolioWrapper>

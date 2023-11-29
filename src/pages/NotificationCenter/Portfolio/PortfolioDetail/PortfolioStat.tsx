@@ -200,7 +200,7 @@ export default function PortfolioStat() {
       {activeTab === PortfolioTab.TOKEN && <Tokens {...props} totalUsd={totalUsd} />}
       {activeTab === PortfolioTab.ALLOWANCES && <Allowances {...props} />}
       {activeTab === PortfolioTab.TRANSACTIONS && (
-        <Transactions wallet={wallet || wallets?.[0].walletAddress} chainIds={chainIds} />
+        <Transactions wallet={wallet || wallets?.[0]?.walletAddress} chainIds={chainIds} />
       )}
       {activeTab === PortfolioTab.NFT && <Nft {...props} />}
       <ShareImageModal
