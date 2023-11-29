@@ -50,10 +50,7 @@ function ClassicElasticTab() {
   )
 
   useEffect(() => {
-    if (notSupportedClassicMsg) {
-      setOpenElasticHacked(!skipAlert)
-    }
-    if (tab === VERSION.ELASTIC && !notSupportedElasticMsg) {
+    if (tab === VERSION.ELASTIC || notSupportedClassicMsg) {
       setOpenElasticHacked(!skipAlert)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
