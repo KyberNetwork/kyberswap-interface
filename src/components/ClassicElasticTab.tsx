@@ -53,6 +53,9 @@ function ClassicElasticTab() {
     if (notSupportedClassicMsg) {
       setOpenElasticHacked(!skipAlert)
     }
+    if (tab === VERSION.ELASTIC && !notSupportedElasticMsg) {
+      setOpenElasticHacked(!skipAlert)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
 
