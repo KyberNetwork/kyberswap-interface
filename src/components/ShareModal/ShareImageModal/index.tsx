@@ -189,9 +189,10 @@ const ShareUrlPanel = ({
   const theme = useTheme()
   return (
     <Row gap="12px">
-      <InputWrapper>
+      <InputWrapper style={{ visibility: sharingUrl ? 'visible' : 'hidden' }}>
         <Input value={sharingUrl} autoFocus={false} disabled={!sharingUrl} />
       </InputWrapper>
+
       {itemShares.map(type => (
         <IconButton disabled={disabled} key={type} onClick={() => onClickShareSocial?.(type)}>
           {loadingType === type ? <LoadingIcon /> : <Icon id={type as any} size={20} />}
