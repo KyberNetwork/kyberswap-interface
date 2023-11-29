@@ -15,7 +15,6 @@ import ShareModal from 'components/ShareModal'
 import { SORT_DIRECTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
-import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
@@ -29,6 +28,7 @@ import { VIEW_MODE } from 'state/user/reducer'
 import { MEDIA_WIDTHS } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
 
+import { SelectPairInstructionWrapper } from '../styleds'
 import ProAmmPoolCardItem from './CardItem'
 import ProAmmPoolListItem from './ListItem'
 
@@ -144,33 +144,6 @@ export default function ProAmmPoolList({
     .flat()
   const tokenPriceMap = useTokenPrices([...new Set(farmTokens.concat(poolTokens))])
 
-  const totalFarmRewardUSDByPoolId = useMemo(
-    () =>
-      farms
-        ?.map(farm => farm.pools)
-        .flat()
-        .filter(pool => pool.endTime > Date.now() / 1000)
-        .map(pool => {
-          const v = pool.totalRewards.reduce((acc, cur) => {
-            return acc + Number(cur.toExact()) * tokenPriceMap[cur.currency.wrapped.address]
-          }, 0)
-          const farmDuration = (pool.endTime - pool.startTime) / 86400
-
-          return {
-            poolAddress: pool.poolAddress,
-            value: (v * 365 * 100) / farmDuration,
-          }
-        })
-        .reduce((acc, cur) => {
-          return {
-            ...acc,
-            [cur.poolAddress]: cur.value,
-          }
-        }, {} as { [key: string]: number }) || {},
-
-    [farms, tokenPriceMap],
-  )
-
   const [searchParams, setSearchParams] = useSearchParams()
   const sortField = searchParams.get('orderBy') || SORT_FIELD.TVL
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
@@ -222,13 +195,13 @@ export default function ProAmmPoolList({
   const anyLoading = loading || poolDataLoading || loadingUserPositions
 
   const filteredData = useMemo(() => {
-    let filteredPools = Object.values(poolDatas || []).filter(
+    let filteredPools = Object.values(poolDatas || {}).filter(
       pool =>
         pool.address.toLowerCase() === searchValue ||
-        pool.token0.name.toLowerCase().includes(searchValue) ||
-        pool.token0.symbol.toLowerCase().includes(searchValue) ||
-        pool.token1.name.toLowerCase().includes(searchValue) ||
-        pool.token1.symbol.toLowerCase().includes(searchValue),
+        pool.token0.name?.toLowerCase().includes(searchValue) ||
+        pool.token0.symbol?.toLowerCase().includes(searchValue) ||
+        pool.token1.name?.toLowerCase().includes(searchValue) ||
+        pool.token1.symbol?.toLowerCase().includes(searchValue),
     )
 
     if (isShowOnlyActiveFarmPools) {
@@ -265,16 +238,10 @@ export default function ProAmmPoolList({
       })
     }
 
-    return filteredPools
-      .map(p => {
-        p.farmAPR = p.farmAPR ? p.farmAPR : (totalFarmRewardUSDByPoolId[p.address] || 0) / p.tvlUSD
-        return p
-      })
-      .sort(listComparator)
+    return filteredPools.sort(listComparator)
   }, [
     elasticFarmV2s,
     poolDatas,
-    totalFarmRewardUSDByPoolId,
     isShowOnlyActiveFarmPools,
     caId,
     cbId,

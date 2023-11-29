@@ -2,7 +2,7 @@ import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useEffect, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { Navigate, useParams, useSearchParams } from 'react-router-dom'
 
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
@@ -35,7 +35,9 @@ export default function AddLiquidity() {
 
   const { pair, pairState, noLiquidity } = useDerivedMintInfo(currencyA, currencyB, pairAddress)
   const amp = pair?.amp || JSBI.BigInt(0)
-  const [activeTab, setActiveTab] = useState(0)
+  const [searchParams] = useSearchParams()
+  const isZap = searchParams.get('tab') === 'zap'
+  const [activeTab, setActiveTab] = useState(isZap ? 1 : 0)
 
   const { mixpanelHandler } = useMixpanel()
   useEffect(() => {

@@ -23,7 +23,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
-import { Tab } from 'pages/Pools/styleds'
+import { Tab } from 'pages/Pools/Subgraph/styleds'
 import {
   StakeParam,
   useDepositedNftsByFarm,

@@ -729,7 +729,7 @@ export function useJoinedPositions() {
         const pid = param.pid.toString()
         const nftId = param.pos.nftId
 
-        if (res[index].result) {
+        if (res[index]?.result) {
           if (!joinedPositions[pid]) {
             joinedPositions[pid] = []
           }

@@ -78,7 +78,7 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
   const { comingSoonList = [], selectedChainIds = [], handleChangeChains, chainIds = [], onTracking } = props
   const options = chainIds.map(id => ({ value: id, label: id }))
   const theme = useTheme()
-  const selectedChains = selectedChainIds.filter(item => !comingSoonList.includes(item))
+  const selectedChains = selectedChainIds.filter(item => !comingSoonList.includes(item)).sort()
   const [localSelectedChains, setLocalSelectedChains] = useState(() => selectedChains)
   const { activeChains } = useChainsConfig()
   const networkList = chainIds.filter(
@@ -98,7 +98,7 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
   useEffect(() => {
     setLocalSelectedChains(selectedChains)
     // eslint-disable-next-line
-  }, [selectedChains.length])
+  }, [JSON.stringify(selectedChains)])
 
   const selectAllRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
@@ -118,7 +118,7 @@ const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, st
       onHideMenu={onHideMenu}
       className={className}
       style={style}
-      activeRender={_ => <SelectButton {...props} />}
+      activeRender={() => <SelectButton {...props} />}
       options={options}
       optionStyle={{ padding: 0 }}
       optionRender={item => {

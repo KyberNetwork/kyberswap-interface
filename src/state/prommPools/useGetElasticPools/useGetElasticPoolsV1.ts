@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client'
+import { Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useEffect, useRef, useState } from 'react'
 
@@ -81,9 +82,6 @@ const parsedPoolData = (
           100
         : 0
 
-    const tvlToken0 = current ? parseFloat(current.totalValueLockedToken0) : 0
-    const tvlToken1 = current ? parseFloat(current.totalValueLockedToken1) : 0
-
     const feeTier = current ? parseInt(current.feeTier) : 0
 
     if (current) {
@@ -95,25 +93,25 @@ const parsedPoolData = (
         reinvestL: current.reinvestL,
         tick: parseFloat(current.tick),
 
-        token0: {
-          address: current.token0.id,
-          name: current.token0.name,
-          symbol: current.token0.symbol,
-          decimals: parseInt(current.token0.decimals),
-        },
-        token1: {
-          address: current.token1.id,
-          name: current.token1.name,
-          symbol: current.token1.symbol,
-          decimals: parseInt(current.token1.decimals),
-        },
-        token0Price: parseFloat(current.token0Price),
-        token1Price: parseFloat(current.token1Price),
+        token0: new Token(
+          1,
+          current.token0.id,
+          Number(current.token0.decimals),
+          current.token0.symbol,
+          current.token0.name,
+        ),
+        token1: new Token(
+          1,
+          current.token1.id,
+          Number(current.token1.decimals),
+          current.token1.symbol,
+          current.token1.name,
+        ),
         tvlUSD: parseFloat(current.totalValueLockedUSD),
+        feeUSDLast: 0,
+        volumeUSDLast: volumeUSDLast24h,
         volumeUSDLast24h,
         tvlUSDLast24h,
-        tvlToken0,
-        tvlToken1,
         apr: tvlUSD > 0 ? (volumeUSDLast24h * (feeTier / ELASTIC_BASE_FEE_UNIT) * 100 * 365) / tvlUSD : 0,
       }
     }

@@ -21,7 +21,8 @@ const PopoverContainer = styled.div<{ show: boolean; opacity?: number }>`
   border-radius: 8px;
 `
 
-const ReferenceElement = styled.div`
+const ReferenceElement = styled.div<{ wrapperWidth?: string }>`
+  ${({ wrapperWidth }) => (wrapperWidth ? `width: ${wrapperWidth};` : '')}
   display: block;
 `
 
@@ -86,6 +87,7 @@ export interface PopoverProps {
   style?: React.CSSProperties
   containerStyle?: React.CSSProperties
   offset?: [number, number]
+  wrapperWidth?: string
 }
 
 // Reference https://popper.js.org/docs/v2/modifiers/offset/#skidding
@@ -101,6 +103,7 @@ export default function Popover({
   style = {},
   containerStyle = {},
   offset = defaultOffset,
+  wrapperWidth,
 }: PopoverProps) {
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
@@ -120,7 +123,7 @@ export default function Popover({
 
   return (
     <>
-      <ReferenceElement ref={setReferenceElement as any} style={containerStyle}>
+      <ReferenceElement ref={setReferenceElement as any} style={containerStyle} wrapperWidth={wrapperWidth}>
         {children}
       </ReferenceElement>
       {show && (

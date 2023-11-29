@@ -11,11 +11,6 @@ function Drop({ size = 64 }: { size?: number }) {
           fill="#31CB9E"
         />
       </g>
-      <defs>
-        <clipPath id="clip0_2111_61627">
-          <rect width="64" height="64" fill="white" />
-        </clipPath>
-      </defs>
     </svg>
   )
 }

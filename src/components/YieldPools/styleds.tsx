@@ -111,7 +111,7 @@ export const TabGroup = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   background: transparent;
   align-items: center;
-
+  width: fit-content;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: 100%;
     > div {
@@ -123,6 +123,7 @@ export const TabGroup = styled.div`
 export const PoolTitleContainer = styled.div`
   display: flex;
   align-items: center;
+  white-space: nowrap;
 `
 
 export const HeadingContainer = styled.div`

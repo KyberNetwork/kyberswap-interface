@@ -9,12 +9,42 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch } from 'state/hooks'
-import { ElasticPool, RawToken } from 'state/prommPools/useGetElasticPools/useGetElasticPoolsV2'
 import { isAddressString } from 'utils'
 
 import { CommonProps } from '.'
 import { setFarms, setLoading } from '..'
 import { ElasticFarm } from '../types'
+
+type RawToken = {
+  id: string
+  symbol: string
+  name: string
+  decimals: string
+}
+
+type ElasticPool = {
+  id: string
+
+  token0: RawToken
+  token1: RawToken
+
+  feeTier: string
+  liquidity: string
+  reinvestL: string
+  sqrtPrice: string
+  tick: string
+
+  volumeUsd: string
+  feesUsd: string
+
+  totalValueLockedUsd: string
+  feesUsdOneDayAgo: string
+  volumeUsdOneDayAgo: string
+
+  totalValueLockedUsdInRange: string
+  apr: string
+  farmApr: string
+}
 
 interface FarmingPool {
   id: string

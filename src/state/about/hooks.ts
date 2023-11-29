@@ -24,6 +24,7 @@ interface GlobalData {
   aggregatorData?: {
     totalVolume?: string
     last24hVolume?: string
+    last24hPoolVolume: string
     maxApr?: {
       value: number
       id: string
@@ -107,6 +108,7 @@ export function useGlobalData() {
         aggregatorData: {
           totalVolume: aggregatorData?.totalVolume,
           last24hVolume: aggregatorData?.last24hVolume,
+          last24hPoolVolume: aggregatorData?.last24hPoolVolume,
           maxApr: aggregatorAPR?.max_apr,
           totalEarnings: aggregatorAPR?.total_earnings,
         },

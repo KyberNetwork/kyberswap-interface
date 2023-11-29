@@ -59,6 +59,7 @@ type KyberswapGlobalConfig = {
   aggregatorDomain: string
   aggregatorAPI: string
   isEnableAuthenAggregator: boolean
+  isEnableOmniPool: boolean
   chainStates: ChainStateMap
 }
 
@@ -69,11 +70,13 @@ const parseGlobalResponse = (
   const data = responseData?.data?.config
   const aggregatorDomain = data?.aggregator ?? AGGREGATOR_API
   const isEnableAuthenAggregator = !!data?.isEnableAuthenAggregator
+  const isEnableOmniPool = !!data?.isEnableOmniPool
   return {
     chainStates: data?.chainStates || ({} as ChainStateMap),
     aggregatorDomain,
     aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
     isEnableAuthenAggregator,
+    isEnableOmniPool,
   }
 }
 export const useLazyKyberswapConfig = (): ((customChainId?: ChainId) => Promise<KyberSwapConfig>) => {

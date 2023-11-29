@@ -292,7 +292,7 @@ export default function App() {
 
                 <>
                   {/* Pools Routes  */}
-                  <Route path={`${APP_PATHS.POOLS}`} element={<RedirectWithNetworkSuffix />} />
+                  {/* <Route path={`${APP_PATHS.POOLS}`} element={<RedirectWithNetworkSuffix />} /> */}
                   <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA?/:currencyIdB?`} element={<Pools />} />
                 </>
 

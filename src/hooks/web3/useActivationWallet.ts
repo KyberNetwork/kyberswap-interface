@@ -40,15 +40,21 @@ export const useActivationWallet: () => {
         }
         localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_EVM, walletKey)
       } catch (error) {
-        console.error('Activate EVM failed:', { walletKey, wallet, error, isEagerly })
-        localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
-        const e = new Error(`[Wallet] ${error.message}`)
-        e.name = 'Activate EVM failed'
-        e.stack = ''
-        captureException(e, {
-          level: 'warning',
-          extra: { error, walletKey, isEagerly },
-        })
+        if (localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM) === walletKey) {
+          localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
+        }
+        if (!isEagerly) {
+          console.error('Activate EVM failed:', { walletKey, wallet, error, isEagerly })
+          const e = new Error(`[Wallet] ${error.message}`)
+          e.name = 'Activate EVM failed'
+          e.stack = ''
+          captureException(e, {
+            level: 'warning',
+            extra: { error, walletKey, isEagerly },
+          })
+        } else {
+          console.log('Activate EVM failed:', { walletKey, wallet, error, isEagerly })
+        }
         throw error
       }
     },

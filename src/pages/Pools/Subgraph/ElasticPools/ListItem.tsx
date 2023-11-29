@@ -24,13 +24,14 @@ import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { ButtonIcon } from 'pages/Pools/styleds'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { ExternalLink } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
+
+import { ButtonIcon } from '../styleds'
 
 interface ListItemProps {
   pool: ElasticPoolDetail

@@ -43,6 +43,7 @@ export type KyberswapGlobalConfigurationResponse = {
     config: {
       aggregator: string
       isEnableAuthenAggregator: boolean
+      isEnableOmniPool: boolean
       chainStates: ChainStateMap
     }
   }
