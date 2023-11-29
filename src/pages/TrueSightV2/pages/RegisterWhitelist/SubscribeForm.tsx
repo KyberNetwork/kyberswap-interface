@@ -84,11 +84,9 @@ export default function EmailForm({
   const joinWaitList = async () => {
     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_JOIN_KYBER_WAITLIST_CLICK)
     try {
-      if (hasErrorInput || !inputEmail || checkingInput.current) return
-      if (userInfo?.email) {
-        await requestWaitList({ referredByCode }).unwrap()
-      }
-      showVerify(inputEmail || userInfo?.email || '', referredByCode, !!userInfo?.email)
+      if (hasErrorInput || checkingInput.current) return
+      if (inputEmail) showVerify(inputEmail, referredByCode, !!userInfo?.email)
+      else requestWaitList({ referredByCode }).unwrap()
     } catch (error) {
       const msg = getErrorMessage(error)
       setErrorInput(prev => ({ ...prev, [isReferrerCodeInvalid(error) ? 'referredByCode' : 'email']: msg }))
@@ -104,7 +102,7 @@ export default function EmailForm({
               disabled={!!userInfo?.email}
               $borderColor={errorInput.email ? theme.red : theme.border}
               value={inputEmail}
-              placeholder={t`Email Address`}
+              placeholder={t`Email Address (Optional)`}
               onChange={onChangeInput}
             />
           </Tooltip>
