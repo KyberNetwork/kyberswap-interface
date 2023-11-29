@@ -36,7 +36,7 @@ function ClassicElasticTab() {
   const shouldShowPositionTab = !!positions.length
 
   const params = Object.fromEntries(new URLSearchParams(location.search))
-  const { tabQs, skipAlert, ...qs } = params
+  const { tab: tabQs = isMyPoolPage ? VERSION.ELASTIC : VERSION.CLASSIC, skipAlert, ...qs } = params
   const tab = isInEnum(tabQs, VERSION) ? tabQs : VERSION.ELASTIC
 
   const { chainId } = useActiveWeb3React()
