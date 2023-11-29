@@ -77,7 +77,7 @@ export const useLazyNavigateToMyFirstPortfolio = () => {
 
   return useCallback(async () => {
     try {
-      const { data } = await getPortfolio()
+      const { data } = await getPortfolio(undefined, true)
       navigate(data)
     } catch (error) {}
   }, [navigate, getPortfolio])

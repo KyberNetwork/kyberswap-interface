@@ -234,7 +234,7 @@ export default function Header() {
             <CampaignNavGroup />
             <KyberDAONavGroup />
             <PortfolioWrapper>
-              <StyledNavLink to="#" onClick={navigateToMyPortFolio}>
+              <StyledNavLink to="" onClick={navigateToMyPortFolio}>
                 <Trans>Portfolio</Trans>
               </StyledNavLink>
             </PortfolioWrapper>
