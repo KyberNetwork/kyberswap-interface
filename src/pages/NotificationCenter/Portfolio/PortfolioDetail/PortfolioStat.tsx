@@ -33,7 +33,11 @@ import TokenAllocation, {
 } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens/TokenAllocation'
 import Transactions from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
 import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
-import { useNavigateToPortfolioDetail, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
+import {
+  getPortfolioDetailUrl,
+  useNavigateToPortfolioDetail,
+  useParseWalletPortfolioParam,
+} from 'pages/NotificationCenter/Portfolio/helpers'
 import { Portfolio, PortfolioTab, PortfolioWallet } from 'pages/NotificationCenter/Portfolio/type'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -200,6 +204,7 @@ export default function PortfolioStat() {
       )}
       {activeTab === PortfolioTab.NFT && <Nft {...props} />}
       <ShareImageModal
+        redirectUrl={getPortfolioDetailUrl({ portfolioId, wallet, myPortfolio: false })}
         isOpen={showShare}
         onClose={() => setShowShare(false)}
         content={shareContents}

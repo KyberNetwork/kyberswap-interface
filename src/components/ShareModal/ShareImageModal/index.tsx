@@ -250,6 +250,7 @@ export default function ShareImageModal({
   imageName,
   titleLogo,
   kyberswapLogoTitle,
+  redirectUrl,
 }: {
   title?: string
   content?: RenderContentFn | RenderContentFn[]
@@ -260,6 +261,7 @@ export default function ShareImageModal({
   imageName: string
   titleLogo: ReactNode
   kyberswapLogoTitle: ReactNode
+  redirectUrl?: string
 }) {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
@@ -337,7 +339,7 @@ export default function ShareImageModal({
     setLoading(true)
     setIsError(false)
     const shareUrl = await createShareLink({
-      redirectURL: ENV_LEVEL === ENV_TYPE.LOCAL ? 'https://kyberswap.com' : window.location.href,
+      redirectURL: ENV_LEVEL === ENV_TYPE.LOCAL ? 'https://kyberswap.com' : redirectUrl || window.location.href,
       type: shareType,
     }).unwrap()
     const fn = (prev: ShareData) => {

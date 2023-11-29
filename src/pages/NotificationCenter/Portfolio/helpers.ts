@@ -29,12 +29,17 @@ export const useParseWalletPortfolioParam = () => {
   }
 }
 
+type Params = { wallet?: string; portfolioId?: string; myPortfolio?: boolean }
+
+// path/id/wallet or path/wallet
+export const getPortfolioDetailUrl = ({ wallet, portfolioId, myPortfolio = true }: Params) =>
+  [myPortfolio ? APP_PATHS.MY_PORTFOLIO : APP_PATHS.PORTFOLIO, portfolioId, wallet].filter(Boolean).join('/')
+
 export const useNavigateToPortfolioDetail = () => {
   const navigate = useNavigate()
   return useCallback(
-    ({ wallet, portfolioId, myPortfolio = true }: { wallet?: string; portfolioId?: string; myPortfolio?: boolean }) => {
-      const path = myPortfolio ? APP_PATHS.MY_PORTFOLIO : APP_PATHS.PORTFOLIO
-      navigate([path, portfolioId, wallet].filter(Boolean).join('/')) // path/id/wallet or path/wallet
+    (data: Params) => {
+      navigate(getPortfolioDetailUrl(data))
     },
     [navigate],
   )
