@@ -50,11 +50,11 @@ function ClassicElasticTab() {
   )
 
   useEffect(() => {
-    if (!notSupportedElasticMsg) {
+    if (notSupportedClassicMsg) {
       setOpenElasticHacked(!skipAlert)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notSupportedElasticMsg])
+  }, [chainId])
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
