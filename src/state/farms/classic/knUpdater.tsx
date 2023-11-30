@@ -8,7 +8,6 @@ import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import FAIRLAUNCH_V3_ABI from 'constants/abis/fairlaunch-v3.json'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import { AbortedError, ZERO_ADDRESS } from 'constants/index'
-import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { setFarmsData, setLoading, setYieldPoolsError } from 'state/farms/classic/actions'
@@ -28,7 +27,6 @@ const KNUpdater = ({ isInterval = true }: { isInterval?: boolean }) => {
 
     async function getListFarmsKN(): Promise<Farm[]> {
       try {
-        if (!isEVM(chainId)) return []
         const farmsKN: ClassicFarmKN[] | undefined = (await fetchFarmKN(chainId)).data?.data.farmPools
         if (!farmsKN) return []
 

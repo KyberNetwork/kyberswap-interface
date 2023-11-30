@@ -170,7 +170,7 @@ export const KSStatistic = () => {
 }
 
 function AboutKyberSwap() {
-  const { isSolana, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const above992 = useMedia('(min-width: 992px)')
   const above768 = useMedia('(min-width: 768px)')
@@ -425,14 +425,7 @@ function AboutKyberSwap() {
   )
 
   const renderCreateNewPoolButton = () => {
-    return isSolana ? (
-      <BtnPrimary disabled style={{ flex: '0 0 216px', padding: '12px' }}>
-        <Plus size={20} />
-        <Text marginLeft="8px" fontSize={['14px', '16px']}>
-          <Trans>Create New Pool</Trans>
-        </Text>
-      </BtnPrimary>
-    ) : (
+    return (
       <BtnPrimary
         as={Link}
         to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic&highlightCreateButton=true`}
@@ -756,66 +749,28 @@ function AboutKyberSwap() {
             marginTop={['40px', '48px']}
             sx={{ gap: above768 ? '24px' : '16px' }}
           >
-            {!isSolana ? (
-              <>
-                <BtnPrimary
-                  as={Link}
-                  to={
-                    activeTab === VERSION.ELASTIC
-                      ? `${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`
-                      : `${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic&highlightCreateButton=true`
-                  }
-                  onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
-                >
-                  <MoneyBagOutline size={20} color={theme.textReverse} />
-                  <Text fontSize="16px" marginLeft="8px">
-                    <Trans>Start Earning</Trans>
-                  </Text>
-                </BtnPrimary>
-                <ButtonLight
-                  as={Link}
-                  to={
-                    activeTab === VERSION.ELASTIC
-                      ? `${APP_PATHS.FARMS}/${networkInfo.route}?tab=elastic`
-                      : `${APP_PATHS.FARMS}/${networkInfo.route}?tab=classic`
-                  }
-                  onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}
-                  style={{
-                    flex: 1,
-                  }}
-                >
-                  <FarmIcon size={20} />
-                  <Text fontSize="16px" marginLeft="8px">
-                    <Trans>View Farms</Trans>
-                  </Text>
-                </ButtonLight>
-              </>
-            ) : (
-              <>
-                <BtnPrimary
-                  disabled
-                  style={{
-                    flex: 1,
-                  }}
-                >
-                  <MoneyBagOutline size={20} />
-                  <Text fontSize="16px" marginLeft="8px">
-                    <Trans>Start Earning</Trans>
-                  </Text>
-                </BtnPrimary>
-                <BtnPrimary
-                  disabled
-                  style={{
-                    flex: 1,
-                  }}
-                >
-                  <FarmIcon size={20} />
-                  <Text fontSize="16px" marginLeft="8px">
-                    <Trans>View Farms</Trans>
-                  </Text>
-                </BtnPrimary>
-              </>
-            )}
+            <BtnPrimary
+              disabled
+              style={{
+                flex: 1,
+              }}
+            >
+              <MoneyBagOutline size={20} />
+              <Text fontSize="16px" marginLeft="8px">
+                <Trans>Start Earning</Trans>
+              </Text>
+            </BtnPrimary>
+            <BtnPrimary
+              disabled
+              style={{
+                flex: 1,
+              }}
+            >
+              <FarmIcon size={20} />
+              <Text fontSize="16px" marginLeft="8px">
+                <Trans>View Farms</Trans>
+              </Text>
+            </BtnPrimary>
           </Flex>
 
           <Flex
@@ -1002,7 +957,6 @@ function AboutKyberSwap() {
               <AuroraFull />
               <img src={BTTCDark} alt="btt" width="100%" />
               <OptimismLogoFull />
-              {/* <SolanaLogoFull /> */}
               <ZkSyncFull color={theme.text} />
               <LineaFull />
               <img

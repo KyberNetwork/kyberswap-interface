@@ -4,7 +4,7 @@ import { rgba } from 'polished'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -83,7 +83,7 @@ const renderNotificationButton = (iconOnly: boolean) => {
 }
 
 export default function ProAmmPool() {
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
@@ -220,8 +220,6 @@ export default function ProAmmPool() {
   )
 
   const upToSmall = useMedia('(max-width: 768px)')
-
-  if (!isEVM) return <Navigate to="/" />
 
   return (
     <>

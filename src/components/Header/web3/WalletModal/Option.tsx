@@ -1,15 +1,13 @@
 import { Trans } from '@lingui/macro'
-import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { darken } from 'polished'
 import React from 'react'
 import styled, { css } from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletReadyState } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { isEVMWallet, isSolanaWallet } from 'utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 import { C98OverrideGuide } from './WarningBox'
@@ -106,19 +104,17 @@ const StyledLink = styled(ExternalLink)`
 const Option = ({
   walletKey,
   readyState,
-  isSupportCurrentChain,
   installLink,
   isOverridden,
   onSelected,
 }: {
   walletKey: SUPPORTED_WALLET
-  isSupportCurrentChain: boolean
   readyState?: WalletReadyState
   installLink?: string
   isOverridden?: boolean
   onSelected?: (walletKey: SUPPORTED_WALLET) => any
 }) => {
-  const { walletKey: walletKeyConnected, isEVM, isSolana } = useActiveWeb3React()
+  const { walletKey: walletKeyConnected } = useActiveWeb3React()
   const isBraveBrowser = checkForBraveBrowser()
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
@@ -134,10 +130,8 @@ const Option = ({
       onClick={
         onSelected &&
         !isConnected &&
-        (readyState === WalletReadyState.Installed ||
-          (readyState === WalletReadyState.Loadable && isSolanaWallet(wallet))) &&
+        readyState === WalletReadyState.Installed &&
         isAcceptedTerm &&
-        isSupportCurrentChain &&
         !isOverridden &&
         !(walletKey === 'BRAVE' && !isBraveBrowser)
           ? () => onSelected(walletKey)
@@ -157,13 +151,9 @@ const Option = ({
     </OptionCardClickable>
   )
 
-  if (!isSupportCurrentChain) {
-    return null
-  }
-
   if (!isAcceptedTerm) return content
 
-  if (readyState === WalletReadyState.Loadable && isEVMWallet(wallet) && wallet.href) {
+  if (readyState === WalletReadyState.Loadable && wallet.href) {
     return <StyledLink href={wallet.href}>{content}</StyledLink>
   }
 
@@ -193,7 +183,7 @@ const Option = ({
       )
     }
     // Brave wallet overrided by Metamask extension
-    if (isBraveBrowser && !window.ethereum?.isBraveWallet && isEVM) {
+    if (isBraveBrowser && !window.ethereum?.isBraveWallet) {
       return (
         <MouseoverTooltip
           placement="bottom"
@@ -208,7 +198,7 @@ const Option = ({
       )
     }
     // Brave wallet overrided by Metamask extension
-    if (isBraveBrowser && !window.solana?.isBraveWallet && isSolana) {
+    if (isBraveBrowser) {
       return (
         <MouseoverTooltip
           placement="bottom"

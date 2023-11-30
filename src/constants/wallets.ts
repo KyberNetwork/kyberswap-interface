@@ -1,5 +1,4 @@
 import SafeAppsSDK from '@safe-global/safe-apps-sdk'
-import { BaseMessageSignerWalletAdapter, WalletReadyState } from '@solana/wallet-adapter-base'
 import { Web3ReactHooks } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
 import { isMobile } from 'react-device-detect'
@@ -10,11 +9,8 @@ import COIN98 from 'assets/wallets-connect/coin98.svg'
 import COINBASE from 'assets/wallets-connect/coinbase.svg'
 import KRYSTAL from 'assets/wallets-connect/krystal.svg'
 import METAMASK from 'assets/wallets-connect/metamask.svg'
-import PHANTOM from 'assets/wallets-connect/phantom.svg'
 import RABBY from 'assets/wallets-connect/rabby.svg'
 import SAFE from 'assets/wallets-connect/safe.svg'
-import SLOPE from 'assets/wallets-connect/slope.svg'
-import SOLFLARE from 'assets/wallets-connect/solflare.svg'
 import TRUSTWALLET from 'assets/wallets-connect/trust-wallet.svg'
 import WALLETCONNECT from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
@@ -45,15 +41,7 @@ import {
   trustHooks,
   walletConnectV2,
   walletConnectV2Hooks,
-} from 'constants/connectors/evm'
-import {
-  braveAdapter,
-  coin98Adapter,
-  coinbaseAdapter,
-  phantomAdapter,
-  slopeAdapter,
-  solflareAdapter,
-} from 'constants/connectors/solana'
+} from 'constants/connectors'
 import {
   getIsBloctoWallet,
   getIsBraveWallet,
@@ -65,6 +53,26 @@ import {
   getIsRabbyWallet,
   getIsTrustWallet,
 } from 'constants/connectors/utils'
+
+export enum WalletReadyState {
+  /**
+   * User-installable wallets can typically be detected by scanning for an API
+   * that they've injected into the global context. If such an API is present,
+   * we consider the wallet to have been installed.
+   */
+  Installed = 'Installed',
+  NotDetected = 'NotDetected',
+  /**
+   * Loadable wallets are always available to you. Since you can load them at
+   * any time, it's meaningless to say that they have been detected.
+   */
+  Loadable = 'Loadable',
+  /**
+   * If a wallet is not supported on a given platform (eg. server-rendering, or
+   * mobile) then it will stay in the `Unsupported` state.
+   */
+  Unsupported = 'Unsupported',
+}
 
 const detectGenericInjected = (): WalletReadyState => {
   // used in mobile dapp
@@ -141,28 +149,14 @@ const detectTrustWalletInjected = (): WalletReadyState => {
   return WalletReadyState.NotDetected
 }
 
-const detectPhantomWallet = (): WalletReadyState => {
-  // On Brave browser disable phantom
-  if (window.solana?.isPhantom && window.solana?.isBraveWallet) return WalletReadyState.NotDetected
-  return phantomAdapter.readyState
-}
-
 export interface WalletInfo {
   name: string
   icon: string
   installLink?: string
   href?: string
-}
-
-export interface EVMWalletInfo extends WalletInfo {
   connector: Connector
   hooks: Web3ReactHooks
   readyState: () => WalletReadyState
-}
-
-export interface SolanaWalletInfo extends WalletInfo {
-  adapter: BaseMessageSignerWalletAdapter
-  readyStateSolana: () => WalletReadyState
 }
 
 export const SUPPORTED_WALLETS = {
@@ -172,7 +166,7 @@ export const SUPPORTED_WALLETS = {
     name: 'Browser Wallet',
     icon: INJECTED_DARK_ICON,
     readyState: detectGenericInjected,
-  } as EVMWalletInfo,
+  } as WalletInfo,
   METAMASK: {
     connector: metaMask,
     hooks: metamaskHooks,
@@ -180,7 +174,7 @@ export const SUPPORTED_WALLETS = {
     icon: METAMASK,
     installLink: 'https://metamask.io/download',
     readyState: detectMetamaskInjected,
-  } as EVMWalletInfo,
+  } as WalletInfo,
   KRYSTAL: {
     connector: krystal,
     hooks: krystalHooks,
@@ -188,7 +182,7 @@ export const SUPPORTED_WALLETS = {
     icon: KRYSTAL,
     installLink: 'https://wallet.krystal.app',
     readyState: detectKrystalInjected,
-  } as EVMWalletInfo,
+  } as WalletInfo,
   RABBY: {
     connector: rabby,
     hooks: rabbyHooks,
@@ -196,7 +190,7 @@ export const SUPPORTED_WALLETS = {
     icon: RABBY,
     installLink: 'https://rabby.io',
     readyState: detectRabbyInjected,
-  } as EVMWalletInfo,
+  } as WalletInfo,
   TRUST_WALLET: {
     connector: trust,
     hooks: trustHooks,
@@ -204,18 +198,15 @@ export const SUPPORTED_WALLETS = {
     icon: TRUSTWALLET,
     installLink: 'https://trustwallet.com/vi/deeplink',
     readyState: detectTrustWalletInjected,
-  } as EVMWalletInfo,
+  } as WalletInfo,
   BRAVE: {
     connector: brave,
     hooks: braveHooks,
-    adapter: braveAdapter,
     name: 'Brave Wallet',
     icon: BRAVE,
     installLink: 'https://brave.com/download',
     readyState: detectBraveInjected,
-    // If Phantom extension installed block Brave wallet
-    readyStateSolana: () => (window.solana?.isBraveWallet ? braveAdapter.readyState : WalletReadyState.NotDetected),
-  } as EVMWalletInfo & SolanaWalletInfo,
+  } as WalletInfo,
   SAFE: {
     connector: gnosisSafe,
     hooks: gnosisSafeHooks,
@@ -223,48 +214,44 @@ export const SUPPORTED_WALLETS = {
     icon: SAFE,
     installLink: 'https://safe.global/wallet',
     readyState: detectSafe,
-  } as EVMWalletInfo,
+  } as WalletInfo,
   COINBASE: {
     connector: coinbaseWallet,
     hooks: coinbaseWalletHooks,
-    adapter: coinbaseAdapter,
     name: 'Coinbase',
     icon: COINBASE,
     installLink: 'https://www.coinbase.com/wallet',
     readyState: detectCoinbaseInjected,
-    readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
-  } as EVMWalletInfo & SolanaWalletInfo,
+  } as WalletInfo,
   COIN98: {
     connector: coin98,
     hooks: coin98Hooks,
-    adapter: coin98Adapter,
     name: 'Coin98',
     icon: COIN98,
     installLink: 'https://wallet.coin98.com/',
     readyState: detectCoin98Injected,
-    readyStateSolana: () => coin98Adapter.readyState,
-  } as EVMWalletInfo & SolanaWalletInfo,
+  } as WalletInfo,
   BLOCTO_INJECTED: {
     connector: bloctoInject,
     hooks: bloctoInjectHooks,
     name: 'Blocto',
     icon: BLOCTO,
     readyState: detectBloctoInjected,
-  } as EVMWalletInfo,
+  } as WalletInfo,
   KRYSTAL_WC: {
     connector: krystalWalletConnectV2,
     hooks: krystalWalletConnectV2Hooks,
     name: 'Krystal',
     icon: KRYSTAL,
     readyState: detectKrystalWC,
-  } as EVMWalletInfo,
+  } as WalletInfo,
   WALLET_CONNECT: {
     connector: walletConnectV2,
     hooks: walletConnectV2Hooks,
     name: 'WalletConnect',
     icon: WALLETCONNECT,
     readyState: () => WalletReadyState.Installed,
-  } as EVMWalletInfo,
+  } as WalletInfo,
   BLOCTO: {
     connector: blocto,
     hooks: bloctoHooks,
@@ -272,35 +259,13 @@ export const SUPPORTED_WALLETS = {
     icon: BLOCTO,
     installLink: 'https://www.blocto.io/download',
     readyState: detectBlocto,
-  } as EVMWalletInfo,
-  SOLFLARE: {
-    adapter: solflareAdapter,
-    name: 'Solflare',
-    icon: SOLFLARE,
-    installLink: solflareAdapter.url,
-    readyStateSolana: () => solflareAdapter.readyState,
-  } as SolanaWalletInfo,
-  PHANTOM: {
-    adapter: phantomAdapter,
-    name: 'Phantom',
-    icon: PHANTOM,
-    installLink: phantomAdapter.url,
-    readyStateSolana: detectPhantomWallet,
-  } as SolanaWalletInfo,
-  SLOPE: {
-    adapter: slopeAdapter,
-    name: 'Slope Wallet',
-    icon: SLOPE,
-    installLink: slopeAdapter.url,
-    readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : slopeAdapter.readyState),
-  } as SolanaWalletInfo,
+  } as WalletInfo,
 } as const
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
 
-export const connections = Object.values(SUPPORTED_WALLETS).filter(wallet => 'connector' in wallet) as EVMWalletInfo[]
+export const connections = Object.values(SUPPORTED_WALLETS).filter(wallet => 'connector' in wallet) as WalletInfo[]
 
 export const LOCALSTORAGE_LAST_WALLETKEY_EVM = 'last-wallet-key-evm'
-export const LOCALSTORAGE_LAST_WALLETKEY_SOLANA = 'last-wallet-key-solana'
 export const INJECTED_KEYS = [
   'COIN98',
   'BRAVE',

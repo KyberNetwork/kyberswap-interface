@@ -2,13 +2,13 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import auroraIcon from 'assets/networks/aurora.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const auroraInfo: EVMNetworkInfo = {
+const auroraInfo: NetworkInfo = {
   chainId: ChainId.AURORA,
   route: 'aurora',
   ksSettingRoute: 'aurora',

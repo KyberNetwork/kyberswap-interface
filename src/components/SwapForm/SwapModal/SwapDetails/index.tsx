@@ -72,7 +72,7 @@ export default function SwapDetails({
   priceImpact,
   buildData,
 }: Props) {
-  const { isEVM, chainId, networkInfo, account } = useActiveWeb3React()
+  const { chainId, networkInfo, account } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
   const { slippage, routeSummary } = useSwapFormContext()
@@ -224,30 +224,28 @@ export default function SwapDetails({
           />
         </RowBetween>
 
-        {isEVM && (
-          <RowBetween height="20px" style={{ gap: '16px' }}>
-            <RowFixed>
-              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                  <Trans>Est. Gas Fee</Trans>
-                </MouseoverTooltip>
-              </TextDashed>
-            </RowFixed>
+        <RowBetween height="20px" style={{ gap: '16px' }}>
+          <RowFixed>
+            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+              <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
+                <Trans>Est. Gas Fee</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
+          </RowFixed>
 
-            <ValueWithLoadingSkeleton
-              skeletonStyle={{
-                width: '64px',
-                height: '19px',
-              }}
-              isShowingSkeleton={isLoading}
-              content={
-                <TYPE.black color={theme.text} fontSize={12}>
-                  {gasUsd ? formattedNum(String(gasUsd), true) : '--'}
-                </TYPE.black>
-              }
-            />
-          </RowBetween>
-        )}
+          <ValueWithLoadingSkeleton
+            skeletonStyle={{
+              width: '64px',
+              height: '19px',
+            }}
+            isShowingSkeleton={isLoading}
+            content={
+              <TYPE.black color={theme.text} fontSize={12}>
+                {gasUsd ? formattedNum(String(gasUsd), true) : '--'}
+              </TYPE.black>
+            }
+          />
+        </RowBetween>
 
         {!!feeAmount && feeAmount !== '0' && (
           <RowBetween height="20px" style={{ gap: '16px' }}>

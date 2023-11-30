@@ -177,7 +177,6 @@ export const useProfileInfo = (): {
 
 // info relate account currently signed in
 export const useSignedAccountInfo = () => {
-  const { isEVM } = useActiveWeb3React()
   const signedAccount = useSelector((state: AppState) => state.profile.signedAccount)
   const signedMethod = useSelector((state: AppState) => state.profile.signedMethod) as LoginMethod
 
@@ -188,7 +187,7 @@ export const useSignedAccountInfo = () => {
 
   const isSignInEth = signedMethod === LoginMethod.ETH
   const isSignInDifferentWallet =
-    isEVM && ((isSignInEth && account?.toLowerCase() !== signedAccount?.toLowerCase()) || isSigInGuest || isSignInEmail)
+    (isSignInEth && account?.toLowerCase() !== signedAccount?.toLowerCase()) || isSigInGuest || isSignInEmail
   const isSignInGuestDefault = isSigInGuest && signedAccount === KEY_GUEST_DEFAULT
 
   return {

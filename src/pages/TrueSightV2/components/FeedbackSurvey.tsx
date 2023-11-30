@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
-import { useLocalStorage } from '@solana/wallet-adapter-react'
 import { useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
+import { useLocalStorage } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 

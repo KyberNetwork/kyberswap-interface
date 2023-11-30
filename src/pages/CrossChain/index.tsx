@@ -1,7 +1,6 @@
 import { Squid } from '@0xsquid/sdk'
 import { Trans } from '@lingui/macro'
 import { memo, useEffect, useRef } from 'react'
-import { Navigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import WarningIcon from 'components/Icons/WarningIcon'
@@ -20,7 +19,7 @@ export const getAxelarScanUrl = (srcTxHash: string) => `${CROSS_CHAIN_CONFIG.AXE
 
 function CrossChain({ visible }: { visible: boolean }) {
   const theme = useTheme()
-  const { chainId, isSolana } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const [{ squidInstance, chainIdOut, listChainOut }, setCrossChainState] = useCrossChainState()
 
   const curChainId = useRef(chainId)
@@ -75,7 +74,6 @@ function CrossChain({ visible }: { visible: boolean }) {
   }, [squidInstance, setCrossChainState])
 
   if (!visible) return null
-  if (isSolana) return <Navigate to="/" />
   if (String(squidInstance?.isInMaintenanceMode) === 'true')
     return (
       <Flex style={{ gap: '8px' }} alignItems={'center'}>

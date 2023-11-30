@@ -28,7 +28,6 @@ import { ENV_LEVEL, TAG } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL, TERM_FILES_PATH } from 'constants/index'
 import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { THRESHOLD_HEADER } from 'constants/styles'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
@@ -206,7 +205,7 @@ const ScrollEnd = styled.div<{ show: boolean }>`
 const noop = () => {}
 
 export default function Menu() {
-  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
 
   const open = useModalOpen(ApplicationModal.MENU)
@@ -599,7 +598,7 @@ export default function Menu() {
 
             <AutoRow justify="center">
               <ClaimRewardButton
-                disabled={!account || !isEVM || !(networkInfo as EVMNetworkInfo).classic.claimReward || pendingTx}
+                disabled={!account || !networkInfo.classic.claimReward || pendingTx}
                 onClick={() => {
                   mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
                   toggleClaimPopup()

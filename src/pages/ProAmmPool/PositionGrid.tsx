@@ -6,7 +6,6 @@ import { useMedia } from 'react-use'
 import { FixedSizeGrid as FixedSizeGridRW, GridChildComponentProps, areEqual } from 'react-window'
 import styled from 'styled-components'
 
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmTickReader } from 'hooks/useContract'
 import { useKyberSwapConfig } from 'state/application/hooks'
@@ -66,7 +65,7 @@ const queryPositionLastCollectedTimes = gql`
 `
 
 function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?: React.MutableRefObject<any> }) {
-  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const { elasticClient } = useKyberSwapConfig(chainId)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -79,7 +78,7 @@ function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?
       ids: positionIds,
     },
     fetchPolicy: 'cache-first',
-    skip: !isEVM || !positionIds.length,
+    skip: !positionIds.length,
   })
 
   const liquidityTimes = useMemo(
@@ -122,11 +121,7 @@ function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?
   const rewardRes = useSingleContractMultipleData(
     tickReaderContract,
     'getTotalFeesOwedToPosition',
-    positions.map(item => [
-      (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
-      item.poolId,
-      item.tokenId,
-    ]),
+    positions.map(item => [networkInfo.elastic.nonfungiblePositionManager, item.poolId, item.tokenId]),
   )
 
   const feeRewards = useMemo(() => {

@@ -1,12 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const avaxTestnetInfo: EVMNetworkInfo = {
+const avaxTestnetInfo: NetworkInfo = {
   chainId: ChainId.AVAXTESTNET,
   route: 'avalanche-testnet',
   ksSettingRoute: 'avalanche',

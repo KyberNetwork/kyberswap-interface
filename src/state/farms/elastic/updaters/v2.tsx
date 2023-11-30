@@ -5,7 +5,7 @@ import useSWR from 'swr'
 
 import { POOL_FARM_BASE_URL } from 'constants/env'
 import { ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch } from 'state/hooks'
@@ -43,9 +43,7 @@ interface Response {
 
 const useGetElasticFarms = () => {
   const { chainId } = useActiveWeb3React()
-  const endpoint = isEVM(chainId)
-    ? `${POOL_FARM_BASE_URL}/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/farm-pools?page=1&perPage=10000`
-    : ''
+  const endpoint = `${POOL_FARM_BASE_URL}/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/farm-pools?page=1&perPage=10000`
 
   return useSWR<Response>(endpoint, (url: string) => fetch(url).then(resp => resp.json()), {
     revalidateIfStale: false,

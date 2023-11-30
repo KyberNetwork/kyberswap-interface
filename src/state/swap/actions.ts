@@ -2,8 +2,6 @@ import { createAction } from '@reduxjs/toolkit'
 
 import { Aggregator } from 'utils/aggregator'
 
-import { SolanaEncode } from './types'
-
 export enum Field {
   INPUT = 'INPUT',
   OUTPUT = 'OUTPUT',
@@ -23,9 +21,6 @@ export const replaceSwapState = createAction<{
   outputCurrencyId?: string
   recipient: string | null
 }>('swap/replaceSwapState')
-export const encodedSolana = createAction<{
-  encodeSolana: SolanaEncode
-}>('swap/encodedSolana')
 export const setRecipient = createAction<{ recipient: string | null }>('swap/setRecipient')
 export const setTrendingSoonShowed = createAction('swap/setTrendingSoonShowed')
 export const setTrade = createAction<{ trade: Aggregator | undefined }>('swap/setTrade')
