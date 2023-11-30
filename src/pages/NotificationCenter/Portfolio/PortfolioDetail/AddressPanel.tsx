@@ -4,6 +4,11 @@ import { Eye, EyeOff, Plus, Share2 } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import {
+  useGetRealtimeBalanceQuery,
+  useGetWalletsPortfoliosQuery,
+  useLazyGetRealtimeBalanceQuery,
+} from 'services/portfolio'
 import styled, { css } from 'styled-components'
 
 import DefaultAvatar from 'assets/images/default_avatar.png'
@@ -18,7 +23,7 @@ import MenuFlyout from 'components/MenuFlyout'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import Select, { SelectOption } from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import AddWalletPortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/AddWalletPortfolioModal'
@@ -231,7 +236,7 @@ const AddressPanel = ({
   const { pathname } = useLocation()
   const isMyPortfolioPage = pathname.startsWith(APP_PATHS.MY_PORTFOLIO)
   const { wallet } = useParseWalletPortfolioParam()
-  const { lastUpdatedAt, totalUsd } = data || {}
+  const { lastUpdatedAt, totalUsd = 0 } = data || {}
 
   const accountText = (
     <Text
@@ -282,16 +287,37 @@ const AddressPanel = ({
     [navigate, notify],
   )
 
+  const otherPortfolio = useMemo(
+    () => myPortfolios.filter(el => el.id !== activePortfolio?.id),
+    [myPortfolios, activePortfolio],
+  )
+  const otherPortfolioId = otherPortfolio?.[0]?.id
+  const { currentData: wallets } = useGetWalletsPortfoliosQuery(
+    { portfolioId: otherPortfolioId },
+    { skip: !otherPortfolioId },
+  )
+  // todo ask BE
+  const { currentData } = useGetRealtimeBalanceQuery(
+    {
+      walletAddresses: wallets?.map(e => e.walletAddress) || EMPTY_ARRAY,
+    },
+    { skip: !wallets?.length },
+  )
+  const otherTotalUser = currentData?.totalUsd || 0
+
   const formatPortfolio = useMemo(() => {
-    return myPortfolios
-      .filter(el => el.id !== activePortfolio?.id)
-      .map(el => ({
-        data: { ...el, title: el.name, description: '$123', avatarUrl: '' },
-        // todo raw data field instead ?
-        renderAction,
-        onClick: onClickPortfolio,
-      }))
-  }, [myPortfolios, renderAction, onClickPortfolio, activePortfolio?.id])
+    return otherPortfolio.map(el => ({
+      data: {
+        ...el,
+        title: el.name,
+        description: formatDisplayNumber(otherTotalUser, { style: 'currency', fractionDigits: 2 }),
+        avatarUrl: '',
+      },
+      // todo raw data field instead ?
+      renderAction,
+      onClick: onClickPortfolio,
+    }))
+  }, [otherPortfolio, renderAction, onClickPortfolio, otherTotalUser])
 
   const balance = (
     <BalanceGroup>
@@ -314,7 +340,7 @@ const AddressPanel = ({
             trigger={
               <RowFit>
                 {accountText}
-                <DropdownArrowIcon rotate={isOpen} />
+                {formatPortfolio.length > 0 && <DropdownArrowIcon rotate={isOpen} />}
               </RowFit>
             }
             customStyle={browserCustomStyle}
@@ -329,7 +355,7 @@ const AddressPanel = ({
                 actionLabel: t`Portfolio Settings`,
                 data: {
                   title: activePortfolio?.name,
-                  description: formatDisplayNumber(123.123, { style: 'currency', fractionDigits: 2 }),
+                  description: formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }),
                   avatarUrl: DefaultAvatar,
                 },
               }}
