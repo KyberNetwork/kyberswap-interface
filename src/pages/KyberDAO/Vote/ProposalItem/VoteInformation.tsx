@@ -11,12 +11,11 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
 import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { BIPS_BASE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
-
-import { BIPS_BASE } from '../../../../constants'
 
 const Wrapper = styled.div`
   border-radius: 20px;
