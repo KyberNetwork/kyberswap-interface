@@ -1,5 +1,5 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Position, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -672,7 +672,6 @@ const getUserInfoFragment = farmInterface.getFunction('getUserInfo')
 export function useJoinedPositions() {
   const positions = useDepositedNfts()
   const { farms } = useElasticFarms()
-  const { chainId } = useActiveWeb3React()
 
   const params = useMemo(() => {
     return (farms || []).map(farm => {
@@ -759,9 +758,9 @@ export function useJoinedPositions() {
                 rewardPendings[pid][i] = rewardPendings[pid][i].add(amount)
               }
 
-              // TODO:
-              if (chainId !== ChainId.LINEA && chainId !== ChainId.SCROLL)
-                rewardPendings[pid][i] = CurrencyAmount.fromRawAmount(currency, 0)
+              // TODO: hardcode for now. maybe all farm code will be delete in the future :/
+              rewardPendings[pid][i] = CurrencyAmount.fromRawAmount(currency, 0)
+              rewardByNft[id][i] = CurrencyAmount.fromRawAmount(currency, 0)
             })
           }
         }
@@ -774,7 +773,7 @@ export function useJoinedPositions() {
       }
     })
     return userInfo
-  }, [result, params, chainId, farms, positions])
+  }, [result, params, farms, positions])
 }
 
 export function useUserInfoByFarm(farmAddress: string): UserInfo {

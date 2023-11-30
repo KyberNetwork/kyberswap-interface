@@ -46,10 +46,11 @@ function ClassicElasticTab() {
   const isFarmPage = location.pathname.startsWith(APP_PATHS.FARMS)
   const isMyPoolPage = location.pathname.startsWith(APP_PATHS.MY_POOLS)
   const [isOpenElasticHacked, setOpenElasticHacked] = useState(
-    tab === VERSION.ELASTIC && !notSupportedElasticMsg && !skipAlert,
+    isMyPoolPage ? false : tab === VERSION.ELASTIC && !notSupportedElasticMsg && !skipAlert,
   )
 
   useEffect(() => {
+    if (isMyPoolPage) return
     if (notSupportedClassicMsg) {
       setOpenElasticHacked(!skipAlert)
     }
@@ -57,7 +58,7 @@ function ClassicElasticTab() {
       setOpenElasticHacked(!skipAlert)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId])
+  }, [chainId, isMyPoolPage])
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -282,15 +283,11 @@ function ClassicElasticTab() {
         isOpen={isOpenElasticHacked}
         onClose={() => {
           setOpenElasticHacked(false)
-          if (!isMyPoolPage) {
-            handleSwitchTab(VERSION.CLASSIC)
-          }
+          handleSwitchTab(VERSION.CLASSIC)
         }}
         onConfirm={() => {
           setOpenElasticHacked(false)
-          if (!isMyPoolPage) {
-            navigate({ pathname: APP_PATHS.MY_POOLS, search: 'skipAlert=1' })
-          }
+          navigate({ pathname: APP_PATHS.MY_POOLS, search: 'skipAlert=1' })
         }}
       />
     </Flex>

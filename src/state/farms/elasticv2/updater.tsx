@@ -2,7 +2,7 @@ import { gql, useLazyQuery } from '@apollo/client'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { getCreate2Address } from '@ethersproject/address'
 import { keccak256 } from '@ethersproject/solidity'
-import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -416,12 +416,10 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                   +stakedPos.amount1.toExact() * (prices[stakedPos.amount1.currency.wrapped.address] || 0)
 
                 // TODO: temporary set 0: item.currentUnclaimedRewards[i].toString()
-                const unclaimedRewards =
-                  chainId === ChainId.LINEA || chainId === ChainId.SCROLL
-                    ? farm.totalRewards.map((rw, i) =>
-                        CurrencyAmount.fromRawAmount(rw.currency, item.currentUnclaimedRewards[i].toString()),
-                      )
-                    : farm.totalRewards.map((rw, _i) => CurrencyAmount.fromRawAmount(rw.currency, 0))
+                const unclaimedRewards = farm.totalRewards.map((rw, i) =>
+                  CurrencyAmount.fromRawAmount(rw.currency, item.currentUnclaimedRewards[i].toString()),
+                )
+                // : farm.totalRewards.map((rw, _i) => CurrencyAmount.fromRawAmount(rw.currency, 0))
 
                 const unclaimedRewardsUsd = unclaimedRewards.reduce(
                   (total, item) => total + +item.toExact() * (prices[item.currency.wrapped.address] || 0),

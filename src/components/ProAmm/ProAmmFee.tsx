@@ -142,8 +142,8 @@ export default function ProAmmFee({
               amount1Min.quotient.toString(),
               deadline?.toString(),
               buildFlagsForFarmV21({
-                isClaimFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-                isSyncFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+                isClaimFee: false, // !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+                isSyncFee: false, // !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
                 isClaimReward: false,
                 isReceiveNative: true,
               }),
