@@ -57,8 +57,8 @@ export const useNavigateToMyFirstPortfolio = () => {
   const navigate = useNavigateToPortfolioDetail()
 
   return useCallback(
-    (data: Portfolio[] | undefined) => {
-      if (!account || (portfolioId && !data?.some(el => el.id === portfolioId))) {
+    (data: Portfolio[] | undefined, lazy?: boolean) => {
+      if (!lazy && (!account || (portfolioId && !data?.some(el => el.id === portfolioId)))) {
         return
       }
       if (!data?.length) {
@@ -78,7 +78,7 @@ export const useLazyNavigateToMyFirstPortfolio = () => {
   return useCallback(async () => {
     try {
       const { data } = await getPortfolio(undefined, true)
-      navigate(data)
+      navigate(data, true)
     } catch (error) {}
   }, [navigate, getPortfolio])
 }
