@@ -1,5 +1,5 @@
 import { Fraction } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
