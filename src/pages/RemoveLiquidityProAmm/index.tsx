@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
@@ -29,7 +29,6 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { RowBetween } from 'components/Row'
 import Slider from 'components/Slider'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
@@ -154,14 +153,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const positionManager = useProAmmNFTPositionManagerReadingContract()
   const theme = useTheme()
-  const [claimFee, setIsClaimFee] = useState(false)
+  const [claimFee, _setIsClaimFee] = useState(false)
 
   const { networkInfo, account, chainId } = useActiveWeb3React()
-  useEffect(() => {
-    if (chainId === ChainId.LINEA || chainId === ChainId.SCROLL) {
-      setIsClaimFee(true)
-    }
-  }, [chainId])
 
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -317,9 +311,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             buildFlagsForFarmV21({
-              isClaimFee: claimFee && !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-              isSyncFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-              isClaimReward: claimFee,
+              isClaimFee: false,
+              isSyncFee: false,
+              isClaimReward: false,
               isReceiveNative: !receiveWETH,
             }),
           ]
@@ -330,7 +324,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount0Min.quotient.toString(),
             amount1Min.quotient.toString(),
             deadline.toString(),
-            claimFee ? feeValue0?.greaterThan('0') : 0,
+            false, // isClaimFee
             !receiveWETH,
           ]
         : [
@@ -340,7 +334,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             !receiveWETH,
-            [claimFee && feeValue0?.greaterThan('0'), claimFee],
+            [false, false],
           ]
 
       const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
@@ -781,18 +775,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                         />
                       </div>
                     </TokenInputWrapper>
-
-                    <Flex alignItems="center" sx={{ gap: '12px' }} marginTop="0.75rem">
-                      <Text fontSize="12px" fontWeight="500">
-                        Claim Your Fees Earned
-                      </Text>
-                      <Toggle
-                        isActive={claimFee}
-                        toggle={() => {
-                          setIsClaimFee(prev => !prev)
-                        }}
-                      />
-                    </Flex>
                   </AmoutToRemoveContent>
 
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (
