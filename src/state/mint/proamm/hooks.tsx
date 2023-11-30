@@ -20,7 +20,7 @@ import JSBI from 'jsbi'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { BIG_INT_ZERO } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { getHourlyRateData } from 'data/poolRate'
 import { PoolRatesEntry } from 'data/type'
 import { useActiveWeb3React } from 'hooks'
@@ -1462,7 +1462,7 @@ export function useHourlyRateData(
           ? 300
           : 3600
 
-      if (isEVM(chainId) && poolAddress) {
+      if (poolAddress) {
         setRatesData(null)
         const ratesData = await getHourlyRateData(
           isEnableBlockService,

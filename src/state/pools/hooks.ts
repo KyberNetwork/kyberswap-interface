@@ -51,7 +51,7 @@ interface UserLiquidityPositionResult {
  * @param user string
  */
 export function useUserLiquidityPositions(chainId?: ChainId): UserLiquidityPositionResult {
-  const { isEVM, account } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { classicClient } = useKyberSwapConfig(chainId)
   const { loading, error, data } = useQuery(USER_POSITIONS, {
     client: classicClient,
@@ -59,7 +59,7 @@ export function useUserLiquidityPositions(chainId?: ChainId): UserLiquidityPosit
       user: account?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
-    skip: !isEVM || !account,
+    skip: !account,
   })
 
   return useMemo(() => ({ loading, error, data }), [data, error, loading])
@@ -251,11 +251,10 @@ export function useResetPools(chainId: ChainId) {
 
 function usePoolCountInSubgraph(): number {
   const [poolCount, setPoolCount] = useState(0)
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const { classicClient } = useKyberSwapConfig()
 
   useEffect(() => {
-    if (!isEVM) return
     const getPoolCount = async () => {
       const result = await classicClient.query({
         query: POOL_COUNT,
@@ -269,14 +268,14 @@ function usePoolCountInSubgraph(): number {
     }
 
     getPoolCount()
-  }, [networkInfo, isEVM, classicClient])
+  }, [networkInfo, classicClient])
 
   return poolCount
 }
 
 export function useGetClassicPoolsSubgraph(): CommonReturn {
   const dispatch = useDispatch()
-  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
 
   const poolsData = useSelector((state: AppState) => state.pools.pools)
   const loading = useSelector((state: AppState) => state.pools.loading)
@@ -287,7 +286,6 @@ export function useGetClassicPoolsSubgraph(): CommonReturn {
 
   const poolCountSubgraph = usePoolCountInSubgraph()
   useEffect(() => {
-    if (!isEVM) return
     if (isEnableKNProtocol) return
 
     const getPoolsData = async () => {
@@ -328,7 +326,6 @@ export function useGetClassicPoolsSubgraph(): CommonReturn {
     ethPrice,
     poolCountSubgraph,
     poolsData.length,
-    isEVM,
     networkInfo,
     classicClient,
     blockClient,
@@ -350,7 +347,7 @@ export function useSinglePoolData(
   error?: Error
   data?: ClassicPoolData
 } {
-  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
 
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | undefined>(undefined)
@@ -358,8 +355,6 @@ export function useSinglePoolData(
   const { classicClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
 
   useEffect(() => {
-    if (!isEVM) return
-
     async function checkForPools() {
       setLoading(true)
 
@@ -385,7 +380,7 @@ export function useSinglePoolData(
     }
 
     checkForPools()
-  }, [ethPrice, error, poolAddress, chainId, isEVM, networkInfo, classicClient, blockClient, isEnableBlockService])
+  }, [ethPrice, error, poolAddress, chainId, networkInfo, classicClient, blockClient, isEnableBlockService])
 
   return { loading, error, data: poolData }
 }

@@ -75,12 +75,13 @@ const WarningSignMessage = ({ msg, outline }: { msg: ReactNode; outline?: boolea
   const { signIn } = useLogin()
   const { pendingAuthentication } = useSessionInfo()
   const { isSigInGuest } = useSignedAccountInfo()
-  const { account, isSolana } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const btnWidth = upToSmall ? '45%' : '110px'
+  const btnWidth = upToMedium ? '45%' : '110px'
   const theme = useTheme()
 
-  if (pendingAuthentication || !isSigInGuest || isSolana) return null
+  if (pendingAuthentication || !isSigInGuest) return null
 
   const propsBtn = {
     fontSize: '14px',

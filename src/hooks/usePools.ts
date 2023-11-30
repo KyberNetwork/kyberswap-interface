@@ -4,7 +4,6 @@ import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 
@@ -20,7 +19,7 @@ const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI.abi)
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][],
 ): [PoolState, Pool | null][] {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
 
   const transformed: ([Token, Token, FeeAmount] | null)[] = useMemo(() => {
     return poolKeys.map(([currencyA, currencyB, feeAmount]) => {
@@ -34,8 +33,7 @@ export function usePools(
     })
   }, [poolKeys])
   const poolAddresses: (string | undefined)[] = useMemo(() => {
-    if (!isEVM) return []
-    const proAmmCoreFactoryAddress = (networkInfo as EVMNetworkInfo).elastic.coreFactory
+    const proAmmCoreFactoryAddress = networkInfo.elastic.coreFactory
 
     return transformed.map(value => {
       if (!proAmmCoreFactoryAddress || !value || value[0].equals(value[1])) return undefined
@@ -45,12 +43,12 @@ export function usePools(
         tokenA: value[0],
         tokenB: value[1],
         fee: value[2],
-        initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+        initCodeHashManualOverride: networkInfo.elastic.initCodeHash,
       }
 
       return computePoolAddress(param)
     })
-  }, [transformed, isEVM, networkInfo])
+  }, [transformed, networkInfo])
 
   const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getPoolState')
   const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getLiquidityState')

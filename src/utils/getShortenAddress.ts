@@ -1,7 +1,7 @@
 import { shortenAddress } from 'utils/index'
 
 /**
- * This function can handle non-evm address like tron, solana, etc.
+ * This function can handle non-evm address like tron, etc.
  * @param address
  * @param showX
  */

@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useState } from 'react'
 
 import { GLOBAL_DATA, GLOBAL_DATA_ELASTIC } from 'apollo/queries'
-import { ELASTIC_NOT_SUPPORTED, EVM_MAINNET_NETWORKS, isEVM } from 'constants/networks'
+import { ELASTIC_NOT_SUPPORTED, MAINNET_NETWORKS } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import useAggregatorAPR from 'hooks/useAggregatorAPR'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
@@ -52,7 +52,7 @@ export function useGlobalData() {
         .toString()
     }
     const getResultByChainIds = async (chainIds: readonly ChainId[]) => {
-      const elasticChains = chainIds.filter(id => isEVM(id)).filter(id => !ELASTIC_NOT_SUPPORTED[id])
+      const elasticChains = chainIds.filter(id => !ELASTIC_NOT_SUPPORTED[id])
 
       const elasticPromises = elasticChains.map(chain =>
         allKyberswapConfig[chain].elasticClient.query({
@@ -69,7 +69,7 @@ export function useGlobalData() {
         return total + parseFloat(item?.data?.factories?.[0]?.totalValueLockedUSD || '0')
       }, 0)
 
-      const allChainPromises = chainIds.filter(isEVM).map(chain =>
+      const allChainPromises = chainIds.map(chain =>
         allKyberswapConfig[chain].classicClient.query({
           query: GLOBAL_DATA(),
           fetchPolicy: 'cache-first',
@@ -100,7 +100,7 @@ export function useGlobalData() {
     }
 
     async function getGlobalData() {
-      const result = await getResultByChainIds(EVM_MAINNET_NETWORKS)
+      const result = await getResultByChainIds(MAINNET_NETWORKS)
 
       setGlobalData({
         ...result.data,

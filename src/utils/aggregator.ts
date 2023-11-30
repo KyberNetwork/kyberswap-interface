@@ -1,5 +1,4 @@
 import {
-  ChainId,
   Currency,
   CurrencyAmount,
   Fraction,
@@ -8,35 +7,14 @@ import {
   Token,
   TokenAmount,
   TradeType,
-  WETH,
 } from '@kyberswap/ks-sdk-core'
-import { DexInstructions, OpenOrders } from '@project-serum/serum'
 import { captureException } from '@sentry/react'
-import {
-  Connection,
-  Keypair,
-  Message,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  TransactionInstruction,
-  VersionedTransaction,
-} from '@solana/web3.js'
-import { toByteArray } from 'base64-js'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
 
-import { AbortedError, ETHER_ADDRESS, KYBERSWAP_SOURCE, ZERO_ADDRESS_SOLANA, sentryRequestId } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
-import { SolanaEncode } from 'state/swap/types'
+import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
 
 import fetchWaiting from './fetchWaiting'
-import {
-  checkAndCreateAtaInstruction,
-  checkAndCreateWrapSOLInstructions,
-  createUnwrapSOLInstruction,
-} from './solanaInstructions'
-import { convertToVersionedTx } from './versionedTx'
 
 const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
   try {
@@ -78,12 +56,10 @@ type Swap = {
     | undefined
   collectAmount: string | undefined
   recipient: string | undefined
-  reserveUsd: number // Solana only
 }
 type Tokens = {
   [address: string]: (Token & { price: number }) | undefined
 }
-let maxSwapBytelength = 0
 /**
  */
 export class Aggregator {
@@ -118,13 +94,7 @@ export class Aggregator {
   public readonly priceImpact: number
   public readonly encodedSwapData: string
   public readonly routerAddress: string
-
-  public readonly solana: {
-    readonly to: string
-    readonly programState: Keypair
-    readonly encodedMessage: string
-    readonly serumOpenOrdersAccountByMarket: Record<string, string>
-  } | null
+  public readonly to: string
 
   private constructor(
     inputAmount: CurrencyAmount<Currency>,
@@ -140,9 +110,6 @@ export class Aggregator {
     encodedSwapData: string,
     routerAddress: string,
     to: string,
-    programState: Keypair,
-    encodedMessage: string,
-    serumOpenOrdersAccountByMarket: Record<string, string>,
   ) {
     this.tradeType = tradeType
     this.inputAmount = inputAmount
@@ -170,14 +137,7 @@ export class Aggregator {
     this.priceImpact = priceImpact
     this.encodedSwapData = encodedSwapData
     this.routerAddress = routerAddress
-    if (encodedMessage) {
-      this.solana = {
-        to,
-        programState,
-        encodedMessage,
-        serumOpenOrdersAccountByMarket,
-      }
-    } else this.solana = null
+    this.to = to
   }
 
   /**
@@ -238,20 +198,11 @@ export class Aggregator {
     minimumLoadingTime: number,
     permit?: string | null,
   ): Promise<Aggregator | null> {
-    const programState = new Keypair()
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
-    const tokenInAddress = currencyAmountIn.currency.isNative
-      ? isEVM(currencyAmountIn.currency.chainId)
-        ? ETHER_ADDRESS
-        : WETH[currencyAmountIn.currency.chainId].address
-      : amountIn.currency.wrapped.address
-    const tokenOutAddress = currencyOut.isNative
-      ? isEVM(currencyOut.chainId)
-        ? ETHER_ADDRESS
-        : WETH[currencyOut.chainId].address
-      : tokenOut.address
+    const tokenInAddress = currencyAmountIn.currency.isNative ? ETHER_ADDRESS : amountIn.currency.wrapped.address
+    const tokenOutAddress = currencyOut.isNative ? ETHER_ADDRESS : tokenOut.address
     if (tokenInAddress && tokenOutAddress) {
       const search = new URLSearchParams({
         // Trade config
@@ -264,8 +215,6 @@ export class Aggregator {
         slippageTolerance: slippageTolerance?.toString() ?? '',
         deadline: deadline?.toString() ?? '',
         to,
-
-        programState: programState.publicKey.toBase58() ?? '',
 
         // Client data
         clientData: KYBERSWAP_SOURCE,
@@ -309,9 +258,6 @@ export class Aggregator {
           result.encodedSwapData,
           result.routerAddress,
           to,
-          programState,
-          result.encodedMessage,
-          result.serumOpenOrdersAccountByMarket,
         )
       } catch (e) {
         // ignore aborted request error
@@ -325,237 +271,5 @@ export class Aggregator {
     }
 
     return null
-  }
-
-  public static async baseTradeSolana({
-    aggregatorAPI,
-    currencyAmountIn,
-    currencyOut,
-    to,
-    signal,
-  }: {
-    aggregatorAPI: string
-    currencyAmountIn: CurrencyAmount<Currency>
-    currencyOut: Currency
-    to: string
-    signal: AbortSignal
-  }): Promise<Price<Currency, Currency> | null> {
-    const programState = new Keypair()
-    const amountIn = currencyAmountIn
-    const tokenOut = currencyOut.wrapped
-
-    const tokenInAddress = amountIn.currency.wrapped.address
-    const tokenOutAddress = tokenOut.address
-    if (!tokenInAddress || !tokenOutAddress) return null
-
-    const search = new URLSearchParams({
-      tokenIn: tokenInAddress,
-      tokenOut: tokenOutAddress,
-      amountIn: currencyAmountIn.quotient?.toString(),
-      to,
-      programState: programState.publicKey.toBase58() ?? '',
-      clientData: KYBERSWAP_SOURCE,
-    })
-    try {
-      const response = await fetchWaiting(`${aggregatorAPI}?${search}`, {
-        signal,
-        headers: {
-          'X-Request-Id': sentryRequestId,
-          'Accept-Version': 'Latest',
-        },
-      })
-      if (Math.round(response.status / 100) !== 2) throw new Error('Aggregator status fail: ' + response.status)
-      const result = await response.json()
-      if (isResultInvalid(result)) {
-        return null
-      }
-
-      const outputAmount = toCurrencyAmount(result?.outputAmount, currencyOut)
-
-      return new Price(
-        currencyAmountIn.currency,
-        outputAmount.currency,
-        currencyAmountIn.quotient,
-        outputAmount.quotient,
-      )
-    } catch (e) {
-      console.error('Base trade error:', e?.stack || e)
-    }
-
-    return null
-  }
-
-  public static async encodeSolana(
-    agg: Aggregator,
-    connection: Connection,
-    signal: AbortSignal,
-  ): Promise<undefined | SolanaEncode> {
-    if (!agg.solana) return
-    if (!agg.solana.encodedMessage) return
-    if (agg.solana.to === ZERO_ADDRESS_SOLANA) return
-
-    const encode = async (): Promise<
-      | {
-          setupTx: Transaction | null
-          swapTx: VersionedTransaction
-        }
-      | undefined
-    > => {
-      if (!agg.solana) return undefined
-      if (!agg.solana.encodedMessage) return undefined
-      if (agg.solana.to === ZERO_ADDRESS_SOLANA) return undefined
-
-      try {
-        const toPK = new PublicKey(agg.solana.to)
-        const getLatestBlockhash = connection.getLatestBlockhash()
-        const message = Message.from(toByteArray(agg.solana.encodedMessage))
-
-        //#region set up tx
-        const setupTx: Transaction = new Transaction({
-          feePayer: toPK,
-        })
-
-        const newOpenOrders: [PublicKey, Keypair][] = [] // OpenOrders accounts to be created
-        if (
-          agg.solana.serumOpenOrdersAccountByMarket &&
-          Object.keys(agg.solana.serumOpenOrdersAccountByMarket).length
-        ) {
-          // do Solana magic things
-          const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
-          await Promise.all(
-            Object.entries(agg.solana.serumOpenOrdersAccountByMarket).map(async ([market]) => {
-              const marketPK = new PublicKey(market)
-              const openOrdersList = await OpenOrders.findForMarketAndOwner(
-                connection,
-                marketPK,
-                toPK,
-                NETWORKS_INFO[ChainId.SOLANA].openBookAddress,
-              )
-              if (signal.aborted) throw new AbortedError()
-              let openOrders: PublicKey
-              if (openOrdersList.length > 0) {
-                // if there is an OpenOrders, use it
-                openOrders = openOrdersList[0].address
-              } else {
-                // otherwise, create a new OpenOrders account
-                const keypair = new Keypair()
-                openOrders = keypair.publicKey
-                newOpenOrders.push([marketPK, keypair])
-              }
-              actualOpenOrdersByMarket[market] = openOrders
-            }),
-          )
-          if (signal.aborted) throw new AbortedError()
-
-          const openOrdersSpace = OpenOrders.getLayout(NETWORKS_INFO[ChainId.SOLANA].openBookAddress).span
-          const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
-          if (signal.aborted) throw new AbortedError()
-          const createOpenOrdersIxs = []
-          for (const [market, openOrders] of newOpenOrders) {
-            createOpenOrdersIxs.push(
-              SystemProgram.createAccount({
-                fromPubkey: toPK,
-                newAccountPubkey: openOrders.publicKey,
-                lamports: openOrdersRent,
-                space: openOrdersSpace,
-                programId: NETWORKS_INFO[ChainId.SOLANA].openBookAddress,
-              }),
-              DexInstructions.initOpenOrders({
-                market,
-                openOrders: openOrders.publicKey,
-                owner: toPK,
-                programId: NETWORKS_INFO[ChainId.SOLANA].openBookAddress,
-                marketAuthority: null,
-              }),
-            )
-          }
-
-          if (createOpenOrdersIxs.length) {
-            setupTx.add(...createOpenOrdersIxs)
-          }
-
-          // replace dummy OpenOrders account with actual ones
-          for (let i = 0; i < message.accountKeys.length; i += 1) {
-            const pubkey = message.accountKeys[i]
-            for (const [market, dummyOpenOrders] of Object.entries(agg.solana.serumOpenOrdersAccountByMarket)) {
-              if (pubkey.toBase58() === dummyOpenOrders) {
-                message.accountKeys[i] = actualOpenOrdersByMarket[market]
-                break
-              }
-            }
-          }
-        }
-        const { blockhash, lastValidBlockHeight } = await getLatestBlockhash
-
-        let initializedWrapSOL = false
-        let wrapIxs: TransactionInstruction[] | null = null
-        if (agg.inputAmount.currency.isNative) {
-          wrapIxs = await checkAndCreateWrapSOLInstructions(connection, toPK, agg.inputAmount)
-          if (signal.aborted) throw new AbortedError()
-          if (wrapIxs) {
-            initializedWrapSOL = true
-          }
-        }
-        const cleanUpIxs = []
-        if (agg.outputAmount.currency.isNative) {
-          const closeWSOLIxs = await createUnwrapSOLInstruction(toPK)
-          cleanUpIxs.push(closeWSOLIxs)
-        }
-
-        await Promise.all(
-          Object.entries(agg.tokens || {}).map(async ([tokenAddress, token]: [any, any]) => {
-            if (!token) return
-            if (tokenAddress === WETH[ChainId.SOLANA].address && initializedWrapSOL) return // for case WSOL as part of route
-            const createAtaIxs = await checkAndCreateAtaInstruction(
-              connection,
-              toPK,
-              new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
-            )
-            if (signal.aborted) throw new AbortedError()
-            if (createAtaIxs) {
-              setupTx.add(createAtaIxs)
-            }
-          }),
-        )
-        if (signal.aborted) throw new AbortedError()
-        setupTx.recentBlockhash = blockhash
-        setupTx.lastValidBlockHeight = lastValidBlockHeight
-        newOpenOrders.length && setupTx.partialSign(...newOpenOrders.map(i => i[1]))
-        //#endregion set up tx
-
-        //#region swap tx
-        const swapTx = await convertToVersionedTx(
-          connection,
-          'confirmed',
-          blockhash,
-          message,
-          toPK,
-          wrapIxs,
-          cleanUpIxs,
-        )
-        if (signal.aborted) throw new AbortedError()
-
-        await swapTx.sign([agg.solana.programState])
-        console.debug('swap byteLength:', swapTx.serialize().buffer.byteLength)
-        console.debug(
-          'swap byteLength max:',
-          (maxSwapBytelength = Math.max(swapTx.serialize().buffer.byteLength, maxSwapBytelength)),
-        )
-        if (signal.aborted) throw new AbortedError()
-        //#endregion swap tx
-
-        return {
-          setupTx: setupTx?.instructions.length ? setupTx : null,
-          swapTx,
-        }
-      } catch (error) {
-        if (error instanceof AbortedError) {
-          // console.info('Aborted encode Solana')
-        } else console.error('Error encode Solana:', { error })
-        return
-      }
-    }
-
-    return await encode()
   }
 }

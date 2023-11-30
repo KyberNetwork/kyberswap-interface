@@ -134,7 +134,7 @@ export interface UserPositionResult {
  * Get my liquidity for all pools
  */
 export function useUserProMMPositions(prices: { [address: string]: number }): UserPositionResult {
-  const { chainId, account, isEVM } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const { elasticClient } = useKyberSwapConfig()
 
   const { loading, error, data } = useQuery(PROMM_USER_POSITIONS, {
@@ -143,7 +143,6 @@ export function useUserProMMPositions(prices: { [address: string]: number }): Us
       owner: account?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
-    skip: !isEVM,
   })
 
   const positions = useMemo(() => {
@@ -260,13 +259,11 @@ export function useTopPoolAddresses(): {
   error: boolean
   addresses: string[] | undefined
 } {
-  const { isEVM } = useActiveWeb3React()
   const { elasticClient } = useKyberSwapConfig()
 
   const { loading, error, data } = useQuery<TopPoolsResponse>(TOP_POOLS, {
     client: elasticClient,
     fetchPolicy: 'no-cache',
-    skip: !isEVM,
   })
 
   const formattedData = useMemo(() => {

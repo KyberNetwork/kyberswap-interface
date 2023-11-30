@@ -2,7 +2,6 @@ import { gql, useLazyQuery } from '@apollo/client'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppSelector } from 'state/hooks'
@@ -49,7 +48,6 @@ const useGetUserFarmingInfo = () => {
   }, [poolFeeData, chainId, dispatch])
 
   useEffect(() => {
-    if (!isEVM(chainId)) return
     const poolIds = farms?.map(item => item.pools.map(p => p.poolAddress.toLowerCase())).flat()
 
     if (blockLast24h && poolIds?.length) {

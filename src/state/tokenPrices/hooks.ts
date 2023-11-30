@@ -1,18 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import debounce from 'lodash/debounce'
-import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PRICE_API } from 'constants/env'
-import { NETWORKS_INFO, isEVM as isEVMChain } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { isAddressString } from 'utils'
 
 import { updatePrices } from '.'
-
-const getAddress = (address: string, isEVM: boolean) => (isEVM ? address.toLowerCase() : address)
 
 export const useTokenPricesWithLoading = (
   addresses: Array<string>,
@@ -27,13 +23,11 @@ export const useTokenPricesWithLoading = (
   const dispatch = useAppDispatch()
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
-  const isEVM = isEVMChain(chainId)
 
   const [loading, setLoading] = useState(true)
-  const { aggregatorDomain } = useKyberswapGlobalConfig()
   const addressKeys = addresses
     .sort()
-    .map(x => getAddress(x, isEVM))
+    .map(x => x.toLowerCase())
     .join(',')
 
   const tokenList = useMemo(() => {
@@ -55,12 +49,10 @@ export const useTokenPricesWithLoading = (
         const payload = {
           ids: list.join(','),
         }
-        const promise = isEVM
-          ? fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
-              method: 'POST',
-              body: JSON.stringify(payload),
-            })
-          : fetch(`${aggregatorDomain}/solana/prices?${stringify(payload)}`)
+        const promise = fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        })
 
         const res = await promise.then(res => res.json())
         let prices = res?.data?.prices || res
@@ -118,7 +110,8 @@ export const useTokenPricesWithLoading = (
         if (prices?.length) {
           const formattedPrices = list.map(address => {
             const price = prices.find(
-              (p: { address: string; marketPrice: number; price: number }) => getAddress(p.address, isEVM) === address,
+              (p: { address: string; marketPrice: number; price: number }) =>
+                p.address.toLowerCase() === address.toLowerCase(),
             )
 
             return {
@@ -165,7 +158,7 @@ export const useTokenPricesWithLoading = (
         setLoading(false)
       }
     },
-    [chainId, dispatch, isEVM, aggregatorDomain],
+    [chainId, dispatch],
   )
 
   useEffect(() => {

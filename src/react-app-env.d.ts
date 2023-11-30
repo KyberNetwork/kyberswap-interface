@@ -43,7 +43,6 @@ interface Window {
   dataLayer?: any[]
   chrome?: any
   opr?: any
-  solana?: any
   recaptchaOptions?: any
   zESettings?: any
 }

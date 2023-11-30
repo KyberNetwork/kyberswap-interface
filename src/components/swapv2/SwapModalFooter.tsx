@@ -6,17 +6,14 @@ import { Flex, Text } from 'rebass'
 
 import { TruncatedText } from 'components'
 import { ButtonError } from 'components/Button'
-import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { Dots } from 'components/swapv2/styleds'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
-import { useCheckStablePairSwap, useEncodeSolana } from 'state/swap/hooks'
+import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { formattedNum } from 'utils'
@@ -25,7 +22,6 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { checkPriceImpact, computeSlippageAdjustedAmounts, formatExecutionPrice, formatPriceImpact } from 'utils/prices'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
-import HurryUpBanner from './HurryUpBanner'
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
 
 export default function SwapModalFooter({
@@ -34,17 +30,14 @@ export default function SwapModalFooter({
   allowedSlippage,
   swapErrorMessage,
   disabledConfirm,
-  startedTime,
 }: {
   trade: Aggregator
   allowedSlippage: number
   onConfirm: () => void
   swapErrorMessage: string | undefined
   disabledConfirm: boolean
-  startedTime: number | undefined
 }) {
   const isStablePairSwap = useCheckStablePairSwap()
-  const { isSolana } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
   const slippageAdjustedAmounts = useMemo(
@@ -53,7 +46,6 @@ export default function SwapModalFooter({
   )
   const [isDegenMode] = useDegenModeManager()
   const isWarningSlippage = checkWarningSlippage(allowedSlippage, isStablePairSwap)
-  const [encodeSolana] = useEncodeSolana()
 
   const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
 
@@ -180,36 +172,23 @@ export default function SwapModalFooter({
 
         <PriceImpactNote priceImpact={priceImpact} isDegenMode={isDegenMode} />
 
-        <HurryUpBanner startedTime={startedTime} />
         <AutoRow>
-          {isSolana && !encodeSolana ? (
-            <GreyCard
-              style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}
-              id="confirm-swap-or-send"
-              fontSize={14}
-            >
-              <Dots>
-                <Trans>Checking accounts</Trans>
-              </Dots>
-            </GreyCard>
-          ) : (
-            <ButtonError
-              onClick={onConfirm}
-              disabled={disabledConfirm}
-              style={{
-                ...((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && {
-                  border: 'none',
-                  background: theme.red,
-                  color: theme.text,
-                }),
-              }}
-              id="confirm-swap-or-send"
-            >
-              <Text fontSize={14} fontWeight={500}>
-                <Trans>Confirm Swap</Trans>
-              </Text>
-            </ButtonError>
-          )}
+          <ButtonError
+            onClick={onConfirm}
+            disabled={disabledConfirm}
+            style={{
+              ...((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && {
+                border: 'none',
+                background: theme.red,
+                color: theme.text,
+              }),
+            }}
+            id="confirm-swap-or-send"
+          >
+            <Text fontSize={14} fontWeight={500}>
+              <Trans>Confirm Swap</Trans>
+            </Text>
+          </ButtonError>
 
           {swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
         </AutoRow>

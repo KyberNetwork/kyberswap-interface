@@ -141,7 +141,7 @@ export default function AddressInputPanel({
   // triggers whenever the typed value changes
   onChange: (value: string | null) => void
 }) {
-  const { chainId, networkInfo, isEVM } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const { address, loading, name } = useENS(value)
 
   const handleInput = useCallback(
@@ -155,7 +155,6 @@ export default function AddressInputPanel({
   const theme = useTheme()
 
   const error = Boolean((value || '').length > 0 && !loading && !address)
-  if (!isEVM) return null
   return (
     <AutoColumn gap="4px">
       <Flex

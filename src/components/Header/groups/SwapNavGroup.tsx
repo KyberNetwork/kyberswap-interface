@@ -121,7 +121,7 @@ const SwapNavGroup = () => {
           )}
 
           {/*
-          !(isSolana || chainId === ChainId.LINEA_TESTNET) && (
+          !(chainId === ChainId.LINEA_TESTNET) && (
             <StyledNavLink
               id="bridge-nav-link"
               to={APP_PATHS.BRIDGE}

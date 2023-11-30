@@ -7,7 +7,6 @@ import { useSelector } from 'react-redux'
 
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useRewardLockerContracts } from 'hooks/useContract'
 import { AppState } from 'state'
@@ -21,8 +20,8 @@ import { setLoading, setSchedulesByRewardLocker } from './actions'
 export const useRewardLockerAddressesWithVersion = (): { [rewardLockerAddress: string]: RewardLockerVersion } => {
   const { networkInfo } = useActiveWeb3React()
 
-  const fairLaunchAddresses = useMemo(() => (networkInfo as EVMNetworkInfo).classic.fairlaunch || [], [networkInfo])
-  const fairLaunchV2Addresses = useMemo(() => (networkInfo as EVMNetworkInfo).classic.fairlaunchV2 || [], [networkInfo])
+  const fairLaunchAddresses = useMemo(() => networkInfo.classic.fairlaunch || [], [networkInfo])
+  const fairLaunchV2Addresses = useMemo(() => networkInfo.classic.fairlaunchV2 || [], [networkInfo])
   const fairLaunchInterface = useMemo(() => new Interface(FAIRLAUNCH_ABI), [])
   const fairLaunchV2Interface = useMemo(() => new Interface(FAIRLAUNCH_V2_ABI), [])
 
@@ -59,20 +58,14 @@ export const useRewardLockerAddressesWithVersion = (): { [rewardLockerAddress: s
 }
 
 const useRewardTokensByRewardLocker = () => {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
 
   /**
    * Both V1 and V2 contain `getRewardTokens` and `rewardLocker`
    */
   const fairLaunchAddresses = useMemo(
-    () =>
-      isEVM
-        ? [
-            ...(networkInfo as EVMNetworkInfo).classic.fairlaunch,
-            ...(networkInfo as EVMNetworkInfo).classic.fairlaunchV2,
-          ]
-        : [],
-    [isEVM, networkInfo],
+    () => [...networkInfo.classic.fairlaunch, ...networkInfo.classic.fairlaunchV2],
+    [networkInfo],
   )
   const fairLaunchInterface = useMemo(() => new Interface(FAIRLAUNCH_ABI), [])
 

@@ -8,7 +8,6 @@ import { calculatePriceImpact } from 'services/route/utils'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
-import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
@@ -21,10 +20,8 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
-import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useEncodeSolana } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme/components'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
@@ -80,8 +77,6 @@ export default function ConfirmSwapModalContent({
   onSwap,
 }: Props) {
   const theme = useTheme()
-  const { isSolana } = useActiveWeb3React()
-  const [encodeSolana] = useEncodeSolana()
   const { routeSummary, slippage, isStablePairSwap, isAdvancedMode } = useSwapFormContext()
   const [hasAcceptedNewAmount, setHasAcceptedNewAmount] = useState(false)
   const [showAreYouSureModal, setShowAreYouSureModal] = useState(false)
@@ -307,13 +302,7 @@ export default function ConfirmSwapModalContent({
 
           {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
 
-          {isSolana && !encodeSolana ? (
-            <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }} id="confirm-swap-or-send">
-              <Dots>
-                <Trans>Checking accounts</Trans>
-              </Dots>
-            </GreyCard>
-          ) : errorWhileBuildRoute ? (
+          {errorWhileBuildRoute ? (
             <ButtonPrimary onClick={onDismiss}>
               <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
                 <Trans>Dismiss</Trans>

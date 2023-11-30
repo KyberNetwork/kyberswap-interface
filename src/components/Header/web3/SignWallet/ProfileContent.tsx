@@ -208,7 +208,7 @@ const ProfileItemActive = ({ data, onClick, actionLabel }: ItemProps) => {
 const ProfileContent = ({ scroll, toggleModal }: { scroll?: boolean; toggleModal: () => void }) => {
   const { signIn, signOutAll, signOut } = useLogin()
   const { profiles, totalGuest } = useProfileInfo()
-  const { account, isEVM } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const navigate = useNavigate()
@@ -274,7 +274,7 @@ const ProfileContent = ({ scroll, toggleModal }: { scroll?: boolean; toggleModal
       activeItem={formatProfile[0]}
       actions={
         <ActionWrapper hasBorder={profiles.length > 1}>
-          {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && isEVM && (
+          {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && (
             <ActionItem
               onClick={() => {
                 toggleModal()

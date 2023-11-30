@@ -28,7 +28,6 @@ import { FeeTag, FlipCard, FlipCardBack, FlipCardFront } from 'components/YieldP
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
 import { APP_PATHS, DMM_ANALYTICS_URL, ONE_BIPS, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { ClassicPoolData } from 'hooks/pool/classic/type'
@@ -81,7 +80,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 
   const isFarmingPool = !!farm
   const factories = useMultipleContractSingleData([poolData.id], DMM_POOL_INTERFACE, 'factory')
-  const isNewStaticFeePool = factories?.[0]?.result?.[0] === (networkInfo as EVMNetworkInfo).classic.static.factory
+  const isNewStaticFeePool = factories?.[0]?.result?.[0] === networkInfo.classic.static.factory
 
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(chainId, poolData.id, 3)
