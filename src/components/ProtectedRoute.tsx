@@ -20,6 +20,7 @@ const useSubscribeChangeUserInfo = () => {
   const prevIdentityId = usePrevious(userInfo?.identityId)
 
   useEffect(() => {
+    // todo
     if (prevIdentityId && prevIdentityId !== userInfo?.identityId) {
       try {
         invalidateTags([

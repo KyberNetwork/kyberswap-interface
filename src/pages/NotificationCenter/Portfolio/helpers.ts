@@ -58,7 +58,7 @@ export const useNavigateToMyFirstPortfolio = () => {
 
   return useCallback(
     (data: Portfolio[] | undefined, lazy?: boolean) => {
-      if (!lazy && (!account || (portfolioId && !data?.some(el => el.id === portfolioId)))) {
+      if (!lazy && (!account || (portfolioId && data?.some(el => el.id === portfolioId)))) {
         return
       }
       if (!data?.length) {

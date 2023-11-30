@@ -134,7 +134,13 @@ export default function PortfolioDetail() {
   return (
     <PageWrapper>
       <Header />
-      {isLoading ? <LocalLoader /> : showOverview ? <Overview /> : <PortfolioStat />}
+      {isLoading ? (
+        <LocalLoader />
+      ) : showOverview ? (
+        <Overview />
+      ) : (
+        <PortfolioStat navigateToMyPortfolio={navigateToMyPortfolio} />
+      )}
       {showDisclaimer ? (
         <DisclaimerPortfolio onConfirm={onConfirmDisclaimer} />
       ) : (

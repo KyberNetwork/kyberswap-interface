@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -90,7 +90,7 @@ const ChainWalletSelect = styled(Row)`
   `};
 `
 
-export default function PortfolioStat() {
+export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyPortfolio: () => void }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { tab = '' } = useParsedQueryString<{ tab: string }>()
   const [activeTab, setTab] = useState(isInEnum(tab, PortfolioTab) ? tab : PortfolioTab.TOKEN)
@@ -161,6 +161,12 @@ export default function PortfolioStat() {
       ),
     ]
   }, [props, totalUsd])
+
+  useEffect(() => {
+    if (isMyPortfolioPage && !myPortfolios.some(e => e.id === portfolioId)) {
+      navigateToMyPortfolio()
+    }
+  }, [isMyPortfolioPage, portfolioId, myPortfolios, navigateToMyPortfolio])
 
   return (
     <>
