@@ -91,7 +91,9 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
           <Trans>Quorum Status</Trans>
         </Text>
         {proposal.vote_stats.quorum_status === 1 ? (
-          <Text color={theme.text}>{t`Reached`}</Text>
+          <Text color={theme.text}>
+            <Trans>Reached</Trans>
+          </Text>
         ) : (
           <MouseoverTooltip
             text={`Total amount required: ${Math.floor(+totalAmountRequired.toFixed(0)).toLocaleString()} KNC`}
@@ -100,7 +102,9 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
           >
             <Row width="fit-content" gap="6px" color={theme.warning}>
               <WarningIcon size="16" solid />
-              <Text color={theme.warning} fontWeight={500}>{t`Not Reached`}</Text>
+              <Text color={theme.warning} fontWeight={500}>
+                <Trans>Not Reached</Trans>
+              </Text>
             </Row>
           </MouseoverTooltip>
         )}
