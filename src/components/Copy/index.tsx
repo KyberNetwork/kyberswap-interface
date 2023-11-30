@@ -74,7 +74,6 @@ const CheckIconWrapper = styled.div`
 
 type Props = {
   toCopy: string
-  children?: React.ReactNode
   margin?: string
   style?: CSSProperties
   size?: string | number
