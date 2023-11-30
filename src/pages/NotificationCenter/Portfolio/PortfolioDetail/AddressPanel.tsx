@@ -4,11 +4,7 @@ import { Eye, EyeOff, Plus, Share2 } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import {
-  useGetRealtimeBalanceQuery,
-  useGetWalletsPortfoliosQuery,
-  useLazyGetRealtimeBalanceQuery,
-} from 'services/portfolio'
+import { useGetRealtimeBalanceQuery, useGetWalletsPortfoliosQuery } from 'services/portfolio'
 import styled, { css } from 'styled-components'
 
 import DefaultAvatar from 'assets/images/default_avatar.png'
