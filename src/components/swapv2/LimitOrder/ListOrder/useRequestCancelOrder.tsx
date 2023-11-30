@@ -23,7 +23,7 @@ import { getReadingContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/sentry'
 import { formatSignature } from 'utils/transaction'
-import useEstimateGasTxs from 'utils/useEstimateGasTxs'
+import { useLazyEstimateGasTxs } from 'utils/useEstimateGasTxs'
 
 import { formatAmountOrder, getErrorMessage, getPayloadTracking } from '../helpers'
 import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder } from '../type'
@@ -275,7 +275,7 @@ export const useProcessCancelOrder = ({
 
 export const useEstimateFee = ({ isCancelAll = false, orders }: { isCancelAll?: boolean; orders: LimitOrder[] }) => {
   const getEncodeData = useGetEncodeLimitOrder()
-  const estimateGas = useEstimateGasTxs()
+  const estimateGas = useLazyEstimateGasTxs()
   const [gasFeeHardCancel, setGasFeeHardCancel] = useState('')
 
   useEffect(() => {
