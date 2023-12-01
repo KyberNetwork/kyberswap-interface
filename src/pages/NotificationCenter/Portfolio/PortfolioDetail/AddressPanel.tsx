@@ -36,6 +36,7 @@ import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
+import { shortString } from 'utils/string'
 import { formatTime } from 'utils/time'
 
 const BalanceGroup = styled.div`
@@ -82,11 +83,11 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
 
   const addWalletOptions: SelectOption[] = useMemo(() => {
     const opts = portfolios.map(el => ({
-      label: el.name,
+      label: shortString(el.name, 30),
       onSelect: () => {
         setWalletInfo({ walletAddress: wallet, portfolioId: el.id })
       },
-      subLabel: t`$123 (fake)`,
+      subLabel: t`$123 (fake)`, // todo
     }))
     if (opts.length < MAXIMUM_PORTFOLIO) {
       opts.push({
@@ -100,7 +101,7 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
     return opts
   }, [portfolios, wallet, navigate])
 
-  if (!account || portfolios.some(e => e.id === portfolioId) || isMaximum)
+  if (!account || (portfolios.some(e => e.id === portfolioId) && isMaximum))
     return (
       <MouseoverTooltip
         containerStyle={{
