@@ -78,7 +78,8 @@ const ButtonCreatePortfolio = ({ portfolioOptions }: { portfolioOptions: Portfol
   }
   const _onAddWallet = useAddWalletToPortfolio()
   const onAddWallet = (data: PortfolioWalletPayload) => _onAddWallet({ ...data, portfolioId: walletInfo.portfolioId })
-  const isMaximum = portfolioOptions.length >= MAXIMUM_PORTFOLIO
+
+  const isMaximum = portfolioOptions.length >= MAXIMUM_PORTFOLIO && !wallet
 
   const addWalletOptions: SelectOption[] = useMemo(() => {
     const opts = portfolioOptions.map(({ portfolio, totalUsd }) => ({
@@ -221,7 +222,7 @@ const ButtonCreatePortfolio = ({ portfolioOptions }: { portfolioOptions: Portfol
   )
 }
 
-export type PortfolioOption = { portfolio: Portfolio; totalUsd: number }
+export type PortfolioOption = { portfolio: Portfolio; totalUsd: number; active: boolean }
 const AddressPanel = ({
   activePortfolio,
   data,
@@ -298,17 +299,19 @@ const AddressPanel = ({
 
   const formatPortfolio = useMemo(() => {
     // todo
-    return portfolioOptions.slice(1).map(({ portfolio, totalUsd }) => ({
-      data: {
-        ...portfolio,
-        title: portfolio.name,
-        description: formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }),
-        avatarUrl: '',
-      },
-      // todo raw data field instead ?
-      renderAction,
-      onClick: onClickPortfolio,
-    }))
+    return portfolioOptions
+      .filter(e => !e.active)
+      .map(({ portfolio, totalUsd }) => ({
+        data: {
+          ...portfolio,
+          title: portfolio.name,
+          description: formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }),
+          avatarUrl: '',
+        },
+        // todo raw data field instead ?
+        renderAction,
+        onClick: onClickPortfolio,
+      }))
   }, [portfolioOptions, renderAction, onClickPortfolio])
 
   const balance = (

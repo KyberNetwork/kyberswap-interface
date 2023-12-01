@@ -60,49 +60,61 @@ const useFetchPortfolio = (): {
   isLoading: boolean
   portfolio: Portfolio | undefined
   myPortfolios: Portfolio[]
-  otherTotalUsd: number | undefined
-  otherPortfolios: Portfolio[]
+  portfolioOptions: PortfolioOption[]
 } => {
   const { portfolioId } = useParseWalletPortfolioParam()
-  const { data: portfolio, isFetching: isLoadingMyPortfolio } = useGetPortfolioByIdQuery(
+  const { currentData: currentPortfolio, isFetching: isLoadingCurrentPortfolio } = useGetPortfolioByIdQuery(
     { id: portfolioId || '' },
     { skip: !portfolioId },
   )
-  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingPortfolio } = useGetPortfoliosQuery()
-  const { data: wallets = EMPTY_ARRAY, isFetching: isLoadingWallet } = useGetWalletsPortfoliosQuery(
-    { portfolioId: portfolio?.id || '' },
-    { skip: !portfolio?.id },
+  const { currentData: wallets = EMPTY_ARRAY, isFetching: isLoadingWallet } = useGetWalletsPortfoliosQuery(
+    { portfolioId: currentPortfolio?.id || '' },
+    { skip: !currentPortfolio?.id },
   )
 
-  const activePortfolio = !portfolioId ? undefined : portfolio
-
-  // fetch other portfolio
-  const otherPortfolios = useMemo(
-    () => myPortfolios.filter(el => el.id !== activePortfolio?.id),
-    [myPortfolios, activePortfolio],
+  // fetch my portfolio info, todo ask BE
+  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingMyPortfolio } = useGetPortfoliosQuery()
+  const [portfolio1, portfolio2] = myPortfolios
+  const { data: wallets1 = EMPTY_ARRAY } = useGetWalletsPortfoliosQuery(
+    { portfolioId: portfolio1?.id },
+    { skip: !portfolio1?.id },
   )
-  const otherPortfolioId = otherPortfolios?.[0]?.id
-  const { data: otherWallets } = useGetWalletsPortfoliosQuery(
-    { portfolioId: otherPortfolioId },
-    { skip: !otherPortfolioId },
+  const { data: wallets2 = EMPTY_ARRAY } = useGetWalletsPortfoliosQuery(
+    { portfolioId: portfolio2?.id },
+    { skip: !portfolio2?.id },
   )
-  // todo ask BE
-  const { data: otherBalanceData } = useGetRealtimeBalanceQuery(
+  const { data: balance1 } = useGetRealtimeBalanceQuery(
     {
-      walletAddresses: otherWallets?.map(e => e.walletAddress) || EMPTY_ARRAY,
+      walletAddresses: wallets1?.map(e => e.walletAddress),
     },
-    { skip: !otherWallets?.length },
+    { skip: !wallets1?.length },
   )
-  const otherTotalUsd = otherBalanceData?.totalUsd || 0
+  const { data: balance2 } = useGetRealtimeBalanceQuery(
+    {
+      walletAddresses: wallets2?.map(e => e.walletAddress),
+    },
+    { skip: !wallets2?.length },
+  )
+  const otherTotalUsd1 = balance1?.totalUsd || 0
+  const otherTotalUsd2 = balance2?.totalUsd || 0
+  const portfolioOptions = useMemo(
+    () =>
+      [
+        { portfolio: portfolio1, totalUsd: otherTotalUsd1, active: portfolio1?.id === portfolioId },
+        { portfolio: portfolio2, totalUsd: otherTotalUsd2, active: portfolio2?.id === portfolioId },
+      ].filter(e => e.portfolio) as PortfolioOption[],
+    [portfolio1, portfolio2, otherTotalUsd1, otherTotalUsd2, portfolioId],
+  )
 
-  const isLoading = useShowLoadingAtLeastTime(isLoadingWallet || isLoadingPortfolio || isLoadingMyPortfolio, 500)
+  const isLoading = useShowLoadingAtLeastTime(isLoadingWallet || isLoadingMyPortfolio || isLoadingCurrentPortfolio, 500)
   return {
-    portfolio: activePortfolio,
-    myPortfolios,
+    // current portfolio by url
+    portfolio: currentPortfolio,
     wallets,
     isLoading,
-    otherTotalUsd,
-    otherPortfolios, // todo refactor
+    // all my portfolio
+    myPortfolios,
+    portfolioOptions,
   }
 }
 
@@ -130,14 +142,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
   }
 
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
-  const {
-    portfolio: activePortfolio,
-    myPortfolios,
-    wallets,
-    isLoading: isLoadingPortfolio,
-    otherPortfolios,
-    otherTotalUsd,
-  } = useFetchPortfolio()
+  const { portfolio, myPortfolios, wallets, isLoading: isLoadingPortfolio, portfolioOptions } = useFetchPortfolio()
   const walletsQuery: string[] = useMemo(
     () => (wallet ? [wallet] : wallets.length ? wallets.map(e => e.walletAddress) : EMPTY_ARRAY),
     [wallets, wallet],
@@ -151,14 +156,6 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
   )
 
   const totalUsd = currentData?.totalUsd || 0
-
-  // todo refactor
-  const portfolioOptions = useMemo(() => {
-    return [
-      { portfolio: activePortfolio, totalUsd },
-      { portfolio: otherPortfolios[0], totalUsd: otherTotalUsd },
-    ].filter(e => e.portfolio) as PortfolioOption[]
-  }, [totalUsd, activePortfolio, otherPortfolios, otherTotalUsd])
 
   const isLoading: boolean = isLoadingPortfolio || isLoadingRealtimeData
 
@@ -213,7 +210,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
       <AddressPanel
         isLoading={isLoading}
         wallets={wallets}
-        activePortfolio={activePortfolio}
+        activePortfolio={portfolio}
         onShare={() => setShowShare(true)}
         data={currentData}
         portfolioOptions={portfolioOptions}
@@ -262,7 +259,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
               {isMyPortfolioPage ? (
                 <Trans>My Portfolio</Trans>
               ) : (
-                <Trans>Portfolio {activePortfolio?.name || activePortfolio?.id}</Trans>
+                <Trans>Portfolio {portfolio?.name || portfolio?.id}</Trans>
               )}
             </Text>
             {currentData && (
