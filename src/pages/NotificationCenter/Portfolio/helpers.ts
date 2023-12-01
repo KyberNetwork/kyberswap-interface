@@ -5,7 +5,7 @@ import { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   useAddWalletToPortfolioMutation,
-  useLazyGetPortfoliosQuery,
+  useLazyGetMyPortfoliosQuery,
   useUpdateWalletToPortfolioMutation,
 } from 'services/portfolio'
 
@@ -77,7 +77,7 @@ export const useNavigateToMyFirstPortfolio = () => {
 
 export const useLazyNavigateToMyFirstPortfolio = () => {
   const navigate = useNavigateToMyFirstPortfolio()
-  const [getPortfolio] = useLazyGetPortfoliosQuery()
+  const [getPortfolio] = useLazyGetMyPortfoliosQuery()
 
   return useCallback(async () => {
     try {

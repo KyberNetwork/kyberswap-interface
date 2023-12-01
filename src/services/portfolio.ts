@@ -29,7 +29,7 @@ const portfolioApi = createApi({
     RTK_QUERY_TAGS.GET_FAVORITE_PORTFOLIO,
   ],
   endpoints: builder => ({
-    getPortfolios: builder.query<Portfolio[], void>({
+    getMyPortfolios: builder.query<Portfolio[], void>({
       query: () => ({
         url: '/portfolios',
         authentication: true,
@@ -284,8 +284,8 @@ const portfolioApi = createApi({
 })
 
 export const {
-  useGetPortfoliosQuery,
-  useLazyGetPortfoliosQuery,
+  useGetMyPortfoliosQuery,
+  useLazyGetMyPortfoliosQuery,
   useCreatePortfolioMutation,
   useUpdatePortfolioMutation,
   useGetRealtimeBalanceQuery,

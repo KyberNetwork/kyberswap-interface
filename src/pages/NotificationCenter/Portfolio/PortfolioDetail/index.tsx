@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { Text } from 'rebass'
-import { useGetPortfoliosQuery } from 'services/portfolio'
+import { useGetMyPortfoliosQuery } from 'services/portfolio'
 import styled, { CSSProperties } from 'styled-components'
 
 import tutorial1 from 'assets/images/truesight-v2/tutorial_1.png'
@@ -107,7 +107,7 @@ export default function PortfolioDetail() {
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const showOverview = !wallet && !portfolioId
 
-  const { isLoading: loading, data } = useGetPortfoliosQuery()
+  const { isLoading: loading, data } = useGetMyPortfoliosQuery()
   const isLoading = useShowLoadingAtLeastTime(loading, 300)
   const navigate = useNavigateToMyFirstPortfolio()
   const navigateToMyPortfolio = useCallback(() => navigate(data), [data, navigate])

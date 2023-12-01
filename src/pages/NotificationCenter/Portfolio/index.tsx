@@ -9,8 +9,8 @@ import { Text } from 'rebass'
 import {
   useClonePortfolioMutation,
   useCreatePortfolioMutation,
+  useGetMyPortfoliosQuery,
   useGetPortfolioByIdQuery,
-  useGetPortfoliosQuery,
   useGetPortfoliosSettingsQuery,
   useUpdatePortfoliosSettingsMutation,
 } from 'services/portfolio'
@@ -108,7 +108,7 @@ export default function PortfolioSettings() {
   const { account } = useActiveWeb3React()
   const [showCreate, setShowCreate] = useState(false)
 
-  const { data: portfolios = EMPTY_ARRAY, isLoading: isFetching } = useGetPortfoliosQuery()
+  const { data: portfolios = EMPTY_ARRAY, isLoading: isFetching } = useGetMyPortfoliosQuery()
   const { data: settings } = useGetPortfoliosSettingsQuery()
 
   const { cloneId = '', wallet } = useParsedQueryString<{ cloneId: string; wallet: string }>()

@@ -49,15 +49,23 @@ export const WalletLabel = ({
   color,
   walletAddress,
   chainId,
+  tokenAddress,
 }: {
   color: string
   walletAddress: string
   chainId: ChainId
+  tokenAddress?: string
 }) => {
   return (
     <WalletLabelWrapper color={color}>
       <Wallet size={12} />
-      <ExternalLink href={getEtherscanLink(chainId, walletAddress, 'address')}>
+      <ExternalLink
+        href={
+          tokenAddress
+            ? `${getEtherscanLink(chainId, tokenAddress, 'token')}?a=${walletAddress}`
+            : getEtherscanLink(chainId, walletAddress, 'address')
+        }
+      >
         <Text color={color}>{getShortenAddress(walletAddress || '')}</Text>
       </ExternalLink>
     </WalletLabelWrapper>
@@ -65,7 +73,7 @@ export const WalletLabel = ({
 }
 
 export const TokenCellWithWalletAddress = ({
-  item,
+  item: { tokenAddress, chainId, logoUrl, walletAddress, symbol },
   walletColor,
   style,
 }: {
@@ -73,6 +81,7 @@ export const TokenCellWithWalletAddress = ({
     logoUrl: string
     chainId: number
     walletAddress: string
+    tokenAddress?: string
     symbol: string
   }
   walletColor?: string
@@ -81,10 +90,15 @@ export const TokenCellWithWalletAddress = ({
   const theme = useTheme()
   return (
     <Row gap="14px" style={style}>
-      <TokenLogoWithChain chainId={item.chainId} size={'36px'} tokenLogo={item.logoUrl} />
+      <TokenLogoWithChain chainId={chainId} size={'36px'} tokenLogo={logoUrl} />
       <Column gap="4px">
-        <Text fontWeight={'500'}>{item.symbol}</Text>
-        <WalletLabel color={walletColor || theme.text} walletAddress={item.walletAddress} chainId={item.chainId} />
+        <Text fontWeight={'500'}>{symbol}</Text>
+        <WalletLabel
+          color={walletColor || theme.text}
+          walletAddress={walletAddress}
+          tokenAddress={tokenAddress}
+          chainId={chainId}
+        />
       </Column>
     </Row>
   )
@@ -149,8 +163,10 @@ const columns: TableColumn<PortfolioWalletBalance>[] = [
     title: t`Token`,
     dataIndex: 'token',
     align: 'left',
-    render: ({ item: { tokenLogo, tokenSymbol, chainId, walletAddress } }) => (
-      <TokenCellWithWalletAddress item={{ logoUrl: tokenLogo, symbol: tokenSymbol, walletAddress, chainId }} />
+    render: ({ item: { tokenLogo, tokenSymbol, chainId, walletAddress, tokenAddress } }) => (
+      <TokenCellWithWalletAddress
+        item={{ logoUrl: tokenLogo, symbol: tokenSymbol, walletAddress, chainId, tokenAddress }}
+      />
     ),
     sticky: true,
     style: isMobile ? { width: 140 } : undefined,

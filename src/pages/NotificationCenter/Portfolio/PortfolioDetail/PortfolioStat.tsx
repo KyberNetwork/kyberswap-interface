@@ -5,8 +5,8 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import {
+  useGetMyPortfoliosQuery,
   useGetPortfolioByIdQuery,
-  useGetPortfoliosQuery,
   useGetRealtimeBalanceQuery,
   useGetWalletsPortfoliosQuery,
 } from 'services/portfolio'
@@ -73,7 +73,7 @@ const useFetchPortfolio = (): {
   )
 
   // fetch my portfolio info, todo ask BE
-  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingMyPortfolio } = useGetPortfoliosQuery()
+  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingMyPortfolio } = useGetMyPortfoliosQuery()
   const [portfolio1, portfolio2] = myPortfolios
   const { data: wallets1 = EMPTY_ARRAY } = useGetWalletsPortfoliosQuery(
     { portfolioId: portfolio1?.id },
