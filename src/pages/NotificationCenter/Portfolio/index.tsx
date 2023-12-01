@@ -274,17 +274,19 @@ export default function PortfolioSettings() {
             toggle={() => setHideSmallBalance(v => !v)}
           />
         </Row>
-        <BalanceThreshold>
-          <Text fontSize={'14px'} color={theme.subText} sx={{ whiteSpace: 'nowrap' }}>
-            <Trans>Small balances threshold</Trans>
-          </Text>
-          <Tabs<number | string>
-            tabs={THRESHOLD_OPTIONS}
-            style={{ width: upToSmall ? '100%' : 200 }}
-            activeTab={threshold}
-            setActiveTab={setThreshold}
-          />
-        </BalanceThreshold>
+        {hideSmallBalance && (
+          <BalanceThreshold>
+            <Text fontSize={'14px'} color={theme.subText} sx={{ whiteSpace: 'nowrap' }}>
+              <Trans>Small balances threshold</Trans>
+            </Text>
+            <Tabs<number | string>
+              tabs={THRESHOLD_OPTIONS}
+              style={{ width: upToSmall ? '100%' : 200 }}
+              activeTab={threshold}
+              setActiveTab={setThreshold}
+            />
+          </BalanceThreshold>
+        )}
       </SettingWrapper>
       <ActionsWrapper>
         <ButtonSave onClick={savePortfolioSetting} disabled={disableBtnSave}>

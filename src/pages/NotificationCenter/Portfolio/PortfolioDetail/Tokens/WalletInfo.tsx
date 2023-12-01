@@ -150,7 +150,10 @@ const KyberScore = ({
   // todo
   return (
     <Column style={{ alignItems: 'center' }}>
-      <SmallKyberScoreMeter token={{ kyberScore, createdAt: kyberScoreCreatedAt, price: +priceUsd } as any} />
+      <SmallKyberScoreMeter
+        disabledTooltip
+        token={{ kyberScore, createdAt: kyberScoreCreatedAt, price: +priceUsd } as any}
+      />
       <Text color={calculateValueToColor(kyberScore, theme)} fontSize="14px" fontWeight={500}>
         {kyberScoreTag || 'Not Applicable'}
       </Text>

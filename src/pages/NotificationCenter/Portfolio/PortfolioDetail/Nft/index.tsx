@@ -72,7 +72,7 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
               <SearchPortFolio
                 onChange={setSearch}
                 value={search}
-                placeholder={colId ? t`Search by name or token ID` : t`Search collection`}
+                placeholder={colId ? t`Search by name or token ID` : t`Search collection name`}
               />
             }
           >
