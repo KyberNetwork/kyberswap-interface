@@ -240,7 +240,7 @@ export default function PortfolioSettings() {
       ) : (
         <WarningSignMessage
           outline
-          msg={t`To enable more seamless DeFi experience, you can link your wallet to your profile by signing-in.`}
+          msg={t`To enable a more seamless experience, link your wallet to a profile by signing-in.`}
         />
       )}
 

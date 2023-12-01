@@ -42,7 +42,7 @@ import { Portfolio, PortfolioTab, PortfolioWallet } from 'pages/NotificationCent
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
-import { isInEnum } from 'utils/string'
+import { isInEnum, shortString } from 'utils/string'
 
 // todo
 const chainSupport = [
@@ -136,7 +136,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
   const walletsOpts = useMemo(() => {
     const opt = wallets.map(wallet => ({
       label: wallet.nickName
-        ? `${wallet.nickName} - ${getShortenAddress(wallet.walletAddress)}`
+        ? `${shortString(wallet.nickName, 20)} - ${getShortenAddress(wallet.walletAddress)}`
         : getShortenAddress(wallet.walletAddress),
       value: wallet.walletAddress,
     }))

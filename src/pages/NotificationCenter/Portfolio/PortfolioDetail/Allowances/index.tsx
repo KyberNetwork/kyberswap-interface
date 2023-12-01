@@ -237,7 +237,7 @@ export default function Allowances({ walletAddresses, chainIds }: { walletAddres
       {isFetching ? (
         <LocalLoader style={{ height: 300 }} />
       ) : (
-        <Table columns={columns} data={formatData} totalItems={formatData.length} />
+        <Table columns={columns} data={formatData} totalItems={formatData.length} pageSize={isMobile ? 10 : 20} />
       )}
     </PortfolioSection>
   )

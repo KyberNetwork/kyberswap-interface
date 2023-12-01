@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useGetNftCollectionsQuery } from 'services/portfolio'
 import styled from 'styled-components'
 
@@ -26,7 +27,7 @@ const Container = styled(Column)`
     padding: 0;
   `}
 `
-const pageSize = 10
+const pageSize = isMobile ? 10 : 20
 export default function Nft({ walletAddresses, chainIds }: { walletAddresses: string[]; chainIds: ChainId[] }) {
   const [search, setSearch] = useState('')
   const searchDebounce = useDebounce(search, 500)

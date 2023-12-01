@@ -179,7 +179,7 @@ const columns: TableColumn<TransactionHistory>[] = [
   { title: t`Txs Fee`, render: GasFeeCell, align: 'right', style: isMobile ? { width: 200 } : undefined },
 ]
 
-const pageSize = 8
+const pageSize = isMobile ? 10 : 20
 export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]; wallet: string }) {
   const theme = useTheme()
   const [search, setSearch] = useState('')

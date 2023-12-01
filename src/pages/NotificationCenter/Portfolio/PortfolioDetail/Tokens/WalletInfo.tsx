@@ -269,7 +269,7 @@ export default function WalletInfo({ walletAddresses, chainIds }: { walletAddres
       {isFetching ? (
         <LocalLoader style={{ height: 300 }} />
       ) : (
-        <Table data={formatData} columns={columns} totalItems={formatData.length} />
+        <Table data={formatData} columns={columns} totalItems={formatData.length} pageSize={isMobile ? 10 : 20} />
       )}
     </PortfolioSection>
   )
