@@ -20,7 +20,7 @@ import useGetNftBreadcrumbData from 'pages/NotificationCenter/Portfolio/Portfoli
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 
 const Container = styled(Column)`
-  flex: 1;
+  min-height: 300px;
   padding: 0px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 0;
