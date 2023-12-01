@@ -4,7 +4,6 @@ import { Eye, EyeOff, Plus, Share2 } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useGetRealtimeBalanceQuery, useGetWalletsPortfoliosQuery } from 'services/portfolio'
 import styled, { css } from 'styled-components'
 
 import DefaultAvatar from 'assets/images/default_avatar.png'
@@ -19,7 +18,7 @@ import MenuFlyout from 'components/MenuFlyout'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import Select, { SelectOption } from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import AddWalletPortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/AddWalletPortfolioModal'
@@ -64,7 +63,7 @@ const ActionGroups = styled(Row)`
   `};
 `
 
-const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
+const ButtonCreatePortfolio = ({ portfolioOptions }: { portfolioOptions: PortfolioOption[] }) => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const theme = useTheme()
@@ -79,15 +78,15 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
   }
   const _onAddWallet = useAddWalletToPortfolio()
   const onAddWallet = (data: PortfolioWalletPayload) => _onAddWallet({ ...data, portfolioId: walletInfo.portfolioId })
-  const isMaximum = portfolios.length >= MAXIMUM_PORTFOLIO
+  const isMaximum = portfolioOptions.length >= MAXIMUM_PORTFOLIO
 
   const addWalletOptions: SelectOption[] = useMemo(() => {
-    const opts = portfolios.map(el => ({
-      label: shortString(el.name, 30),
+    const opts = portfolioOptions.map(({ portfolio, totalUsd }) => ({
+      label: shortString(portfolio.name, 30),
       onSelect: () => {
-        setWalletInfo({ walletAddress: wallet, portfolioId: el.id })
+        setWalletInfo({ walletAddress: wallet, portfolioId: portfolio.id })
       },
-      subLabel: t`$123 (fake)`, // todo
+      subLabel: formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }),
     }))
     if (opts.length < MAXIMUM_PORTFOLIO) {
       opts.push({
@@ -99,9 +98,9 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
       })
     }
     return opts
-  }, [portfolios, wallet, navigate])
+  }, [portfolioOptions, wallet, navigate])
 
-  if (!account || (portfolios.some(e => e.id === portfolioId) && isMaximum))
+  if (!account || portfolioOptions.some(({ portfolio }) => portfolio.id === portfolioId) || isMaximum)
     return (
       <MouseoverTooltip
         containerStyle={{
@@ -222,20 +221,21 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
   )
 }
 
+export type PortfolioOption = { portfolio: Portfolio; totalUsd: number }
 const AddressPanel = ({
-  myPortfolios,
   activePortfolio,
   data,
   isLoading,
   onShare,
+  portfolioOptions,
 }: {
   isLoading: boolean
-  myPortfolios: Portfolio[]
   wallets: PortfolioWallet[]
   activePortfolio: Portfolio | undefined
   onChangeWallet: (v: string) => void
   data: PortfolioWalletBalanceResponse | undefined
   onShare: () => void
+  portfolioOptions: PortfolioOption[]
 }) => {
   const theme = useTheme()
   const [showBalance, setShowBalance] = useState(true)
@@ -296,34 +296,20 @@ const AddressPanel = ({
     [navigate, notify],
   )
 
-  const otherPortfolio = useMemo(
-    () => myPortfolios.filter(el => el.id !== activePortfolio?.id),
-    [myPortfolios, activePortfolio],
-  )
-  const otherPortfolioId = otherPortfolio?.[0]?.id
-  const { data: wallets } = useGetWalletsPortfoliosQuery({ portfolioId: otherPortfolioId }, { skip: !otherPortfolioId })
-  // todo ask BE
-  const { data: balanceData } = useGetRealtimeBalanceQuery(
-    {
-      walletAddresses: wallets?.map(e => e.walletAddress) || EMPTY_ARRAY,
-    },
-    { skip: !wallets?.length },
-  )
-  const otherTotalUser = balanceData?.totalUsd || 0
-
   const formatPortfolio = useMemo(() => {
-    return otherPortfolio.map(el => ({
+    // todo
+    return portfolioOptions.slice(1).map(({ portfolio, totalUsd }) => ({
       data: {
-        ...el,
-        title: el.name,
-        description: formatDisplayNumber(otherTotalUser, { style: 'currency', fractionDigits: 2 }),
+        ...portfolio,
+        title: portfolio.name,
+        description: formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }),
         avatarUrl: '',
       },
       // todo raw data field instead ?
       renderAction,
       onClick: onClickPortfolio,
     }))
-  }, [otherPortfolio, renderAction, onClickPortfolio, otherTotalUser])
+  }, [portfolioOptions, renderAction, onClickPortfolio])
 
   const balance = (
     <BalanceGroup>
@@ -389,7 +375,7 @@ const AddressPanel = ({
           <ButtonAction style={{ padding: '8px', background: theme.buttonGray }} onClick={onShare}>
             <Share2 color={theme.subText} size={18} />
           </ButtonAction>
-          <ButtonCreatePortfolio portfolios={myPortfolios} />
+          <ButtonCreatePortfolio portfolioOptions={portfolioOptions} />
         </ActionGroups>
       </RowBetween>
     </>
