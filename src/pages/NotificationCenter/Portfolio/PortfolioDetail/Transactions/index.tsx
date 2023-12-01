@@ -156,7 +156,7 @@ const BalanceCell = ({ item: { tokenTransfers = [], tokenApproval, status } }: {
 
 const columns: TableColumn<TransactionHistory>[] = [
   {
-    title: t`Txs Hash`,
+    title: t`Tx Hash`,
     dataIndex: 'txHash',
     render: TxsHashCell,
     align: 'left',

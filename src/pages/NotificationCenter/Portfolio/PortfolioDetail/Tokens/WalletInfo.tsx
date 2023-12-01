@@ -253,17 +253,7 @@ export default function WalletInfo({ walletAddresses, chainIds }: { walletAddres
       }
       contentStyle={{ padding: 0 }}
       actions={
-        <SearchPortFolio
-          onChange={setSearch}
-          value={search}
-          placeholder={t`Search by token symbol or token address`}
-          style={{
-            width: 330,
-            height: 32,
-            backgroundColor: theme.buttonBlack,
-            border: `1px solid ${theme.buttonGray}`,
-          }}
-        />
+        <SearchPortFolio onChange={setSearch} value={search} placeholder={t`Search by token symbol or token address`} />
       }
     >
       {isFetching ? (

@@ -14,7 +14,8 @@ export const SearchPortFolio = (props: SearchInputProps) => {
     <SearchInput
       {...props}
       style={{
-        width: upToSmall ? 'calc(100vw - 32px)' : 330,
+        ...props.style,
+        width: upToSmall ? 'calc(100vw - 32px)' : 390,
         height: 32,
         backgroundColor: theme.buttonBlack,
         border: `1px solid ${theme.buttonGray}`,
