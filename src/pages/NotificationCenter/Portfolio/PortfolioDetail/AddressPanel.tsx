@@ -288,18 +288,15 @@ const AddressPanel = ({
     [myPortfolios, activePortfolio],
   )
   const otherPortfolioId = otherPortfolio?.[0]?.id
-  const { currentData: wallets } = useGetWalletsPortfoliosQuery(
-    { portfolioId: otherPortfolioId },
-    { skip: !otherPortfolioId },
-  )
+  const { data: wallets } = useGetWalletsPortfoliosQuery({ portfolioId: otherPortfolioId }, { skip: !otherPortfolioId })
   // todo ask BE
-  const { currentData } = useGetRealtimeBalanceQuery(
+  const { data: balanceData } = useGetRealtimeBalanceQuery(
     {
       walletAddresses: wallets?.map(e => e.walletAddress) || EMPTY_ARRAY,
     },
     { skip: !wallets?.length },
   )
-  const otherTotalUser = currentData?.totalUsd || 0
+  const otherTotalUser = balanceData?.totalUsd || 0
 
   const formatPortfolio = useMemo(() => {
     return otherPortfolio.map(el => ({
