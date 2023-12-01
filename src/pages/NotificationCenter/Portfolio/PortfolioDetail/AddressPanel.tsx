@@ -107,11 +107,23 @@ const ButtonCreatePortfolio = ({ portfolios }: { portfolios: Portfolio[] }) => {
           flex: upToSmall ? 1 : undefined,
         }}
         text={
-          !account
-            ? t`Connect your wallet to create portfolio.`
-            : isMaximum
-            ? t`You had created the maximum number of portfolio`
-            : ''
+          !account ? (
+            t`Connect your wallet to create portfolio.`
+          ) : isMaximum ? (
+            <Trans>
+              You can only create up to 2 portfolios. Manage your portfolios{' '}
+              <Text
+                fontWeight={'500'}
+                onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`)}
+                color={theme.primary}
+                sx={{ cursor: 'pointer' }}
+              >
+                here
+              </Text>
+            </Trans>
+          ) : (
+            ''
+          )
         }
         placement="top"
       >

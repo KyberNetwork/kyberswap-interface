@@ -275,7 +275,6 @@ export default function TokenAllocation({
             totalItems={tableData.length}
             pageSize={6}
             pagination={{ hideWhenSinglePage: true, show: !shareMode }}
-            emptyMsg={t`No data with your balance threshold.`}
           /> // todo
         )}
       </Content>
