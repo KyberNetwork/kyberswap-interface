@@ -39,7 +39,7 @@ export default function Header() {
             <TransactionSettingsIcon fill={theme.subText} style={{ height: '20px', minWidth: '20px' }} />
             {!upToSmall && (
               <>
-                &nbsp;<Trans>Setting</Trans>
+                &nbsp;<Trans>Settings</Trans>
               </>
             )}
           </ButtonOutlined>
