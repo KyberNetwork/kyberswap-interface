@@ -254,7 +254,6 @@ const AddressPanel = ({
       fontWeight={'500'}
       color={theme.text}
       sx={{
-        cursor: 'pointer',
         userSelect: 'none',
         maxWidth: '250px',
         textOverflow: 'ellipsis',
@@ -328,12 +327,12 @@ const AddressPanel = ({
   return (
     <>
       <RowBetween flexDirection={upToSmall ? 'column' : 'row'} align={upToSmall ? 'flex-start' : 'center'} gap="8px">
-        {isLoading || !isMyPortfolioPage ? (
+        {isLoading || !isMyPortfolioPage || formatPortfolio.length === 0 ? (
           accountText
         ) : (
           <MenuFlyout
             trigger={
-              <RowFit>
+              <RowFit sx={{ cursor: 'pointer' }}>
                 {accountText}
                 {formatPortfolio.length > 0 && <DropdownArrowIcon rotate={isOpen} />}
               </RowFit>
