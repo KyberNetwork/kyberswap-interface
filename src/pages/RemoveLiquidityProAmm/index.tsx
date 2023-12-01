@@ -164,8 +164,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
   const isFarmV2 = networkInfo.elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
   const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
+  const isDynamicFarm = networkInfo.elastic.farms.flat().includes(isAddressString(chainId, owner))
 
-  const ownByFarm = networkInfo.elastic.farms.flat().includes(isAddressString(chainId, owner)) || isFarmV2 || isFarmV21
+  const ownByFarm = isDynamicFarm || isFarmV2 || isFarmV21
 
   const ownsNFT = owner === account || ownByFarm
 
@@ -195,7 +196,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     outOfRange,
     error,
     parsedAmounts,
-  } = useDerivedProAmmBurnInfo(position, receiveWETH)
+  } = useDerivedProAmmBurnInfo(position, receiveWETH, isDynamicFarm)
 
   const currency0IsETHER = !!(chainId && liquidityValue0?.currency.isNative)
   const currency0IsWETH = !!(chainId && liquidityValue0?.currency.equals(WETH[chainId]))
