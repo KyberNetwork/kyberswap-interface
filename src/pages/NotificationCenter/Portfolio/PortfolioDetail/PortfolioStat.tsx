@@ -62,12 +62,12 @@ const useFetchPortfolio = (): {
   myPortfolios: Portfolio[]
 } => {
   const { portfolioId } = useParseWalletPortfolioParam()
-  const { currentData: portfolio, isFetching: isLoadingMyPortfolio } = useGetPortfolioByIdQuery(
+  const { data: portfolio, isFetching: isLoadingMyPortfolio } = useGetPortfolioByIdQuery(
     { id: portfolioId || '' },
     { skip: !portfolioId },
   )
-  const { currentData: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingPortfolio } = useGetPortfoliosQuery()
-  const { currentData: wallets = EMPTY_ARRAY, isFetching: isLoadingWallet } = useGetWalletsPortfoliosQuery(
+  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingPortfolio } = useGetPortfoliosQuery()
+  const { data: wallets = EMPTY_ARRAY, isFetching: isLoadingWallet } = useGetWalletsPortfoliosQuery(
     { portfolioId: portfolio?.id || '' },
     { skip: !portfolio?.id },
   )
@@ -113,7 +113,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
 
   const [chainIds, setChainIds] = useState<ChainId[]>([...chainSupport])
 
-  const { isLoading: isLoadingRealtimeData, currentData } = useGetRealtimeBalanceQuery(
+  const { isLoading: isLoadingRealtimeData, data: currentData } = useGetRealtimeBalanceQuery(
     { walletAddresses: walletsQuery },
     { skip: !walletsQuery.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
   )
