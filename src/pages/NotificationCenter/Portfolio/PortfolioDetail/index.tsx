@@ -110,7 +110,7 @@ export default function PortfolioDetail() {
   const { isLoading: loading, data } = useGetMyPortfoliosQuery()
   const isLoading = useShowLoadingAtLeastTime(loading, 300)
   const navigate = useNavigateToMyFirstPortfolio()
-  const navigateToMyPortfolio = useCallback(() => navigate(data), [data, navigate])
+  const navigateToMyPortfolio = useCallback(() => navigate(data, true), [data, navigate])
 
   const [showTutorialState, setShowTutorial] = useState(!localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE))
   const showTutorial = showTutorialState && account

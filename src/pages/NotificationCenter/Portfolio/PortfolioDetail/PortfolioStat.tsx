@@ -1,7 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
+import { ChevronLeft } from 'react-feather'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import {
@@ -15,7 +16,7 @@ import styled from 'styled-components'
 
 import Column from 'components/Column'
 import Wallet from 'components/Icons/Wallet'
-import Row, { RowBetween } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import ShareImageModal from 'components/ShareModal/ShareImageModal'
@@ -205,8 +206,30 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
     }
   }, [isMyPortfolioPage, portfolioId, myPortfolios, navigateToMyPortfolio])
 
+  const navigateRouter = useNavigate()
+  const location = useLocation()
+  const [historyStacks, setStacks] = useState<string[]>([])
+  useEffect(() => {
+    setStacks(prev => (prev[prev.length - 1] === location.pathname ? prev : [...prev, location.pathname]))
+  }, [location])
+
   return (
     <>
+      {historyStacks.length > 1 && (
+        <RowFit
+          color={theme.primary}
+          fontSize={'14px'}
+          sx={{ cursor: 'pointer' }}
+          onClick={() => {
+            setStacks(prev => prev.slice(0, -1))
+            navigateRouter(-1)
+          }}
+        >
+          <ChevronLeft />
+          <Trans>Back</Trans>
+        </RowFit>
+      )}
+
       <AddressPanel
         isLoading={isLoading}
         wallets={wallets}

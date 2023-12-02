@@ -44,8 +44,8 @@ export const getPortfolioDetailUrl = ({ wallet, portfolioId, myPortfolio = true 
 export const useNavigateToPortfolioDetail = () => {
   const navigate = useNavigate()
   return useCallback(
-    (data: Params) => {
-      navigate(getPortfolioDetailUrl(data))
+    (data: Params, replace = false) => {
+      navigate(getPortfolioDetailUrl(data), { replace })
     },
     [navigate],
   )
@@ -57,19 +57,19 @@ export const useNavigateToMyFirstPortfolio = () => {
   const navigate = useNavigateToPortfolioDetail()
 
   return useCallback(
-    (data: Portfolio[] | undefined) => {
+    (data: Portfolio[] | undefined, replace = false) => {
       if (portfolioId && data?.some(el => el.id === portfolioId)) {
         return
       }
       if (!account) {
-        navigate({})
+        navigate({}, replace)
         return
       }
       if (!data?.length) {
-        navigate({ wallet: account })
+        navigate({ wallet: account }, replace)
         return
       }
-      navigate({ portfolioId: data?.[0]?.id })
+      navigate({ portfolioId: data?.[0]?.id }, replace)
     },
     [account, navigate, portfolioId],
   )
