@@ -1,6 +1,7 @@
-import { Search } from 'react-feather'
+import { Search, X } from 'react-feather'
 import styled, { CSSProperties } from 'styled-components'
 
+import { ButtonEmpty } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 
 const SearchContainer = styled.div`
@@ -41,6 +42,7 @@ export type SearchInputProps = {
   onChange: (val: string) => void
   style?: CSSProperties
   className?: string
+  clearable?: boolean
 }
 export default function SearchInput({
   value,
@@ -49,8 +51,10 @@ export default function SearchInput({
   placeholder,
   style = {},
   className,
+  clearable,
 }: SearchInputProps) {
   const theme = useTheme()
+  const handleXClick = () => onChange('')
   return (
     <SearchContainer style={style} className={className}>
       <Input
@@ -60,6 +64,11 @@ export default function SearchInput({
         onChange={e => onChange(e.target.value)}
         style={{ backgroundColor: style?.backgroundColor }}
       />
+      {clearable && value && (
+        <ButtonEmpty onClick={handleXClick} style={{ padding: '2px 0px', width: 'max-content' }}>
+          <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
+        </ButtonEmpty>
+      )}
       <Search color={theme.subText} size={16} style={{ minWidth: 16 }} />
     </SearchContainer>
   )
