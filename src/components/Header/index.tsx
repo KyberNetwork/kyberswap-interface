@@ -151,12 +151,10 @@ const BlogWrapper = styled.span`
   }
 `
 
-const PortfolioWrapper = styled.span`
-  display: flex;
-  align-items: center;
-  @media (max-width: ${THRESHOLD_HEADER.ANALYTIC}) {
+const PortfolioWrapper = styled(StyledNavLink)`
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
     display: none;
-  }
+  `};
 `
 
 const Title = styled(Link)`
@@ -231,19 +229,17 @@ export default function Header() {
             <SwapNavGroup />
             <EarnNavGroup />
             <KyberAINavItem />
+            <PortfolioWrapper
+              to=""
+              onClick={e => {
+                e.preventDefault()
+                navigateToMyPortFolio()
+              }}
+            >
+              <Trans>Portfolio</Trans>
+            </PortfolioWrapper>
             <CampaignNavGroup />
             <KyberDAONavGroup />
-            <PortfolioWrapper>
-              <StyledNavLink
-                to=""
-                onClick={e => {
-                  e.preventDefault()
-                  navigateToMyPortFolio()
-                }}
-              >
-                <Trans>Portfolio</Trans>
-              </StyledNavLink>
-            </PortfolioWrapper>
             <AnalyticNavGroup />
             <AboutNavGroup />
             <BlogWrapper>

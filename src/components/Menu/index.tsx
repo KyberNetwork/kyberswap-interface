@@ -360,6 +360,16 @@ export default function Menu() {
               />
             </KyberAIWrapper>
 
+            <KyberAIWrapper
+              onClick={() => {
+                toggle()
+                navigateToMyPortFolio()
+              }}
+            >
+              <PortfolioIcon />
+              <Trans>Portfolio</Trans>
+            </KyberAIWrapper>
+
             {showCampaign && (
               <MenuItem>
                 <NavDropDown
@@ -401,32 +411,21 @@ export default function Menu() {
               </MenuItem>
             )}
             {showAnalytics && (
-              <>
-                <MenuItem
-                  onClick={() => {
-                    toggle()
-                    navigateToMyPortFolio()
-                  }}
-                >
-                  <PortfolioIcon />
-                  <Trans>Portfolio</Trans>
-                </MenuItem>
-                <MenuItem>
-                  <NavDropDown
-                    icon={<PieChart />}
-                    link="#"
-                    title={t`Analytics`}
-                    options={[
-                      { link: DMM_ANALYTICS_URL[chainId], label: t`Liquidity`, external: true },
-                      {
-                        link: AGGREGATOR_ANALYTICS_URL,
-                        label: t`Aggregator`,
-                        external: true,
-                      },
-                    ]}
-                  />
-                </MenuItem>
-              </>
+              <MenuItem>
+                <NavDropDown
+                  icon={<PieChart />}
+                  link="#"
+                  title={t`Analytics`}
+                  options={[
+                    { link: DMM_ANALYTICS_URL[chainId], label: t`Liquidity`, external: true },
+                    {
+                      link: AGGREGATOR_ANALYTICS_URL,
+                      label: t`Aggregator`,
+                      external: true,
+                    },
+                  ]}
+                />
+              </MenuItem>
             )}
 
             {showAbout && (
