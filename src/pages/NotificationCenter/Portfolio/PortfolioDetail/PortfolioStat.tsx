@@ -150,6 +150,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
   )
 
   const [chainIds, setChainIds] = useState<ChainId[]>([...chainSupport])
+  const isAllChain = chainIds.length === chainSupport.length
 
   const { isLoading: isLoadingRealtimeData, data: currentData } = useGetRealtimeBalanceQuery(
     { walletAddresses: walletsQuery },
@@ -186,8 +187,9 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
       walletAddresses: walletsQuery,
       chainIds,
       mobile: upToSmall,
+      isAllChain,
     }
-  }, [walletsQuery, upToSmall, chainIds])
+  }, [walletsQuery, upToSmall, chainIds, isAllChain])
 
   const shareContents = useMemo(() => {
     return [

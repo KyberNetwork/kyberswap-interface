@@ -11,6 +11,7 @@ const Tokens = ({
   chainIds: ChainId[]
   mobile?: boolean
   totalUsd: number
+  isAllChain: boolean
 }) => {
   return (
     <>

@@ -172,6 +172,7 @@ export default function TokenAllocation({
   mobile,
   defaultTab,
   totalUsd,
+  isAllChain,
 }: {
   walletAddresses: string[]
   chainIds: ChainId[]
@@ -179,6 +180,7 @@ export default function TokenAllocation({
   mobile?: boolean
   defaultTab?: AllocationTab
   totalUsd: number
+  isAllChain: boolean
 }) {
   const [params, setParams] = useSearchParams()
   const type = params.get('type') || AllocationTab.TOKEN
@@ -260,7 +262,7 @@ export default function TokenAllocation({
             isLoading: isFetching,
             horizontalLayout: mobile,
             numberOfTokens: chartData.length,
-            totalUsd: totalUsd || data?.totalUsd || 0,
+            totalUsd: (isAllChain ? totalUsd : data?.totalUsd) || 0,
             border: false,
             shareMode,
           }}
