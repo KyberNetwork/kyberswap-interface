@@ -21,6 +21,7 @@ export function useBurnProAmmState(): AppState['burnProAmm'] {
 export function useDerivedProAmmBurnInfo(
   position?: PositionDetails,
   asWETH = false,
+  isDynamicFarm = false,
 ): {
   position?: Position
   liquidityPercentage?: Percent
@@ -90,6 +91,7 @@ export function useDerivedProAmmBurnInfo(
   if (independentField === Field.LIQUIDITY_PERCENT) {
     liquidityPercentage = new Percent(typedValue, '100')
   }
+
   // user specified a specific amount of token a or b
   else {
     if (!!tokens[independentField]) {
@@ -99,6 +101,10 @@ export function useDerivedProAmmBurnInfo(
         liquidityPercentage = new Percent(independentAmount.quotient, liquidityValue.quotient)
       }
     }
+  }
+
+  if (isDynamicFarm && +liquidityPercentage.toFixed() === 100) {
+    liquidityPercentage = new Percent('9999', '10000')
   }
 
   const discountedAmount0 = positionSDK

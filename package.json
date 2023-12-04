@@ -43,7 +43,7 @@
     "ChromeAndroid >= 52"
   ],
   "dependencies": {
-    "@0xsquid/sdk": "^1.4.1",
+    "@0xsquid/sdk": "^2.8.1",
     "@apollo/client": "^3.7.1",
     "@blocto/web3-react-connector": "^1.0.0",
     "@coinbase/wallet-sdk": "^3.0.4",
@@ -136,6 +136,7 @@
     "workbox-routing": "^6.5.4"
   },
   "devDependencies": {
+    "@0xsquid/squid-types": "^0.1.34",
     "@babel/core": "^7.21.4",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.4",

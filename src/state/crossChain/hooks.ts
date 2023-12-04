@@ -1,4 +1,4 @@
-import { RouteResponse } from '@0xsquid/sdk'
+import { RouteResponse } from '@0xsquid/sdk/dist/types'
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
+import { FormatRouteCrossChain, getRouInfo } from 'pages/CrossChain/helpers'
 import { AppDispatch, AppState } from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
@@ -13,6 +14,7 @@ import {
   BridgeStateParams,
   BridgeStatePoolParams,
   CrossChainStateParams,
+  TokenUsdParams,
   resetBridgeState as resetBridgeStateAction,
   selectCurrencyCrossChain,
   selectDestChainCrossChain,
@@ -20,6 +22,7 @@ import {
   setBridgeState,
   setCrossChainState,
   setInputAmountCrossChain,
+  setPriceUsd as setPriceUsdAction,
   setRoute,
 } from './actions'
 import { BridgeState, SwapCrossChainState } from './reducer'
@@ -92,12 +95,17 @@ export function useBridgeOutputValue(inputBridgeValue: string) {
 }
 
 export function useCrossChainState(): [
-  SwapCrossChainState & { listChainOut: ChainId[]; listTokenOut: WrappedTokenInfo[]; listTokenIn: WrappedTokenInfo[] },
+  SwapCrossChainState & {
+    listChainOut: ChainId[]
+    listTokenOut: WrappedTokenInfo[]
+    listTokenIn: WrappedTokenInfo[]
+    formatRoute: FormatRouteCrossChain
+  },
   (value: CrossChainStateParams) => void,
 ] {
   const dispatch = useDispatch<AppDispatch>()
   const crossChain = useSelector((state: AppState) => state.crossChain.crossChain)
-  const { chains, tokens, chainIdOut } = crossChain
+  const { chains, tokens, chainIdOut, route, tokenInPriceUsd, tokenOutPriceUsd } = crossChain
   const { chainId } = useActiveWeb3React()
   const setState = useCallback((data: CrossChainStateParams) => dispatch(setCrossChainState(data)), [dispatch])
 
@@ -107,8 +115,11 @@ export function useCrossChainState(): [
   )
   const listTokenOut = useMemo(() => tokens.filter(e => e.chainId === chainIdOut), [tokens, chainIdOut])
   const listTokenIn = useMemo(() => tokens.filter(e => e.chainId === chainId), [tokens, chainId])
-
-  return [{ ...crossChain, listChainOut, listTokenOut, listTokenIn }, setState]
+  const formatRoute = useMemo(
+    () => getRouInfo({ route, tokenPriceIn: tokenInPriceUsd, tokenPriceOut: tokenOutPriceUsd }),
+    [route, tokenInPriceUsd, tokenOutPriceUsd],
+  )
+  return [{ ...crossChain, listChainOut, listTokenOut, listTokenIn, formatRoute }, setState]
 }
 
 export function useCrossChainHandlers() {
@@ -134,6 +145,7 @@ export function useCrossChainHandlers() {
 
   const setTradeRoute = useCallback((data: RouteResponse | undefined) => dispatch(setRoute(data)), [dispatch])
   const setInputAmount = useCallback((data: string) => dispatch(setInputAmountCrossChain(data)), [dispatch])
+  const setPriceUsd = useCallback((data: TokenUsdParams) => dispatch(setPriceUsdAction(data)), [dispatch])
 
-  return { selectDestChain, setTradeRoute, setInputAmount, selectCurrencyIn, selectCurrencyOut }
+  return { selectDestChain, setTradeRoute, setInputAmount, selectCurrencyIn, selectCurrencyOut, setPriceUsd }
 }
