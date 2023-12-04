@@ -76,22 +76,6 @@ export function useAllTransactions(allChain = false): GroupedTxsByHash | undefin
   }, [allChain, transactions, chainId, account])
 }
 
-export function useSortRecentTransactions(recentOnly = true, allChain = false) {
-  const allTransactions = useAllTransactions(allChain)
-  const { account } = useActiveWeb3React()
-  return useMemo(() => {
-    const txGroups: TransactionDetails[][] = allTransactions
-      ? (Object.values(allTransactions).filter(Boolean) as TransactionDetails[][])
-      : []
-    return txGroups
-      .filter(txs => {
-        const isMyGroup = isOwnTransactionGroup(txs, account)
-        return recentOnly ? isTransactionGroupRecent(txs) && isMyGroup : isMyGroup
-      })
-      .sort(newTransactionsGroupFirst)
-  }, [allTransactions, recentOnly, account])
-}
-
 export function useIsTransactionPending(transactionHash?: string): boolean {
   const transactions = useAllTransactions()
 
@@ -104,20 +88,7 @@ export function useIsTransactionPending(transactionHash?: string): boolean {
 }
 
 function isOwnTransactionGroup(txs: TransactionDetails[], account: string | undefined): boolean {
-  return !!account && txs[0]?.from === account && !!txs[0]?.group
-}
-
-/**
- * Returns whether a transaction happened in the last day (86400 seconds * 1000 milliseconds / second)
- * @param tx to check for recency
- */
-function isTransactionGroupRecent(txs: TransactionDetails[]): boolean {
-  return new Date().getTime() - (txs[0]?.addedTime ?? 0) < 86_400_000
-}
-
-// we want the latest one to come first, so return negative if a is after b
-function newTransactionsGroupFirst(a: TransactionDetails[], b: TransactionDetails[]) {
-  return (b[0]?.addedTime ?? 0) - (a[0]?.addedTime ?? 0)
+  return !!account && txs[0]?.from === account
 }
 
 /**

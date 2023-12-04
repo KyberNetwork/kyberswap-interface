@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
 import { findTx } from 'utils'
-import { getTransactionGroupByType } from 'utils/transaction'
 
 import {
   addTransaction,
@@ -55,7 +54,6 @@ export default createReducer(initialState, builder =>
           addedTime: Date.now(),
           chainId,
           extraInfo,
-          group: getTransactionGroupByType(type),
         })
         chainTxs[txs[0].hash] = txs
         transactions[chainId] = clearOldTransactions(chainTxs)

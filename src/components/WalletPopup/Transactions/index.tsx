@@ -1,25 +1,22 @@
-import { Trans, t } from '@lingui/macro'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import { Info } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
+import { useGetTransactionsQuery } from 'services/portfolio'
 import styled, { CSSProperties } from 'styled-components'
 
-import Tab from 'components/WalletPopup/Transactions/Tab'
+import Dots from 'components/Dots'
+import Loader from 'components/Loader'
+import Row from 'components/Row'
 import { NUMBERS } from 'components/WalletPopup/Transactions/helper'
 import useCancellingOrders, { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
+import { EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
-import { isSupportKyberDao } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
-import { useSortRecentTransactions } from 'state/transactions/hooks'
-import {
-  TRANSACTION_GROUP,
-  TransactionDetails,
-  TransactionExtraInfo1Token,
-  TransactionExtraInfo2Token,
-} from 'state/transactions/type'
+import { TransactionHistory } from 'pages/NotificationCenter/Portfolio/type'
 
 import TransactionItem from './TransactionItem'
 
@@ -58,7 +55,7 @@ function RowItem({
   isMinimal,
   cancellingOrderInfo,
 }: {
-  transaction: TransactionDetails
+  transaction: TransactionHistory
   style: CSSProperties
   index: number
   setRowHeight: (v: number, height: number) => void
@@ -104,45 +101,20 @@ function RowItem({
     />
   )
 }
-const listTab = [
-  { title: t`All`, value: '' },
-  { title: t`Swaps`, value: TRANSACTION_GROUP.SWAP },
-  { title: t`Liquidity`, value: TRANSACTION_GROUP.LIQUIDITY },
-  { title: t`KyberDAO`, value: TRANSACTION_GROUP.KYBERDAO },
-  { title: t`Others`, value: TRANSACTION_GROUP.OTHER },
-] as const
 
-// This is intentional, we don't need to persist in localStorage
-let storedActiveTab = ''
 function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
-  const transactions = useSortRecentTransactions(false)
-  const { chainId } = useActiveWeb3React()
-  const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>(storedActiveTab)
+  const { chainId, account } = useActiveWeb3React()
+
+  const { data, isFetching } = useGetTransactionsQuery(
+    { walletAddress: account || '', chainIds: [chainId], limit: 100, endTime: 0 },
+    { skip: !account },
+  )
+  const transactions = data?.data || EMPTY_ARRAY
+
   const theme = useTheme()
   const cancellingOrderInfo = useCancellingOrders()
 
   const listTokenAddress = useRef<string[]>([])
-  const pushAddress = (address: string) => {
-    if (address && !listTokenAddress.current.includes(address)) listTokenAddress.current.push(address)
-  }
-
-  const formatTransactions = useMemo(() => {
-    const result: TransactionDetails[] = []
-    transactions.forEach(list => {
-      list.forEach(txs => {
-        if (!activeTab || txs.group === activeTab) {
-          result.push(txs)
-          const { tokenAddress } = (txs.extraInfo as TransactionExtraInfo1Token) ?? {}
-          const { tokenAddressIn, tokenAddressOut } = (txs.extraInfo as TransactionExtraInfo2Token) ?? {}
-          pushAddress(tokenAddress)
-          pushAddress(tokenAddressIn)
-          pushAddress(tokenAddressOut)
-        }
-      })
-    })
-
-    return result
-  }, [transactions, activeTab])
 
   const total = listTokenAddress.current
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
@@ -169,29 +141,26 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
     return rowHeights.current[index] || 100
   }
 
-  useEffect(() => {
-    storedActiveTab = activeTab
-  }, [activeTab])
-
-  const filterTab = useMemo(() => {
-    return listTab.filter(tab => {
-      if (tab.value === TRANSACTION_GROUP.KYBERDAO) {
-        return isSupportKyberDao(chainId)
-      }
-      return true
-    })
-  }, [chainId])
-
   return (
     <Wrapper>
-      <Tab<TRANSACTION_GROUP | string> activeTab={activeTab} setActiveTab={setActiveTab} tabs={filterTab} />
       <ContentWrapper>
-        {formatTransactions.length === 0 ? (
+        {transactions.length === 0 ? (
           <Flex flexDirection="column" alignItems="center" color={theme.subText} sx={{ gap: 10, marginTop: '20px' }}>
-            <Info size={32} />
-            <Text fontSize={'14px'}>
-              <Trans>You have no Transaction History.</Trans>
-            </Text>
+            {isFetching ? (
+              <Row alignItems={'center'} gap="8px" justify="center" fontSize={'14px'} color={theme.subText}>
+                <Loader />{' '}
+                <Dots>
+                  <Trans>Loading Transactions</Trans>
+                </Dots>
+              </Row>
+            ) : (
+              <>
+                <Info size={32} />
+                <Text fontSize={'14px'}>
+                  <Trans>You have no Transaction History.</Trans>
+                </Text>
+              </>
+            )}
           </Flex>
         ) : (
           <AutoSizer>
@@ -202,8 +171,8 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
                 itemSize={getRowHeight}
                 ref={listRef}
                 outerRef={onRefChange}
-                itemCount={formatTransactions.length}
-                itemData={formatTransactions}
+                itemCount={transactions.length}
+                itemData={transactions}
               >
                 {({ data, index, style }) => (
                   <RowItem

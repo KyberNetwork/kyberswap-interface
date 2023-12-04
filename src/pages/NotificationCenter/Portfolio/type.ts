@@ -112,7 +112,7 @@ export type TransactionHistory = {
   nativeTokenPrice: number
   historicalNativeTokenPrice: number
   inputData: string
-  status: string
+  status: 'failed' | 'success'
   tokenTransfers: TransactionToken[]
   contractInteraction: {
     contractName: string

@@ -204,13 +204,13 @@ const getTitle = (type: string, success: boolean) => {
 }
 
 const getSummary = (transaction: TransactionDetails) => {
-  const { type, hash, group } = transaction
+  const { type, hash } = transaction
 
   const { success } = getTransactionStatus(transaction)
 
   const shortHash = 'Hash: ' + hash.slice(0, 8) + '...' + hash.slice(58, 65)
 
-  const summary = group ? SUMMARY[type]?.(transaction) ?? shortHash : shortHash
+  const summary = SUMMARY[type]?.(transaction) ?? shortHash
 
   let formatSummary,
     title = getTitle(type, success)

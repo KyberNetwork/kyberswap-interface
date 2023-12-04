@@ -87,7 +87,6 @@ export interface TransactionDetails {
   nonce?: number
   sentAtBlock?: number
   extraInfo?: TransactionExtraInfo
-  group: TRANSACTION_GROUP
   chainId: ChainId
 }
 
@@ -201,13 +200,6 @@ export const GROUP_TRANSACTION_BY_TYPE = {
     TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
     TRANSACTION_TYPE.TRANSFER_TOKEN,
   ],
-}
-
-export enum TRANSACTION_GROUP {
-  SWAP = 'swap',
-  LIQUIDITY = 'liquidity',
-  KYBERDAO = 'kyber_dao',
-  OTHER = 'other',
 }
 
 const totalType = Object.values(TRANSACTION_TYPE).length

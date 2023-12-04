@@ -7,13 +7,14 @@ import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem
 import { getTokenLogo } from 'components/WalletPopup/Transactions/helper'
 import useTheme from 'hooks/useTheme'
 
-export const TokenAmountWrapper = styled.div`
+const TokenAmountWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 12px;
 `
 
+// todo move
 const DeltaTokenAmount = ({
   symbol,
   amount,

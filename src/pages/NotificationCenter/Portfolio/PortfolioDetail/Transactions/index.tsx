@@ -6,6 +6,7 @@ import { isMobile } from 'react-device-detect'
 import { ExternalLink as ExternalLinkIcon, FileText } from 'react-feather'
 import { Text } from 'rebass'
 import { useGetTransactionsQuery } from 'services/portfolio'
+import { CSSProperties } from 'styled-components'
 
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import Badge, { BadgeVariant } from 'components/Badge'
@@ -14,6 +15,7 @@ import LocalLoader from 'components/LocalLoader'
 import Logo, { NetworkLogo } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
 import Table, { TableColumn } from 'components/Table'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { getTxsIcon } from 'components/WalletPopup/Transactions/Icon'
 import { EMPTY_ARRAY } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -28,6 +30,7 @@ import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
+import { shortString } from 'utils/string'
 
 export const getTxsAction = ({
   contractInteraction = { methodName: '', contractName: '' },
@@ -116,15 +119,29 @@ const InteractionCell = ({ item }: { item: TransactionHistory }) => {
   )
 }
 
-const BalanceCell = ({ item: { tokenTransfers = [], tokenApproval, status } }: { item: TransactionHistory }) => {
+// todo
+export const BalanceCell = ({
+  item: { tokenTransfers = [], tokenApproval, status },
+  inWalletUI,
+  className,
+  style,
+}: {
+  item: TransactionHistory
+  inWalletUI?: boolean
+  className?: string
+  style?: CSSProperties
+}) => {
   const logoStyle = { width: '20px', minWidth: '20px', height: '20px', borderRadius: '4px' }
   const theme = useTheme()
+  const maxSymbolLength = 22
   return (
-    <Column gap="6px">
+    <Column gap="6px" className={className} style={style}>
       {status === 'failed' ? (
-        <Badge variant={BadgeVariant.NEGATIVE} style={{ width: 'fit-content', fontSize: '14px' }}>
-          <Trans>Failed</Trans>
-        </Badge>
+        inWalletUI ? null : (
+          <Badge variant={BadgeVariant.NEGATIVE} style={{ width: 'fit-content', fontSize: '14px' }}>
+            <Trans>Failed</Trans>
+          </Badge>
+        )
       ) : tokenApproval ? (
         <Row gap="4px">
           <Logo srcs={[tokenApproval.token.logo]} style={logoStyle} />{' '}
@@ -140,15 +157,20 @@ const BalanceCell = ({ item: { tokenTransfers = [], tokenApproval, status } }: {
               ) : (
                 <Logo srcs={[token.logo]} style={logoStyle} />
               )}
-              <Text color={plus ? theme.primary : theme.subText}>
+              <Text color={plus ? theme.primary : theme.subText} display={'flex'} sx={{ gap: '4px' }}>
                 {plus && '+'}
                 {formatDisplayNumber(uint256ToFraction(amount, token.decimals), {
-                  // todo
                   style: 'decimal',
                   fractionDigits: 4,
                   allowDisplayNegative: true,
                 })}{' '}
-                {token.symbol}
+                {inWalletUI ? (
+                  <MouseoverTooltip placement="top" text={token.symbol.length > maxSymbolLength ? token.symbol : ''}>
+                    {shortString(token.symbol, maxSymbolLength)}
+                  </MouseoverTooltip>
+                ) : (
+                  token.symbol
+                )}
               </Text>
             </Row>
           )
