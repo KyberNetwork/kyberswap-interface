@@ -61,14 +61,14 @@ const PortfolioItem = ({
 }: {
   onSelect: (v: PortfolioSearchData) => void
   data: PortfolioSearchData
-  favorites: string[]
+  favorites: PortfolioSearchData[]
 }) => {
   const theme = useTheme()
   const navigate = useNavigateToPortfolioDetail()
   const displayName = data.name || data.id
   const id = getPortfolioId(data)
   const [toggleFavorite, { isLoading }] = useToggleFavoritePortfolioMutation()
-  const isFavorite = favorites.includes(id)
+  const isFavorite = favorites.some(e => e.id === id)
 
   const notify = useNotify()
   const onToggleFavorite = async () => {
