@@ -25,7 +25,6 @@ import { NFTTokenDetail } from 'pages/NotificationCenter/Portfolio/type'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
 
@@ -100,9 +99,14 @@ export default function SendNftModal({
           contract: address,
         },
       })
+      onDismiss()
     } catch (error) {
       console.error('Error sending NFT:', error)
-      notify({ type: NotificationType.ERROR, summary: friendlyError(error), title: t`Send Nft Error` })
+      notify({
+        type: NotificationType.ERROR,
+        summary: t`Send NFT failed. Please make sure your NFT is not scam or check your native balance to cover gas fee.`,
+        title: t`Send NFT Error`,
+      })
     } finally {
       setLoading(false)
     }

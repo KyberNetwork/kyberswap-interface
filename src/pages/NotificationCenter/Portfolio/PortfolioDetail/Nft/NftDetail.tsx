@@ -114,7 +114,12 @@ const DescColumn = styled(Column)`
 `
 
 export default function NftDetail() {
-  const { colId = '', chainId, nftId = '' } = useParsedQueryString<{ nftId: string; colId: string; chainId: string }>()
+  const {
+    colId = '',
+    chainId,
+    nftId = '',
+    wallet: walletParams = '',
+  } = useParsedQueryString<{ nftId: string; colId: string; chainId: string; wallet: string }>()
   const { account } = useActiveWeb3React()
   const [showSend, setShowSend] = useState(false)
 
@@ -224,7 +229,7 @@ export default function NftDetail() {
                   </AttributeLabel>
                   <Value>{currentPrice ? `${currentPrice} ${paymentToken}` : '--'}</Value>
                 </Row>
-                {account && account?.toLowerCase() === wallet?.toLowerCase() && (
+                {account && account?.toLowerCase() === (wallet || walletParams)?.toLowerCase() && (
                   <ButtonPrimary height={'36px'} width={'150px'} onClick={() => setShowSend(true)}>
                     <Send size={17} />
                     &nbsp;Transfer

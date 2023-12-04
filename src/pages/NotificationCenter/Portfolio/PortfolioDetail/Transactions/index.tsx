@@ -46,13 +46,17 @@ const getTxsAction = ({
   }
   const type = methodName || `contractInteraction`
   if (tokenTransfers.length > 1) return { type, contract: to, contractName }
-  if (tokenTransfers?.[0])
+
+  const firstToken = tokenTransfers?.[0]
+  if (firstToken) {
+    const isSend = firstToken.amount.startsWith('-')
     return {
-      type: 'receive',
-      contract: tokenTransfers[0].otherAddress,
-      contractName: contractName || tokenTransfers[0].otherName,
-      prefix: t`from`,
+      type: isSend ? 'send' : 'receive',
+      contract: firstToken.otherAddress,
+      contractName: contractName || firstToken.otherName,
+      prefix: isSend ? t`to` : t`from`,
     }
+  }
   return { type, contractName, contract: tokenApproval?.spenderAddress }
 }
 
