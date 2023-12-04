@@ -113,7 +113,10 @@ export const useAddWalletToPortfolio = () => {
         notify({
           type: NotificationType.ERROR,
           title: t`Portfolio update failed`,
-          summary: t`Failed to update your portfolio, please try again.`,
+          summary:
+            error?.data?.code === 4090
+              ? t`Similar wallet address detected in a portfolio, please try again.`
+              : t`Failed to update your portfolio, please try again.`,
         })
       }
     },
