@@ -19,6 +19,7 @@ interface Window {
     isLedgerConnect?: boolean
     isKrystal?: boolean
     isKrystalWallet?: boolean
+    isZerion?: boolean
     on?: (...args: any[]) => void
     removeListener?: (...args: any[]) => void
     request: (params: { method: string; params?: any }) => Promise<any>
