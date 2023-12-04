@@ -29,7 +29,7 @@ import { getEtherscanLink } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
-const getTxsAction = ({
+export const getTxsAction = ({
   contractInteraction = { methodName: '', contractName: '' },
   tokenTransfers = [],
   tokenApproval,

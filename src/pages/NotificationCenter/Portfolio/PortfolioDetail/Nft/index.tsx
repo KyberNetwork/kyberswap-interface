@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useGetNftCollectionsQuery } from 'services/portfolio'
+import { useGetNftCollectionDetailQuery, useGetNftCollectionsQuery } from 'services/portfolio'
 import styled from 'styled-components'
 
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
@@ -19,6 +19,7 @@ import ListNft from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/List
 import NftDetail from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/NftDetail'
 import useGetNftBreadcrumbData from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft/useGetNftBreadcrumbData'
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
+import { isAddress } from 'utils'
 
 const Container = styled(Column)`
   min-height: 300px;
@@ -32,7 +33,12 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
   const [search, setSearch] = useState('')
   const searchDebounce = useDebounce(search, 500)
   const [page, setPage] = useState(1)
-  const { nftId = '', colId } = useParsedQueryString<{ nftId: string; colId: string; chainId: string }>()
+  const {
+    nftId = '',
+    colId,
+    chainId,
+    wallet = '',
+  } = useParsedQueryString<{ nftId: string; colId: string; chainId: string; wallet: string }>()
 
   const { data, isFetching } = useGetNftCollectionsQuery(
     {
@@ -51,6 +57,19 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
   }, [data])
 
   const itemsBreadcrumb = useGetNftBreadcrumbData({})
+
+  // todo refactor
+  const { data: listNft } = useGetNftCollectionDetailQuery(
+    {
+      address: wallet,
+      search,
+      chainId: +(chainId || ChainId.MAINNET) as ChainId,
+      collectionAddress: colId || '',
+      pageSize,
+      page: 1,
+    },
+    { skip: !isAddress(ChainId.MAINNET, colId) || !chainId || !isAddress(ChainId.MAINNET, wallet) },
+  )
 
   const onSelectNft = () => {
     setSearch('')
@@ -73,11 +92,13 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
               </RowFit>
             }
             actions={
-              <SearchPortFolio
-                onChange={setSearch}
-                value={search}
-                placeholder={colId ? t`Search by name or token ID` : t`Search collection name`}
-              />
+              colId && listNft && listNft?.items?.length <= 4 ? null : (
+                <SearchPortFolio
+                  onChange={setSearch}
+                  value={search}
+                  placeholder={colId ? t`Search by name or token ID` : t`Search collection name`}
+                />
+              )
             }
           >
             <Container>
