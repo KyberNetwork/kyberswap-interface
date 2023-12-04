@@ -73,15 +73,18 @@ export default function ListCollection({
   pageSize,
   onPageChange,
   totalItems,
+  onSelect,
 }: {
   data: NFTBalance[]
   pageSize: number
   page: number
   totalItems: number
   onPageChange: (v: number) => void
+  onSelect: () => void
 }) {
   const [params, setParams] = useSearchParams()
-  const onSelect = (val: NFTBalance) => {
+  const onClick = (val: NFTBalance) => {
+    onSelect()
     params.set('colId', val.collectibleAddress)
     params.set('chainId', val.chainID + '')
     params.set('wallet', val.wallet)
@@ -95,7 +98,7 @@ export default function ListCollection({
           <NftCollection
             data={el}
             key={el.collectibleAddress}
-            onSelect={() => onSelect(el)}
+            onSelect={() => onClick(el)}
             hasMorePage={totalItems > pageSize}
           />
         ))

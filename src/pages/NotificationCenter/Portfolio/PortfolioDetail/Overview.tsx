@@ -105,8 +105,8 @@ export default function Overview() {
         />
         <CardItem
           icon={PortfolioItem3}
-          title={t`Widespread Support`}
-          desc={t`Manage all your assets on a single platform with support for multiple cryptocurrencies, protocols, and centralized exchange, eliminating the need for multiple wallets and exchanges.`}
+          title={t`Navigate Market Risks`}
+          desc={t`Leverage advanced liquidity profiling data to uncover your portfolio's real value and safeguard your capital against excessive market volatility.`}
         />
       </CardWrapper>
     </Wrapper>

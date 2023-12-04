@@ -52,6 +52,10 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
 
   const itemsBreadcrumb = useGetNftBreadcrumbData({})
 
+  const onSelectNft = () => {
+    setSearch('')
+  }
+
   return (
     <Column gap="24px">
       {nftId ? (
@@ -83,6 +87,7 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
                 <ListNft search={searchDebounce} />
               ) : (
                 <ListCollection
+                  onSelect={onSelectNft}
                   data={formatData}
                   page={page}
                   pageSize={pageSize}
