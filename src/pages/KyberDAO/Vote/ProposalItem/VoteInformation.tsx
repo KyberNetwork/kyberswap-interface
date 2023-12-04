@@ -1,12 +1,17 @@
-import { Trans, t } from '@lingui/macro'
+import { Fraction } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
+import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Divider from 'components/Divider'
+import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
-import { RowBetween } from 'components/Row'
+import Row, { RowBetween } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { BIPS_BASE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail } from 'hooks/kyberdao/types'
@@ -38,6 +43,13 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
         : 0,
     [stakerInfo, account],
   )
+  const totalAmountRequired = new Fraction(
+    proposal.max_voting_power,
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)),
+  )
+    .multiply(proposal.executor_minimum_quorum)
+    .divide(BIPS_BASE)
+
   return (
     <Wrapper>
       <Text>
@@ -78,7 +90,24 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
         <Text color={theme.subText}>
           <Trans>Quorum Status</Trans>
         </Text>
-        <Text color={theme.text}>{proposal.vote_stats.quorum_status === 1 ? t`Reached` : t`Not Reached`}</Text>
+        {proposal.vote_stats.quorum_status === 1 ? (
+          <Text color={theme.text}>
+            <Trans>Reached</Trans>
+          </Text>
+        ) : (
+          <MouseoverTooltip
+            text={`Total amount required: ${Math.floor(+totalAmountRequired.toFixed(0)).toLocaleString()} KNC`}
+            placement="bottom"
+            width="fit-content"
+          >
+            <Row width="fit-content" gap="6px" color={theme.warning}>
+              <WarningIcon size="16" solid />
+              <Text color={theme.warning} fontWeight={500}>
+                <Trans>Not Reached</Trans>
+              </Text>
+            </Row>
+          </MouseoverTooltip>
+        )}
       </InfoRow>
       <InfoRow>
         <Text color={theme.subText}>

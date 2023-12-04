@@ -1,4 +1,3 @@
-import { RouteData } from '@0xsquid/sdk'
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
@@ -20,9 +19,9 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import TradePrice from 'pages/CrossChain/TradePrice'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
 import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/crossChain/hooks'
+import { RouteData } from 'state/crossChain/reducer'
 import { Field } from 'state/swap/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { TYPE } from 'theme'
@@ -306,14 +305,14 @@ export function TradeSummaryCrossChain({
   const { chainId } = useActiveWeb3React()
 
   const [show, setShow] = useState(true)
-  const { duration, minReceive, priceImpact, totalFeeUsd, gasFeeUsd, crossChainFeeUsd } = getRouInfo(route)
 
   const nativeToken = NativeCurrencies[chainId]
-  const { isEnoughEth, gasFee, crossChainFee } = useIsEnoughGas(route)
+  const { isEnoughEth, gasFee, crossChainFee, gasRefund } = useIsEnoughGas(route)
 
   const colorGasFee = isEnoughEth ? theme.subText : theme.warning
 
-  const [{ currencyOut }] = useCrossChainState()
+  const [{ currencyOut, formatRoute }] = useCrossChainState()
+  const { duration, minReceive, priceImpact, totalFeeUsd, gasFeeUsd, crossChainFeeUsd, gasRefundUsd } = formatRoute
 
   return (
     <AutoColumn style={style}>
@@ -426,6 +425,13 @@ export function TradeSummaryCrossChain({
                           <Text as="span" color={colorGasFee}>
                             {crossChainFee?.toSignificant(10)} {nativeToken?.symbol} (
                             {formattedNum(crossChainFeeUsd + '', true)})
+                          </Text>
+                        </RowBetween>
+                        <RowBetween>
+                          <Trans>Expected gas refund: </Trans>
+                          <Text as="span" color={colorGasFee}>
+                            {gasRefund?.toSignificant(10)} {nativeToken?.symbol} (
+                            {formattedNum(gasRefundUsd + '', true)})
                           </Text>
                         </RowBetween>
                       </Text>

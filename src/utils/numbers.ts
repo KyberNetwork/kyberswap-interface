@@ -47,9 +47,6 @@ export function toString(x: number): string {
   return x.toString()
 }
 
-/** @deprecated use parseFraction instead
- * @example parseFraction(value)
- */
 export const uint256ToFraction = (value: string, decimals = RESERVE_USD_DECIMALS) =>
   new Fraction(value, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
 
