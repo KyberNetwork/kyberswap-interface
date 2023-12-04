@@ -9,7 +9,7 @@ import ROUTER_STATIC_FEE_ABI from 'constants/abis/dmm-router-static-fee.json'
 import KS_ROUTER_STATIC_FEE_ABI from 'constants/abis/ks-router-static-fee.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { isAddress } from 'utils'
 
 // account is not optional
@@ -51,7 +51,7 @@ export function getReadingContract(
 // account is optional
 export function getOldStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
   return getSigningContract(
-    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.oldStatic?.router ?? '' : '',
+    NETWORKS_INFO[chainId].classic.oldStatic?.router ?? '',
     ROUTER_STATIC_FEE_ABI,
     library,
     account,
@@ -59,17 +59,12 @@ export function getOldStaticFeeRouterContract(chainId: ChainId, library: Web3Pro
 }
 // account is optional
 export function getStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getSigningContract(
-    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.static.router : '',
-    KS_ROUTER_STATIC_FEE_ABI,
-    library,
-    account,
-  )
+  return getSigningContract(NETWORKS_INFO[chainId].classic.static.router, KS_ROUTER_STATIC_FEE_ABI, library, account)
 }
 // account is optional
 export function getDynamicFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
   return getSigningContract(
-    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.dynamic?.router ?? '' : '',
+    NETWORKS_INFO[chainId].classic.dynamic?.router ?? '',
     ROUTER_DYNAMIC_FEE_ABI,
     library,
     account,
@@ -85,13 +80,11 @@ export function getZapContract(
   isOldStaticFeeContract?: boolean,
 ): Contract {
   return getSigningContract(
-    isEVM(chainId)
-      ? isStaticFeeContract
-        ? isOldStaticFeeContract
-          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap || ''
-          : NETWORKS_INFO[chainId].classic.static.zap
-        : NETWORKS_INFO[chainId].classic.dynamic?.zap || ''
-      : '',
+    isStaticFeeContract
+      ? isOldStaticFeeContract
+        ? NETWORKS_INFO[chainId].classic.oldStatic?.zap || ''
+        : NETWORKS_INFO[chainId].classic.static.zap
+      : NETWORKS_INFO[chainId].classic.dynamic?.zap || '',
     isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
     library,
     account,

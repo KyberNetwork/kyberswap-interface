@@ -1,14 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
-import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
-import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
 import { SUPPORTED_WALLET } from 'constants/wallets'
-import { SolanaEncode } from 'state/swap/types'
-import { TRANSACTION_TYPE, TransactionHistory } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
 import { ErrorName, TransactionError } from './sentry'
@@ -77,111 +72,5 @@ export async function sendEVMTransaction({
       { cause: error },
       sentryInfo.wallet,
     )
-  }
-}
-
-const getInspectTxSolanaUrl = (tx: Transaction | VersionedTransaction | undefined | null) => {
-  if (!tx) return ''
-  if ('serializeMessage' in tx) return Buffer.concat([Buffer.from([0]), tx.serializeMessage()]).toString('base64')
-  if ('serialize' in tx) return Buffer.from(tx.serialize()).toString('base64')
-  return ''
-}
-
-export async function sendSolanaTransactions(
-  connection: Connection,
-  encode: SolanaEncode,
-  solanaWallet: SignerWalletAdapter,
-  addTransactionWithType: (tx: TransactionHistory) => void,
-  swapData: TransactionHistory,
-): Promise<string[] | undefined> {
-  if (!encode) return
-  if (!encode.swapTx) return
-
-  const txs: (Transaction | VersionedTransaction)[] = []
-
-  if (encode.setupTx) {
-    txs.push(encode.setupTx)
-  }
-
-  txs.push(encode.swapTx)
-
-  const populateTx = (
-    txs: (Transaction | VersionedTransaction)[],
-  ): {
-    signedSetupTx: Transaction | undefined
-    signedSwapTx: VersionedTransaction
-  } => {
-    const result: {
-      signedSetupTx: Transaction | undefined
-      signedSwapTx: VersionedTransaction | undefined
-    } = { signedSetupTx: undefined, signedSwapTx: undefined }
-    let count = 0
-    if (encode.setupTx) result.signedSetupTx = txs[count++] as Transaction
-    result.signedSwapTx = txs[count++] as VersionedTransaction
-    return result as {
-      signedSetupTx: Transaction | undefined
-      signedSwapTx: VersionedTransaction
-    }
-  }
-
-  console.group('Sending transactions:')
-  encode.setupTx && console.info('setup tx:', getInspectTxSolanaUrl(encode.setupTx))
-  console.info('swap tx:', getInspectTxSolanaUrl(encode.swapTx))
-  console.info('inspector: https://explorer.solana.com/tx/inspector')
-  console.groupEnd()
-
-  try {
-    let signedTxs: (Transaction | VersionedTransaction)[]
-    try {
-      signedTxs = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
-    } catch (e) {
-      console.log({ e })
-      throw e
-    }
-    const { signedSetupTx, signedSwapTx } = populateTx(signedTxs)
-    const txHashs: string[] = []
-    let setupHash: string
-    if (signedSetupTx) {
-      try {
-        setupHash = await connection.sendRawTransaction(signedSetupTx.serialize())
-        txHashs.push(setupHash)
-        addTransactionWithType({
-          type: TRANSACTION_TYPE.SETUP_SOLANA_SWAP,
-          hash: setupHash,
-          firstTxHash: txHashs[0],
-          extraInfo: {
-            arbitrary: {
-              index: 1,
-              total: signedTxs.length,
-              mainTx: swapData,
-            },
-          },
-        })
-        await connection.confirmTransaction(setupHash, 'finalized')
-      } catch (error) {
-        console.error({ error })
-        throw new Error('Set up error' + (error.message ? ': ' + error.message : ''))
-      }
-    }
-
-    let swapHash: string
-    try {
-      swapHash = await connection.sendRawTransaction(Buffer.from(signedSwapTx.serialize()))
-      txHashs.push(swapHash)
-      addTransactionWithType({ ...swapData, hash: swapHash, firstTxHash: txHashs[0] })
-    } catch (error) {
-      console.error({ error })
-      if (error?.message?.endsWith('0x1771')) {
-        throw new Error(t`An error occurred. Try refreshing the price rate or increase max slippage.`)
-      } else if (/0x[0-9a-f]+$/.test(error.message)) {
-        const errorCode = error.message.split(' ').slice(-1)[0]
-        throw new Error(t`Error encountered. We haven’t send the transaction yet. Error code ${errorCode}.`)
-      }
-      throw new Error(t`Error encountered. We haven’t send the transaction yet.`)
-    }
-
-    return txHashs
-  } catch (e) {
-    throw e
   }
 }

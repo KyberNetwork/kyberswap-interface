@@ -178,7 +178,9 @@ export default function Swap() {
   const onChangeCurrencyOut = useCallback(
     (c: Currency) => {
       const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
-      if (value === inputTokenFromParam) searchParams.set('inputCurrency', outputTokenFromParam || '')
+      if (value.toLowerCase() === inputTokenFromParam?.toLowerCase()) {
+        searchParams.set('inputCurrency', outputTokenFromParam || '')
+      }
       searchParams.set('outputCurrency', value)
       setSearchParams(searchParams)
     },

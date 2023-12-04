@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Search, Share2 } from 'react-feather'
 import { useSelector } from 'react-redux'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -58,7 +58,7 @@ import { isInEnum } from 'utils/string'
 import { ElasticFarmCombination } from './ElasticFarmCombination'
 
 const Farm = () => {
-  const { isEVM, chainId } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const { loading, data: farmsByFairLaunch } = useFarmsData()
   const theme = useTheme()
 
@@ -203,8 +203,6 @@ const Farm = () => {
 
   const token0 = useCurrency(token0Id)
   const token1 = useCurrency(token1Id)
-
-  if (!isEVM) return <Navigate to="/" />
 
   const selectTokenFilter = (
     <CurrencyWrapper>

@@ -112,7 +112,7 @@ const SettingsPanel: React.FC<Props> = ({
                 <Trans>Advanced Settings</Trans>
               </span>
 
-              <SlippageSetting isCrossChain={isCrossChainPage} />
+              <SlippageSetting />
               {isSwapPage && <TransactionTimeLimitSetting />}
               <DegenModeSetting showConfirmation={showConfirmation} setShowConfirmation={setShowConfirmation} />
               {isSwapPage && (

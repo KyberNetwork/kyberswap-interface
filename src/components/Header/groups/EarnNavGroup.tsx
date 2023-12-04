@@ -15,15 +15,11 @@ import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
 
 const EarnNavGroup = () => {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const upTo420 = useMedia('(max-width: 420px)')
   const { pathname } = useLocation()
   const { mixpanelHandler } = useMixpanel()
   const isActive = [APP_PATHS.POOLS, APP_PATHS.FARMS, APP_PATHS.MY_POOLS].some(path => pathname.includes(path))
-
-  if (!isEVM) {
-    return null
-  }
 
   return (
     <NavGroup

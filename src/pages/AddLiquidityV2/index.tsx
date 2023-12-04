@@ -15,7 +15,7 @@ import JSBI from 'jsbi'
 import mixpanel from 'mixpanel-browser'
 import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
-import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -55,7 +55,6 @@ import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
 import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
 import { ELASTIC_NOT_SUPPORTED } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -141,7 +140,7 @@ export default function AddLiquidity() {
   const { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl } = useParams()
   const navigate = useNavigate()
   const [rotate, setRotate] = useState(false)
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const openNetworkModal = useOpenNetworkModal()
@@ -254,8 +253,8 @@ export default function AddLiquidity() {
   const defaultFId = Number(searchParams.get('fId') || '0')
   const range = activeRanges.find(i => i.index === activeRangeIndex && i.farm.fId === defaultFId)
 
-  const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
-  const [method, setMethod] = useState<'pair' | 'zap'>(() => (isZapAvailable ? 'zap' : 'pair'))
+  const isZapAvailable = !!networkInfo.elastic.zap
+  const [method, setMethod] = useState<'pair' | 'zap'>('pair') // isZapAvailable ? 'zap' : 'pair'
 
   useEffect(() => {
     if (!isZapAvailable) {
@@ -389,7 +388,7 @@ export default function AddLiquidity() {
       : isMultiplePosition
       ? currencyAmountSum[Field.CURRENCY_A]
       : parsedAmounts_A,
-    isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
+    networkInfo.elastic.nonfungiblePositionManager,
   )
 
   const [approvalB, approveBCallback] = useApproveCallback(
@@ -398,7 +397,7 @@ export default function AddLiquidity() {
       : isMultiplePosition
       ? currencyAmountSum[Field.CURRENCY_B]
       : parsedAmounts_B,
-    isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
+    networkInfo.elastic.nonfungiblePositionManager,
   )
 
   const tokens = useMemo(
@@ -448,7 +447,7 @@ export default function AddLiquidity() {
 
   const onAdd = useCallback(
     async function () {
-      if (!isEVM || !library || !account) return
+      if (!library || !account) return
 
       if (!positionManager || !baseCurrency || !quoteCurrency) {
         return
@@ -470,7 +469,7 @@ export default function AddLiquidity() {
 
         //0.00283161
         const txn: { to: string; data: string; value: string } = {
-          to: (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
+          to: networkInfo.elastic.nonfungiblePositionManager,
           data: calldata,
           value,
         }
@@ -553,7 +552,6 @@ export default function AddLiquidity() {
       }
     },
     [
-      isEVM,
       library,
       account,
       positionManager,
@@ -1076,7 +1074,7 @@ export default function AddLiquidity() {
   }, [amountIn, poolAddress, selectedCurrency, quoteZapCurrency, tickLower, tickUpper])
 
   const { loading: zapLoading, result: zapResult, aggregatorData } = useZapInPoolResult(params)
-  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
+  const zapInContractAddress = networkInfo.elastic.zap?.router
   const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapIn } = useZapInAction()
   const [showZapConfirmation, setShowZapConfirmation] = useState(false)
@@ -1787,7 +1785,6 @@ export default function AddLiquidity() {
       onFarmRangeSelected(range.tickLower, range.tickUpper)
     }
   }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected, positionsState, pIndex])
-  if (!isEVM) return <Navigate to="/" />
 
   const symbol0 = getTokenSymbolWithHardcode(
     chainId,
@@ -1839,6 +1836,7 @@ export default function AddLiquidity() {
       <PageWrapper>
         <AddRemoveTabs
           hideShare
+          isElastic
           alignTitle="left"
           action={!!noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD}
           showTooltip={true}

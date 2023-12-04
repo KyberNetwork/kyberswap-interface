@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useRef } from 'react'
-import { Navigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -83,7 +82,7 @@ function timeout() {
 }
 export default function Bridge() {
   const theme = useTheme()
-  const { chainId, isSolana } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const [{ tokenInfoIn, chainIdOut }, setBridgeState] = useBridgeState()
   const curChainId = useRef(chainId)
   curChainId.current = chainId
@@ -183,7 +182,6 @@ export default function Bridge() {
     setBridgeState({ listTokenOut })
   }, [chainIdOut, tokenInfoIn, chainId, setBridgeState])
 
-  if (isSolana) return <Navigate to="/" />
   return (
     <PageWrapper>
       <Disclaimer />

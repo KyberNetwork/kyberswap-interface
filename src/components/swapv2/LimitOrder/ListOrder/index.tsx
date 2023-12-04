@@ -189,12 +189,14 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
     setCurPage(1)
   }
 
+  const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
   const navigate = useNavigate()
   const onSelectTab = (type: LimitOrderStatus) => {
     setOrderType(type)
     onReset()
-    if (!window.location.pathname.includes(APP_PATHS.PARTNER_SWAP))
+    if (!isPartnerSwap) {
       navigate({ search: stringify(qs) }, { replace: true })
+    }
   }
 
   const onChangeKeyword = (val: string) => {
@@ -296,7 +298,7 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
   }, [totalOrderNotCancelling, orders, ordersUpdating])
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const subscribeBtn = !window.location.pathname.includes(APP_PATHS.PARTNER_SWAP) && (
+  const subscribeBtn = !isPartnerSwap && (
     <SubscribeNotificationButton
       iconOnly={false}
       style={{ margin: upToSmall ? 0 : '12px 12px 0px 12px' }}
@@ -397,6 +399,7 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
         flowState={flowState}
         onDismiss={hideConfirmCancel}
         onSubmit={onCancelOrder}
+        customChainId={customChainId}
         order={currentOrder}
         isCancelAll={isCancelAll}
       />
@@ -405,6 +408,7 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
         <EditOrderModal
           flowState={flowState}
           setFlowState={setFlowState}
+          customChainId={customChainId}
           isOpen={isOpenEdit}
           onDismiss={hideEditModal}
           onSubmit={onCancelOrder}

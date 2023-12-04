@@ -4,7 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import mixpanel from 'mixpanel-browser'
 import { stringify } from 'querystring'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -22,7 +22,6 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
-import { useProMMFarmReadingContract } from 'hooks/useContract'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePool } from 'hooks/usePools'
@@ -30,7 +29,6 @@ import useTheme from 'hooks/useTheme'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
-import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -165,7 +163,7 @@ function PositionListItem({
   const { farms: farmV2s, userInfo } = useElasticFarmsV2()
 
   let farmAddress = ''
-  let pid = ''
+  // let pid = ''
   let rewardTokens: Currency[] = []
 
   let hasActiveFarm = false
@@ -175,7 +173,7 @@ function PositionListItem({
         farmAddress = farm.id
         rewardTokens = pool.rewardTokens
         if (pool.endTime > Date.now() / 1000) {
-          pid = pool.pid
+          // pid = pool.pid
           hasActiveFarm = true
         }
       }
@@ -189,25 +187,25 @@ function PositionListItem({
       f.ranges.some(r => positionDetails.tickLower <= r.tickLower && positionDetails.tickUpper >= r.tickUpper),
   ).length
 
-  const farmContract = useProMMFarmReadingContract(farmAddress)
+  // const farmContract = useProMMFarmReadingContract(farmAddress)
 
   const tokenId = positionDetails.tokenId.toString()
 
-  const [farmReward, setFarmReward] = useState<BigNumber[] | null>(null)
+  const [farmReward, _setFarmReward] = useState<BigNumber[] | null>(null)
 
-  const res = useSingleCallResult(
-    pid !== '' ? farmContract : undefined,
-    'getUserInfo',
-    pid !== '' ? [tokenId, pid] : undefined,
-    NEVER_RELOAD,
-  )
-  useEffect(() => {
-    if (res?.result?.rewardPending) {
-      setFarmReward(res.result.rewardPending)
-    } else {
-      setFarmReward(null)
-    }
-  }, [res])
+  // const res = useSingleCallResult(
+  //   pid !== '' ? farmContract : undefined,
+  //   'getUserInfo',
+  //   pid !== '' ? [tokenId, pid] : undefined,
+  //   NEVER_RELOAD,
+  // )
+  // useEffect(() => {
+  //   if (res?.result?.rewardPending) {
+  //     setFarmReward(res.result.rewardPending)
+  //   } else {
+  //     setFarmReward(null)
+  //   }
+  // }, [res])
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)

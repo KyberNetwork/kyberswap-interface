@@ -109,7 +109,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   const { loading: loadingPoolsData, data: classicPoolsData } = useGetClassicPools()
 
-  const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const [viewMode] = useViewMode()
 
   useResetPools(chainId)
@@ -363,7 +363,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     })
 
     if (onlyShowStable) {
-      const stableList = isEVM ? stableCoins?.map(item => item.address.toLowerCase()) || [] : []
+      const stableList = stableCoins?.map(item => item.address.toLowerCase()) || []
       res = res.filter(poolData => {
         return (
           stableList.includes(poolData.token0.address.toLowerCase()) &&
@@ -381,7 +381,6 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     onlyShowStable,
     farms,
     searchValue,
-    isEVM,
     stableCoins,
   ])
 

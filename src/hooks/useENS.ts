@@ -13,10 +13,10 @@ export default function useENS(nameOrAddress?: string | null): {
   address: string | null
   name: string | null
 } {
-  const { chainId, isEVM } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const validated = isAddress(chainId, nameOrAddress)
-  const reverseLookup = useENSName(isEVM ? validated || undefined : undefined)
-  const lookup = useENSAddress(isEVM ? nameOrAddress : undefined)
+  const reverseLookup = useENSName(validated || undefined)
+  const lookup = useENSAddress(nameOrAddress)
 
   return {
     loading: reverseLookup.loading || lookup.loading,

@@ -3,8 +3,7 @@ import { createReducer, nanoid } from '@reduxjs/toolkit'
 import ksSettingApi, { KyberSwapConfigResponse } from 'services/ksSetting'
 
 import { AnnouncementTemplatePopup, PopupItemType } from 'components/Announcement/type'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
-import ethereumInfo from 'constants/networks/ethereum'
+import { NETWORKS_INFO } from 'constants/networks'
 import { Topic } from 'hooks/useNotification'
 
 import {
@@ -172,23 +171,16 @@ export default createReducer(initialState, builder =>
 
     .addMatcher(ksSettingApi.endpoints.getKyberswapConfiguration.matchFulfilled, (state, action) => {
       const chainId = action.meta.arg.originalArgs
-      const evm = isEVM(chainId)
       const data = action.payload.data.config
       const rpc = data?.rpc || NETWORKS_INFO[chainId].defaultRpcUrl
       const isEnableBlockService = data?.isEnableBlockService ?? false
       const isEnableKNProtocol = data?.isEnableKNProtocol ?? false
 
-      const blockSubgraph = evm
-        ? data?.blockSubgraph || NETWORKS_INFO[chainId].defaultBlockSubgraph
-        : ethereumInfo.defaultBlockSubgraph
+      const blockSubgraph = data?.blockSubgraph || NETWORKS_INFO[chainId].defaultBlockSubgraph
 
-      const classicSubgraph = evm
-        ? data?.classicSubgraph || NETWORKS_INFO[chainId].classic.defaultSubgraph
-        : ethereumInfo.classic.defaultSubgraph
+      const classicSubgraph = data?.classicSubgraph || NETWORKS_INFO[chainId].classic.defaultSubgraph
 
-      const elasticSubgraph = evm
-        ? data?.elasticSubgraph || NETWORKS_INFO[chainId].elastic.defaultSubgraph
-        : ethereumInfo.elastic.defaultSubgraph
+      const elasticSubgraph = data?.elasticSubgraph || NETWORKS_INFO[chainId].elastic.defaultSubgraph
 
       if (!state.config) state.config = {}
       state.config = {

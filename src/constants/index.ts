@@ -7,7 +7,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { CAMPAIGN_BASE_URL } from './env'
 import * as ENV from './env'
-import { EVM_MAINNET_NETWORKS, EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
+import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -16,7 +16,7 @@ export const EMPTY_FUNCTION = () => {
 }
 
 export const BAD_RECIPIENT_ADDRESSES: Set<string> = new Set(
-  EVM_MAINNET_NETWORKS.map(chainId => [
+  MAINNET_NETWORKS.map(chainId => [
     ...Object.values(NETWORKS_INFO[chainId].classic.static || {}),
     ...Object.values(NETWORKS_INFO[chainId].classic.oldStatic || {}),
     ...Object.values(NETWORKS_INFO[chainId].classic.dynamic || {}),
@@ -42,19 +42,13 @@ export const BAD_RECIPIENT_ADDRESSES: Set<string> = new Set(
 
 export class AbortedError extends Error {}
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-export const ZERO_ADDRESS_SOLANA = 'zeroooooooooooooooooooooooooooooooooooooooo'
 
 const DMM_ANALYTICS = 'https://analytics.kyberswap.com/classic'
 
 export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_NETWORKS.reduce((acc, cur) => {
-  if (isEVM(cur))
-    return {
-      ...acc,
-      [cur]: `${DMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
-    }
   return {
     ...acc,
-    [cur]: `${DMM_ANALYTICS}`,
+    [cur]: `${DMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
   }
 }, {}) as { [chainId in ChainId]: string }
 
@@ -62,21 +56,16 @@ const PROMM_ANALYTICS = 'https://analytics.kyberswap.com/elastic'
 export const AGGREGATOR_ANALYTICS_URL = 'https://secure.holistics.io/dashboards/v3/55952?_pl=672a0e4ff266f14541b8f54b'
 
 export const PROMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_NETWORKS.reduce((acc, cur) => {
-  if (isEVM(cur))
-    return {
-      ...acc,
-      [cur]:
-        cur === ChainId.AURORA
-          ? `${DMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`
-          : `${PROMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
-    }
   return {
     ...acc,
-    [cur]: `${PROMM_ANALYTICS}`,
+    [cur]:
+      cur === ChainId.AURORA
+        ? `${DMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`
+        : `${PROMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
   }
 }, {}) as { [chainId in ChainId]: string }
 
-export const BLOCKS_PER_YEAR = (chainId: EVM_NETWORK): number =>
+export const BLOCKS_PER_YEAR = (chainId: ChainId): number =>
   Math.floor((60 / NETWORKS_INFO[chainId].averageBlockTimeInSeconds) * 60 * 24 * 365)
 
 export const SECONDS_PER_YEAR = 31556926
@@ -108,7 +97,6 @@ export const COINGECKO_BFF_API_URL = `${ENV.BFF_API}/v1/coingecko/api/v3`
 export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-export const ETHER_ADDRESS_SOLANA = 'So11111111111111111111111111111111111111111'
 
 export const KYBER_NETWORK_DISCORD_URL = 'https://discord.com/invite/NB3vc8J9uv'
 export const KYBER_NETWORK_TWITTER_URL = 'https://twitter.com/KyberNetwork'
@@ -189,10 +177,10 @@ export const APP_PATHS = {
 } as const
 
 export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 1 August 2023.pdf',
-  PRIVACY_POLICY: '/files/Kyber - Privacy Policy - 23 Aug 2023.pdf',
+  KYBERSWAP_TERMS: '/files/Kyber - Terms of Use - 20 November 2023.pdf',
+  PRIVACY_POLICY: '/files/Kyber - Privacy Policy - 20 November 2023.pdf',
   // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1692748800000,
+  VERSION: 1700438400000,
 }
 
 export enum FARM_TAB {

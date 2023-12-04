@@ -111,7 +111,7 @@ function LiveChart({
   currencies: { [field in Field]?: Currency }
   enableProChart?: boolean
 }) {
-  const { isSolana, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const [currenciesState, setCurrenciesState] = useState(currencies)
 
@@ -185,7 +185,6 @@ function LiveChart({
   }, [nativeInputCurrency, nativeOutputCurrency])
 
   const isWrappedToken = !!tokens[0]?.address && tokens[0]?.address === tokens[1]?.address
-  const isUnwrapingWSOL = isSolana && isWrappedToken && currencies[Field.INPUT]?.isToken
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
 
@@ -273,13 +272,9 @@ function LiveChart({
           >
             <CircleInfoIcon />
             <Text fontSize={16} textAlign={'center'}>
-              {isUnwrapingWSOL ? (
-                <Trans>You can only swap all WSOL to SOL</Trans>
-              ) : (
-                <Trans>
-                  You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa)
-                </Trans>
-              )}
+              <Trans>
+                You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa)
+              </Trans>
               <br />
               <Trans>Exchange rate is always 1 to 1.</Trans>
             </Text>

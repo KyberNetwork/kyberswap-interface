@@ -3,13 +3,13 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ethereumIcon from 'assets/networks/ethereum.svg'
 import { KYBER_DAO_STATS_API } from 'constants/env'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const ethereumInfo: EVMNetworkInfo = {
+const ethereumInfo: NetworkInfo = {
   chainId: ChainId.MAINNET,
   route: 'ethereum',
   ksSettingRoute: 'ethereum',

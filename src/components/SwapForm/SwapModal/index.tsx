@@ -115,7 +115,7 @@ const SwapModal: React.FC<Props> = props => {
 
   const renderModalContent = () => {
     if (isAttemptingTx) {
-      return <ConfirmationPendingContent onDismiss={handleDismiss} pendingText={pendingText} startedTime={undefined} />
+      return <ConfirmationPendingContent onDismiss={handleDismiss} pendingText={pendingText} />
     }
 
     if (txHash) {

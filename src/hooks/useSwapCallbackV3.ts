@@ -18,7 +18,7 @@ import { ErrorName } from 'utils/sentry'
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
 const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
-  const { account, chainId, isEVM, walletKey } = useActiveWeb3React()
+  const { account, chainId, walletKey } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const { isSaveGas, recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
@@ -138,11 +138,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     [account, handleSwapResponse, inputAmount, library, walletKey],
   )
 
-  if (isEVM) {
-    return swapCallbackForEVM
-  }
-
-  return null
+  return swapCallbackForEVM
 }
 
 export default useSwapCallbackV3

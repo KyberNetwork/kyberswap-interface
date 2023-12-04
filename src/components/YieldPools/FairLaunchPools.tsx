@@ -1,7 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
-import { Navigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 
@@ -9,7 +8,6 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InfoHelper from 'components/InfoHelper'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { AMP_HINT } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import useFairLaunch from 'hooks/useFairLaunch'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -55,7 +53,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   const [viewMode] = useViewMode()
   const above1200 = useMedia(`(min-width:${MEDIA_WIDTHS.upToLarge}px)`)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { account, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const blockNumber = useBlockNumber()
   const totalRewards = useFarmRewards(farms)
@@ -125,8 +123,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
       } else {
         remainingBlocks = farm && blockNumber && farm.endBlock - blockNumber
       }
-      const estimatedRemainingSeconds =
-        remainingBlocks && remainingBlocks * (networkInfo as EVMNetworkInfo).averageBlockTimeInSeconds
+      const estimatedRemainingSeconds = remainingBlocks && remainingBlocks * networkInfo.averageBlockTimeInSeconds
       const formattedEstimatedRemainingTime =
         estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
 
@@ -158,7 +155,6 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   )
 
   const ConditionListWrapper = viewMode === VIEW_MODE.LIST && above1200 ? ListItemWrapper : ClassicFarmGridWrapper
-  if (!isEVM) return <Navigate to="/" />
 
   return (
     <ClassicFarmWrapper>

@@ -53,7 +53,7 @@ export const NEVER_RELOAD: ListenerOptions = {
 
 // the lowest level call for subscribing to contract data
 export function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
-  const { chainId, isEVM } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const callResults = useSelector<AppState, AppState['multicall']['callResults'][ChainId]>(
     state => state.multicall.callResults?.[chainId],
   )
@@ -62,20 +62,18 @@ export function useCallsData(calls: (Call | undefined)[], options?: ListenerOpti
   const serializedCallKeys: string = useMemo(
     () =>
       JSON.stringify(
-        isEVM
-          ? calls
-              ?.filter((c): c is Call => Boolean(c))
-              ?.map(toCallKey)
-              ?.sort() ?? []
-          : [],
+        calls
+          ?.filter((c): c is Call => Boolean(c))
+          ?.map(toCallKey)
+          ?.sort() ?? [],
       ),
-    [isEVM, calls],
+    [calls],
   )
 
   // update listeners when there is an actual change that persists for at least 100ms
   useEffect(() => {
     const callKeys: string[] = JSON.parse(serializedCallKeys)
-    if (!isEVM || callKeys.length === 0) return undefined
+    if (callKeys.length === 0) return undefined
     const calls = callKeys.map(key => parseCallKey(key))
 
     dispatch(
@@ -95,7 +93,7 @@ export function useCallsData(calls: (Call | undefined)[], options?: ListenerOpti
         }),
       )
     }
-  }, [isEVM, dispatch, options, serializedCallKeys, chainId])
+  }, [dispatch, options, serializedCallKeys, chainId])
 
   const lastResults = useRef<CallResult[]>([])
   return useMemo(() => {
@@ -186,15 +184,11 @@ export function useSingleContractMultipleData(
   callInputs: OptionalMethodInputs[],
   options?: ListenerOptions,
 ): CallState[] {
-  const { isEVM } = useActiveWeb3React()
-  const fragment = useMemo(
-    () => (isEVM ? contract?.interface?.getFunction(methodName) : undefined),
-    [contract, methodName, isEVM],
-  )
+  const fragment = useMemo(() => contract?.interface?.getFunction(methodName), [contract, methodName])
   const { gasRequired } = useMemo(() => options ?? {}, [options])
   const calls = useMemo(
     () =>
-      isEVM && contract && fragment && callInputs && callInputs.length > 0
+      contract && fragment && callInputs && callInputs.length > 0
         ? callInputs.map<Call>(inputs => {
             return {
               address: contract.address,
@@ -203,14 +197,14 @@ export function useSingleContractMultipleData(
             }
           })
         : EMPTY_ARRAY,
-    [callInputs, isEVM, contract, fragment, gasRequired],
+    [callInputs, contract, fragment, gasRequired],
   )
 
   const results = useCallsData(calls, options)
 
   return useMemo(() => {
-    return isEVM ? results.map(result => toCallState(result, contract?.interface, fragment)) : []
-  }, [isEVM, fragment, contract, results])
+    return results.map(result => toCallState(result, contract?.interface, fragment))
+  }, [fragment, contract, results])
 }
 
 export function useMultipleContractSingleData(
@@ -220,23 +214,19 @@ export function useMultipleContractSingleData(
   callInputs?: OptionalMethodInputs,
   options?: ListenerOptions,
 ): CallState[] {
-  const { isEVM } = useActiveWeb3React()
-  const fragment = useMemo(
-    () => (isEVM ? contractInterface.getFunction(methodName) : undefined),
-    [isEVM, contractInterface, methodName],
-  )
+  const fragment = useMemo(() => contractInterface.getFunction(methodName), [contractInterface, methodName])
 
   const callData: string | undefined = useMemo(
     () =>
-      isEVM && fragment && isValidMethodArgs(callInputs)
+      fragment && isValidMethodArgs(callInputs)
         ? contractInterface.encodeFunctionData(fragment, callInputs)
         : undefined,
-    [callInputs, isEVM, contractInterface, fragment],
+    [callInputs, contractInterface, fragment],
   )
   const { gasRequired } = useMemo(() => options ?? {}, [options])
   const calls = useMemo(
     () =>
-      isEVM && fragment && addresses?.length > 0 && callData
+      fragment && addresses?.length > 0 && callData
         ? addresses.map<Call | undefined>(address => {
             return address && callData
               ? {
@@ -247,15 +237,14 @@ export function useMultipleContractSingleData(
               : undefined
           })
         : EMPTY_ARRAY,
-    [addresses, callData, isEVM, fragment, gasRequired],
+    [addresses, callData, fragment, gasRequired],
   )
 
   const results = useCallsData(calls, options)
 
   return useMemo(() => {
-    if (isEVM) return results.map(result => toCallState(result, contractInterface, fragment))
-    return []
-  }, [isEVM, results, contractInterface, fragment])
+    return results.map(result => toCallState(result, contractInterface, fragment))
+  }, [results, contractInterface, fragment])
 }
 
 export function useSingleCallResult(
@@ -264,14 +253,10 @@ export function useSingleCallResult(
   inputs?: OptionalMethodInputs,
   options?: ListenerOptions,
 ): CallState {
-  const { isEVM } = useActiveWeb3React()
-  const fragment = useMemo(
-    () => (isEVM ? contract?.interface?.getFunction(methodName) : undefined),
-    [contract?.interface, isEVM, methodName],
-  )
+  const fragment = useMemo(() => contract?.interface?.getFunction(methodName), [contract?.interface, methodName])
   const { gasRequired } = options ?? {}
   const calls = useMemo<Call[]>(() => {
-    return isEVM && contract && fragment && isValidMethodArgs(inputs)
+    return contract && fragment && isValidMethodArgs(inputs)
       ? [
           {
             address: contract.address,
@@ -280,7 +265,7 @@ export function useSingleCallResult(
           },
         ]
       : EMPTY_ARRAY
-  }, [isEVM, contract, fragment, inputs, gasRequired])
+  }, [contract, fragment, inputs, gasRequired])
 
   const { valid, data, blockNumber } = useCallsData(calls, options)[0] || {}
 

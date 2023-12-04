@@ -45,7 +45,7 @@ const Wrapper = styled.div`
 `
 
 export default function ReceiveToken() {
-  const { account = '', chainId, isEVM } = useActiveWeb3React()
+  const { account = '', chainId } = useActiveWeb3React()
   const copyButtonRef = useRef<HTMLDivElement>(null)
 
   const qrCodeProps: QRCodeProps | undefined = useMemo(() => {
@@ -60,12 +60,12 @@ export default function ReceiveToken() {
       size: QR_SIZE,
       // `ethereum` is intentional. This QR is used to open the Send feature on the wallet (e.g. Metamask)
       // Chain is not switched by this prefix
-      value: isEVM ? `ethereum:${account}` : account,
+      value: `ethereum:${account}`,
       eyeColor: { outer: '#000000', inner: '#000000' },
       quietZone: 14,
       removeQrCodeBehindLogo: true,
     }
-  }, [account, isEVM])
+  }, [account])
 
   const onCopy = async () => {
     copyButtonRef.current?.click()

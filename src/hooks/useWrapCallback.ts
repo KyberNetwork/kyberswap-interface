@@ -1,6 +1,5 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { PublicKey, Transaction } from '@solana/web3.js'
 import { useMemo } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -12,10 +11,8 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
-import { checkAndCreateUnwrapSOLInstruction, createWrapSOLInstructions } from 'utils/solanaInstructions'
 
-import { useActiveWeb3React, useWeb3Solana } from './index'
-import useProvider from './solana/useProvider'
+import { useActiveWeb3React } from './index'
 import { useWETHContract } from './useContract'
 
 export enum WrapType {
@@ -43,19 +40,17 @@ export default function useWrapCallback(
   inputError?: string
   allowUnwrap?: boolean
 } {
-  const { chainId: walletChainId, isEVM, isSolana, account } = useActiveWeb3React()
+  const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
-  const provider = useProvider()
   const wethContract = useWETHContract(chainId)
   const balance = useCurrencyBalance(inputCurrency ?? undefined, chainId)
   // we can always parse the amount typed as the input currency, since wrapping is 1:1
   const inputAmount = useMemo(() => tryParseAmount(typedValue, inputCurrency ?? undefined), [inputCurrency, typedValue])
   const addTransactionWithType = useTransactionAdder()
-  const { connection } = useWeb3Solana()
   const notify = useNotify()
 
   return useMemo(() => {
-    if ((!wethContract && isEVM) || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
+    if (!wethContract || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 
@@ -69,7 +64,7 @@ export default function useWrapCallback(
             ? async () => {
                 try {
                   let hash: string | undefined
-                  if (isEVM && wethContract) {
+                  if (wethContract) {
                     const estimateGas = await wethContract.estimateGas.deposit({
                       value: `0x${inputAmount.quotient.toString(16)}`,
                     })
@@ -78,18 +73,6 @@ export default function useWrapCallback(
                       gasLimit: calculateGasMargin(estimateGas),
                     })
                     hash = txReceipt?.hash
-                  } else if (isSolana && account && provider && connection) {
-                    const accountPK = new PublicKey(account)
-                    const wrapIxs = await createWrapSOLInstructions(connection, accountPK, inputAmount)
-                    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
-
-                    const tx = new Transaction({
-                      blockhash,
-                      lastValidBlockHeight,
-                      feePayer: accountPK,
-                    })
-                    tx.add(...wrapIxs)
-                    hash = await provider.sendAndConfirm(tx)
                   }
                   if (hash) {
                     const tokenAmount = inputAmount.toSignificant(6)
@@ -138,7 +121,7 @@ export default function useWrapCallback(
             ? async () => {
                 try {
                   let hash: string | undefined
-                  if (isEVM && wethContract) {
+                  if (wethContract) {
                     const estimateGas = await wethContract.estimateGas.withdraw(
                       `0x${inputAmount.quotient.toString(16)}`,
                     )
@@ -146,20 +129,6 @@ export default function useWrapCallback(
                       gasLimit: calculateGasMargin(estimateGas),
                     })
                     hash = txReceipt.hash
-                  } else if (isSolana && account && provider && connection) {
-                    const accountPK = new PublicKey(account)
-                    const ix = await checkAndCreateUnwrapSOLInstruction(connection, accountPK)
-                    if (ix) {
-                      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
-
-                      const tx = new Transaction({
-                        blockhash,
-                        lastValidBlockHeight,
-                        feePayer: accountPK,
-                      })
-                      tx.add(ix)
-                      hash = await provider.sendAndConfirm(tx)
-                    }
                   }
                   if (hash) {
                     const tokenAmount = inputAmount.toSignificant(6)
@@ -203,19 +172,14 @@ export default function useWrapCallback(
     return NOT_APPLICABLE
   }, [
     wethContract,
-    isEVM,
     chainId,
     inputCurrency,
     outputCurrency,
     inputAmount,
     balance,
     typedValue,
-    isSolana,
-    account,
-    provider,
     addTransactionWithType,
     forceWrap,
-    connection,
     notify,
   ])
 }

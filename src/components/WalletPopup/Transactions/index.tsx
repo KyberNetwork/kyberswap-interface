@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
@@ -178,9 +177,6 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
     return listTab.filter(tab => {
       if (tab.value === TRANSACTION_GROUP.KYBERDAO) {
         return isSupportKyberDao(chainId)
-      }
-      if (tab.value === TRANSACTION_GROUP.LIQUIDITY) {
-        return chainId !== ChainId.SOLANA
       }
       return true
     })

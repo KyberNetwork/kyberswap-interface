@@ -23,13 +23,16 @@ export const ackAnnouncementPopup = (id: string | number) => {
 
 export const formatNumberOfUnread = (num: number | undefined) => (num ? (num > 10 ? '10+' : num + '') : null)
 
+const NO_NOTI_PAGES = [APP_PATHS.IAM_CONSENT, APP_PATHS.IAM_LOGIN, APP_PATHS.IAM_LOGOUT, APP_PATHS.PARTNER_SWAP]
+
 export const isPopupCanShow = (
   popupInfo: PopupItemType<PopupContentAnnouncement>,
   chainId: ChainId,
   account: string | undefined,
 ) => {
-  if ([APP_PATHS.IAM_CONSENT, APP_PATHS.IAM_LOGIN, APP_PATHS.IAM_LOGOUT].includes(window.location.pathname))
+  if (NO_NOTI_PAGES.some(path => window.location.pathname.startsWith(path))) {
     return false
+  }
 
   const { templateBody = {}, metaMessageId } = popupInfo.content
   const { endAt, startAt, chainIds = [] } = templateBody as AnnouncementTemplatePopup

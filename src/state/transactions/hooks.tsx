@@ -12,7 +12,7 @@ import { GroupedTxsByHash, TransactionDetails, TransactionExtraInfo1Token, Trans
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (tx: TransactionHistory) => void {
-  const { chainId, account, isEVM } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const { readProvider } = useKyberSwapConfig(chainId)
   const { library } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -28,12 +28,10 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
       if (!account) return
 
       let tx: TransactionResponse | undefined
-      if (isEVM) {
-        try {
-          tx = await library?.getTransaction(hash)
-          if (!tx) tx = await readProvider?.getTransaction(hash)
-        } catch (error) {}
-      }
+      try {
+        tx = await library?.getTransaction(hash)
+        if (!tx) tx = await readProvider?.getTransaction(hash)
+      } catch (error) {}
 
       dispatch(
         addTransaction({
@@ -50,7 +48,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         }),
       )
     },
-    [account, chainId, dispatch, readProvider, isEVM, library],
+    [account, chainId, dispatch, readProvider, library],
   )
 }
 

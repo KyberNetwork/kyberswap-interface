@@ -119,6 +119,7 @@ export enum LiquidityAction {
 }
 
 export function AddRemoveTabs({
+  isElastic,
   action,
   alignTitle = 'center',
   showTooltip = true,
@@ -131,6 +132,7 @@ export function AddRemoveTabs({
   owner,
   showOwner,
 }: {
+  isElastic?: boolean
   action: LiquidityAction
   alignTitle?: 'center' | 'left'
   showTooltip?: boolean
@@ -233,7 +235,7 @@ export function AddRemoveTabs({
               <Trash size={18} />
             </StyledMenuButton>
           )}
-          <TransactionSettings hoverBg={theme.buttonBlack} />
+          <TransactionSettings isElastic={isElastic} hoverBg={theme.buttonBlack} />
           {!hideShare && <ShareButtonWithModal onShared={onShared} title={t`Share with your friends!`} />}
         </Flex>
       </Wrapper>

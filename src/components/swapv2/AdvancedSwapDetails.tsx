@@ -118,7 +118,6 @@ interface TradeSummaryProps {
 }
 
 function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
-  const { isEVM } = useActiveWeb3React()
   const theme = useTheme()
   const [show, setShow] = useState(true)
 
@@ -153,20 +152,18 @@ function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
             </TYPE.black>
           </RowFixed>
         </RowBetween>
-        {isEVM && (
-          <RowBetween>
-            <RowFixed>
-              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-                <Trans>Gas Fee</Trans>
-              </TYPE.black>
-
-              <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
-            </RowFixed>
-            <TYPE.black color={theme.text} fontSize={12}>
-              {trade.gasUsd ? formattedNum(trade.gasUsd?.toString(), true) : '--'}
+        <RowBetween>
+          <RowFixed>
+            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
+              <Trans>Gas Fee</Trans>
             </TYPE.black>
-          </RowBetween>
-        )}
+
+            <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
+          </RowFixed>
+          <TYPE.black color={theme.text} fontSize={12}>
+            {trade.gasUsd ? formattedNum(trade.gasUsd?.toString(), true) : '--'}
+          </TYPE.black>
+        </RowBetween>
 
         <RowBetween>
           <RowFixed>

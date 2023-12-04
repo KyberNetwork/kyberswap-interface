@@ -352,7 +352,6 @@ export default function SwapForm() {
         </div>
 
         <SlippageSetting
-          isCrossChain
           isStablePairSwap={isStablePairSwap}
           tooltip={
             <Text>

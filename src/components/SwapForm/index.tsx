@@ -105,7 +105,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     omniView,
   } = props
 
-  const { isEVM, isSolana, chainId: walletChainId } = useActiveWeb3React()
+  const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
   const navigate = useNavigate()
   const [isProcessingSwap, setProcessingSwap] = useState(false)
@@ -173,14 +173,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     parsedAmountFromTypedValue: parsedAmount,
   })
 
-  const isSolanaUnwrap = isSolana && wrapType === WrapType.UNWRAP
-  useEffect(() => {
-    // reset value for unwrapping WSOL
-    // because on Solana, unwrap WSOL is closing WSOL account,
-    // which mean it will unwrap all WSOL at once, and we can't unwrap partial amount of WSOL
-    if (isSolanaUnwrap) onUserInput(balanceIn?.toExact() ?? '')
-  }, [balanceIn, isSolanaUnwrap, onUserInput])
-
   useEffect(() => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
@@ -245,7 +237,12 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                     )}
                   </PriceAlertButton>
                 )}
-                <ReverseTokenSelectionButton onClick={() => currencyIn && onChangeCurrencyOut(currencyIn)} />
+                <ReverseTokenSelectionButton
+                  onClick={() => {
+                    currencyIn && onChangeCurrencyOut(currencyIn)
+                    routeSummary && onUserInput(routeSummary.parsedAmountOut.toExact())
+                  }}
+                />
               </Flex>
             </AutoRow>
 
@@ -260,7 +257,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               customChainId={customChainId}
             />
 
-            {isDegenMode && isEVM && !isWrapOrUnwrap && (
+            {isDegenMode && !isWrapOrUnwrap && (
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
             <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} isStablePairSwap={isStablePairSwap} />
