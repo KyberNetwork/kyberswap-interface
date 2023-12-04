@@ -150,32 +150,35 @@ export default function Table<T>({
         <TableWrapper>
           <TableHeader column={columns.length} style={headerStyle}>
             <TRow>
-              {columns.map(({ tooltip, title, align, style, sticky }, i) => (
-                <Thead key={i} style={style} data-sticky={sticky}>
-                  <MouseoverTooltip
-                    width="fit-content"
-                    placement="top"
-                    text={tooltip}
-                    maxWidth={isMobile ? '90vw' : '400px'}
-                  >
-                    <div
-                      style={{
-                        textAlign: align || 'center',
-                        width: '100%',
-                        ...style,
-                      }}
+              {columns.map(({ tooltip, title, align, style, sticky }, i) => {
+                const customStyle = headerStyle ? undefined : style
+                return (
+                  <Thead key={i} style={customStyle} data-sticky={sticky}>
+                    <MouseoverTooltip
+                      width="fit-content"
+                      placement="top"
+                      text={tooltip}
+                      maxWidth={isMobile ? '90vw' : '400px'}
                     >
-                      {tooltip ? (
-                        <Text as="span" sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-                          {title}
-                        </Text>
-                      ) : (
-                        title
-                      )}
-                    </div>
-                  </MouseoverTooltip>
-                </Thead>
-              ))}
+                      <div
+                        style={{
+                          textAlign: align || 'center',
+                          width: '100%',
+                          ...customStyle,
+                        }}
+                      >
+                        {tooltip ? (
+                          <Text as="span" sx={{ borderBottom: `1px dotted ${theme.border}` }}>
+                            {title}
+                          </Text>
+                        ) : (
+                          title
+                        )}
+                      </div>
+                    </MouseoverTooltip>
+                  </Thead>
+                )
+              })}
             </TRow>
           </TableHeader>
           <TBody>

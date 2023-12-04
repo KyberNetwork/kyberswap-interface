@@ -165,7 +165,7 @@ const columns: TableColumn<TransactionHistory>[] = [
     render: TxsHashCell,
     align: 'left',
     sticky: true,
-    style: isMobile ? { width: 140 } : undefined,
+    style: { width: isMobile ? 140 : undefined, paddingTop: 22, paddingBottom: 22 },
   },
   {
     title: t`Interaction`,
