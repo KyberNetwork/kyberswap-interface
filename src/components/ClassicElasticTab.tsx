@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -36,27 +36,14 @@ function ClassicElasticTab() {
   const shouldShowPositionTab = !!positions.length
 
   const params = Object.fromEntries(searchParams)
-  const { tab: tabQs = isMyPoolPage ? VERSION.ELASTIC : VERSION.CLASSIC, skipAlert, ...qs } = params
+  const { tab: tabQs = isMyPoolPage ? VERSION.ELASTIC : VERSION.CLASSIC, ...qs } = params
   const tab = isInEnum(tabQs, VERSION) ? tabQs : VERSION.ELASTIC
 
   const { chainId } = useActiveWeb3React()
   const notSupportedElasticMsg = ELASTIC_NOT_SUPPORTED()[chainId]
   const notSupportedClassicMsg = CLASSIC_NOT_SUPPORTED()[chainId]
 
-  const [isOpenElasticHacked, setOpenElasticHacked] = useState(
-    isMyPoolPage ? false : tab === VERSION.ELASTIC && !notSupportedElasticMsg && !skipAlert,
-  )
-
-  useEffect(() => {
-    if (isMyPoolPage) return
-    if (notSupportedClassicMsg) {
-      setOpenElasticHacked(!skipAlert)
-    }
-    if (tab === VERSION.ELASTIC && !notSupportedElasticMsg) {
-      setOpenElasticHacked(!skipAlert)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, isMyPoolPage])
+  const isOpenElasticHacked = !isMyPoolPage && tab === VERSION.ELASTIC
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -280,12 +267,10 @@ function ClassicElasticTab() {
       <ElasticHackedModal
         isOpen={isOpenElasticHacked}
         onClose={() => {
-          setOpenElasticHacked(false)
           handleSwitchTab(VERSION.CLASSIC)
         }}
         onConfirm={() => {
-          setOpenElasticHacked(false)
-          navigate({ pathname: APP_PATHS.MY_POOLS, search: 'skipAlert=1' })
+          navigate({ pathname: APP_PATHS.MY_POOLS })
         }}
       />
     </Flex>
