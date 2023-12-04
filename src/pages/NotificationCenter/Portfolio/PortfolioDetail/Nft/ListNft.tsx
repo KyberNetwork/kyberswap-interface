@@ -92,10 +92,14 @@ export default function ListNft({ search }: { search: string }) {
     <>
       {isFetching ? (
         <LocalLoader />
-      ) : (
+      ) : data?.items?.length ? (
         <Wrapper>
-          {data?.items?.length ? data?.items.map(el => <NftItem data={el} key={el.collectibleAddress} />) : <NoData />}
+          {data?.items.map(el => (
+            <NftItem data={el} key={el.collectibleAddress} />
+          ))}
         </Wrapper>
+      ) : (
+        <NoData />
       )}
       <Pagination
         totalCount={data?.totalNFT || 0}
