@@ -1,7 +1,6 @@
 import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 
-import { ETHER_ADDRESS, ETHER_ADDRESS_SOLANA } from 'constants/index'
-import { isEVM } from 'constants/networks'
+import { ETHER_ADDRESS } from 'constants/index'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK } from 'constants/tokenLists/token-info'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
@@ -33,8 +32,7 @@ export const isTokenNative = (
   currency: Currency | WrappedTokenInfo | undefined,
   chainId: ChainId | undefined,
 ): currency is NativeCurrency => {
-  if (currency?.isNative || currency?.address === ETHER_ADDRESS || currency?.address === ETHER_ADDRESS_SOLANA)
-    return true
+  if (currency?.isNative || currency?.address === ETHER_ADDRESS) return true
   // case multichain token
   return chainId
     ? WETH[chainId]?.address === currency?.address &&
@@ -44,7 +42,7 @@ export const isTokenNative = (
 }
 
 export const getTokenAddress = (currency: Currency) =>
-  currency.isNative ? (isEVM(currency.chainId) ? ETHER_ADDRESS : ETHER_ADDRESS_SOLANA) : currency?.wrapped.address ?? ''
+  currency.isNative ? ETHER_ADDRESS : currency?.wrapped.address ?? ''
 
 const MAP_TOKEN_SYMBOL: Partial<{ [key in ChainId]: { [address: string]: string } }> = {
   [ChainId.ARBITRUM]: {

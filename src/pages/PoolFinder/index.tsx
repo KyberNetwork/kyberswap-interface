@@ -4,7 +4,6 @@ import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'
-import { Navigate } from 'react-router-dom'
 import { Text } from 'rebass'
 
 import { ButtonDropdownLight } from 'components/Button'
@@ -34,7 +33,7 @@ enum Fields {
 }
 
 export default function PoolFinder() {
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   const [showSearch, setShowSearch] = useState<boolean>(false)
   const [activeField, setActiveField] = useState<number>(Fields.TOKEN1)
@@ -114,7 +113,6 @@ export default function PoolFinder() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (!isEVM) return <Navigate to="/" />
   return (
     <AppBody>
       <FindPoolTabs />

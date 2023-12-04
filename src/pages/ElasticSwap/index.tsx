@@ -7,7 +7,6 @@ import styled from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { ETHER_ADDRESS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
@@ -54,10 +53,7 @@ export default function ElasticSwap() {
 
   const { callback } = useSwapCallback(trade.trade)
 
-  const [approvalState, approvalCallback] = useApproveCallback(
-    trade.trade?.inputAmount,
-    (networkInfo as EVMNetworkInfo).elastic.routers,
-  )
+  const [approvalState, approvalCallback] = useApproveCallback(trade.trade?.inputAmount, networkInfo.elastic.routers)
 
   const loading = trade.state === TradeState.LOADING || approvalState === ApprovalState.PENDING
 

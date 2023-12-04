@@ -1,11 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import avalancheIcon from 'assets/networks/avalanche.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const NOT_SUPPORT = null
 
-const avaxInfo: EVMNetworkInfo = {
+const avaxInfo: NetworkInfo = {
   chainId: ChainId.AVAXMAINNET,
   route: 'avalanche',
   ksSettingRoute: 'avalanche',

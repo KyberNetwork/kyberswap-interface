@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
@@ -29,7 +29,6 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { RowBetween } from 'components/Row'
 import Slider from 'components/Slider'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
@@ -39,7 +38,6 @@ import { TutorialType } from 'components/Tutorial'
 import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { didUserReject } from 'constants/connectors/utils'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import {
   useProAmmNFTPositionManagerReadingContract,
@@ -155,32 +153,20 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const positionManager = useProAmmNFTPositionManagerReadingContract()
   const theme = useTheme()
-  const [claimFee, setIsClaimFee] = useState(false)
+  const [claimFee, _setIsClaimFee] = useState(false)
 
-  const { networkInfo, account, chainId, isEVM } = useActiveWeb3React()
-  useEffect(() => {
-    if (chainId === ChainId.LINEA || chainId === ChainId.SCROLL) {
-      setIsClaimFee(true)
-    }
-  }, [chainId])
+  const { networkInfo, account, chainId } = useActiveWeb3React()
 
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
-  const isFarmV2 = (networkInfo as EVMNetworkInfo).elastic.farmV2S
-    ?.map(item => item.toLowerCase())
-    .includes(owner?.toLowerCase())
-  const isFarmV21 = (networkInfo as EVMNetworkInfo).elastic['farmV2.1S']
-    ?.map(item => item.toLowerCase())
-    .includes(owner?.toLowerCase())
+  const isFarmV2 = networkInfo.elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
+  const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
+  const isDynamicFarm = networkInfo.elastic.farms.flat().includes(isAddressString(chainId, owner))
 
-  const ownByFarm = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) ||
-      isFarmV2 ||
-      isFarmV21
-    : false
+  const ownByFarm = isDynamicFarm || isFarmV2 || isFarmV21
 
   const ownsNFT = owner === account || ownByFarm
 
@@ -210,7 +196,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     outOfRange,
     error,
     parsedAmounts,
-  } = useDerivedProAmmBurnInfo(position, receiveWETH)
+  } = useDerivedProAmmBurnInfo(position, receiveWETH, isDynamicFarm)
 
   const currency0IsETHER = !!(chainId && liquidityValue0?.currency.isNative)
   const currency0IsWETH = !!(chainId && liquidityValue0?.currency.equals(WETH[chainId]))
@@ -326,9 +312,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             buildFlagsForFarmV21({
-              isClaimFee: claimFee && !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-              isSyncFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-              isClaimReward: claimFee,
+              isClaimFee: false,
+              isSyncFee: false,
+              isClaimReward: false,
               isReceiveNative: !receiveWETH,
             }),
           ]
@@ -339,7 +325,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount0Min.quotient.toString(),
             amount1Min.quotient.toString(),
             deadline.toString(),
-            claimFee ? feeValue0?.greaterThan('0') : 0,
+            false, // isClaimFee
             !receiveWETH,
           ]
         : [
@@ -349,7 +335,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             !receiveWETH,
-            [claimFee && feeValue0?.greaterThan('0'), claimFee],
+            [false, false],
           ]
 
       const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
@@ -506,8 +492,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const isWarningSlippage = checkWarningSlippage(allowedSlippage, false)
   const slippageStatus = checkRangeSlippage(allowedSlippage, false)
-
-  if (!isEVM) return <Navigate to="/" />
 
   return (
     <>
@@ -792,18 +776,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                         />
                       </div>
                     </TokenInputWrapper>
-
-                    <Flex alignItems="center" sx={{ gap: '12px' }} marginTop="0.75rem">
-                      <Text fontSize="12px" fontWeight="500">
-                        Claim Your Fees Earned
-                      </Text>
-                      <Toggle
-                        isActive={claimFee}
-                        toggle={() => {
-                          setIsClaimFee(prev => !prev)
-                        }}
-                      />
-                    </Flex>
                   </AmoutToRemoveContent>
 
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (

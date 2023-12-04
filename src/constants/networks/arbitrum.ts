@@ -2,12 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import arbitrumIcon from 'assets/networks/arbitrum.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const arbitrumInfo: EVMNetworkInfo = {
+const arbitrumInfo: NetworkInfo = {
   chainId: ChainId.ARBITRUM,
   route: 'arbitrum',
   ksSettingRoute: 'arbitrum',

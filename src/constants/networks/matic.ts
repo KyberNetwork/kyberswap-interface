@@ -1,11 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import polygonIcon from 'assets/networks/polygon.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const NOT_SUPPORT = null
 
-const maticInfo: EVMNetworkInfo = {
+const maticInfo: NetworkInfo = {
   chainId: ChainId.MATIC,
   route: 'polygon',
   ksSettingRoute: 'polygon',

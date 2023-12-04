@@ -1,4 +1,3 @@
-import { RouteData } from '@0xsquid/sdk'
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
@@ -20,9 +19,9 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import TradePrice from 'pages/CrossChain/TradePrice'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
 import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/crossChain/hooks'
+import { RouteData } from 'state/crossChain/reducer'
 import { Field } from 'state/swap/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { TYPE } from 'theme'
@@ -119,7 +118,6 @@ interface TradeSummaryProps {
 }
 
 function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
-  const { isEVM } = useActiveWeb3React()
   const theme = useTheme()
   const [show, setShow] = useState(true)
 
@@ -154,20 +152,18 @@ function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
             </TYPE.black>
           </RowFixed>
         </RowBetween>
-        {isEVM && (
-          <RowBetween>
-            <RowFixed>
-              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-                <Trans>Gas Fee</Trans>
-              </TYPE.black>
-
-              <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
-            </RowFixed>
-            <TYPE.black color={theme.text} fontSize={12}>
-              {trade.gasUsd ? formattedNum(trade.gasUsd?.toString(), true) : '--'}
+        <RowBetween>
+          <RowFixed>
+            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
+              <Trans>Gas Fee</Trans>
             </TYPE.black>
-          </RowBetween>
-        )}
+
+            <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
+          </RowFixed>
+          <TYPE.black color={theme.text} fontSize={12}>
+            {trade.gasUsd ? formattedNum(trade.gasUsd?.toString(), true) : '--'}
+          </TYPE.black>
+        </RowBetween>
 
         <RowBetween>
           <RowFixed>
@@ -309,14 +305,14 @@ export function TradeSummaryCrossChain({
   const { chainId } = useActiveWeb3React()
 
   const [show, setShow] = useState(true)
-  const { duration, minReceive, priceImpact, totalFeeUsd, gasFeeUsd, crossChainFeeUsd } = getRouInfo(route)
 
   const nativeToken = NativeCurrencies[chainId]
-  const { isEnoughEth, gasFee, crossChainFee } = useIsEnoughGas(route)
+  const { isEnoughEth, gasFee, crossChainFee, gasRefund } = useIsEnoughGas(route)
 
   const colorGasFee = isEnoughEth ? theme.subText : theme.warning
 
-  const [{ currencyOut }] = useCrossChainState()
+  const [{ currencyOut, formatRoute }] = useCrossChainState()
+  const { duration, minReceive, priceImpact, totalFeeUsd, gasFeeUsd, crossChainFeeUsd, gasRefundUsd } = formatRoute
 
   return (
     <AutoColumn style={style}>
@@ -429,6 +425,13 @@ export function TradeSummaryCrossChain({
                           <Text as="span" color={colorGasFee}>
                             {crossChainFee?.toSignificant(10)} {nativeToken?.symbol} (
                             {formattedNum(crossChainFeeUsd + '', true)})
+                          </Text>
+                        </RowBetween>
+                        <RowBetween>
+                          <Trans>Expected gas refund: </Trans>
+                          <Text as="span" color={colorGasFee}>
+                            {gasRefund?.toSignificant(10)} {nativeToken?.symbol} (
+                            {formattedNum(gasRefundUsd + '', true)})
                           </Text>
                         </RowBetween>
                       </Text>

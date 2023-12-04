@@ -3,13 +3,13 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ethereumIcon from 'assets/networks/ethereum.svg'
 import { EnvKeys } from 'constants/env'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const görliInfo: EVMNetworkInfo = {
+const görliInfo: NetworkInfo = {
   chainId: ChainId.GÖRLI,
   route: 'goerli',
   ksSettingRoute: 'ethereum',

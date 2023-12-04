@@ -13,7 +13,6 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { RowBetween, RowFixed } from 'components/Row'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
-import HurryUpBanner from 'components/swapv2/HurryUpBanner'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -51,11 +50,9 @@ const StyledLogo = styled.img`
 export function ConfirmationPendingContent({
   onDismiss,
   pendingText,
-  startedTime,
 }: {
   onDismiss: () => void
   pendingText: string | React.ReactNode
-  startedTime?: number | undefined
 }) {
   const theme = useTheme()
 
@@ -82,14 +79,13 @@ export function ConfirmationPendingContent({
             <Trans>Confirm this transaction in your wallet</Trans>
           </Text>
         </AutoColumn>
-        <HurryUpBanner startedTime={startedTime} />
       </Section>
     </Wrapper>
   )
 }
 
 function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: ChainId }) {
-  const { walletKey, isEVM } = useActiveWeb3React()
+  const { walletKey } = useActiveWeb3React()
   const handleClick = async () => {
     const tokenAddress = token.address
     const tokenSymbol = token.symbol
@@ -118,7 +114,6 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
   }
 
   if (!walletKey) return null
-  if (!isEVM) return null
   if (walletKey === 'WALLET_CONNECT') return null
   if (walletKey === 'KRYSTAL_WC') return null
   const walletConfig = SUPPORTED_WALLETS[walletKey]
@@ -326,7 +321,6 @@ interface ConfirmationModalProps {
   pendingText: string | React.ReactNode
   tokenAddToMetaMask?: Currency
   showTxBanner?: boolean
-  startedTime?: number
   maxWidth?: string | number
   width?: string
 }
@@ -341,7 +335,6 @@ export default function TransactionConfirmationModal({
   content,
   tokenAddToMetaMask,
   showTxBanner,
-  startedTime,
   maxWidth = 420,
   width,
 }: ConfirmationModalProps) {
@@ -359,7 +352,7 @@ export default function TransactionConfirmationModal({
         attemptingTxnContent ? (
           attemptingTxnContent()
         ) : (
-          <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} startedTime={startedTime} />
+          <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} />
         )
       ) : hash ? (
         <TransactionSubmittedContent

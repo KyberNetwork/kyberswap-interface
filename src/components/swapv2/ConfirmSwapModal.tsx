@@ -1,13 +1,11 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
-import { useActiveWeb3React } from 'hooks'
-import { useEncodeSolana } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
@@ -54,15 +52,6 @@ export default function ConfirmSwapModal({
   onDismiss: () => void
   showTxBanner?: boolean
 }) {
-  const { isSolana } = useActiveWeb3React()
-  const [startedTime, setStartedTime] = useState<number | undefined>(undefined)
-  const [encodeSolana] = useEncodeSolana()
-
-  useEffect(() => {
-    if (isSolana && encodeSolana) setStartedTime(Date.now())
-    else setStartedTime(undefined)
-  }, [encodeSolana, isOpen, isSolana])
-
   const showAcceptChanges = useMemo(
     () => Boolean(trade && originalTrade && tradeMeaningfullyDiffers(trade, originalTrade)),
     [originalTrade, trade],
@@ -77,13 +66,12 @@ export default function ConfirmSwapModal({
       <SwapModalFooter
         onConfirm={onConfirm}
         trade={trade}
-        disabledConfirm={showAcceptChanges || (isSolana && !encodeSolana)}
+        disabledConfirm={showAcceptChanges}
         swapErrorMessage={swapErrorMessage}
         allowedSlippage={allowedSlippage}
-        startedTime={startedTime}
       />
     ) : null
-  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade, isSolana, startedTime, encodeSolana])
+  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade])
 
   const nativeInput = useCurrencyConvertedToNative(originalTrade?.inputAmount?.currency)
   const nativeOutput = useCurrencyConvertedToNative(originalTrade?.outputAmount?.currency)
@@ -117,7 +105,6 @@ export default function ConfirmSwapModal({
       pendingText={pendingText}
       tokenAddToMetaMask={tokenAddToMetaMask}
       showTxBanner={showTxBanner}
-      startedTime={startedTime}
     />
   )
 }

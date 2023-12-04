@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -43,7 +42,6 @@ const Consent = lazy(() => import('./Oauth/Consent'))
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
-const SwapV2 = lazy(() => import('./SwapV2'))
 const SwapV3 = lazy(() => import('./SwapV3'))
 const PartnerSwap = lazy(() => import('./PartnerSwap'))
 // const Bridge = lazy(() => import('./Bridge'))
@@ -113,9 +111,8 @@ const preloadImages = () => {
 }
 
 const SwapPage = () => {
-  const { chainId } = useActiveWeb3React()
   useSyncNetworkParamWithStore()
-  return chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />
+  return <SwapV3 />
 }
 
 const RedirectWithNetworkPrefix = () => {
@@ -157,10 +154,6 @@ const RoutesWithNetworkPrefix = () => {
 
   if (!network) {
     return <Navigate to={`/${networkInfo.route}${location.pathname}`} replace />
-  }
-
-  if (network === NETWORKS_INFO[ChainId.SOLANA].route) {
-    return <Navigate to="/" />
   }
 
   const chainInfoFromParam = SUPPORTED_NETWORKS.find(chain => NETWORKS_INFO[chain].route === network)

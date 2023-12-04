@@ -1,4 +1,4 @@
-import { Call } from '@0xsquid/sdk'
+import { RouteActionResponse } from '@0xsquid/sdk/dist/types'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import React, { useCallback, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
@@ -24,7 +24,6 @@ import {
   StyledWrap,
   StyledWrapToken,
 } from 'components/TradeRouting/styled'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useCrossChainState } from 'state/crossChain/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -32,7 +31,13 @@ import { getEtherscanLink } from 'utils'
 import { uint256ToFraction } from 'utils/numbers'
 import { isTokenNative } from 'utils/tokenInfo'
 
-const RouteRowCrossChain = ({ routes, backgroundColor }: { routes: Call[]; backgroundColor?: string }) => {
+const RouteRowCrossChain = ({
+  routes,
+  backgroundColor,
+}: {
+  routes: RouteActionResponse[]
+  backgroundColor?: string
+}) => {
   const scrollRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const shadowRef = useRef<HTMLDivElement>(null)
@@ -54,17 +59,16 @@ const RouteRowCrossChain = ({ routes, backgroundColor }: { routes: Call[]; backg
     <StyledWrap ref={shadowRef} backgroundColor={backgroundColor}>
       <ScrollContainer innerRef={scrollRef} vertical={false} onScroll={handleShadow}>
         <StyledHops length={routes.length} ref={contentRef}>
-          {routes.map((subRoute: any, index, arr) => {
-            if (!subRoute.fromToken || !subRoute.toToken) return null
-            const fromToken = new WrappedTokenInfo(subRoute.fromToken)
-            const toToken = new WrappedTokenInfo(subRoute.toToken)
-
-            const dex = subRoute.dex
+          {routes.map((subRoute, index, arr) => {
+            const dexName = (subRoute.data as { dex: string })?.dex?.toLowerCase?.() || ''
+            if (!subRoute.fromToken || !subRoute.toToken || !dexName) return null
+            const fromToken = new WrappedTokenInfo({
+              ...subRoute.fromToken,
+              chainId: +subRoute.fromToken.chainId,
+            })
+            const toToken = new WrappedTokenInfo({ ...subRoute.toToken, chainId: +subRoute.toToken.chainId })
             const dexLogo = allDexes.find(
-              el =>
-                el.id === dex.dexName.toLowerCase() ||
-                el.name.toLowerCase() === dex.dexName.toLowerCase() ||
-                dex.dexName.toLowerCase().startsWith(el.name.toLowerCase()),
+              el => el.id === dexName || el.name.toLowerCase() === dexName || dexName.startsWith(el.name.toLowerCase()),
             )?.logoURL
             return [fromToken, toToken].map((token: WrappedTokenInfo, indexLast) => {
               const chainId = token.chainId as ChainId
@@ -86,7 +90,7 @@ const RouteRowCrossChain = ({ routes, backgroundColor }: { routes: Call[]; backg
 
                     <StyledExchangeStatic>
                       {dexLogo && <img src={dexLogo} alt="" className="img--sm" />}
-                      {dex?.dexName}
+                      {dexName}
                     </StyledExchangeStatic>
                   </StyledHop>
                   {!(index === arr.length - 1 && indexLast === 1) && (
@@ -109,7 +113,7 @@ const RoutingCrossChain = () => {
   const shadowRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const [{ route, currencyIn, currencyOut }] = useCrossChainState()
+  const [{ route, currencyIn, currencyOut, formatRoute }] = useCrossChainState()
 
   const renderTokenInfo = (currency: typeof currencyIn, amount: string | undefined, reverseOrder?: boolean) => {
     if (!currency) return null
@@ -123,11 +127,9 @@ const RoutingCrossChain = () => {
     )
   }
 
-  const { routeData, inputAmount, outputAmount } = getRouInfo(route)
+  const { routeData, inputAmount, outputAmount } = formatRoute
 
-  const routeSource: Call[] = routeData?.fromChain ?? []
-  const routeDest: Call[] = routeData?.toChain ?? []
-  const numRoute = routeSource.length + routeDest.length
+  const numRoute = routeData?.length || 0
   const hasRoutes = chainIdOut && numRoute > 0
 
   const handleScroll = useCallback(() => {
@@ -160,7 +162,7 @@ const RoutingCrossChain = () => {
               <StyledRoute>
                 <StyledPercent>100%</StyledPercent>
                 <StyledRouteLine />
-                <RouteRowCrossChain routes={routeSource.concat(routeDest)} />
+                <RouteRowCrossChain routes={routeData} />
                 <StyledHopChevronWrapper style={{ marginRight: '2px' }}>
                   <StyledHopChevronRight />
                 </StyledHopChevronWrapper>

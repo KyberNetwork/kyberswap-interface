@@ -23,11 +23,11 @@ export default function useTokenInfo(token: Token | undefined): {
   loading: boolean
   error: any
 } {
-  const { isSolana, chainId: currentChain } = useActiveWeb3React()
+  const { chainId: currentChain } = useActiveWeb3React()
   const chainId = token?.chainId || currentChain
   const coingeckoAPI = useCoingeckoAPI()
 
-  const tokenAddress = isSolana ? token?.address || '' : (token?.address || '').toLowerCase()
+  const tokenAddress = (token?.address || '').toLowerCase()
   const {
     data: rawData,
     error,

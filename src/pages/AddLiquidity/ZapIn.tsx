@@ -28,7 +28,6 @@ import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
 import { didUserReject } from 'constants/connectors/utils'
 import { AMP_HINT, APP_PATHS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -79,7 +78,7 @@ const ZapIn = ({
   currencyIdB: string
   pairAddress: string
 }) => {
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
@@ -170,13 +169,11 @@ const ZapIn = ({
 
   const [approval, approveCallback] = useApproveCallback(
     amountToApprove,
-    isEVM
-      ? isStaticFeePair
-        ? isOldStaticFeeContract
-          ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.zap
-          : (networkInfo as EVMNetworkInfo).classic.static.zap
-        : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
-      : undefined,
+    isStaticFeePair
+      ? isOldStaticFeeContract
+        ? networkInfo.classic.oldStatic?.zap
+        : networkInfo.classic.static.zap
+      : networkInfo.classic.dynamic?.zap,
   )
 
   const userInCurrencyAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
@@ -193,7 +190,7 @@ const ZapIn = ({
 
   const addTransactionWithType = useTransactionAdder()
   async function onZapIn() {
-    if (!isEVM || !library || !account) return
+    if (!library || !account) return
     const zapContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
 
     if (!account) {
@@ -240,7 +237,7 @@ const ZapIn = ({
     }
     // All methods of new zap static fee contract include factory address as first arg
     if (isStaticFeePair && !isOldStaticFeeContract) {
-      args.unshift((networkInfo as EVMNetworkInfo).classic.static.factory)
+      args.unshift(networkInfo.classic.static.factory)
     }
     setAttemptingTxn(true)
     await estimate(...args, value ? { value } : {})

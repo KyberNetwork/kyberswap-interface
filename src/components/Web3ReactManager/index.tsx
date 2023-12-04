@@ -3,14 +3,13 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import LocalLoader from 'components/LocalLoader'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useWeb3React } from 'hooks'
 import { useEagerConnect } from 'hooks/web3/useEagerConnect'
 import { AppState } from 'state'
 import { updateChainId } from 'state/user/actions'
 
 export default function Web3ReactManager({ children }: { children: JSX.Element }) {
   const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
-  const { isEVM } = useActiveWeb3React()
   const { active, chainId: chainIdEVM } = useWeb3React()
 
   // try to eagerly connect to an injected provider, if it exists and has granted access already
@@ -19,7 +18,7 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   const dispatch = useDispatch()
   /** On user change network from wallet, update chainId in store, only work on EVM wallet */
   useEffect(() => {
-    if (triedEager.current && chainIdEVM && chainIdState !== chainIdEVM && active && isEVM) {
+    if (triedEager.current && chainIdEVM && chainIdState !== chainIdEVM && active) {
       dispatch(updateChainId(chainIdEVM))
     }
     // Only run on change network from wallet
@@ -27,7 +26,7 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   }, [chainIdEVM, triedEager.current, active])
 
   // on page load, do nothing until we've tried to connect to the injected connector
-  if (isEVM && !triedEager.current) {
+  if (!triedEager.current) {
     return <LocalLoader />
   }
 

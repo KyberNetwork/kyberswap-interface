@@ -104,7 +104,7 @@ export default function useBasicChartData(
   tokens: (Token | null | undefined)[],
   timeFrame: LiveDataTimeframeEnum,
 ): { data: ChartData[]; loading: boolean; error: any } {
-  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const coingeckoAPI = useCoingeckoAPI()
 
   const isReverse = useMemo(() => {
@@ -117,9 +117,9 @@ export default function useBasicChartData(
     () =>
       tokens.filter(Boolean).map(token => {
         const tokenAdd = token?.isNative ? WETH[chainId].address : token?.address
-        return isEVM ? tokenAdd?.toLowerCase() : tokenAdd
+        return tokenAdd?.toLowerCase()
       }),
-    [tokens, chainId, isEVM],
+    [tokens, chainId],
   )
 
   const {

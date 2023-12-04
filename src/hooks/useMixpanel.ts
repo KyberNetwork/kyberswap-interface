@@ -300,7 +300,7 @@ type FeeInfo = {
 }
 
 export default function useMixpanel(currencies?: { [field in Field]?: Currency }) {
-  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const { saveGas } = useSwapState()
   const network = networkInfo.name
 
@@ -1370,8 +1370,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
-      if (!isEVM) return
-
       const hash = transaction.hash
       const arbitrary = transaction.extraInfo?.arbitrary
       switch (transaction.type) {
@@ -1569,7 +1567,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
       }
     },
-    [chainId, dispatch, mixpanelHandler, isEVM, classicClient, elasticClient],
+    [chainId, dispatch, mixpanelHandler, classicClient, elasticClient],
   )
   return { mixpanelHandler, subgraphMixpanelHandler }
 }
@@ -1672,7 +1670,7 @@ export const useMixpanelKyberAI = () => {
 }
 
 export const useGlobalMixpanelEvents = () => {
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const { isWhiteList } = useIsWhiteListKyberAI()
   const oldNetwork = usePrevious(chainId)
@@ -1683,7 +1681,7 @@ export const useGlobalMixpanelEvents = () => {
   }, [location])
 
   useEffect(() => {
-    if (isEVM ? account && isAddress(account) : account) {
+    if (account && isAddress(account)) {
       mixpanel.identify(account)
 
       const getQueryParam = (url: string, param: string) => {

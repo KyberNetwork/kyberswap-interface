@@ -202,7 +202,7 @@ const Highlight = styled.span`
   color: ${({ theme }) => theme.text};
   font-weight: 500;
 `
-const getListSteps = (isLogin: boolean, isSolana: boolean) => {
+const getListSteps = (isLogin: boolean) => {
   let stepNumber = 0
   const isHighlightBtnConnectWallet = !isLogin || isMobile
   return filterTruthy([
@@ -309,7 +309,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
       orientationPreferences: [CardinalOrientation.SOUTH],
       popupStyle: { width: 430 },
     },
-    !isSolana && {
+    {
       selector: TutorialIds.EARNING_LINKS,
       title: LIST_TITLE.EARN,
       stepNumber: stepNumber++,
@@ -407,7 +407,7 @@ export const TutorialKeys = {
 export default memo(function TutorialSwap() {
   const [{ show = false, step = 0 }, setShowTutorial] = useTutorialSwapGuide()
   const stopTutorial = () => setShowTutorial({ show: false })
-  const { account, isSolana } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
 
   useEffect(() => {
@@ -419,7 +419,7 @@ export default memo(function TutorialSwap() {
   }, [setShowTutorial])
 
   const steps = useMemo(() => {
-    const list = getListSteps(!!account, isSolana)
+    const list = getListSteps(!!account)
     if (isMobile) {
       return list
         .filter(e => !e.pcOnly)
@@ -437,7 +437,7 @@ export default memo(function TutorialSwap() {
         selector: '#' + e.selector,
       }
     })
-  }, [account, isSolana])
+  }, [account])
 
   const stepInfo = (steps[step] || {}) as StepTutorial
 

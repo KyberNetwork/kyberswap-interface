@@ -2,7 +2,7 @@ import { gql, useLazyQuery } from '@apollo/client'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { getCreate2Address } from '@ethersproject/address'
 import { keccak256 } from '@ethersproject/solidity'
-import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -12,7 +12,6 @@ import knProtocolApi, { useLazyGetFarmV2Query } from 'services/knprotocol'
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
 import { ETHER_ADDRESS, RTK_QUERY_TAGS, ZERO_ADDRESS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useMulticallContract, useReadingContract } from 'hooks/useContract'
@@ -105,14 +104,11 @@ const queryFarms = gql`
 
 export default function ElasticFarmV2Updater({ interval = true }: { interval?: boolean }) {
   const dispatch = useAppDispatch()
-  const { networkInfo, isEVM, chainId, account } = useActiveWeb3React()
+  const { networkInfo, chainId, account } = useActiveWeb3React()
   const { elasticClient, isEnableKNProtocol } = useKyberSwapConfig()
 
   const multicallContract = useMulticallContract()
-  const farmv2QuoterContract = useReadingContract(
-    isEVM ? (networkInfo as EVMNetworkInfo).elastic.farmv2Quoter : undefined,
-    FarmV2QuoterABI,
-  )
+  const farmv2QuoterContract = useReadingContract(networkInfo.elastic.farmv2Quoter, FarmV2QuoterABI)
 
   const [getElasticFarmV2, { data: subgraphData, error: subgraphError }] = useLazyQuery(queryFarms, {
     client: elasticClient,
@@ -338,7 +334,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               })
               const nftDetailFragment = positionManagerInterface.getFunction('positions')
               const nftDetailChunks = nftIds.map(id => ({
-                target: (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
+                target: networkInfo.elastic.nonfungiblePositionManager,
                 callData: positionManagerInterface.encodeFunctionData(nftDetailFragment, [id]),
               }))
 
@@ -365,7 +361,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                   ...acc,
                   [nftIds[index].toString()]: {
                     poolAddress: getCreate2Address(
-                      (networkInfo as EVMNetworkInfo).elastic.coreFactory,
+                      networkInfo.elastic.coreFactory,
                       keccak256(
                         ['bytes'],
                         [
@@ -375,7 +371,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                           ),
                         ],
                       ),
-                      (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+                      networkInfo.elastic.initCodeHash,
                     ),
                     liquidity: item.pos.liquidity,
                     tickLower: item.pos.tickLower,
@@ -420,12 +416,10 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                   +stakedPos.amount1.toExact() * (prices[stakedPos.amount1.currency.wrapped.address] || 0)
 
                 // TODO: temporary set 0: item.currentUnclaimedRewards[i].toString()
-                const unclaimedRewards =
-                  chainId === ChainId.LINEA || chainId === ChainId.SCROLL
-                    ? farm.totalRewards.map((rw, i) =>
-                        CurrencyAmount.fromRawAmount(rw.currency, item.currentUnclaimedRewards[i].toString()),
-                      )
-                    : farm.totalRewards.map((rw, _i) => CurrencyAmount.fromRawAmount(rw.currency, 0))
+                const unclaimedRewards = farm.totalRewards.map((rw, i) =>
+                  CurrencyAmount.fromRawAmount(rw.currency, item.currentUnclaimedRewards[i].toString()),
+                )
+                // : farm.totalRewards.map((rw, _i) => CurrencyAmount.fromRawAmount(rw.currency, 0))
 
                 const unclaimedRewardsUsd = unclaimedRewards.reduce(
                   (total, item) => total + +item.toExact() * (prices[item.currency.wrapped.address] || 0),

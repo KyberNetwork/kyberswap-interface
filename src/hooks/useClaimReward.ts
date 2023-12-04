@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
 import CLAIM_REWARD_ABI from 'constants/abis/claim-reward.json'
-import { CLAIM_REWARDS_DATA_URL, NETWORKS_INFO, isEVM } from 'constants/networks'
+import { CLAIM_REWARDS_DATA_URL, NETWORKS_INFO } from 'constants/networks'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
@@ -37,11 +37,11 @@ export default function useClaimReward() {
   const { library } = useWeb3React()
 
   const rewardReadingContract = useReadingContract(
-    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.claimReward ?? undefined : undefined,
+    NETWORKS_INFO[chainId].classic.claimReward ?? undefined,
     CLAIM_REWARD_ABI,
   )
   const rewardSigningContract = useSigningContract(
-    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.claimReward ?? undefined : undefined,
+    NETWORKS_INFO[chainId].classic.claimReward ?? undefined,
     CLAIM_REWARD_ABI,
   )
   const isValid = !!chainId && !!account && !!library

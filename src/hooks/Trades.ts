@@ -3,14 +3,14 @@ import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-co
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import { ZERO_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { PairState, usePairs } from 'data/Reserves'
-import { useActiveWeb3React, useWeb3Solana } from 'hooks/index'
+import { useActiveWeb3React } from 'hooks/index'
 import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
 import useDebounce from 'hooks/useDebounce'
 import { AppState } from 'state'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
+import { useSwapState } from 'state/swap/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { usePermitData, useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress } from 'utils'
@@ -91,12 +91,10 @@ export function useTradeExactInV2(
   onUpdateCallback: (resetRoute: boolean, minimumLoadingTime: number) => void
   loading: boolean
 } {
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const controller = useRef(new AbortController())
   const [allowedSlippage] = useUserSlippageTolerance()
   const txsInChain = useAllTransactions()
-  const [, setEncodeSolana] = useEncodeSolana()
-  const { connection } = useWeb3Solana()
   const { aggregatorAPI } = useKyberswapGlobalConfig()
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
@@ -136,9 +134,7 @@ export function useTradeExactInV2(
 
         setLoading(true)
 
-        const to =
-          (isAddress(chainId, recipient) ? (recipient as string) : account) ??
-          (isEVM ? ZERO_ADDRESS : ZERO_ADDRESS_SOLANA)
+        const to = (isAddress(chainId, recipient) ? (recipient as string) : account) ?? ZERO_ADDRESS
 
         const deadline = Math.round(Date.now() / 1000) + ttl
 
@@ -167,17 +163,12 @@ export function useTradeExactInV2(
           })
         }
         setLoading(false)
-        // if (!signal.aborted && state) {
-        //   const swap = await state.solana?.swap
-        //   if (swap) setTrade(state)
-        // }
       } else {
         setTrade(null)
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      isEVM,
       allTxGroup, // required. Refresh aggregator data after swap.
       debounceCurrencyAmountIn,
       currencyOut,
@@ -196,20 +187,6 @@ export function useTradeExactInV2(
   useEffect(() => {
     onUpdateCallback(false, 0)
   }, [onUpdateCallback])
-
-  useEffect(() => {
-    const controller = new AbortController()
-    const encodeSolana = async () => {
-      if (!trade || !connection) return
-      const encodeSolana = await Aggregator.encodeSolana(trade, connection, controller.signal)
-      if (encodeSolana && !controller.signal.aborted) setEncodeSolana(encodeSolana)
-    }
-    encodeSolana()
-
-    return () => {
-      controller.abort()
-    }
-  }, [trade, setEncodeSolana, connection])
 
   return {
     trade, //todo: not return this anymore, set & use it from redux

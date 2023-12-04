@@ -16,7 +16,6 @@ import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import { config } from 'hooks/useElasticLegacy'
@@ -145,7 +144,7 @@ const CollectFeesPanel: React.FC<Props> = ({
       return
     }
 
-    const isFarmV21 = (NETWORKS_INFO[chainId] as EVMNetworkInfo)?.elastic['farmV2.1S']
+    const isFarmV21 = NETWORKS_INFO[chainId]?.elastic['farmV2.1S']
       ?.map(item => item.toLowerCase())
       .includes(farmAddress.toLowerCase())
 

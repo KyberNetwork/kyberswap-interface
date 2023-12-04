@@ -1,7 +1,6 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
-import { WalletReadyState } from '@solana/wallet-adapter-base'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
@@ -10,24 +9,16 @@ import blockServiceApi from 'services/blockService'
 import { GET_BLOCKS } from 'apollo/queries'
 import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
-import {
-  EVMWalletInfo,
-  INJECTED_KEY,
-  INJECTED_KEYS,
-  SUPPORTED_WALLET,
-  SUPPORTED_WALLETS,
-  SolanaWalletInfo,
-  WalletInfo,
-} from 'constants/wallets'
+import { INJECTED_KEY, INJECTED_KEYS, SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletReadyState } from 'constants/wallets'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 import { chunk } from 'utils/array'
 
-import { isAddress, isAddressString, isWalletAddressSolana } from './address'
+import { isAddress, isAddressString } from './address'
 
-export { isAddress, isWalletAddressSolana, isAddressString }
+export { isAddress, isAddressString }
 
 export function getEtherscanLink(
   chainId: ChainId,
@@ -291,9 +282,7 @@ export async function splitQuery<ResultType, T, U>(
 async function getBlocksFromTimestampsSubgraph(
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
-  chainId: ChainId,
 ): Promise<{ timestamp: number; number: number }[]> {
-  if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
     return []
   }
@@ -318,7 +307,6 @@ async function getBlocksFromTimestampsBlockService(
   timestamps: number[],
   chainId: ChainId,
 ): Promise<{ timestamp: number; number: number }[]> {
-  if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
     return []
   }
@@ -345,7 +333,7 @@ export async function getBlocksFromTimestamps(
   chainId: ChainId,
 ): Promise<{ timestamp: number; number: number }[]> {
   if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId)
-  return getBlocksFromTimestampsSubgraph(blockClient, timestamps, chainId)
+  return getBlocksFromTimestampsSubgraph(blockClient, timestamps)
 }
 
 /**
@@ -417,9 +405,6 @@ export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
   }
   return array
 }
-
-export const isEVMWallet = (wallet?: WalletInfo): wallet is EVMWalletInfo => !!wallet && 'connector' in wallet
-export const isSolanaWallet = (wallet?: WalletInfo): wallet is SolanaWalletInfo => !!wallet && 'adapter' in wallet
 
 // https://docs.metamask.io/guide/ethereum-provider.html#basic-usage
 // https://docs.cloud.coinbase.com/wallet-sdk/docs/injected-provider#properties

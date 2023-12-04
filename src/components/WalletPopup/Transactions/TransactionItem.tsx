@@ -376,9 +376,6 @@ const DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.ELASTIC_COLLECT_FEE]: DescriptionLiquidity,
 
   [TRANSACTION_TYPE.HARVEST]: DescriptionHarvestFarmReward,
-
-  // to make sure you don't forgot setup
-  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: () => null,
 }
 
 type Prop = {

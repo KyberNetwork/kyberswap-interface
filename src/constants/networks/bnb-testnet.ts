@@ -1,13 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import BnbLogo from 'assets/images/bnb-logo.png'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const bnbTestnetInfo: EVMNetworkInfo = {
+const bnbTestnetInfo: NetworkInfo = {
   chainId: ChainId.BSCTESTNET,
   route: 'bnb-testnet',
   ksSettingRoute: 'bsc',

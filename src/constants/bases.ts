@@ -22,12 +22,10 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.ARBITRUM]: [WETH[ChainId.ARBITRUM]],
   [ChainId.OPTIMISM]: [WETH[ChainId.OPTIMISM]],
   [ChainId.ZKSYNC]: [WETH[ChainId.ZKSYNC]],
-  [ChainId.SOLANA]: [WETH[ChainId.SOLANA]],
   [ChainId.LINEA]: [WETH[ChainId.LINEA]],
   [ChainId.ZKEVM]: [WETH[ChainId.ZKEVM]],
   [ChainId.BASE]: [WETH[ChainId.BASE]],
   [ChainId.SCROLL]: [WETH[ChainId.SCROLL]],
-  [ChainId.SOLANA_DEVNET]: [WETH[ChainId.SOLANA_DEVNET]],
 }
 
 // used to construct intermediary pairs for trading
