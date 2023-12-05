@@ -9,6 +9,7 @@ import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { IChartingLibraryWidget } from 'components/TradingViewChart/charting_library/charting_library'
+import RequireConnectWalletWrapper from 'pages/TrueSightV2/components/RequireConnectWallet'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
 
@@ -304,7 +305,9 @@ export default function TechnicalAnalysis() {
           ]}
         >
           <Column style={{ height: '500px' }}>
-            <LiquidOnCentralizedExchanges />
+            <RequireConnectWalletWrapper>
+              <LiquidOnCentralizedExchanges />
+            </RequireConnectWalletWrapper>
           </Column>
           <CexRekt />
         </SectionWrapper>
