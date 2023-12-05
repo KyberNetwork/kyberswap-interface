@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-// import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
+import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import { ReactComponent as TokensIcon } from 'assets/svg/tokens_icon.svg'
 import { CheckCircle } from 'components/Icons'
@@ -48,7 +48,7 @@ const TabItem = ({
 
 const options = [
   { value: PortfolioTab.TOKEN, icon: <TokensIcon />, title: t`Tokens` },
-  // { value: PortfolioTab.LIQUIDITY, icon: <LiquidityIcon style={{ width: 16, height: 16 }} /> },
+  { value: PortfolioTab.LIQUIDITY, icon: <LiquidityIcon style={{ width: 16, height: 16 }} />, title: t`Liquidity` },
   { value: PortfolioTab.NFT, icon: <NftIcon style={{ width: 16, height: 16 }} />, title: t`NFTs` },
   { value: PortfolioTab.TRANSACTIONS, icon: <FileText size={16} />, title: t`Transactions` },
   { value: PortfolioTab.ALLOWANCES, icon: <CheckCircle size={'16px'} />, title: t`Allowances` },

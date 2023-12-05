@@ -26,6 +26,7 @@ import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import AddressPanel, { PortfolioOption } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/AddressPanel'
 import Allowances from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Allowances'
+import Liquidity from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Liquidity'
 import ListTab from 'pages/NotificationCenter/Portfolio/PortfolioDetail/ListTab'
 import Nft from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Nft'
 import Tokens from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Tokens'
@@ -266,6 +267,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
         </ChainWalletSelect>
       </RowBetween>
       {activeTab === PortfolioTab.TOKEN && <Tokens {...props} totalUsd={totalUsd} />}
+      {activeTab === PortfolioTab.LIQUIDITY && <Liquidity walletAddresses={walletsQuery} chainIds={chainIds} />}
       {activeTab === PortfolioTab.ALLOWANCES && <Allowances {...props} />}
       {activeTab === PortfolioTab.TRANSACTIONS && (
         <Transactions wallet={wallet || wallets?.[0]?.walletAddress} chainIds={chainIds} />

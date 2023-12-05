@@ -280,6 +280,23 @@ const portfolioApi = createApi({
         params,
       }),
     }),
+    // liquidity
+    getLiquidityPortfolio: builder.query<
+      TransactionHistoryResponse, // todo
+      {
+        walletAddress: string
+        chainIds?: ChainId[]
+        limit: number
+        endTime: number
+        tokenAddress?: string
+        tokenSymbol?: string
+      }
+    >({
+      query: params => ({
+        url: `${KRYSTAL_API}/txHistory/getHistory`,
+        params,
+      }),
+    }),
   }),
 })
 
@@ -310,6 +327,7 @@ export const {
   useGetTokenAllocationQuery,
   useGetChainsAllocationQuery,
   useGetWalletsAllocationQuery,
+  useGetLiquidityPortfolioQuery,
 } = portfolioApi
 
 export default portfolioApi
