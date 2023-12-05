@@ -12,7 +12,6 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { getErrorMessage, isReferrerCodeInvalid } from 'pages/TrueSightV2/utils'
 import { useSessionInfo } from 'state/authen/hooks'
-import { isEmailValid } from 'utils/string'
 
 import { FormWrapper, Input } from './styled'
 
@@ -53,23 +52,10 @@ export default function EmailForm({
     userInfo?.email && setInputEmail(userInfo?.email)
   }, [userInfo?.email])
 
-  const validateInput = useCallback((value: string, required = false) => {
-    const isValid = isEmailValid(value)
-    const errMsg = t`Please input a valid email address`
-    const msg = (value.length && !isValid) || (required && !value.length) ? errMsg : ''
-    setErrorInput(prev => ({ ...prev, email: msg ? msg : '' }))
-  }, [])
-
   const debouncedCheckReferCode = useMemo(
     () => debounce((code: string) => checkReferCodeExist(code), 500),
     [checkReferCodeExist],
   )
-
-  const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value
-    setInputEmail(value)
-    validateInput(value)
-  }
 
   const onChangeCode = (e: FormEvent<HTMLInputElement>) => {
     checkingInput.current = true
@@ -96,21 +82,6 @@ export default function EmailForm({
   return (
     <>
       <FormWrapper>
-        <Column width="100%" gap="6px">
-          <Tooltip text={errorInput.email} show={!!errorInput.email} placement="top">
-            <Input
-              disabled={!!userInfo?.email}
-              $borderColor={errorInput.email ? theme.red : theme.border}
-              value={inputEmail}
-              placeholder={t`Email Address (Optional)`}
-              onChange={onChangeInput}
-            />
-          </Tooltip>
-          <Text fontSize={10} color={theme.subText}>
-            <Trans>We will never share your email with third parties.</Trans>
-          </Text>
-        </Column>
-
         <Column width="100%" gap="6px">
           <Tooltip text={errorInput.referredByCode} show={!!errorInput.referredByCode} placement="top">
             <Input
