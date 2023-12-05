@@ -17,6 +17,7 @@ import {
   RewardDistribution,
 } from 'state/campaigns/actions'
 import { SerializedToken } from 'state/user/actions'
+import { GrantProgram, GrantProgramRes, LeaderBoardRes, ProjectRanking } from 'types/grantProgram'
 
 const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
   const now = Date.now()
@@ -202,18 +203,18 @@ const formatTxs = (data: any[]) => {
 
 const campaignApi = createApi({
   reducerPath: 'campaignApi',
-  baseQuery: fetchBaseQuery({ baseUrl: `${CAMPAIGN_BASE_URL}/api/v1/campaigns` }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${CAMPAIGN_BASE_URL}/api/v1` }),
   endpoints: builder => ({
     getCampaigns: builder.query<any, { campaignName: string; userAddress?: string; offset: number; limit: number }>({
       query: params => ({
         params,
-        url: '',
+        url: '/campaigns',
       }),
       transformResponse: (data: any) => formatListCampaign(data?.data || []),
     }),
     getCampaignById: builder.query<any, string>({
       query: campaignId => ({
-        url: `/${campaignId}`,
+        url: `/campaigns/${campaignId}`,
       }),
       transformResponse: (data: any) => formatListCampaign(data?.data)?.[0],
     }),
@@ -223,7 +224,7 @@ const campaignApi = createApi({
     >({
       query: ({ campaignId, ...params }) => ({
         params,
-        url: `/${campaignId}/leaderboard`,
+        url: `/campaigns/${campaignId}/leaderboard`,
       }),
       transformResponse: (data: any) => formatLeaderboardData(data?.data),
     }),
@@ -233,7 +234,7 @@ const campaignApi = createApi({
     >({
       query: ({ campaignId, ...params }) => ({
         params,
-        url: `/${campaignId}/lucky-winners`,
+        url: `/campaigns/${campaignId}/lucky-winners`,
       }),
       transformResponse: (data: any) => formatLuckyWinners(data?.data || []),
     }),
@@ -243,7 +244,7 @@ const campaignApi = createApi({
     >({
       query: ({ campaignId, ...params }) => ({
         params,
-        url: `/${campaignId}/proofs`,
+        url: `/campaigns/${campaignId}/proofs`,
       }),
       transformResponse: (data: any) => formatTxs(data?.data || []),
     }),
@@ -251,8 +252,31 @@ const campaignApi = createApi({
       query: ({ recaptchaId, ...body }) => ({
         body,
         method: 'POST',
-        url: `/${recaptchaId}/participants`,
+        url: `/campaigns/${recaptchaId}/participants`,
       }),
+    }),
+    getListGrantPrograms: builder.query<GrantProgram[], unknown>({
+      query: () => ({
+        url: '/competitions',
+        params: { page: 1, pageSize: 100 },
+      }),
+      transformResponse: (res: GrantProgramRes) => res.data.competitions,
+    }),
+    getGrantProgram: builder.query<GrantProgram, { id: string | number }>({
+      query: ({ id }) => ({
+        url: `/competitions/${id}`,
+      }),
+      transformResponse: (res: any) => res.data,
+    }),
+    getGrantProgramLeaderBoard: builder.query<
+      { totalItems: number; rankings: ProjectRanking[] },
+      { id?: number; rankBy: string; page?: number; pageSize?: number }
+    >({
+      query: ({ id, rankBy, page, pageSize }) => ({
+        url: `/competitions/${id}/leaderboard`,
+        params: { rankBy, page, pageSize },
+      }),
+      transformResponse: (res: LeaderBoardRes) => res.data,
     }),
   }),
 })

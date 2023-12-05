@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Box } from 'rebass'
+import campaignApi from 'services/campaign'
 import styled from 'styled-components'
 
 import TrophyImage from 'assets/images/campaign_trophy.png'
-import useGetLeaderboardGrantProgram from 'hooks/campaigns/useGetLeaderboardGrantProgram'
 import { MEDIA_WIDTHS } from 'theme'
 import { ProjectRanking } from 'types/grantProgram'
 
@@ -151,9 +151,7 @@ type Props = {
 
 const EmptyRankings: ProjectRanking[] = []
 const TrophyWrapper: React.FC<Props> = ({ programId, rankByConfig }) => {
-  const {
-    swrData: { data },
-  } = useGetLeaderboardGrantProgram({
+  const { data } = campaignApi.useGetGrantProgramLeaderBoardQuery({
     id: programId,
     rankBy: rankByConfig.param,
     page: 1,
