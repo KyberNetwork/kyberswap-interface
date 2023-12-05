@@ -277,7 +277,7 @@ export default function TokenAllocation({
             totalItems={tableData.length}
             pageSize={6}
             pagination={{ hideWhenSinglePage: true, show: !shareMode }}
-          /> // todo
+          />
         )}
       </Content>
     </Section>
