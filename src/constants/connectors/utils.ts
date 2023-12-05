@@ -19,6 +19,7 @@ if (ENV_LEVEL == ENV_TYPE.ADPR) {
             isBloctoWallet: getIsBloctoWallet(),
             isKrystalWallet: getIsKrystalWallet(),
             isTrustWallet: getIsTrustWallet(),
+            isZerion: getIsZerionWallet(),
             isGenericInjector: getIsGenericInjector(),
           },
           'window.ethereum': window.ethereum,
