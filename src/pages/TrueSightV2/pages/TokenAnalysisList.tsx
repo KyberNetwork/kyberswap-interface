@@ -780,7 +780,7 @@ export default function TokenAnalysisList() {
     <>
       <TradeInfoWrapper>
         <Text fontSize="12px" color={theme.subText} fontWeight={500}>
-          <Trans>KyberScore will be updated every 4 hour.</Trans>
+          <Trans>KyberScore will be updated every 1 hour.</Trans>
         </Text>
         <Text fontSize="12px" color={theme.subText} fontStyle="italic">
           <Trans>Disclaimer: The information here should not be treated as any form of financial advice.</Trans>
