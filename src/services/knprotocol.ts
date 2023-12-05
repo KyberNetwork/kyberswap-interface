@@ -32,12 +32,6 @@ export type FarmingPool = {
   apr: string
 }
 
-type FarmingPoolResponse = {
-  data: {
-    farmPools: FarmingPool[]
-  }
-}
-
 export type ClassicPoolKN = {
   id: string
   fee: string
@@ -121,7 +115,7 @@ const knProtocolApi = createApi({
         url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/farm-pools`,
         params: { page: 1, perPage: 1000 },
       }),
-      transformResponse: (res: FarmingPoolResponse) => res.data.farmPools,
+      transformResponse: (res: CommonPagingRes<{ farmPools: FarmingPool[] }>) => res.data.farmPools,
     }),
     getPoolClassic: builder.query<{ data: { pools: ClassicPoolKN[] } }, ChainId>({
       query: (chainId: ChainId) => ({

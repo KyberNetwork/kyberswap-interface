@@ -14,15 +14,6 @@ export type GrantProgram = {
   mobileBanner: string
 }
 
-export type GrantProgramRes = {
-  code: number
-  message: string
-  data: {
-    totalItems: number
-    competitions: GrantProgram[]
-  }
-}
-
 export type ProjectRanking = {
   rankNo: number
   competitorId: number
@@ -36,13 +27,4 @@ export type ProjectRanking = {
     id: number
     name: string
   }>
-}
-
-export type LeaderBoardRes = {
-  code: number
-  message: string
-  data: {
-    totalItems: number
-    rankings: ProjectRanking[]
-  }
 }

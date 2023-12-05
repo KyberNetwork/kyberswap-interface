@@ -53,13 +53,6 @@ type Dex = {
   logoURL: string
 }
 
-type DexListResponse = {
-  data: {
-    dexes: Dex[]
-    pagination: { totalItems: number }
-  }
-}
-
 export interface TokenListResponse<T = TokenInfo> {
   data: {
     pagination?: {
@@ -121,7 +114,7 @@ const ksSettingApi = createApi({
         url: `/dexes`,
         params: { chain: chainId, isEnabled: true, pageSize: 100 },
       }),
-      transformResponse: (res: DexListResponse) => res.data.dexes,
+      transformResponse: (res: CommonPagingRes<{ dexes: Dex[] }>) => res.data.dexes,
     }),
     getTokenList: builder.query<
       TokenListResponse,

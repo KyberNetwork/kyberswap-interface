@@ -17,7 +17,7 @@ import {
   RewardDistribution,
 } from 'state/campaigns/actions'
 import { SerializedToken } from 'state/user/actions'
-import { GrantProgram, GrantProgramRes, LeaderBoardRes, ProjectRanking } from 'types/grantProgram'
+import { GrantProgram, ProjectRanking } from 'types/grantProgram'
 
 const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
   const now = Date.now()
@@ -255,28 +255,28 @@ const campaignApi = createApi({
         url: `/campaigns/${recaptchaId}/participants`,
       }),
     }),
+    getGrantProgram: builder.query<GrantProgram, { id: string | number }>({
+      query: ({ id }) => ({
+        url: `/competitions/${id}`,
+      }),
+      transformResponse: (res: CommonRes<GrantProgram>) => res.data,
+    }),
     getListGrantPrograms: builder.query<GrantProgram[], unknown>({
       query: () => ({
         url: '/competitions',
         params: { page: 1, pageSize: 100 },
       }),
-      transformResponse: (res: GrantProgramRes) => res.data.competitions,
-    }),
-    getGrantProgram: builder.query<GrantProgram, { id: string | number }>({
-      query: ({ id }) => ({
-        url: `/competitions/${id}`,
-      }),
-      transformResponse: (res: any) => res.data,
+      transformResponse: (res: CommonPagingRes<{ competitions: GrantProgram[] }>) => res.data.competitions,
     }),
     getGrantProgramLeaderBoard: builder.query<
-      { totalItems: number; rankings: ProjectRanking[] },
+      CommonPagingData<{ rankings: ProjectRanking[] }>,
       { id?: number; rankBy: string; page?: number; pageSize?: number }
     >({
       query: ({ id, rankBy, page, pageSize }) => ({
         url: `/competitions/${id}/leaderboard`,
         params: { rankBy, page, pageSize },
       }),
-      transformResponse: (res: LeaderBoardRes) => res.data,
+      transformResponse: (res: CommonPagingRes<{ rankings: ProjectRanking[] }>) => res.data,
     }),
   }),
 })
