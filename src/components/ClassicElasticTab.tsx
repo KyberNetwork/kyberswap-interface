@@ -267,7 +267,11 @@ function ClassicElasticTab() {
       <ElasticHackedModal
         isOpen={isOpenElasticHacked}
         onClose={() => {
-          handleSwitchTab(VERSION.CLASSIC)
+          if (notSupportedClassicMsg) {
+            navigate({ pathname: APP_PATHS.MY_POOLS })
+          } else {
+            handleSwitchTab(VERSION.CLASSIC)
+          }
         }}
         onConfirm={() => {
           navigate({ pathname: APP_PATHS.MY_POOLS })
