@@ -107,7 +107,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
 
   const { data, isFetching } = useGetTransactionsQuery(
     { walletAddress: account || '', chainIds: [chainId], limit: 100, endTime: 0 },
-    { skip: !account },
+    { skip: !account, refetchOnMountOrArgChange: true, pollingInterval: 30_000 },
   )
   const transactions = data?.data || EMPTY_ARRAY
 
