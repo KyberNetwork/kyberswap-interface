@@ -19,6 +19,7 @@ if (ENV_LEVEL == ENV_TYPE.ADPR) {
             isBloctoWallet: getIsBloctoWallet(),
             isKrystalWallet: getIsKrystalWallet(),
             isTrustWallet: getIsTrustWallet(),
+            isZerion: getIsZerionWallet(),
             isGenericInjector: getIsGenericInjector(),
           },
           'window.ethereum': window.ethereum,
@@ -47,6 +48,7 @@ const allNonMetamaskFlags = [
   'isKrystalWallet',
   'isPhantom',
   'isBlocto',
+  'isZerion',
 ] as const
 export const getIsMetaMaskWallet = () =>
   Boolean(window.ethereum?.isMetaMask && !allNonMetamaskFlags.some(flag => window.ethereum?.[flag]))
@@ -67,6 +69,8 @@ export const getIsBloctoWallet = () => Boolean(window.ethereum?.isBlocto)
 
 export const getIsC98Wallet = () => Boolean(window.ethereum?.isCoin98 && window.coin98)
 
+export const getIsZerionWallet = () => Boolean(window.ethereum?.isZerion)
+
 export const getIsTrustWallet = () =>
   Boolean((window.ethereum?.isTrustWallet || window.ethereum?.isTrust) && !getIsKrystalWallet())
 
@@ -79,6 +83,7 @@ export const getIsGenericInjector = () =>
   !getIsRabbyWallet() &&
   !getIsBloctoWallet() &&
   !getIsKrystalWallet() &&
+  !getIsZerionWallet() &&
   !getIsTrustWallet()
 
 // https://eips.ethereum.org/EIPS/eip-1193#provider-errors
