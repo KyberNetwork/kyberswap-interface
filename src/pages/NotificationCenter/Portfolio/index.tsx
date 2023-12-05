@@ -110,21 +110,28 @@ export default function PortfolioSettings() {
 
   const { data: portfolios = EMPTY_ARRAY, isLoading: isFetching } = useGetMyPortfoliosQuery()
   const { data: settings } = useGetPortfoliosSettingsQuery()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const { cloneId = '', wallet } = useParsedQueryString<{ cloneId: string; wallet: string }>()
+  const {
+    cloneId = '',
+    wallet,
+    autoShowCreate,
+  } = useParsedQueryString<{ cloneId: string; wallet: string; autoShowCreate: string }>()
   const loading = useShowLoadingAtLeastTime(isFetching, wallet ? 0 : 700)
   const { data: clonePortfolio } = useGetPortfolioByIdQuery({ id: cloneId }, { skip: !cloneId })
   useEffect(() => {
-    if (clonePortfolio || isAddress(ChainId.MAINNET, wallet)) {
+    if (clonePortfolio || isAddress(ChainId.MAINNET, wallet) || autoShowCreate) {
       setShowCreate(true)
     }
-  }, [clonePortfolio, wallet])
+  }, [clonePortfolio, wallet, autoShowCreate])
 
   const showModalCreatePortfolio = () => {
     setShowCreate(true)
   }
   const hideModalCreatePortfolio = () => {
     setShowCreate(false)
+    searchParams.delete('autoShowCreate')
+    setSearchParams(searchParams)
   }
 
   const theme = useTheme()
@@ -166,7 +173,7 @@ export default function PortfolioSettings() {
 
   const [createPortfolio] = useCreatePortfolioMutation()
   const [clonePortfolioRequest] = useClonePortfolioMutation()
-  const [searchParams, setSearchParams] = useSearchParams()
+
   const notify = useNotify()
   const addPortfolio = async (data: { name: string }) => {
     try {

@@ -132,7 +132,7 @@ const ButtonCreatePortfolio = ({ portfolioOptions }: { portfolioOptions: Portfol
           height={'36px'}
           width={'fit-content'}
           disabled={!account || isMaximum}
-          onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`)}
+          onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}?autoShowCreate=1`)}
         >
           <Plus size={18} />
           &nbsp;
