@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
 import blockServiceApi from 'services/blockService'
@@ -95,6 +96,7 @@ const store = configureStore({
     pools,
     farms,
     vesting,
+    [aggregatorStatsApi.reducerPath]: aggregatorStatsApi.reducer,
     [announcementApi.reducerPath]: announcementApi.reducer,
     [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
@@ -140,6 +142,7 @@ const store = configureStore({
       .concat(coinmarketcapApi.middleware)
       .concat(campaignApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
+      .concat(aggregatorStatsApi.middleware)
       .concat(announcementApi.middleware)
       .concat(publicAnnouncementApi.middleware)
       .concat(kyberDAO.middleware)

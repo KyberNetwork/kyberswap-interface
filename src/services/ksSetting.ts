@@ -46,6 +46,20 @@ export type KyberswapGlobalConfigurationResponse = {
   }
 }
 
+type Dex = {
+  id: number
+  dexId: string
+  name: string
+  logoURL: string
+}
+
+type DexListResponse = {
+  data: {
+    dexes: Dex[]
+    pagination: { totalItems: number }
+  }
+}
+
 export interface TokenListResponse<T = TokenInfo> {
   data: {
     pagination?: {
@@ -79,7 +93,6 @@ const ksSettingApi = createApi({
         },
       }),
     }),
-
     getKyberswapGlobalConfiguration: builder.query<KyberswapGlobalConfigurationResponse, void>({
       query: () => ({
         url: '/configurations/fetch',
@@ -103,6 +116,13 @@ const ksSettingApi = createApi({
         })),
     }),
 
+    getDexList: builder.query<Dex[], { chainId: string }>({
+      query: ({ chainId }) => ({
+        url: `/dexes`,
+        params: { chain: chainId, isEnabled: true, pageSize: 100 },
+      }),
+      transformResponse: (res: DexListResponse) => res.data.dexes,
+    }),
     getTokenList: builder.query<
       TokenListResponse,
       {
