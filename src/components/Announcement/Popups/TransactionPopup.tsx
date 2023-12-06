@@ -209,7 +209,7 @@ const getSummary = (transaction: TransactionDetails) => {
 
   const { success } = getTransactionStatus(transaction)
 
-  const shortHash = 'Hash: ' + hash.slice(0, 8) + '...' + hash.slice(58, 65)
+  const shortHash = 'Hash: ' + getShortenAddress(hash)
 
   const summary = SUMMARY[type]?.(transaction) ?? shortHash
 

@@ -8,10 +8,7 @@ import Badge, { BadgeVariant } from 'components/Badge'
 import Row from 'components/Row'
 import ContractAddress from 'components/WalletPopup/Transactions/ContractAddress'
 import { getTxsIcon } from 'components/WalletPopup/Transactions/Icon'
-import PendingWarning from 'components/WalletPopup/Transactions/PendingWarning'
 import Status from 'components/WalletPopup/Transactions/Status'
-import { isTxsPendingTooLong } from 'components/WalletPopup/Transactions/helper'
-import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import useTheme from 'hooks/useTheme'
 import { getAxelarScanUrl } from 'pages/CrossChain'
 import { BalanceCell, getTxsAction } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Transactions'
@@ -50,24 +47,16 @@ type Prop = {
   transaction: TransactionHistory
   style: CSSProperties
   isMinimal: boolean
-  cancellingOrderInfo: CancellingOrderInfo
 }
 
-export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
-  { transaction, style, isMinimal, cancellingOrderInfo }: Prop,
-  ref,
-) {
+export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ transaction, style, isMinimal }: Prop, ref) {
   const { contract = '', type } = getTxsAction(transaction)
   const { chain, blockTime, txHash, tag } = transaction
   const chainId = chain?.chainId
   const theme = useTheme()
 
-  const isStalled = isTxsPendingTooLong(transaction)
-
   return (
-    <ItemWrapper style={{ ...style, opacity: tag === 'SCAM' ? 0.4 : 1 }} ref={ref} data-stalled={isStalled}>
-      {isStalled && <PendingWarning />}
-
+    <ItemWrapper style={{ ...style, opacity: tag === 'SCAM' ? 0.4 : 1 }} ref={ref}>
       <Flex justifyContent="space-between" alignItems="flex-end">
         <Row gap="6px">
           {!isMinimal && (
@@ -92,7 +81,7 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
             </Badge>
           )}
         </Row>
-        <Status transaction={transaction} cancellingOrderInfo={cancellingOrderInfo} />
+        <Status transaction={transaction} />
       </Flex>
 
       <Flex justifyContent="space-between">

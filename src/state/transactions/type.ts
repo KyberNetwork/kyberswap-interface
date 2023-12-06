@@ -69,7 +69,6 @@ export type TransactionExtraInfo = (
   | TransactionExtraInfoHarvestFarm
   | TransactionExtraInfoStakeFarm
 ) & {
-  actuallySuccess?: boolean
   needCheckSubgraph?: boolean
   arbitrary?: any // To store anything arbitrary, so it has any type
 }
@@ -111,13 +110,6 @@ export type TransactionPayload = TransactionHistory & {
   chainId: ChainId
 }
 
-/**
- * when you put a new type, let's do:
- * 1. classify it by putting it into GROUP_TRANSACTION_BY_TYPE
- * 2. add a case in SUMMARY in TransactionPopup.tsx to render notification detail by type
- * 3. add a case in RENDER_DESCRIPTION_MAP in TransactionItem.tsx to render transaction detail by type
- * if you forgot. typescript error will occur.
- */
 export enum TRANSACTION_TYPE {
   WRAP_TOKEN = 'Wrap Token',
   UNWRAP_TOKEN = 'Unwrap Token',
@@ -156,54 +148,4 @@ export enum TRANSACTION_TYPE {
 
   CANCEL_LIMIT_ORDER = 'Cancel Limit Order',
   TRANSFER_TOKEN = 'Send',
-}
-
-export const GROUP_TRANSACTION_BY_TYPE = {
-  SWAP: [
-    TRANSACTION_TYPE.SWAP,
-    TRANSACTION_TYPE.WRAP_TOKEN,
-    TRANSACTION_TYPE.UNWRAP_TOKEN,
-    TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
-  ],
-  LIQUIDITY: [
-    TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
-    TRANSACTION_TYPE.CLASSIC_CREATE_POOL,
-    TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
-    TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
-    TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
-    TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-    TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
-    TRANSACTION_TYPE.ELASTIC_ZAP_IN_LIQUIDITY,
-    TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
-    TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
-    TRANSACTION_TYPE.STAKE,
-    TRANSACTION_TYPE.UNSTAKE,
-    TRANSACTION_TYPE.HARVEST,
-    TRANSACTION_TYPE.ELASTIC_COLLECT_FEE,
-    TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY,
-  ],
-  KYBERDAO: [
-    TRANSACTION_TYPE.KYBERDAO_STAKE,
-    TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
-    TRANSACTION_TYPE.KYBERDAO_DELEGATE,
-    TRANSACTION_TYPE.KYBERDAO_UNDELEGATE,
-    TRANSACTION_TYPE.KYBERDAO_MIGRATE,
-    TRANSACTION_TYPE.KYBERDAO_VOTE,
-    TRANSACTION_TYPE.KYBERDAO_CLAIM,
-    TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND,
-  ],
-  OTHER: [
-    // to make sure you don't forgot
-    TRANSACTION_TYPE.APPROVE,
-    TRANSACTION_TYPE.CLAIM_REWARD,
-    TRANSACTION_TYPE.BRIDGE,
-    TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
-    TRANSACTION_TYPE.TRANSFER_TOKEN,
-  ],
-}
-
-const totalType = Object.values(TRANSACTION_TYPE).length
-const totalClassify = Object.values(GROUP_TRANSACTION_BY_TYPE).reduce((total, element) => total + element.length, 0)
-if (totalType !== totalClassify) {
-  throw new Error('Please set up group of the new transaction. Put your new type into GROUP_TRANSACTION_BY_TYPE')
 }
