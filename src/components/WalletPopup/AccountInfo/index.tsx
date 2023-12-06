@@ -184,7 +184,7 @@ export default function AccountInfo({
               <Flex
                 sx={{ gap: '4px', cursor: 'pointer' }}
                 alignItems="center"
-                onClick={() => setView(View.REWARD_CENTER)}
+                onClick={() => setView(View().REWARD_CENTER)}
               >
                 <Text color={theme.text} fontSize={12} fontWeight={500} lineHeight="16px">
                   ${formatNumberWithPrecisionRange(usd, 0, 8)}

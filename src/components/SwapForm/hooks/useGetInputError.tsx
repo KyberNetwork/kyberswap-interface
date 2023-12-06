@@ -45,7 +45,8 @@ const useGetInputError = (args: Args): string | undefined => {
   }
 
   if (parsedAmount && ((balanceIn && balanceIn.lessThan(parsedAmount)) || !balanceIn)) {
-    inputError = t`Insufficient ${parsedAmount.currency.symbol} balance`
+    const symbol = parsedAmount.currency.symbol
+    inputError = t`Insufficient ${symbol} balance`
   }
 
   return inputError

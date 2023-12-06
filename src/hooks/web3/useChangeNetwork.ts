@@ -72,18 +72,17 @@ export function useChangeNetwork() {
       let message: string = customTexts?.default || t`Error when changing network.`
 
       if (didUserReject(error)) {
+        const name = customTexts?.name || NETWORKS_INFO[desiredChainId].name
         message =
-          customTexts?.rejected ||
-          t`In order to use KyberSwap on ${
-            customTexts?.name || NETWORKS_INFO[desiredChainId].name
-          }, you must accept the network in your wallet.`
+          customTexts?.rejected || t`In order to use KyberSwap on ${name}, you must accept the network in your wallet.`
       } else if (
         [
           /Cannot activate an optional chain \(\d+\), as the wallet is not connected to it\./,
           /Chain 'eip155:\d+' not approved. Please use one of the following: eip155:\d+/,
         ].some(regex => regex.test(error?.message))
       ) {
-        message = t`Your wallet not support chain ${NETWORKS_INFO[desiredChainId].name}`
+        const name = NETWORKS_INFO[desiredChainId].name
+        message = t`Your wallet not support chain ${name}`
       } else {
         message = error?.message || message
         const e = new Error(`[Activate chain] ${wallet.walletKey} ${message}`)

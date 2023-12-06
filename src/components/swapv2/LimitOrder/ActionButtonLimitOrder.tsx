@@ -79,6 +79,8 @@ export default function ActionButtonLimitOrder({
       </ButtonLight>
     )
 
+  const inSymbol = currencyIn?.symbol
+  const wrapSymbol = currencyIn?.wrapped.symbol
   if (showApproveFlow || showWrap)
     return (
       <>
@@ -86,8 +88,8 @@ export default function ActionButtonLimitOrder({
           {showWrap ? (
             <ButtonWithInfoHelper
               loading={isWrappingEth}
-              tooltipMsg={t`You will need to wrap your ${currencyIn?.symbol} to ${currencyIn?.wrapped.symbol} before you can place a limit order. Your tokens will be exchanged 1 to 1.`}
-              text={isWrappingEth ? t`Wrapping` : t`Wrap ${currencyIn?.symbol}`}
+              tooltipMsg={t`You will need to wrap your ${inSymbol} to ${wrapSymbol} before you can place a limit order. Your tokens will be exchanged 1 to 1.`}
+              text={isWrappingEth ? t`Wrapping` : t`Wrap ${inSymbol}`}
               onClick={onWrapToken}
               disabled={Boolean(wrapInputError) || isNotFillAllInput || isWrappingEth}
             />
@@ -95,7 +97,7 @@ export default function ActionButtonLimitOrder({
             <ButtonApprove
               forceApprove={!enoughAllowance}
               tokenSymbol={currencyIn?.symbol}
-              tooltipMsg={t`You need to first allow KyberSwap smart contracts to use your ${currencyIn?.symbol}. This has to be done only once for each token.`}
+              tooltipMsg={t`You need to first allow KyberSwap smart contracts to use your ${inSymbol}. This has to be done only once for each token.`}
               approveCallback={approveCallback}
               disabled={!!disableBtnApproved}
               approval={approval}

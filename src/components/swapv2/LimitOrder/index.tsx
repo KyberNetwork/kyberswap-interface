@@ -36,6 +36,9 @@ function LimitOrderComp({ setIsSelectCurrencyManual, isSelectCurrencyManual }: P
       />
     )
 
+  const name = currencyOut?.wrapped.name
+  const symbol = currencyOut?.wrapped.symbol
+
   return (
     <div style={{ padding: '16px' }}>
       <LimitOrderForm
@@ -45,9 +48,7 @@ function LimitOrderComp({ setIsSelectCurrencyManual, isSelectCurrencyManual }: P
         currencyOut={currencyOut}
         setIsSelectCurrencyManual={setIsSelectCurrencyManual}
         note={
-          currencyOut?.isNative
-            ? t`Note: Once your order is filled, you will receive ${currencyOut?.wrapped.name} (${currencyOut?.wrapped.symbol})`
-            : undefined
+          currencyOut?.isNative ? t`Note: Once your order is filled, you will receive ${name} (${symbol})` : undefined
         }
       />
     </div>

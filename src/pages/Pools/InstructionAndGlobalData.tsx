@@ -7,22 +7,10 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as ZicZac } from 'assets/svg/ziczac.svg'
 import { BestPrice, LowestSlippage, MoneyBagOutline } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
-import Loader from 'components/Loader'
 import { VERSION } from 'constants/v2'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { useGlobalData } from 'state/about/hooks'
 import { ExternalLink } from 'theme'
-import { formatBigLiquidity } from 'utils/formatBalance'
-
-const Wrapper = styled.div`
-  gap: 12px;
-  display: flex;
-
-  @media only screen and (max-width: 880px) {
-    display: none;
-  }
-`
 
 const ShowDetailBtn = styled.button<{ isOpen?: boolean }>`
   border: none;
@@ -75,34 +63,6 @@ const DetailItem = styled.div`
       gap: 12px;
   `}
 `
-
-export const GlobalData = () => {
-  const data = useGlobalData()
-
-  const globalData = data && data.dmmFactories[0]
-  const aggregatorData = data?.aggregatorData
-
-  return (
-    <Wrapper>
-      <GlobalDataItem>
-        <GlobalDataItemTitle>
-          <Trans>Total Trading Volume:</Trans>&nbsp;
-        </GlobalDataItemTitle>
-        <GlobalDataItemValue>
-          {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
-        </GlobalDataItemValue>
-      </GlobalDataItem>
-      <GlobalDataItem>
-        <GlobalDataItemTitle>
-          <Trans>Total Value Locked:</Trans>&nbsp;
-        </GlobalDataItemTitle>
-        <GlobalDataItemValue>
-          {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
-        </GlobalDataItemValue>
-      </GlobalDataItem>
-    </Wrapper>
-  )
-}
 
 export const Instruction = () => {
   const { tab = VERSION.ELASTIC } = useParsedQueryString<{ tab: string }>()
@@ -187,25 +147,6 @@ export const Instruction = () => {
     </InstructionItem>
   )
 }
-
-const GlobalDataItem = styled.div`
-  display: flex;
-  align-items: center;
-  background: ${({ theme }) => theme.background};
-  padding: 6px 12px;
-  border-radius: 999px;
-`
-
-const GlobalDataItemTitle = styled.span`
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-`
-
-const GlobalDataItemValue = styled.span`
-  font-size: 16px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-`
 
 const InstructionItem = styled.div`
   font-size: 12px;

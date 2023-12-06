@@ -394,6 +394,7 @@ const ZapIn = ({
 
   // warnings on slippage
   const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
+  const displaySlp = allowedSlippage / 100
 
   const modalHeader = () => {
     return (
@@ -411,9 +412,7 @@ const ZapIn = ({
           </Text>
         </Row>
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
-          {t`Output is estimated. If the price changes by more than ${
-            allowedSlippage / 100
-          }% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )
@@ -653,7 +652,7 @@ const ZapIn = ({
                         <Text fontWeight={500} fontSize={12} color={theme.subText}>
                           AMP
                         </Text>
-                        <QuestionHelper text={AMP_HINT} />
+                        <QuestionHelper text={AMP_HINT()} />
                       </AutoRow>
                       <Text fontWeight={400} fontSize={14} color={theme.text}>
                         {!!pair ? (

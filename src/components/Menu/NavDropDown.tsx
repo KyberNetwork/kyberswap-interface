@@ -1,4 +1,3 @@
-import { Trans } from '@lingui/macro'
 import { ReactNode, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -65,9 +64,7 @@ export default function NavDropDown({
     <Wrapper>
       <TitleWrapper to={link} onClick={handleClick}>
         {icon}
-        <Text flex={1}>
-          <Trans>{title}</Trans>
-        </Text>
+        <Text flex={1}>{title}</Text>
         <DropdownIcon $isShow={isShowOptions} />
       </TitleWrapper>
       <LinkContainer $isShow={isShowOptions} ref={ref} $height={ref.current?.scrollHeight || 0}>

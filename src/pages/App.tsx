@@ -33,7 +33,6 @@ import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
 import { useHolidayMode } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
 
-import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import VerifyAuth from './Verify/VerifyAuth'
 
 const Login = lazy(() => import('./Oauth/Login'))
@@ -47,7 +46,6 @@ const PartnerSwap = lazy(() => import('./PartnerSwap'))
 // const Bridge = lazy(() => import('./Bridge'))
 const Pools = lazy(() => import('./Pools'))
 const MyPool = lazy(() => import('./MyPool'))
-const MyEarnings = lazy(() => import('./MyEarnings'))
 
 const Farm = lazy(() => import('./Farm'))
 
@@ -163,7 +161,7 @@ const RoutesWithNetworkPrefix = () => {
 
   return (
     <Routes>
-      {!CLASSIC_NOT_SUPPORTED[chainId] && (
+      {!CLASSIC_NOT_SUPPORTED()[chainId] && (
         <>
           <Route
             path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?`}
@@ -180,7 +178,7 @@ const RoutesWithNetworkPrefix = () => {
         </>
       )}
 
-      {!ELASTIC_NOT_SUPPORTED[chainId] && (
+      {!ELASTIC_NOT_SUPPORTED()[chainId] && (
         <>
           {/*
           <Route
@@ -248,7 +246,6 @@ export default function App() {
       <AppHaveUpdate />
       <AppWrapper>
         <ModalsGlobal />
-        <ElasticLegacyNotice />
         {!isPartnerSwap && <TopBanner />}
         <HeaderWrapper>
           <Header />
@@ -280,9 +277,6 @@ export default function App() {
                 )}
 
                 <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
-
-                <Route path={`${APP_PATHS.MY_EARNINGS}`} element={<MyEarnings />} />
-
                 <>
                   {/* Pools Routes  */}
                   <Route path={`${APP_PATHS.POOLS}`} element={<RedirectWithNetworkSuffix />} />

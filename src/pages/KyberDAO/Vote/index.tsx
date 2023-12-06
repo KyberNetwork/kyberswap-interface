@@ -170,7 +170,8 @@ export default function Vote() {
   }, [toggleClaimConfirmModal, mixpanelHandler, switchToEthereum])
 
   const handleConfirmClaim = useCallback(async () => {
-    setPendingText(t`Claming ${formatUnitsToFixed(remainingCumulativeAmount)} KNC`)
+    const amount = formatUnitsToFixed(remainingCumulativeAmount)
+    setPendingText(t`Claming ${amount} KNC`)
     setShowConfirm(true)
     setAttemptingTxn(true)
     toggleClaimConfirmModal()

@@ -48,10 +48,13 @@ const SwapModal: React.FC<Props> = props => {
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
   const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildResult?.data?.amountOut || '0')
+  const amountInDisplay = routeSummary?.parsedAmountIn?.toSignificant(6)
+  const symbolIn = currencyIn?.symbol
+  const amountOutDisplay = amountOut?.toSignificant(6)
+  const symbolOut = currencyOut?.symbol
+
   // text to show while loading
-  const pendingText = t`Swapping ${routeSummary?.parsedAmountIn?.toSignificant(6)} ${
-    currencyIn?.symbol
-  } for ${amountOut?.toSignificant(6)} ${currencyOut?.symbol}`
+  const pendingText = t`Swapping ${amountInDisplay} ${symbolIn} for ${amountOutDisplay} ${symbolOut}`
 
   const handleDismiss = useCallback(() => {
     onDismiss()

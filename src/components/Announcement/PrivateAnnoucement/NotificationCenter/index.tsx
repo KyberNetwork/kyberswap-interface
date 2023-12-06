@@ -35,7 +35,7 @@ export default function InboxItemNotificationCenter({ announcement }: PrivateAnn
   const { templateType } = announcement
   try {
     const component = ANNOUNCEMENT_MAP_IN_CENTER[templateType]
-    const props: PrivateAnnouncementPropCenter = { announcement, title: PRIVATE_ANN_TITLE[templateType] }
+    const props: PrivateAnnouncementPropCenter = { announcement, title: PRIVATE_ANN_TITLE()[templateType] }
     return component ? React.createElement(component, props) : null
   } catch (error) {
     return null

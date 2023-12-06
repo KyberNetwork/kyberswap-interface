@@ -28,7 +28,7 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 import ReceiveToken from './ReceiveToken'
 import RewardCenter from './RewardCenter'
 import ListTransaction from './Transactions'
-import { View } from './type'
+import { View as getView } from './type'
 
 export const HANDLE_CLASS_NAME = 'walletPopupDragHandle'
 
@@ -113,7 +113,7 @@ type Props = {
 }
 
 // This is intentional, we don't need to persist in localStorage
-let storedView = View.ASSETS
+let storedView = getView().ASSETS
 export default function WalletView({
   onDismiss,
   onPin,
@@ -123,6 +123,7 @@ export default function WalletView({
   showBalance,
   toggleShowBalance,
 }: Props) {
+  const View = getView()
   const [view, setView] = useState<string>(storedView)
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
