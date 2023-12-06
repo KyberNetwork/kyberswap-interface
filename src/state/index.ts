@@ -9,6 +9,7 @@ import coingeckoApi from 'services/coingecko'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
 import earningApi from 'services/earning'
+import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
 import knProtocolApi from 'services/knprotocol'
@@ -103,6 +104,7 @@ const store = configureStore({
     [coingeckoApi.reducerPath]: coingeckoApi.reducer,
     [contractQuery.reducerPath]: contractQuery.reducer,
     [limitOrderApi.reducerPath]: limitOrderApi.reducer,
+    [externalApi.reducerPath]: externalApi.reducer,
 
     [campaignApi.reducerPath]: campaignApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
@@ -136,6 +138,7 @@ const store = configureStore({
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
       .concat(coingeckoApi.middleware)
+      .concat(externalApi.middleware)
       .concat(contractQuery.middleware)
       .concat(limitOrderApi.middleware)
       .concat(kyberAIApi.middleware)

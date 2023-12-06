@@ -4,7 +4,7 @@ import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import useSWR from 'swr'
+import externalApi from 'services/externalApi'
 
 import CLAIM_REWARD_ABI from 'constants/abis/claim-reward.json'
 import { CLAIM_REWARDS_DATA_URL, NETWORKS_INFO } from 'constants/networks'
@@ -20,7 +20,7 @@ interface IReward {
   amounts: string[]
   proof: string[]
 }
-interface IPhaseData {
+export interface IPhaseData {
   phaseId: number
   merkleRoot: string
   tokens: string[]
@@ -49,8 +49,9 @@ export default function useClaimReward() {
   const [rewardAmounts, setRewardAmounts] = useState('0')
   const [error, setError] = useState<string | null>(null)
   const [phaseId, setPhaseId] = useState(0)
-  const { data } = useSWR(isValid && chainId ? CLAIM_REWARDS_DATA_URL[chainId] : '', (url: string) =>
-    fetch(url).then(r => r.json()),
+  const { data } = externalApi.useGetClaimRewardsQuery(
+    { url: CLAIM_REWARDS_DATA_URL[chainId], account },
+    { skip: !isValid || !chainId },
   )
   const userRewards: IUserReward[] = useMemo(
     () =>
@@ -140,7 +141,11 @@ export default function useClaimReward() {
         )
         .then((res: boolean) => {
           if (res) {
-            return rewardSigningContract.getClaimedAmounts(data.phaseId || 0, account || '', data?.tokens || [])
+            return rewardSigningContract.getClaimedAmounts(
+              userReward.phaseId || 0,
+              account || '',
+              userReward.tokens || [],
+            )
           } else {
             throw new Error()
           }
