@@ -33,7 +33,6 @@ import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
 import { useHolidayMode } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
 
-import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import VerifyAuth from './Verify/VerifyAuth'
 
 const Login = lazy(() => import('./Oauth/Login'))
@@ -247,7 +246,6 @@ export default function App() {
       <AppHaveUpdate />
       <AppWrapper>
         <ModalsGlobal />
-        <ElasticLegacyNotice />
         {!isPartnerSwap && <TopBanner />}
         <HeaderWrapper>
           <Header />
