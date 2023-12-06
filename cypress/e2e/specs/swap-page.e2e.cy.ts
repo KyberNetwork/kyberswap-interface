@@ -1,14 +1,17 @@
-import { SwapPage, TokenCatalog } from '../pages/swap-page.po.cy'
+import { Network, SwapPage, TokenCatalog } from '../pages/swap-page.po.cy'
 import {
+    DEFAULT_NETWORK,
     DEFAULT_URL,
     NETWORK,
     NORESULTS_TEXT,
-    NOTOKENS_TEXT,
     TAG,
     TOKEN_SYMBOLS,
     UNWHITELIST_SYMBOL_TOKENS,
     UNWHITELIST_TOKENS,
 } from '../selectors/constants.cy'
+
+import { LimitOder } from "../pages/limit-order.po.cy"
+import { CrossChain } from "../pages/cross-chain.po.cy"
 
 const unWhitelistTokens = UNWHITELIST_TOKENS[NETWORK]
 const tokenSymbols = TOKEN_SYMBOLS[NETWORK]
@@ -17,12 +20,19 @@ const arrAddress = [unWhitelistTokens[0].address, unWhitelistTokens[1].address, 
 const arrSymbol = [unWhitelistTokens[0].symbol, unWhitelistTokens[1].symbol, unWhitelistTokens[2].symbol]
 
 const tokenCatalog = new TokenCatalog()
+const network = new Network()
 
 describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
     before(() => {
         SwapPage.open(DEFAULT_URL)
         SwapPage.connectWallet()
         SwapPage.getStatusConnectedWallet()
+    })
+
+    after(() => {
+        //Verify that Metamask is disconnected
+        cy.disconnectMetamaskWalletFromDapp()
+        cy.contains('Connect').should('be.visible');
     })
 
     describe('Select token in favorite tokens list', () => {
@@ -155,29 +165,77 @@ describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
             tokenCatalog.closePopup()
         })
     })
+})
 
-    describe(`E2E Token Catalog`, () => {
-        it('Should be selected tokenIn and tokenOut to swap', { tags: TAG.smoke }, () => {
+describe('E2E Smoke', { tags: TAG.smoke }, () => {
+    before(() => {
+        SwapPage.open(DEFAULT_URL)
+        SwapPage.connectWallet()
+        cy.acceptMetamaskAccess()
+        SwapPage.getStatusConnectedWallet()
+
+        if (NETWORK !== DEFAULT_NETWORK) {
+            network.selectNetwork(NETWORK)
+            cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
+                expect(approved).to.be.true
+            })
+        }
+    })
+
+    describe(`Swap > Limit > Cross-Chain`, () => {
+        it('Should be selected tokenIn and tokenOut to swap', () => {
             tokenCatalog.importNewTokens([arrAddress[2]])
             SwapPage.getCurrentTokenIn(text => {
                 expect(text).to.equal(arrSymbol[2])
             })
 
             SwapPage.selectTokenOut().getFavoriteTokens(arr => {
-                tokenCatalog.selectFavoriteToken(arr[1])
+                tokenCatalog.selectFavoriteToken(arr[3])
                 SwapPage.getCurrentTokenOut(text => {
-                    expect(text).to.equal(arr[1])
+                    expect(text).to.equal(arr[3])
                 })
             })
 
-            SwapPage.selectTokenOut()
-            tokenCatalog.deleteImportedToken(arrSymbol[2])
-            tokenCatalog.getNoResultsFound(text => {
-                expect(text).to.equal(NORESULTS_TEXT)
+            SwapPage.goToLimitOrder()
+            LimitOder.checkGetStartedDisplay().then((checked) => {
+                if (checked === true) {
+                    LimitOder.clickGetStarted()
+                }
             })
-            SwapPage.getCurrentTokenIn(text => {
-                expect(text).to.equal(NOTOKENS_TEXT)
+            LimitOder.selectTokenSell().selectTokenBySymbol(tokenSymbols[0])
+            LimitOder.getCurrentTokenSell((text) => {
+                expect(text).to.equal(tokenSymbols[0])
             })
+
+            LimitOder.selectTokenBuy().addFavoriteToken([tokenSymbols[0], tokenSymbols[4]])
+            tokenCatalog.getFavoriteTokens((list) => {
+                expect(list).to.include.members([tokenSymbols[4]])
+            })
+
+            tokenCatalog.selectFavoriteToken(tokenSymbols[4])
+            LimitOder.getCurrentTokenBuy((text) => {
+                expect(text).to.equal(tokenSymbols[4])
+            })
+
+            SwapPage.goToCrossChain()
+            CrossChain.checkLoadedPage().then((checked) => {
+                if (checked === true) {
+                    CrossChain.closeUnderstandPopup()
+                }
+            })
+            CrossChain.selectTokenIn().selectTokenBySymbol(tokenSymbols[0])
+            CrossChain.getCurrentTokenIn((text) => {
+                expect(text).to.equal(tokenSymbols[0])
+            })
+
+            SwapPage.selectTokenOut().getFavoriteTokens(arr => {
+                tokenCatalog.selectFavoriteToken(arr[0])
+                CrossChain.getCurrentTokenOut(text => {
+                    expect(text).to.equal(arr[0])
+                })
+            })
+
         })
     })
+
 })

@@ -1,5 +1,6 @@
 import { Network, SwapPage } from '../pages/swap-page.po.cy'
 import { DEFAULT_NETWORK, DEFAULT_URL, NETWORK, TAG } from '../selectors/constants.cy'
+import { SwapPageLocators } from '../selectors/selectors.cy'
 
 const wallet = new Network()
 
@@ -11,7 +12,7 @@ describe('Metamask Extension tests', { tags: TAG.regression }, () => {
     SwapPage.getStatusConnectedWallet()
   })
 
-  it('Redirects to swap page when a user has already connected a wallet', { tags: TAG.smoke }, () => {
+  it('Redirects to swap page when a user has already connected a wallet', () => {
     cy.url().should('include', '/swap')
   })
 
@@ -21,6 +22,15 @@ describe('Metamask Extension tests', { tags: TAG.regression }, () => {
       wallet.selectNetwork(NETWORK)
       cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
         expect(approved).to.be.true
+      })
+      cy.wait(2000)
+      SwapPage.getBalanceWallet(value => {
+        const balance = value.split(' ')[0]
+        if (balance !== '0') {
+          SwapPage.getCurrentBalanceIn(value => {
+            expect(Number(value)).to.be.greaterThan(0);
+          })
+        }
       })
     }
   })
