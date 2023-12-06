@@ -112,6 +112,7 @@ const ImageWrapper = styled.div<{ isMobileMode?: boolean }>`
   ${({ isMobileMode }) =>
     isMobileMode
       ? css`
+          width: 100%;
           aspect-ratio: 1/2;
           ${getSmallHeightSize(SIZES.VIEW_HEIGHT_MB)}
         `

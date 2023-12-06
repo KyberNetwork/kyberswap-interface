@@ -130,7 +130,7 @@ const NodeContents = forwardRef<HTMLDivElement, ContentProps>(
             <KyberSwapShareLogo width={200} title={kyberswapLogoTitle} />
             <div style={{ borderRadius: '6px', overflow: 'hidden' }}>
               <QRCode
-                value={sharingUrl}
+                value={sharingUrl || 'https://kyberswap.com'}
                 size={100}
                 quietZone={4}
                 ecLevel="L"
@@ -157,7 +157,7 @@ const NodeContents = forwardRef<HTMLDivElement, ContentProps>(
             <KyberSwapShareLogo title={kyberswapLogoTitle} />
             <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
               <QRCode
-                value={sharingUrl}
+                value={sharingUrl || 'https://kyberswap.com'}
                 size={100}
                 quietZone={4}
                 ecLevel="L"
