@@ -155,7 +155,6 @@ export const APP_PATHS = {
   ELASTIC_REMOVE_POOL: '/elastic/remove',
   FARMS: '/farms',
   MY_POOLS: '/myPools',
-  MY_EARNINGS: '/my-earnings',
   DISCOVER: '/discover',
   KYBERAI: '/KyberAI',
   KYBERAI_ABOUT: '/KyberAI/About',
