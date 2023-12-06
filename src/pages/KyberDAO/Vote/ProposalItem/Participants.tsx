@@ -2,13 +2,13 @@ import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useMemo, useState } from 'react'
 import { Text } from 'rebass'
+import kyberDAOApi from 'services/kyberDAO'
 import styled, { css } from 'styled-components'
 
 import Gold from 'assets/svg/gold_icon.svg'
 import Divider from 'components/Divider'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import { useProposalInfoById } from 'hooks/kyberdao'
 import { ProposalType, VoteDetail } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
@@ -150,13 +150,15 @@ const VotersListModal = ({
 }
 
 export default function Participants({ proposalId }: { proposalId?: number }) {
-  const { proposalInfo } = useProposalInfoById(proposalId)
   const theme = useTheme()
   const [modalIndex, setModalIndex] = useState<number | null>(null)
+
+  const { data: proposalInfo } = kyberDAOApi.useGetProposalByIdQuery({ id: proposalId }, { skip: !proposalId })
 
   const participants = useMemo(() => {
     if (!proposalInfo?.vote_stats?.votes) return
     return proposalInfo.vote_stats.votes
+      .slice()
       .sort((a, b) => (BigNumber.from(a.power).sub(BigNumber.from(b.power)).gt(0) ? -1 : 1))
       .map(v => {
         return {
