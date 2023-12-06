@@ -366,8 +366,7 @@ export default function ShareImageModal({
 
   const copyImage = (blob: Blob | undefined) => {
     if (blob) {
-      const clipboardItem = new ClipboardItem({ ['image/png']: blob })
-      navigator.clipboard.write([clipboardItem])
+      setCopied(blob)
     }
   }
 
@@ -503,7 +502,13 @@ export default function ShareImageModal({
               {loadingType === ShareType.DOWNLOAD_IMAGE ? <LoadingIcon /> : <Icon id="download" size={20} />}
             </IconButton>
             <IconButton disabled={disableDownloadImage} onClick={handleImageCopyClick}>
-              {loadingType === ShareType.COPY_IMAGE ? <LoadingIcon /> : <Icon id="copy" size={20} />}
+              {loadingType === ShareType.COPY_IMAGE ? (
+                <LoadingIcon />
+              ) : isCopied ? (
+                <Check size={'20px'} color={theme.primary} />
+              ) : (
+                <Icon id="copy" size={20} />
+              )}
             </IconButton>
           </RowFit>
         </RowBetween>
