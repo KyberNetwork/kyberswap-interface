@@ -36,7 +36,7 @@ import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formattedNum } from 'utils'
 
-import ComfirmBridgeModal from './ComfirmBridgeModal'
+import ComfirmBridgeModal from './ConfirmBridgeModal'
 import ErrorWarningPanel from './ErrorWarning'
 import PoolInfo from './PoolInfo'
 import { formatPoolValue } from './helpers'
@@ -239,26 +239,31 @@ export default function SwapForm() {
     if (isNaN(inputNumber)) return t`Input amount is not valid.`
 
     if (inputNumber < Number(tokenInfoOut.MinimumSwap)) {
-      return t`The amount to bridge must be more than ${formattedNum(tokenInfoOut.MinimumSwap, false, 5)} ${
-        tokenInfoIn.symbol
-      }.`
+      const amount = formattedNum(tokenInfoOut.MinimumSwap, false, 5)
+      const symbol = tokenInfoIn.symbol
+      return t`The amount to bridge must be more than ${amount} ${symbol}.`
     }
     if (inputNumber > Number(tokenInfoOut.MaximumSwap)) {
-      return t`The amount to bridge must be less than ${formattedNum(tokenInfoOut.MaximumSwap)} ${tokenInfoIn.symbol}.`
+      const amount = formattedNum(tokenInfoOut.MaximumSwap)
+      const symbol = tokenInfoIn.symbol
+      return t`The amount to bridge must be less than ${amount} ${symbol}.`
     }
 
+    const tokenOutSymbol = tokenInfoOut.symbol
+    const tokenInSymbol = tokenInfoIn?.symbol
     if (tokenInfoOut.isLiquidity && tokenInfoOut.underlying) {
       const poolLiquidity = formatPoolValue(poolValue.poolValueOut)
       if (inputNumber > Number(poolValue.poolValueOut))
-        return t`The bridge amount must be less than the current available amount of the pool which is ${poolLiquidity} ${tokenInfoOut.symbol}.`
+        return t`The bridge amount must be less than the current available amount of the pool which is ${poolLiquidity} ${tokenOutSymbol}.`
 
       const ratio = 0.7
       if (inputNumber > ratio * Number(poolValue.poolValueOut)) {
+        const amount = formattedNum(inputAmount, false, 5)
+        const r = 100 * ratio
+
         return {
           state: 'warn',
-          tip: t`Note: Your transfer amount (${formattedNum(inputAmount, false, 5)} ${
-            tokenInfoIn.symbol
-          }) is more than ${100 * ratio}% of the available liquidity (${poolLiquidity} ${tokenInfoOut.symbol})!`,
+          tip: t`Note: Your transfer amount (${amount} ${tokenInSymbol}) is more than ${r}% of the available liquidity (${poolLiquidity} ${tokenOutSymbol})!`,
           desc: (
             <>
               <Text as="p" fontSize={12} lineHeight={'16px'} marginTop={'5px'}>
@@ -285,7 +290,8 @@ export default function SwapForm() {
     }
 
     const isWrapInputError = wrapInputError && inputNumber > 0
-    if (isWrapInputError) return t`Insufficient ${tokenInfoIn?.symbol} balance`
+    const symbol = tokenInfoIn?.symbol
+    if (isWrapInputError) return t`Insufficient ${symbol} balance`
     return
   }, [
     tokenInfoIn,
@@ -495,7 +501,7 @@ export default function SwapForm() {
                     <ButtonApprove
                       approveCallback={approveCallback}
                       disabled={disableBtnApproved}
-                      tooltipMsg={t`You would need to first allow Multichain smart contract to use your ${tokenInfoIn?.symbol}. This has to be done only once for each token.`}
+                      tooltipMsg={t`You would need to first allow Multichain smart contract to use your ${tokenInSymbol}. This has to be done only once for each token.`}
                       tokenSymbol={tokenInfoIn?.symbol}
                       approval={approval}
                     />

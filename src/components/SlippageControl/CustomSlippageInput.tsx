@@ -155,7 +155,8 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
 
     const maxSlippage = isDegenMode ? MAX_DEGEN_SLIPPAGE_IN_BIPS : MAX_NORMAL_SLIPPAGE_IN_BIPS
     if (parsedValue > maxSlippage) {
-      setTooltip(t`Max is ${formatSlippage(maxSlippage)}`)
+      const format = formatSlippage(maxSlippage)
+      setTooltip(t`Max is ${format}`)
       e.preventDefault()
       return
     }

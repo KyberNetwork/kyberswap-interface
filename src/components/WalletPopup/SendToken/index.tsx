@@ -100,16 +100,17 @@ export default function SendToken({
       ? t`You can’t use your own address as a receiver`
       : ''
 
+  const inSymbol = currencyIn?.symbol
   const inputError = useMemo(() => {
     if (!inputAmount) return
     if (parseFloat(inputAmount) === 0 || !parseInputAmount) {
       return t`Your input amount is invalid.`
     }
     if (balance && parseInputAmount?.greaterThan(balance)) {
-      return t`Insufficient ${currencyIn?.symbol} balance`
+      return t`Insufficient ${inSymbol} balance`
     }
     return
-  }, [currencyIn, balance, inputAmount, parseInputAmount])
+  }, [balance, inputAmount, parseInputAmount, inSymbol])
 
   const hasError = inputError || recipientError
 
@@ -124,7 +125,7 @@ export default function SendToken({
         ...state,
         attemptingTxn: true,
         showConfirm: true,
-        pendingText: t`Sending ${inputAmount} ${currencyIn?.symbol} to ${recipient}`,
+        pendingText: t`Sending ${inputAmount} ${inSymbol} to ${recipient}`,
       }))
       await sendToken()
       hideModalConfirm()

@@ -69,11 +69,13 @@ export default function ProAmmPriceRangeConfirm({
   const [allowedSlippage] = useUserSlippageTolerance()
   const isWarningSlippage = checkWarningSlippage(allowedSlippage, false)
 
+  const baseSymbol = baseCurrency?.symbol
+  const quoteSymbol = quoteCurrency?.symbol
   return (
     <OutlineCard marginTop="1rem" padding="1rem">
       <AutoColumn gap="12px">
         <Text fontSize="12px" fontWeight="500" lineHeight="16px">
-          More Information
+          <Trans>More Information</Trans>
         </Text>
         <Divider />
 
@@ -151,7 +153,7 @@ export default function ProAmmPriceRangeConfirm({
             <Flex justifyContent="space-between" fontSize={12}>
               <Text color={theme.subText}>Zap Fee</Text>
               <Text fontWeight="500" color={theme.primary}>
-                Free
+                <Trans>Free</Trans>
               </Text>
             </Flex>
           </>
@@ -189,7 +191,7 @@ export default function ProAmmPriceRangeConfirm({
             >
               {formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)}
               <InfoHelper
-                text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}
+                text={t`Your position will be 100% composed of ${baseSymbol} at this price`}
                 placement={'right'}
                 size={12}
               />
@@ -206,7 +208,7 @@ export default function ProAmmPriceRangeConfirm({
             >
               {formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)}
               <InfoHelper
-                text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price.`}
+                text={t`Your position will be 100% composed of ${quoteSymbol} at this price.`}
                 placement={'right'}
                 size={12}
               />

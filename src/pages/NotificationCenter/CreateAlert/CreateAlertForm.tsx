@@ -273,7 +273,7 @@ export default function CreateAlert({
             <StyledSelect
               menuStyle={{ width: '100%' }}
               arrowColor={theme.subText}
-              options={TYPE_OPTIONS}
+              options={TYPE_OPTIONS()}
               value={alertType}
               onChange={setAlertType}
               optionStyle={{ padding: '10px 12px' }}
