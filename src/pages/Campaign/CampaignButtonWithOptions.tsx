@@ -214,8 +214,6 @@ export default function CampaignButtonWithOptions({
 
   const handleSwapNow = useSwapNowHandler()
 
-  const networkName = NETWORKS_INFO[chainId].name
-
   return (
     <StyledPrimaryButton
       id="swap-now-button"
@@ -233,6 +231,8 @@ export default function CampaignButtonWithOptions({
       {isShowNetworks && (
         <OptionsContainer>
           {chainIds.map(chainId => {
+            const networkName = NETWORKS_INFO[chainId].name
+
             return (
               <Flex
                 key={chainId}

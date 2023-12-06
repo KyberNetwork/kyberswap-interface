@@ -113,12 +113,11 @@ const summaryCrossChain = (txs: TransactionDetails) => {
 
 const summaryDelegateDao = (txs: TransactionDetails) => {
   const { contract = '' } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
-  const start = contract.slice(0, 6)
-  const end = contract.slice(-4)
+  const shortenAddress = getShortenAddress(contract)
   const summary =
     txs.type === TRANSACTION_TYPE.KYBERDAO_UNDELEGATE
       ? t`undelegated your voting power`
-      : t`delegated voting power to ${start}...${end}`
+      : t`delegated voting power to ${shortenAddress}`
 
   return { success: t`You have successfully ${summary}`, error: t`Error ${summary}.` }
 }

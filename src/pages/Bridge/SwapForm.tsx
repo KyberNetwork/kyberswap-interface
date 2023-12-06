@@ -423,6 +423,9 @@ export default function SwapForm() {
     !!inputError ||
     [inputAmount, tokenInfoIn, tokenInfoOut, chainIdOut].some(e => !e) ||
     (approval !== ApprovalState.APPROVED && tokenInfoOut?.isApprove)
+
+  const tokenInSymbol = tokenInfoIn?.symbol
+
   return (
     <>
       <Flex style={{ position: 'relative', flexDirection: 'column', gap: 22, alignItems: 'center' }}>
