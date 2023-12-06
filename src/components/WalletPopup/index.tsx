@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { createPortal } from 'react-dom'
 import { Rnd } from 'react-rnd'
@@ -21,8 +21,6 @@ const GlobalStyle = createGlobalStyle<{ $pinned: boolean }>`
   }
 `
 
-const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
-const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
 const defaultWidth = 410
 const defaultHeight = 680
 
@@ -61,6 +59,15 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
     mixpanelHandler(MIXPANEL_TYPE.WUI_UNPINNED_WALLET)
   }
 
+  const [key, setKey] = useState(0)
+  useEffect(() => {
+    const resizeHandler = () => {
+      if (isPinned) setKey(Date.now())
+    }
+    window.addEventListener('resize', resizeHandler)
+    return () => window.removeEventListener('resize', resizeHandler)
+  }, [isPinned])
+
   if (!rootNode) {
     return null
   }
@@ -98,7 +105,8 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
       </Modal>
     )
   }
-
+  const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+  const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
   const offset = isPinned ? 10 : 0
   const left = viewportWidth - offset - defaultWidth
   const top = viewportHeight - offset - defaultHeight
@@ -109,6 +117,7 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
       {shouldOpenPopup &&
         createPortal(
           <Rnd
+            key={key}
             default={{
               x: left,
               y: top,

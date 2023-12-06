@@ -13,6 +13,7 @@ import RABBY from 'assets/wallets-connect/rabby.svg'
 import SAFE from 'assets/wallets-connect/safe.svg'
 import TRUSTWALLET from 'assets/wallets-connect/trust-wallet.svg'
 import WALLETCONNECT from 'assets/wallets-connect/wallet-connect.svg'
+import ZERION from 'assets/wallets-connect/zerion.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
 import {
   blocto,
@@ -41,6 +42,8 @@ import {
   trustHooks,
   walletConnectV2,
   walletConnectV2Hooks,
+  zerion,
+  zerionHooks,
 } from 'constants/connectors'
 import {
   getIsBloctoWallet,
@@ -52,6 +55,7 @@ import {
   getIsMetaMaskWallet,
   getIsRabbyWallet,
   getIsTrustWallet,
+  getIsZerionWallet,
 } from 'constants/connectors/utils'
 
 export enum WalletReadyState {
@@ -109,6 +113,11 @@ const detectSafe = (): WalletReadyState => {
 
 const detectRabbyInjected = (): WalletReadyState => {
   if (getIsRabbyWallet()) return WalletReadyState.Installed
+  return WalletReadyState.NotDetected
+}
+
+const detectZerionInjected = (): WalletReadyState => {
+  if (getIsZerionWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
@@ -190,6 +199,14 @@ export const SUPPORTED_WALLETS = {
     icon: RABBY,
     installLink: 'https://rabby.io',
     readyState: detectRabbyInjected,
+  } as WalletInfo,
+  ZERION: {
+    connector: zerion,
+    hooks: zerionHooks,
+    name: 'Zerion',
+    icon: ZERION,
+    installLink: 'https://zerion.io',
+    readyState: detectZerionInjected,
   } as WalletInfo,
   TRUST_WALLET: {
     connector: trust,
