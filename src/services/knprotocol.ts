@@ -117,6 +117,13 @@ const knProtocolApi = createApi({
       }),
       transformResponse: (res: CommonPagingRes<{ farmPools: FarmingPool[] }>) => res.data.farmPools,
     }),
+    getPoolElastic: builder.query<ElasticPool[], { chainId: ChainId; thisParamToForceRefresh: boolean }>({
+      query: ({ chainId, thisParamToForceRefresh }) => ({
+        url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/pools`,
+        params: { page: 1, perPage: 1000, includeLowTvl: true, thisParamToForceRefresh },
+      }),
+      transformResponse: (res: CommonPagingRes<{ pools: ElasticPool[] }>) => res.data.pools,
+    }),
     getPoolClassic: builder.query<{ data: { pools: ClassicPoolKN[] } }, ChainId>({
       query: (chainId: ChainId) => ({
         url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/classic/pools?includeLowTvl=true&perPage=10000&page=1`,

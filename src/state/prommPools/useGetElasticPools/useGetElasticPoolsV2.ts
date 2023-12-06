@@ -1,7 +1,5 @@
-import useSWRImmutable from 'swr/immutable'
+import knProtocolApi from 'services/knprotocol'
 
-import { POOL_FARM_BASE_URL } from 'constants/env'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { ElasticPoolDetail } from 'types/pool'
@@ -39,37 +37,23 @@ export type ElasticPool = {
   farmApr: string
 }
 
-type Response = {
-  code: number
-  message: string
-  data?: {
-    pools: Array<ElasticPool>
-  }
-}
-
 type PoolAccumulator = { [address: string]: ElasticPoolDetail }
 
 const useGetElasticPoolsV2 = (): CommonReturn => {
   const { chainId } = useActiveWeb3React()
   const { isEnableKNProtocol } = useKyberSwapConfig()
 
-  const chainRoute = NETWORKS_INFO[chainId].poolFarmRoute
-
-  const { isValidating, error, data } = useSWRImmutable<Response>(
-    `${POOL_FARM_BASE_URL}/${chainRoute}/api/v1/elastic-new/pools?includeLowTvl=true&page=1&perPage=10000&thisParamToForceRefresh=${isEnableKNProtocol}`,
-    async (url: string) => {
-      if (!isEnableKNProtocol) {
-        return Promise.resolve({})
-      }
-      return fetch(url).then(resp => resp.json())
-    },
-    {
-      refreshInterval: isEnableKNProtocol ? 0 : 60_000,
-    },
+  const {
+    data: pools,
+    isLoading,
+    isError,
+  } = knProtocolApi.useGetPoolElasticQuery(
+    { chainId, thisParamToForceRefresh: isEnableKNProtocol },
+    { skip: !isEnableKNProtocol, pollingInterval: 60_000 },
   )
 
   const poolData: PoolAccumulator =
-    data?.data?.pools.reduce((acc, pool) => {
+    pools?.reduce((acc, pool) => {
       acc[pool.id] = {
         address: pool.id,
 
@@ -111,9 +95,9 @@ const useGetElasticPoolsV2 = (): CommonReturn => {
     }, {} as PoolAccumulator) || {}
 
   return {
-    isLoading: isValidating,
-    isError: !!error,
     data: poolData,
+    isLoading,
+    isError,
   }
 }
 
