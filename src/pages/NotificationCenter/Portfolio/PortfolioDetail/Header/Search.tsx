@@ -87,7 +87,7 @@ const PortfolioItem = ({
   return (
     <DropdownItem
       onClick={() => {
-        navigate({ portfolioId: id, myPortfolio: false })
+        navigate({ portfolioId: id, myPortfolio: false }, false, { search: 1 })
         onSelect(data)
       }}
     >
