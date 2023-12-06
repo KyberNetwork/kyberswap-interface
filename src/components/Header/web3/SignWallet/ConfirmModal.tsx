@@ -165,7 +165,7 @@ const ModalConfirmProfile: React.FC = () => {
         </RowBetween>
 
         <Text as="span" fontSize="14px" color={theme.subText}>
-          <Trans>{connectSuccess ? renderContentSuccess() : renderContent()}</Trans>
+          {connectSuccess ? renderContentSuccess() : renderContent()}
         </Text>
 
         <Flex

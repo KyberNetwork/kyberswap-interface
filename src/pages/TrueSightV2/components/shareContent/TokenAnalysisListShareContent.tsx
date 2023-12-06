@@ -10,7 +10,7 @@ import { useFormatParamsFromUrl } from 'pages/TrueSightV2/utils'
 
 import { TokenListInShareModalTable } from '../table'
 
-const mapTypeTitle = {
+const mapTypeTitle = () => ({
   [KyberAIListType.ALL]: t`Top All Tokens`,
   [KyberAIListType.MYWATCHLIST]: t`My Watchlist`,
   [KyberAIListType.BULLISH]: t`Top Bullish Tokens`,
@@ -22,7 +22,7 @@ const mapTypeTitle = {
   [KyberAIListType.TRENDING]: t`Top Trending Tokens`,
   [KyberAIListType.FUNDING_RATE]: t`Funding Rates`,
   [KyberAIListType.KYBERSWAP_DELTA]: t`KyberScore Delta`,
-}
+})
 
 export default function TokenAnalysisListShareContent({
   data,
@@ -33,7 +33,7 @@ export default function TokenAnalysisListShareContent({
 }) {
   const theme = useTheme()
   const { listType } = useFormatParamsFromUrl()
-  const title = listType ? mapTypeTitle[listType] : ''
+  const title = listType ? mapTypeTitle()[listType] : ''
   return (
     <Column gap="20px">
       <Text fontSize="26px">{title}</Text>

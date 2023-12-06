@@ -188,7 +188,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
                     <Text color={theme.subText}>
                       <Trans>POOLS | AMP</Trans>
                     </Text>
-                    <InfoHelper text={AMP_HINT} />
+                    <InfoHelper text={AMP_HINT()} />
                   </Row>
                   <Row>
                     <Text color={theme.subText}>

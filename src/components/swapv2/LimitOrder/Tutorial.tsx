@@ -74,25 +74,23 @@ export default function Tutorial({ onClose }: { onClose: () => void }) {
           <ContentItem text={t`Buy or sell tokens at the price you want.`} />
           <ContentItem
             text={
-              <Trans>
-                Place orders on thousands of tokens for{' '}
+              <Text>
+                <Trans>Place orders on thousands of tokens for</Trans>{' '}
                 <Text as="span" fontWeight={'500'} color={theme.primary}>
-                  <Trans>Free</Trans>
+                  <Trans>Free</Trans>!
                 </Text>
-                !
-              </Trans>
+              </Text>
             }
           />
           <ContentItem text={t`Get your orders filled without paying any gas fees.`} />
           <ContentItem
             text={
-              <Trans>
-                Cancel and edit orders for{' '}
+              <Text>
+                <Trans>Cancel and edit orders for</Trans>{' '}
                 <Text as="span" fontWeight={'500'} color={theme.primary}>
-                  <Trans>Free</Trans>
+                  <Trans>Free</Trans>!
                 </Text>
-                !
-              </Trans>
+              </Text>
             }
           />
         </Column>

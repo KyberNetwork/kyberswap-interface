@@ -190,11 +190,13 @@ export function useDerivedMintInfo(
   const cA = currencies[Field.CURRENCY_A]
   const cB = currencies[Field.CURRENCY_B]
   if (!!cA && currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
-    error = t`Insufficient ${cA.symbol} balance`
+    const s = cA.symbol
+    error = t`Insufficient ${s} balance`
   }
 
   if (!!cB && currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
-    error = t`Insufficient ${cB.symbol} balance`
+    const s = cB.symbol
+    error = t`Insufficient ${s} balance`
   }
 
   return {
@@ -412,9 +414,8 @@ export function useDerivedZapInInfo(
     (currencyBalances?.[independentField]?.lessThan(independentAmount) ||
       currencyBalances?.[independentField]?.lessThan(userInCurrencyAmount))
   ) {
-    error = t`Insufficient ${
-      selectedCurrency.isNative ? NativeCurrencies[chainId].symbol : selectedCurrency.symbol
-    } balance`
+    const s = selectedCurrency.isNative ? NativeCurrencies[chainId].symbol : selectedCurrency.symbol
+    error = t`Insufficient ${s} balance`
   }
 
   if (zapInAmounts.error && zapInAmounts.error.message.includes('INSUFFICIENT_LIQUIDITY')) {

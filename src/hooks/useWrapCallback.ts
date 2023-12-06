@@ -110,7 +110,7 @@ export default function useWrapCallback(
           ? t`Enter an amount`
           : sufficientBalance
           ? undefined
-          : t`Insufficient ${NativeCurrencies[chainId].symbol} balance`,
+          : t`Insufficient ${nativeTokenSymbol} balance`,
       }
     }
     if (WETH[chainId].equals(inputCurrency) && outputCurrency.isNative) {
@@ -166,7 +166,7 @@ export default function useWrapCallback(
           ? t`Enter an amount`
           : sufficientBalance
           ? undefined
-          : t`Insufficient W${NativeCurrencies[chainId].symbol} balance`,
+          : t`Insufficient W${nativeTokenSymbol} balance`,
       }
     }
     return NOT_APPLICABLE

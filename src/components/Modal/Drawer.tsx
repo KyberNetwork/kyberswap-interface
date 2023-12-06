@@ -1,4 +1,3 @@
-import { Trans } from '@lingui/macro'
 import { DialogContent, DialogOverlay } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -108,7 +107,7 @@ export default function Drawer({
                 <Column width={'100%'} gap="12px">
                   <Row width={'100%'} justify="space-between">
                     <Text fontWeight={'500'} color={theme.text}>
-                      <Trans>{title}</Trans>
+                      {title}
                     </Text>
                     <X style={{ cursor: 'pointer' }} size={18} color={theme.subText} onClick={onDismiss} />
                   </Row>

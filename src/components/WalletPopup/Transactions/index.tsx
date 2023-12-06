@@ -104,17 +104,20 @@ function RowItem({
     />
   )
 }
-const listTab = [
-  { title: t`All`, value: '' },
-  { title: t`Swaps`, value: TRANSACTION_GROUP.SWAP },
-  { title: t`Liquidity`, value: TRANSACTION_GROUP.LIQUIDITY },
-  { title: t`KyberDAO`, value: TRANSACTION_GROUP.KYBERDAO },
-  { title: t`Others`, value: TRANSACTION_GROUP.OTHER },
-] as const
-
 // This is intentional, we don't need to persist in localStorage
 let storedActiveTab = ''
 function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
+  const listTab = useMemo(
+    () => [
+      { title: t`All`, value: '' },
+      { title: t`Swaps`, value: TRANSACTION_GROUP.SWAP },
+      { title: t`Liquidity`, value: TRANSACTION_GROUP.LIQUIDITY },
+      { title: t`KyberDAO`, value: TRANSACTION_GROUP.KYBERDAO },
+      { title: t`Others`, value: TRANSACTION_GROUP.OTHER },
+    ],
+    [],
+  )
+
   const transactions = useSortRecentTransactions(false)
   const { chainId } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>(storedActiveTab)
@@ -180,7 +183,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
       }
       return true
     })
-  }, [chainId])
+  }, [chainId, listTab])
 
   return (
     <Wrapper>

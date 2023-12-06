@@ -52,8 +52,8 @@ const PriceImpactNote = () => {
         text={
           <div>
             <Trans>Estimated change in price due to the size of your transaction.</Trans>
-            <Trans>
-              <Text fontSize={12}>
+            <Text fontSize={12}>
+              <Trans>
                 Read more{' '}
                 <a
                   href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
@@ -62,8 +62,8 @@ const PriceImpactNote = () => {
                 >
                   <b>here ↗</b>.
                 </a>
-              </Text>
-            </Trans>
+              </Trans>
+            </Text>
           </div>
         }
         placement="right"
@@ -192,6 +192,11 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
 
   const [show, setShow] = useState(true)
   const fee = formattedNum(outputInfo?.fee?.toString(), false, 5)
+  const amount = formattedNum(tokenInfoOut?.BigValueThreshold?.toString() ?? '0')
+  const symbol = tokenInfoOut?.symbol
+  const minSwap = tokenInfoOut && formattedNum(tokenInfoOut.MinimumSwap)
+  const maxSwap = tokenInfoOut && formattedNum(tokenInfoOut.MaximumSwap)
+
   return (
     <AutoColumn>
       <Header setShow={setShow} show={show} />
@@ -204,12 +209,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
             </TYPE.black>
             <InfoHelper
               size={14}
-              text={
-                tokenInfoOut &&
-                t`Crosschain amount larger than ${formattedNum(tokenInfoOut?.BigValueThreshold?.toString() ?? '0')} ${
-                  tokenInfoOut?.symbol
-                } could take up to 12 hours`
-              }
+              text={tokenInfoOut && t`Crosschain amount larger than ${amount} ${symbol} could take up to 12 hours`}
             />
           </RowFixed>
           <RowFixed>
@@ -272,8 +272,12 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
           <TYPE.black fontSize={12} color={theme.text} textAlign="right">
             {tokenInfoOut ? (
               <Flex flexDirection={'column'} style={{ gap: 10 }}>
-                <div>{t`Min ${formattedNum(tokenInfoOut?.MinimumSwap)} ${tokenInfoOut?.symbol}`}</div>
-                <div> {t`Max ${formattedNum(tokenInfoOut?.MaximumSwap)} ${tokenInfoOut?.symbol}`}</div>
+                <div>
+                  {t`Min`} {minSwap} {tokenInfoOut?.symbol}
+                </div>
+                <div>
+                  {t`Max`} {maxSwap} {tokenInfoOut?.symbol}
+                </div>
               </Flex>
             ) : (
               '--'

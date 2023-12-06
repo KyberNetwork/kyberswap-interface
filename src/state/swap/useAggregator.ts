@@ -110,7 +110,8 @@ export function useDerivedSwapInfoV2(): {
   const [balanceIn, amountIn] = [currencyBalances[Field.INPUT], slippageAdjustedAmounts?.[Field.INPUT]]
 
   if (amountIn && ((balanceIn && balanceIn.lessThan(amountIn)) || !balanceIn)) {
-    inputError = t`Insufficient ${amountIn.currency.symbol} balance.`
+    const symbol = amountIn.currency.symbol
+    inputError = t`Insufficient ${symbol} balance.`
   }
 
   return useMemo(

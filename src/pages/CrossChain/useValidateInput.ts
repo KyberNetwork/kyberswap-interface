@@ -66,13 +66,15 @@ export default function useValidateInput({
         desc: t`Please decrease the size of your transaction and try again.`,
       }
 
+    const currencyInSymbol = currencyIn?.symbol
     if (balance?.lessThan(parseAmount))
-      return { state: 'warn', tip: t`Insufficient ${currencyIn?.symbol} balance`, insufficientFund: true }
+      return { state: 'warn', tip: t`Insufficient ${currencyInSymbol} balance`, insufficientFund: true }
 
     if (showErrorGas && account) {
+      const nativeSymbol = NativeCurrencies[chainId].symbol
       return {
         state: 'warn',
-        tip: t`You do not have enough ${NativeCurrencies[chainId].symbol} to cover the estimated gas for this transaction.`,
+        tip: t`You do not have enough ${nativeSymbol} to cover the estimated gas for this transaction.`,
       }
     }
     return

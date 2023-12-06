@@ -95,13 +95,14 @@ export const formatTokenPrice = (num: number, fixed?: number): string => {
 
 export const isReferrerCodeInvalid = (error: any) => error?.data?.code === 4040
 
-const mapErr: { [key: number]: string } = {
-  4004: t`Verification code is wrong or expired. Please try again.`,
-  4040: t`Referral code is invalid.`,
-  4090: t`This email address is already registered.`,
-}
 export const getErrorMessage = (error: any) => {
   const code = error?.data?.code
+
+  const mapErr: { [key: number]: string } = {
+    4004: t`Verification code is wrong or expired. Please try again.`,
+    4040: t`Referral code is invalid.`,
+    4090: t`This email address is already registered.`,
+  }
   return mapErr[code] || t`Error occur, please try again.`
 }
 

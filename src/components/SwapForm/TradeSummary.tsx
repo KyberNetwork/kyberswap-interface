@@ -239,8 +239,8 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
                   text={
                     <div>
                       <Trans>Estimated change in price due to the size of your transaction.</Trans>
-                      <Trans>
-                        <Text fontSize={12}>
+                      <Text fontSize={12}>
+                        <Trans>
                           Read more{' '}
                           <a
                             href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
@@ -249,8 +249,8 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
                           >
                             <b>here ↗</b>
                           </a>
-                        </Text>
-                      </Trans>
+                        </Trans>
+                      </Text>
                     </div>
                   }
                   placement="right"

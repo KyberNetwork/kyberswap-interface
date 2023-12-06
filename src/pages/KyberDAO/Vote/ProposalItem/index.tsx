@@ -342,9 +342,7 @@ function ProposalItem({
     <ProposalItemWrapper>
       <ProposalHeader>
         <RowBetween onClick={() => setShow(s => !s)}>
-          <Text>
-            <Trans>{proposal.title}</Trans>
-          </Text>
+          <Text>{proposal.title}</Text>
           <ExpandButton>
             <ChevronDown
               size={24}

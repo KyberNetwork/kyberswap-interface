@@ -163,7 +163,7 @@ const RoutesWithNetworkPrefix = () => {
 
   return (
     <Routes>
-      {!CLASSIC_NOT_SUPPORTED[chainId] && (
+      {!CLASSIC_NOT_SUPPORTED()[chainId] && (
         <>
           <Route
             path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?`}
@@ -180,7 +180,7 @@ const RoutesWithNetworkPrefix = () => {
         </>
       )}
 
-      {!ELASTIC_NOT_SUPPORTED[chainId] && (
+      {!ELASTIC_NOT_SUPPORTED()[chainId] && (
         <>
           {/*
           <Route

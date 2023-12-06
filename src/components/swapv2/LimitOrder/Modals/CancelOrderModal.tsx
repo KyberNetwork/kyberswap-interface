@@ -158,6 +158,8 @@ function CancelOrderModal({
     <Trans>Gasless Cancel</Trans>
   )
 
+  const percent = calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals)
+
   return (
     <Modal maxWidth={isCancelAll && !isCancelDone ? 540 : 480} isOpen={isOpen} onDismiss={onDismiss}>
       <Container>
@@ -176,11 +178,7 @@ function CancelOrderModal({
         <Note
           note={
             status === LimitOrderStatus.PARTIALLY_FILLED
-              ? t`Note: Your currently existing order is ${calcPercentFilledOrder(
-                  filledTakingAmount,
-                  takingAmount,
-                  takerAssetDecimals,
-                )}% filled`
+              ? t`Note: Your currently existing order is ${percent}% filled`
               : ''
           }
         />
