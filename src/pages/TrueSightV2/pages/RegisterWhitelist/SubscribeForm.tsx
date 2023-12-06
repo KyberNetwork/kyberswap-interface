@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import debounce from 'lodash/debounce'
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FormEvent, useCallback, useMemo, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import { useLazyCheckReferralCodeQuery, useRequestWhiteListMutation } from 'services/kyberAISubscription'
 
@@ -11,18 +11,11 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { getErrorMessage, isReferrerCodeInvalid } from 'pages/TrueSightV2/utils'
-import { useSessionInfo } from 'state/authen/hooks'
 
 import { FormWrapper, Input } from './styled'
 
-export default function EmailForm({
-  showVerify,
-}: {
-  showVerify: (email: string, code: string, showSuccess: boolean) => void
-}) {
-  const { userInfo } = useSessionInfo()
+export default function EmailForm() {
   const { mixpanelHandler } = useMixpanel()
-  const [inputEmail, setInputEmail] = useState(userInfo?.email || '')
   const qs = useParsedQueryString<{ referrer: string }>()
   const [referredByCode, setCode] = useState(qs.referrer || '')
   const [errorInput, setErrorInput] = useState({ email: '', referredByCode: '' })
@@ -48,10 +41,6 @@ export default function EmailForm({
     [checkReferalCode],
   )
 
-  useEffect(() => {
-    userInfo?.email && setInputEmail(userInfo?.email)
-  }, [userInfo?.email])
-
   const debouncedCheckReferCode = useMemo(
     () => debounce((code: string) => checkReferCodeExist(code), 500),
     [checkReferCodeExist],
@@ -71,8 +60,7 @@ export default function EmailForm({
     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_JOIN_KYBER_WAITLIST_CLICK)
     try {
       if (hasErrorInput || checkingInput.current) return
-      if (inputEmail) showVerify(inputEmail, referredByCode, !!userInfo?.email)
-      else requestWaitList({ referredByCode }).unwrap()
+      requestWaitList({ referredByCode }).unwrap()
     } catch (error) {
       const msg = getErrorMessage(error)
       setErrorInput(prev => ({ ...prev, [isReferrerCodeInvalid(error) ? 'referredByCode' : 'email']: msg }))
