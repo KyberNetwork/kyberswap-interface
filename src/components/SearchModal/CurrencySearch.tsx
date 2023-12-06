@@ -7,6 +7,7 @@ import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo,
 import { Trash } from 'react-feather'
 import { usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
+import ksSettingApi from 'services/ksSetting'
 import styled from 'styled-components'
 
 import Column from 'components/Column'
@@ -16,17 +17,12 @@ import { KS_SETTING_API } from 'constants/env'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import {
-  fetchListTokenByAddresses,
-  fetchTokenByAddress,
-  formatAndCacheToken,
-  useAllTokens,
-  useFetchERC20TokenFromRPC,
-} from 'hooks/Tokens'
+import { fetchListTokenByAddresses, formatAndCacheToken, useAllTokens, useFetchERC20TokenFromRPC } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
+import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { ButtonText, CloseIcon, TYPE } from 'theme'
@@ -100,7 +96,9 @@ const fetchTokens = async (
 ): Promise<WrappedTokenInfo[]> => {
   try {
     if (search && chainId && isAddress(chainId, search)) {
-      const token = await fetchTokenByAddress(search, chainId)
+      const { data: token } = await store.dispatch(
+        ksSettingApi.endpoints.getTokenByAddress.initiate({ address: search, chainId }),
+      )
       return token ? [token as WrappedTokenInfo] : []
     }
     const params: { query: string; isWhitelisted?: boolean; pageSize: number; page: number; chainIds: string } = {

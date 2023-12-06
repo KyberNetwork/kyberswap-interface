@@ -1,7 +1,7 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 
 export interface TokenInfo {
   readonly chainId: number
