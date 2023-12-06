@@ -157,13 +157,13 @@ export enum AllocationTab {
   // LIQUIDITY_SCORE = `liquidity-score`,
 }
 
-const mapTitle = {
+const getMapTitle = () => ({
   [AllocationTab.TOKEN]: t`Token Distribution`,
   [AllocationTab.CHAIN]: t`Chain Distribution`,
   // [AllocationTab.LIQUIDITY_SCORE]: t`Liquidity Score`,
-}
+})
 
-const tabs = Object.keys(mapTitle).map(key => ({ title: mapTitle[key], type: key }))
+const tabs = Object.keys(getMapTitle()).map(key => ({ title: getMapTitle()[key], type: key }))
 
 export default function TokenAllocation({
   walletAddresses,
@@ -240,7 +240,7 @@ export default function TokenAllocation({
 
   const sectionProps = shareMode
     ? {
-        title: mapTitle[tab],
+        title: getMapTitle()[tab],
         style: mobile
           ? { width: '100%', flex: 1, background: 'transparent', border: 'none' }
           : { width: '100%', flex: 1 },

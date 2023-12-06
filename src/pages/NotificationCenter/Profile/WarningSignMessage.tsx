@@ -62,7 +62,7 @@ export const WarningConnectWalletMessage = ({ msg, outline }: { msg: ReactNode; 
       <Row style={{ gap: upToSmall ? '8px' : '12px' }}>
         <Info color={theme.subText} size={18} style={{ minWidth: '18px' }} />
         <Text fontSize={'12px'} lineHeight={'16px'}>
-          <Trans>{msg}</Trans>
+          {msg}
         </Text>
       </Row>
       {React.createElement(outline && !upToSmall ? ButtonOutlined : ButtonPrimary, propsBtn)}
@@ -90,19 +90,19 @@ const WarningSignMessage = ({ msg, outline }: { msg: ReactNode; outline?: boolea
     onClick: () => signIn({ account }),
     children: <Trans>Sign-in</Trans>,
   }
+
+  const readMoreLink = !upToSmall ? (
+    <Trans>
+      Read more <ExternalLink href={DOC_URL}>here ↗</ExternalLink>
+    </Trans>
+  ) : null
+
   return (
     <WarningWrapper>
       <Row style={{ gap: '12px' }}>
         {!upToSmall && <Info color={theme.subText} size={18} style={{ minWidth: '18px' }} />}
         <Text fontSize={'12px'} lineHeight={'16px'}>
-          <Trans>
-            {msg}{' '}
-            {!upToSmall ? (
-              <>
-                Read more <ExternalLink href={DOC_URL}>here ↗</ExternalLink>
-              </>
-            ) : null}
-          </Trans>
+          {msg} {readMoreLink}
         </Text>
       </Row>
       <Row justify="space-between" width={upToSmall ? '100%' : 'fit-content'}>

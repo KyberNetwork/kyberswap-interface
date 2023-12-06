@@ -5,7 +5,7 @@ import { useState } from 'react'
 import useDebounce from 'hooks/useDebounce'
 import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 
-export default function Liquidity({ walletAddresses, chainIds }: { chainIds: ChainId[]; walletAddresses: string[] }) {
+export default function Liquidity({}: { chainIds: ChainId[]; walletAddresses: string[] }) {
   const [search, setSearch] = useState('')
   const searchDebounce = useDebounce(search, 500)
 

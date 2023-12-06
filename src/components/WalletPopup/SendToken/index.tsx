@@ -148,6 +148,7 @@ export default function SendToken({
     setInputAmount(balance?.divide(2).toExact() || '')
   }, [balance])
 
+  const inSymbol = currencyIn?.symbol
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn)
 
   const inputError = useMemo(() => {
@@ -156,10 +157,10 @@ export default function SendToken({
       return t`Your input amount is invalid.`
     }
     if (balance && parseInputAmount?.greaterThan(balance)) {
-      return t`Insufficient ${currencyIn?.symbol} balance`
+      return t`Insufficient ${inSymbol} balance`
     }
     return
-  }, [currencyIn, balance, inputAmount, parseInputAmount])
+  }, [balance, inputAmount, parseInputAmount, inSymbol])
 
   const hasError = inputError || recipientError
 
@@ -174,7 +175,7 @@ export default function SendToken({
         ...state,
         attemptingTxn: true,
         showConfirm: true,
-        pendingText: t`Sending ${inputAmount} ${currencyIn?.symbol} to ${recipient}`,
+        pendingText: t`Sending ${inputAmount} ${inSymbol} to ${recipient}`,
       }))
       await sendToken()
       hideModalConfirm()

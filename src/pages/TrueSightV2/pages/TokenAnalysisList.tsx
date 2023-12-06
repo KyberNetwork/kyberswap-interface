@@ -235,7 +235,7 @@ const LoadingWrapper = styled(Row)`
   `}
 `
 
-const tokenTypeList: TabITem<KyberAIListType>[] = [
+const getTokenTypeList = (): TabITem<KyberAIListType>[] => [
   { type: KyberAIListType.MYWATCHLIST, icon: 'star', title: t`My Watchlist` },
   { type: KyberAIListType.ALL, title: t`All` },
   {
@@ -352,7 +352,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
   }
   return (
     <TabDraggable<KyberAIListType>
-      {...{ activeTab: tab, onChange: setTab, trackingChangeTab: onTabClick, tabs: tokenTypeList }}
+      {...{ activeTab: tab, onChange: setTab, trackingChangeTab: onTabClick, tabs: getTokenTypeList() }}
     />
   )
 }

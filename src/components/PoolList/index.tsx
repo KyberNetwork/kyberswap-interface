@@ -201,7 +201,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
           <ClickableText>
             <Trans>Pool | AMP</Trans>
           </ClickableText>
-          <InfoHelper text={AMP_HINT} />
+          <InfoHelper text={AMP_HINT()} />
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
@@ -212,7 +212,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
           >
             <Flex>
               <Trans>AMP LIQUIDITY</Trans>
-              <InfoHelper text={AMP_LIQUIDITY_HINT} />
+              <InfoHelper text={AMP_LIQUIDITY_HINT()} />
             </Flex>
             {upToLarge ? <span /> : <span style={{ marginLeft: '0.25rem' }}>|</span>}
             <Flex>

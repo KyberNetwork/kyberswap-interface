@@ -9,10 +9,10 @@ type Props = {
   type: PriceAlertType
 }
 
-const labelByType: Record<PriceAlertType, string> = {
+const labelByType: () => Record<PriceAlertType, string> = () => ({
   [PriceAlertType.ABOVE]: t`above`,
   [PriceAlertType.BELOW]: t`below`,
-}
+})
 
 const AlertType: React.FC<Props> = ({ type }) => {
   const theme = useTheme()
@@ -27,7 +27,7 @@ const AlertType: React.FC<Props> = ({ type }) => {
         gap: '2px',
       }}
     >
-      {type === PriceAlertType.ABOVE ? <ArrowUp size={18} /> : <ArrowDown size={18} />} {labelByType[type]}
+      {type === PriceAlertType.ABOVE ? <ArrowUp size={18} /> : <ArrowDown size={18} />} {labelByType()[type]}
     </Text>
   )
 }

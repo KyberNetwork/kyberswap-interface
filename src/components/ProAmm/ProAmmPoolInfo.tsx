@@ -131,12 +131,13 @@ export default function ProAmmPoolInfo({
             {narrow && (
               <Flex sx={{ gap: '4px' }}>
                 <Text fontSize={12}>
-                  <Trans>
-                    <Flex>
-                      <Text color={theme.subText}>Current Price:</Text>&nbsp;1 {tokenB.currency.symbol} ={' '}
-                      {position.pool.priceOf(tokenB.currency).toSignificant(10)} {tokenA.currency.symbol}
-                    </Flex>
-                  </Trans>
+                  <Flex>
+                    <Text color={theme.subText}>
+                      <Trans>Current Price:</Trans>
+                    </Text>
+                    &nbsp;1 {tokenB.currency.symbol} = {position.pool.priceOf(tokenB.currency).toSignificant(10)}{' '}
+                    {tokenA.currency.symbol}
+                  </Flex>
                 </Text>
                 <span onClick={onReversePrice} style={{ cursor: 'pointer' }}>
                   <RotateSwapIcon rotated={rotated} size={12} />

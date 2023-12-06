@@ -54,7 +54,7 @@ const ModalConfirm: React.FC = () => {
         </RowBetween>
 
         <Text as="span" fontSize="14px" lineHeight={'20px'} color={theme.subText}>
-          <Trans>{content}</Trans>
+          {content}
         </Text>
 
         <Flex

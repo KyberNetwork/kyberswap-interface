@@ -240,15 +240,15 @@ const PortfolioItem = ({ portfolio }: { portfolio: Portfolio }) => {
   const onChangeWalletAction = (val: Actions, wallet: PortfolioWallet) => {
     switch (val) {
       case Actions.Delete:
+        const { walletAddress } = wallet
+        const shortWallet = getShortenAddress(walletAddress)
         showConfirm({
           isOpen: true,
           title: t`Delete Wallet`,
           confirmText: t`Delete`,
           cancelText: t`Cancel`,
-          content: t`Do you want to delete wallet "${getShortenAddress(
-            wallet.walletAddress,
-          )}" from portfolio "${name}"?`,
-          onConfirm: () => onDeleteWalletPortfolio({ walletAddress: wallet.walletAddress, portfolioId: id }),
+          content: t`Do you want to delete wallet "${shortWallet}" from portfolio "${name}"?`,
+          onConfirm: () => onDeleteWalletPortfolio({ walletAddress, portfolioId: id }),
         })
         break
       case Actions.Edit:

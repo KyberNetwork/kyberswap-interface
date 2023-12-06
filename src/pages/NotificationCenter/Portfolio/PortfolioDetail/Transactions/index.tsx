@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ExternalLink as ExternalLinkIcon, FileText } from 'react-feather'
 import { Text } from 'rebass'
@@ -180,7 +180,7 @@ export const BalanceCell = ({
   )
 }
 
-const columns: TableColumn<TransactionHistory>[] = [
+const getColumns = (): TableColumn<TransactionHistory>[] => [
   {
     title: t`Tx Hash`,
     dataIndex: 'txHash',
@@ -246,6 +246,8 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
     const time = lastEndTime.current.pop()
     time !== undefined && setEndTime(time)
   }
+
+  const columns = useMemo(() => getColumns(), [])
 
   return (
     <PortfolioSection

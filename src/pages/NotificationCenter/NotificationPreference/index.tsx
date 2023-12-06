@@ -347,10 +347,10 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
           />
           <Column gap="10px">
             <Text color={disabled ? theme.border : theme.text} fontSize={14}>
-              <Trans>{topic.name}</Trans>
+              {topic.name}
             </Text>
             <Text color={disabled ? theme.border : theme.subText} fontSize={12}>
-              <Trans>{topic.description}</Trans>
+              {topic.description}
             </Text>
           </Column>
         </TopicItem>

@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import { useGetMyPortfoliosQuery } from 'services/portfolio'
 import styled, { CSSProperties } from 'styled-components'
@@ -74,7 +74,7 @@ const Step4 = () => {
   )
 }
 
-const steps = [
+const getListSteps = () => [
   {
     text: <Step1 />,
     image: tutorial1,
@@ -130,6 +130,8 @@ export default function PortfolioDetail() {
   useEffect(() => {
     if (!showDisclaimer && !showTutorial && showOverview) navigateToMyPortfolio()
   }, [showDisclaimer, showTutorial, showOverview, navigateToMyPortfolio])
+
+  const steps = useMemo(() => getListSteps(), [])
 
   return (
     <PageWrapper>

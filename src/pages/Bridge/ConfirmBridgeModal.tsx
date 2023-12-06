@@ -281,6 +281,10 @@ export default memo(function ConfirmBridgeModal({
     }
   }, [swapState.showConfirm])
 
+  const inSymbol = currencyIn?.symbol
+  const outSymbol = currencyOut?.symbol
+  const inNetwork = NETWORKS_INFO[chainId].name
+  const outNetwork = chainIdOut && NETWORKS_INFO[chainIdOut].name
   return (
     <TransactionConfirmationModal
       hash={swapState.txHash}
@@ -289,9 +293,7 @@ export default memo(function ConfirmBridgeModal({
       attemptingTxn={swapState.attemptingTxn}
       content={confirmationContent}
       pendingText={
-        chainId && chainIdOut
-          ? t`Transferring ${currencyIn?.symbol} (${NETWORKS_INFO[chainId].name}) to ${currencyOut?.symbol} (${NETWORKS_INFO[chainIdOut].name})`
-          : ''
+        chainId && outNetwork ? t`Transferring ${inSymbol} (${inNetwork}) to ${outSymbol} (${outNetwork})` : ''
       }
     />
   )

@@ -105,7 +105,7 @@ export const TokenCellWithWalletAddress = ({
 }
 
 export type DisplayField = { title: string; show: boolean; key: string }
-const defaultFields = [
+const getDefaultFields = () => [
   { title: t`Price`, show: true, key: 'priceUsd' },
   { title: t`Balance`, show: true, key: 'amount' },
   { title: t`Value USD`, show: true, key: 'valueUsd' },
@@ -266,7 +266,7 @@ export default function WalletInfo({ walletAddresses, chainIds }: { walletAddres
     { skip: !walletAddresses.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
   )
 
-  const [displayFields, setDisplayFields] = useState(defaultFields)
+  const [displayFields, setDisplayFields] = useState(getDefaultFields())
   const onChangeDisplayField = useCallback((fields: DisplayField[]) => {
     setDisplayFields(fields)
   }, [])

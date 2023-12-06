@@ -253,14 +253,14 @@ const ListPositions = ({
       )}
 
       <RowItem alignItems="flex-end">
-        <Trans>
-          <Text>
+        <Text>
+          <Trans>
             PRICE RANGE{' '}
             <Text as="span" sx={{ whiteSpace: 'nowrap' }}>
               ({quoteCurrency.symbol} per {baseCurrency.symbol})
             </Text>
-          </Text>
-        </Trans>
+          </Trans>
+        </Text>
       </RowItem>
     </TableHeader>
   )

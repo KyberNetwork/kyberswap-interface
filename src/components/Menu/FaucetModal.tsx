@@ -88,13 +88,13 @@ function FaucetModal() {
         body: JSON.stringify({ wallet: account, program: rewardData.program }),
       })
       const content = await rawResponse.json()
+
       if (content) {
+        const amount = rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
         notify({
           title: t`Request to Faucet - Submitted`,
           type: NotificationType.SUCCESS,
-          summary: t`You will receive ${
-            rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
-          } ${tokenSymbol} soon!`,
+          summary: t`You will receive ${amount} ${tokenSymbol} soon!`,
         })
         setRewardData(rw => {
           if (rw) {

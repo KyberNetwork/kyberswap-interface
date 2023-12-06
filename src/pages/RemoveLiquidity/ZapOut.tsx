@@ -535,6 +535,8 @@ export default function ZapOut({
   const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
 
   function modalHeader() {
+    const displaySlp = allowedSlippage / 100
+
     return (
       <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
@@ -553,9 +555,7 @@ export default function ZapOut({
         </AutoRow>
 
         <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
-          {t`Output is estimated. If the price changes by more than ${
-            allowedSlippage / 100
-          }% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )

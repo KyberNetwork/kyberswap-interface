@@ -9,6 +9,7 @@ import { ExternalLink } from 'theme'
 
 export default function PendingWarning() {
   const theme = useTheme()
+  const min = NUMBERS.STALLED_MINS
   return (
     <ErrorWarningPanel
       style={{ borderRadius: 20, padding: '10px 14px', height: NUMBERS.STALL_WARNING_HEIGHT }}
@@ -18,8 +19,7 @@ export default function PendingWarning() {
           <Trans>
             Transaction stuck?{' '}
             <MouseoverTooltip
-              placement="top"
-              text={t`Stuck transaction. Your transaction has been processing for more than ${NUMBERS.STALLED_MINS} mins.`}
+              text={t`Stuck transaction. Your transaction has been processing for more than ${min} mins.`}
             >
               <ExternalLink href="https://support.kyberswap.com/hc/en-us/articles/13785666409881-Why-is-my-transaction-stuck-in-Pending-state-">
                 See here

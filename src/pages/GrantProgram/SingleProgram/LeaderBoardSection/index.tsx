@@ -32,7 +32,7 @@ export type RankByConfig = {
   title: string
 }
 
-const rankByConfigs: RankByConfig[] = [
+const getRankByConfigs: () => RankByConfig[] = () => [
   {
     extracter: (p: ProjectRanking) => {
       return String(p.totalParticipants)
@@ -64,6 +64,7 @@ type Props = {
 const LeaderBoardSection: React.FC<Props> = ({ programId, showRefreshTimer }) => {
   const theme = useTheme()
   const [page, setPage] = useState(1)
+  const rankByConfigs = getRankByConfigs()
   const [rankByConfig, setRankByConfig] = useState(rankByConfigs[0])
   const {
     swrData: { data, isValidating, error },

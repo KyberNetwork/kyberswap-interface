@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { Fragment, ReactNode } from 'react'
+import { Fragment, ReactNode, useMemo } from 'react'
 import { FileText } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -46,14 +46,14 @@ const TabItem = ({
   )
 }
 
-const options = [
+const getOptions = () => [
   { value: PortfolioTab.TOKEN, icon: <TokensIcon />, title: t`Tokens` },
   { value: PortfolioTab.LIQUIDITY, icon: <LiquidityIcon style={{ width: 16, height: 16 }} />, title: t`Liquidity` },
   { value: PortfolioTab.NFT, icon: <NftIcon style={{ width: 16, height: 16 }} />, title: t`NFTs` },
   { value: PortfolioTab.TRANSACTIONS, icon: <FileText size={16} />, title: t`Transactions` },
   { value: PortfolioTab.ALLOWANCES, icon: <CheckCircle size={'16px'} />, title: t`Allowances` },
 ]
-const selectOptions = options.map(e => ({
+const selectOptions = getOptions().map(e => ({
   ...e,
   label: (
     <Row alignItems={'center'} fontSize={'14px'} gap="8px" fontWeight={'500'}>
@@ -65,6 +65,8 @@ const selectOptions = options.map(e => ({
 export default function ListTab({ activeTab, setTab }: { activeTab: PortfolioTab; setTab: (v: PortfolioTab) => void }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
+  const options = useMemo(() => getOptions(), [])
+
   if (upToSmall)
     return (
       <Select
@@ -74,6 +76,7 @@ export default function ListTab({ activeTab, setTab }: { activeTab: PortfolioTab
         style={{ background: theme.buttonGray, height: '36px', borderRadius: 24, width: '100%' }}
       />
     )
+
   return (
     <RowFit gap="10px" align="center">
       {options.map((item, i) => (

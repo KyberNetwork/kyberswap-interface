@@ -103,7 +103,7 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import DisclaimerERC20 from './components/DisclaimerERC20'
 import NewPoolNote from './components/NewPoolNote'
-import { RANGE_LIST, rangeData } from './constants'
+import { RANGE_LIST, getRangeData } from './constants'
 import {
   ArrowWrapper,
   ChartBody,
@@ -137,6 +137,7 @@ const TextUnderlineTransparent = styled(Text)`
 `
 
 export default function AddLiquidity() {
+  const rangeData = getRangeData()
   const { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl } = useParams()
   const navigate = useNavigate()
   const [rotate, setRotate] = useState(false)
@@ -706,12 +707,14 @@ export default function AddLiquidity() {
       amountBText = !depositBDisabled ? `${parsedAmounts_B?.toSignificant(10)} ${currencies_B?.symbol}` : ''
     }
 
+    const len = positions.length
+    const text = amountAText || amountBText
     if (amountAText && amountBText) {
       if (positions.length === 1) return t`Supplying ${amountAText} and ${amountBText}`
-      return t`Supplying ${amountAText} and ${amountBText} across ${positions.length} positions`
-    } else if (amountAText || amountBText) {
-      if (positions.length === 1) return t`Supplying ${amountAText || amountBText}`
-      return t`Supplying ${amountAText || amountBText} across ${positions.length} positions`
+      return t`Supplying ${amountAText} and ${amountBText} across ${len} positions`
+    } else if (text) {
+      if (positions.length === 1) return t`Supplying ${text}`
+      return t`Supplying ${text} across ${len} positions`
     }
     return ''
   }, [
@@ -1848,7 +1851,7 @@ export default function AddLiquidity() {
           tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
         />
         <Container>
-          {ELASTIC_NOT_SUPPORTED[chainId] ? (
+          {ELASTIC_NOT_SUPPORTED()[chainId] ? (
             <Flex
               height="500px"
               justifyContent="center"
@@ -1856,7 +1859,7 @@ export default function AddLiquidity() {
               flexDirection="column"
               sx={{ gap: '16px' }}
             >
-              <Text>{ELASTIC_NOT_SUPPORTED[chainId]}</Text>
+              <Text>{ELASTIC_NOT_SUPPORTED()[chainId]}</Text>
               <ButtonLight
                 onClick={openNetworkModal}
                 width={upToMedium ? '100%' : 'fit-content'}

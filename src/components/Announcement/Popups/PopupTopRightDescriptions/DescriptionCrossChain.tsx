@@ -26,7 +26,7 @@ const DescriptionCrossChain = (
   const amountOut = formatAmountBridge(dstAmount)
 
   return {
-    title: PRIVATE_ANN_TITLE[templateType] ?? '',
+    title: PRIVATE_ANN_TITLE()[templateType] ?? '',
     type: isSuccess ? NotificationType.SUCCESS : NotificationType.WARNING,
     link: `${APP_PATHS.CROSS_CHAIN}?tab=${CrossChainTab.HISTORY}`,
     summary: isSuccess
