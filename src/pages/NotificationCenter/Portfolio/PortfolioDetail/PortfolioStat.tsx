@@ -274,7 +274,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
         content={shareContents}
         shareType={SHARE_TYPE.PORTFOLIO}
         imageName={'portfolio.png'}
-        titleLogo={
+        leftLogo={
           <Column gap="8px">
             <Text fontSize={'20px'}>
               {isMyPortfolioPage ? (

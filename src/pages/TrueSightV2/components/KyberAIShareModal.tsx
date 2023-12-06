@@ -75,7 +75,7 @@ export default function KyberAIShareModal(props: {
     <ShareImageModal
       {...props}
       shareType={SHARE_TYPE.KYBER_AI}
-      titleLogo={<TokenInfo />}
+      leftLogo={<TokenInfo />}
       imageName="kyberAI_share_image.png"
       kyberswapLogoTitle={
         <Trans>

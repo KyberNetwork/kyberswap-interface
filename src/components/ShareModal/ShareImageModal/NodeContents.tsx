@@ -19,10 +19,13 @@ import KyberSwapShareLogo from 'pages/TrueSightV2/components/KyberSwapShareLogo'
 import { InfoWrapper, LegendWrapper } from 'pages/TrueSightV2/components/chart'
 import { MEDIA_WIDTHS } from 'theme'
 
+const getScale = (currentSize: number, expectSize: number) =>
+  (currentSize / expectSize) ** (currentSize > expectSize ? -1 : 1)
+
 const ImageInner = styled.div<{ bg: string }>`
   width: ${SIZES.WIDTH_PC}px;
-  height: 612px;
-  aspect-ratio: 1050/612;
+  height: ${SIZES.HEIGH_PC}px;
+  aspect-ratio: ${SIZES.WIDTH_PC} / ${SIZES.HEIGH_PC};
   background-color: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
@@ -76,12 +79,13 @@ type ContentProps = {
   content?: RenderContentFn | RenderContentFn[]
   isMobileMode: boolean
   kyberswapLogoTitle: ReactNode
-  titleLogo: ReactNode
+  leftLogo: ReactNode
   title?: string
   sharingUrl: string
   shareIndex: number
   shareType: SHARE_TYPE
   setShareIndex: (v: number) => void
+  imageHeight: number | undefined
 }
 
 const BG_BY_TYPE: Partial<{ [k in SHARE_TYPE]: { mobile: string; pc: string } }> = {
@@ -91,12 +95,21 @@ const BG_BY_TYPE: Partial<{ [k in SHARE_TYPE]: { mobile: string; pc: string } }>
 
 type RenderSlideProps = { render: RenderContentFn; scale?: number; ref?: React.ForwardedRef<HTMLDivElement> }
 const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeContents(
-  { content, isMobileMode, setShareIndex, kyberswapLogoTitle, titleLogo, title, sharingUrl, shareIndex, shareType },
+  {
+    content,
+    isMobileMode,
+    setShareIndex,
+    kyberswapLogoTitle,
+    leftLogo,
+    title,
+    sharingUrl,
+    shareIndex,
+    shareType,
+    imageHeight,
+  },
   ref,
 ) {
   const upToSmall = useMedia(`(max-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const mobileSmall = useMedia(`(max-height:${SIZES.THRESHOLD_HEIGHT_MB_SMALL}px)`)
-  const mobileXXSmall = useMedia(`(max-height:${SIZES.THRESHOLD_HEIGHT_MB_XX_SMALL}px)`)
 
   const renderMobile = ({ render, scale, ref }: RenderSlideProps) => (
     <ImageInnerMobile
@@ -105,7 +118,7 @@ const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeConte
       style={scale ? { transform: `scale(${scale})` } : undefined}
       bg={BG_BY_TYPE[shareType]?.mobile || ''}
     >
-      <RowFit gap="8px">{titleLogo}</RowFit>
+      <RowFit gap="8px">{leftLogo}</RowFit>
 
       <Column
         style={{
@@ -150,7 +163,7 @@ const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeConte
     >
       <RowBetween style={{ zIndex: 2 }}>
         <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
-          {titleLogo}
+          {leftLogo}
         </RowFit>
         <RowFit gap="20px">
           <KyberSwapShareLogo title={kyberswapLogoTitle} />
@@ -177,7 +190,7 @@ const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeConte
   if (Array.isArray(content) && content.length > 1)
     return (
       <Swiper
-        style={{ maxHeight: '100%' }}
+        style={{ maxHeight: '100%', height: imageHeight }}
         slidesPerView={1}
         navigation={true}
         pagination={true}
@@ -188,18 +201,15 @@ const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeConte
         }}
       >
         {content.map((render, index) => {
-          // todo move this to css ???
           const contentWidth = upToSmall ? window.innerWidth - 40 : SIZES.VIEW_WIDTH_PC
-          const contentHeight = mobileXXSmall
-            ? SIZES.HEIGHT_MB_XX_SMALL
-            : mobileSmall
-            ? SIZES.HEIGHT_MB_SMALL
-            : SIZES.VIEW_HEIGHT_MB
+          const contentHeight = imageHeight || SIZES.HEIGHT_MB
 
-          const getScale = (currentSize: number, expectSize: number) =>
-            (currentSize / expectSize) ** (currentSize > expectSize ? -1 : 1)
+          const scale = isMobileMode
+            ? getScale(SIZES.HEIGHT_MB, contentHeight)
+            : upToSmall
+            ? getScale(contentWidth, SIZES.WIDTH_PC)
+            : getScale(SIZES.HEIGH_PC, contentHeight)
 
-          const scale = isMobileMode ? getScale(SIZES.HEIGHT_MB, contentHeight) : getScale(contentWidth, SIZES.WIDTH_PC)
           const props = { render, scale, ref: index === shareIndex ? ref : null }
           return (
             <SwiperSlide key={index} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

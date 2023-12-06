@@ -18,6 +18,7 @@ import { SIZES } from 'components/ShareModal/ShareImageModal/const'
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import useCopyClipboard from 'hooks/useCopyClipboard'
+import useInterval from 'hooks/useInterval'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import LoadingTextAnimation from 'pages/TrueSightV2/components/LoadingTextAnimation'
@@ -93,13 +94,6 @@ const IconButton = styled.div<{ disabled?: boolean }>`
     `}
 `
 
-const getSmallHeightSize = (size: number) => css`
-  height: ${size}px;
-  .swiper-wrapper {
-    height: ${size}px;
-    max-height: 100%;
-  }
-`
 const ImageWrapper = styled.div<{ isMobileMode?: boolean }>`
   max-height: 80vh;
   position: relative;
@@ -114,19 +108,12 @@ const ImageWrapper = styled.div<{ isMobileMode?: boolean }>`
       ? css`
           width: 100%;
           aspect-ratio: 1/2;
-          ${getSmallHeightSize(SIZES.VIEW_HEIGHT_MB)}
+          height: ${SIZES.VIEW_HEIGHT_MB};
         `
       : css`
           width: ${SIZES.VIEW_WIDTH_PC}px;
-          ${getSmallHeightSize(490)}
+          height: 490px;
         `}
-
-  @media screen and (max-height: ${SIZES.THRESHOLD_HEIGHT_MB_SMALL}px) {
-    ${getSmallHeightSize(SIZES.HEIGHT_MB_SMALL)}
-  }
-  @media screen and (max-height: ${SIZES.THRESHOLD_HEIGHT_MB_XX_SMALL}px) {
-    ${getSmallHeightSize(SIZES.HEIGHT_MB_XX_SMALL)}
-  }
 
   --swiper-navigation-size: 12px;
 
@@ -249,7 +236,7 @@ export default function ShareImageModal({
   onShareClick,
   shareType,
   imageName,
-  titleLogo,
+  leftLogo,
   kyberswapLogoTitle,
   redirectUrl,
 }: {
@@ -260,7 +247,7 @@ export default function ShareImageModal({
   onShareClick?: (network: string) => void
   shareType: SHARE_TYPE
   imageName: string
-  titleLogo: ReactNode
+  leftLogo: ReactNode
   kyberswapLogoTitle: ReactNode
   redirectUrl?: string
 }) {
@@ -364,9 +351,10 @@ export default function ShareImageModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isMobileMode])
 
+  const [isCopiedImage, setCopiedImage] = useCopyClipboard(2000)
   const copyImage = (blob: Blob | undefined) => {
     if (blob) {
-      setCopied(blob)
+      setCopiedImage(blob)
     }
   }
 
@@ -439,20 +427,38 @@ export default function ShareImageModal({
 
   const disableShareSocial = autoUpload ? !sharingUrl : false
   const disableDownloadImage = autoUpload ? !blob : false
+  const [imageHeight, setImageHeight] = useState<number | undefined>()
+
+  useEffect(() => {
+    const onResize = () => {
+      setImageHeight(refImgWrapper.current?.getBoundingClientRect?.()?.height)
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  useInterval(
+    () => {
+      setImageHeight(refImgWrapper.current?.getBoundingClientRect?.()?.height)
+    },
+    imageHeight || !isOpen ? null : 100,
+  )
 
   const propsContents = {
     isMobileMode,
     content,
     setShareIndex,
     kyberswapLogoTitle,
-    titleLogo,
+    leftLogo,
     title,
     sharingUrl,
     ref,
     shareIndex,
     isOpen,
     shareType,
-  } // todo too many title
+    imageHeight,
+  }
+
   return (
     <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw" maxHeight={'90vh'} onDismiss={onClose}>
       <Wrapper>
@@ -504,7 +510,7 @@ export default function ShareImageModal({
             <IconButton disabled={disableDownloadImage} onClick={handleImageCopyClick}>
               {loadingType === ShareType.COPY_IMAGE ? (
                 <LoadingIcon />
-              ) : isCopied ? (
+              ) : isCopiedImage ? (
                 <Check size={'20px'} color={theme.primary} />
               ) : (
                 <Icon id="copy" size={20} />
