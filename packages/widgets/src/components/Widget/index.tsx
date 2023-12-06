@@ -152,6 +152,9 @@ export interface WidgetProps {
   onTxSubmit?: (txHash: string, data: any) => void
   enableDexes?: string
   title?: string | ReactNode
+  onSourceTokenChange?: (token: TokenInfo) => void
+  onDestinationTokenChange?: (token: TokenInfo) => void
+  onError?: (e: any) => void
 }
 
 const Widget = ({
@@ -164,6 +167,9 @@ const Widget = ({
   enableRoute,
   enableDexes,
   title,
+  onSourceTokenChange,
+  onDestinationTokenChange,
+  onError,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
@@ -174,6 +180,9 @@ const Widget = ({
   enableDexes?: string
   title?: string | ReactNode
   defaultSlippage?: number
+  onSourceTokenChange?: (token: any) => void
+  onDestinationTokenChange?: (token: any) => void
+  onError?: (e: any) => void
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null)
   const { chainId } = useActiveWeb3()
@@ -308,10 +317,11 @@ const Widget = ({
         return (
           <SelectCurrency
             selectedToken={tokenIn}
-            onChange={address => {
-              if (address === tokenOut) setTokenOut(tokenIn)
-              setTokenIn(address)
+            onChange={token => {
+              if (token.address === tokenOut) setTokenOut(tokenIn)
+              setTokenIn(token.address)
               setShowModal(null)
+              onSourceTokenChange?.(token)
             }}
             onImport={(token: TokenInfo) => {
               setTokenToImport(token)
@@ -324,10 +334,11 @@ const Widget = ({
         return (
           <SelectCurrency
             selectedToken={tokenOut}
-            onChange={address => {
-              if (address === tokenIn) setTokenIn(tokenOut)
-              setTokenOut(address)
+            onChange={token => {
+              if (token.address === tokenIn) setTokenIn(tokenOut)
+              setTokenOut(token.address)
               setShowModal(null)
+              onDestinationTokenChange?.(token)
             }}
             onImport={(token: TokenInfo) => {
               setTokenToImport(token)
@@ -355,6 +366,7 @@ const Widget = ({
                 refetch()
               }}
               onTxSubmit={onTxSubmit}
+              onError={onError}
             />
           )
         return null
@@ -674,6 +686,9 @@ export default function SwapWidget({
   enableRoute = true,
   enableDexes,
   title,
+  onSourceTokenChange,
+  onDestinationTokenChange,
+  onError,
 }: WidgetProps) {
   return (
     <StrictMode>
@@ -687,6 +702,9 @@ export default function SwapWidget({
               feeSetting={feeSetting}
               client={client}
               onTxSubmit={onTxSubmit}
+              onSourceTokenChange={onSourceTokenChange}
+              onDestinationTokenChange={onDestinationTokenChange}
+              onError={onError}
               enableRoute={enableRoute}
               enableDexes={enableDexes}
               title={title}

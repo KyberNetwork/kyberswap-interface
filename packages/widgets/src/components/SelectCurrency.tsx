@@ -163,7 +163,7 @@ function SelectCurrency({
   onImport,
 }: {
   selectedToken: string
-  onChange: (address: string) => void
+  onChange: (token: TokenDetail) => void
   onImport: (token: TokenDetail) => void
 }) {
   const tokens = useTokens()
@@ -230,7 +230,7 @@ function SelectCurrency({
                 selected={token.address === selectedToken}
                 key={token.address}
                 onClick={() => {
-                  onChange(token.address)
+                  onChange(token)
                 }}
               >
                 <TokenInfo>

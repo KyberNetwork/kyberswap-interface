@@ -190,6 +190,7 @@ function Confirmation({
   deadline,
   client,
   onTxSubmit,
+  onError,
 }: {
   trade: Trade
   tokenInInfo: TokenInfo
@@ -203,6 +204,7 @@ function Confirmation({
   deadline: number
   client: string
   onTxSubmit?: (txHash: string, data: any) => void
+  onError?: (e: any) => void
 }) {
   const theme = useTheme()
   const { provider, account, chainId } = useActiveWeb3()
@@ -333,6 +335,7 @@ function Confirmation({
     } catch (e) {
       setAttempTx(false)
       setTxError(e)
+      onError?.(e)
     }
   }
 

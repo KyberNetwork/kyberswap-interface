@@ -114,6 +114,15 @@ const App = () => {
         onTxSubmit={(hash, data) => {
           console.log(hash, data)
         }}
+        onError={e => {
+          console.log('onError', e)
+        }}
+        onSourceTokenChange={token => {
+          console.log('onSourceTokenChange', token)
+        }}
+        onDestinationTokenChange={token => {
+          console.log('onDestinationTokenChange', token)
+        }}
         enableRoute
         theme={{
           primary: '#1C1C1C',
