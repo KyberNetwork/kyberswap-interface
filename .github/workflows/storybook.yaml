@@ -1,7 +1,7 @@
 name: 'KyberSwap Interface Storybook'
 
 concurrency:
-  group: ci-workflow-${{ github.ref }}-${{ github.event_name }}
+  group: storybook-workflow-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 on:
@@ -123,6 +123,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          file: Dockerfile.storybook
           push: true
           labels: |
             kyber.network.schema-version=1.0
