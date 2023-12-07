@@ -24,6 +24,7 @@ import useTheme from 'hooks/useTheme'
 import LoadingTextAnimation from 'pages/TrueSightV2/components/LoadingTextAnimation'
 import { MEDIA_WIDTHS } from 'theme'
 import { downloadImage } from 'utils/index'
+import { wait } from 'utils/retry'
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -252,7 +253,8 @@ export default function ShareImageModal({
   redirectUrl?: string
 }) {
   const theme = useTheme()
-  const ref = useRef<HTMLDivElement>(null)
+  const imageNodes = useRef<HTMLDivElement[]>([])
+
   const refImgWrapper = useRef<HTMLDivElement>(null)
   const autoUpload = !(debug || Array.isArray(content))
 
@@ -267,15 +269,26 @@ export default function ShareImageModal({
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [shareIndex, setShareIndex] = useState(0)
-  const shareData = isMobileMode ? mobileData : desktopData
 
+  const shareData = isMobileMode ? mobileData : desktopData
   const blob = shareData?.blob?.[shareIndex]
   const imageUrl = shareData?.imageUrl?.[shareIndex] || ''
   const sharingUrl = shareData?.shareUrl?.[shareIndex] || ''
 
+  const realtimeData = useRef({ blob, imageUrl, sharingUrl })
+  realtimeData.current = { blob, imageUrl, sharingUrl }
+
   const handleGenerateImage = useCallback(
-    async (shareUrl: string, mobile: boolean): Promise<ShareResponse> => {
-      const element = ref.current
+    async ({
+      shareUrl,
+      mobile,
+      index,
+    }: {
+      shareUrl: string
+      mobile: boolean
+      index: number
+    }): Promise<ShareResponse> => {
+      const element = imageNodes.current[index]
       if (element) {
         setIsError(false)
         const shareId = shareUrl?.split('/').pop()
@@ -289,8 +302,8 @@ export default function ShareImageModal({
           const fn = (prev: ShareData) => {
             const imageUrls = prev.imageUrl || []
             const blobs = prev.blob || []
-            imageUrls[shareIndex] = imageUrl
-            blobs[shareIndex] = blob
+            imageUrls[index] = imageUrl
+            blobs[index] = blob
             return { ...prev, imageUrl: imageUrls, blob: blobs }
           }
           mobile ? setMobileData(fn) : setDesktopData(fn)
@@ -305,25 +318,27 @@ export default function ShareImageModal({
       }
       return {}
     },
-    [shareImage, shareType, shareIndex],
+    [shareImage, shareType],
   )
 
+  const onReset = () => {
+    setLoading(true)
+    setIsError(false)
+    setIsMobileMode(isMobile)
+    setDesktopData({})
+    setMobileData({})
+    setLoadingType(undefined)
+  }
+
   const timeout = useRef<NodeJS.Timeout>()
-  const createShareFunction = async (callback?: (data: ShareResponse) => void) => {
+  const createShareFunction = async (index = shareIndex) => {
     if (loading && !autoUpload) return
     timeout.current && clearTimeout(timeout.current)
     if (!isOpen) {
-      timeout.current = setTimeout(() => {
-        setLoading(true)
-        setIsError(false)
-        setIsMobileMode(isMobile)
-        setDesktopData({})
-        setMobileData({})
-        setLoadingType(undefined)
-      }, 400)
+      timeout.current = setTimeout(onReset, 400)
       return
     }
-    if (sharingUrl) return
+    if (realtimeData.current.sharingUrl) return
     setLoading(true)
     setIsError(false)
     const shareUrl = await createShareLink({
@@ -332,7 +347,7 @@ export default function ShareImageModal({
     }).unwrap()
     const fn = (prev: ShareData) => {
       const shareUrls = prev.shareUrl || []
-      shareUrls[shareIndex] = shareUrl
+      shareUrls[index] = shareUrl
       return { ...prev, shareUrl: shareUrls }
     }
     if (isMobileMode) {
@@ -340,10 +355,15 @@ export default function ShareImageModal({
     } else {
       setDesktopData(fn)
     }
-    timeout.current = setTimeout(async () => {
-      const data = await handleGenerateImage(shareUrl, isMobileMode)
-      callback?.(data)
-    }, 1000)
+    return handleGenerateImage({ shareUrl, mobile: isMobileMode, index })
+  }
+
+  const generateAllShareLink = async () => {
+    if (Array.isArray(content) && !autoUpload) {
+      await Promise.all(content.map((_, i) => createShareFunction(i)))
+      await wait(500)
+    }
+    return realtimeData.current
   }
 
   useEffect(() => {
@@ -352,19 +372,19 @@ export default function ShareImageModal({
   }, [isOpen, isMobileMode])
 
   const [isCopiedImage, setCopiedImage] = useCopyClipboard(2000)
+
   const copyImage = (blob: Blob | undefined) => {
     if (blob) {
       setCopiedImage(blob)
     }
   }
 
-  const handleImageCopyClick = () => {
+  const handleImageCopyClick = async () => {
     if (!blob) {
       setLoadingType(ShareType.COPY_IMAGE)
-      createShareFunction(({ blob }) => {
-        copyImage(blob)
-        setLoadingType(undefined)
-      })
+      const resp = await generateAllShareLink()
+      copyImage(resp.blob)
+      setLoadingType(undefined)
       return
     }
     copyImage(blob)
@@ -392,24 +412,23 @@ export default function ShareImageModal({
         break
     }
   }
-  const onClickShareSocial = (shareType: ShareType) => {
-    if (sharingUrl) callbackShareSocial(shareType, sharingUrl)
-    else {
-      setLoadingType(shareType)
-      createShareFunction(({ shareUrl }) => {
-        callbackShareSocial(shareType, shareUrl)
-        setLoadingType(undefined)
-      })
+  const onClickShareSocial = async (shareType: ShareType) => {
+    if (sharingUrl) {
+      callbackShareSocial(shareType, sharingUrl)
+      return
     }
+    setLoadingType(shareType)
+    const resp = await generateAllShareLink()
+    resp?.sharingUrl && callbackShareSocial(shareType, resp?.sharingUrl)
+    setLoadingType(undefined)
   }
 
-  const handleDownloadClick = () => {
+  const handleDownloadClick = async () => {
     if (!blob) {
       setLoadingType(ShareType.DOWNLOAD_IMAGE)
-      createShareFunction(({ blob }) => {
-        downloadImage(blob, imageName)
-        setLoadingType(undefined)
-      })
+      const resp = await generateAllShareLink()
+      resp?.blob && downloadImage(resp.blob, imageName)
+      setLoadingType(undefined)
       return
     }
     downloadImage(blob, imageName)
@@ -452,8 +471,7 @@ export default function ShareImageModal({
     leftLogo,
     title,
     sharingUrl,
-    ref,
-    shareIndex,
+    imageNodes,
     isOpen,
     shareType,
     imageHeight,

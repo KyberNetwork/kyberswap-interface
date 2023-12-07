@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef } from 'react'
+import { ReactNode } from 'react'
 import { QRCode } from 'react-qrcode-logo'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -82,10 +82,10 @@ type ContentProps = {
   leftLogo: ReactNode
   title?: string
   sharingUrl: string
-  shareIndex: number
   shareType: SHARE_TYPE
   setShareIndex: (v: number) => void
   imageHeight: number | undefined
+  imageNodes: React.MutableRefObject<HTMLDivElement[]>
 }
 
 const BG_BY_TYPE: Partial<{ [k in SHARE_TYPE]: { mobile: string; pc: string } }> = {
@@ -93,27 +93,30 @@ const BG_BY_TYPE: Partial<{ [k in SHARE_TYPE]: { mobile: string; pc: string } }>
   [SHARE_TYPE.PORTFOLIO]: { mobile: BgPortfolioMobile, pc: BgPortfolio },
 }
 
-type RenderSlideProps = { render: RenderContentFn; scale?: number; ref?: React.ForwardedRef<HTMLDivElement> }
-const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeContents(
-  {
-    content,
-    isMobileMode,
-    setShareIndex,
-    kyberswapLogoTitle,
-    leftLogo,
-    title,
-    sharingUrl,
-    shareIndex,
-    shareType,
-    imageHeight,
-  },
-  ref,
-) {
+type RenderSlideProps = {
+  render: RenderContentFn
+  scale?: number
+  index: number
+}
+function NodeContents({
+  content,
+  isMobileMode,
+  setShareIndex,
+  kyberswapLogoTitle,
+  leftLogo,
+  title,
+  sharingUrl,
+  shareType,
+  imageHeight,
+  imageNodes,
+}: ContentProps) {
   const upToSmall = useMedia(`(max-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const renderMobile = ({ render, scale, ref }: RenderSlideProps) => (
+  const renderMobile = ({ render, scale, index }: RenderSlideProps) => (
     <ImageInnerMobile
-      ref={ref}
+      ref={ref => {
+        if (ref) imageNodes.current[index] = ref
+      }}
       className="share-mobile"
       style={scale ? { transform: `scale(${scale})` } : undefined}
       bg={BG_BY_TYPE[shareType]?.mobile || ''}
@@ -154,9 +157,11 @@ const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeConte
     </ImageInnerMobile>
   )
 
-  const renderPc = ({ render, scale, ref }: RenderSlideProps) => (
+  const renderPc = ({ render, scale, index }: RenderSlideProps) => (
     <ImageInner
-      ref={ref}
+      ref={ref => {
+        if (ref) imageNodes.current[index] = ref
+      }}
       className="share-pc"
       style={scale ? { transform: `scale(${scale})` } : undefined}
       bg={BG_BY_TYPE[shareType]?.pc || ''}
@@ -210,7 +215,7 @@ const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeConte
             ? getScale(contentWidth, SIZES.WIDTH_PC)
             : getScale(SIZES.HEIGH_PC, contentHeight)
 
-          const props = { render, scale, ref: index === shareIndex ? ref : null }
+          const props = { render, scale, index }
           return (
             <SwiperSlide key={index} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {isMobileMode ? renderMobile(props) : renderPc(props)}
@@ -220,7 +225,7 @@ const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeConte
       </Swiper>
     )
 
-  const params = { render: content as RenderContentFn, ref }
+  const params = { render: content as RenderContentFn, index: 0 }
   return isMobileMode ? renderMobile(params) : renderPc(params)
-})
+}
 export default NodeContents
