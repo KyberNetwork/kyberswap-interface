@@ -23,15 +23,15 @@ describe('Metamask Extension tests', { tags: TAG.regression }, () => {
       cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
         expect(approved).to.be.true
       })
-      cy.wait(2000)
-      SwapPage.getBalanceWallet(value => {
-        const balance = value.split(' ')[0]
-        if (balance !== '0') {
-          SwapPage.getCurrentBalanceIn(value => {
-            expect(Number(value)).to.be.greaterThan(0);
-          })
-        }
-      })
     }
+    cy.wait(2000)
+    SwapPage.getBalanceWallet(value => {
+      const balance = value.split(' ')[0]
+      if (balance !== '0') {
+        SwapPage.getCurrentBalanceIn(value => {
+          expect(Number(value)).to.be.greaterThan(0);
+        })
+      }
+    })
   })
 })

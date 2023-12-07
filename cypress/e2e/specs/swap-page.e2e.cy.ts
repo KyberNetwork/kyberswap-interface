@@ -190,9 +190,9 @@ describe('E2E Smoke', { tags: TAG.smoke }, () => {
             })
 
             SwapPage.selectTokenOut().getFavoriteTokens(arr => {
-                tokenCatalog.selectFavoriteToken(arr[3])
+                tokenCatalog.selectFavoriteToken(arr[0])
                 SwapPage.getCurrentTokenOut(text => {
-                    expect(text).to.equal(arr[3])
+                    expect(text).to.equal(arr[0])
                 })
             })
 
