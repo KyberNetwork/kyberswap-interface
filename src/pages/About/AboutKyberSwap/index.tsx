@@ -1,6 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useState } from 'react'
 import { Edit, FileText, Plus, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -39,17 +37,14 @@ import {
   OptimismLogoFull,
   PolygonLogoFull,
 } from 'components/Icons'
-import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import ZkSyncFull from 'components/Icons/ZkSyncFull'
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
+import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useGlobalData } from 'state/about/hooks'
 import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatBigLiquidity } from 'utils/formatBalance'
 
@@ -69,7 +64,6 @@ import {
   ForTraderInfoShadow,
   GridWrapper,
   KyberSwapSlippage,
-  OverflowStatisticWrapper,
   Powered,
   StatisticItem,
   StatisticWrapper,
@@ -170,65 +164,20 @@ export const KSStatistic = () => {
 }
 
 function AboutKyberSwap() {
-  const { isSolana, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const above992 = useMedia('(min-width: 992px)')
   const above768 = useMedia('(min-width: 768px)')
   const above500 = useMedia('(min-width: 500px)')
 
-  const data = useGlobalData()
-
-  const globalData = data && data.dmmFactories[0]
-  const aggregatorData = data?.aggregatorData
+  const aggregatorData = useAggregatorVolume()
 
   const { mixpanelHandler } = useMixpanel()
 
   const dataToShow = {
     totalTradingVolume: aggregatorData?.totalVolume,
     '24hTradingVolume': aggregatorData?.last24hVolume,
-    totalValueLocked: globalData?.totalLiquidityUSD,
-    totalAMPLiquidity: globalData?.totalAmplifiedLiquidityUSD,
-    totalEarnings: aggregatorData?.totalEarnings || 0,
-    maxAPRAvailable: aggregatorData?.maxApr,
   }
-
-  const [activeTab, setActiveTab] = useState(VERSION.ELASTIC)
-
-  const Compounding = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-    >
-      <LowestSlippage size={64} />
-      <Text
-        marginTop="28px"
-        fontWeight="500"
-        fontSize="16"
-        color={theme.primary}
-        textAlign={above768 ? 'start' : 'center'}
-        style={{ textTransform: 'uppercase' }}
-      >
-        <Trans>Earn more due to compounding</Trans>
-      </Text>
-
-      <Text color={theme.text} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-        <Trans>
-          We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more
-          with less effort due to compounding.
-        </Trans>
-      </Text>
-
-      <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com/overview/overview-kyberswap-elastic">
-          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-            <Trans>Learn More</Trans>↗
-          </Text>
-        </ExternalLink>
-      </ButtonEmpty>
-    </ForLiquidityProviderItem>
-  )
 
   const ForLPLowerSlippage = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
@@ -356,86 +305,11 @@ function AboutKyberSwap() {
     </ForLiquidityProviderItem>
   )
 
-  // WAIT FOR PROMM TO RELEASE
-
-  const ConcentratedLiquidity = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-    >
-      <BestPrice size={64} />
-      <Text
-        marginTop="28px"
-        fontWeight="500"
-        fontSize="16"
-        color={theme.primary}
-        style={{ textTransform: 'uppercase' }}
-        textAlign={above768 ? 'start' : 'center'}
-      >
-        <Trans>Earn More with Concentrated Liquidity</Trans>
-      </Text>
-
-      <Text color={theme.text} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-        <Trans>
-          As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your
-          liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity.
-        </Trans>
-      </Text>
-
-      <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com/overview/overview-kyberswap-elastic">
-          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-            <Trans>Learn More</Trans>↗
-          </Text>
-        </ExternalLink>
-      </ButtonEmpty>
-    </ForLiquidityProviderItem>
-  )
-
-  const PreventAttack = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-    >
-      <AntiSnippingAttack size={64} />
-      <Text marginTop="28px" fontWeight="500" color={theme.primary} textAlign={above768 ? 'start' : 'center'}>
-        <Trans>PREVENT SNIPING ATTACKS</Trans>
-      </Text>
-
-      <Text color={theme.text} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-        <Trans>
-          Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity
-          just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping
-          feature.
-        </Trans>
-      </Text>
-
-      <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com/overview/overview-kyberswap-elastic">
-          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-            <Trans>Learn More</Trans>↗
-          </Text>
-        </ExternalLink>
-      </ButtonEmpty>
-    </ForLiquidityProviderItem>
-  )
-
   const renderCreateNewPoolButton = () => {
-    return isSolana ? (
-      <BtnPrimary disabled style={{ flex: '0 0 216px', padding: '12px' }}>
-        <Plus size={20} />
-        <Text marginLeft="8px" fontSize={['14px', '16px']}>
-          <Trans>Create New Pool</Trans>
-        </Text>
-      </BtnPrimary>
-    ) : (
+    return (
       <BtnPrimary
         as={Link}
-        to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic&highlightCreateButton=true`}
+        to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic&highlightCreateButton=true`}
         onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_CREATE_NEW_POOL_CLICKED)}
         style={{ flex: '0 0 216px', padding: '12px' }}
       >
@@ -498,107 +372,32 @@ function AboutKyberSwap() {
 
           <KyberSwapGeneralIntro />
 
-          <OverflowStatisticWrapper>
-            <StatisticWrapper>
-              <Flex sx={{ gap: '16px' }} flex={2}>
-                <StatisticItem>
-                  <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {dataToShow.totalTradingVolume ? (
-                      formatBigLiquidity(dataToShow.totalTradingVolume, 2, true)
-                    ) : (
-                      <Loader />
-                    )}
-                  </Text>
-                  <Text color={theme.subText} marginTop="8px">
-                    <Trans>Total Trading Volume</Trans>*
-                  </Text>
-                </StatisticItem>
-                <StatisticItem>
-                  <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {dataToShow['24hTradingVolume'] ? (
-                      formatBigLiquidity(dataToShow['24hTradingVolume'], 2, true)
-                    ) : (
-                      <Loader />
-                    )}
-                  </Text>
-                  <Text color={theme.subText} marginTop="8px">
-                    <Trans>24H Trading Volume</Trans>*
-                  </Text>
-                </StatisticItem>
-              </Flex>
-              <Flex sx={{ gap: '16px' }} flex={2}>
-                <StatisticItem>
-                  <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {dataToShow.totalValueLocked ? (
-                      formatBigLiquidity(dataToShow.totalValueLocked, 2, true)
-                    ) : (
-                      <Loader />
-                    )}
-                  </Text>
-                  <Text color={theme.subText} marginTop="8px">
-                    <Trans>Total Value Locked</Trans>
-                  </Text>
-                </StatisticItem>
-                <StatisticItem>
-                  <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {dataToShow.totalAMPLiquidity ? (
-                      formatBigLiquidity(dataToShow.totalAMPLiquidity, 2, true)
-                    ) : (
-                      <Loader />
-                    )}
-                  </Text>
-                  <Text color={theme.subText} marginTop="8px">
-                    <Trans>Total AMP Liquidity</Trans>**
-                  </Text>
-                </StatisticItem>
-              </Flex>
-              {(dataToShow.totalEarnings > 0 || (dataToShow.maxAPRAvailable?.value ?? 0) > 0) && (
-                <Flex
-                  sx={{ gap: '16px' }}
-                  flex={dataToShow.totalEarnings > 0 && (dataToShow.maxAPRAvailable?.value ?? 0) > 0 ? 2 : 1}
-                >
-                  {dataToShow.totalEarnings > 0 && (
-                    <StatisticItem>
-                      <Text fontSize={['24px', '28px']} fontWeight={600}>
-                        {formatBigLiquidity(dataToShow.totalEarnings.toString() ?? 0, 2, true)}
-                      </Text>
-                      <Text color={theme.subText} marginTop="8px">
-                        <Trans>Total Earnings</Trans>
-                      </Text>
-                    </StatisticItem>
-                  )}
-                  {dataToShow.maxAPRAvailable && (dataToShow.maxAPRAvailable.value || 0) > 0 && (
-                    <StatisticItem>
-                      <Text fontSize={['24px', '28px']} fontWeight={600}>
-                        {dataToShow.maxAPRAvailable.value.toFixed(2) + '%'}
-                      </Text>
-                      <Text color={theme.subText} marginTop="8px">
-                        <Link
-                          to={`/${dataToShow.maxAPRAvailable.is_farm ? 'farms' : 'pools'}/${
-                            NETWORKS_INFO[dataToShow.maxAPRAvailable.chain_id as ChainId].route
-                          }?tab=${dataToShow.maxAPRAvailable.type || VERSION.CLASSIC}&search=${
-                            dataToShow.maxAPRAvailable.id
-                          }`}
-                          style={{ textDecorationLine: 'none' }}
-                        >
-                          <Trans>Max APR Available</Trans>↗
-                        </Link>
-                      </Text>
-                    </StatisticItem>
-                  )}
-                </Flex>
-              )}
-            </StatisticWrapper>
-            <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="12px" color={theme.subText}>
-              *<Trans>Includes DEX aggregation</Trans>
-            </Text>
-            <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="8px" color={theme.subText}>
-              **<Trans>TVL equivalent compared to AMMs</Trans>
-            </Text>
-            <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="8px" color={theme.subText}>
-              **<Trans>Applicable to KyberSwap Classic</Trans>
-            </Text>
-          </OverflowStatisticWrapper>
+          <StatisticWrapper>
+            <StatisticItem>
+              <Text fontSize={['24px', '28px']} fontWeight={600}>
+                {dataToShow.totalTradingVolume ? (
+                  formatBigLiquidity(dataToShow.totalTradingVolume, 2, true)
+                ) : (
+                  <Loader />
+                )}
+              </Text>
+              <Text color={theme.subText} marginTop="8px">
+                <Trans>Total Trading Volume</Trans>*
+              </Text>
+            </StatisticItem>
+            <StatisticItem>
+              <Text fontSize={['24px', '28px']} fontWeight={600}>
+                {dataToShow['24hTradingVolume'] ? (
+                  formatBigLiquidity(dataToShow['24hTradingVolume'], 2, true)
+                ) : (
+                  <Loader />
+                )}
+              </Text>
+              <Text color={theme.subText} marginTop="8px">
+                <Trans>24H Trading Volume</Trans>*
+              </Text>
+            </StatisticItem>
+          </StatisticWrapper>
 
           <ForTrader>
             <Flex flex={1} flexDirection="column" height="max-content">
@@ -702,52 +501,32 @@ function AboutKyberSwap() {
             lineHeight={1.5}
           >
             <Trans>
-              We give liquidity providers the option of choosing between two liquidity protocols so they can earn
-              passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning.
+              Liquidity providers can earn passive income by participating in our KyberSwap Classic protocol. Simply
+              deposit your liquidity and start earning.
             </Trans>
           </Text>
 
           <Tabs>
-            <TabItem active={activeTab === VERSION.ELASTIC} role="button" onClick={() => setActiveTab(VERSION.ELASTIC)}>
-              KyberSwap Elastic
-            </TabItem>
-            <Text color={theme.subText}>|</Text>
-            <TabItem role="button" active={activeTab === VERSION.CLASSIC} onClick={() => setActiveTab(VERSION.CLASSIC)}>
+            <TabItem role="button" active>
               KyberSwap Classic
             </TabItem>
           </Tabs>
 
-          {activeTab === VERSION.CLASSIC &&
-            (above500 ? (
-              <Flex marginTop={['40px', '48px']} flexDirection="column">
-                <ForLPLowerSlippage />
-                <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
-                  <ForLPHigherReturn />
-                  <ForLPBonusReward />
-                </Flex>
+          {above500 ? (
+            <Flex marginTop={['40px', '48px']} flexDirection="column">
+              <ForLPLowerSlippage />
+              <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
+                <ForLPHigherReturn />
+                <ForLPBonusReward />
               </Flex>
-            ) : (
-              <GridWrapper>
-                <ForLPLowerSlippage width="300px" />
-                <ForLPHigherReturn width="300px" />
-                <ForLPBonusReward width="300px" />
-              </GridWrapper>
-            ))}
-
-          {activeTab === VERSION.ELASTIC &&
-            (above500 ? (
-              <Flex marginTop={['40px', '48px']} sx={{ gap: '24px' }}>
-                <ConcentratedLiquidity />
-                <Compounding />
-                <PreventAttack />
-              </Flex>
-            ) : (
-              <GridWrapper>
-                <ConcentratedLiquidity width="300px" />
-                <Compounding width="300px" />
-                <PreventAttack width="300px" />
-              </GridWrapper>
-            ))}
+            </Flex>
+          ) : (
+            <GridWrapper>
+              <ForLPLowerSlippage width="300px" />
+              <ForLPHigherReturn width="300px" />
+              <ForLPBonusReward width="300px" />
+            </GridWrapper>
+          )}
 
           <Flex
             justifyContent="center"
@@ -756,66 +535,29 @@ function AboutKyberSwap() {
             marginTop={['40px', '48px']}
             sx={{ gap: above768 ? '24px' : '16px' }}
           >
-            {!isSolana ? (
-              <>
-                <BtnPrimary
-                  as={Link}
-                  to={
-                    activeTab === VERSION.ELASTIC
-                      ? `${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`
-                      : `${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic&highlightCreateButton=true`
-                  }
-                  onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
-                >
-                  <MoneyBagOutline size={20} color={theme.textReverse} />
-                  <Text fontSize="16px" marginLeft="8px">
-                    <Trans>Start Earning</Trans>
-                  </Text>
-                </BtnPrimary>
-                <ButtonLight
-                  as={Link}
-                  to={
-                    activeTab === VERSION.ELASTIC
-                      ? `${APP_PATHS.FARMS}/${networkInfo.route}?tab=elastic`
-                      : `${APP_PATHS.FARMS}/${networkInfo.route}?tab=classic`
-                  }
-                  onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}
-                  style={{
-                    flex: 1,
-                  }}
-                >
-                  <FarmIcon size={20} />
-                  <Text fontSize="16px" marginLeft="8px">
-                    <Trans>View Farms</Trans>
-                  </Text>
-                </ButtonLight>
-              </>
-            ) : (
-              <>
-                <BtnPrimary
-                  disabled
-                  style={{
-                    flex: 1,
-                  }}
-                >
-                  <MoneyBagOutline size={20} />
-                  <Text fontSize="16px" marginLeft="8px">
-                    <Trans>Start Earning</Trans>
-                  </Text>
-                </BtnPrimary>
-                <BtnPrimary
-                  disabled
-                  style={{
-                    flex: 1,
-                  }}
-                >
-                  <FarmIcon size={20} />
-                  <Text fontSize="16px" marginLeft="8px">
-                    <Trans>View Farms</Trans>
-                  </Text>
-                </BtnPrimary>
-              </>
-            )}
+            <BtnPrimary
+              as={Link}
+              to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic&highlightCreateButton=true`}
+              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
+            >
+              <MoneyBagOutline size={20} color={theme.textReverse} />
+              <Text fontSize="16px" marginLeft="8px">
+                <Trans>Start Earning</Trans>
+              </Text>
+            </BtnPrimary>
+            <ButtonLight
+              as={Link}
+              to={`${APP_PATHS.FARMS}/${networkInfo.route}?tab=classic`}
+              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}
+              style={{
+                flex: 1,
+              }}
+            >
+              <FarmIcon size={20} />
+              <Text fontSize="16px" marginLeft="8px">
+                <Trans>View Farms</Trans>
+              </Text>
+            </ButtonLight>{' '}
           </Flex>
 
           <Flex
@@ -1002,7 +744,6 @@ function AboutKyberSwap() {
               <AuroraFull />
               <img src={BTTCDark} alt="btt" width="100%" />
               <OptimismLogoFull />
-              {/* <SolanaLogoFull /> */}
               <ZkSyncFull color={theme.text} />
               <LineaFull />
               <img

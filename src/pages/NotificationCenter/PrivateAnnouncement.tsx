@@ -97,7 +97,7 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
           <DeleteAllAlertsButton
             disabled={totalAnnouncement === 0 || loading}
             onClear={clearAll}
-            notificationName={type ? PRIVATE_ANN_TITLE[type] : t`Notifications`}
+            notificationName={type ? PRIVATE_ANN_TITLE()[type] : t`Notifications`}
           />
         </HeaderWrapper>
         {data?.notifications?.length ? (

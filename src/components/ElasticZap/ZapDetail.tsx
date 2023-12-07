@@ -154,8 +154,8 @@ export const useZapDetail = ({
 
   const amountUsdAfterSwap =
     (currency0 && currency1
-      ? +(newPooledAmount0?.toExact() || 0) * (prices[currency0.wrapped.address] || 0) +
-        +(newPooledAmount1?.toExact() || 0) * (prices[currency1.wrapped.address] || 0)
+      ? +(newPosDraft?.amount0?.toExact() || 0) * (prices[currency0.wrapped.address] || 0) +
+        +(newPosDraft?.amount1?.toExact() || 0) * (prices[currency1.wrapped.address] || 0)
       : 0) + remainAmountUsd
 
   const priceImpact =

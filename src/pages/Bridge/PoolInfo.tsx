@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -29,12 +29,10 @@ const PoolInfo = ({
       width="100%"
     >
       <Text>
-        <Trans>
-          {chainId &&
-            `${NETWORKS_INFO[chainId].name} Pool: ${`${tokenIn ? formatPoolValue(poolValue) : t`loading token`} ${
-              tokenIn?.symbol ?? ''
-            }`}`}
-        </Trans>
+        {chainId &&
+          `${NETWORKS_INFO[chainId].name} Pool: ${`${tokenIn ? formatPoolValue(poolValue) : t`loading token`} ${
+            tokenIn?.symbol ?? ''
+          }`}`}
       </Text>
     </Flex>
   )

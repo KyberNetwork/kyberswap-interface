@@ -1,4 +1,4 @@
-import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { rgba } from 'polished'
@@ -131,7 +131,7 @@ const DraggableNetworkButton = ({
   onFavoriteClick?: () => void
 }) => {
   const theme = useTheme()
-  const { isWrongNetwork, walletSolana, walletEVM } = useActiveWeb3React()
+  const { isWrongNetwork, wallet } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [dragging, setDragging] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -143,29 +143,18 @@ const DraggableNetworkButton = ({
   const isMaintenance = state === ChainState.MAINTENANCE
   const disabled = (activeChainIds ? !activeChainIds?.includes(chainId) : false) || isMaintenance
   const selected = isSelected && !isWrongNetwork
-  const walletKey =
-    chainId === ChainId.SOLANA ? walletSolana.walletKey : walletEVM.chainId === chainId ? walletEVM.walletKey : null
+  const walletKey = wallet.chainId === chainId ? wallet.walletKey : null
 
   const handleChainSelect = () => {
     if (disabled) return
     customToggleModal?.()
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
-    } else if (getChainType(chainId) === getChainType(chainId)) {
-      changeNetwork(chainId, () => {
-        navigate(
-          {
-            search: stringify(qs),
-          },
-          { replace: true },
-        )
-        onChangedNetwork?.()
-      })
     } else {
       changeNetwork(chainId, () => {
         navigate(
           {
-            search: '',
+            search: stringify(qs),
           },
           { replace: true },
         )

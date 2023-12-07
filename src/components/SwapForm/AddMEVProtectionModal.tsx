@@ -95,13 +95,14 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
     if (!selectedOption) return
     const addingOption = selectedOption
     mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_CLICK_MODAL, { type: addingOption.name })
+    const name = addingOption.name
     addNewNetwork(
       ChainId.MAINNET,
       addingOption.rpc,
       {
-        name: addingOption.name,
-        title: t`Failed to switch to ${addingOption.name} RPC Endpoint`,
-        rejected: t`In order to enable MEV Protection with ${addingOption.name}, you must change the RPC endpoint in your wallet`,
+        name,
+        title: t`Failed to switch to ${name} RPC Endpoint`,
+        rejected: t`In order to enable MEV Protection with ${name}, you must change the RPC endpoint in your wallet`,
       },
       () => {
         notify({

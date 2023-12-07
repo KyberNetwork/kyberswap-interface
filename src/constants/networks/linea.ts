@@ -1,13 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const lineaInfo: EVMNetworkInfo = {
+const lineaInfo: NetworkInfo = {
   chainId: ChainId.LINEA,
   route: 'linea',
   ksSettingRoute: 'linea',
@@ -58,7 +58,7 @@ const lineaInfo: EVMNetworkInfo = {
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
     farmV2S: ['0x3d6afe2fb73ffed2e3dd00c501a174554e147a43'],
   },
-  limitOrder: NOT_SUPPORT,
+  limitOrder: '*',
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: NOT_SUPPORT,
   coingeckoNativeTokenId: NOT_SUPPORT,

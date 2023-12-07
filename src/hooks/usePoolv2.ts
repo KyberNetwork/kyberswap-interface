@@ -4,8 +4,7 @@ import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
-import { NETWORKS_INFO, isEVM as isEVMNetwork } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useMulticallContract } from 'hooks/useContract'
 import { PoolState } from 'hooks/usePools'
 
@@ -139,7 +138,6 @@ export function usePoolv2(
   pool: Pool | undefined
   computedPoolAddress: string | undefined
 } {
-  const isEVM = isEVMNetwork(chainId)
   const networkInfo = NETWORKS_INFO[chainId]
 
   const values: [Token, Token, FeeAmount] | undefined = useMemo(() => {
@@ -162,21 +160,21 @@ export function usePoolv2(
       return poolAddress
     }
 
-    if (!isEVM || !values) {
+    if (!values) {
       return undefined
     }
 
-    const proAmmCoreFactoryAddress = (networkInfo as EVMNetworkInfo).elastic.coreFactory
+    const proAmmCoreFactoryAddress = networkInfo.elastic.coreFactory
     const param = {
       factoryAddress: proAmmCoreFactoryAddress,
       tokenA: values[0],
       tokenB: values[1],
       fee: values[2],
-      initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+      initCodeHashManualOverride: networkInfo.elastic.initCodeHash,
     }
 
     return computePoolAddress(param)
-  }, [isEVM, networkInfo, poolAddress, values])
+  }, [networkInfo, poolAddress, values])
 
   const [poolState, pool] = useGetPool(chainId, computedPoolAddress, values?.[0], values?.[1], values?.[2])
 

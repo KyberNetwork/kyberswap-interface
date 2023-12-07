@@ -26,7 +26,6 @@ import {
 import WarningNote from 'components/WarningNote'
 import { abi } from 'constants/abis/v2/ProAmmPoolState.json'
 import { APP_PATHS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { useZapInAction, useZapInPoolResult } from 'hooks/elasticZap'
@@ -93,10 +92,11 @@ export const QuickZapButton = ({
   size?: 'small' | 'medium'
 }) => {
   const { networkInfo } = useActiveWeb3React()
-  const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
+  const isZapAvailable = !!networkInfo.elastic.zap
   const theme = useTheme()
 
-  return (
+  const tmp = true
+  return tmp ? null : (
     <MouseoverTooltip
       text={
         isZapAvailable ? (
@@ -134,7 +134,7 @@ export default function QuickZap(props: Props) {
 
 function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainId }: Props) {
   const { chainId, networkInfo, account } = useActiveWeb3React()
-  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
+  const zapInContractAddress = networkInfo.elastic.zap?.router
   const { changeNetwork } = useChangeNetwork()
   const theme = useTheme()
   const [selectedRange, setSelectedRange] = useState<RANGE | FARMING_RANGE | null>(null)

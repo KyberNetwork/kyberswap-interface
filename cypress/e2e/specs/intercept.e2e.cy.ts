@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { FarmPage } from "../pages/farm-page.po.cy";
 import { SwapPage, TokenCatalog } from "../pages/swap-page.po.cy"
 import { DEFAULT_URL, TAG, } from "../selectors/constants.cy"
-import { HeaderLocators } from "../selectors/selectors.cy"
 const tokenCatalog = new TokenCatalog()
 const farm = new FarmPage()
 
@@ -10,6 +8,12 @@ describe('Intercept', { tags: TAG.regression }, () => {
    beforeEach(() => {
       SwapPage.open(DEFAULT_URL)
    })
+
+   afterEach(() => {
+      cy.clearCookies();
+      cy.clearLocalStorage();
+   })
+
    describe('Swap', () => {
       it('Should get route successfully', () => {
          cy.intercept('GET', '**/routes?**').as('get-route')
@@ -56,7 +60,7 @@ describe('Intercept', { tags: TAG.regression }, () => {
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
          SwapPage.goToFarmPage()
          cy.get('[data-testid=farm-block]')
-            .should(_ => {})
+            .should(_ => { })
             .then($list => {
                if ($list.length) {
                   cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)

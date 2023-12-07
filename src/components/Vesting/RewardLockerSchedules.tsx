@@ -2,7 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Token } from '@kyberswap/ks-sdk-core'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -186,7 +185,7 @@ const RewardLockerSchedules = ({
     }
 
     return acc
-  }, endTimestampFromBlock || currentTimestamp + blockDiff * ((networkInfo as EVMNetworkInfo).averageBlockTimeInSeconds || 0))
+  }, endTimestampFromBlock || currentTimestamp + blockDiff * (networkInfo.averageBlockTimeInSeconds || 0))
 
   return <VestingCard info={info} endTime={endTime} remainTime={endTime - currentTimestamp} onClaimAll={onClaimAll} />
 }

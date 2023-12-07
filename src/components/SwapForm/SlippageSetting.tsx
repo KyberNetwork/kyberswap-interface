@@ -23,13 +23,12 @@ type Props = {
   isStablePairSwap: boolean
   rightComponent?: ReactNode
   tooltip?: ReactNode
-  isCrossChain?: boolean
 }
-const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip, isCrossChain }: Props) => {
+const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
 
-  const { setRawSlippage, rawSlippage, isSlippageControlPinned } = useSlippageSettingByPage(isCrossChain)
+  const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
   const defaultRawSlippage = getDefaultSlippage(isStablePairSwap)
 
   const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap)

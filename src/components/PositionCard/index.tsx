@@ -512,6 +512,9 @@ export default function FullPositionCard({
     )
   }
 
+  const feeApr = tradingFeeAPR.toFixed(2)
+  const farmApr = farmAPR.toFixed(2)
+
   return (
     <StyledPositionCard border={border}>
       <Flex justifyContent="space-between">
@@ -575,10 +578,7 @@ export default function FullPositionCard({
         </Text>
         <Flex fontSize={12} color={theme.subText} marginTop="2px" alignItems="baseline" sx={{ gap: '4px' }}>
           <Flex alignItems="center" flexDirection="row">
-            APR{' '}
-            {tab === 'STAKED' && (
-              <InfoHelper text={t`${tradingFeeAPR.toFixed(2)}% LP Fee + ${farmAPR.toFixed(2)}% Rewards`} size={14} />
-            )}
+            APR {tab === 'STAKED' && <InfoHelper text={t`${feeApr}% LP Fee + ${farmApr}% Rewards`} size={14} />}
           </Flex>
           <Text as="span" color={theme.apr} fontSize="20px" fontWeight={500}>
             {apr ? `${apr.toFixed(2)}%` : '--'}

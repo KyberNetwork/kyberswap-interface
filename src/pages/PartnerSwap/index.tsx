@@ -178,7 +178,9 @@ export default function Swap() {
   const onChangeCurrencyOut = useCallback(
     (c: Currency) => {
       const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
-      if (value === inputTokenFromParam) searchParams.set('inputCurrency', outputTokenFromParam || '')
+      if (value.toLowerCase() === inputTokenFromParam?.toLowerCase()) {
+        searchParams.set('inputCurrency', outputTokenFromParam || '')
+      }
       searchParams.set('outputCurrency', value)
       setSearchParams(searchParams)
     },
@@ -209,6 +211,8 @@ export default function Swap() {
   // modal and loading
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
+  const currencyName = currencyOut?.wrapped.name
+  const currencySymbol = currencyOut?.wrapped.symbol
   return (
     <>
       <PageWrapper>
@@ -259,7 +263,7 @@ export default function Swap() {
                       currencyOut={currencyOut}
                       note={
                         currencyOut?.isNative
-                          ? t`Note: Once your order is filled, you will receive ${currencyOut?.wrapped.name} (${currencyOut?.wrapped.symbol})`
+                          ? t`Note: Once your order is filled, you will receive ${currencyName} (${currencySymbol})`
                           : undefined
                       }
                       useUrlParams

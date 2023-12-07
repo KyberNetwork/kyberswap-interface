@@ -512,11 +512,13 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     try {
       if (isNotFillAllInput || wrapInputError || isWrappingEth || hasInputError) return
       const amount = formatAmountOrder(inputAmount)
+      const wethSymbol = WETH[chainId].symbol
+      const inSymbol = currencyIn?.symbol
       setFlowState(state => ({
         ...state,
         attemptingTxn: true,
         showConfirm: true,
-        pendingText: t`Wrapping ${amount} ${currencyIn?.symbol} to ${amount} ${WETH[chainId].symbol}`,
+        pendingText: t`Wrapping ${amount} ${inSymbol} to ${amount} ${wethSymbol}`,
       }))
       const hash = await onWrap?.()
       hash && setTxHashWrapped(hash)

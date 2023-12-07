@@ -5,13 +5,13 @@ import { PairFactor } from 'state/topTokens/type'
 
 export const RANGE_LIST = [RANGE.FULL_RANGE, RANGE.SAFE, RANGE.COMMON, RANGE.EXPERT] as const
 
-export const rangeData: {
+export const getRangeData: () => {
   [range in RANGE]: {
     title: string
     tooltip: { [pairFactor in PairFactor]: string }
     factor: number
   }
-} = {
+} = () => ({
   [RANGE.FULL_RANGE]: {
     title: t`Full Range`,
     tooltip: {
@@ -52,4 +52,4 @@ export const rangeData: {
     },
     factor: 15,
   },
-} as const
+})

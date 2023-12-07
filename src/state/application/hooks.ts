@@ -1,6 +1,5 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Connection } from '@solana/web3.js'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -17,8 +16,7 @@ import {
   PopupItemType,
   PopupType,
 } from 'components/Announcement/type'
-import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
-import ethereumInfo from 'constants/networks/ethereum'
+import { NETWORKS_INFO } from 'constants/networks'
 import { AppJsonRpcProvider } from 'constants/providers'
 import { KNC_ADDRESS } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
@@ -341,7 +339,7 @@ const getPrommEthPrice = async (
 // todo: should fetch from price service
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
-  const { isEVM, chainId } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const { elasticClient, classicClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
 
   const ethPrice = useSelector((state: AppState) =>
@@ -349,8 +347,6 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
   )
 
   useEffect(() => {
-    if (!isEVM) return
-
     async function checkForEthPrice() {
       try {
         const [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC
@@ -375,7 +371,7 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
       }
     }
     checkForEthPrice()
-  }, [dispatch, chainId, version, isEVM, elasticClient, classicClient, blockClient, isEnableBlockService])
+  }, [dispatch, chainId, version, elasticClient, classicClient, blockClient, isEnableBlockService])
 
   return ethPrice
 }
@@ -432,14 +428,13 @@ const cacheCalc: <T extends keyof typeof cacheConfig, U extends typeof cacheConf
 }
 
 function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {
-  const evm = isEVM(chainId)
   return {
     rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
     isEnableKNProtocol: false,
     isEnableBlockService: false,
-    blockSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).defaultBlockSubgraph,
-    elasticSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).elastic.defaultSubgraph,
-    classicSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).classic.defaultSubgraph,
+    blockSubgraph: NETWORKS_INFO[chainId].defaultBlockSubgraph,
+    elasticSubgraph: NETWORKS_INFO[chainId].elastic.defaultSubgraph,
+    classicSubgraph: NETWORKS_INFO[chainId].classic.defaultSubgraph,
     commonTokens: undefined,
   }
 }
@@ -475,7 +470,6 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
       blockClient,
       elasticClient,
       classicClient,
-      connection: isSolana(chainId) ? new Connection(config.rpc, { commitment: 'confirmed' }) : undefined,
       commonTokens: config.commonTokens,
     }
   }, [
@@ -487,6 +481,5 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
     blockClient,
     elasticClient,
     classicClient,
-    chainId,
   ])
 }

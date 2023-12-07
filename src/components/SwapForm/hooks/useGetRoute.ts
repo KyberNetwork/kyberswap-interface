@@ -1,6 +1,6 @@
-import { ChainId, Currency, CurrencyAmount, Price, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import debounce from 'lodash/debounce'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
@@ -8,21 +8,13 @@ import { GetRouteParams } from 'services/route/types/getRoute'
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { AGGREGATOR_API } from 'constants/env'
-import {
-  AGGREGATOR_API_PATHS,
-  ETHER_ADDRESS,
-  INPUT_DEBOUNCE_TIME,
-  SWAP_FEE_RECEIVER_ADDRESS,
-  ZERO_ADDRESS_SOLANA,
-} from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { AGGREGATOR_API_PATHS, ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, SWAP_FEE_RECEIVER_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useDebounce from 'hooks/useDebounce'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { ChargeFeeBy } from 'types/route'
-import { Aggregator } from 'utils/aggregator'
 
 export type ArgsGetRoute = {
   isSaveGas: boolean
@@ -35,11 +27,7 @@ export type ArgsGetRoute = {
 }
 
 export const getRouteTokenAddressParam = (currency: Currency) =>
-  currency.isNative
-    ? isEVM(currency.chainId)
-      ? ETHER_ADDRESS
-      : WETH[currency.chainId].address
-    : currency.wrapped.address
+  currency.isNative ? ETHER_ADDRESS : currency.wrapped.address
 
 const getFeeConfigParams = (
   swapFeeConfig: SwapFeeConfig | undefined,
@@ -161,13 +149,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const fetcher = useCallback(async () => {
     const amountIn = parsedAmount?.quotient?.toString() || ''
 
-    if (
-      !currencyIn ||
-      !currencyOut ||
-      !amountIn ||
-      !parsedAmount?.currency?.equals(currencyIn) ||
-      chainId === ChainId.SOLANA
-    ) {
+    if (!currencyIn || !currencyOut || !amountIn || !parsedAmount?.currency?.equals(currencyIn)) {
       return undefined
     }
 
@@ -218,48 +200,6 @@ const useGetRoute = (args: ArgsGetRoute) => {
   ])
 
   return { fetcher, result }
-}
-
-export const useGetRouteSolana = (args: ArgsGetRoute) => {
-  const { parsedAmount, currencyIn, currencyOut, customChain } = args
-  const { account } = useActiveWeb3React()
-  const controller = useRef(new AbortController())
-
-  const { aggregatorAPI } = useKyberswapGlobalConfig()
-  const [price, setPrice] = useState<Price<Currency, Currency> | null>(null)
-
-  const debounceAmount = useDebounce(parsedAmount, INPUT_DEBOUNCE_TIME)
-
-  const fetcherWithoutDebounce = useCallback(async () => {
-    const amountIn = debounceAmount?.quotient?.toString() || ''
-
-    if (
-      !currencyIn ||
-      !currencyOut ||
-      !amountIn ||
-      !debounceAmount?.currency?.equals(currencyIn) ||
-      customChain !== ChainId.SOLANA
-    ) {
-      setPrice(null)
-      return
-    }
-    controller.current.abort()
-    controller.current = new AbortController()
-    const to = account ?? ZERO_ADDRESS_SOLANA
-    const signal = controller.current.signal
-    const result = await Aggregator.baseTradeSolana({
-      aggregatorAPI,
-      currencyAmountIn: debounceAmount,
-      currencyOut,
-      to,
-      signal,
-    })
-    setPrice(result)
-  }, [currencyIn, currencyOut, debounceAmount, account, aggregatorAPI, customChain])
-
-  const fetcher = useMemo(() => debounce(fetcherWithoutDebounce, INPUT_DEBOUNCE_TIME), [fetcherWithoutDebounce])
-
-  return { fetcher, result: price }
 }
 
 export default useGetRoute

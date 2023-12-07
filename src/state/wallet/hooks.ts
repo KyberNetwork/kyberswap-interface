@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
-import { isEVM as isEVMChain } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -16,20 +15,16 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils'
 import { isTokenNative } from 'utils/tokenInfo'
 
-import { useSOLBalance, useTokensBalanceSolana } from './solanaHooks'
-
 export function useNativeBalance(customChain?: ChainId): CurrencyAmount<Currency> | undefined {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
-  const isEVM = isEVMChain(chainId)
   const isFetchOtherChain = chainId !== currentChain
 
   const userEthBalanceAnotherChain = useEthBalanceOfAnotherChain(isFetchOtherChain ? chainId : undefined)
   const userEthBalance = useETHBalance()
-  const userSolBalance = useSOLBalance()
 
   const evmBalance = isFetchOtherChain ? userEthBalanceAnotherChain : userEthBalance
-  return isEVM ? evmBalance : userSolBalance
+  return evmBalance
 }
 
 function useETHBalance(): CurrencyAmount<Currency> | undefined {
@@ -58,24 +53,15 @@ const stringifyBalance = (balanceMap: { [key: string]: TokenAmount }) => {
 
 export type TokenAmountLoading = [TokenAmount | undefined, boolean]
 
-function useTokensBalance(tokens?: Token[], customChain?: ChainId): TokenAmountLoading[] {
-  const { chainId: currentChain } = useActiveWeb3React()
-  const chainId = customChain || currentChain
-  const isEVM = isEVMChain(chainId)
-  const userEthBalance = useTokensBalanceEVM(tokens, chainId)
-  const userSolBalance = useTokensBalanceSolana(tokens)
-  return isEVM ? userEthBalance : userSolBalance
+function useTokensBalance(tokens?: Token[]): TokenAmountLoading[] {
+  const userEthBalance = useTokensBalanceEVM(tokens)
+  return userEthBalance
 }
 
-function useTokensBalanceEVM(tokens?: Token[], customChain?: ChainId): TokenAmountLoading[] {
-  const { account, chainId: currentChain } = useActiveWeb3React()
-  const chainId = customChain || currentChain
-  const isEVM = isEVMChain(chainId)
+function useTokensBalanceEVM(tokens?: Token[]): TokenAmountLoading[] {
+  const { account } = useActiveWeb3React()
 
-  const validatedTokenAddresses = useMemo(
-    () => (isEVM ? tokens?.map(token => token?.address) ?? [] : []),
-    [tokens, isEVM],
-  )
+  const validatedTokenAddresses = useMemo(() => tokens?.map(token => token?.address) ?? [], [tokens])
   const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_INTERFACE, 'balanceOf', [account])
   return useMemo(
     () =>
@@ -106,7 +92,8 @@ export function useTokenBalancesWithLoadingIndicator(
 
   const isFetchOtherChain = chainId !== currentChain
 
-  const balancesCurrentChain = useTokensBalance(isFetchOtherChain ? EMPTY_ARRAY : tokens, chainId)
+  const balancesCurrentChain = useTokensBalance(isFetchOtherChain ? EMPTY_ARRAY : tokens)
+
   const [balancesOtherChain, isLoadingAnotherChain] = useTokensBalanceOfAnotherChain(
     chainId,
     isFetchOtherChain ? tokens : EMPTY_ARRAY,

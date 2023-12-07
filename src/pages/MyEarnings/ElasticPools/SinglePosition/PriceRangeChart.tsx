@@ -52,6 +52,9 @@ const PriceRangeChart: React.FC<Props> = ({ position, disabled }) => {
     setBaseCurrency(quoteCurrency)
   }, [quoteCurrency])
 
+  const baseSymbol = baseCurrency?.symbol
+  const quoteSymbol = quoteCurrency?.symbol
+
   return (
     <Flex
       sx={{
@@ -124,26 +127,26 @@ const PriceRangeChart: React.FC<Props> = ({ position, disabled }) => {
       />
 
       <Flex justifyContent="space-between" fontSize={12} fontWeight="500">
-        <MouseoverTooltip text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price.`}>
+        <MouseoverTooltip text={t`Your position will be 100% composed of ${baseSymbol} at this price.`}>
           <TextDashed color={theme.subText}>
             <Trans>Min Price</Trans>:{' '}
           </TextDashed>
         </MouseoverTooltip>
 
         <Text>
-          {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} {quoteCurrency.symbol}/{baseCurrency.symbol}
+          {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} {quoteSymbol}/{baseSymbol}
         </Text>
       </Flex>
 
       <Flex justifyContent="space-between" fontSize={12} fontWeight="500" marginTop="12px">
-        <MouseoverTooltip text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}>
+        <MouseoverTooltip text={t`Your position will be 100% composed of ${quoteSymbol} at this price`}>
           <TextDashed color={theme.subText}>
             <Trans>Max Price</Trans>:{' '}
           </TextDashed>
         </MouseoverTooltip>
 
         <Text>
-          {formatTickPrice(priceUpper, tickAtLimit, Bound.LOWER)} {quoteCurrency.symbol}/{baseCurrency.symbol}
+          {formatTickPrice(priceUpper, tickAtLimit, Bound.LOWER)} {quoteSymbol}/{baseSymbol}
         </Text>
       </Flex>
     </Flex>

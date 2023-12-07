@@ -69,19 +69,19 @@ const RewardWrapper = styled.div`
   gap: 4px;
 `
 
-const TABS = [
-  {
-    title: t`Voting Rewards`,
-    value: REWARD_TYPE.VOTING_REWARDS,
-  },
-  {
-    title: t`Gas Refund`,
-    value: REWARD_TYPE.GAS_REFUND,
-  },
-] as { title: string; value: REWARD_TYPE }[]
-
 export default function RewardCenter() {
   const { mixpanelHandler } = useMixpanel()
+  const TABS = [
+    {
+      title: t`Voting Rewards`,
+      value: REWARD_TYPE.VOTING_REWARDS,
+    },
+    {
+      title: t`Gas Refund`,
+      value: REWARD_TYPE.GAS_REFUND,
+    },
+  ] as { title: string; value: REWARD_TYPE }[]
+
   const theme = useTheme()
   const notify = useNotify()
   const [activeTab, setActiveTab] = useState<REWARD_TYPE>(REWARD_TYPE.VOTING_REWARDS)

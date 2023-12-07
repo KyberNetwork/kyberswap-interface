@@ -1,8 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
-import { Transaction } from '@solana/web3.js'
 import axios from 'axios'
 import { useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -15,7 +13,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
-import { useActiveWeb3React, useWeb3React, useWeb3Solana } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -64,7 +62,7 @@ export default function CampaignButtonWithOptions({
     ? campaign[type === 'swap_now' ? 'chainIds' : 'rewardChainIds'].split(',').map(Number)
     : []
 
-  const { account, walletSolana, walletKey } = useActiveWeb3React()
+  const { account, walletKey } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const rawRewards = campaign?.userInfo?.rewards || []
@@ -118,8 +116,6 @@ export default function CampaignButtonWithOptions({
   }
 
   const addTransactionWithType = useTransactionAdder()
-
-  const { connection } = useWeb3Solana()
 
   const addClaimTransactionAndAddClaimRef = (
     hash: string,
@@ -181,19 +177,6 @@ export default function CampaignButtonWithOptions({
       const rewardContractAddress = response.data.data.ContractAddress
       const encodedData = response.data.data.EncodedData
       try {
-        if (claimChainId === ChainId.SOLANA) {
-          if (connection && walletSolana.wallet?.adapter) {
-            const transaction = Transaction.from(Buffer.from(encodedData.substring(2), 'hex'))
-            const signedTx = await (walletSolana.wallet.adapter as SignerWalletAdapter).signTransaction(transaction)
-            const signature = await connection.sendRawTransaction(Buffer.from(signedTx.serialize()))
-
-            addClaimTransactionAndAddClaimRef(signature, claimChainId, rewardString, rewardContractAddress)
-            addTemporaryClaimedRefs && addTemporaryClaimedRefs(refs)
-            updateCampaignStore()
-            setClaimingCampaignRewardId(null)
-          }
-          return
-        }
         const transactionResponse = await sendEVMTransaction({
           account,
           library,
@@ -248,6 +231,8 @@ export default function CampaignButtonWithOptions({
       {isShowNetworks && (
         <OptionsContainer>
           {chainIds.map(chainId => {
+            const networkName = NETWORKS_INFO[chainId].name
+
             return (
               <Flex
                 key={chainId}
@@ -263,9 +248,7 @@ export default function CampaignButtonWithOptions({
               >
                 <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
                 <Text marginLeft="8px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
-                  {type === 'swap_now'
-                    ? t`Swap on ${NETWORKS_INFO[chainId].name}`
-                    : t`Claim on ${NETWORKS_INFO[chainId].name}`}
+                  {type === 'swap_now' ? t`Swap on ${networkName}` : t`Claim on ${networkName}`}
                 </Text>
               </Flex>
             )

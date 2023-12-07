@@ -1,4 +1,3 @@
-import { RouteData } from '@0xsquid/sdk'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
@@ -14,14 +13,9 @@ import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useCrossChainState } from 'state/crossChain/hooks'
 import { formattedNum } from 'utils'
 import { uint256ToFraction } from 'utils/numbers'
-
-type Props = {
-  route: RouteData | undefined
-}
 
 const TruncatedText = styled(Text)`
   text-overflow: ellipsis;
@@ -66,12 +60,12 @@ const Network = ({ chainId }: { chainId: ChainId | undefined }) => {
   )
 }
 
-export default function SwapBrief({ route }: Props) {
+export default function SwapBrief() {
   const theme = useTheme()
-  const [{ currencyIn, currencyOut, chainIdOut }] = useCrossChainState()
+  const [{ currencyIn, currencyOut, chainIdOut, formatRoute }] = useCrossChainState()
   const { chainId } = useActiveWeb3React()
 
-  const { amountUsdIn, amountUsdOut, outputAmount, inputAmount } = getRouInfo(route)
+  const { amountUsdIn, amountUsdOut, outputAmount, inputAmount } = formatRoute
 
   const renderAmount = (amount: string | undefined, decimals: number | undefined) => {
     try {
@@ -85,7 +79,7 @@ export default function SwapBrief({ route }: Props) {
     }
   }
 
-  const renderAmountUsd = (amountUsdOut: string | undefined) => {
+  const renderAmountUsd = (amountUsdOut: string | undefined | number) => {
     return (
       <Text fontSize={14} fontWeight={500} color={theme.subText}>
         {amountUsdOut ? `~${formattedNum(amountUsdOut, true)}` : '--'}

@@ -37,7 +37,7 @@ export default function SlippageSettingGroup({
 }) {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const theme = useTheme()
-  const { chainId, walletEVM } = useActiveWeb3React()
+  const { chainId, wallet } = useActiveWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
   const { mixpanelHandler } = useMixpanel()
 
@@ -52,7 +52,7 @@ export default function SlippageSettingGroup({
 
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const rightButton =
-    chainId === ChainId.MAINNET && walletEVM.isConnected && !isPartnerSwap ? (
+    chainId === ChainId.MAINNET && wallet.isConnected && !isPartnerSwap ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
         <Shield size={14} color={theme.subText} />
         <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>

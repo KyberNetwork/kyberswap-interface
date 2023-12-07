@@ -6,7 +6,6 @@ import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import Checkbox from 'components/CheckBox'
-import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
@@ -113,7 +112,6 @@ export const isKyberSwapDex = (id: string) => id.toLowerCase().includes('kyber')
 const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.toLowerCase(), 200).trim()
-  const { isEVM } = useActiveWeb3React()
 
   const dexes = useAllDexes(chainId)
   const [excludeDexes, setExcludeDexes] = useExcludeDexes(chainId)
@@ -206,7 +204,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
         </LiquiditySourceHeader>
 
         <SourceList>
-          {isEVM && !!ksDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
+          {!!ksDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
             <>
               <Source>
                 <Checkbox

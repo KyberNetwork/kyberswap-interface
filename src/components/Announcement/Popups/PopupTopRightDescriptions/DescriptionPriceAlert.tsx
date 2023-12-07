@@ -35,7 +35,7 @@ const DescriptionPriceAlert = (
   const isAbove = type === PriceAlertType.ABOVE
 
   return {
-    title: PRIVATE_ANN_TITLE[templateType] ?? '',
+    title: PRIVATE_ANN_TITLE()[templateType] ?? '',
     type: NotificationType.SUCCESS,
     link: `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}?tab=${Tab.HISTORY}`,
     icon: <Clock size={20} />,

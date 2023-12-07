@@ -9,6 +9,7 @@ export const TokenCatalogLocators = {
   iconFavorite: '[data-testid=button-favorite-token]',
   iconRemoveImportedToken: '[data-testid=button-remove-import-token]',
   iconRemoveFavoriteToken: '[data-testid=close-btn]',
+  iconClosePopup: '[data-testid=close-icon]',
   btnImport: '[data-testid=button-import-token]',
   btnUnderstand: '[data-testid=button-confirm-import-token]',
   btnClearAll: '[data-testid=button-clear-all-import-token]',

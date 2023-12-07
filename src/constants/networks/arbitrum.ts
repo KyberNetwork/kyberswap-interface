@@ -2,12 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import arbitrumIcon from 'assets/networks/arbitrum.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const arbitrumInfo: EVMNetworkInfo = {
+const arbitrumInfo: NetworkInfo = {
   chainId: ChainId.ARBITRUM,
   route: 'arbitrum',
   ksSettingRoute: 'arbitrum',
@@ -68,8 +68,8 @@ const arbitrumInfo: EVMNetworkInfo = {
     zap: {
       router: '0x30C5322E4e08AD500c348007f92f120ab4E2b79e',
       validator: '0xf0096e5B4AAfeEA1DF557264091569ba125c1172',
-      executor: '0x4f097F7074D52952006a0763312724929Ff95Cf0',
-      helper: '0x4E8419EFa0b0A149Dad77b689D37AF17f762f20A',
+      executor: '0x8ac7895130e3be8654fff544ae20bf2a93ef19d1',
+      helper: '0x214061F0e250A27a49f609d9caf2987a7bC8fA6B',
     },
   },
   limitOrder: '*',

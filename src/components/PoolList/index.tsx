@@ -109,7 +109,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   const { loading: loadingPoolsData, data: classicPoolsData } = useGetClassicPools()
 
-  const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const [viewMode] = useViewMode()
 
   useResetPools(chainId)
@@ -201,7 +201,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
           <ClickableText>
             <Trans>Pool | AMP</Trans>
           </ClickableText>
-          <InfoHelper text={AMP_HINT} />
+          <InfoHelper text={AMP_HINT()} />
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
@@ -212,7 +212,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
           >
             <Flex>
               <Trans>AMP LIQUIDITY</Trans>
-              <InfoHelper text={AMP_LIQUIDITY_HINT} />
+              <InfoHelper text={AMP_LIQUIDITY_HINT()} />
             </Flex>
             {upToLarge ? <span /> : <span style={{ marginLeft: '0.25rem' }}>|</span>}
             <Flex>
@@ -363,7 +363,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     })
 
     if (onlyShowStable) {
-      const stableList = isEVM ? stableCoins?.map(item => item.address.toLowerCase()) || [] : []
+      const stableList = stableCoins?.map(item => item.address.toLowerCase()) || []
       res = res.filter(poolData => {
         return (
           stableList.includes(poolData.token0.address.toLowerCase()) &&
@@ -381,7 +381,6 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     onlyShowStable,
     farms,
     searchValue,
-    isEVM,
     stableCoins,
   ])
 

@@ -12,11 +12,18 @@ export const formatTime = (time: number) => {
   const delta = (Date.now() - time * 1000) / 1000
   const min = Math.floor(delta / 60)
   if (min < 1) return t`< 1 minute ago`
-  if (min < 60) return t`${min} ${formatMulti(min, 'minute')} ago`
+  if (min < 60) {
+    const formatM = formatMulti(min, 'minute')
+    return t`${min} ${formatM} ago`
+  }
   const hour = Math.floor(delta / 3600)
-  if (hour < 24) return t`${hour} ${formatMulti(hour, 'hour')} ago`
+  if (hour < 24) {
+    const temp = formatMulti(hour, 'hour')
+    return t`${hour} ${temp} ago`
+  }
   const day = Math.floor(delta / (24 * 3600))
-  return t`${day} ${formatMulti(day, 'day')} ago`
+  const temp = formatMulti(day, 'day')
+  return t`${day} ${temp} ago`
 }
 
 // 1800 => 00:03:00

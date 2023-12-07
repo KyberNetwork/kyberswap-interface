@@ -6,7 +6,6 @@ import { ReactNode, useCallback, useMemo } from 'react'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { usePool } from 'hooks/usePools'
-import { useTotalFeeOwedByElasticPosition } from 'hooks/useProAmmPreviousTicks'
 import { AppState } from 'state'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -22,6 +21,7 @@ export function useBurnProAmmState(): AppState['burnProAmm'] {
 export function useDerivedProAmmBurnInfo(
   position?: PositionDetails,
   asWETH = false,
+  isDynamicFarm = false,
 ): {
   position?: Position
   liquidityPercentage?: Percent
@@ -91,6 +91,7 @@ export function useDerivedProAmmBurnInfo(
   if (independentField === Field.LIQUIDITY_PERCENT) {
     liquidityPercentage = new Percent(typedValue, '100')
   }
+
   // user specified a specific amount of token a or b
   else {
     if (!!tokens[independentField]) {
@@ -100,6 +101,10 @@ export function useDerivedProAmmBurnInfo(
         liquidityPercentage = new Percent(independentAmount.quotient, liquidityValue.quotient)
       }
     }
+  }
+
+  if (isDynamicFarm && +liquidityPercentage.toFixed() === 100) {
+    liquidityPercentage = new Percent('9999', '10000')
   }
 
   const discountedAmount0 = positionSDK
@@ -128,9 +133,9 @@ export function useDerivedProAmmBurnInfo(
   //   error = error ?? <Trans>Enter a percent</Trans>
   // }
 
-  const { feeOwed, loading: loadingFee } = useTotalFeeOwedByElasticPosition(pool, position?.tokenId.toString(), asWETH)
+  // const { feeOwed, loading: loadingFee } = useTotalFeeOwedByElasticPosition(pool, position?.tokenId.toString(), asWETH)
 
-  const [feeValue0, feeValue1] = feeOwed
+  // const [feeValue0, feeValue1] = feeOwed
 
   const parsedAmounts: {
     [Field.LIQUIDITY_PERCENT]: Percent
@@ -155,9 +160,9 @@ export function useDerivedProAmmBurnInfo(
     liquidityPercentage,
     liquidityValue0,
     liquidityValue1,
-    feeValue0,
-    feeValue1,
-    loadingFee,
+    feeValue0: liquidityValue0?.currency ? CurrencyAmount.fromRawAmount(liquidityValue0?.currency, 0) : undefined,
+    feeValue1: liquidityValue1?.currency ? CurrencyAmount.fromRawAmount(liquidityValue1?.currency, 0) : undefined,
+    loadingFee: false,
     outOfRange,
     error,
     parsedAmounts,

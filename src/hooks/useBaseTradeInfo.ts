@@ -2,7 +2,7 @@ import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
 import { parseGetRouteResponse } from 'services/route/utils'
 
-import useGetRoute, { ArgsGetRoute, useGetRouteSolana } from 'components/SwapForm/hooks/useGetRoute'
+import useGetRoute, { ArgsGetRoute } from 'components/SwapForm/hooks/useGetRoute'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
@@ -59,12 +59,8 @@ export function useBaseTradeInfoLimitOrder(
 }
 
 export const useBaseTradeInfoWithAggregator = (args: ArgsGetRoute) => {
-  const { currencyIn, currencyOut, customChain } = args
-  const { fetcher: getRouteEvm, result } = useGetRoute(args)
-  const { fetcher: getRouteSolana, result: executionPriceSolana } = useGetRouteSolana(args)
-  const isSolana = customChain === ChainId.SOLANA
-
-  const getRoute = isSolana ? getRouteSolana : getRouteEvm
+  const { currencyIn, currencyOut } = args
+  const { fetcher: getRoute, result } = useGetRoute(args)
 
   useEffect(() => {
     getRoute()
@@ -79,6 +75,6 @@ export const useBaseTradeInfoWithAggregator = (args: ArgsGetRoute) => {
 
   return {
     fetcher: getRoute,
-    result: (isSolana ? executionPriceSolana : executionPrice) || undefined,
+    result: executionPrice || undefined,
   }
 }

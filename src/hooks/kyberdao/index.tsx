@@ -22,9 +22,8 @@ import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.jso
 import StakingABI from 'constants/abis/kyberdao/staking.json'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract, useSigningContract, useTokenReadingContract } from 'hooks/useContract'
@@ -52,12 +51,12 @@ import {
 } from './types'
 
 export function isSupportKyberDao(chainId: ChainId) {
-  return isEVM(chainId) && SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO
+  return SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO
 }
 
 export function useKyberDAOInfo() {
   const { chainId, networkInfo } = useActiveWeb3React()
-  const kyberDaoInfo = (isSupportKyberDao(chainId) ? (networkInfo as EVMNetworkInfo) : ethereumInfo).kyberDAO
+  const kyberDaoInfo = (isSupportKyberDao(chainId) ? networkInfo : ethereumInfo).kyberDAO
   return kyberDaoInfo
 }
 

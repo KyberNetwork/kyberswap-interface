@@ -26,7 +26,6 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import { didUserReject } from 'constants/connectors/utils'
 import { AMP_HINT, APP_PATHS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -77,7 +76,7 @@ const TokenPair = ({
   currencyIdB: string
   pairAddress: string
 }) => {
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
@@ -155,13 +154,11 @@ const TokenPair = ({
     {},
   )
 
-  const routerAddress = isEVM
-    ? isStaticFeePair
-      ? isOldStaticFeeContract
-        ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.router
-        : (networkInfo as EVMNetworkInfo).classic.static.router
-      : (networkInfo as EVMNetworkInfo).classic.dynamic?.router
-    : undefined
+  const routerAddress = isStaticFeePair
+    ? isOldStaticFeeContract
+      ? networkInfo.classic.oldStatic?.router
+      : networkInfo.classic.static.router
+    : networkInfo.classic.dynamic?.router
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], routerAddress || undefined)
@@ -401,6 +398,8 @@ const TokenPair = ({
   const navigate = useNavigate()
 
   const modalHeader = () => {
+    const displaySlp = allowedSlippage / 100
+
     return (
       <AutoColumn gap="5px">
         <RowFlat style={{ marginTop: '20px' }}>
@@ -416,9 +415,7 @@ const TokenPair = ({
           </Text>
         </Row>
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
-          {t`Output is estimated. If the price changes by more than ${
-            allowedSlippage / 100
-          }% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )
@@ -612,7 +609,7 @@ const TokenPair = ({
                         <Text fontWeight={500} fontSize={12} color={theme.subText}>
                           AMP
                         </Text>
-                        <QuestionHelper text={AMP_HINT} />
+                        <QuestionHelper text={AMP_HINT()} />
                       </AutoRow>
                       <Text fontWeight={400} fontSize={14} color={theme.text}>
                         {!!pair ? (
