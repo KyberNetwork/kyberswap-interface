@@ -12,6 +12,8 @@ export enum BadgeVariant {
   NEGATIVE = 'NEGATIVE',
   POSITIVE = 'POSITIVE',
   PRIMARY = 'PRIMARY',
+  BLUE = 'BLUE',
+  WHITE = 'WHITE',
   WARNING = 'WARNING',
 
   WARNING_OUTLINE = 'WARNING_OUTLINE',
@@ -29,6 +31,10 @@ function pickBackgroundColor(variant: BadgeVariant | undefined, theme: DefaultTh
       return theme.green1
     case BadgeVariant.PRIMARY:
       return theme.primary + '33'
+    case BadgeVariant.BLUE:
+      return theme.blue + '33'
+    case BadgeVariant.WHITE:
+      return theme.white + '33'
     case BadgeVariant.WARNING:
       return theme.warning + '33'
     case BadgeVariant.WARNING_OUTLINE:
@@ -57,6 +63,10 @@ function pickFontColor(variant: BadgeVariant | undefined, theme: DefaultTheme): 
       return theme.warning
     case BadgeVariant.PRIMARY:
       return theme.primary
+    case BadgeVariant.BLUE:
+      return theme.blue
+    case BadgeVariant.WHITE:
+      return theme.white
     case BadgeVariant.WARNING_OUTLINE:
       return theme.warning
     default:

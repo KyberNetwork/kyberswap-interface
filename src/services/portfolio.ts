@@ -5,6 +5,7 @@ import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 import { BFF_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import {
+  LiquidityDataResponse,
   NFTBalance,
   NFTTokenDetail,
   NftCollectionResponse,
@@ -18,7 +19,7 @@ import {
   TransactionHistoryResponse,
 } from 'pages/NotificationCenter/Portfolio/type'
 
-const KRYSTAL_API = 'https://api.krystal.app/all/v1'
+const KRYSTAL_API = 'https://api.krystal.app/all'
 const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
   baseQuery: baseQueryOauthDynamic({ baseUrl: `${BFF_API}/v1/portfolio-service` }),
@@ -215,7 +216,7 @@ const portfolioApi = createApi({
     }),
     getTokenApproval: builder.query<TokenAllowAnceResponse, { address: string; chainIds?: ChainId[] }>({
       query: params => ({
-        url: `${KRYSTAL_API}/approval/list`,
+        url: `${KRYSTAL_API}/v1/approval/list`,
         params,
       }),
       transformResponse: (data: any) => data?.data,
@@ -225,7 +226,7 @@ const portfolioApi = createApi({
       { addresses: string[]; chainIds?: ChainId[]; page: number; pageSize: number; search: string }
     >({
       query: params => ({
-        url: `${KRYSTAL_API}/balance/listNftCollection`,
+        url: `${KRYSTAL_API}/v1/balance/listNftCollection`,
         params: { ...params, withNft: false },
       }),
       transformResponse: (data: any) => {
@@ -245,7 +246,7 @@ const portfolioApi = createApi({
       }
     >({
       query: params => ({
-        url: `${KRYSTAL_API}/balance/listNftInCollection`,
+        url: `${KRYSTAL_API}/v1/balance/listNftInCollection`,
         params,
       }),
       transformResponse: (data: any) => data?.data,
@@ -259,7 +260,7 @@ const portfolioApi = createApi({
       }
     >({
       query: params => ({
-        url: `${KRYSTAL_API}/nft/getNftDetail`,
+        url: `${KRYSTAL_API}/v1/nft/getNftDetail`,
         params,
       }),
       transformResponse: (data: any) => data?.data,
@@ -276,24 +277,28 @@ const portfolioApi = createApi({
       }
     >({
       query: params => ({
-        url: `${KRYSTAL_API}/txHistory/getHistory`,
+        url: `${KRYSTAL_API}/v1/txHistory/getHistory`,
         params,
       }),
     }),
     // liquidity
     getLiquidityPortfolio: builder.query<
-      TransactionHistoryResponse, // todo
+      LiquidityDataResponse,
       {
-        walletAddress: string
+        addresses: string[]
         chainIds?: ChainId[]
-        limit: number
-        endTime: number
-        tokenAddress?: string
-        tokenSymbol?: string
+        quoteSymbols?: string
+        offset?: number
+        orderBy?: string
+        orderASC?: boolean
+        positionStatus?: string
+        limit?: number
+        protocols?: string
+        q?: string
       }
     >({
       query: params => ({
-        url: `${KRYSTAL_API}/txHistory/getHistory`,
+        url: `${KRYSTAL_API}/v2/balance/lp`,
         params,
       }),
     }),

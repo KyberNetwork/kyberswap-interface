@@ -222,3 +222,98 @@ export type PortfolioSearchData = {
   name: string
   totalUsd: string
 }
+
+export type LiquidityData = {
+  chainName: string
+  chainId: number
+  chainLogo: string
+  balance: {
+    project: string
+    projectLogo: string
+    showWarning: boolean
+    tokenId: string
+    tokenType: string
+    userAddress: string
+    web3ProjectAddress: string
+    underlying: Array<{
+      token: Token
+      balance: string
+      quotes: {
+        usd: {
+          symbol: string
+          price: number
+          priceChange24hPercentage: number
+          value: number
+          timestamp: number
+        }
+      }
+      assetType: string
+    }>
+    harvestedReward?: Array<{
+      token: Token
+      balance: string
+      quotes: {
+        usd: {
+          value: number
+        }
+      }
+    }>
+    lpData: {
+      lpPoolData: {
+        token0: Token
+        token1: Token
+        fee?: number
+        amp?: number
+        poolAddress: string
+      }
+      lpUniV2Data?: {
+        pnl: number
+        currentToken0Amount: string
+        currentToken1Amount: string
+        totalToken0Amount: string
+        totalToken1Amount: string
+        currentToken0Usd: number
+        currentToken1Usd: number
+        totalToken0Usd: number
+        totalToken1Usd: number
+        totalFeeEarned0: string
+        totalFeeEarned1: string
+        feeToken0Usd: number
+        feeToken1Usd: number
+      }
+      lpPositionData?: {
+        tokenId: string
+        currentToken0Amount: string
+        currentToken1Amount: string
+        totalToken0Amount: string
+        totalToken1Amount: string
+        currentToken0Value: number
+        currentToken1Value: number
+        totalToken0Value: number
+        totalToken1Value: number
+        impermanentLoss: number
+        totalFeeEarned0: string
+        totalFeeEarned1: string
+        totalFeeEarned: number
+        totalFarmingReward: number
+        totalFeeEarned0Usd: number
+        totalFeeEarned1Usd: number
+        pnl: number
+      }
+    }
+  }
+}
+
+export type LiquidityDataResponse = {
+  data: Array<LiquidityData>
+  stats: {
+    openPositionCount: number
+    closedPositionCount: number
+    liquidity: number
+    pnl: number
+    unclaimedFees: number
+    yesterdayEarning: number
+    apr: number
+    protocols: Array<string>
+  }
+}
