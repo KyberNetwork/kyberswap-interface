@@ -1,4 +1,4 @@
-name: 'KyberSwap Interface CI'
+name: 'KyberSwap Interface Storybook'
 
 concurrency:
   group: ci-workflow-${{ github.ref }}-${{ github.event_name }}
