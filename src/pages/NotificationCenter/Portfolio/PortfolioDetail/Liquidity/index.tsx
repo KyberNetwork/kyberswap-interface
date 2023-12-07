@@ -18,7 +18,6 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
 import { useActiveWeb3React } from 'hooks'
-import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import ChevronIcon from 'pages/TrueSightV2/components/ChevronIcon'
 import { formatUnitsToFixed } from 'utils/formatBalance'
@@ -34,7 +33,7 @@ export default function Liquidity({ walletAddresses, chainIds }: { chainIds: Cha
   const [selectedPosition, setSelectedPosition] = useState<LiquidityData | null>(null)
   const { account } = useActiveWeb3React()
   // 0x3a96325a47e9fae32e72d5bd7401e58c6e5c423b use this address for testing purpose
-  const { data, isLoading, isFetching } = useGetLiquidityPortfolioQuery(
+  const { data, isLoading } = useGetLiquidityPortfolioQuery(
     {
       addresses: walletAddresses,
       chainIds: chainIds,
