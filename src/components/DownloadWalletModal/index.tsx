@@ -43,7 +43,7 @@ export default function DownloadWalletModal() {
   const isOpen = useModalOpen(ApplicationModal.DOWNLOAD_WALLET)
   const closeModal = useCloseModal(ApplicationModal.DOWNLOAD_WALLET)
   const { account } = useActiveWeb3React()
-  if (!account) return null // todo move to global
+  if (!account) return null
   return (
     <Modal isOpen={isOpen} onDismiss={closeModal} maxWidth="600px">
       <Column width="100%" padding="30px 24px" overflowY="scroll">

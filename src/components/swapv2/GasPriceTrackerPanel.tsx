@@ -12,7 +12,7 @@ type Props = {
   onBack: () => void
 }
 
-const mappings = [
+const mappings = () => [
   {
     gasLevel: GasLevel.SLOW,
     label: t`Low`,
@@ -150,7 +150,7 @@ const GasPriceTrackerPanel: React.FC<Props> = ({ className, onBack }) => {
         </Flex>
 
         <GasPriceList>
-          {mappings.map(({ gasLevel, label }) => (
+          {mappings().map(({ gasLevel, label }) => (
             <GasPriceItem key={gasLevel} data-type={gasLevel}>
               <GasPriceItemTitle>
                 <GasStation />

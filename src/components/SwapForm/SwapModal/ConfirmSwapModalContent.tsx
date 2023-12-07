@@ -361,7 +361,7 @@ export default function ConfirmSwapModalContent({
                       </MouseoverTooltip>
                     )}
                     <Text>
-                      <Trans>{shouldDisableByPriceImpact ? 'Swap Disabled' : 'Confirm Swap'}</Trans>
+                      {shouldDisableByPriceImpact ? <Trans>Swap Disabled</Trans> : <Trans>Confirm Swap</Trans>}
                     </Text>
                   </>
                 ) : (

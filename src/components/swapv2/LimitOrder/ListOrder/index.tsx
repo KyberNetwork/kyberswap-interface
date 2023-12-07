@@ -126,7 +126,7 @@ const SearchInputWrapped = styled(SearchInput)`
      max-width: unset;
   `};
 `
-const tabs = [
+const getTabs = () => [
   { type: LimitOrderStatus.ACTIVE, title: t`Active Orders` },
   { type: LimitOrderStatus.CLOSED, title: t`Order History` },
 ]
@@ -308,11 +308,15 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
 
   const theme = useTheme()
 
+  const filledPercent =
+    currentOrder &&
+    calcPercentFilledOrder(currentOrder.filledTakingAmount, currentOrder.takingAmount, currentOrder.takerAssetDecimals)
+
   return (
     <Section<LimitOrderStatus>
       style={{ background: 'transparent', margin: upToSmall ? '0 -16px' : undefined }}
       onTabClick={onSelectTab}
-      tabs={tabs}
+      tabs={getTabs()}
       activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
       actions={!upToSmall && subscribeBtn}
       contentStyle={{ margin: '0 -16px', paddingBottom: 0 }}
@@ -323,7 +327,7 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
             {upToSmall && subscribeBtn}
             <SelectFilter
               key={orderType}
-              options={isTabActive ? ACTIVE_ORDER_OPTIONS : CLOSE_ORDER_OPTIONS}
+              options={isTabActive ? ACTIVE_ORDER_OPTIONS() : CLOSE_ORDER_OPTIONS()}
               value={orderType}
               onChange={setOrderType}
             />
@@ -414,13 +418,9 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
           onDismiss={hideEditModal}
           onSubmit={onCancelOrder}
           order={currentOrder}
-          note={t`Note: Your existing order will be automatically cancelled and a new order will be created.${
+          note={`${t`Note: Your existing order will be automatically cancelled and a new order will be created.`} ${
             currentOrder.status === LimitOrderStatus.PARTIALLY_FILLED
-              ? ` Your currently existing order is ${calcPercentFilledOrder(
-                  currentOrder.filledTakingAmount,
-                  currentOrder.takingAmount,
-                  currentOrder.takerAssetDecimals,
-                )}% filled.`
+              ? t` Your currently existing order is ${filledPercent}% filled.`
               : ''
           }`}
         />

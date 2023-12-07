@@ -107,8 +107,8 @@ export default function SwapModalFooter({
                 text={
                   <div>
                     <Trans>Estimated change in price due to the size of your transaction.</Trans>
-                    <Trans>
-                      <Text fontSize={12}>
+                    <Text fontSize={12}>
+                      <Trans>
                         Read more{' '}
                         <a
                           href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
@@ -117,8 +117,8 @@ export default function SwapModalFooter({
                         >
                           <b>here ↗</b>
                         </a>
-                      </Text>
-                    </Trans>
+                      </Trans>
+                    </Text>
                   </div>
                 }
                 placement="right"

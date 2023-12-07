@@ -11,7 +11,6 @@ import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
 import { NUMBERS } from 'components/WalletPopup/Transactions/helper'
-import useCancellingOrders, { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
@@ -53,53 +52,40 @@ function RowItem({
   transaction,
   setRowHeight,
   isMinimal,
-  cancellingOrderInfo,
 }: {
   transaction: TransactionHistory
   style: CSSProperties
   index: number
   setRowHeight: (v: number, height: number) => void
   isMinimal: boolean
-  cancellingOrderInfo: CancellingOrderInfo
 }) {
   const rowRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     /** because react-window don't support dynamic height => manually calc height for each item
      *
-     * --- warning ---
      * title
      * left    right
      *
-     * => item height = warning_height + tile_height + max(height_left, height_right) + gap + padding
+     * => item height = tile_height + max(height_left, height_right) + gap + padding
      */
     const leftCol = rowRef.current?.querySelector('.left-column')
     const rightCol = rowRef.current?.querySelector('.right-column')
     if (leftCol && rightCol && rowRef.current) {
       const { paddingTop, paddingBottom, gap } = getComputedStyle(rowRef.current)
       const rowGap = parseFloat(gap)
-      const warningHeight = rowRef.current.dataset.stalled === 'true' ? NUMBERS.STALL_WARNING_HEIGHT + rowGap : 0
       const rowNum = Math.max(leftCol.children.length, rightCol.children.length) + 1 // 1 for title
       setRowHeight(
         index,
         parseFloat(paddingTop) +
           parseFloat(paddingBottom) +
-          warningHeight +
           NUMBERS.TRANSACTION_LINE_HEIGHT * rowNum +
           (rowNum - 1) * rowGap,
       )
     }
   }, [rowRef, index, setRowHeight])
 
-  return (
-    <TransactionItem
-      isMinimal={isMinimal}
-      ref={rowRef}
-      style={style}
-      transaction={transaction}
-      cancellingOrderInfo={cancellingOrderInfo}
-    />
-  )
+  return <TransactionItem isMinimal={isMinimal} ref={rowRef} style={style} transaction={transaction} />
 }
 
 function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
@@ -112,7 +98,6 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const transactions = data?.data || EMPTY_ARRAY
 
   const theme = useTheme()
-  const cancellingOrderInfo = useCancellingOrders()
 
   const listTokenAddress = useRef<string[]>([])
 
@@ -182,7 +167,6 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
                     index={index}
                     key={data[index].hash}
                     setRowHeight={setRowHeight}
-                    cancellingOrderInfo={cancellingOrderInfo}
                   />
                 )}
               </VariableSizeList>

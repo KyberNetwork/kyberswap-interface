@@ -41,6 +41,8 @@ export default function ProAmmPriceRange({
     setBaseCurrency(quoteCurrency)
   }, [quoteCurrency])
 
+  const baseSymbol = baseCurrency?.symbol
+  const quoteSymbol = quoteCurrency?.symbol
   return (
     <OutlineCard marginTop="1rem" padding="1rem">
       <AutoColumn gap="12px">
@@ -94,7 +96,7 @@ export default function ProAmmPriceRange({
               <Trans>Min Price</Trans>
             </Text>
             <InfoHelper
-              text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price.`}
+              text={t`Your position will be 100% composed of ${baseSymbol} at this price.`}
               placement={'right'}
               size={12}
             />
@@ -112,7 +114,7 @@ export default function ProAmmPriceRange({
               <Trans>Max Price</Trans>
             </Text>
             <InfoHelper
-              text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price.`}
+              text={t`Your position will be 100% composed of ${quoteSymbol} at this price.`}
               placement={'right'}
               size={12}
             />

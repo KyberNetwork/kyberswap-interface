@@ -28,7 +28,7 @@ import { filterTruthy } from 'utils'
 import CustomMask from './CustomMask'
 import CustomPopup from './CustomPopup'
 import TutorialMobile from './TutorialMobile'
-import { LIST_TITLE, StepTutorial, TutorialIds } from './constant'
+import { StepTutorial, TutorialIds, LIST_TITLE as getTitle } from './constant'
 
 const isMobile = window.innerWidth < 1200 // best resolution for this tutorial
 
@@ -148,6 +148,7 @@ function Welcome() {
 function ConnectWallet() {
   const [isExpanded, setIsExpanded] = useState(false)
   const toggleExpand = () => setIsExpanded(!isExpanded)
+  const LIST_TITLE = getTitle()
   return (
     <Layout title={LIST_TITLE.CONNECT_WALLET}>
       <Desc>
@@ -179,6 +180,7 @@ function ConnectWallet() {
 }
 
 function SwapForm() {
+  const LIST_TITLE = getTitle()
   return (
     <Layout title={LIST_TITLE.START_TRADING}>
       <Desc>
@@ -205,13 +207,10 @@ const Highlight = styled.span`
 const getListSteps = (isLogin: boolean) => {
   let stepNumber = 0
   const isHighlightBtnConnectWallet = !isLogin || isMobile
+  const LIST_TITLE = getTitle()
   return filterTruthy([
     {
-      customTitleRenderer: () => (
-        <Heading style={{ fontSize: 20 }}>
-          <Trans>{LIST_TITLE.WELCOME}</Trans>
-        </Heading>
-      ),
+      customTitleRenderer: () => <Heading style={{ fontSize: 20 }}>{LIST_TITLE.WELCOME}</Heading>,
       customFooterRenderer: (logic: WalktourLogic) => (
         <Flex justifyContent={'center'} style={{ gap: 25, marginTop: 20 }}>
           <ButtonOutlined onClick={() => logic.close()} data-testid="button-skip-tutorial" width="160px" height="36px">

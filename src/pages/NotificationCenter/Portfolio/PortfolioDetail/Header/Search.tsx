@@ -31,6 +31,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
+import { shortString } from 'utils/string'
 
 const ShortCut = styled.span`
   background-color: ${({ theme }) => theme.buttonBlack};
@@ -87,7 +88,7 @@ const PortfolioItem = ({
   return (
     <DropdownItem
       onClick={() => {
-        navigate({ portfolioId: id, myPortfolio: false })
+        navigate({ portfolioId: id, myPortfolio: false }, false, { search: 1 })
         onSelect(data)
       }}
     >
@@ -95,11 +96,11 @@ const PortfolioItem = ({
         <Row alignItems="center" gap="6px">
           <StarWithAnimation size={18} active={isFavorite} onClick={onToggleFavorite} stopPropagation />
           <Avatar url="" color={theme.subText} size={16} />
-          <Text color={theme.subText}>
+          <Text color={theme.subText} sx={{ whiteSpace: 'nowrap' }}>
             {isMobile
               ? isAddress(ChainId.MAINNET, displayName)
                 ? getShortenAddress(displayName)
-                : displayName
+                : shortString(displayName, 22)
               : displayName}
           </Text>
         </Row>

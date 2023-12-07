@@ -81,6 +81,7 @@ const useLogin = (autoLogin = false) => {
     (desireAccount: string | undefined, loginMethod: LoginMethod) => {
       const isGuest = loginMethod === LoginMethod.ANONYMOUS
       if (autoLogin) return
+      const name = getProfileName(desireAccount, isGuest)
       notify(
         {
           type: NotificationType.SUCCESS,
@@ -90,7 +91,7 @@ const useLogin = (autoLogin = false) => {
               ? t`Connected successfully with the current wallet address.`
               : isGuest
               ? t`Connected successfully with Guest Profile.`
-              : t`Connected successfully with profile ${getProfileName(desireAccount, isGuest)}.`,
+              : t`Connected successfully with profile ${name}.`,
         },
         10_000,
       )

@@ -635,7 +635,7 @@ export default function CreatePool() {
                       ''
                     )}
                   </ActiveText>
-                  <QuestionHelper text={CREATE_POOL_AMP_HINT} />
+                  <QuestionHelper text={CREATE_POOL_AMP_HINT()} />
                 </AutoRow>
 
                 <LightCard padding="0 0.75rem" borderRadius={'10px'} style={{ background: theme.buttonBlack }}>

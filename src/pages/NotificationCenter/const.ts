@@ -2,6 +2,8 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
 import { TIMES_IN_SECS } from 'constants/index'
+import { MAINNET_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { formatTimeDuration } from 'utils/time'
 
 export enum PriceAlertType {
@@ -108,7 +110,12 @@ export const getCoolDownOptions = () =>
     7 * TIMES_IN_SECS.ONE_DAY,
   ].map(e => ({ value: e, label: formatTimeDuration(e) }))
 
-export const TYPE_OPTIONS = [
+export const NETWORK_OPTIONS = MAINNET_NETWORKS.map(id => ({
+  value: id,
+  label: NETWORKS_INFO[id].name,
+}))
+
+export const TYPE_OPTIONS = () => [
   { label: t`Above`, value: PriceAlertType.ABOVE },
   { label: t`Below`, value: PriceAlertType.BELOW },
 ]

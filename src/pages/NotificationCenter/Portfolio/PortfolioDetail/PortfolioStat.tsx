@@ -131,7 +131,7 @@ const ChainWalletSelect = styled(Row)`
 
 export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyPortfolio: () => void }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { tab = '' } = useParsedQueryString<{ tab: string }>()
+  const { tab = '', search } = useParsedQueryString<{ tab: string; search: string }>()
   const [activeTab, setTab] = useState(isInEnum(tab, PortfolioTab) ? tab : PortfolioTab.TOKEN)
   const [showShare, setShowShare] = useState(false)
 
@@ -210,21 +210,15 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
   }, [isMyPortfolioPage, portfolioId, myPortfolios, navigateToMyPortfolio])
 
   const navigateRouter = useNavigate()
-  const location = useLocation()
-  const [historyStacks, setStacks] = useState<string[]>([])
-  useEffect(() => {
-    setStacks(prev => (prev[prev.length - 1] === location.pathname ? prev : [...prev, location.pathname]))
-  }, [location])
 
   return (
     <>
-      {historyStacks.length > 1 && (
+      {search && (
         <RowFit
           color={theme.primary}
           fontSize={'14px'}
           sx={{ cursor: 'pointer' }}
           onClick={() => {
-            setStacks(prev => prev.slice(0, -1))
             navigateRouter(-1)
           }}
         >
@@ -280,7 +274,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
         content={shareContents}
         shareType={SHARE_TYPE.PORTFOLIO}
         imageName={'portfolio.png'}
-        titleLogo={
+        leftLogo={
           <Column gap="8px">
             <Text fontSize={'20px'}>
               {isMyPortfolioPage ? (

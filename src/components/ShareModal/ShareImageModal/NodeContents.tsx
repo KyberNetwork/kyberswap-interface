@@ -19,10 +19,13 @@ import KyberSwapShareLogo from 'pages/TrueSightV2/components/KyberSwapShareLogo'
 import { InfoWrapper, LegendWrapper } from 'pages/TrueSightV2/components/chart'
 import { MEDIA_WIDTHS } from 'theme'
 
+const getScale = (currentSize: number, expectSize: number) =>
+  (currentSize / expectSize) ** (currentSize > expectSize ? -1 : 1)
+
 const ImageInner = styled.div<{ bg: string }>`
   width: ${SIZES.WIDTH_PC}px;
-  height: 612px;
-  aspect-ratio: 1050/612;
+  height: ${SIZES.HEIGH_PC}px;
+  aspect-ratio: ${SIZES.WIDTH_PC} / ${SIZES.HEIGH_PC};
   background-color: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
@@ -76,12 +79,13 @@ type ContentProps = {
   content?: RenderContentFn | RenderContentFn[]
   isMobileMode: boolean
   kyberswapLogoTitle: ReactNode
-  titleLogo: ReactNode
+  leftLogo: ReactNode
   title?: string
   sharingUrl: string
   shareIndex: number
   shareType: SHARE_TYPE
   setShareIndex: (v: number) => void
+  imageHeight: number | undefined
 }
 
 const BG_BY_TYPE: Partial<{ [k in SHARE_TYPE]: { mobile: string; pc: string } }> = {
@@ -90,131 +94,133 @@ const BG_BY_TYPE: Partial<{ [k in SHARE_TYPE]: { mobile: string; pc: string } }>
 }
 
 type RenderSlideProps = { render: RenderContentFn; scale?: number; ref?: React.ForwardedRef<HTMLDivElement> }
-const NodeContents = forwardRef<HTMLDivElement, ContentProps>(
-  (
-    { content, isMobileMode, setShareIndex, kyberswapLogoTitle, titleLogo, title, sharingUrl, shareIndex, shareType },
-    ref,
-  ) => {
-    const upToSmall = useMedia(`(max-width:${MEDIA_WIDTHS.upToSmall}px)`)
-    const mobileSmall = useMedia(`(max-height:${SIZES.THRESHOLD_HEIGHT_MB_SMALL}px)`)
-    const mobileXXSmall = useMedia(`(max-height:${SIZES.THRESHOLD_HEIGHT_MB_XX_SMALL}px)`)
+const NodeContents = forwardRef<HTMLDivElement, ContentProps>(function NodeContents(
+  {
+    content,
+    isMobileMode,
+    setShareIndex,
+    kyberswapLogoTitle,
+    leftLogo,
+    title,
+    sharingUrl,
+    shareIndex,
+    shareType,
+    imageHeight,
+  },
+  ref,
+) {
+  const upToSmall = useMedia(`(max-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
-    const renderMobile = ({ render, scale, ref }: RenderSlideProps) => (
-      <ImageInnerMobile
-        ref={ref}
-        className="share-mobile"
-        style={scale ? { transform: `scale(${scale})` } : undefined}
-        bg={BG_BY_TYPE[shareType]?.mobile || ''}
+  const renderMobile = ({ render, scale, ref }: RenderSlideProps) => (
+    <ImageInnerMobile
+      ref={ref}
+      className="share-mobile"
+      style={scale ? { transform: `scale(${scale})` } : undefined}
+      bg={BG_BY_TYPE[shareType]?.mobile || ''}
+    >
+      <RowFit gap="8px">{leftLogo}</RowFit>
+
+      <Column
+        style={{
+          zIndex: 2,
+          width: '100%',
+          overflow: 'hidden',
+          flex: 1,
+          justifyContent: 'center',
+        }}
+        gap="24px"
       >
-        <RowFit gap="8px">{titleLogo}</RowFit>
-
-        <Column
-          style={{
-            zIndex: 2,
-            width: '100%',
-            overflow: 'hidden',
-            flex: 1,
-            justifyContent: 'center',
-          }}
-          gap="24px"
-        >
-          <Row>
-            <Text fontSize="24px" lineHeight="28px" style={{ whiteSpace: 'nowrap' }}>
-              {title}
-            </Text>
-          </Row>
-          {render?.(true)}
-        </Column>
         <Row>
-          <RowBetween gap="20px">
-            <KyberSwapShareLogo width={200} title={kyberswapLogoTitle} />
-            <div style={{ borderRadius: '6px', overflow: 'hidden' }}>
-              <QRCode
-                value={sharingUrl}
-                size={100}
-                quietZone={4}
-                ecLevel="L"
-                style={{ display: 'block', borderRadius: '6px' }}
-              />
-            </div>
-          </RowBetween>
-        </Row>
-      </ImageInnerMobile>
-    )
-
-    const renderPc = ({ render, scale, ref }: RenderSlideProps) => (
-      <ImageInner
-        ref={ref}
-        className="share-pc"
-        style={scale ? { transform: `scale(${scale})` } : undefined}
-        bg={BG_BY_TYPE[shareType]?.pc || ''}
-      >
-        <RowBetween style={{ zIndex: 2 }}>
-          <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
-            {titleLogo}
-          </RowFit>
-          <RowFit gap="20px">
-            <KyberSwapShareLogo title={kyberswapLogoTitle} />
-            <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
-              <QRCode
-                value={sharingUrl}
-                size={100}
-                quietZone={4}
-                ecLevel="L"
-                style={{ display: 'block', borderRadius: '6px' }}
-              />
-            </div>
-          </RowFit>
-        </RowBetween>
-        <Row>
-          <Text fontSize="24px" lineHeight="28px">
+          <Text fontSize="24px" lineHeight="28px" style={{ whiteSpace: 'nowrap' }}>
             {title}
           </Text>
         </Row>
-        <Row style={{ zIndex: 2, width: '100%', alignItems: 'stretch', flex: 1 }}>{render?.(false)}</Row>
-      </ImageInner>
+        {render?.(true)}
+      </Column>
+      <Row>
+        <RowBetween gap="20px">
+          <KyberSwapShareLogo width={200} title={kyberswapLogoTitle} />
+          <div style={{ borderRadius: '6px', overflow: 'hidden' }}>
+            <QRCode
+              value={sharingUrl || 'https://kyberswap.com'}
+              size={100}
+              quietZone={4}
+              ecLevel="L"
+              style={{ display: 'block', borderRadius: '6px' }}
+            />
+          </div>
+        </RowBetween>
+      </Row>
+    </ImageInnerMobile>
+  )
+
+  const renderPc = ({ render, scale, ref }: RenderSlideProps) => (
+    <ImageInner
+      ref={ref}
+      className="share-pc"
+      style={scale ? { transform: `scale(${scale})` } : undefined}
+      bg={BG_BY_TYPE[shareType]?.pc || ''}
+    >
+      <RowBetween style={{ zIndex: 2 }}>
+        <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
+          {leftLogo}
+        </RowFit>
+        <RowFit gap="20px">
+          <KyberSwapShareLogo title={kyberswapLogoTitle} />
+          <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
+            <QRCode
+              value={sharingUrl || 'https://kyberswap.com'}
+              size={100}
+              quietZone={4}
+              ecLevel="L"
+              style={{ display: 'block', borderRadius: '6px' }}
+            />
+          </div>
+        </RowFit>
+      </RowBetween>
+      <Row>
+        <Text fontSize="24px" lineHeight="28px">
+          {title}
+        </Text>
+      </Row>
+      <Row style={{ zIndex: 2, width: '100%', alignItems: 'stretch', flex: 1 }}>{render?.(false)}</Row>
+    </ImageInner>
+  )
+
+  if (Array.isArray(content) && content.length > 1)
+    return (
+      <Swiper
+        style={{ maxHeight: '100%', height: imageHeight }}
+        slidesPerView={1}
+        navigation={true}
+        pagination={true}
+        loop={true}
+        modules={[Navigation, Pagination]}
+        onSlideChangeTransitionEnd={val => {
+          setShareIndex(val.realIndex)
+        }}
+      >
+        {content.map((render, index) => {
+          const contentWidth = upToSmall ? window.innerWidth - 40 : SIZES.VIEW_WIDTH_PC
+          const contentHeight = imageHeight || SIZES.HEIGHT_MB
+
+          const scale = isMobileMode
+            ? getScale(SIZES.HEIGHT_MB, contentHeight)
+            : upToSmall
+            ? getScale(contentWidth, SIZES.WIDTH_PC)
+            : getScale(SIZES.HEIGH_PC, contentHeight)
+
+          const props = { render, scale, ref: index === shareIndex ? ref : null }
+          return (
+            <SwiperSlide key={index} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              {isMobileMode ? renderMobile(props) : renderPc(props)}
+            </SwiperSlide>
+          )
+        })}
+      </Swiper>
     )
 
-    if (Array.isArray(content) && content.length > 1)
-      return (
-        <Swiper
-          style={{ maxHeight: '100%' }}
-          slidesPerView={1}
-          navigation={true}
-          pagination={true}
-          loop={true}
-          modules={[Navigation, Pagination]}
-          onSlideChangeTransitionEnd={val => {
-            setShareIndex(val.realIndex)
-          }}
-        >
-          {content.map((render, index) => {
-            // todo move this to css ???
-            const contentWidth = upToSmall ? window.innerWidth - 40 : SIZES.VIEW_WIDTH_PC
-            const contentHeight = mobileXXSmall
-              ? SIZES.HEIGHT_MB_XX_SMALL
-              : mobileSmall
-              ? SIZES.HEIGHT_MB_SMALL
-              : SIZES.VIEW_HEIGHT_MB
-
-            const getScale = (currentSize: number, expectSize: number) =>
-              (currentSize / expectSize) ** (currentSize > expectSize ? -1 : 1)
-
-            const scale = isMobileMode
-              ? getScale(SIZES.HEIGHT_MB, contentHeight)
-              : getScale(contentWidth, SIZES.WIDTH_PC)
-            const props = { render, scale, ref: index === shareIndex ? ref : null }
-            return (
-              <SwiperSlide key={index} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                {isMobileMode ? renderMobile(props) : renderPc(props)}
-              </SwiperSlide>
-            )
-          })}
-        </Swiper>
-      )
-
-    const params = { render: content as RenderContentFn, ref }
-    return isMobileMode ? renderMobile(params) : renderPc(params)
-  },
-)
+  const params = { render: content as RenderContentFn, ref }
+  return isMobileMode ? renderMobile(params) : renderPc(params)
+})
 export default NodeContents

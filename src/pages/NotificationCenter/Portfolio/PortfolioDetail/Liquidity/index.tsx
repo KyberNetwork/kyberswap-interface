@@ -1,9 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
 import { useGetLiquidityPortfolioQuery } from 'services/portfolio'
 
@@ -11,7 +10,7 @@ import Badge, { BadgeVariant } from 'components/Badge'
 import { ButtonAction } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
-import { DoubleCurrencyLogoV2, DoubleLogoWithChain } from 'components/DoubleLogo'
+import { DoubleLogoWithChain } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import LocalLoader from 'components/LocalLoader'
 import Logo, { TokenLogoWithChain } from 'components/Logo'
@@ -21,7 +20,6 @@ import Table, { TableColumn } from 'components/Table'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import { PortfolioSection, SearchPortFolio } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/styled'
 import ChevronIcon from 'pages/TrueSightV2/components/ChevronIcon'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -34,13 +32,11 @@ export default function Liquidity({ walletAddresses, chainIds }: { chainIds: Cha
   const theme = useTheme()
   const [isOpenDetailModal, setIsOpenDetailModal] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState<LiquidityData | null>(null)
-  const [search, setSearch] = useState('')
-  const searchDebounce = useDebounce(search, 500)
   const { account } = useActiveWeb3React()
   // 0x3a96325a47e9fae32e72d5bd7401e58c6e5c423b use this address for testing purpose
   const { data, isLoading, isFetching } = useGetLiquidityPortfolioQuery(
     {
-      addresses: ['0x3a96325a47e9fae32e72d5bd7401e58c6e5c423b'.toLowerCase()],
+      addresses: walletAddresses,
       chainIds: chainIds,
       quoteSymbols: 'usd',
       orderBy: 'liquidity',

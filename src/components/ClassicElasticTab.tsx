@@ -35,9 +35,9 @@ function ClassicElasticTab() {
   const tab = isInEnum(tabQS, VERSION) ? tabQS : VERSION.ELASTIC
 
   const { chainId } = useActiveWeb3React()
-  const notSupportedElasticMsg = ELASTIC_NOT_SUPPORTED[chainId]
+  const notSupportedElasticMsg = ELASTIC_NOT_SUPPORTED()[chainId]
 
-  const notSupportedClassicMsg = CLASSIC_NOT_SUPPORTED[chainId]
+  const notSupportedClassicMsg = CLASSIC_NOT_SUPPORTED()[chainId]
 
   const theme = useTheme()
   const location = useLocation()

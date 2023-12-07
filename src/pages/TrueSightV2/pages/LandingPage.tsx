@@ -752,9 +752,7 @@ export default function KyberAILandingPage() {
               fontWeight={500}
               color={theme.text}
             >
-              <Trans>
-                <Trans>Discover new opportunities.</Trans>
-              </Trans>
+              <Trans>Discover new opportunities.</Trans>
             </Text>
             <Text fontSize="16px" lineHeight="24px" color={theme.subText}>
               <Trans>

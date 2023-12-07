@@ -2,7 +2,7 @@ import { rgba } from 'polished'
 import { FC, ReactNode } from 'react'
 import styled, { CSSProperties } from 'styled-components'
 
-import HorizontalScroll from './HorizontalScroll'
+import HorizontalScroll from 'components/HorizontalScroll'
 
 interface TabsProps {
   activeKey: string | number

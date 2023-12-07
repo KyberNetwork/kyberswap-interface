@@ -188,7 +188,7 @@ type Props = {
 
 const customStyles: React.CSSProperties = { transition: 'all .3s', cursor: 'pointer' }
 
-const LoadingData = [
+const LoadingData = () => [
   {
     title: t`loading`,
     value: 100,
@@ -212,7 +212,7 @@ const EarningPieChart: React.FC<Props> = ({
 
   const chartData = useMemo(() => {
     if (isLoading || !data) {
-      return LoadingData
+      return LoadingData()
     }
 
     if (data.length === 0) {

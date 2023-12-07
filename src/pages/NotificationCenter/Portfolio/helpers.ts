@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { ethers } from 'ethers'
+import { stringify } from 'querystring'
 import { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
@@ -44,8 +45,8 @@ export const getPortfolioDetailUrl = ({ wallet, portfolioId, myPortfolio = true 
 export const useNavigateToPortfolioDetail = () => {
   const navigate = useNavigate()
   return useCallback(
-    (data: Params, replace = false) => {
-      navigate(getPortfolioDetailUrl(data), { replace })
+    (data: Params, replace = false, params: Record<string, any> = {}) => {
+      navigate(`${getPortfolioDetailUrl(data)}${params ? `?${stringify(params)}` : ''}`, { replace })
     },
     [navigate],
   )

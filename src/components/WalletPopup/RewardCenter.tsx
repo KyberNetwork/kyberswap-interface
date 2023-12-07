@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
+import Tabs from 'components/Tabs'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useRewards } from 'hooks/useRewards'
@@ -16,7 +17,6 @@ import { formatNumberWithPrecisionRange } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 
 import CardBackground from './AccountInfo/CardBackground'
-import Tab from './Transactions/Tab'
 import { REWARD_TYPE } from './type'
 
 const ContentWrapper = styled.div`
@@ -69,19 +69,19 @@ const RewardWrapper = styled.div`
   gap: 4px;
 `
 
-const TABS = [
-  {
-    title: t`Voting Rewards`,
-    value: REWARD_TYPE.VOTING_REWARDS,
-  },
-  {
-    title: t`Gas Refund`,
-    value: REWARD_TYPE.GAS_REFUND,
-  },
-] as { title: string; value: REWARD_TYPE }[]
-
 export default function RewardCenter() {
   const { mixpanelHandler } = useMixpanel()
+  const TABS = [
+    {
+      title: t`Voting Rewards`,
+      value: REWARD_TYPE.VOTING_REWARDS,
+    },
+    {
+      title: t`Gas Refund`,
+      value: REWARD_TYPE.GAS_REFUND,
+    },
+  ] as { title: string; value: REWARD_TYPE }[]
+
   const theme = useTheme()
   const notify = useNotify()
   const [activeTab, setActiveTab] = useState<REWARD_TYPE>(REWARD_TYPE.VOTING_REWARDS)
@@ -155,7 +155,7 @@ export default function RewardCenter() {
           </Flex>
         </Content>
       </ContentWrapper>
-      <Tab<REWARD_TYPE> activeTab={activeTab} setActiveTab={setActiveTab} tabs={TABS} />
+      <Tabs<REWARD_TYPE> activeTab={activeTab} setActiveTab={setActiveTab} tabs={TABS} />
       <Flex flexDirection="column" sx={{ gap: '12px' }}>
         <Text fontSize={12} fontWeight={500} lineHeight="16px" color={theme.primary}>
           <Trans>Your Reward</Trans>
