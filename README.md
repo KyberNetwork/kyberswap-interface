@@ -1,7 +1,6 @@
 # KyberSwap Interface
 
 An open source interface for KyberSwap -- a protocol for decentralized exchange.
-Forked from [Uniswap/uniswap-interface](https://github.com/Uniswap/uniswap-interface)
 
 - Website: [kyberswap.com](https://kyberswap.com/)
 - Whitepaper: [Link](https://files.kyber.network/DMM-Feb21.pdf)

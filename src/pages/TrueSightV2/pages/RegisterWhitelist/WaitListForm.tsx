@@ -52,12 +52,14 @@ export default function EmailForm({
     <Wrapper style={style}>
       {desc}
 
-      <Column gap="6px">
-        <Label style={{ color }}>
-          <Trans>Your Email</Trans>
-        </Label>
-        <Input $borderColor={theme.border} value={userInfo?.email} disabled />
-      </Column>
+      {userInfo?.email && (
+        <Column gap="6px">
+          <Label style={{ color }}>
+            <Trans>Your Email</Trans>
+          </Label>
+          <Input $borderColor={theme.border} value={userInfo?.email} disabled />
+        </Column>
+      )}
 
       <RowBetween gap="12px">
         <Column gap="6px" style={{ width: '70%' }}>
