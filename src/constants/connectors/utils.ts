@@ -6,32 +6,30 @@ import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 if (ENV_LEVEL == ENV_TYPE.ADPR) {
   setTimeout(() => {
-    if (getIsGenericInjector()) {
-      const params = {
-        level: 'warning',
-        extra: {
-          detector: {
-            isMetaMaskWallet: getIsMetaMaskWallet(),
-            isCoinbaseWallet: getIsCoinbaseWallet(),
-            isBraveWallet: getIsBraveWallet(),
-            isC98Wallet: getIsC98Wallet(),
-            isRabbyWallet: getIsRabbyWallet(),
-            isBloctoWallet: getIsBloctoWallet(),
-            isKrystalWallet: getIsKrystalWallet(),
-            isTrustWallet: getIsTrustWallet(),
-            isZerion: getIsZerionWallet(),
-            isGenericInjector: getIsGenericInjector(),
-          },
-          'window.ethereum': window.ethereum,
-          'window.web3': window.web3,
-          'window.coin98': window.coin98,
-          'window.coinbaseWalletExtension': window.coinbaseWalletExtension,
-          'navigator.brave': navigator.brave,
+    const params = {
+      level: 'warning',
+      extra: {
+        detector: {
+          isMetaMaskWallet: getIsMetaMaskWallet(),
+          isCoinbaseWallet: getIsCoinbaseWallet(),
+          isBraveWallet: getIsBraveWallet(),
+          isC98Wallet: getIsC98Wallet(),
+          isRabbyWallet: getIsRabbyWallet(),
+          isBloctoWallet: getIsBloctoWallet(),
+          isKrystalWallet: getIsKrystalWallet(),
+          isTrustWallet: getIsTrustWallet(),
+          isZerion: getIsZerionWallet(),
+          isGenericInjector: getIsGenericInjector(),
         },
-      } as const
-      captureMessage('Unknown injected window.ethereum', params)
-      console.info('Capturing injected window.ethereum', { params })
-    }
+        'window.ethereum': window.ethereum,
+        'window.web3': window.web3,
+        'window.coin98': window.coin98,
+        'window.coinbaseWalletExtension': window.coinbaseWalletExtension,
+        'navigator.brave': navigator.brave,
+      },
+    } as const
+    captureMessage('Debug injected window.ethereum', params)
+    console.info('Debug injected window.ethereum', { params })
   }, 5000)
 }
 
