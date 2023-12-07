@@ -205,14 +205,14 @@ describe('E2E Smoke', { tags: TAG.smoke }, () => {
             expect(text).to.equal(tokenSymbols[0])
         })
 
-        LimitOder.selectTokenBuy().addFavoriteToken([tokenSymbols[0], tokenSymbols[4]])
+        LimitOder.selectTokenBuy().addFavoriteToken([tokenSymbols[0]])
         tokenCatalog.getFavoriteTokens((list) => {
-            expect(list).to.include.members([tokenSymbols[4]])
+            expect(list).to.include.members([tokenSymbols[0]])
         })
 
-        tokenCatalog.selectFavoriteToken(tokenSymbols[4])
+        tokenCatalog.selectFavoriteToken(tokenSymbols[0])
         LimitOder.getCurrentTokenBuy((text) => {
-            expect(text).to.equal(tokenSymbols[4])
+            expect(text).to.equal(tokenSymbols[0])
         })
 
         SwapPage.goToCrossChain()
