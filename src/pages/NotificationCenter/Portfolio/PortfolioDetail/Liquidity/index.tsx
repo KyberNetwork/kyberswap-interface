@@ -32,7 +32,7 @@ export default function Liquidity({ walletAddresses, chainIds }: { chainIds: Cha
   const [isOpenDetailModal, setIsOpenDetailModal] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState<LiquidityData | null>(null)
   const { account } = useActiveWeb3React()
-  // 0x3a96325a47e9fae32e72d5bd7401e58c6e5c423b use this address for testing purpose
+  //.. 0x3a96325a47e9fae32e72d5bd7401e58c6e5c423b use this address for testing purpose
   const { data, isLoading } = useGetLiquidityPortfolioQuery(
     {
       addresses: walletAddresses,
