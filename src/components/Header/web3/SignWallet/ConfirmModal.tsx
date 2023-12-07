@@ -1,3 +1,4 @@
+import { LoginMethod } from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { LogIn, X } from 'react-feather'
@@ -75,7 +76,10 @@ const ModalConfirmProfile: React.FC = () => {
 
   const onCancel = async () => {
     const isGuest = !desiredAccountExist
-    await signIn(isGuest ? undefined : account, isGuest)
+    await signIn({
+      account: isGuest ? undefined : account,
+      loginMethod: isGuest ? LoginMethod.ANONYMOUS : LoginMethod.ETH,
+    })
     hideModal()
   }
 
@@ -161,7 +165,7 @@ const ModalConfirmProfile: React.FC = () => {
         </RowBetween>
 
         <Text as="span" fontSize="14px" color={theme.subText}>
-          <Trans>{connectSuccess ? renderContentSuccess() : renderContent()}</Trans>
+          {connectSuccess ? renderContentSuccess() : renderContent()}
         </Text>
 
         <Flex
@@ -209,7 +213,7 @@ const ModalConfirmProfile: React.FC = () => {
         {!desiredAccountExist && !connectSuccess && (
           <ButtonEmpty
             disabled={pendingAuthentication}
-            onClick={() => signIn(account)}
+            onClick={() => signIn({ account })}
             style={{
               color: theme.subText,
               display: 'flex',

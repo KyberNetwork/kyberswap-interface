@@ -188,7 +188,7 @@ const VoteButton = ({
   )
 }
 
-const FORCED_TO_BINARY_OPTION_PROPOSALS = [14, 15, 17, 18, 19]
+const FORCED_TO_BINARY_OPTION_PROPOSALS = [14, 15, 17, 18, 19, 20]
 
 function ProposalItem({
   proposal,
@@ -246,7 +246,7 @@ function ProposalItem({
   }
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
-    switchToEthereum().then(() => {
+    switchToEthereum(t`This action`).then(() => {
       selectedOptions.length > 0 && setShowConfirmModal(true)
     })
   }, [switchToEthereum, setShowConfirmModal, selectedOptions])
@@ -257,9 +257,13 @@ function ProposalItem({
       voteCallback?.(
         proposal.proposal_id,
         selectedOptions.map(i => i + 1).reduce((acc, item) => (acc += 1 << (item - 1)), 0),
-      ).then(() => {
-        setSelectedOptions([])
-      })
+      )
+        .then(() => {
+          setSelectedOptions([])
+        })
+        .catch(error => {
+          setErrorMessage(error.message)
+        })
   }, [selectedOptions, proposal.proposal_id, voteCallback])
 
   const votedOfCurrentProposal = useMemo(
@@ -338,9 +342,7 @@ function ProposalItem({
     <ProposalItemWrapper>
       <ProposalHeader>
         <RowBetween onClick={() => setShow(s => !s)}>
-          <Text>
-            <Trans>{proposal.title}</Trans>
-          </Text>
+          <Text>{proposal.title}</Text>
           <ExpandButton>
             <ChevronDown
               size={24}

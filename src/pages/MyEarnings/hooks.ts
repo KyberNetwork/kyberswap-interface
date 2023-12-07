@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux'
 
 import { POOLS_BULK_WITH_PAGINATION, POOLS_HISTORICAL_BULK_WITH_PAGINATION, POOL_COUNT } from 'apollo/queries'
 import { didUserReject } from 'constants/connectors/utils'
-import { NETWORKS_INFO, ONLY_DYNAMIC_FEE_CHAINS, isEVM as isEVMChain } from 'constants/networks'
+import { ONLY_DYNAMIC_FEE_CHAINS } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { Position as SubgraphLegacyPosition, config, parsePosition } from 'hooks/useElasticLegacy'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -166,12 +166,9 @@ async function getBulkPoolDataWithPagination(
 
 function usePoolCountInSubgraph(chainId: ChainId): number {
   const [poolCount, setPoolCount] = useState(0)
-  const isEVM = isEVMChain(chainId)
-  const networkInfo = NETWORKS_INFO[chainId]
   const { classicClient } = useKyberSwapConfig(chainId)
 
   useEffect(() => {
-    if (!isEVM) return
     const getPoolCount = async () => {
       const result = await classicClient.query({
         query: POOL_COUNT,
@@ -185,7 +182,7 @@ function usePoolCountInSubgraph(chainId: ChainId): number {
     }
 
     getPoolCount()
-  }, [networkInfo, isEVM, classicClient])
+  }, [chainId, classicClient])
 
   return poolCount
 }
@@ -200,7 +197,6 @@ export function useAllPoolsData(chainId: ChainId): {
   const [data, setData] = useState<ClassicPoolData[]>([])
 
   const wrappedNativeTokenAddress = WETH[chainId].wrapped.address
-  const isEVM = isEVMChain(chainId)
 
   const { data: tokenPrices } = useTokenPricesWithLoading([wrappedNativeTokenAddress], chainId)
   const ethPrice = tokenPrices?.[wrappedNativeTokenAddress]
@@ -208,7 +204,6 @@ export function useAllPoolsData(chainId: ChainId): {
 
   const poolCountSubgraph = usePoolCountInSubgraph(chainId)
   useEffect(() => {
-    if (!isEVM) return
     const controller = new AbortController()
 
     const getPoolsData = async () => {
@@ -248,17 +243,7 @@ export function useAllPoolsData(chainId: ChainId): {
     return () => {
       controller.abort()
     }
-  }, [
-    blockClient,
-    chainId,
-    classicClient,
-    data?.length,
-    error,
-    ethPrice,
-    isEVM,
-    isEnableBlockService,
-    poolCountSubgraph,
-  ])
+  }, [blockClient, chainId, classicClient, data?.length, error, ethPrice, isEnableBlockService, poolCountSubgraph])
 
   return useMemo(() => ({ isLoading, error, data }), [data, error, isLoading])
 }

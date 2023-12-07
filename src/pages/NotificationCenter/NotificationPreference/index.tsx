@@ -18,12 +18,10 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import ActionButtons from 'pages/NotificationCenter/NotificationPreference/ActionButtons'
-import InputEmail from 'pages/NotificationCenter/NotificationPreference/InputEmail'
+import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPreference/InputEmail'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
-import { useSignedAccountInfo } from 'state/profile/hooks'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { pushUnique } from 'utils'
 import { isEmailValid } from 'utils/string'
@@ -110,8 +108,6 @@ export const useValidateEmail = (defaultEmail?: string) => {
   const [inputEmail, setInputEmail] = useState(defaultEmail || '')
   const [errorInput, setErrorInput] = useState<string | null>(null)
 
-  const theme = useTheme()
-
   const validateInput = useCallback((value: string) => {
     const isValid = isEmailValid(value)
     const errMsg = t`Please input a valid email address`
@@ -127,9 +123,6 @@ export const useValidateEmail = (defaultEmail?: string) => {
     [validateInput],
   )
 
-  const hasErrorInput = !!errorInput
-  const errorColor = hasErrorInput ? theme.red : theme.border
-
   const reset = useCallback(
     (email: string | undefined) => {
       setErrorInput(null)
@@ -138,7 +131,7 @@ export const useValidateEmail = (defaultEmail?: string) => {
     [defaultEmail],
   )
 
-  return { inputEmail: inputEmail.trim(), onChangeEmail, errorInput, errorColor, hasErrorInput, reset }
+  return { inputEmail: inputEmail.trim(), onChangeEmail, errorInput, reset }
 }
 
 function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => void }) {
@@ -147,9 +140,9 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
 
   const { account } = useActiveWeb3React()
   const { userInfo, isLogin } = useSessionInfo()
-  const { isSignInEmail } = useSignedAccountInfo()
   const { isWhiteList } = useIsWhiteListKyberAI()
 
+  const { inputEmail, errorInput, onChangeEmail, reset } = useValidateEmail(userInfo?.email)
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
     setIsShowVerify(true)
@@ -165,7 +158,8 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
   const { mixpanelHandler } = useMixpanel()
 
   const [emailPendingVerified, setEmailPendingVerified] = useState('')
-  const { inputEmail, errorInput, onChangeEmail, errorColor, reset, hasErrorInput } = useValidateEmail(userInfo?.email)
+
+  const hasErrorInput = !!errorInput
 
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
 
@@ -353,10 +347,10 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
           />
           <Column gap="10px">
             <Text color={disabled ? theme.border : theme.text} fontSize={14}>
-              <Trans>{topic.name}</Trans>
+              {topic.name}
             </Text>
             <Text color={disabled ? theme.border : theme.subText} fontSize={12}>
-              <Trans>{topic.description}</Trans>
+              {topic.description}
             </Text>
           </Column>
         </TopicItem>
@@ -375,16 +369,20 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
         <Label>
           <Trans>Enter your email address to receive notifications.</Trans>
         </Label>
-        <InputEmail
-          disabled={isSignInEmail}
+        <InputEmailWithVerification
           hasError={hasErrorInput}
           showVerifyModal={showVerifyModal}
-          errorColor={errorColor}
           onChange={onChangeEmail}
           value={inputEmail}
           isVerifiedEmail={!!isVerifiedEmail}
+          isShowVerify={isShowVerify}
+          onDismissVerifyModal={onDismissVerifyModal}
         />
-        {errorInput && <Label style={{ color: errorColor, margin: '7px 0px 0px 0px' }}>{errorInput}</Label>}
+        {errorInput && (
+          <Label style={{ color: errorInput ? theme.red : theme.border, margin: '7px 0px 0px 0px' }}>
+            {errorInput}
+          </Label>
+        )}
       </EmailColum>
       <Divider />
       <Column gap="16px">
@@ -461,12 +459,6 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
           }
         />
       )}
-      <VerifyCodeModal
-        isOpen={isShowVerify}
-        onDismiss={onDismissVerifyModal}
-        email={inputEmail}
-        onVerifySuccess={onDismissVerifyModal}
-      />
     </Wrapper>
   )
 }

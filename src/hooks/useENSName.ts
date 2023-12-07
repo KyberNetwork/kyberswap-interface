@@ -14,23 +14,21 @@ import useDebounce from './useDebounce'
  * Note this is not the same as looking up an ENS name to find an address.
  */
 export default function useENSName(address?: string): { ENSName: string | null; loading: boolean } {
-  const { chainId, isEVM } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const debouncedAddress = useDebounce(address, 200)
   const ensNodeArgument = useMemo(() => {
-    if (!isEVM) return [undefined]
     if (!debouncedAddress || !isAddress(chainId, debouncedAddress)) return [undefined]
     try {
       return debouncedAddress ? [namehash(`${debouncedAddress.toLowerCase().substr(2)}.addr.reverse`)] : [undefined]
     } catch (error) {
       return [undefined]
     }
-  }, [chainId, debouncedAddress, isEVM])
-  const registrarContract = useENSRegistrarContract(false)
+  }, [chainId, debouncedAddress])
+  const registrarContract = useENSRegistrarContract()
   const resolverAddress = useSingleCallResult(registrarContract, 'resolver', ensNodeArgument)
   const resolverAddressResult = resolverAddress.result?.[0]
   const resolverContract = useENSResolverContract(
     resolverAddressResult && !isZero(resolverAddressResult) ? resolverAddressResult : undefined,
-    false,
   )
   const name = useSingleCallResult(resolverContract, 'name', ensNodeArgument)
 

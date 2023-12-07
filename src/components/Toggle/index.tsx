@@ -2,6 +2,8 @@ import { rgba } from 'polished'
 import React, { CSSProperties, ReactNode } from 'react'
 import styled from 'styled-components'
 
+import { highlight } from 'components/swapv2/styleds'
+
 export interface ToggleProps {
   id?: string
   className?: string
@@ -9,6 +11,7 @@ export interface ToggleProps {
   toggle: () => void
   style?: CSSProperties
   icon?: ReactNode
+  highlight?: boolean
 }
 
 const Dot = styled.div`
@@ -30,9 +33,9 @@ const Dot = styled.div`
   justify-content: center;
 `
 
-const Toggle: React.FC<ToggleProps> = ({ id, isActive, toggle, style, className, icon }) => {
+const Toggle: React.FC<ToggleProps> = ({ id, isActive, toggle, style, className, icon, highlight }) => {
   return (
-    <div id={id} onClick={toggle} style={style} data-active={isActive} className={className}>
+    <div id={id} onClick={toggle} style={style} data-active={isActive} className={className} data-highlight={highlight}>
       <Dot>{isActive && icon}</Dot>
     </div>
   )
@@ -54,5 +57,9 @@ export default styled(Toggle)<{ backgroundColor?: string }>`
       background: ${({ theme }) => theme.primary};
       left: 32px;
     }
+  }
+
+  &[data-highlight='true'] {
+    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
   }
 `

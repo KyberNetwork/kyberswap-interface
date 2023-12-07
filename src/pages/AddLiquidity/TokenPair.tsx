@@ -10,6 +10,7 @@ import { AlertTriangle } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
@@ -25,7 +26,6 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import { didUserReject } from 'constants/connectors/utils'
 import { AMP_HINT, APP_PATHS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -34,8 +34,8 @@ import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import DisclaimerERC20 from 'pages/AddLiquidityV2/components/DisclaimerERC20'
-import { Dots, Wrapper } from 'pages/Pool/styleds'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { Dots, Wrapper } from 'pages/MyPool/styleds'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -45,6 +45,7 @@ import { useDegenModeManager, usePairAdderByTokens, useUserSlippageTolerance } f
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
 import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
+import { friendlyError } from 'utils/errorMessage'
 import {
   getDynamicFeeRouterContract,
   getOldStaticFeeRouterContract,
@@ -75,7 +76,7 @@ const TokenPair = ({
   currencyIdB: string
   pairAddress: string
 }) => {
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
@@ -89,6 +90,7 @@ const TokenPair = ({
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
 
   const [isDegenMode] = useDegenModeManager()
+  const notify = useNotify()
 
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
@@ -152,13 +154,11 @@ const TokenPair = ({
     {},
   )
 
-  const routerAddress = isEVM
-    ? isStaticFeePair
-      ? isOldStaticFeeContract
-        ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.router
-        : (networkInfo as EVMNetworkInfo).classic.static.router
-      : (networkInfo as EVMNetworkInfo).classic.dynamic?.router
-    : undefined
+  const routerAddress = isStaticFeePair
+    ? isOldStaticFeeContract
+      ? networkInfo.classic.oldStatic?.router
+      : networkInfo.classic.static.router
+    : networkInfo.classic.dynamic?.router
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], routerAddress || undefined)
@@ -310,20 +310,31 @@ const TokenPair = ({
           }
         }),
       )
-      .catch(err => {
+      .catch(error => {
         setAttemptingTxn(false)
-        const e = new Error('Classic: Add liquidity Error', { cause: err })
-        e.name = 'AddLiquidityError'
-        captureException(e, { extra: { args } })
-        // we only care if the error is something _other_ than the user rejected the tx
-        if (!didUserReject(error)) {
-          console.error(err)
+
+        const message = error.message.includes('INSUFFICIENT')
+          ? t`Insufficient liquidity available. Please reload page and try again!`
+          : friendlyError(error)
+
+        if (isDegenMode) {
+          notify(
+            {
+              title: t`Add Liquidity Error`,
+              summary: message,
+              type: NotificationType.ERROR,
+            },
+            8000,
+          )
+        } else {
+          setAddLiquidityError(message)
         }
 
-        if (err.message.includes('INSUFFICIENT')) {
-          setAddLiquidityError(t`Insufficient liquidity available. Please reload page and try again!`)
-        } else {
-          setAddLiquidityError(err?.message)
+        if (!didUserReject(error)) {
+          console.error('Add Liquidity error:', { message, error })
+          const e = new Error(message, { cause: error })
+          e.name = 'AddLiquidityError'
+          captureException(e, { extra: { args } })
         }
       })
   }
@@ -387,6 +398,8 @@ const TokenPair = ({
   const navigate = useNavigate()
 
   const modalHeader = () => {
+    const displaySlp = allowedSlippage / 100
+
     return (
       <AutoColumn gap="5px">
         <RowFlat style={{ marginTop: '20px' }}>
@@ -395,12 +408,14 @@ const TokenPair = ({
           </Text>
         </RowFlat>
         <Row>
-          <Text fontSize="24px">{'DMM ' + nativeA?.symbol + '/' + nativeB?.symbol + ' LP Tokens'}</Text>
+          <Text fontSize="24px">
+            <Trans>
+              DMM {nativeA?.symbol}/{nativeB?.symbol} LP Tokens
+            </Trans>
+          </Text>
         </Row>
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
-          {t`Output is estimated. If the price changes by more than ${
-            allowedSlippage / 100
-          }% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )
@@ -594,7 +609,7 @@ const TokenPair = ({
                         <Text fontWeight={500} fontSize={12} color={theme.subText}>
                           AMP
                         </Text>
-                        <QuestionHelper text={AMP_HINT} />
+                        <QuestionHelper text={AMP_HINT()} />
                       </AutoRow>
                       <Text fontWeight={400} fontSize={14} color={theme.text}>
                         {!!pair ? (

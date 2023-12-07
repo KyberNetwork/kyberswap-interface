@@ -1,12 +1,12 @@
 import useSWRImmutable from 'swr/immutable'
 
 import { POOL_FARM_BASE_URL } from 'constants/env'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { ElasticPoolDetail } from 'types/pool'
 
-import { CommonReturn } from '.'
+import { CommonReturn } from './type'
 
 export type RawToken = {
   id: string
@@ -53,7 +53,7 @@ const useGetElasticPoolsV2 = (): CommonReturn => {
   const { chainId } = useActiveWeb3React()
   const { isEnableKNProtocol } = useKyberSwapConfig()
 
-  const chainRoute = !isEVM(chainId) || NETWORKS_INFO[chainId].poolFarmRoute
+  const chainRoute = NETWORKS_INFO[chainId].poolFarmRoute
 
   const { isValidating, error, data } = useSWRImmutable<Response>(
     `${POOL_FARM_BASE_URL}/${chainRoute}/api/v1/elastic-new/pools?includeLowTvl=true&page=1&perPage=10000&thisParamToForceRefresh=${isEnableKNProtocol}`,

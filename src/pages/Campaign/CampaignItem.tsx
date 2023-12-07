@@ -14,7 +14,7 @@ import { ReactComponent as StarMultiplierIcon } from 'assets/svg/star_multiplier
 import ProgressBar from 'components/ProgressBar'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { DEFAULT_SIGNIFICANT, RESERVE_USD_DECIMALS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { CampaignData, CampaignStatus, CampaignUserInfoStatus, ConditionGroupsType } from 'state/campaigns/actions'
 

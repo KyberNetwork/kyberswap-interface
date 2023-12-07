@@ -1,11 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import avalancheIcon from 'assets/networks/avalanche.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const NOT_SUPPORT = null
 
-const avaxInfo: EVMNetworkInfo = {
+const avaxInfo: NetworkInfo = {
   chainId: ChainId.AVAXMAINNET,
   route: 'avalanche',
   ksSettingRoute: 'avalanche',
@@ -23,7 +23,7 @@ const avaxInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'AVAX',
     name: 'AVAX',
-    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/31645e2e-9c40-4fdf-9ddf-50d24e5399e4.svg',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/e72081b5-cb5f-4fb6-b771-ac189bdfd7c81699420213175.png',
     decimal: 18,
     minForGas: 10 ** 16,
   },
@@ -74,6 +74,12 @@ const avaxInfo: EVMNetworkInfo = {
       '0x3d6afe2fb73ffed2e3dd00c501a174554e147a43',
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
+    zap: {
+      router: '0x30C5322E4e08AD500c348007f92f120ab4E2b79e',
+      validator: '0xf0096e5B4AAfeEA1DF557264091569ba125c1172',
+      executor: '0x8ac7895130e3be8654fff544ae20bf2a93ef19d1',
+      helper: '0x214061F0e250A27a49f609d9caf2987a7bC8fA6B',
+    },
   },
   limitOrder: '*',
   averageBlockTimeInSeconds: 1.85,

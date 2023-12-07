@@ -1,9 +1,9 @@
-import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { Result, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -42,6 +42,7 @@ export default function useProAmmPreviousTicks(
     return undefined
   }, [results, loading, error, pool])
 }
+
 export function useProAmmMultiplePreviousTicks(
   pool: Pool | null | undefined,
   positions: (Position | undefined)[],
@@ -88,7 +89,10 @@ export function useTotalFeeOwedByElasticPosition(
   pool: Pool | null | undefined,
   tokenID: string | undefined,
   asWETH = false,
-) {
+): {
+  feeOwed: [undefined, undefined] | [CurrencyAmount<Currency>, CurrencyAmount<Currency>]
+  loading: boolean
+} {
   const tickReader = useProAmmTickReader()
   const poolAddress = useProAmmPoolInfo(pool?.token0, pool?.token1, pool?.fee)
   const { chainId } = useActiveWeb3React()
@@ -97,21 +101,18 @@ export function useTotalFeeOwedByElasticPosition(
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    let i: number
-    if (isEVM(chainId)) {
-      const getFee = () => {
-        setLoading(true)
-        tickReader
-          ?.getTotalFeesOwedToPosition(NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager, poolAddress, tokenID)
-          .then((res: { token0Owed: BigNumber; token1Owed: BigNumber }) => {
-            setFee([res.token0Owed.toString(), res.token1Owed.toString()])
-          })
-          .finally(() => setLoading(false))
-      }
-
-      getFee()
-      i = window.setInterval(() => getFee(), 6_969)
+    const getFee = () => {
+      setLoading(true)
+      tickReader
+        ?.getTotalFeesOwedToPosition(NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager, poolAddress, tokenID)
+        .then((res: { token0Owed: BigNumber; token1Owed: BigNumber }) => {
+          setFee([res.token0Owed.toString(), res.token1Owed.toString()])
+        })
+        .finally(() => setLoading(false))
     }
+
+    getFee()
+    const i = window.setInterval(() => getFee(), 6_969)
 
     return () => {
       i && clearInterval(i)

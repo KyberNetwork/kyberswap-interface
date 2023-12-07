@@ -1,26 +1,12 @@
 import { gql, useQuery } from '@apollo/client'
 import { useScroll } from '@use-gesture/react'
-import { Interface } from 'ethers/lib/utils'
 import memoizeOne from 'memoize-one'
-import React, {
-  CSSProperties,
-  ComponentType,
-  forwardRef,
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { CSSProperties, ComponentType, forwardRef, memo, useMemo, useRef } from 'react'
 import { useMedia } from 'react-use'
 import { FixedSizeGrid as FixedSizeGridRW, GridChildComponentProps, areEqual } from 'react-window'
 import styled from 'styled-components'
 
-import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
-import { useMulticallContract } from 'hooks/useContract'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -65,8 +51,6 @@ export const PositionCardGrid = styled.div`
   `};
 `
 
-const tickReaderInterface = new Interface(TickReaderABI.abi)
-
 const queryPositionLastCollectedTimes = gql`
   query positions($ids: [String]!) {
     positions(where: { id_in: $ids }) {
@@ -79,17 +63,11 @@ const queryPositionLastCollectedTimes = gql`
 `
 
 function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?: React.MutableRefObject<any> }) {
-  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
-  const multicallContract = useMulticallContract()
+  const { chainId } = useActiveWeb3React()
   const { elasticClient } = useKyberSwapConfig(chainId)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
-
-  // raw
-  const [feeRewards, setFeeRewards] = useState<{
-    [tokenId: string]: [string, string]
-  }>(() => positions.reduce((acc, item) => ({ ...acc, [item.tokenId.toString()]: ['0', '0'] }), {}))
 
   const positionIds = useMemo(() => positions.map(pos => pos.tokenId.toString()), [positions])
   const { data } = useQuery(queryPositionLastCollectedTimes, {
@@ -98,7 +76,7 @@ function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?
       ids: positionIds,
     },
     fetchPolicy: 'cache-first',
-    skip: !isEVM || !positionIds.length,
+    skip: !positionIds.length,
   })
 
   const liquidityTimes = useMemo(
@@ -137,45 +115,27 @@ function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?
     [data],
   )
 
-  const getPositionFee = useCallback(async () => {
-    if (!multicallContract) return
-    const fragment = tickReaderInterface.getFunction('getTotalFeesOwedToPosition')
-    const callParams = positions.map(item => {
+  // TODO: Temporary hardcoded fee to 0
+  // const rewardRes = useSingleContractMultipleData(
+  //   tickReaderContract,
+  //   'getTotalFeesOwedToPosition',
+  //   positions.map(item => [networkInfo.elastic.nonfungiblePositionManager, item.poolId, item.tokenId]),
+  // )
+
+  const feeRewards = useMemo(() => {
+    return positions.reduce<{ [tokenId: string]: [string, string] }>((acc, item, _index) => {
       return {
-        target: (networkInfo as EVMNetworkInfo).elastic.tickReader,
-        callData: tickReaderInterface.encodeFunctionData(fragment, [
-          (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
-          item.poolId,
-          item.tokenId,
-        ]),
+        ...acc,
+        [item.tokenId.toString()]: ['0', '0'],
+        // rewardRes[index].result
+        //   ? [
+        //       rewardRes[index].result?.token0Owed?.toString() || '0',
+        //       rewardRes[index].result?.token1Owed.toString() || '0',
+        //     ]
+        //   : ['0', '0'] ,
       }
-    })
-
-    const { returnData } = await multicallContract?.callStatic.tryBlockAndAggregate(false, callParams)
-    setFeeRewards(
-      returnData.reduce(
-        (
-          acc: { [tokenId: string]: [string, string] },
-          item: { success: boolean; returnData: string },
-          index: number,
-        ) => {
-          if (item.success) {
-            const tmp = tickReaderInterface.decodeFunctionResult(fragment, item.returnData)
-            return {
-              ...acc,
-              [positions[index].tokenId.toString()]: [tmp.token0Owed.toString(), tmp.token1Owed.toString()],
-            }
-          }
-          return { ...acc, [positions[index].tokenId.toString()]: ['0', '0'] }
-        },
-        {} as { [tokenId: string]: [string, string] },
-      ),
-    )
-  }, [multicallContract, positions, networkInfo])
-
-  useEffect(() => {
-    getPositionFee()
-  }, [getPositionFee])
+    }, {})
+  }, [positions])
 
   const itemData = createItemData(positions, liquidityTimes, farmingTimes, feeRewards, createdAts, refe)
 

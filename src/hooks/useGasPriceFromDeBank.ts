@@ -1,6 +1,5 @@
 import useSWR from 'swr'
 
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useETHPrice } from 'state/application/hooks'
 
@@ -59,13 +58,12 @@ const calculateGasPrices = (resp: Response, currentPrice?: string | number): Gas
 }
 
 const useGasPriceFromDeBank = (): GasPriceTrackerData | undefined => {
-  const { chainId, networkInfo, isEVM } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const nativeTokenPriceData = useETHPrice()
-  const chainSlug = isEVM ? (networkInfo as EVMNetworkInfo).deBankSlug : ''
+  const chainSlug = networkInfo.deBankSlug
   const { data, error } = useSWR<Response>(
     `https://openapi.debank.com/v1/wallet/gas_market?chain_id=${chainSlug}`,
     async (url: string) => {
-      if (!isEVM) throw new Error()
       if (!chainSlug) {
         const err = `chain (${chainId}) is not supported`
         console.error(err)

@@ -8,7 +8,7 @@ export default function SubscribeButtonKyberAI({ type, tooltip }: { type: 'ranki
   return (
     <MouseoverTooltip text={tooltip} placement="right" delay={1200}>
       <SubscribeNotificationButton
-        topicId={KYBER_AI_TOPIC_ID}
+        topicId={KYBER_AI_TOPIC_ID[0]}
         onClick={() =>
           mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SUBSCRIBE_CLICK, {
             source: type,

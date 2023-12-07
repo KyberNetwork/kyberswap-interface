@@ -1,5 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 import { Text } from 'rebass'
 
@@ -56,9 +56,8 @@ export default function SummaryNotify({
     >
       {orders.map(order => (
         <li key={order.id}>
-          {t`${formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} ${
-            order.makerAssetSymbol
-          } to ${formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} ${order.takerAssetSymbol}`}
+          {formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} {order.makerAssetSymbol} <Trans>to</Trans>{' '}
+          {formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} {order.takerAssetSymbol}
         </li>
       ))}
     </ul>

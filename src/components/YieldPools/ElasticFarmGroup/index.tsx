@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
@@ -16,11 +16,11 @@ import HoverDropdown from 'components/HoverDropdown'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'components/Tooltip'
 import { FARM_TAB, SORT_DIRECTION, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
-import { Dots } from 'pages/Pool/styleds'
+import { Dots } from 'pages/MyPool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useDepositedNftsByFarm, useElasticFarms, useFarmAction, useUserInfoByFarm } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
@@ -158,12 +158,11 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
           return (
             pool.poolAddress.toLowerCase() ===
             computePoolAddress({
-              factoryAddress: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.coreFactory,
+              factoryAddress: NETWORKS_INFO[chainId].elastic.coreFactory,
               tokenA: pos.pool.token0,
               tokenB: pos.pool.token1,
               fee: pos.pool.fee,
-              initCodeHashManualOverride:
-                NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.initCodeHash,
+              initCodeHashManualOverride: NETWORKS_INFO[chainId].elastic.initCodeHash,
             }).toLowerCase()
           )
         }) || []
@@ -228,7 +227,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
     })
 
   const toggleWalletModal = useWalletModalToggle()
-  const posManager = useProAmmNFTPositionManagerContract()
+  const posManager = useProAmmNFTPositionManagerReadingContract()
 
   const res = useSingleCallResult(posManager, 'isApprovedForAll', [account || ZERO_ADDRESS, address])
   const isApprovedForAll = res?.result?.[0]
@@ -241,7 +240,7 @@ const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShow
   const handleApprove = async () => {
     if (!isApprovedForAll) {
       const tx = await approve()
-      setApprovalTx(tx)
+      tx && setApprovalTx(tx)
     }
   }
 

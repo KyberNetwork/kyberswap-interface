@@ -1,12 +1,10 @@
-import { parseUnits } from '@ethersproject/units'
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import JSBI from 'jsbi'
 import { ParsedUrlQuery } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { APP_PATHS, BAD_RECIPIENT_ADDRESSES } from 'constants/index'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
@@ -19,7 +17,6 @@ import { AppDispatch, AppState } from 'state/index'
 import {
   Field,
   chooseToSaveGas,
-  encodedSolana,
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,
@@ -30,29 +27,15 @@ import {
   typeInput,
 } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
-import { SolanaEncode } from 'state/swap/types'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
+import { parseFraction } from 'utils/numbers'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
-}
-
-export function useEncodeSolana(): [SolanaEncode | undefined, (encodeSolana: SolanaEncode) => void] {
-  const encodeSolana = useSelector<AppState, AppState['swap']['encodeSolana']>(state => state.swap.encodeSolana)
-
-  const dispatch = useDispatch<AppDispatch>()
-  const setEncodeSolana = useCallback(
-    (encodeSolana: SolanaEncode) => {
-      dispatch(encodedSolana({ encodeSolana }))
-    },
-    [dispatch],
-  )
-
-  return [encodeSolana, setEncodeSolana]
 }
 
 export function useSwapActionHandlers(): {
@@ -149,18 +132,20 @@ export function useSwapActionHandlers(): {
 export function tryParseAmount<T extends Currency>(
   value?: string,
   currency?: T,
-  shouldParse = true,
+  scaleDecimals = true,
 ): CurrencyAmount<T> | undefined {
   if (!value || !currency) {
     return undefined
   }
   try {
-    const typedValueParsed = shouldParse ? parseUnits(value, currency.decimals).toString() : value
-    if (typedValueParsed !== '0') {
-      return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(typedValueParsed))
-    }
+    const typedValueParsed = parseFraction(value)
+      .multiply(scaleDecimals ? 10 ** currency.decimals : 1)
+      .toFixed(0)
+
+    if (typedValueParsed === '0') return undefined
+    const result = CurrencyAmount.fromRawAmount(currency, typedValueParsed)
+    return result
   } catch (error) {
-    if (error.message.includes('fractional component exceeds decimals')) return undefined
     // should fail if the user specifies too many decimal places of precision (or maybe exceed max uint?)
     console.debug(`Failed to parse input amount: "%s"`, value, error)
   }
@@ -268,7 +253,8 @@ function useDerivedSwapInfo(): {
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
-    inputError = t`Insufficient ${amountIn.currency.symbol} balance.`
+    const symbol = amountIn.currency.symbol
+    inputError = t`Insufficient ${symbol} balance.`
   }
 
   return {
@@ -378,7 +364,11 @@ export const useDefaultsFromURLSearch = ():
       return
     }
 
-    const parsed = queryParametersToSwapState(parsedQs, chainId, refPathname.current.startsWith(APP_PATHS.SWAP))
+    const parsed = queryParametersToSwapState(
+      parsedQs,
+      chainId,
+      refPathname.current.startsWith(APP_PATHS.SWAP) || refPathname.current.startsWith(APP_PATHS.PARTNER_SWAP),
+    )
 
     const outputCurrencyAddress = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]?.address || ''
 
@@ -442,4 +432,19 @@ export const useCheckStablePairSwap = () => {
   const isStablePairSwap = isStableCoin(inputCurrencyId) && isStableCoin(outputCurrencyId)
 
   return isStablePairSwap
+}
+
+export const useSwitchPairToLimitOrder = () => {
+  const navigate = useNavigate()
+  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
+  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const { networkInfo } = useActiveWeb3React()
+
+  return useCallback(
+    () =>
+      navigate(
+        `${APP_PATHS.LIMIT}/${networkInfo.route}?inputCurrency=${inputCurrencyId}&outputCurrency=${outputCurrencyId}`,
+      ),
+    [networkInfo, inputCurrencyId, outputCurrencyId, navigate],
+  )
 }

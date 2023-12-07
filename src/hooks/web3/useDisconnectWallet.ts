@@ -1,15 +1,9 @@
-import { useWallet } from '@solana/wallet-adapter-react'
 import { Connector } from '@web3-react/types'
 import { useCallback } from 'react'
 
-import { coinbaseWallet, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors/evm'
-import {
-  LOCALSTORAGE_LAST_WALLETKEY_EVM,
-  LOCALSTORAGE_LAST_WALLETKEY_SOLANA,
-  SUPPORTED_WALLETS,
-} from 'constants/wallets'
+import { coinbaseWallet, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors'
+import { LOCALSTORAGE_LAST_WALLETKEY_EVM, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { isEVMWallet, isSolanaWallet } from 'utils'
 
 const disconnectEvmConnector: (connector: Connector | undefined) => void | Promise<void> = (
   connector: Connector | undefined,
@@ -31,23 +25,18 @@ const disconnectEvmConnector: (connector: Connector | undefined) => void | Promi
 }
 
 const useDisconnectWallet = () => {
-  const { disconnect } = useWallet()
-  const { walletKey, isEVM, isSolana } = useActiveWeb3React()
+  const { walletKey } = useActiveWeb3React()
   const { connector } = useWeb3React()
   return useCallback(async () => {
     const wallet = walletKey && SUPPORTED_WALLETS[walletKey]
     // If wallet support both network, disconnect to both
-    if (wallet && isEVMWallet(wallet) && isSolanaWallet(wallet)) {
-      await Promise.allSettled([disconnectEvmConnector(connector), disconnect()])
-      localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
-      localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
-    } else if (isEVM) {
+    if (wallet) {
       await disconnectEvmConnector(connector)
       localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
-    } else if (isSolana) {
-      await disconnect()
-      localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
+    } else {
+      await disconnectEvmConnector(connector)
+      localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
     }
-  }, [connector, disconnect, isEVM, isSolana, walletKey])
+  }, [connector, walletKey])
 }
 export default useDisconnectWallet

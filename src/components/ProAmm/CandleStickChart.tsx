@@ -44,7 +44,7 @@ const valueFormatter = (val: number) => {
   } else {
     fraction = parseInt(val.toExponential().match(/e([+-][0-9]+)/)?.[1] ?? '0')
   }
-  return formatDisplayNumber(val, { fractionDigits: 3 - fraction })
+  return formatDisplayNumber(val, { fractionDigits: Math.max(3 - fraction, 3) })
 }
 
 const CandleStickChart = ({
@@ -125,7 +125,8 @@ const CandleStickChart = ({
           borderColor: 'rgba(197, 203, 206, 0.8)',
         },
         localization: {
-          priceFormatter: (val: number) => formatDisplayNumber(val, { significantDigits: 6, allowNegative: true }),
+          priceFormatter: (val: number) =>
+            formatDisplayNumber(val, { significantDigits: 6, allowDisplayNegative: true }),
         },
       })
 

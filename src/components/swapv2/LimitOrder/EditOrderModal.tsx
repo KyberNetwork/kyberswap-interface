@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ethers } from 'ethers'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -42,6 +43,7 @@ enum Steps {
 export default function EditOrderModal({
   onSubmit,
   onDismiss,
+  customChainId,
   order,
   note,
   isOpen,
@@ -50,6 +52,7 @@ export default function EditOrderModal({
 }: {
   onSubmit: CancelOrderFunction
   onDismiss: () => void
+  customChainId?: ChainId
   order: LimitOrder
   note: string
   isOpen: boolean
@@ -60,8 +63,8 @@ export default function EditOrderModal({
   const [step, setStep] = useState(Steps.EDIT_ORDER)
 
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
-  const currencyIn = useCurrencyV2(makerAsset) ?? undefined
-  const currencyOut = useCurrencyV2(takerAsset) ?? undefined
+  const currencyIn = useCurrencyV2(makerAsset, customChainId) ?? undefined
+  const currencyOut = useCurrencyV2(takerAsset, customChainId) ?? undefined
   const inputAmount = currencyIn ? ethers.utils.formatUnits(makingAmount, currencyIn.decimals) : ''
   const outputAmount = currencyOut ? ethers.utils.formatUnits(takingAmount, currencyOut.decimals) : ''
 
@@ -193,6 +196,7 @@ export default function EditOrderModal({
             note={note}
             orderInfo={order}
             defaultExpire={defaultExpire}
+            useUrlParams
           />
         )}
       </Wrapper>

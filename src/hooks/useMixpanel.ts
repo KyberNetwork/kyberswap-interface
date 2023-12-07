@@ -205,6 +205,8 @@ export enum MIXPANEL_TYPE {
   LO_CLICK_SUBSCRIBE_BTN,
   LO_CLICK_CANCEL_TYPE,
   LO_CLICK_UPDATE_TYPE,
+  LO_CLICK_GET_STARTED,
+  LO_CLICK_WARNING_IN_SWAP,
 
   // Wallet UI
   WUI_WALLET_CLICK,
@@ -298,7 +300,7 @@ type FeeInfo = {
 }
 
 export default function useMixpanel(currencies?: { [field in Field]?: Currency }) {
-  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const { saveGas } = useSwapState()
   const network = networkInfo.name
 
@@ -1133,6 +1135,14 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Limit Order - Update Order Double Signature Click', payload)
           break
         }
+        case MIXPANEL_TYPE.LO_CLICK_GET_STARTED: {
+          mixpanel.track('Limit Order - Get Started Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP: {
+          mixpanel.track('Limit Order - Warning in Swap Click', payload)
+          break
+        }
 
         case MIXPANEL_TYPE.WUI_WALLET_CLICK: {
           mixpanel.track('Wallet UI - Wallet Click')
@@ -1360,8 +1370,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
-      if (!isEVM) return
-
       const hash = transaction.hash
       const arbitrary = transaction.extraInfo?.arbitrary
       switch (transaction.type) {
@@ -1559,7 +1567,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
       }
     },
-    [chainId, dispatch, mixpanelHandler, isEVM, classicClient, elasticClient],
+    [chainId, dispatch, mixpanelHandler, classicClient, elasticClient],
   )
   return { mixpanelHandler, subgraphMixpanelHandler }
 }
@@ -1662,7 +1670,7 @@ export const useMixpanelKyberAI = () => {
 }
 
 export const useGlobalMixpanelEvents = () => {
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const { isWhiteList } = useIsWhiteListKyberAI()
   const oldNetwork = usePrevious(chainId)
@@ -1673,7 +1681,7 @@ export const useGlobalMixpanelEvents = () => {
   }, [location])
 
   useEffect(() => {
-    if (isEVM ? account && isAddress(account) : account) {
+    if (account && isAddress(account)) {
       mixpanel.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
@@ -1757,7 +1765,6 @@ export const useGlobalMixpanelEvents = () => {
         'notification-center': 'Notification',
         [APP_PATHS.KYBERAI_ABOUT]: 'KyberAI About',
         [APP_PATHS.KYBERDAO_KNC_UTILITY]: 'Gas refund - KNC Utility',
-        [APP_PATHS.MY_EARNINGS]: 'Earning Dashboard',
       }
       const protectedPaths: { [key: string]: string } = {
         [APP_PATHS.KYBERAI_RANKINGS]: 'KyberAI Rankings',

@@ -1,7 +1,5 @@
-import { ChainId, ChainType, getChainType } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-
-import { SolanaNetworkInfo } from 'constants/networks/type'
 
 import {
   arbitrum,
@@ -21,18 +19,13 @@ import {
   mumbai,
   optimism,
   scroll,
-  solana,
-  solanaDevnet,
   zkEvm,
   zksync,
 } from './networks/index'
-import { EVMNetworkInfo } from './networks/type'
+import { NetworkInfo } from './networks/type'
 
-type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_DEVNET
+type NETWORKS_INFO_CONFIG_TYPE = { [chainId in ChainId]: NetworkInfo }
 
-type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & {
-  [chainId in SOLANA_NETWORK]: SolanaNetworkInfo
-}
 const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MAINNET]: ethereum,
   [ChainId.GÖRLI]: görli,
@@ -53,8 +46,6 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ZKEVM]: zkEvm,
   [ChainId.BASE]: base,
   [ChainId.SCROLL]: scroll,
-  [ChainId.SOLANA]: solana,
-  [ChainId.SOLANA_DEVNET]: solanaDevnet,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -66,9 +57,7 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
   },
 })
 
-// temporary disable Solana
-// todo: either enable back or completely remove Solana from codebase
-export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(isEVM)
+export const SUPPORTED_NETWORKS: ChainId[] = Object.keys(NETWORKS_INFO).map(Number)
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,
@@ -82,23 +71,11 @@ export const MAINNET_NETWORKS = [
   ChainId.SCROLL,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
-  // ChainId.SOLANA,
   ChainId.FANTOM,
   ChainId.BTTC,
   ChainId.CRONOS,
   ChainId.AURORA,
 ] as const
-
-export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
-  ChainId,
-  SOLANA_NETWORK
->[]
-
-export type EVM_NETWORK = typeof EVM_NETWORKS[number]
-
-export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
-  chainId => getChainType(chainId) === ChainType.EVM,
-) as Exclude<typeof MAINNET_NETWORKS[number], ChainId.SOLANA>[]
 
 // These option of walletconnect is not support by wallets properly
 // E.g:
@@ -112,21 +89,11 @@ export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
 // But most wallets not respecting `optionalChains`, causing some inconveniences that we can only use Ethereum through Walletconnect
 // Note: this const is use for wallets connecting through walletconnect, not directly through injected method
 export const WALLET_CONNECT_REQUIRED_CHAIN_IDS = [ChainId.MAINNET]
-export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS = EVM_MAINNET_NETWORKS
+export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS = MAINNET_NETWORKS
 export const WALLET_CONNECT_OPTIONAL_CHAIN_IDS = WALLET_CONNECT_SUPPORTED_CHAIN_IDS.filter(
   chain => !WALLET_CONNECT_REQUIRED_CHAIN_IDS.includes(chain),
 )
 
-export function isEVM(chainId?: ChainId): chainId is EVM_NETWORK {
-  if (!chainId) return false
-  const chainType = getChainType(chainId)
-  return chainType === ChainType.EVM
-}
-export function isSolana(chainId?: ChainId): chainId is ChainId.SOLANA {
-  if (!chainId) return false
-  const chainType = getChainType(chainId)
-  return chainType === ChainType.SOLANA
-}
 export function isSupportedChainId(chainId?: number): chainId is ChainId {
   if (!chainId) return false
   return !!(NETWORKS_INFO_CONFIG as any)[chainId]
@@ -210,11 +177,11 @@ export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.AVAXMAINNET,
 ]
 
-export const ELASTIC_NOT_SUPPORTED: { [key: string]: string } = {
+export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.AURORA]: t`Elastic is not supported on Aurora. Please switch to other chains`,
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,
-}
+})
 
-export const CLASSIC_NOT_SUPPORTED: { [key: string]: string } = {
+export const CLASSIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.BASE]: t`Classic is not supported on Base. Please switch to other chains`,
-}
+})

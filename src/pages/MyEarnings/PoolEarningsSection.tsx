@@ -6,7 +6,6 @@ import { Box, Flex } from 'rebass'
 import { HistoricalSingleData } from 'services/earning/types'
 import styled from 'styled-components'
 
-import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import { NativeCurrencies } from 'constants/tokens'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
@@ -15,8 +14,8 @@ import { useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
-import { isAddressString } from 'utils'
-import { toFixed } from 'utils/numbers'
+import { getNativeTokenLogo, isAddressString } from 'utils'
+import { toString } from 'utils/numbers'
 
 import OriginalEarningsBreakdownPanel from './EarningsBreakdownPanel'
 import OriginalMyEarningsOverTimePanel from './MyEarningsOverTimePanel'
@@ -89,7 +88,7 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
-  const nativeLogo = useGetNativeTokenLogo(chainId)
+  const nativeLogo = getNativeTokenLogo(chainId)
 
   const [tokens, setTokens] = useState<{ [address: string]: WrappedTokenInfo }>({})
 
@@ -151,19 +150,19 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
         ? latestData.map(data => ({
             logoUrl: data.logoUrl,
             symbol: data.symbol,
-            value: toFixed(data.amountUSD),
+            value: toString(data.amountUSD),
             percent: isAllZero ? (1 / visibleItems) * 100 : (data.amountUSD / totalValue) * 100,
           }))
         : [
             ...latestData.slice(0, 9).map(data => ({
               logoUrl: data.logoUrl,
               symbol: data.symbol,
-              value: toFixed(data.amountUSD),
+              value: toString(data.amountUSD),
               percent: isAllZero ? 10 : (data.amountUSD / totalValue) * 100,
             })),
             {
               symbol: t`Others`,
-              value: toFixed(totalValueOfOthers),
+              value: toString(totalValueOfOthers),
               percent: isAllZero ? 10 : (totalValueOfOthers / totalValue) * 100,
             },
           ]

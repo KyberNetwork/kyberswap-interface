@@ -21,7 +21,8 @@ import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
-import { useProMMFarmContract } from 'hooks/useContract'
+import { useAllTokens } from 'hooks/Tokens'
+import { useProMMFarmReadingContract } from 'hooks/useContract'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
@@ -66,6 +67,7 @@ const Row = ({
   onHarvest: () => void
   tokenPrices: { [key: string]: number }
 }) => {
+  const allTokens = useAllTokens()
   const { chainId, networkInfo, account } = useActiveWeb3React()
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -96,7 +98,7 @@ const Row = ({
     0,
   )
 
-  const contract = useProMMFarmContract(fairlaunchAddress)
+  const contract = useProMMFarmReadingContract(fairlaunchAddress)
   const [targetPercent, setTargetPercent] = useState('')
   const [targetPercentByNFT, setTargetPercentByNFT] = useState<{ [key: string]: string }>({})
   const [rowOpen, setRowOpen] = useState(false)
@@ -306,8 +308,20 @@ const Row = ({
     </Flex>
   )
 
-  const symbol0 = getTokenSymbolWithHardcode(chainId, farmingPool.token0.wrapped.address, farmingPool.token0.symbol)
-  const symbol1 = getTokenSymbolWithHardcode(chainId, farmingPool.token1.wrapped.address, farmingPool.token1.symbol)
+  const symbol0 = getTokenSymbolWithHardcode(
+    chainId,
+    farmingPool.token0.wrapped.address,
+    farmingPool.token0.isNative
+      ? farmingPool.token0.symbol
+      : allTokens[farmingPool.token0.wrapped.address]?.symbol || farmingPool.token0.symbol,
+  )
+  const symbol1 = getTokenSymbolWithHardcode(
+    chainId,
+    farmingPool.token1.wrapped.address,
+    farmingPool.token1.isNative
+      ? farmingPool.token1.symbol
+      : allTokens[farmingPool.token1.wrapped.address]?.symbol || farmingPool.token1.symbol,
+  )
 
   return (
     <RowWrapper isOpen={rowOpen && !!depositedPositions.length} data-testid={farmingPool.id}>

@@ -22,7 +22,7 @@ export const getExpireOptions = () =>
     30 * TIMES_IN_SECS.ONE_DAY,
   ].map(e => ({ value: e, label: formatTimeDuration(e) }))
 
-export const ACTIVE_ORDER_OPTIONS = [
+export const ACTIVE_ORDER_OPTIONS = () => [
   {
     label: t`All Active Orders`,
     value: LimitOrderStatus.ACTIVE,
@@ -36,7 +36,7 @@ export const ACTIVE_ORDER_OPTIONS = [
     value: LimitOrderStatus.PARTIALLY_FILLED,
   },
 ]
-export const CLOSE_ORDER_OPTIONS = [
+export const CLOSE_ORDER_OPTIONS = () => [
   {
     label: t`All Closed Orders`,
     value: LimitOrderStatus.CLOSED,
@@ -73,5 +73,6 @@ export const DOCS_LINKS = {
   GASLESS_CANCEL:
     'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#gasless-cancel',
   HARD_CANCEL: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/concepts/gasless-cancellation#hard-cancel',
-  USER_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/user-guides/cancel-limit-orders',
+  CANCEL_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order/user-guides/cancel-limit-orders',
+  USER_GUIDE: 'https://docs.kyberswap.com/kyberswap-solutions/limit-order',
 }

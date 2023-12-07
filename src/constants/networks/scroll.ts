@@ -1,13 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const scroll: EVMNetworkInfo = {
+const scroll: NetworkInfo = {
   chainId: ChainId.SCROLL,
   route: 'scroll',
   ksSettingRoute: 'scroll',
@@ -44,6 +44,7 @@ const scroll: EVMNetworkInfo = {
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
+    fairlaunchV3: ['0x80F00BF467520b5749363E1391f94B8d888F7C0E'],
   },
   elastic: {
     defaultSubgraph: 'https://scroll-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-scroll',
@@ -58,6 +59,12 @@ const scroll: EVMNetworkInfo = {
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
     farmV2S: [],
     'farmV2.1S': ['0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43', '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd'],
+    zap: {
+      router: '0x30C5322E4e08AD500c348007f92f120ab4E2b79e',
+      validator: '0xf0096e5B4AAfeEA1DF557264091569ba125c1172',
+      executor: '0x8ac7895130e3be8654fff544ae20bf2a93ef19d1',
+      helper: '0x214061F0e250A27a49f609d9caf2987a7bC8fA6B',
+    },
   },
   limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 8.4, // dont use for base

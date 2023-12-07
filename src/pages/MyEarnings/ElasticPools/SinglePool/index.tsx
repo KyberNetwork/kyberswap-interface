@@ -13,13 +13,14 @@ import { ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import QuickZap, { QuickZapButton } from 'components/ElasticZap/QuickZap'
 import { FarmTag } from 'components/FarmTag'
 import Loader from 'components/Loader'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
@@ -57,6 +58,7 @@ export const StatItem = ({ label, value }: { label: ReactNode | string; value: R
 
 const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, pendingFees, tokenPrices }) => {
   const theme = useTheme()
+  const [showQuickZap, setShowQuickZap] = useState(false)
   const { mixpanelHandler } = useMixpanel()
   const [isExpanded, setExpanded] = useState(false)
   const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
@@ -238,6 +240,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           borderRadius: mobileView ? 0 : '1rem',
         }}
       >
+        <QuickZap
+          poolAddress={poolEarning.id}
+          isOpen={showQuickZap}
+          onDismiss={() => setShowQuickZap(false)}
+          expectedChainId={chainId}
+        />
+
         <MobileStatWrapper padding={mobileView ? '1rem 0' : '1rem'}>
           <Flex
             alignItems={mobileView ? 'flex-start' : 'center'}
@@ -342,21 +351,30 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                 + <Trans>Add Liquidity</Trans>
               </ButtonLight>
             ) : (
-              <ButtonLight
-                width="fit-content"
-                height="36px"
-                as={Link}
-                onClick={e => {
-                  e.stopPropagation()
-                }}
-                to={
-                  currency0Slug && currency1Slug
-                    ? `/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
-                    : '#'
-                }
-              >
-                + <Trans>Add Liquidity</Trans>
-              </ButtonLight>
+              <Flex sx={{ gap: '8px' }}>
+                <ButtonLight
+                  width="fit-content"
+                  height="36px"
+                  as={Link}
+                  onClick={e => {
+                    e.stopPropagation()
+                  }}
+                  to={
+                    currency0Slug && currency1Slug
+                      ? `/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
+                      : '#'
+                  }
+                >
+                  + <Trans>Add Liquidity</Trans>
+                </ButtonLight>
+
+                <QuickZapButton
+                  onClick={e => {
+                    e.stopPropagation()
+                    setShowQuickZap(true)
+                  }}
+                />
+              </Flex>
             )}
 
             <Flex sx={{ gap: '0.75rem' }}>
@@ -493,26 +511,43 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
               <Plus color={theme.subText} size={18} />
             </ButtonIcon>
           ) : (
-            <ButtonIcon
-              color={theme.primary}
-              style={{
-                width: '24px',
-                height: '24px',
-              }}
-              as={Link}
-              to={
-                currency0Slug && currency1Slug
-                  ? `/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
-                  : '#'
-              }
-              onClick={e => e.stopPropagation()}
-            >
-              <Plus color={theme.primary} size={18} />
-            </ButtonIcon>
+            <>
+              <QuickZapButton
+                onClick={e => {
+                  e.stopPropagation()
+                  setShowQuickZap(true)
+                }}
+                size="small"
+              />
+
+              <ButtonIcon
+                color={theme.primary}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                }}
+                as={Link}
+                to={
+                  currency0Slug && currency1Slug
+                    ? `/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
+                    : '#'
+                }
+                onClick={e => e.stopPropagation()}
+              >
+                <Plus color={theme.primary} size={18} />
+              </ButtonIcon>
+            </>
           )}
         </Flex>
       </Row>
       {isExpanded && isExpandable && positions}
+
+      <QuickZap
+        poolAddress={poolEarning.id}
+        isOpen={showQuickZap}
+        onDismiss={() => setShowQuickZap(false)}
+        expectedChainId={chainId}
+      />
     </Wrapper>
   )
 }

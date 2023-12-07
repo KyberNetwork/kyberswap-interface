@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
@@ -5,7 +6,6 @@ import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import Checkbox from 'components/CheckBox'
-import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
@@ -13,6 +13,7 @@ import SearchBar from './SearchBar'
 
 type Props = {
   onBack: () => void
+  chainId?: ChainId
 }
 
 const BackIconWrapper = styled(ArrowLeft)`
@@ -108,13 +109,12 @@ const LiquiditySourceHeader = styled.div`
 
 export const isKyberSwapDex = (id: string) => id.toLowerCase().includes('kyber')
 
-const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
+const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.toLowerCase(), 200).trim()
-  const { isEVM } = useActiveWeb3React()
 
-  const dexes = useAllDexes()
-  const [excludeDexes, setExcludeDexes] = useExcludeDexes()
+  const dexes = useAllDexes(chainId)
+  const [excludeDexes, setExcludeDexes] = useExcludeDexes(chainId)
 
   const checkAllRef = useRef<HTMLInputElement | null>(null)
   const kyberSwapRef = useRef<HTMLInputElement>(null)
@@ -204,7 +204,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
         </LiquiditySourceHeader>
 
         <SourceList>
-          {isEVM && !!ksDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
+          {!!ksDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
             <>
               <Source>
                 <Checkbox

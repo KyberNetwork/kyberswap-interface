@@ -1,12 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
+import { AddEthereumChainParameter } from '@web3-react/types'
 import { useCallback } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import { krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors/evm'
+import { krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors'
 import { didUserReject } from 'constants/connectors/utils'
-import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
@@ -18,7 +19,7 @@ import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
 
 let latestChainId: ChainId
 export function useChangeNetwork() {
-  const { chainId, walletEVM, walletSolana, isWrongNetwork } = useActiveWeb3React()
+  const { chainId, wallet, isWrongNetwork } = useActiveWeb3React()
   const { connector, library } = useWeb3React()
   const fetchKyberswapConfig = useLazyKyberswapConfig()
 
@@ -71,35 +72,34 @@ export function useChangeNetwork() {
       let message: string = customTexts?.default || t`Error when changing network.`
 
       if (didUserReject(error)) {
+        const name = customTexts?.name || NETWORKS_INFO[desiredChainId].name
         message =
-          customTexts?.rejected ||
-          t`In order to use KyberSwap on ${
-            customTexts?.name || NETWORKS_INFO[desiredChainId].name
-          }, you must accept the network in your wallet.`
+          customTexts?.rejected || t`In order to use KyberSwap on ${name}, you must accept the network in your wallet.`
       } else if (
         [
           /Cannot activate an optional chain \(\d+\), as the wallet is not connected to it\./,
           /Chain 'eip155:\d+' not approved. Please use one of the following: eip155:\d+/,
         ].some(regex => regex.test(error?.message))
       ) {
-        message = t`Your wallet not support chain ${NETWORKS_INFO[desiredChainId].name}`
+        const name = NETWORKS_INFO[desiredChainId].name
+        message = t`Your wallet not support chain ${name}`
       } else {
         message = error?.message || message
-        const e = new Error(`[Activate chain] ${walletEVM.walletKey} ${message}`)
+        const e = new Error(`[Activate chain] ${wallet.walletKey} ${message}`)
         e.name = 'Activate chain error'
         captureException(e, {
           level: 'warning',
-          extra: { error, wallet: walletEVM.walletKey, chainId, desiredChainId, message },
+          extra: { error, wallet: wallet.walletKey, chainId, desiredChainId, message },
         })
       }
       notify({
         title,
         type: NotificationType.ERROR,
-        summary: message,
+        summary: friendlyError(message),
       })
       customFailureCallback?.(error)
     },
-    [chainId, notify, walletEVM.walletKey],
+    [chainId, notify, wallet.walletKey],
   )
 
   const addNewNetwork = useCallback(
@@ -128,9 +128,13 @@ export function useChangeNetwork() {
         nativeCurrency: {
           name: NETWORKS_INFO[desiredChainId].nativeToken.name,
           symbol: NETWORKS_INFO[desiredChainId].nativeToken.symbol,
-          decimals: NETWORKS_INFO[desiredChainId].nativeToken.decimal,
+          decimals: 18 as const,
         },
         blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
+      }
+      const addChainParameterWeb3: AddEthereumChainParameter = {
+        ...addChainParameter,
+        chainId: desiredChainId,
       }
 
       enum Solution {
@@ -138,7 +142,7 @@ export function useChangeNetwork() {
         provider_request = 'provider_request',
       }
       const solutions = {
-        [Solution.web3_react]: async () => await connector.activate(addChainParameter),
+        [Solution.web3_react]: async () => await connector.activate(addChainParameterWeb3),
         [Solution.provider_request]: async () => {
           const activeProvider = library?.provider ?? window.ethereum
           if (activeProvider?.request) {
@@ -153,10 +157,10 @@ export function useChangeNetwork() {
       }
 
       const solutionPrefer: readonly Solution[] = (() => {
-        if (walletEVM.walletKey === 'KRYSTAL') {
+        if (wallet.walletKey === 'KRYSTAL') {
           // Krystal break when call by web3-react .activate
           return [Solution.provider_request]
-        } else if (walletEVM.walletKey === 'BLOCTO') {
+        } else if (wallet.walletKey === 'BLOCTO') {
           // Blocto break when call by provider.request
           return [Solution.web3_react]
         }
@@ -167,13 +171,13 @@ export function useChangeNetwork() {
       for (let i = 0; i < solutionPrefer.length; i++) {
         try {
           console.info('[Add network] start:', {
-            wallet: walletEVM.walletKey,
+            wallet: wallet.walletKey,
             solution: solutionPrefer[i],
             addChainParameter,
           })
           await solutions[solutionPrefer[i]]()
           console.info('[Add network] success:', {
-            wallet: walletEVM.walletKey,
+            wallet: wallet.walletKey,
             solution: solutionPrefer[i],
             addChainParameter,
           })
@@ -184,7 +188,7 @@ export function useChangeNetwork() {
             '[Add network] error:',
             JSON.stringify(
               {
-                wallet: walletEVM.walletKey,
+                wallet: wallet.walletKey,
                 desiredChainId,
                 solution: solutionPrefer[i],
                 message: friendlyError(error),
@@ -206,21 +210,21 @@ export function useChangeNetwork() {
       }
 
       failureCallback(desiredChainId, errors.at(-1), customFailureCallback, customTexts)
-      const e = new Error(`[Add network] ${walletEVM.walletKey} ${friendlyError(errors.at(-1) || '')}`)
+      const e = new Error(`[Add network] ${wallet.walletKey} ${friendlyError(errors.at(-1) || '')}`)
       e.name = 'Add new network Error'
       e.stack = ''
       captureException(e, {
         level: 'error',
         extra: {
-          wallet: walletEVM.walletKey,
+          wallet: wallet.walletKey,
           desiredChainId,
-          addChainParameter,
+          addChainParameterWeb3,
           friendlyMessages: errors.map(friendlyError),
           errors,
         },
       })
     },
-    [library?.provider, failureCallback, fetchKyberswapConfig, successCallback, walletEVM.walletKey, connector],
+    [library?.provider, failureCallback, fetchKyberswapConfig, successCallback, wallet.walletKey, connector],
   )
 
   const changeNetwork = useCallback(
@@ -240,59 +244,51 @@ export function useChangeNetwork() {
       }
 
       // if changing to network not connected wallet, update redux and success return
-      if (
-        (isSolana(desiredChainId) && !walletSolana.isConnected) ||
-        (isEVM(desiredChainId) && !walletEVM.isConnected)
-      ) {
+      if (!wallet.isConnected) {
         changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
         return
       }
 
-      if (isEVM(desiredChainId)) {
-        try {
-          console.info('[Switch network] start:', { desiredChainId })
-          await connector.activate(desiredChainId)
-          console.info('[Switch network] success:', { desiredChainId })
-          changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
-        } catch (error) {
-          console.error(
-            '[Switch network] error:',
-            JSON.stringify({ desiredChainId, error, didUserReject: didUserReject(error) }, null, 2),
-          )
-
-          // walletconnect v2 not support add network, so halt execution here
-          if (didUserReject(error) || connector === walletConnectV2 || connector === krystalWalletConnectV2) {
-            failureCallback(desiredChainId, error, customFailureCallback)
-            return
-          }
-          if (isAddNetworkIfPossible) {
-            addNewNetwork(
-              desiredChainId,
-              undefined,
-              undefined,
-              () =>
-                changeNetwork(
-                  desiredChainId,
-                  customSuccessCallback,
-                  customFailureCallback,
-                  waitUtilUpdatedChainId,
-                  false,
-                ),
-              customFailureCallback,
-              waitUtilUpdatedChainId,
-            )
-          } else {
-            failureCallback(desiredChainId, error, customFailureCallback)
-          }
-        }
-      } else {
+      try {
+        console.info('[Switch network] start:', { desiredChainId })
+        await connector.activate(desiredChainId)
+        console.info('[Switch network] success:', { desiredChainId })
         changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
+      } catch (error) {
+        console.error(
+          '[Switch network] error:',
+          JSON.stringify({ desiredChainId, error, didUserReject: didUserReject(error) }, null, 2),
+        )
+
+        // walletconnect v2 not support add network, so halt execution here
+        if (didUserReject(error) || connector === walletConnectV2 || connector === krystalWalletConnectV2) {
+          failureCallback(desiredChainId, error, customFailureCallback)
+          return
+        }
+        if (isAddNetworkIfPossible) {
+          addNewNetwork(
+            desiredChainId,
+            undefined,
+            undefined,
+            () =>
+              changeNetwork(
+                desiredChainId,
+                customSuccessCallback,
+                customFailureCallback,
+                waitUtilUpdatedChainId,
+                false,
+              ),
+            customFailureCallback,
+            waitUtilUpdatedChainId,
+          )
+        } else {
+          failureCallback(desiredChainId, error, customFailureCallback)
+        }
       }
     },
     [
       chainId,
-      walletSolana.isConnected,
-      walletEVM.isConnected,
+      wallet.isConnected,
       connector,
       changeNetworkHandler,
       successCallback,

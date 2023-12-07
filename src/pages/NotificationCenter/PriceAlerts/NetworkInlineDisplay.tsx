@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Flex, Text } from 'rebass'
 
 import { NetworkLogo } from 'components/Logo'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 
 type Props = {

@@ -1,16 +1,20 @@
+import { t } from '@lingui/macro'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
 
+import { NotificationType } from 'components/Announcement/type'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { ELASTIC_FARM_TYPE, FARM_TAB, SORT_DIRECTION } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useActiveWeb3React } from 'hooks'
-import { useContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerSigningContract, useSigningContract } from 'hooks/useContract'
+import { useNotify } from 'state/application/hooks'
 import { useAppSelector } from 'state/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin, isAddressString } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
 
 import { defaultChainData } from '.'
 import { UserFarmV2Info } from './types'
@@ -45,7 +49,7 @@ export enum SORT_FIELD {
 }
 
 export const useFilteredFarmsV2 = (farmAddress?: string) => {
-  const { isEVM, chainId } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const [searchParams] = useSearchParams()
   const { farms, userInfo, loading } = useElasticFarmsV2()
@@ -110,12 +114,11 @@ export const useFilteredFarmsV2 = (farmAddress?: string) => {
     // Filter by search value
     const searchAddress = isAddressString(chainId, search)
     if (searchAddress) {
-      if (isEVM)
-        result = result?.filter(farm => {
-          return [farm.poolAddress, farm.token0.wrapped.address, farm.token1.wrapped.address]
-            .map(item => item.toLowerCase())
-            .includes(searchAddress.toLowerCase())
-        })
+      result = result?.filter(farm => {
+        return [farm.poolAddress, farm.token0.wrapped.address, farm.token1.wrapped.address]
+          .map(item => item.toLowerCase())
+          .includes(searchAddress.toLowerCase())
+      })
     } else {
       result = result?.filter(farm => {
         return (
@@ -191,7 +194,6 @@ export const useFilteredFarmsV2 = (farmAddress?: string) => {
     chainId,
     filteredToken0Id,
     filteredToken1Id,
-    isEVM,
     search,
     elasticType,
     farmAddress,
@@ -206,30 +208,51 @@ export const useFilteredFarmsV2 = (farmAddress?: string) => {
   }
 }
 
-export const useFarmV2Action = (farmAddress: string) => {
+export const useFarmV2Action = (
+  farmAddress: string,
+): {
+  approve: () => Promise<string | undefined>
+  deposit: (fId: number, rangeId: number, nftIds: number[]) => Promise<string>
+  updateLiquidity: (fId: number, rangeId: number, nftIds: number[]) => Promise<string>
+  withdraw: (fId: number, nftIds: number[]) => Promise<string>
+  harvest: (fId: number, nftIds: number[]) => Promise<string>
+} => {
   const { account } = useActiveWeb3React()
   const addTransactionWithType = useTransactionAdder()
-  const farmContract = useContract(farmAddress, FarmV2ABI)
-  const posManager = useProAmmNFTPositionManagerContract()
+  const farmContract = useSigningContract(farmAddress, FarmV2ABI)
+  const posManager = useProAmmNFTPositionManagerSigningContract()
+  const notify = useNotify()
 
   const approve = useCallback(async () => {
     if (!posManager) {
       throw new Error(CONTRACT_NOT_FOUND_MSG)
     }
-    const estimateGas = await posManager.estimateGas.setApprovalForAll(farmAddress, true)
-    const tx = await posManager.setApprovalForAll(farmAddress, true, {
-      gasLimit: calculateGasMargin(estimateGas),
-    })
-    addTransactionWithType({
-      hash: tx.hash,
-      type: TRANSACTION_TYPE.APPROVE,
-      extraInfo: {
-        summary: `Elastic Static Farm`,
-        contract: farmAddress,
-      },
-    })
-    return tx.hash
-  }, [posManager, farmAddress, addTransactionWithType])
+    try {
+      const estimateGas = await posManager.estimateGas.setApprovalForAll(farmAddress, true)
+      const tx = await posManager.setApprovalForAll(farmAddress, true, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.APPROVE,
+        extraInfo: {
+          summary: `Elastic Static Farm`,
+          contract: farmAddress,
+        },
+      })
+      return tx.hash
+    } catch (error) {
+      const message = friendlyError(error)
+      notify(
+        {
+          title: t`Approve Farm Error`,
+          summary: message,
+          type: NotificationType.ERROR,
+        },
+        8000,
+      )
+    }
+  }, [posManager, farmAddress, addTransactionWithType, notify])
 
   //Deposit
   const deposit = useCallback(
@@ -247,8 +270,8 @@ export const useFarmV2Action = (farmAddress: string) => {
           type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
         })
         return tx.hash
-      } catch (e) {
-        throw e
+      } catch (error) {
+        throw error
       }
     },
     [farmContract, addTransactionWithType, account],
@@ -269,8 +292,8 @@ export const useFarmV2Action = (farmAddress: string) => {
           type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
         })
         return tx.hash
-      } catch (e) {
-        throw e
+      } catch (error) {
+        throw error
       }
     },
     [addTransactionWithType, farmContract],
@@ -292,8 +315,8 @@ export const useFarmV2Action = (farmAddress: string) => {
           type: TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
         })
         return tx.hash
-      } catch (e) {
-        throw e
+      } catch (error) {
+        throw error
       }
     },
     [addTransactionWithType, farmContract],
@@ -313,8 +336,8 @@ export const useFarmV2Action = (farmAddress: string) => {
 
         addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST })
         return tx.hash
-      } catch (e) {
-        throw e
+      } catch (error) {
+        throw error
       }
     },
     [addTransactionWithType, farmContract],

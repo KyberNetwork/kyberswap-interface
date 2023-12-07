@@ -68,24 +68,14 @@ export const BtnPrimary = styled(ButtonPrimary)`
   `};
 `
 
-export const OverflowStatisticWrapper = styled.div`
-  margin-top: 160px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin-left: 0;
-    margin-right: 0;
-  `}
-`
-
 export const StatisticWrapper = styled.div`
   display: flex;
   gap: 16px;
   justify-content: center;
   flex-direction: row;
-  margin-top: 48px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column;
-    margin-top: 100px;
-  `}
+  margin: auto;
+  margin-top: 100px;
+  max-width: 900px;
 `
 
 export const StatisticItem = styled.div`

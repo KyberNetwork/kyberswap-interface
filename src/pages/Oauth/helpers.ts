@@ -1,7 +1,42 @@
-import { LoginFlow } from '@kybernetwork/oauth2'
+import { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
+
+import { isInEnum, queryStringToObject } from 'utils/string'
 
 export const getSupportLoginMethods = (loginFlow: LoginFlow | undefined) => {
   return loginFlow?.oauth_client?.metadata?.allowed_login_methods ?? []
+}
+
+export const canAutoSignInEth = (loginMethods: LoginMethod[]) => {
+  const isIncludeEth = loginMethods.includes(LoginMethod.ETH)
+  const totalMethod = loginMethods.length
+  return (
+    (isIncludeEth && totalMethod === 1) ||
+    (isIncludeEth && totalMethod === 2 && loginMethods.includes(LoginMethod.ANONYMOUS))
+  )
+}
+
+export const extractAutoLoginMethod = (loginFlow: LoginFlow) => {
+  const loginMethods = getSupportLoginMethods(loginFlow)
+  let autoLoginMethod: LoginMethod | undefined
+
+  if (loginMethods.length === 1) {
+    if (loginMethods.includes(LoginMethod.ANONYMOUS)) {
+      throw new Error('Not found login method for this app')
+    }
+    if (loginMethods.includes(LoginMethod.GOOGLE)) {
+      autoLoginMethod = LoginMethod.GOOGLE
+    }
+  }
+  if (canAutoSignInEth(loginMethods)) {
+    autoLoginMethod = LoginMethod.ETH
+  }
+
+  // auto login method from url
+  const { type } = queryStringToObject(window.location.search)
+  if (!autoLoginMethod && isInEnum(type + '', LoginMethod) && loginMethods.includes(type)) {
+    autoLoginMethod = type as LoginMethod
+  }
+  return autoLoginMethod
 }
 
 type MessageParams = {

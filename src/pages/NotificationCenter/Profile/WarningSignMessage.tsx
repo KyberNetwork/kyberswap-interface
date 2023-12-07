@@ -32,12 +32,12 @@ const WarningSignMessage = () => {
   const { signIn } = useLogin()
   const { pendingAuthentication } = useSessionInfo()
   const { isSigInGuest } = useSignedAccountInfo()
-  const { account, isSolana } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const btnWidth = upToMedium ? '45%' : '110px'
   const theme = useTheme()
 
-  if (pendingAuthentication || !isSigInGuest || isSolana) return null
+  if (pendingAuthentication || !isSigInGuest) return null
   return (
     <WarningWrapper>
       <Row style={{ gap: '12px' }}>
@@ -63,7 +63,7 @@ const WarningSignMessage = () => {
             <Trans>Read More</Trans>
           </ButtonOutlined>
         )}
-        <ButtonPrimary width={btnWidth} height={'30px'} fontSize={'14px'} onClick={() => signIn(account)}>
+        <ButtonPrimary width={btnWidth} height={'30px'} fontSize={'14px'} onClick={() => signIn({ account })}>
           <Trans>Sign-in</Trans>
         </ButtonPrimary>
       </Row>

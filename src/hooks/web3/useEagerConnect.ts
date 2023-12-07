@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
-import { LOCALSTORAGE_LAST_WALLETKEY_EVM, LOCALSTORAGE_LAST_WALLETKEY_SOLANA } from 'constants/wallets'
+import { LOCALSTORAGE_LAST_WALLETKEY_EVM } from 'constants/wallets'
 import { useWeb3React } from 'hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 
@@ -28,7 +28,7 @@ export function useEagerConnect() {
 
   useEffect(() => {
     const func = async () => {
-      // If not accepted Terms or Terms changed: block eager connect for EVM wallets and disconnect manually for Solana wallet
+      // If not accepted Terms or Terms changed: block eager connect for EVM wallets
       if (!isAcceptedTerm) {
         setTried()
         disconnect()
@@ -40,7 +40,6 @@ export function useEagerConnect() {
         let activatedSuccess = false
         // must retrieve this before activate safe, or will be overriden to SAFE
         const lastWalletKeyEVM = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
-        const lastWalletKeySolana = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
 
         try {
           await tryActivation('SAFE', true)
@@ -52,12 +51,6 @@ export function useEagerConnect() {
           (async () => {
             if (lastWalletKeyEVM) {
               await tryActivation(lastWalletKeyEVM, true)
-              activatedSuccess = true
-            }
-          })(),
-          (async () => {
-            if (lastWalletKeySolana) {
-              await tryActivation(lastWalletKeySolana)
               activatedSuccess = true
             }
           })(),

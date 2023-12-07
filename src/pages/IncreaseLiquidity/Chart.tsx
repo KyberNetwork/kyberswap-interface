@@ -1,6 +1,6 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { AutoColumn } from 'components/Column'
@@ -13,7 +13,7 @@ import { Bound } from 'state/mint/proamm/type'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-export default function Chart({
+function Chart({
   position,
   ticksAtLimit,
 }: {
@@ -38,6 +38,9 @@ export default function Chart({
   const handleRateChange = useCallback(() => {
     setBaseCurrency(quoteCurrency)
   }, [quoteCurrency])
+
+  const baseSymbol = baseCurrency?.symbol
+  const quoteSymbol = quoteCurrency?.symbol
 
   return (
     <AutoColumn gap="13px">
@@ -81,7 +84,7 @@ export default function Chart({
             <Trans>Min Price</Trans>
           </Text>
           <InfoHelper
-            text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}
+            text={t`Your position will be 100% composed of ${baseSymbol} at this price`}
             placement={'right'}
             size={12}
           />
@@ -99,7 +102,7 @@ export default function Chart({
             <Trans>Max Price</Trans>
           </Text>
           <InfoHelper
-            text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}
+            text={t`Your position will be 100% composed of ${quoteSymbol} at this price`}
             placement={'right'}
             size={12}
           />
@@ -114,3 +117,5 @@ export default function Chart({
     </AutoColumn>
   )
 }
+
+export default React.memo(Chart)

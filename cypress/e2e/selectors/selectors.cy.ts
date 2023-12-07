@@ -4,15 +4,17 @@ export const TokenCatalogLocators = {
   txtToken: '[data-testid=token-search-input]',
   lblFavoriteToken: '[data-testid=favorite-token]',
   lblRowInWhiteList: '[data-testid=token-item]',
+  lblTokenSymbol: '[data-testid=token-symbol]',
   lblNotFound: '[data-testid=no-token-result]',
   iconFavorite: '[data-testid=button-favorite-token]',
   iconRemoveImportedToken: '[data-testid=button-remove-import-token]',
   iconRemoveFavoriteToken: '[data-testid=close-btn]',
+  iconClosePopup: '[data-testid=close-icon]',
   btnImport: '[data-testid=button-import-token]',
   btnUnderstand: '[data-testid=button-confirm-import-token]',
   btnClearAll: '[data-testid=button-clear-all-import-token]',
   btnAllTab: '[data-testid=tab-all]',
-  btnImportTab: '[data-testid=tab-import]'
+  btnImportTab: '[data-testid=tab-import]',
 }
 
 export const SwapPageLocators = {
@@ -22,10 +24,22 @@ export const SwapPageLocators = {
 }
 
 export const LimitOrderLocators = {
+  txtTokenSellAmount: '[data-testid=limit-order-input-tokena] [data-testid=token-amount-input]',
   dropdownTokenSell: '[data-testid=limit-order-input-tokena] [data-testid=token-symbol-container]',
   dropdownTokenBuy: '[data-testid=limit-order-input-tokenb] [data-testid=token-symbol-container]',
   btnLimit: '[data-testid=limit-button]',
-  txtSellingRate: '[data-testid=input-selling-rate]'
+  txtSellingRate: '[data-testid=input-selling-rate]',
+  lblBalanceIn: '[data-testid=limit-order-input-tokena] [data-testid=balance]',
+  lblErrorMessage: '[data-testid=error-message]',
+  btnGetStarted: '[data-testid=get-started-button]',
+}
+
+export const CrossChainLocators = {
+  btnCrossChain: '[data-testid=cross-chain-tab]',
+  btnNetworkIn: '[data-testid=swap-currency-input] [data-testid=network-button]',
+  btnNetworkOut: '[data-testid=swap-currency-output] [data-testid=network-button]',
+  btnUnderstand: '[data-testid=understand-button]',
+  rechartsSurface: '.recharts-surface', //it's in the library so don't use data-testid
 }
 
 export const WalletLocators = {
@@ -37,7 +51,7 @@ export const WalletLocators = {
 
 export const NetworkLocators = {
   btnSelectNetwork: '[data-testid=select-network]',
-  btnNetwork: '[data-testid=network-button]',
+  btnNetwork: '[data-testid=network-list]',
 }
 
 export const HeaderLocators = {
@@ -50,4 +64,12 @@ export const HeaderLocators = {
 export const FarmLocators = {
   lblApr: '[data-testid=apr-value]',
   lblTvl: '[data-testid=tvl-value]',
+}
+
+export const PoolLocators = {
+  txtSearchPool: 'input[data-testid="search-pool"]',
+  txtPriceValue: 'input[data-testid="price-value"]',
+  txtAmountIn: '[data-testid="token-amount-input"]',
+  lblCurrentPrice: '[data-testid="current-price"]',
+  btnZapIn: '[data-testid="zap-in-btn"]',
 }

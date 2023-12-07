@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import { useCallback } from 'react'
 
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { useFairLaunchContract } from 'hooks/useContract'
+import { useFairLaunchRadingContract, useFairLaunchSigningContract } from 'hooks/useContract'
 import { Farm, Reward } from 'state/farms/classic/types'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfoHarvestFarm } from 'state/transactions/type'
@@ -12,8 +12,8 @@ import { getFullDisplayBalance } from 'utils/formatBalance'
 const getTransactionExtraInfo = (farm: Farm | null, farmRewards: Reward[]): TransactionExtraInfoHarvestFarm => {
   return {
     contract: farm?.id,
-    tokenAddressIn: farm?.token0?.id,
-    tokenAddressOut: farm?.token1?.id,
+    tokenAddressIn: farm?.token0?.address,
+    tokenAddressOut: farm?.token1?.address,
     tokenSymbolIn: farm?.token0?.symbol,
     tokenSymbolOut: farm?.token1?.symbol,
     rewards: farmRewards
@@ -28,23 +28,24 @@ const getTransactionExtraInfo = (farm: Farm | null, farmRewards: Reward[]): Tran
 
 const useFairLaunch = (address: string) => {
   const addTransactionWithType = useTransactionAdder()
-  const fairLaunchContract = useFairLaunchContract(address) // withSigner
+  const fairLaunchContract = useFairLaunchSigningContract(address)
+  const fairLaunchContractReading = useFairLaunchRadingContract(address)
 
   const getPoolLength = useCallback(async () => {
     try {
-      const poolLength = await fairLaunchContract?.poolLength()
+      const poolLength = await fairLaunchContractReading?.poolLength()
 
       return poolLength
     } catch (err) {
       console.error(err)
       return err
     }
-  }, [fairLaunchContract])
+  }, [fairLaunchContractReading])
 
   const getPoolInfo = useCallback(
     async (pid: number) => {
       try {
-        const poolInfo = await fairLaunchContract?.getPoolInfo(pid)
+        const poolInfo = await fairLaunchContractReading?.getPoolInfo(pid)
 
         return poolInfo
       } catch (err) {
@@ -52,19 +53,19 @@ const useFairLaunch = (address: string) => {
         return err
       }
     },
-    [fairLaunchContract],
+    [fairLaunchContractReading],
   )
 
   const getRewardTokens = useCallback(async (): Promise<string[]> => {
     try {
-      const rewardTokens = await fairLaunchContract?.getRewardTokens()
+      const rewardTokens = await fairLaunchContractReading?.getRewardTokens()
 
       return rewardTokens
     } catch (err) {
       console.error(err)
       return []
     }
-  }, [fairLaunchContract])
+  }, [fairLaunchContractReading])
 
   // Deposit
   const deposit = useCallback(
@@ -162,7 +163,6 @@ const useFairLaunch = (address: string) => {
   )
 
   return {
-    masterChefContract: fairLaunchContract,
     getPoolLength,
     getPoolInfo,
     getRewardTokens,

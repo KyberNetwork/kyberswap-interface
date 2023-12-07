@@ -9,10 +9,9 @@ import { useSearchParams } from 'react-router-dom'
 import { NotificationType } from 'components/Announcement/type'
 import { abi as QuoterABI } from 'constants/abis/v2/ProAmmQuoter.json'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
-import { useContractForReading } from 'hooks/useContract'
+import { useReadingContract } from 'hooks/useContract'
 import { PoolState, usePools } from 'hooks/usePools'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useNotify } from 'state/application/hooks'
@@ -22,7 +21,7 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { basisPointsToPercent, calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
-import { getContract } from 'utils/getContract'
+import { getSigningContract } from 'utils/getContract'
 import isZero from 'utils/isZero'
 
 const ROUTER_PRO_AMM = [
@@ -228,7 +227,7 @@ export function useElasticBestTrade<TTradeType extends TradeType>(
   )
   const { routes, loading: routesLoading } = useElasticAllRoutes(currencyIn, currencyOut)
 
-  const quoter = useContractForReading((networkInfo as EVMNetworkInfo).elastic.quoter, QuoterABI)
+  const quoter = useReadingContract(networkInfo.elastic.quoter, QuoterABI)
 
   const quotesResults = useSingleContractWithCallData(
     quoter,
@@ -413,8 +412,8 @@ function useProAmmSwapPools(
   )
   const pools = usePools(allCurrencyCombinationsWithAllFees)
 
-  const initCodeHash = (networkInfo as EVMNetworkInfo).elastic.initCodeHash
-  const factoryAddress = (networkInfo as EVMNetworkInfo).elastic.coreFactory
+  const initCodeHash = networkInfo.elastic.initCodeHash
+  const factoryAddress = networkInfo.elastic.coreFactory
 
   return useMemo(() => {
     return {
@@ -606,8 +605,8 @@ function useSwapCallArguments(
   return useMemo(() => {
     if (!trade || !account || !library || !account || !chainId || !deadline) return []
 
-    const routerProAmmContract: Contract | null = getContract(
-      (networkInfo as EVMNetworkInfo).elastic.routers,
+    const routerProAmmContract: Contract | null = getSigningContract(
+      networkInfo.elastic.routers,
       ROUTER_PRO_AMM,
       library,
       account,

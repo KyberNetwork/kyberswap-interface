@@ -19,12 +19,10 @@ import { BrowserRouter } from 'react-router-dom'
 import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 
-import SolanaWalletContext from 'components/SolanaWalletContext'
 import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { connections } from 'constants/wallets'
 
-import SEO from './components/SEO'
 import { sentryRequestId } from './constants'
 import { LanguageProvider } from './i18n'
 import App from './pages/App'
@@ -111,25 +109,19 @@ const ReactApp = () => {
 
   return (
     <StrictMode>
-      <SEO
-        title="KyberSwap - Trading Smart"
-        description="KyberSwap is DeFi‚Äôs first Dynamic Market Maker; a decentralized exchange protocol that provides frictionless crypto liquidity with extremely high flexibility and capital efficiency. KyberSwap is the first major protocol in Kyber‚Äôs liquidity hub."
-      />
       <FixedGlobalStyle />
       <Provider store={store}>
-        <SolanaWalletContext>
-          <BrowserRouter>
-            <LanguageProvider>
-              <Web3ReactProvider connectors={connectors} key={key}>
-                <Updaters />
-                <ThemeProvider>
-                  <ThemedGlobalStyle />
-                  <App />
-                </ThemeProvider>
-              </Web3ReactProvider>
-            </LanguageProvider>
-          </BrowserRouter>
-        </SolanaWalletContext>
+        <BrowserRouter>
+          <LanguageProvider>
+            <Web3ReactProvider connectors={connectors} key={key}>
+              <Updaters />
+              <ThemeProvider>
+                <ThemedGlobalStyle />
+                <App />
+              </ThemeProvider>
+            </Web3ReactProvider>
+          </LanguageProvider>
+        </BrowserRouter>
       </Provider>
     </StrictMode>
   )

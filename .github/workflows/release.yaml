@@ -38,10 +38,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up Node.js 18.15.0
+      - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 18.15.0
+          node-version: 20.9.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
 
@@ -164,5 +164,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.VERSION_TAG }}
           prerelease: false
-          title: 'KyberSwap Interface - ${{ env.VERSION_TAG }}'
+          name: 'KyberSwap Interface - ${{ env.VERSION_TAG }}'
           generate_release_notes: true

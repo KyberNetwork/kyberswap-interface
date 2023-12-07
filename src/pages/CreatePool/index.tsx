@@ -6,9 +6,10 @@ import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Plus } from 'react-feather'
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { BlueCard, LightCard } from 'components/Card'
 import { AutoColumn, ColumnCenter } from 'components/Column'
@@ -24,7 +25,6 @@ import { TutorialType } from 'components/Tutorial'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, CREATE_POOL_AMP_HINT } from 'constants/index'
 import { ONLY_DYNAMIC_FEE_CHAINS, ONLY_STATIC_FEE_CHAINS, STATIC_FEE_OPTIONS } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -34,8 +34,8 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import DisclaimerERC20 from 'pages/AddLiquidityV2/components/DisclaimerERC20'
-import { Dots, Wrapper } from 'pages/Pool/styleds'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { Dots, Wrapper } from 'pages/MyPool/styleds'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useDerivedPairInfo } from 'state/pair/hooks'
@@ -47,6 +47,7 @@ import { StyledInternalLink, TYPE } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
+import { friendlyError } from 'utils/errorMessage'
 import { getDynamicFeeRouterContract, getStaticFeeRouterContract } from 'utils/getContract'
 import isZero from 'utils/isZero'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -74,7 +75,7 @@ export enum FEE_TYPE {
 export default function CreatePool() {
   const { currencyIdA, currencyIdB } = useParams()
   const navigate = useNavigate()
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
@@ -168,15 +169,14 @@ export default function CreatePool() {
   )
 
   const routerAddress = useMemo(() => {
-    if (!isEVM) return
-    if (ONLY_STATIC_FEE_CHAINS.includes(chainId)) return (networkInfo as EVMNetworkInfo).classic.static.router
-    if (ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)) return (networkInfo as EVMNetworkInfo).classic.dynamic?.router
+    if (ONLY_STATIC_FEE_CHAINS.includes(chainId)) return networkInfo.classic.static.router
+    if (ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)) return networkInfo.classic.dynamic?.router
     if (feeType === FEE_TYPE.STATIC) {
-      return (networkInfo as EVMNetworkInfo).classic.static.router
+      return networkInfo.classic.static.router
     } else {
-      return (networkInfo as EVMNetworkInfo).classic.dynamic?.router
+      return networkInfo.classic.dynamic?.router
     }
-  }, [chainId, feeType, isEVM, networkInfo])
+  }, [chainId, feeType, networkInfo])
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], routerAddress)
@@ -184,6 +184,7 @@ export default function CreatePool() {
 
   const addTransactionWithType = useTransactionAdder()
   const addPair = usePairAdderByTokens()
+  const notify = useNotify()
 
   async function onAdd() {
     // if (!pair) return
@@ -300,6 +301,15 @@ export default function CreatePool() {
         if (!didUserReject(error)) {
           console.error(error)
         }
+        const message = friendlyError(error)
+        notify(
+          {
+            title: t`Create Classic Pool Error`,
+            summary: message,
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
       })
   }
 
@@ -430,7 +440,6 @@ export default function CreatePool() {
     }
   }, [chainId])
 
-  if (!isEVM) return <Navigate to="/" />
   return (
     <PageWrapper>
       <Container>
@@ -626,7 +635,7 @@ export default function CreatePool() {
                       ''
                     )}
                   </ActiveText>
-                  <QuestionHelper text={CREATE_POOL_AMP_HINT} />
+                  <QuestionHelper text={CREATE_POOL_AMP_HINT()} />
                 </AutoRow>
 
                 <LightCard padding="0 0.75rem" borderRadius={'10px'} style={{ background: theme.buttonBlack }}>

@@ -8,6 +8,7 @@ import { ReactComponent as DoubleArrow } from 'assets/svg/double_arrow.svg'
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
+import { ZapDetail } from 'components/ElasticZap/ZapDetail'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
@@ -40,9 +41,11 @@ const Price = styled.div`
 export default function ProAmmPriceRangeConfirm({
   position,
   ticksAtLimit,
+  zapDetail,
 }: {
   position: Position
   ticksAtLimit: { [bound: string]: boolean | undefined }
+  zapDetail?: ZapDetail
 }) {
   const theme = useTheme()
 
@@ -66,11 +69,13 @@ export default function ProAmmPriceRangeConfirm({
   const [allowedSlippage] = useUserSlippageTolerance()
   const isWarningSlippage = checkWarningSlippage(allowedSlippage, false)
 
+  const baseSymbol = baseCurrency?.symbol
+  const quoteSymbol = quoteCurrency?.symbol
   return (
     <OutlineCard marginTop="1rem" padding="1rem">
       <AutoColumn gap="12px">
         <Text fontSize="12px" fontWeight="500" lineHeight="16px">
-          More Information
+          <Trans>More Information</Trans>
         </Text>
         <Divider />
 
@@ -113,6 +118,46 @@ export default function ProAmmPriceRangeConfirm({
           </TYPE.black>
         </Flex>
 
+        {zapDetail && (
+          <>
+            <Flex justifyContent="space-between" fontSize={12}>
+              <Text color={theme.subText}>Price Impact</Text>
+              <Text
+                fontWeight="500"
+                color={
+                  zapDetail.priceImpact.isVeryHigh
+                    ? theme.red
+                    : zapDetail.priceImpact.isHigh
+                    ? theme.warning
+                    : theme.text
+                }
+              >
+                {zapDetail.priceImpact.isInvalid
+                  ? '--'
+                  : zapDetail.priceImpact.value < 0.01
+                  ? '<0.01%'
+                  : zapDetail.priceImpact.value.toFixed(2) + '%'}
+              </Text>
+            </Flex>
+
+            <Flex justifyContent="space-between" fontSize={12}>
+              <Text color={theme.subText}>
+                <Trans>Est. Gas Fee</Trans>
+              </Text>
+
+              <Text fontSize={12} fontWeight="500">
+                {zapDetail.estimateGasUsd ? '$' + zapDetail.estimateGasUsd.toFixed(2) : '--'}
+              </Text>
+            </Flex>
+
+            <Flex justifyContent="space-between" fontSize={12}>
+              <Text color={theme.subText}>Zap Fee</Text>
+              <Text fontWeight="500" color={theme.primary}>
+                <Trans>Free</Trans>
+              </Text>
+            </Flex>
+          </>
+        )}
         <Divider />
 
         <Flex>
@@ -146,7 +191,7 @@ export default function ProAmmPriceRangeConfirm({
             >
               {formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)}
               <InfoHelper
-                text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}
+                text={t`Your position will be 100% composed of ${baseSymbol} at this price`}
                 placement={'right'}
                 size={12}
               />
@@ -163,7 +208,7 @@ export default function ProAmmPriceRangeConfirm({
             >
               {formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)}
               <InfoHelper
-                text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price.`}
+                text={t`Your position will be 100% composed of ${quoteSymbol} at this price.`}
                 placement={'right'}
                 size={12}
               />

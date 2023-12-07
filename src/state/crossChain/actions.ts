@@ -1,4 +1,5 @@
-import { RouteResponse, Squid } from '@0xsquid/sdk'
+import { Squid } from '@0xsquid/sdk'
+import { RouteResponse } from '@0xsquid/sdk/dist/types'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
@@ -42,3 +43,6 @@ export const setInputAmountCrossChain = createAction<string>('crosschain/setInpu
 
 export const selectDestChainCrossChain = createAction<ChainId | undefined>('crosschain/selectDestChainCrossChain')
 export const setRoute = createAction<RouteResponse | undefined>('crosschain/setRoute')
+
+export type TokenUsdParams = { tokenIn: number | undefined; tokenOut: number | undefined }
+export const setPriceUsd = createAction<TokenUsdParams>('crosschain/setPriceUsd')

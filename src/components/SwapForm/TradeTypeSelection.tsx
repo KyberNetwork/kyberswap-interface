@@ -1,10 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { useEffect } from 'react'
 import { Text } from 'rebass/styled-components'
 import styled from 'styled-components'
 
 import { GasStation, MoneyFill } from 'components/Icons'
-import { useActiveWeb3React } from 'hooks'
 
 const GroupButtonReturnTypes = styled.div`
   display: flex;
@@ -33,14 +31,6 @@ type Props = {
   setSaveGas: React.Dispatch<React.SetStateAction<boolean>>
 }
 const TradeTypeSelection: React.FC<Props> = ({ isSaveGas, setSaveGas }) => {
-  const { isSolana } = useActiveWeb3React()
-
-  useEffect(() => {
-    if (isSolana) setSaveGas(false)
-  }, [isSolana, setSaveGas])
-
-  if (isSolana) return null
-
   return (
     <GroupButtonReturnTypes>
       <ButtonReturnType onClick={() => setSaveGas(false)} active={!isSaveGas} role="button">

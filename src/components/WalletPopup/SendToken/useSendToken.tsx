@@ -1,66 +1,19 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { createTransferCheckedInstruction, getOrCreateAssociatedTokenAccount } from '@solana/spl-token'
-import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
-import { useActiveWeb3React, useWeb3React, useWeb3Solana } from 'hooks'
-import { useTokenContract } from 'hooks/useContract'
-import { tryParseAmount } from 'state/swap/hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useTokenSigningContract } from 'hooks/useContract'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 export default function useSendToken(currency: Currency | undefined, recipient: string, amount: string) {
-  const { account, isEVM, walletSolana, isSolana } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [estimateGas, setGasFee] = useState<number | null>(null)
-  const tokenContract = useTokenContract(isSolana ? undefined : currency?.wrapped.address)
+  const tokenContract = useTokenSigningContract(currency?.wrapped.address)
   const addTransactionWithType = useTransactionAdder()
   const [isSending, setIsSending] = useState(false)
-  const { publicKey } = useWallet()
-  const { connection } = useWeb3Solana()
-
-  const prepareTransactionSolana = useCallback(async () => {
-    const amountIn = tryParseAmount(amount, currency)
-    if (!publicKey || !currency || !recipient || !amountIn || !walletSolana || !connection) {
-      return Promise.reject('wrong input')
-    }
-    const recipientAddress = new PublicKey(recipient)
-    let transaction: Transaction
-    if (!currency.isNative) {
-      const tokenKey = new PublicKey(currency.wrapped.address)
-      const [fromTokenAccount, toTokenAccount] = await Promise.all([
-        getOrCreateAssociatedTokenAccount(connection, publicKey as any, tokenKey, publicKey),
-        getOrCreateAssociatedTokenAccount(connection, publicKey as any, tokenKey, recipientAddress),
-      ])
-      transaction = new Transaction().add(
-        createTransferCheckedInstruction(
-          fromTokenAccount.address,
-          tokenKey,
-          toTokenAccount.address,
-          publicKey,
-          BigInt(amountIn.quotient.toString()),
-          currency.decimals,
-        ),
-      )
-    } else {
-      transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: recipientAddress,
-          lamports: BigInt(amountIn.quotient.toString()),
-        }),
-      )
-    }
-
-    const { blockhash } = await connection.getLatestBlockhash('finalized')
-    transaction.recentBlockhash = blockhash
-    transaction.feePayer = publicKey
-
-    return transaction
-  }, [publicKey, recipient, amount, walletSolana, currency, connection])
 
   useEffect(() => {
     if (!currency || !amount || !recipient) {
@@ -88,30 +41,8 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
         setGasFee(null)
       }
     }
-
-    async function getGasFeeSolana() {
-      if (!connection) return
-      try {
-        const transaction = await prepareTransactionSolana()
-        const fee = (await transaction.getEstimatedFee(connection)) || 0
-        setGasFee(fee / LAMPORTS_PER_SOL)
-      } catch (error) {
-        setGasFee(null)
-      }
-    }
-    isEVM ? getGasFee() : getGasFeeSolana()
-  }, [
-    library,
-    account,
-    amount,
-    currency,
-    prepareTransactionSolana,
-    isEVM,
-    recipient,
-    tokenContract,
-    isSolana,
-    connection,
-  ])
+    getGasFee()
+  }, [library, account, amount, currency, recipient, tokenContract])
 
   const addTransaction = useCallback(
     (hash: string) => {
@@ -155,24 +86,5 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
     return
   }, [amount, account, currency, library, recipient, tokenContract, addTransaction])
 
-  const sendTokenSolana = useCallback(async () => {
-    try {
-      const amountIn = tryParseAmount(amount, currency)
-      if (!publicKey || !currency || !recipient || !amountIn || !walletSolana || !connection) {
-        return Promise.reject('wrong input')
-      }
-      setIsSending(true)
-      const transaction = await prepareTransactionSolana()
-      const signedTx = await (walletSolana.wallet?.adapter as SignerWalletAdapter)?.signTransaction(transaction)
-      const hash = await connection.sendRawTransaction(Buffer.from(signedTx.serialize()))
-      addTransaction(hash)
-      setIsSending(false)
-    } catch (error) {
-      setIsSending(false)
-      throw error
-    }
-    return
-  }, [publicKey, recipient, amount, addTransaction, prepareTransactionSolana, walletSolana, currency, connection])
-
-  return { sendToken: isEVM ? sendTokenEvm : sendTokenSolana, isSending, estimateGas }
+  return { sendToken: sendTokenEvm, isSending, estimateGas }
 }

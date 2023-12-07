@@ -1,4 +1,4 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
+import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
@@ -24,7 +24,7 @@ import { useToggleModal } from 'state/application/hooks'
 import { ConnectedProfile, useProfileInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
-import { isEmailValid, shortString } from 'utils/string'
+import { shortString } from 'utils/string'
 
 const ContentWrapper = styled.div`
   display: flex;
@@ -120,7 +120,7 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
 `
 
 const ProfileItem = ({
-  data: { active, guest, address: account, profile, id },
+  data: { active, name: account, profile, id, type },
   totalGuest,
 }: {
   data: ConnectedProfile
@@ -132,11 +132,16 @@ const ProfileItem = ({
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const { signIn, signOut } = useLogin()
   const [loading, setLoading] = useState(false)
+  const guest = type === LoginMethod.ANONYMOUS
 
   const onClick = async () => {
     if (active || loading) return
     setLoading(true)
-    await signIn(id, guest, true)
+    await signIn({
+      account: id,
+      loginMethod: type,
+      showSessionExpired: true,
+    })
     setLoading(false)
     toggleModal()
   }
@@ -178,7 +183,7 @@ const ProfileItem = ({
               fontSize={active ? '16px' : profile?.nickname ? '12px' : '16px'}
               color={active ? theme.subText : theme.subText}
             >
-              {guest || isEmailValid(account) ? shortString(account, 20) : getShortenAddress(account)}
+              {type === LoginMethod.ETH ? getShortenAddress(account) : shortString(account, 20)}
             </Text>
           </Column>
           {active && signOutBtn}
@@ -208,7 +213,7 @@ const ProfileItem = ({
 const ProfileContent = ({ scroll, toggleModal }: { scroll?: boolean; toggleModal: () => void }) => {
   const { signIn, signOutAll } = useLogin()
   const { profiles, totalGuest } = useProfileInfo()
-  const { account, isEVM } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   if (!profiles.length) return null
   const listNotActive = profiles.slice(1)
@@ -220,12 +225,12 @@ const ProfileContent = ({ scroll, toggleModal }: { scroll?: boolean; toggleModal
         <ProfileItem data={profiles[0]} totalGuest={totalGuest} />
         <ListProfile hasData={!!listNotActive.length} scroll={scroll}>
           {listNotActive.map(data => (
-            <ProfileItem key={data.address} data={data} totalGuest={totalGuest} />
+            <ProfileItem key={data.id} data={data} totalGuest={totalGuest} />
           ))}
         </ListProfile>
       </Column>
       <ActionWrapper hasBorder={profiles.length > 1}>
-        {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && isEVM && (
+        {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && (
           <ActionItem
             onClick={() => {
               toggleModal()

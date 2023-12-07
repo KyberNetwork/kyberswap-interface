@@ -68,6 +68,7 @@ const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchP
       <Wrapper>
         <Input
           type="text"
+          data-testid="search-pool"
           placeholder={placeholder || t`Search by pool address`}
           value={searchValue}
           onChange={e => {

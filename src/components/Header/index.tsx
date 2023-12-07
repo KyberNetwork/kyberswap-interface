@@ -1,7 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { lighten } from 'polished'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import Announcement from 'components/Announcement'
@@ -27,7 +28,10 @@ import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
 import { StyledNavExternalLink } from './styleds'
 
-const HeaderFrame = styled.div`
+const HeaderFrame = styled.div<{ hide?: boolean }>`
+  height: ${({ hide }) => (hide ? 0 : undefined)};
+  padding: ${({ hide }) => (hide ? 0 : '1rem')};
+  overflow: ${({ hide }) => (hide ? 'hidden' : undefined)};
   display: grid;
   grid-template-columns: 1fr 120px;
   align-items: center;
@@ -37,18 +41,18 @@ const HeaderFrame = styled.div`
   top: 0;
   position: relative;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 1rem;
   z-index: ${Z_INDEXS.HEADER};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme, hide }) => theme.mediaWidth.upToMedium`
     grid-template-columns: 1fr;
-    padding: 1rem;
+    padding: ${hide ? 0 : '1rem'};
     width: calc(100%);
     position: relative;
+    
   `};
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 0.5rem 1rem;
-    height: 60px;
+  ${({ theme, hide }) => theme.mediaWidth.upToExtraSmall`
+    padding: ${hide ? 0 : '0.5 1rem'};
+    height: ${hide ? 0 : '60px'};
   `}
 `
 
@@ -178,8 +182,13 @@ export default function Header() {
   const { networkInfo } = useActiveWeb3React()
   const [holidayMode] = useHolidayMode()
   const theme = useTheme()
+  const { pathname } = useLocation()
+  const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+
   const { mixpanelHandler } = useMixpanel()
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+
   const menu = (
     <HeaderElementWrap>
       <Announcement />
@@ -187,43 +196,66 @@ export default function Header() {
       <Menu />
     </HeaderElementWrap>
   )
+
   return (
-    <HeaderFrame>
+    <HeaderFrame hide={isPartnerSwap && upToLarge}>
       <HeaderRow>
-        <Title to={`${APP_PATHS.SWAP}/${networkInfo.route}`}>
-          {holidayMode ? (
-            <LogoIcon>
-              <IconImage isChristmas src={'/christmas-logo-dark.svg'} alt="logo" />
-            </LogoIcon>
-          ) : (
-            <LogoIcon>
-              <IconImage src={'/logo-dark.svg'} alt="logo" />
-            </LogoIcon>
-          )}
-        </Title>
-        <HeaderLinks>
-          <SwapNavGroup />
-          <EarnNavGroup />
-          <KyberAINavItem />
-          <CampaignNavGroup />
-          <KyberDAONavGroup />
-          <AnalyticNavGroup />
-          <AboutNavGroup />
-          <BlogWrapper>
-            <StyledNavExternalLink
-              onClick={() => {
-                mixpanelHandler(MIXPANEL_TYPE.BLOG_MENU_CLICKED)
-              }}
-              target="_blank"
-              href="https://blog.kyberswap.com"
-            >
-              <Trans>Blog</Trans>
-            </StyledNavExternalLink>
-          </BlogWrapper>
-        </HeaderLinks>
+        {isPartnerSwap ? (
+          <LogoIcon>
+            <IconImage src={'/logo-dark.svg'} alt="logo" />
+          </LogoIcon>
+        ) : (
+          <Title to={`${APP_PATHS.SWAP}/${networkInfo.route}`}>
+            {holidayMode ? (
+              <LogoIcon>
+                <IconImage isChristmas src={'/christmas-logo-dark.svg'} alt="logo" />
+              </LogoIcon>
+            ) : (
+              <LogoIcon>
+                <IconImage src={'/logo-dark.svg'} alt="logo" />
+              </LogoIcon>
+            )}
+          </Title>
+        )}
+        {!isPartnerSwap && (
+          <HeaderLinks>
+            <SwapNavGroup />
+            <EarnNavGroup />
+            <KyberAINavItem />
+            <CampaignNavGroup />
+            <KyberDAONavGroup />
+            <AnalyticNavGroup />
+            <AboutNavGroup />
+            <BlogWrapper>
+              <StyledNavExternalLink
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.BLOG_MENU_CLICKED)
+                }}
+                target="_blank"
+                href="https://blog.kyberswap.com"
+              >
+                <Trans>Blog</Trans>
+              </StyledNavExternalLink>
+            </BlogWrapper>
+          </HeaderLinks>
+        )}
       </HeaderRow>
+
       <HeaderControls>
-        {upToXXSmall ? (
+        {isPartnerSwap ? (
+          <Flex justifyContent="space-between" width="100%">
+            {upToLarge && (
+              <LogoIcon>
+                <IconImage src={'/logo-dark.svg'} alt="logo" />
+              </LogoIcon>
+            )}
+
+            <Flex sx={{ gap: '1rem' }} height="42px">
+              <SelectNetwork />
+              <SelectWallet />
+            </Flex>
+          </Flex>
+        ) : upToXXSmall ? (
           <HeaderElement>
             <SelectNetwork />
             <SelectWallet />

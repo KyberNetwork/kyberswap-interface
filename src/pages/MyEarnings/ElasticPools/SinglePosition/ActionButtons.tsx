@@ -1,25 +1,28 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { useState } from 'react'
 import { ChevronsUp, Minus } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
+import QuickZap, { QuickZapButton } from 'components/ElasticZap/QuickZap'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { ActionButton } from 'pages/MyEarnings/ActionButton'
 
 const ActionButtonsWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 8px;
 
   ${ActionButton} {
     flex: 1;
     gap: 4px;
+    height: 36px;
   }
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -52,6 +55,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   isLegacy,
   onRemoveLiquidityFromLegacyPosition,
 }) => {
+  const [showQuickZap, setShowQuickZap] = useState(false)
   const { chainId: currentChainId } = useActiveWeb3React()
   const chainRoute = NETWORKS_INFO[chainId].route
 
@@ -61,6 +65,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   const { changeNetwork } = useChangeNetwork()
   const navigate = useNavigate()
 
+  const poolAddress = useProAmmPoolInfo(currency0.wrapped, currency1.wrapped, feeAmount)
   const target = `/${chainRoute}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currency0Slug}/${currency1Slug}/${feeAmount}/${nftId}`
 
   const onIncreaseClick = (e: any) => {
@@ -87,14 +92,14 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     if (!liquidity || isLegacy) {
       return (
         <ActionButton $variant="red" disabled={!liquidity} onClick={onRemoveLiquidityFromLegacyPosition}>
-          <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
+          <Minus size="16px" /> <Trans>Remove</Trans>
         </ActionButton>
       )
     }
 
     return (
       <ActionButton $variant="red" as={Link} to={targetRemove} onClick={onRemoveClick}>
-        <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
+        <Minus size="16px" /> <Trans>Remove</Trans>
       </ActionButton>
     )
   }
@@ -103,14 +108,14 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     if (isLegacy) {
       return (
         <ActionButton $variant="green" disabled>
-          <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
+          <ChevronsUp size="16px" /> <Trans>Increase</Trans>
         </ActionButton>
       )
     }
 
     return (
       <ActionButton $variant="green" as={Link} onClick={onIncreaseClick} to={target}>
-        <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
+        <ChevronsUp size="16px" /> <Trans>Increase</Trans>
       </ActionButton>
     )
   }
@@ -119,6 +124,21 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     <ActionButtonsWrapper>
       {renderRemoveButton()}
       {renderIncreaseButton()}
+      {!isLegacy && (
+        <QuickZapButton
+          onClick={e => {
+            e.stopPropagation()
+            setShowQuickZap(true)
+          }}
+        />
+      )}
+      <QuickZap
+        poolAddress={poolAddress}
+        tokenId={nftId}
+        isOpen={showQuickZap}
+        expectedChainId={chainId}
+        onDismiss={() => setShowQuickZap(false)}
+      />
     </ActionButtonsWrapper>
   )
 }

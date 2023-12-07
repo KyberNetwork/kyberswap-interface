@@ -147,7 +147,7 @@ export const SectionWrapper = ({
   const { data: token } = useKyberAIAssetOverview()
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const [showText, setShowText] = useState(above768 ? true : false)
+  const [showText, setShowText] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
   const [isTextExceeded, setIsTexExceeded] = useState(false)
   const [fullscreenMode, setFullscreenMode] = useState(false)
@@ -155,13 +155,15 @@ export const SectionWrapper = ({
   const descriptionRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    setIsTexExceeded(
-      (description &&
-        descriptionRef.current &&
-        descriptionRef.current?.clientWidth <= descriptionRef.current?.scrollWidth) ||
-        false,
-    )
-  }, [description])
+    if (
+      description &&
+      descriptionRef.current &&
+      descriptionRef.current.clientWidth < descriptionRef.current.scrollWidth
+    ) {
+      setIsTexExceeded(true)
+      above768 && setShowText(true)
+    }
+  }, [description, descriptionRef, above768])
 
   const docsLink = activeTab === ChartTab.Second && !!docsLinks[1] ? docsLinks[1] : docsLinks[0]
 
@@ -261,10 +263,9 @@ export const SectionWrapper = ({
                   fontSize="14px"
                   color={theme.primary}
                   width="fit-content"
-                  style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+                  style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap', marginLeft: '4px' }}
                   onClick={() => setShowText(prev => !prev)}
                 >
-                  {' '}
                   <Trans>Hide</Trans>
                 </Text>
               )}
@@ -365,10 +366,9 @@ export const SectionWrapper = ({
                     fontSize="12px"
                     color={theme.primary}
                     width="fit-content"
-                    style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+                    style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap', marginLeft: '4px' }}
                     onClick={() => setShowText(prev => !prev)}
                   >
-                    {' '}
                     <Trans>Hide</Trans>
                   </Text>
                 )}

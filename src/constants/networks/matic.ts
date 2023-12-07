@@ -1,11 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import polygonIcon from 'assets/networks/polygon.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const NOT_SUPPORT = null
 
-const maticInfo: EVMNetworkInfo = {
+const maticInfo: NetworkInfo = {
   chainId: ChainId.MATIC,
   route: 'polygon',
   ksSettingRoute: 'polygon',
@@ -23,7 +23,7 @@ const maticInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'MATIC',
     name: 'Polygon',
-    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/10d6d017-945d-470d-87eb-6a6f89ce8b7e.png',
     decimal: 18,
     minForGas: 10 ** 17,
   },
@@ -69,6 +69,12 @@ const maticInfo: EVMNetworkInfo = {
       '0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43',
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
+    zap: {
+      router: '0x30C5322E4e08AD500c348007f92f120ab4E2b79e',
+      validator: '0xf0096e5B4AAfeEA1DF557264091569ba125c1172',
+      executor: '0x8ac7895130e3be8654fff544ae20bf2a93ef19d1',
+      helper: '0x214061F0e250A27a49f609d9caf2987a7bC8fA6B',
+    },
     'farmV2.1S': [],
   },
   limitOrder: '*',

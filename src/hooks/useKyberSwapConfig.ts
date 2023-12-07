@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Connection } from '@solana/web3.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
@@ -12,9 +11,7 @@ import {
 } from 'services/ksSetting'
 
 import { AGGREGATOR_API } from 'constants/env'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
-import ethereumInfo from 'constants/networks/ethereum'
-import solanaInfo from 'constants/networks/solana'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { AppJsonRpcProvider } from 'constants/providers'
 import { ChainStateMap } from 'hooks/useChainsConfig'
 import { AppState } from 'state'
@@ -39,19 +36,10 @@ const parseResponse = (
     rpc,
     isEnableBlockService: data?.isEnableBlockService || false,
     isEnableKNProtocol: data?.isEnableKNProtocol || false,
-    blockClient: isEVM(defaultChainId)
-      ? createClient(data?.blockSubgraph || NETWORKS_INFO[defaultChainId].defaultBlockSubgraph)
-      : createClient(ethereumInfo.defaultBlockSubgraph),
-    classicClient: isEVM(defaultChainId)
-      ? createClient(data?.classicSubgraph || NETWORKS_INFO[defaultChainId].classic.defaultSubgraph)
-      : createClient(ethereumInfo.classic.defaultSubgraph),
-    elasticClient: isEVM(defaultChainId)
-      ? createClient(data?.elasticSubgraph || NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
-      : createClient(ethereumInfo.elastic.defaultSubgraph),
-    readProvider: isEVM(defaultChainId) ? provider : undefined,
-    connection: isSolana(defaultChainId)
-      ? new Connection(data?.rpc || solanaInfo.defaultRpcUrl, { commitment: 'confirmed' })
-      : undefined,
+    blockClient: createClient(data?.blockSubgraph || NETWORKS_INFO[defaultChainId].defaultBlockSubgraph),
+    classicClient: createClient(data?.classicSubgraph || NETWORKS_INFO[defaultChainId].classic.defaultSubgraph),
+    elasticClient: createClient(data?.elasticSubgraph || NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph),
+    readProvider: provider,
   }
 }
 

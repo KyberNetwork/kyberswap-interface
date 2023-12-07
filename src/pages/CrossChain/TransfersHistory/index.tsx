@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import { RowBetween } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
+import { APP_PATHS } from 'constants/index'
 import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
@@ -21,24 +22,33 @@ type Props = {
 }
 
 const BridgeHistory: React.FC<Props> = ({ className }) => {
-  const qs = useParsedQueryString<{ tab: CrossChainTab }>()
-  const [activeTab, setTab] = useState<CrossChainTab>(qs.tab || CrossChainTab.ROUTE)
-  const isShowTradeRoutes = useShowTradeRoutes()
   const navigate = useNavigate()
+  const theme = useTheme()
+  const qs = useParsedQueryString<{ tab: CrossChainTab }>()
+  const isShowTradeRoutes = useShowTradeRoutes()
+  const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
+
+  const [activeTab, setTab] = useState<CrossChainTab>(
+    isPartnerSwap ? CrossChainTab.ROUTE : qs.tab || CrossChainTab.ROUTE,
+  )
+
   const onClickTab = (tab: CrossChainTab) => {
-    navigate({ search: `tab=${tab}` }, { replace: true })
+    if (!isPartnerSwap) {
+      navigate({ search: `tab=${tab}` }, { replace: true })
+    }
     setTab(tab)
   }
 
-  const theme = useTheme()
   return (
     <div className={className}>
       <RowBetween>
         <TabSelector activeTab={activeTab} setTab={onClickTab} isShowTradeRoutes={isShowTradeRoutes} />
-        <SubscribeNotificationButton
-          subscribeTooltip={t`Subscribe to receive notifications on your cross-chain transaction.`}
-          trackingEvent={MIXPANEL_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE}
-        />
+        {!isPartnerSwap && (
+          <SubscribeNotificationButton
+            subscribeTooltip={t`Subscribe to receive notifications on your cross-chain transaction.`}
+            trackingEvent={MIXPANEL_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE}
+          />
+        )}
       </RowBetween>
       {activeTab === CrossChainTab.HISTORY || !isShowTradeRoutes ? (
         <HistoryCrossChain />

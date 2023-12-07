@@ -99,7 +99,7 @@ export default function CancelStatusCountDown({
       </Timer>
       <Text fontSize={'10px'} fontWeight={'400'} color={theme.subText}>
         <Trans>*There is a possibility that the order might be filled before cancellation.</Trans>{' '}
-        <ExternalLink href={DOCS_LINKS.USER_GUIDE}>
+        <ExternalLink href={DOCS_LINKS.CANCEL_GUIDE}>
           <Trans>Learn more ↗︎</Trans>
         </ExternalLink>
       </Text>
@@ -139,7 +139,7 @@ export default function CancelStatusCountDown({
           <Flex sx={{ gap: '4px' }}>
             <Trans>Your request has timed out.</Trans>{' '}
             <Text fontSize={'10px'} fontWeight={'400'} alignSelf={'flex-end'}>
-              <ExternalLink href={DOCS_LINKS.USER_GUIDE}>
+              <ExternalLink href={DOCS_LINKS.CANCEL_GUIDE}>
                 <Trans>Learn more ↗︎</Trans>
               </ExternalLink>
             </Text>

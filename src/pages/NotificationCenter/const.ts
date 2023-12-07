@@ -114,7 +114,7 @@ export const NETWORK_OPTIONS = MAINNET_NETWORKS.map(id => ({
   label: NETWORKS_INFO[id].name,
 }))
 
-export const TYPE_OPTIONS = [
+export const TYPE_OPTIONS = () => [
   { label: t`Above`, value: PriceAlertType.ABOVE },
   { label: t`Below`, value: PriceAlertType.BELOW },
 ]

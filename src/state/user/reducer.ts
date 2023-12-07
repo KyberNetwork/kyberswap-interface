@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
-import { SUGGESTED_BASES } from 'constants/bases'
 import {
   DEFAULT_DEADLINE_FROM_NOW,
   DEFAULT_SLIPPAGE,
@@ -32,8 +31,11 @@ import {
   toggleLiveChart,
   toggleMyEarningChart,
   toggleTradeRoutes,
+  toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updateChainId,
+  updatePoolDegenMode,
+  updatePoolSlippageTolerance,
   updateTokenAnalysisSettings,
   updateUserDeadline,
   updateUserDegenMode,
@@ -63,9 +65,13 @@ export interface UserState {
 
   userDegenMode: boolean
   userDegenModeAutoDisableTimestamp: number
+  poolDegenMode: boolean
+  poolDegenModeAutoDisableTimestamp: number
+  useAggregatorForZap: boolean
 
-  // user defined slippage tolerance in bips, used in all txns
-  userSlippageTolerance: number
+  // user defined slippage tolerance in bips, used in SWAP page
+  userSlippageTolerance: number // For SWAP page
+  poolSlippageTolerance: number // For POOL and other pages
 
   // deadline set by user in minutes, used in all txns
   userDeadline: number
@@ -135,11 +141,6 @@ function pairKey(token0Address: string, token1Address: string) {
   return `${token0Address};${token1Address}`
 }
 
-export const getFavoriteTokenDefault = (chainId: ChainId) => ({
-  addresses: SUGGESTED_BASES[chainId].map(e => e.address),
-  includeNativeToken: true,
-})
-
 export const CROSS_CHAIN_SETTING_DEFAULT = {
   isSlippageControlPinned: true,
   slippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
@@ -147,10 +148,14 @@ export const CROSS_CHAIN_SETTING_DEFAULT = {
 }
 
 const initialState: UserState = {
-  userDegenMode: false,
+  userDegenMode: false, // For SWAP page
   userDegenModeAutoDisableTimestamp: 0,
+  poolDegenMode: false, // For POOL and other pages
+  poolDegenModeAutoDisableTimestamp: 0,
+  useAggregatorForZap: true,
   userLocale: null,
   userSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
+  poolSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
   userDeadline: DEFAULT_DEADLINE_FROM_NOW,
   tokens: {},
   pairs: {},
@@ -172,6 +177,8 @@ const initialState: UserState = {
     liveDEXTrades: true,
     fundingRateOnCEX: true,
     liquidationsOnCEX: true,
+    liquidityProfile: true,
+    markets: true,
   },
   favoriteTokensByChainId: {},
   favoriteTokensByChainIdv2: {},
@@ -225,12 +232,34 @@ export default createReducer(initialState, builder =>
       }
       state.timestamp = currentTimestamp()
     })
+    .addCase(updatePoolDegenMode, (state, action) => {
+      state.poolDegenMode = action.payload.poolDegenMode
+      if (action.payload.poolDegenMode) {
+        state.poolDegenModeAutoDisableTimestamp = Date.now() + AUTO_DISABLE_DEGEN_MODE_MINUTES * 60 * 1000
+      } else {
+        // If max slippage <= 19.99%, no need update slippage.
+        if (state.poolSlippageTolerance <= MAX_NORMAL_SLIPPAGE_IN_BIPS) {
+          return
+        }
+        // Else, update to default slippage.
+        if (action.payload.isStablePairSwap) {
+          state.poolSlippageTolerance = Math.min(state.poolSlippageTolerance, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP)
+        } else {
+          state.poolSlippageTolerance = Math.min(state.poolSlippageTolerance, DEFAULT_SLIPPAGE)
+        }
+      }
+      state.timestamp = currentTimestamp()
+    })
     .addCase(updateUserLocale, (state, action) => {
       state.userLocale = action.payload.userLocale
       state.timestamp = currentTimestamp()
     })
     .addCase(updateUserSlippageTolerance, (state, action) => {
       state.userSlippageTolerance = action.payload.userSlippageTolerance
+      state.timestamp = currentTimestamp()
+    })
+    .addCase(updatePoolSlippageTolerance, (state, action) => {
+      state.poolSlippageTolerance = action.payload.poolSlippageTolerance
       state.timestamp = currentTimestamp()
     })
     .addCase(updateUserDeadline, (state, action) => {
@@ -354,5 +383,12 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleMyEarningChart, state => {
       state.myEarningChart = !state.myEarningChart
+    })
+    .addCase(toggleUseAggregatorForZap, state => {
+      if (state.useAggregatorForZap === undefined) {
+        state.useAggregatorForZap = false
+      } else {
+        state.useAggregatorForZap = !state.useAggregatorForZap
+      }
     }),
 )

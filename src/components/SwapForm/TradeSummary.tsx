@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,7 +11,7 @@ import Divider from 'components/Divider'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { APP_PATHS, BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
+import { APP_PATHS, BIPS_BASE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -70,6 +70,9 @@ type TooltipTextOfSwapFeeProps = {
   feeAmountText: string
 }
 export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
+  const [searchParams] = useSearchParams()
+  const clientId = searchParams.get('clientId')
+
   const feePercent = formatDisplayNumber(Number(feeBips) / Number(BIPS_BASE.toString()), {
     style: 'percent',
     fractionDigits: 2,
@@ -86,6 +89,10 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
     return <Trans>Read more about the fees {hereLink}</Trans>
   }
 
+  if (clientId) {
+    return <Trans>Swap fees charged by {clientId}.</Trans>
+  }
+
   return (
     <Trans>
       A {feePercent} fee ({feeAmountText}) will incur on this swap. The Est. Output amount you see above is inclusive of
@@ -95,19 +102,18 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
 }
 
 const SwapFee: React.FC = () => {
-  const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
-
-  if (!CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId)) {
-    return null
-  }
 
   const {
     formattedAmount: feeAmount = '',
     formattedAmountUsd: feeAmountUsd = '',
     currency = undefined,
   } = routeSummary?.fee || {}
+
+  if (!feeAmount) {
+    return null
+  }
 
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
 
@@ -180,6 +186,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
     }
   }, [hasTrade])
 
+  const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
   return (
     <Wrapper $visible={alreadyVisible} $disabled={!hasTrade}>
       <AutoColumn>
@@ -232,8 +239,8 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
                   text={
                     <div>
                       <Trans>Estimated change in price due to the size of your transaction.</Trans>
-                      <Trans>
-                        <Text fontSize={12}>
+                      <Text fontSize={12}>
+                        <Trans>
                           Read more{' '}
                           <a
                             href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
@@ -242,8 +249,8 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
                           >
                             <b>here ↗</b>
                           </a>
-                        </Text>
-                      </Trans>
+                        </Trans>
+                      </Text>
                     </div>
                   }
                   placement="right"
@@ -260,7 +267,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
             </TYPE.black>
           </RowBetween>
 
-          {isSupportKyberDao(chainId) && (
+          {!isPartnerSwap && isSupportKyberDao(chainId) && (
             <RowBetween>
               <RowFixed>
                 <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>

@@ -28,18 +28,18 @@ import { FeeTag, FlipCard, FlipCardBack, FlipCardFront } from 'components/YieldP
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
 import { APP_PATHS, DMM_ANALYTICS_URL, ONE_BIPS, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { ClassicPoolData } from 'hooks/pool/classic/type'
 import useTheme from 'hooks/useTheme'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useActiveAndUniqueFarmsData } from 'state/farms/classic/hooks'
 import { Farm } from 'state/farms/classic/types'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
-import { SubgraphPoolData, UserLiquidityPosition, useSharedPoolIdManager } from 'state/pools/hooks'
+import { UserLiquidityPosition, useSharedPoolIdManager } from 'state/pools/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { ExternalLink } from 'theme'
-import { formattedNum, shortenAddress } from 'utils'
+import { shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import {
   feeRangeCalc,
@@ -49,6 +49,7 @@ import {
   priceRangeCalcBySubgraphPool,
   useFarmApr,
 } from 'utils/dmm'
+import { formatDisplayNumber, parseFraction } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 const StyledLink = styled(ExternalLink)`
@@ -57,7 +58,7 @@ const StyledLink = styled(ExternalLink)`
   }
 `
 interface ListItemProps {
-  poolData: SubgraphPoolData
+  poolData: ClassicPoolData
   myLiquidity?: UserLiquidityPosition
 }
 
@@ -79,7 +80,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 
   const isFarmingPool = !!farm
   const factories = useMultipleContractSingleData([poolData.id], DMM_POOL_INTERFACE, 'factory')
-  const isNewStaticFeePool = factories?.[0]?.result?.[0] === (networkInfo as EVMNetworkInfo).classic.static.factory
+  const isNewStaticFeePool = factories?.[0]?.result?.[0] === networkInfo.classic.static.factory
 
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(chainId, poolData.id, 3)
@@ -104,7 +105,11 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 
   const [, setSharedPoolId] = useSharedPoolIdManager()
 
-  const ampLiquidity = formattedNum(`${parseFloat(amp.toSignificant(5)) * parseFloat(poolData.reserveUSD)}`, true)
+  const ampLiquidity = formatDisplayNumber(amp.multiply(parseFraction(poolData.reserveUSD)), {
+    style: 'currency',
+    significantDigits: 7,
+    fractionDigits: 4,
+  })
   const volume = poolData.oneDayVolumeUSD ? poolData.oneDayVolumeUSD : poolData.oneDayVolumeUntracked
   const fee24H = poolData.oneDayFeeUSD ? poolData.oneDayFeeUSD : poolData.oneDayFeeUntracked
   const oneYearFL = getTradingFeeAPR(poolData.reserveUSD, fee24H).toFixed(2)
@@ -131,7 +136,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
       <Text fontSize="16px" fontWeight="500">
         {currency0Symbol} - {currency1Symbol}
       </Text>
-      <FeeTag style={{ fontSize: '12px' }}>AMP {formattedNum(amp.toSignificant(5))}</FeeTag>
+      <FeeTag style={{ fontSize: '12px' }}>AMP {formatDisplayNumber(amp, { significantDigits: 5 })}</FeeTag>
 
       {isFarmingPool && (
         <MouseoverTooltip
@@ -303,8 +308,8 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
           </Flex>
 
           <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem" marginBottom="1rem">
-            <Text>{formattedNum(volume, true)}</Text>
-            <Text>{formattedNum(fee24H, true)}</Text>
+            <Text>{formatDisplayNumber(volume, { style: 'currency', significantDigits: 5 })}</Text>
+            <Text>{formatDisplayNumber(fee24H, { style: 'currency', significantDigits: 5 })}</Text>
           </Flex>
 
           <Divider />
@@ -327,7 +332,9 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
             fontWeight="500"
             marginTop="0.25rem"
           >
-            <Text>{formattedNum(poolData.reserveUSD, true)}</Text>
+            <Text>
+              {formatDisplayNumber(poolData.reserveUSD, { style: 'currency', significantDigits: 7, fractionDigits: 4 })}
+            </Text>
             <Text textAlign="center">{ampLiquidity}</Text>
             <Text textAlign="end">{myLiquidity ? getMyLiquidity(myLiquidity) : '-'}</Text>
           </Box>
@@ -491,10 +498,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 }
 
 const FarmCalculator = ({ farm, onUpdate }: { farm: Farm; onUpdate: (value: number) => void }) => {
-  const lpTokenRatio = new Fraction(
-    farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)),
-  ).divide(
+  const lpTokenRatio = farm.totalStake.divide(
     new Fraction(parseUnits(farm.totalSupply, 18).toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18))),
   )
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)

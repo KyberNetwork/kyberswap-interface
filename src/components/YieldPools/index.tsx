@@ -12,7 +12,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useBlockNumber } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/classic/hooks'
-import { Farm } from 'state/farms/classic/types'
+import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
 
 import ConfirmHarvestingModal from './ConfirmHarvestingModal'
 
@@ -41,23 +41,24 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
 
   const filterFarm = useCallback(
     (farm: Farm) => {
-      const filterByTime = farm.rewardPerSeconds
-        ? currentTimestampRef.current &&
-          (qs.type === FARM_TAB.MY_FARMS
-            ? true
-            : active
-            ? farm.endTime >= currentTimestampRef.current
-            : farm.endTime < currentTimestampRef.current)
-        : blockNumberRef.current &&
-          (qs.type === FARM_TAB.MY_FARMS
-            ? true
-            : active
-            ? farm.endBlock >= blockNumberRef.current
-            : farm.endBlock < blockNumberRef.current)
+      const filterByTime =
+        farm.version === FairLaunchVersion.V1
+          ? blockNumberRef.current &&
+            (qs.type === FARM_TAB.MY_FARMS
+              ? true
+              : active
+              ? farm.endBlock >= blockNumberRef.current
+              : farm.endBlock < blockNumberRef.current)
+          : currentTimestampRef.current &&
+            (qs.type === FARM_TAB.MY_FARMS
+              ? true
+              : active
+              ? farm.endTime >= currentTimestampRef.current
+              : farm.endTime < currentTimestampRef.current)
 
       const filterBySearchText = debouncedSearchText
-        ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
-          farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
+        ? farm.token0?.symbol?.toLowerCase().includes(debouncedSearchText) ||
+          farm.token1?.symbol?.toLowerCase().includes(debouncedSearchText) ||
           farm.id === debouncedSearchText
         : true
 
@@ -67,12 +68,12 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
           : true
 
       const filterByToken0 = token0
-        ? farm.token0?.id.toLowerCase() === token0.toLowerCase() ||
-          farm.token1?.id.toLowerCase() === token0.toLowerCase()
+        ? farm.token0?.address.toLowerCase() === token0.toLowerCase() ||
+          farm.token1?.address.toLowerCase() === token0.toLowerCase()
         : true
       const filterByToken1 = token1
-        ? farm.token0?.id.toLowerCase() === token1.toLowerCase() ||
-          farm.token1?.id.toLowerCase() === token1.toLowerCase()
+        ? farm.token0?.address.toLowerCase() === token1.toLowerCase() ||
+          farm.token1?.address.toLowerCase() === token1.toLowerCase()
         : true
 
       return filterByTime && filterBySearchText && filterByStakedOnly && filterByToken0 && filterByToken1
@@ -105,7 +106,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
           backgroundColor={theme.background}
           justifyContent="center"
           padding="32px"
-          style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
+          style={{ borderRadius: '20px' }}
         >
           <Text color={theme.subText}>
             {debouncedSearchText ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}

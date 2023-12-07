@@ -262,117 +262,6 @@ const LoadingWrapper = styled(Row)`
   `}
 `
 
-const tokenTypeList: {
-  type: KyberAIListType
-  icon?: ICON_ID
-  tooltip?: (theme: DefaultTheme) => ReactNode
-  title: string
-}[] = [
-  { type: KyberAIListType.MYWATCHLIST, icon: 'star', title: t`My Watchlist` },
-  { type: KyberAIListType.ALL, title: t`All` },
-  {
-    type: KyberAIListType.BULLISH,
-    title: t`Bullish`,
-    icon: 'bullish',
-    tooltip: theme => (
-      <span>
-        Tokens with the highest chance of price <span style={{ color: theme.text }}>increase</span> in the next 24H
-        (highest KyberScore).
-      </span>
-    ),
-  },
-  {
-    type: KyberAIListType.BEARISH,
-    title: t`Bearish`,
-    icon: 'bearish',
-    tooltip: theme => (
-      <span>
-        Tokens with the highest chance of price <span style={{ color: theme.text }}>decrease</span> in the next 24H
-        (lowest KyberScore).
-      </span>
-    ),
-  },
-  {
-    type: KyberAIListType.KYBERSWAP_DELTA,
-    title: t`KyberScore Delta`,
-    icon: 'bearish',
-    tooltip: theme => (
-      <span>
-        <Trans>
-          Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
-          consecutive time periods. This may indicate a change in trend of the token.
-        </Trans>
-      </span>
-    ),
-  },
-  {
-    type: KyberAIListType.TOP_CEX_INFLOW,
-    title: t`Top CEX Positive Netflow`,
-    icon: 'download',
-    tooltip: theme => (
-      <span>
-        Tokens with the highest <span style={{ color: theme.text }}>net deposits</span> to Centralized Exchanges in the
-        last 3 Days. Possible incoming sell pressure.
-      </span>
-    ),
-  },
-  {
-    type: KyberAIListType.TOP_CEX_OUTFLOW,
-    title: t`Top CEX Negative Netflow`,
-    icon: 'upload',
-    tooltip: theme => (
-      <span>
-        Tokens with the highest <span style={{ color: theme.text }}>net withdrawals</span> from Centralized Exchanges in
-        the last 3 Days. Possible buy pressure.
-      </span>
-    ),
-  },
-  {
-    type: KyberAIListType.FUNDING_RATE,
-    title: t`Funding Rates`,
-    icon: 'coin-bag',
-    tooltip: () => (
-      <span>
-        <Trans>
-          Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish &amp;
-          vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed.
-        </Trans>
-      </span>
-    ),
-  },
-  {
-    type: KyberAIListType.TOP_TRADED,
-    title: t`Top Traded`,
-    icon: 'coin-bag',
-    tooltip: theme => (
-      <span>
-        Tokens with the <span style={{ color: theme.text }}>highest 24H trading volume</span>.
-      </span>
-    ),
-  },
-  {
-    type: KyberAIListType.TRENDING_SOON,
-    title: t`Trending Soon`,
-    icon: 'trending-soon',
-    tooltip: theme => (
-      <span>
-        Tokens that could be <span style={{ color: theme.text }}>trending</span> in the near future. Trending indicates
-        interest in a token - it doesnt imply bullishness or bearishness.
-      </span>
-    ),
-  },
-  {
-    type: KyberAIListType.TRENDING,
-    title: t`Currently Trending`,
-    icon: 'flame',
-    tooltip: theme => (
-      <span>
-        Tokens that are <span style={{ color: theme.text }}>currently trending</span> in the market.
-      </span>
-    ),
-  },
-]
-
 const ARROW_SIZE = 40
 
 const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab: (type: KyberAIListType) => void }) => {
@@ -382,6 +271,117 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
   const [scrollLeftValue, setScrollLeftValue] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const tabListRef = useRef<HTMLDivElement[]>([])
+
+  const tokenTypeList: {
+    type: KyberAIListType
+    icon?: ICON_ID
+    tooltip?: (theme: DefaultTheme) => ReactNode
+    title: string
+  }[] = [
+    { type: KyberAIListType.MYWATCHLIST, icon: 'star', title: t`My Watchlist` },
+    { type: KyberAIListType.ALL, title: t`All` },
+    {
+      type: KyberAIListType.BULLISH,
+      title: t`Bullish`,
+      icon: 'bullish',
+      tooltip: theme => (
+        <span>
+          Tokens with the highest chance of price <span style={{ color: theme.text }}>increase</span> in the next 24H
+          (highest KyberScore).
+        </span>
+      ),
+    },
+    {
+      type: KyberAIListType.BEARISH,
+      title: t`Bearish`,
+      icon: 'bearish',
+      tooltip: theme => (
+        <span>
+          Tokens with the highest chance of price <span style={{ color: theme.text }}>decrease</span> in the next 24H
+          (lowest KyberScore).
+        </span>
+      ),
+    },
+    {
+      type: KyberAIListType.KYBERSWAP_DELTA,
+      title: t`KyberScore Delta`,
+      icon: 'bearish',
+      tooltip: theme => (
+        <span>
+          <Trans>
+            Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
+            consecutive time periods. This may indicate a change in trend of the token.
+          </Trans>
+        </span>
+      ),
+    },
+    {
+      type: KyberAIListType.TOP_CEX_INFLOW,
+      title: t`Top CEX Positive Netflow`,
+      icon: 'download',
+      tooltip: theme => (
+        <span>
+          Tokens with the highest <span style={{ color: theme.text }}>net deposits</span> to Centralized Exchanges in
+          the last 3 Days. Possible incoming sell pressure.
+        </span>
+      ),
+    },
+    {
+      type: KyberAIListType.TOP_CEX_OUTFLOW,
+      title: t`Top CEX Negative Netflow`,
+      icon: 'upload',
+      tooltip: theme => (
+        <span>
+          Tokens with the highest <span style={{ color: theme.text }}>net withdrawals</span> from Centralized Exchanges
+          in the last 3 Days. Possible buy pressure.
+        </span>
+      ),
+    },
+    {
+      type: KyberAIListType.FUNDING_RATE,
+      title: t`Funding Rates`,
+      icon: 'coin-bag',
+      tooltip: () => (
+        <span>
+          <Trans>
+            Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish &amp;
+            vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed.
+          </Trans>
+        </span>
+      ),
+    },
+    {
+      type: KyberAIListType.TOP_TRADED,
+      title: t`Top Traded`,
+      icon: 'coin-bag',
+      tooltip: theme => (
+        <span>
+          Tokens with the <span style={{ color: theme.text }}>highest 24H trading volume</span>.
+        </span>
+      ),
+    },
+    {
+      type: KyberAIListType.TRENDING_SOON,
+      title: t`Trending Soon`,
+      icon: 'trending-soon',
+      tooltip: theme => (
+        <span>
+          Tokens that could be <span style={{ color: theme.text }}>trending</span> in the near future. Trending
+          indicates interest in a token - it doesnt imply bullishness or bearishness.
+        </span>
+      ),
+    },
+    {
+      type: KyberAIListType.TRENDING,
+      title: t`Currently Trending`,
+      icon: 'flame',
+      tooltip: theme => (
+        <span>
+          Tokens that are <span style={{ color: theme.text }}>currently trending</span> in the market.
+        </span>
+      ),
+    },
+  ]
 
   useEffect(() => {
     wrapperRef.current?.scrollTo({ left: scrollLeftValue, behavior: 'smooth' })

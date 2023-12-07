@@ -41,83 +41,84 @@ export type MenuItemType = {
   defaultExpand?: boolean
 }
 
-const menuItems: MenuItemType[] = [
-  {
-    route: PROFILE_MANAGE_ROUTES.PROFILE,
-    icon: <ProfileIcon />,
-    title: t`Profile`,
-    childs: [],
-  },
-  {
-    route: PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION,
-    icon: <NotificationIcon size="16px" />,
-    title: t`Notifications`,
-    type: 'ALL',
-    defaultExpand: true,
-    childs: [
-      {
-        route: PROFILE_MANAGE_ROUTES.PREFERENCE,
-        icon: <ListIcon size="16px" />,
-        title: t`Notification Preferences`,
-        divider: true,
-      },
-      {
-        route: PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION,
-        icon: <AllIcon style={{ width: 16 }} />,
-        title: t`All Notifications`,
-        type: 'ALL',
-      },
-      {
-        route: PROFILE_MANAGE_ROUTES.GENERAL,
-        icon: <MailIcon size={16} />,
-        title: t`General`,
-      },
-      {
-        route: PROFILE_MANAGE_ROUTES.PRICE_ALERTS,
-        type: PrivateAnnouncementType.PRICE_ALERT,
-      },
-      {
-        route: PROFILE_MANAGE_ROUTES.MY_ELASTIC_POOLS,
-        type: PrivateAnnouncementType.ELASTIC_POOLS,
-      },
-      {
-        route: PROFILE_MANAGE_ROUTES.LIMIT_ORDERS,
-        type: PrivateAnnouncementType.LIMIT_ORDER,
-      },
-      // {
-      //   route: PROFILE_MANAGE_ROUTES.BRIDGE,
-      //   type: PrivateAnnouncementType.BRIDGE_ASSET,
-      // },
-      {
-        route: PROFILE_MANAGE_ROUTES.CROSS_CHAIN,
-        type: PrivateAnnouncementType.CROSS_CHAIN,
-      },
-      {
-        route: PROFILE_MANAGE_ROUTES.KYBER_AI_TOKENS,
-        type: PrivateAnnouncementType.KYBER_AI,
-      },
-      {
-        route: PROFILE_MANAGE_ROUTES.KYBER_AI_WATCH_LIST,
-        type: PrivateAnnouncementType.KYBER_AI_WATCHLIST,
-      },
-    ],
-  },
-].map(el => {
-  return {
-    ...el,
-    childs:
-      el.route !== PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION
-        ? el.childs
-        : el.childs?.map((child: MenuItemType) => {
-            const type = child.type as PrivateAnnouncementType
-            return {
-              ...child,
-              title: child.title || PRIVATE_ANN_TITLE[type],
-              icon: child.icon || <InboxIcon type={type} />,
-            }
-          }),
-  }
-})
+const getMenuItems: () => MenuItemType[] = () =>
+  [
+    {
+      route: PROFILE_MANAGE_ROUTES.PROFILE,
+      icon: <ProfileIcon />,
+      title: t`Profile`,
+      childs: [],
+    },
+    {
+      route: PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION,
+      icon: <NotificationIcon size="16px" />,
+      title: t`Notifications`,
+      type: 'ALL',
+      defaultExpand: true,
+      childs: [
+        {
+          route: PROFILE_MANAGE_ROUTES.PREFERENCE,
+          icon: <ListIcon size="16px" />,
+          title: t`Notification Preferences`,
+          divider: true,
+        },
+        {
+          route: PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION,
+          icon: <AllIcon style={{ width: 16 }} />,
+          title: t`All Notifications`,
+          type: 'ALL',
+        },
+        {
+          route: PROFILE_MANAGE_ROUTES.GENERAL,
+          icon: <MailIcon size={16} />,
+          title: t`General`,
+        },
+        {
+          route: PROFILE_MANAGE_ROUTES.PRICE_ALERTS,
+          type: PrivateAnnouncementType.PRICE_ALERT,
+        },
+        {
+          route: PROFILE_MANAGE_ROUTES.MY_ELASTIC_POOLS,
+          type: PrivateAnnouncementType.ELASTIC_POOLS,
+        },
+        {
+          route: PROFILE_MANAGE_ROUTES.LIMIT_ORDERS,
+          type: PrivateAnnouncementType.LIMIT_ORDER,
+        },
+        // {
+        //   route: PROFILE_MANAGE_ROUTES.BRIDGE,
+        //   type: PrivateAnnouncementType.BRIDGE_ASSET,
+        // },
+        {
+          route: PROFILE_MANAGE_ROUTES.CROSS_CHAIN,
+          type: PrivateAnnouncementType.CROSS_CHAIN,
+        },
+        {
+          route: PROFILE_MANAGE_ROUTES.KYBER_AI_TOKENS,
+          type: PrivateAnnouncementType.KYBER_AI,
+        },
+        {
+          route: PROFILE_MANAGE_ROUTES.KYBER_AI_WATCH_LIST,
+          type: PrivateAnnouncementType.KYBER_AI_WATCHLIST,
+        },
+      ],
+    },
+  ].map(el => {
+    return {
+      ...el,
+      childs:
+        el.route !== PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION
+          ? el.childs
+          : el.childs?.map((child: MenuItemType) => {
+              const type = child.type as PrivateAnnouncementType
+              return {
+                ...child,
+                title: child.title || PRIVATE_ANN_TITLE()[type],
+                icon: child.icon || <InboxIcon type={type} />,
+              }
+            }),
+    }
+  })
 
 type PropsMenu = { unread: Unread; onChildrenClick?: () => void; toggleImportProfile: () => void }
 
@@ -125,6 +126,8 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
   const { isSigInGuest, signedAccount, isSignInGuestDefault } = useSignedAccountInfo()
   const { profile } = useProfileInfo()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+
+  const menuItems = useMemo(() => getMenuItems(), [])
 
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
@@ -151,7 +154,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
       })
       return { ...el, childs }
     })
-  }, [signedAccount, isSigInGuest, profile, toggleImportProfile, isSignInGuestDefault])
+  }, [signedAccount, isSigInGuest, profile, toggleImportProfile, isSignInGuestDefault, menuItems])
 
   return (
     <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '0px' : '24px' }}>

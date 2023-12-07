@@ -2,12 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import optimismIcon from 'assets/networks/optimism.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const optimismInfo: EVMNetworkInfo = {
+const optimismInfo: NetworkInfo = {
   chainId: ChainId.OPTIMISM,
   route: 'optimism',
   ksSettingRoute: 'optimism',
@@ -60,6 +60,12 @@ const optimismInfo: EVMNetworkInfo = {
       '0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43',
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
+    zap: {
+      router: '0x30C5322E4e08AD500c348007f92f120ab4E2b79e',
+      validator: '0xf0096e5B4AAfeEA1DF557264091569ba125c1172',
+      executor: '0x8ac7895130e3be8654fff544ae20bf2a93ef19d1',
+      helper: '0x214061F0e250A27a49f609d9caf2987a7bC8fA6B',
+    },
   },
   limitOrder: '*',
   averageBlockTimeInSeconds: 120,

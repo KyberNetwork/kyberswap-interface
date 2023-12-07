@@ -1,6 +1,7 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { Dispatch, RefObject, SetStateAction, useState } from 'react'
+import { RefObject, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -25,24 +26,26 @@ export default function Header({
   activeTab,
   setActiveTab,
   swapActionsRef,
+  customChainId,
 }: {
   activeTab: TAB
-  setActiveTab: Dispatch<SetStateAction<TAB>>
+  setActiveTab: (tab: TAB) => void
   swapActionsRef: RefObject<HTMLDivElement>
+  customChainId?: ChainId
 }) {
   const theme = useTheme()
   const [isDegenMode] = useDegenModeManager()
   const [isShowDegenBanner, setShowDegenBanner] = useState(true)
   const { pathname } = useLocation()
 
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
+  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeTab === TAB.LIMIT
+  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || activeTab == TAB.SWAP
 
   return (
     <>
       <ColumnCenter gap="sm">
         <RowBetween>
-          <Tabs activeTab={activeTab} />
+          <Tabs activeTab={activeTab} setActiveTab={setActiveTab} customChainId={customChainId} />
           <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
         </RowBetween>
         <RowBetween>

@@ -1,12 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const bttcInfo: EVMNetworkInfo = {
+const bttcInfo: NetworkInfo = {
   chainId: ChainId.BTTC,
   route: 'bittorrent',
   ksSettingRoute: 'bttc',
@@ -14,7 +14,7 @@ const bttcInfo: EVMNetworkInfo = {
   poolFarmRoute: 'bttc',
   aggregatorRoute: 'bttc',
   name: 'BitTorrent',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/4877aa34-b675-4fb3-8de2-15ab8a8f6a53.svg',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/acc93879-119a-48ce-8a91-a4a6c0321c131699420171767.png',
 
   iconSelected: NOT_SUPPORT,
 
@@ -25,7 +25,7 @@ const bttcInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'BTT',
     name: 'BTT',
-    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/4877aa34-b675-4fb3-8de2-15ab8a8f6a53.svg',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/1d9bbed0-0f29-48b9-b610-1bc35efcc41f.png',
     decimal: 18,
     minForGas: 10 ** 16,
   },

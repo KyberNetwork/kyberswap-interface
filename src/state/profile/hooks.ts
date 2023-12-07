@@ -11,6 +11,7 @@ import { UserProfile, authenActions } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 import { CacheProfile, ProfileMap, SignedAccountParams, profileActions } from 'state/profile/reducer'
 import getShortenAddress from 'utils/getShortenAddress'
+import { isEmailValid } from 'utils/string'
 
 const { setImportToken, setKeepCurrentProfile, setProfileMap, updateSignedAccount } = profileActions
 
@@ -68,10 +69,10 @@ export function useSaveConnectedProfile() {
 
 export type ConnectedProfile = {
   active: boolean
-  address: string
-  profile: UserProfile | undefined
-  guest: boolean
+  name: string
   id: string
+  profile: UserProfile | undefined
+  type: LoginMethod
   default?: boolean
 }
 
@@ -130,20 +131,20 @@ export const useProfileInfo = (): {
   const profile = userInfo || getCacheProfile(signedAccount ? signedAccount : KEY_GUEST_DEFAULT, isSigInGuest)
 
   const profiles = useMemo(() => {
-    const getAccountGuest = (account: string) => ({
-      address: account === KEY_GUEST_DEFAULT ? t`Guest` : t`Imported Guest`,
+    const getAccountGuest = (account: string): ConnectedProfile => ({
+      name: account === KEY_GUEST_DEFAULT ? t`Guest` : t`Imported Guest`,
       active: account === signedAccount?.toLowerCase(),
       id: account,
       profile: getCacheProfile(account, true),
-      guest: true,
+      type: LoginMethod.ANONYMOUS,
       default: account === KEY_GUEST_DEFAULT,
     })
-    const getAccountSignIn = (account: string) => ({
+    const getAccountSignIn = (account: string): ConnectedProfile => ({
       active: account === signedAccount?.toLowerCase(),
-      address: account,
+      name: account,
       id: account,
       profile: getCacheProfile(account, false),
-      guest: false,
+      type: isEmailValid(account) ? LoginMethod.EMAIL : LoginMethod.ETH,
     })
 
     const results = Object.keys(profileInfo?.wallet ?? {})
@@ -170,24 +171,23 @@ export const useProfileInfo = (): {
     [saveCacheProfile],
   )
 
-  const totalGuest = profiles.reduce((total, cur) => total + (cur.guest ? 1 : 0), 0)
+  const totalGuest = profiles.reduce((total, cur) => total + (cur.type === LoginMethod.ANONYMOUS ? 1 : 0), 0)
   return { profiles, totalGuest, profile, removeProfile, removeAllProfile, getCacheProfile, saveCacheProfile }
 }
 
 // info relate account currently signed in
 export const useSignedAccountInfo = () => {
-  const { isEVM } = useActiveWeb3React()
   const signedAccount = useSelector((state: AppState) => state.profile.signedAccount)
-  const signedMethod = useSelector((state: AppState) => state.profile.signedMethod)
+  const signedMethod = useSelector((state: AppState) => state.profile.signedMethod) as LoginMethod
 
   const { account } = useActiveWeb3React()
 
   const isSigInGuest = signedMethod === LoginMethod.ANONYMOUS
-  const isSignInEmail = signedMethod === LoginMethod.GOOGLE
+  const isSignInEmail = signedMethod === LoginMethod.EMAIL || signedMethod === LoginMethod.GOOGLE
 
   const isSignInEth = signedMethod === LoginMethod.ETH
   const isSignInDifferentWallet =
-    isEVM && ((isSignInEth && account?.toLowerCase() !== signedAccount?.toLowerCase()) || isSigInGuest || isSignInEmail)
+    (isSignInEth && account?.toLowerCase() !== signedAccount?.toLowerCase()) || isSigInGuest || isSignInEmail
   const isSignInGuestDefault = isSigInGuest && signedAccount === KEY_GUEST_DEFAULT
 
   return {
@@ -196,7 +196,6 @@ export const useSignedAccountInfo = () => {
     isSignInDifferentWallet,
     isSigInGuest,
     isSignInGuestDefault,
-    isSignInEmail,
     isSignInEth,
   }
 }

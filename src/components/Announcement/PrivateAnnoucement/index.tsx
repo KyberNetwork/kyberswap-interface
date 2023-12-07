@@ -26,18 +26,19 @@ export type PrivateAnnouncementProp<T extends AnnouncementTemplate = Announcemen
 type PrivateAnnouncementMap = Partial<{
   [type in PrivateAnnouncementType]: (data: PrivateAnnouncementProp) => JSX.Element
 }>
-const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
-  [PrivateAnnouncementType.ELASTIC_POOLS]: InboxItemPoolPosition,
-  [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
-  [PrivateAnnouncementType.KYBER_AI]: InboxItemTrendingSoon,
-  [PrivateAnnouncementType.BRIDGE_ASSET]: InboxItemBridge,
-  [PrivateAnnouncementType.CROSS_CHAIN]: InboxItemCrossChain,
-  [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
-  [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
-  [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: InboxItemKyberAIWatchList,
-} as PrivateAnnouncementMap
+const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
+  ({
+    [PrivateAnnouncementType.ELASTIC_POOLS]: InboxItemPoolPosition,
+    [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
+    [PrivateAnnouncementType.KYBER_AI]: InboxItemTrendingSoon,
+    [PrivateAnnouncementType.BRIDGE_ASSET]: InboxItemBridge,
+    [PrivateAnnouncementType.CROSS_CHAIN]: InboxItemCrossChain,
+    [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
+    [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: InboxItemKyberAIWatchList,
+  } as PrivateAnnouncementMap)
 
-export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
+export const PRIVATE_ANN_TITLE: () => Partial<{ [type in PrivateAnnouncementType]: string }> = () => ({
   [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
   [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swaps`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
@@ -46,7 +47,7 @@ export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: str
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
-}
+})
 
 export default function InboxItem({ announcement, onRead, style }: PrivateAnnouncementProp) {
   const { templateType, sentAt, isRead } = announcement
@@ -56,10 +57,10 @@ export default function InboxItem({ announcement, onRead, style }: PrivateAnnoun
     style,
     time: <InboxItemTime color={isRead ? theme.border : theme.subText}>{formatTime(sentAt)}</InboxItemTime>,
     announcement,
-    title: PRIVATE_ANN_TITLE[templateType],
+    title: PRIVATE_ANN_TITLE()[templateType],
   }
   try {
-    const component = ANNOUNCEMENT_MAP[templateType]
+    const component = ANNOUNCEMENT_MAP()[templateType]
     return component ? React.createElement(component, props) : null
   } catch (error) {
     return null

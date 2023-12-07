@@ -11,10 +11,10 @@
     <meta name="fortmatic-site-verification" content="j93LgcVZk79qcgyo" />
     <meta
       name="description"
-      content="KyberSwap is DeFi’s first Dynamic Market Maker; a decentralized exchange protocol that provides frictionless crypto liquidity with extremely high flexibility and capital efficiency. KyberSwap is the first major protocol in Kyber’s liquidity hub."
+      content="KyberSwap is a multi-chain aggregator and DeFi hub that empowers users with the insights and tools to achieve financial autonomy. All the above while being fast, secure, and easy-to-use."
     />
 
-    <meta property="og:image" content="/kyberswap-og-image.jpg?version=1200x630" />
+    <meta property="og:image" content="/kyberswap-og-image.png?version=2023" />
 
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
@@ -38,7 +38,7 @@
       rel="stylesheet"
     />
 
-    <title>KyberSwap - Trading Smart</title>
+    <title>KyberSwap - Limitless Access To DeFi</title>
     <script>
       window.global = window
     </script>
@@ -63,6 +63,65 @@
         g.async = true
         g.src = '/libs/cookie3.js'
         s.parentNode.insertBefore(g, s)
+      })()
+    </script>
+
+    <script>
+      !(function () {
+        var analytics = (window.analytics = window.analytics || [])
+        if (!analytics.initialize)
+          if (analytics.invoked) window.console && console.error && console.error('Segment snippet included twice.')
+          else {
+            analytics.invoked = !0
+            analytics.methods = [
+              'trackSubmit',
+              'trackClick',
+              'trackLink',
+              'trackForm',
+              'pageview',
+              'identify',
+              'reset',
+              'group',
+              'track',
+              'ready',
+              'alias',
+              'debug',
+              'page',
+              'once',
+              'off',
+              'on',
+              'addSourceMiddleware',
+              'addIntegrationMiddleware',
+              'setAnonymousId',
+              'addDestinationMiddleware',
+            ]
+            analytics.factory = function (e) {
+              return function () {
+                if (window.analytics.initialized) return window.analytics[e].apply(window.analytics, arguments)
+                var i = Array.prototype.slice.call(arguments)
+                i.unshift(e)
+                analytics.push(i)
+                return analytics
+              }
+            }
+            for (var i = 0; i < analytics.methods.length; i++) {
+              var key = analytics.methods[i]
+              analytics[key] = analytics.factory(key)
+            }
+            analytics.load = function (key, i) {
+              var t = document.createElement('script')
+              t.type = 'text/javascript'
+              t.async = !0
+              t.src = '/libs/red2.js'
+              var n = document.getElementsByTagName('script')[0]
+              n.parentNode.insertBefore(t, n)
+              analytics._loadOptions = i
+            }
+            analytics._writeKey = 'DgnqvAHbWsKaPnkdvC19EMC8DbXh1G52'
+            analytics.SNIPPET_VERSION = '4.16.1'
+            analytics.load('DgnqvAHbWsKaPnkdvC19EMC8DbXh1G52')
+            analytics.page()
+          }
       })()
     </script>
   </head>
@@ -215,7 +274,20 @@
         },
       }
     </script>
-    <script async src="/libs/zenddesk.js?key=a73faacd-ba50-493a-8bf5-4b6878035346&v=1" id="ze-snippet"></script>
+
+    <script>
+      ;(function () {
+        const isPartnerSwap = window.location.pathname.startsWith('/partner-swap')
+        if (!isPartnerSwap) {
+          const script = document.createElement('script')
+          script.async = true
+          script.id = 'ze-snippet'
+          script.src = '/libs/zenddesk.js?key=a73faacd-ba50-493a-8bf5-4b6878035346&v=1'
+
+          document.body.appendChild(script)
+        }
+      })()
+    </script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

@@ -1,7 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
-import { Navigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 
@@ -9,9 +8,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InfoHelper from 'components/InfoHelper'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { AMP_HINT } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
-import { useFairLaunchVersion } from 'hooks/useContract'
 import useFairLaunch from 'hooks/useFairLaunch'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -56,11 +53,10 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   const [viewMode] = useViewMode()
   const above1200 = useMedia(`(min-width:${MEDIA_WIDTHS.upToLarge}px)`)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { account, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const blockNumber = useBlockNumber()
   const totalRewards = useFarmRewards(farms)
-  const fairLaunchVersion = useFairLaunchVersion(fairLaunchAddress)
   const { harvestMultiplePools } = useFairLaunch(fairLaunchAddress)
   const { mixpanelHandler } = useMixpanel()
 
@@ -115,51 +111,50 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
 
-  const farmsList =
-    fairLaunchVersion === FairLaunchVersion.V1
-      ? (farms || []).map(farm => {
-          const isFarmStarted = farm && blockNumber && farm.startBlock < blockNumber
-          const isFarmEnded = farm && blockNumber && farm.endBlock < blockNumber
+  const farmsList: Farm[] = (farms || [])?.map(farm => {
+    if (farm.version === FairLaunchVersion.V1) {
+      const isFarmStarted = farm && blockNumber && farm.startBlock < blockNumber
+      const isFarmEnded = farm && blockNumber && farm.endBlock < blockNumber
 
-          let remainingBlocks: number | false | undefined
+      let remainingBlocks: number | false | undefined
 
-          if (!isFarmStarted) {
-            remainingBlocks = farm && blockNumber && farm.startBlock - blockNumber
-          } else {
-            remainingBlocks = farm && blockNumber && farm.endBlock - blockNumber
-          }
-          const estimatedRemainingSeconds =
-            remainingBlocks && remainingBlocks * (networkInfo as EVMNetworkInfo).averageBlockTimeInSeconds
-          const formattedEstimatedRemainingTime =
-            estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
+      if (!isFarmStarted) {
+        remainingBlocks = farm && blockNumber && farm.startBlock - blockNumber
+      } else {
+        remainingBlocks = farm && blockNumber && farm.endBlock - blockNumber
+      }
+      const estimatedRemainingSeconds = remainingBlocks && remainingBlocks * networkInfo.averageBlockTimeInSeconds
+      const formattedEstimatedRemainingTime =
+        estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
 
-          return {
-            ...farm,
-            time: `${isFarmEnded ? 'Ended' : 'Starting in ' + formattedEstimatedRemainingTime}`,
-          }
-        })
-      : (farms || []).map(farm => {
-          const isFarmStarted = farm && currentTimestamp && farm.startTime < currentTimestamp
-          const isFarmEnded = farm && currentTimestamp && farm.endTime < currentTimestamp
+      return {
+        ...farm,
+        time: `${isFarmEnded ? 'Ended' : 'Starting in ' + formattedEstimatedRemainingTime}`,
+      }
+    } else {
+      const isFarmStarted = farm && currentTimestamp && farm.startTime < currentTimestamp
+      const isFarmEnded = farm && currentTimestamp && farm.endTime < currentTimestamp
 
-          let formattedEstimatedRemainingTime: string
+      let formattedEstimatedRemainingTime: string
 
-          if (!isFarmStarted) {
-            formattedEstimatedRemainingTime = getFormattedTimeFromSecond(farm.startTime - currentTimestamp)
-          } else {
-            formattedEstimatedRemainingTime = getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
-          }
+      if (!isFarmStarted) {
+        formattedEstimatedRemainingTime = getFormattedTimeFromSecond(farm.startTime - currentTimestamp)
+      } else {
+        formattedEstimatedRemainingTime = getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
+      }
 
-          return {
-            ...farm,
-            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`,
-          }
-        })
+      return {
+        ...farm,
+        time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`,
+      }
+    }
+  })
 
-  const displayFarms = farmsList.sort((a, b) => b.endBlock - a.endBlock)
+  const displayFarms = farmsList.sort((a, b) =>
+    a.version === FairLaunchVersion.V1 && b.version === FairLaunchVersion.V1 ? b.endBlock - a.endBlock : 0,
+  )
 
   const ConditionListWrapper = viewMode === VIEW_MODE.LIST && above1200 ? ListItemWrapper : ClassicFarmGridWrapper
-  if (!isEVM) return <Navigate to="/" />
 
   return (
     <ClassicFarmWrapper>
@@ -193,7 +188,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
                     <Text color={theme.subText}>
                       <Trans>POOLS | AMP</Trans>
                     </Text>
-                    <InfoHelper text={AMP_HINT} />
+                    <InfoHelper text={AMP_HINT()} />
                   </Row>
                   <Row>
                     <Text color={theme.subText}>

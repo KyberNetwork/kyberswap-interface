@@ -19,7 +19,7 @@ import { Reward } from 'state/farms/classic/types'
 import { formattedNum } from 'utils'
 import { useFarmRewardsUSD } from 'utils/dmm'
 import { fixedFormatting, getFullDisplayBalance } from 'utils/formatBalance'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import { ModalContentWrapper } from './ElasticFarmModals/styled'
 import { RewardBalanceWrapper } from './styleds'
@@ -112,7 +112,7 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
             padding="4px 0"
             content={
               <Text fontSize="20px" fontWeight={500}>
-                {formatDollarAmount(totalRewardsUSD)}
+                {formatDisplayNumber(totalRewardsUSD, { style: 'currency', significantDigits: 4 })}
               </Text>
             }
             dropdownContent={
@@ -181,7 +181,7 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
               padding="4px 0"
               content={
                 <Text fontSize="20px" fontWeight={500}>
-                  {formatDollarAmount(totalRewardsUSD)}
+                  {formatDisplayNumber(totalRewardsUSD, { style: 'currency', significantDigits: 4 })}
                 </Text>
               }
               dropdownContent={

@@ -3,7 +3,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { useCallback } from 'react'
 
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
-import { ZERO_ADDRESS_SOLANA } from 'constants/index'
+import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import useENS from 'hooks/useENS'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -18,7 +18,7 @@ import { ErrorName } from 'utils/sentry'
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
 const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
-  const { account, chainId, isEVM, walletKey } = useActiveWeb3React()
+  const { account, chainId, walletKey } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const { isSaveGas, recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
@@ -39,8 +39,8 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
 
     const inputSymbol = inputAmount.currency.symbol
     const outputSymbol = outputAmount.currency.symbol
-    const inputAddress = inputAmount.currency.isNative ? ZERO_ADDRESS_SOLANA : inputAmount.currency.address
-    const outputAddress = outputAmount.currency.isNative ? ZERO_ADDRESS_SOLANA : outputAmount.currency.address
+    const inputAddress = inputAmount.currency.isNative ? ETHER_ADDRESS : inputAmount.currency.address
+    const outputAddress = outputAmount.currency.isNative ? ETHER_ADDRESS : outputAmount.currency.address
     const inputAmountStr = formatCurrencyAmount(inputAmount, 6)
     const outputAmountStr = formatCurrencyAmount(outputAmount, 6)
 
@@ -138,11 +138,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     [account, handleSwapResponse, inputAmount, library, walletKey],
   )
 
-  if (isEVM) {
-    return swapCallbackForEVM
-  }
-
-  return null
+  return swapCallbackForEVM
 }
 
 export default useSwapCallbackV3

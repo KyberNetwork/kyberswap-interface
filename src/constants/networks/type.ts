@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { PublicKey } from '@solana/web3.js'
 
 import { EnvKeys } from 'constants/env'
 import { ChainState } from 'hooks/useChainsConfig'
@@ -30,16 +29,9 @@ export interface NetworkInfo {
   readonly dexToCompare: string | null
   readonly limitOrder: null | '*' | EnvKeys[]
   readonly defaultRpcUrl: string
-  // token: {
-  //   DAI: Token
-  //   USDC: Token
-  //   USDT: Token
-  // }
+
   readonly geckoTermialId: string | null
   readonly state?: ChainState
-}
-
-export interface EVMNetworkInfo extends NetworkInfo {
   readonly poolFarmRoute: string // use this to get data from our internal BE
   readonly defaultBlockSubgraph: string
   readonly multicall: string
@@ -77,9 +69,14 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly farms: string[]
     readonly farmv2Quoter?: string
     readonly farmV2S?: string[]
+    readonly zap?: {
+      helper: string
+      router: string
+      executor: string
+      validator: string
+    }
     readonly 'farmV2.1S'?: string[]
   }
-  readonly limitOrder: null | '*' | EnvKeys[]
   readonly averageBlockTimeInSeconds: number
   readonly deBankSlug: string
   readonly kyberDAO?: {
@@ -90,14 +87,4 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly KNCAddress: string
     readonly KNCLAddress: string
   }
-}
-
-export interface SolanaNetworkInfo extends NetworkInfo {
-  // readonly classic: {
-  //   readonly pool: string
-  //   readonly factory: string
-  //   readonly router: string
-  // }
-  aggregatorProgramAddress: string
-  openBookAddress: PublicKey
 }

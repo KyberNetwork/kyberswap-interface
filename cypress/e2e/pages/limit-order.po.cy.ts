@@ -5,6 +5,19 @@ export interface myCallbackType<T> {
 }
 export const LimitOder = {
 
+    checkGetStartedDisplay() {
+        return cy.get(LimitOrderLocators.btnGetStarted, { timeout: 10000 }).should(() => { }).then($obj => {
+            if ($obj.length > 0) {
+                return true
+            }
+            return false
+        })
+    },
+
+    clickGetStarted() {
+        cy.get(LimitOrderLocators.btnGetStarted, { timeout: 10000 }).click({ force: true })
+    },
+
     selectTokenSell(): TokenCatalog {
         cy.selectToken(LimitOrderLocators.dropdownTokenSell)
         return new TokenCatalog()
@@ -22,6 +35,10 @@ export const LimitOder = {
         cy.getContent(LimitOrderLocators.dropdownTokenBuy, text)
     },
 
+    setAmountIn(value: string) {
+        cy.get(LimitOrderLocators.txtTokenSellAmount).type(value)
+    },
+
     setSellingRate(text: string) {
         cy.get(LimitOrderLocators.txtSellingRate).click().type(text)
     },
@@ -30,5 +47,13 @@ export const LimitOder = {
         return cy.get(LimitOrderLocators.txtSellingRate).invoke('val').then(value => {
             return value
         })
+    },
+
+    getBalanceIn(text: myCallbackType<string>) {
+        cy.getContent(LimitOrderLocators.lblBalanceIn, text)
+    },
+
+    getInsufficientErrorMessage() {
+        return cy.get(LimitOrderLocators.lblErrorMessage)
     }
 }

@@ -3,7 +3,6 @@ import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { useEffect, useState } from 'react'
 
 import { POOL_POSITION_COUNT } from 'apollo/queries/promm'
-import { useActiveWeb3React } from 'hooks'
 import { useProAmmPoolInfos } from 'hooks/useProAmmPoolInfo'
 import { useKyberSwapConfig } from 'state/application/hooks'
 
@@ -29,14 +28,12 @@ export const useFeeTierDistribution = (
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
 ): { [key in FeeAmount]: number } => {
-  const { isEVM } = useActiveWeb3React()
   const { elasticClient } = useKyberSwapConfig()
   const poolIds = useProAmmPoolInfos(currencyA, currencyB, FEE_AMOUNTS).filter(Boolean)
 
   const [feeTierDistribution, setFeeTierDistribution] = useState<{ [key in FeeAmount]: number }>(initState)
 
   useEffect(() => {
-    if (!isEVM) return
     if (!poolIds.length) return
     setFeeTierDistribution(initState)
     elasticClient
@@ -46,7 +43,7 @@ export const useFeeTierDistribution = (
       .then(res => {
         const feeArray: { feeTier: string; activePositions: number }[] = res?.data?.pools?.map(
           (item: { positionCount: string; closedPositionCount: string; feeTier: string }) => {
-            const activePositions = Number(item.positionCount) - Number(item.closedPositionCount)
+            const activePositions = Number(item.positionCount)
             return {
               feeTier: item.feeTier,
               activePositions,
@@ -69,7 +66,7 @@ export const useFeeTierDistribution = (
       })
       .catch(err => console.warn({ err }))
     // eslint-disable-next-line
-  }, [JSON.stringify(poolIds), isEVM, elasticClient])
+  }, [JSON.stringify(poolIds), elasticClient])
 
   return feeTierDistribution
 }

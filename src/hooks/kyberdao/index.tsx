@@ -22,12 +22,11 @@ import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.jso
 import StakingABI from 'constants/abis/kyberdao/staking.json'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useContract, useContractForReading, useTokenContractForReading } from 'hooks/useContract'
+import { useReadingContract, useSigningContract, useTokenReadingContract } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
 import { useNotify } from 'state/application/hooks'
@@ -52,20 +51,20 @@ import {
 } from './types'
 
 export function isSupportKyberDao(chainId: ChainId) {
-  return isEVM(chainId) && SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO
+  return SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO
 }
 
 export function useKyberDAOInfo() {
   const { chainId, networkInfo } = useActiveWeb3React()
-  const kyberDaoInfo = (isSupportKyberDao(chainId) ? (networkInfo as EVMNetworkInfo) : ethereumInfo).kyberDAO
+  const kyberDaoInfo = (isSupportKyberDao(chainId) ? networkInfo : ethereumInfo).kyberDAO
   return kyberDaoInfo
 }
 
 export function useKyberDaoStakeActions() {
   const addTransactionWithType = useTransactionAdder()
   const kyberDaoInfo = useKyberDAOInfo()
-  const stakingContract = useContract(kyberDaoInfo?.staking, StakingABI)
-  const migrateContract = useContract(kyberDaoInfo?.KNCAddress, MigrateABI)
+  const stakingContract = useSigningContract(kyberDaoInfo?.staking, StakingABI)
+  const migrateContract = useSigningContract(kyberDaoInfo?.KNCAddress, MigrateABI)
 
   const stake = useCallback(
     async (amount: BigNumber, votingPower: string) => {
@@ -205,7 +204,8 @@ export function useClaimVotingRewards() {
   const { account } = useActiveWeb3React()
   const { userRewards, remainingCumulativeAmount } = useVotingInfo()
   const kyberDaoInfo = useKyberDAOInfo()
-  const rewardDistributorContract = useContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
+  const rewardDistributorSigningContract = useSigningContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
+  const rewardDistributorReadingContract = useReadingContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
   const addTransactionWithType = useTransactionAdder()
 
   const claimVotingRewards = useCallback(async () => {
@@ -216,11 +216,11 @@ export function useClaimVotingRewards() {
     const merkleProof = proof
     const formatAmount = formatUnitsToFixed(remainingCumulativeAmount)
 
-    if (!rewardDistributorContract) {
+    if (!rewardDistributorSigningContract || !rewardDistributorReadingContract) {
       throw new Error(CONTRACT_NOT_FOUND_MSG)
     }
     try {
-      const isValidClaim = await rewardDistributorContract.isValidClaim(
+      const isValidClaim = await rewardDistributorReadingContract.isValidClaim(
         cycle,
         index,
         address,
@@ -229,7 +229,7 @@ export function useClaimVotingRewards() {
         merkleProof,
       )
       if (!isValidClaim) throw new Error(t`Invalid claim`)
-      const estimateGas = await rewardDistributorContract.estimateGas.claim(
+      const estimateGas = await rewardDistributorSigningContract.estimateGas.claim(
         cycle,
         index,
         address,
@@ -237,9 +237,17 @@ export function useClaimVotingRewards() {
         cumulativeAmounts,
         merkleProof,
       )
-      const tx = await rewardDistributorContract.claim(cycle, index, address, tokens, cumulativeAmounts, merkleProof, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
+      const tx = await rewardDistributorSigningContract.claim(
+        cycle,
+        index,
+        address,
+        tokens,
+        cumulativeAmounts,
+        merkleProof,
+        {
+          gasLimit: calculateGasMargin(estimateGas),
+        },
+      )
       addTransactionWithType({
         hash: tx.hash,
         type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
@@ -258,7 +266,8 @@ export function useClaimVotingRewards() {
     userRewards,
     account,
     remainingCumulativeAmount,
-    rewardDistributorContract,
+    rewardDistributorSigningContract,
+    rewardDistributorReadingContract,
     addTransactionWithType,
     kyberDaoInfo?.rewardsDistributor,
     kyberDaoInfo?.KNCAddress,
@@ -268,7 +277,7 @@ export function useClaimVotingRewards() {
 
 export const useVotingActions = () => {
   const kyberDaoInfo = useKyberDAOInfo()
-  const daoContract = useContract(kyberDaoInfo?.dao, DaoABI)
+  const daoContract = useSigningContract(kyberDaoInfo?.dao, DaoABI)
   const addTransactionWithType = useTransactionAdder()
 
   const vote = useCallback(
@@ -305,8 +314,8 @@ const fetcher = (url: string) => {
 export function useStakingInfo() {
   const { account } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
-  const stakingContract = useContract(kyberDaoInfo?.staking, StakingABI)
-  const kncContract = useTokenContractForReading(kyberDaoInfo?.KNCAddress, ChainId.MAINNET)
+  const stakingContract = useReadingContract(kyberDaoInfo?.staking, StakingABI)
+  const kncContract = useTokenReadingContract(kyberDaoInfo?.KNCAddress, ChainId.MAINNET)
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
   const delegatedAddress = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
   const KNCBalance = useTokenBalance(kyberDaoInfo?.KNCAddress || '')
@@ -340,7 +349,7 @@ export function useStakingInfo() {
 export function useVotingInfo() {
   const { account } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
-  const rewardsDistributorContract = useContractForReading(
+  const rewardsDistributorContract = useReadingContract(
     kyberDaoInfo?.rewardsDistributor,
     RewardDistributorABI,
     ChainId.MAINNET,

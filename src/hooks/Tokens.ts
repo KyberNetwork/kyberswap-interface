@@ -4,7 +4,7 @@ import axios from 'axios'
 import { arrayify } from 'ethers/lib/utils'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { useGetTokenListQuery } from 'services/ksSetting'
+import ksSettingApi, { useGetTokenListQuery } from 'services/ksSetting'
 import useSWR from 'swr'
 
 import ERC20_INTERFACE, { ERC20_BYTES32_INTERFACE } from 'constants/abis/erc20'
@@ -12,8 +12,8 @@ import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/index'
-import { useBytes32TokenContract, useMulticallContract, useTokenContract } from 'hooks/useContract'
-import { AppState } from 'state'
+import { useBytes32TokenContract, useMulticallContract, useTokenReadingContract } from 'hooks/useContract'
+import store, { AppState } from 'state'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { NEVER_RELOAD, useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
@@ -180,10 +180,10 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 
   const address = isAddress(chainId, tokenAddress)
 
-  const tokenContract = useTokenContract(address && tokenAddress !== ZERO_ADDRESS ? address : undefined, false)
-  const tokenContractBytes32 = useBytes32TokenContract(address ? address : undefined, false)
+  const tokenContract = useTokenReadingContract(address && tokenAddress !== ZERO_ADDRESS ? address : undefined)
+  const tokenContractBytes32 = useBytes32TokenContract(address ? address : undefined)
   const token =
-    tokenAddress === ZERO_ADDRESS || tokenAddress?.toLowerCase() === ETHER_ADDRESS.toLowerCase()
+    tokenAddress?.toLowerCase() === ZERO_ADDRESS || tokenAddress?.toLowerCase() === ETHER_ADDRESS.toLowerCase()
       ? NativeCurrencies[chainId]
       : address
       ? tokens[address]
@@ -294,12 +294,22 @@ export const findCacheToken = (address: string) => {
   return cacheTokens[address] || cacheTokens[address.toLowerCase()]
 }
 
-export const fetchTokenByAddress = async (address: string, chainId: ChainId, signal?: AbortSignal) => {
+export const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
   if (address === ZERO_ADDRESS) return NativeCurrencies[chainId]
   const findToken = findCacheToken(address)
   if (findToken && findToken.chainId === chainId) return findToken
-  const response = await axios.get(`${KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`, { signal })
-  const token = response?.data?.data?.tokens?.[0]
+  const tokenListRes = await store.dispatch(
+    ksSettingApi.endpoints.getTokenList.initiate({ chainId, addresses: address }),
+  )
+  let token = tokenListRes.data?.data.tokens[0]
+  if (!token) {
+    const importTokenRes = await store.dispatch(
+      ksSettingApi.endpoints.importToken.initiate([{ chainId: chainId.toString(), address }]),
+    )
+    if ('data' in importTokenRes) {
+      token = importTokenRes.data?.data.tokens[0]
+    }
+  }
   return token ? formatAndCacheToken(token) : undefined
 }
 

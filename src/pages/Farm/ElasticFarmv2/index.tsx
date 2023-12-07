@@ -21,9 +21,9 @@ import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClickableText, ElasticFarmV2TableHeader } from 'components/YieldPools/styleds'
 import { SORT_DIRECTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
-import { Dots } from 'pages/Pool/styleds'
+import { Dots } from 'pages/MyPool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { SORT_FIELD, useFarmV2Action, useFilteredFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
@@ -105,7 +105,7 @@ export default function ElasticFarmv2({
   })
 
   const { approve } = useFarmV2Action(farmAddress)
-  const posManager = useProAmmNFTPositionManagerContract()
+  const posManager = useProAmmNFTPositionManagerReadingContract()
   const [approvalTx, setApprovalTx] = useState('')
   const isApprovalTxPending = useIsTransactionPending(approvalTx)
   const res = useSingleCallResult(posManager, 'isApprovedForAll', [account, farmAddress])
@@ -114,8 +114,10 @@ export default function ElasticFarmv2({
   const handleApprove = async () => {
     if (!isApprovedForAll) {
       const tx = await approve()
-      setApprovalTx(tx)
-      mixpanel.track('ElasticFarmv2 - Approve Farming contract V2', { tx_hash: tx })
+      if (tx) {
+        setApprovalTx(tx)
+        mixpanel.track('ElasticFarmv2 - Approve Farming contract V2', { tx_hash: tx })
+      }
     }
   }
 

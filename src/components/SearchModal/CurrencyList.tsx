@@ -12,7 +12,6 @@ import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import { RowBetween, RowFixed } from 'components/Row'
-import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -103,6 +102,8 @@ export function CurrencyRow({
   usdBalance,
   hoverColor,
   hideBalance,
+  showLoading,
+  isFavorite,
 }: {
   showImported?: boolean
   showFavoriteIcon?: boolean
@@ -119,40 +120,26 @@ export function CurrencyRow({
   usdBalance?: number
   hoverColor?: string
   hideBalance?: boolean
-  customChainId?: ChainId
+  showLoading?: boolean
+  isFavorite?: boolean
 }) {
-  const { chainId, account } = useActiveWeb3React()
   const theme = useTheme()
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
 
-  const { favoriteTokens } = useUserFavoriteTokens(chainId)
   const onClickRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
     removeImportedToken?.(currency as Token)
   }
 
-  const isFavorite = (() => {
-    if (!favoriteTokens) {
-      return false
-    }
-
-    if (currency.isToken) {
-      const addr = (currency as Token).address ?? ''
-      const addresses = favoriteTokens ?? []
-      return !!addresses?.includes(addr) || !!addresses?.includes(addr.toLowerCase())
-    }
-
-    return false
-  })()
-
   const balanceComponent = hideBalance ? (
     '******'
   ) : currencyBalance ? (
     <Balance balance={currencyBalance} />
-  ) : account ? (
+  ) : showLoading ? (
     <Loader />
   ) : null
   const { symbol } = getDisplayTokenInfo(currency)
+
   return (
     <CurrencyRowWrapper
       data-testid="token-item"
@@ -164,7 +151,7 @@ export function CurrencyRow({
       <Flex alignItems="center" style={{ gap: 8 }}>
         <CurrencyLogo currency={currency} size={'24px'} />
         <Column gap="2px">
-          <Text title={currency.name} fontWeight={500}>
+          <Text title={currency.name} fontWeight={500} data-testid="token-symbol">
             {customName || symbol}
           </Text>
           <DescText>{showImported ? balanceComponent : nativeCurrency?.name}</DescText>
@@ -237,23 +224,23 @@ function CurrencyList({
   customChainId?: ChainId
 }) {
   const currencyBalances = useCurrencyBalances(currencies, customChainId)
-  const { chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
+  const tokenImports = useUserAddedTokens(customChainId)
+  const { favoriteTokens } = useUserFavoriteTokens(customChainId)
 
-  const Row: any = useCallback(
+  const Row = useCallback(
     function TokenRow({ style, currency, currencyBalance }: TokenRowProps) {
       const isSelected = Boolean(currency && selectedCurrency?.equals(currency))
       const otherSelected = Boolean(currency && otherCurrency?.equals(currency))
-      const canShowBalance = customChainId && customChainId !== chainId ? isEVM(customChainId) === isEVM(chainId) : true
 
       const token = currency?.wrapped
       const extendCurrency = currency as WrappedTokenInfo
-      const tokenImports = useUserAddedTokens()
+
       const showImport =
         token &&
         !extendCurrency?.isWhitelisted &&
         !tokenImports.find(importedToken => importedToken.address === token.address) &&
         !isTokenNative(currency, currency.chainId)
-
       if (showImport && token && setImportToken) {
         return <ImportRow style={style} token={token} setImportToken={setImportToken} dim={true} />
       }
@@ -261,15 +248,24 @@ function CurrencyList({
       if (currency) {
         // whitelist
 
+        const isFavorite = (() => {
+          if (currency.isToken && favoriteTokens) {
+            const addr = (currency as Token).address ?? ''
+            return !!favoriteTokens?.includes(addr) || !!favoriteTokens?.includes(addr.toLowerCase())
+          }
+          return false
+        })()
+
         return (
           <CurrencyRow
+            isFavorite={isFavorite}
+            showLoading={!!account}
             showImported={showImported}
             handleClickFavorite={handleClickFavorite}
             removeImportedToken={removeImportedToken}
             style={{ ...style, ...itemStyle }}
             currency={currency}
             currencyBalance={currencyBalance}
-            customBalance={canShowBalance ? undefined : <div />}
             isSelected={isSelected}
             showFavoriteIcon={showFavoriteIcon}
             onSelect={onCurrencySelect}
@@ -290,8 +286,9 @@ function CurrencyList({
       removeImportedToken,
       itemStyle,
       showFavoriteIcon,
-      chainId,
-      customChainId,
+      tokenImports,
+      account,
+      favoriteTokens,
     ],
   )
   const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])
