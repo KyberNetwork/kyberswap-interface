@@ -181,61 +181,55 @@ describe('E2E Smoke', { tags: TAG.smoke }, () => {
             })
         }
     })
-
-    describe(`Swap > Limit > Cross-Chain`, () => {
-        it('Should be selected tokenIn and tokenOut to swap', () => {
-            tokenCatalog.importNewTokens([arrAddress[2]])
-            SwapPage.getCurrentTokenIn(text => {
-                expect(text).to.equal(arrSymbol[2])
-            })
-
-            SwapPage.selectTokenOut().getFavoriteTokens(arr => {
-                tokenCatalog.selectFavoriteToken(arr[0])
-                SwapPage.getCurrentTokenOut(text => {
-                    expect(text).to.equal(arr[0])
-                })
-            })
-
-            SwapPage.goToLimitOrder()
-            LimitOder.checkGetStartedDisplay().then((checked) => {
-                if (checked === true) {
-                    LimitOder.clickGetStarted()
-                }
-            })
-            LimitOder.selectTokenSell().selectTokenBySymbol(tokenSymbols[0])
-            LimitOder.getCurrentTokenSell((text) => {
-                expect(text).to.equal(tokenSymbols[0])
-            })
-
-            LimitOder.selectTokenBuy().addFavoriteToken([tokenSymbols[0], tokenSymbols[4]])
-            tokenCatalog.getFavoriteTokens((list) => {
-                expect(list).to.include.members([tokenSymbols[4]])
-            })
-
-            tokenCatalog.selectFavoriteToken(tokenSymbols[4])
-            LimitOder.getCurrentTokenBuy((text) => {
-                expect(text).to.equal(tokenSymbols[4])
-            })
-
-            SwapPage.goToCrossChain()
-            CrossChain.checkLoadedPage().then((checked) => {
-                if (checked === true) {
-                    CrossChain.closeUnderstandPopup()
-                }
-            })
-            CrossChain.selectTokenIn().selectTokenBySymbol(tokenSymbols[0])
-            CrossChain.getCurrentTokenIn((text) => {
-                expect(text).to.equal(tokenSymbols[0])
-            })
-
-            SwapPage.selectTokenOut().getFavoriteTokens(arr => {
-                tokenCatalog.selectFavoriteToken(arr[0])
-                CrossChain.getCurrentTokenOut(text => {
-                    expect(text).to.equal(arr[0])
-                })
-            })
-
+    it('Swap > Limit Order > Cross-Chain', () => {
+        tokenCatalog.importNewTokens([arrAddress[2]])
+        SwapPage.getCurrentTokenIn(text => {
+            expect(text).to.equal(arrSymbol[2])
         })
+
+        SwapPage.selectTokenOut().getFavoriteTokens(arr => {
+            tokenCatalog.selectFavoriteToken(arr[0])
+            SwapPage.getCurrentTokenOut(text => {
+                expect(text).to.equal(arr[0])
+            })
+        })
+
+        SwapPage.goToLimitOrder()
+        LimitOder.checkGetStartedDisplay().then((checked) => {
+            if (checked === true) {
+                LimitOder.clickGetStarted()
+            }
+        })
+        LimitOder.selectTokenSell().selectTokenBySymbol(tokenSymbols[0])
+        LimitOder.getCurrentTokenSell((text) => {
+            expect(text).to.equal(tokenSymbols[0])
+        })
+
+        LimitOder.selectTokenBuy().addFavoriteToken([tokenSymbols[0], tokenSymbols[4]])
+        tokenCatalog.getFavoriteTokens((list) => {
+            expect(list).to.include.members([tokenSymbols[4]])
+        })
+
+        tokenCatalog.selectFavoriteToken(tokenSymbols[4])
+        LimitOder.getCurrentTokenBuy((text) => {
+            expect(text).to.equal(tokenSymbols[4])
+        })
+
+        SwapPage.goToCrossChain()
+        cy.wait(2000)
+        CrossChain.closeUnderstandPopup()
+        CrossChain.selectTokenIn().selectTokenBySymbol(tokenSymbols[0])
+        CrossChain.getCurrentTokenIn((text) => {
+            expect(text).to.equal(tokenSymbols[0])
+        })
+
+        CrossChain.getCurrentNetworkOut().then((currentNetworkOut) => {
+            CrossChain.selectTokenOut().selectTokenBySymbol(TOKEN_SYMBOLS[currentNetworkOut][1])
+            CrossChain.getCurrentTokenOut((text) => {
+                expect(text).to.equal(TOKEN_SYMBOLS[currentNetworkOut][1])
+            })
+        })
+
     })
 
 })
