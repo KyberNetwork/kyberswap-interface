@@ -84,9 +84,15 @@ export default function Liquidity({ walletAddresses, chainIds }: { chainIds: Cha
                   </Badge>
                 ) : null}
               </RowFit>
-              <Text fontSize="10px" lineHeight="14px">
-                {getShortenAddress(item.balance.userAddress)}
-              </Text>
+              <RowFit
+                gap="2px"
+                color={item.balance.userAddress.toLowerCase() === account.toLowerCase() ? theme.primary : theme.subText}
+              >
+                <Wallet size={14} />
+                <Text fontSize="10px" lineHeight="14px">
+                  {getShortenAddress(item.balance.userAddress)}
+                </Text>
+              </RowFit>
             </Column>
           </Row>
         )
