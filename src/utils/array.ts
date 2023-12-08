@@ -1,4 +1,5 @@
 export const chunk = <T>(arr: readonly T[], chunkSize: number): T[][] => {
+  if (chunkSize < 1) throw new Error('chunkSize must be gte 1')
   const result = []
   for (let i = 0; i < arr.length; i += chunkSize) {
     result.push(arr.slice(i, i + chunkSize))

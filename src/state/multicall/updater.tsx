@@ -8,7 +8,7 @@ import { useMulticallContract } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
 import { useBlockNumber } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
-import chunkArray from 'utils/chunkArray'
+import { chunk } from 'utils/array'
 import { CancelledError, RetryableError, retry } from 'utils/retry'
 
 import {
@@ -177,7 +177,7 @@ export default function Updater(): null {
     if (outdatedCallKeys.length === 0) return
     const calls = outdatedCallKeys.map(key => parseCallKey(key))
 
-    const chunkedCalls = chunkArray(calls, CALL_CHUNK_SIZE)
+    const chunkedCalls = chunk(calls, CALL_CHUNK_SIZE)
 
     if (cancellations.current?.blockNumber !== latestBlockNumber) {
       cancellations.current?.cancellations?.forEach(c => c())
