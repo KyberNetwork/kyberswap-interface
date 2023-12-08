@@ -171,20 +171,6 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
     mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: Number(formatSlippage(rawSlippage, false)) })
   }
 
-  const handleKeyPressInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const key = e.key
-    if (key === '.' || ('0' <= key && key <= '9')) {
-      return
-    }
-
-    if (key === 'Enter') {
-      inputRef.current?.blur()
-      return
-    }
-
-    e.preventDefault()
-  }
-
   useEffect(() => {
     if (inputRef.current !== document.activeElement) {
       setRawText(getSlippageText(rawSlippage))
@@ -207,7 +193,6 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
           placeholder={t`Custom`}
           value={rawText}
           onChange={handleChangeInput}
-          onKeyPress={handleKeyPressInput}
           onBlur={handleCommitChange}
         />
         <Text

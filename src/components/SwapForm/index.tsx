@@ -10,6 +10,7 @@ import { parseGetRouteResponse } from 'services/route/utils'
 import styled from 'styled-components'
 
 import AddressInputPanel from 'components/AddressInputPanel'
+import FeeControlGroup from 'components/FeeControlGroup'
 import { Clock } from 'components/Icons'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { AutoRow } from 'components/Row'
@@ -261,6 +262,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
             <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} isStablePairSwap={isStablePairSwap} />
+            <FeeControlGroup />
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
