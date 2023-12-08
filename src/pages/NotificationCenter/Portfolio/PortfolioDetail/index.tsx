@@ -107,8 +107,8 @@ export default function PortfolioDetail() {
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const showOverview = !wallet && !portfolioId
 
-  const { isLoading: loading, data } = useGetMyPortfoliosQuery()
-  const isLoading = useShowLoadingAtLeastTime(loading, 300)
+  const { isLoading: loading, data, isError } = useGetMyPortfoliosQuery()
+  const isLoading = useShowLoadingAtLeastTime(loading || isError, 300)
   const navigate = useNavigateToMyFirstPortfolio()
   const navigateToMyPortfolio = useCallback(() => navigate(data, true), [data, navigate])
 

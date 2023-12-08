@@ -79,7 +79,7 @@ const ButtonCreatePortfolio = ({ portfolioOptions }: { portfolioOptions: Portfol
   const _onAddWallet = useAddWalletToPortfolio()
   const onAddWallet = (data: PortfolioWalletPayload) => _onAddWallet({ ...data, portfolioId: walletInfo.portfolioId })
 
-  const isMaximum = portfolioOptions.length >= MAXIMUM_PORTFOLIO && !wallet
+  const isMaximum = portfolioOptions.length >= MAXIMUM_PORTFOLIO && !!portfolioId
 
   const addWalletOptions: SelectOption[] = useMemo(() => {
     const opts = portfolioOptions.map(({ portfolio, totalUsd }) => ({
@@ -101,7 +101,8 @@ const ButtonCreatePortfolio = ({ portfolioOptions }: { portfolioOptions: Portfol
     return opts
   }, [portfolioOptions, wallet, navigate])
 
-  if (!account || portfolioOptions.some(({ portfolio }) => portfolio.id === portfolioId) || isMaximum)
+  if (!account || portfolioOptions.some(({ portfolio }) => portfolio.id === portfolioId) || isMaximum) {
+    // visit my portfolio or not connect wallet
     return (
       <MouseoverTooltip
         containerStyle={{
@@ -140,6 +141,7 @@ const ButtonCreatePortfolio = ({ portfolioOptions }: { portfolioOptions: Portfol
         </ButtonPrimary>
       </MouseoverTooltip>
     )
+  }
 
   const addPortfolioOptions = [
     {
