@@ -84,19 +84,21 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
   const feeAmount = searchParams.get('feeAmount') || ''
   const chargeFeeBy = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.NONE
+  const enableTip = searchParams.get('enableTip') || ''
   const isInBps = searchParams.get('isInBps') || ''
   const feeReceiver = searchParams.get('feeReceiver') || ''
 
   const feeConfigFromUrl = useMemo(() => {
-    if (feeAmount && chargeFeeBy && isInBps && feeReceiver)
+    if (feeAmount && chargeFeeBy && (enableTip || isInBps) && feeReceiver)
       return {
         feeAmount,
         chargeFeeBy,
-        isInBps,
+        enableTip,
+        isInBps: enableTip ? '1' : isInBps,
         feeReceiver,
       }
     return null
-  }, [feeAmount, chargeFeeBy, isInBps, feeReceiver])
+  }, [feeAmount, chargeFeeBy, enableTip, isInBps, feeReceiver])
 
   const [trigger, _result] = routeApi.useLazyGetRouteQuery()
   const aggregatorDomain = useRouteApiDomain()
