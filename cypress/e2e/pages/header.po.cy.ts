@@ -1,6 +1,5 @@
 import {
   CrossChainLocators,
-  HeaderLocators,
   LimitOrderLocators,
   NetworkLocators,
   SwapPageLocators,

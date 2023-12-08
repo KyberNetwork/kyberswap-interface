@@ -1,6 +1,5 @@
 import {
   CrossChainLocators,
-  HeaderLocators,
   LimitOrderLocators,
   NetworkLocators,
   SwapPageLocators,
@@ -55,19 +54,12 @@ export const SwapPage = {
     cy.get(CrossChainLocators.btnCrossChain).click()
   },
 
-  goToFarmPage() {
-    cy.get(HeaderLocators.dropdownEarn).click({ force: true })
-    cy.get(HeaderLocators.lblFarms).click({ force: true })
+  getBalanceWallet(text: myCallbackType<string>) {
+    cy.getContent(WalletLocators.lblBalance, text)
   },
 
-  goToPoolPage() {
-    cy.get(HeaderLocators.dropdownEarn).click({ force: true })
-    cy.get(HeaderLocators.lblPools).click({ force: true })
-  },
-
-  goToMyPoolsPage() {
-    cy.get(HeaderLocators.dropdownEarn).click({ force: true })
-    cy.get(HeaderLocators.lblMyPools).click({ force: true })
+  getCurrentBalanceIn(text: myCallbackType<string>) {
+    cy.getContent(SwapPageLocators.lblBalanceIn, text)
   },
 }
 
