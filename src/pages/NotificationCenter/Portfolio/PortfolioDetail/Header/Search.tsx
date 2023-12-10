@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { isMacOs, isMobile } from 'react-device-detect'
 import { Star } from 'react-feather'
 import { useLocalStorage, useMedia } from 'react-use'
@@ -18,13 +18,13 @@ import Avatar from 'components/Avatar'
 import History from 'components/Icons/History'
 import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
+import SearchWithDropdown, { SearchSection } from 'components/Search/SearchWithDropdown'
 import { EMPTY_ARRAY } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import { useNavigateToPortfolioDetail } from 'pages/NotificationCenter/Portfolio/helpers'
 import { PortfolioSearchData } from 'pages/NotificationCenter/Portfolio/type'
-import { SearchSection, SearchWithDropdown } from 'pages/TrueSightV2/components/SearchWithDropDown'
 import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -122,12 +122,16 @@ export default function Search() {
   const [history, setHistory] = useLocalStorage<Array<PortfolioSearchData>>('portfolios-history', [])
   const searchDebounced = useDebounce(search, 500)
 
-  const saveToHistory = (data: PortfolioSearchData) => {
-    const list = history || []
-    if (!list.some(t => getPortfolioId(t) === getPortfolioId(data))) {
-      setHistory([data, ...list].slice(0, 3))
-    }
-  }
+  const saveToHistory = useCallback(
+    (data: PortfolioSearchData) => {
+      const list = history || []
+      if (!list.some(t => getPortfolioId(t) === getPortfolioId(data))) {
+        setHistory([data, ...list].slice(0, 3))
+      }
+    },
+    [history, setHistory],
+  )
+
   const { data: favorites = EMPTY_ARRAY, isLoading: isLoadingFavorite } = useGetFavoritesPortfoliosQuery(undefined, {
     skip: !expanded,
   })
@@ -146,78 +150,77 @@ export default function Search() {
 
   const isSearching = useShowLoadingAtLeastTime(isLoadingSearch || isLoadingFavorite || isLoadingTrending, 500)
 
-  const onSelect = (data: PortfolioSearchData) => {
-    setExpanded(false)
-    setTimeout(() => {
-      saveToHistory(data)
-    }, 300)
-  }
+  const onSelect = useCallback(
+    (data: PortfolioSearchData) => {
+      setExpanded(false)
+      setTimeout(() => {
+        saveToHistory(data)
+      }, 300)
+    },
+    [saveToHistory],
+  )
 
-  const itemTrending = trending.map(e => (
-    <PortfolioItem favorites={favorites} key={getPortfolioId(e)} onSelect={onSelect} data={e} />
-  ))
-  const itemSearch = searchData.map(e => (
-    <PortfolioItem favorites={favorites} key={getPortfolioId(e)} onSelect={onSelect} data={e} />
-  ))
-  const itemFavorite = favorites.map(e => (
-    <PortfolioItem favorites={favorites} key={getPortfolioId(e)} onSelect={onSelect} data={e} />
-  ))
-  const itemHistory =
-    history?.map(e => <PortfolioItem favorites={favorites} key={getPortfolioId(e)} onSelect={onSelect} data={e} />) ||
-    EMPTY_ARRAY
+  const getItemsSearch = useCallback(
+    (arr: PortfolioSearchData[] | undefined) =>
+      arr?.map(e => <PortfolioItem favorites={favorites} key={getPortfolioId(e)} onSelect={onSelect} data={e} />) ||
+      EMPTY_ARRAY,
+    [favorites, onSelect],
+  )
 
-  // todo memo, and kyberAI
-  const sections: SearchSection[] = searchData?.length
-    ? [
-        {
-          items: itemSearch,
-          title: (
-            <RowFit>
-              <Text fontSize="12px">Search Result</Text>
-            </RowFit>
-          ),
-        },
-      ]
-    : [
-        {
-          title: (
-            <RowFit color={theme.subText} gap="6px">
-              <History />
-              <Text fontSize="12px" fontWeight={'500'}>
-                Search History
-              </Text>
-            </RowFit>
-          ),
-          items: itemHistory,
-          show: !!history?.length,
-        },
-        {
-          title: (
-            <RowFit color={theme.subText} gap="6px">
-              <Star size={17} fill={theme.subText} />
-              <Text fontSize="12px" fontWeight={'500'}>
-                Favorites
-              </Text>
-            </RowFit>
-          ),
-          items: itemFavorite,
-          loading: isLoadingFavorite,
-          show: !!favorites.length && !isLoadingFavorite,
-        },
-        {
-          title: (
-            <RowFit color={theme.subText} gap="6px">
-              <Icon id="flame" size={16} />
-              <Text fontSize="12px" fontWeight={'500'}>
-                Trending
-              </Text>
-            </RowFit>
-          ),
-          items: itemTrending,
-          loading: isLoadingTrending,
-          show: !!trending.length && !isLoadingTrending,
-        },
-      ]
+  const sections: SearchSection[] = useMemo(() => {
+    return searchData?.length
+      ? [
+          {
+            items: getItemsSearch(searchData),
+            title: (
+              <RowFit>
+                <Text fontSize="12px">Search Result</Text>
+              </RowFit>
+            ),
+          },
+        ]
+      : [
+          {
+            title: (
+              <RowFit color={theme.subText} gap="6px">
+                <History />
+                <Text fontSize="12px" fontWeight={'500'}>
+                  Search History
+                </Text>
+              </RowFit>
+            ),
+            items: getItemsSearch(history),
+            show: !!history?.length,
+          },
+          {
+            title: (
+              <RowFit color={theme.subText} gap="6px">
+                <Star size={17} fill={theme.subText} />
+                <Text fontSize="12px" fontWeight={'500'}>
+                  Favorites
+                </Text>
+              </RowFit>
+            ),
+            items: getItemsSearch(favorites),
+            loading: isLoadingFavorite,
+            show: !!favorites.length && !isLoadingFavorite,
+          },
+          {
+            title: (
+              <RowFit color={theme.subText} gap="6px">
+                <Icon id="flame" size={16} />
+                <Text fontSize="12px" fontWeight={'500'}>
+                  Trending
+                </Text>
+              </RowFit>
+            ),
+            items: getItemsSearch(trending),
+            loading: isLoadingTrending,
+            show: !!trending.length && !isLoadingTrending,
+          },
+        ]
+  }, [theme, trending, favorites, history, isLoadingFavorite, isLoadingTrending, searchData, getItemsSearch])
+
   return (
     <SearchWithDropdown
       searching={isSearching}

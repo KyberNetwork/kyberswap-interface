@@ -13,14 +13,12 @@ type Props = {
   redirectUrl?: string
 }
 
-// todo generic it
 const useSubscribeChangeUserInfo = () => {
   const { userInfo } = useSessionInfo()
   const invalidateTags = useInvalidateTagPortfolio()
   const prevIdentityId = usePrevious(userInfo?.identityId)
 
   useEffect(() => {
-    // todo
     if (prevIdentityId && prevIdentityId !== userInfo?.identityId) {
       try {
         invalidateTags([

@@ -5,7 +5,6 @@ import useTheme from 'hooks/useTheme'
 
 const defaultWidth = 204
 const defaultHeight = 72
-// todo move
 export default function KyberSwapShareLogo({ width = defaultWidth, title }: { width?: number; title?: ReactNode }) {
   const theme = useTheme()
 

@@ -300,7 +300,6 @@ const AddressPanel = ({
   )
 
   const formatPortfolio = useMemo(() => {
-    // todo
     return portfolioOptions
       .filter(e => !e.active)
       .map(({ portfolio, totalUsd }) => ({

@@ -14,7 +14,6 @@ const TokenAmountWrapper = styled.div`
   font-size: 12px;
 `
 
-// todo move
 const DeltaTokenAmount = ({
   symbol,
   amount,

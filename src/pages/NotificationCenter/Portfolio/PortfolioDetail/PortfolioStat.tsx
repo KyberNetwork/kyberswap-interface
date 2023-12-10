@@ -20,7 +20,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
 import MultipleChainSelect from 'components/Select/MultipleChainSelect'
 import ShareImageModal from 'components/ShareModal/ShareImageModal'
-import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
+import { APP_PATHS, CHAINS_SUPPORT_PORTFOLIO, EMPTY_ARRAY } from 'constants/index'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
@@ -45,17 +45,6 @@ import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
 import { isInEnum, shortString } from 'utils/string'
-
-// todo
-const chainSupport = [
-  ChainId.MAINNET,
-  ChainId.ARBITRUM,
-  ChainId.OPTIMISM,
-  ChainId.MATIC,
-  ChainId.BSCMAINNET,
-  ChainId.AVAXMAINNET,
-  ChainId.FANTOM,
-]
 
 const useFetchPortfolio = (): {
   wallets: PortfolioWallet[]
@@ -150,8 +139,8 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
     [wallets, wallet],
   )
 
-  const [chainIds, setChainIds] = useState<ChainId[]>([...chainSupport])
-  const isAllChain = chainIds.length === chainSupport.length
+  const [chainIds, setChainIds] = useState<ChainId[]>([...CHAINS_SUPPORT_PORTFOLIO])
+  const isAllChain = chainIds.length === CHAINS_SUPPORT_PORTFOLIO.length
 
   const { isLoading: isLoadingRealtimeData, data: currentData } = useGetRealtimeBalanceQuery(
     { walletAddresses: walletsQuery },
@@ -253,7 +242,7 @@ export default function PortfolioStat({ navigateToMyPortfolio }: { navigateToMyP
             />
           )}
           <MultipleChainSelect
-            chainIds={chainSupport}
+            chainIds={CHAINS_SUPPORT_PORTFOLIO}
             selectedChainIds={chainIds}
             handleChangeChains={handleChangeChains}
             style={{ height: '36px' }}

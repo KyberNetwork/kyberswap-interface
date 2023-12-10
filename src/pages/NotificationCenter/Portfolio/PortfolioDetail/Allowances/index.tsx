@@ -44,6 +44,7 @@ const SpenderCell = ({ value, item }: { value: string; item: TokenAllowAnce }) =
   )
 }
 
+type RefetchFn = () => void
 const ActionButton = ({
   item,
   revokeAllowance,
@@ -51,7 +52,7 @@ const ActionButton = ({
 }: {
   item: TokenAllowAnce
   revokeAllowance: (v: TokenAllowAnce) => void
-  refetch: any // todo
+  refetch: RefetchFn
 }) => {
   const theme = useTheme()
   const { amount, ownerAddress, tokenAddress, spenderAddress } = item
@@ -97,8 +98,10 @@ const ActionButton = ({
   )
 }
 
-const getColumns = (revokeAllowance: (v: TokenAllowAnce) => void, refetch: any): TableColumn<TokenAllowAnce>[] => [
-  // todo
+const getColumns = (
+  revokeAllowance: (v: TokenAllowAnce) => void,
+  refetch: RefetchFn,
+): TableColumn<TokenAllowAnce>[] => [
   {
     title: t`Asset`,
     dataIndex: 'token',

@@ -87,7 +87,7 @@ const TxsHashCell = ({ item: { txHash, blockTime, chain, walletAddress } }: { it
 const GasFeeCell = ({ item: { gasPrice, chain, nativeTokenPrice, gasUsed, gas } }: { item: TransactionHistory }) => {
   if (gasPrice === '0') return null
   const native = NativeCurrencies[chain?.chainId as ChainId]
-  const totalGas = uint256ToFraction(gasPrice, native.decimals).multiply(gasUsed || gas) // todo
+  const totalGas = uint256ToFraction(gasPrice, native.decimals).multiply(gasUsed || gas)
   const usdValue = +totalGas.toSignificant(native.decimals) * nativeTokenPrice
   return (
     <>
@@ -219,7 +219,7 @@ export default function Transactions({ chainIds, wallet }: { chainIds: ChainId[]
       endTime,
       chainIds,
       walletAddress: wallet,
-      tokenAddress: searchDebounce, // todo symbol+name
+      tokenAddress: searchDebounce,
     },
     { skip: !wallet },
   )
