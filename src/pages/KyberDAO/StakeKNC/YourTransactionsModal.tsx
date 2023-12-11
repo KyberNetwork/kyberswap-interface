@@ -32,7 +32,7 @@ const Wrapper = styled.div`
   width: 100%;
   padding: 20px;
 `
-const gridTemplate = `5fr 3fr 3fr 3fr`
+const gridTemplate = `5fr 3fr 3fr 200px`
 const gridTemplateMobile = '1fr 1fr'
 const TableWrapper = styled.div`
   display: flex;
@@ -283,7 +283,7 @@ export default function YourTransactionsModal() {
                           </Row>
                         </TableCell>
                         <TableCell>
-                          <AutoColumn justify="flex-end" style={{ width: '100%' }}>
+                          <AutoColumn justify="flex-end" style={{ width: '100%', flexShrink: 0 }}>
                             {action.description}
                           </AutoColumn>
                         </TableCell>

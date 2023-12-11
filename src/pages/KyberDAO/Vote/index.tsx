@@ -336,8 +336,7 @@ export default function Vote() {
                           </AutoColumn>
                         }
                       />
-                    ) : null}
-                    {totalStakedAmount && stakerInfo?.stake_amount === 0 && !isDelegated ? (
+                    ) : totalStakedAmount && stakerInfo?.stake_amount === 0 && !isDelegated ? (
                       <InfoHelper
                         fontSize={12}
                         size={14}
@@ -345,15 +344,15 @@ export default function Vote() {
                         placement="top"
                         text={t`You can only vote from the next Epoch onward`}
                       />
+                    ) : !totalStakedAmount ? (
+                      <InfoHelper
+                        fontSize={12}
+                        size={14}
+                        placement="top"
+                        text={t`You have to stake KNC to be able to vote and earn voting reward.`}
+                      />
                     ) : null}
                   </Text>
-                  {!totalStakedAmount ? (
-                    <InfoHelper
-                      placement="top"
-                      fontSize={12}
-                      text={t`You have to stake KNC to be able to vote and earn voting reward.`}
-                    />
-                  ) : null}
                 </RowFit>
                 {isDelegated && (
                   <MouseoverTooltip
