@@ -1,47 +1,15 @@
 import { ReactNode } from 'react'
 import { FileText, Repeat } from 'react-feather'
-import { DefaultTheme } from 'styled-components'
 
 import { ReactComponent as ApproveIcon } from 'assets/svg/approve_icon.svg'
-import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
-import { ReactComponent as CrossChain } from 'assets/svg/cross_chain_icon.svg'
-import { ReactComponent as ThunderIcon } from 'assets/svg/thunder_icon.svg'
-import { MoneyBag } from 'components/Icons'
-import IconFailure from 'components/Icons/Failed'
-import IconSprite from 'components/Icons/Icon'
 import SendIcon from 'components/Icons/SendIcon'
-import StakeIcon from 'components/Icons/Stake'
-import useTheme from 'hooks/useTheme'
-import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 
-const MAP_ICON_BY_TYPE: (theme?: DefaultTheme) => Partial<Record<TRANSACTION_TYPE, ReactNode>> = (
-  theme?: DefaultTheme,
-) => ({
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} color={theme?.subText} />,
-  [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: <IconFailure size={18} />,
-  [TRANSACTION_TYPE.BRIDGE]: <BridgeIcon />,
-  [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: <CrossChain />,
-  [TRANSACTION_TYPE.APPROVE]: <ApproveIcon width={20} height={22} />,
-  [TRANSACTION_TYPE.CLAIM_REWARD]: <MoneyBag size={18} />,
-  [TRANSACTION_TYPE.TRANSFER_TOKEN]: <SendIcon />,
-  [TRANSACTION_TYPE.KYBERDAO_STAKE]: <StakeIcon size={18} />,
-  [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: <ThunderIcon />,
-  [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: <StakeIcon size={18} style={{ transform: 'scaleY(-1)' }} />,
-  [TRANSACTION_TYPE.SWAP]: <Repeat size={16} />,
-})
-
-const Icon = ({ txs }: { txs: TransactionDetails }) => {
-  const theme = useTheme()
-  const icon = MAP_ICON_BY_TYPE(theme)[txs.type] || <Repeat size={16} />
-  return icon as JSX.Element
-}
-// todo have a task to remove wallet txs
-
-// todo
-export const getTxsIcon = (type: any) => {
-  const map = MAP_ICON_BY_TYPE()
-  const key = Object.keys(map).find(key => key.toLowerCase() === type.toLowerCase()) as TRANSACTION_TYPE
-  return map[key] || <FileText size={16} />
+const MAP_ICON_BY_TYPE: Record<string, ReactNode> = {
+  approve: <ApproveIcon width={20} height={22} />,
+  send: <SendIcon />,
+  swap: <Repeat size={16} />,
 }
 
-export default Icon
+export const getTxsIcon = (type: string) => {
+  return MAP_ICON_BY_TYPE[type.toLowerCase()] || <FileText size={16} />
+}

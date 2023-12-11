@@ -196,7 +196,6 @@ const LoadingData = () => [
   },
 ]
 
-// todo danh test my earning
 const EarningPieChart: React.FC<Props> = ({
   data,
   totalValue = '',

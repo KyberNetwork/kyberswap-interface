@@ -24,7 +24,7 @@ export const formatAllowance = (value: string, decimals: number) => {
     ethers.BigNumber.from('1000000000000000000000000000000000000000000000000000000000000000'),
   )
     ? t`Unlimited`
-    : formatDisplayNumber(uint256ToFraction(value, decimals), { style: 'decimal', significantDigits: 6 }) // todo uint256ToFraction
+    : formatDisplayNumber(uint256ToFraction(value, decimals), { style: 'decimal', significantDigits: 6 })
 }
 
 export const useParseWalletPortfolioParam = () => {

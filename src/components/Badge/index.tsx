@@ -1,11 +1,8 @@
 import { readableColor } from 'polished'
 import { PropsWithChildren } from 'react'
-import { Text } from 'rebass'
 import styled, { DefaultTheme } from 'styled-components'
 
-import { DropdownArrowIcon } from 'components/ArrowRotate'
 import { Color } from 'theme/styled'
-import { formatDisplayNumber } from 'utils/numbers'
 
 export enum BadgeVariant {
   DEFAULT = 'DEFAULT',
@@ -87,18 +84,3 @@ const Badge = styled.div<PropsWithChildren<BadgeProps>>`
 `
 
 export default Badge
-
-// todo update my earning use this
-export const PercentBadge = ({ percent }: { percent: number }) => {
-  return (
-    <Badge
-      variant={percent ? BadgeVariant.PRIMARY : BadgeVariant.NEGATIVE}
-      style={{ padding: '2px 10px 2px 2px', height: 'fit-content' }}
-    >
-      <DropdownArrowIcon rotate={percent > 0} />{' '}
-      <Text fontSize={'12px'} as="span" fontWeight={'500'}>
-        {formatDisplayNumber(percent, { style: 'percent', fractionDigits: 2 })}
-      </Text>
-    </Badge>
-  )
-}

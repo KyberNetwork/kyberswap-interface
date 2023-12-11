@@ -216,7 +216,6 @@ const ShareImage = ({ imageUrl }: { imageUrl: string }) =>
   ) : null
 
 const debug = false
-// todo move another file, check open popup auto upload image ???, my earning, split file
 enum ShareType {
   TELEGRAM = 'telegram',
   FB = 'facebook',

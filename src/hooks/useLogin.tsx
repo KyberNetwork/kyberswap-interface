@@ -111,12 +111,12 @@ const useLogin = (autoLogin = false) => {
         console.log('sign in anonymous err', error)
         hasError = true
       } finally {
+        setLoading(false)
         await getProfile({
           walletAddress: account,
           account: guestAccount,
           loginMethod: LoginMethod.ANONYMOUS,
         })
-        setLoading(false) // todo
         !hasError && showSuccessMsg && showSignInSuccess(guestAccount, LoginMethod.ANONYMOUS)
       }
     },

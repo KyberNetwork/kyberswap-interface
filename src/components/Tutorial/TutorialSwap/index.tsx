@@ -398,7 +398,6 @@ const getListSteps = (isLogin: boolean) => {
   ])
 }
 
-// todo move
 export const TutorialKeys = {
   SHOWED_SWAP_GUIDE: 'showedTutorialSwapGuide',
   SHOWED_LO_GUIDE: 'showedTutorialLO',
