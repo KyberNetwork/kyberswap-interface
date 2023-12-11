@@ -379,6 +379,13 @@ export function CurrencySearch({
     tokenImports?.forEach(removeImportedToken)
   }
 
+  const onChangeTab = (tab: Tab) => {
+    if (!debouncedQuery && tab === Tab.All) {
+      setFetchedTokens(Object.values(defaultTokens))
+    }
+    setActiveTab(tab)
+  }
+
   return (
     <ContentWrapper>
       <PaddedColumn gap="14px">
@@ -446,13 +453,13 @@ export function CurrencySearch({
               columnGap: '24px',
             }}
           >
-            <TabButton data-active={activeTab === Tab.All} onClick={() => setActiveTab(Tab.All)} data-testid="tab-all">
+            <TabButton data-active={activeTab === Tab.All} onClick={() => onChangeTab(Tab.All)} data-testid="tab-all">
               <Text as="span" fontSize={14} fontWeight={500}>
                 <Trans>All</Trans>
               </Text>
             </TabButton>
 
-            <TabButton data-active={isImportedTab} onClick={() => setActiveTab(Tab.Imported)} data-testid="tab-import">
+            <TabButton data-active={isImportedTab} onClick={() => onChangeTab(Tab.Imported)} data-testid="tab-import">
               <Text as="span" fontSize={14} fontWeight={500}>
                 <Trans>Imported</Trans>
               </Text>

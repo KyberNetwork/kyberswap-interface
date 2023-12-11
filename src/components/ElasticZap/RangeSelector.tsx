@@ -9,7 +9,7 @@ import { FeeSelectorWrapper, SelectWrapper, SelectWrapperOuter } from 'component
 import { TwoWayArrow } from 'components/Icons'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { RANGE_LIST, rangeData } from 'pages/AddLiquidityV2/constants'
+import { RANGE_LIST, getRangeData } from 'pages/AddLiquidityV2/constants'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { Bound, RANGE } from 'state/mint/proamm/type'
 import { getRecommendedRangeTicks } from 'state/mint/proamm/utils'
@@ -115,6 +115,8 @@ export default function RangeSelector({
     }),
     [pool.fee],
   )
+
+  const rangeData = getRangeData()
 
   return (
     <FeeSelectorWrapper role="button" onClick={() => setShow(prev => !prev)} ref={ref}>

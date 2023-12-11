@@ -529,22 +529,26 @@ export const useFarmAction = (
   return { deposit, withdraw, approve, stake, unstake, harvest, emergencyWithdraw, depositAndJoin }
 }
 
-const filterOptions = [
-  {
-    code: 'in_rage',
-    value: t`In range`,
-  },
-  {
-    code: 'out_range',
-    value: t`Out of range`,
-  },
-  {
-    code: 'all',
-    value: t`All positions`,
-  },
-] as const
 export const usePositionFilter = (positions: PositionDetails[], validPools: string[], includeClosedPos = false) => {
   const [activeFilter, setActiveFilter] = useState<typeof filterOptions[number]['code']>('all')
+
+  const filterOptions = useMemo(
+    () => [
+      {
+        code: 'in_rage',
+        value: t`In range`,
+      },
+      {
+        code: 'out_range',
+        value: t`Out of range`,
+      },
+      {
+        code: 'all',
+        value: t`All positions`,
+      },
+    ],
+    [],
+  )
 
   const tokenList = useMemo(() => {
     if (!positions) return []

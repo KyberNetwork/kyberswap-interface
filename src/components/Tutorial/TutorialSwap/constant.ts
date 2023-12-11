@@ -36,7 +36,7 @@ export const TutorialIds = {
   BUTTON_VIEW_GUIDE_SWAP: 'btnViewGuideSwap',
 }
 
-export const LIST_TITLE = {
+export const LIST_TITLE = () => ({
   WELCOME: t`Welcome to KyberSwap - Trading Smart!`,
   YOUR_WALLET: t`Your wallet address`,
   CONNECT_WALLET: t`Connect a wallet`,
@@ -49,4 +49,4 @@ export const LIST_TITLE = {
   KYBER_DAO: t`KyberDAO`,
   VIEW_GUIDE: t`View our KyberSwap Guide again`,
   BRIDGE: t`Place Limit Orders, Bridge Tokens or Buy Crypto`,
-}
+})

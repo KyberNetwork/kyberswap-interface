@@ -13,7 +13,7 @@ import { ExternalLink } from 'theme'
 const parser = new UAParser(window.navigator.userAgent)
 const userAgent = parser.getResult()
 
-const predefinedErrors = [
+const predefinedErrors = () => [
   {
     name: 'LocalStorageAccessDenied',
     match: (e: Error) => {
@@ -90,19 +90,19 @@ type Props = {
 }
 const FallbackView: React.FC<Props> = ({ error }) => {
   const encodedBody = encodeURIComponent(issueBody(error))
-  const foundError = predefinedErrors.find(err => err.match(error))
+  const foundError = predefinedErrors().find(err => err.match(error))
 
   return (
     <FallbackWrapper>
       <BodyWrapper>
         <AutoColumn gap={'lg'} justify="center">
           <Text textAlign="center" fontSize="24px" maxWidth={'600px'}>
-            <Trans>{foundError?.title || 'Oops! Something went wrong'}</Trans>
+            {foundError?.title || <Trans>Oops! Something went wrong</Trans>}
           </Text>
 
           {foundError?.description ? (
             <Text textAlign="center" fontSize="16px" maxWidth={'600px'} marginTop="16px">
-              <Trans>{foundError.description}</Trans>
+              {foundError.description}
             </Text>
           ) : (
             <>

@@ -1,10 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { stringify } from 'querystring'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -16,7 +15,6 @@ import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { isInEnum } from 'utils/string'
@@ -25,40 +23,27 @@ import { PoolClassicIcon, PoolElasticIcon } from './Icons'
 import { MouseoverTooltip } from './Tooltip'
 
 function ClassicElasticTab() {
+  const navigate = useNavigate()
+  const theme = useTheme()
+  const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const isFarmPage = location.pathname.startsWith(APP_PATHS.FARMS)
+  const isMyPoolPage = location.pathname.startsWith(APP_PATHS.MY_POOLS)
+
   const { positions, farmPositions } = useElasticLegacy(false)
   const { claimInfo } = useElasticCompensationData(false)
   const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
   const shouldShowPositionTab = !!positions.length
 
-  const { tab: tabQS = VERSION.ELASTIC, skipAlert, ...qs } = useParsedQueryString<{ tab: string }>()
-
-  const tab = isInEnum(tabQS, VERSION) ? tabQS : VERSION.ELASTIC
+  const params = Object.fromEntries(searchParams)
+  const { tab: tabQs = isMyPoolPage ? VERSION.ELASTIC : VERSION.CLASSIC, ...qs } = params
+  const tab = isInEnum(tabQs, VERSION) ? tabQs : VERSION.ELASTIC
 
   const { chainId } = useActiveWeb3React()
-  const notSupportedElasticMsg = ELASTIC_NOT_SUPPORTED[chainId]
+  const notSupportedElasticMsg = ELASTIC_NOT_SUPPORTED()[chainId]
+  const notSupportedClassicMsg = CLASSIC_NOT_SUPPORTED()[chainId]
 
-  const notSupportedClassicMsg = CLASSIC_NOT_SUPPORTED[chainId]
-
-  const theme = useTheme()
-  const location = useLocation()
-  const navigate = useNavigate()
-
-  const isFarmPage = location.pathname.startsWith(APP_PATHS.FARMS)
-  const isMyPoolPage = location.pathname.startsWith(APP_PATHS.MY_POOLS)
-  const [isOpenElasticHacked, setOpenElasticHacked] = useState(
-    isMyPoolPage ? false : tab === VERSION.ELASTIC && !notSupportedElasticMsg && !skipAlert,
-  )
-
-  useEffect(() => {
-    if (isMyPoolPage) return
-    if (notSupportedClassicMsg) {
-      setOpenElasticHacked(!skipAlert)
-    }
-    if (tab === VERSION.ELASTIC && !notSupportedElasticMsg) {
-      setOpenElasticHacked(!skipAlert)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, isMyPoolPage])
+  const isOpenElasticHacked = !isMyPoolPage && tab === VERSION.ELASTIC
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -70,9 +55,9 @@ function ClassicElasticTab() {
   useEffect(() => {
     if (dontShowLegacy && tab === VERSION.ELASTIC_LEGACY) {
       const newQs = { ...qs, tab: VERSION.ELASTIC }
-      navigate({ search: stringify(newQs) }, { replace: true })
+      setSearchParams(newQs)
     }
-  }, [tab, dontShowLegacy, navigate, qs])
+  }, [tab, dontShowLegacy, setSearchParams, qs])
 
   const legacyTag = (small?: boolean) => (
     <Text
@@ -96,7 +81,7 @@ function ClassicElasticTab() {
     if (!!notSupportedClassicMsg && version === VERSION.CLASSIC) return
     if (!!notSupportedElasticMsg && version !== VERSION.CLASSIC) return
     const newQs = { ...qs, tab: version }
-    navigate({ search: stringify(newQs) }, { replace: true })
+    setSearchParams(newQs)
   }
 
   const getColorOfElasticTab = () => {
@@ -144,12 +129,12 @@ function ClassicElasticTab() {
   useEffect(() => {
     if (!!notSupportedClassicMsg && tab === VERSION.CLASSIC) {
       const newQs = { ...qs, tab: VERSION.ELASTIC }
-      navigate({ search: stringify(newQs) }, { replace: true })
+      setSearchParams(newQs)
     } else if (!!notSupportedElasticMsg && tab !== VERSION.CLASSIC) {
       const newQs = { ...qs, tab: VERSION.CLASSIC }
-      navigate({ search: stringify(newQs) }, { replace: true })
+      setSearchParams(newQs)
     }
-  }, [navigate, notSupportedElasticMsg, notSupportedClassicMsg, qs, tab])
+  }, [setSearchParams, notSupportedElasticMsg, notSupportedClassicMsg, qs, tab])
 
   return (
     <Flex width="max-content">
@@ -282,12 +267,14 @@ function ClassicElasticTab() {
       <ElasticHackedModal
         isOpen={isOpenElasticHacked}
         onClose={() => {
-          setOpenElasticHacked(false)
-          handleSwitchTab(VERSION.CLASSIC)
+          if (notSupportedClassicMsg) {
+            navigate({ pathname: APP_PATHS.MY_POOLS })
+          } else {
+            handleSwitchTab(VERSION.CLASSIC)
+          }
         }}
         onConfirm={() => {
-          setOpenElasticHacked(false)
-          navigate({ pathname: APP_PATHS.MY_POOLS, search: 'skipAlert=1' })
+          navigate({ pathname: APP_PATHS.MY_POOLS })
         }}
       />
     </Flex>

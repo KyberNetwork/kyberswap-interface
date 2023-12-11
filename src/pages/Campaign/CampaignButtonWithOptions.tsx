@@ -231,6 +231,8 @@ export default function CampaignButtonWithOptions({
       {isShowNetworks && (
         <OptionsContainer>
           {chainIds.map(chainId => {
+            const networkName = NETWORKS_INFO[chainId].name
+
             return (
               <Flex
                 key={chainId}
@@ -246,9 +248,7 @@ export default function CampaignButtonWithOptions({
               >
                 <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
                 <Text marginLeft="8px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
-                  {type === 'swap_now'
-                    ? t`Swap on ${NETWORKS_INFO[chainId].name}`
-                    : t`Claim on ${NETWORKS_INFO[chainId].name}`}
+                  {type === 'swap_now' ? t`Swap on ${networkName}` : t`Claim on ${networkName}`}
                 </Text>
               </Flex>
             )

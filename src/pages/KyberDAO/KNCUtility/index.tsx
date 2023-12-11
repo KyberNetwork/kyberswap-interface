@@ -146,14 +146,14 @@ export default function KNCUtility() {
                 </NavLink>
               </Flex>
 
-              <Trans>
-                <Text as="span" fontSize={16} fontWeight={500} color={theme.subText} lineHeight="24px">
+              <Text as="span" fontSize={16} fontWeight={500} color={theme.subText} lineHeight="24px">
+                <Trans>
                   Stake your KNC (<NavLink to={`${APP_PATHS.ABOUT}/knc`}>Kyber Network Crystal</NavLink>) tokens to{' '}
                   <NavLink to={APP_PATHS.KYBERDAO_VOTE}>vote on KIPs</NavLink> and shape the future of the KyberSwap
                   ecosystem. KNC stakers also enjoy multiple benefits such as savings on gas fees, protocol fee rewards,
                   and more.
-                </Text>
-              </Trans>
+                </Trans>
+              </Text>
             </Column>
           </Column>
           <Flex flexDirection="column" alignItems="center">

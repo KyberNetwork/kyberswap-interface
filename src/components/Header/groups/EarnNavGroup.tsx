@@ -5,7 +5,6 @@ import { Flex } from 'rebass'
 
 import { MoneyBag } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
-import { NewLabel } from 'components/Menu'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -60,16 +59,6 @@ const EarnNavGroup = () => {
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <MoneyBag size={16} />
               <Trans>Farms</Trans>
-            </Flex>
-          </StyledNavLink>
-
-          <StyledNavLink id="my-earnings-link" to={APP_PATHS.MY_EARNINGS}>
-            <Flex sx={{ gap: '12px' }} alignItems="center">
-              <Icon id="pig" size={16} />
-              <Trans>My Earnings</Trans>
-              <NewLabel>
-                <Trans>New</Trans>
-              </NewLabel>
             </Flex>
           </StyledNavLink>
 

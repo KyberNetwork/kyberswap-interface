@@ -211,6 +211,8 @@ export default function Swap() {
   // modal and loading
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
+  const currencyName = currencyOut?.wrapped.name
+  const currencySymbol = currencyOut?.wrapped.symbol
   return (
     <>
       <PageWrapper>
@@ -261,7 +263,7 @@ export default function Swap() {
                       currencyOut={currencyOut}
                       note={
                         currencyOut?.isNative
-                          ? t`Note: Once your order is filled, you will receive ${currencyOut?.wrapped.name} (${currencyOut?.wrapped.symbol})`
+                          ? t`Note: Once your order is filled, you will receive ${currencyName} (${currencySymbol})`
                           : undefined
                       }
                       useUrlParams

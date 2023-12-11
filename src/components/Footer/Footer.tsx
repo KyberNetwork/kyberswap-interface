@@ -6,7 +6,6 @@ import styled from 'styled-components'
 import ChainSecurity from 'assets/svg/chainsecurity.svg'
 import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
-import Medium from 'components/Icons/Medium'
 import PoweredByIconDark from 'components/Icons/PoweredByIconDark'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import InfoHelper from 'components/InfoHelper'
@@ -91,9 +90,6 @@ export const FooterSocialLink = () => {
       </ExternalLinkNoLineHeight>
       <ExternalLinkNoLineHeight href={KYBER_NETWORK_DISCORD_URL}>
         <Discord width={16} height={12} color={theme.subText} />
-      </ExternalLinkNoLineHeight>
-      <ExternalLinkNoLineHeight href={`https://blog.kyber.network`}>
-        <Medium />
       </ExternalLinkNoLineHeight>
     </Flex>
   )

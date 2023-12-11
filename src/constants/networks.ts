@@ -177,11 +177,11 @@ export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.AVAXMAINNET,
 ]
 
-export const ELASTIC_NOT_SUPPORTED: { [key: string]: string } = {
+export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.AURORA]: t`Elastic is not supported on Aurora. Please switch to other chains`,
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,
-}
+})
 
-export const CLASSIC_NOT_SUPPORTED: { [key: string]: string } = {
+export const CLASSIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.BASE]: t`Classic is not supported on Base. Please switch to other chains`,
-}
+})

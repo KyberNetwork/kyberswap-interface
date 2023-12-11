@@ -31,10 +31,21 @@ const InfoRow = styled(RowBetween)`
   font-size: 12px;
   padding: 6px 0;
 `
+
+function getEpochInformation(
+  epochPeriodInSeconds: number,
+  firstEpochStartTimestamp: number,
+  proposalStartTimestamp: number,
+) {
+  const epochNumber = Math.floor((proposalStartTimestamp - firstEpochStartTimestamp) / epochPeriodInSeconds)
+  const epochStartTimestamp = firstEpochStartTimestamp + epochNumber * epochPeriodInSeconds
+  return { epochNumber, epochStartTimestamp }
+}
+
 export default function VoteInformation({ proposal }: { proposal: ProposalDetail }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { stakerInfo } = useVotingInfo()
+  const { stakerInfo, daoInfo } = useVotingInfo()
   const votePowerAmount: number = useMemo(
     () =>
       stakerInfo
@@ -49,6 +60,11 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
   )
     .multiply(proposal.executor_minimum_quorum)
     .divide(BIPS_BASE)
+  const { epochNumber, epochStartTimestamp } = getEpochInformation(
+    daoInfo.epoch_period_in_seconds,
+    daoInfo.first_epoch_start_timestamp,
+    proposal.start_timestamp,
+  )
 
   return (
     <Wrapper>
@@ -85,6 +101,12 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
           <Trans>KNC Amount</Trans>
         </Text>
         <Text color={theme.text}>{Math.floor(proposal.vote_stats.total_vote_count).toLocaleString()}</Text>
+      </InfoRow>
+      <InfoRow>
+        <Text color={theme.subText}>
+          <Trans>Epoch {epochNumber} Start Date</Trans>
+        </Text>
+        <Text color={theme.text}>{dayjs(epochStartTimestamp * 1000).format('DD MMMM YYYY')}</Text>
       </InfoRow>
       <InfoRow>
         <Text color={theme.subText}>
