@@ -299,7 +299,7 @@ const ProtocolChainWrapper = ({
         item.balance.lpData.lpPoolData.token1.symbol,
       ]
 
-      return searchTerms.some(term => term.toLowerCase().includes(search.toLowerCase()))
+      return searchTerms.some(term => term?.toLowerCase().includes(search.toLowerCase()))
     })
   }, [data, search])
 
@@ -362,6 +362,7 @@ const ProtocolChainWrapper = ({
             data={filteredData}
             columns={columns}
             pageSize={10}
+            totalItems={filteredData.length}
             pagination={{ hideWhenSinglePage: true }}
           />
         ) : (
