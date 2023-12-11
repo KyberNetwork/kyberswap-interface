@@ -125,7 +125,7 @@ const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
       return
     }
 
-    const maxCustomFee = 2000
+    const maxCustomFee = 9999
     if (parsedValue > maxCustomFee) {
       const format = formatSlippage(maxCustomFee)
       setTooltip(t`Max is ${format}`)
