@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import Tooltip from 'components/Tooltip'
 import { DEFAULT_TIPS } from 'constants/index'
 import { formatSlippage } from 'utils/slippage'
 
@@ -98,11 +99,12 @@ export type Props = {
 
 const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
   const [text, setText] = useState(getFeeText(fee))
-
+  const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const isCustomOptionActive = !DEFAULT_TIPS.includes(fee)
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTooltip('')
     const value = e.target.value
 
     if (value === '') {
@@ -123,11 +125,20 @@ const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
       return
     }
 
+    const maxCustomFee = 2000
+    if (parsedValue > maxCustomFee) {
+      const format = formatSlippage(maxCustomFee)
+      setTooltip(t`Max is ${format}`)
+      e.preventDefault()
+      return
+    }
+
     setText(value)
     onFeeChange(parsedValue)
   }
 
   const handleCommitChange = () => {
+    setTooltip('')
     setText(getFeeText(fee))
   }
 
@@ -138,18 +149,20 @@ const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
   }, [fee])
 
   return (
-    <CustomFeeOption data-active={isCustomOptionActive}>
-      <CustomInput
-        ref={inputRef}
-        placeholder={t`Custom`}
-        value={text}
-        onChange={handleChangeInput}
-        onBlur={handleCommitChange}
-      />
-      <Text as="span" sx={{ flex: '0 0 12px' }}>
-        %
-      </Text>
-    </CustomFeeOption>
+    <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
+      <CustomFeeOption data-active={isCustomOptionActive}>
+        <CustomInput
+          ref={inputRef}
+          placeholder={t`Custom`}
+          value={text}
+          onChange={handleChangeInput}
+          onBlur={handleCommitChange}
+        />
+        <Text as="span" sx={{ flex: '0 0 12px' }}>
+          %
+        </Text>
+      </CustomFeeOption>
+    </Tooltip>
   )
 }
 

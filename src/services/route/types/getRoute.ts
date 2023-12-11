@@ -12,7 +12,6 @@ export type GetRouteParams = {
   gasPrice?: string
   feeAmount?: string
   chargeFeeBy?: ChargeFeeBy
-  enableTip?: string
   isInBps?: string
   feeReceiver?: string
   debug?: string

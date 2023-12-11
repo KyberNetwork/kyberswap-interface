@@ -2,13 +2,14 @@ import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { ChargeFeeBy } from 'types/route'
+import { convertStringToBoolean } from 'utils/string'
 
 const useGetFeeConfig = () => {
   const [searchParams] = useSearchParams()
 
   const feeAmount = searchParams.get('feeAmount') || ''
   const chargeFeeBy = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.NONE
-  const enableTip = searchParams.get('enableTip') || ''
+  const enableTip = convertStringToBoolean(searchParams.get('enableTip') || '')
   const isInBps = searchParams.get('isInBps') || ''
   const feeReceiver = searchParams.get('feeReceiver') || ''
 
