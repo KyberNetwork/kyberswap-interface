@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
-import { X } from 'react-feather'
+import { Info, X } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { DefaultTheme } from 'styled-components'
 
@@ -10,7 +10,7 @@ import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
-import Row, { RowBetween } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -87,7 +87,14 @@ export default function PositionDetailsModal({
               <Text>
                 <Trans>Position Details</Trans>
               </Text>
-              <Badge variant={BadgeVariant.PRIMARY}>{lpPositionData && lpPositionData.tokenId}</Badge>
+              {lpPositionData && lpPositionData.tokenId && (
+                <Badge variant={BadgeVariant.PRIMARY}>
+                  <RowFit gap="4px">
+                    <Info size={14} />
+                    {lpPositionData.tokenId}
+                  </RowFit>
+                </Badge>
+              )}
             </Row>
             <ButtonAction
               onClick={() => {
