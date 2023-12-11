@@ -16,6 +16,7 @@ import LocalLoader from 'components/LocalLoader'
 import { TokenLogoWithChain } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
 import Table, { TableColumn } from 'components/Table'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { EMPTY_ARRAY } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
@@ -131,21 +132,25 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
   return (
     <Row justify="flex-end" gap="8px">
       {isSupportLimitOrder(+chainId) && (
-        <ButtonAction
-          style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px', height: '26px', width: '26px' }}
-          onClick={() => navigateToLimitPage({ chain: chainId, address: tokenAddress })}
-        >
-          <Icon id="chart" size={13} color={theme.subText} />
-        </ButtonAction>
+        <MouseoverTooltip text={t`Limit Order`} width="fit-content" placement="top">
+          <ButtonAction
+            style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px', height: '26px', width: '26px' }}
+            onClick={() => navigateToLimitPage({ chain: chainId, address: tokenAddress })}
+          >
+            <Icon id="chart" size={13} color={theme.subText} />
+          </ButtonAction>
+        </MouseoverTooltip>
       )}
-      <ButtonAction
-        style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px' }}
-        onClick={() => {
-          navigateToSwapPage({ chain: chainId, address: tokenAddress })
-        }}
-      >
-        <Icon id="swap" size={14} color={theme.subText} />
-      </ButtonAction>
+      <MouseoverTooltip text={t`Swap`} width="fit-content" placement="top">
+        <ButtonAction
+          style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px' }}
+          onClick={() => {
+            navigateToSwapPage({ chain: chainId, address: tokenAddress })
+          }}
+        >
+          <Icon id="swap" size={14} color={theme.subText} />
+        </ButtonAction>
+      </MouseoverTooltip>
     </Row>
   )
 }
