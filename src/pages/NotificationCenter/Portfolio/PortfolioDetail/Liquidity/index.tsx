@@ -237,7 +237,7 @@ export default function Liquidity({ walletAddresses, chainIds }: { chainIds: Cha
     })
     return newData.sort(a => (a.protocol === 'KyberSwap' ? -1 : 1))
   }, [data])
-  const noData = data && data.length === 0
+  const noData = data?.data && data.data.length === 0
 
   return (
     <>
