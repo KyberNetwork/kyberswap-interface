@@ -8,6 +8,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useGetLiquidityPortfolioQuery } from 'services/portfolio'
 
+import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
 import Badge, { BadgeVariant } from 'components/Badge'
 import { ButtonAction } from 'components/Button'
 import Column from 'components/Column'
@@ -236,11 +237,33 @@ export default function Liquidity({ walletAddresses, chainIds }: { chainIds: Cha
     })
     return newData.sort(a => (a.protocol === 'KyberSwap' ? -1 : 1))
   }, [data])
+  const noData = data && data.length === 0
 
   return (
     <>
       {isLoading ? (
         <LocalLoader style={{ height: 300 }} />
+      ) : noData ? (
+        <Row
+          style={{
+            width: '100%',
+            display: 'flex',
+            gap: '10px',
+            height: '300px',
+            background: theme.background,
+            borderRadius: '20px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'column',
+            color: theme.subText,
+            padding: '50px 0px',
+          }}
+        >
+          <NoDataIcon />
+          <Text fontSize={'14px'}>
+            <Trans>No data found</Trans>
+          </Text>
+        </Row>
       ) : (
         formattedData.map(item => {
           return (
