@@ -88,3 +88,14 @@ export const navigateToSwapPage = ({ address, chain }: { address?: string; chain
     '_blank',
   )
 }
+
+export const navigateToLimitPage = ({ address, chain }: { address?: string; chain?: string | number }) => {
+  if (!address || !chain) return
+  const chainId: ChainId | undefined = !isNaN(+chain) ? +chain : getChainIdFromSlug(chain as string)
+  if (!chainId) return
+  window.open(
+    window.location.origin +
+      `${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}?inputCurrency=${WETH[chainId].address}&outputCurrency=${address}`,
+    '_blank',
+  )
+}

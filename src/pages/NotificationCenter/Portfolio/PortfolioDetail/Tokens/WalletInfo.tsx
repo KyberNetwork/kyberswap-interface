@@ -28,10 +28,10 @@ import { PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
 import SmallKyberScoreMeter from 'pages/TrueSightV2/components/SmallKyberScoreMeter'
 import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
-import { getEtherscanLink } from 'utils'
+import { getEtherscanLink, isSupportLimitOrder } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
-import { navigateToSwapPage } from 'utils/redirect'
+import { navigateToLimitPage, navigateToSwapPage } from 'utils/redirect'
 
 const WalletLabelWrapper = styled.div<{ color: string }>`
   display: flex;
@@ -130,25 +130,21 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
   const theme = useTheme()
   return (
     <Row justify="flex-end" gap="8px">
-      {/* <ButtonAction
-        style={{
-          backgroundColor: rgba(theme.primary, 0.2),
-          padding: '4px 6px',
-          color: theme.primary,
-          width: '24px',
-          height: '24px',
-        }}
-        onClick={() => alert('in dev')}
-      >
-        <LiquidityIcon />
-      </ButtonAction> */}
+      {isSupportLimitOrder(+chainId) && (
+        <ButtonAction
+          style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px', height: '26px', width: '26px' }}
+          onClick={() => navigateToLimitPage({ chain: chainId, address: tokenAddress })}
+        >
+          <Icon id="chart" size={13} color={theme.subText} />
+        </ButtonAction>
+      )}
       <ButtonAction
-        style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '4px' }}
+        style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px' }}
         onClick={() => {
           navigateToSwapPage({ chain: chainId, address: tokenAddress })
         }}
       >
-        <Icon id="swap" size={16} color={theme.subText} />
+        <Icon id="swap" size={14} color={theme.subText} />
       </ButtonAction>
     </Row>
   )
