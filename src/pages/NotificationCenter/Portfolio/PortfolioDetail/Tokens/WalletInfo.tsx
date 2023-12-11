@@ -212,6 +212,12 @@ const getColumns = (displayFields: DisplayField[], onChangeDisplayField: (fields
       render: ({ value }: { value: string }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
       style: isMobile ? { width: 120 } : undefined,
       align: 'left',
+      tooltip: (
+        <Trans>
+          This is the real value you will receive if you were to sell your asset (considers price impact). Read more{' '}
+          <ExternalLink href="/todo">here ↗</ExternalLink>
+        </Trans>
+      ),
     },
     // {
     //   title: t`Liquidity Score`,
@@ -245,7 +251,8 @@ const getColumns = (displayFields: DisplayField[], onChangeDisplayField: (fields
         <Trans>
           KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking into account
           multiple on-chain and off-chain indicators. The score ranges from 0 to 100. The higher the score, the more
-          bullish the token in the short-term. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
+          bullish the token in the short-term. Read more{' '}
+          <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/kyberscore">here ↗</ExternalLink>
         </Trans>
       ),
       style: isMobile ? { width: 120 } : undefined,
