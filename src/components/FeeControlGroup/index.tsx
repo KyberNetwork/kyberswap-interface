@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -80,10 +81,10 @@ const FeeControlGroup = () => {
       }}
     >
       <Text color={theme.subText} fontSize={12} fontWeight={500}>
-        Tip :
+        <Trans>Tip</Trans>:
       </Text>
       <Text color={theme.text3} fontSize={12} fontWeight={500}>
-        No hidden fees - Your optional tips support DEX Screener!
+        <Trans>No hidden fees - Your optional tips support DEX Screener!</Trans>
       </Text>
 
       <Flex
@@ -106,7 +107,7 @@ const FeeControlGroup = () => {
             }}
             data-active={tip === feeValue}
           >
-            {tip ? `${tip / 100}%` : 'No tip'}
+            {tip ? `${tip / 100}%` : <Trans>No tip</Trans>}
           </DefaultFeeOption>
         ))}
         <CustomFeeInput fee={feeValue} onFeeChange={setFee} />
