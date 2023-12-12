@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -57,16 +57,18 @@ const FeeControlGroup = () => {
   const theme = useTheme()
   const { feeAmount, enableTip } = useGetFeeConfig() ?? {}
   const [searchParams, setSearchParams] = useSearchParams()
+  const feeValue = Number.parseFloat(feeAmount ?? '0')
 
-  const [feeValue, setFee] = useState(Math.round(Number.parseFloat(feeAmount ?? '0')) || 0)
-
-  useEffect(() => {
-    if (enableTip) {
-      searchParams.set('feeAmount', feeValue.toString())
-      setSearchParams(searchParams)
-    }
+  const handleFeeChange = useCallback(
+    (feeValue: number) => {
+      if (enableTip) {
+        searchParams.set('feeAmount', feeValue.toString())
+        setSearchParams(searchParams)
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enableTip, feeValue])
+    [enableTip],
+  )
 
   if (!enableTip) {
     return null
@@ -103,14 +105,14 @@ const FeeControlGroup = () => {
           <DefaultFeeOption
             key={tip}
             onClick={() => {
-              setFee(tip)
+              handleFeeChange(tip)
             }}
             data-active={tip === feeValue}
           >
             {tip ? `${tip / 100}%` : <Trans>No tip</Trans>}
           </DefaultFeeOption>
         ))}
-        <CustomFeeInput fee={feeValue} onFeeChange={setFee} />
+        <CustomFeeInput fee={feeValue} onFeeChange={handleFeeChange} />
       </Flex>
     </Flex>
   )
