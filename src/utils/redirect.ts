@@ -1,4 +1,5 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
+import { stringify } from 'querystring'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -78,24 +79,31 @@ export const useNavigateToUrl = () => {
   )
 }
 
-export const navigateToSwapPage = ({ address, chain }: { address?: string; chain?: string | number }) => {
+type Params = {
+  address?: string
+  chain?: string | number
+  input?: boolean
+}
+
+const navigateToPage = ({ address, chain, input, path }: Params & { path: string }) => {
   if (!address || !chain) return
   const chainId: ChainId | undefined = !isNaN(+chain) ? +chain : getChainIdFromSlug(chain as string)
   if (!chainId) return
   window.open(
     window.location.origin +
-      `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}?inputCurrency=${WETH[chainId].address}&outputCurrency=${address}`,
+      `${path}/${NETWORKS_INFO[chainId].route}?${stringify(
+        input
+          ? { inputCurrency: address, outputCurrency: WETH[chainId].address }
+          : { outputCurrency: address, inputCurrency: WETH[chainId].address },
+      )}`,
     '_blank',
   )
 }
 
-export const navigateToLimitPage = ({ address, chain }: { address?: string; chain?: string | number }) => {
-  if (!address || !chain) return
-  const chainId: ChainId | undefined = !isNaN(+chain) ? +chain : getChainIdFromSlug(chain as string)
-  if (!chainId) return
-  window.open(
-    window.location.origin +
-      `${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}?inputCurrency=${WETH[chainId].address}&outputCurrency=${address}`,
-    '_blank',
-  )
+export const navigateToSwapPage = (data: Params) => {
+  navigateToPage({ ...data, path: APP_PATHS.SWAP })
+}
+
+export const navigateToLimitPage = (data: Params) => {
+  navigateToPage({ ...data, path: APP_PATHS.LIMIT })
 }

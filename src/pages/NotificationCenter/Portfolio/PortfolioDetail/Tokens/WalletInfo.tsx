@@ -108,7 +108,7 @@ export const TokenCellWithWalletAddress = ({
 export type DisplayField = { title: string; show: boolean; key: string }
 const getDefaultFields = () => [
   { title: t`Price`, show: true, key: 'priceUsd' },
-  { title: t`Balance`, show: true, key: 'amount' },
+  { title: t`Amount`, show: true, key: 'amount' },
   { title: t`Value USD`, show: true, key: 'valueUsd' },
   { title: t`KyberScore`, show: true, key: 'kyberScore' },
 ]
@@ -135,7 +135,7 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
         <MouseoverTooltip text={t`Limit Order`} width="fit-content" placement="top">
           <ButtonAction
             style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px', height: '26px', width: '26px' }}
-            onClick={() => navigateToLimitPage({ chain: chainId, address: tokenAddress })}
+            onClick={() => navigateToLimitPage({ chain: chainId, address: tokenAddress, input: true })}
           >
             <Icon id="chart" size={13} color={theme.subText} />
           </ButtonAction>
@@ -145,7 +145,7 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
         <ButtonAction
           style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px' }}
           onClick={() => {
-            navigateToSwapPage({ chain: chainId, address: tokenAddress })
+            navigateToSwapPage({ chain: chainId, address: tokenAddress, input: true })
           }}
         >
           <Icon id="swap" size={14} color={theme.subText} />
@@ -193,7 +193,7 @@ const getColumns = (displayFields: DisplayField[], onChangeDisplayField: (fields
       style: isMobile ? { width: 140 } : undefined,
     },
     {
-      title: t`Balance`,
+      title: t`Amount`,
       dataIndex: 'amount',
       render: ({ value }: { value: string }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
       style: isMobile ? { width: 120 } : undefined,

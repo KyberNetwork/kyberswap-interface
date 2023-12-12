@@ -60,8 +60,8 @@ export default function DisclaimerPortfolio({ onConfirm }: { onConfirm: () => vo
 
         <TextWrapper>
           <Trans>
-            KyberSwap strives to provide accurate and timely data, it&apos;s essential for users to conduct their own
-            research and due diligence before making investment decisions based on the provided information.
+            While KyberSwap strives to provide accurate and timely data, it&apos;s essential for users to conduct their
+            own research and due diligence before making investment decisions based on the provided information.
           </Trans>
         </TextWrapper>
 

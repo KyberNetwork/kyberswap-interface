@@ -175,7 +175,15 @@ const portfolioApi = createApi({
     getRealtimeBalance: builder.query<PortfolioWalletBalanceResponse, { walletAddresses: string[] }>({
       query: ({ walletAddresses }) => ({
         url: `${BFF_API}/v1/wallet-service/balances/realtime/total`,
-        params: { walletAddresses: walletAddresses.join(',') },
+        params: { walletAddresses: walletAddresses?.join(',') },
+        authentication: true,
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
+    getPortfolioRealtimeBalance: builder.query<PortfolioWalletBalanceResponse, { ids: string[] }>({
+      query: ({ ids }) => ({
+        url: `${BFF_API}/v1/portfolio-service/portfolios/balances/realtime/total`,
+        params: { ids: ids?.join(',') },
         authentication: true,
       }),
       transformResponse: (data: any) => data?.data,
@@ -301,6 +309,7 @@ const portfolioApi = createApi({
 })
 
 export const {
+  useGetPortfolioRealtimeBalanceQuery,
   useGetMyPortfoliosQuery,
   useLazyGetMyPortfoliosQuery,
   useCreatePortfolioMutation,
