@@ -180,13 +180,13 @@ const portfolioApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
-    getPortfolioRealtimeBalance: builder.query<PortfolioWalletBalanceResponse, { ids: string[] }>({
+    getPortfolioRealtimeBalance: builder.query<{ portfolioId: string; totalUsd: string }[], { ids: string[] }>({
       query: ({ ids }) => ({
         url: `${BFF_API}/v1/portfolio-service/portfolios/balances/realtime/total`,
         params: { ids: ids?.join(',') },
         authentication: true,
       }),
-      transformResponse: (data: any) => data?.data,
+      transformResponse: (data: any) => data?.data?.balances,
     }),
     getTokenAllocation: builder.query<
       PortfolioWalletBalanceResponse,
