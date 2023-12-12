@@ -49,3 +49,8 @@ export function capitalizeFirstLetter(str?: string) {
   const string = str || ''
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
+
+export function convertStringToBoolean(value?: string) {
+  if (!value) return false
+  return ['1', 'true', 'yes'].includes(value.toLowerCase())
+}

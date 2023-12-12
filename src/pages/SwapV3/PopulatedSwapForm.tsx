@@ -5,7 +5,6 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { APP_PATHS } from 'constants/index'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
-import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { useAppSelector } from 'state/hooks'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
@@ -42,8 +41,6 @@ const PopulatedSwapForm: React.FC<Props> = ({
   const permitData = usePermitData(currencyIn?.wrapped.address)
 
   const { onCurrencySelection, onResetSelectCurrency } = useSwapActionHandlers()
-
-  useUpdateSlippageInStableCoinSwap()
 
   const { pathname } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()

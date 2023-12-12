@@ -4,29 +4,20 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
-import { DEFAULT_SLIPPAGES, MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { useDegenModeManager } from 'state/user/hooks'
+import { DEFAULT_TIPS } from 'constants/index'
 import { formatSlippage } from 'utils/slippage'
 
-const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
-const getSlippageText = (rawSlippage: number) => {
-  const isCustom = !DEFAULT_SLIPPAGES.includes(rawSlippage)
+const parseTipInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
+
+const getFeeText = (fee: number) => {
+  const isCustom = !DEFAULT_TIPS.includes(fee)
   if (!isCustom) {
     return ''
   }
-
-  return formatSlippage(rawSlippage, false)
+  return formatSlippage(fee, false)
 }
 
-const EmojiContainer = styled.span`
-  flex: 0 0 12px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-        display: none;
-  `}
-`
-
-const slippageOptionCSS = css`
+const feeOptionCSS = css`
   height: 100%;
   padding: 0;
   border-radius: 20px;
@@ -57,14 +48,10 @@ const slippageOptionCSS = css`
 
     font-weight: 500;
   }
-
-  &[data-warning='true'] {
-    border-color: ${({ theme }) => theme.warning};
-  }
 `
 
-const CustomSlippageOption = styled.div`
-  ${slippageOptionCSS};
+const CustomFeeOption = styled.div`
+  ${feeOptionCSS};
 
   flex: 0 0 24%;
 
@@ -79,14 +66,6 @@ const CustomSlippageOption = styled.div`
   &[data-active='true'] {
     color: ${({ theme }) => theme.text};
     font-weight: 500;
-  }
-
-  &[data-warning='true'] {
-    border-color: ${({ theme }) => theme.warning};
-
-    ${EmojiContainer} {
-      color: ${({ theme }) => theme.warning};
-    }
   }
 `
 
@@ -114,30 +93,23 @@ const CustomInput = styled.input`
 `
 
 export type Props = {
-  rawSlippage: number
-  setRawSlippage: (value: number) => void
-  isWarning: boolean
-  defaultRawSlippage: number
+  fee: number
+  onFeeChange: (value: number) => void
 }
-const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isWarning, defaultRawSlippage }) => {
+
+const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
+  const [text, setText] = useState(getFeeText(fee))
   const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const { mixpanelHandler } = useMixpanel()
-  const [isDegenMode] = useDegenModeManager()
-
-  // rawSlippage = 10
-  // slippage shown to user: = 10 / 10_000 = 0.001 = 0.1%
-  const [rawText, setRawText] = useState(getSlippageText(rawSlippage))
-
-  const isCustomOptionActive = !DEFAULT_SLIPPAGES.includes(rawSlippage)
+  const isCustomOptionActive = !DEFAULT_TIPS.includes(fee)
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTooltip('')
     const value = e.target.value
 
     if (value === '') {
-      setRawText(value)
-      setRawSlippage(defaultRawSlippage)
+      setText(value)
+      onFeeChange(50)
       return
     }
 
@@ -147,65 +119,51 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
       return
     }
 
-    const parsedValue = parseSlippageInput(value)
+    const parsedValue = parseTipInput(value)
     if (Number.isNaN(parsedValue)) {
       e.preventDefault()
       return
     }
 
-    const maxSlippage = isDegenMode ? MAX_DEGEN_SLIPPAGE_IN_BIPS : MAX_NORMAL_SLIPPAGE_IN_BIPS
-    if (parsedValue > maxSlippage) {
-      const format = formatSlippage(maxSlippage)
+    const maxCustomFee = 9999
+    if (parsedValue > maxCustomFee) {
+      const format = formatSlippage(maxCustomFee)
       setTooltip(t`Max is ${format}`)
       e.preventDefault()
       return
     }
 
-    setRawText(value)
-    setRawSlippage(parsedValue)
+    setText(value)
+    onFeeChange(parsedValue)
   }
 
   const handleCommitChange = () => {
     setTooltip('')
-    setRawText(getSlippageText(rawSlippage))
-    mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: Number(formatSlippage(rawSlippage, false)) })
+    setText(getFeeText(fee))
   }
 
   useEffect(() => {
     if (inputRef.current !== document.activeElement) {
-      setRawText(getSlippageText(rawSlippage))
-      setTooltip('')
+      setText(getFeeText(fee))
     }
-  }, [rawSlippage])
+  }, [fee])
 
   return (
     <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
-      <CustomSlippageOption data-active={isCustomOptionActive} data-warning={isCustomOptionActive && isWarning}>
-        {isCustomOptionActive && isWarning && (
-          <EmojiContainer>
-            <span role="img" aria-label="warning">
-              ⚠️
-            </span>
-          </EmojiContainer>
-        )}
+      <CustomFeeOption data-active={isCustomOptionActive}>
         <CustomInput
           ref={inputRef}
           placeholder={t`Custom`}
-          value={rawText}
+          value={text}
           onChange={handleChangeInput}
           onBlur={handleCommitChange}
         />
-        <Text
-          as="span"
-          sx={{
-            flex: '0 0 12px',
-          }}
-        >
+        <Text as="span" sx={{ flex: '0 0 12px' }}>
           %
         </Text>
-      </CustomSlippageOption>
+      </CustomFeeOption>
     </Tooltip>
   )
 }
 
-export default CustomSlippageInput
+export default CustomFeeInput
