@@ -26,6 +26,7 @@ import { useAutoLogin } from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
 import KyberAIExplore from 'pages/TrueSightV2'
 import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
@@ -365,6 +366,14 @@ export default function App() {
                   element={
                     <ProtectedRoute>
                       <NotificationCenter />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path={APP_PATHS.DEPRECATED_NOTI_CENTER}
+                  element={
+                    <ProtectedRoute>
+                      <NotificationCenter redirectRoute={PROFILE_MANAGE_ROUTES.PREFERENCE} />
                     </ProtectedRoute>
                   }
                 />
