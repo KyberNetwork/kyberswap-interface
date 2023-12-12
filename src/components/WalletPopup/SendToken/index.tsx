@@ -23,7 +23,6 @@ import useTheme from 'hooks/useTheme'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { useCheckAddressSolana } from 'state/wallet/solanaHooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formattedNum, shortenAddress } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
@@ -73,7 +72,7 @@ export default function SendToken({
   const [currencyIn, setCurrency] = useState<Currency>()
   const [inputAmount, setInputAmount] = useState<string>('')
   const [showListToken, setShowListToken] = useState(false)
-  const { account, isEVM, isSolana, chainId } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
   const theme = useTheme()
@@ -92,31 +91,26 @@ export default function SendToken({
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn)
 
-  const respEvm = useENS(isEVM ? recipient : '')
-  const respSolana = useCheckAddressSolana(isEVM ? '' : recipient)
-
-  const { address, loading } = isEVM ? respEvm : respSolana
+  const { address, loading } = useENS(recipient)
 
   const recipientError =
-    recipient &&
-    ((!loading && !address) ||
-      (!recipient.startsWith('0x') && isEVM) ||
-      (isSolana && recipient.toLowerCase().startsWith('0x')))
+    recipient && ((!loading && !address) || !recipient.startsWith('0x'))
       ? t`Invalid wallet address`
       : recipient.toLowerCase() === account?.toLowerCase()
       ? t`You can’t use your own address as a receiver`
       : ''
 
+  const inSymbol = currencyIn?.symbol
   const inputError = useMemo(() => {
     if (!inputAmount) return
     if (parseFloat(inputAmount) === 0 || !parseInputAmount) {
       return t`Your input amount is invalid.`
     }
     if (balance && parseInputAmount?.greaterThan(balance)) {
-      return t`Insufficient ${currencyIn?.symbol} balance`
+      return t`Insufficient ${inSymbol} balance`
     }
     return
-  }, [currencyIn, balance, inputAmount, parseInputAmount])
+  }, [balance, inputAmount, parseInputAmount, inSymbol])
 
   const hasError = inputError || recipientError
 
@@ -131,7 +125,7 @@ export default function SendToken({
         ...state,
         attemptingTxn: true,
         showConfirm: true,
-        pendingText: t`Sending ${inputAmount} ${currencyIn?.symbol} to ${recipient}`,
+        pendingText: t`Sending ${inputAmount} ${inSymbol} to ${recipient}`,
       }))
       await sendToken()
       hideModalConfirm()
@@ -194,7 +188,7 @@ export default function SendToken({
 
   const formatRecipient = (val: string) => {
     try {
-      setDisplayRecipient(shortenAddress(chainId, val, isSolana || isMobile ? 14 : 16))
+      setDisplayRecipient(shortenAddress(chainId, val, isMobile ? 14 : 16))
     } catch {
       setDisplayRecipient(val)
     }
@@ -228,7 +222,7 @@ export default function SendToken({
             onFocus={onFocus}
             onBlur={onBlur}
             value={displayRecipient}
-            placeholder={isEVM ? '0x...' : 'Wallet address'}
+            placeholder="0x..."
             icon={
               <MouseoverTooltip text={t`Paste from clipboard`} width="150px">
                 <Clipboard size={20} cursor="pointer" color={theme.subText} onClick={onPaste} />

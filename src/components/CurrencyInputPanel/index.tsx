@@ -1,7 +1,7 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken, lighten, rgba } from 'polished'
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 import styled, { CSSProperties, css } from 'styled-components'
 
@@ -248,20 +248,9 @@ export default function CurrencyInputPanel({
 }: CurrencyInputPanelProps) {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
-  const { chainId, account } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
-  const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined)
-  const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
-
-  useEffect(() => {
-    balanceRef.current = undefined
-  }, [chainId])
-
-  // Keep previous value of balance if rpc node was down
-  useEffect(() => {
-    if (!!selectedCurrencyBalance) balanceRef.current = selectedCurrencyBalance.toSignificant(10)
-    if (!currency || !account) balanceRef.current = '0'
-  }, [selectedCurrencyBalance, currency, account])
+  const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined, customChainId)
 
   const theme = useTheme()
 
@@ -308,7 +297,7 @@ export default function CurrencyInputPanel({
               <Flex onClick={onMax ?? undefined} style={{ cursor: onMax ? 'pointer' : undefined }} alignItems="center">
                 <Wallet color={theme.subText} />
                 <Text fontWeight={500} color={theme.subText} marginLeft="4px" data-testid="balance">
-                  {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || balanceRef.current || 0}
+                  {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || 0}
                 </Text>
               </Flex>
             </Flex>

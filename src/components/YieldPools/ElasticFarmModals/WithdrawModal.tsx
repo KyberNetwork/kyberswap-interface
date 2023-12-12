@@ -15,7 +15,7 @@ import HoverDropdown from 'components/HoverDropdown'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FARM_TAB } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -242,37 +242,35 @@ function WithdrawModal({
 
   const userDepositedNFTs: PositionDetails[] = useMemo(
     () =>
-      isEVM(chainId)
-        ? depositedPositions.map(pos => {
-            const stakedLiquidity = Object.values(joinedPositions)
-              .flat()
-              .filter(
-                p => pos.nftId.toString() === p.nftId.toString() && BigNumber.from(p.liquidity.toString()).gt('0'),
-              )?.[0]?.liquidity
+      depositedPositions.map(pos => {
+        const stakedLiquidity = Object.values(joinedPositions)
+          .flat()
+          .filter(
+            p => pos.nftId.toString() === p.nftId.toString() && BigNumber.from(p.liquidity.toString()).gt('0'),
+          )?.[0]?.liquidity
 
-            return {
-              nonce: BigNumber.from(0),
-              poolId: computePoolAddress({
-                factoryAddress: NETWORKS_INFO[chainId].elastic.coreFactory,
-                tokenA: pos.pool.token0,
-                tokenB: pos.pool.token1,
-                fee: pos.pool.fee,
-                initCodeHashManualOverride: NETWORKS_INFO[chainId].elastic.initCodeHash,
-              }),
-              feeGrowthInsideLast: BigNumber.from(0),
-              operator: '',
-              rTokenOwed: BigNumber.from(0),
-              fee: pos.pool.fee,
-              tokenId: pos.nftId,
-              tickLower: pos.tickLower,
-              tickUpper: pos.tickUpper,
-              liquidity: BigNumber.from(pos.liquidity.toString()),
-              token0: pos.amount0.currency.address,
-              token1: pos.amount1.currency.address,
-              stakedLiquidity: stakedLiquidity ? BigNumber.from(stakedLiquidity.toString()) : BigNumber.from(0),
-            }
-          })
-        : [],
+        return {
+          nonce: BigNumber.from(0),
+          poolId: computePoolAddress({
+            factoryAddress: NETWORKS_INFO[chainId].elastic.coreFactory,
+            tokenA: pos.pool.token0,
+            tokenB: pos.pool.token1,
+            fee: pos.pool.fee,
+            initCodeHashManualOverride: NETWORKS_INFO[chainId].elastic.initCodeHash,
+          }),
+          feeGrowthInsideLast: BigNumber.from(0),
+          operator: '',
+          rTokenOwed: BigNumber.from(0),
+          fee: pos.pool.fee,
+          tokenId: pos.nftId,
+          tickLower: pos.tickLower,
+          tickUpper: pos.tickUpper,
+          liquidity: BigNumber.from(pos.liquidity.toString()),
+          token0: pos.amount0.currency.address,
+          token1: pos.amount1.currency.address,
+          stakedLiquidity: stakedLiquidity ? BigNumber.from(stakedLiquidity.toString()) : BigNumber.from(0),
+        }
+      }),
     [chainId, depositedPositions, joinedPositions],
   )
 

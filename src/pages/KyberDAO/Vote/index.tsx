@@ -117,7 +117,7 @@ export default function Vote() {
     claimedRewardAmount,
     stakerInfo,
     stakerInfoNextEpoch,
-    rewardStats: { knc, usd, apr },
+    // rewardStats: { knc, usd, apr },
   } = useVotingInfo()
 
   const kncPrice = useKNCPrice()
@@ -170,7 +170,8 @@ export default function Vote() {
   }, [toggleClaimConfirmModal, mixpanelHandler, switchToEthereum])
 
   const handleConfirmClaim = useCallback(async () => {
-    setPendingText(t`Claming ${formatUnitsToFixed(remainingCumulativeAmount)} KNC`)
+    const amount = formatUnitsToFixed(remainingCumulativeAmount)
+    setPendingText(t`Claming ${amount} KNC`)
     setShowConfirm(true)
     setAttemptingTxn(true)
     toggleClaimConfirmModal()
@@ -236,7 +237,7 @@ export default function Vote() {
               </Text>
             </AutoColumn>
           </Card>
-          <Card>
+          {/* <Card>
             <AutoColumn>
               <RowBetween marginBottom="20px">
                 <Text color={theme.subText} fontSize="14px">
@@ -259,7 +260,7 @@ export default function Vote() {
                 ~{(+usd?.toFixed(0)).toLocaleString() ?? '--'} USD
               </Text>
             </AutoColumn>
-          </Card>
+          </Card> */}
           <Card>
             <AutoColumn>
               <Text color={theme.subText} fontSize="14px" marginBottom="20px">

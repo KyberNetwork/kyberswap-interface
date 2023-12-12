@@ -1,14 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
 const chainId = ChainId.ZKSYNC
 
-const zkSyncInfo: EVMNetworkInfo = {
+const zkSyncInfo: NetworkInfo = {
   chainId,
   route: 'zksync',
   ksSettingRoute: 'zksync',

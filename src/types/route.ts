@@ -22,7 +22,7 @@ export enum ChargeFeeBy {
   NONE = '',
 }
 
-type ExtraFeeConfig = {
+export type ExtraFeeConfig = {
   feeAmount: string
   feeAmountUsd: string
   chargeFeeBy: ChargeFeeBy

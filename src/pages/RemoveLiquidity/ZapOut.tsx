@@ -38,7 +38,6 @@ import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -89,7 +88,7 @@ export default function ZapOut({
   pairAddress: string
 }) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const nativeA = useCurrencyConvertedToNative(currencyA as Currency)
@@ -172,13 +171,11 @@ export default function ZapOut({
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
   const [approval, approveCallback] = useApproveCallback(
     parsedAmounts[Field.LIQUIDITY],
-    isEVM
-      ? isStaticFeePair
-        ? isOldStaticFeeContract
-          ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.zap
-          : (networkInfo as EVMNetworkInfo).classic.static.zap
-        : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
-      : undefined,
+    isStaticFeePair
+      ? isOldStaticFeeContract
+        ? networkInfo.classic.oldStatic?.zap
+        : networkInfo.classic.static.zap
+      : networkInfo.classic.dynamic?.zap,
   )
 
   // if user liquidity change => remove signature
@@ -217,13 +214,11 @@ export default function ZapOut({
     ]
     const message = {
       owner: account,
-      spender: isEVM
-        ? isStaticFeePair
-          ? isOldStaticFeeContract
-            ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.zap
-            : (networkInfo as EVMNetworkInfo).classic.static.zap
-          : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
-        : undefined,
+      spender: isStaticFeePair
+        ? isOldStaticFeeContract
+          ? networkInfo.classic.oldStatic?.zap
+          : networkInfo.classic.static.zap
+        : networkInfo.classic.dynamic?.zap,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
       deadline: deadline.toNumber(),
@@ -288,7 +283,7 @@ export default function ZapOut({
   // tx sending
   const addTransactionWithType = useTransactionAdder()
   async function onRemove() {
-    if (!isEVM || !library || !account || !deadline) throw new Error('missing dependencies')
+    if (!library || !account || !deadline) throw new Error('missing dependencies')
     const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')
@@ -377,7 +372,7 @@ export default function ZapOut({
 
     // All methods of new zap static fee contract include factory address as first arg
     if (isStaticFeePair && !isOldStaticFeeContract) {
-      args.unshift((networkInfo as EVMNetworkInfo).classic.static.factory)
+      args.unshift(networkInfo.classic.static.factory)
     }
     const safeGasEstimates: (BigNumber | undefined)[] = await Promise.all(
       methodNames.map(methodName =>
@@ -540,6 +535,8 @@ export default function ZapOut({
   const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
 
   function modalHeader() {
+    const displaySlp = allowedSlippage / 100
+
     return (
       <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
@@ -558,9 +555,7 @@ export default function ZapOut({
         </AutoRow>
 
         <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
-          {t`Output is estimated. If the price changes by more than ${
-            allowedSlippage / 100
-          }% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )

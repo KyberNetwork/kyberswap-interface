@@ -3,8 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { POOL_FARM_BASE_URL } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
-import { EVM_NETWORK, NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { SubgraphFarmV2 } from 'state/farms/elasticv2/types'
 
 type Token = {
@@ -89,19 +88,17 @@ const knProtocolApi = createApi({
   endpoints: builder => ({
     getFarmV2: builder.query<{ data: { data: SubgraphFarmV2[] } }, ChainId>({
       query: (chainId: ChainId) => ({
-        url: `/${
-          (NETWORKS_INFO[chainId] as EVMNetworkInfo).poolFarmRoute
-        }/api/v1/elastic-new/farm-v2?perPage=1000&page=1`,
+        url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/farm-v2?perPage=1000&page=1`,
       }),
       providesTags: [RTK_QUERY_TAGS.GET_FARM_V2],
     }),
     getPoolClassic: builder.query<{ data: { pools: ClassicPoolKN[] } }, ChainId>({
-      query: (chainId: EVM_NETWORK) => ({
+      query: (chainId: ChainId) => ({
         url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/classic/pools?includeLowTvl=true&perPage=10000&page=1`,
       }),
     }),
     getFarmClassic: builder.query<{ data: { farmPools: ClassicFarmKN[] } }, ChainId>({
-      query: (chainId: EVM_NETWORK) => ({
+      query: (chainId: ChainId) => ({
         url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/classic/farm-pools?perPage=1000&page=1`,
       }),
     }),

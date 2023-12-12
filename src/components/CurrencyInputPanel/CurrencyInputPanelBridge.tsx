@@ -37,7 +37,7 @@ interface CurrencyInputPanelBridgeProps {
   currency: WrappedTokenInfo | undefined
   tokens: WrappedTokenInfo[]
   loadingToken: boolean
-  usdValue?: string
+  usdValue?: string | number
   isCrossChain?: boolean
   tooltipNotSupportChain?: string
   dataTestId?: string
@@ -147,6 +147,7 @@ export default function CurrencyInputPanelBridge({
             <CurrencySelect
               selected={!!currency}
               className="open-currency-select-button"
+              data-testid="open-currency-select-button"
               onClick={() => !disabledSelect && !loadingToken && setModalOpen(true)}
               style={{ cursor: disabledSelect ? 'default' : 'pointer', paddingRight: disabledSelect ? '8px' : 0 }}
             >

@@ -1,5 +1,6 @@
 import { Network, SwapPage } from '../pages/swap-page.po.cy'
 import { DEFAULT_NETWORK, DEFAULT_URL, NETWORK, TAG } from '../selectors/constants.cy'
+import { SwapPageLocators } from '../selectors/selectors.cy'
 
 const wallet = new Network()
 
@@ -25,5 +26,14 @@ describe('Connect metamask wallet', { tags: TAG.smoke }, () => {
         expect(approved).to.be.true
       })
     }
+    cy.wait(2000)
+    SwapPage.getBalanceWallet(value => {
+      const balance = value.split(' ')[0]
+      if (balance !== '0') {
+        SwapPage.getCurrentBalanceIn(value => {
+          expect(Number(value)).to.be.greaterThan(0);
+        })
+      }
+    })
   })
 })

@@ -31,13 +31,12 @@ export function useApproveCallback(
   spender?: string,
   forceApprove = false,
 ): [ApprovalState, () => Promise<void>, TokenAmount | undefined] {
-  const { account, isSolana } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const token = amountToApprove?.currency.wrapped
   const currentAllowance = useTokenAllowance(token, account ?? undefined, spender)
   const pendingApproval = useHasPendingApproval(token?.address, spender)
   // check the current approval status
   const approvalState: ApprovalState = useMemo(() => {
-    if (isSolana) return ApprovalState.APPROVED // Solana do approve when actual swap
     if (!amountToApprove || !spender) return ApprovalState.UNKNOWN
     if (amountToApprove.currency.isNative) return ApprovalState.APPROVED
     // we might not have enough data to know whether or not we need to approve
@@ -57,7 +56,7 @@ export function useApproveCallback(
         ? ApprovalState.PENDING
         : ApprovalState.NOT_APPROVED
       : ApprovalState.APPROVED
-  }, [amountToApprove, currentAllowance, isSolana, pendingApproval, spender])
+  }, [amountToApprove, currentAllowance, pendingApproval, spender])
   const notify = useNotify()
 
   const tokenContract = useTokenSigningContract(token?.address)

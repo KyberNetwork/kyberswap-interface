@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -67,10 +68,13 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
 type Props = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
+  customChainId?: ChainId
 }
-export default function Tabs({ activeTab, setActiveTab }: Props) {
+export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) {
   const navigateFn = useNavigate()
-  const { networkInfo, chainId } = useActiveWeb3React()
+  const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
+
   const qs = useParsedQueryString<{
     outputCurrency: string
     inputCurrency: string
@@ -118,7 +122,11 @@ export default function Tabs({ activeTab, setActiveTab }: Props) {
           </Tab>
         )}
         {show(TAB.LIMIT) && isSupportLimitOrder(chainId) && (
-          <LimitTab onClick={() => onClickTab(TAB.LIMIT)} active={activeTab === TAB.LIMIT} />
+          <LimitTab
+            onClick={() => onClickTab(TAB.LIMIT)}
+            active={activeTab === TAB.LIMIT}
+            customChainId={customChainId}
+          />
         )}
         {show(TAB.CROSS_CHAIN) && CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
           <Tab

@@ -7,7 +7,7 @@ import JSBI from 'jsbi'
 import mixpanel from 'mixpanel-browser'
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMedia, usePrevious } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -42,7 +42,6 @@ import { TutorialType } from 'components/Tutorial'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -101,9 +100,9 @@ const TextUnderlineTransparent = styled(Text)`
 `
 
 export default function IncreaseLiquidity() {
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
-  const [method, setMethod] = useState<'pair' | 'zap'>('zap')
-  const isZapAvailable = !!(networkInfo as EVMNetworkInfo).elastic.zap
+  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const [method, setMethod] = useState<'pair' | 'zap'>('pair')
+  const isZapAvailable = !!networkInfo.elastic.zap
   useEffect(() => {
     if (!isZapAvailable) {
       setMethod('pair')
@@ -139,10 +138,9 @@ export default function IncreaseLiquidity() {
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
 
   const ownsNFT = owner === account || existingPositionDetails?.operator === account
-  const ownByFarm = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) ||
-      (networkInfo as EVMNetworkInfo).elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
-    : false
+  const ownByFarm =
+    networkInfo.elastic.farms.flat().includes(isAddressString(chainId, owner)) ||
+    networkInfo.elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
 
   const { position: existingPosition, loading: loadingInfo } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
@@ -261,11 +259,11 @@ export default function IncreaseLiquidity() {
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
+    networkInfo.elastic.nonfungiblePositionManager,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
+    networkInfo.elastic.nonfungiblePositionManager,
   )
 
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -276,7 +274,7 @@ export default function IncreaseLiquidity() {
   }, [showConfirm])
 
   async function onAdd() {
-    if (!isEVM || !library || !account || !tokenId) {
+    if (!library || !account || !tokenId) {
       return
     }
 
@@ -300,7 +298,7 @@ export default function IncreaseLiquidity() {
 
       //0.00283161
       const txn: { to: string; data: string; value: string } = {
-        to: (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
+        to: networkInfo.elastic.nonfungiblePositionManager,
         data: calldata,
         value,
       }
@@ -512,7 +510,7 @@ export default function IncreaseLiquidity() {
   }, [amountIn, poolAddress, selectedCurrency, quoteZapCurrency, tickLower, tickUpper])
 
   const { loading: zapLoading, result: zapResult, aggregatorData } = useZapInPoolResult(params)
-  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.router
+  const zapInContractAddress = networkInfo.elastic.zap?.router
   const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapIn } = useZapInAction()
   const [showZapConfirmation, setShowZapConfirmation] = useState(false)
@@ -675,8 +673,6 @@ export default function IncreaseLiquidity() {
       })()}
     </ButtonPrimary>
   )
-
-  if (!isEVM) return <Navigate to="/" />
 
   const inputAmountStyle = {
     flex: 1,
@@ -879,6 +875,7 @@ export default function IncreaseLiquidity() {
       <Container>
         <AddRemoveTabs
           hideShare
+          isElastic
           alignTitle="left"
           action={LiquidityAction.INCREASE}
           showTooltip={false}
@@ -1100,7 +1097,7 @@ export default function IncreaseLiquidity() {
                                     size="14px"
                                   />
                                   <Text>
-                                    {zapDetail.newPooledAmount0?.toSignificant(10)} {zapSymbol0}
+                                    {zapDetail.newPosDraft?.amount0?.toSignificant(10)} {zapSymbol0}
                                   </Text>
                                 </Flex>
                               )}
@@ -1119,7 +1116,7 @@ export default function IncreaseLiquidity() {
                                     size="14px"
                                   />
                                   <Text>
-                                    {zapDetail.newPooledAmount1?.toSignificant(10)} {zapSymbol1}
+                                    {zapDetail.newPosDraft?.amount1?.toSignificant(10)} {zapSymbol1}
                                   </Text>
                                 </Flex>
                               )}

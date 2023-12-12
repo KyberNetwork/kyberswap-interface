@@ -7,14 +7,12 @@ import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo,
 import { Trash } from 'react-feather'
 import { usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useImportTokenMutation } from 'services/ksSetting'
 import styled from 'styled-components'
 
 import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
 import { KS_SETTING_API } from 'constants/env'
-import { isEVM } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -102,7 +100,7 @@ const fetchTokens = async (
 ): Promise<WrappedTokenInfo[]> => {
   try {
     if (search && chainId && isAddress(chainId, search)) {
-      const token = await fetchTokenByAddress(search, chainId, signal)
+      const token = await fetchTokenByAddress(search, chainId)
       return token ? [token as WrappedTokenInfo] : []
     }
     const params: { query: string; isWhitelisted?: boolean; pageSize: number; page: number; chainIds: string } = {
@@ -155,7 +153,7 @@ export function CurrencySearch({
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
-  const isQueryValidEVMAddress = isEVM(chainId) && !!isAddress(chainId, debouncedQuery)
+  const isQueryValidEVMAddress = !!isAddress(chainId, debouncedQuery)
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
@@ -174,7 +172,7 @@ export function CurrencySearch({
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
 
-  const fetchERC20TokenFromRPC = useFetchERC20TokenFromRPC()
+  const fetchERC20TokenFromRPC = useFetchERC20TokenFromRPC(chainId)
 
   // input eth => output filter weth, input weth => output filter eth
   const filterWrapFunc = useCallback(
@@ -312,7 +310,6 @@ export function CurrencySearch({
   }, [fetchFavoriteTokenFromAddress])
 
   const abortControllerRef = useRef(new AbortController())
-  const [importTokensToKsSettings] = useImportTokenMutation()
   const fetchListTokens = useCallback(
     async (page?: number) => {
       const nextPage = (page ?? pageCount) + 1
@@ -335,15 +332,6 @@ export function CurrencySearch({
                 symbol: rawToken.symbol || 'UNKNOWN',
               }),
             )
-
-            importTokensToKsSettings([
-              {
-                chainId: String(rawToken.chainId),
-                address: rawToken.address,
-              },
-            ]).catch(err => {
-              console.error('import token err', err)
-            })
           }
         }
       } else {
@@ -354,16 +342,7 @@ export function CurrencySearch({
       setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(tokens))
       setHasMoreToken(tokens.length === PAGE_SIZE && !!debouncedQuery)
     },
-    [
-      isImportedTab,
-      chainId,
-      debouncedQuery,
-      defaultTokens,
-      fetchERC20TokenFromRPC,
-      isQueryValidEVMAddress,
-      pageCount,
-      importTokensToKsSettings,
-    ],
+    [isImportedTab, chainId, debouncedQuery, defaultTokens, fetchERC20TokenFromRPC, isQueryValidEVMAddress, pageCount],
   )
 
   const [hasMoreToken, setHasMoreToken] = useState(false)
@@ -400,6 +379,13 @@ export function CurrencySearch({
     tokenImports?.forEach(removeImportedToken)
   }
 
+  const onChangeTab = (tab: Tab) => {
+    if (!debouncedQuery && tab === Tab.All) {
+      setFetchedTokens(Object.values(defaultTokens))
+    }
+    setActiveTab(tab)
+  }
+
   return (
     <ContentWrapper>
       <PaddedColumn gap="14px">
@@ -423,7 +409,7 @@ export function CurrencySearch({
               }
             />
           </Text>
-          <CloseIcon onClick={onDismiss} />
+          <CloseIcon onClick={onDismiss} data-testid="close-icon" />
         </RowBetween>
         <Text style={{ color: theme.subText, fontSize: 12 }}>
           <Trans>
@@ -467,13 +453,13 @@ export function CurrencySearch({
               columnGap: '24px',
             }}
           >
-            <TabButton data-active={activeTab === Tab.All} onClick={() => setActiveTab(Tab.All)} data-testid="tab-all">
+            <TabButton data-active={activeTab === Tab.All} onClick={() => onChangeTab(Tab.All)} data-testid="tab-all">
               <Text as="span" fontSize={14} fontWeight={500}>
                 <Trans>All</Trans>
               </Text>
             </TabButton>
 
-            <TabButton data-active={isImportedTab} onClick={() => setActiveTab(Tab.Imported)} data-testid="tab-import">
+            <TabButton data-active={isImportedTab} onClick={() => onChangeTab(Tab.Imported)} data-testid="tab-import">
               <Text as="span" fontSize={14} fontWeight={500}>
                 <Trans>Imported</Trans>
               </Text>

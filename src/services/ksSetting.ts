@@ -1,7 +1,6 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { Connection } from '@solana/web3.js'
 import baseQueryOauth from 'services/baseQueryOauth'
 
 import { KS_SETTING_API } from 'constants/env'
@@ -18,7 +17,6 @@ export type KyberSwapConfig = {
   classicClient: ApolloClient<NormalizedCacheObject>
   elasticClient: ApolloClient<NormalizedCacheObject>
   readProvider: AppJsonRpcProvider | undefined
-  connection: Connection | undefined
   commonTokens?: string[]
 }
 
@@ -50,10 +48,19 @@ export type KyberswapGlobalConfigurationResponse = {
 
 export interface TokenListResponse<T = TokenInfo> {
   data: {
-    pageination: {
+    pagination?: {
       totalItems: number
     }
     tokens: Array<T>
+  }
+}
+
+export interface TokenImportResponse<T = TokenInfo> {
+  data: {
+    tokens: {
+      data: T
+      errorMsg: string
+    }[]
   }
 }
 
@@ -119,6 +126,13 @@ const ksSettingApi = createApi({
         body: { tokens },
         method: 'POST',
       }),
+      transformResponse: (response: TokenImportResponse): TokenListResponse => {
+        const tokens: TokenInfo[] = response.data.tokens.map(token => ({
+          ...token.data,
+          chainId: Number(token.data.chainId),
+        }))
+        return { data: { tokens } }
+      },
     }),
     getTopTokens: builder.query<TokenListResponse<TopToken>, { chainId: number; page: number }>({
       query: params => ({

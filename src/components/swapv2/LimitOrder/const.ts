@@ -22,7 +22,7 @@ export const getExpireOptions = () =>
     30 * TIMES_IN_SECS.ONE_DAY,
   ].map(e => ({ value: e, label: formatTimeDuration(e) }))
 
-export const ACTIVE_ORDER_OPTIONS = [
+export const ACTIVE_ORDER_OPTIONS = () => [
   {
     label: t`All Active Orders`,
     value: LimitOrderStatus.ACTIVE,
@@ -36,7 +36,7 @@ export const ACTIVE_ORDER_OPTIONS = [
     value: LimitOrderStatus.PARTIALLY_FILLED,
   },
 ]
-export const CLOSE_ORDER_OPTIONS = [
+export const CLOSE_ORDER_OPTIONS = () => [
   {
     label: t`All Closed Orders`,
     value: LimitOrderStatus.CLOSED,

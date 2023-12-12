@@ -9,7 +9,6 @@ import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import { MAX_ALLOW_APY } from 'constants/index'
 import { DEFAULT_REWARDS } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { AppState } from 'state'
@@ -22,15 +21,15 @@ import { isAddressString } from 'utils'
 import { getTradingFeeAPR, useFarmApr } from 'utils/dmm'
 
 export const useRewardTokens = () => {
-  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const rewardTokensMulticallResult = useMultipleContractSingleData(
-    isEVM ? (networkInfo as EVMNetworkInfo).classic.fairlaunch : [],
+    networkInfo.classic.fairlaunch,
     new Interface(FAIRLAUNCH_ABI),
     'getRewardTokens',
   )
 
   const rewardTokensV2MulticallResult = useMultipleContractSingleData(
-    isEVM ? (networkInfo as EVMNetworkInfo).classic.fairlaunchV2 : [],
+    networkInfo.classic.fairlaunchV2,
     new Interface(FAIRLAUNCH_V2_ABI),
     'getRewardTokens',
   )

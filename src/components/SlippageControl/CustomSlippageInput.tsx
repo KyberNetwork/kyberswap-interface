@@ -155,7 +155,8 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
 
     const maxSlippage = isDegenMode ? MAX_DEGEN_SLIPPAGE_IN_BIPS : MAX_NORMAL_SLIPPAGE_IN_BIPS
     if (parsedValue > maxSlippage) {
-      setTooltip(t`Max is ${formatSlippage(maxSlippage)}`)
+      const format = formatSlippage(maxSlippage)
+      setTooltip(t`Max is ${format}`)
       e.preventDefault()
       return
     }
@@ -168,20 +169,6 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
     setTooltip('')
     setRawText(getSlippageText(rawSlippage))
     mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: Number(formatSlippage(rawSlippage, false)) })
-  }
-
-  const handleKeyPressInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const key = e.key
-    if (key === '.' || ('0' <= key && key <= '9')) {
-      return
-    }
-
-    if (key === 'Enter') {
-      inputRef.current?.blur()
-      return
-    }
-
-    e.preventDefault()
   }
 
   useEffect(() => {
@@ -206,7 +193,6 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
           placeholder={t`Custom`}
           value={rawText}
           onChange={handleChangeInput}
-          onKeyPress={handleKeyPressInput}
           onBlur={handleCommitChange}
         />
         <Text

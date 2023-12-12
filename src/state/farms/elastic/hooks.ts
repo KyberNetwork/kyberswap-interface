@@ -11,8 +11,6 @@ import { NotificationType } from 'components/Announcement/type'
 import ELASTIC_FARM_ABI from 'constants/abis/v2/farm.json'
 import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { isEVM as isEVMNetwork } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useTokens } from 'hooks/Tokens'
 import { useProAmmNFTPositionManagerSigningContract, useProMMFarmSigningContract } from 'hooks/useContract'
@@ -39,13 +37,12 @@ export { default as FarmUpdater } from './updaters'
 
 export const useElasticFarms = () => {
   const { chainId } = useActiveWeb3React()
-  const isEVM = isEVMNetwork(chainId)
   const elasticFarm = useAppSelector(state => state.elasticFarm[chainId])
-  return useMemo(() => (isEVM ? elasticFarm || defaultChainData : defaultChainData), [isEVM, elasticFarm])
+  return useMemo(() => elasticFarm || defaultChainData, [elasticFarm])
 }
 
 export const useFilteredFarms = () => {
-  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const depositedPositions = useDepositedNfts()
 
   const [searchParams] = useSearchParams()
@@ -81,20 +78,19 @@ export const useFilteredFarms = () => {
     const searchAddress = isAddressString(chainId, search)
     // filter by address
     if (searchAddress) {
-      if (isEVM)
-        result = result?.map(farm => {
-          farm.pools = farm.pools.filter(pool => {
-            const poolAddress = computePoolAddress({
-              factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
-              tokenA: pool.token0.wrapped,
-              tokenB: pool.token1.wrapped,
-              fee: pool.pool.fee,
-              initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
-            })
-            return [poolAddress, pool.pool.token1.address, pool.pool.token0.address].includes(searchAddress)
+      result = result?.map(farm => {
+        farm.pools = farm.pools.filter(pool => {
+          const poolAddress = computePoolAddress({
+            factoryAddress: networkInfo.elastic.coreFactory,
+            tokenA: pool.token0.wrapped,
+            tokenB: pool.token1.wrapped,
+            fee: pool.pool.fee,
+            initCodeHashManualOverride: networkInfo.elastic.initCodeHash,
           })
-          return farm
+          return [poolAddress, pool.pool.token1.address, pool.pool.token0.address].includes(searchAddress)
         })
+        return farm
+      })
     } else {
       // filter by symbol and name of token
       result = result?.map(farm => {
@@ -137,18 +133,18 @@ export const useFilteredFarms = () => {
       }
     }
 
-    if (activeTab === FARM_TAB.MY_FARMS && isEVM) {
+    if (activeTab === FARM_TAB.MY_FARMS) {
       result = result?.map(item => {
         if (!depositedPositions[item.id]?.length) {
           return { ...item, pools: [] }
         }
         const stakedPools = depositedPositions[item.id]?.map(pos =>
           computePoolAddress({
-            factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
+            factoryAddress: networkInfo.elastic.coreFactory,
             tokenA: pos.pool.token0,
             tokenB: pos.pool.token1,
             fee: pos.pool.fee,
-            initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+            initCodeHashManualOverride: networkInfo.elastic.initCodeHash,
           }).toLowerCase(),
         )
 
@@ -164,7 +160,6 @@ export const useFilteredFarms = () => {
     activeTab,
     chainId,
     depositedPositions,
-    isEVM,
     networkInfo,
     filteredToken0Id,
     filteredToken1Id,
@@ -534,22 +529,26 @@ export const useFarmAction = (
   return { deposit, withdraw, approve, stake, unstake, harvest, emergencyWithdraw, depositAndJoin }
 }
 
-const filterOptions = [
-  {
-    code: 'in_rage',
-    value: t`In range`,
-  },
-  {
-    code: 'out_range',
-    value: t`Out of range`,
-  },
-  {
-    code: 'all',
-    value: t`All positions`,
-  },
-] as const
 export const usePositionFilter = (positions: PositionDetails[], validPools: string[], includeClosedPos = false) => {
   const [activeFilter, setActiveFilter] = useState<typeof filterOptions[number]['code']>('all')
+
+  const filterOptions = useMemo(
+    () => [
+      {
+        code: 'in_rage',
+        value: t`In range`,
+      },
+      {
+        code: 'out_range',
+        value: t`Out of range`,
+      },
+      {
+        code: 'all',
+        value: t`All positions`,
+      },
+    ],
+    [],
+  )
 
   const tokenList = useMemo(() => {
     if (!positions) return []
@@ -762,6 +761,10 @@ export function useJoinedPositions() {
               } else {
                 rewardPendings[pid][i] = rewardPendings[pid][i].add(amount)
               }
+
+              // TODO: hardcode for now. maybe all farm code will be delete in the future :/
+              rewardPendings[pid][i] = CurrencyAmount.fromRawAmount(currency, 0)
+              rewardByNft[id][i] = CurrencyAmount.fromRawAmount(currency, 0)
             })
           }
         }

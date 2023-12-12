@@ -1,6 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { stringify } from 'querystring'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Params, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
@@ -20,7 +20,7 @@ type TokenSymbolParams = {
   network: string
 }
 
-const getUrlMatchParams = (params: Params): TokenSymbolParams => {
+export const getUrlMatchParams = (params: Params): TokenSymbolParams => {
   const currencyParam = (params.currency || '').toLowerCase()
   const network: string = convertToSlug(params.network || '')
 
@@ -50,8 +50,9 @@ export default function useSyncTokenSymbolToUrl(
   const navigate = useNavigate()
   const qs = useParsedQueryString()
   const { pathname } = useLocation()
-  const allTokens = useAllTokens()
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
+  const allTokens = useAllTokens()
+  const firstTokenChainId = useMemo(() => Object.values(allTokens)[0]?.chainId, [allTokens])
 
   const currentPath = [APP_PATHS.SWAP, APP_PATHS.LIMIT].find(path => pathname.startsWith(path)) || APP_PATHS.SWAP
 
@@ -115,12 +116,15 @@ export default function useSyncTokenSymbolToUrl(
   )
 
   const checkedTokenFromUrlWhenInit = useRef(false)
+  useEffect(() => {
+    checkedTokenFromUrlWhenInit.current = false
+  }, [chainId])
 
   useEffect(() => {
     if (
       !checkedTokenFromUrlWhenInit.current &&
       isLoadedTokenDefault &&
-      Object.values(allTokens)[0]?.chainId === chainId &&
+      chainId === firstTokenChainId &&
       network === NETWORKS_INFO[chainId].route &&
       !disabled
     ) {
@@ -128,13 +132,12 @@ export default function useSyncTokenSymbolToUrl(
       setTimeout(() => findTokenPairFromUrl(chainId))
       checkedTokenFromUrlWhenInit.current = true
     }
-  }, [allTokens, findTokenPairFromUrl, chainId, isLoadedTokenDefault, disabled, network])
+  }, [isLoadedTokenDefault, firstTokenChainId, chainId, network, disabled, findTokenPairFromUrl])
 
   // when token change, sync symbol to url
-
   useEffect(() => {
-    if (isSelectCurrencyManual && isLoadedTokenDefault && !disabled) {
+    if (isLoadedTokenDefault && isSelectCurrencyManual && !disabled) {
       syncTokenSymbolToUrl(currencyIn, currencyOut)
     }
-  }, [currencyIn, currencyOut, isSelectCurrencyManual, syncTokenSymbolToUrl, isLoadedTokenDefault, disabled])
+  }, [isLoadedTokenDefault, isSelectCurrencyManual, disabled, currencyIn, currencyOut, syncTokenSymbolToUrl])
 }

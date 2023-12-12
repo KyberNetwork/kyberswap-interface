@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -7,8 +8,9 @@ import { useAppDispatch } from 'state/hooks'
 
 import { Dex, updateExcludeDex } from '.'
 
-export const useAllDexes: () => Dex[] = () => {
-  const { chainId } = useActiveWeb3React()
+export const useAllDexes: (customChainId?: ChainId) => Dex[] = (customChainId?: ChainId) => {
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
   const dexes = useSelector<AppState, AppState['customizeDexes']['allDexes']>(state => state.customizeDexes.allDexes)
 
   return useMemo(() => {
@@ -17,8 +19,9 @@ export const useAllDexes: () => Dex[] = () => {
   }, [chainId, dexes])
 }
 
-export const useExcludeDexes = (): [string[], (value: string[]) => void] => {
-  const { chainId } = useActiveWeb3React()
+export const useExcludeDexes = (customChainId?: ChainId): [string[], (value: string[]) => void] => {
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = customChainId || walletChainId
   const dispatch = useAppDispatch()
   const excludeDexes = useSelector<AppState, AppState['customizeDexes']['excludeDexes']>(
     state => state.customizeDexes.excludeDexes,

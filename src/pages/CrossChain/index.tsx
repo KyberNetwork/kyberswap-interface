@@ -1,7 +1,6 @@
 import { Squid } from '@0xsquid/sdk'
 import { Trans } from '@lingui/macro'
 import { memo, useEffect, useRef } from 'react'
-import { Navigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import WarningIcon from 'components/Icons/WarningIcon'
@@ -11,7 +10,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
-import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import { DisclaimerCrossChain } from '../Bridge/Disclaimer'
 import SwapForm from './SwapForm'
@@ -20,7 +19,7 @@ export const getAxelarScanUrl = (srcTxHash: string) => `${CROSS_CHAIN_CONFIG.AXE
 
 function CrossChain({ visible }: { visible: boolean }) {
   const theme = useTheme()
-  const { chainId, isSolana } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const [{ squidInstance, chainIdOut, listChainOut }, setCrossChainState] = useCrossChainState()
 
   const curChainId = useRef(chainId)
@@ -58,9 +57,11 @@ function CrossChain({ visible }: { visible: boolean }) {
         const chainSupports = chains.map(e => Number(e.chainId)).filter(id => SUPPORTED_NETWORKS.includes(id))
         const formattedTokens: WrappedTokenInfo[] = []
         tokens.forEach(token => {
-          if (typeof token.chainId === 'string' || !chainSupports.includes(token.chainId)) return
-          formattedTokens.push(new WrappedTokenInfo(token as TokenInfo))
+          const formatToken = { ...token, chainId: +token.chainId }
+          if (!chainSupports.includes(formatToken.chainId)) return
+          formattedTokens.push(new WrappedTokenInfo(formatToken))
         })
+
         setCrossChainState({
           chains: chainSupports,
           tokens: formattedTokens,
@@ -75,7 +76,6 @@ function CrossChain({ visible }: { visible: boolean }) {
   }, [squidInstance, setCrossChainState])
 
   if (!visible) return null
-  if (isSolana) return <Navigate to="/" />
   if (String(squidInstance?.isInMaintenanceMode) === 'true')
     return (
       <Flex style={{ gap: '8px' }} alignItems={'center'}>

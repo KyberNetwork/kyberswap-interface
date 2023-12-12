@@ -40,7 +40,8 @@ const useValidateInputError = ({
         return t`Invalid input amount`
       }
       if (balance && parseInputAmount?.greaterThan(balance)) {
-        return t`Insufficient ${currencyIn?.symbol} balance`
+        const symbol = currencyIn?.symbol
+        return t`Insufficient ${symbol} balance`
       }
 
       const remainBalance = parsedActiveOrderMakingAmount ? balance?.subtract(parsedActiveOrderMakingAmount) : undefined

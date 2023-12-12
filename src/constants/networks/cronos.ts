@@ -2,12 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import cronosIcon from 'assets/networks/cronos.svg'
 import CronosLogo from 'assets/svg/cronos-token-logo.svg'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const cronosInfo: EVMNetworkInfo = {
+const cronosInfo: NetworkInfo = {
   chainId: ChainId.CRONOS,
   route: 'cronos',
   ksSettingRoute: 'cronos',

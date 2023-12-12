@@ -17,7 +17,6 @@ import { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import {
   useProAmmNFTPositionManagerReadingContract,
@@ -115,9 +114,7 @@ export default function ProAmmFee({
   const info = userInfo?.find(item => item.nftId.toString() === tokenId.toString())
   const address = info?.farmAddress
 
-  const isFarmV21 = (networkInfo as EVMNetworkInfo).elastic['farmV2.1S']
-    ?.map(item => item.toLowerCase())
-    .includes(address?.toLowerCase())
+  const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(address?.toLowerCase())
 
   const farmV2Contract = useSigningContract(address, FarmV2ABI)
   const farmV21Contract = useSigningContract(address, FarmV21ABI)
@@ -145,8 +142,8 @@ export default function ProAmmFee({
               amount1Min.quotient.toString(),
               deadline?.toString(),
               buildFlagsForFarmV21({
-                isClaimFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-                isSyncFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+                isClaimFee: false, // !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
+                isSyncFee: false, // !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
                 isClaimReward: false,
                 isReceiveNative: true,
               }),

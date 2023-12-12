@@ -213,7 +213,7 @@ const ProfileItem = ({
 const ProfileContent = ({ scroll, toggleModal }: { scroll?: boolean; toggleModal: () => void }) => {
   const { signIn, signOutAll } = useLogin()
   const { profiles, totalGuest } = useProfileInfo()
-  const { account, isEVM } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   if (!profiles.length) return null
   const listNotActive = profiles.slice(1)
@@ -230,7 +230,7 @@ const ProfileContent = ({ scroll, toggleModal }: { scroll?: boolean; toggleModal
         </ListProfile>
       </Column>
       <ActionWrapper hasBorder={profiles.length > 1}>
-        {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && isEVM && (
+        {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && (
           <ActionItem
             onClick={() => {
               toggleModal()

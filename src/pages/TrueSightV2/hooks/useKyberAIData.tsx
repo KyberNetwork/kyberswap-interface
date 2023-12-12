@@ -386,13 +386,16 @@ const kyberAIApi = createApi({
         url: `/assets/filters`,
       }),
       transformResponse: (res: any) =>
-        res.data.map((e: any) => ({
-          ...e,
-          values: [
-            { label: t`All ${e.displayName}`, value: '' },
-            ...e.values.map((opt: any) => ({ label: opt.displayName, value: opt.queryValue })),
-          ],
-        })),
+        res.data.map((e: any) => {
+          const displayName = e.displayName
+          return {
+            ...e,
+            values: [
+              { label: t`All ${displayName}`, value: '' },
+              ...e.values.map((opt: any) => ({ label: opt.displayName, value: opt.queryValue })),
+            ],
+          }
+        }),
     }),
   }),
 })

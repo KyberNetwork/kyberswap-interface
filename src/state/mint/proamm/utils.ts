@@ -14,8 +14,7 @@ import { getCreate2Address } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
-import { rangeData } from 'pages/AddLiquidityV2/constants'
+import { getRangeData } from 'pages/AddLiquidityV2/constants'
 import { PairFactor } from 'state/topTokens/type'
 
 import { RANGE } from './type'
@@ -84,6 +83,7 @@ export const getRecommendedRangeTicks = (
   currentTick: number,
   pairFactor: PairFactor,
 ): [number, number] => {
+  const rangeData = getRangeData()
   const rangeFactor = rangeData[range].factor
   const leftRange = 1 - (pairFactor * rangeFactor) / 10000
   const rightRange = 1 + (pairFactor * rangeFactor) / 10000
@@ -102,7 +102,7 @@ export const getRecommendedRangeTicks = (
 }
 
 export function getPoolAddress(pool: Pool): string {
-  const networkInfo = NETWORKS_INFO[pool.token0.chainId] as EVMNetworkInfo
+  const networkInfo = NETWORKS_INFO[pool.token0.chainId]
   return getCreate2Address(
     networkInfo.elastic.coreFactory,
     keccak256(

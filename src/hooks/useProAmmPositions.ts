@@ -5,7 +5,6 @@ import { keccak256 } from '@ethersproject/solidity'
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useDepositedNfts, useElasticFarms, useJoinedPositions } from 'state/farms/elastic/hooks'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
@@ -20,7 +19,7 @@ interface UseProAmmPositionsResults {
 
 export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseProAmmPositionsResults {
   const positionManager = useProAmmNFTPositionManagerReadingContract()
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
 
   const inputs = useMemo(() => (tokenIds ? tokenIds.map(tokenId => [tokenId]) : []), [tokenIds])
   const results = useSingleContractMultipleData(positionManager, 'positions', inputs)
@@ -29,7 +28,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
   const error = useMemo(() => results.some(({ error }) => error), [results])
 
   const positions = useMemo(() => {
-    if (!loading && !error && tokenIds && isEVM) {
+    if (!loading && !error && tokenIds) {
       return results.map((call, i) => {
         const tokenId = tokenIds[i]
         const result = call.result as Result
@@ -37,7 +36,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
         return {
           tokenId: tokenId,
           poolId: getCreate2Address(
-            (networkInfo as EVMNetworkInfo).elastic.coreFactory,
+            networkInfo.elastic.coreFactory,
             keccak256(
               ['bytes'],
               [
@@ -47,7 +46,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
                 ),
               ],
             ),
-            (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+            networkInfo.elastic.initCodeHash,
           ),
           feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
           nonce: result.pos.nonce,
@@ -63,7 +62,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
       })
     }
     return undefined
-  }, [loading, error, results, tokenIds, networkInfo, isEVM])
+  }, [loading, error, results, tokenIds, networkInfo])
 
   return useMemo(() => {
     return {
@@ -130,7 +129,7 @@ export function useProAmmPositions(account: string | null | undefined): UseProAm
 }
 
 export const useFarmPositions = () => {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
 
   const { farms, loading } = useElasticFarms()
   const userFarmInfo = useJoinedPositions()
@@ -139,16 +138,15 @@ export const useFarmPositions = () => {
   const farmingPools = useMemo(() => farms?.map(farm => farm.pools).flat() || [], [farms])
 
   const farmPositions: PositionDetails[] = useMemo(() => {
-    if (!isEVM) return []
     return Object.values(depositedPositions)
       .flat()
       .map(pos => {
         const poolAddress = computePoolAddress({
-          factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
+          factoryAddress: networkInfo.elastic.coreFactory,
           tokenA: pos.pool.token0,
           tokenB: pos.pool.token1,
           fee: pos.pool.fee,
-          initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+          initCodeHashManualOverride: networkInfo.elastic.initCodeHash,
         })
         const pool = farmingPools.filter(pool => pool.poolAddress.toLowerCase() === poolAddress.toLowerCase())
 
@@ -182,7 +180,7 @@ export const useFarmPositions = () => {
           rewardPendings: [],
         }
       })
-  }, [farmingPools, isEVM, networkInfo, userFarmInfo, depositedPositions])
+  }, [farmingPools, networkInfo, userFarmInfo, depositedPositions])
 
   return useMemo(() => {
     return {

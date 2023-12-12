@@ -28,7 +28,6 @@ import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
 import { didUserReject } from 'constants/connectors/utils'
 import { AMP_HINT, APP_PATHS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -79,7 +78,7 @@ const ZapIn = ({
   currencyIdB: string
   pairAddress: string
 }) => {
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
@@ -170,13 +169,11 @@ const ZapIn = ({
 
   const [approval, approveCallback] = useApproveCallback(
     amountToApprove,
-    isEVM
-      ? isStaticFeePair
-        ? isOldStaticFeeContract
-          ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.zap
-          : (networkInfo as EVMNetworkInfo).classic.static.zap
-        : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
-      : undefined,
+    isStaticFeePair
+      ? isOldStaticFeeContract
+        ? networkInfo.classic.oldStatic?.zap
+        : networkInfo.classic.static.zap
+      : networkInfo.classic.dynamic?.zap,
   )
 
   const userInCurrencyAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
@@ -193,7 +190,7 @@ const ZapIn = ({
 
   const addTransactionWithType = useTransactionAdder()
   async function onZapIn() {
-    if (!isEVM || !library || !account) return
+    if (!library || !account) return
     const zapContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
 
     if (!account) {
@@ -240,7 +237,7 @@ const ZapIn = ({
     }
     // All methods of new zap static fee contract include factory address as first arg
     if (isStaticFeePair && !isOldStaticFeeContract) {
-      args.unshift((networkInfo as EVMNetworkInfo).classic.static.factory)
+      args.unshift(networkInfo.classic.static.factory)
     }
     setAttemptingTxn(true)
     await estimate(...args, value ? { value } : {})
@@ -397,6 +394,7 @@ const ZapIn = ({
 
   // warnings on slippage
   const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
+  const displaySlp = allowedSlippage / 100
 
   const modalHeader = () => {
     return (
@@ -414,9 +412,7 @@ const ZapIn = ({
           </Text>
         </Row>
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
-          {t`Output is estimated. If the price changes by more than ${
-            allowedSlippage / 100
-          }% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${displaySlp}% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )
@@ -656,7 +652,7 @@ const ZapIn = ({
                         <Text fontWeight={500} fontSize={12} color={theme.subText}>
                           AMP
                         </Text>
-                        <QuestionHelper text={AMP_HINT} />
+                        <QuestionHelper text={AMP_HINT()} />
                       </AutoRow>
                       <Text fontWeight={400} fontSize={14} color={theme.text}>
                         {!!pair ? (

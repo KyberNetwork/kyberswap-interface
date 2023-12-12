@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useGetKyberswapConfigurationQuery } from 'services/ksSetting'
 
-import { useActiveWeb3React, useWeb3Solana } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { useKyberSwapConfig } from 'state/application/hooks'
@@ -10,11 +10,10 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { updateBlockNumber } from './actions'
 
 export default function Updater(): null {
-  const { chainId, isEVM, isSolana } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const { readProvider } = useKyberSwapConfig()
   const dispatch = useDispatch()
-  const { connection } = useWeb3Solana()
 
   const windowVisible = useIsWindowVisible()
 
@@ -43,7 +42,7 @@ export default function Updater(): null {
 
   // attach/detach listeners
   useEffect(() => {
-    if (!readProvider || !windowVisible || !isEVM) return undefined
+    if (!readProvider || !windowVisible) return undefined
 
     setState({ chainId, blockNumber: null })
 
@@ -56,24 +55,7 @@ export default function Updater(): null {
     return () => {
       readProvider.removeListener('block', blockNumberCallback)
     }
-  }, [dispatch, chainId, readProvider, blockNumberCallback, windowVisible, isEVM])
-
-  useEffect(() => {
-    if (!windowVisible || !isSolana || !connection) return undefined
-
-    setState({ chainId, blockNumber: null })
-
-    const intervalToken = setInterval(async () => {
-      try {
-        const blockHeight = await connection.getBlockHeight()
-        blockNumberCallback(blockHeight)
-      } catch {}
-    }, 2000)
-
-    return () => {
-      clearInterval(intervalToken)
-    }
-  }, [blockNumberCallback, chainId, isSolana, windowVisible, connection])
+  }, [dispatch, chainId, readProvider, blockNumberCallback, windowVisible])
 
   const debouncedState = useDebounce(state, 100)
 

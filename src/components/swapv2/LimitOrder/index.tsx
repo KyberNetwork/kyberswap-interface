@@ -3,7 +3,7 @@ import { memo, useState } from 'react'
 
 import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
 import Tutorial from 'components/swapv2/LimitOrder/Tutorial'
-import { APP_PATHS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
@@ -20,8 +20,7 @@ function LimitOrderComp({ setIsSelectCurrencyManual, isSelectCurrencyManual }: P
 
   const { currencyIn, currencyOut } = useLimitState()
 
-  const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
-  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectPair, isSelectCurrencyManual, isPartnerSwap)
+  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectPair, isSelectCurrencyManual)
 
   const [showTutorial, setShowTutorial] = useState(!localStorage.getItem(TutorialKeys.SHOWED_LO_GUIDE))
 
@@ -37,6 +36,9 @@ function LimitOrderComp({ setIsSelectCurrencyManual, isSelectCurrencyManual }: P
       />
     )
 
+  const name = currencyOut?.wrapped.name
+  const symbol = currencyOut?.wrapped.symbol
+
   return (
     <div style={{ padding: '16px' }}>
       <LimitOrderForm
@@ -46,9 +48,7 @@ function LimitOrderComp({ setIsSelectCurrencyManual, isSelectCurrencyManual }: P
         currencyOut={currencyOut}
         setIsSelectCurrencyManual={setIsSelectCurrencyManual}
         note={
-          currencyOut?.isNative
-            ? t`Note: Once your order is filled, you will receive ${currencyOut?.wrapped.name} (${currencyOut?.wrapped.symbol})`
-            : undefined
+          currencyOut?.isNative ? t`Note: Once your order is filled, you will receive ${name} (${symbol})` : undefined
         }
       />
     </div>

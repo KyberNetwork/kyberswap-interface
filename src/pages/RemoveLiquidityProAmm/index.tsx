@@ -38,7 +38,6 @@ import { TutorialType } from 'components/Tutorial'
 import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { didUserReject } from 'constants/connectors/utils'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import {
   useProAmmNFTPositionManagerReadingContract,
@@ -154,24 +153,20 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const positionManager = useProAmmNFTPositionManagerReadingContract()
   const theme = useTheme()
-  const { networkInfo, account, chainId, isEVM } = useActiveWeb3React()
+  const [claimFee, _setIsClaimFee] = useState(false)
+
+  const { networkInfo, account, chainId } = useActiveWeb3React()
+
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
-  const isFarmV2 = (networkInfo as EVMNetworkInfo).elastic.farmV2S
-    ?.map(item => item.toLowerCase())
-    .includes(owner?.toLowerCase())
-  const isFarmV21 = (networkInfo as EVMNetworkInfo).elastic['farmV2.1S']
-    ?.map(item => item.toLowerCase())
-    .includes(owner?.toLowerCase())
+  const isFarmV2 = networkInfo.elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
+  const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
+  const isDynamicFarm = networkInfo.elastic.farms.flat().includes(isAddressString(chainId, owner))
 
-  const ownByFarm = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) ||
-      isFarmV2 ||
-      isFarmV21
-    : false
+  const ownByFarm = isDynamicFarm || isFarmV2 || isFarmV21
 
   const ownsNFT = owner === account || ownByFarm
 
@@ -201,7 +196,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     outOfRange,
     error,
     parsedAmounts,
-  } = useDerivedProAmmBurnInfo(position, receiveWETH)
+  } = useDerivedProAmmBurnInfo(position, receiveWETH, isDynamicFarm)
 
   const currency0IsETHER = !!(chainId && liquidityValue0?.currency.isNative)
   const currency0IsWETH = !!(chainId && liquidityValue0?.currency.equals(WETH[chainId]))
@@ -317,9 +312,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             buildFlagsForFarmV21({
-              isClaimFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-              isSyncFee: !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-              isClaimReward: true,
+              isClaimFee: false,
+              isSyncFee: false,
+              isClaimReward: false,
               isReceiveNative: !receiveWETH,
             }),
           ]
@@ -330,7 +325,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount0Min.quotient.toString(),
             amount1Min.quotient.toString(),
             deadline.toString(),
-            feeValue0?.greaterThan('0'),
+            false, // isClaimFee
             !receiveWETH,
           ]
         : [
@@ -340,7 +335,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             !receiveWETH,
-            [feeValue0?.greaterThan('0'), true],
+            [false, false],
           ]
 
       const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
@@ -409,7 +404,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         recipient: account,
         deadline: deadline.toString(),
         isRemovingLiquid: true,
-        havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
+        havingFee: claimFee && !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
       },
     })
     const txn = {
@@ -434,6 +429,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           })
       })
       .catch((error: any) => {
+        console.log('error', error)
         setAttemptingTxn(false)
 
         if (!didUserReject(error)) {
@@ -467,8 +463,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     <Trans>
       Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
       {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
-      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO) ? <br /> : ''}
-      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)
+      {claimFee && (feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)) ? <br /> : ''}
+      {claimFee && (feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO))
         ? `Collecting fee of ${feeValue0?.toSignificant(6)} ${
             feeValue0?.currency?.symbol
           } and ${feeValue1?.toSignificant(6)} ${feeValue1?.currency?.symbol}`
@@ -497,8 +493,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const isWarningSlippage = checkWarningSlippage(allowedSlippage, false)
   const slippageStatus = checkRangeSlippage(allowedSlippage, false)
 
-  if (!isEVM) return <Navigate to="/" />
-
   return (
     <>
       <TransactionConfirmationModal
@@ -523,13 +517,15 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     title={t`Remove Amount`}
                   />
                   {positionSDK ? (
-                    <ProAmmFee
-                      totalFeeRewardUSD={totalFeeRewardUSD}
-                      feeValue0={feeValue0}
-                      feeValue1={feeValue1}
-                      position={positionSDK}
-                      tokenId={tokenId}
-                    />
+                    claimFee ? (
+                      <ProAmmFee
+                        totalFeeRewardUSD={totalFeeRewardUSD}
+                        feeValue0={feeValue0}
+                        feeValue1={feeValue1}
+                        position={positionSDK}
+                        tokenId={tokenId}
+                      />
+                    ) : null
                   ) : (
                     <Loader />
                   )}
@@ -601,6 +597,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       <Container>
         <AddRemoveTabs
           hideShare
+          isElastic
           alignTitle="left"
           action={LiquidityAction.REMOVE}
           showTooltip={false}

@@ -185,7 +185,6 @@ function BuyCrypto() {
     [ChainId.BSCMAINNET]: 'bsc',
     [ChainId.AVAXMAINNET]: 'avaxcchain',
     [ChainId.FANTOM]: 'fantom',
-    [ChainId.SOLANA]: 'solana',
 
     [ChainId.ZKSYNC]: null,
     [ChainId.CRONOS]: null,

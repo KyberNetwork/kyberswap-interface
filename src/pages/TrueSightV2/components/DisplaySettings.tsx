@@ -45,64 +45,6 @@ const ViewTutorialButton = styled(RowFit)`
   }
 `
 
-const onChainAnalysisSettings = [
-  {
-    id: 'numberOfTrades',
-    name: t`Number of Trades / Type of Trade`,
-  },
-  {
-    id: 'tradingVolume',
-    name: t`Trading Volume`,
-  },
-  {
-    id: 'netflowToWhaleWallets',
-    name: t`Netflow to Whale Wallets`,
-  },
-  {
-    id: 'netflowToCEX',
-    name: t`Netflow to CEX`,
-  },
-  {
-    id: 'volumeOfTransfers',
-    name: t`Number / Volume of Tranfers`,
-  },
-  {
-    id: 'numberOfHolders',
-    name: t`Number of Holders`,
-  },
-  {
-    id: 'top10Holders',
-    name: t`Top 10 Holders`,
-  },
-  {
-    id: 'top25Holders',
-    name: t`Top 25 Holders`,
-  },
-]
-
-const technicalAnalysisSettings = [
-  {
-    id: 'liveCharts',
-    name: t`Live Charts`,
-  },
-  {
-    id: 'supportResistanceLevels',
-    name: t`Support & Resistance Levels`,
-  },
-  {
-    id: 'liveDEXTrades',
-    name: t`Live DEX Trades`,
-  },
-  {
-    id: 'fundingRateOnCEX',
-    name: t`Funding Rate on CEX`,
-  },
-  {
-    id: 'liquidationsOnCEX',
-    name: t`Liquidations on CEX`,
-  },
-]
-
 export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTokenTab }) {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
@@ -118,6 +60,65 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
   useOnClickOutside(ref, () => {
     setShowSettings(false)
   })
+
+  const onChainAnalysisSettings = () => [
+    {
+      id: 'numberOfTrades',
+      name: t`Number of Trades / Type of Trade`,
+    },
+    {
+      id: 'tradingVolume',
+      name: t`Trading Volume`,
+    },
+    {
+      id: 'netflowToWhaleWallets',
+      name: t`Netflow to Whale Wallets`,
+    },
+    {
+      id: 'netflowToCEX',
+      name: t`Netflow to CEX`,
+    },
+    {
+      id: 'volumeOfTransfers',
+      name: t`Number / Volume of Tranfers`,
+    },
+    {
+      id: 'numberOfHolders',
+      name: t`Number of Holders`,
+    },
+    {
+      id: 'top10Holders',
+      name: t`Top 10 Holders`,
+    },
+    {
+      id: 'top25Holders',
+      name: t`Top 25 Holders`,
+    },
+  ]
+
+  const technicalAnalysisSettings = () => [
+    {
+      id: 'liveCharts',
+      name: t`Live Charts`,
+    },
+    {
+      id: 'supportResistanceLevels',
+      name: t`Support & Resistance Levels`,
+    },
+    {
+      id: 'liveDEXTrades',
+      name: t`Live DEX Trades`,
+    },
+    {
+      id: 'fundingRateOnCEX',
+      name: t`Funding Rate on CEX`,
+    },
+    {
+      id: 'liquidationsOnCEX',
+      name: t`Liquidations on CEX`,
+    },
+  ]
+
   return (
     <Popover
       show={showSettings}
@@ -159,7 +160,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
             hasDivider={false}
             expandContent={
               <Column gap="12px" style={{ marginTop: '12px' }}>
-                {onChainAnalysisSettings.map(t => (
+                {onChainAnalysisSettings().map(t => (
                   <RowBetween key={t.id}>
                     <Text fontSize={14}>{t.name}</Text>
                     <Toggle
@@ -200,7 +201,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
             hasDivider={false}
             expandContent={
               <Column gap="12px" style={{ marginTop: '12px' }}>
-                {technicalAnalysisSettings.map(t => (
+                {technicalAnalysisSettings().map(t => (
                   <RowBetween key={t.id}>
                     <Text fontSize={14}>{t.name}</Text>
                     <Toggle

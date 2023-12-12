@@ -57,7 +57,7 @@ export default defineConfig({
       util: 'util',
       'react-redux': 'react-redux/dist/react-redux.js',
       '@': path.resolve(__dirname, './src/'),
-      "react-dom/client": "react-dom/profiling",
+      'react-dom/client': 'react-dom/profiling',
     },
   },
   server: {

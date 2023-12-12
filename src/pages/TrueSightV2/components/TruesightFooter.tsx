@@ -43,9 +43,7 @@ export default function TruesightFooter() {
   const location = useLocation()
   if (
     account ||
-    [APP_PATHS.MY_EARNINGS, APP_PATHS.IAM_LOGIN, APP_PATHS.IAM_CONSENT, APP_PATHS.IAM_LOGOUT].some(path =>
-      location.pathname.startsWith(path),
-    )
+    [APP_PATHS.IAM_LOGIN, APP_PATHS.IAM_CONSENT, APP_PATHS.IAM_LOGOUT].some(path => location.pathname.startsWith(path))
   ) {
     return null
   }
