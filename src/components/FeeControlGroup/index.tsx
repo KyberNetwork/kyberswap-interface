@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -59,16 +58,12 @@ const FeeControlGroup = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const feeValue = Number.parseFloat(feeAmount ?? '0')
 
-  const handleFeeChange = useCallback(
-    (feeValue: number) => {
-      if (enableTip) {
-        searchParams.set('feeAmount', feeValue.toString())
-        setSearchParams(searchParams)
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [enableTip],
-  )
+  const handleFeeChange = (feeValue: number) => {
+    if (enableTip) {
+      searchParams.set('feeAmount', feeValue.toString())
+      setSearchParams(searchParams)
+    }
+  }
 
   if (!enableTip) {
     return null
