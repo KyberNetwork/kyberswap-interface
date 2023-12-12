@@ -33,6 +33,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
+import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -115,6 +116,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const [isSaveGas, setSaveGas] = useState(false)
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  useUpdateSlippageInStableCoinSwap()
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(
