@@ -1,6 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { stringify } from 'querystring'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Params, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
@@ -114,27 +114,31 @@ export default function useSyncTokenSymbolToUrl(
     [findTokenBySymbol, redirect, onCurrencySelection, fromCurrency, network, toCurrency],
   )
 
+  const firstTokenChainId = useMemo(() => Object.values(allTokens)[0]?.chainId, [allTokens])
+
   const checkedTokenFromUrlWhenInit = useRef(false)
+  useEffect(() => {
+    checkedTokenFromUrlWhenInit.current = false
+  }, [chainId])
 
   useEffect(() => {
     if (
       !checkedTokenFromUrlWhenInit.current &&
       isLoadedTokenDefault &&
-      Object.values(allTokens)[0]?.chainId === chainId &&
+      chainId === firstTokenChainId &&
       network === NETWORKS_INFO[chainId].route &&
       !disabled
     ) {
+      // call once
       setTimeout(() => findTokenPairFromUrl(chainId))
-      // This should call many times when swap token pair
-      checkedTokenFromUrlWhenInit.current = false
+      checkedTokenFromUrlWhenInit.current = true
     }
-  }, [allTokens, findTokenPairFromUrl, chainId, isLoadedTokenDefault, disabled, network])
+  }, [isLoadedTokenDefault, firstTokenChainId, chainId, network, disabled, findTokenPairFromUrl])
 
   // when token change, sync symbol to url
-
   useEffect(() => {
-    if (isSelectCurrencyManual && isLoadedTokenDefault && !disabled) {
+    if (isLoadedTokenDefault && isSelectCurrencyManual && !disabled) {
       syncTokenSymbolToUrl(currencyIn, currencyOut)
     }
-  }, [currencyIn, currencyOut, isSelectCurrencyManual, syncTokenSymbolToUrl, isLoadedTokenDefault, disabled])
+  }, [isLoadedTokenDefault, isSelectCurrencyManual, disabled, currencyIn, currencyOut, syncTokenSymbolToUrl])
 }
