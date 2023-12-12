@@ -1,11 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react'
+import { X } from 'react-feather'
+import { Flex } from 'rebass'
 
-import { ButtonConfirmed } from './index'
+import { ButtonAction } from '../index'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
-const meta: Meta<typeof ButtonConfirmed> = {
-  title: 'Kyberswap/Shared Components/Buttons/ButtonConfirmed',
-  component: ButtonConfirmed,
+const meta: Meta<typeof ButtonAction> = {
+  title: 'Kyberswap/Shared Components/Buttons/ButtonAction',
+  component: ButtonAction,
+  decorators: Component => (
+    <Flex style={{ minWidth: '400px' }} flexShrink={0}>
+      <Component />
+    </Flex>
+  ),
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: 'centered',
@@ -14,27 +21,18 @@ const meta: Meta<typeof ButtonConfirmed> = {
   tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/api/argtypes
   argTypes: {
-    children: { control: 'text' },
-    confirmed: { control: 'boolean' },
-    altDisabledStyle: { control: 'boolean' },
+    children: { control: 'component' },
+    color: { control: 'text' },
   },
 }
 
 export default meta
-type Story = StoryObj<typeof ButtonConfirmed>
+type Story = StoryObj<typeof ButtonAction>
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const ButtonConfirmedEnable: Story = {
+export const ButtonActionExample: Story = {
   args: {
-    children: 'Button Comfirmed',
-    confirmed: false,
-    altDisabledStyle: false,
-  },
-}
-export const ButtonConfirmedAlready: Story = {
-  args: {
-    children: 'Button Comfirmed',
-    confirmed: true,
-    altDisabledStyle: false,
+    children: <X size={16} color="#FF537B" strokeWidth="3px" />,
+    color: '#31CB9E',
   },
 }
