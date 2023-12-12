@@ -29,6 +29,18 @@ export const SwapPage = {
     cy.selectToken(SwapPageLocators.dropdownTokenOut)
     return new TokenCatalog()
   },
+  setAmountIn(amount: string) {
+    cy.get('[data-testid="token-amount-input"]').eq(0).clear().type(amount)
+  },
+  getAmountIn() {
+    return cy
+      .get('[data-testid="token-amount-input"]')
+      .eq(0)
+      .invoke('val')
+      .then(value => {
+        return value
+      })
+  },
 
   getCurrentTokenIn(text: myCallbackType<string>) {
     cy.getContent(SwapPageLocators.dropdownTokenIn, text)
