@@ -9,12 +9,7 @@ export const LimitOder = {
     return cy
       .get(LimitOrderLocators.btnGetStarted, { timeout: 10000 })
       .should(() => {})
-      .then($obj => {
-        if ($obj.length > 0) {
-          return true
-        }
-        return false
-      })
+      .then($obj => $obj.length > 0)
   },
 
   clickGetStarted() {
