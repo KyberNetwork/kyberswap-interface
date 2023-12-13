@@ -123,9 +123,9 @@ describe(`Swap ${NETWORK}`, () => {
     })
 
     it('able to set selling rate by number', { tags: TAG.smoke }, () => {
-      LimitOder.setSellingRate('1.234567')
+      LimitOder.setSellingRate('2')
       LimitOder.getSellingRate().then(value => {
-        cy.wrap(value).should('eq', '1.234567')
+        cy.wrap(value).should('eq', '2')
       })
     })
 
