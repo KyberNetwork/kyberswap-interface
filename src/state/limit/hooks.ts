@@ -6,23 +6,29 @@ import { CreateOrderParam } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
 import useDefaultsTokenFromURLSearch from 'hooks/useDefaultsTokenFromURLSearch'
 import { AppDispatch, AppState } from 'state/index'
+import { Field } from 'state/swap/actions'
+import { useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
 
 import {
   pushOrderNeedCreated as pushOrderNeedCreatedAction,
   removeOrderNeedCreated as removeOrderNeedCreatedAction,
   setInputAmount,
-  setLimitCurrency,
   setOrderEditing as setOrderEditingAction,
 } from './actions'
 import { LimitState } from './reducer'
 
-export function useLimitState(): LimitState {
-  return useSelector((state: AppState) => state.limit)
+export function useLimitState(): LimitState & { currencyIn: Currency | undefined; currencyOut: Currency | undefined } {
+  const currencyIn = useInputCurrency()
+  const currencyOut = useOutputCurrency()
+  const state = useSelector((state: AppState) => state.limit)
+  return { ...state, currencyIn, currencyOut }
 }
 
 export function useLimitActionHandlers() {
   const dispatch = useDispatch<AppDispatch>()
   const { currencyIn, currencyOut } = useLimitState()
+  const { onSwitchTokensV2, onCurrencySelection } = useSwapActionHandlers()
+
   const { inputCurrency, outputCurrency } = useDefaultsTokenFromURLSearch(currencyIn, currencyOut, APP_PATHS.LIMIT)
 
   const setInputValue = useCallback(
@@ -36,19 +42,29 @@ export function useLimitActionHandlers() {
     setInputValue('')
   }, [setInputValue])
 
+  const setCurrencyIn = useCallback(
+    (currencyIn: Currency | undefined) => {
+      currencyIn && onCurrencySelection(Field.INPUT, currencyIn)
+    },
+    [onCurrencySelection],
+  )
+
+  const setCurrencyOut = useCallback(
+    (currencyOut: Currency | undefined) => {
+      currencyOut && onCurrencySelection(Field.OUTPUT, currencyOut)
+    },
+    [onCurrencySelection],
+  )
+
   const onSelectPair = useCallback(
     (currencyIn: Currency | undefined, currencyOut: Currency | undefined, inputAmount?: string) => {
-      dispatch(
-        setLimitCurrency({
-          currencyIn,
-          currencyOut,
-        }),
-      )
+      setCurrencyIn(currencyIn)
+      setCurrencyOut(currencyOut)
       if (inputAmount !== undefined) {
         setInputValue(inputAmount)
       }
     },
-    [dispatch, setInputValue],
+    [setInputValue, setCurrencyIn, setCurrencyOut],
   )
 
   useEffect(() => {
@@ -59,24 +75,6 @@ export function useLimitActionHandlers() {
       onSelectPair(inputCurrency ?? undefined, outputCurrency ?? undefined)
     }
   }, [onSelectPair, inputCurrency, outputCurrency, currencyIn, currencyOut])
-
-  const setCurrencyIn = useCallback(
-    (currencyIn: Currency | undefined) => {
-      onSelectPair(currencyIn, currencyOut)
-    },
-    [currencyOut, onSelectPair],
-  )
-
-  const setCurrencyOut = useCallback(
-    (currencyOut: Currency | undefined) => {
-      onSelectPair(currencyIn, currencyOut)
-    },
-    [currencyIn, onSelectPair],
-  )
-
-  const switchCurrency = useCallback(() => {
-    onSelectPair(currencyOut, currencyIn)
-  }, [onSelectPair, currencyOut, currencyIn])
 
   const pushOrderNeedCreated = useCallback(
     (order: CreateOrderParam) => {
@@ -100,7 +98,7 @@ export function useLimitActionHandlers() {
   )
 
   return {
-    switchCurrency,
+    switchCurrency: onSwitchTokensV2,
     setCurrencyIn,
     setCurrencyOut,
     onSelectPair,
