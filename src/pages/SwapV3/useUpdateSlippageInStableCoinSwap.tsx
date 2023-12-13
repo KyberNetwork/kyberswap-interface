@@ -1,17 +1,16 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import { usePrevious } from 'react-use'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
 import { AppState } from 'state'
 import { Field } from 'state/swap/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
-const useUpdateSlippageInStableCoinSwap = () => {
-  const { chainId } = useActiveWeb3React()
+const useUpdateSlippageInStableCoinSwap = (chainId: ChainId) => {
   const { isStableCoin } = useStableCoins(chainId)
 
   const [searchParams] = useSearchParams()
