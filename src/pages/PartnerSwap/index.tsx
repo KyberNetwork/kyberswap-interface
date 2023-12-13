@@ -87,7 +87,7 @@ export const RoutingIconWrapper = styled(RoutingIcon)`
   }
 `
 
-export default function Swap() {
+export default function PartnerSwap() {
   const { account, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()

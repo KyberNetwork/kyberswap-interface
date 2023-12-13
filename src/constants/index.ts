@@ -134,6 +134,7 @@ export const SWR_KEYS = {
 export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 1999
 export const MAX_DEGEN_SLIPPAGE_IN_BIPS = 5000
 export const DEFAULT_SLIPPAGES = [5, 10, 50, 100]
+export const DEFAULT_TIPS = [0, 10, 50, 100]
 
 export const DEFAULT_SLIPPAGE = 50
 export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 5
@@ -176,6 +177,8 @@ export const APP_PATHS = {
   IAM_LOGIN: '/login',
   IAM_LOGOUT: '/logout',
   IAM_CONSENT: '/consent',
+
+  DEPRECATED_NOTI_CENTER: '/notification-center/overview',
 
   PORTFOLIO: '/portfolio',
   MY_PORTFOLIO: '/my-portfolio',

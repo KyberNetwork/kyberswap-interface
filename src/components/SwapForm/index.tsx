@@ -10,6 +10,7 @@ import { parseGetRouteResponse } from 'services/route/utils'
 import styled from 'styled-components'
 
 import AddressInputPanel from 'components/AddressInputPanel'
+import FeeControlGroup from 'components/FeeControlGroup'
 import { Clock } from 'components/Icons'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { AutoRow } from 'components/Row'
@@ -32,6 +33,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
+import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -114,6 +116,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const [isSaveGas, setSaveGas] = useState(false)
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  useUpdateSlippageInStableCoinSwap(chainId)
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(
@@ -261,6 +264,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
             <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} isStablePairSwap={isStablePairSwap} />
+            <FeeControlGroup />
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>

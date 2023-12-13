@@ -97,8 +97,9 @@ const RightColumn = styled.div`
   `}
 `
 
-function NotificationCenter() {
+function NotificationCenter({ redirectRoute }: { redirectRoute?: PROFILE_MANAGE_ROUTES }) {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+
   return (
     <PageWrapper>
       <HeaderWrapper>
@@ -150,7 +151,11 @@ function NotificationCenter() {
             <Route path={PROFILE_MANAGE_ROUTES.PORTFOLIO} element={<Portfolio />} />
             <Route
               path="*"
-              element={<Navigate to={`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION}`} />}
+              element={
+                <Navigate
+                  to={`${APP_PATHS.PROFILE_MANAGE}${redirectRoute || PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION}`}
+                />
+              }
             />
           </Routes>
         </RightColumn>
