@@ -8,7 +8,6 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useGetLiquidityPortfolioQuery } from 'services/portfolio'
 
-import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
 import Badge, { BadgeVariant } from 'components/Badge'
 import { ButtonAction } from 'components/Button'
 import Column from 'components/Column'
@@ -24,6 +23,7 @@ import SearchInput from 'components/SearchInput'
 import Table, { TableColumn } from 'components/Table'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import NoData from 'pages/NotificationCenter/Portfolio/PortfolioDetail/NoData'
 import ChevronIcon from 'pages/TrueSightV2/components/ChevronIcon'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatUnitsToFixed } from 'utils/formatBalance'
@@ -48,7 +48,7 @@ export default function Liquidity({ walletAddresses, chainIds }: { chainIds: Cha
       orderASC: false,
       positionStatus: 'open',
     },
-    { skip: !account },
+    { skip: !walletAddresses.length },
   )
 
   const columns: TableColumn<LiquidityData>[] = [
@@ -259,10 +259,7 @@ export default function Liquidity({ walletAddresses, chainIds }: { chainIds: Cha
             padding: '50px 0px',
           }}
         >
-          <NoDataIcon />
-          <Text fontSize={'14px'}>
-            <Trans>No data found</Trans>
-          </Text>
+          <NoData />
         </Row>
       ) : (
         formattedData.map(item => {
