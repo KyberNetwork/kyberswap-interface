@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { ButtonPrimary } from './index'
+import { ButtonWarning } from '../index'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
-const meta: Meta<typeof ButtonPrimary> = {
-  title: 'Kyberswap/Shared Components/Buttons/ButtonPrimary',
-  component: ButtonPrimary,
+const meta: Meta<typeof ButtonWarning> = {
+  title: 'Kyberswap/Shared Components/Buttons/ButtonWarning',
+  component: ButtonWarning,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: 'centered',
@@ -20,18 +20,18 @@ const meta: Meta<typeof ButtonPrimary> = {
 }
 
 export default meta
-type Story = StoryObj<typeof ButtonPrimary>
+type Story = StoryObj<typeof ButtonWarning>
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const ButtonPrimaryEnable: Story = {
+export const ButtonWarningEnable: Story = {
   args: {
-    children: 'Button Primary',
+    children: 'Button Warning',
     $disabled: false,
   },
 }
-export const ButtonPrimaryDisable: Story = {
+export const ButtonWarningDisable: Story = {
   args: {
-    children: 'Button Primary',
+    children: 'Button Warning',
     $disabled: true,
   },
 }

@@ -1,18 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { X } from 'react-feather'
-import { Flex } from 'rebass'
 
-import { ButtonAction } from './index'
+import { ButtonSecondary } from '../index'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
-const meta: Meta<typeof ButtonAction> = {
-  title: 'Kyberswap/Shared Components/Buttons/ButtonAction',
-  component: ButtonAction,
-  decorators: Component => (
-    <Flex style={{ minWidth: '400px' }} flexShrink={0}>
-      <Component />
-    </Flex>
-  ),
+const meta: Meta<typeof ButtonSecondary> = {
+  title: 'Kyberswap/Shared Components/Buttons/ButtonSecondary',
+  component: ButtonSecondary,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: 'centered',
@@ -21,18 +14,24 @@ const meta: Meta<typeof ButtonAction> = {
   tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/api/argtypes
   argTypes: {
-    children: { control: 'component' },
-    color: { control: 'text' },
+    children: { control: 'text' },
+    theme: { control: 'none' },
   },
 }
 
 export default meta
-type Story = StoryObj<typeof ButtonAction>
+type Story = StoryObj<typeof ButtonSecondary>
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const ButtonActionExample: Story = {
+export const ButtonSecondaryEnable: Story = {
   args: {
-    children: <X size={16} color="#FF537B" strokeWidth="3px" />,
-    color: '#31CB9E',
+    children: 'Button Secondary',
+    $disabled: false,
+  },
+}
+export const ButtonSecondaryDisable: Story = {
+  args: {
+    children: 'Button Secondary',
+    $disabled: true,
   },
 }

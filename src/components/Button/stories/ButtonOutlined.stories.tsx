@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { ButtonSecondary } from './index'
+import { ButtonOutlined } from '../index'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
-const meta: Meta<typeof ButtonSecondary> = {
-  title: 'Kyberswap/Shared Components/Buttons/ButtonSecondary',
-  component: ButtonSecondary,
+const meta: Meta<typeof ButtonOutlined> = {
+  title: 'Kyberswap/Shared Components/Buttons/ButtonOutlined',
+  component: ButtonOutlined,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: 'centered',
@@ -15,23 +15,33 @@ const meta: Meta<typeof ButtonSecondary> = {
   // More on argTypes: https://storybook.js.org/docs/api/argtypes
   argTypes: {
     children: { control: 'text' },
+    color: { control: 'text' },
     theme: { control: 'none' },
   },
 }
 
 export default meta
-type Story = StoryObj<typeof ButtonSecondary>
+type Story = StoryObj<typeof ButtonOutlined>
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const ButtonSecondaryEnable: Story = {
+export const ButtonOutlinedEnable: Story = {
   args: {
-    children: 'Button Secondary',
+    children: 'Button Outlined',
+    color: '',
     $disabled: false,
   },
 }
-export const ButtonSecondaryDisable: Story = {
+export const ButtonOutlinedDisable: Story = {
   args: {
-    children: 'Button Secondary',
+    children: 'Button Outlined',
+    color: '',
     $disabled: true,
+  },
+}
+export const ButtonOutlinedCustomColor: Story = {
+  args: {
+    children: 'Button Outlined',
+    color: '#FF537B',
+    $disabled: false,
   },
 }

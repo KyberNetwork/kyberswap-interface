@@ -17,10 +17,8 @@ import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute, { ProtectedRouteKyberAI } from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
-import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
-import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
@@ -70,7 +68,6 @@ const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 const Campaign = lazy(() => import('pages/Campaign'))
 const GrantProgramPage = lazy(() => import('pages/GrantProgram'))
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
-const Icons = lazy(() => import('./Icons'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -370,7 +367,6 @@ export default function App() {
                 />
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
-                {ENV_LEVEL === ENV_TYPE.LOCAL && <Route path="/icons" element={<Icons />} />}
 
                 <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
