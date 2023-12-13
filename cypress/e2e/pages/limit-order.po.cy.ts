@@ -47,24 +47,14 @@ export const LimitOder = {
   },
 
   getSellingRate() {
-    return cy
-      .get(LimitOrderLocators.txtSellingRate)
-      .invoke('val')
-      .then(value => {
-        return value
-      })
+    return cy.get(LimitOrderLocators.txtSellingRate).invoke('val')
   },
 
   getBalanceIn(text: myCallbackType<string>) {
     cy.getContent(LimitOrderLocators.lblBalanceIn, text)
   },
   getSellAmount() {
-    return cy
-      .get(LimitOrderLocators.txtTokenSellAmount)
-      .invoke('val')
-      .then(value => {
-        return value
-      })
+    return cy.get(LimitOrderLocators.txtTokenSellAmount).invoke('val')
   },
 
   getInsufficientErrorMessage() {
@@ -74,11 +64,6 @@ export const LimitOder = {
     cy.get('#create-limit-order-input-tokenb input').click().type(amount)
   },
   getBuyAmount() {
-    return cy
-      .get('#create-limit-order-input-tokenb input')
-      .invoke('val')
-      .then(value => {
-        return value
-      })
+    return cy.get('#create-limit-order-input-tokenb input').invoke('val')
   },
 }
