@@ -83,10 +83,9 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) =
                 )
               }
             >
-              <Trans>Max Slippage</Trans>
+              <Trans>Max Slippage</Trans>:
             </MouseoverTooltip>
           </TextDashed>
-          :
           <Flex
             sx={{
               alignItems: 'center',
