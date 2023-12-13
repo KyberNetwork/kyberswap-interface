@@ -10,6 +10,7 @@ export default function KNCLogo({ size }: { size?: number }) {
       alt="knc-logo"
       width={size ? `${size}px` : '24px'}
       height={size ? `${size}px` : '24px'}
+      style={{ borderRadius: '100%' }}
     />
   )
 }

@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { formatUnits } from 'ethers/lib/utils'
 import { transparentize } from 'polished'
 import { NavLink } from 'react-router-dom'
@@ -12,6 +12,7 @@ import kyberDao1 from 'assets/images/gas-refund/kyberdao-1.png'
 import kyberDao2 from 'assets/images/gas-refund/kyberdao-2.png'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
+import FAQ from 'components/FAQ'
 import { RowBetween } from 'components/Row'
 import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -20,7 +21,6 @@ import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 import KNCLogo from '../kncLogo'
-import FAQ from './FAQ'
 import GasRefundBox from './GasRefundBox'
 import { HeaderCell, Table, TableHeader, TableRow } from './Table'
 
@@ -102,6 +102,74 @@ const YourStakedKNC = styled(FormWrapper)`
   gap: 8px;
   border: 1px solid ${({ theme }) => theme.primary};
 `
+
+const questions = [
+  {
+    title: t`Can I participate in the Gas Refund Program if I am not staking in KyberDAO?`,
+    content: (
+      <Trans>
+        No. You have to stake a minimum of 500 KNC in KyberDAO (on Ethereum){' '}
+        <NavLink to={APP_PATHS.KYBERDAO_STAKE}>here</NavLink>, and meet the eligibility criteria by completing swap(s)
+        on KyberSwap, with a minimum trading volume of ≥$200 per swap.
+      </Trans>
+    ),
+  },
+  {
+    title: t`Are swaps on all chains eligible for gas refunds?`,
+    content: (
+      <Trans>
+        During this beta phase, only swaps on Ethereum are eligible for gas refunds. We may expand the gas refund
+        program to other chains in the future.
+      </Trans>
+    ),
+  },
+  {
+    title: t`When will gas refunds be available to claim?`,
+    content: (
+      <Trans>
+        On the “Pending” tab, there is a countdown timer showing when pending refunds become available for claiming.
+        Refunds become available for claiming at the start of n+2 epoch. Each epoch lasts approximately 2 weeks. You can
+        claim your rewards in the KNC Utility page or in the Wallet widget.
+      </Trans>
+    ),
+  },
+  {
+    title: t`Is there a deadline to claim your gas refunds?`,
+    content: (
+      <Trans>
+        There is no deadline to claim your gas refunds. You can wait for more KNC to be accumulated before claiming them
+        in order to save on gas fees.
+      </Trans>
+    ),
+  },
+  {
+    title: t`Are limit orders and cross-chain swaps eligible for gas refunds?`,
+    content: (
+      <Trans>
+        No. Limit orders and cross-chain swaps are not eligible for gas refunds. Only standard swaps on KyberSwap are
+        eligible.
+      </Trans>
+    ),
+  },
+  {
+    title: t`How can I vote on KIPs with my staked KNC to earn voting rewards?`,
+    content: (
+      <Trans>
+        Once you have staked KNC, you can vote on active KyberDAO KIPs (Kyber Improvement Proposals) on the{' '}
+        <NavLink to={APP_PATHS.KYBERDAO_VOTE}>Vote page</NavLink> to earn voting rewards. Users who stake KNC can enjoy
+        gas refunds + vote on KIPs to and earn even more rewards. For more information on how to vote, please visit{' '}
+        <ExternalLink href="https://docs.kyberswap.com/governance/kyberdao">
+          https://docs.kyberswap.com/governance/kyberdao
+        </ExternalLink>
+        .
+      </Trans>
+    ),
+  },
+  {
+    title: t`What is the maximum gas refund limit for a user?`,
+    content: <Trans>Each user wallet address is eligible for gas refund of up to $200 within two epoch cycles.</Trans>,
+  },
+]
 
 export default function KNCUtility() {
   const { account } = useActiveWeb3React()
@@ -266,7 +334,7 @@ export default function KNCUtility() {
               <Trans>FAQ</Trans>
             </Text>
             <Column gap="56px">
-              <FAQ />
+              <FAQ questions={questions} />
             </Column>
           </Column>
           <Column gap="16px" width="100%">

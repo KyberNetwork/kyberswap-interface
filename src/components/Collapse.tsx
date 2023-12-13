@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode, useState } from 'react'
+import React, { CSSProperties, ReactNode, useEffect, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import styled, { css } from 'styled-components'
 
@@ -109,24 +109,31 @@ export const CollapseItem: React.FC<Props> = ({
   )
 }
 
-export type ToggleItemType = { title: React.ReactNode; content: ReactNode | string }
+export type ToggleItemType = { title: React.ReactNode; content: ReactNode | string; style?: CSSProperties }
 // open one, close the others
 const ToggleCollapse = ({
   data,
-  itemActiveStyle = {},
-  itemStyle = {},
+  itemActiveStyle,
+  itemStyle,
+  style,
+  defaultExpand = 0,
 }: {
   data: ToggleItemType[]
   itemActiveStyle?: CSSProperties
   itemStyle?: CSSProperties
+  style?: CSSProperties
+  defaultExpand?: number
 }) => {
-  const [expandedIndex, setExpandedIndex] = useState(0)
+  const [expandedIndex, setExpandedIndex] = useState(defaultExpand)
+  useEffect(() => {
+    setExpandedIndex(defaultExpand)
+  }, [defaultExpand])
   return (
-    <div>
+    <div style={style}>
       {data.map((item, index) => {
         const isActive = expandedIndex === index
         return (
-          <ItemWrapper key={index} style={isActive ? { ...itemStyle, ...itemActiveStyle } : itemStyle}>
+          <ItemWrapper key={index} style={{ ...itemStyle, ...item.style, ...(isActive ? itemActiveStyle : {}) }}>
             <Header
               onClick={() => {
                 setExpandedIndex(isActive ? -1 : index)

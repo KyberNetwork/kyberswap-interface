@@ -5,6 +5,7 @@ import blackjackApi from 'services/blackjack'
 import blockServiceApi from 'services/blockService'
 import campaignApi from 'services/campaign'
 import coingeckoApi from 'services/coingecko'
+import commonApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
 import earningApi from 'services/earning'
@@ -16,6 +17,7 @@ import kyberAISubscriptionApi from 'services/kyberAISubscription'
 import kyberDAO from 'services/kyberDAO'
 import limitOrderApi from 'services/limitOrder'
 import priceAlertApi from 'services/priceAlert'
+import rewardApi from 'services/reward'
 import routeApi from 'services/route'
 import socialApi from 'services/social'
 import tokenApi from 'services/token'
@@ -101,6 +103,8 @@ const store = configureStore({
     [coingeckoApi.reducerPath]: coingeckoApi.reducer,
     [contractQuery.reducerPath]: contractQuery.reducer,
     [limitOrderApi.reducerPath]: limitOrderApi.reducer,
+    [rewardApi.reducerPath]: rewardApi.reducer,
+    [commonApi.reducerPath]: commonApi.reducer,
 
     [campaignApi.reducerPath]: campaignApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
@@ -153,6 +157,8 @@ const store = configureStore({
       .concat(tokenApi.middleware)
       .concat(blockServiceApi.middleware)
       .concat(blackjackApi.middleware)
+      .concat(rewardApi.middleware)
+      .concat(commonApi.middleware)
       .concat(knProtocolApi.middleware),
   preloadedState,
 })

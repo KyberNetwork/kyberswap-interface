@@ -1,6 +1,9 @@
-function DropdownIcon({ size }: { size?: number }) {
+import { CSSProperties } from 'styled-components'
+
+function DropdownIcon({ size, style }: { size?: number; style?: CSSProperties }) {
   return (
     <svg
+      style={style}
       width={size || '24'}
       height={size || '24'}
       viewBox="0 0 24 24"
