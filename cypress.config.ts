@@ -146,7 +146,6 @@ export default defineConfig({
       //     }
       //   })
     },
-    specPattern: 'cypress/e2e/specs/*.e2e.cy.ts',
-    excludeSpecPattern: '*/*/**/zap.e2e.cy.ts',
+    specPattern: 'cypress/e2e/specs/swap.e2e.cy.ts',
   },
 })

@@ -50,8 +50,10 @@ export const SwapPage = {
   },
 
   connectWallet() {
-    cy.get(WalletLocators.btnConnectWallet).should('be.visible').click()
-    cy.connectWallet()
+    if (Cypress.$('#web3-status-connecte').length === 0) {
+      cy.get(WalletLocators.btnConnectWallet).should('be.visible').click()
+      cy.connectWallet()
+    }
   },
 
   getStatusConnectedWallet() {
