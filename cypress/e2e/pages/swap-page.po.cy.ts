@@ -28,6 +28,12 @@ export const SwapPage = {
     cy.selectToken(SwapPageLocators.dropdownTokenOut)
     return new TokenCatalog()
   },
+  setAmountIn(amount: string) {
+    cy.get('[data-testid="token-amount-input"]').eq(0).clear().type(amount)
+  },
+  getAmountIn() {
+    return cy.get('[data-testid="token-amount-input"]').eq(0).invoke('val')
+  },
 
   getCurrentTokenIn(text: myCallbackType<string>) {
     cy.getContent(SwapPageLocators.dropdownTokenIn, text)
@@ -38,8 +44,10 @@ export const SwapPage = {
   },
 
   connectWallet() {
-    cy.get(WalletLocators.btnConnectWallet).should('be.visible').click()
-    cy.connectWallet()
+    if (Cypress.$('#web3-status-connected').length === 0) {
+      cy.get(WalletLocators.btnConnectWallet).should('be.visible').click()
+      cy.connectWallet()
+    }
   },
 
   getStatusConnectedWallet() {
