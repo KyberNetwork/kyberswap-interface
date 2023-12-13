@@ -19,7 +19,7 @@ const tokenSymbols = [unWhitelistTokens[0].symbol, unWhitelistTokens[1].symbol, 
 const tokenCatalog = new TokenCatalog()
 const wallet = new Network()
 
-describe(`Swap ${NETWORK}`, { tags: TAG.smoke }, () => {
+describe(`Swap ${NETWORK}`, () => {
   before(() => {
     SwapPage.open(DEFAULT_URL)
     SwapPage.connectWallet()
@@ -28,7 +28,7 @@ describe(`Swap ${NETWORK}`, { tags: TAG.smoke }, () => {
   })
 
   describe('Swap', () => {
-    it('Redirects to swap page when a user has already connected a wallet', () => {
+    it('Redirects to swap page when a user has already connected a wallet', { tags: TAG.regression }, () => {
       cy.url().should('include', '/swap')
       cy.intercept('GET', '**/routes?**').as('get-route')
       cy.wait('@get-route', { timeout: 20000 }).its('response.statusCode').should('be.oneOf', [200, 404, 408])
@@ -41,21 +41,21 @@ describe(`Swap ${NETWORK}`, { tags: TAG.smoke }, () => {
         expect(text).to.equal('USDT')
       })
     })
-    it('able select token in', () => {
+    it('able select token in', { tags: TAG.smoke }, () => {
       SwapPage.selectTokenIn().selectTokenBySymbol('USDC')
       SwapPage.getCurrentTokenIn(text => {
         expect(text).to.equal('USDC')
       })
     })
 
-    it('able to select token out', () => {
+    it('able to select token out', { tags: TAG.smoke }, () => {
       SwapPage.selectTokenOut().selectTokenBySymbol('USDC')
       SwapPage.getCurrentTokenOut(text => {
         expect(text).to.equal('USDC')
       })
     })
 
-    it('able to set amount in', () => {
+    it('able to set amount in', { tags: TAG.smoke }, () => {
       SwapPage.setAmountIn('100')
       SwapPage.getAmountIn().should('eq', '100')
     })
@@ -73,8 +73,7 @@ describe(`Swap ${NETWORK}`, { tags: TAG.smoke }, () => {
         })
       })
 
-      SwapPage.selectTokenOut()
-      tokenCatalog.deleteImportedToken(tokenSymbols[2])
+      SwapPage.selectTokenOut().deleteImportedToken(tokenSymbols[2])
       tokenCatalog.getNoResultsFound(text => {
         expect(text).to.equal(NORESULTS_TEXT)
       })
@@ -109,28 +108,28 @@ describe(`Swap ${NETWORK}`, { tags: TAG.smoke }, () => {
       SwapPage.goToLimitOrder()
       LimitOder.clickGetStarted()
     })
-    it('able to select sell token', () => {
+    it('able to select sell token', { tags: TAG.smoke }, () => {
       LimitOder.selectTokenSell().selectTokenBySymbol('USDC')
       LimitOder.getCurrentTokenSell(text => {
         expect(text).to.equal('USDC')
       })
     })
 
-    it('able to select buy token', () => {
+    it('able to select buy token', { tags: TAG.smoke }, () => {
       LimitOder.selectTokenBuy().selectTokenBySymbol('USDC')
       LimitOder.getCurrentTokenBuy(text => {
         expect(text).to.equal('USDC')
       })
     })
 
-    it('able to set selling rate by number', () => {
+    it('able to set selling rate by number', { tags: TAG.smoke }, () => {
       LimitOder.setSellingRate('1.2345..67')
       LimitOder.getSellingRate().then(value => {
         cy.wrap(value).should('eq', '1.234567')
       })
     })
 
-    it('able to set sell amount', () => {
+    it('able to set sell amount', { tags: TAG.smoke }, () => {
       LimitOder.selectTokenSell().selectTokenBySymbol('USDC')
       LimitOder.setSellAmount('100')
       LimitOder.getSellAmount().should('eq', '100')
@@ -153,7 +152,7 @@ describe(`Swap ${NETWORK}`, { tags: TAG.smoke }, () => {
     })
   })
 
-  describe('Cross-chain', () => {
+  describe('Cross-chain', { tags: TAG.regression }, () => {
     it('The network should be changed successfully', () => {
       SwapPage.goToCrossChain()
       CrossChain.checkLoadedPage().then(checked => {
