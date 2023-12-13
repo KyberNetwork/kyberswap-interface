@@ -179,6 +179,7 @@ export const APP_PATHS = {
   IAM_CONSENT: '/consent',
 
   DEPRECATED_NOTI_CENTER: '/notification-center/overview',
+  ELASTIC_SNAPSHOT: '/elastic-snapshot',
 } as const
 
 export const TERM_FILES_PATH = {
