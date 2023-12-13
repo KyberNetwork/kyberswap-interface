@@ -16,6 +16,7 @@ import LocalLoader from 'components/LocalLoader'
 import { TokenLogoWithChain } from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
 import Table, { TableColumn } from 'components/Table'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { EMPTY_ARRAY } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
@@ -28,10 +29,10 @@ import { PortfolioWalletBalance } from 'pages/NotificationCenter/Portfolio/type'
 import SmallKyberScoreMeter from 'pages/TrueSightV2/components/SmallKyberScoreMeter'
 import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
-import { getEtherscanLink } from 'utils'
+import { getEtherscanLink, isSupportLimitOrder } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
-import { navigateToSwapPage } from 'utils/redirect'
+import { navigateToLimitPage, navigateToSwapPage } from 'utils/redirect'
 
 const WalletLabelWrapper = styled.div<{ color: string }>`
   display: flex;
@@ -107,7 +108,7 @@ export const TokenCellWithWalletAddress = ({
 export type DisplayField = { title: string; show: boolean; key: string }
 const getDefaultFields = () => [
   { title: t`Price`, show: true, key: 'priceUsd' },
-  { title: t`Balance`, show: true, key: 'amount' },
+  { title: t`Amount`, show: true, key: 'amount' },
   { title: t`Value USD`, show: true, key: 'valueUsd' },
   { title: t`KyberScore`, show: true, key: 'kyberScore' },
 ]
@@ -130,26 +131,26 @@ const ActionButton = ({ item: { tokenAddress, chainId } }: { item: PortfolioWall
   const theme = useTheme()
   return (
     <Row justify="flex-end" gap="8px">
-      {/* <ButtonAction
-        style={{
-          backgroundColor: rgba(theme.primary, 0.2),
-          padding: '4px 6px',
-          color: theme.primary,
-          width: '24px',
-          height: '24px',
-        }}
-        onClick={() => alert('in dev')}
-      >
-        <LiquidityIcon />
-      </ButtonAction> */}
-      <ButtonAction
-        style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '4px' }}
-        onClick={() => {
-          navigateToSwapPage({ chain: chainId, address: tokenAddress })
-        }}
-      >
-        <Icon id="swap" size={16} color={theme.subText} />
-      </ButtonAction>
+      {isSupportLimitOrder(+chainId) && (
+        <MouseoverTooltip text={t`Limit Order`} width="fit-content" placement="top">
+          <ButtonAction
+            style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px', height: '26px', width: '26px' }}
+            onClick={() => navigateToLimitPage({ chain: chainId, address: tokenAddress, input: true })}
+          >
+            <Icon id="chart" size={13} color={theme.subText} />
+          </ButtonAction>
+        </MouseoverTooltip>
+      )}
+      <MouseoverTooltip text={t`Swap`} width="fit-content" placement="top">
+        <ButtonAction
+          style={{ backgroundColor: rgba(theme.subText, 0.2), padding: '6px' }}
+          onClick={() => {
+            navigateToSwapPage({ chain: chainId, address: tokenAddress, input: true })
+          }}
+        >
+          <Icon id="swap" size={14} color={theme.subText} />
+        </ButtonAction>
+      </MouseoverTooltip>
     </Row>
   )
 }
@@ -192,7 +193,7 @@ const getColumns = (displayFields: DisplayField[], onChangeDisplayField: (fields
       style: isMobile ? { width: 140 } : undefined,
     },
     {
-      title: t`Balance`,
+      title: t`Amount`,
       dataIndex: 'amount',
       render: ({ value }: { value: string }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
       style: isMobile ? { width: 120 } : undefined,
@@ -211,6 +212,12 @@ const getColumns = (displayFields: DisplayField[], onChangeDisplayField: (fields
       render: ({ value }: { value: string }) => formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 }),
       style: isMobile ? { width: 120 } : undefined,
       align: 'left',
+      tooltip: (
+        <Trans>
+          This is the real value you will receive if you were to sell your asset (considers price impact). Read more{' '}
+          <ExternalLink href="/todo">here ↗</ExternalLink>
+        </Trans>
+      ),
     },
     // {
     //   title: t`Liquidity Score`,
@@ -244,7 +251,8 @@ const getColumns = (displayFields: DisplayField[], onChangeDisplayField: (fields
         <Trans>
           KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking into account
           multiple on-chain and off-chain indicators. The score ranges from 0 to 100. The higher the score, the more
-          bullish the token in the short-term. Read more <ExternalLink href="/todo">here ↗</ExternalLink>
+          bullish the token in the short-term. Read more{' '}
+          <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/kyberscore">here ↗</ExternalLink>
         </Trans>
       ),
       style: isMobile ? { width: 120 } : undefined,

@@ -51,7 +51,7 @@ export default function DisclaimerPortfolio({ onConfirm }: { onConfirm: () => vo
       <Container>
         <TextWrapper>
           <Trans>
-            My Portfolio enables users to manage decentralized assets across all KyberSwap supported chains.
+            The Portfolio feature enables users to manage decentralized assets across all KyberSwap supported chains.
           </Trans>
         </TextWrapper>
         <TextWrapper>
@@ -60,8 +60,8 @@ export default function DisclaimerPortfolio({ onConfirm }: { onConfirm: () => vo
 
         <TextWrapper>
           <Trans>
-            KyberSwap strives to provide accurate and timely data, it&apos;s essential for users to conduct their own
-            research and due diligence before making investment decisions based on the provided information.
+            While KyberSwap strives to provide accurate and timely data, it&apos;s essential for users to conduct their
+            own research and due diligence before making investment decisions based on the provided information.
           </Trans>
         </TextWrapper>
 

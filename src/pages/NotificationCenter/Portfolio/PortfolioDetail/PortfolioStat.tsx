@@ -8,6 +8,7 @@ import { Text } from 'rebass'
 import {
   useGetMyPortfoliosQuery,
   useGetPortfolioByIdQuery,
+  useGetPortfolioRealtimeBalanceQuery,
   useGetRealtimeBalanceQuery,
   useGetWalletsPortfoliosQuery,
 } from 'services/portfolio'
@@ -63,38 +64,20 @@ const useFetchPortfolio = (): {
     { skip: !currentPortfolio?.id },
   )
 
-  // fetch my portfolio info, todo ask BE
-  const { data: myPortfolios = EMPTY_ARRAY, isFetching: isLoadingMyPortfolio } = useGetMyPortfoliosQuery()
-  const [portfolio1, portfolio2] = myPortfolios
-  const { data: wallets1 = EMPTY_ARRAY } = useGetWalletsPortfoliosQuery(
-    { portfolioId: portfolio1?.id },
-    { skip: !portfolio1?.id },
-  )
-  const { data: wallets2 = EMPTY_ARRAY } = useGetWalletsPortfoliosQuery(
-    { portfolioId: portfolio2?.id },
-    { skip: !portfolio2?.id },
-  )
-  const { data: balance1 } = useGetRealtimeBalanceQuery(
-    {
-      walletAddresses: wallets1?.map(e => e.walletAddress),
-    },
-    { skip: !wallets1?.length },
-  )
-  const { data: balance2 } = useGetRealtimeBalanceQuery(
-    {
-      walletAddresses: wallets2?.map(e => e.walletAddress),
-    },
-    { skip: !wallets2?.length },
-  )
-  const otherTotalUsd1 = balance1?.totalUsd || 0
-  const otherTotalUsd2 = balance2?.totalUsd || 0
+  const { data: myPortfolios = EMPTY_ARRAY as Portfolio[], isFetching: isLoadingMyPortfolio } =
+    useGetMyPortfoliosQuery()
+
+  const ids = useMemo(() => myPortfolios.map(e => e.id), [myPortfolios])
+  const { data: balances } = useGetPortfolioRealtimeBalanceQuery({ ids }, { skip: !ids.length })
+
   const portfolioOptions = useMemo(
     () =>
-      [
-        { portfolio: portfolio1, totalUsd: otherTotalUsd1, active: portfolio1?.id === portfolioId },
-        { portfolio: portfolio2, totalUsd: otherTotalUsd2, active: portfolio2?.id === portfolioId },
-      ].filter(e => e.portfolio) as PortfolioOption[],
-    [portfolio1, portfolio2, otherTotalUsd1, otherTotalUsd2, portfolioId],
+      myPortfolios.map(portfolio => ({
+        portfolio,
+        totalUsd: Number(balances?.find(e => e.portfolioId === portfolio.id)?.totalUsd) || 0,
+        active: portfolio?.id === portfolioId,
+      })),
+    [myPortfolios, balances, portfolioId],
   )
 
   const isLoading = useShowLoadingAtLeastTime(isLoadingWallet || isLoadingMyPortfolio || isLoadingCurrentPortfolio, 500)

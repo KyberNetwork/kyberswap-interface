@@ -80,7 +80,7 @@ const getTokenColumns = (mobile: boolean, shareMode: boolean) => {
     //   style: isMobile ? { width: 120 } : undefined,
     // },
     {
-      title: t`Balance`,
+      title: t`Amount`,
       dataIndex: 'amount',
       render: ({ value }) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 6 }),
       style: sticky ? { width: 100 } : undefined,

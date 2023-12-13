@@ -156,7 +156,7 @@ function Select({
         if (!withSearch) return true
         return item.label?.toString().toLowerCase().includes(searchValue.toLowerCase())
       })
-      .map(item => {
+      .map((item, i) => {
         const value = getOptionValue(item)
         const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
           e.stopPropagation()
@@ -171,7 +171,7 @@ function Select({
         }
         return (
           <Option
-            key={value}
+            key={value || i}
             role="button"
             $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
             onClick={onClick}

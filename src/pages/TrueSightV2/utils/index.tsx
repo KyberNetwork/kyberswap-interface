@@ -1,14 +1,12 @@
-import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { commify } from 'ethers/lib/utils'
 import { useSearchParams } from 'react-router-dom'
 import { DefaultTheme } from 'styled-components'
 
-import { APP_PATHS } from 'constants/index'
 import { KyberAIListType } from 'pages/TrueSightV2/types'
 import { isInEnum } from 'utils/string'
 
-import { KYBERSCORE_TAG_TYPE, NETWORK_TO_CHAINID } from '../constants'
+import { KYBERSCORE_TAG_TYPE } from '../constants'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   if (value === 0) return theme.subText
@@ -104,17 +102,6 @@ export const getErrorMessage = (error: any) => {
     4090: t`This email address is already registered.`,
   }
   return mapErr[code] || t`Error occur, please try again.`
-}
-
-export const navigateToLimitPage = ({ address, chain }: { address?: string; chain?: string }) => {
-  if (!address || !chain) return
-  const wethAddress = WETH[NETWORK_TO_CHAINID[chain]].address
-  const formattedChain = chain === 'bsc' ? 'bnb' : chain
-  window.open(
-    window.location.origin +
-      `${APP_PATHS.LIMIT}/${formattedChain}?inputCurrency=${wethAddress}&outputCurrency=${address}`,
-    '_blank',
-  )
 }
 
 export const colorFundingRateText = (value: number, theme: DefaultTheme) => {
