@@ -50,7 +50,7 @@ export const WalletLocators = {
   btnMetaMask: '[data-testid=connect-METAMASK]',
   chkAcceptTerm: '[data-testid=accept-term]',
   statusConnected: '[data-testid=web3-status-connected]',
-  lblBalance: '[data-testid=select-network] div div div'
+  lblBalance: '[data-testid=select-network] div div div',
 }
 
 export const NetworkLocators = {
