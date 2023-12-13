@@ -116,7 +116,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const [isSaveGas, setSaveGas] = useState(false)
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  useUpdateSlippageInStableCoinSwap()
+  useUpdateSlippageInStableCoinSwap(chainId)
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(
