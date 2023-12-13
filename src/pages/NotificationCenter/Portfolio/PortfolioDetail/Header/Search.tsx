@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
 import { isMacOs, isMobile } from 'react-device-detect'
 import { Star } from 'react-feather'
@@ -14,7 +15,7 @@ import {
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
-import Avatar from 'components/Avatar'
+import Badge, { BadgeVariant } from 'components/Badge'
 import History from 'components/Icons/History'
 import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
@@ -95,18 +96,27 @@ const PortfolioItem = ({
       <td>
         <Row alignItems="center" gap="6px">
           <StarWithAnimation size={18} active={isFavorite} onClick={onToggleFavorite} stopPropagation />
-          <Avatar url="" color={theme.subText} size={16} />
-          <Text color={theme.subText} sx={{ whiteSpace: 'nowrap' }}>
+          <Text color={theme.subText} sx={{ whiteSpace: 'nowrap', fontWeight: '500' }}>
             {isMobile
               ? isAddress(ChainId.MAINNET, displayName)
                 ? getShortenAddress(displayName)
                 : shortString(displayName, 22)
               : displayName}
           </Text>
+          <Badge
+            variant={!isAddress(ChainId.MAINNET, id) ? BadgeVariant.BLUE : BadgeVariant.DEFAULT}
+            style={{
+              fontSize: '10px',
+              background: !isAddress(ChainId.MAINNET, id) ? undefined : rgba(theme.subText, 0.2),
+              padding: '2px 6px',
+            }}
+          >
+            {!isAddress(ChainId.MAINNET, id) ? <Trans>Portfolio</Trans> : <Trans>Wallet</Trans>}
+          </Badge>
         </Row>
       </td>
       <td style={{ textAlign: 'right' }}>
-        <Text color={theme.subText}>
+        <Text color={theme.subText} fontWeight={'500'}>
           {formatDisplayNumber(data.totalUsd, { style: 'currency', fractionDigits: 2 })}
         </Text>
       </td>
