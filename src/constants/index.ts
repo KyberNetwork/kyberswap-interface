@@ -177,6 +177,8 @@ export const APP_PATHS = {
   IAM_LOGIN: '/login',
   IAM_LOGOUT: '/logout',
   IAM_CONSENT: '/consent',
+
+  DEPRECATED_NOTI_CENTER: '/notification-center/overview',
 } as const
 
 export const TERM_FILES_PATH = {

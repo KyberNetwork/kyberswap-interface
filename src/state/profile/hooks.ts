@@ -197,6 +197,7 @@ export const useSignedAccountInfo = () => {
     isSigInGuest,
     isSignInGuestDefault,
     isSignInEth,
+    isSignInEmail,
   }
 }
 
