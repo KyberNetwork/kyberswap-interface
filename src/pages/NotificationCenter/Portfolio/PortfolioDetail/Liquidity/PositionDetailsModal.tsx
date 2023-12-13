@@ -12,6 +12,7 @@ import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -335,8 +336,11 @@ export default function PositionDetailsModal({
               </div>
             </Row>
           )}
-          <Row justify="flex-end" style={{ fontStyle: 'italic', fontSize: '14px', color: theme.subText }}>
-            <Trans>Powered by Krystal Liquidity Lens</Trans>
+          <Row justify="flex-end" style={{ fontStyle: 'italic', fontSize: '12px', color: theme.subText, gap: '4px' }}>
+            <Trans>
+              Powered by
+              <ExternalLink href="https://defi.krystal.app/liquidity-lens">Krystal Liquidity Lens</ExternalLink>
+            </Trans>
           </Row>
         </Column>
       </Wrapper>
