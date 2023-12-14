@@ -1,4 +1,4 @@
-import useSWR from 'swr'
+import externalApi from 'services/externalApi'
 
 import { useActiveWeb3React } from 'hooks'
 import { useETHPrice } from 'state/application/hooks'
@@ -9,7 +9,7 @@ export enum GasLevel {
   FAST = 'fast',
 }
 
-type Response = Array<{
+export type GasPriceData = Array<{
   level: GasLevel
   front_tx_count: number
   price: number // in wei
@@ -24,7 +24,7 @@ type GasPriceTrackerData = Record<
   }
 >
 
-const calculateGasPrices = (resp: Response, currentPrice?: string | number): GasPriceTrackerData => {
+const calculateGasPrices = (resp: GasPriceData, currentPrice?: string | number): GasPriceTrackerData => {
   const levels = [GasLevel.SLOW, GasLevel.NORMAL, GasLevel.FAST]
 
   const gasPricesInWei = levels.map(level => resp.find(item => item.level === level)?.price)
@@ -58,40 +58,12 @@ const calculateGasPrices = (resp: Response, currentPrice?: string | number): Gas
 }
 
 const useGasPriceFromDeBank = (): GasPriceTrackerData | undefined => {
-  const { chainId, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const nativeTokenPriceData = useETHPrice()
   const chainSlug = networkInfo.deBankSlug
-  const { data, error } = useSWR<Response>(
-    `https://openapi.debank.com/v1/wallet/gas_market?chain_id=${chainSlug}`,
-    async (url: string) => {
-      if (!chainSlug) {
-        const err = `chain (${chainId}) is not supported`
-        console.error(err)
-        throw err
-      }
+  const { data } = externalApi.useGetGasPriceQuery({ chainSlug }, { skip: !chainSlug })
 
-      const response = await fetch(url)
-      if (response.ok) {
-        const data = await response.json()
-        if (data && Array.isArray(data)) {
-          return data
-        }
-
-        const err = `invalid data in chain (${chainSlug})`
-        console.error(err)
-        throw err
-      }
-
-      const err = `fetching data on chain (${chainSlug}) failed`
-      console.error(err)
-      throw err
-    },
-  )
-
-  if (error || !data) {
-    return undefined
-  }
-
+  if (!data) return undefined
   return calculateGasPrices(data, nativeTokenPriceData.currentPrice)
 }
 

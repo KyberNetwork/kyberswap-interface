@@ -5,6 +5,7 @@ import { POOL_FARM_BASE_URL } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { SubgraphFarmV2 } from 'state/farms/elasticv2/types'
+import { ElasticPool, RawToken } from 'state/prommPools/useGetElasticPools/useGetElasticPoolsV2'
 
 type Token = {
   id: string
@@ -12,6 +13,23 @@ type Token = {
   name: string
   decimals: string
   priceUSD: string
+}
+
+export type FarmingPool = {
+  id: string
+  pid: string
+  startTime: string
+  endTime: string
+  feeTarget: string
+  farm: {
+    id: string // address of fair launch contract
+  }
+  rewardTokensIds: string[]
+  totalRewardAmounts: string[]
+  pool: ElasticPool
+  rewardTokens: RawToken[]
+  stakedTvl: string
+  apr: string
 }
 
 export type ClassicPoolKN = {
@@ -91,6 +109,20 @@ const knProtocolApi = createApi({
         url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/farm-v2?perPage=1000&page=1`,
       }),
       providesTags: [RTK_QUERY_TAGS.GET_FARM_V2],
+    }),
+    getFarmPools: builder.query<FarmingPool[], ChainId>({
+      query: (chainId: ChainId) => ({
+        url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/farm-pools`,
+        params: { page: 1, perPage: 1000 },
+      }),
+      transformResponse: (res: CommonPagingRes<{ farmPools: FarmingPool[] }>) => res.data.farmPools,
+    }),
+    getPoolElastic: builder.query<ElasticPool[], { chainId: ChainId; thisParamToForceRefresh: boolean }>({
+      query: ({ chainId, thisParamToForceRefresh }) => ({
+        url: `/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/pools`,
+        params: { page: 1, perPage: 1000, includeLowTvl: true, thisParamToForceRefresh },
+      }),
+      transformResponse: (res: CommonPagingRes<{ pools: ElasticPool[] }>) => res.data.pools,
     }),
     getPoolClassic: builder.query<{ data: { pools: ClassicPoolKN[] } }, ChainId>({
       query: (chainId: ChainId) => ({
