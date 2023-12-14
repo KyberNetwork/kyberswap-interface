@@ -15,6 +15,7 @@ import useTheme from 'hooks/useTheme'
 import { PoolsPageWrapper } from 'pages/Pools/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import data from './data.json'
@@ -69,7 +70,6 @@ export default function ElasticSnapshot() {
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
   return (
@@ -79,11 +79,11 @@ export default function ElasticSnapshot() {
           <Text as="h2" fontSize={24} fontWeight="500">
             <Trans>Snapshot</Trans>
           </Text>
-          <Text fontSize={14} color={theme.subText}>
+          <Text fontSize={14} color={theme.subText} lineHeight="20px">
             <Trans>
               You can find the list of your liquidity positions in KyberSwap Elastic pools that were affected by the
-              exploit below. Snapshots for each chain are taken based on the last block prior to the exploit. USD price
-              was taken from Coingecko near the exploited time.
+              exploit below. Snapshots for each chain are taken based on the last block prior to the exploit. Prices are
+              sourced based on the closest available pricing data from CoinGecko immediately following the exploit.
             </Trans>
           </Text>
           <ExternalLink href="/">
@@ -93,50 +93,46 @@ export default function ElasticSnapshot() {
           </ExternalLink>
         </Flex>
 
-        <Flex flex={2} flexDirection="column" sx={{ gap: '12px', maxWidth: '470px' }}>
-          <Flex justifyContent="space-between" flexDirection={upToExtraSmall ? 'column' : 'row'}>
-            <Flex flexDirection="column" sx={{ gap: '24px' }} padding="12px" flex={1}>
-              <Text fontSize="10px" fontWeight="500" color={theme.subText}>
-                <Trans>
-                  Your Total
-                  <br />
-                  Amount (USD)
-                </Trans>
+        <Flex flexDirection="column" sx={{ gap: '12px', width: '100%', maxWidth: '580px' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: upToSmall ? '1fr 1fr' : '1fr 1fr 1fr' }}>
+            <Flex flexDirection="column" sx={{ gap: '16px' }} padding="12px" justifyContent="space-between">
+              <Text fontSize="14px" fontWeight="500" color={theme.subText}>
+                <Trans>Total Amount (USD)</Trans>
               </Text>
-              <Text fontWeight="500" fontSize={14}>
+              <Text fontWeight="500" fontSize={20}>
                 {userInfo ? format(userInfo.total_usd) : '--'}
               </Text>
             </Flex>
 
-            <Flex justifyContent="space-between" flex={2}>
-              <Flex flexDirection="column" sx={{ gap: '24px' }} padding="12px" flex={1}>
-                <Text fontSize="10px" fontWeight="500" color={theme.subText}>
-                  <Trans>
-                    Your Total Liquidity
-                    <br />
-                    Amount (USD)
-                  </Trans>
-                </Text>
-                <Text fontWeight="500" fontSize={14}>
-                  {userInfo ? format(userInfo.total_liquidity_usd) : '--'}
-                </Text>
-              </Flex>
+            {upToSmall && <div />}
 
-              <Flex flexDirection="column" sx={{ gap: '24px' }} padding="12px" flex={1}>
-                <Text fontSize="10px" fontWeight="500" color={theme.subText}>
-                  <Trans>
-                    Your Total Fees
-                    <br />
-                    Amount (USD)
-                  </Trans>
-                </Text>
-                <Text fontWeight="500" fontSize={14}>
-                  {userInfo ? format(userInfo.total_fee_usd) : '--'}
-                </Text>
-              </Flex>
+            <Flex flexDirection="column" sx={{ gap: '16px' }} padding="12px" justifyContent="space-between">
+              <Text fontSize="14px" fontWeight="500" color={theme.subText} lineHeight="20px">
+                <Trans>
+                  Total Liquidity Amount
+                  <br />
+                  (USD)
+                </Trans>
+              </Text>
+              <Text fontWeight="500" fontSize={20}>
+                {userInfo ? format(userInfo.total_liquidity_usd) : '--'}
+              </Text>
             </Flex>
-          </Flex>
-          <Text color={theme.subText} fontStyle="italic" fontSize="10px" textAlign="right">
+
+            <Flex flexDirection="column" sx={{ gap: '16px' }} padding="12px" justifyContent="space-between">
+              <Text fontSize="14px" fontWeight="500" color={theme.subText} lineHeight="20px">
+                <Trans>
+                  Total Fees Amount
+                  <br />
+                  (USD)
+                </Trans>
+              </Text>
+              <Text fontWeight="500" fontSize={20}>
+                {userInfo ? format(userInfo.total_fee_usd) : '--'}
+              </Text>
+            </Flex>
+          </Box>
+          <Text color={theme.subText} fontStyle="italic" fontSize="10px" textAlign="center">
             <Trans>Your Total Amount (USD) = Your Total Liquidity Amount (USD) + Your Total Fees Amount (USD)</Trans>
           </Text>
         </Flex>
@@ -149,7 +145,7 @@ export default function ElasticSnapshot() {
                 <Text textAlign="left" fontSize="14px" padding="16px 24px">
                   <Trans>Wallet address</Trans>:{' '}
                   <Text as="span" fontWeight="500" color={theme.text}>
-                    {account}
+                    {upToSmall ? shortenAddress(1, account) : account}
                   </Text>
                 </Text>
 
@@ -237,7 +233,7 @@ export default function ElasticSnapshot() {
               <Flex padding="36px 16px" justifyContent="center" alignItems="center" flexDirection="column">
                 <Info size={64} />
                 <Text fontSize={14} marginTop="24px">
-                  <Trans>Your wallet {account} is not affected</Trans>
+                  <Trans>Your wallet {upToSmall ? shortenAddress(1, account) : account} is not affected</Trans>
                 </Text>
               </Flex>
             )
