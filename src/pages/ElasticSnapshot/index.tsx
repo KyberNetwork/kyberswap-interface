@@ -164,7 +164,7 @@ export default function ElasticSnapshot() {
                       marginLeft="auto"
                     >
                       <MouseoverTooltip
-                        text={t`This is the USD value of your liquidity position at the time of the incident.`}
+                        text={t`This is the USD value of your liquidity position immediately before the exploit.`}
                       >
                         <Trans>POSITION LIQUIDITY (USD)</Trans>
                       </MouseoverTooltip>
@@ -176,7 +176,7 @@ export default function ElasticSnapshot() {
                       marginLeft="auto"
                     >
                       <MouseoverTooltip
-                        text={t`This is the USD value of the fees earned by your liquidity position at the time of the incident.`}
+                        text={t`This is the USD value of the fees earned by your liquidity position immediately before the exploit.`}
                       >
                         <Trans>POSITION FEE (USD)</Trans>
                       </MouseoverTooltip>
@@ -199,7 +199,7 @@ export default function ElasticSnapshot() {
                     {upToSmall && (
                       <>
                         <MouseoverTooltip
-                          text={t`This is the USD value of your liquidity position at the time of the incident.`}
+                          text={t`This is the USD value of your liquidity position immediately before the exploit.`}
                         >
                           <Text
                             color={theme.subText}
@@ -220,7 +220,7 @@ export default function ElasticSnapshot() {
                           sx={{ borderBottom: `1px dotted ${theme.border}` }}
                         >
                           <MouseoverTooltip
-                            text={t`This is the USD value of the fees earned by your liquidity position at the time of the incident.`}
+                            text={t`This is the USD value of the fees earned by your liquidity position immediately before the exploit.`}
                           >
                             POSITION FEES (USD)
                           </MouseoverTooltip>
