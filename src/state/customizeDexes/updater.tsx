@@ -1,11 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
+import ksSettingApi from 'services/ksSetting'
 
 import { isKyberSwapDex } from 'components/swapv2/LiquiditySourcesPanel'
 import { KYBERSWAP_KS_DEXES_TO_UI_DEXES, KYBERSWAP_UI_DEXES_CUSTOM } from 'constants/dexes'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useLiquiditySources from 'hooks/useAggregatorStats'
 import { AppDispatch } from 'state/index'
 import { uniqueArray } from 'utils/array'
 
@@ -16,7 +17,7 @@ export default function Updater({ customChainId }: { customChainId?: ChainId }):
 
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
-  const { data: dexes } = useLiquiditySources(chainId)
+  const { data: dexes } = ksSettingApi.useGetDexListQuery({ chainId: NETWORKS_INFO[chainId].ksSettingRoute })
 
   // filterout kyberswap dexes, will hardcode
   const normalizeDexes = useMemo(() => {

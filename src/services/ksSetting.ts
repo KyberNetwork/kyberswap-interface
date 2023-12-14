@@ -1,13 +1,14 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
 import { KS_SETTING_API } from 'constants/env'
 import { AppJsonRpcProvider } from 'constants/providers'
 import { ChainStateMap } from 'hooks/useChainsConfig'
-import { TokenInfo } from 'state/lists/wrappedTokenInfo'
+import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { TopToken } from 'state/topTokens/type'
+import { formatTokenInfo } from 'utils/tokenInfo'
 
 export type KyberSwapConfig = {
   rpc: string
@@ -46,6 +47,13 @@ export type KyberswapGlobalConfigurationResponse = {
   }
 }
 
+type Dex = {
+  id: number
+  dexId: string
+  name: string
+  logoURL: string
+}
+
 export interface TokenListResponse<T = TokenInfo> {
   data: {
     pagination?: {
@@ -79,7 +87,6 @@ const ksSettingApi = createApi({
         },
       }),
     }),
-
     getKyberswapGlobalConfiguration: builder.query<KyberswapGlobalConfigurationResponse, void>({
       query: () => ({
         url: '/configurations/fetch',
@@ -103,6 +110,13 @@ const ksSettingApi = createApi({
         })),
     }),
 
+    getDexList: builder.query<Dex[], { chainId: string }>({
+      query: ({ chainId }) => ({
+        url: `/dexes`,
+        params: { chain: chainId, isEnabled: true, pageSize: 100 },
+      }),
+      transformResponse: (res: CommonPagingRes<{ dexes: Dex[] }>) => res.data.dexes,
+    }),
     getTokenList: builder.query<
       TokenListResponse,
       {
@@ -119,6 +133,25 @@ const ksSettingApi = createApi({
         url: `/tokens`,
         params: { ...params, chainIds: chainId },
       }),
+    }),
+    getTokenByAddress: builder.query<WrappedTokenInfo | NativeCurrency, { address: string; chainId: ChainId }>({
+      queryFn: async ({ address, chainId }, _api, _extra, fetchWithBQ): Promise<any> => {
+        const tokenListRes = await fetchWithBQ({
+          url: '/tokens',
+          params: { chainIds: chainId, addresses: address },
+        })
+        let token = (tokenListRes.data as TokenListResponse)?.data.tokens[0]
+        if (!token) {
+          const importTokenRes = await fetchWithBQ({
+            url: '/tokens/import',
+            method: 'POST',
+            body: { tokens: [{ chainId: chainId.toString(), address }] },
+          })
+          token = (importTokenRes.data as TokenImportResponse)?.data.tokens[0]?.data
+        }
+        const data = token ? formatTokenInfo(token) : undefined
+        return { data }
+      },
     }),
     importToken: builder.mutation<TokenListResponse, Array<{ chainId: string; address: string }>>({
       query: tokens => ({

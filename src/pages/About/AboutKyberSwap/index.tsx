@@ -3,6 +3,7 @@ import { Edit, FileText, Plus, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
+import aggregatorStatsApi from 'services/aggregatorStats'
 import styled from 'styled-components'
 
 import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
@@ -41,7 +42,6 @@ import ZkSyncFull from 'components/Icons/ZkSyncFull'
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -170,7 +170,7 @@ function AboutKyberSwap() {
   const above768 = useMedia('(min-width: 768px)')
   const above500 = useMedia('(min-width: 500px)')
 
-  const aggregatorData = useAggregatorVolume()
+  const { data: aggregatorData } = aggregatorStatsApi.useGetAggregatorVolumeQuery({})
 
   const { mixpanelHandler } = useMixpanel()
 

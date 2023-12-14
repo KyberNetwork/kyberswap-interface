@@ -2,7 +2,7 @@ import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sd
 
 import { ETHER_ADDRESS } from 'constants/index'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK } from 'constants/tokenLists/token-info'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 /**
  * hard code: ex: usdt => usdt_e, ... if network has multi symbol same name base on network
@@ -65,3 +65,23 @@ export const getTokenSymbolWithHardcode = (
 
 export const getProxyTokenLogo = (logoUrl: string | undefined) =>
   logoUrl ? `https://proxy.kyberswap.com/token-logo?url=${logoUrl}` : ''
+
+// ex: `"BTT_b"` => BTT_b
+export const escapeQuoteString = (str: string) =>
+  str?.startsWith('"') && str?.endsWith('"') ? str.substring(1, str.length - 1) : str
+
+export const formatTokenInfo = (rawTokenResponse: TokenInfo) => {
+  try {
+    const tokenResponse = { ...rawTokenResponse }
+    tokenResponse.symbol = escapeQuoteString(tokenResponse.symbol)
+    tokenResponse.name = escapeQuoteString(tokenResponse.name)
+
+    const tokenInfo = new WrappedTokenInfo(tokenResponse)
+    if (!tokenInfo.decimals && !tokenInfo.symbol && !tokenInfo.name) {
+      return
+    }
+    return tokenInfo
+  } catch (e) {
+    return
+  }
+}
