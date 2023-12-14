@@ -173,6 +173,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         )
         setSearchParams(searchParams)
       } else updateCurrencyIn(currency)
+      autoFillMarketPrice.current = false
     },
     [useUrlParams, searchParams, setSearchParams, updateCurrencyIn],
   )
@@ -186,6 +187,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         )
         setSearchParams(searchParams)
       } else updateCurrencyOut(currency)
+      autoFillMarketPrice.current = false
     },
     [useUrlParams, searchParams, setSearchParams, updateCurrencyOut],
   )
@@ -607,11 +609,11 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
   const autoFillMarketPrice = useRef(false)
   useEffect(() => {
-    if (tradeInfo && !autoFillMarketPrice.current) {
+    if (tradeInfo && !autoFillMarketPrice.current && !loadingTrade) {
       autoFillMarketPrice.current = true
       setPriceRateMarket(true)
     }
-  }, [tradeInfo, setPriceRateMarket])
+  }, [tradeInfo, setPriceRateMarket, loadingTrade])
 
   const trackingTouchInput = useCallback(() => {
     mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
