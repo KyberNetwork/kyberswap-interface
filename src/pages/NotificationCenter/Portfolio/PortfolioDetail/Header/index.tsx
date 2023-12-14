@@ -32,7 +32,7 @@ import { shortString } from 'utils/string'
 const browserCustomStyle = css`
   padding: 0;
   border-radius: 20px;
-  top: 120px;
+  top: 70px;
   right: unset;
   ${({ theme }) => theme.mediaWidth.upToLarge`
     top: unset;
