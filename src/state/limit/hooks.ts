@@ -7,35 +7,41 @@ import { APP_PATHS } from 'constants/index'
 import useDefaultsTokenFromURLSearch from 'hooks/useDefaultsTokenFromURLSearch'
 import { AppDispatch, AppState } from 'state/index'
 import { Field } from 'state/swap/actions'
-import { useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
+import { useInputCurrency, useOutputCurrency, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 
 import {
   pushOrderNeedCreated as pushOrderNeedCreatedAction,
   removeOrderNeedCreated as removeOrderNeedCreatedAction,
-  setInputAmount,
   setOrderEditing as setOrderEditingAction,
 } from './actions'
 import { LimitState } from './reducer'
 
-export function useLimitState(): LimitState & { currencyIn: Currency | undefined; currencyOut: Currency | undefined } {
+export function useLimitState(): LimitState & {
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
+  inputAmount: string
+} {
+  // use swap state to sync data between 2 tabs LO/swap
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
+  const { typedValue: inputAmount } = useSwapState()
+
   const state = useSelector((state: AppState) => state.limit)
-  return { ...state, currencyIn, currencyOut }
+  return { ...state, currencyIn, currencyOut, inputAmount }
 }
 
 export function useLimitActionHandlers() {
   const dispatch = useDispatch<AppDispatch>()
   const { currencyIn, currencyOut } = useLimitState()
-  const { onSwitchTokensV2, onCurrencySelection } = useSwapActionHandlers()
+  const { onSwitchTokensV2, onCurrencySelection, onUserInput } = useSwapActionHandlers()
 
   const { inputCurrency, outputCurrency } = useDefaultsTokenFromURLSearch(currencyIn, currencyOut, APP_PATHS.LIMIT)
 
   const setInputValue = useCallback(
     (inputAmount: string) => {
-      dispatch(setInputAmount(inputAmount))
+      onUserInput(Field.INPUT, inputAmount)
     },
-    [dispatch],
+    [onUserInput],
   )
 
   const resetState = useCallback(() => {

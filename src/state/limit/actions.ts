@@ -6,5 +6,3 @@ export const pushOrderNeedCreated = createAction<CreateOrderParam>('limit/pushOr
 export const removeOrderNeedCreated = createAction<number>('limit/removeOrderNeedCreated')
 
 export const setOrderEditing = createAction<CreateOrderParam>('limit/setOrderEditing')
-
-export const setInputAmount = createAction<string>('limit/setInputAmount')
