@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
@@ -90,6 +90,7 @@ export type SwapFormProps = {
 const SwapForm: React.FC<SwapFormProps> = props => {
   const { pathname } = useLocation()
   const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const [searchParams] = useSearchParams()
   const {
     hidden,
     currencyIn,
@@ -146,6 +147,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     parsedAmount,
     isProcessingSwap,
     customChain: chainId,
+    clientId: searchParams.get('clientId') || undefined,
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
