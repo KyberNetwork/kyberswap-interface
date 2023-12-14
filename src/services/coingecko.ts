@@ -3,6 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 
 import { NETWORKS_INFO } from 'constants/networks'
+import { fetchCoingeckoData } from 'hooks/useBasicChartData'
 
 export type SecurityInfo = {
   is_open_source: string
@@ -49,6 +50,15 @@ const coingeckoApi = createApi({
         url: `https://api.gopluslabs.io/api/v1/token_security/${chainId}?contract_addresses=${address}`,
       }),
       transformResponse: (data: any, _, arg) => data?.result?.[arg.address.toLowerCase()],
+    }),
+    fetchCoingeckoData: builder.query<
+      any,
+      { tokenAddresses: string[]; chainIds: ChainId[]; timeFrame: any; coingeckoAPI: string }
+    >({
+      queryFn: async ({ tokenAddresses, chainIds, timeFrame, coingeckoAPI }): Promise<any> => {
+        const data = await fetchCoingeckoData([tokenAddresses, chainIds, timeFrame, coingeckoAPI])
+        return { data }
+      },
     }),
   }),
 })
