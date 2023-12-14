@@ -116,6 +116,20 @@ const ExpiredInput = styled(InputWrapper)`
     max-width: unset;
   `}
 `
+const useInputAmount = ({
+  defaultInputAmount,
+  isEdit,
+}: {
+  defaultInputAmount?: string
+  isEdit: boolean
+}): [string, (v: string) => void] => {
+  const { inputAmount } = useLimitState()
+  const { setInputValue } = useLimitActionHandlers()
+
+  const localState = useState(defaultInputAmount || '')
+  return isEdit ? localState : [inputAmount, setInputValue]
+}
+
 export type LimitOrderFormHandle = {
   hasChangedOrderInfo: () => boolean
 }
@@ -161,7 +175,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     switchCurrency: rotateCurrency,
     removeOrderNeedCreated,
     setOrderEditing,
-    setInputValue: setInputValueGlobal,
   } = useLimitActionHandlers()
 
   const setCurrencyIn = useCallback(
@@ -202,9 +215,9 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     } else rotateCurrency()
   }, [useUrlParams, rotateCurrency, searchParams, setSearchParams])
 
-  const { ordersNeedCreated, inputAmount: inputAmountGlobal } = useLimitState()
+  const { ordersNeedCreated } = useLimitState()
 
-  const [inputAmount, setInputAmount] = useState(defaultInputAmount || inputAmountGlobal)
+  const [inputAmount, setInputAmount] = useInputAmount({ defaultInputAmount, isEdit })
   const [outputAmount, setOutputAmount] = useState(defaultOutputAmount)
 
   const [rateInfo, setRateInfo] = useState<RateInfo>(defaultRate)
@@ -310,7 +323,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         setOutputAmount(calcOutput(input, rateInfo.rateFraction || rateInfo.rate, currencyOut.decimals))
       }
     },
-    [rateInfo, currencyIn, currencyOut],
+    [rateInfo, currencyIn, currencyOut, setInputAmount],
   )
 
   const onInvertRate = (invert: boolean) => {
@@ -599,13 +612,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       unsubscribeExpired?.()
     }
   }, [account, chainId, ordersNeedCreated, removeOrderNeedCreated, refreshActiveMakingAmount, isEdit])
-
-  useEffect(() => {
-    if (inputAmountGlobal) {
-      onSetInput(inputAmountGlobal)
-      setInputValueGlobal('')
-    }
-  }, [inputAmountGlobal, onSetInput, setInputValueGlobal]) // when redux state change, ex: type and swap
 
   const autoFillMarketPrice = useRef(false)
   useEffect(() => {

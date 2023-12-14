@@ -125,9 +125,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     },
     [updateInputAmount],
   )
-  useEffect(() => {
-    onUserInput('1')
-  }, [onUserInput])
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const {
