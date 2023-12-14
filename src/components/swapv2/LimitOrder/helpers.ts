@@ -128,7 +128,6 @@ export const calcPercentFilledOrder = (value: string, total: string, decimals: n
     )
     return float && float < 0.01 ? '< 0.01' : formatNumberWithPrecisionRange(float, 0, 2)
   } catch (error) {
-    console.log(error)
     return '0'
   }
 }

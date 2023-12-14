@@ -44,10 +44,6 @@ export function useLimitActionHandlers() {
     [onUserInput],
   )
 
-  const resetState = useCallback(() => {
-    setInputValue('')
-  }, [setInputValue])
-
   const setCurrencyIn = useCallback(
     (currencyIn: Currency | undefined) => {
       currencyIn && onCurrencySelection(Field.INPUT, currencyIn)
@@ -111,7 +107,6 @@ export function useLimitActionHandlers() {
     pushOrderNeedCreated,
     removeOrderNeedCreated,
     setOrderEditing,
-    resetState,
     setInputValue,
   }
 }
