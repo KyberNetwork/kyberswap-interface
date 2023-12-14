@@ -8,7 +8,6 @@ import { Flex } from 'rebass'
 import { css } from 'styled-components'
 
 import DefaultAvatar from 'assets/images/default_avatar.png'
-import { ReactComponent as PortfolioIcon } from 'assets/svg/portfolio.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import Badge, { BadgeVariant } from 'components/Badge'
@@ -115,9 +114,12 @@ export default function Header({
         whiteSpace: 'nowrap',
         alignItems: 'center',
         gap: '8px',
+        maxWidth: '100%',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
       }}
     >
-      {isLoading ? '--' : shortString(activePortfolio?.name || '', upToSmall ? 22 : 50) || getShortenAddress(wallet)}{' '}
+      {isLoading ? '--' : shortString(activePortfolio?.name || '', upToSmall ? 20 : 50) || getShortenAddress(wallet)}{' '}
       {portfolioId || wallet ? (
         <Badge
           variant={portfolioId ? BadgeVariant.BLUE : BadgeVariant.DEFAULT}
@@ -136,7 +138,7 @@ export default function Header({
       {upToSmall && <Search />}
       <RowBetween align="center">
         <Flex color={theme.text} fontSize={'24px'} fontWeight={'500'} alignItems={'center'} sx={{ gap: '4px' }}>
-          {search ? <ChevronLeft style={{ cursor: 'pointer' }} onClick={() => navigate(-1)} /> : <PortfolioIcon />}
+          {search && <ChevronLeft style={{ cursor: 'pointer', minWidth: 24 }} onClick={() => navigate(-1)} />}
 
           {isLoading || !isMyPortfolioPage || formatPortfolio.length === 0 ? (
             accountText

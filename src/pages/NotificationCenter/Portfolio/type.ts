@@ -57,7 +57,7 @@ export type TokenAllowAnce = {
   decimals: number
   hasPrice: boolean
   is_checked: boolean
-  lastUpdateTimestamp: string
+  lastUpdateTimestamp: number
   lastUpdateTxHash: string
   logo: string
   name: string
