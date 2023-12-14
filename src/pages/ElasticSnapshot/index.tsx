@@ -82,7 +82,8 @@ export default function ElasticSnapshot() {
           <Text fontSize={14} color={theme.subText}>
             <Trans>
               You can find the list of your liquidity positions in KyberSwap Elastic pools that were affected by the
-              exploit below.
+              exploit below. Snapshots for each chain are taken based on the last block prior to the exploit. USD price
+              was taken from Coingecko near the exploited time.
             </Trans>
           </Text>
           <ExternalLink href="/">
