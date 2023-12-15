@@ -294,7 +294,10 @@ export default function ElasticSnapshot() {
               <Flex padding="36px 16px" justifyContent="center" alignItems="center" flexDirection="column">
                 <Info size={64} />
                 <Text fontSize={14} marginTop="24px">
-                  <Trans>Your wallet {upToSmall ? shortenAddress(1, account) : account} is not affected</Trans>
+                  <Trans>
+                    None of the liquidity position(s) held by your wallet ({shortenAddress(1, account)}) was affected by
+                    the exploit.
+                  </Trans>
                 </Text>
               </Flex>
             )
