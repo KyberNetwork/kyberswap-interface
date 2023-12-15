@@ -8,6 +8,7 @@ import { MoneyBag } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
+import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
@@ -40,7 +41,7 @@ const EarnNavGroup = () => {
           <StyledNavLink
             id="pools-nav-link"
             data-testid="pools-nav-link"
-            to={`${APP_PATHS.POOLS}/${networkInfo.route}`}
+            to={{ pathname: `${APP_PATHS.POOLS}/${networkInfo.route}`, search: `tab=${VERSION.CLASSIC}` }}
             style={{ width: '100%' }}
           >
             <Flex sx={{ gap: '12px' }} alignItems="center">
@@ -55,7 +56,7 @@ const EarnNavGroup = () => {
             }}
             id="farms-nav-link"
             data-testid="farms-nav-link"
-            to={`${APP_PATHS.FARMS}/${networkInfo.route}`}
+            to={{ pathname: `${APP_PATHS.FARMS}/${networkInfo.route}`, search: `tab=${VERSION.CLASSIC}` }}
           >
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <MoneyBag size={16} />

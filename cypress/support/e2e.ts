@@ -15,19 +15,9 @@
 import '@cypress/grep'
 import registerCypressGrep from '@cypress/grep/src/support'
 import '@synthetixio/synpress/support/index'
-import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector'
 
 import './commands'
 import './connectWalletCommands'
 import './selectTokenCommands'
 
-const configOption = {
-  collectTypes: ['cons:debug'],
-  filterLog: function (args: [installLogsCollector.LogType, string, installLogsCollector.Severity]) {
-    const [logType, message] = args
-    return logType === 'cons:debug' && message.includes('zap data')
-  },
-}
-
-installLogsCollector(configOption)
 registerCypressGrep()

@@ -133,3 +133,13 @@ export interface RewardStats {
   }
   apr: string
 }
+
+export type DaoInfo = {
+  current_epoch: number
+  current_epoch_voted: number
+  current_epoch_voter: number
+  epoch_period_in_seconds: number
+  first_epoch_start_timestamp: number
+  total_staked: number
+  total_staker: number
+}

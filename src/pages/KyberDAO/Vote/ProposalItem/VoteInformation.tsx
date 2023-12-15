@@ -61,8 +61,8 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
     .multiply(proposal.executor_minimum_quorum)
     .divide(BIPS_BASE)
   const { epochNumber, epochStartTimestamp } = getEpochInformation(
-    daoInfo.epoch_period_in_seconds,
-    daoInfo.first_epoch_start_timestamp,
+    daoInfo?.epoch_period_in_seconds ?? 0,
+    daoInfo?.first_epoch_start_timestamp ?? 0,
     proposal.start_timestamp,
   )
 

@@ -12,8 +12,6 @@ import kyberDAOApi, {
   useGetGasRefundRewardInfoQuery,
   useGetGasRefundTierInfoQuery,
 } from 'services/kyberDAO'
-import useSWR from 'swr'
-import useSWRImmutable from 'swr/immutable'
 
 import { NotificationType } from 'components/Announcement/type'
 import DaoABI from 'constants/abis/kyberdao/dao.json'
@@ -40,15 +38,7 @@ import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/sentry'
 
-import {
-  EligibleTxsInfo,
-  ProposalDetail,
-  ProposalStatus,
-  RewardStats,
-  StakerAction,
-  StakerInfo,
-  VoteInfo,
-} from './types'
+import { DaoInfo, EligibleTxsInfo } from './types'
 
 export function isSupportKyberDao(chainId: ChainId) {
   return SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO
@@ -305,12 +295,6 @@ export const useVotingActions = () => {
   return { vote }
 }
 
-const fetcher = (url: string) => {
-  return fetch(url)
-    .then(res => res.json())
-    .then(res => res.data)
-}
-
 export function useStakingInfo() {
   const { account } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
@@ -323,10 +307,7 @@ export function useStakingInfo() {
     return delegatedAddress.result?.[0] && delegatedAddress.result?.[0] !== account
   }, [delegatedAddress, account])
 
-  const { data: stakerActions } = useSWR<StakerAction[]>(
-    account && kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '/actions',
-    fetcher,
-  )
+  const { data: stakerActions } = kyberDAOApi.useGetStakerActionsQuery({ account }, { skip: !account })
 
   const [totalSupply, setTotalSupply] = useState()
   useEffect(() => {
@@ -354,8 +335,9 @@ export function useVotingInfo() {
     RewardDistributorABI,
     ChainId.MAINNET,
   )
-  const { data: daoInfo } = useSWR(kyberDaoInfo?.daoStatsApi + '/dao-info', fetcher)
-  const [localStoredDaoInfo, setLocalStoredDaoInfo] = useLocalStorage('kyberdao-daoInfo')
+  const { data: daoInfo } = kyberDAOApi.useGetDaoInfoQuery({})
+  const [localStoredDaoInfo, setLocalStoredDaoInfo] = useLocalStorage<DaoInfo>('kyberdao-daoInfo')
+
   const [merkleData, setMerkleData] = useState<any>()
   useEffect(() => {
     rewardsDistributorContract
@@ -382,19 +364,9 @@ export function useVotingInfo() {
     return merkleDataFileUrl
   }, [merkleData])
 
-  const { data: userRewards } = useSWRImmutable(
-    account && merkleDataFileUrl ? { url: merkleDataFileUrl, address: account } : null,
-    ({ url, address }) => {
-      return fetch(url)
-        .then(res => {
-          return res.json()
-        })
-        .then(res => {
-          res.userReward = address ? res.userRewards[address] : undefined
-          delete res.userRewards
-          return res
-        })
-    },
+  const { data: userRewards } = kyberDAOApi.useGetUserRewardsQuery(
+    { url: merkleDataFileUrl, account },
+    { skip: !merkleDataFileUrl || !account },
   )
 
   const [claimedRewardAmounts, setClaimedRewardAmounts] = useState<any>()
@@ -418,53 +390,23 @@ export function useVotingInfo() {
     )
   }, [claimedRewardAmounts, userRewards?.userReward])
 
-  const { data: proposals } = useSWR<ProposalDetail[]>(
-    kyberDaoInfo?.daoStatsApi + '/proposals',
-    (url: string) =>
-      fetch(url)
-        .then(res => res.json())
-        .then(res =>
-          res.data.map((p: ProposalDetail) => {
-            let mappedStatus
-            switch (p.status) {
-              case 'Succeeded':
-              case 'Queued':
-              case 'Finalized':
-                mappedStatus = ProposalStatus.Approved
-                break
-              case 'Expired':
-                mappedStatus = ProposalStatus.Failed
-                break
-              default:
-                mappedStatus = p.status
-                break
-            }
-            return { ...p, status: mappedStatus }
-          }),
-        ),
-    {
-      refreshInterval: 15000,
-    },
+  const { data: proposals } = kyberDAOApi.useGetProposalsQuery({})
+
+  const { data: stakerInfo } = kyberDAOApi.useGetStakerInfoQuery(
+    { account, epoch: daoInfo?.current_epoch },
+    { skip: !account || !daoInfo?.current_epoch },
   )
 
-  const { data: stakerInfo } = useSWR<StakerInfo>(
-    daoInfo?.current_epoch &&
-      account &&
-      kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '?epoch=' + daoInfo?.current_epoch,
-    fetcher,
-  )
-  const { data: stakerInfoNextEpoch } = useSWR<StakerInfo>(
-    daoInfo?.current_epoch &&
-      account &&
-      kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '?epoch=' + (parseFloat(daoInfo?.current_epoch) + 1),
-    fetcher,
+  const { data: stakerInfoNextEpoch } = kyberDAOApi.useGetStakerInfoQuery(
+    { account, epoch: Number(daoInfo?.current_epoch) + 1 },
+    { skip: !account || !daoInfo?.current_epoch },
   )
 
   const calculateVotingPower = useCallback(
     (kncAmount: string, newStakingAmount?: string) => {
       if (!daoInfo?.total_staked) return '0'
       const totalStakedKNC = daoInfo?.total_staked
-      if (parseFloat(totalStakedKNC) === 0) return '0'
+      if (totalStakedKNC === 0) return '0'
 
       const votingPower =
         newStakingAmount && parseFloat(newStakingAmount) > 0
@@ -481,14 +423,9 @@ export function useVotingInfo() {
     [daoInfo],
   )
 
-  const { data: votesInfo } = useSWR<VoteInfo[]>(
-    account ? kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '/votes' : null,
-    fetcher,
-  )
+  const { data: votesInfo } = kyberDAOApi.useGetStakerVotesQuery({ account }, { skip: !account })
 
-  const { data: rewardStats } = useSWR<RewardStats>(kyberDaoInfo?.daoStatsApi + '/api/v1/reward-stats', url =>
-    fetcher(url).then(res => res.rewardStats),
-  )
+  const { data: rewardStats } = kyberDAOApi.useGetRewardStatsQuery({})
 
   const result = {
     daoInfo: daoInfo || localStoredDaoInfo || undefined,
@@ -680,14 +617,4 @@ export const useEligibleTransactions = (page = 1, pageSize = 100): EligibleTxsIn
   const { data } = useGetGasRefundEligibleTxsInfoQuery({ account: account || '', page, pageSize }, { skip })
 
   return data?.data
-}
-
-export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetail } {
-  const kyberDaoInfo = useKyberDAOInfo()
-  const { data } = useSWRImmutable(
-    id !== undefined ? kyberDaoInfo?.daoStatsApi + '/proposals/' + id : undefined,
-    fetcher,
-    { refreshInterval: 15000 },
-  )
-  return { proposalInfo: data }
 }

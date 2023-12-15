@@ -5,7 +5,6 @@ import { v4 as uuid } from 'uuid'
 
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-import { CAMPAIGN_BASE_URL } from './env'
 import * as ENV from './env'
 import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
@@ -123,12 +122,6 @@ export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
 
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
-
-export const SWR_KEYS = {
-  getGrantProgramLeaderBoard: (id: number | string) => `${CAMPAIGN_BASE_URL}/api/v1/competitions/${id}/leaderboard`,
-  getListGrantPrograms: `${CAMPAIGN_BASE_URL}/api/v1/competitions`,
-  getGrantProgram: (id: number | string) => `${CAMPAIGN_BASE_URL}/api/v1/competitions/${id}`,
-}
 
 // https://www.nasdaq.com/glossary/b/bip
 export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 1999

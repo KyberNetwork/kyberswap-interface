@@ -2,9 +2,9 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
+import campaignApi from 'services/campaign'
 
 import Loader from 'components/Loader'
-import useGetLeaderboardGrantProgram, { RankByParam } from 'hooks/campaigns/useGetLeaderboardGrantProgram'
 import useTheme from 'hooks/useTheme'
 import { ProjectRanking } from 'types/grantProgram'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -28,7 +28,7 @@ export const ITEMS_PER_PAGE = 5
 
 export type RankByConfig = {
   extracter: (p: ProjectRanking) => string // used to extract the value
-  param: RankByParam // used as param in GET request
+  param: 'total_participants' | 'total_trades' | 'total_volume'
   title: string
 }
 
@@ -66,10 +66,8 @@ const LeaderBoardSection: React.FC<Props> = ({ programId, showRefreshTimer }) =>
   const [page, setPage] = useState(1)
   const rankByConfigs = getRankByConfigs()
   const [rankByConfig, setRankByConfig] = useState(rankByConfigs[0])
-  const {
-    swrData: { data, isValidating, error },
-    refresh,
-  } = useGetLeaderboardGrantProgram({
+
+  const { data, isLoading, isError, refetch } = campaignApi.useGetGrantProgramLeaderBoardQuery({
     id: programId,
     rankBy: rankByConfig.param,
     page,
@@ -77,7 +75,7 @@ const LeaderBoardSection: React.FC<Props> = ({ programId, showRefreshTimer }) =>
   })
 
   const renderLoading = () => {
-    if (isValidating) {
+    if (isLoading) {
       return (
         <AbsoluteContainer>
           <Loader />
@@ -85,7 +83,7 @@ const LeaderBoardSection: React.FC<Props> = ({ programId, showRefreshTimer }) =>
       )
     }
 
-    if (error) {
+    if (isError) {
       return (
         <AbsoluteContainer>
           <Text
@@ -96,7 +94,7 @@ const LeaderBoardSection: React.FC<Props> = ({ programId, showRefreshTimer }) =>
               color: theme.text,
             }}
           >
-            {JSON.stringify(error) || <Trans>Something went wrong</Trans>}
+            <Trans>Something went wrong</Trans>
           </Text>
         </AbsoluteContainer>
       )
@@ -177,7 +175,7 @@ const LeaderBoardSection: React.FC<Props> = ({ programId, showRefreshTimer }) =>
 
           <TableWrapper>
             <UtilityBar>
-              <RefreshTimer shouldCountDown={!!(programId && showRefreshTimer)} interval={5 * 60} callback={refresh} />
+              <RefreshTimer shouldCountDown={!!(programId && showRefreshTimer)} interval={5 * 60} callback={refetch} />
             </UtilityBar>
             <Flex
               sx={{

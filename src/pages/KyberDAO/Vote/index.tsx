@@ -90,7 +90,7 @@ const TabReward = styled.span<{ active?: boolean }>`
   }
 `
 
-const formatVotingPower = (votingPowerNumber: number) => {
+const formatVotingPower = (votingPowerNumber?: number) => {
   if (votingPowerNumber === undefined) return '--'
   if (votingPowerNumber === 0) return '0%'
   if (votingPowerNumber < 0.0001) {

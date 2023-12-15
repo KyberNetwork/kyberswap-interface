@@ -1,6 +1,15 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { KYBER_DAO_STATS_API } from 'constants/env'
+import {
+  DaoInfo,
+  ProposalDetail,
+  ProposalStatus,
+  RewardStats,
+  StakerAction,
+  StakerInfo,
+  VoteInfo,
+} from 'hooks/kyberdao/types'
 
 type GasRefundTierInfoResponse = {
   data: {
@@ -79,12 +88,12 @@ export type GasRefundRewardParams = {
 const kyberDAOApi = createApi({
   reducerPath: 'kyberDAO',
   baseQuery: fetchBaseQuery({
-    baseUrl: `${KYBER_DAO_STATS_API}/api/v1`,
+    baseUrl: `${KYBER_DAO_STATS_API}`,
   }),
   endpoints: builder => ({
     getGasRefundRewardInfo: builder.query<RewardInfo, GasRefundRewardParams>({
       query: ({ account, rewardStatus }) => ({
-        url: `/stakers/${account}/refunds/total`,
+        url: `/api/v1/stakers/${account}/refunds/total`,
         params: { rewardStatus },
       }),
       transformResponse: (response: GasRefundRewardResponse) => ({
@@ -94,13 +103,13 @@ const kyberDAOApi = createApi({
     }),
     getGasRefundEligibleTxsInfo: builder.query<GasRefundEligibleTxsResponse, GasRefundEligibleTxsParams>({
       query: ({ account, pageSize, page }) => ({
-        url: `/stakers/${account}/refunds/eligible-transactions`,
+        url: `/api/v1/stakers/${account}/refunds/eligible-transactions`,
         params: { pageSize, page },
       }),
     }),
     getGasRefundTierInfo: builder.query<GasRefundTierInfo, string>({
       query: (account: string) => ({
-        url: `/stakers/${account}/refund-info`,
+        url: `/api/v1/stakers/${account}/refund-info`,
       }),
       transformResponse: (response: GasRefundTierInfoResponse): GasRefundTierInfo => ({
         userTier: response?.data?.refundInfo?.userTier || 0,
@@ -109,13 +118,74 @@ const kyberDAOApi = createApi({
     }),
     getGasRefundNextCycleInfo: builder.query<GasRefundNextCycleInfoResponse, void>({
       query: () => ({
-        url: '/gas-refund/program/next-cycle-info',
+        url: '/api/v1/gas-refund/program/next-cycle-info',
       }),
     }),
     getGasRefundProgramInfo: builder.query<GasRefundProgramInfoResponse, void>({
       query: () => ({
-        url: '/gas-refund/program/info',
+        url: '/api/v1/gas-refund/program/info',
       }),
+    }),
+    getRewardStats: builder.query<RewardStats, unknown>({
+      query: () => ({
+        url: `/api/v1/reward-stats`,
+      }),
+      transformResponse: (res: CommonRes<{ rewardStats: RewardStats }>) => res.data.rewardStats,
+    }),
+    getUserRewards: builder.query<any, { url: string; account?: string }>({
+      query: ({ url }) => ({
+        url,
+      }),
+      transformResponse: (res: any, _meta, { account }) => {
+        if (account) {
+          res.userReward = res.userRewards[account]
+        }
+        delete res.userRewards
+        return res
+      },
+    }),
+    getDaoInfo: builder.query<DaoInfo, unknown>({
+      query: () => ({
+        url: '/dao-info',
+      }),
+      transformResponse: (res: CommonRes<DaoInfo>) => res.data,
+    }),
+    getProposals: builder.query<ProposalDetail[], unknown>({
+      query: () => ({
+        url: '/proposals',
+      }),
+      transformResponse: (res: CommonRes<ProposalDetail[]>) =>
+        res.data.map(proposal => {
+          let status = proposal.status
+          if (['Succeeded', 'Queued', 'Finalized'].includes(proposal.status)) status = ProposalStatus.Approved
+          if (['Expired'].includes(proposal.status)) status = ProposalStatus.Failed
+          return { ...proposal, status }
+        }),
+    }),
+    getProposalById: builder.query<ProposalDetail, { id?: number }>({
+      query: ({ id }) => ({
+        url: `/proposals/${id}`,
+      }),
+      transformResponse: (res: CommonRes<ProposalDetail>) => res.data,
+    }),
+    getStakerInfo: builder.query<StakerInfo, { account?: string; epoch?: number }>({
+      query: ({ account, epoch }) => ({
+        url: `/stakers/${account}`,
+        params: { epoch },
+      }),
+      transformResponse: (res: CommonRes<StakerInfo>) => res.data,
+    }),
+    getStakerVotes: builder.query<VoteInfo[], { account?: string }>({
+      query: ({ account }) => ({
+        url: `/stakers/${account}/votes`,
+      }),
+      transformResponse: (res: CommonRes<VoteInfo[]>) => res.data,
+    }),
+    getStakerActions: builder.query<StakerAction[], { account?: string }>({
+      query: ({ account }) => ({
+        url: `/stakers/${account}/actions`,
+      }),
+      transformResponse: (res: CommonRes<StakerAction[]>) => res.data,
     }),
   }),
 })

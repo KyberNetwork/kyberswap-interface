@@ -4,8 +4,7 @@ import axios from 'axios'
 import { arrayify } from 'ethers/lib/utils'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import ksSettingApi, { useGetTokenListQuery } from 'services/ksSetting'
-import useSWR from 'swr'
+import ksSettingApi from 'services/ksSetting'
 
 import ERC20_INTERFACE, { ERC20_BYTES32_INTERFACE } from 'constants/abis/erc20'
 import { KS_SETTING_API } from 'constants/env'
@@ -13,12 +12,13 @@ import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/index'
 import { useBytes32TokenContract, useMulticallContract, useTokenReadingContract } from 'hooks/useContract'
-import store, { AppState } from 'state'
+import { AppState } from 'state'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { NEVER_RELOAD, useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { filterTruthy, isAddress } from 'utils'
+import { escapeQuoteString } from 'utils/tokenInfo'
 
 import useDebounce from './useDebounce'
 
@@ -294,25 +294,6 @@ export const findCacheToken = (address: string) => {
   return cacheTokens[address] || cacheTokens[address.toLowerCase()]
 }
 
-export const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
-  if (address === ZERO_ADDRESS) return NativeCurrencies[chainId]
-  const findToken = findCacheToken(address)
-  if (findToken && findToken.chainId === chainId) return findToken
-  const tokenListRes = await store.dispatch(
-    ksSettingApi.endpoints.getTokenList.initiate({ chainId, addresses: address }),
-  )
-  let token = tokenListRes.data?.data.tokens[0]
-  if (!token) {
-    const importTokenRes = await store.dispatch(
-      ksSettingApi.endpoints.importToken.initiate([{ chainId: chainId.toString(), address }]),
-    )
-    if ('data' in importTokenRes) {
-      token = importTokenRes.data?.data.tokens[0]
-    }
-  }
-  return token ? formatAndCacheToken(token) : undefined
-}
-
 export const fetchListTokenByAddresses = async (address: string[], chainId: ChainId) => {
   const cached = filterTruthy(address.map(addr => findCacheToken(addr)))
   if (cached.length === address.length) return cached
@@ -321,10 +302,6 @@ export const fetchListTokenByAddresses = async (address: string[], chainId: Chai
   const tokens = response?.data?.data?.tokens ?? []
   return filterTruthy(tokens.map(formatAndCacheToken)) as WrappedTokenInfo[]
 }
-
-// ex: `"BTT_b"` => BTT_b
-const escapeQuoteString = (str: string) =>
-  str?.startsWith('"') && str?.endsWith('"') ? str.substring(1, str.length - 1) : str
 
 export const formatAndCacheToken = (rawTokenResponse: TokenInfo) => {
   try {
@@ -341,26 +318,6 @@ export const formatAndCacheToken = (rawTokenResponse: TokenInfo) => {
   } catch (e) {
     return
   }
-}
-
-function useTokenV2(
-  tokenAddress?: string,
-  customChain?: ChainId,
-): WrappedTokenInfo | Token | NativeCurrency | undefined | null {
-  const { chainId: currentChain } = useActiveWeb3React()
-  const chainId = customChain || currentChain
-  const address = isAddress(chainId, tokenAddress)
-  const { data, isValidating } = useSWR(
-    address.toString() + chainId?.toString(),
-    async () => {
-      try {
-        if (chainId && address) return await fetchTokenByAddress(address, chainId)
-      } catch (error) {}
-      return undefined
-    },
-    { revalidateOnFocus: false, shouldRetryOnError: false, revalidateIfStale: false },
-  )
-  return isValidating ? null : data
 }
 
 export function useCurrency(currencyId: string | undefined): Currency | null | undefined {
@@ -389,7 +346,11 @@ export function useCurrencyV2(currencyId: string | undefined, customChainId?: Ch
   const tokenInWhitelist = currencyId
     ? whitelistTokens[currencyId] || whitelistTokens[currencyId?.toLowerCase()]
     : undefined
-  const token = useTokenV2(isETH || tokenInWhitelist ? undefined : currencyId, chainId)
+
+  const { data: token } = ksSettingApi.useGetTokenByAddressQuery(
+    { address: isAddress(chainId, currencyId) || '', chainId },
+    { skip: isETH || !!tokenInWhitelist || !isAddress(chainId, currencyId) },
+  )
 
   return useMemo(() => {
     if (!currencyId) return
@@ -399,7 +360,10 @@ export function useCurrencyV2(currencyId: string | undefined, customChainId?: Ch
 }
 
 export const useStableCoins = (chainId: ChainId | undefined) => {
-  const { data } = useGetTokenListQuery({ chainId: chainId as ChainId, isStable: true }, { skip: !chainId })
+  const { data } = ksSettingApi.useGetTokenListQuery(
+    { chainId: chainId as ChainId, isStable: true },
+    { skip: !chainId },
+  )
 
   const stableCoins = useMemo(() => {
     return data?.data?.tokens || []
