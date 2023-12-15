@@ -460,13 +460,14 @@ export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {
 
 export const useHolidayMode: () => [boolean, () => void] = () => {
   const dispatch = useAppDispatch()
-  const holidayMode = useAppSelector(state => (state.user.holidayMode === undefined ? true : state.user.holidayMode))
+  // const holidayMode = useAppSelector(state => (state.user.holidayMode === undefined ? true : state.user.holidayMode))
 
   const toggle = useCallback(() => {
     dispatch(toggleHolidayMode())
   }, [dispatch])
 
-  return [isChristmasTime() ? holidayMode : false, toggle]
+  // return [isChristmasTime() ? holidayMode : false, toggle]
+  return [false, toggle]
 }
 
 export const useCrossChainSetting = () => {
