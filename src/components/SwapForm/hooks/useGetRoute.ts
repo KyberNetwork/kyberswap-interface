@@ -24,6 +24,7 @@ export type ArgsGetRoute = {
 
   customChain?: ChainId
   isProcessingSwap?: boolean
+  clientId?: string
 }
 
 export const getRouteTokenAddressParam = (currency: Currency) =>
@@ -76,7 +77,7 @@ export const useRouteApiDomain = () => {
 
 const useGetRoute = (args: ArgsGetRoute) => {
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
-  const { isSaveGas, parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap } = args
+  const { isSaveGas, parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
@@ -119,7 +120,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     () =>
       debounce(
         async (args: { url: string; params: GetRouteParams; authentication: boolean }) => {
-          await trigger(args)
+          await trigger({ ...args, clientId })
           dismissSwapModalFlag.current = false
         },
         INPUT_DEBOUNCE_TIME,
@@ -127,7 +128,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
           leading: true,
         },
       ),
-    [trigger],
+    [trigger, clientId],
   )
 
   const fetcher = useCallback(async () => {
