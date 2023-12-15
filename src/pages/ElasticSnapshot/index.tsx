@@ -14,7 +14,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { PoolsPageWrapper } from 'pages/Pools/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -74,7 +74,12 @@ export default function ElasticSnapshot() {
   const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
   return (
     <PoolsPageWrapper>
-      <Flex justifyContent="space-between" sx={{ gap: '1rem' }} flexDirection={upToMedium ? 'column' : 'row'}>
+      <Flex
+        justifyContent="space-between"
+        sx={{ gap: '1rem' }}
+        flexDirection={upToMedium ? 'column' : 'row'}
+        alignItems="center"
+      >
         <Flex flexDirection="column" sx={{ gap: '12px' }} flex={3}>
           <Text as="h2" fontSize={24} fontWeight="500">
             <Trans>Snapshot</Trans>
@@ -82,20 +87,31 @@ export default function ElasticSnapshot() {
           <Text fontSize={14} color={theme.subText} lineHeight="20px">
             <Trans>
               You can find the list of your liquidity positions in KyberSwap Elastic pools that were affected by the
-              exploit below. Snapshots for each chain are taken based on the last block prior to the exploit. Prices are
-              sourced based on the closest available pricing data from CoinGecko immediately following the exploit.
+              exploit below. Snapshots for each chain are taken based on the last block prior to the exploit.
+              <br />
+              <br />
+              Prices are sourced based on the closest available pricing data from CoinGecko immediately following the
+              exploit.
             </Trans>
           </Text>
+          {/*
           <ExternalLink href="/">
             <Text fontSize="14px">
               <Trans>Official announcement is here ↗</Trans>
             </Text>
           </ExternalLink>
+          */}
         </Flex>
 
         <Flex flexDirection="column" sx={{ gap: '12px', width: '100%', maxWidth: '580px' }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: upToSmall ? '1fr 1fr' : '1fr 1fr 1fr' }}>
-            <Flex flexDirection="column" sx={{ gap: '16px' }} padding="12px" justifyContent="space-between">
+          <Box sx={{ display: 'grid', gridTemplateColumns: upToSmall ? '1fr 1fr' : '1fr 1fr 1fr', gap: '1rem' }}>
+            <Flex
+              flexDirection="column"
+              padding="12px"
+              justifyContent="space-between"
+              sx={{ gap: '16px', borderRadius: '12px' }}
+              backgroundColor="rgba(0,0,0,0.64)"
+            >
               <Text fontSize="14px" fontWeight="500" color={theme.subText}>
                 <Trans>Total Amount (USD)</Trans>
               </Text>
@@ -106,7 +122,13 @@ export default function ElasticSnapshot() {
 
             {upToSmall && <div />}
 
-            <Flex flexDirection="column" sx={{ gap: '16px' }} padding="12px" justifyContent="space-between">
+            <Flex
+              flexDirection="column"
+              padding="12px"
+              justifyContent="space-between"
+              sx={{ gap: '16px', borderRadius: '12px' }}
+              backgroundColor="rgba(0,0,0,0.64)"
+            >
               <Text fontSize="14px" fontWeight="500" color={theme.subText} lineHeight="20px">
                 <Trans>
                   Total Liquidity Amount
@@ -119,7 +141,13 @@ export default function ElasticSnapshot() {
               </Text>
             </Flex>
 
-            <Flex flexDirection="column" sx={{ gap: '16px' }} padding="12px" justifyContent="space-between">
+            <Flex
+              flexDirection="column"
+              padding="12px"
+              justifyContent="space-between"
+              sx={{ gap: '16px', borderRadius: '12px' }}
+              backgroundColor="rgba(0,0,0,0.64)"
+            >
               <Text fontSize="14px" fontWeight="500" color={theme.subText} lineHeight="20px">
                 <Trans>
                   Total Fees Amount
@@ -132,8 +160,8 @@ export default function ElasticSnapshot() {
               </Text>
             </Flex>
           </Box>
-          <Text color={theme.subText} fontStyle="italic" fontSize="10px" textAlign="center">
-            <Trans>Your Total Amount (USD) = Your Total Liquidity Amount (USD) + Your Total Fees Amount (USD)</Trans>
+          <Text color={theme.subText} fontStyle="italic" fontSize="10px" textAlign="right">
+            <Trans>Total Amount (USD) = Total Liquidity Amount (USD) + Total Fees Amount (USD)</Trans>
           </Text>
         </Flex>
       </Flex>
