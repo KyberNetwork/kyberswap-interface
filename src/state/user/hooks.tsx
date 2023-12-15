@@ -51,7 +51,7 @@ import {
   updateUserSlippageTolerance,
 } from 'state/user/actions'
 import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
-import { isAddress, isChristmasTime } from 'utils'
+import { isAddress } from 'utils'
 
 const MAX_FAVORITE_LIMIT = 12
 
