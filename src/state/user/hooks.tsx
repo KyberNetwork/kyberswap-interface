@@ -51,7 +51,7 @@ import {
   updateUserSlippageTolerance,
 } from 'state/user/actions'
 import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
-import { isAddress, isChristmasTime } from 'utils'
+import { isAddress } from 'utils'
 
 const MAX_FAVORITE_LIMIT = 12
 
@@ -460,13 +460,14 @@ export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {
 
 export const useHolidayMode: () => [boolean, () => void] = () => {
   const dispatch = useAppDispatch()
-  const holidayMode = useAppSelector(state => (state.user.holidayMode === undefined ? true : state.user.holidayMode))
+  // const holidayMode = useAppSelector(state => (state.user.holidayMode === undefined ? true : state.user.holidayMode))
 
   const toggle = useCallback(() => {
     dispatch(toggleHolidayMode())
   }, [dispatch])
 
-  return [isChristmasTime() ? holidayMode : false, toggle]
+  // return [isChristmasTime() ? holidayMode : false, toggle]
+  return [false, toggle]
 }
 
 export const useCrossChainSetting = () => {
