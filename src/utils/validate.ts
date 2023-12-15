@@ -71,7 +71,6 @@ const ValidateBalanceExample = isArray(
     result: isNullable(isArray(isString)),
   }),
 )
-
 const ValidateComplexResponseExample = isStruct({
   data: isStruct({
     wallets: isArray(
@@ -90,6 +89,15 @@ const ValidateComplexResponseExample = isStruct({
     }),
   }),
 })
-
 type ExtractedBalances = GuardedType<typeof ValidateBalanceExample>
+
+let complexResponseExample: any
+if (ValidateComplexResponseExample(complexResponseExample)) {
+  // `complexResponseExample` has been generated type now. You can try:
+  type Wallets = typeof complexResponseExample.data.wallets
+  const balance: ExtractedBalances | null | undefined = complexResponseExample.data.wallets[0].balances
+} else {
+  // complexResponseExample is unknown type
+  complexResponseExample
+}
 /* eslint-enable @typescript-eslint/no-unused-vars */
