@@ -269,7 +269,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 
-          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} />
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
           <SwapActionButton

@@ -1,14 +1,13 @@
 import { Trans } from '@lingui/macro'
 import { FC } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import Column from 'components/Column'
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useTheme from 'hooks/useTheme'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { StyledInternalLink } from 'theme'
 import { checkPriceImpact } from 'utils/prices'
@@ -38,7 +37,6 @@ type Props = {
 
 const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLink = false }) => {
   const priceImpactResult = checkPriceImpact(priceImpact)
-  const theme = useTheme()
   const switchToLimitOrder = useSwitchPairToLimitOrder()
   const { mixpanelHandler } = useMixpanel()
 
@@ -80,26 +78,6 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
     )
   }
 
-  const limitOrderNote = showLimitOrderLink ? (
-    <Text>
-      <Trans>
-        Do you want to make a{' '}
-        <Text
-          as="b"
-          sx={{ cursor: 'pointer' }}
-          color={theme.primary}
-          onClick={() => {
-            mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP)
-            switchToLimitOrder()
-          }}
-        >
-          Limit Order
-        </Text>{' '}
-        instead?
-      </Trans>
-    </Text>
-  ) : undefined
-
   // VERY high
   if (priceImpactResult.isVeryHigh) {
     return (
@@ -116,21 +94,18 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
           </Row>
         }
         longText={
-          <Column gap="4px">
-            {limitOrderNote}
-            <Text>
-              {isDegenMode ? (
-                <Trans>
-                  You have turned on Degen Mode from settings. Trades with very high price impact can be executed
-                </Trans>
-              ) : (
-                <Trans>
-                  You can turn on Degen Mode from Settings to execute trades with very high price impact. This can
-                  result in bad rates and loss of funds
-                </Trans>
-              )}
-            </Text>
-          </Column>
+          <Text>
+            {isDegenMode ? (
+              <Trans>
+                You have turned on Degen Mode from settings. Trades with very high price impact can be executed
+              </Trans>
+            ) : (
+              <Trans>
+                You can turn on Degen Mode from Settings to execute trades with very high price impact. This can result
+                in bad rates and loss of funds
+              </Trans>
+            )}
+          </Text>
         }
       />
     )
@@ -149,8 +124,27 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
     </Row>
   )
 
+  const shortTextLimitOrder = (
+    <Text>
+      <Trans>
+        Price Impact is high. Please consider placing a {!isMobile ? <br /> : null}
+        <Text
+          sx={{ cursor: 'pointer' }}
+          as={'u'}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP)
+            switchToLimitOrder()
+          }}
+        >
+          Limit Order
+        </Text>{' '}
+        to soften the price impact.
+      </Trans>
+    </Text>
+  )
+
   if (priceImpactResult.isHigh) {
-    return <WarningNote shortText={shortText} longText={limitOrderNote} />
+    return <WarningNote shortText={showLimitOrderLink ? shortTextLimitOrder : shortText} />
   }
 
   return null
