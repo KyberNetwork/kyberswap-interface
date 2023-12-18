@@ -86,7 +86,6 @@ export const checkPriceImpact = (
 ): {
   isInvalid: boolean
   isHigh: boolean
-
   isVeryHigh: boolean
 } => {
   return {
