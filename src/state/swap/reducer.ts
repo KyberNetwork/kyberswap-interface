@@ -49,7 +49,7 @@ const { inputCurrency = '', outputCurrency = '' } = pathname.startsWith(APP_PATH
 
 const initialState: SwapState = {
   independentField: Field.INPUT,
-  typedValue: '',
+  typedValue: '1',
   [Field.INPUT]: {
     currencyId: inputCurrency?.toString() || '',
   },

@@ -30,7 +30,7 @@ export default memo(function ConfirmOrderModal({
   flowState,
   outputAmount,
   inputAmount,
-  expireAt,
+  expiredAt,
   marketPrice,
   rateInfo,
   note,
@@ -46,7 +46,7 @@ export default memo(function ConfirmOrderModal({
   currencyOut: Currency | undefined
   inputAmount: string
   outputAmount: string
-  expireAt: number
+  expiredAt: number
   marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
   note?: string
@@ -97,7 +97,7 @@ export default memo(function ConfirmOrderModal({
         label: t`before the order expires on`,
         content: account && (
           <Value>
-            <Text>{dayjs(expireAt).format('DD/MM/YYYY HH:mm')}</Text>
+            <Text>{dayjs(expiredAt).format('DD/MM/YYYY HH:mm')}</Text>
           </Value>
         ),
       },
@@ -131,7 +131,7 @@ export default memo(function ConfirmOrderModal({
     inputAmount,
     rateInfo,
     outputAmount,
-    expireAt,
+    expiredAt,
     isEdit,
     gasFee,
     cancelType,
