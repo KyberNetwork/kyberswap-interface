@@ -130,29 +130,36 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
   }
 
   // high
+  if (showLimitOrderLink && !!priceImpact && priceImpact > 1) {
+    return (
+      <WarningNote
+        shortText={
+          <Text>
+            <Trans>
+              Price Impact is high. Please consider placing a {!isMobile ? <br /> : null}
+              {limitOrderLink} to soften the price impact.
+            </Trans>
+          </Text>
+        }
+      />
+    )
+  }
 
-  const shortText = (
-    <Row alignItems="center" style={{ gap: '0.5ch' }}>
-      <Trans>
-        <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
-          Price Impact
-        </TextUnderlineColor>
-        <TextUnderlineTransparent>is high</TextUnderlineTransparent>
-      </Trans>
-    </Row>
-  )
-
-  const shortTextLimitOrder = (
-    <Text>
-      <Trans>
-        Price Impact is high. Please consider placing a {!isMobile ? <br /> : null}
-        {limitOrderLink} to soften the price impact.
-      </Trans>
-    </Text>
-  )
-
-  if (shortTextLimitOrder ? priceImpactResult.isHighV2 : priceImpactResult.isHigh) {
-    return <WarningNote shortText={showLimitOrderLink ? shortTextLimitOrder : shortText} />
+  if (priceImpactResult.isHigh) {
+    return (
+      <WarningNote
+        shortText={
+          <Row alignItems="center" style={{ gap: '0.5ch' }}>
+            <Trans>
+              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+                Price Impact
+              </TextUnderlineColor>
+              <TextUnderlineTransparent>is high</TextUnderlineTransparent>
+            </Trans>
+          </Row>
+        }
+      />
+    )
   }
 
   return null
