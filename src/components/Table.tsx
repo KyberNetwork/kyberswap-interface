@@ -197,7 +197,7 @@ export default function Table<T>({
                           key={`${i}${j}`}
                           style={{
                             textAlign: align || 'center',
-                            background: tableStyle?.background, // todo consider
+                            background: tableStyle?.background,
                             ...style,
                           }}
                         >

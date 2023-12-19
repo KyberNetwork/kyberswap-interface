@@ -95,7 +95,7 @@ export default function ListNft({ search }: { search: string }) {
       ) : data?.items?.length ? (
         <Wrapper>
           {data?.items.map(el => (
-            <NftItem data={el} key={el.collectibleAddress} />
+            <NftItem data={el} key={el.tokenID} />
           ))}
         </Wrapper>
       ) : (

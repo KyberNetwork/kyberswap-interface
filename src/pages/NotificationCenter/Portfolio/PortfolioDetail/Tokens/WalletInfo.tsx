@@ -161,7 +161,6 @@ const KyberScore = ({
   item: PortfolioWalletBalance
 }) => {
   const theme = useTheme()
-  // todo
   return (
     <Column style={{ alignItems: 'center' }}>
       <SmallKyberScoreMeter

@@ -160,7 +160,6 @@ function reducer(state: TutorialAnimationState, action: ActionTypes) {
   return state
 }
 
-// todo check kyberai
 const StepContent = ({ step, ...rest }: { step: TutorialStep; [k: string]: any }) => {
   const theme = useTheme()
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)

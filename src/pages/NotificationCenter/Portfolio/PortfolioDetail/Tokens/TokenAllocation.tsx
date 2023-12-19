@@ -272,7 +272,7 @@ export default function TokenAllocation({
         ) : (
           <Table
             data={tableData}
-            columns={tableColumns as any} // todo
+            columns={tableColumns as any}
             style={{ flex: 1, overflowX: 'auto', width: '100%', background: mobile ? undefined : 'transparent' }}
             totalItems={tableData.length}
             pageSize={6}

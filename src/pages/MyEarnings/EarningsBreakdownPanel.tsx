@@ -48,7 +48,6 @@ type Token = {
   value: string
   percent: number
 }
-// todo move to other file
 const TokenAllocationChartLocal = ({
   className,
   numberOfTokens,

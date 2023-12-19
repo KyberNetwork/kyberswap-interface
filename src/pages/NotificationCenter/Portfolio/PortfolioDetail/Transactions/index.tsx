@@ -119,7 +119,6 @@ const InteractionCell = ({ item }: { item: TransactionHistory }) => {
   )
 }
 
-// todo
 export const BalanceCell = ({
   item: { tokenTransfers = [], tokenApproval, status },
   inWalletUI,

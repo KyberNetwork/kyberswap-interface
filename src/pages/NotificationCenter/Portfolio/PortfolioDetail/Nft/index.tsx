@@ -58,7 +58,6 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
 
   const itemsBreadcrumb = useGetNftBreadcrumbData({})
 
-  // todo refactor
   const { data: listNft } = useGetNftCollectionDetailQuery(
     {
       address: wallet,
@@ -92,7 +91,7 @@ export default function Nft({ walletAddresses, chainIds }: { walletAddresses: st
               </RowFit>
             }
             actions={
-              colId && listNft && listNft?.items?.length <= 4 ? null : (
+              Number(listNft?.items?.length) <= 4 ? null : (
                 <SearchPortFolio
                   onChange={setSearch}
                   value={search}

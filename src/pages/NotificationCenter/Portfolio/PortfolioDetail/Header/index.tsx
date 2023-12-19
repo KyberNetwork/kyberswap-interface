@@ -98,7 +98,6 @@ export default function Header({
           description: formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }),
           avatarUrl: '',
         },
-        // todo raw data field instead ?
         renderAction,
         onClick: onClickPortfolio,
       }))
