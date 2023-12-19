@@ -4,7 +4,7 @@ import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
-import { DEFAULT_TIPS } from 'constants/index'
+import { ClientNameMapping, DEFAULT_TIPS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
 import CustomFeeInput from './CustomFeeInput'
@@ -54,7 +54,7 @@ const DefaultFeeOption = styled.button`
 
 const FeeControlGroup = () => {
   const theme = useTheme()
-  const { feeAmount, enableTip } = useGetFeeConfig() ?? {}
+  const { feeAmount, enableTip, clientId } = useGetFeeConfig() ?? {}
   const [searchParams, setSearchParams] = useSearchParams()
   const feeValue = Number.parseFloat(feeAmount ?? '0')
 
@@ -69,6 +69,8 @@ const FeeControlGroup = () => {
     return null
   }
 
+  const clientName = ClientNameMapping[clientId || ''] || clientId
+
   return (
     <Flex
       sx={{
@@ -80,8 +82,8 @@ const FeeControlGroup = () => {
       <Text color={theme.subText} fontSize={12} fontWeight={500}>
         <Trans>Tip</Trans>:
       </Text>
-      <Text color={theme.text3} fontSize={12} fontWeight={500}>
-        <Trans>No hidden fees - Your optional tips support DEX Screener!</Trans>
+      <Text color={theme.subText} fontSize={12} fontWeight={500}>
+        <Trans>No hidden fees - Your optional tips support {clientName}!</Trans>
       </Text>
 
       <Flex

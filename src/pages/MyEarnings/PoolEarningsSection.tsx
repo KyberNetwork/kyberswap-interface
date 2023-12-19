@@ -98,7 +98,7 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
     return (
       historicalEarning?.[0]?.day === today
         ? historicalEarning?.[0].total?.filter(tokenData => {
-            return !tokensByChainId[chainId][isAddressString(chainId, tokenData.token)]
+            return !tokensByChainId[chainId][isAddressString(tokenData.token)]
           }) || []
         : []
     ).map(item => item.token)
@@ -117,7 +117,7 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
     const latestData =
       data?.[0]?.day === today
         ? data?.[0].total?.map(tokenData => {
-            const tokenAddress = isAddressString(chainId, tokenData.token)
+            const tokenAddress = isAddressString(tokenData.token)
             const currency = tokensByChainId[chainId][String(tokenAddress)] || tokens[tokenAddress]
 
             const isNative = currency?.isNative || tokenAddress === WETH[chainId].address

@@ -42,7 +42,7 @@ export const useElasticFarms = () => {
 }
 
 export const useFilteredFarms = () => {
-  const { networkInfo, chainId } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const depositedPositions = useDepositedNfts()
 
   const [searchParams] = useSearchParams()
@@ -75,7 +75,7 @@ export const useFilteredFarms = () => {
       })
       .filter(farm => !!farm.pools.length)
 
-    const searchAddress = isAddressString(chainId, search)
+    const searchAddress = isAddressString(search)
     // filter by address
     if (searchAddress) {
       result = result?.map(farm => {
@@ -154,17 +154,7 @@ export const useFilteredFarms = () => {
     }
 
     return result?.filter(farm => !!farm.pools.length) || []
-  }, [
-    farms,
-    search,
-    activeTab,
-    chainId,
-    depositedPositions,
-    networkInfo,
-    filteredToken0Id,
-    filteredToken1Id,
-    elasticType,
-  ])
+  }, [farms, search, activeTab, depositedPositions, networkInfo, filteredToken0Id, filteredToken1Id, elasticType])
 
   return {
     farms,

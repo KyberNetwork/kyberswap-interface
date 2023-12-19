@@ -164,7 +164,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
   const isFarmV2 = networkInfo.elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
   const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
-  const isDynamicFarm = networkInfo.elastic.farms.flat().includes(isAddressString(chainId, owner))
+  const isDynamicFarm = networkInfo.elastic.farms.flat().includes(isAddressString(owner))
 
   const ownByFarm = isDynamicFarm || isFarmV2 || isFarmV21
 

@@ -150,11 +150,9 @@ export function getTradeComposition(
     }
 
     return (
-      allTokens?.[isAddressString(chainId, address)] ||
+      allTokens?.[isAddressString(address)] ||
       tokens[address] ||
-      (isAddressString(chainId, address)
-        ? new Token(chainId, isAddressString(chainId, address), 0, '--', '--')
-        : defaultToken)
+      (isAddressString(address) ? new Token(chainId, isAddressString(address), 0, '--', '--') : defaultToken)
     )
   }
 

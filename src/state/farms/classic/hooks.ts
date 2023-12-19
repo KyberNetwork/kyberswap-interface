@@ -95,8 +95,7 @@ export const useActiveAndUniqueFarmsData = (): { loading: boolean; error: string
 }
 
 export const useTotalApr = (farm: Farm) => {
-  const { chainId } = useActiveWeb3React()
-  const poolAddressChecksum = isAddressString(chainId, farm.id)
+  const poolAddressChecksum = isAddressString(farm.id)
   const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = farm.totalStake.divide(

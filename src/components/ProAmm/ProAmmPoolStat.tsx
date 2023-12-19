@@ -81,10 +81,10 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
   )
 
   const token0 =
-    allTokens[isAddressString(chainId, pool.token0.address)] ||
+    allTokens[isAddressString(pool.token0.address)] ||
     new Token(chainId, pool.token0.address, pool.token0.decimals, pool.token0.symbol)
   const token1 =
-    allTokens[isAddressString(chainId, pool.token1.address)] ||
+    allTokens[isAddressString(pool.token1.address)] ||
     new Token(chainId, pool.token1.address, pool.token1.decimals, pool.token1.symbol)
 
   const nativeToken = NativeCurrencies[chainId]

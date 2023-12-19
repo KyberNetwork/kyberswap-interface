@@ -87,10 +87,10 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
   const allTokens = useAllTokens()
 
   const token0 =
-    allTokens[isAddressString(chainId, pool.token0.address)] ||
+    allTokens[isAddressString(pool.token0.address)] ||
     new Token(chainId, pool.token0.address, pool.token0.decimals, pool.token0.symbol)
   const token1 =
-    allTokens[isAddressString(chainId, pool.token1.address)] ||
+    allTokens[isAddressString(pool.token1.address)] ||
     new Token(chainId, pool.token1.address, pool.token1.decimals, pool.token1.symbol)
 
   const isToken0WETH = pool.token0.address === WETH[chainId].address.toLowerCase()

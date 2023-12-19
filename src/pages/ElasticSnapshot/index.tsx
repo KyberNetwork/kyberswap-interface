@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -8,7 +7,6 @@ import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -19,6 +17,8 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
+
+import data from './data.json'
 
 const Wrapper = styled.div`
   border-radius: 1rem;
@@ -63,37 +63,6 @@ const TableRow = styled(TableHeader)`
 export default function ElasticSnapshot() {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
-  const [data, setData] = useState<
-    {
-      user_address: string
-      total_usd: number
-      total_liquidity_usd: number
-      total_fee_usd: number
-      positions: {
-        position_id: number
-        position_usd: number
-        liquidity_usd: number
-        fee_usd: number
-        info: {
-          pool: string
-          chain: string
-          pair: string
-          token0: string
-          token1: string
-        }
-      }[]
-    }[]
-  >([])
-  const [loading, setLoading] = useState(false)
-  useEffect(() => {
-    setLoading(true)
-    fetch('https://raw.githubusercontent.com/KyberNetwork/KIPs/master/elastic_incident_snapshot_data.json')
-      .then(res => res.json())
-      .then(res => {
-        setData(res)
-      })
-      .finally(() => setLoading(false))
-  }, [])
 
   const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
 
@@ -198,9 +167,7 @@ export default function ElasticSnapshot() {
       </Flex>
       <Flex flexDirection="column" marginTop="1.5rem" marginX={upToSmall ? '-1rem' : 0}>
         <Wrapper>
-          {loading ? (
-            <LocalLoader />
-          ) : account ? (
+          {account ? (
             userInfo ? (
               <>
                 <Text textAlign="left" fontSize="14px" padding="16px 24px">
@@ -295,8 +262,8 @@ export default function ElasticSnapshot() {
                 <Info size={64} />
                 <Text fontSize={14} marginTop="24px">
                   <Trans>
-                    None of the liquidity position(s) held by your wallet ({shortenAddress(1, account)}) was affected by
-                    the exploit.
+                    None of the liquidity position(s) held by your wallet ({shortenAddress(1, account)}) were affected
+                    by the exploit.
                   </Trans>
                 </Text>
               </Flex>
@@ -304,7 +271,7 @@ export default function ElasticSnapshot() {
           ) : (
             <Flex padding="48px 16px" justifyContent="center" alignItems="center" flexDirection="column">
               <Text fontSize="14px" marginBottom="24px">
-                <Trans>Connect your wallet to view this data</Trans>
+                <Trans>Please connect your wallet to view your affected position(s).</Trans>
               </Text>
 
               <ButtonPrimary onClick={toggleWalletModal} width="94px">
