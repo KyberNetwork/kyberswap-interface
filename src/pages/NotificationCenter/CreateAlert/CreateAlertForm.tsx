@@ -59,6 +59,11 @@ const defaultInput = {
   note: '',
 }
 
+const networkOptions = MAINNET_NETWORKS.map(id => ({
+  value: id,
+  label: NETWORKS_INFO[id].name,
+}))
+
 export default function CreateAlert({
   showModalConfirm,
   priceAlertStat,
@@ -182,13 +187,6 @@ export default function CreateAlert({
   }
 
   const navigate = useNavigate()
-
-  const networkOptions = useMemo(() => {
-    return MAINNET_NETWORKS.map(id => ({
-      value: id,
-      label: NETWORKS_INFO[id].name,
-    }))
-  }, [])
 
   return (
     <>
