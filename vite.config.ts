@@ -1,6 +1,6 @@
 import GlobalPolyFill from '@esbuild-plugins/node-globals-polyfill'
 import lingui from '@lingui/vite-plugin'
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react-swc'
 import path from 'path'
 import { defineConfig } from 'vite'
 import checker from 'vite-plugin-checker'
@@ -14,12 +14,7 @@ export default defineConfig({
   },
   plugins: [
     react({
-      jsxImportSource: '@welldone-software/why-did-you-render',
-      babel: {
-        // Use .babelrc files, necessary to use LinguiJS CLI
-        babelrc: true,
-        plugins: ['macros'],
-      },
+      plugins: [['@lingui/swc-plugin', {}]],
     }),
     viteTsconfigPaths(),
     svgrPlugin(),
