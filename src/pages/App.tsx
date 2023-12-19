@@ -39,6 +39,8 @@ const Logout = lazy(() => import('./Oauth/Logout'))
 const Consent = lazy(() => import('./Oauth/Consent'))
 const PortfolioDetail = lazy(() => import('./NotificationCenter/Portfolio/PortfolioDetail'))
 
+const ElasticSnapshot = lazy(() => import('./ElasticSnapshot'))
+
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV3 = lazy(() => import('./SwapV3'))
@@ -404,6 +406,8 @@ export default function App() {
                 <Route path={APP_PATHS.IAM_LOGIN} element={<Login />} />
                 <Route path={APP_PATHS.IAM_LOGOUT} element={<Logout />} />
                 <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
+
+                <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
 
                 <Route path="*" element={<RedirectPathToSwapV3Network />} />
               </Routes>

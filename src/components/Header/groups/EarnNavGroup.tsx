@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { AlertOctagon } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
@@ -71,6 +72,13 @@ const EarnNavGroup = () => {
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <Icon id="liquid-outline" size={16} />
               <Trans>My Pools</Trans>
+            </Flex>
+          </StyledNavLink>
+
+          <StyledNavLink id="my-pools-nav-link" data-testid="my-pools-nav-link" to={`${APP_PATHS.ELASTIC_SNAPSHOT}`}>
+            <Flex sx={{ gap: '12px' }} alignItems="center">
+              <AlertOctagon size={14} />
+              <Trans>Snapshot</Trans>
             </Flex>
           </StyledNavLink>
         </Flex>
