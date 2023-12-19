@@ -1,77 +1,37 @@
 import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
 import { useEffect } from 'react'
-import useSWR from 'swr'
+import knProtocolApi, { FarmingPool } from 'services/knprotocol'
 
-import { POOL_FARM_BASE_URL } from 'constants/env'
 import { ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch } from 'state/hooks'
-import { ElasticPool, RawToken } from 'state/prommPools/useGetElasticPools/useGetElasticPoolsV2'
 import { isAddressString } from 'utils'
 
 import { CommonProps } from '.'
 import { setFarms, setLoading } from '..'
 import { ElasticFarm } from '../types'
 
-interface FarmingPool {
-  id: string
-  pid: string
-  startTime: string
-  endTime: string
-  feeTarget: string
-  farm: {
-    id: string // address of fair launch contract
-  }
-  rewardTokensIds: string[]
-  totalRewardAmounts: string[]
-  pool: ElasticPool
-  rewardTokens: RawToken[]
-  stakedTvl: string
-  apr: string
-}
-
-interface Response {
-  code: number
-  message: string
-  data: {
-    farmPools: FarmingPool[]
-  }
-}
-
-const useGetElasticFarms = () => {
-  const { chainId } = useActiveWeb3React()
-  const endpoint = `${POOL_FARM_BASE_URL}/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/farm-pools?page=1&perPage=10000`
-
-  return useSWR<Response>(endpoint, (url: string) => fetch(url).then(resp => resp.json()), {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  })
-}
-
 const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
-  const { data, error, isValidating } = useGetElasticFarms()
-  const farms = data?.data?.farmPools
+  const { data: farms, isError, isLoading } = knProtocolApi.useGetFarmPoolsQuery(chainId)
 
   useEffect(() => {
-    if (isValidating) {
+    if (isLoading) {
       dispatch(setLoading({ chainId, loading: true }))
     } else {
       dispatch(setLoading({ chainId, loading: false }))
     }
-  }, [chainId, dispatch, isValidating])
+  }, [chainId, dispatch, isLoading])
 
   useEffect(() => {
-    if (error && chainId) {
+    if (isError && chainId) {
       dispatch(setFarms({ chainId, farms: [] }))
       dispatch(setLoading({ chainId, loading: false }))
     }
-  }, [error, dispatch, chainId])
+  }, [isError, dispatch, chainId])
 
   useEffect(() => {
     if (farms && chainId) {

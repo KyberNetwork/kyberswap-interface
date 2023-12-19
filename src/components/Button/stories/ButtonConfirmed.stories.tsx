@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { ButtonLight } from './index'
+import { ButtonConfirmed } from '../index'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
-const meta: Meta<typeof ButtonLight> = {
-  title: 'Kyberswap/Shared Components/Buttons/ButtonLight',
-  component: ButtonLight,
+const meta: Meta<typeof ButtonConfirmed> = {
+  title: 'Kyberswap/Shared Components/Buttons/ButtonConfirmed',
+  component: ButtonConfirmed,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: 'centered',
@@ -15,37 +15,26 @@ const meta: Meta<typeof ButtonLight> = {
   // More on argTypes: https://storybook.js.org/docs/api/argtypes
   argTypes: {
     children: { control: 'text' },
-    color: { control: 'text' },
-    fontSize: { control: 'number' },
-    theme: { control: 'none' },
+    confirmed: { control: 'boolean' },
+    altDisabledStyle: { control: 'boolean' },
   },
 }
 
 export default meta
-type Story = StoryObj<typeof ButtonLight>
+type Story = StoryObj<typeof ButtonConfirmed>
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const ButtonLightEnable: Story = {
+export const ButtonConfirmedEnable: Story = {
   args: {
-    children: 'Button Light',
-    color: '',
-    fontSize: 14,
-    $disabled: false,
+    children: 'Button Comfirmed',
+    confirmed: false,
+    altDisabledStyle: false,
   },
 }
-export const ButtonLightDisable: Story = {
+export const ButtonConfirmedAlready: Story = {
   args: {
-    children: 'Button Light',
-    color: '',
-    fontSize: 14,
-    $disabled: true,
-  },
-}
-export const ButtonLightCustomColor: Story = {
-  args: {
-    children: 'Button Light',
-    color: '#FF537B',
-    fontSize: 20,
-    $disabled: true,
+    children: 'Button Comfirmed',
+    confirmed: true,
+    altDisabledStyle: false,
   },
 }

@@ -1,58 +1,43 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useMemo, useState } from 'react'
-import { Eye, EyeOff, Plus, Share2 } from 'react-feather'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Clock, Eye, EyeOff, Plus, Share2 } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import DefaultAvatar from 'assets/images/default_avatar.png'
-import { NotificationType } from 'components/Announcement/type'
-import { DropdownArrowIcon } from 'components/ArrowRotate'
 import Avatar from 'components/Avatar'
+import Badge from 'components/Badge'
 import { ButtonAction, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
-import { ProfilePanel } from 'components/Header/web3/SignWallet/ProfileContent'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
-import MenuFlyout from 'components/MenuFlyout'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import Select, { SelectOption } from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import AddWalletPortfolioModal from 'pages/NotificationCenter/Portfolio/Modals/AddWalletPortfolioModal'
-import { MAXIMUM_PORTFOLIO } from 'pages/NotificationCenter/Portfolio/const'
+import { PortfolioInfos } from 'pages/NotificationCenter/Portfolio/PortfolioDetail/useFetchPortfolio'
+import { MAXIMUM_PORTFOLIO, PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { useAddWalletToPortfolio, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 import {
   Portfolio,
-  PortfolioWallet,
   PortfolioWalletBalanceResponse,
   PortfolioWalletPayload,
 } from 'pages/NotificationCenter/Portfolio/type'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import getShortenAddress from 'utils/getShortenAddress'
 import { formatDisplayNumber } from 'utils/numbers'
 import { shortString } from 'utils/string'
-import { formatTime } from 'utils/time'
+import { formatRemainTime } from 'utils/time'
 
 const BalanceGroup = styled.div`
   display: flex;
   gap: 16px;
   align-items: center;
-`
-
-const browserCustomStyle = css`
-  padding: 0;
-  border-radius: 20px;
-  top: 120px;
-  right: unset;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: unset;
-    bottom: 3.5rem;
-  `};
 `
 
 const ActionGroups = styled(Row)`
@@ -224,161 +209,75 @@ const ButtonCreatePortfolio = ({ portfolioOptions }: { portfolioOptions: Portfol
   )
 }
 
+const StyledAction = styled(ButtonAction)`
+  background: ${({ theme }) => theme.buttonGray};
+  min-width: 34px;
+  height: 34px;
+  display: flex;
+  justify-content: center;
+`
+
 export type PortfolioOption = { portfolio: Portfolio; totalUsd: number; active: boolean }
+
+const getRemainTime = (lastRefreshTime: number | undefined) =>
+  lastRefreshTime ? PORTFOLIO_POLLING_INTERVAL / 1000 - Math.floor((Date.now() - lastRefreshTime) / 1000) : 0
+
 const AddressPanel = ({
-  activePortfolio,
-  data,
-  isLoading,
+  balance,
   onShare,
-  portfolioOptions,
+  portfolioInfos: { portfolio: activePortfolio, portfolioOptions },
+  lastRefreshTime,
 }: {
-  isLoading: boolean
-  wallets: PortfolioWallet[]
-  activePortfolio: Portfolio | undefined
   onChangeWallet: (v: string) => void
-  data: PortfolioWalletBalanceResponse | undefined
+  balance: PortfolioWalletBalanceResponse | undefined
   onShare: () => void
-  portfolioOptions: PortfolioOption[]
+  portfolioInfos: PortfolioInfos
+  lastRefreshTime: number | undefined
 }) => {
   const theme = useTheme()
   const [showBalance, setShowBalance] = useState(true)
-
   const navigate = useNavigate()
-  const [isOpen, setIsOpen] = useState(false)
-  const { pathname } = useLocation()
-  const isMyPortfolioPage = pathname.startsWith(APP_PATHS.MY_PORTFOLIO)
-  const { wallet } = useParseWalletPortfolioParam()
-  const { lastUpdatedAt, totalUsd = 0 } = data || {}
-
-  const accountText = (
-    <Text
-      fontSize={'20px'}
-      fontWeight={'500'}
-      color={theme.text}
-      sx={{
-        userSelect: 'none',
-        maxWidth: '250px',
-        textOverflow: 'ellipsis',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {isLoading ? '--' : activePortfolio?.name || getShortenAddress(wallet)}
-    </Text>
-  )
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const renderAction = useCallback(
-    () => (
-      <TransactionSettingsIcon
-        style={{ marginRight: upToMedium ? 0 : '10px', color: theme.subText }}
-        size={22}
-        onClick={e => {
-          e?.stopPropagation()
-          setIsOpen(!isOpen)
-          navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`)
-        }}
-      />
-    ),
-    [isOpen, theme, upToMedium, navigate],
-  )
-
-  const notify = useNotify()
-  const onClickPortfolio = useCallback(
-    (data: Portfolio) => {
-      navigate(`${APP_PATHS.MY_PORTFOLIO}/${data.id}`)
-      setIsOpen(false)
-      const portfolioName = data.name
-      notify({
-        title: t`Portfolio switched`,
-        summary: t`Switched successfully to ${portfolioName}`,
-        type: NotificationType.SUCCESS,
-      })
-    },
-    [navigate, notify],
-  )
-
-  const formatPortfolio = useMemo(() => {
-    return portfolioOptions
-      .filter(e => !e.active)
-      .map(({ portfolio, totalUsd }) => ({
-        data: {
-          ...portfolio,
-          title: portfolio.name,
-          description: formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }),
-          avatarUrl: '',
-        },
-        // todo raw data field instead ?
-        renderAction,
-        onClick: onClickPortfolio,
-      }))
-  }, [portfolioOptions, renderAction, onClickPortfolio])
-
-  const balance = (
-    <BalanceGroup>
-      <Flex sx={{ gap: '12px', alignItems: 'center' }}>
-        {!upToSmall && <Avatar url={activePortfolio ? DefaultAvatar : ''} size={36} color={theme.subText} />}
-        <Text fontSize={'28px'} fontWeight={'500'}>
-          {showBalance ? formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }) : '******'}
-        </Text>
-      </Flex>
-    </BalanceGroup>
-  )
+  const [lastTime, setLastTime] = useState(0)
+  useInterval(() => setLastTime(() => getRemainTime(lastRefreshTime)), lastRefreshTime ? 1000 : null)
 
   return (
     <>
       <RowBetween flexDirection={upToSmall ? 'column' : 'row'} align={upToSmall ? 'flex-start' : 'center'} gap="8px">
-        {isLoading || !isMyPortfolioPage || formatPortfolio.length === 0 ? (
-          accountText
-        ) : (
-          <MenuFlyout
-            trigger={
-              <RowFit sx={{ cursor: 'pointer' }}>
-                {accountText}
-                {formatPortfolio.length > 0 && <DropdownArrowIcon rotate={isOpen} />}
-              </RowFit>
-            }
-            customStyle={browserCustomStyle}
-            isOpen={isOpen}
-            toggle={() => setIsOpen(!isOpen)}
-          >
-            <ProfilePanel
-              scroll
-              options={formatPortfolio}
-              activeItem={{
-                onClick: () => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`),
-                actionLabel: t`Portfolio Settings`,
-                data: {
-                  title: activePortfolio?.name,
-                  description: formatDisplayNumber(totalUsd, { style: 'currency', fractionDigits: 2 }),
-                  avatarUrl: DefaultAvatar,
-                },
-              }}
-            />
-          </MenuFlyout>
-        )}
+        <RowFit gap="16px">
+          <BalanceGroup>
+            <Flex sx={{ gap: '12px', alignItems: 'center' }}>
+              {!upToSmall && <Avatar url={activePortfolio ? DefaultAvatar : ''} size={36} color={theme.subText} />}
+              <Text fontSize={'28px'} fontWeight={'500'}>
+                {showBalance
+                  ? formatDisplayNumber(balance?.totalUsd || 0, { style: 'currency', fractionDigits: 2 })
+                  : '******'}
+              </Text>
+            </Flex>
+          </BalanceGroup>
 
-        {upToSmall && balance}
-
-        <Text fontSize={'12px'} color={theme.subText} fontStyle={'italic'}>
-          <Trans>Data last refreshed: {lastUpdatedAt ? formatTime(lastUpdatedAt) : '-'}</Trans>
-        </Text>
-      </RowBetween>
-
-      <RowBetween>
-        {!upToSmall && balance}
+          <RowFit fontSize={'12px'} color={theme.subText} fontStyle={'italic'} gap="4px">
+            <Trans>
+              Refresh in:{' '}
+              <Badge>
+                <Clock size={14} />
+                <Text as="span">&nbsp;{lastTime ? formatRemainTime(lastTime, false) : '--:--'}</Text>
+              </Badge>
+            </Trans>
+          </RowFit>
+        </RowFit>
 
         <ActionGroups>
-          <ButtonAction
-            style={{ padding: '8px', background: theme.buttonGray }}
-            onClick={() => setShowBalance(!showBalance)}
-          >
+          <StyledAction onClick={() => setShowBalance(!showBalance)}>
             {showBalance ? <EyeOff size={18} color={theme.subText} /> : <Eye size={18} color={theme.subText} />}
-          </ButtonAction>
-          <ButtonAction style={{ padding: '8px', background: theme.buttonGray }} onClick={onShare}>
+          </StyledAction>
+          <StyledAction onClick={onShare}>
             <Share2 color={theme.subText} size={18} />
-          </ButtonAction>
+          </StyledAction>
+          <StyledAction onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PORTFOLIO}`)}>
+            <TransactionSettingsIcon fill={theme.subText} style={{ height: '20px', minWidth: '20px' }} />
+          </StyledAction>
           <ButtonCreatePortfolio portfolioOptions={portfolioOptions} />
         </ActionGroups>
       </RowBetween>

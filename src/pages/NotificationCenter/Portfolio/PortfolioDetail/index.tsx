@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
-import { useGetMyPortfoliosQuery } from 'services/portfolio'
+import { useGetRealtimeBalanceQuery } from 'services/portfolio'
 import styled, { CSSProperties } from 'styled-components'
 
 import tutorial1 from 'assets/images/truesight-v2/tutorial_1.png'
@@ -18,6 +18,8 @@ import useTheme from 'hooks/useTheme'
 import DisclaimerPortfolio from 'pages/NotificationCenter/Portfolio/Modals/Disclaimer'
 import Overview from 'pages/NotificationCenter/Portfolio/PortfolioDetail/Overview'
 import PortfolioStat from 'pages/NotificationCenter/Portfolio/PortfolioDetail/PortfolioStat'
+import useFetchPortfolio from 'pages/NotificationCenter/Portfolio/PortfolioDetail/useFetchPortfolio'
+import { PORTFOLIO_POLLING_INTERVAL } from 'pages/NotificationCenter/Portfolio/const'
 import { useNavigateToMyFirstPortfolio, useParseWalletPortfolioParam } from 'pages/NotificationCenter/Portfolio/helpers'
 
 import Header from './Header'
@@ -107,10 +109,17 @@ export default function PortfolioDetail() {
   const { wallet, portfolioId } = useParseWalletPortfolioParam()
   const showOverview = !wallet && !portfolioId
 
-  const { isLoading: loading, data, isError } = useGetMyPortfoliosQuery()
-  const isLoading = useShowLoadingAtLeastTime(loading || isError, 300)
+  const portfolioInfos = useFetchPortfolio()
+  const { myPortfolios, walletsQuery, loadMyPortfolioError, isLoadingMyPortfolio } = portfolioInfos
+
+  const { data: balance, fulfilledTimeStamp } = useGetRealtimeBalanceQuery(
+    { walletAddresses: walletsQuery },
+    { skip: !walletsQuery.length, refetchOnMountOrArgChange: true, pollingInterval: PORTFOLIO_POLLING_INTERVAL },
+  )
+
+  const isLoading = useShowLoadingAtLeastTime(isLoadingMyPortfolio || loadMyPortfolioError, 300)
   const navigate = useNavigateToMyFirstPortfolio()
-  const navigateToMyPortfolio = useCallback(() => navigate(data, true), [data, navigate])
+  const navigateToMyPortfolio = useCallback(() => navigate(myPortfolios, true), [myPortfolios, navigate])
 
   const [showTutorialState, setShowTutorial] = useState(!localStorage.getItem(TutorialKeys.SHOWED_PORTFOLIO_GUIDE))
   const showTutorial = showTutorialState && account
@@ -135,13 +144,18 @@ export default function PortfolioDetail() {
 
   return (
     <PageWrapper>
-      <Header />
+      <Header portfolioInfos={portfolioInfos} balance={balance} />
       {isLoading ? (
         <LocalLoader />
       ) : showOverview ? (
         <Overview />
       ) : (
-        <PortfolioStat navigateToMyPortfolio={navigateToMyPortfolio} />
+        <PortfolioStat
+          navigateToMyPortfolio={navigateToMyPortfolio}
+          portfolioInfos={portfolioInfos}
+          balance={balance}
+          lastRefreshTime={fulfilledTimeStamp}
+        />
       )}
       {showDisclaimer ? (
         <DisclaimerPortfolio onConfirm={onConfirmDisclaimer} />

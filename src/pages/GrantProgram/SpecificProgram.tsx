@@ -1,11 +1,11 @@
 import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
+import campaignApi from 'services/campaign'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
-import useGetGrantProgram from 'hooks/campaigns/useGetGrantProgram'
 import useTheme from 'hooks/useTheme'
 
 import SingleProgram from './SingleProgram'
@@ -25,9 +25,9 @@ type Props = {
 const SpecificProgram: React.FC<Props> = ({ id }) => {
   const navigate = useNavigate()
   const theme = useTheme()
-  const { data, isValidating, error } = useGetGrantProgram(id)
+  const { data, isLoading, isError } = campaignApi.useGetGrantProgramQuery({ id })
 
-  if (isValidating) {
+  if (isLoading) {
     return (
       <Wrapper>
         <Loader />
@@ -35,7 +35,7 @@ const SpecificProgram: React.FC<Props> = ({ id }) => {
     )
   }
 
-  if (error) {
+  if (isError) {
     navigate(APP_PATHS.GRANT_PROGRAMS)
 
     return (
@@ -48,7 +48,7 @@ const SpecificProgram: React.FC<Props> = ({ id }) => {
             color: theme.text,
           }}
         >
-          {JSON.stringify(error) || <Trans>Something went wrong</Trans>}
+          <Trans>Something went wrong</Trans>
         </Text>
       </Wrapper>
     )

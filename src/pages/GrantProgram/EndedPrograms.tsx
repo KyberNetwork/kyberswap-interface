@@ -4,12 +4,12 @@ import { ChevronRight } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import campaignApi from 'services/campaign'
 import styled from 'styled-components'
 
 import HourGlass from 'assets/images/hourglass.png'
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
-import useGetGrantPrograms from 'hooks/campaigns/useGetGrantPrograms'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { GrantProgram } from 'types/grantProgram'
@@ -167,12 +167,13 @@ const EmptyState = () => {
   )
 }
 
-const EndedPrograms: React.FC = () => {
-  const now = Date.now() / 1000
-  const { data, isValidating } = useGetGrantPrograms()
-  const programs = (data?.data?.competitions || []).filter(prog => prog.endTime < now)
+const now = Date.now() / 1000
 
-  if (isValidating) {
+const EndedPrograms: React.FC = () => {
+  const { data: competitions = [], isLoading } = campaignApi.useGetListGrantProgramsQuery({})
+  const programs = competitions.filter(prog => prog.endTime < now)
+
+  if (isLoading) {
     return <Loader />
   }
 

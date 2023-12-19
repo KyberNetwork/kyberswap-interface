@@ -153,7 +153,12 @@ const useFetchAllowance = ({ wallets, chainIds }: { wallets: string[]; chainIds:
         }
         const resp = await Promise.all(wallets.map(address => fetchAllowance({ chainIds, address }).unwrap()))
         if (signal.aborted) return
-        setData(resp.map(e => e.approvals).flat())
+        setData(
+          resp
+            .map(e => e.approvals)
+            .flat()
+            .sort((a, b) => b.lastUpdateTimestamp - a.lastUpdateTimestamp),
+        )
       } catch (error) {
         if (signal.aborted) return
         setData([])

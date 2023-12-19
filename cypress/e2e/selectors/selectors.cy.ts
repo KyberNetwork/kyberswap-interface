@@ -21,6 +21,7 @@ export const SwapPageLocators = {
   dropdownTokenIn: '[data-testid=swap-currency-input] [data-testid=token-symbol-container]',
   dropdownTokenOut: '[data-testid=swap-currency-output] [data-testid=token-symbol-container]',
   btnSkipTutorial: '[data-testid=button-skip-tutorial]',
+  lblBalanceIn: '[data-testid=swap-currency-input] [data-testid=balance]',
 }
 
 export const LimitOrderLocators = {
@@ -38,6 +39,8 @@ export const CrossChainLocators = {
   btnCrossChain: '[data-testid=cross-chain-tab]',
   btnNetworkIn: '[data-testid=swap-currency-input] [data-testid=network-button]',
   btnNetworkOut: '[data-testid=swap-currency-output] [data-testid=network-button]',
+  dropdownTokenIn: '[data-testid=swap-currency-input] [data-testid=open-currency-select-button]',
+  dropdownTokenOut: '[data-testid=swap-currency-output] [data-testid=open-currency-select-button]',
   btnUnderstand: '[data-testid=understand-button]',
   rechartsSurface: '.recharts-surface', //it's in the library so don't use data-testid
 }
@@ -47,29 +50,10 @@ export const WalletLocators = {
   btnMetaMask: '[data-testid=connect-METAMASK]',
   chkAcceptTerm: '[data-testid=accept-term]',
   statusConnected: '[data-testid=web3-status-connected]',
+  lblBalance: '[data-testid=select-network] div div div',
 }
 
 export const NetworkLocators = {
   btnSelectNetwork: '[data-testid=select-network]',
   btnNetwork: '[data-testid=network-list]',
-}
-
-export const HeaderLocators = {
-  dropdownEarn: '[data-testid=earn-menu]',
-  lblPools: '[data-testid=pools-nav-link]',
-  lblMyPools: '[data-testid=my-pools-nav-link]',
-  lblFarms: '[data-testid=farms-nav-link]',
-}
-
-export const FarmLocators = {
-  lblApr: '[data-testid=apr-value]',
-  lblTvl: '[data-testid=tvl-value]',
-}
-
-export const PoolLocators = {
-  txtSearchPool: 'input[data-testid="search-pool"]',
-  txtPriceValue: 'input[data-testid="price-value"]',
-  txtAmountIn: '[data-testid="token-amount-input"]',
-  lblCurrentPrice: '[data-testid="current-price"]',
-  btnZapIn: '[data-testid="zap-in-btn"]',
 }

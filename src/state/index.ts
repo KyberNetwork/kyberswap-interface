@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
 import blockServiceApi from 'services/blockService'
@@ -8,6 +9,7 @@ import coingeckoApi from 'services/coingecko'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
 import earningApi from 'services/earning'
+import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
 import knProtocolApi from 'services/knprotocol'
@@ -96,12 +98,14 @@ const store = configureStore({
     pools,
     farms,
     vesting,
+    [aggregatorStatsApi.reducerPath]: aggregatorStatsApi.reducer,
     [announcementApi.reducerPath]: announcementApi.reducer,
     [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [coingeckoApi.reducerPath]: coingeckoApi.reducer,
     [contractQuery.reducerPath]: contractQuery.reducer,
     [limitOrderApi.reducerPath]: limitOrderApi.reducer,
+    [externalApi.reducerPath]: externalApi.reducer,
 
     [campaignApi.reducerPath]: campaignApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
@@ -136,12 +140,14 @@ const store = configureStore({
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
       .concat(coingeckoApi.middleware)
+      .concat(externalApi.middleware)
       .concat(contractQuery.middleware)
       .concat(limitOrderApi.middleware)
       .concat(kyberAIApi.middleware)
       .concat(coinmarketcapApi.middleware)
       .concat(campaignApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
+      .concat(aggregatorStatsApi.middleware)
       .concat(announcementApi.middleware)
       .concat(publicAnnouncementApi.middleware)
       .concat(kyberDAO.middleware)

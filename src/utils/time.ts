@@ -28,9 +28,11 @@ export const formatTime = (time: number) => {
 
 // 1800 => 00:03:00
 const pad = (n: number) => (n < 10 ? `0${n}` : n)
-export const formatRemainTime = (timeInSeconds: number) => {
+export const formatRemainTime = (timeInSeconds: number, showHourIfZero = true) => {
   const hours = Math.floor(timeInSeconds / 3600)
   const minutes = Math.floor((timeInSeconds % 3600) / 60)
   const seconds = timeInSeconds % 60
-  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+  return showHourIfZero
+    ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+    : `${hours ? `${pad(hours)}:` : ''}${pad(minutes)}:${pad(seconds)}`
 }

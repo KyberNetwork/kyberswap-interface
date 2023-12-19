@@ -3,13 +3,14 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 import styled from 'styled-components'
 
 import AddressInputPanel from 'components/AddressInputPanel'
+import FeeControlGroup from 'components/FeeControlGroup'
 import { Clock } from 'components/Icons'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { AutoRow } from 'components/Row'
@@ -32,6 +33,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
+import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -88,6 +90,7 @@ export type SwapFormProps = {
 const SwapForm: React.FC<SwapFormProps> = props => {
   const { pathname } = useLocation()
   const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const [searchParams] = useSearchParams()
   const {
     hidden,
     currencyIn,
@@ -114,6 +117,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const [isSaveGas, setSaveGas] = useState(false)
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  useUpdateSlippageInStableCoinSwap(chainId)
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(
@@ -122,9 +126,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     },
     [updateInputAmount],
   )
-  useEffect(() => {
-    onUserInput('1')
-  }, [onUserInput])
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const {
@@ -143,6 +144,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     parsedAmount,
     isProcessingSwap,
     customChain: chainId,
+    clientId: searchParams.get('clientId') || undefined,
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
@@ -261,6 +263,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
             <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} isStablePairSwap={isStablePairSwap} />
+            <FeeControlGroup />
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
@@ -268,7 +271,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 
-          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} />
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
           <SwapActionButton

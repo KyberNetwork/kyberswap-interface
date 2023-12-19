@@ -443,8 +443,9 @@ export const findTx = (txs: GroupedTxsByHash | undefined, hash: string): Transac
 }
 
 export const isChristmasTime = () => {
+  return false
   const currentTime = dayjs()
-  return currentTime.month() === 11 && currentTime.date() >= 15
+  return false && currentTime.month() === 11 && currentTime.date() >= 15
 }
 
 export const isSupportLimitOrder = (chainId: ChainId): boolean => {

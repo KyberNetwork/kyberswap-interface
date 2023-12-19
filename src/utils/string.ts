@@ -56,3 +56,8 @@ export function isULIDString(str = '') {
   const ulidPattern = /[0-7][0-9A-HJKMNP-TV-Z]{25}/
   return ulidPattern.test(str)
 }
+
+export function convertStringToBoolean(value?: string) {
+  if (!value) return false
+  return ['1', 'true', 'yes'].includes(value.toLowerCase())
+}

@@ -1,10 +1,10 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
+import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { AGGREGATOR_API } from 'constants/env'
@@ -24,6 +24,7 @@ export type ArgsGetRoute = {
 
   customChain?: ChainId
   isProcessingSwap?: boolean
+  clientId?: string
 }
 
 export const getRouteTokenAddressParam = (currency: Currency) =>
@@ -76,27 +77,11 @@ export const useRouteApiDomain = () => {
 
 const useGetRoute = (args: ArgsGetRoute) => {
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
-  const { isSaveGas, parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap } = args
+  const { isSaveGas, parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
-  const [searchParams] = useSearchParams()
-
-  const feeAmount = searchParams.get('feeAmount') || ''
-  const chargeFeeBy = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.NONE
-  const isInBps = searchParams.get('isInBps') || ''
-  const feeReceiver = searchParams.get('feeReceiver') || ''
-
-  const feeConfigFromUrl = useMemo(() => {
-    if (feeAmount && chargeFeeBy && isInBps && feeReceiver)
-      return {
-        feeAmount,
-        chargeFeeBy,
-        isInBps,
-        feeReceiver,
-      }
-    return null
-  }, [feeAmount, chargeFeeBy, isInBps, feeReceiver])
+  const feeConfigFromUrl = useGetFeeConfig()
 
   const [trigger, _result] = routeApi.useLazyGetRouteQuery()
   const aggregatorDomain = useRouteApiDomain()
@@ -135,7 +120,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     () =>
       debounce(
         async (args: { url: string; params: GetRouteParams; authentication: boolean }) => {
-          await trigger(args)
+          await trigger({ ...args, clientId })
           dismissSwapModalFlag.current = false
         },
         INPUT_DEBOUNCE_TIME,
@@ -143,7 +128,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
           leading: true,
         },
       ),
-    [trigger],
+    [trigger, clientId],
   )
 
   const fetcher = useCallback(async () => {

@@ -178,7 +178,7 @@ export default function Swap() {
   const onSelectSuggestedPair = useCallback(
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
       if (isLimitPage) {
-        onSelectPairLimit(fromToken, toToken)
+        onSelectPairLimit(fromToken, toToken, amount)
         setIsSelectCurrencyManually(true)
         return
       }

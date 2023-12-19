@@ -5,7 +5,6 @@ import { v4 as uuid } from 'uuid'
 
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-import { CAMPAIGN_BASE_URL } from './env'
 import * as ENV from './env'
 import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
@@ -124,16 +123,11 @@ export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
-export const SWR_KEYS = {
-  getGrantProgramLeaderBoard: (id: number | string) => `${CAMPAIGN_BASE_URL}/api/v1/competitions/${id}/leaderboard`,
-  getListGrantPrograms: `${CAMPAIGN_BASE_URL}/api/v1/competitions`,
-  getGrantProgram: (id: number | string) => `${CAMPAIGN_BASE_URL}/api/v1/competitions/${id}`,
-}
-
 // https://www.nasdaq.com/glossary/b/bip
 export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 1999
 export const MAX_DEGEN_SLIPPAGE_IN_BIPS = 5000
 export const DEFAULT_SLIPPAGES = [5, 10, 50, 100]
+export const DEFAULT_TIPS = [0, 10, 50, 100]
 
 export const DEFAULT_SLIPPAGE = 50
 export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 5
@@ -176,6 +170,9 @@ export const APP_PATHS = {
   IAM_LOGIN: '/login',
   IAM_LOGOUT: '/logout',
   IAM_CONSENT: '/consent',
+
+  DEPRECATED_NOTI_CENTER: '/notification-center/overview',
+  ELASTIC_SNAPSHOT: '/elastic-snapshot',
 
   PORTFOLIO: '/portfolio',
   MY_PORTFOLIO: '/my-portfolio',

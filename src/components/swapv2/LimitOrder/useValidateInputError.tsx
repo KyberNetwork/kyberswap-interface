@@ -4,6 +4,7 @@ import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
 
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useLimitActionHandlers } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -30,12 +31,13 @@ const useValidateInputError = ({
   parsedActiveOrderMakingAmount: CurrencyAmount<Currency> | undefined
   balance: CurrencyAmount<Currency> | undefined
 }) => {
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
   const { setInputValue } = useLimitActionHandlers()
   const inputError = useMemo(() => {
     try {
-      if (!inputAmount) return
+      if (!inputAmount || !account) return
       if (parseFloat(inputAmount) === 0 && (parseFloat(outputAmount) === 0 || parseFloat(displayRate) === 0)) {
         return t`Invalid input amount`
       }
@@ -87,6 +89,7 @@ const useValidateInputError = ({
     wrapInputError,
     theme,
     setInputValue,
+    account,
   ])
 
   const outPutError = useMemo(() => {

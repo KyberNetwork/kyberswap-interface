@@ -131,7 +131,7 @@ export default function Profile() {
   const [nickname, setNickName] = useState('')
   const { signOut } = useLogin()
   const navigate = useNavigate()
-  const { isSignInEth, signedAccount, isSigInGuest } = useSignedAccountInfo()
+  const { isSignInEth, signedAccount, isSigInGuest, isSignInEmail } = useSignedAccountInfo()
   const { totalGuest } = useProfileInfo()
   const canSignOut = !isSigInGuest || (isSigInGuest && totalGuest > 1)
 
@@ -300,6 +300,7 @@ export default function Profile() {
                 isVerifiedEmail={!!isVerifiedEmail}
                 isShowVerify={isShowVerify}
                 onDismissVerifyModal={onDismissVerifyModal}
+                disabled={isSignInEmail}
               />
             </FormGroup>
           </LeftColum>

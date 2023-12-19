@@ -2,6 +2,7 @@
 
 # generated i18n
 /src/locales/**/*.js
+.swc/
 
 # dependencies
 /node_modules

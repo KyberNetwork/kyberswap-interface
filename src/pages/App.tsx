@@ -17,15 +17,14 @@ import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute, { ProtectedRouteKyberAI } from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
-import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
-import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
 import KyberAIExplore from 'pages/TrueSightV2'
 import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
@@ -39,6 +38,8 @@ const Login = lazy(() => import('./Oauth/Login'))
 const Logout = lazy(() => import('./Oauth/Logout'))
 const Consent = lazy(() => import('./Oauth/Consent'))
 const PortfolioDetail = lazy(() => import('./NotificationCenter/Portfolio/PortfolioDetail'))
+
+const ElasticSnapshot = lazy(() => import('./ElasticSnapshot'))
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
@@ -71,7 +72,6 @@ const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 const Campaign = lazy(() => import('pages/Campaign'))
 const GrantProgramPage = lazy(() => import('pages/GrantProgram'))
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
-const Icons = lazy(() => import('./Icons'))
 
 const portfolioRoutes = [
   APP_PATHS.MY_PORTFOLIO,
@@ -375,6 +375,14 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path={APP_PATHS.DEPRECATED_NOTI_CENTER}
+                  element={
+                    <ProtectedRoute>
+                      <NotificationCenter redirectRoute={PROFILE_MANAGE_ROUTES.PREFERENCE} />
+                    </ProtectedRoute>
+                  }
+                />
                 {portfolioRoutes.map(path => (
                   <Route
                     key={path}
@@ -389,7 +397,6 @@ export default function App() {
 
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
-                {ENV_LEVEL === ENV_TYPE.LOCAL && <Route path="/icons" element={<Icons />} />}
 
                 <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
@@ -399,6 +406,8 @@ export default function App() {
                 <Route path={APP_PATHS.IAM_LOGIN} element={<Login />} />
                 <Route path={APP_PATHS.IAM_LOGOUT} element={<Logout />} />
                 <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
+
+                <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
 
                 <Route path="*" element={<RedirectPathToSwapV3Network />} />
               </Routes>

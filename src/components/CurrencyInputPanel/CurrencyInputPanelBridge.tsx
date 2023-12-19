@@ -147,6 +147,7 @@ export default function CurrencyInputPanelBridge({
             <CurrencySelect
               selected={!!currency}
               className="open-currency-select-button"
+              data-testid="open-currency-select-button"
               onClick={() => !disabledSelect && !loadingToken && setModalOpen(true)}
               style={{ cursor: disabledSelect ? 'default' : 'pointer', paddingRight: disabledSelect ? '8px' : 0 }}
             >

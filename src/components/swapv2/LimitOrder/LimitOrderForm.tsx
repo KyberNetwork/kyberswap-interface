@@ -116,6 +116,20 @@ const ExpiredInput = styled(InputWrapper)`
     max-width: unset;
   `}
 `
+const useInputAmount = ({
+  defaultInputAmount,
+  isEdit,
+}: {
+  defaultInputAmount?: string
+  isEdit: boolean
+}): [string, (v: string) => void] => {
+  const { inputAmount } = useLimitState()
+  const { setInputValue } = useLimitActionHandlers()
+
+  const localState = useState(defaultInputAmount || '')
+  return isEdit ? localState : [inputAmount, setInputValue]
+}
+
 export type LimitOrderFormHandle = {
   hasChangedOrderInfo: () => boolean
 }
@@ -160,9 +174,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     setCurrencyOut: updateCurrencyOut,
     switchCurrency: rotateCurrency,
     removeOrderNeedCreated,
-    resetState,
     setOrderEditing,
-    setInputValue: setInputValueGlobal,
   } = useLimitActionHandlers()
 
   const setCurrencyIn = useCallback(
@@ -174,6 +186,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         )
         setSearchParams(searchParams)
       } else updateCurrencyIn(currency)
+      autoFillMarketPrice.current = false
     },
     [useUrlParams, searchParams, setSearchParams, updateCurrencyIn],
   )
@@ -187,6 +200,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         )
         setSearchParams(searchParams)
       } else updateCurrencyOut(currency)
+      autoFillMarketPrice.current = false
     },
     [useUrlParams, searchParams, setSearchParams, updateCurrencyOut],
   )
@@ -201,9 +215,9 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     } else rotateCurrency()
   }, [useUrlParams, rotateCurrency, searchParams, setSearchParams])
 
-  const { ordersNeedCreated, inputAmount: inputAmountGlobal } = useLimitState()
+  const { ordersNeedCreated } = useLimitState()
 
-  const [inputAmount, setInputAmount] = useState(defaultInputAmount)
+  const [inputAmount, setInputAmount] = useInputAmount({ defaultInputAmount, isEdit })
   const [outputAmount, setOutputAmount] = useState(defaultOutputAmount)
 
   const [rateInfo, setRateInfo] = useState<RateInfo>(defaultRate)
@@ -235,36 +249,39 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   )
   const showWrap = !!currencyIn?.isNative
 
-  const onSetRate = (rate: string, invertRate: string) => {
-    if (!currencyIn || !currencyOut) return
-    const newRate: RateInfo = { ...rateInfo, rate, invertRate, rateFraction: parseFraction(rate) }
-    if (!rate && !invertRate) {
-      setRateInfo(newRate)
-      return
-    }
+  const onSetRate = useCallback(
+    (rate: string, invertRate: string) => {
+      if (!currencyIn || !currencyOut) return
+      const newRate: RateInfo = { ...rateInfo, rate, invertRate, rateFraction: parseFraction(rate) }
+      if (!rate && !invertRate) {
+        setRateInfo(newRate)
+        return
+      }
 
-    if (rate) {
-      if (inputAmount) {
-        const output = calcOutput(inputAmount, newRate.rateFraction || rate, currencyOut.decimals)
-        setOutputAmount(output)
+      if (rate) {
+        if (inputAmount) {
+          const output = calcOutput(inputAmount, newRate.rateFraction || rate, currencyOut.decimals)
+          setOutputAmount(output)
+        }
+        if (!invertRate) {
+          newRate.invertRate = calcInvert(rate)
+        }
+        setRateInfo(newRate)
+        return
       }
-      if (!invertRate) {
-        newRate.invertRate = calcInvert(rate)
+      if (invertRate) {
+        newRate.rate = calcInvert(invertRate)
+        newRate.rateFraction = parseFraction(invertRate).invert()
+        if (inputAmount) {
+          const output = calcOutput(inputAmount, newRate.rateFraction, currencyOut.decimals)
+          setOutputAmount(output)
+        }
+        setRateInfo(newRate)
+        return
       }
-      setRateInfo(newRate)
-      return
-    }
-    if (invertRate) {
-      newRate.rate = calcInvert(invertRate)
-      newRate.rateFraction = parseFraction(invertRate).invert()
-      if (inputAmount) {
-        const output = calcOutput(inputAmount, newRate.rateFraction, currencyOut.decimals)
-        setOutputAmount(output)
-      }
-      setRateInfo(newRate)
-      return
-    }
-  }
+    },
+    [currencyIn, currencyOut, inputAmount, rateInfo],
+  )
 
   const onSetOutput = (output: string) => {
     if (inputAmount && parseFloat(inputAmount) !== 0 && currencyOut && output) {
@@ -279,16 +296,19 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     setOutputAmount(output)
   }
 
-  const setPriceRateMarket = () => {
-    try {
-      mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'set price')
-      if (loadingTrade || !tradeInfo) return
-      onSetRate(
-        removeTrailingZero(tradeInfo.marketRate.toFixed(16)) ?? '',
-        removeTrailingZero(tradeInfo.invertRate.toFixed(16)) ?? '',
-      )
-    } catch (error) {}
-  }
+  const setPriceRateMarket = useCallback(
+    (autoFillInput = false) => {
+      try {
+        !autoFillInput && mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'set price')
+        if ((loadingTrade && !autoFillInput) || !tradeInfo) return
+        onSetRate(
+          removeTrailingZero(tradeInfo.marketRate.toFixed(16)) ?? '',
+          removeTrailingZero(tradeInfo.invertRate.toFixed(16)) ?? '',
+        )
+      } catch (error) {}
+    },
+    [loadingTrade, mixpanelHandler, onSetRate, tradeInfo],
+  )
 
   const onChangeRate = (val: string) => {
     if (currencyOut) {
@@ -303,7 +323,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         setOutputAmount(calcOutput(input, rateInfo.rateFraction || rateInfo.rate, currencyOut.decimals))
       }
     },
-    [rateInfo, currencyIn, currencyOut],
+    [rateInfo, currencyIn, currencyOut, setInputAmount],
   )
 
   const onInvertRate = (invert: boolean) => {
@@ -462,7 +482,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     setExpire(DEFAULT_EXPIRED)
     setCustomDateExpire(undefined)
     refreshActiveMakingAmount()
-    resetState()
   }
 
   const handleError = useCallback(
@@ -594,18 +613,13 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     }
   }, [account, chainId, ordersNeedCreated, removeOrderNeedCreated, refreshActiveMakingAmount, isEdit])
 
+  const autoFillMarketPrice = useRef(false)
   useEffect(() => {
-    if (inputAmountGlobal) {
-      onSetInput(inputAmountGlobal)
-      setInputValueGlobal('')
+    if (tradeInfo && !autoFillMarketPrice.current && !loadingTrade) {
+      autoFillMarketPrice.current = true
+      setPriceRateMarket(true)
     }
-  }, [inputAmountGlobal, onSetInput, setInputValueGlobal]) // when redux state change, ex: type and swap
-
-  useEffect(() => {
-    return () => {
-      resetState()
-    }
-  }, [resetState])
+  }, [tradeInfo, setPriceRateMarket, loadingTrade])
 
   const trackingTouchInput = useCallback(() => {
     mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
@@ -710,21 +724,23 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     )
   const renderConfirmModal = (showConfirmContent = false) => (
     <ConfirmOrderModal
-      flowState={flowState}
-      onDismiss={hidePreview}
-      onSubmit={onSubmitCreateOrderWithTracking}
-      currencyIn={currencyIn}
-      currencyOut={currencyOut}
-      inputAmount={inputAmount}
-      outputAmount={outputAmount}
-      expireAt={expiredAt}
-      rateInfo={rateInfo}
-      marketPrice={tradeInfo}
-      showConfirmContent={showConfirmContent}
-      note={note}
-      editOrderInfo={editOrderInfo}
-      warningMessage={warningMessage}
-      percentDiff={Number(deltaRate.rawPercent)}
+      {...{
+        onDismiss: hidePreview,
+        onSubmit: onSubmitCreateOrderWithTracking,
+        flowState,
+        currencyIn,
+        currencyOut,
+        inputAmount,
+        outputAmount,
+        expiredAt,
+        rateInfo,
+        note,
+        editOrderInfo,
+        warningMessage,
+        marketPrice: tradeInfo,
+        showConfirmContent,
+        percentDiff: Number(deltaRate.rawPercent),
+      }}
     />
   )
 
@@ -777,37 +793,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
           />
         </Tooltip>
 
-        <Tooltip text={outPutError} show={!!outPutError} placement="top" style={styleTooltip} width="fit-content">
-          <CurrencyInputPanel
-            maxLength={16}
-            value={outputAmount}
-            error={!!outPutError}
-            currency={currencyOut}
-            onUserInput={onSetOutput}
-            otherCurrency={currencyIn}
-            onMax={null}
-            onHalf={null}
-            estimatedUsd={estimateUSD.output}
-            onFocus={trackingTouchInput}
-            id="create-limit-order-input-tokenb"
-            dataTestId="limit-order-input-tokenb"
-            onCurrencySelect={handleOutputSelect}
-            positionMax="top"
-            showCommonBases
-            maxCurrencySymbolLength={6}
-            filterWrap
-            onClickSelect={trackingTouchSelectToken}
-            disableCurrencySelect={isEdit}
-            label={
-              <Label>
-                <Trans>You Buy</Trans>
-              </Label>
-            }
-            positionLabel="in"
-            customChainId={chainId}
-          />
-        </Tooltip>
-
         <RowBetween gap="1rem" flexDirection={upToSmall ? 'column' : 'row'}>
           <InputWrapper>
             <Flex justifyContent={'space-between'} alignItems="center">
@@ -818,7 +803,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
                 rateInfo={rateInfo}
               />
               {tradeInfo && (
-                <Set2Market onClick={setPriceRateMarket}>
+                <Set2Market onClick={() => setPriceRateMarket()}>
                   <Trans>Market</Trans>
                 </Set2Market>
               )}
@@ -894,6 +879,37 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             style={{ width: 25, height: 25, padding: 4, background: theme.buttonGray }}
           />
         </RowBetween>
+
+        <Tooltip text={outPutError} show={!!outPutError} placement="top" style={styleTooltip} width="fit-content">
+          <CurrencyInputPanel
+            maxLength={16}
+            value={outputAmount}
+            error={!!outPutError}
+            currency={currencyOut}
+            onUserInput={onSetOutput}
+            otherCurrency={currencyIn}
+            onMax={null}
+            onHalf={null}
+            estimatedUsd={estimateUSD.output}
+            onFocus={trackingTouchInput}
+            id="create-limit-order-input-tokenb"
+            dataTestId="limit-order-input-tokenb"
+            onCurrencySelect={handleOutputSelect}
+            positionMax="top"
+            showCommonBases
+            maxCurrencySymbolLength={6}
+            filterWrap
+            onClickSelect={trackingTouchSelectToken}
+            disableCurrencySelect={isEdit}
+            label={
+              <Label>
+                <Trans>You Buy</Trans>
+              </Label>
+            }
+            positionLabel="in"
+            customChainId={chainId}
+          />
+        </Tooltip>
 
         {warningMessage.map((mess, i) => (
           <ErrorWarningPanel type="warn" key={i} title={mess} />
