@@ -126,7 +126,7 @@ export const useTokenPricesWithLoading = (
             (acc, cur) => ({
               ...acc,
               [cur.address]: cur.price,
-              [isAddressString(chainId, cur.address)]: cur.price,
+              [isAddressString(cur.address)]: cur.price,
             }),
             {},
           )
@@ -178,7 +178,7 @@ export const useTokenPricesWithLoading = (
       return {
         ...acc,
         [address]: tokenPrices[key] || 0,
-        [isAddressString(chainId, address)]: tokenPrices[key] || 0,
+        [isAddressString(address)]: tokenPrices[key] || 0,
       }
     }, {})
   }, [tokenList, chainId, tokenPrices])

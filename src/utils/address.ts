@@ -9,9 +9,9 @@ export function isAddress(chainId: ChainId, value: any): string | false {
   }
 }
 
-export function isAddressString(chainId: ChainId, value: any): string {
+export function isAddressString(value: any): string {
   try {
-    return new Token(chainId, value, 0).address
+    return new Token(1, value, 0).address
   } catch {
     return ''
   }

@@ -185,8 +185,8 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
         return {
           id: farm.id,
           pools: farm.farmingPools.map(pool => {
-            const token0Address = isAddressString(chainId, pool.pool.token0.id)
-            const token1Address = isAddressString(chainId, pool.pool.token1.id)
+            const token0Address = isAddressString(pool.pool.token0.id)
+            const token1Address = isAddressString(pool.pool.token1.id)
 
             const token0 =
               token0Address === WETH[chainId].address

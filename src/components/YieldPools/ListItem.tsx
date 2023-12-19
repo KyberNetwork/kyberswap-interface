@@ -81,7 +81,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const currency0 = unwrappedToken(farm.token0)
   const currency1 = unwrappedToken(farm.token1)
 
-  const poolAddressChecksum = isAddressString(chainId, farm.id)
+  const poolAddressChecksum = isAddressString(farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
 
   const userStakedBalance = farm.userData?.stakedBalance
@@ -148,7 +148,7 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const [depositValue, setDepositValue] = useState('')
   const [withdrawValue, setWithdrawValue] = useState('')
-  const pairAddressChecksum = isAddressString(chainId, farm.id)
+  const pairAddressChecksum = isAddressString(farm.id)
   const balance = useTokenBalance(pairAddressChecksum)
   const staked = useStakedBalance(farm.fairLaunchAddress, farm.pid)
   const rewardUSD = useFarmRewardsUSD(farmRewards)

@@ -49,8 +49,6 @@ export enum SORT_FIELD {
 }
 
 export const useFilteredFarmsV2 = (farmAddress?: string) => {
-  const { chainId } = useActiveWeb3React()
-
   const [searchParams] = useSearchParams()
   const { farms, userInfo, loading } = useElasticFarmsV2()
 
@@ -112,7 +110,7 @@ export const useFilteredFarmsV2 = (farmAddress?: string) => {
     if (farmAddress) result = result?.filter(item => item.farmAddress === farmAddress)
 
     // Filter by search value
-    const searchAddress = isAddressString(chainId, search)
+    const searchAddress = isAddressString(search)
     if (searchAddress) {
       result = result?.filter(farm => {
         return [farm.poolAddress, farm.token0.wrapped.address, farm.token1.wrapped.address]
@@ -191,7 +189,6 @@ export const useFilteredFarmsV2 = (farmAddress?: string) => {
     userInfo,
     farms,
     activeTab,
-    chainId,
     filteredToken0Id,
     filteredToken1Id,
     search,
