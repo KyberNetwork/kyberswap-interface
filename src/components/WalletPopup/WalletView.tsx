@@ -113,7 +113,8 @@ type Props = {
 }
 
 // This is intentional, we don't need to persist in localStorage
-let storedView = getView().ASSETS
+let storedView: string | undefined = undefined
+
 export default function WalletView({
   onDismiss,
   onPin,
@@ -124,7 +125,7 @@ export default function WalletView({
   toggleShowBalance,
 }: Props) {
   const View = getView()
-  const [view, setView] = useState<string>(storedView)
+  const [view, setView] = useState<string>(storedView || View.ASSETS)
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
   const navigate = useNavigate()
