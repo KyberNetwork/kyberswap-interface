@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { MAX_FEE_IN_BIPS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { ChargeFeeBy } from 'types/route'
@@ -11,7 +12,11 @@ import { convertStringToBoolean } from 'utils/string'
 const useGetFeeConfig = () => {
   const [searchParams] = useSearchParams()
 
-  const feeAmount = searchParams.get('feeAmount') || ''
+  let feeAmount = searchParams.get('feeAmount') || ''
+  if (feeAmount && +feeAmount > MAX_FEE_IN_BIPS) {
+    feeAmount = MAX_FEE_IN_BIPS.toString()
+  }
+
   const clientId = searchParams.get('clientId') || ''
   const chargeFeeByFromParam = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.NONE
   const preferredFeeTokensParam = searchParams.get('preferredFeeTokens') || ''

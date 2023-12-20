@@ -4,7 +4,7 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
-import { DEFAULT_TIPS } from 'constants/index'
+import { DEFAULT_TIPS, MAX_FEE_IN_BIPS } from 'constants/index'
 import { formatSlippage } from 'utils/slippage'
 
 const parseTipInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
@@ -125,7 +125,7 @@ const CustomFeeInput = ({ fee, onFeeChange }: Props) => {
       return
     }
 
-    const maxCustomFee = 9999
+    const maxCustomFee = MAX_FEE_IN_BIPS
     if (parsedValue > maxCustomFee) {
       const format = formatSlippage(maxCustomFee)
       setTooltip(t`Max is ${format}`)
