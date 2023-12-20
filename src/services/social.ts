@@ -6,6 +6,7 @@ import { BFF_API } from 'constants/env'
 export enum SHARE_TYPE {
   KYBER_AI = 'KYBER_AI',
   MY_EARNINGS = 'MY_EARNINGS',
+  PORTFOLIO = 'PORTFOLIO',
 }
 
 const SocialApi = createApi({

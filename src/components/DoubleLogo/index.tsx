@@ -1,8 +1,10 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { Box } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Logo from 'components/Logo'
+import { RowFit } from 'components/Row'
 
 const Wrapper = styled.div<{ margin: boolean; sizeraw: number }>`
   position: relative;
@@ -78,5 +80,39 @@ export function DoubleCurrencyLogoV2({
         </CoveredLogo>
       )}
     </Wrapper>
+  )
+}
+
+export function DoubleLogoWithChain({
+  logoUrl1,
+  logoUrl2,
+  chainUrl,
+  size = 36,
+  chainSize = 18,
+}: {
+  logoUrl1: string
+  logoUrl2: string
+  chainUrl: string
+  size?: number
+  chainSize?: number
+}) {
+  return (
+    <RowFit align="flex-end">
+      {logoUrl1 && (
+        <Box style={{ zIndex: 1 }}>
+          <Logo srcs={[logoUrl1]} style={{ width: size, height: size, borderRadius: '100%' }} />
+        </Box>
+      )}
+      {logoUrl2 && (
+        <Box style={{ zIndex: 2, marginLeft: -size / 4 + 'px' }}>
+          <Logo srcs={[logoUrl2]} style={{ width: size, height: size, borderRadius: '100%' }} />
+        </Box>
+      )}
+      {chainUrl && (
+        <Box style={{ zIndex: 3, marginLeft: -chainSize / 3 + 'px' }}>
+          <Logo srcs={[chainUrl]} style={{ width: chainSize, height: chainSize, borderRadius: '100%' }} />
+        </Box>
+      )}
+    </RowFit>
   )
 }

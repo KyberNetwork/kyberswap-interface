@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components'
+import styled, { CSSProperties, css, keyframes } from 'styled-components'
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -33,11 +33,12 @@ const AnimatedImg = styled.div`
 
 interface LocalLoaderProps {
   fill?: boolean
+  style?: CSSProperties
 }
 
-const LocalLoader = ({ fill }: LocalLoaderProps) => {
+const LocalLoader = ({ fill, style }: LocalLoaderProps) => {
   return (
-    <Wrapper fill={fill}>
+    <Wrapper fill={fill} style={style}>
       <AnimatedImg>
         <img src={'/logo-dark.svg'} alt="loading-icon" />
       </AnimatedImg>

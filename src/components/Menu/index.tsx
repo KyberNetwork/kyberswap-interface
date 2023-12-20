@@ -11,6 +11,7 @@ import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
+import { ReactComponent as PortfolioIcon } from 'assets/svg/portfolio.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
@@ -34,6 +35,7 @@ import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { useLazyNavigateToMyFirstPortfolio } from 'pages/NotificationCenter/Portfolio/helpers'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -56,13 +58,17 @@ const MenuItem = styled.li`
   align-items: center;
   color: ${({ theme }) => theme.subText};
   font-size: 15px;
+  cursor: pointer;
 
   svg {
     margin-right: 8px;
     height: 16px;
     width: 16px;
   }
-
+  :hover {
+    text-decoration: none;
+    color: ${({ theme }) => theme.text};
+  }
   a {
     color: ${({ theme }) => theme.subText};
     display: flex;
@@ -220,6 +226,7 @@ export default function Menu() {
 
   const { mixpanelHandler } = useMixpanel()
   const navigate = useNavigate()
+  const navigateToMyPortFolio = useLazyNavigateToMyFirstPortfolio()
 
   const setShowTutorialSwapGuide = useTutorialSwapGuide()[1]
   const openTutorialSwapGuide = () => {
@@ -353,6 +360,16 @@ export default function Menu() {
               />
             </KyberAIWrapper>
 
+            <KyberAIWrapper
+              onClick={() => {
+                toggle()
+                navigateToMyPortFolio()
+              }}
+            >
+              <PortfolioIcon />
+              <Trans>Portfolio</Trans>
+            </KyberAIWrapper>
+
             {showCampaign && (
               <MenuItem>
                 <NavDropDown
@@ -410,6 +427,7 @@ export default function Menu() {
                 />
               </MenuItem>
             )}
+
             {showAbout && (
               <MenuItem>
                 <NavDropDown

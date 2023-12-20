@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { darken, rgba } from 'polished'
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { HelpCircle } from 'react-feather'
 import { PieChart, pieChartDefaultProps } from 'react-minimal-pie-chart'
 import { Flex, Text } from 'rebass'
@@ -12,6 +12,7 @@ import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { formatDisplayNumber } from 'utils/numbers'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 const LegendsWrapper = styled.div`
   display: flex;
@@ -58,7 +59,7 @@ type LegendProps = {
   logoUrl?: string
   chainId?: ChainId
   label: string
-  value: string
+  value?: string
   percent: number
   active?: boolean
 
@@ -100,7 +101,7 @@ const Legend: React.FC<LegendProps> = ({
           justifyContent: 'center',
         }}
       >
-        {logoUrl ? <Logo srcs={[logoUrl]} style={{ width: 14, height: 14 }} /> : <HelpCircle />}
+        {logoUrl ? <Logo srcs={[logoUrl]} style={{ width: 14, height: 14, borderRadius: '4px' }} /> : <HelpCircle />}
         {chainId && (
           <NetworkLogo
             chainId={chainId}
@@ -145,7 +146,7 @@ const Legend: React.FC<LegendProps> = ({
             whiteSpace: 'nowrap',
           }}
         >
-          {formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 })} (
+          {value !== undefined && formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 })} (
           {formatDisplayNumber(percent / 100, { style: 'percent', fractionDigits: 3 })})
         </Text>
       </Flex>
@@ -165,22 +166,24 @@ const COLORS = [
   '#fee440',
   '#c0392b',
 ]
+const getColor = (i: number) => COLORS[i % COLORS.length]
 
-type DataEntry = {
+export type DataEntry = {
   chainId?: ChainId
   logoUrl?: string
+  value?: string // usd
   symbol: string
-  value: string
   percent: number
 }
 
 type Props = {
   className?: string
-
   isLoading?: boolean
   totalValue?: string
   data?: DataEntry[]
   horizontalLayout?: boolean
+  totalColumn: number
+  shareMode?: boolean
 }
 
 const customStyles: React.CSSProperties = { transition: 'all .3s', cursor: 'pointer' }
@@ -199,6 +202,8 @@ const EarningPieChart: React.FC<Props> = ({
   className,
   isLoading = false,
   horizontalLayout,
+  totalColumn,
+  shareMode,
 }) => {
   const [selectedIndex, setSelectedIndex] = useState<number>(-1)
   const [isHoveringChart, setHoveringChart] = useState(false)
@@ -220,7 +225,7 @@ const EarningPieChart: React.FC<Props> = ({
     }
 
     return data.map((entry, i) => {
-      const color = selectedIndex === i ? darken(0.15, COLORS[i]) : COLORS[i]
+      const color = selectedIndex === i ? darken(0.15, getColor(i)) : getColor(i)
 
       return {
         title: entry.symbol,
@@ -238,17 +243,17 @@ const EarningPieChart: React.FC<Props> = ({
     const coloredData = data.map((entry, i) => {
       return {
         ...entry,
-        color: COLORS[i],
+        color: getColor(i),
       }
     })
 
-    if (coloredData.length <= 5) {
+    if (totalColumn === 1) {
       return [coloredData]
     }
 
     const half = Math.ceil(coloredData.length / 2)
     return [coloredData.slice(0, half), coloredData.slice(half)]
-  }, [data, isLoading])
+  }, [data, isLoading, totalColumn])
 
   const handleMouseOver = useCallback(
     (_: any, index: number) => {
@@ -268,6 +273,39 @@ const EarningPieChart: React.FC<Props> = ({
     setSelectedIndex(-1)
     setHoveringChart(false)
   }, [])
+
+  const renderLegends = () => {
+    if (!data?.length) return null
+    return (
+      <LegendsWrapper>
+        {legendData.map((columnData, columnIndex) => {
+          if (!columnData.length) {
+            return null
+          }
+          return (
+            <LegendsColumn key={columnIndex}>
+              {columnData.map((entry, i) => {
+                const index = (legendData?.[columnIndex - 1]?.length || 0) + i
+                return (
+                  <Legend
+                    active={selectedIndex === index}
+                    key={index}
+                    chainId={entry.chainId}
+                    logoUrl={shareMode ? getProxyTokenLogo(entry.logoUrl) : entry.logoUrl}
+                    label={entry.symbol}
+                    value={entry.value}
+                    percent={entry.percent}
+                    onMouseOver={() => setSelectedIndex(index)}
+                    onMouseOut={() => setSelectedIndex(-1)}
+                  />
+                )
+              })}
+            </LegendsColumn>
+          )
+        })}
+      </LegendsWrapper>
+    )
+  }
 
   if (horizontalLayout) {
     return (
@@ -321,38 +359,7 @@ const EarningPieChart: React.FC<Props> = ({
           </Text>
         </Flex>
 
-        {isLoading ? (
-          <LoadingSkeletonForLegends />
-        ) : (
-          <LegendsWrapper>
-            {legendData.map((columnData, columnIndex) => {
-              if (!columnData.length) {
-                return null
-              }
-
-              return (
-                <LegendsColumn key={columnIndex}>
-                  {columnData.map((entry, i) => {
-                    const index = (legendData?.[columnIndex - 1]?.length || 0) + i
-                    return (
-                      <Legend
-                        active={selectedIndex === index}
-                        key={index}
-                        chainId={entry.chainId}
-                        logoUrl={entry.logoUrl}
-                        label={entry.symbol}
-                        value={entry.value}
-                        percent={entry.percent}
-                        onMouseOver={() => setSelectedIndex(index)}
-                        onMouseOut={() => setSelectedIndex(-1)}
-                      />
-                    )
-                  })}
-                </LegendsColumn>
-              )
-            })}
-          </LegendsWrapper>
-        )}
+        {isLoading ? <LoadingSkeletonForLegends /> : renderLegends()}
       </Flex>
     )
   }
@@ -403,40 +410,9 @@ const EarningPieChart: React.FC<Props> = ({
         </Text>
       </Flex>
 
-      {isLoading ? (
-        <LoadingSkeletonForLegends />
-      ) : (
-        <LegendsWrapper>
-          {legendData.map((columnData, columnIndex) => {
-            if (!columnData.length) {
-              return null
-            }
-
-            return (
-              <LegendsColumn key={columnIndex}>
-                {columnData.map((entry, i) => {
-                  const index = (legendData?.[columnIndex - 1]?.length || 0) + i
-                  return (
-                    <Legend
-                      active={selectedIndex === index}
-                      key={index}
-                      chainId={entry.chainId}
-                      logoUrl={entry.logoUrl}
-                      label={entry.symbol}
-                      value={entry.value}
-                      percent={entry.percent}
-                      onMouseOver={() => setSelectedIndex(index)}
-                      onMouseOut={() => setSelectedIndex(-1)}
-                    />
-                  )
-                })}
-              </LegendsColumn>
-            )
-          })}
-        </LegendsWrapper>
-      )}
+      {isLoading ? <LoadingSkeletonForLegends /> : renderLegends()}
     </Flex>
   )
 }
 
-export default EarningPieChart
+export default memo(EarningPieChart)

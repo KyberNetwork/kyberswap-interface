@@ -505,7 +505,7 @@ function WatchlistButton({
       <StarWithAnimation
         stopPropagation
         loading={false}
-        watched={isWatched}
+        active={isWatched}
         onClick={() => {
           ;(isWatched || !isReachMaxLimit) && setOpenMenu(true)
         }}
@@ -531,7 +531,7 @@ function WatchlistButton({
                     onSelect(watchlists, watched)
                   }}
                 >
-                  <StarWithAnimation watched={watched} size={16} />
+                  <StarWithAnimation active={watched} size={16} />
                   {watchlists.name} ({watchlists.assetNumber})
                 </MenuOption>
               )

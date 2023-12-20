@@ -4,6 +4,7 @@ import { Repeat } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
+import DeltaTokenAmount from 'components/Announcement/PrivateAnnoucement/DeltaTokenAmount'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import {
   Dot,
@@ -15,7 +16,6 @@ import {
 } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import { CheckCircle } from 'components/Icons'
-import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'

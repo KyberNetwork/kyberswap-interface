@@ -57,6 +57,65 @@ const InputWrapper = styled.div`
   flex-direction: column;
 `
 
+export const useValidateFormatRecipient = () => {
+  const { account, chainId } = useActiveWeb3React()
+  const [recipient, setRecipient] = useState('')
+  const [displayRecipient, setDisplayRecipient] = useState('')
+  const { address, loading } = useENS(recipient)
+
+  const recipientError =
+    recipient && ((!loading && !address) || !recipient.startsWith('0x'))
+      ? t`Invalid wallet address`
+      : recipient.toLowerCase() === account?.toLowerCase()
+      ? t`You can’t use your own address as a receiver`
+      : ''
+
+  const formatRecipient = useCallback(
+    (val: string) => {
+      try {
+        setDisplayRecipient(shortenAddress(chainId, val, isMobile ? 14 : 16))
+      } catch {
+        setDisplayRecipient(val)
+      }
+    },
+    [chainId],
+  )
+
+  const onChangeRecipient = useCallback(
+    (val: string) => {
+      setRecipient(val)
+      formatRecipient(val)
+    },
+    [formatRecipient],
+  )
+
+  const onFocus = () => {
+    setDisplayRecipient(recipient)
+  }
+
+  const onBlur = () => {
+    formatRecipient(recipient)
+  }
+
+  const onPaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText()
+      onChangeRecipient(text)
+    } catch (error) {}
+  }
+
+  return {
+    recipientError,
+    displayRecipient,
+    address,
+    recipient,
+    onChangeRecipient,
+    onFocus,
+    onBlur,
+    onPaste,
+  }
+}
+
 export default function SendToken({
   loadingTokens,
   currencies,
@@ -66,13 +125,13 @@ export default function SendToken({
   currencies: Currency[]
   currencyBalances: { [address: string]: TokenAmount | undefined }
 }) {
-  const [recipient, setRecipient] = useState('')
-  const [displayRecipient, setDisplayRecipient] = useState('')
+  const { displayRecipient, address, recipientError, recipient, onChangeRecipient, onBlur, onFocus, onPaste } =
+    useValidateFormatRecipient()
 
   const [currencyIn, setCurrency] = useState<Currency>()
   const [inputAmount, setInputAmount] = useState<string>('')
   const [showListToken, setShowListToken] = useState(false)
-  const { account, chainId } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
   const theme = useTheme()
@@ -89,18 +148,9 @@ export default function SendToken({
     setInputAmount(balance?.divide(2).toExact() || '')
   }, [balance])
 
+  const inSymbol = currencyIn?.symbol
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn)
 
-  const { address, loading } = useENS(recipient)
-
-  const recipientError =
-    recipient && ((!loading && !address) || !recipient.startsWith('0x'))
-      ? t`Invalid wallet address`
-      : recipient.toLowerCase() === account?.toLowerCase()
-      ? t`You can’t use your own address as a receiver`
-      : ''
-
-  const inSymbol = currencyIn?.symbol
   const inputError = useMemo(() => {
     if (!inputAmount) return
     if (parseFloat(inputAmount) === 0 || !parseInputAmount) {
@@ -150,13 +200,6 @@ export default function SendToken({
     }
   }, [loadingTokens, currencies])
 
-  const onPaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText()
-      onChangeRecipient(text)
-    } catch (error) {}
-  }
-
   const ref = useRef(null)
   useOnClickOutside(ref, () => {
     setShowListToken(false)
@@ -185,27 +228,6 @@ export default function SendToken({
   const usdPriceCurrencyIn = currencyIn ? tokensPrices[currencyIn.wrapped.address] : 0
 
   const estimateUsd = usdPriceCurrencyIn * parseFloat(inputAmount)
-
-  const formatRecipient = (val: string) => {
-    try {
-      setDisplayRecipient(shortenAddress(chainId, val, isMobile ? 14 : 16))
-    } catch {
-      setDisplayRecipient(val)
-    }
-  }
-
-  const onChangeRecipient = (val: string) => {
-    setRecipient(val)
-    formatRecipient(val)
-  }
-
-  const onFocus = () => {
-    setDisplayRecipient(recipient)
-  }
-
-  const onBlur = () => {
-    formatRecipient(recipient)
-  }
 
   return (
     <Wrapper>

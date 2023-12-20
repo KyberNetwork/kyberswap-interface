@@ -85,7 +85,7 @@ const SearchWrapper = styled.div`
     color: ${({ theme }) => theme.text};
   }
 `
-export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void }
+export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void; subLabel?: ReactNode }
 
 const getOptionValue = (option: SelectOption | undefined) => {
   if (!option) return ''
@@ -113,6 +113,7 @@ function Select({
   onHideMenu,
   withSearch,
   placement = 'bottom',
+  arrow = true,
 }: {
   value?: string | number
   className?: string
@@ -129,6 +130,7 @@ function Select({
   placement?: string
   withSearch?: boolean
   onHideMenu?: () => void // hide without changes
+  arrow?: boolean
 }) {
   const [selected, setSelected] = useState(getOptionValue(options?.[0]))
   const [showMenu, setShowMenu] = useState(false)
@@ -154,7 +156,7 @@ function Select({
         if (!withSearch) return true
         return item.label?.toString().toLowerCase().includes(searchValue.toLowerCase())
       })
-      .map(item => {
+      .map((item, i) => {
         const value = getOptionValue(item)
         const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
           e.stopPropagation()
@@ -169,7 +171,7 @@ function Select({
         }
         return (
           <Option
-            key={value}
+            key={value || i}
             role="button"
             $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
             onClick={onClick}
@@ -200,7 +202,7 @@ function Select({
       className={className}
     >
       <SelectedWrap>{activeRender ? activeRender(selectedInfo) : getOptionLabel(selectedInfo)}</SelectedWrap>
-      <DropdownArrowIcon rotate={showMenu} color={arrowColor} />
+      {arrow && <DropdownArrowIcon rotate={showMenu} color={arrowColor} />}
       <AnimatePresence>
         {showMenu && (
           <Portal>

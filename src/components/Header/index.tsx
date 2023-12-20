@@ -17,6 +17,7 @@ import { THRESHOLD_HEADER, Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { useLazyNavigateToMyFirstPortfolio } from 'pages/NotificationCenter/Portfolio/helpers'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -26,7 +27,7 @@ import AnalyticNavGroup from './groups/AnalyticNavGroup'
 import EarnNavGroup from './groups/EarnNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
-import { StyledNavExternalLink } from './styleds'
+import { StyledNavExternalLink, StyledNavLink } from './styleds'
 
 const HeaderFrame = styled.div<{ hide?: boolean }>`
   height: ${({ hide }) => (hide ? 0 : undefined)};
@@ -150,6 +151,12 @@ const BlogWrapper = styled.span`
   }
 `
 
+const PortfolioWrapper = styled(StyledNavLink)`
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+    display: none;
+  `};
+`
+
 const Title = styled(Link)`
   display: flex;
   align-items: center;
@@ -184,7 +191,7 @@ export default function Header() {
   const theme = useTheme()
   const { pathname } = useLocation()
   const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
-
+  const navigateToMyPortFolio = useLazyNavigateToMyFirstPortfolio()
   const { mixpanelHandler } = useMixpanel()
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
@@ -222,6 +229,15 @@ export default function Header() {
             <SwapNavGroup />
             <EarnNavGroup />
             <KyberAINavItem />
+            <PortfolioWrapper
+              to=""
+              onClick={e => {
+                e.preventDefault()
+                navigateToMyPortFolio()
+              }}
+            >
+              <Trans>Portfolio</Trans>
+            </PortfolioWrapper>
             <CampaignNavGroup />
             <KyberDAONavGroup />
             <AnalyticNavGroup />

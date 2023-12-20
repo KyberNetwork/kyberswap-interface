@@ -33,10 +33,9 @@ export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 580px;
 `
 
-export const SectionTitle = styled.div`
+const SectionTitle = styled.div`
   font-size: 16px;
   line-height: 20px;
   font-weight: 500;
@@ -45,7 +44,7 @@ export const SectionTitle = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border + '80'};
   color: ${({ theme }) => theme.text};
 `
-export const SectionDescription = styled.div<{ show?: boolean }>`
+const SectionDescription = styled.div<{ show?: boolean }>`
   font-size: 14px;
   line-height: 20px;
   text-overflow: ellipsis;
@@ -78,7 +77,7 @@ const ButtonWrapper = styled.div`
   }
 `
 
-export const FullscreenButton = React.memo(function FCButton({
+const FullscreenButton = React.memo(function FCButton({
   elementRef,
   onClick,
 }: {
@@ -168,7 +167,7 @@ export const SectionWrapper = ({
   const docsLink = activeTab === ChartTab.Second && !!docsLinks[1] ? docsLinks[1] : docsLinks[0]
 
   return (
-    <StyledSectionWrapper show={show} ref={ref} id={id} style={style} className="section-wrapper">
+    <StyledSectionWrapper show={show} ref={ref} id={id} style={{ height: 580, ...style }} className="section-wrapper">
       {above768 ? (
         <>
           {/* DESKTOP */}

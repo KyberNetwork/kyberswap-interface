@@ -1,0 +1,8 @@
+export const SIZES = {
+  VIEW_WIDTH_PC: 840,
+  WIDTH_PC: 1050,
+  HEIGH_PC: 612,
+
+  HEIGHT_MB: 800,
+  VIEW_HEIGHT_MB: 620,
+}

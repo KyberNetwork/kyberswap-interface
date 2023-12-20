@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
+import DeltaTokenAmount from 'components/Announcement/PrivateAnnoucement/DeltaTokenAmount'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import {
   Dot,
@@ -18,7 +19,6 @@ import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
 import { NetworkLogo } from 'components/Logo'
 import Row from 'components/Row'
-import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'

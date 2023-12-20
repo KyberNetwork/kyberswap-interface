@@ -174,6 +174,9 @@ export const APP_PATHS = {
 
   DEPRECATED_NOTI_CENTER: '/notification-center/overview',
   ELASTIC_SNAPSHOT: '/elastic-snapshot',
+
+  PORTFOLIO: '/portfolio',
+  MY_PORTFOLIO: '/my-portfolio',
 } as const
 
 export const TERM_FILES_PATH = {
@@ -240,6 +243,12 @@ export const RTK_QUERY_TAGS = {
   GET_LIST_ORDERS: 'GET_LIST_ORDERS',
 
   GET_FARM_V2: 'GET_FARM_V2',
+
+  // portfolio
+  GET_LIST_PORTFOLIO: 'GET_LIST_PORTFOLIO',
+  GET_LIST_WALLET_PORTFOLIO: 'GET_LIST_WALLET_PORTFOLIO',
+  GET_SETTING_PORTFOLIO: 'GET_SETTING_PORTFOLIO',
+  GET_FAVORITE_PORTFOLIO: 'GET_FAVORITE_PORTFOLIO',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
@@ -273,6 +282,16 @@ export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [
   ChainId.ZKEVM,
   ChainId.BASE,
   ChainId.SCROLL,
+]
+
+export const CHAINS_SUPPORT_PORTFOLIO = [
+  ChainId.MAINNET,
+  ChainId.ARBITRUM,
+  ChainId.OPTIMISM,
+  ChainId.MATIC,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXMAINNET,
+  ChainId.FANTOM,
 ]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'

@@ -23,12 +23,17 @@ const Label = styled.span<{ labelColor?: string }>`
   overflow: hidden;
   text-overflow: ellipsis;
 `
-type Props = MultipleChainSelectProps
-const SelectButton: React.FC<Props> = ({ selectedChainIds, chainIds, activeRender, activeStyle, labelColor }) => {
+const SelectButton: React.FC<MultipleChainSelectProps> = ({
+  selectedChainIds,
+  chainIds,
+  activeRender,
+  activeStyle,
+  labelColor,
+}) => {
   const theme = useTheme()
 
   const renderButtonBody = () => {
-    if (selectedChainIds.length === chainIds.length) {
+    if (selectedChainIds.length === chainIds?.length) {
       return (
         <ButtonBodyWrapper>
           <LogoKyber color={theme.subText} />

@@ -2,7 +2,8 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
 import { TIMES_IN_SECS } from 'constants/index'
-import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { MAINNET_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { formatTimeDuration } from 'utils/time'
 
 export enum PriceAlertType {
@@ -12,8 +13,8 @@ export enum PriceAlertType {
 
 export enum PROFILE_MANAGE_ROUTES {
   PROFILE = '/profile',
-
   CREATE_ALERT = '/create-alert',
+  PORTFOLIO = '/portfolio',
 
   ALL_NOTIFICATION = '/notification',
   PREFERENCE = '/notification/preferences',
@@ -24,7 +25,7 @@ export enum PROFILE_MANAGE_ROUTES {
   BRIDGE = '/notification/bridge',
   KYBER_AI_TOKENS = '/notification/kyber-ai',
   KYBER_AI_WATCH_LIST = '/notification/kyber-ai-watch-list',
-  CROSS_CHAIN = '/cross-chain',
+  CROSS_CHAIN = '/notification/cross-chain',
 }
 
 export type CreatePriceAlertPayload = {

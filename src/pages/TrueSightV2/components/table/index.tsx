@@ -31,10 +31,10 @@ import {
   colorFundingRateText,
   formatLocaleStringNum,
   formatTokenPrice,
-  navigateToSwapPage,
 } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
+import { navigateToSwapPage } from 'utils/redirect'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 import ChevronIcon from '../ChevronIcon'

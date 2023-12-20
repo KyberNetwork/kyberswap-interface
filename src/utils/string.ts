@@ -42,12 +42,19 @@ export const isEmailValid = (value: string | undefined) =>
   (value || '').trim().match(/^\w+([\.-]?\w)*@\w+([\.-]?\w)*(\.\w{2,10})+$/)
 
 export const getChainIdFromSlug = (network: string | undefined): ChainId | undefined => {
-  return SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network)
+  return network === 'bsc'
+    ? ChainId.BSCMAINNET
+    : SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network)
 }
 
 export function capitalizeFirstLetter(str?: string) {
   const string = str || ''
   return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+export function isULIDString(str = '') {
+  const ulidPattern = /[0-7][0-9A-HJKMNP-TV-Z]{25}/
+  return ulidPattern.test(str)
 }
 
 export function convertStringToBoolean(value?: string) {

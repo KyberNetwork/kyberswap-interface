@@ -9,6 +9,7 @@ import CreateAlert from 'pages/NotificationCenter/CreateAlert'
 import GeneralAnnouncement from 'pages/NotificationCenter/GeneralAnnouncement'
 import Menu from 'pages/NotificationCenter/Menu'
 import Overview from 'pages/NotificationCenter/NotificationPreference'
+import Portfolio from 'pages/NotificationCenter/Portfolio'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
 import Profile from 'pages/NotificationCenter/Profile'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -147,7 +148,7 @@ function NotificationCenter({ redirectRoute }: { redirectRoute?: PROFILE_MANAGE_
               element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI_WATCHLIST} />}
             />
             <Route path={PROFILE_MANAGE_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
-
+            <Route path={PROFILE_MANAGE_ROUTES.PORTFOLIO} element={<Portfolio />} />
             <Route
               path="*"
               element={

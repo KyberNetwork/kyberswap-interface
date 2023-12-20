@@ -37,6 +37,7 @@ import VerifyAuth from './Verify/VerifyAuth'
 const Login = lazy(() => import('./Oauth/Login'))
 const Logout = lazy(() => import('./Oauth/Logout'))
 const Consent = lazy(() => import('./Oauth/Consent'))
+const PortfolioDetail = lazy(() => import('./NotificationCenter/Portfolio/PortfolioDetail'))
 
 const ElasticSnapshot = lazy(() => import('./ElasticSnapshot'))
 
@@ -71,6 +72,12 @@ const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 const Campaign = lazy(() => import('pages/Campaign'))
 const GrantProgramPage = lazy(() => import('pages/GrantProgram'))
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
+
+const portfolioRoutes = [
+  APP_PATHS.MY_PORTFOLIO,
+  `${APP_PATHS.PORTFOLIO}/:portfolioId/:wallet?`,
+  `${APP_PATHS.MY_PORTFOLIO}/:portfolioId/:wallet?`,
+]
 
 const AppWrapper = styled.div`
   display: flex;
@@ -376,6 +383,18 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                {portfolioRoutes.map(path => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <ProtectedRoute>
+                        <PortfolioDetail />
+                      </ProtectedRoute>
+                    }
+                  />
+                ))}
+
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                 <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 

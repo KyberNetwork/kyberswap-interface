@@ -66,8 +66,7 @@ const useLogin = (autoLogin = false) => {
       const isAnonymous = loginMethod === LoginMethod.ANONYMOUS
       try {
         const profile = await createProfile().unwrap()
-        const formatProfile = { ...profile }
-        setProfile({ profile: formatProfile, isAnonymous, account })
+        setProfile({ profile, isAnonymous, account })
       } catch (error) {
         const e = new Error('createProfile Error', { cause: error })
         e.name = 'createProfile Error'

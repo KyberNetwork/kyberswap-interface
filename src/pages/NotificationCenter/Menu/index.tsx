@@ -41,7 +41,7 @@ export type MenuItemType = {
   defaultExpand?: boolean
 }
 
-const getMenuItems: () => MenuItemType[] = () =>
+const getMenuItems = (): MenuItemType[] =>
   [
     {
       route: PROFILE_MANAGE_ROUTES.PROFILE,
@@ -103,6 +103,12 @@ const getMenuItems: () => MenuItemType[] = () =>
         },
       ],
     },
+    {
+      route: PROFILE_MANAGE_ROUTES.PORTFOLIO,
+      icon: <ProfileIcon />,
+      title: t`Portfolio`,
+      childs: [],
+    },
   ].map(el => {
     return {
       ...el,
@@ -127,10 +133,8 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
   const { profile } = useProfileInfo()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const menuItems = useMemo(() => getMenuItems(), [])
-
   const menuItemDeskTop = useMemo(() => {
-    return menuItems.map(el => {
+    return getMenuItems().map(el => {
       if (el.route !== PROFILE_MANAGE_ROUTES.PROFILE) return el
       const guestText = isSignInGuestDefault ? t`Guest` : t`Imported Guest`
       const childs: MenuItemType[] = [
@@ -154,7 +158,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
       })
       return { ...el, childs }
     })
-  }, [signedAccount, isSigInGuest, profile, toggleImportProfile, isSignInGuestDefault, menuItems])
+  }, [signedAccount, isSigInGuest, profile, toggleImportProfile, isSignInGuestDefault])
 
   return (
     <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '0px' : '24px' }}>

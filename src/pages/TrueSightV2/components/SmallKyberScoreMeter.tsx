@@ -8,7 +8,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 
-import { IKyberScoreChart, ITokenList } from '../types'
+import { ITokenList } from '../types'
 import { calculateValueToColor, formatTokenPrice } from '../utils'
 import { gaugeList } from './KyberScoreMeter'
 import SimpleTooltip from './SimpleTooltip'
@@ -27,8 +27,16 @@ const GaugeValue = styled.div`
   justify-content: center;
   bottom: 6px;
 `
-function SmallKyberScoreMeter({ disabledTooltip, token }: { disabledTooltip?: boolean; token: ITokenList }) {
-  const data: IKyberScoreChart | undefined = token?.kyberScore3D?.[token.kyberScore3D.length - 1]
+function SmallKyberScoreMeter({
+  disabledTooltip,
+  token,
+  createdAt: createdAtParam,
+}: {
+  disabledTooltip?: boolean
+  token: ITokenList
+  createdAt?: number
+}) {
+  const createdAt = token?.kyberScore3D?.[token.kyberScore3D.length - 1]?.createdAt || createdAtParam
   const value = token?.kyberScore
   const theme = useTheme()
   const emptyColor = theme.subText + '30'
@@ -54,11 +62,9 @@ function SmallKyberScoreMeter({ disabledTooltip, token }: { disabledTooltip?: bo
       <GaugeValue>
         <SimpleTooltip
           text={
-            data ? (
+            createdAt ? (
               <Column style={{ whiteSpace: 'pre-wrap' }}>
-                <Text>
-                  Calculated at {data.createdAt ? dayjs(data.createdAt * 1000).format('DD/MM/YYYY HH:mm A') : '--'}
-                </Text>
+                <Text>Calculated at {createdAt ? dayjs(createdAt * 1000).format('DD/MM/YYYY HH:mm A') : '--'}</Text>
                 <Text>
                   KyberScore:{' '}
                   <span style={{ color: calculateValueToColor(value || 0, theme) }}>

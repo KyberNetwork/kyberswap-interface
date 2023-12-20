@@ -225,7 +225,10 @@ export default function Profile() {
         </Text>
       )}
       <FormWrapper>
-        <WarningSignMessage />
+        <WarningSignMessage
+          msg={t`You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will
+            allow us to offer you a better experience.`}
+        />
         {signedAccount && isSignInEth && (
           <LeftColum>
             <FormGroup>

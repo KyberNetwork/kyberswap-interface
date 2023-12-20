@@ -414,6 +414,9 @@ const StyledButtonAction = styled(RebassButton)<{ $color?: string }>`
     background-color: ${({ theme, $color }) => ($color ? $color + '10' : theme.subText + '10')};
     transform: translateY(2px);
   }
+  :disabled {
+    cursor: not-allowed;
+  }
 `
 
 export const ButtonAction = ({

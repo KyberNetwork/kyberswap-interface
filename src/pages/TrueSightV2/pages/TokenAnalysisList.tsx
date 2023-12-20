@@ -1,27 +1,26 @@
 import { Trans, t } from '@lingui/macro'
-import { motion } from 'framer-motion'
 import { rgba } from 'polished'
-import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffectOnce, useMedia } from 'react-use'
 import { Text } from 'rebass'
-import styled, { DefaultTheme, css } from 'styled-components'
+import styled, { css } from 'styled-components'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
-import TabButton from 'components/TabButton'
-import { APP_PATHS, ICON_ID, SORT_DIRECTION } from 'constants/index'
+import TabDraggable, { TabITem } from 'components/Section/TabDraggable'
+import { APP_PATHS, SORT_DIRECTION } from 'constants/index'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { StyledSectionWrapper } from 'pages/TrueSightV2/components'
 import TokenFilter from 'pages/TrueSightV2/components/TokenFilter'
 import { MEDIA_WIDTHS } from 'theme'
+import { navigateToSwapPage } from 'utils/redirect'
 
 import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
@@ -33,7 +32,7 @@ import { DEFAULT_PARAMS_BY_TAB, KYBERAI_LISTYPE_TO_MIXPANEL, SORT_FIELD, Z_INDEX
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import useRenderRankingList from '../hooks/useRenderRankingList'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
-import { navigateToSwapPage, useFormatParamsFromUrl } from '../utils'
+import { useFormatParamsFromUrl } from '../utils'
 
 const SIZE_MOBILE = '1080px'
 
@@ -219,32 +218,6 @@ const ActionButton = styled.button<{ color: string }>`
   gap: 4px;
 `
 
-const TabWrapper = styled(motion.div)`
-  overflow: auto;
-  cursor: grab;
-  display: inline-flex;
-  width: fit-content;
-  position: relative;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  min-width: 100%;
-  > * {
-    flex: 1 0 fit-content;
-    scroll-snap-align: start;
-  }
-  &.no-scroll {
-    scroll-snap-type: unset;
-    scroll-behavior: unset;
-    > * {
-      scroll-snap-align: unset;
-    }
-  }
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    min-width: initial;
-    flex: 1;
-  `}
-`
-
 const LoadingWrapper = styled(Row)`
   position: absolute;
   inset: 0 0 0 0;
@@ -262,226 +235,125 @@ const LoadingWrapper = styled(Row)`
   `}
 `
 
-const ARROW_SIZE = 40
+const getTokenTypeList = (): TabITem<KyberAIListType>[] => [
+  { type: KyberAIListType.MYWATCHLIST, icon: 'star', title: t`My Watchlist` },
+  { type: KyberAIListType.ALL, title: t`All` },
+  {
+    type: KyberAIListType.BULLISH,
+    title: t`Bullish`,
+    icon: 'bullish',
+    tooltip: theme => (
+      <span>
+        Tokens with the highest chance of price <span style={{ color: theme.text }}>increase</span> in the next 24H
+        (highest KyberScore).
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.BEARISH,
+    title: t`Bearish`,
+    icon: 'bearish',
+    tooltip: theme => (
+      <span>
+        Tokens with the highest chance of price <span style={{ color: theme.text }}>decrease</span> in the next 24H
+        (lowest KyberScore).
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.KYBERSWAP_DELTA,
+    title: t`KyberScore Delta`,
+    icon: 'bearish',
+    tooltip: theme => (
+      <span>
+        <Trans>
+          Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
+          consecutive time periods. This may indicate a change in trend of the token.
+        </Trans>
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.TOP_CEX_INFLOW,
+    title: t`Top CEX Positive Netflow`,
+    icon: 'download',
+    tooltip: theme => (
+      <span>
+        Tokens with the highest <span style={{ color: theme.text }}>net deposits</span> to Centralized Exchanges in the
+        last 3 Days. Possible incoming sell pressure.
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.TOP_CEX_OUTFLOW,
+    title: t`Top CEX Negative Netflow`,
+    icon: 'upload',
+    tooltip: theme => (
+      <span>
+        Tokens with the highest <span style={{ color: theme.text }}>net withdrawals</span> from Centralized Exchanges in
+        the last 3 Days. Possible buy pressure.
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.FUNDING_RATE,
+    title: t`Funding Rates`,
+    icon: 'coin-bag',
+    tooltip: () => (
+      <span>
+        <Trans>
+          Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish &amp;
+          vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed.
+        </Trans>
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.TOP_TRADED,
+    title: t`Top Traded`,
+    icon: 'coin-bag',
+    tooltip: theme => (
+      <span>
+        Tokens with the <span style={{ color: theme.text }}>highest 24H trading volume</span>.
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.TRENDING_SOON,
+    title: t`Trending Soon`,
+    icon: 'trending-soon',
+    tooltip: theme => (
+      <span>
+        Tokens that could be <span style={{ color: theme.text }}>trending</span> in the near future. Trending indicates
+        interest in a token - it doesnt imply bullishness or bearishness.
+      </span>
+    ),
+  },
+  {
+    type: KyberAIListType.TRENDING,
+    title: t`Currently Trending`,
+    icon: 'flame',
+    tooltip: theme => (
+      <span>
+        Tokens that are <span style={{ color: theme.text }}>currently trending</span> in the market.
+      </span>
+    ),
+  },
+]
 
 const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab: (type: KyberAIListType) => void }) => {
-  const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
-  const [showScrollRightButton, setShowScrollRightButton] = useState(false)
-  const [scrollLeftValue, setScrollLeftValue] = useState(0)
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const tabListRef = useRef<HTMLDivElement[]>([])
-
-  const tokenTypeList: {
-    type: KyberAIListType
-    icon?: ICON_ID
-    tooltip?: (theme: DefaultTheme) => ReactNode
-    title: string
-  }[] = [
-    { type: KyberAIListType.MYWATCHLIST, icon: 'star', title: t`My Watchlist` },
-    { type: KyberAIListType.ALL, title: t`All` },
-    {
-      type: KyberAIListType.BULLISH,
-      title: t`Bullish`,
-      icon: 'bullish',
-      tooltip: theme => (
-        <span>
-          Tokens with the highest chance of price <span style={{ color: theme.text }}>increase</span> in the next 24H
-          (highest KyberScore).
-        </span>
-      ),
-    },
-    {
-      type: KyberAIListType.BEARISH,
-      title: t`Bearish`,
-      icon: 'bearish',
-      tooltip: theme => (
-        <span>
-          Tokens with the highest chance of price <span style={{ color: theme.text }}>decrease</span> in the next 24H
-          (lowest KyberScore).
-        </span>
-      ),
-    },
-    {
-      type: KyberAIListType.KYBERSWAP_DELTA,
-      title: t`KyberScore Delta`,
-      icon: 'bearish',
-      tooltip: theme => (
-        <span>
-          <Trans>
-            Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
-            consecutive time periods. This may indicate a change in trend of the token.
-          </Trans>
-        </span>
-      ),
-    },
-    {
-      type: KyberAIListType.TOP_CEX_INFLOW,
-      title: t`Top CEX Positive Netflow`,
-      icon: 'download',
-      tooltip: theme => (
-        <span>
-          Tokens with the highest <span style={{ color: theme.text }}>net deposits</span> to Centralized Exchanges in
-          the last 3 Days. Possible incoming sell pressure.
-        </span>
-      ),
-    },
-    {
-      type: KyberAIListType.TOP_CEX_OUTFLOW,
-      title: t`Top CEX Negative Netflow`,
-      icon: 'upload',
-      tooltip: theme => (
-        <span>
-          Tokens with the highest <span style={{ color: theme.text }}>net withdrawals</span> from Centralized Exchanges
-          in the last 3 Days. Possible buy pressure.
-        </span>
-      ),
-    },
-    {
-      type: KyberAIListType.FUNDING_RATE,
-      title: t`Funding Rates`,
-      icon: 'coin-bag',
-      tooltip: () => (
-        <span>
-          <Trans>
-            Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish &amp;
-            vice-versa for negative rates. Extreme rates may result in leveraged positions getting squeezed.
-          </Trans>
-        </span>
-      ),
-    },
-    {
-      type: KyberAIListType.TOP_TRADED,
-      title: t`Top Traded`,
-      icon: 'coin-bag',
-      tooltip: theme => (
-        <span>
-          Tokens with the <span style={{ color: theme.text }}>highest 24H trading volume</span>.
-        </span>
-      ),
-    },
-    {
-      type: KyberAIListType.TRENDING_SOON,
-      title: t`Trending Soon`,
-      icon: 'trending-soon',
-      tooltip: theme => (
-        <span>
-          Tokens that could be <span style={{ color: theme.text }}>trending</span> in the near future. Trending
-          indicates interest in a token - it doesnt imply bullishness or bearishness.
-        </span>
-      ),
-    },
-    {
-      type: KyberAIListType.TRENDING,
-      title: t`Currently Trending`,
-      icon: 'flame',
-      tooltip: theme => (
-        <span>
-          Tokens that are <span style={{ color: theme.text }}>currently trending</span> in the market.
-        </span>
-      ),
-    },
-  ]
-
-  useEffect(() => {
-    wrapperRef.current?.scrollTo({ left: scrollLeftValue, behavior: 'smooth' })
-  }, [scrollLeftValue])
-
-  useEffect(() => {
-    const wRef = wrapperRef.current
-    if (!wRef) return
-    const handleWheel = (e: any) => {
-      e.preventDefault()
-      setScrollLeftValue(prev => Math.min(Math.max(prev + e.deltaY, 0), wRef.scrollWidth - wRef.clientWidth))
-    }
-    if (wRef) {
-      wRef.addEventListener('wheel', handleWheel)
-    }
-    return () => wRef?.removeEventListener('wheel', handleWheel)
-  }, [])
-
-  useEffect(() => {
-    const handleResize = () => {
-      setShowScrollRightButton(
-        Boolean(wrapperRef.current?.clientWidth && wrapperRef.current?.clientWidth < wrapperRef.current?.scrollWidth),
-      )
-    }
-    handleResize()
-    window.addEventListener('resize', handleResize)
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
-
-  const indexActive = tokenTypeList.findIndex(e => e.type === tab)
-
+  const onTabClick = (fromTab: KyberAIListType, toTab: KyberAIListType) => {
+    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_CATEGORY_CLICK, {
+      from_cate: KYBERAI_LISTYPE_TO_MIXPANEL[fromTab],
+      to_cate: KYBERAI_LISTYPE_TO_MIXPANEL[toTab],
+      source: KYBERAI_LISTYPE_TO_MIXPANEL[fromTab],
+    })
+  }
   return (
-    <Row gap="8px" style={{ position: 'relative' }}>
-      <TabWrapper
-        ref={wrapperRef}
-        onScrollCapture={e => e.preventDefault()}
-        style={{ paddingRight: showScrollRightButton ? ARROW_SIZE : undefined }}
-      >
-        {tokenTypeList.map(({ type, title, tooltip }, index) => {
-          const props = {
-            onClick: () => {
-              mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_CATEGORY_CLICK, {
-                from_cate: KYBERAI_LISTYPE_TO_MIXPANEL[tab],
-                to_cate: KYBERAI_LISTYPE_TO_MIXPANEL[type],
-                source: KYBERAI_LISTYPE_TO_MIXPANEL[tab],
-              })
-              setTab(type)
-              if (!wrapperRef.current) return
-              const tabRef = tabListRef.current[index]
-              const wRef = wrapperRef.current
-              if (tabRef.offsetLeft < wRef.scrollLeft) {
-                setScrollLeftValue(tabRef.offsetLeft)
-              }
-              if (wRef.scrollLeft + wRef.clientWidth < tabRef.offsetLeft + tabRef.offsetWidth) {
-                setScrollLeftValue(tabRef.offsetLeft + tabRef.offsetWidth - wRef.offsetWidth)
-              }
-            },
-          }
-          return (
-            <SimpleTooltip key={type} text={tooltip?.(theme)} hideOnMobile>
-              <TabButton
-                separator={index !== 0 && index !== indexActive + 1}
-                text={title}
-                active={tab === type}
-                key={type}
-                style={{ fontSize: '14px', padding: '0 12px' }}
-                {...props}
-                ref={el => {
-                  if (el) {
-                    tabListRef.current[index] = el
-                  }
-                }}
-              />
-            </SimpleTooltip>
-          )
-        })}
-      </TabWrapper>
-      {showScrollRightButton && (
-        <DropdownSVG
-          style={{
-            transform: 'rotate(-90deg)',
-            cursor: 'pointer',
-            flexShrink: '0',
-            position: 'absolute',
-            background: theme.background,
-            color: theme.text,
-            right: 0,
-            top: 0,
-            padding: 6,
-            height: ARROW_SIZE,
-            width: ARROW_SIZE,
-          }}
-          onClick={() => {
-            setScrollLeftValue(prev => prev + 120)
-          }}
-        />
-      )}
-    </Row>
+    <TabDraggable<KyberAIListType>
+      {...{ activeTab: tab, onChange: setTab, trackingChangeTab: onTabClick, tabs: getTokenTypeList() }}
+    />
   )
 }
 

@@ -20,8 +20,9 @@ import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import SimpleTooltip from 'pages/TrueSightV2/components/SimpleTooltip'
 import { SUPPORTED_NETWORK_KYBERAI } from 'pages/TrueSightV2/constants/index'
 import { useTokenOverviewQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { calculateValueToColor, formatTokenPrice, navigateToSwapPage } from 'pages/TrueSightV2/utils'
+import { calculateValueToColor, formatTokenPrice } from 'pages/TrueSightV2/utils'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
+import { navigateToSwapPage } from 'utils/redirect'
 
 const Wrapper = styled.div`
   width: 100%;

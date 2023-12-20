@@ -16,7 +16,7 @@ export const Z_INDEXS = {
 
 export const THRESHOLD_HEADER = {
   BLOG: '1600px',
-  ABOUT: '1440px',
+  ABOUT: '1600px',
   ANALYTIC: '1320px',
   KYBERDAO: '1040px',
   CAMPAIGNS: '560px',

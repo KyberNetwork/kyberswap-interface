@@ -5,6 +5,7 @@ import { ImageProps } from 'rebass'
 import styled from 'styled-components'
 
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getNativeTokenLogo } from 'utils'
 
@@ -53,11 +54,13 @@ export function TokenLogoWithChain(data: any) {
   const chainId: ChainId = currency?.chainId || chainParam
   const nativeLogo = getNativeTokenLogo(chainId)
   const tokenLogo = (currency?.isNative ? nativeLogo : currency?.logoURI) || tokenLogoParam
-  const ratio = 0.7
+  const ratio = 0.6
   const networkSize = ratio * parseInt(size + '')
 
+  const theme = useTheme()
+
   return (
-    <div style={{ position: 'relative', height: size }}>
+    <div style={{ position: 'relative', height: size, width: size }}>
       <Logo
         srcs={[tokenLogo ?? '']}
         style={{
@@ -72,9 +75,11 @@ export function TokenLogoWithChain(data: any) {
           position: 'absolute',
           width: networkSize,
           height: networkSize,
-          top: -8 * ratio,
-          right: -8 * ratio,
+          top: -10 * ratio,
+          right: -10 * ratio,
           zIndex: 1,
+          border: `1px solid ${theme.buttonBlack}`,
+          borderRadius: '100%',
         }}
       />
     </div>

@@ -41,6 +41,9 @@ const StyledLink = styled(Link)<{ $isChildren?: boolean; $expand?: boolean; $isF
     $isChildren || $isFirstParent ? 'none' : `1px solid ${theme.border}`};
   border-bottom: ${({ theme, $isChildren, $expand }) =>
     $isChildren || !$expand ? 'none' : `1px solid ${theme.border}`};
+  &:focus-visible {
+    outline-width: 0;
+  }
 `
 
 type WrapperProps = {
@@ -91,7 +94,7 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
   const { mixpanelHandler } = useMixpanel()
   const onClickMenu = (e: React.MouseEvent) => {
     e.stopPropagation()
-    isChildren && onChildrenClick?.()
+    if (isChildren || (!isChildren && childs?.length === 0)) onChildrenClick?.()
     if (onClick) {
       onClick()
       return

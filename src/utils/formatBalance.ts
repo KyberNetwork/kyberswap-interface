@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Fraction } from '@kyberswap/ks-sdk-core'
+import { BigNumberish } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
@@ -81,6 +82,6 @@ export const fixedFormatting = (value: BigNumber, decimals: number) => {
   return parseFloat(res).toString()
 }
 
-export const formatUnitsToFixed = (amount: BigNumber, decimals?: number, decimalPlaces?: number) => {
+export const formatUnitsToFixed = (amount: BigNumberish, decimals?: number, decimalPlaces?: number) => {
   return (+(+formatUnits(amount, decimals)).toFixed(decimalPlaces ?? 3)).toString()
 }

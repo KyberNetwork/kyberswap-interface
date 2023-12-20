@@ -10,12 +10,12 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
+import TutorialModalKyberAI from 'pages/TrueSightV2/components/TutorialModalKyberAI'
 import { MEDIA_WIDTHS } from 'theme'
 
 import TrueSightWidget from './components/KyberAIWidget'
 import NewUpdateAnnoucement from './components/NewUpdateAnnoucement'
 import SearchWithDropDown from './components/SearchWithDropDown'
-import TutorialModal from './components/TutorialModal'
 import SingleToken from './pages/SingleToken'
 import TokenAnalysisList from './pages/TokenAnalysisList'
 
@@ -118,7 +118,7 @@ export default function TrueSightV2() {
       <Wrapper>
         {isExplore ? <SingleToken /> : <TokenAnalysisList />}
         <TrueSightWidget />
-        <TutorialModal />
+        <TutorialModalKyberAI />
         <NewUpdateAnnoucement />
       </Wrapper>
     </>

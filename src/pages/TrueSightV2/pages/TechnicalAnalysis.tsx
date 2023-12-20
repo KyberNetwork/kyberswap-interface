@@ -11,6 +11,7 @@ import Toggle from 'components/Toggle'
 import { IChartingLibraryWidget } from 'components/TradingViewChart/charting_library/charting_library'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
+import { navigateToLimitPage } from 'utils/redirect'
 
 import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
@@ -25,7 +26,6 @@ import { KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from '../constants'
 import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
 import { useChartingDataQuery } from '../hooks/useKyberAIData'
 import { ChartTab, ISRLevel, KyberAITimeframe, OHLCData } from '../types'
-import { navigateToLimitPage } from '../utils'
 
 const Wrapper = styled.div`
   padding: 20px 0;

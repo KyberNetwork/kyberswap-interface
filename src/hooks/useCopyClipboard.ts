@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useCopyToClipboard } from 'react-use'
 
-export default function useCopyClipboard(timeout = 500): [string | undefined, (toCopy: string) => void] {
-  const [copied, setCopied] = useState<string | undefined>(undefined)
+export default function useCopyClipboard(timeout = 500): [string | Blob | undefined, (toCopy: string | Blob) => void] {
+  const [copied, setCopied] = useState<string | Blob | undefined>(undefined)
   const [, copy] = useCopyToClipboard()
   const staticCopy = useCallback(
-    (text: string) => {
-      copy(text)
-      setCopied(text)
+    (data: string | Blob) => {
+      if (data instanceof Blob) {
+        navigator.clipboard.write([new ClipboardItem({ ['image/png']: data })])
+      } else {
+        copy(data)
+      }
+      setCopied(data)
     },
     [copy],
   )
