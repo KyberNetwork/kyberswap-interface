@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -27,6 +28,19 @@ const StyledTabs = styled(Tabs)`
   border-top: 1px solid ${({ theme }) => theme.border};
   border-radius: 0px;
   background: ${({ theme }) => theme.background};
+`
+
+const Tag = styled.div`
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 500;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => rgba(theme.primary, 0.3)};
+  color: ${({ theme }) => theme.primary};
 `
 
 const poolsByCategories: {
@@ -88,6 +102,7 @@ const TableRow = styled(TableHeader)`
 
 interface Position {
   position_id: number
+  liquidity_usd: number
   position_usd: number
   fee_usd: number
   info: {
@@ -260,8 +275,9 @@ export default function ElasticSnapshot() {
                     return {
                       key: index,
                       label: (
-                        <Text fontWeight="500" fontSize="14px" as="span" width="max-content">
-                          <Trans>Category</Trans> {index + 1}
+                        <Text fontWeight="500" fontSize="14px" display="flex" alignItems="center" sx={{ gap: '4px' }}>
+                          <Trans>Category</Trans> {index + 1}{' '}
+                          {!!positionsByCategories[index].length && <Tag>{positionsByCategories[index].length}</Tag>}
                         </Text>
                       ),
                       children: (
@@ -387,7 +403,7 @@ export default function ElasticSnapshot() {
                         </Text>
                       </>
                     )}
-                    <Text textAlign={upToSmall ? 'left' : 'right'}>{format(item.position_usd)}</Text>
+                    <Text textAlign={upToSmall ? 'left' : 'right'}>{format(item.liquidity_usd)}</Text>
                     <Text textAlign="right">{format(item.fee_usd)}</Text>
                   </TableRow>
                 ))}
