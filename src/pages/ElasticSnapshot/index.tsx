@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -7,6 +8,7 @@ import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -14,11 +16,35 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { PoolsPageWrapper } from 'pages/Pools/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { MEDIA_WIDTHS } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import poolsByCategoriesRaw from './category.json'
 import data from './data.json'
+
+const StyledTabs = styled(Tabs)`
+  border-top: 1px solid ${({ theme }) => theme.border};
+  border-radius: 0px;
+  background: ${({ theme }) => theme.background};
+`
+
+const poolsByCategories: {
+  [key: string]: {
+    [key: string]: string[]
+  }
+} = {}
+
+Object.keys(poolsByCategoriesRaw).forEach(key => {
+  const dataByCat = poolsByCategoriesRaw[key]
+  poolsByCategories[key] = {}
+
+  Object.keys(dataByCat).forEach(network => {
+    poolsByCategories[key][network] = (dataByCat[network as keyof typeof dataByCat] as any[]).map(
+      (item: any) => item.pool,
+    )
+  })
+})
 
 const Wrapper = styled.div`
   border-radius: 1rem;
@@ -60,11 +86,38 @@ const TableRow = styled(TableHeader)`
   `}
 `
 
+interface Position {
+  position_id: number
+  position_usd: number
+  fee_usd: number
+  info: {
+    pool: string
+    chain: string
+    pair: string
+    token0: string
+    token1: string
+  }
+}
+
 export default function ElasticSnapshot() {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
 
+  const [selectedCategory, setSelectedCategory] = useState(0)
   const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
+
+  const categories = ['category 1', 'category 2', 'category 3', 'category 4', 'category 5']
+
+  const positionsByCategories: Array<Position[]> = []
+
+  categories.forEach(cat => {
+    const temp: Position[] = []
+    userInfo?.positions.forEach(pos => {
+      if (poolsByCategories[cat]?.[pos.info.chain]?.includes(pos.info.pool)) temp.push(pos)
+    })
+
+    positionsByCategories.push(temp)
+  })
 
   const toggleWalletModal = useWalletModalToggle()
 
@@ -72,6 +125,30 @@ export default function ElasticSnapshot() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
+  const categoriesDesc = [
+    <Trans key={0}>
+      Affected Assets taken from Affected Pools by the primary KyberSwap Elastic Exploit (“Primary Exploit”) which
+      commenced on November 22, 2023 at 10:54 PM UTC, which Affected Assets have yet to be recovered{' '}
+    </Trans>,
+    <Trans key={1}>
+      Affected Assets taken from Affected Pools by subsequent activity (“Category 2 MBA”) of two mimicking bots
+      mimicking the Primary Exploit, which Affected Assets have yet to be recovered
+    </Trans>,
+    <Trans key={2}>
+      Affected Assets taken from Affected Pools by subsequent activity (“Category 3 MBA” which together with Category 2
+      MBA collectively referred to as “MBA”) of two front-run bots mimicking the Primary Exploit – which Affected Assets
+      have been partially recovered along with assets (“Category 3 Swapped Affected Assets”) into which part of such
+      Affected Assets have been swapped into by such front-run bots.
+    </Trans>,
+    <Trans key={3}>
+      Affected Assets presently locked in Affected Pools due to incorrect pool state as a result of the Primary Exploit
+      and MBA.
+    </Trans>,
+    <Trans key={4}>
+      Affected Assets previously locked in Affected Pools due to incorrect pool state as a result of the Primary
+      Exploit, but which have been recovered from such liquidity pools.
+    </Trans>,
+  ]
   return (
     <PoolsPageWrapper>
       <Flex
@@ -94,13 +171,11 @@ export default function ElasticSnapshot() {
               exploit.
             </Trans>
           </Text>
-          {/*
-          <ExternalLink href="/">
+          <ExternalLink href="https://blog.kyberswap.com/kyberswap-treasury-grant-program/">
             <Text fontSize="14px">
               <Trans>Official announcement is here ↗</Trans>
             </Text>
           </ExternalLink>
-          */}
         </Flex>
 
         <Flex flexDirection="column" sx={{ gap: '12px', width: '100%', maxWidth: '580px' }}>
@@ -177,6 +252,58 @@ export default function ElasticSnapshot() {
                   </Text>
                 </Text>
 
+                <StyledTabs
+                  activeKey={selectedCategory}
+                  onChange={key => setSelectedCategory(+key)}
+                  tabItemStyle={{ background: theme.background }}
+                  items={categories.map((_, index) => {
+                    return {
+                      key: index,
+                      label: (
+                        <Text fontWeight="500" fontSize="14px" as="span" width="max-content">
+                          <Trans>Category</Trans> {index + 1}
+                        </Text>
+                      ),
+                      children: (
+                        <Flex
+                          alignItems={upToMedium ? 'flex-start' : 'center'}
+                          padding="1rem"
+                          sx={{ gap: '24px' }}
+                          justifyContent="space-between"
+                          flexDirection={upToMedium ? 'column-reverse' : 'row'}
+                        >
+                          <Box textAlign="left">
+                            <Text fontWeight="500" fontSize={20} color={theme.text}>
+                              <Trans>Category</Trans> {selectedCategory + 1}
+                            </Text>
+                            <Text fontSize={14} fontWeight="500" marginTop="1rem">
+                              {categoriesDesc[selectedCategory]}
+                            </Text>
+                          </Box>
+
+                          <Box
+                            minWidth={upToMedium ? '100%' : '180px'}
+                            textAlign="left"
+                            backgroundColor={theme.buttonBlack}
+                            padding="12px"
+                            sx={{
+                              borderRadius: '12px',
+                            }}
+                          >
+                            <Text fontSize={14} fontWeight="500">
+                              <Trans>Total Amount (USD)</Trans>
+                            </Text>
+
+                            <Text marginTop="24px" fontSize="20px" color={theme.text} fontWeight="500">
+                              {format(positionsByCategories[selectedCategory].reduce((s, c) => s + c.position_usd, 0))}
+                            </Text>
+                          </Box>
+                        </Flex>
+                      ),
+                    }
+                  })}
+                />
+
                 {!upToSmall && (
                   <TableHeader>
                     <Text textAlign="left">POOLS</Text>
@@ -209,7 +336,15 @@ export default function ElasticSnapshot() {
                   </TableHeader>
                 )}
 
-                {userInfo.positions.map(item => (
+                {!positionsByCategories[selectedCategory].length && (
+                  <Text padding="48px 16px">
+                    <Trans>
+                      None of the liquidity position(s) held by your wallet ({shortenAddress(1, account)}) were affected
+                      by the exploit on this category.
+                    </Trans>
+                  </Text>
+                )}
+                {positionsByCategories[selectedCategory].map(item => (
                   <TableRow key={item.position_id}>
                     <Flex>
                       <Logo
