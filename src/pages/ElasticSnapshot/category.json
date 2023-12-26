@@ -1,0 +1,562 @@
+{
+  "category 1": {
+    "arbitrum": [
+      {
+        "pool": "0x0559bf66543012022b1aee4c06bdee604e057f95",
+        "pair": "WETH-USDC.e",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+      },
+      {
+        "pool": "0x1712bd414df9cd90275fe876e81211df38fe53d6",
+        "pair": "WETH-swETH",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0xbc011a12da28e8f0f528d9ee5e7039e22f91cf18"
+      },
+      {
+        "pool": "0x248be4658ffd697e82d4f21c99dd7b9cf59323d7",
+        "pair": "KNC-LINK",
+        "token0": "0xe4dddfe67e7164b0fe14e218d80dc4c08edc01cb",
+        "token1": "0xf97f4df75117a78c1a5a0dbb814af92458539fb4"
+      },
+      {
+        "pool": "0x2554a6a6d16d0699b8c979c060afc40b0325e4d4",
+        "pair": "fUSDC-USDC.e",
+        "token0": "0x4cfa50b7ce747e2d61724fcac57f24b748ff2b2a",
+        "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+      },
+      {
+        "pool": "0x29ac9738be0d1f7cba31d7ff67baf5fdd164efc6",
+        "pair": "DAI-USDC.e",
+        "token0": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+        "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+      },
+      {
+        "pool": "0x328d434488f420654de553df518ac4198027ef1a",
+        "pair": "WBTC-WETH",
+        "token0": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
+        "token1": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+      },
+      {
+        "pool": "0x357a50e53c0d40c86f6314e3b3f183b53c3c9ee4",
+        "pair": "WETH-USDT",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+      },
+      {
+        "pool": "0x3ae5285e7fc52d7a09457784eece8ecb40d461b7",
+        "pair": "axlUSDC-USDC.e",
+        "token0": "0xeb466342c4d449bc9f53a865d5cb90586f405215",
+        "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+      },
+      {
+        "pool": "0x43fc6d13f7a5a6a661611516fa38a66b94726d64",
+        "pair": "STG-ARB",
+        "token0": "0x6694340fc020c5e6b96567843da2df01b2ce1eb6",
+        "token1": "0x912ce59144191c1204e64559fe8253a0e49e6548"
+      },
+      {
+        "pool": "0x4900767e4f61c9b6e0d3199f27c84569bca77034",
+        "pair": "wstETH-WETH",
+        "token0": "0x5979d7b546e38e414f7e9822514be443a4800529",
+        "token1": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+      },
+      {
+        "pool": "0x5594c7c45a1b91009a9442f1954ecb18e09f4806",
+        "pair": "WETH-ELK",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee"
+      },
+      {
+        "pool": "0x6268573cea24a93af010d080978dc0ca35155fbf",
+        "pair": "ARB-LINK",
+        "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+        "token1": "0xf97f4df75117a78c1a5a0dbb814af92458539fb4"
+      },
+      {
+        "pool": "0x6298d1248d06d6cfd5ac3983016fbe2f096fddfe",
+        "pair": "wstETH-USDC",
+        "token0": "0x5979d7b546e38e414f7e9822514be443a4800529",
+        "token1": "0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+      },
+      {
+        "pool": "0x6bdd1ad85ed3c9c2530d372dd8c37abdc5a22905",
+        "pair": "ARB-USDT",
+        "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+        "token1": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+      },
+      {
+        "pool": "0x6fc5b92e99450a80e4e5232b0d8ccfd7da91791a",
+        "pair": "WETH-SWTH",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0xf763fa322dc58dee588252fafee5f448e863b633"
+      },
+      {
+        "pool": "0x705d75ea71d0c57cc44395f0545d4e889fd2cb2d",
+        "pair": "ARB-USDT",
+        "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+        "token1": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+      },
+      {
+        "pool": "0x70f71a61cfecc80a7a2ebcb9c9acc6a243ef5dbb",
+        "pair": "WETH-ARB",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0x912ce59144191c1204e64559fe8253a0e49e6548"
+      },
+      {
+        "pool": "0x836edfa0630096f5c387546b00c42ab9e1099812",
+        "pair": "WETH-ARB",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0x912ce59144191c1204e64559fe8253a0e49e6548"
+      },
+      {
+        "pool": "0x83fe9065ed68506a0d2ece59cd71c43bbff6e450",
+        "pair": "wstETH-axl-wstETH",
+        "token0": "0x5979d7b546e38e414f7e9822514be443a4800529",
+        "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4"
+      },
+      {
+        "pool": "0x96df3539db2e15088ec4bf98d1b7f941e2c74159",
+        "pair": "wstETH-KNC",
+        "token0": "0x5979d7b546e38e414f7e9822514be443a4800529",
+        "token1": "0xe4dddfe67e7164b0fe14e218d80dc4c08edc01cb"
+      },
+      {
+        "pool": "0xc23f1d198477c0bcae0cac2ec734ceda438a8990",
+        "pair": "USDT-USDC.e",
+        "token0": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+        "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+      },
+      {
+        "pool": "0xcea42bf6bb23a7180da36da12d8b463580a17e3b",
+        "pair": "USDC-USDT",
+        "token0": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+        "token1": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+      },
+      {
+        "pool": "0xdac2b8ba301024e4f01bb37aeb87ca9bcded68ea",
+        "pair": "ARB-USDC.e",
+        "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+        "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+      },
+      {
+        "pool": "0xdb0f89c3aeb216d4329985442039f3737cbfc949",
+        "pair": "WETH-USDC.e",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+      },
+      {
+        "pool": "0xdc8826bf4d22c597aea40e32864d3a2d49c55e0b",
+        "pair": "ARB-KNC",
+        "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+        "token1": "0xe4dddfe67e7164b0fe14e218d80dc4c08edc01cb"
+      },
+      {
+        "pool": "0xdf03ca6c633f784ac5e062dd708b15728b488621",
+        "pair": "WETH-ARB",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0x912ce59144191c1204e64559fe8253a0e49e6548"
+      },
+      {
+        "pool": "0xf084c741c580ad16f82d5bc56c40db296ffc5773",
+        "pair": "WETH-ARB",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0x912ce59144191c1204e64559fe8253a0e49e6548"
+      },
+      {
+        "pool": "0xf8aa710b64a953e12b5e1e6f82b72bac5c5ac35a",
+        "pair": "WETH-GMX",
+        "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "token1": "0xfc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a"
+      },
+      {
+        "pool": "0xff128f2308793883acadd5d207ee921b7eedce0e",
+        "pair": "USDC-USDC.e",
+        "token0": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+        "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+      }
+    ],
+    "avalanche": [
+      {
+        "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+        "pair": "USDC-WAVAX",
+        "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+        "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e"
+      },
+      {
+        "pool": "0xe28c5a84d3a4231dad1f5d2ae83f3de6dfea5cf1",
+        "pair": "USDC-WAVAX",
+        "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+        "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e"
+      }
+    ],
+    "base": [
+      {
+        "pool": "0x54dac0ed5ace4da714826f1f8d8371df9a3898ab",
+        "pair": "WETH-wstETH",
+        "token0": "0x4200000000000000000000000000000000000006",
+        "token1": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452"
+      },
+      {
+        "pool": "0x5f0aef0ed84c31f6dc8d234f73c2ad71ee88ca83",
+        "pair": "USDC-wstETH",
+        "token0": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "token1": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452"
+      },
+      {
+        "pool": "0x645f3db18b9eae19018cde0dd329a2a6785eb26a",
+        "pair": "axl-wstETH-wstETH",
+        "token0": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4",
+        "token1": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452"
+      }
+    ],
+    "ethereum": [
+      {
+        "pool": "0x16822d6c6af710015ccd1e69243932bd9a79d983",
+        "pair": "WETH-ELK",
+        "token0": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee"
+      },
+      {
+        "pool": "0x35e6f409565a98500001783ea090e6f669744c83",
+        "pair": "MEME-WETH",
+        "token0": "0xb131f4a55907b10d1f0a50d8ab8fa09ec342cd74",
+        "token1": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+      },
+      {
+        "pool": "0x36240069ff26cecbde04d9e49a2af8d39146263e",
+        "pair": "FRAX-USDC",
+        "token0": "0x853d955acef822db058eb8505911ed77f175b99e",
+        "token1": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      },
+      {
+        "pool": "0x4db4ee18960c5cef92c2fc874daaa8e83f1608aa",
+        "pair": "wstETH-USDC",
+        "token0": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+        "token1": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      },
+      {
+        "pool": "0x93fc0acf77edd68e611f8a776c9995f350f84274",
+        "pair": "MONA-WETH",
+        "token0": "0x275f5ad03be0fa221b4c6649b8aee09a42d9412a",
+        "token1": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+      },
+      {
+        "pool": "0xa9034f72655ae24703901d00f2904ea4834bb38a",
+        "pair": "wstETH-WETH",
+        "token0": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+        "token1": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+      },
+      {
+        "pool": "0xb0e345bed29a946fc6fa56812228409914c1a42e",
+        "pair": "WETH-HAY",
+        "token0": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "token1": "0xfa3e941d1f6b7b10ed84a0c211bfa8aee907965e"
+      },
+      {
+        "pool": "0xcbec1e9407f1910c86f261eaeac27d85c0479e8c",
+        "pair": "USDC-ETHx",
+        "token0": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "token1": "0xa35b1b31ce002fbf2058d22f30f95d405200a15b"
+      },
+      {
+        "pool": "0xe5379f5ee90d70a0f9de0ed8b3cdde3b9427524a",
+        "pair": "frxETH-FRAX",
+        "token0": "0x5e8422345238f34275888049021821e8e08caa1f",
+        "token1": "0x853d955acef822db058eb8505911ed77f175b99e"
+      },
+      {
+        "pool": "0xfbc887823dd414edf76c5da88ffcd9eef2ba87cc",
+        "pair": "frxETH-WETH",
+        "token0": "0x5e8422345238f34275888049021821e8e08caa1f",
+        "token1": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+      },
+      {
+        "pool": "0xfd7b111aa83b9b6f547e617c7601efd997f64703",
+        "pair": "frxETH-WETH",
+        "token0": "0x5e8422345238f34275888049021821e8e08caa1f",
+        "token1": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+      }
+    ],
+    "optimism": [
+      {
+        "pool": "0x0e2b7bc3095aaca6df3c107cabf4f5146bc3b343",
+        "pair": "WETH-OP",
+        "token0": "0x4200000000000000000000000000000000000006",
+        "token1": "0x4200000000000000000000000000000000000042"
+      },
+      {
+        "pool": "0x19a83475bea663c880a9c8af518fdca27097154b",
+        "pair": "WETH-ELK",
+        "token0": "0x4200000000000000000000000000000000000006",
+        "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee"
+      },
+      {
+        "pool": "0x1f6116a42651d94dc3782d8d76fa40c8ad2c5263",
+        "pair": "SNX-KNC",
+        "token0": "0x8700daec35af8ff88c16bdf0418774cb3d7599b4",
+        "token1": "0xa00e3a3511aac35ca78530c85007afcd31753819"
+      },
+      {
+        "pool": "0x32f35bfdcf154eb604b16fa2056d84462fc7d10c",
+        "pair": "wstETH-axl-wstETH",
+        "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+        "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4"
+      },
+      {
+        "pool": "0x7a2c3a9d54b37cc0b9a38ee82832166752de30c7",
+        "pair": "wstETH-WBTC",
+        "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+        "token1": "0x68f180fcce6836688e9084f035309e29bf0a2095"
+      },
+      {
+        "pool": "0x80d39502fc199a5094cf231413f5c20d9ee244c4",
+        "pair": "USDC.e-DAI",
+        "token0": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+        "token1": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1"
+      },
+      {
+        "pool": "0x95e81f6e585496f372d7a5db3cac234eb4bde793",
+        "pair": "WETH-OP",
+        "token0": "0x4200000000000000000000000000000000000006",
+        "token1": "0x4200000000000000000000000000000000000042"
+      },
+      {
+        "pool": "0x9ba7b142ea73c8d1560e47296f169d6c748d89ae",
+        "pair": "wstETH-WETH",
+        "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+        "token1": "0x4200000000000000000000000000000000000006"
+      },
+      {
+        "pool": "0x9fc5d0bccf67cba3156b40ff1b790c65f4c1e5b9",
+        "pair": "USDC-USDC.e",
+        "token0": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+        "token1": "0x7f5c764cbc14f9669b88837ca1490cca17c31607"
+      },
+      {
+        "pool": "0xa5b15e8bfc7292fdfca98d5f5dbad55b752a7fff",
+        "pair": "LYRA-USDC.e",
+        "token0": "0x50c5725949a6f0c72e6c4a641f24049a917db0cb",
+        "token1": "0x7f5c764cbc14f9669b88837ca1490cca17c31607"
+      },
+      {
+        "pool": "0xa837d04a64acf66912d05cfd9b951e4e399ab680",
+        "pair": "FRAX-USDC.e",
+        "token0": "0x2e3d870790dc77a83dd1d18184acc7439a53f475",
+        "token1": "0x7f5c764cbc14f9669b88837ca1490cca17c31607"
+      },
+      {
+        "pool": "0xbf892c5175fd65003abc6980f0b6febe8dd06158",
+        "pair": "wstETH-KNC",
+        "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+        "token1": "0xa00e3a3511aac35ca78530c85007afcd31753819"
+      },
+      {
+        "pool": "0xc0fa0dd169f4ea52d70bc44fd55ae0e0fbcbad8e",
+        "pair": "wstETH-USDC.e",
+        "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+        "token1": "0x7f5c764cbc14f9669b88837ca1490cca17c31607"
+      },
+      {
+        "pool": "0xd45e84066d160de151df62840452704891951819",
+        "pair": "USDC.e-LDO",
+        "token0": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+        "token1": "0xfdb794692724153d1488ccdbe0c56c252596735f"
+      },
+      {
+        "pool": "0xe41e836cd3941e521d5e59aff9da4d7ebd980929",
+        "pair": "USDC.e-axlUSDC",
+        "token0": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+        "token1": "0xeb466342c4d449bc9f53a865d5cb90586f405215"
+      },
+      {
+        "pool": "0xe4bf0f19862db4716db805a26fe39d04596cbf4b",
+        "pair": "wstETH-cbETH",
+        "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+        "token1": "0xaddb6a0412de1ba0f936dcaeb8aaa24578dcf3b2"
+      },
+      {
+        "pool": "0xf480c7d25faa406306ab72abda91c34b5b2ed8cd",
+        "pair": "WBTC-USDT",
+        "token0": "0x68f180fcce6836688e9084f035309e29bf0a2095",
+        "token1": "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58"
+      }
+    ],
+    "polygon": [
+      {
+        "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+        "pair": "USDC-DAI",
+        "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+        "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"
+      },
+      {
+        "pool": "0x4ebc4d2763e951197f07b6b8b3c2bdfbff7d6b5f",
+        "pair": "WBTC-WETH",
+        "token0": "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6",
+        "token1": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+      },
+      {
+        "pool": "0x52162860848027ee1ca40da888676233dbd55d56",
+        "pair": "wstETH-USDC",
+        "token0": "0x03b54a6e9a984069379fae1a4fc4dbae93b3bccd",
+        "token1": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"
+      },
+      {
+        "pool": "0x64c0f2bf4e046faa34c60bdf64fda0b3e0ddb390",
+        "pair": "USDC-USDC",
+        "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+        "token1": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+      },
+      {
+        "pool": "0x656a5421912afb93e68ac3e1361db1252d6a019a",
+        "pair": "USDC-WETH",
+        "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+        "token1": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+      },
+      {
+        "pool": "0x6b56de3fe4419d3a81ebfae3a0334255958026c5",
+        "pair": "KNC-WETH",
+        "token0": "0x1c954e8fe737f99f68fa1ccda3e51ebdb291948c",
+        "token1": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+      },
+      {
+        "pool": "0x6eb39cc5529d23a6e25b159e66e4546aeebe40f6",
+        "pair": "WMATIC-KNC",
+        "token0": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+        "token1": "0x1c954e8fe737f99f68fa1ccda3e51ebdb291948c"
+      },
+      {
+        "pool": "0x9c777839adc4ac86f2a360a525017ccabbcb0c1e",
+        "pair": "USDC-stMATIC",
+        "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+        "token1": "0x3a58a54c066fdc0f2d55fc9c89f0415c92ebf3c4"
+      },
+      {
+        "pool": "0xa852ddd69c13d42669840a692f6bbf94245ac54a",
+        "pair": "WMATIC-USDC",
+        "token0": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+        "token1": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"
+      },
+      {
+        "pool": "0xba12229072b5c36f3a28b8e34c8af913b2a3675b",
+        "pair": "wstETH-stMATIC",
+        "token0": "0x03b54a6e9a984069379fae1a4fc4dbae93b3bccd",
+        "token1": "0x3a58a54c066fdc0f2d55fc9c89f0415c92ebf3c4"
+      },
+      {
+        "pool": "0xc270e8bfddd1baecb63f1f168cf16a5af43f25f0",
+        "pair": "WETH-USDT",
+        "token0": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+        "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
+      },
+      {
+        "pool": "0xe7129c006353ceda8f229240282c48a54402af45",
+        "pair": "USDC-axlUSDC",
+        "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+        "token1": "0x750e4c4984a9e0f12978ea6742bc1c5d248f40ed"
+      }
+    ]
+  },
+  "category 2": {
+    "avalanche": [
+      {
+        "pool": "0x07e9d0086d869f4b131d73afddb7d12b97280415",
+        "pair": "USDT.e-BSGG",
+        "token0": "0xc7198437980c041c805a1edcba50c1ce5db95118",
+        "token1": "0x63682bdc5f875e9bf69e201550658492c9763f89"
+      },
+      {
+        "pool": "0x81fe7ab42a965a39367484249d5730f1287d2404",
+        "pair": "VOLTA-USDT.e",
+        "token0": "0x9b06f3c5de42d4623d7a2bd940ec735103c68a76",
+        "token1": "0xc7198437980c041c805a1edcba50c1ce5db95118"
+      },
+      {
+        "pool": "0xbb2c3581d7ef32a8ad2491bb3b3547341d28d023",
+        "pair": "USDC-VCHF",
+        "token0": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+        "token1": "0x228a48df6819ccc2eca01e2192ebafffdad56c19"
+      },
+      {
+        "pool": "0x6001aa2861ce6689d3be187e25cc236156261dc1",
+        "pair": "USDC-VEUR",
+        "token0": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+        "token1": "0x7678e162f38ec9ef2bfd1d0aaf9fd93355e5fa0b"
+      }
+    ],
+    "cronos": [
+      {
+        "pool": "0x4cd62dfe871e06fd8e08614d07ddc06af87cee90",
+        "pair": "WCRO-ELK",
+        "token0": "0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23",
+        "token1": "0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE"
+      }
+    ]
+  },
+  "category 3": {
+    "avalanche": [
+      {
+        "pool": "0x9db5dec971cd47b226744e40d4ab082d937aa7f4",
+        "pair": "USDC-axlUSDC",
+        "token0": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+        "token1": "0xfab550568c688d5d8a52c7d794cb93edc26ec0ec"
+      }
+    ],
+    "polygon": [
+      {
+        "pool": "0x125150eeadb67ddc8b59eed3fc8e67db919ccb2e",
+        "pair": "WMATIC-rMATIC",
+        "token0": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+        "token1": "0x9f28e2455f9ffcfac9ebd6084853417362bc5dbb"
+      },
+      {
+        "pool": "0x2f5ffbf82882f2a8366ac1c5cdba710062d22232",
+        "pair": "wstETH-WETH",
+        "token0": "0x03b54a6e9a984069379fae1a4fc4dbae93b3bccd",
+        "token1": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+      },
+      {
+        "pool": "0x30ec378b28b600a1bad3cda393633d86ca17b5b4",
+        "pair": "dBSGG-USDT",
+        "token0": "0x5cc8d49984834314f54211b1d872318cf766d466",
+        "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
+      },
+      {
+        "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+        "pair": "USDC-USDT",
+        "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+        "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
+      },
+      {
+        "pool": "0x9af350aca2e6043a567b68456e7d6f532a301de9",
+        "pair": "wstETH-axlwstETH",
+        "token0": "0x03b54a6e9a984069379fae1a4fc4dbae93b3bccd",
+        "token1": "0xd7bb095a60d7666d4a6f236423b47ddd6ae6cfa7"
+      }
+    ]
+  },
+  "category 5": {
+    "ethereum": [
+      {
+        "pool": "0x1a262266364bdb34df4c1337ad5f8b9b57182251",
+        "pair": "WETH-KNC",
+        "token0": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "token1": "0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202"
+      },
+      {
+        "pool": "0x6e23bebd3fece8967f66b020eb1d71fb6c2c9a69",
+        "pair": "WETH-KNC",
+        "token0": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "token1": "0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202"
+      }
+    ],
+    "optimism": [
+      {
+        "pool": "0x7c026964f94820808d7013b115bfe99a1b0aab7c",
+        "pair": "WETH-cbETH",
+        "token0": "0x4200000000000000000000000000000000000006",
+        "token1": "0xaddb6a0412de1ba0f936dcaeb8aaa24578dcf3b2"
+      }
+    ]
+  }
+}

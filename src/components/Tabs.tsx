@@ -14,6 +14,8 @@ interface TabsProps {
   onChange: (activeKey: string | number) => void
   className?: string
   horizontalWrapperStyle?: CSSProperties
+  tabItemStyle?: CSSProperties
+  tabItemActiveStyle?: CSSProperties
 }
 
 const Wrapper = styled.div(({ theme }) => ({
@@ -41,7 +43,15 @@ const TabHeaderItem = styled.div<{ active: boolean }>(({ theme, active }) => ({
   cursor: 'pointer',
 }))
 
-const Tabs: FC<TabsProps> = ({ activeKey, items, className, onChange, horizontalWrapperStyle = {} }) => {
+const Tabs: FC<TabsProps> = ({
+  activeKey,
+  items,
+  className,
+  onChange,
+  horizontalWrapperStyle = {},
+  tabItemStyle = {},
+  tabItemActiveStyle = {},
+}) => {
   return (
     <Wrapper className={className}>
       <TabHeader>
@@ -51,7 +61,11 @@ const Tabs: FC<TabsProps> = ({ activeKey, items, className, onChange, horizontal
           renderItem={key => {
             const label = items.find(i => +i.key === +key)?.label || ''
             return (
-              <TabHeaderItem onClick={() => onChange(key)} active={+key === +activeKey}>
+              <TabHeaderItem
+                onClick={() => onChange(key)}
+                active={+key === +activeKey}
+                style={+key !== +activeKey ? tabItemStyle : tabItemActiveStyle}
+              >
                 {label}
               </TabHeaderItem>
             )
