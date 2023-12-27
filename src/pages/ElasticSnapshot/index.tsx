@@ -1,7 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { type Provider, ZkMeWidget, verifyKYCWithZkMeServices } from '@zkmelabs/widget'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -11,7 +12,7 @@ import { ButtonPrimary } from 'components/Button'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
@@ -114,9 +115,91 @@ interface Position {
   }
 }
 
+const APP_ID = 'M2023122583510932543540072365652'
+
 export default function ElasticSnapshot() {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
+
+  const { library } = useWeb3React()
+
+  const provider: Provider | null = useMemo(
+    () =>
+      library && account
+        ? {
+            async getAccessToken() {
+              // Request a new token from your backend service and return it to the widget
+              return fetch(`https://nest-api.zk.me/api/token/get`, {
+                method: 'POST',
+                body: JSON.stringify({
+                  apiKey: '18c08e03.b3f2d0f7ef423fca4401bfe2a08de4f4',
+                  appId: APP_ID,
+                  lv: 1,
+                  apiModePermission: 0,
+                }),
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              })
+                .then(res => res.json())
+                .then(res => {
+                  return res?.data?.accessToken
+                })
+            },
+            async getUserAccounts() {
+              return [account]
+            },
+            async delegateTransaction(tx) {
+              const txResponse = await library.getSigner().sendTransaction(tx as any)
+              return txResponse?.hash
+            },
+          }
+        : null,
+    [library, account],
+  )
+
+  const zkMe = useMemo(() => {
+    return provider ? new ZkMeWidget(APP_ID, 'KyberSwap', '0x89', provider) : null
+  }, [provider])
+
+  useEffect(() => {
+    if (zkMe && account) {
+      type KycResults = 'matching' | 'mismatch'
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      zkMe.on('finished', async (verifiedAddress: string, kycResults: KycResults) => {
+        console.log('xxx')
+        // We recommend that you double-check this by calling the functions mentioned in the "Helper functions" section.
+        if (kycResults === 'matching' && verifiedAddress.toLowerCase() === account.toLowerCase()) {
+          const results = await verifyKYCWithZkMeServices(APP_ID, account)
+          if (results) {
+            zkMe.destroy()
+            setIsKyc(true)
+          }
+        }
+      })
+    }
+  }, [zkMe, account])
+
+  const [isKyc, setIsKyc] = useState(false)
+  const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    const fn = async () => {
+      if (zkMe && account) {
+        setLoading(true)
+        const results: boolean = await verifyKYCWithZkMeServices(
+          APP_ID, // This parameter means the same thing as "mchNo"
+          account,
+        )
+
+        if (results) {
+          setIsKyc(true)
+        }
+        setLoading(false)
+      }
+    }
+    fn()
+  }, [zkMe, account])
 
   const [selectedCategory, setSelectedCategory] = useState(0)
   const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
@@ -255,6 +338,7 @@ export default function ElasticSnapshot() {
           </Text>
         </Flex>
       </Flex>
+
       <Flex flexDirection="column" marginTop="1.5rem" marginX={upToSmall ? '-1rem' : 0}>
         <Wrapper>
           {account ? (
@@ -292,9 +376,25 @@ export default function ElasticSnapshot() {
                             <Text fontWeight="500" fontSize={20} color={theme.text}>
                               <Trans>Category</Trans> {selectedCategory + 1}
                             </Text>
-                            <Text fontSize={14} fontWeight="500" marginTop="1rem">
+                            <Text fontSize={14} fontWeight="500" marginY="1rem">
                               {categoriesDesc[selectedCategory]}
                             </Text>
+
+                            <Flex alignItems="center" sx={{ gap: '1rem' }}>
+                              <ButtonPrimary
+                                width="max-content"
+                                disabled={isKyc}
+                                style={{ minWidth: '100px', height: '36px' }}
+                                onClick={() => {
+                                  zkMe?.launch()
+                                }}
+                              >
+                                {loading ? 'Loading...' : 'KYC'}
+                              </ButtonPrimary>
+                              <ButtonPrimary disabled={!isKyc} width="max-content" style={{ height: '36px' }}>
+                                <Trans>Choose Grant Option</Trans>
+                              </ButtonPrimary>
+                            </Flex>
                           </Box>
 
                           <Box
