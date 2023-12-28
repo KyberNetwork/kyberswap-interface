@@ -5,8 +5,6 @@ import { AnnouncementTemplate, PrivateAnnouncement, PrivateAnnouncementType } fr
 
 import Bridge from './Bridge'
 import CrossChain from './CrossChain'
-import KyberAI from './KyberAI'
-import KyberAIWatchlist from './KyberAIWatchlist'
 import LimitOrder from './LimitOrder'
 import PoolPosition from './PoolPosition'
 import PriceAlert from './PriceAlert'
@@ -25,8 +23,6 @@ const ANNOUNCEMENT_MAP_IN_CENTER = {
   [PrivateAnnouncementType.LIMIT_ORDER]: LimitOrder,
   [PrivateAnnouncementType.BRIDGE_ASSET]: Bridge,
   [PrivateAnnouncementType.CROSS_CHAIN]: CrossChain,
-  [PrivateAnnouncementType.KYBER_AI]: KyberAI,
-  [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: KyberAIWatchlist,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: PrivateMessage,
 } as PrivateAnnouncementCenterMap

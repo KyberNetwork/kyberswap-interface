@@ -22,8 +22,6 @@ export enum PROFILE_MANAGE_ROUTES {
   MY_ELASTIC_POOLS = '/notification/elastic-pools',
   LIMIT_ORDERS = '/notification/limit-orders',
   BRIDGE = '/notification/bridge',
-  KYBER_AI_TOKENS = '/notification/kyber-ai',
-  KYBER_AI_WATCH_LIST = '/notification/kyber-ai-watch-list',
   CROSS_CHAIN = '/cross-chain',
 }
 

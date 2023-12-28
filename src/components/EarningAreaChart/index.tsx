@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Area, AreaChart, Customized, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
+import KyberLogo from 'components/KyberLogo'
 import { EMPTY_FUNCTION } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { TimePeriod } from 'pages/MyEarnings/MyEarningsOverTimePanel/TimePeriodSelect'
-import KyberLogo from 'pages/TrueSightV2/components/chart/KyberLogo'
 import { EarningStatsTick } from 'types/myEarnings'
 import { formatDisplayNumber } from 'utils/numbers'
 

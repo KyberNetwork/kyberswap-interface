@@ -23,7 +23,6 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
-import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { pushUnique } from 'utils'
 import { isEmailValid } from 'utils/string'
 
@@ -141,7 +140,6 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
 
   const { account } = useActiveWeb3React()
   const { userInfo, isLogin } = useSessionInfo()
-  const { isWhiteList } = useIsWhiteListKyberAI()
   const { isSignInEmail } = useSignedAccountInfo()
 
   const { inputEmail, errorInput, onChangeEmail, reset } = useValidateEmail(userInfo?.email)
@@ -403,36 +401,21 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
           </GroupColum>
           <GroupColum>
             {restrict.map(topic => {
-              const disableKyberAI = disableCheckbox || !isLogin || !isWhiteList
               return renderTopic(
                 topic,
-                topic.isKyberAI ? disableKyberAI : disableCheckbox || !isLogin,
-                topic.isKyberAI && disableKyberAI ? (
-                  <Trans>
-                    Before you can subscribe to KyberAI notifications, you need to be whitelisted. Register for KyberAI{' '}
-                    <Text
-                      sx={{ cursor: 'pointer' }}
-                      as="span"
-                      color={theme.primary}
-                      onClick={() => navigate(APP_PATHS.KYBERAI_ABOUT)}
-                    >
-                      here
-                    </Text>
-                  </Trans>
-                ) : (
-                  <Trans>
-                    Before you can subscribe to this notification, sign-in to a profile first. Go the{' '}
-                    <Text
-                      sx={{ cursor: 'pointer' }}
-                      as="span"
-                      color={theme.primary}
-                      onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)}
-                    >
-                      Profile
-                    </Text>{' '}
-                    tab to sign-in with your wallet
-                  </Trans>
-                ),
+                disableCheckbox || !isLogin,
+                <Trans>
+                  Before you can subscribe to this notification, sign-in to a profile first. Go the{' '}
+                  <Text
+                    sx={{ cursor: 'pointer' }}
+                    as="span"
+                    color={theme.primary}
+                    onClick={() => navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)}
+                  >
+                    Profile
+                  </Text>{' '}
+                  tab to sign-in with your wallet
+                </Trans>,
               )
             })}
           </GroupColum>

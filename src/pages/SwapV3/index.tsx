@@ -22,7 +22,6 @@ import TokenInfoTab from 'components/swapv2/TokenInfo'
 import {
   Container,
   InfoComponentsWrapper,
-  KyberAIBannerWrapper,
   LiveChartWrapper,
   PageWrapper,
   RoutesWrapper,
@@ -45,18 +44,15 @@ import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useShowKyberAIBanner, useShowLiveChart, useShowTradeRoutes } from 'state/user/hooks'
+import { useShowLiveChart, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 
-import KyberAIWidget from '../TrueSightV2/components/KyberAIWidget'
 import PopulatedSwapForm from './PopulatedSwapForm'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 
 const LiveChart = lazy(() => import('components/LiveChart'))
-
-const KyberAITokenBanner = lazy(() => import('components/KyberAITokenBanner'))
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
@@ -105,7 +101,6 @@ export default function Swap() {
   const { chainId } = useActiveWeb3React()
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
-  const isShowKyberAIBanner = useShowKyberAIBanner()
   const qs = useParsedQueryString<{ highlightBox: string }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
@@ -268,22 +263,6 @@ export default function Swap() {
           </SwapFormWrapper>
 
           <InfoComponents>
-            {isShowKyberAIBanner && (
-              <KyberAIBannerWrapper>
-                <Suspense
-                  fallback={
-                    <Skeleton
-                      height="84px"
-                      baseColor={theme.background}
-                      highlightColor={theme.buttonGray}
-                      borderRadius="24px"
-                    />
-                  }
-                >
-                  <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
-                </Suspense>
-              </KyberAIBannerWrapper>
-            )}
             {isShowLiveChart && (
               <LiveChartWrapper>
                 <Suspense
@@ -339,7 +318,6 @@ export default function Swap() {
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
         </Flex>
-        <KyberAIWidget />
       </PageWrapper>
     </>
   )
