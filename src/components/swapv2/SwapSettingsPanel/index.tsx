@@ -14,14 +14,7 @@ import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import {
-  useShowKyberAIBanner,
-  useShowLiveChart,
-  useShowTradeRoutes,
-  useToggleKyberAIBanner,
-  useToggleLiveChart,
-  useToggleTradeRoutes,
-} from 'state/user/hooks'
+import { useShowLiveChart, useShowTradeRoutes, useToggleLiveChart, useToggleTradeRoutes } from 'state/user/hooks'
 
 import DegenModeSetting from './DegenModeSetting'
 import GasPriceTrackerSetting from './GasPriceTrackerSetting'
@@ -61,10 +54,8 @@ const SettingsPanel: React.FC<Props> = ({
   const { mixpanelHandler } = useMixpanel()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowLiveChart = useShowLiveChart()
-  const isShowKyberAIBanner = useShowKyberAIBanner()
   const toggleLiveChart = useToggleLiveChart()
   const toggleTradeRoutes = useToggleTradeRoutes()
-  const toggleKyberAIBanner = useToggleKyberAIBanner()
 
   const handleToggleLiveChart = () => {
     mixpanelHandler(MIXPANEL_TYPE.LIVE_CHART_ON_OFF, { live_chart_on_or_off: !isShowLiveChart })
@@ -141,18 +132,6 @@ const SettingsPanel: React.FC<Props> = ({
               <Trans>Display Settings</Trans>
             </Text>
             <AutoColumn gap="md">
-              {!isPartnerSwap && (
-                <RowBetween>
-                  <RowFixed>
-                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                      <MouseoverTooltip text={<Trans>Turn on to display KyberAI banner.</Trans>} placement="right">
-                        <Trans>KyberAI Banner</Trans>
-                      </MouseoverTooltip>
-                    </TextDashed>
-                  </RowFixed>
-                  <Toggle isActive={isShowKyberAIBanner} toggle={toggleKyberAIBanner} />
-                </RowBetween>
-              )}
               {!isPartnerSwap && (
                 <RowBetween>
                   <RowFixed>

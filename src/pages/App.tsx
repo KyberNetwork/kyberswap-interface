@@ -14,7 +14,7 @@ import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
 import Loader from 'components/LocalLoader'
 import ModalsGlobal from 'components/ModalsGlobal'
-import ProtectedRoute, { ProtectedRouteKyberAI } from 'components/ProtectedRoute'
+import ProtectedRoute from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
@@ -26,9 +26,6 @@ import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
-import KyberAIExplore from 'pages/TrueSightV2'
-import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
-import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
 import { useHolidayMode } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
 
@@ -312,40 +309,6 @@ export default function App() {
                 <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
                 <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                 <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-                <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
-                <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
-                <Route
-                  path={`${APP_PATHS.KYBERAI_ABOUT}`}
-                  element={
-                    <ProtectedRouteKyberAI waitUtilAuthenEndOnly>
-                      <KyberAILandingPage />
-                    </ProtectedRouteKyberAI>
-                  }
-                />
-                <Route
-                  path={`${APP_PATHS.KYBERAI_RANKINGS}`}
-                  element={
-                    <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
-                      <KyberAIExplore />
-                    </ProtectedRouteKyberAI>
-                  }
-                />
-                <Route
-                  path={`${APP_PATHS.KYBERAI_EXPLORE}`}
-                  element={
-                    <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
-                      <KyberAIExplore />
-                    </ProtectedRouteKyberAI>
-                  }
-                />
-                <Route
-                  path={`${APP_PATHS.KYBERAI_EXPLORE}/:assetId`}
-                  element={
-                    <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
-                      <KyberAIExplore />
-                    </ProtectedRouteKyberAI>
-                  }
-                />
                 <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                 {/* <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} /> */}
                 <Route
@@ -390,8 +353,6 @@ export default function App() {
           </BodyWrapper>
           {showFooter && <Footer />}
           {!showFooter && <div style={{ marginBottom: '4rem' }} />}
-
-          <TruesightFooter />
         </Suspense>
       </AppWrapper>
     </ErrorBoundary>

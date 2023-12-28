@@ -44,7 +44,6 @@ export const removeSerializedPair = createAction<{ chainId: number; tokenAAddres
 export const toggleLiveChart = createAction('user/toggleLiveChart')
 
 export const toggleTradeRoutes = createAction<void>('user/toggleTradeRoutes')
-export const toggleKyberAIBanner = createAction<void>('user/toggleKyberAIBanner')
 
 export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendingTokens')
 
@@ -70,7 +69,6 @@ export const permitUpdate = createAction<{
 export const revokePermit = createAction<{ chainId: number; address: string; account: string }>('user/revokePermit')
 export const permitError = createAction<{ chainId: number; address: string; account: string }>('user/permitError')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')
-export const toggleKyberAIWidget = createAction<void>('user/toggleKyberAIWidget')
 export const toggleMyEarningChart = createAction<void>('user/toggleMyEarningChart')
 
 export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')

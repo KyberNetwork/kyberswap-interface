@@ -14,7 +14,6 @@ import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import ApeIcon from 'components/Icons/ApeIcon'
 import ArrowRight from 'components/Icons/ArrowRight'
 import Faucet from 'components/Icons/Faucet'
 import MailIcon from 'components/Icons/MailIcon'
@@ -38,7 +37,7 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useHolidayMode, useIsWhiteListKyberAI, useKyberAIWidget, useUserLocale } from 'state/user/hooks'
+import { useHolidayMode, useUserLocale } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isChristmasTime } from 'utils'
 
@@ -72,14 +71,6 @@ const MenuItem = styled.li`
       color: ${({ theme }) => theme.text};
     }
   }
-`
-
-const KyberAIWrapper = styled(MenuItem)`
-  display: none;
-
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    display: flex;
-  `};
 `
 
 const NavLinkBetween = styled(MenuItem)`
@@ -211,8 +202,6 @@ export default function Menu() {
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
   const [holidayMode, toggleHolidayMode] = useHolidayMode()
-  const [kyberAIWidgetActive, toggleKyberAIWidget] = useKyberAIWidget()
-  const { isWhiteList } = useIsWhiteListKyberAI()
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
 
   const userLocale = useUserLocale()
@@ -317,40 +306,6 @@ export default function Menu() {
                 </ExternalLink>
               </MenuItem>
             )}
-
-            <KyberAIWrapper>
-              <NavDropDown
-                icon={<ApeIcon />}
-                title={
-                  <Text>
-                    <Trans>KyberAI</Trans>{' '}
-                    <NewLabel>
-                      <Trans>New</Trans>
-                    </NewLabel>
-                  </Text>
-                }
-                link={'#'}
-                options={[
-                  { link: APP_PATHS.KYBERAI_ABOUT, label: t`About` },
-                  {
-                    link: APP_PATHS.KYBERAI_RANKINGS,
-                    label: (
-                      <Text as="span">
-                        <Trans>Rankings</Trans>{' '}
-                      </Text>
-                    ),
-                  },
-                  {
-                    link: APP_PATHS.KYBERAI_EXPLORE,
-                    label: (
-                      <Text as="span">
-                        <Trans>Explore</Trans>{' '}
-                      </Text>
-                    ),
-                  },
-                ]}
-              />
-            </KyberAIWrapper>
 
             {showKyberDao && (
               <MenuItem>
@@ -525,18 +480,6 @@ export default function Menu() {
               <NavLinkBetween onClick={toggleHolidayMode}>
                 <Trans>Holiday Mode</Trans>
                 <Toggle isActive={holidayMode} toggle={noop} />
-              </NavLinkBetween>
-            )}
-
-            {isWhiteList && (
-              <NavLinkBetween
-                onClick={() => {
-                  toggleKyberAIWidget()
-                  handlePreferenceClickMixpanel('KyberAI Widget')
-                }}
-              >
-                <Trans>KyberAI Widget</Trans>
-                <Toggle isActive={kyberAIWidgetActive} toggle={noop} backgroundColor={theme.buttonBlack} />
               </NavLinkBetween>
             )}
 

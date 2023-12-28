@@ -19,7 +19,6 @@ import useTheme from 'hooks/useTheme'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
-import KyberAINavItem from './KyberAINavItem'
 import AboutNavGroup from './groups/AboutNavGroup'
 import AnalyticNavGroup from './groups/AnalyticNavGroup'
 import EarnNavGroup from './groups/EarnNavGroup'
@@ -220,7 +219,6 @@ export default function Header() {
           <HeaderLinks>
             <SwapNavGroup />
             <EarnNavGroup />
-            <KyberAINavItem />
             <KyberDAONavGroup />
             <AnalyticNavGroup />
             <AboutNavGroup />

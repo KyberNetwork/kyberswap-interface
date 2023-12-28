@@ -13,7 +13,6 @@ import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
 import knProtocolApi from 'services/knprotocol'
 import ksSettingApi from 'services/ksSetting'
-import kyberAISubscriptionApi from 'services/kyberAISubscription'
 import kyberDAO from 'services/kyberDAO'
 import limitOrderApi from 'services/limitOrder'
 import priceAlertApi from 'services/priceAlert'
@@ -23,8 +22,6 @@ import tokenApi from 'services/token'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
-import coinmarketcapApi from 'pages/TrueSightV2/hooks/useCoinmarketcapData'
-import kyberAIApi from 'pages/TrueSightV2/hooks/useKyberAIData'
 
 import application from './application/reducer'
 import authen from './authen/reducer'
@@ -104,9 +101,6 @@ const store = configureStore({
     [limitOrderApi.reducerPath]: limitOrderApi.reducer,
     [externalApi.reducerPath]: externalApi.reducer,
 
-    [kyberAIApi.reducerPath]: kyberAIApi.reducer,
-    [coinmarketcapApi.reducerPath]: coinmarketcapApi.reducer,
-    [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
     [kyberDAO.reducerPath]: kyberDAO.reducer,
     [identifyApi.reducerPath]: identifyApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
@@ -137,9 +131,6 @@ const store = configureStore({
       .concat(externalApi.middleware)
       .concat(contractQuery.middleware)
       .concat(limitOrderApi.middleware)
-      .concat(kyberAIApi.middleware)
-      .concat(coinmarketcapApi.middleware)
-      .concat(kyberAISubscriptionApi.middleware)
       .concat(aggregatorStatsApi.middleware)
       .concat(announcementApi.middleware)
       .concat(publicAnnouncementApi.middleware)
