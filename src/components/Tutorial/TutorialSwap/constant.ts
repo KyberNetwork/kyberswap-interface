@@ -30,8 +30,6 @@ export const TutorialIds = {
 
   EARNING_LINKS: 'earningLinks',
   BRIDGE_LINKS: 'bridgeLinks',
-  DISCOVER_LINK: 'discoverLink',
-  CAMPAIGN_LINK: 'campaignLink',
   KYBER_DAO_LINK: 'kyberDaoLink',
   BUTTON_VIEW_GUIDE_SWAP: 'btnViewGuideSwap',
 }
@@ -44,8 +42,6 @@ export const LIST_TITLE = () => ({
   START_TRADING: t`Select tokens to swap and start trading`,
   SETTING: t`Personalize your trading interface`,
   EARN: t`Earn trading fees through our Pools / Farms`,
-  DISCOVER: t`KyberAI - Ape Smart!`,
-  CAMPAIGN: t`Participate in our campaigns`,
   KYBER_DAO: t`KyberDAO`,
   VIEW_GUIDE: t`View our KyberSwap Guide again`,
   BRIDGE: t`Place Limit Orders, Bridge Tokens or Buy Crypto`,

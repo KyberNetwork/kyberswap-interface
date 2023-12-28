@@ -8,10 +8,8 @@ import { CardinalOrientation, Step, Walktour, WalktourLogic } from 'walktour'
 
 import BtnSettingHeader from 'assets/images/tutorial_swap/btn_setting_header.png'
 import ButtonSwapGuide from 'assets/images/tutorial_swap/btn_swap_guide.png'
-import CampaignLink from 'assets/images/tutorial_swap/campaign_link.png'
 import ConnectWalletImg from 'assets/images/tutorial_swap/connect_wallet.png'
 import Step5 from 'assets/images/tutorial_swap/earn_link.png'
-import Menu from 'assets/images/tutorial_swap/menu.png'
 import SelectChainBtn from 'assets/images/tutorial_swap/select_network.png'
 import SwapSetting from 'assets/images/tutorial_swap/swap_setting.png'
 import SwapSettingBtn from 'assets/images/tutorial_swap/swap_setting_btn.png'
@@ -200,10 +198,6 @@ const CustomCss = createGlobalStyle`
   };
 `
 
-const Highlight = styled.span`
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-`
 const getListSteps = (isLogin: boolean) => {
   let stepNumber = 0
   const isHighlightBtnConnectWallet = !isLogin || isMobile
@@ -320,38 +314,6 @@ const getListSteps = (isLogin: boolean) => {
             </Trans>
           </Desc>
           <ImageMobile imgSrc={Step5} imageName="Step earn" />
-        </Layout>
-      ),
-      orientationPreferences: [CardinalOrientation.SOUTH],
-    },
-    {
-      selector: TutorialIds.DISCOVER_LINK,
-      title: LIST_TITLE.DISCOVER,
-      stepNumber: stepNumber++,
-      description: (
-        <Layout title={LIST_TITLE.DISCOVER}>
-          <Desc>
-            <Trans>
-              Whether you&apos;re looking to identify new tokens to trade, or get <Highlight>alpha</Highlight> on a
-              specific token, KyberAI has it all! It provides trading insights on <Highlight>4000+ tokens</Highlight>{' '}
-              across <Highlight>7 blockchains!</Highlight>
-            </Trans>
-          </Desc>
-        </Layout>
-      ),
-      orientationPreferences: [CardinalOrientation.SOUTH, CardinalOrientation.SOUTHEAST],
-    },
-    {
-      selector: TutorialIds.CAMPAIGN_LINK,
-      title: LIST_TITLE.CAMPAIGN,
-      stepNumber: stepNumber++,
-      description: (
-        <Layout title={LIST_TITLE.CAMPAIGN}>
-          <Desc>
-            <Trans>Check out our latest trading campaigns and participate in them to earn rewards!</Trans>
-          </Desc>
-          <ImageMobile imgSrc={Menu} imageName="Menu" />
-          <ImageMobile imgSrc={CampaignLink} imageName="Step campaign" marginTop />
         </Layout>
       ),
       orientationPreferences: [CardinalOrientation.SOUTH],

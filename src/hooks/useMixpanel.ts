@@ -3,7 +3,7 @@ import { formatUnits, isAddress } from 'ethers/lib/utils'
 import mixpanel from 'mixpanel-browser'
 import { useCallback, useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { usePrevious } from 'react-use'
 
@@ -20,7 +20,7 @@ import {
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { AppDispatch, AppState } from 'state'
+import { AppDispatch } from 'state'
 import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
 import { RANGE } from 'state/mint/proamm/type'
 import { Field } from 'state/swap/actions'
@@ -128,10 +128,6 @@ export enum MIXPANEL_TYPE {
   DISCOVER_CLICK_SUBSCRIBE_TRENDING_SOON,
   DISCOVER_SUBSCRIBE_TRENDING_SOON_SUCCESS,
   DISCOVER_UNSUBSCRIBE_TRENDING_SOON_SUCCESS,
-  CAMPAIGN_ENTER_NOW_CLICKED,
-  CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED,
-  CAMPAIGN_CLAIM_REWARDS_CLICKED,
-  CAMPAIGN_WALLET_CONNECTED,
   TRANSAK_BUY_CRYPTO_CLICKED,
   TRANSAK_DOWNLOAD_WALLET_CLICKED,
   TRANSAK_SWAP_NOW_CLICKED,
@@ -314,7 +310,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
     outputCurrency && outputCurrency.isNative ? networkInfo.nativeToken.symbol : outputCurrency?.symbol
   const ethPrice = useETHPrice()
   const dispatch = useDispatch<AppDispatch>()
-  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const [allowedSlippage] = useUserSlippageTolerance()
   const { elasticClient, classicClient } = useKyberSwapConfig()
 
@@ -877,24 +872,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.FAUCET_REQUEST_COMPLETED: {
           mixpanel.track('Faucet feature - Request faucet Completed')
-          break
-        }
-        case MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED: {
-          mixpanel.track('Campaign - Enter Trading Contest "Enter Now"', payload)
-          break
-        }
-        case MIXPANEL_TYPE.CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED: {
-          mixpanel.track('Campaign - Share Trading Contest share button', payload)
-          break
-        }
-        case MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED: {
-          mixpanel.track('Campaign - Claim Rewards Trading Contest "Claim Rewards"')
-          break
-        }
-        case MIXPANEL_TYPE.CAMPAIGN_WALLET_CONNECTED: {
-          setTimeout(() => {
-            mixpanel?.track('Campaign - Wallet Connected', { campaign_name: selectedCampaign?.name })
-          }, 500)
           break
         }
         case MIXPANEL_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED: {
@@ -1752,7 +1729,6 @@ export const useGlobalMixpanelEvents = () => {
         remove: 'Remove Liquidity',
         about: 'About',
         discover: 'Discover',
-        campaigns: 'Campaign',
         'elastic/remove': 'Elastic - Remove Liquidity',
         'elastic/add': 'Elastic - Add Liquidity',
         'elastic/increase': 'Elastic - Increase Liquidity',

@@ -7,7 +7,6 @@ import Column from 'components/Column'
 import ApeIcon from 'components/Icons/ApeIcon'
 import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
-import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
@@ -83,7 +82,6 @@ const KyberAINavItem = () => {
   const { isWhiteList } = useIsWhiteListKyberAI()
   return (
     <KyberAIWrapper
-      id={TutorialIds.DISCOVER_LINK}
       isActive={isActive}
       anchor={
         <DropdownTextAnchor>

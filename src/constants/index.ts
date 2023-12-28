@@ -117,9 +117,6 @@ export const CREATE_POOL_AMP_HINT = () =>
 
 export const sentryRequestId = uuid()
 
-export const CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE = 10
-export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
-
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
@@ -139,7 +136,6 @@ export const APP_PATHS = {
   ABOUT: '/about',
   SWAP: '/swap',
   PARTNER_SWAP: '/partner-swap',
-  CAMPAIGN: '/campaigns',
   FIND_POOL: '/find',
   POOLS: '/pools',
   CLASSIC_CREATE_POOL: '/create',
@@ -163,7 +159,6 @@ export const APP_PATHS = {
   KYBERDAO_VOTE: '/kyberdao/vote',
   KYBERDAO_KNC_UTILITY: '/kyberdao/knc-utility',
   LIMIT: '/limit',
-  GRANT_PROGRAMS: '/inter-project-trading-campaigns',
   PROFILE_MANAGE: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',
   VERIFY_AUTH: '/auth',

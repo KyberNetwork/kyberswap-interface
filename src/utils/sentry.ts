@@ -10,7 +10,6 @@ import { friendlyError } from './errorMessage'
 export enum ErrorName {
   LimitOrderError = 'LimitOrderError',
   SwapError = 'SwapError',
-  ClaimCampaignError = 'ClaimCampaignError',
   GasRefundClaimError = 'GasRefundClaimError',
   RemoveElasticLiquidityError = 'RemoveElasticLiquidityError',
   RemoveClassicLiquidityError = 'RemoveClassicLiquidityError',

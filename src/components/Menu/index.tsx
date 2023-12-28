@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Award, BookOpen, ChevronDown, Edit, FileText, HelpCircle, Info, MessageCircle, PieChart } from 'react-feather'
+import { BookOpen, ChevronDown, Edit, FileText, HelpCircle, Info, MessageCircle, PieChart } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -232,7 +232,6 @@ export default function Menu() {
   const showBlog = useMedia(`(max-width: ${THRESHOLD_HEADER.BLOG})`)
   const showAnalytics = useMedia(`(max-width: ${THRESHOLD_HEADER.ANALYTIC})`)
   const showKyberDao = useMedia(`(max-width: ${THRESHOLD_HEADER.KYBERDAO})`)
-  const showCampaign = useMedia(`(max-width: ${THRESHOLD_HEADER.CAMPAIGNS})`)
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -352,31 +351,6 @@ export default function Menu() {
                 ]}
               />
             </KyberAIWrapper>
-
-            {showCampaign && (
-              <MenuItem>
-                <NavDropDown
-                  icon={<Award />}
-                  title={
-                    <Text>
-                      <Trans>Campaigns</Trans>
-                    </Text>
-                  }
-                  link={'#'}
-                  options={[
-                    { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
-                    {
-                      link: APP_PATHS.GRANT_PROGRAMS,
-                      label: (
-                        <Text as="span">
-                          <Trans>Trading Grant Campaign</Trans>
-                        </Text>
-                      ),
-                    },
-                  ]}
-                />
-              </MenuItem>
-            )}
 
             {showKyberDao && (
               <MenuItem>
