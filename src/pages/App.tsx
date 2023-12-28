@@ -68,8 +68,6 @@ const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
 const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
-const Campaign = lazy(() => import('pages/Campaign'))
-const GrantProgramPage = lazy(() => import('pages/GrantProgram'))
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
 const AppWrapper = styled.div`
@@ -349,8 +347,6 @@ export default function App() {
                   }
                 />
                 <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
-                <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
-                <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
                 {/* <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} /> */}
                 <Route
                   path={`${APP_PATHS.PROFILE_MANAGE}`}
@@ -376,8 +372,6 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
-                <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 
                 <Route path={`elastic-swap`} element={<ElasticSwap />} />
 

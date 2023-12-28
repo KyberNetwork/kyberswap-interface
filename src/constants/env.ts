@@ -28,7 +28,6 @@ export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const TYPE_AND_SWAP_URL = required('TYPE_AND_SWAP_URL')
 export const POOL_FARM_BASE_URL = required('POOL_FARM_BASE_URL')
 export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
-export const CAMPAIGN_BASE_URL = required('CAMPAIGN_BASE_URL')
 export const GTM_ID = import.meta.env.VITE_GTM_ID
 export const TAG = import.meta.env.VITE_TAG || 'localhost'
 export const ENV_LEVEL = !import.meta.env.VITE_TAG

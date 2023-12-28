@@ -4,7 +4,6 @@ import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
 import blockServiceApi from 'services/blockService'
-import campaignApi from 'services/campaign'
 import coingeckoApi from 'services/coingecko'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
@@ -31,7 +30,6 @@ import application from './application/reducer'
 import authen from './authen/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
-import campaigns from './campaigns/reducer'
 import crossChain from './crossChain/reducer'
 import customizeDexes from './customizeDexes'
 import farms from './farms/classic/reducer'
@@ -106,7 +104,6 @@ const store = configureStore({
     [limitOrderApi.reducerPath]: limitOrderApi.reducer,
     [externalApi.reducerPath]: externalApi.reducer,
 
-    [campaignApi.reducerPath]: campaignApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
     [coinmarketcapApi.reducerPath]: coinmarketcapApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
@@ -116,7 +113,6 @@ const store = configureStore({
     [crosschainApi.reducerPath]: crosschainApi.reducer,
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
-    campaigns,
     tutorial,
     myEarnings,
     crossChain,
@@ -143,7 +139,6 @@ const store = configureStore({
       .concat(limitOrderApi.middleware)
       .concat(kyberAIApi.middleware)
       .concat(coinmarketcapApi.middleware)
-      .concat(campaignApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
       .concat(aggregatorStatsApi.middleware)
       .concat(announcementApi.middleware)

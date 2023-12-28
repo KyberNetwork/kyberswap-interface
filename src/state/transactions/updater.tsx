@@ -5,11 +5,9 @@ import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { NotificationType } from 'components/Announcement/type'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
 import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
-import { useSetClaimingCampaignRewardId } from 'state/campaigns/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/user/actions'
 import { findTx } from 'utils'
@@ -55,7 +53,6 @@ export default function Updater(): null {
 
   const { mixpanelHandler, subgraphMixpanelHandler } = useMixpanel()
   const transactionNotify = useTransactionNotify()
-  const setClaimingCampaignRewardId = useSetClaimingCampaignRewardId()[1]
 
   useEffect(() => {
     if (!readProvider || !lastBlockNumber) return
@@ -179,12 +176,6 @@ export default function Updater(): null {
                       tx_hash: receipt.transactionHash,
                     })
                   }
-                  break
-                }
-                case TRANSACTION_TYPE.CLAIM_REWARD: {
-                  // claim campaign reward successfully
-                  // reset id claiming when finished
-                  if (window.location.pathname.startsWith(APP_PATHS.CAMPAIGN)) setClaimingCampaignRewardId(null)
                   break
                 }
                 case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER: {

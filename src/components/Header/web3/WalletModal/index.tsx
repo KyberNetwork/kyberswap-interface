@@ -12,7 +12,7 @@ import { ReactComponent as Close } from 'assets/images/x.svg'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import WalletPopup from 'components/WalletPopup'
-import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
+import { TERM_FILES_PATH } from 'constants/index'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo, WalletReadyState } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -153,12 +153,9 @@ export default function WalletModal() {
   // close on connection, when logged out before
   useEffect(() => {
     if (account && !previousAccount && walletModalOpen) {
-      if (location.pathname.startsWith(APP_PATHS.CAMPAIGN)) {
-        mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_WALLET_CONNECTED)
-      }
       toggleWalletModal()
     }
-  }, [account, previousAccount, toggleWalletModal, walletModalOpen, location.pathname, mixpanelHandler])
+  }, [account, previousAccount, toggleWalletModal, walletModalOpen, location.pathname])
 
   useEffect(() => {
     if (isWrongNetwork) {
