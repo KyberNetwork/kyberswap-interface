@@ -22,6 +22,7 @@ import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import ChooseGrantModal from './ChooseGrantModal'
 import poolsByCategoriesRaw from './category.json'
 import data from './data.json'
 
@@ -247,8 +248,12 @@ export default function ElasticSnapshot() {
       Exploit, but which have been recovered from such liquidity pools.
     </Trans>,
   ]
+
+  const [showOptionModal, setShowOptionsModal] = useState(false)
+
   return (
     <PoolsPageWrapper>
+      <ChooseGrantModal isOpen={showOptionModal} onDismiss={() => setShowOptionsModal(false)} />
       <Flex
         justifyContent="space-between"
         sx={{ gap: '1rem' }}
@@ -391,7 +396,12 @@ export default function ElasticSnapshot() {
                               >
                                 {loading ? 'Loading...' : 'KYC'}
                               </ButtonPrimary>
-                              <ButtonPrimary disabled={!isKyc} width="max-content" style={{ height: '36px' }}>
+                              <ButtonPrimary
+                                disabled={!isKyc}
+                                width="max-content"
+                                style={{ height: '36px' }}
+                                onClick={() => setShowOptionsModal(true)}
+                              >
                                 <Trans>Choose Grant Option</Trans>
                               </ButtonPrimary>
                             </Flex>
