@@ -9,14 +9,12 @@ import styled from 'styled-components'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import TokenWarningModal from 'components/TokenWarningModal'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LimitOrder from 'components/swapv2/LimitOrder'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
-import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import {
@@ -28,9 +26,9 @@ import {
   SwapFormWrapper,
   highlight,
 } from 'components/swapv2/styleds'
-import { APP_PATHS, TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
+import { useAllTokens } from 'hooks/Tokens'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
@@ -39,7 +37,6 @@ import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import Header from 'pages/SwapV3/Header'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import useTokenNotInDefault from 'pages/SwapV3/useTokenNotInDefault'
 import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
@@ -108,10 +105,6 @@ export default function Swap() {
 
   const { pathname } = useLocation()
 
-  const refSuggestPair = useRef<PairSuggestionHandle>(null)
-
-  const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
-
   const shouldHighlightSwapBox = qs.highlightBox === 'true'
 
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
@@ -140,34 +133,12 @@ export default function Swap() {
 
   // dismiss warning if all imported tokens are in active lists
   const defaultTokens = useAllTokens()
-  const importTokensNotInDefault = useTokenNotInDefault()
 
   const handleTypeInput = useCallback(
     (value: string) => {
       onUserInput(Field.INPUT, value)
     },
     [onUserInput],
-  )
-
-  // reset if they close warning without tokens in params
-  const handleDismissTokenWarning = useCallback(() => {
-    if (showingPairSuggestionImport) {
-      setShowingPairSuggestionImport(false)
-    }
-  }, [showingPairSuggestionImport])
-
-  const handleConfirmTokenWarning = useCallback(
-    (tokens: Currency[]) => {
-      handleDismissTokenWarning()
-      if (showingPairSuggestionImport) {
-        refSuggestPair.current?.onConfirmImportToken() // callback from children
-      }
-      if (isLimitPage) {
-        onSelectPairLimit(tokens[0], tokens[1])
-        setIsSelectCurrencyManually(true)
-      }
-    },
-    [isLimitPage, onSelectPairLimit, showingPairSuggestionImport, handleDismissTokenWarning],
   )
 
   const onSelectSuggestedPair = useCallback(
@@ -185,12 +156,7 @@ export default function Swap() {
     [handleTypeInput, onCurrencySelection, onSelectPairLimit, isLimitPage],
   )
 
-  const isLoadedTokenDefault = useIsLoadedTokenDefault()
-
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())
-
-  const isShowModalImportToken =
-    !isCrossChainPage && isLoadedTokenDefault && importTokensNotInDefault.length > 0 && showingPairSuggestionImport
 
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
@@ -200,24 +166,11 @@ export default function Swap() {
   return (
     <>
       {isSwapPage && <TutorialSwap />}
-      <TokenWarningModal
-        isOpen={isShowModalImportToken}
-        tokens={importTokensNotInDefault}
-        onConfirm={handleConfirmTokenWarning}
-      />
       <PageWrapper>
         <Banner />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <Header activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
-
-            {(isLimitPage || isSwapPage) && !TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS.includes(chainId) && (
-              <PairSuggestion
-                ref={refSuggestPair}
-                onSelectSuggestedPair={onSelectSuggestedPair}
-                setShowModalImportToken={setShowingPairSuggestionImport}
-              />
-            )}
 
             <AppBodyWrapped
               data-highlight={shouldHighlightSwapBox}
