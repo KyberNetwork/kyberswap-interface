@@ -125,6 +125,7 @@ const Option = ({
 
   const content = (
     <OptionCardClickable
+      role="button"
       id={`connect-${walletKey}`}
       data-testid={`connect-${walletKey}`}
       onClick={

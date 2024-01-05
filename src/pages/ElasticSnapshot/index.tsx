@@ -6,9 +6,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
+import { useGetUserSelectedOptionQuery, useLazyGetAccessTokensQuery } from 'services/commonService'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
+import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -18,7 +20,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { PoolsPageWrapper } from 'pages/Pools/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { ButtonText, ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -123,6 +125,7 @@ export default function ElasticSnapshot() {
   const theme = useTheme()
 
   const { library } = useWeb3React()
+  const [getAccessTokenQuery] = useLazyGetAccessTokensQuery()
 
   const provider: Provider | null = useMemo(
     () =>
@@ -130,22 +133,10 @@ export default function ElasticSnapshot() {
         ? {
             async getAccessToken() {
               // Request a new token from your backend service and return it to the widget
-              return fetch(`https://nest-api.zk.me/api/token/get`, {
-                method: 'POST',
-                body: JSON.stringify({
-                  apiKey: '18c08e03.b3f2d0f7ef423fca4401bfe2a08de4f4',
-                  appId: APP_ID,
-                  lv: 1,
-                  apiModePermission: 0,
-                }),
-                headers: {
-                  'Content-Type': 'application/json',
-                },
+              return getAccessTokenQuery().then(res => {
+                console.log('xxxx', res)
+                return res?.data?.data?.accessToken || ''
               })
-                .then(res => res.json())
-                .then(res => {
-                  return res?.data?.accessToken
-                })
             },
             async getUserAccounts() {
               return [account]
@@ -156,7 +147,7 @@ export default function ElasticSnapshot() {
             },
           }
         : null,
-    [library, account],
+    [library, account, getAccessTokenQuery],
   )
 
   const zkMe = useMemo(() => {
@@ -201,6 +192,16 @@ export default function ElasticSnapshot() {
     }
     fn()
   }, [zkMe, account])
+
+  const {
+    data: userSelectedData,
+    isLoading: loadingUserOption,
+    refetch,
+  } = useGetUserSelectedOptionQuery(account || '', {
+    skip: !account,
+  })
+
+  const userSelectedOption = userSelectedData?.data.option?.toUpperCase()
 
   const [selectedCategory, setSelectedCategory] = useState(0)
   const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
@@ -253,7 +254,14 @@ export default function ElasticSnapshot() {
 
   return (
     <PoolsPageWrapper>
-      <ChooseGrantModal isOpen={showOptionModal} onDismiss={() => setShowOptionsModal(false)} />
+      <ChooseGrantModal
+        isOpen={showOptionModal}
+        onDismiss={() => {
+          setShowOptionsModal(false)
+          if (!userSelectedOption) refetch()
+        }}
+        userSelectedOption={userSelectedOption}
+      />
       <Flex
         justifyContent="space-between"
         sx={{ gap: '1rem' }}
@@ -385,26 +393,45 @@ export default function ElasticSnapshot() {
                               {categoriesDesc[selectedCategory]}
                             </Text>
 
-                            <Flex alignItems="center" sx={{ gap: '1rem' }}>
-                              <ButtonPrimary
-                                width="max-content"
-                                disabled={isKyc}
-                                style={{ minWidth: '100px', height: '36px' }}
-                                onClick={() => {
-                                  zkMe?.launch()
-                                }}
-                              >
-                                {loading ? 'Loading...' : 'KYC'}
+                            {loading || loadingUserOption ? (
+                              <ButtonPrimary disabled style={{ minWidth: '100px', height: '36px' }} width="max-content">
+                                <Dots>
+                                  <Trans>Checking your information</Trans>
+                                </Dots>
                               </ButtonPrimary>
-                              <ButtonPrimary
-                                disabled={!isKyc}
-                                width="max-content"
-                                style={{ height: '36px' }}
-                                onClick={() => setShowOptionsModal(true)}
-                              >
-                                <Trans>Choose Grant Option</Trans>
-                              </ButtonPrimary>
-                            </Flex>
+                            ) : userSelectedOption ? (
+                              <Flex alignItems="center" sx={{ gap: '0.75rem' }}>
+                                <Text fontSize="14px" color={theme.text} fontWeight="500">
+                                  <Trans>You have selected option {userSelectedOption}</Trans>
+                                </Text>
+                                <ButtonText onClick={() => setShowOptionsModal(true)}>
+                                  <Text color={theme.primary} fontSize="12px" fontWeight="500">
+                                    View detail
+                                  </Text>
+                                </ButtonText>
+                              </Flex>
+                            ) : (
+                              <Flex alignItems="center" sx={{ gap: '1rem' }}>
+                                <ButtonPrimary
+                                  width="max-content"
+                                  disabled={isKyc}
+                                  style={{ minWidth: '100px', height: '36px' }}
+                                  onClick={() => {
+                                    zkMe?.launch()
+                                  }}
+                                >
+                                  KYC
+                                </ButtonPrimary>
+                                <ButtonPrimary
+                                  disabled={!isKyc}
+                                  width="max-content"
+                                  style={{ height: '36px' }}
+                                  onClick={() => setShowOptionsModal(true)}
+                                >
+                                  <Trans>Choose Grant Option</Trans>
+                                </ButtonPrimary>
+                              </Flex>
+                            )}
                           </Box>
 
                           <Box
