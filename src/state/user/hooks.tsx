@@ -1,7 +1,6 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useGetParticipantInfoQuery, useLazyGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
 import { INITIAL_ALLOWED_SLIPPAGE, TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
@@ -12,12 +11,9 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
-import useDebounce from 'hooks/useDebounce'
 import usePageLocation from 'hooks/usePageLocation'
-import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
-import { useIsConnectingWallet, useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
@@ -34,8 +30,6 @@ import {
   setCrossChainSetting,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
-  toggleKyberAIBanner,
-  toggleKyberAIWidget,
   toggleLiveChart,
   toggleMyEarningChart,
   toggleTopTrendingTokens,
@@ -381,14 +375,6 @@ export function useShowTradeRoutes(): boolean {
   return showTradeRoutes
 }
 
-export function useShowKyberAIBanner(): boolean {
-  return useSelector((state: AppState) => state.user.showKyberAIBanner) ?? true
-}
-
-export function useTokenAnalysisSettings(): { [k: string]: boolean } {
-  return useSelector((state: AppState) => state.user.kyberAIDisplaySettings) ?? null
-}
-
 export function useUpdateTokenAnalysisSettings(): (payload: string) => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback((payload: string) => dispatch(updateTokenAnalysisSettings(payload)), [dispatch])
@@ -402,11 +388,6 @@ export function useToggleLiveChart(): () => void {
 export function useToggleTradeRoutes(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
-}
-
-export function useToggleKyberAIBanner(): () => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(toggleKyberAIBanner()), [dispatch])
 }
 
 export function useToggleTopTrendingTokens(): () => void {
@@ -527,69 +508,6 @@ export const useSlippageSettingByPage = () => {
     isSlippageControlPinned,
     togglePinSlippage,
   }
-}
-
-const participantDefault = {
-  rankNo: 0,
-  status: ParticipantStatus.UNKNOWN,
-  referralCode: '',
-  id: 0,
-  updatedAt: 0,
-  createdAt: 0,
-}
-export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
-  const { userInfo } = useSessionInfo()
-  const { currentData } = useGetParticipantInfoQuery(undefined, {
-    skip: !userInfo,
-  })
-  return currentData || participantDefault
-}
-
-export const useIsWhiteListKyberAI = () => {
-  const { isLogin, pendingAuthentication, userInfo } = useSessionInfo()
-  const {
-    currentData: rawData,
-    isFetching,
-    isError,
-  } = useGetParticipantInfoQuery(undefined, {
-    skip: !userInfo || userInfo?.data?.hasAccessToKyberAI,
-  })
-
-  const [getParticipantInfoQuery] = useLazyGetParticipantInfoQuery()
-  // why not use refetch of useGetParticipantInfoQuery: loop api issues, idk.
-  const refetch = useCallback(() => {
-    userInfo && getParticipantInfoQuery()
-  }, [getParticipantInfoQuery, userInfo])
-
-  const [connectingWallet] = useIsConnectingWallet()
-
-  const isLoading = isFetching || pendingAuthentication
-  const loadingDebounced = useDebounce(isLoading, 500) || connectingWallet
-
-  const participantInfo = isError || loadingDebounced ? participantDefault : rawData
-
-  return {
-    loading: loadingDebounced,
-    isWhiteList:
-      isLogin && (participantInfo?.status === ParticipantStatus.WHITELISTED || userInfo?.data?.hasAccessToKyberAI),
-    isWaitList: isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
-    refetch,
-  }
-}
-
-export const useKyberAIWidget: () => [boolean, () => void] = () => {
-  const dispatch = useAppDispatch()
-  const kyberAIWidget = useAppSelector(state =>
-    state.user.kyberAIWidget === undefined ? true : state.user.kyberAIWidget,
-  )
-
-  const { isWhiteList } = useIsWhiteListKyberAI()
-
-  const toggle = useCallback(() => {
-    dispatch(toggleKyberAIWidget())
-  }, [dispatch])
-
-  return [kyberAIWidget && !!isWhiteList, toggle]
 }
 
 export const usePermitData: (

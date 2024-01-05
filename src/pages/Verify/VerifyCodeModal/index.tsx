@@ -14,7 +14,6 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { getErrorMessage } from 'pages/TrueSightV2/utils'
 import OTPInput from 'pages/Verify/VerifyCodeModal/OtpInput'
 import { useNotify } from 'state/application/hooks'
 import { useRefreshProfile } from 'state/profile/hooks'
@@ -186,7 +185,7 @@ export default function VerifyCodeModal({
       setError(ErrorType.VALIDATE_ERROR)
       notify({
         title: t`Error`,
-        summary: getErrorMsgFn?.(error) || getErrorMessage(error),
+        summary: getErrorMsgFn?.(error),
         type: NotificationType.ERROR,
       })
     } finally {

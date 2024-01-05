@@ -26,8 +26,6 @@ import {
   setCrossChainSetting,
   toggleFavoriteToken,
   toggleHolidayMode,
-  toggleKyberAIBanner,
-  toggleKyberAIWidget,
   toggleLiveChart,
   toggleMyEarningChart,
   toggleTradeRoutes,
@@ -36,7 +34,6 @@ import {
   updateChainId,
   updatePoolDegenMode,
   updatePoolSlippageTolerance,
-  updateTokenAnalysisSettings,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
@@ -92,10 +89,6 @@ export interface UserState {
   timestamp: number
   showLiveChart: boolean
   showTradeRoutes: boolean
-  showKyberAIBanner: boolean
-  kyberAIDisplaySettings: {
-    [k: string]: boolean
-  }
   favoriteTokensByChainId?: Partial<
     Record<
       ChainId,
@@ -131,7 +124,6 @@ export interface UserState {
   }
 
   isSlippageControlPinned: boolean
-  kyberAIWidget: boolean
 
   crossChain: CrossChainSetting
   myEarningChart: boolean
@@ -162,24 +154,6 @@ const initialState: UserState = {
   timestamp: currentTimestamp(),
   showLiveChart: true,
   showTradeRoutes: true,
-  showKyberAIBanner: true,
-  kyberAIDisplaySettings: {
-    numberOfTrades: true,
-    numberOfHolders: true,
-    tradingVolume: true,
-    netflowToWhaleWallets: true,
-    netflowToCEX: true,
-    volumeOfTransfers: true,
-    top10Holders: true,
-    top25Holders: true,
-    liveCharts: true,
-    supportResistanceLevels: true,
-    liveDEXTrades: true,
-    fundingRateOnCEX: true,
-    liquidationsOnCEX: true,
-    liquidityProfile: true,
-    markets: true,
-  },
   favoriteTokensByChainId: {},
   favoriteTokensByChainIdv2: {},
   chainId: ChainId.MAINNET,
@@ -188,7 +162,6 @@ const initialState: UserState = {
   holidayMode: true,
   permitData: {},
   isSlippageControlPinned: true,
-  kyberAIWidget: true,
   crossChain: CROSS_CHAIN_SETTING_DEFAULT,
   myEarningChart: true,
 }
@@ -302,9 +275,6 @@ export default createReducer(initialState, builder =>
       state.showTradeRoutes = !state.showTradeRoutes
     })
 
-    .addCase(toggleKyberAIBanner, state => {
-      state.showKyberAIBanner = !state.showKyberAIBanner
-    })
     .addCase(toggleFavoriteToken, (state, { payload: { chainId, address, newValue } }) => {
       if (!state.favoriteTokensByChainIdv2) {
         state.favoriteTokensByChainIdv2 = {}
@@ -325,12 +295,6 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateAcceptedTermVersion, (state, { payload: acceptedTermVersion }) => {
       state.acceptedTermVersion = acceptedTermVersion
-    })
-    .addCase(updateTokenAnalysisSettings, (state, { payload }) => {
-      if (!state.kyberAIDisplaySettings) {
-        state.kyberAIDisplaySettings = {}
-      }
-      state.kyberAIDisplaySettings[payload] = !state.kyberAIDisplaySettings[payload] ?? false
     })
     .addCase(changeViewMode, (state, { payload: viewType }) => {
       state.viewMode = viewType
@@ -377,9 +341,6 @@ export default createReducer(initialState, builder =>
     .addCase(setCrossChainSetting, (state, { payload }) => {
       const setting = state.crossChain || CROSS_CHAIN_SETTING_DEFAULT
       state.crossChain = { ...setting, ...payload }
-    })
-    .addCase(toggleKyberAIWidget, state => {
-      state.kyberAIWidget = !state.kyberAIWidget
     })
     .addCase(toggleMyEarningChart, state => {
       state.myEarningChart = !state.myEarningChart

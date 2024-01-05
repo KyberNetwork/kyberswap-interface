@@ -119,24 +119,8 @@ export function useToggleTransactionSettingsMenu(): () => void {
   return useToggleModal(ApplicationModal.TRANSACTION_SETTINGS)
 }
 
-export function useToggleYourCampaignTransactionsModal(): () => void {
-  return useToggleModal(ApplicationModal.YOUR_CAMPAIGN_TRANSACTIONS)
-}
-
 export function usePoolDetailModalToggle(): () => void {
   return useToggleModal(ApplicationModal.POOL_DETAIL)
-}
-
-export function useSelectCampaignModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.SELECT_CAMPAIGN)
-}
-
-export function useRegisterCampaignCaptchaModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.REGISTER_CAMPAIGN_CAPTCHA)
-}
-
-export function useRegisterCampaignSuccessModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.REGISTER_CAMPAIGN_SUCCESS)
 }
 
 type AddPopupPayload = {

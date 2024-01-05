@@ -6,7 +6,6 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import Announcement from 'components/Announcement'
-import CampaignNavGroup from 'components/Header/groups/CampaignNavGroup'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import SignWallet from 'components/Header/web3/SignWallet'
@@ -20,7 +19,6 @@ import useTheme from 'hooks/useTheme'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
-import KyberAINavItem from './KyberAINavItem'
 import AboutNavGroup from './groups/AboutNavGroup'
 import AnalyticNavGroup from './groups/AnalyticNavGroup'
 import EarnNavGroup from './groups/EarnNavGroup'
@@ -221,8 +219,6 @@ export default function Header() {
           <HeaderLinks>
             <SwapNavGroup />
             <EarnNavGroup />
-            <KyberAINavItem />
-            <CampaignNavGroup />
             <KyberDAONavGroup />
             <AnalyticNavGroup />
             <AboutNavGroup />

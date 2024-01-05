@@ -34,13 +34,6 @@ export default function useSessionExpiredGlobal() {
           signInAnonymous(KyberOauth2.getConnectedAnonymousAccounts()[0])
         },
       }
-      const isKyberAIPage =
-        pathname.toLowerCase().startsWith(APP_PATHS.KYBERAI.toLowerCase()) &&
-        pathname.toLowerCase() !== APP_PATHS.KYBERAI_ABOUT.toLowerCase()
-
-      if (isKyberAIPage && accountId === signedAccount) {
-        delete data.cancelText
-      }
 
       const isIAMPages = [APP_PATHS.IAM_CONSENT, APP_PATHS.IAM_LOGIN, APP_PATHS.IAM_LOGOUT].includes(pathname)
       if (!isIAMPages) showConfirm(data)

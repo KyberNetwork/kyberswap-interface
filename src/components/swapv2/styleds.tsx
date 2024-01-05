@@ -219,16 +219,6 @@ export const InfoComponentsWrapper = styled.div`
   `};
 `
 
-export const KyberAIBannerWrapper = styled.div`
-  width: 100%;
-  max-height: 84px;
-  margin-bottom: 16px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    max-height: 132px;
-  `}
-`
-
 export const LiveChartWrapper = styled.div`
   width: 100%;
   height: 510px;

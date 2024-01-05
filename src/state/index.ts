@@ -4,7 +4,6 @@ import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
 import blockServiceApi from 'services/blockService'
-import campaignApi from 'services/campaign'
 import coingeckoApi from 'services/coingecko'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
@@ -14,7 +13,6 @@ import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
 import knProtocolApi from 'services/knprotocol'
 import ksSettingApi from 'services/ksSetting'
-import kyberAISubscriptionApi from 'services/kyberAISubscription'
 import kyberDAO from 'services/kyberDAO'
 import limitOrderApi from 'services/limitOrder'
 import priceAlertApi from 'services/priceAlert'
@@ -24,14 +22,11 @@ import tokenApi from 'services/token'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
-import coinmarketcapApi from 'pages/TrueSightV2/hooks/useCoinmarketcapData'
-import kyberAIApi from 'pages/TrueSightV2/hooks/useKyberAIData'
 
 import application from './application/reducer'
 import authen from './authen/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
-import campaigns from './campaigns/reducer'
 import crossChain from './crossChain/reducer'
 import customizeDexes from './customizeDexes'
 import farms from './farms/classic/reducer'
@@ -106,17 +101,12 @@ const store = configureStore({
     [limitOrderApi.reducerPath]: limitOrderApi.reducer,
     [externalApi.reducerPath]: externalApi.reducer,
 
-    [campaignApi.reducerPath]: campaignApi.reducer,
-    [kyberAIApi.reducerPath]: kyberAIApi.reducer,
-    [coinmarketcapApi.reducerPath]: coinmarketcapApi.reducer,
-    [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
     [kyberDAO.reducerPath]: kyberDAO.reducer,
     [identifyApi.reducerPath]: identifyApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
     [crosschainApi.reducerPath]: crosschainApi.reducer,
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
-    campaigns,
     tutorial,
     myEarnings,
     crossChain,
@@ -141,10 +131,6 @@ const store = configureStore({
       .concat(externalApi.middleware)
       .concat(contractQuery.middleware)
       .concat(limitOrderApi.middleware)
-      .concat(kyberAIApi.middleware)
-      .concat(coinmarketcapApi.middleware)
-      .concat(campaignApi.middleware)
-      .concat(kyberAISubscriptionApi.middleware)
       .concat(aggregatorStatsApi.middleware)
       .concat(announcementApi.middleware)
       .concat(publicAnnouncementApi.middleware)

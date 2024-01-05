@@ -117,9 +117,6 @@ export const CREATE_POOL_AMP_HINT = () =>
 
 export const sentryRequestId = uuid()
 
-export const CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE = 10
-export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
-
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
@@ -139,7 +136,6 @@ export const APP_PATHS = {
   ABOUT: '/about',
   SWAP: '/swap',
   PARTNER_SWAP: '/partner-swap',
-  CAMPAIGN: '/campaigns',
   FIND_POOL: '/find',
   POOLS: '/pools',
   CLASSIC_CREATE_POOL: '/create',
@@ -151,10 +147,6 @@ export const APP_PATHS = {
   FARMS: '/farms',
   MY_POOLS: '/myPools',
   DISCOVER: '/discover',
-  KYBERAI: '/KyberAI',
-  KYBERAI_ABOUT: '/KyberAI/About',
-  KYBERAI_RANKINGS: '/KyberAI/Rankings',
-  KYBERAI_EXPLORE: '/KyberAI/Explore',
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
   CROSS_CHAIN: '/cross-chain',
@@ -163,7 +155,6 @@ export const APP_PATHS = {
   KYBERDAO_VOTE: '/kyberdao/vote',
   KYBERDAO_KNC_UTILITY: '/kyberdao/knc-utility',
   LIMIT: '/limit',
-  GRANT_PROGRAMS: '/inter-project-trading-campaigns',
   PROFILE_MANAGE: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',
   VERIFY_AUTH: '/auth',
@@ -229,13 +220,6 @@ export const RTK_QUERY_TAGS = {
   GET_CROSS_CHAIN_HISTORY: 'GET_CROSS_CHAIN_HISTORY',
   GET_BRIDGE_HISTORY: 'GET_BRIDGE_HISTORY',
 
-  // kyber ai
-  GET_PARTICIPANT_INFO_KYBER_AI: 'GET_PARTICIPANT_INFO_KYBER_AI',
-  GET_WATCHLIST_TOKENS_KYBER_AI: 'GET_WATCHLIST_TOKENS_KYBER_AI',
-  GET_WATCHLIST_INFO_KYBER_AI: 'GET_WATCHLIST_INFO_KYBER_AI',
-  GET_TOKEN_OVERVIEW_KYBER_AI: 'GET_TOKEN_OVERVIEW_KYBER_AI',
-  GET_TOKEN_LIST_KYBER_AI: 'GET_TOKEN_LIST_KYBER_AI',
-
   // limit order
   GET_LIST_ORDERS: 'GET_LIST_ORDERS',
 
@@ -266,14 +250,6 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.SCROLL,
       ]
     : SUPPORTED_NETWORKS
-
-export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [
-  ChainId.ZKSYNC,
-  ChainId.LINEA,
-  ChainId.ZKEVM,
-  ChainId.BASE,
-  ChainId.SCROLL,
-]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 

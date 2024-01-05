@@ -1,8 +1,9 @@
 import { ReactNode } from 'react'
 import styled from 'styled-components'
 
-import backgroundImage from 'assets/images/truesight-v2/landing-page/background-gradient.png'
 import Loader from 'components/Loader'
+
+import backgroundImage from './background-gradient.png'
 
 export const Container = styled.div`
   flex: 1;

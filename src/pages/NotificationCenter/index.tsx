@@ -138,14 +138,6 @@ function NotificationCenter({ redirectRoute }: { redirectRoute?: PROFILE_MANAGE_
               path={PROFILE_MANAGE_ROUTES.CROSS_CHAIN}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.CROSS_CHAIN} />}
             />
-            <Route
-              path={PROFILE_MANAGE_ROUTES.KYBER_AI_TOKENS}
-              element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI} />}
-            />
-            <Route
-              path={PROFILE_MANAGE_ROUTES.KYBER_AI_WATCH_LIST}
-              element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI_WATCHLIST} />}
-            />
             <Route path={PROFILE_MANAGE_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 
             <Route
