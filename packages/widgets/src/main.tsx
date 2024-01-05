@@ -101,6 +101,7 @@ const App = () => {
   // chargeFeeBy: "currency_in",
   // feeReceiver: "0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9",
   // }}
+  //
 
   return (
     <div className="App">
@@ -122,6 +123,10 @@ const App = () => {
         }}
         onDestinationTokenChange={token => {
           console.log('onDestinationTokenChange', token)
+        }}
+        defaultAmountIn="2"
+        onAmountInChange={v => {
+          console.log('onAmountInChange', v)
         }}
         enableRoute
         theme={{

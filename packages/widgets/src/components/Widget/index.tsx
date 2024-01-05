@@ -120,6 +120,23 @@ const PoweredBy = styled.div`
   margin-top: 1rem;
 `
 
+const Footer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  a {
+    color: ${({ theme }) => theme.subText};
+    font-size: 12px;
+    margin-top: 1rem;
+    text-decoration: none;
+
+    :hover {
+      color: ${({ theme }) => theme.text};
+    }
+  }
+`
+
 enum ModalType {
   SETTING = 'setting',
   CURRENCY_IN = 'currency_in',
@@ -148,11 +165,13 @@ export interface WidgetProps {
   defaultTokenIn?: string
   defaultTokenOut?: string
   defaultSlippage?: number
+  defaultAmountIn?: string
   feeSetting?: FeeSetting
   onTxSubmit?: (txHash: string, data: any) => void
   enableDexes?: string
   title?: string | ReactNode
   onSourceTokenChange?: (token: TokenInfo) => void
+  onAmountInChange?: (amount: string) => void
   onDestinationTokenChange?: (token: TokenInfo) => void
   onError?: (e: any) => void
 }
@@ -161,6 +180,7 @@ const Widget = ({
   defaultTokenIn,
   defaultTokenOut,
   defaultSlippage,
+  defaultAmountIn,
   feeSetting,
   client,
   onTxSubmit,
@@ -168,11 +188,13 @@ const Widget = ({
   enableDexes,
   title,
   onSourceTokenChange,
+  onAmountInChange,
   onDestinationTokenChange,
   onError,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
+  defaultAmountIn?: string
   feeSetting?: FeeSetting
   client: string
   onTxSubmit?: (txHash: string, data: any) => void
@@ -181,6 +203,7 @@ const Widget = ({
   title?: string | ReactNode
   defaultSlippage?: number
   onSourceTokenChange?: (token: any) => void
+  onAmountInChange?: (value: string) => void
   onDestinationTokenChange?: (token: any) => void
   onError?: (e: any) => void
 }) => {
@@ -213,6 +236,7 @@ const Widget = ({
   } = useSwap({
     defaultTokenIn,
     defaultTokenOut,
+    defaultAmountIn,
     defaultSlippage,
     feeSetting,
     enableDexes,
@@ -450,6 +474,7 @@ const Widget = ({
               if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
                 setInputAmount(value)
               }
+              onAmountInChange?.(value)
             }}
             inputMode="decimal"
             autoComplete="off"
@@ -665,10 +690,16 @@ const Widget = ({
         )}
       </Button>
 
-      <PoweredBy>
-        Powered By
-        <KyberSwapLogo />
-      </PoweredBy>
+      <Footer>
+        <PoweredBy>
+          Powered By
+          <KyberSwapLogo />
+        </PoweredBy>
+
+        <a href="https://support.kyberswap.com/hc/en-us/requests/new" target="_blank" rel="noopener noreferrer">
+          Support
+        </a>
+      </Footer>
     </Wrapper>
   )
 }
@@ -679,6 +710,7 @@ export default function SwapWidget({
   theme,
   defaultTokenIn,
   defaultTokenOut,
+  defaultAmountIn,
   defaultSlippage,
   feeSetting,
   client,
@@ -687,6 +719,7 @@ export default function SwapWidget({
   enableDexes,
   title,
   onSourceTokenChange,
+  onAmountInChange,
   onDestinationTokenChange,
   onError,
 }: WidgetProps) {
@@ -697,12 +730,14 @@ export default function SwapWidget({
           <TokenListProvider tokenList={tokenList}>
             <Widget
               defaultTokenIn={defaultTokenIn}
+              defaultAmountIn={defaultAmountIn}
               defaultTokenOut={defaultTokenOut}
               defaultSlippage={defaultSlippage}
               feeSetting={feeSetting}
               client={client}
               onTxSubmit={onTxSubmit}
               onSourceTokenChange={onSourceTokenChange}
+              onAmountInChange={onAmountInChange}
               onDestinationTokenChange={onDestinationTokenChange}
               onError={onError}
               enableRoute={enableRoute}

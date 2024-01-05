@@ -127,6 +127,7 @@ export const useDexes = (enableDexes?: string) => {
 const useSwap = ({
   defaultTokenIn,
   defaultTokenOut,
+  defaultAmountIn,
   defaultSlippage,
   feeSetting,
   enableDexes,
@@ -134,6 +135,7 @@ const useSwap = ({
   defaultTokenIn?: string
   defaultTokenOut?: string
   defaultSlippage?: number
+  defaultAmountIn?: string
   feeSetting?: {
     chargeFeeBy: 'currency_in' | 'currency_out'
     feeAmount: number
@@ -169,7 +171,7 @@ const useSwap = ({
   const { balances } = useTokenBalances(tokens.map(item => item.address))
   const [allDexes, dexes, excludedDexes, setExcludedDexes] = useDexes(enableDexes)
 
-  const [inputAmout, setInputAmount] = useState('1')
+  const [inputAmout, setInputAmount] = useState(defaultAmountIn || '1')
   const debouncedInput = useDebounce(inputAmout)
 
   const [loading, setLoading] = useState(false)
