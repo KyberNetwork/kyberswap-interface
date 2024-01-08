@@ -18,6 +18,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { PoolsPageWrapper } from 'pages/Pools/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { ButtonText, ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -121,7 +122,7 @@ interface Position {
 const APP_ID = 'M2023122583510932543540072365652'
 
 export default function ElasticSnapshot() {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   // Hardcode for QA wallet
   const qas = [
@@ -154,7 +155,7 @@ export default function ElasticSnapshot() {
 
   const provider: Provider | null = useMemo(
     () =>
-      library && account
+      library && account && chainId === ChainId.MATIC
         ? {
             async getAccessToken() {
               // Request a new token from your backend service and return it to the widget
@@ -171,7 +172,7 @@ export default function ElasticSnapshot() {
             },
           }
         : null,
-    [library, account, getAccessTokenQuery],
+    [library, account, getAccessTokenQuery, chainId],
   )
 
   const zkMe = useMemo(() => {
@@ -184,7 +185,6 @@ export default function ElasticSnapshot() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       zkMe.on('finished', async (verifiedAddress: string, kycResults: KycResults) => {
-        console.log('xxx')
         // We recommend that you double-check this by calling the functions mentioned in the "Helper functions" section.
         if (kycResults === 'matching' && verifiedAddress.toLowerCase() === account.toLowerCase()) {
           const results = await verifyKYCWithZkMeServices(APP_ID, account)
@@ -196,6 +196,12 @@ export default function ElasticSnapshot() {
       })
     }
   }, [zkMe, account])
+
+  useEffect(() => {
+    if (zkMe && chainId !== ChainId.MATIC) {
+      zkMe.destroy()
+    }
+  }, [chainId, zkMe])
 
   const [isKyc, setIsKyc] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -282,6 +288,8 @@ export default function ElasticSnapshot() {
   ]
 
   const [showOptionModal, setShowOptionsModal] = useState(false)
+
+  const { changeNetwork } = useChangeNetwork()
 
   return (
     <PoolsPageWrapper>
@@ -424,7 +432,16 @@ export default function ElasticSnapshot() {
                               {categoriesDesc[selectedCategory]}
                             </Text>
 
-                            {loading || loadingUserOption ? (
+                            {selectedCategory !== 2 && (
+                              <Text fontSize={14} fontWeight="500" marginY="1rem">
+                                <Trans>
+                                  Before you can claim your assets, you have to verify your identity through our third
+                                  party service provider, zkMe.
+                                </Trans>
+                              </Text>
+                            )}
+
+                            {selectedCategory === 2 ? null : loading || loadingUserOption ? (
                               <ButtonPrimary disabled style={{ minWidth: '100px', height: '36px' }} width="max-content">
                                 <Dots>
                                   <Trans>Checking your information</Trans>
@@ -443,9 +460,21 @@ export default function ElasticSnapshot() {
                               </Flex>
                             ) : (
                               <Flex alignItems="center" sx={{ gap: '1rem' }}>
+                                {chainId !== ChainId.MATIC && (
+                                  <ButtonPrimary
+                                    width="max-content"
+                                    style={{ minWidth: '100px', height: '36px' }}
+                                    onClick={() => {
+                                      changeNetwork(ChainId.MATIC)
+                                    }}
+                                  >
+                                    <Trans>Switch to Polygon</Trans>
+                                  </ButtonPrimary>
+                                )}
+
                                 <ButtonPrimary
                                   width="max-content"
-                                  disabled={isKyc}
+                                  disabled={isKyc || chainId !== ChainId.MATIC}
                                   style={{ minWidth: '100px', height: '36px' }}
                                   onClick={() => {
                                     zkMe?.launch()

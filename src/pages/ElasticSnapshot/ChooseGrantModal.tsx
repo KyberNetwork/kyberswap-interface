@@ -103,12 +103,12 @@ export default function ChooseGrantModal({
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="480px" width="100%">
-      <Flex flexDirection="column" padding="20px" bg={theme.background} width="100%">
+      <Flex flexDirection="column" padding="20px" bg={theme.background} width="100%" lineHeight={1.5}>
         <Text color={theme.text} fontSize="20px" fontWeight="500" textAlign="center">
           <Trans>Treasury Grant Options</Trans>
         </Text>
 
-        <Text fontSize="12px" marginTop="24px" color={theme.subText} lineHeight="16px">
+        <Text fontSize="12px" marginTop="24px" color={theme.subText} textAlign="justify">
           <Trans>
             KyberSwap Elastic Exploit Treasury Grant Program (“Program”) will support Affected Users who have lost
             Affected Assets to the KyberSwap Elastic Exploit. Under the Program, an Affected User who fulfils
@@ -128,7 +128,7 @@ export default function ChooseGrantModal({
                 role="button"
               >
                 <Opt active={selectedOption === opt}>{opt}</Opt>
-                <Text flex={1} fontSize="12px" lineHeight="16px">
+                <Text flex={1} fontSize="12px">
                   {options[opt]}
                 </Text>
               </Option>
