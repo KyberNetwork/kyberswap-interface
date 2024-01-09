@@ -225,4 +225,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
     }
   }
 
+  .zkme-widget-mask {
+    position: fixed;
+  }
 `
