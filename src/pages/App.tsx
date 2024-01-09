@@ -46,6 +46,7 @@ const Pools = lazy(() => import('./Pools'))
 const MyPool = lazy(() => import('./MyPool'))
 
 const Farm = lazy(() => import('./Farm'))
+console.log('11222')
 
 const PoolFinder = lazy(() => import('./PoolFinder'))
 const ElasticRemoveLiquidity = lazy(() => import('pages/RemoveLiquidityProAmm'))
