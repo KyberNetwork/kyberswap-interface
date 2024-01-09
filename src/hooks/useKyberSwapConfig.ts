@@ -60,7 +60,7 @@ const parseGlobalResponse = (
   return {
     chainStates: data?.chainStates || ({} as ChainStateMap),
     aggregatorDomain,
-    aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
+    aggregatorAPI: 'https://aggregator-api.stg.kyberengineering.io',
     isEnableAuthenAggregator,
   }
 }
