@@ -8,10 +8,13 @@ import styled from 'styled-components'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
+import { TermAndCondition } from 'components/Header/web3/WalletModal'
 import Modal from 'components/Modal'
+import { TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useNotify } from 'state/application/hooks'
+import { ExternalLink } from 'theme'
 
 const Option = styled.div<{ disabled: boolean; active: boolean }>`
   border: 1px solid ${({ theme, active }) => (active ? theme.primary : theme.border)};
@@ -64,7 +67,17 @@ export default function ChooseGrantModal({
   const notify = useNotify()
 
   const signMessage = () => {
-    const message = `I choose option ${selectedOption}`
+    const message = (() => {
+      switch (selectedOption) {
+        case 'A':
+          return 'I confirm choosing Option A - USD stablecoins equivalent of 60% of Reference Value of Affected Assets associated with such Affected Address, vested over 3 months.'
+        case 'B':
+          return 'I confirm choosing Option B - USD stablecoins equivalent of 100% of Reference Value of Affected Assets associated with such Affected Address, vested over 12 months.'
+        case 'C':
+        default:
+          return 'I confirm choosing Option C - Opt out'
+      }
+    })()
     setLoading(true)
     library
       ?.getSigner()
@@ -100,6 +113,8 @@ export default function ChooseGrantModal({
       })
       .finally(() => setLoading(false))
   }
+
+  const [isAcceptTerm, setIsAcceptTerm] = useState(false)
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="480px" width="100%">
@@ -153,14 +168,34 @@ export default function ChooseGrantModal({
             </ButtonOutlined>
           </Flex>
         ) : (
-          <Flex marginTop="24px" sx={{ gap: '1rem' }}>
-            <ButtonOutlined onClick={onDismiss}>
-              <Trans>Rethink</Trans>
-            </ButtonOutlined>
-            <ButtonPrimary onClick={signMessage} disabled={!selectedOption || loading}>
-              {loading ? <Dots>Signing</Dots> : <Trans>Sign with your wallet</Trans>}
-            </ButtonPrimary>
-          </Flex>
+          <>
+            <TermAndCondition onClick={() => setIsAcceptTerm(prev => !prev)} style={{ marginTop: '24px' }}>
+              <input
+                type="checkbox"
+                checked={isAcceptTerm}
+                data-testid="accept-term"
+                style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
+              />
+              <Text color={theme.subText}>
+                <Trans>Accept </Trans>{' '}
+                <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+                  <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
+                </ExternalLink>{' '}
+                <Trans>and</Trans>{' '}
+                <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                  <Trans>Privacy Policy</Trans>
+                </ExternalLink>
+              </Text>
+            </TermAndCondition>
+            <Flex marginTop="16px" sx={{ gap: '1rem' }}>
+              <ButtonOutlined onClick={onDismiss}>
+                <Trans>Rethink</Trans>
+              </ButtonOutlined>
+              <ButtonPrimary onClick={signMessage} disabled={!selectedOption || loading || !isAcceptTerm}>
+                {loading ? <Dots>Signing</Dots> : <Trans>Sign with your wallet</Trans>}
+              </ButtonPrimary>
+            </Flex>
+          </>
         )}
       </Flex>
     </Modal>
