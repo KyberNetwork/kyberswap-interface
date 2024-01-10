@@ -6,9 +6,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import { useGetUserSelectedOptionQuery, useLazyGetAccessTokensQuery } from 'services/commonService'
+import {
+  useCreateOptionMutation,
+  useGetUserSelectedOptionQuery,
+  useLazyGetAccessTokensQuery,
+} from 'services/commonService'
 import styled from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -20,7 +25,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { PoolsPageWrapper } from 'pages/Pools/styleds'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { ButtonText, ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -291,6 +296,9 @@ export default function ElasticSnapshot() {
 
   const { changeNetwork } = useChangeNetwork()
 
+  const [createOption] = useCreateOptionMutation()
+  const notify = useNotify()
+
   return (
     <PoolsPageWrapper>
       <ChooseGrantModal
@@ -482,14 +490,58 @@ export default function ElasticSnapshot() {
                                 >
                                   KYC
                                 </ButtonPrimary>
-                                <ButtonPrimary
-                                  disabled={!isKyc}
-                                  width="max-content"
-                                  style={{ height: '36px' }}
-                                  onClick={() => setShowOptionsModal(true)}
-                                >
-                                  <Trans>Choose Grant Option</Trans>
-                                </ButtonPrimary>
+
+                                {isKyc ? (
+                                  <ButtonPrimary
+                                    width="max-content"
+                                    style={{ height: '36px' }}
+                                    onClick={() => setShowOptionsModal(true)}
+                                  >
+                                    <Trans>Choose Grant Option</Trans>
+                                  </ButtonPrimary>
+                                ) : (
+                                  <ButtonPrimary
+                                    width="max-content"
+                                    style={{ height: '36px' }}
+                                    onClick={() => {
+                                      const message = 'I confirm choosing Option C - Opt out.'
+                                      library
+                                        ?.getSigner()
+                                        .signMessage(message)
+                                        .then(async signature => {
+                                          if (signature && account) {
+                                            const res = await createOption({
+                                              walletAddress: account,
+                                              signature,
+                                              message,
+                                            })
+                                            if ((res as any)?.data?.code === 0) {
+                                              notify({
+                                                title: t`Choose option successfully`,
+                                                summary: t`You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program`,
+                                                type: NotificationType.SUCCESS,
+                                              })
+                                              refetch()
+                                            } else {
+                                              notify({
+                                                title: t`Error`,
+                                                summary: (res as any).error?.data?.message || t`Something went wrong`,
+                                                type: NotificationType.ERROR,
+                                              })
+                                            }
+                                          } else {
+                                            notify({
+                                              title: t`Error`,
+                                              summary: t`Something went wrong`,
+                                              type: NotificationType.ERROR,
+                                            })
+                                          }
+                                        })
+                                    }}
+                                  >
+                                    Opt out
+                                  </ButtonPrimary>
+                                )}
                               </Flex>
                             )}
                           </Box>

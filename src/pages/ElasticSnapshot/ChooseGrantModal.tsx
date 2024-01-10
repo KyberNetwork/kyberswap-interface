@@ -75,7 +75,7 @@ export default function ChooseGrantModal({
           return 'I confirm choosing Option B - USD stablecoins equivalent of 100% of Reference Value of Affected Assets associated with such Affected Address, vested over 12 months.'
         case 'C':
         default:
-          return 'I confirm choosing Option C - Opt out'
+          return 'I confirm choosing Option C - Opt out.'
       }
     })()
     setLoading(true)
@@ -92,7 +92,7 @@ export default function ChooseGrantModal({
           if ((res as any)?.data?.code === 0) {
             notify({
               title: t`Choose option successfully`,
-              summary: t`You have chosen option ${selectedOption} for yberSwap Elastic Exploit Treasury Grant Program`,
+              summary: t`You have chosen option ${selectedOption} for KyberSwap Elastic Exploit Treasury Grant Program`,
               type: NotificationType.SUCCESS,
             })
             onDismiss()
