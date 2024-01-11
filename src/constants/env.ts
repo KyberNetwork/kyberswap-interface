@@ -124,12 +124,12 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   },
   staging: {
     [PrivateAnnouncementType.PRICE_ALERT]: '30',
-    [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17',
+    [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17,31',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
     [PrivateAnnouncementType.CROSS_CHAIN]: '25,26',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
-    EXCLUDE: '2,11,1,28,29,22,23',
+    EXCLUDE: '2,11,1,28,29,22,23,27',
   },
   production: {
     [PrivateAnnouncementType.PRICE_ALERT]: '29',
