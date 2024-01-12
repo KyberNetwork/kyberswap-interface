@@ -24,10 +24,15 @@ function useApproval(amountToApproveString: string, token: string, spender: stri
   const approve = useCallback(() => {
     if (contract) {
       const MaxUint256: BigNumber = BigNumber.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
-      contract.approve(spender, MaxUint256).then((res: providers.TransactionResponse) => {
-        setApprovalState(APPROVAL_STATE.PENDING)
-        setPendingTx(res.hash)
-      })
+      contract
+        .approve(spender, MaxUint256)
+        .then((res: providers.TransactionResponse) => {
+          setApprovalState(APPROVAL_STATE.PENDING)
+          setPendingTx(res.hash)
+        })
+        .catch((err: any) => {
+          console.log('Approval error', err)
+        })
     }
   }, [contract, spender])
 
