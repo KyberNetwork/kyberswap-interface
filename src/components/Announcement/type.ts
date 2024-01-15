@@ -67,6 +67,7 @@ type PoolPositionAnnouncement = {
 export type AnnouncementTemplateLimitOrder = {
   order: LimitOrderAnnouncement
   popupType: PopupType
+  isReorg: boolean
 }
 export type AnnouncementTemplateCrossChain = { transaction: CrossChainTransfer; popupType: PopupType }
 export type AnnouncementTemplateBridge = { transaction: MultichainTransfer; popupType: PopupType }

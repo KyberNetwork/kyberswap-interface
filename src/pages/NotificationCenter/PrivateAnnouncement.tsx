@@ -46,7 +46,6 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
     isLoading: isLoadingAll,
   } = useGetPrivateAnnouncementsQuery({ page, pageSize: ITEMS_PER_PAGE }, { skip: !!templateIds })
 
-  console.log(type, respNotificationByType, dataAllNotification)
   const [ackAnnouncement] = useAckPrivateAnnouncementsByIdsMutation()
   const [clearAllAnnouncement] = useClearAllPrivateAnnouncementByIdMutation()
 

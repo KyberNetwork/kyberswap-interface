@@ -9,6 +9,7 @@ import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import Logo from 'components/Logo'
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { formatTime } from 'utils/time'
 
@@ -36,12 +37,17 @@ export default function AnnouncementItem({
     chainId: rawChainId,
     takerAssetLogoURL,
   } = templateBody?.order || {}
+  const isReorg = templateBody.isReorg
   const isFilled = status === LimitOrderStatus.FILLED
   const isPartialFilled = status === LimitOrderStatus.PARTIALLY_FILLED
   const chainId = rawChainId && rawChainId !== '{{.chainId}}' ? (Number(rawChainId) as ChainId) : undefined
   const theme = useTheme()
 
-  const statusMessage = isFilled ? (
+  const statusMessage = isReorg ? (
+    <Text as="span" color={theme.red}>
+      reverted ({filledPercent} filled)
+    </Text>
+  ) : isFilled ? (
     <Text as="span" color={theme.primary}>
       successfully filled
     </Text>
@@ -57,7 +63,7 @@ export default function AnnouncementItem({
 
   const navigate = useNavigate()
   return (
-    <Wrapper onClick={() => navigate(APP_PATHS.LIMIT)}>
+    <Wrapper onClick={() => navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId || ChainId.MAINNET].route}`)}>
       <Flex justifyContent="space-between" width="100%">
         <Title>
           <InboxIcon type={templateType} chainId={chainId} />
