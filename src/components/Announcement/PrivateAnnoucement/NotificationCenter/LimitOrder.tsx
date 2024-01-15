@@ -34,6 +34,7 @@ export default function AnnouncementItem({
     takingAmount,
     takingAmountRate,
     filledPercent,
+    increasedFilledPercent,
     chainId: rawChainId,
     takerAssetLogoURL,
   } = templateBody?.order || {}
@@ -45,7 +46,7 @@ export default function AnnouncementItem({
 
   const statusMessage = isReorg ? (
     <Text as="span" color={theme.red}>
-      reverted ({filledPercent} filled)
+      reverted ({increasedFilledPercent})
     </Text>
   ) : isFilled ? (
     <Text as="span" color={theme.primary}>
