@@ -21,9 +21,9 @@ import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import TreasuryGrantAndInstantClaim from './TreasuryGrantAndInstantClaim'
-import poolsByCategoriesRaw from './category.json'
-import data from './data.json'
+import TreasuryGrantAndInstantClaim from './components/TreasuryGrantAndInstantClaim'
+import poolsByCategoriesRaw from './data/category.json'
+import data from './data/data.json'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
@@ -142,6 +142,9 @@ export default function ElasticSnapshot() {
     '0x942b55261eb67a5ac328b7149a6e5167d13db29c',
     '0x7bde63e432c9bd0fae0819008ced3ebb40551576',
     '0x5119bd3ed9d724418f753a99d3e00d76f454e451',
+
+    // Lea
+    '0x5Bd29bD8a0c26b0193E8bba72866a22e4E0fCBc6',
   ]
 
   const theme = useTheme()

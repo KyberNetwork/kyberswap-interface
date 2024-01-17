@@ -26,9 +26,20 @@ export default function InstantClaim() {
         <Text fontSize="14px" fontWeight="500" color={theme.subText} lineHeight="20px">
           <Trans>Total Amount (USD)</Trans>
         </Text>
-        <Text fontWeight="500" fontSize={20}>
-          {format(10000000)}
-        </Text>
+        <Flex sx={{ gap: '1rem' }} alignItems="flex-end">
+          <Text fontWeight="500" fontSize={20}>
+            {format(10000000)}
+          </Text>
+          <Text
+            sx={{ fontSize: '14px', cursor: 'pointer' }}
+            fontWeight="500"
+            role="button"
+            color={theme.primary}
+            mb="2px"
+          >
+            <Trans>Details</Trans>
+          </Text>
+        </Flex>
       </Flex>
 
       <Text marginTop="1rem" fontSize={14} color={theme.subText} lineHeight={1.5}>
