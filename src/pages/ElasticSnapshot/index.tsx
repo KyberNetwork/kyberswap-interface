@@ -1,38 +1,31 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { type Provider, ZkMeWidget, verifyKYCWithZkMeServices } from '@zkmelabs/widget'
 import { rgba } from 'polished'
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import {
-  useCreateOptionMutation,
-  useGetUserSelectedOptionQuery,
-  useLazyGetAccessTokensQuery,
-} from 'services/commonService'
 import styled from 'styled-components'
 
-import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
-import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
-import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { PoolsPageWrapper } from 'pages/Pools/styleds'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { ButtonText, ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { useWalletModalToggle } from 'state/application/hooks'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import ChooseGrantModal from './ChooseGrantModal'
+import TreasuryGrantAndInstantClaim from './TreasuryGrantAndInstantClaim'
 import poolsByCategoriesRaw from './category.json'
 import data from './data.json'
+
+const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
 const StyledTabs = styled(Tabs)`
   border-top: 1px solid ${({ theme }) => theme.border};
@@ -124,10 +117,8 @@ interface Position {
   }
 }
 
-const APP_ID = 'M2023122583510932543540072365652'
-
 export default function ElasticSnapshot() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   // Hardcode for QA wallet
   const qas = [
@@ -155,93 +146,6 @@ export default function ElasticSnapshot() {
 
   const theme = useTheme()
 
-  const { library } = useWeb3React()
-  const [getAccessTokenQuery] = useLazyGetAccessTokensQuery()
-
-  const provider: Provider | null = useMemo(
-    () =>
-      library && account && chainId === ChainId.MATIC
-        ? {
-            async getAccessToken() {
-              // Request a new token from your backend service and return it to the widget
-              return getAccessTokenQuery().then(res => {
-                return res?.data?.data?.accessToken || ''
-              })
-            },
-            async getUserAccounts() {
-              return [account]
-            },
-            async delegateTransaction(tx) {
-              const txResponse = await library.getSigner().sendTransaction(tx as any)
-              return txResponse?.hash
-            },
-          }
-        : null,
-    [library, account, getAccessTokenQuery, chainId],
-  )
-
-  const zkMe = useMemo(() => {
-    return provider ? new ZkMeWidget(APP_ID, 'KyberSwap', '0x89', provider) : null
-  }, [provider])
-
-  useEffect(() => {
-    if (zkMe && account) {
-      type KycResults = 'matching' | 'mismatch'
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      zkMe.on('finished', async (verifiedAddress: string, kycResults: KycResults) => {
-        // We recommend that you double-check this by calling the functions mentioned in the "Helper functions" section.
-        if (kycResults === 'matching' && verifiedAddress.toLowerCase() === account.toLowerCase()) {
-          const results = await verifyKYCWithZkMeServices(APP_ID, account)
-          if (results) {
-            zkMe.destroy()
-            setIsKyc(true)
-          }
-        }
-      })
-    }
-  }, [zkMe, account])
-
-  useEffect(() => {
-    if (zkMe && chainId !== ChainId.MATIC) {
-      zkMe.destroy()
-    }
-  }, [chainId, zkMe])
-
-  const [isKyc, setIsKyc] = useState(false)
-  const [loading, setLoading] = useState(false)
-  useEffect(() => {
-    const fn = async () => {
-      if (zkMe && account) {
-        setLoading(true)
-        const results: boolean = await verifyKYCWithZkMeServices(
-          APP_ID, // This parameter means the same thing as "mchNo"
-          account,
-        )
-
-        if (results) {
-          setIsKyc(true)
-        } else {
-          setIsKyc(false)
-        }
-        setLoading(false)
-      }
-    }
-    fn()
-  }, [zkMe, account])
-
-  const {
-    data: userSelectedData,
-    isLoading: loadingUserOption,
-    refetch,
-  } = useGetUserSelectedOptionQuery(account || '', {
-    skip: !account,
-  })
-
-  const userSelectedOption = userSelectedData?.data.option?.toUpperCase()
-
-  const [selectedCategory, setSelectedCategory] = useState(0)
-
   const userInfo = data.find(
     item =>
       item.user_address.toLowerCase() ===
@@ -260,13 +164,13 @@ export default function ElasticSnapshot() {
 
     positionsByCategories.push(temp)
   })
+  const [selectedCategory, setSelectedCategory] = useState(0)
 
   const toggleWalletModal = useWalletModalToggle()
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
   const categoriesDesc = [
     <Trans key={0}>
       Affected Assets taken from Affected Pools by the primary KyberSwap Elastic Exploit (“Primary Exploit”) which
@@ -292,23 +196,8 @@ export default function ElasticSnapshot() {
     </Trans>,
   ]
 
-  const [showOptionModal, setShowOptionsModal] = useState(false)
-
-  const { changeNetwork } = useChangeNetwork()
-
-  const [createOption] = useCreateOptionMutation()
-  const notify = useNotify()
-
   return (
     <PoolsPageWrapper>
-      <ChooseGrantModal
-        isOpen={showOptionModal}
-        onDismiss={() => {
-          setShowOptionsModal(false)
-          if (!userSelectedOption) refetch()
-        }}
-        userSelectedOption={userSelectedOption}
-      />
       <Flex
         justifyContent="space-between"
         sx={{ gap: '1rem' }}
@@ -399,6 +288,8 @@ export default function ElasticSnapshot() {
         </Flex>
       </Flex>
 
+      {userInfo && <TreasuryGrantAndInstantClaim />}
+
       <Flex flexDirection="column" marginTop="1.5rem" marginX={upToSmall ? '-1rem' : 0}>
         <Wrapper>
           {account ? (
@@ -439,111 +330,6 @@ export default function ElasticSnapshot() {
                             <Text fontSize={14} fontWeight="500" marginY="1rem">
                               {categoriesDesc[selectedCategory]}
                             </Text>
-
-                            {selectedCategory !== 2 && (
-                              <Text fontSize={14} fontWeight="500" marginY="1rem">
-                                <Trans>
-                                  Before you can claim your assets, you have to verify your identity through our third
-                                  party service provider, zkMe.
-                                </Trans>
-                              </Text>
-                            )}
-
-                            {selectedCategory === 2 ? null : loading || loadingUserOption ? (
-                              <ButtonPrimary disabled style={{ minWidth: '100px', height: '36px' }} width="max-content">
-                                <Dots>
-                                  <Trans>Checking your information</Trans>
-                                </Dots>
-                              </ButtonPrimary>
-                            ) : userSelectedOption ? (
-                              <Flex alignItems="center" sx={{ gap: '0.75rem' }}>
-                                <Text fontSize="14px" color={theme.text} fontWeight="500">
-                                  <Trans>You have selected option {userSelectedOption}</Trans>
-                                </Text>
-                                <ButtonText onClick={() => setShowOptionsModal(true)}>
-                                  <Text color={theme.primary} fontSize="12px" fontWeight="500">
-                                    View detail
-                                  </Text>
-                                </ButtonText>
-                              </Flex>
-                            ) : (
-                              <Flex alignItems="center" sx={{ gap: '1rem' }}>
-                                {chainId !== ChainId.MATIC && (
-                                  <ButtonPrimary
-                                    width="max-content"
-                                    style={{ minWidth: '100px', height: '36px' }}
-                                    onClick={() => {
-                                      changeNetwork(ChainId.MATIC)
-                                    }}
-                                  >
-                                    <Trans>Switch to Polygon</Trans>
-                                  </ButtonPrimary>
-                                )}
-
-                                <ButtonPrimary
-                                  width="max-content"
-                                  disabled={isKyc || chainId !== ChainId.MATIC}
-                                  style={{ minWidth: '100px', height: '36px' }}
-                                  onClick={() => {
-                                    zkMe?.launch()
-                                  }}
-                                >
-                                  KYC
-                                </ButtonPrimary>
-
-                                {isKyc ? (
-                                  <ButtonPrimary
-                                    width="max-content"
-                                    style={{ height: '36px' }}
-                                    onClick={() => setShowOptionsModal(true)}
-                                  >
-                                    <Trans>Choose Grant Option</Trans>
-                                  </ButtonPrimary>
-                                ) : (
-                                  <ButtonPrimary
-                                    width="max-content"
-                                    style={{ height: '36px' }}
-                                    onClick={() => {
-                                      const message = 'I confirm choosing Option C - Opt out.'
-                                      library
-                                        ?.getSigner()
-                                        .signMessage(message)
-                                        .then(async signature => {
-                                          if (signature && account) {
-                                            const res = await createOption({
-                                              walletAddress: account,
-                                              signature,
-                                              message,
-                                            })
-                                            if ((res as any)?.data?.code === 0) {
-                                              notify({
-                                                title: t`Choose option successfully`,
-                                                summary: t`You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program`,
-                                                type: NotificationType.SUCCESS,
-                                              })
-                                              refetch()
-                                            } else {
-                                              notify({
-                                                title: t`Error`,
-                                                summary: (res as any).error?.data?.message || t`Something went wrong`,
-                                                type: NotificationType.ERROR,
-                                              })
-                                            }
-                                          } else {
-                                            notify({
-                                              title: t`Error`,
-                                              summary: t`Something went wrong`,
-                                              type: NotificationType.ERROR,
-                                            })
-                                          }
-                                        })
-                                    }}
-                                  >
-                                    Opt out
-                                  </ButtonPrimary>
-                                )}
-                              </Flex>
-                            )}
                           </Box>
 
                           <Box
