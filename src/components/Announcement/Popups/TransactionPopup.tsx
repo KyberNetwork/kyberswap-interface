@@ -188,6 +188,8 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: summary1Token,
   [TRANSACTION_TYPE.KYBERDAO_VOTE]: summaryTypeOnly,
   [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: summaryDelegateDao,
+
+  [TRANSACTION_TYPE.CLAIM]: () => 'Claimed',
 }
 
 const CUSTOM_SUCCESS_STATUS: { [key in string]: string } = {
