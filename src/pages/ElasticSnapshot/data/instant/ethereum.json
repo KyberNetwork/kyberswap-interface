@@ -1,0 +1,82 @@
+[
+  {
+    "receiver": "0x1b35fcb58f5e1e2a42ff8e66ddf5646966abf08c",
+    "tokenInfo": [
+      {
+        "token": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "amount": "911377999000000000",
+        "value": 0.69
+      }
+    ]
+  },
+  {
+    "receiver": "0x7459e3045eaa7dfebb7b75c81e840d90ce029511",
+    "tokenInfo": [
+      {
+        "token": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "amount": "267943776199999968",
+        "value": 0.2
+      }
+    ]
+  },
+  {
+    "receiver": "0x7f429edeff8afc7bb3a2cf7db832fc86f6fa99da",
+    "tokenInfo": [
+      {
+        "token": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "amount": "2182945838999999744",
+        "value": 1.65
+      }
+    ]
+  },
+  {
+    "receiver": "0x8180a5ca4e3b94045e05a9313777955f7518d757",
+    "tokenInfo": [
+      {
+        "token": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "amount": "759810250600000075595776",
+        "value": 573792.33
+      }
+    ]
+  },
+  {
+    "receiver": "0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d",
+    "tokenInfo": [
+      {
+        "token": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "amount": "2429345140000000000",
+        "value": 1.83
+      }
+    ]
+  },
+  {
+    "receiver": "0xa9274323dd8c230d357c5b101e3f040d021983a9",
+    "tokenInfo": [
+      {
+        "token": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "amount": "174778826900000014336",
+        "value": 131.99
+      }
+    ]
+  },
+  {
+    "receiver": "0xb2f93d6f4e67d96aa772aa19a2504755194ac609",
+    "tokenInfo": [
+      {
+        "token": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "amount": "31094011940000002048",
+        "value": 23.48
+      }
+    ]
+  },
+  {
+    "receiver": "0xfbd9275bf42f21b7cb857e6c00ffcb99443718b5",
+    "tokenInfo": [
+      {
+        "token": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "amount": "7024953529000000512",
+        "value": 5.31
+      }
+    ]
+  }
+]

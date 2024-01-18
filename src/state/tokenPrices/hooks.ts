@@ -188,9 +188,10 @@ export const useTokenPricesWithLoading = (
 
 export const useTokenPrices = (
   addresses: Array<string>,
+  chainId?: ChainId,
 ): {
   [address: string]: number
 } => {
-  const { data } = useTokenPricesWithLoading(addresses)
+  const { data } = useTokenPricesWithLoading(addresses, chainId)
   return data
 }

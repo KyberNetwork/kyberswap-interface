@@ -21,6 +21,7 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import vestingData from '../data/vesting.json'
 import ChooseGrantModal from './ChooseGrantModal'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
@@ -47,6 +48,7 @@ export default function SelectTreasuryGrant() {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const [showOptionModal, setShowOptionsModal] = useState(false)
+  const userData = vestingData.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
 
   const [createOption] = useCreateOptionMutation()
   const notify = useNotify()
@@ -171,7 +173,7 @@ export default function SelectTreasuryGrant() {
             <Trans>Total Amount (USD)</Trans>
           </Text>
           <Text fontWeight="500" fontSize={20}>
-            {format(10000000)}
+            {format(userData?.value || 0)}
           </Text>
         </Flex>
 
