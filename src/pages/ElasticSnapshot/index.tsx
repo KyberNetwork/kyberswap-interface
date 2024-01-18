@@ -145,6 +145,7 @@ export default function ElasticSnapshot() {
 
     // Lea
     '0x5Bd29bD8a0c26b0193E8bba72866a22e4E0fCBc6',
+    '0x1fA4fd75CF591c50911F69Ea36258b5162e76a47',
   ]
 
   const theme = useTheme()
