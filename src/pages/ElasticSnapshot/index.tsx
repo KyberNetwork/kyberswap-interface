@@ -121,41 +121,9 @@ interface Position {
 export default function ElasticSnapshot() {
   const { account } = useActiveWeb3React()
 
-  // Hardcode for QA wallet
-  const qas = [
-    '0x4cd3b617bd62c5c8500a9da5a2c1411faa0499bb',
-    '0xe378968037a86dc13cc47989b154292b28829a99',
-    '0xef09879057a9ad798438f3ba561bcdd293d72fc7',
-    '0x9d49033a19238f9fb6e8229eaa913c48b6758998',
-    '0x4e5dc6c15da31efe64fa16ffb94d2f66e85cf163',
-    '0x6b3a3d26d9271027715f8c80c9d2eee999e2ebaf',
-    '0x076567024aa84d766803ef0128dc7c58c13a6359',
-    '0xb14197360955df95b0a863a50a94fd8b5e8f3dbe',
-    '0x8d61ab7571b117644a52240456df66ef846cd999',
-    '0x31fa4117639788bcbd94aefdf886e75a1e31c8dd',
-    '0x8fa07f46353a2b17e92645592a94a0fc1ceb783f',
-    '0x35c560eb473cc3736d9b5a239cd647f68ca3fc4c',
-    '0xa927e627832308af08e592cdc5ea6194d59f5fa9',
-    '0x8c81c9a7911174aeb61982b2f407c95e754f6925',
-    '0x69aad5b7c3e39cbfc3b10326fb23e4362505cc2d',
-    '0xb2284c8e1f38612c0a4d9360278b4654c037bf0c',
-    '0x51bbfdc30b63a91646800954eadd158257746ac5',
-    '0x942b55261eb67a5ac328b7149a6e5167d13db29c',
-    '0x7bde63e432c9bd0fae0819008ced3ebb40551576',
-    '0x5119bd3ed9d724418f753a99d3e00d76f454e451',
-
-    // Lea
-    '0x5Bd29bD8a0c26b0193E8bba72866a22e4E0fCBc6',
-    '0x1fA4fd75CF591c50911F69Ea36258b5162e76a47',
-  ]
-
   const theme = useTheme()
 
-  const userInfo = data.find(
-    item =>
-      item.user_address.toLowerCase() ===
-      (qas.includes(account?.toLowerCase()) ? '0x4f2604aac91114ae3b3d0be485d407d02b24480b' : account?.toLowerCase()),
-  )
+  const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
 
   const categories = ['category 1', 'category 2', 'category 3', 'category 4', 'category 5']
 

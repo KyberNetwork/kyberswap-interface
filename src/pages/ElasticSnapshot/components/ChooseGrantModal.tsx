@@ -70,9 +70,9 @@ export default function ChooseGrantModal({
     const message = (() => {
       switch (selectedOption) {
         case 'A':
-          return 'I confirm choosing Option A - USD stablecoins equivalent of 60% of Reference Value of Affected Assets associated with such Affected Address, vested over 3 months.'
+          return 'I confirm choosing Option A - USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months.'
         case 'B':
-          return 'I confirm choosing Option B - USD stablecoins equivalent of 100% of Reference Value of Affected Assets associated with such Affected Address, vested over 12 months.'
+          return 'I confirm choosing Option B - USD stablecoins equivalent to 100% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 12 months.'
         case 'C':
         default:
           return 'I confirm choosing Option C - Opt out.'
