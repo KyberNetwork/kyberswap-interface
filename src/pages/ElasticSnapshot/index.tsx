@@ -111,9 +111,10 @@ interface Position {
   info: {
     pool: string
     chain: string
-    pair: string
-    token0: string
-    token1: string
+    token0_symbol: string
+    token1_symbol: string
+    token0_address: string
+    token1_address: string
   }
 }
 
@@ -403,11 +404,11 @@ export default function ElasticSnapshot() {
                   <TableRow key={item.position_id}>
                     <Flex>
                       <Logo
-                        address0={item.info.token0}
-                        address1={item.info.token1}
+                        address0={item.info.token0_address}
+                        address1={item.info.token1_address}
                         chainId={chainToChainId[item.info.chain]}
                       />
-                      {item.info.pair}
+                      {item.info.token0_symbol} - {item.info.token1_symbol}
                     </Flex>
                     <Text textAlign="right">#{item.position_id}</Text>
 
