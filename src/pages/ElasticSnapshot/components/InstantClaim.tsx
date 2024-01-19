@@ -16,7 +16,6 @@ import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
-import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
@@ -46,7 +45,7 @@ const Total = styled.div`
 const TableHeader = styled.div`
   display: grid;
   padding: 8px;
-  grid-template-columns: 1fr 1fr 1fr 0.75fr;
+  grid-template-columns: 1.3fr 1fr 1fr; // 0.75fr;
   gap: 8px;
   font-size: 14px;
   color: ${({ theme }) => theme.subText};
@@ -72,12 +71,12 @@ export default function InstantClaim() {
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
 
-  const ethereumContract = useReadingContract(contractAddresses[0], ContractInterface, ChainId.MAINNET)
-  const optimismContract = useReadingContract(contractAddresses[1], ContractInterface, ChainId.OPTIMISM)
-  const polygonContract = useReadingContract(contractAddresses[2], ContractInterface, ChainId.MATIC)
-  const avalancheContract = useReadingContract(contractAddresses[3], ContractInterface, ChainId.AVAXMAINNET)
+  // const ethereumContract = useReadingContract(contractAddresses[0], ContractInterface, ChainId.MAINNET)
+  // const optimismContract = useReadingContract(contractAddresses[1], ContractInterface, ChainId.OPTIMISM)
+  // const polygonContract = useReadingContract(contractAddresses[2], ContractInterface, ChainId.MATIC)
+  // const avalancheContract = useReadingContract(contractAddresses[3], ContractInterface, ChainId.AVAXMAINNET)
 
-  const [claimed, setClaimed] = useState([true, true, true, true])
+  // const [claimed, setClaimed] = useState([true, true, true, true])
 
   const ethereumTokens = useAllTokens(true, ChainId.MAINNET)
   const optimismTokens = useAllTokens(true, ChainId.OPTIMISM)
@@ -93,20 +92,19 @@ export default function InstantClaim() {
     )
   }, [account])
 
-  useEffect(() => {
-    ;(() => {
-      Promise.all(
-        [ethereumContract, optimismContract, polygonContract, avalancheContract].map((contract, index) => {
-          if (userData[index] && contract) {
-            console.log('xxx')
-            return contract.claimed(userData[index]?.claimData.index)
-          } else {
-            return Promise.resolve(true)
-          }
-        }),
-      ).then(res => setClaimed(res))
-    })()
-  }, [ethereumContract, optimismContract, polygonContract, avalancheContract, userData])
+  // useEffect(() => {
+  //   ;(() => {
+  //     Promise.all(
+  //       [ethereumContract, optimismContract, polygonContract, avalancheContract].map((contract, index) => {
+  //         if (userData[index] && contract) {
+  //           return contract.claimed(userData[index]?.claimData.index)
+  //         } else {
+  //           return Promise.resolve(true)
+  //         }
+  //       }),
+  //     ).then(res => setClaimed(res))
+  //   })()
+  // }, [ethereumContract, optimismContract, polygonContract, avalancheContract, userData])
 
   const totalValue = userData.reduce(
     (acc, cur) => acc + (cur?.claimData?.tokenInfo?.reduce((total, item) => total + item.value, 0) || 0),
@@ -258,6 +256,7 @@ export default function InstantClaim() {
     }
   }, [autoSign, chainId, selectedNetworkToClaim, signAndClaim])
 
+  console.log(userData)
   if (!userData.filter(Boolean).length) return null
 
   return (
@@ -409,6 +408,7 @@ export default function InstantClaim() {
                       <Text fontSize={18} textAlign="right" fontWeight="500">
                         {format(currentValue)}
                       </Text>
+                      {/*
                       <Flex justifyContent="flex-end">
                         <ButtonPrimary
                           disabled={claimed[index]}
@@ -419,6 +419,7 @@ export default function InstantClaim() {
                           {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
                         </ButtonPrimary>
                       </Flex>
+                      */}
                     </TableBody>
 
                     {item.claimData.tokenInfo.map(info => {
@@ -437,7 +438,6 @@ export default function InstantClaim() {
                           </Flex>
                           <Text textAlign="right">{format(info.value)}</Text>
                           <Text textAlign="right">{format(currentValue)}</Text>
-                          <div></div>
                         </TableBody>
                       )
                     })}

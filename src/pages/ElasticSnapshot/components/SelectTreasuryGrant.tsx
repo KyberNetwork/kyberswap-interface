@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { type Provider, ZkMeWidget, verifyKYCWithZkMeServices } from '@zkmelabs/widget'
 import { useEffect, useMemo, useState } from 'react'
 import { Check } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import {
   useCreateOptionMutation,
@@ -19,6 +20,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import vestingData from '../data/vesting.json'
@@ -145,6 +147,8 @@ export default function SelectTreasuryGrant() {
     }
   }, [chainId, zkMe])
 
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+
   return (
     <>
       <ChooseGrantModal
@@ -189,146 +193,182 @@ export default function SelectTreasuryGrant() {
           </Trans>
         </Text>
 
-        <Flex sx={{ gap: '20px' }} alignItems="center" marginTop="24px">
+        <Flex sx={{ gap: '20px' }} alignItems={upToMedium ? 'flex-start' : 'center'} marginTop="24px">
           <Step>
             <Trans>Step</Trans>{' '}
             <Text fontSize={20} fontWeight="500" color={theme.text}>
               1
             </Text>
           </Step>
-          <Text fontSize={14} flex={1} lineHeight="20px" color={isKyc ? theme.subText : theme.text}>
-            {isKyc ? (
-              <Trans>Your wallet has been verified. Please select the grant option.</Trans>
-            ) : (
-              <Trans>Only available on Polygon, you may need to spend a small gas fee to complete your KYC</Trans>
-            )}
-          </Text>
-
-          {isKyc ? (
-            <ButtonLight style={{ width: 'fit-content', height: '36px', minWidth: '116px' }}>
-              <Check size={18} />
-              <Text marginLeft="0.25rem">
-                <Trans>Verified</Trans>
-              </Text>
-            </ButtonLight>
-          ) : (
-            <ButtonPrimary
-              width="fit-content"
-              style={{ minWidth: '116px', height: '36px' }}
-              onClick={() => {
-                if (chainId !== ChainId.MATIC) {
-                  changeNetwork(ChainId.MATIC)
-                } else {
-                  zkMe?.launch()
-                }
-              }}
-            >
-              {chainId !== ChainId.MATIC ? (
-                <Trans>Switch to Polygon</Trans>
-              ) : loadingZkme ? (
-                <Dots>Loading</Dots>
+          <Flex
+            flex={1}
+            alignItems={upToMedium ? 'flex-start' : 'center'}
+            sx={{ gap: '20px' }}
+            flexDirection={upToMedium ? 'column' : 'row'}
+          >
+            <Text fontSize={14} flex={1} lineHeight="20px" color={isKyc ? theme.subText : theme.text}>
+              {isKyc ? (
+                <Trans>Your wallet has been verified. Please select the grant option.</Trans>
               ) : (
-                'KYC'
+                <Trans>Only available on Polygon, you may need to spend a small gas fee to complete your KYC</Trans>
               )}
-            </ButtonPrimary>
-          )}
+            </Text>
+
+            {isKyc ? (
+              <ButtonLight style={{ width: 'fit-content', height: '36px', minWidth: '116px' }}>
+                <Check size={18} />
+                <Text marginLeft="0.25rem">
+                  <Trans>Verified</Trans>
+                </Text>
+              </ButtonLight>
+            ) : (
+              <ButtonPrimary
+                width="fit-content"
+                style={{ minWidth: '116px', height: '36px' }}
+                onClick={() => {
+                  if (chainId !== ChainId.MATIC) {
+                    changeNetwork(ChainId.MATIC)
+                  } else {
+                    zkMe?.launch()
+                  }
+                }}
+              >
+                {chainId !== ChainId.MATIC ? (
+                  <Trans>Switch to Polygon</Trans>
+                ) : loadingZkme ? (
+                  <Dots>Loading</Dots>
+                ) : (
+                  'KYC'
+                )}
+              </ButtonPrimary>
+            )}
+          </Flex>
         </Flex>
 
-        <Flex sx={{ gap: '20px' }} alignItems="center" marginTop="24px">
+        <Flex sx={{ gap: '20px' }} alignItems={upToMedium ? 'flex-start' : 'center'} marginTop="24px">
           <Step>
             <Trans>Step</Trans>{' '}
             <Text fontSize={20} fontWeight="500" color={theme.text}>
               2
             </Text>
           </Step>
-          <Text fontSize={14} flex={1} lineHeight="20px" color={userSelectedOption ? theme.subText : theme.text}>
-            {userSelectedOption ? (
-              <Trans>
-                You have selected option {userSelectedOption}. The UI for claiming tokens will be enabled on February
-                26th, 2024.
-              </Trans>
-            ) : (
-              <Trans>You can choose Grant Option once, please read and decide carefully</Trans>
-            )}
-          </Text>
-
-          <ButtonPrimary
-            width="fit-content"
-            style={{ height: '36px', minWidth: '116px' }}
-            disabled={!isKyc || !!userSelectedOption || loadingZkme || loadingUserOption}
-            onClick={() => setShowOptionsModal(true)}
+          <Flex
+            flex={1}
+            alignItems={upToMedium ? 'flex-start' : 'center'}
+            sx={{ gap: '20px' }}
+            flexDirection={upToMedium ? 'column' : 'row'}
           >
-            {loadingUserOption || loadingZkme ? (
-              <Dots>Loading</Dots>
-            ) : userSelectedOption ? (
-              <Trans>Option {userSelectedOption}</Trans>
-            ) : (
-              <Trans>Choose Grant Option</Trans>
-            )}
-          </ButtonPrimary>
+            <Text fontSize={14} flex={1} lineHeight="20px" color={userSelectedOption ? theme.subText : theme.text}>
+              {userSelectedOption ? (
+                <Trans>
+                  You have selected option {userSelectedOption}. The UI for claiming tokens will be enabled on February
+                  26th, 2024.
+                </Trans>
+              ) : (
+                <Trans>
+                  You can{' '}
+                  <Text color={theme.warning} as="span">
+                    choose Grant Option once
+                  </Text>
+                  , please read and decide carefully
+                </Trans>
+              )}
+            </Text>
+
+            <ButtonPrimary
+              width="fit-content"
+              style={{ height: '36px', minWidth: '116px' }}
+              disabled={!isKyc || !!userSelectedOption || loadingZkme || loadingUserOption}
+              onClick={() => setShowOptionsModal(true)}
+            >
+              {loadingUserOption || loadingZkme ? (
+                <Dots>Loading</Dots>
+              ) : userSelectedOption ? (
+                <Trans>Option {userSelectedOption}</Trans>
+              ) : (
+                <Trans>Choose Grant Option</Trans>
+              )}
+            </ButtonPrimary>
+          </Flex>
         </Flex>
 
         {(!userSelectedOption || userSelectedOption === 'C') && (
           <>
             <Flex marginTop="24px" />
             <Divider />
-            <Flex sx={{ gap: '20px' }} alignItems="center" marginTop="24px">
+
+            <Flex sx={{ gap: '20px' }} alignItems={upToMedium ? 'flex-start' : 'center'} marginTop="24px">
               <Step>
                 <Trans>Opt Out</Trans>
               </Step>
-              <Text fontSize={14} flex={1} lineHeight="20px">
-                {userSelectedOption === 'C' ? (
-                  <Trans>Thank you. You have chosen to Opt Out.</Trans>
-                ) : (
-                  <Trans>
-                    In case you want to Opt Out (i) from KyberSwap Treasury Grant Program, proceed in actions.
-                  </Trans>
-                )}
-              </Text>
 
-              <ButtonOutlined
-                width="fit-content"
-                style={{ height: '36px' }}
-                disabled={userSelectedOption === 'C'}
-                onClick={() => {
-                  const message = 'I confirm choosing Option C - Opt out.'
-                  library
-                    ?.getSigner()
-                    .signMessage(message)
-                    .then(async signature => {
-                      if (signature && account) {
-                        const res = await createOption({
-                          walletAddress: account,
-                          signature,
-                          message,
-                        })
-                        if ((res as any)?.data?.code === 0) {
-                          notify({
-                            title: t`Choose option successfully`,
-                            summary: t`You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program`,
-                            type: NotificationType.SUCCESS,
+              <Flex
+                flex={1}
+                alignItems={upToMedium ? 'flex-start' : 'center'}
+                sx={{ gap: '20px' }}
+                flexDirection={upToMedium ? 'column' : 'row'}
+              >
+                <Text fontSize={14} flex={1} lineHeight="20px">
+                  {userSelectedOption === 'C' ? (
+                    <Trans>Thank you. You have chosen to Opt Out.</Trans>
+                  ) : (
+                    <Trans>
+                      In case you want to Opt Out (i) from KyberSwap Treasury Grant Program, proceed in actions.
+                    </Trans>
+                  )}
+                </Text>
+
+                <ButtonOutlined
+                  width="fit-content"
+                  style={{ height: '36px' }}
+                  disabled={userSelectedOption === 'C'}
+                  onClick={() => {
+                    const message = 'I confirm choosing Option C - Opt out.'
+                    library
+                      ?.getSigner()
+                      .signMessage(message)
+                      .then(async signature => {
+                        if (signature && account) {
+                          const res = await createOption({
+                            walletAddress: account,
+                            signature,
+                            message,
                           })
-                          refetch()
+                          if ((res as any)?.data?.code === 0) {
+                            notify({
+                              title: t`Choose option successfully`,
+                              summary: t`You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program`,
+                              type: NotificationType.SUCCESS,
+                            })
+                            refetch()
+                          } else {
+                            notify({
+                              title: t`Error`,
+                              summary: (res as any).error?.data?.message || t`Something went wrong`,
+                              type: NotificationType.ERROR,
+                            })
+                          }
                         } else {
                           notify({
                             title: t`Error`,
-                            summary: (res as any).error?.data?.message || t`Something went wrong`,
+                            summary: t`Something went wrong`,
                             type: NotificationType.ERROR,
                           })
                         }
-                      } else {
-                        notify({
-                          title: t`Error`,
-                          summary: t`Something went wrong`,
-                          type: NotificationType.ERROR,
-                        })
-                      }
-                    })
-                }}
-              >
-                <Trans>Opt Out</Trans>
-              </ButtonOutlined>
+                      })
+                  }}
+                >
+                  <Trans>Opt Out</Trans>
+                </ButtonOutlined>
+              </Flex>
             </Flex>
+
+            <Text marginTop="1rem" color={theme.subText} fontSize={14} fontStyle="italic">
+              One you make a selection, you are{' '}
+              <Text color={theme.warning} as="span">
+                unable to change your choice.
+              </Text>
+            </Text>
           </>
         )}
       </Flex>

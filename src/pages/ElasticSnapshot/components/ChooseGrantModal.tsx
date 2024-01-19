@@ -52,7 +52,7 @@ export default function ChooseGrantModal({
   const options = {
     A: t`USD stablecoins equivalent of 60% of Reference Value of Affected Assets associated with such Affected Address, vested over 3 months*`,
     B: t`USD stablecoins equivalent of 100% of Reference Value of Affected Assets associated with such Affected Address, vested over 12 months*`,
-    C: t`Opt out.`,
+    // C: t`Opt out.`,
   }
 
   const [loading, setLoading] = useState(false)

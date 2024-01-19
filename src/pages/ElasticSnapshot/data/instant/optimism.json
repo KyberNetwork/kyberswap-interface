@@ -1,31 +1,58 @@
 [
   {
     "claimData": {
-      "receiver": "0x001b8f2dd0d69ba931110492fc6cc3cf6227a4bd",
+      "receiver": "0x438c77ddeee736709f0f29a118df94bdc279d41d",
       "tokenInfo": [
         {
-          "token": "0x8E4d8c5177B1eAaB8b651547c10AB7cdC750493E",
-          "amount": "4454261106",
-          "value": 4458.46
-        },
-        {
-          "token": "0xd5493B0FaeDCd5731b2290689fA186F192e9C68D",
-          "amount": "4519232361",
-          "value": 4521.08
+          "token": "0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2",
+          "amount": "29800000000",
+          "value": 0
         }
       ],
       "index": 0
     },
-    "proof": [
-      "0x1f07f31ba99eda519e04f472f391418b8833a9beb94618b733a1ebbbe660e519",
-      "0x42453c7152a0a629aa74b7ceb1b0b512ca867a261686700563402cc978572ef0",
-      "0x47115710243a5c79c4a86439f228192d86a3eb7e4d2f09ea1fb0eab0e57ce2ff",
-      "0x582cd39dac12777469f74eda006606278aba65f2e5615b1b39bc861e73437d7e",
-      "0x71a3c7bd239a88675f6d6fc4aec242e37ada6370713a1fed76a3ae2bb8f0126a",
-      "0x8412725fed2e19f7601b7a9684c0fb2cda664904240aaa6ac58a0cdd84e57fdc",
-      "0xc38a6d570e24cce7a38f4b87a19a0faf4fe35ba3eba61a1eda692c1268ca3f75",
-      "0x1735094c85b4d5a09e01570e35a19995a9c18f6012d5ffcdb12d868d81c7bb48",
-      "0xf50e8ede876cfab3ab7c99062b662930f0bb1dd8c58b796f6e8b2a0feceb0b8b"
-    ]
+    "proof": []
+  },
+  {
+    "claimData": {
+      "receiver": "0x53fe681b09df998d5f545e6b9743acfef904209e",
+      "tokenInfo": [
+        {
+          "token": "0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2",
+          "amount": "2190000000000",
+          "value": 0
+        }
+      ],
+      "index": 1
+    },
+    "proof": []
+  },
+  {
+    "claimData": {
+      "receiver": "0x8180a5ca4e3b94045e05a9313777955f7518d757",
+      "tokenInfo": [
+        {
+          "token": "0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2",
+          "amount": "60540253069999996928",
+          "value": 132378.12
+        }
+      ],
+      "index": 2
+    },
+    "proof": []
+  },
+  {
+    "claimData": {
+      "receiver": "0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d",
+      "tokenInfo": [
+        {
+          "token": "0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2",
+          "amount": "39300000000",
+          "value": 0
+        }
+      ],
+      "index": 3
+    },
+    "proof": []
   }
 ]
