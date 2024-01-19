@@ -21,8 +21,11 @@ import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import poolsByCategoriesRaw from './category.json'
-import data from './data.json'
+import TreasuryGrantAndInstantClaim from './components/TreasuryGrantAndInstantClaim'
+import poolsByCategoriesRaw from './data/category.json'
+import data from './data/data.json'
+
+const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
 const StyledTabs = styled(Tabs)`
   border-top: 1px solid ${({ theme }) => theme.border};
@@ -108,17 +111,18 @@ interface Position {
   info: {
     pool: string
     chain: string
-    pair: string
-    token0: string
-    token1: string
+    token0_symbol: string
+    token1_symbol: string
+    token0_address: string
+    token1_address: string
   }
 }
 
 export default function ElasticSnapshot() {
   const { account } = useActiveWeb3React()
+
   const theme = useTheme()
 
-  const [selectedCategory, setSelectedCategory] = useState(0)
   const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
 
   const categories = ['category 1', 'category 2', 'category 3', 'category 4', 'category 5']
@@ -133,13 +137,13 @@ export default function ElasticSnapshot() {
 
     positionsByCategories.push(temp)
   })
+  const [selectedCategory, setSelectedCategory] = useState(0)
 
   const toggleWalletModal = useWalletModalToggle()
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
   const categoriesDesc = [
     <Trans key={0}>
       Affected Assets taken from Affected Pools by the primary KyberSwap Elastic Exploit (“Primary Exploit”) which
@@ -164,6 +168,7 @@ export default function ElasticSnapshot() {
       Exploit, but which have been recovered from such liquidity pools.
     </Trans>,
   ]
+
   return (
     <PoolsPageWrapper>
       <Flex
@@ -255,6 +260,9 @@ export default function ElasticSnapshot() {
           </Text>
         </Flex>
       </Flex>
+
+      {userInfo && <TreasuryGrantAndInstantClaim />}
+
       <Flex flexDirection="column" marginTop="1.5rem" marginX={upToSmall ? '-1rem' : 0}>
         <Wrapper>
           {account ? (
@@ -292,7 +300,7 @@ export default function ElasticSnapshot() {
                             <Text fontWeight="500" fontSize={20} color={theme.text}>
                               <Trans>Category</Trans> {selectedCategory + 1}
                             </Text>
-                            <Text fontSize={14} fontWeight="500" marginTop="1rem">
+                            <Text fontSize={14} fontWeight="500" marginY="1rem">
                               {categoriesDesc[selectedCategory]}
                             </Text>
                           </Box>
@@ -364,11 +372,11 @@ export default function ElasticSnapshot() {
                   <TableRow key={item.position_id}>
                     <Flex>
                       <Logo
-                        address0={item.info.token0}
-                        address1={item.info.token1}
+                        address0={item.info.token0_address}
+                        address1={item.info.token1_address}
                         chainId={chainToChainId[item.info.chain]}
                       />
-                      {item.info.pair}
+                      {item.info.token0_symbol} - {item.info.token1_symbol}
                     </Flex>
                     <Text textAlign="right">#{item.position_id}</Text>
 

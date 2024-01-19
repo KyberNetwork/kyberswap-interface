@@ -5,6 +5,7 @@ import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
 import blockServiceApi from 'services/blockService'
 import coingeckoApi from 'services/coingecko'
+import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
 import earningApi from 'services/earning'
@@ -120,6 +121,7 @@ const store = configureStore({
     [tokenApi.reducerPath]: tokenApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     [blockServiceApi.reducerPath]: blockServiceApi.reducer,
+    [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
     [knProtocolApi.reducerPath]: knProtocolApi.reducer,
   },
@@ -144,6 +146,7 @@ const store = configureStore({
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
       .concat(blockServiceApi.middleware)
+      .concat(commonServiceApi.middleware)
       .concat(blackjackApi.middleware)
       .concat(knProtocolApi.middleware),
   preloadedState,

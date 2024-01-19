@@ -376,6 +376,7 @@ const DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.ELASTIC_COLLECT_FEE]: DescriptionLiquidity,
 
   [TRANSACTION_TYPE.HARVEST]: DescriptionHarvestFarmReward,
+  [TRANSACTION_TYPE.CLAIM]: DescriptionApproveClaim,
 }
 
 type Prop = {

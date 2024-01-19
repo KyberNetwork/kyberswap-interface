@@ -144,13 +144,6 @@ export enum MIXPANEL_TYPE {
   MEV_ADD_CLICK_MODAL,
   MEV_ADD_RESULT,
 
-  // type and swap
-  TAS_TYPING_KEYWORD,
-  TAS_SELECT_PAIR,
-  TAS_LIKE_PAIR,
-  TAS_DISLIKE_PAIR,
-  TAS_PRESS_CTRL_K,
-
   BANNER_CLICK,
   CLOSE_BANNER_CLICK,
 
@@ -877,30 +870,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.TUTORIAL_VIEW_VIDEO_SWAP: {
           mixpanel.track('On-Screen Guide - User click on Step 3 Embedded video')
-          break
-        }
-
-        // type and swap
-        case MIXPANEL_TYPE.TAS_TYPING_KEYWORD: {
-          mixpanel.track('Type and Swap - Typed on the text box', { text: payload })
-          break
-        }
-        case MIXPANEL_TYPE.TAS_SELECT_PAIR: {
-          mixpanel.track('Type and Swap - Selected an option', { option: payload })
-          break
-        }
-        case MIXPANEL_TYPE.TAS_LIKE_PAIR: {
-          mixpanel.track('Type and Swap - Favorite a token pair', payload)
-          break
-        }
-        case MIXPANEL_TYPE.TAS_DISLIKE_PAIR: {
-          mixpanel.track('Type and Swap -  Un-favorite a token pair', payload)
-          break
-        }
-        case MIXPANEL_TYPE.TAS_PRESS_CTRL_K: {
-          mixpanel.track('Type and Swap - User click Ctrl + K (or Cmd + K) or Clicked on the text box', {
-            navigation: payload,
-          })
           break
         }
 

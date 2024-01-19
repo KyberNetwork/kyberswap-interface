@@ -7763,6 +7763,11 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
+"@zkmelabs/widget@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@zkmelabs/widget/-/widget-0.1.3.tgz#326e7fae0ba612f88d3295e2f93d50278087a8d2"
+  integrity sha512-RTmX3bRHexbYKHx3SBtHDIvxSkGebRycKuZu2MeiF68pzS2LBk3Jn5BmP+JmNjFZ89kzAT7c1tvCj5OutF0L/A==
+
 JSONStream@^1.3.5:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/JSONStream/-/JSONStream-1.3.5.tgz#3208c1f08d3a4d99261ab64f92302bc15e111ca0"

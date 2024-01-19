@@ -56,7 +56,7 @@ const ContentWrapper = styled.div`
   border-bottom-right-radius: 20px;
 `
 
-const TermAndCondition = styled.div`
+export const TermAndCondition = styled.div`
   padding: 8px;
   font-size: 12px;
   font-weight: 500;
