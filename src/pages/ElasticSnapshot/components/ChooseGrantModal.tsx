@@ -8,13 +8,10 @@ import styled from 'styled-components'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
-import { TermAndCondition } from 'components/Header/web3/WalletModal'
 import Modal from 'components/Modal'
-import { TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useNotify } from 'state/application/hooks'
-import { ExternalLink } from 'theme'
 
 const Option = styled.div<{ disabled: boolean; active: boolean }>`
   border: 1px solid ${({ theme, active }) => (active ? theme.primary : theme.border)};
@@ -50,8 +47,8 @@ export default function ChooseGrantModal({
   const theme = useTheme()
 
   const options = {
-    A: t`USD stablecoins equivalent of 60% of Reference Value of Affected Assets associated with such Affected Address, vested over 3 months*`,
-    B: t`USD stablecoins equivalent of 100% of Reference Value of Affected Assets associated with such Affected Address, vested over 12 months*`,
+    A: t`USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months.`,
+    B: t`USD stablecoins equivalent to 100% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 12 months.`,
     // C: t`Opt out.`,
   }
 
@@ -114,7 +111,7 @@ export default function ChooseGrantModal({
       .finally(() => setLoading(false))
   }
 
-  const [isAcceptTerm, setIsAcceptTerm] = useState(false)
+  // const [isAcceptTerm, setIsAcceptTerm] = useState(false)
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="480px" width="100%">
@@ -151,10 +148,6 @@ export default function ChooseGrantModal({
           })}
         </Flex>
 
-        <Text marginTop="24px" fontSize="12px" color={theme.subText}>
-          <Trans>*Paid in USD stablecoins vested linearly, starting on February 1, 2024.</Trans>
-        </Text>
-
         {!userSelectedOption && (
           <Text marginTop="6px" fontSize="12px" color={theme.warning}>
             <Trans>Once you make a selection, you are unable to change your choice.</Trans>
@@ -169,7 +162,7 @@ export default function ChooseGrantModal({
           </Flex>
         ) : (
           <>
-            <TermAndCondition onClick={() => setIsAcceptTerm(prev => !prev)} style={{ marginTop: '24px' }}>
+            {/* <TermAndCondition onClick={() => setIsAcceptTerm(prev => !prev)} style={{ marginTop: '24px' }}>
               <input
                 type="checkbox"
                 checked={isAcceptTerm}
@@ -187,11 +180,12 @@ export default function ChooseGrantModal({
                 </ExternalLink>
               </Text>
             </TermAndCondition>
+            */}
             <Flex marginTop="16px" sx={{ gap: '1rem' }}>
               <ButtonOutlined onClick={onDismiss}>
                 <Trans>Rethink</Trans>
               </ButtonOutlined>
-              <ButtonPrimary onClick={signMessage} disabled={!selectedOption || loading || !isAcceptTerm}>
+              <ButtonPrimary onClick={signMessage} disabled={!selectedOption || loading}>
                 {loading ? <Dots>Signing</Dots> : <Trans>Sign with your wallet</Trans>}
               </ButtonPrimary>
             </Flex>

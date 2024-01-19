@@ -213,7 +213,6 @@ export default function InstantClaim() {
           userData[selectedIndex]?.proof,
           signature,
         ])
-        console.log(signature, encodedData)
         library
           ?.getSigner()
           .sendTransaction({
@@ -256,7 +255,6 @@ export default function InstantClaim() {
     }
   }, [autoSign, chainId, selectedNetworkToClaim, signAndClaim])
 
-  console.log(userData)
   if (!userData.filter(Boolean).length) return null
 
   return (

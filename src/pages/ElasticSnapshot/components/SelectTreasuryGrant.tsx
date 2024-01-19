@@ -25,6 +25,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import vestingData from '../data/vesting.json'
 import ChooseGrantModal from './ChooseGrantModal'
+import TermAndPolicyModal from './TermAndPolicyModal'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
@@ -63,7 +64,7 @@ export default function SelectTreasuryGrant() {
 
   const provider: Provider | null = useMemo(
     () =>
-      library && account
+      library && account && chainId === ChainId.MATIC
         ? {
             async getAccessToken() {
               // Request a new token from your backend service and return it to the widget
@@ -80,7 +81,7 @@ export default function SelectTreasuryGrant() {
             },
           }
         : null,
-    [library, account, getAccessTokenQuery],
+    [library, account, getAccessTokenQuery, chainId],
   )
 
   const zkMe = useMemo(() => {
@@ -149,8 +150,18 @@ export default function SelectTreasuryGrant() {
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
+  const [showTermModal, setShowTermModal] = useState(false)
+
   return (
     <>
+      <TermAndPolicyModal
+        isOpen={showTermModal}
+        onDismiss={() => setShowTermModal(false)}
+        onOk={() => {
+          setShowTermModal(false)
+          zkMe?.launch()
+        }}
+      />
       <ChooseGrantModal
         isOpen={showOptionModal}
         onDismiss={() => {
@@ -183,7 +194,8 @@ export default function SelectTreasuryGrant() {
 
         <Text marginTop="1rem" fontSize={14} color={theme.subText} lineHeight="20px">
           <Trans>
-            Total Amount includes all affected funds under Category 1, 2 & 4 and unrecovered funds under Category 3 & 5.
+            Total Amount includes all affected funds under Category 1, 2 & 4 and unrecovered funds under Category 3 & 5
+            (USD value subject to change based on Grant Terms).
           </Trans>
         </Text>
         <Text marginTop="8px" fontSize={14} color={theme.subText} lineHeight="20px">
@@ -229,7 +241,7 @@ export default function SelectTreasuryGrant() {
                   if (chainId !== ChainId.MATIC) {
                     changeNetwork(ChainId.MATIC)
                   } else {
-                    zkMe?.launch()
+                    setShowTermModal(true)
                   }
                 }}
               >
@@ -262,7 +274,7 @@ export default function SelectTreasuryGrant() {
               {userSelectedOption ? (
                 <Trans>
                   You have selected option {userSelectedOption}. The UI for claiming tokens will be enabled on February
-                  26th, 2024.
+                  6th, 2024.
                 </Trans>
               ) : (
                 <Trans>
@@ -364,7 +376,7 @@ export default function SelectTreasuryGrant() {
             </Flex>
 
             <Text marginTop="1rem" color={theme.subText} fontSize={14} fontStyle="italic">
-              One you make a selection, you are{' '}
+              Once you make a selection, you are{' '}
               <Text color={theme.warning} as="span">
                 unable to change your choice.
               </Text>
