@@ -429,8 +429,12 @@ export default function ElasticSnapshot() {
             )
           ) : (
             <Flex padding="48px 16px" justifyContent="center" alignItems="center" flexDirection="column">
-              <Text fontSize="14px" marginBottom="24px">
-                <Trans>Please connect your wallet to view your affected position(s).</Trans>
+              <Text fontSize="14px" marginBottom="24px" maxWidth="820px">
+                <Trans>
+                  Please connect your wallet to view your affected position(s). If your Affected Address is a Multisig
+                  or other Contracts, you won’t be able to complete the steps via the UI. Instead, please contact us at{' '}
+                  <a href="mailto:support@kyberswap.com">support@kyberswap.com</a>
+                </Trans>
               </Text>
 
               <ButtonPrimary onClick={toggleWalletModal} width="94px">

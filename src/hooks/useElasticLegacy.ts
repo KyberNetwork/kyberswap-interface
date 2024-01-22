@@ -65,8 +65,7 @@ export const config: {
     tickReaderContract: '0x165c68077ac06c83800d19200e6E2B08D02dE75D',
   },
   [ChainId.MATIC]: {
-    subgraphUrl:
-      'https://polygon-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-polygon-legacy',
+    subgraphUrl: 'https://api.thegraph.com/subgraphs/id/QmbFWXTtjsqU688dj1aG33UGS32bZVFc3fdDr7YTmwGaSc',
     farmContract: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
     positionManagerContract: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
     tickReaderContract: '0x165c68077ac06c83800d19200e6E2B08D02dE75D',
