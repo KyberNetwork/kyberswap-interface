@@ -175,6 +175,8 @@ export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.MATIC,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
+  ChainId.BASE,
+  ChainId.SCROLL,
 ]
 
 export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
