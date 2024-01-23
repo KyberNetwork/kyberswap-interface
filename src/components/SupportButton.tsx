@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { motion } from 'framer-motion'
-import { useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import { useState } from 'react'
 import { HelpCircle } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -10,11 +9,8 @@ import styled from 'styled-components'
 import { ReactComponent as DiscordIcon } from 'assets/svg/discord_color.svg'
 import { ReactComponent as EmailIcon } from 'assets/svg/email_color.svg'
 import { ReactComponent as TeleIcon } from 'assets/svg/tele_color.svg'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
-
-import { ButtonPrimary } from './Button'
 
 const SubMenu = styled(motion.div)`
   position: absolute;
@@ -80,8 +76,6 @@ export default function SupportButton() {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const toggleHover = () => !isMobile && setIsHover(prev => !prev)
-
   const subMenuAnimate = {
     enter: {
       opacity: 1,
@@ -104,17 +98,24 @@ export default function SupportButton() {
     },
   }
 
-  const ref = useRef(null)
-  useOnClickOutside(ref, () => {
-    setIsHover(false)
-  })
-
   if (window.location.href.includes('/partner-swap')) return null
 
   return (
-    <Wrapper onHoverStart={toggleHover} onHoverEnd={toggleHover} onClick={() => isMobile && setIsHover(true)} ref={ref}>
-      <ButtonPrimary
-        style={{ height: '36px', width: upToSmall ? '36px' : undefined, padding: upToSmall ? 0 : undefined }}
+    <Wrapper onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+      <Flex
+        backgroundColor={theme.primary}
+        alignItems="center"
+        justifyContent="center"
+        sx={{
+          height: '36px',
+          width: upToSmall ? '36px' : 'max-content',
+          padding: upToSmall ? 0 : '0 12px',
+          borderRadius: '999px',
+          color: theme.textReverse,
+          fontSize: '14px',
+          fontWeight: '500',
+          cursor: 'pointer',
+        }}
       >
         <HelpCircle size={18} />
         {!upToSmall && (
@@ -122,7 +123,7 @@ export default function SupportButton() {
             <Trans>Support</Trans>
           </Text>
         )}
-      </ButtonPrimary>
+      </Flex>
 
       <SubMenu initial="exit" animate={isHover ? 'enter' : 'exit'} variants={subMenuAnimate}>
         <SubMenuContent flexDirection="column" sx={{ gap: '1rem' }}>
