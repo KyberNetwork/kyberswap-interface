@@ -35,13 +35,20 @@ const useGetFeeConfig = () => {
       ? native.wrapped.address.toLowerCase()
       : searchParams.get('inputCurrency')?.toLowerCase()
 
-  const chargeFeeBy =
-    chargeFeeByFromParam ||
-    (preferredFeeTokens.length
-      ? preferredFeeTokens.includes(inputCurrency)
-        ? ChargeFeeBy.CURRENCY_IN
-        : ChargeFeeBy.CURRENCY_OUT
-      : ChargeFeeBy.NONE)
+  const outputCurrency =
+    searchParams.get('outputCurrency')?.toLowerCase() === native.symbol
+      ? native.wrapped.address.toLowerCase()
+      : searchParams.get('outputCurrency')?.toLowerCase()
+
+  let chargeFeeBy = ChargeFeeBy.NONE
+
+  if (preferredFeeTokens?.includes(inputCurrency)) {
+    chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+  } else if (preferredFeeTokens?.includes(outputCurrency)) {
+    chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+  } else {
+    chargeFeeBy = chargeFeeByFromParam
+  }
 
   const enableTip = convertStringToBoolean(searchParams.get('enableTip') || '')
   const isInBps = searchParams.get('isInBps') || ''
