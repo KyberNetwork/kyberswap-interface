@@ -31,12 +31,12 @@ const useGetFeeConfig = () => {
   const native = NativeCurrencies[expectedChainId as ChainId]
 
   const inputCurrency =
-    searchParams.get('inputCurrency')?.toLowerCase() === native.symbol
+    searchParams.get('inputCurrency')?.toLowerCase() === native.symbol?.toLowerCase()
       ? native.wrapped.address.toLowerCase()
       : searchParams.get('inputCurrency')?.toLowerCase()
 
   const outputCurrency =
-    searchParams.get('outputCurrency')?.toLowerCase() === native.symbol
+    searchParams.get('outputCurrency')?.toLowerCase() === native.symbol?.toLowerCase()
       ? native.wrapped.address.toLowerCase()
       : searchParams.get('outputCurrency')?.toLowerCase()
 
