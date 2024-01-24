@@ -16,6 +16,7 @@ import Loader from 'components/LocalLoader'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
+import SupportButton from 'components/SupportButton'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -243,6 +244,7 @@ export default function App() {
         <ModalsGlobal />
         {!isPartnerSwap && <TopBanner />}
         <HeaderWrapper>
+          <SupportButton />
           <Header />
         </HeaderWrapper>
         <Suspense fallback={<Loader />}>
