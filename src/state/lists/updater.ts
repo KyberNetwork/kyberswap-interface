@@ -35,6 +35,47 @@ export default function Updater(): null {
     const getTokens = async () => {
       ;[...MAINNET_NETWORKS, ChainId.GÖRLI].forEach(async chainId => {
         let tokens: TokenInfo[] = []
+        if (chainId === ChainId.MATIC) {
+          tokens.push(
+            {
+              chainId: ChainId.MATIC,
+              address: '0x8E4d8c5177B1eAaB8b651547c10AB7cdC750493E',
+              name: 'mockUSDT',
+              decimals: 6,
+              symbol: 'mockUSDT',
+              logoURI: 'https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/KTF6M73FKBACNI5JQ4S3EW7MRI.png',
+            },
+            {
+              chainId: ChainId.MATIC,
+              address: '0xd5493B0FaeDCd5731b2290689fA186F192e9C68D',
+              name: 'mockUSDC',
+              decimals: 6,
+              symbol: 'mockUSDT',
+              logoURI: 'https://polygonscan.com/token/images/centre-usdc_32.png',
+            },
+            {
+              chainId: ChainId.MATIC,
+              address: '0x278b0dF229f06A9893006A6bC258F8Bc064Dbc1a',
+              name: 'mockAxlWstETH',
+              decimals: 18,
+              symbol: 'mockWstETH',
+            },
+            {
+              chainId: ChainId.MATIC,
+              address: '0xb7A775B927C91EEe14c42505d8cD0Eb87653A3E3',
+              name: 'mockAxlWstETH',
+              decimals: 18,
+              symbol: 'mockWstETH',
+            },
+            {
+              chainId: ChainId.MATIC,
+              address: '0x20AF3CdA82fD1301C0EFaC8bfeF1cF9a7f771D8E',
+              name: 'mockWMATIC',
+              decimals: 18,
+              symbol: 'mockWMATIC',
+            },
+          )
+        }
         const pageSize = 100
         const maximumPage = 15
         let page = 1
