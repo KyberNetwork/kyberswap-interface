@@ -1,7 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -9,10 +11,13 @@ import { ButtonPrimary } from 'components/Button'
 import { useActiveWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
+import { MEDIA_WIDTHS } from 'theme'
+import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import abi from '../data/vestingAbi.json'
 import claimVestingData from '../data/vestingData.json'
+import VestingClaimModal, { vestingContractAddress } from './VestingClaimModal'
 
 const Details = styled.div`
   margin-top: 24px;
@@ -26,6 +31,10 @@ const VestingInfo = styled.div`
   margin-top: 1rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: 1fr;
+  `}
 `
 const VestingItem = styled.div<{ claimBox?: boolean }>`
   border-radius: 12px;
@@ -34,9 +43,48 @@ const VestingItem = styled.div<{ claimBox?: boolean }>`
   font-weight: 500;
 `
 
-const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
+const ProgressBar = styled.div`
+  height: 12px;
+  background: ${({ theme }) => theme.buttonGray};
+  border-radius: 999px;
+  width: 100%;
+  position: relative;
+  margin-top: 8px;
+`
+const Claimed = styled.div<{ width: string }>`
+  background: ${({ theme }) => theme.green};
+  border-radius: 999px;
+  position: absolute;
+  height: 12px;
+  left: 0;
+  top: 0;
+  botton: 0;
+  width: ${({ width }) => width};
+`
+const Unlocked = styled.div<{ width: string }>`
+  background: #d1faee;
+  border-radius: 999px;
+  position: absolute;
+  height: 12px;
+  left: 0;
+  top: 0;
+  botton: 0;
+  width: ${({ width }) => width};
+`
 
-const vestingContractAddress = '0x91F7753beEE77D4433487A5398D69a8D84330b75'
+const Legend = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-top: 2rem;
+  margin-bottom: 64px;
+  gap: 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 1fr 1fr;
+  `}
+`
+
+const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
 export default function Vesting() {
   const theme = useTheme()
@@ -45,6 +93,10 @@ export default function Vesting() {
     () => claimVestingData.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()),
     [account],
   )
+
+  const proof = useMemo(() => userVestingData?.proof, [userVestingData])
+
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [startTime, setStartTime] = useState(0)
   const [endTime, setEndTime] = useState(0)
@@ -85,6 +137,8 @@ export default function Vesting() {
     }
   }, [vestingContract, userVestingData])
 
+  const [show, setShow] = useState(false)
+
   if (!userVestingData) return null
 
   const totalAmount = userVestingData.claimData.vestingAmount / 10 ** 6
@@ -93,8 +147,22 @@ export default function Vesting() {
   const unlockedAmount = (totalAmount * (now - startTime)) / (endTime - startTime)
   const claimableAmount = unlockedAmount - vestedAmount
 
+  const claimedPercent = (vestedAmount * 100) / totalAmount
+  const unlockedPercent = (unlockedAmount * 100) / totalAmount
+
+  const claimablePercent = unlockedPercent - claimedPercent
+
   return (
     <>
+      {show && proof && (
+        <VestingClaimModal
+          onDismiss={() => setShow(false)}
+          leafIndex={userVestingData.claimData.index}
+          proof={proof}
+          tokenAmount={claimableAmount}
+          vestingAmount={userVestingData.claimData.vestingAmount}
+        />
+      )}
       <Text fontSize={14} color={theme.subText} lineHeight="20px">
         <Trans>
           You can find the vesting details of each category of assets that were affected by the exploit below.
@@ -109,7 +177,7 @@ export default function Vesting() {
           <Text color={theme.subText}>
             <Trans>Wallet Address: </Trans>{' '}
             <Text as="span" fontWeight="500" color={theme.text}>
-              {account}
+              {upToSmall && account ? shortenAddress(1, account) : account}
             </Text>
           </Text>
         </Box>
@@ -147,12 +215,48 @@ export default function Vesting() {
               </Text>
               <Flex alignItems="center" marginTop="1rem" justifyContent="space-between">
                 <Text fontSize="20px">{format(claimableAmount)}</Text>
-                <ButtonPrimary width="64px" height="24px" disabled={claimableAmount === 0}>
+                <ButtonPrimary
+                  width="64px"
+                  height="24px"
+                  disabled={claimableAmount === 0}
+                  onClick={() => setShow(true)}
+                >
                   Claim
                 </ButtonPrimary>
               </Flex>
             </VestingItem>
           </VestingInfo>
+          <Flex justifyContent="flex-end" alignItems="flex-end" marginTop="24px">
+            {now > endTime ? (
+              <Text>Fully Unlocked</Text>
+            ) : (
+              <>
+                <Text color={theme.subText}>Full Unlock</Text>
+                <Text marginLeft="4px">
+                  {dayjs(endTime * 1000).format('DD MMM YYYY')} ({dayjs(endTime * 1000).fromNow()})
+                </Text>
+              </>
+            )}
+          </Flex>
+          <ProgressBar>
+            <Unlocked width={`${unlockedPercent}%`} />
+            <Claimed width={`${claimedPercent}%`} />
+          </ProgressBar>
+
+          <Legend>
+            <Flex alignItems="center">
+              <Box width="1rem" height="1rem" backgroundColor={theme.green} marginRight="8px" />
+              {claimedPercent.toFixed(0)}% Claimed
+            </Flex>
+            <Flex alignItems="center">
+              <Box width="1rem" height="1rem" backgroundColor="#d1faee" marginRight="8px" />
+              {claimablePercent.toFixed(0)}% Unlocked
+            </Flex>
+            <Flex alignItems="center">
+              <Box width="1rem" height="1rem" backgroundColor={theme.buttonGray} marginRight="8px" />
+              {(100 - unlockedPercent).toFixed(0)}% Locked
+            </Flex>
+          </Legend>
         </Box>
       </Details>
     </>
