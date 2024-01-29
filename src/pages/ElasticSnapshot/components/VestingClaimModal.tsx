@@ -23,7 +23,7 @@ import { friendlyError } from 'utils/errorMessage'
 import VestingAbi from '../data/vestingAbi.json'
 
 const ContractInterface = new Interface(VestingAbi)
-export const vestingContractAddress = '0x91F7753beEE77D4433487A5398D69a8D84330b75'
+export const vestingContractAddress = '0x1c0D000D309072fE54F272d255f5de3aBe54e541'
 
 export default function VestingClaimModal({
   onDismiss,
@@ -107,7 +107,7 @@ export default function VestingClaimModal({
           },
           message: {
             leafIndex,
-            termsAndConditions: `I accept KyberSwap's Terms and Conditions published here https://bafkreic3csqhyqrz3wir2wd7sn2owrsuwbn4aakbaje5zmmpoy2dmbdlyi.ipfs.w3s.link`,
+            termsAndConditions: `I accept KyberSwap’s Terms and Conditions published here https://bafkreic3csqhyqrz3wir2wd7sn2owrsuwbn4aakbaje5zmmpoy2dmbdlyi.ipfs.w3s.link`,
           },
         }),
       ])
