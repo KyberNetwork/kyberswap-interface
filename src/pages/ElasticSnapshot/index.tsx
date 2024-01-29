@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
+import { useGetUserSelectedOptionQuery } from 'services/commonService'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -180,6 +181,15 @@ export default function ElasticSnapshot() {
   useEffect(() => {
     if (!userVestingData) setTab('snapshot')
   }, [account, userVestingData])
+
+  const { data: userSelectedData, error } = useGetUserSelectedOptionQuery(account || '', {
+    skip: !account,
+  })
+
+  const userSelectedOption = useMemo(
+    () => (error ? '' : userSelectedData?.data.option?.toUpperCase()),
+    [error, userSelectedData],
+  )
 
   return (
     <PoolsPageWrapper>
@@ -506,7 +516,7 @@ export default function ElasticSnapshot() {
           </Flex>
         </>
       ) : (
-        <Vesting />
+        userSelectedOption && <Vesting userSelectedOption={userSelectedOption} />
       )}
     </PoolsPageWrapper>
   )

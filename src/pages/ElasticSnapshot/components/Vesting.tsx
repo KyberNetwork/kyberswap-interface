@@ -86,7 +86,7 @@ const Legend = styled.div`
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
-export default function Vesting() {
+export default function Vesting({ userSelectedOption }: { userSelectedOption: string }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const userVestingData = useMemo(
@@ -185,8 +185,9 @@ export default function Vesting() {
         <Box sx={{ padding: '1rem 1.5rem', background: rgba(theme.buttonGray, 0.4) }} fontSize="14px">
           <Text>
             <Trans>
-              Grant Plan: USD stablecoins equivalent of 100% of Reference Value of Affected Assets associated with such
-              Affected Address, vested over 12 months.
+              Grant Plan: USD stablecoins equivalent of {userSelectedOption === 'A' ? '60%' : '100%'} of Reference Value
+              of Affected Assets associated with such Affected Address, vested over{' '}
+              {userSelectedOption === 'A' ? '3' : '12'} months.
             </Trans>
           </Text>
 
