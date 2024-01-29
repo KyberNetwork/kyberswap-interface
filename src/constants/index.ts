@@ -52,7 +52,7 @@ export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_NET
 }, {}) as { [chainId in ChainId]: string }
 
 const PROMM_ANALYTICS = 'https://analytics.kyberswap.com/elastic'
-export const AGGREGATOR_ANALYTICS_URL = 'https://secure.holistics.io/dashboards/v3/55952?_pl=672a0e4ff266f14541b8f54b'
+export const AGGREGATOR_ANALYTICS_URL = 'https://lookerstudio.google.com/reporting/a2a0c9ff-6388-4d3a-bbf0-0fcfce9d5def'
 
 export const PROMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_NETWORKS.reduce((acc, cur) => {
   return {
