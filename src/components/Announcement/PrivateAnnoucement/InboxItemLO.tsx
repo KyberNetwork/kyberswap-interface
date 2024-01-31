@@ -51,7 +51,7 @@ function InboxItemBridge({
   const isPartialFilled = status === LimitOrderStatus.PARTIALLY_FILLED
   const chainId = rawChainId && rawChainId !== '{{.chainId}}' ? (Number(rawChainId) as ChainId) : undefined
   const statusMessage = isReorg
-    ? t`Reverted (${increasedFilledPercent})`
+    ? t`Reverted ${increasedFilledPercent}`
     : isFilled
     ? t`100% Filled`
     : isPartialFilled

@@ -46,7 +46,7 @@ export default function AnnouncementItem({
 
   const statusMessage = isReorg ? (
     <Text as="span" color={theme.red}>
-      reverted ({increasedFilledPercent})
+      reverted {increasedFilledPercent}
     </Text>
   ) : isFilled ? (
     <Text as="span" color={theme.primary}>
