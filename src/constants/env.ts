@@ -133,12 +133,12 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   },
   production: {
     [PrivateAnnouncementType.PRICE_ALERT]: '29',
-    [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15',
+    [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15,31',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.CROSS_CHAIN]: '27,28',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
-    EXCLUDE: '2,16,19,9,25,24,21,22',
+    EXCLUDE: '2,16,19,9,25,24,21,22,25,26,30',
   },
 }
 
