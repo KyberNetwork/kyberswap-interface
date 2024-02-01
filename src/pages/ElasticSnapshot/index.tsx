@@ -127,9 +127,12 @@ export default function ElasticSnapshot() {
   const theme = useTheme()
 
   const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
+
+  // TODO: remove
+  const fakeCondition = 1 + 1 > 2
   const userVestingData = useMemo(
-    () => vestingData.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()),
-    [account],
+    () => vestingData.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase() && fakeCondition),
+    [account, fakeCondition],
   )
 
   const categories = ['category 1', 'category 2', 'category 3', 'category 4', 'category 5']

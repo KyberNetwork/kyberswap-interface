@@ -139,7 +139,9 @@ export default function Vesting({ userSelectedOption }: { userSelectedOption: st
 
   const [show, setShow] = useState(false)
 
-  if (!userVestingData) return null
+  const fakeCondition = 1 + 1 === 2
+  // TODO: hide to release instant grant
+  if (!userVestingData || fakeCondition) return null
 
   const totalAmount = userVestingData.claimData.vestingAmount / 10 ** 6
 

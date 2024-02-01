@@ -63,7 +63,8 @@ const TableBody = styled(TableHeader)<{ backgroundColor?: string }>`
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
-const contractAddresses = ['', '', '0x41b9a47dB6edB468633B4c2863d5eBE5EE23b12b', '']
+// const contractAddresses = ['', '', '0x41b9a47dB6edB468633B4c2863d5eBE5EE23b12b', '']
+const contractAddress = '0xD0806364e9672EF21039Dc4DC84651B9b535E535'
 
 const ContractInterface = new Interface(InstantAbi)
 
@@ -72,10 +73,10 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
 
-  const ethereumContract = useReadingContract(contractAddresses[0], ContractInterface, ChainId.MAINNET)
-  const optimismContract = useReadingContract(contractAddresses[1], ContractInterface, ChainId.OPTIMISM)
-  const polygonContract = useReadingContract(contractAddresses[2], ContractInterface, ChainId.MATIC)
-  const avalancheContract = useReadingContract(contractAddresses[3], ContractInterface, ChainId.AVAXMAINNET)
+  const ethereumContract = useReadingContract(contractAddress, ContractInterface, ChainId.MAINNET)
+  const optimismContract = useReadingContract(contractAddress, ContractInterface, ChainId.OPTIMISM)
+  const polygonContract = useReadingContract(contractAddress, ContractInterface, ChainId.MATIC)
+  const avalancheContract = useReadingContract(contractAddress, ContractInterface, ChainId.AVAXMAINNET)
 
   const [claimed, setClaimed] = useState([true, true, true, true])
 
@@ -192,12 +193,12 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
             name: 'Kyberswap Instant Grant',
             version: '1',
             chainId: selectedNetworkToClaim,
-            verifyingContract: contractAddresses[selectedIndex],
+            verifyingContract: contractAddress,
           },
           message: {
             leafIndex: userData[selectedIndex]?.claimData?.index,
             termsAndConditions:
-              'I accept KyberSwap’s Terms and Conditions published here https://bafkreic3csqhyqrz3wir2wd7sn2owrsuwbn4aakbaje5zmmpoy2dmbdlyi.ipfs.w3s.link',
+              'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link',
           },
         }),
       ])
@@ -217,7 +218,7 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
         library
           ?.getSigner()
           .sendTransaction({
-            to: contractAddresses[selectedIndex],
+            to: contractAddress,
             data: encodedData,
           })
           .then(tx => {
@@ -312,8 +313,11 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
 
             <Text color={theme.subText} fontSize={14} marginTop="24px">
               Make sure you have read and understand the{' '}
-              <ExternalLink href="/todo">KyberSwap’s Terms and Conditions</ExternalLink> before proceeding. You will
-              need to Sign a message to confirm that you have read and accepted before claiming your assets.
+              <ExternalLink href="https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link">
+                KyberSwap’s Terms and Conditions
+              </ExternalLink>{' '}
+              before proceeding. You will need to Sign a message to confirm that you have read and accepted before
+              claiming your assets.
             </Text>
 
             <TermAndCondition
@@ -327,7 +331,10 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
                 style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
               />
               <Text>
-                Accept <ExternalLink href="/todo">KyberSwap’s Terms and Conditions</ExternalLink>
+                Accept{' '}
+                <ExternalLink href="https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link">
+                  KyberSwap’s Terms and Conditions
+                </ExternalLink>
               </Text>
             </TermAndCondition>
             <Flex marginTop="24px" sx={{ gap: '1rem' }}>
