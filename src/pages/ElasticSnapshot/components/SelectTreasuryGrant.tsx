@@ -1,10 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { type Provider, ZkMeWidget, verifyKYCWithZkMeServices } from '@zkmelabs/widget'
+import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
 import { Check } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import {
   useCreateOptionMutation,
   useGetUserSelectedOptionQuery,
@@ -20,7 +21,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
-import { MEDIA_WIDTHS } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import vestingData from '../data/vesting.json'
@@ -174,6 +175,25 @@ export default function SelectTreasuryGrant() {
         <Text fontSize={20} fontWeight="500">
           <Trans>Selecting Treasury Grant Option</Trans>
         </Text>
+
+        <Box backgroundColor={rgba('#08A1E7', 0.2)} padding="1rem" sx={{ borderRadius: '12px' }} marginTop="1rem">
+          <Text fontSize={14} lineHeight="20px">
+            For anyone who missed the{' '}
+            <Text color="#58B5EE" as="span">
+              January 31st
+            </Text>{' '}
+            Treasury Grant program registration deadline, you will still be able to complete registration steps.
+            However, if eligible, your grant will be processed at a later time. We will announce the Grant processing
+            timeline for Batch 2 Treasury Grant recipients on{' '}
+            <Text color="#58B5EE" as="span">
+              February 24th at 14:00 UTC
+            </Text>{' '}
+            at{' '}
+            <ExternalLink href="https://blog.kyberswap.com/kyberswap-elastic-exploit-treasury-grant-program-registration/#:~:text=For%20Affected%20Users%20who%20missed%20the%20Treasury%20Grant%20Program%20registration%20period%3A">
+              the following link
+            </ExternalLink>
+          </Text>
+        </Box>
 
         <Flex
           flexDirection="column"

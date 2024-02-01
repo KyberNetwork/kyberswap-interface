@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { Repeat } from 'react-feather'
+import { Repeat, XCircle } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
@@ -18,6 +18,7 @@ import { CheckCircle } from 'components/Icons'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 
 function InboxItemBridge({
@@ -44,10 +45,14 @@ function InboxItemBridge({
     takingAmountRate,
     chainId: rawChainId,
   } = templateBody?.order || {}
+  const isReorg = templateBody.isReorg
+
   const isFilled = status === LimitOrderStatus.FILLED
   const isPartialFilled = status === LimitOrderStatus.PARTIALLY_FILLED
   const chainId = rawChainId && rawChainId !== '{{.chainId}}' ? (Number(rawChainId) as ChainId) : undefined
-  const statusMessage = isFilled
+  const statusMessage = isReorg
+    ? t`Reverted ${increasedFilledPercent}`
+    : isFilled
     ? t`100% Filled`
     : isPartialFilled
     ? t`${filledPercent} Filled ${increasedFilledPercent}`
@@ -55,7 +60,7 @@ function InboxItemBridge({
 
   const navigate = useNavigate()
   const onClick = () => {
-    navigate(APP_PATHS.LIMIT)
+    navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[+templateBody.order.chainId as ChainId]?.route}`)
     onRead(announcement, statusMessage)
   }
 
@@ -68,11 +73,13 @@ function InboxItemBridge({
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>
-          <PrimaryText>{statusMessage}</PrimaryText>
+          <PrimaryText color={isReorg ? theme.red : undefined}>{statusMessage}</PrimaryText>
           {isFilled ? (
             <CheckCircle color={theme.primary} />
           ) : isPartialFilled ? (
             <Repeat color={theme.warning} size={12} />
+          ) : isReorg ? (
+            <XCircle color={theme.red} size={12} />
           ) : (
             <CheckCircle color={theme.warning} />
           )}
@@ -87,7 +94,7 @@ function InboxItemBridge({
           logoURL={takerAssetLogoURL}
         />
         <PrimaryText>
-          {takingAmountRate} {makerAssetSymbol}/{takerAssetSymbol}
+          {takingAmountRate} {takerAssetSymbol}/{makerAssetSymbol}
         </PrimaryText>
       </InboxItemRow>
 
