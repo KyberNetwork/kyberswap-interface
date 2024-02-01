@@ -11,7 +11,10 @@
       ],
       "index": 0
     },
-    "proof": []
+    "proof": [
+      "0x323e4317634738fef859352a3a99be53199cc00735d7aef5412add8437f609dd",
+      "0xdd211f3810804376adf964905a719e9f545f1d60bfa2e7f43ba302e13e7040c2"
+    ]
   },
   {
     "claimData": {
@@ -25,7 +28,10 @@
       ],
       "index": 1
     },
-    "proof": []
+    "proof": [
+      "0x7e951535ba342e8d3470c68f5008d5497d9b3e0a6251153ecf181eaae2c8cc15",
+      "0xdd211f3810804376adf964905a719e9f545f1d60bfa2e7f43ba302e13e7040c2"
+    ]
   },
   {
     "claimData": {
@@ -39,7 +45,10 @@
       ],
       "index": 2
     },
-    "proof": []
+    "proof": [
+      "0xf5b2ffb9eb9627092e92f7cac07f4dc0a8cee03526550a9fd0647174608184b6",
+      "0xfaebda2ccc191dd95b00d338d642bb11b8ef027e6b3d160b98ba9b4a73372d47"
+    ]
   },
   {
     "claimData": {
@@ -53,6 +62,9 @@
       ],
       "index": 3
     },
-    "proof": []
+    "proof": [
+      "0xa0f232d7156e20abc92a0788f697fce47066e40e70308061745b4b7b7fec8d8e",
+      "0xfaebda2ccc191dd95b00d338d642bb11b8ef027e6b3d160b98ba9b4a73372d47"
+    ]
   }
 ]
