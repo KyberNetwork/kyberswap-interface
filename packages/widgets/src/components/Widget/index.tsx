@@ -174,6 +174,7 @@ export interface WidgetProps {
   onAmountInChange?: (amount: string) => void
   onDestinationTokenChange?: (token: TokenInfo) => void
   onError?: (e: any) => void
+  width?: number
 }
 
 const Widget = ({
@@ -191,6 +192,7 @@ const Widget = ({
   onAmountInChange,
   onDestinationTokenChange,
   onError,
+  width,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
@@ -206,6 +208,7 @@ const Widget = ({
   onAmountInChange?: (value: string) => void
   onDestinationTokenChange?: (token: any) => void
   onError?: (e: any) => void
+  width?: number
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null)
   const { chainId } = useActiveWeb3()
@@ -426,7 +429,7 @@ const Widget = ({
   } = useApproval(trade?.routeSummary?.amountIn || '0', tokenIn, trade?.routerAddress || '')
 
   return (
-    <Wrapper>
+    <Wrapper width={width}>
       <DialogWrapper className={showModal ? 'open' : 'close'}>
         {showModal !== ModalType.REVIEW && (
           <ModalHeader>
@@ -722,6 +725,7 @@ export default function SwapWidget({
   onAmountInChange,
   onDestinationTokenChange,
   onError,
+  width,
 }: WidgetProps) {
   return (
     <StrictMode>
@@ -743,6 +747,7 @@ export default function SwapWidget({
               enableRoute={enableRoute}
               enableDexes={enableDexes}
               title={title}
+              width={width}
             />
           </TokenListProvider>
         </Web3Provider>
