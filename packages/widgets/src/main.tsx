@@ -147,6 +147,8 @@ const App = () => {
           buttonRadius: '10px',
           boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.04)',
         }}
+        showRate={false}
+        showDetail={false}
       />
       <h1>Vite + React</h1>
       <div className="card">

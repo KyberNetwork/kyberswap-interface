@@ -83,11 +83,11 @@ const TTLInput = styled.div`
   }
 `
 
-const BPS = 10_000
-const MAX_SLIPPAGE_IN_BIPS = 2_000
+export const BPS = 10_000
+export const MAX_SLIPPAGE_IN_BIPS = 2_000
 
-const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
-const validateSlippageInput = (str: string): { isValid: boolean; message?: string } => {
+export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
+export const validateSlippageInput = (str: string): { isValid: boolean; message?: string } => {
   if (str === '') {
     return {
       isValid: true,
@@ -138,6 +138,87 @@ const validateSlippageInput = (str: string): { isValid: boolean; message?: strin
   }
 }
 
+export const SlippageInput = ({
+  slippage,
+  setSlippage,
+}: {
+  slippage: number
+  setSlippage: (value: number) => void
+}) => {
+  const [v, setV] = useState(() => {
+    if ([5, 10, 50, 100].includes(slippage)) return ''
+    return ((slippage * 100) / BPS).toString()
+  })
+
+  const theme = useTheme()
+  const [isFocus, setIsFocus] = useState(false)
+  const { isValid, message } = validateSlippageInput(v)
+
+  return (
+    <>
+      <SlippageWrapper>
+        <SlippageItem isActive={slippage === 5} onClick={() => setSlippage(5)}>
+          0.05%
+        </SlippageItem>
+        <SlippageItem isActive={slippage === 10} onClick={() => setSlippage(10)}>
+          0.1%
+        </SlippageItem>
+        <SlippageItem isActive={slippage === 50} onClick={() => setSlippage(50)}>
+          0.5%
+        </SlippageItem>
+        <SlippageItem isActive={slippage === 100} onClick={() => setSlippage(100)}>
+          1%
+        </SlippageItem>
+        <SlippageItem
+          isActive={![5, 10, 50, 100].includes(slippage)}
+          style={{
+            flex: 3,
+            background: isFocus ? theme.dialog : undefined,
+            border: message ? (isValid ? `1px solid ${theme.warning}` : `1px solid ${theme.error}`) : undefined,
+          }}
+        >
+          {message && (
+            <AlertIcon
+              style={{
+                position: 'absolute',
+                top: 2,
+                left: 4,
+                width: 20,
+                height: 20,
+                color: isValid ? theme.warning : theme.error,
+              }}
+            />
+          )}
+          <Input
+            isActive={![5, 10, 50, 100].includes(slippage)}
+            placeholder="Custom"
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => {
+              setIsFocus(false)
+              if (isValid) setSlippage(parseSlippageInput(v))
+            }}
+            value={v}
+            onChange={e => setV(e.target.value)}
+          />
+          <span>%</span>
+        </SlippageItem>
+      </SlippageWrapper>
+      {message && (
+        <div
+          style={{
+            fontSize: '12px',
+            color: isValid ? theme.warning : theme.error,
+            textAlign: 'left',
+            marginTop: '4px',
+          }}
+        >
+          {message}
+        </div>
+      )}
+    </>
+  )
+}
+
 function Settings({
   slippage,
   setSlippage,
@@ -155,15 +236,7 @@ function Settings({
   excludedDexes: Dex[]
   onShowSource: () => void
 }) {
-  const [v, setV] = useState(() => {
-    if ([5, 10, 50, 100].includes(slippage)) return ''
-    return ((slippage * 100) / BPS).toString()
-  })
-
   const theme = useTheme()
-  const [isFocus, setIsFocus] = useState(false)
-
-  const { isValid, message } = validateSlippageInput(v)
 
   return (
     <>
@@ -175,65 +248,7 @@ function Settings({
             text={`Transaction will revert if there is an adverse rate change that is higher than this %`}
           />
         </Label>
-        <SlippageWrapper>
-          <SlippageItem isActive={slippage === 5} onClick={() => setSlippage(5)}>
-            0.05%
-          </SlippageItem>
-          <SlippageItem isActive={slippage === 10} onClick={() => setSlippage(10)}>
-            0.1%
-          </SlippageItem>
-          <SlippageItem isActive={slippage === 50} onClick={() => setSlippage(50)}>
-            0.5%
-          </SlippageItem>
-          <SlippageItem isActive={slippage === 100} onClick={() => setSlippage(100)}>
-            1%
-          </SlippageItem>
-          <SlippageItem
-            isActive={![5, 10, 50, 100].includes(slippage)}
-            style={{
-              flex: 3,
-              background: isFocus ? theme.dialog : undefined,
-              border: message ? (isValid ? `1px solid ${theme.warning}` : `1px solid ${theme.error}`) : undefined,
-            }}
-          >
-            {message && (
-              <AlertIcon
-                style={{
-                  position: 'absolute',
-                  top: 2,
-                  left: 4,
-                  width: 20,
-                  height: 20,
-                  color: isValid ? theme.warning : theme.error,
-                }}
-              />
-            )}
-            <Input
-              isActive={![5, 10, 50, 100].includes(slippage)}
-              placeholder="Custom"
-              onFocus={() => setIsFocus(true)}
-              onBlur={() => {
-                setIsFocus(false)
-                if (isValid) setSlippage(parseSlippageInput(v))
-              }}
-              value={v}
-              onChange={e => setV(e.target.value)}
-            />
-            <span>%</span>
-          </SlippageItem>
-        </SlippageWrapper>
-        {message && (
-          <div
-            style={{
-              fontSize: '12px',
-              color: isValid ? theme.warning : theme.error,
-              textAlign: 'left',
-              marginTop: '4px',
-            }}
-          >
-            {message}
-          </div>
-        )}
+        <SlippageInput slippage={slippage} setSlippage={setSlippage} />
       </div>
 
       <Row>

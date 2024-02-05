@@ -57,6 +57,7 @@ import DexesSetting from '../DexesSetting'
 import ImportModal from '../ImportModal'
 import InfoHelper from '../InfoHelper'
 import TradeRouting from '../TradeRouting'
+import Slippage from '../Slippage'
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.dialog};
@@ -174,6 +175,8 @@ export interface WidgetProps {
   onAmountInChange?: (amount: string) => void
   onDestinationTokenChange?: (token: TokenInfo) => void
   onError?: (e: any) => void
+  showRate?: boolean
+  showDetail?: boolean
   width?: number
 }
 
@@ -192,6 +195,8 @@ const Widget = ({
   onAmountInChange,
   onDestinationTokenChange,
   onError,
+  showRate,
+  showDetail,
   width,
 }: {
   defaultTokenIn?: string
@@ -208,6 +213,8 @@ const Widget = ({
   onAmountInChange?: (value: string) => void
   onDestinationTokenChange?: (token: any) => void
   onError?: (e: any) => void
+  showRate?: boolean
+  showDetail?: boolean
   width?: number
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null)
@@ -394,6 +401,7 @@ const Widget = ({
               }}
               onTxSubmit={onTxSubmit}
               onError={onError}
+              showDetail={showDetail}
             />
           )
         return null
@@ -445,10 +453,19 @@ const Widget = ({
           </ModalHeader>
         )}
         <ContentWrapper>{modalContent}</ContentWrapper>
-        <PoweredBy style={{ marginTop: '0' }}>
-          Powered By
-          <KyberSwapLogo />
-        </PoweredBy>
+        <Footer>
+          <PoweredBy style={{ marginTop: '0' }}>
+            Powered By
+            <KyberSwapLogo />
+          </PoweredBy>
+          <a
+            href="https://discord.com/channels/608934314960224276/1192426056183972010"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Support
+          </a>
+        </Footer>
       </DialogWrapper>
       <Title>
         {title || 'Swap'}
@@ -530,41 +547,43 @@ const Widget = ({
         </InputRow>
       </InputWrapper>
 
-      <MiddleRow>
-        <MiddleLeft>
-          <RefreshBtn
-            loading={loading}
-            onRefresh={() => {
-              getRate()
+      {showRate && (
+        <MiddleRow>
+          <MiddleLeft>
+            <RefreshBtn
+              loading={loading}
+              onRefresh={() => {
+                getRate()
+              }}
+              trade={trade}
+            />
+            <Rate>
+              {(() => {
+                if (!rate) return '--'
+                return !inverseRate
+                  ? `1 ${tokenInInfo?.symbol} = ${+rate.toPrecision(10)} ${tokenOutInfo?.symbol}`
+                  : `1 ${tokenOutInfo?.symbol} = ${+(1 / rate).toPrecision(10)} ${tokenInInfo?.symbol}`
+              })()}
+            </Rate>
+
+            {!!rate && (
+              <SettingBtn onClick={() => setInverseRate(prev => !prev)}>
+                <SwapIcon />
+              </SettingBtn>
+            )}
+          </MiddleLeft>
+
+          <SwitchBtn
+            onClick={() => {
+              setTrade(null)
+              setTokenIn(tokenOut)
+              setTokenOut(tokenIn)
             }}
-            trade={trade}
-          />
-          <Rate>
-            {(() => {
-              if (!rate) return '--'
-              return !inverseRate
-                ? `1 ${tokenInInfo?.symbol} = ${+rate.toPrecision(10)} ${tokenOutInfo?.symbol}`
-                : `1 ${tokenOutInfo?.symbol} = ${+(1 / rate).toPrecision(10)} ${tokenInInfo?.symbol}`
-            })()}
-          </Rate>
-
-          {!!rate && (
-            <SettingBtn onClick={() => setInverseRate(prev => !prev)}>
-              <SwapIcon />
-            </SettingBtn>
-          )}
-        </MiddleLeft>
-
-        <SwitchBtn
-          onClick={() => {
-            setTrade(null)
-            setTokenIn(tokenOut)
-            setTokenOut(tokenIn)
-          }}
-        >
-          <SwitchIcon />
-        </SwitchBtn>
-      </MiddleRow>
+          >
+            <SwitchIcon />
+          </SwitchBtn>
+        </MiddleRow>
+      )}
 
       <InputWrapper>
         <BalanceRow>
@@ -617,47 +636,51 @@ const Widget = ({
         </InputRow>
       </InputWrapper>
 
-      <Detail style={{ marginTop: '1rem' }}>
-        <Row>
-          <DetailTitle>More information</DetailTitle>
-          {enableRoute && !(isWrap || isUnwrap) && (
-            <ViewRouteTitle onClick={() => setShowModal(ModalType.TRADE_ROUTE)}>
-              View Routes <Expand style={{ width: 12, height: 12 }} />
-            </ViewRouteTitle>
-          )}
-        </Row>
-        <Divider />
-        <DetailRow>
-          <DetailLabel>
-            Minimum Received
-            <InfoHelper text={`Minimum amount you will receive or your transaction will revert`} />
-          </DetailLabel>
-          <DetailRight>{minAmountOut ? `${minAmountOut} ${tokenOutInfo?.symbol}` : '--'}</DetailRight>
-        </DetailRow>
+      <Slippage slippage={slippage} setSlippage={setSlippage} />
 
-        <DetailRow>
-          <DetailLabel>
-            Gas Fee <InfoHelper text="Estimated network fee for your transaction" />
-          </DetailLabel>
-          <DetailRight>
-            {trade?.routeSummary?.gasUsd ? '$' + (+trade.routeSummary.gasUsd).toPrecision(4) : '--'}
-          </DetailRight>
-        </DetailRow>
+      {showDetail && (
+        <Detail style={{ marginTop: '1rem' }}>
+          <Row>
+            <DetailTitle>More information</DetailTitle>
+            {enableRoute && !(isWrap || isUnwrap) && (
+              <ViewRouteTitle onClick={() => setShowModal(ModalType.TRADE_ROUTE)}>
+                View Routes <Expand style={{ width: 12, height: 12 }} />
+              </ViewRouteTitle>
+            )}
+          </Row>
+          <Divider />
+          <DetailRow>
+            <DetailLabel>
+              Minimum Received
+              <InfoHelper text={`Minimum amount you will receive or your transaction will revert`} />
+            </DetailLabel>
+            <DetailRight>{minAmountOut ? `${minAmountOut} ${tokenOutInfo?.symbol}` : '--'}</DetailRight>
+          </DetailRow>
 
-        <DetailRow>
-          <DetailLabel>
-            Price Impact
-            <InfoHelper text="Estimated change in price due to the size of your transaction" />
-          </DetailLabel>
-          <DetailRight
-            style={{
-              color: priceImpact > 15 ? theme.error : priceImpact > 5 ? theme.warning : theme.text,
-            }}
-          >
-            {priceImpact === -1 ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(3) + '%' : '< 0.01%'}
-          </DetailRight>
-        </DetailRow>
-      </Detail>
+          <DetailRow>
+            <DetailLabel>
+              Gas Fee <InfoHelper text="Estimated network fee for your transaction" />
+            </DetailLabel>
+            <DetailRight>
+              {trade?.routeSummary?.gasUsd ? '$' + (+trade.routeSummary.gasUsd).toPrecision(4) : '--'}
+            </DetailRight>
+          </DetailRow>
+
+          <DetailRow>
+            <DetailLabel>
+              Price Impact
+              <InfoHelper text="Estimated change in price due to the size of your transaction" />
+            </DetailLabel>
+            <DetailRight
+              style={{
+                color: priceImpact > 15 ? theme.error : priceImpact > 5 ? theme.warning : theme.text,
+              }}
+            >
+              {priceImpact === -1 ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(3) + '%' : '< 0.01%'}
+            </DetailRight>
+          </DetailRow>
+        </Detail>
+      )}
 
       <Button
         disabled={!!error || loading || checkingAllowance || approvalState === APPROVAL_STATE.PENDING || isUnsupported}
@@ -699,7 +722,11 @@ const Widget = ({
           <KyberSwapLogo />
         </PoweredBy>
 
-        <a href="https://support.kyberswap.com/hc/en-us/requests/new" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://discord.com/channels/608934314960224276/1192426056183972010"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Support
         </a>
       </Footer>
@@ -725,6 +752,8 @@ export default function SwapWidget({
   onAmountInChange,
   onDestinationTokenChange,
   onError,
+  showRate = true,
+  showDetail = true,
   width,
 }: WidgetProps) {
   return (
@@ -747,6 +776,8 @@ export default function SwapWidget({
               enableRoute={enableRoute}
               enableDexes={enableDexes}
               title={title}
+              showRate={showRate}
+              showDetail={showDetail}
               width={width}
             />
           </TokenListProvider>

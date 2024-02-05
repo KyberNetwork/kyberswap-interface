@@ -191,6 +191,7 @@ function Confirmation({
   client,
   onTxSubmit,
   onError,
+  showDetail,
 }: {
   trade: Trade
   tokenInInfo: TokenInfo
@@ -205,6 +206,7 @@ function Confirmation({
   client: string
   onTxSubmit?: (txHash: string, data: any) => void
   onError?: (e: any) => void
+  showDetail?: boolean
 }) {
   const theme = useTheme()
   const { provider, account, chainId } = useActiveWeb3()
@@ -466,55 +468,57 @@ function Confirmation({
         </Note>
       )}
 
-      <Detail>
-        <DetailRow>
-          <DetailLabel>Current Price</DetailLabel>
-          <DetailRight>
-            1 {tokenInInfo.symbol} = {parseFloat(rate.toPrecision(6))} {tokenOutInfo.symbol}
-          </DetailRight>
-        </DetailRow>
+      {showDetail && (
+        <Detail>
+          <DetailRow>
+            <DetailLabel>Current Price</DetailLabel>
+            <DetailRight>
+              1 {tokenInInfo.symbol} = {parseFloat(rate.toPrecision(6))} {tokenOutInfo.symbol}
+            </DetailRight>
+          </DetailRow>
 
-        <DetailRow>
-          <DetailLabel>
-            Minimum Received
-            <InfoHelper text={`Minimum amount you will receive or your transaction will revert`} />
-          </DetailLabel>
-          <DetailRight>
-            {minAmountOut} {minAmountOut === '--' ? '' : tokenOutInfo.symbol}
-          </DetailRight>
-        </DetailRow>
+          <DetailRow>
+            <DetailLabel>
+              Minimum Received
+              <InfoHelper text={`Minimum amount you will receive or your transaction will revert`} />
+            </DetailLabel>
+            <DetailRight>
+              {minAmountOut} {minAmountOut === '--' ? '' : tokenOutInfo.symbol}
+            </DetailRight>
+          </DetailRow>
 
-        <DetailRow>
-          <DetailLabel>
-            Gas Fee
-            <InfoHelper text="Estimated network fee for your transaction" />
-          </DetailLabel>
-          {isWrap || isUnwrap ? (
-            <DetailRight>--</DetailRight>
-          ) : (
-            <DetailRight>${(+trade.routeSummary.gasUsd).toPrecision(4)}</DetailRight>
-          )}
-        </DetailRow>
+          <DetailRow>
+            <DetailLabel>
+              Gas Fee
+              <InfoHelper text="Estimated network fee for your transaction" />
+            </DetailLabel>
+            {isWrap || isUnwrap ? (
+              <DetailRight>--</DetailRight>
+            ) : (
+              <DetailRight>${(+trade.routeSummary.gasUsd).toPrecision(4)}</DetailRight>
+            )}
+          </DetailRow>
 
-        <DetailRow>
-          <DetailLabel>
-            Price Impact
-            <InfoHelper text="Estimated change in price due to the size of your transaction" />
-          </DetailLabel>
-          <DetailRight
-            style={{
-              color: priceImpact > 15 ? theme.error : priceImpact > 5 ? theme.warning : theme.text,
-            }}
-          >
-            {priceImpact === -1 ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(3) + '%' : '< 0.01%'}
-          </DetailRight>
-        </DetailRow>
+          <DetailRow>
+            <DetailLabel>
+              Price Impact
+              <InfoHelper text="Estimated change in price due to the size of your transaction" />
+            </DetailLabel>
+            <DetailRight
+              style={{
+                color: priceImpact > 15 ? theme.error : priceImpact > 5 ? theme.warning : theme.text,
+              }}
+            >
+              {priceImpact === -1 ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(3) + '%' : '< 0.01%'}
+            </DetailRight>
+          </DetailRow>
 
-        <DetailRow>
-          <DetailLabel>Slippage</DetailLabel>
-          <DetailRight>{(slippage * 100) / 10_000}%</DetailRight>
-        </DetailRow>
-      </Detail>
+          <DetailRow>
+            <DetailLabel>Slippage</DetailLabel>
+            <DetailRight>{(slippage * 100) / 10_000}%</DetailRight>
+          </DetailRow>
+        </Detail>
+      )}
 
       <div style={{ marginTop: 'auto' }}>
         {isWrap || isUnwrap ? null : priceImpact > 15 ? (
