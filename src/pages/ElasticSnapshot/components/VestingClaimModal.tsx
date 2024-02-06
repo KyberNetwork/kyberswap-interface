@@ -24,8 +24,8 @@ import VestingAbi from '../data/vestingAbi.json'
 
 const ContractInterface = new Interface(VestingAbi)
 export const vestingContractAddress = {
-  A: '0xd7414e7bf549010a019284d09b98439d9bf1a34d',
-  B: '0x4257ed5e21b4cdb7023b7995a0dbf4416ca1e27c',
+  A: '0x04F57dE350E76ec952b6B4d1283Ba800ab3c95e3',
+  B: '0xF3E4C1f21a1218Ae8e48569c94275ABd605563fD',
 }
 
 export default function VestingClaimModal({
@@ -113,7 +113,7 @@ export default function VestingClaimModal({
           message: {
             leafIndex,
             termsAndConditions:
-              'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link',
+              'By confirming this transaction, I agree to the Terms and Conditions of KyberSwap Treasury Grant Program which can be found at this link https://bafkreidnmptjtdvhzcuy4jiib34j5aapsuklhrryqptvfprnld7o6st42y.ipfs.w3s.link',
           },
         }),
       ])
@@ -222,8 +222,11 @@ export default function VestingClaimModal({
 
         <Text color={theme.subText} fontSize={14} marginTop="24px">
           Make sure you have read and understand the{' '}
-          <ExternalLink href="/todo">KyberSwap’s Terms and Conditions</ExternalLink> before proceeding. You will need to
-          Sign a message to confirm that you have read and accepted before claiming your assets.
+          <ExternalLink href="https://bafkreidnmptjtdvhzcuy4jiib34j5aapsuklhrryqptvfprnld7o6st42y.ipfs.w3s.link/">
+            KyberSwap’s Terms and Conditions
+          </ExternalLink>{' '}
+          before proceeding. You will need to Sign a message to confirm that you have read and accepted before claiming
+          your assets.
         </Text>
 
         <TermAndCondition
@@ -237,7 +240,10 @@ export default function VestingClaimModal({
             style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
           />
           <Text>
-            Accept <ExternalLink href="/todo">KyberSwap’s Terms and Conditions</ExternalLink>
+            Accept{' '}
+            <ExternalLink href="https://bafkreidnmptjtdvhzcuy4jiib34j5aapsuklhrryqptvfprnld7o6st42y.ipfs.w3s.link/">
+              KyberSwap’s Terms and Conditions
+            </ExternalLink>
           </Text>
         </TermAndCondition>
         <Flex marginTop="24px" sx={{ gap: '1rem' }}>
