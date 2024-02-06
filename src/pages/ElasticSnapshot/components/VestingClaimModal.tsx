@@ -23,7 +23,10 @@ import { friendlyError } from 'utils/errorMessage'
 import VestingAbi from '../data/vestingAbi.json'
 
 const ContractInterface = new Interface(VestingAbi)
-export const vestingContractAddress = '0x1c0D000D309072fE54F272d255f5de3aBe54e541'
+export const vestingContractAddress = {
+  A: '0xd7414e7bf549010a019284d09b98439d9bf1a34d',
+  B: '0x4257ed5e21b4cdb7023b7995a0dbf4416ca1e27c',
+}
 
 export default function VestingClaimModal({
   onDismiss,
@@ -31,12 +34,14 @@ export default function VestingClaimModal({
   proof,
   tokenAmount,
   vestingAmount,
+  option,
 }: {
   leafIndex: number
   onDismiss: () => void
   proof: string[]
   tokenAmount: number
   vestingAmount: number
+  option: 'A' | 'B'
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
@@ -103,11 +108,12 @@ export default function VestingClaimModal({
             name: 'Kyberswap Linear Vesting Grant',
             version: '1',
             chainId: ChainId.MATIC,
-            verifyingContract: vestingContractAddress,
+            verifyingContract: vestingContractAddress[option],
           },
           message: {
             leafIndex,
-            termsAndConditions: `I accept KyberSwap’s Terms and Conditions published here https://bafkreic3csqhyqrz3wir2wd7sn2owrsuwbn4aakbaje5zmmpoy2dmbdlyi.ipfs.w3s.link`,
+            termsAndConditions:
+              'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link',
           },
         }),
       ])
@@ -125,7 +131,7 @@ export default function VestingClaimModal({
         library
           ?.getSigner()
           .sendTransaction({
-            to: vestingContractAddress,
+            to: vestingContractAddress[option],
             data: encodedData,
           })
           .then(tx => {
@@ -155,7 +161,7 @@ export default function VestingClaimModal({
           type: NotificationType.ERROR,
         })
       })
-  }, [account, library, notify, addTransactionWithType, onDismiss, leafIndex, proof, vestingAmount])
+  }, [option, account, library, notify, addTransactionWithType, onDismiss, leafIndex, proof, vestingAmount])
 
   useEffect(() => {
     if (autoSign && chainId === ChainId.MATIC) {

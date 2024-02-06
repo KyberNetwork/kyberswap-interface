@@ -15,8 +15,9 @@ import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import vestingOptionA from '../data/vesting/optionA.json'
+import vestingOptionB from '../data/vesting/optionB.json'
 import abi from '../data/vestingAbi.json'
-import claimVestingData from '../data/vestingData.json'
 import VestingClaimModal, { vestingContractAddress } from './VestingClaimModal'
 
 const Details = styled.div`
@@ -86,11 +87,13 @@ const Legend = styled.div`
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
-export default function Vesting({ userSelectedOption }: { userSelectedOption: string }) {
+export default function Vesting({ userSelectedOption }: { userSelectedOption: 'A' | 'B' }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const userVestingData = useMemo(
-    () => claimVestingData.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()),
+    () =>
+      vestingOptionA.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()) ||
+      vestingOptionB.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()),
     [account],
   )
 
@@ -102,7 +105,7 @@ export default function Vesting({ userSelectedOption }: { userSelectedOption: st
   const [endTime, setEndTime] = useState(0)
   const [vestedAmount, setVestedAmount] = useState(0)
 
-  const vestingContract = useReadingContract(vestingContractAddress, abi, ChainId.MATIC)
+  const vestingContract = useReadingContract(vestingContractAddress[userSelectedOption], abi, ChainId.MATIC)
 
   const [, setRender] = useState(0)
   const getVestedData = useCallback(() => {
@@ -139,9 +142,7 @@ export default function Vesting({ userSelectedOption }: { userSelectedOption: st
 
   const [show, setShow] = useState(false)
 
-  const fakeCondition = 1 + 1 === 2
-  // TODO: hide to release instant grant
-  if (!userVestingData || fakeCondition) return null
+  if (!userVestingData) return null
 
   const totalAmount = userVestingData.claimData.vestingAmount / 10 ** 6
 
@@ -163,6 +164,7 @@ export default function Vesting({ userSelectedOption }: { userSelectedOption: st
           proof={proof}
           tokenAmount={claimableAmount}
           vestingAmount={userVestingData.claimData.vestingAmount}
+          option={userSelectedOption}
         />
       )}
       <Text fontSize={14} color={theme.subText} lineHeight="20px">
