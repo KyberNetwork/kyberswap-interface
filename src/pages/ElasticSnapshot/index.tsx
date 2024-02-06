@@ -26,7 +26,8 @@ import TreasuryGrantAndInstantClaim from './components/TreasuryGrantAndInstantCl
 import Vesting from './components/Vesting'
 import poolsByCategoriesRaw from './data/category.json'
 import data from './data/data.json'
-import vestingData from './data/vestingData.json'
+import vestingOptionA from './data/vesting/optionA.json'
+import vestingOptionB from './data/vesting/optionB.json'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
@@ -128,11 +129,11 @@ export default function ElasticSnapshot() {
 
   const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
 
-  // TODO: remove
-  const fakeCondition = 1 + 1 > 2
   const userVestingData = useMemo(
-    () => vestingData.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase() && fakeCondition),
-    [account, fakeCondition],
+    () =>
+      vestingOptionA.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()) ||
+      vestingOptionB.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()),
+    [account],
   )
 
   const categories = ['category 1', 'category 2', 'category 3', 'category 4', 'category 5']
@@ -519,7 +520,7 @@ export default function ElasticSnapshot() {
           </Flex>
         </>
       ) : (
-        userSelectedOption && <Vesting userSelectedOption={userSelectedOption} />
+        ['A', 'B'].includes(userSelectedOption) && <Vesting userSelectedOption={userSelectedOption as 'A' | 'B'} />
       )}
     </PoolsPageWrapper>
   )
