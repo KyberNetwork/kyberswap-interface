@@ -15,9 +15,9 @@ import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import abi from '../data/abis/vestingAbi.json'
 import vestingOptionA from '../data/vesting/optionA.json'
 import vestingOptionB from '../data/vesting/optionB.json'
-import abi from '../data/vestingAbi.json'
 import VestingClaimModal, { vestingContractAddress } from './VestingClaimModal'
 
 const Details = styled.div`

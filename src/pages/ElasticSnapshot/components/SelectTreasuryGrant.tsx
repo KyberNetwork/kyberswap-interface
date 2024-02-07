@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { type Provider, ZkMeWidget, verifyKYCWithZkMeServices } from '@zkmelabs/widget'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
-import { Check } from 'react-feather'
+import { Check, Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import {
@@ -20,15 +20,17 @@ import Dots from 'components/Dots'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { VerticalDivider } from 'pages/About/styleds'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import vesting3rdData from '../data/pendle_dappos_vesting.json'
 import vestingData from '../data/vesting.json'
 import ChooseGrantModal from './ChooseGrantModal'
 import TermAndPolicyModal from './TermAndPolicyModal'
 
-const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
+const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
 const Step = styled.div`
   border-radius: 8px;
@@ -53,6 +55,10 @@ export default function SelectTreasuryGrant() {
   const { account, chainId } = useActiveWeb3React()
   const [showOptionModal, setShowOptionsModal] = useState(false)
   const userData = vestingData.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
+  const user3rdData = vesting3rdData.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
+  const totalValue = (userData?.value || 0) + (user3rdData?.value || 0)
+
+  console.log(userData, user3rdData)
 
   const [createOption] = useCreateOptionMutation()
   const notify = useNotify()
@@ -195,22 +201,88 @@ export default function SelectTreasuryGrant() {
           </Text>
         </Box>
 
-        <Flex
-          flexDirection="column"
-          padding="12px 20px"
-          justifyContent="space-between"
-          marginTop="1rem"
-          width="180px"
-          sx={{ gap: '16px', borderRadius: '12px' }}
-          backgroundColor="rgba(0,0,0,0.64)"
-        >
-          <Text fontSize="14px" fontWeight="500" color={theme.subText} lineHeight="20px">
-            <Trans>Total Amount (USD)</Trans>
-          </Text>
-          <Text fontWeight="500" fontSize={20}>
-            {format(userData?.value || 0)}
-          </Text>
+        <Flex marginTop="1rem" padding={upToMedium ? '12px 0' : '12px 20px'} alignItems="center">
+          <Flex
+            flexDirection="column"
+            justifyContent="space-between"
+            marginRight={upToMedium ? '12px' : '24px'}
+            sx={{ gap: '16px', borderRadius: '12px' }}
+          >
+            <Text fontSize={upToMedium ? '12px' : '14px'} fontWeight="500" color={theme.subText} lineHeight="20px">
+              <Trans>TOTAL AMOUNT (USD)</Trans>
+            </Text>
+            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+              {format(totalValue)}
+            </Text>
+          </Flex>
+          <VerticalDivider style={{ height: '100%' }} />
+          <Flex
+            flexDirection="column"
+            justifyContent="space-between"
+            marginX={upToMedium ? '12px' : '24px'}
+            sx={{ gap: '16px' }}
+          >
+            <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+              <Trans>Phase 1</Trans>
+            </Text>
+            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+              {format(userData?.value || 0)}
+            </Text>
+          </Flex>
+          <VerticalDivider style={{ height: '80%' }} />
+          <Flex
+            flexDirection="column"
+            justifyContent="space-between"
+            sx={{ gap: '16px' }}
+            marginX={upToMedium ? '12px' : '24px'}
+          >
+            <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+              <Trans>Phase 2</Trans>
+            </Text>
+            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+              {format(user3rdData?.value || 0)}
+            </Text>
+          </Flex>
         </Flex>
+
+        <Text fontSize={14} color={theme.subText} lineHeight={1.5}>
+          <Info size={12} color="#58B5EE" />
+          <Text as="span" marginLeft="6px" color="#58B5EE">
+            Phase 1:
+          </Text>{' '}
+          First Batch of Affected Users including:
+          <ul>
+            <li>Normal cases of Affected Users who made the January 31 Treasury Grant Program registration deadline</li>
+            <li style={{ marginTop: '4px' }}>
+              Category 3 Affected Users who made the January 31 Treasury Grant Program registration deadline, intending
+              to claim Treasury Grants for unrecovered funds
+            </li>
+            <li style={{ marginTop: '4px' }}>
+              Category 3 and 5 Affected Users claiming Category 3 Affected Assets which have been partially recovered,
+              Category 3 Swapped Affected Assets, and Category 5 Affected Assets which have been recovered
+            </li>
+          </ul>
+        </Text>
+
+        <Text fontSize={14} color={theme.subText} lineHeight={1.5}>
+          <Info size={12} color="#58B5EE" />
+          <Text as="span" marginLeft="6px" color="#58B5EE">
+            Phase 2:
+          </Text>{' '}
+          Second Batch of Affected Users including:
+          <ul>
+            <li>Third Party Affected Users of DappOS, Pendle, Magpie/Penpie and Equilibria</li>
+            <li style={{ marginTop: '4px' }}>Affected Users with Multisig/AA/Safe/Other Contract Affected Addresses</li>
+            <li style={{ marginTop: '4px' }}>
+              Normal cases of Affected Users who missed the January 31 Treasury Grant Program registration deadline, but
+              made the next March 4 deadline
+            </li>
+            <li>
+              Category 3 Affected Users who missed the January 31 Treasury Grant Program registration deadline, but made
+              the next March 4 deadline, intending to claim Treasury Grants for unrecovered funds
+            </li>
+          </ul>
+        </Text>
 
         <Text marginTop="1rem" fontSize={14} color={theme.subText} lineHeight="20px">
           <Trans>

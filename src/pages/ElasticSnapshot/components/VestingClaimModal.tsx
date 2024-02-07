@@ -20,7 +20,7 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
 
-import VestingAbi from '../data/vestingAbi.json'
+import VestingAbi from '../data/abis/vestingAbi.json'
 
 const ContractInterface = new Interface(VestingAbi)
 export const vestingContractAddress = {
