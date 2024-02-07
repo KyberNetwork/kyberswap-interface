@@ -141,7 +141,7 @@ export default function ElasticSnapshot() {
 
   categories.forEach(cat => {
     const temp: Position[] = []
-    userInfo?.positions.forEach(pos => {
+    userInfo?.positions.forEach((pos: Position) => {
       if (poolsByCategories[cat]?.[pos.info.chain]?.includes(pos.info.pool)) temp.push(pos)
     })
 

@@ -13,7 +13,9 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
 import { TermAndCondition } from 'components/Header/web3/WalletModal'
+import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -28,11 +30,12 @@ import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import InstantAbi from '../data/abis/instantClaimAbi.json'
 import avalanche from '../data/instant/avalanche.json'
 import ethereum from '../data/instant/ethereum.json'
 import optimism from '../data/instant/optimism.json'
+import user3rd from '../data/instant/pendle_dappos_instant_polygon.json'
 import polygon from '../data/instant/polygon.json'
-import InstantAbi from '../data/instantClaimAbi.json'
 
 const Total = styled.div`
   display: flex;
@@ -68,7 +71,21 @@ const contractAddress = '0xD0806364e9672EF21039Dc4DC84651B9b535E535'
 
 const ContractInterface = new Interface(InstantAbi)
 
-export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void }) {
+const snapshotPrices: { [key: string]: number } = {
+  '0xd7bb095a60d7666d4a6f236423b47ddd6ae6cfa7': 3024.788661,
+  '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619': 2382.617666,
+  '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 1,
+  '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270': 0.812957,
+  '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 1,
+  '0x03b54a6e9a984069379fae1a4fc4dbae93b3bccd': 2750.912419,
+  '0xaddb6a0412de1ba0f936dcaeb8aaa24578dcf3b2': 2518.714817,
+  '0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202': 0.6043092478,
+  '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': 1,
+  '0xc7198437980c041c805a1edcba50c1ce5db95118': 1,
+  '0xfab550568c688d5d8a52c7d794cb93edc26ec0ec': 1,
+}
+
+export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () => void; is3rd: boolean }) {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -87,12 +104,17 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
 
   const allTokens = [ethereumTokens, optimismTokens, polygonTokens, avalancheTokens]
 
+  const user3rdData = useMemo(() => {
+    return user3rd.find(info => info.claimData.receiver.toLowerCase() === account?.toLowerCase())
+  }, [account])
+
   const userData = useMemo(() => {
     if (!account) return []
+    if (is3rd) return [undefined, undefined, user3rdData, undefined]
     return [ethereum, optimism, polygon, avalanche].map(data =>
       data.find(info => info.claimData.receiver.toLowerCase() === account.toLowerCase()),
     )
-  }, [account])
+  }, [account, is3rd, user3rdData])
 
   useEffect(() => {
     ;(() => {
@@ -365,7 +387,11 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
               <TableHeader>
                 <Text>Assets</Text>
                 <Text textAlign="right">Exploitation Value</Text>
-                <Text textAlign="right">Current Value</Text>
+
+                <Flex justifyContent="flex-end">
+                  <Text textAlign="right">{is3rd ? 'Current Value' : 'Snapshot Value'}</Text>
+                  <InfoHelper text="Recovered Asset Distribution Snapshot Value" />
+                </Flex>
               </TableHeader>
             )}
 
@@ -382,10 +408,13 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
 
               const network = NETWORKS_INFO[chain]
               const totalValue = item.claimData.tokenInfo.reduce((acc, cur) => acc + cur.value, 0)
+
               const currentValue = item.claimData.tokenInfo.reduce((acc, cur) => {
                 const tk = allTokens[index][cur.token.toLowerCase()]
                 const tkAmount = tk && TokenAmount.fromRawAmount(tk, cur.amount)
-                const currentValue = +(tkAmount?.toExact() || '0') * (prices[index][cur.token.toLowerCase()] || 0)
+                const currentValue =
+                  +(tkAmount?.toExact() || '0') *
+                  (snapshotPrices[cur.token.toLowerCase()] || prices[index][cur.token.toLowerCase()] || 0)
                 return acc + currentValue
               }, 0)
 
@@ -404,14 +433,16 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
                         <Flex sx={{ gap: '6px' }} alignItems="center">
                           <img alt="" src={network.icon} width={18} /> <Text fontSize={16}>{network.name}</Text>
                         </Flex>
-                        <ButtonPrimary
-                          disabled={claimed[index]}
-                          style={{ height: '36px' }}
-                          width="max-content"
-                          onClick={() => setSelectedNetworkToClaim(chain)}
-                        >
-                          {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
-                        </ButtonPrimary>
+                        <MouseoverTooltip text={is3rd ? 'Not started yet' : ''} width="fit-content" placement="top">
+                          <ButtonPrimary
+                            disabled={claimed[index] || is3rd}
+                            style={{ height: '36px' }}
+                            width="max-content"
+                            onClick={() => setSelectedNetworkToClaim(chain)}
+                          >
+                            {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
+                          </ButtonPrimary>
+                        </MouseoverTooltip>
                       </Flex>
 
                       <Flex
@@ -423,7 +454,11 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
                         fontSize="12px"
                       >
                         <Text>EXPLOITATION VALUE</Text>
-                        <Text>CURRENT VALUE</Text>
+
+                        <Flex>
+                          <Text>{is3rd ? 'CURRENT VALUE' : 'SNAPSHOT VALUE'}</Text>
+                          <InfoHelper text="Recovered Asset Distribution Snapshot Value" />
+                        </Flex>
                       </Flex>
 
                       <Flex alignItems="center" justifyContent="space-between" marginTop="4px">
@@ -447,14 +482,16 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
                         {format(currentValue)}
                       </Text>
                       <Flex justifyContent="flex-end">
-                        <ButtonPrimary
-                          disabled={claimed[index]}
-                          style={{ height: '36px' }}
-                          width="max-content"
-                          onClick={() => setSelectedNetworkToClaim(chain)}
-                        >
-                          {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
-                        </ButtonPrimary>
+                        <MouseoverTooltip text={is3rd ? 'Not started yet' : ''} width="fit-content" placement="top">
+                          <ButtonPrimary
+                            disabled={claimed[index] || is3rd}
+                            style={{ height: '36px' }}
+                            width="max-content"
+                            onClick={() => setSelectedNetworkToClaim(chain)}
+                          >
+                            {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
+                          </ButtonPrimary>
+                        </MouseoverTooltip>
                       </Flex>
                     </TableBody>
                   )}
@@ -462,7 +499,9 @@ export default function InstantClaimModal({ onDismiss }: { onDismiss: () => void
                   {item.claimData.tokenInfo.map((info, idx) => {
                     const tk = allTokens[index][info.token.toLowerCase()]
                     const tkAmount = tk && TokenAmount.fromRawAmount(tk, info.amount)
-                    const currentValue = +(tkAmount?.toExact() || '0') * (prices[index][info.token.toLowerCase()] || 0)
+                    const currentValue =
+                      +(tkAmount?.toExact() || '0') *
+                      (snapshotPrices[info.token.toLowerCase()] || prices[index][info.token.toLowerCase()] || 0)
 
                     if (upToSmall)
                       return (

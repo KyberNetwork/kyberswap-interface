@@ -1,22 +1,26 @@
 import { Trans } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { VerticalDivider } from 'pages/About/styleds'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import avalanche from '../data/instant/avalanche.json'
 import ethereum from '../data/instant/ethereum.json'
 import optimism from '../data/instant/optimism.json'
+import user3rd from '../data/instant/pendle_dappos_instant_polygon.json'
 import polygon from '../data/instant/polygon.json'
 import InstantClaimModal from './InstantClaimModal'
 
-const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
+const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
 export default function InstantClaim() {
   const theme = useTheme()
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState<'3rd' | 'kyber' | null>(null)
   const { account } = useActiveWeb3React()
 
   const userData = useMemo(() => {
@@ -26,49 +30,107 @@ export default function InstantClaim() {
     )
   }, [account])
 
-  const totalValue = userData.reduce(
+  const user3rdData = useMemo(() => {
+    return user3rd.find(info => info.claimData.receiver.toLowerCase() === account?.toLowerCase())
+  }, [account])
+
+  const kyberValue = userData.reduce(
     (acc, cur) => acc + (cur?.claimData?.tokenInfo?.reduce((total, item) => total + item.value, 0) || 0),
     0,
   )
 
-  const onDismiss = useCallback(() => setShow(false), [])
-  if (!userData.filter(Boolean).length) return null
+  const value3rd = user3rdData?.claimData.tokenInfo.reduce((acc, cur) => acc + cur.value, 0) || 0
+  const totalValue = kyberValue + value3rd
+
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+
+  const onDismiss = useCallback(() => setShow(null), [])
+  if (!userData.filter(Boolean).length && !user3rdData) return null
 
   return (
     <Flex flexDirection="column">
-      {show && <InstantClaimModal onDismiss={onDismiss} />}
+      {show && <InstantClaimModal onDismiss={onDismiss} is3rd={show === '3rd'} />}
       <Text fontSize={20} fontWeight="500">
         <Trans>Available assets for claiming</Trans>
       </Text>
 
-      <Flex
-        flexDirection="column"
-        padding="12px 20px"
-        justifyContent="space-between"
-        marginTop="1rem"
-        width="max-content"
-        sx={{ gap: '16px', borderRadius: '12px' }}
-        backgroundColor="rgba(0,0,0,0.64)"
-      >
-        <Text fontSize="14px" fontWeight="500" color={theme.subText} lineHeight="20px">
-          <Trans>Total Amount (USD)</Trans>
-        </Text>
-        <Flex sx={{ gap: '1rem' }} alignItems="flex-end">
-          <Text fontWeight="500" fontSize={20}>
+      <Flex marginTop="1rem" padding={upToMedium ? '12px 0' : '12px 20px'} alignItems="center">
+        <Flex
+          flexDirection="column"
+          justifyContent="space-between"
+          width="max-content"
+          sx={{ gap: '16px' }}
+          marginRight={upToMedium ? '12px' : '24px'}
+        >
+          <Text fontSize={upToMedium ? '12px' : '14px'} fontWeight="500" color={theme.subText} lineHeight="20px">
+            <Trans>TOTAL AMOUNT (USD)</Trans>
+          </Text>
+          <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
             {format(totalValue)}
           </Text>
-          <Text
-            sx={{ fontSize: '14px', cursor: 'pointer' }}
-            fontWeight="500"
-            role="button"
-            color={theme.primary}
-            mb="2px"
-            onClick={() => {
-              setShow(true)
-            }}
-          >
-            <Trans>Details</Trans>
+        </Flex>
+        <VerticalDivider style={{ height: '100%' }} />
+
+        <Flex
+          flexDirection="column"
+          justifyContent="space-between"
+          sx={{ gap: '16px' }}
+          marginX={upToMedium ? '12px' : '24px'}
+        >
+          <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+            <Trans>Phase 1</Trans>
           </Text>
+          <Flex sx={{ gap: '1rem' }} alignItems="flex-end">
+            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+              {format(kyberValue)}
+            </Text>
+            {kyberValue !== 0 && (
+              <Text
+                sx={{ fontSize: '14px', cursor: 'pointer' }}
+                fontWeight="500"
+                role="button"
+                color={theme.primary}
+                mb="2px"
+                onClick={() => {
+                  setShow('kyber')
+                }}
+              >
+                <Trans>Details</Trans>
+              </Text>
+            )}
+          </Flex>
+        </Flex>
+
+        <VerticalDivider style={{ height: '80%' }} />
+
+        <Flex
+          flexDirection="column"
+          justifyContent="space-between"
+          marginX={upToMedium ? '12px' : '24px'}
+          sx={{ gap: '16px' }}
+        >
+          <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+            <Trans>Phase 2</Trans>
+          </Text>
+          <Flex sx={{ gap: '1rem' }} alignItems="flex-end">
+            <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+              {format(value3rd || 0)}
+            </Text>
+            {value3rd !== 0 && (
+              <Text
+                sx={{ fontSize: '14px', cursor: 'pointer' }}
+                fontWeight="500"
+                role="button"
+                color={theme.primary}
+                mb="2px"
+                onClick={() => {
+                  setShow('3rd')
+                }}
+              >
+                <Trans>Details</Trans>
+              </Text>
+            )}
+          </Flex>
         </Flex>
       </Flex>
 
