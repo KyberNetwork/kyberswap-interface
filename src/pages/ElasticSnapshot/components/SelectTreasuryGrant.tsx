@@ -27,6 +27,8 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import vesting3rdData from '../data/pendle_dappos_vesting.json'
 import vestingData from '../data/vesting.json'
+import vestingOptionA from '../data/vesting/optionA.json'
+import vestingOptionB from '../data/vesting/optionB.json'
 import ChooseGrantModal from './ChooseGrantModal'
 import TermAndPolicyModal from './TermAndPolicyModal'
 
@@ -54,11 +56,24 @@ export default function SelectTreasuryGrant() {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const [showOptionModal, setShowOptionsModal] = useState(false)
-  const userData = vestingData.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
-  const user3rdData = vesting3rdData.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
-  const totalValue = (userData?.value || 0) + (user3rdData?.value || 0)
 
-  console.log(userData, user3rdData)
+  const addressesOptionA = vestingOptionA.map(item => item.claimData.receiver.toLowerCase())
+  const addressesOptionB = vestingOptionB.map(item => item.claimData.receiver.toLowerCase())
+  const userData = vestingData.find(
+    item =>
+      item.receiver.toLowerCase() === account?.toLowerCase() &&
+      (addressesOptionA.includes(item.receiver.toLowerCase()) || addressesOptionB.includes(item.receiver.toLowerCase)),
+  )
+
+  const userPhase2 = vestingData.find(
+    item =>
+      item.receiver.toLowerCase() === account?.toLowerCase() &&
+      !addressesOptionA.includes(item.receiver.toLowerCase()) &&
+      !addressesOptionB.includes(item.receiver.toLowerCase),
+  )
+  const user3rdData = vesting3rdData.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
+  const totalPhase2Value = (user3rdData?.value || 0) + (userPhase2?.value || 0)
+  const totalValue = (userData?.value || 0) + totalPhase2Value
 
   const [createOption] = useCreateOptionMutation()
   const notify = useNotify()
@@ -240,7 +255,7 @@ export default function SelectTreasuryGrant() {
               <Trans>Phase 2</Trans>
             </Text>
             <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {format(user3rdData?.value || 0)}
+              {format(totalPhase2Value || 0)}
             </Text>
           </Flex>
         </Flex>
