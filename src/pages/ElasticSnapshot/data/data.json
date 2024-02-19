@@ -85069,5 +85069,343 @@
                 "source": "dappos"
             }
         ]
+    },
+    {
+        "user_address": "0x435dbdb38adb606eaae862f3a890fc459c06ddf1",
+        "total_usd": 4.39,
+        "total_liquidity_usd": 4.31,
+        "total_fee_usd": 0.08,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 878,
+                "position_usd": 4.39,
+                "liquidity_usd": 4.31,
+                "fee_usd": 0.08,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 127340000000000000,
+                    "liquidity_token1": 1644246,
+                    "fee_token0": 2020670000000000,
+                    "fee_token1": 41870
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x1c6386468c91b4a11896655cef02b8683cfbcf7d",
+        "total_usd": 1.02,
+        "total_liquidity_usd": 1.0,
+        "total_fee_usd": 0.02,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 879,
+                "position_usd": 1.02,
+                "liquidity_usd": 1.0,
+                "fee_usd": 0.02,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 29681000000000000,
+                    "liquidity_token1": 383248,
+                    "fee_token0": 470987852602374,
+                    "fee_token1": 9759
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x48cddc4602ad1b30c25484f345e9288def388bdf",
+        "total_usd": 85.0,
+        "total_liquidity_usd": 80.67,
+        "total_fee_usd": 4.32,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 788,
+                "position_usd": 85.0,
+                "liquidity_usd": 80.67,
+                "fee_usd": 4.32,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 523087000000000000,
+                    "liquidity_token1": 69726887,
+                    "fee_token0": 103767000000000000,
+                    "fee_token1": 2150176
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x89249f352edd0b4e45e7e90f1cad69460f27bd55",
+        "total_usd": 21.86,
+        "total_liquidity_usd": 21.68,
+        "total_fee_usd": 0.17,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 893,
+                "position_usd": 21.86,
+                "liquidity_usd": 21.68,
+                "fee_usd": 0.17,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 450792000000000000,
+                    "liquidity_token1": 12250852,
+                    "fee_token0": 4126190000000000,
+                    "fee_token1": 85499
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x000000006f457c0f8f560333d9c2877287d92a92",
+        "total_usd": 1.97,
+        "total_liquidity_usd": 1.94,
+        "total_fee_usd": 0.02,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 888,
+                "position_usd": 1.97,
+                "liquidity_usd": 1.94,
+                "fee_usd": 0.02,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 36442400000000000,
+                    "liquidity_token1": 1180469,
+                    "fee_token0": 573707693329902,
+                    "fee_token1": 11887
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x9ccfe36908dc76508f2a577e0cf79d07795eb030",
+        "total_usd": 0.03,
+        "total_liquidity_usd": 0.03,
+        "total_fee_usd": 0.0,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 668,
+                "position_usd": 0.03,
+                "liquidity_usd": 0.03,
+                "fee_usd": 0.0,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 0,
+                    "liquidity_token1": 31244,
+                    "fee_token0": 0,
+                    "fee_token1": 0
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xe9a830ab84558da8fbb7995306bdeda3f1f6d1de",
+        "total_usd": 121.56,
+        "total_liquidity_usd": 119.23,
+        "total_fee_usd": 2.33,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 876,
+                "position_usd": 121.56,
+                "liquidity_usd": 119.23,
+                "fee_usd": 2.33,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 3523280000000000000,
+                    "liquidity_token1": 45493488,
+                    "fee_token0": 55908600000000000,
+                    "fee_token1": 1158490
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xf7e438f538944529cafca60878e5603a0c0611a5",
+        "total_usd": 2789.78,
+        "total_liquidity_usd": 2732.26,
+        "total_fee_usd": 57.52,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 871,
+                "position_usd": 2789.78,
+                "liquidity_usd": 2732.26,
+                "fee_usd": 57.52,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 80741100000000000000,
+                    "liquidity_token1": 1042549236,
+                    "fee_token0": 1381080000000000000,
+                    "fee_token1": 28617566
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xb8d738d819e43283257a8768e51850da0469493b",
+        "total_usd": 6.55,
+        "total_liquidity_usd": 6.54,
+        "total_fee_usd": 0.01,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 15079,
+                "position_usd": 6.55,
+                "liquidity_usd": 6.54,
+                "fee_usd": 0.01,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 3460625,
+                    "liquidity_token1": 3076841,
+                    "fee_token0": 2883,
+                    "fee_token1": 2882
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x0ad50c58d425a264105d826f65e9db156bd864bb",
+        "total_usd": 19.07,
+        "total_liquidity_usd": 18.84,
+        "total_fee_usd": 0.23,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 889,
+                "position_usd": 19.07,
+                "liquidity_usd": 18.84,
+                "fee_usd": 0.23,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 353295000000000000,
+                    "liquidity_token1": 11444199,
+                    "fee_token0": 5561880000000000,
+                    "fee_token1": 115248
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x7d3ff7301b6aa6779dcd353d1acccc5846d26dbd",
+        "total_usd": 1007.94,
+        "total_liquidity_usd": 1007.43,
+        "total_fee_usd": 0.51,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 15922,
+                "position_usd": 1007.94,
+                "liquidity_usd": 1007.43,
+                "fee_usd": 0.51,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 482690426,
+                    "liquidity_token1": 524246207,
+                    "fee_token0": 253339,
+                    "fee_token1": 253274
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x491e83d1f86d1f753050d17becfba1353cf3dfa4",
+        "total_usd": 642.74,
+        "total_liquidity_usd": 629.48,
+        "total_fee_usd": 13.25,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 868,
+                "position_usd": 642.74,
+                "liquidity_usd": 629.48,
+                "fee_usd": 13.25,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 18601900000000000000,
+                    "liquidity_token1": 240192143,
+                    "fee_token0": 318186000000000000,
+                    "fee_token1": 6593179
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xfcdb212e7e7588d2dd2cc44c30f6c79fb507db4b",
+        "total_usd": 20.95,
+        "total_liquidity_usd": 20.95,
+        "total_fee_usd": 0.0,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 16878,
+                "position_usd": 20.95,
+                "liquidity_usd": 20.95,
+                "fee_usd": 0.0,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 10037186,
+                    "liquidity_token1": 10901308,
+                    "fee_token0": 377,
+                    "fee_token1": 376
+                }
+            }
+        ]
     }
 ]
