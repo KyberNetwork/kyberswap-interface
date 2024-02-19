@@ -5109,5 +5109,24 @@
       "index": 268
     },
     "proof": []
+  },
+  {
+    "claimData": {
+      "receiver": "0xdf2f03adccd26e8123fc27a1b22b0a846dd2a469",
+      "tokenInfo": [
+        {
+          "token": "0x5cC8D49984834314f54211B1d872318Cf766d466",
+          "amount": "813198630000",
+          "value": 853370.64
+        },
+        {
+          "token": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+          "amount": "88983422550",
+          "value": 89067.31
+        }
+      ],
+      "index": 268
+    },
+    "proof": []
   }
 ]
