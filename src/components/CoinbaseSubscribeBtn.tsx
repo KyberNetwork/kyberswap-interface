@@ -2,14 +2,14 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { Text } from 'rebass'
 
 import InfoHelper from 'components/InfoHelper'
-import { coinbaseWallet } from 'constants/connectors'
-import { useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { setCoinbaseIsSubscribed, setCoinbaseLoading, setCoinbaseScriptLoaded } from 'state/application/actions'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 export default function CoinbaseSubscribeBtn({ onlyShowIfNotSubscribe = false }: { onlyShowIfNotSubscribe?: boolean }) {
-  const { connector } = useWeb3React()
-  const isCoinbase = connector === coinbaseWallet
+  const { walletKey } = useActiveWeb3React()
+
+  const isCoinbase = walletKey === 'COINBASE'
 
   const { isSubscribed, isLoading, isScriptLoaded } = useAppSelector(state => state.application.coinbaseSubscribe)
   const dispatch = useAppDispatch()
