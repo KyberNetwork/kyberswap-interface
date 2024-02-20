@@ -62,14 +62,15 @@ export default function SelectTreasuryGrant() {
   const userData = vestingData.find(
     item =>
       item.receiver.toLowerCase() === account?.toLowerCase() &&
-      (addressesOptionA.includes(item.receiver.toLowerCase()) || addressesOptionB.includes(item.receiver.toLowerCase)),
+      (addressesOptionA.includes(item.receiver.toLowerCase()) ||
+        addressesOptionB.includes(item.receiver.toLowerCase())),
   )
 
   const userPhase2 = vestingData.find(
     item =>
       item.receiver.toLowerCase() === account?.toLowerCase() &&
       !addressesOptionA.includes(item.receiver.toLowerCase()) &&
-      !addressesOptionB.includes(item.receiver.toLowerCase),
+      !addressesOptionB.includes(item.receiver.toLowerCase()),
   )
   const user3rdData = vesting3rdData.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
   const totalPhase2Value = (user3rdData?.value || 0) + (userPhase2?.value || 0)
