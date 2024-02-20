@@ -12,6 +12,9 @@ import {
   closeModal,
   removePopup,
   setAnnouncementDetail,
+  setCoinbaseIsSubscribed,
+  setCoinbaseLoading,
+  setCoinbaseScriptLoaded,
   setConfirmData,
   setLoadingNotification,
   setOpenModal,
@@ -61,6 +64,11 @@ interface ApplicationState {
     [chainId in ChainId]?: KyberSwapConfigResponse
   }
   readonly confirmModal: ConfirmModalState
+  readonly coinbaseSubscribe: {
+    isLoading: boolean
+    isSubscribed: boolean
+    isScriptLoaded: boolean
+  }
 }
 const initialStateNotification = {
   isLoading: false,
@@ -93,6 +101,11 @@ const initialState: ApplicationState = {
   notification: initialStateNotification,
   config: {},
   confirmModal: initialStateConfirmModal,
+  coinbaseSubscribe: {
+    isLoading: true,
+    isSubscribed: false,
+    isScriptLoaded: false,
+  },
 }
 
 export default createReducer(initialState, builder =>
@@ -166,6 +179,24 @@ export default createReducer(initialState, builder =>
       state.notification = {
         ...notification,
         announcementDetail,
+      }
+    })
+    .addCase(setCoinbaseLoading, (state, { payload }) => {
+      state.coinbaseSubscribe = {
+        ...state.coinbaseSubscribe,
+        isLoading: payload,
+      }
+    })
+    .addCase(setCoinbaseIsSubscribed, (state, { payload }) => {
+      state.coinbaseSubscribe = {
+        ...state.coinbaseSubscribe,
+        isSubscribed: payload,
+      }
+    })
+    .addCase(setCoinbaseScriptLoaded, (state, { payload }) => {
+      state.coinbaseSubscribe = {
+        ...state.coinbaseSubscribe,
+        isScriptLoaded: payload,
       }
     })
 

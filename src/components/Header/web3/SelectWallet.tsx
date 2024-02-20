@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as WarningInfo } from 'assets/svg/wallet_warning_icon.svg'
 import { ButtonLight } from 'components/Button'
+import CoinbaseSubscribeBtn from 'components/CoinbaseSubscribeBtn'
 import WalletModal from 'components/Header/web3/WalletModal'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
@@ -186,6 +187,7 @@ function Web3StatusInner() {
               )
             )}
             <Text>{ENSName || shortenAddress(chainId, account, uptoMedium ? 2 : undefined)}</Text>
+            <CoinbaseSubscribeBtn onlyShowIfNotSubscribe />
           </>
         )}
       </Web3StatusConnected>
