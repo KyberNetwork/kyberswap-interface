@@ -380,10 +380,10 @@ export default function SelectTreasuryGrant() {
           >
             <Text fontSize={14} flex={1} lineHeight="20px" color={userSelectedOption ? theme.subText : theme.text}>
               {userSelectedOption ? (
-                <Trans>
-                  You have selected option {userSelectedOption}. The UI for claiming tokens will be enabled on February
-                  6th, 2024.
-                </Trans>
+                <Text>
+                  You have selected option {userSelectedOption}. The UI for claiming tokens will be enabled on{' '}
+                  {totalPhase2Value ? 'March 11, 2024.' : 'February 6th, 2024.'}
+                </Text>
               ) : (
                 <Trans>
                   You can{' '}
