@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import { useCheckBlackjackQuery } from 'services/blackjack'
 
-import { blocto, gnosisSafe, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors'
+import { blocto, coinbaseWallet, gnosisSafe, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors'
 import { MOCK_ACCOUNT_EVM } from 'constants/env'
 import { isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
@@ -53,6 +53,9 @@ export function useActiveWeb3React(): {
     }
     if (connectedConnectorEVM === blocto) {
       return 'BLOCTO'
+    }
+    if (connectedConnectorEVM === coinbaseWallet) {
+      return 'COINBASE'
     }
     const detectedWallet = detectInjectedType()
 

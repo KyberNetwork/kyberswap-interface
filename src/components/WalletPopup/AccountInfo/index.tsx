@@ -3,6 +3,7 @@ import { ChevronRight, Eye, EyeOff, Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import CoinbaseSubscribeBtn from 'components/CoinbaseSubscribeBtn'
 import Loader from 'components/Loader'
 import ActionButtonGroup from 'components/WalletPopup/AccountInfo/ActionButtonGroup'
 import CardBackground from 'components/WalletPopup/AccountInfo/CardBackground'
@@ -124,6 +125,9 @@ export default function AccountInfo({
 
   return (
     <Wrapper $minimal={isMinimal}>
+      <div style={{ marginLeft: '28px', marginTop: '-1rem' }}>
+        <CoinbaseSubscribeBtn />
+      </div>
       <ContentWrapper>
         <CardBackground noLogo={isMinimal} />
         <Content>

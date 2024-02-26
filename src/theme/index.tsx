@@ -228,4 +228,37 @@ export const ThemedGlobalStyle = createGlobalStyle`
   .zkme-widget-mask {
     position: fixed;
   }
+  
+  coinbasewallet-subscribe::part(modal-dialog) {
+    padding: 24px;
+    background: ${({ theme }) => theme.background};
+    color: ${({ theme }) => theme.text};
+  }
+
+  coinbasewallet-subscribe::part(modal-title) {
+    font-size: 24px;
+  }
+
+  coinbasewallet-subscribe::part(subscribe-toggle) {
+    background: ${({ theme }) => theme.primary};
+    color: ${({ theme }) => theme.textReverse};
+    font-size: 16px;
+  }
+  
+  coinbasewallet-subscribe::part(close-button) {
+    top: 24px;
+    right: 24px;
+
+    filter: invert(96%) sepia(4%) saturate(18%) hue-rotate(177deg) brightness(105%) contrast(104%);
+  }
+
+  coinbasewallet-subscribe::part(qr-code) {
+    background: #ffffff;
+  }
+
+  
+  coinbasewallet-subscribe::part(subscribe-confirmation) {
+    padding-right: 1.5rem;
+  }
+
 `
