@@ -52,6 +52,7 @@ export default function CoinbaseSubscribeBtn({ onlyShowIfNotSubscribe = false }:
           modalTitle: 'Subscribe to KyberSwap updates',
           modalBody:
             'Receive the latest updates, promotions, and alerts directly in your wallet! <br /> <br/> Powered by Coinbase',
+          buttonText: 'Sign to Subscribe',
           onSubscriptionChange: setIsSubscribed,
           onLoading: setIsLoading,
         })
