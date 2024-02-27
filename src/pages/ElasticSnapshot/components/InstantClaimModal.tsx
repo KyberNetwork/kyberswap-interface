@@ -217,7 +217,9 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
           },
           message: {
             leafIndex: userData[selectedIndex]?.claimData?.index,
-            termsAndConditions: `By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link ${ipfsLink}`,
+            termsAndConditions: is3rd
+              ? 'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms and Conditions which can be found at this link https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
+              : `By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link ${ipfsLink}`,
           },
         }),
       ])
