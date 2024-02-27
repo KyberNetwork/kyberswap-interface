@@ -239,7 +239,7 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
         library
           ?.getSigner()
           .sendTransaction({
-            to: contractAddress,
+            to: is3rd ? phase2ContractAddress : contractAddress,
             data: encodedData,
           })
           .then(tx => {
