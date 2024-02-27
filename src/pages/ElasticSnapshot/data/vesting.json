@@ -8055,11 +8055,6 @@
     "value": 14.42
   },
   {
-    "receiver": "0xaa96267806d5be3941bf9d8e4efc3dc8eb2bda0f",
-    "vestingAmount": 215129600000,
-    "value": 215129.6
-  },
-  {
     "receiver": "0xaacdccbddad1292ac633c92c3ae772eb7c1ca070",
     "vestingAmount": 2141300000,
     "value": 2141.3

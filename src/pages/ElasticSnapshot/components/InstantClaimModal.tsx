@@ -15,7 +15,6 @@ import Dots from 'components/Dots'
 import { TermAndCondition } from 'components/Header/web3/WalletModal'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -23,7 +22,6 @@ import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -66,8 +64,8 @@ const TableBody = styled(TableHeader)<{ backgroundColor?: string }>`
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
-// const contractAddresses = ['', '', '0x41b9a47dB6edB468633B4c2863d5eBE5EE23b12b', '']
 const contractAddress = '0xD0806364e9672EF21039Dc4DC84651B9b535E535'
+const phase2ContractAddress = '0x3771cb0e40f55316a9cf9a79a60b562946a39d8b'
 
 const ContractInterface = new Interface(InstantAbi)
 
@@ -83,6 +81,7 @@ const snapshotPrices: { [key: string]: number } = {
   '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': 1,
   '0xc7198437980c041c805a1edcba50c1ce5db95118': 1,
   '0xfab550568c688d5d8a52c7d794cb93edc26ec0ec': 1,
+  '0x5cc8d49984834314f54211b1d872318cf766d466': 1,
 }
 
 export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () => void; is3rd: boolean }) {
@@ -92,7 +91,11 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
 
   const ethereumContract = useReadingContract(contractAddress, ContractInterface, ChainId.MAINNET)
   const optimismContract = useReadingContract(contractAddress, ContractInterface, ChainId.OPTIMISM)
-  const polygonContract = useReadingContract(contractAddress, ContractInterface, ChainId.MATIC)
+  const polygonContract = useReadingContract(
+    is3rd ? phase2ContractAddress : contractAddress,
+    ContractInterface,
+    ChainId.MATIC,
+  )
   const avalancheContract = useReadingContract(contractAddress, ContractInterface, ChainId.AVAXMAINNET)
 
   const [claimed, setClaimed] = useState([true, true, true, true])
@@ -135,14 +138,6 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
     0,
   )
 
-  const tokenAddresses = userData.map(item => [...new Set(item?.claimData?.tokenInfo.map(inf => inf.token))])
-
-  const ethereumTokensPrice = useTokenPrices(tokenAddresses[0], ChainId.MAINNET)
-  const optimismTokensPrice = useTokenPrices(tokenAddresses[1], ChainId.OPTIMISM)
-  const polygonTokensPrice = useTokenPrices(tokenAddresses[2], ChainId.MATIC)
-  const avalancheTokensPrice = useTokenPrices(tokenAddresses[3], ChainId.AVAXMAINNET)
-  const prices = [ethereumTokensPrice, optimismTokensPrice, polygonTokensPrice, avalancheTokensPrice]
-
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [selectedNetworkToClaim, setSelectedNetworkToClaim] = useState<ChainId | null>(null)
@@ -172,6 +167,9 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
   const addTransactionWithType = useTransactionAdder()
 
   const [signing, setSigning] = useState(false)
+  const ipfsLink = is3rd
+    ? 'https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
+    : 'https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link'
   const signAndClaim = useCallback(() => {
     setAutoSign(false)
     setSigning(true)
@@ -215,12 +213,11 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
             name: 'Kyberswap Instant Grant',
             version: '1',
             chainId: selectedNetworkToClaim,
-            verifyingContract: contractAddress,
+            verifyingContract: is3rd ? phase2ContractAddress : contractAddress,
           },
           message: {
             leafIndex: userData[selectedIndex]?.claimData?.index,
-            termsAndConditions:
-              'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link',
+            termsAndConditions: `By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link ${ipfsLink}`,
           },
         }),
       ])
@@ -270,7 +267,18 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
           type: NotificationType.ERROR,
         })
       })
-  }, [account, library, selectedNetworkToClaim, userData, selectedIndex, notify, addTransactionWithType, onDismiss])
+  }, [
+    is3rd,
+    ipfsLink,
+    account,
+    library,
+    selectedNetworkToClaim,
+    userData,
+    selectedIndex,
+    notify,
+    addTransactionWithType,
+    onDismiss,
+  ])
 
   useEffect(() => {
     if (autoSign && chainId === selectedNetworkToClaim) {
@@ -335,11 +343,8 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
 
             <Text color={theme.subText} fontSize={14} marginTop="24px">
               Make sure you have read and understand the{' '}
-              <ExternalLink href="https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link">
-                KyberSwap’s Terms and Conditions
-              </ExternalLink>{' '}
-              before proceeding. You will need to Sign a message to confirm that you have read and accepted before
-              claiming your assets.
+              <ExternalLink href={ipfsLink}>KyberSwap’s Terms and Conditions</ExternalLink> before proceeding. You will
+              need to Sign a message to confirm that you have read and accepted before claiming your assets.
             </Text>
 
             <TermAndCondition
@@ -353,10 +358,7 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
                 style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
               />
               <Text>
-                Accept{' '}
-                <ExternalLink href="https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link">
-                  KyberSwap’s Terms and Conditions
-                </ExternalLink>
+                Accept <ExternalLink href={ipfsLink}>KyberSwap’s Terms and Conditions</ExternalLink>
               </Text>
             </TermAndCondition>
             <Flex marginTop="24px" sx={{ gap: '1rem' }}>
@@ -389,7 +391,7 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
                 <Text textAlign="right">Exploitation Value</Text>
 
                 <Flex justifyContent="flex-end">
-                  <Text textAlign="right">{is3rd ? 'Current Value' : 'Snapshot Value'}</Text>
+                  <Text textAlign="right">Snapshot Value</Text>
                   <InfoHelper text="Recovered Asset Distribution Snapshot Value" />
                 </Flex>
               </TableHeader>
@@ -412,9 +414,7 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
               const currentValue = item.claimData.tokenInfo.reduce((acc, cur) => {
                 const tk = allTokens[index][cur.token.toLowerCase()]
                 const tkAmount = tk && TokenAmount.fromRawAmount(tk, cur.amount)
-                const currentValue =
-                  +(tkAmount?.toExact() || '0') *
-                  (snapshotPrices[cur.token.toLowerCase()] || prices[index][cur.token.toLowerCase()] || 0)
+                const currentValue = +(tkAmount?.toExact() || '0') * (snapshotPrices[cur.token.toLowerCase()] || 0)
                 return acc + currentValue
               }, 0)
 
@@ -433,16 +433,14 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
                         <Flex sx={{ gap: '6px' }} alignItems="center">
                           <img alt="" src={network.icon} width={18} /> <Text fontSize={16}>{network.name}</Text>
                         </Flex>
-                        <MouseoverTooltip text={is3rd ? 'Not started yet' : ''} width="fit-content" placement="top">
-                          <ButtonPrimary
-                            disabled={claimed[index] || is3rd}
-                            style={{ height: '36px' }}
-                            width="max-content"
-                            onClick={() => setSelectedNetworkToClaim(chain)}
-                          >
-                            {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
-                          </ButtonPrimary>
-                        </MouseoverTooltip>
+                        <ButtonPrimary
+                          disabled={claimed[index]}
+                          style={{ height: '36px' }}
+                          width="max-content"
+                          onClick={() => setSelectedNetworkToClaim(chain)}
+                        >
+                          {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
+                        </ButtonPrimary>
                       </Flex>
 
                       <Flex
@@ -456,7 +454,7 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
                         <Text>EXPLOITATION VALUE</Text>
 
                         <Flex>
-                          <Text>{is3rd ? 'CURRENT VALUE' : 'SNAPSHOT VALUE'}</Text>
+                          <Text>SNAPSHOT VALUE</Text>
                           <InfoHelper text="Recovered Asset Distribution Snapshot Value" />
                         </Flex>
                       </Flex>
@@ -482,16 +480,14 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
                         {format(currentValue)}
                       </Text>
                       <Flex justifyContent="flex-end">
-                        <MouseoverTooltip text={is3rd ? 'Not started yet' : ''} width="fit-content" placement="top">
-                          <ButtonPrimary
-                            disabled={claimed[index] || is3rd}
-                            style={{ height: '36px' }}
-                            width="max-content"
-                            onClick={() => setSelectedNetworkToClaim(chain)}
-                          >
-                            {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
-                          </ButtonPrimary>
-                        </MouseoverTooltip>
+                        <ButtonPrimary
+                          disabled={claimed[index]}
+                          style={{ height: '36px' }}
+                          width="max-content"
+                          onClick={() => setSelectedNetworkToClaim(chain)}
+                        >
+                          {claimed[index] ? 'Claimed' : <Trans>Claim</Trans>}
+                        </ButtonPrimary>
                       </Flex>
                     </TableBody>
                   )}
@@ -499,9 +495,7 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
                   {item.claimData.tokenInfo.map((info, idx) => {
                     const tk = allTokens[index][info.token.toLowerCase()]
                     const tkAmount = tk && TokenAmount.fromRawAmount(tk, info.amount)
-                    const currentValue =
-                      +(tkAmount?.toExact() || '0') *
-                      (snapshotPrices[info.token.toLowerCase()] || prices[index][info.token.toLowerCase()] || 0)
+                    const currentValue = +(tkAmount?.toExact() || '0') * (snapshotPrices[info.token.toLowerCase()] || 0)
 
                     if (upToSmall)
                       return (

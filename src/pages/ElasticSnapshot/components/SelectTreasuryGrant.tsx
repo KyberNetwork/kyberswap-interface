@@ -75,6 +75,8 @@ export default function SelectTreasuryGrant() {
   const user3rdData = vesting3rdData.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
   const totalPhase2Value = (user3rdData?.value || 0) + (userPhase2?.value || 0)
   const totalValue = (userData?.value || 0) + totalPhase2Value
+  const isNull = user3rdData?.value === null
+  const isTotalNull = totalValue === 0 && isNull
 
   const [createOption] = useCreateOptionMutation()
   const notify = useNotify()
@@ -228,7 +230,7 @@ export default function SelectTreasuryGrant() {
               <Trans>TOTAL AMOUNT (USD)</Trans>
             </Text>
             <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {format(totalValue)}
+              {isTotalNull ? 'N/A' : format(totalValue)}
             </Text>
           </Flex>
           <VerticalDivider style={{ height: '100%' }} />
@@ -256,7 +258,7 @@ export default function SelectTreasuryGrant() {
               <Trans>Phase 2</Trans>
             </Text>
             <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {format(totalPhase2Value || 0)}
+              {isNull ? 'N/A' : format(totalPhase2Value || 0)}
             </Text>
           </Flex>
         </Flex>
