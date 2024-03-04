@@ -80,7 +80,9 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
           token: ${{ secrets.GH_PAT }}
-
+      - run: |
+          echo "@kybernetwork:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PAT }}" >> .npmrc
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@master
 
@@ -154,7 +156,11 @@ jobs:
           node-version: 20.9.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
-
+          
+      - run: |
+          echo "@kybernetwork:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PAT }}" >> .npmrc
+          
       - name: Install dependences
         uses: bahmutov/npm-install@v1
 
