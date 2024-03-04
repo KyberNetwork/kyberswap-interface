@@ -277,7 +277,7 @@ const DraggableNetworkButton = ({
             )}
             {isMaintenance && (
               <MaintainLabel>
-                <Trans>Maintainance</Trans>
+                <Trans>Maintenance</Trans>
               </MaintainLabel>
             )}
             {selected && !walletKey && <CircleGreen />}

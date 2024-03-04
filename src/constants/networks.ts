@@ -7,6 +7,7 @@ import {
   avax,
   avaxTestnet,
   base,
+  blast,
   bnb,
   bnbTestnet,
   bttc,
@@ -46,6 +47,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ZKEVM]: zkEvm,
   [ChainId.BASE]: base,
   [ChainId.SCROLL]: scroll,
+  [ChainId.BLAST]: blast,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -182,8 +184,10 @@ export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
 export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.AURORA]: t`Elastic is not supported on Aurora. Please switch to other chains`,
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,
+  [ChainId.BLAST]: t`Elastic is not supported on Blast. Please switch to other chains`,
 })
 
 export const CLASSIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.BASE]: t`Classic is not supported on Base. Please switch to other chains`,
+  [ChainId.BLAST]: t`Classic is not supported on Blast. Please switch to other chains`,
 })

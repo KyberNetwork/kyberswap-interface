@@ -763,6 +763,8 @@ function AboutKyberSwap() {
                 alt="Sroll"
                 width="100%"
               />
+
+              <img src="https://blastscan.io/images/logo-ether.svg?v=0.1.0" alt="Blast" width="100%" />
             </Powered>
           </Text>
         </Wrapper>
