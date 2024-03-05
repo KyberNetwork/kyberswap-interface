@@ -77,6 +77,7 @@ export const MAINNET_NETWORKS = [
   ChainId.BTTC,
   ChainId.CRONOS,
   ChainId.AURORA,
+  ChainId.BLAST,
 ] as const
 
 // These option of walletconnect is not support by wallets properly
