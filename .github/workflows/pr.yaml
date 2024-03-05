@@ -16,7 +16,7 @@ env:
 
 jobs:
   prepare:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       current_branch: ${{ steps.current_branch.outputs.value }}
       head_sha: ${{ github.event.pull_request.head.sha }}
@@ -26,7 +26,7 @@ jobs:
       pr_number: ${{github.event.number}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Extract branch
         shell: bash
@@ -48,11 +48,12 @@ jobs:
             REF_BRANCH=${REF/refs\/tags\//}
             BRANCH=$REF_BRANCH
           fi
-          echo "::set-output name=value::$BRANCH"
+          echo "name=$BRANCH" >> $GITHUB_OUTPUT
 
       - name: Extract GitHub HEAD SHA
         id: head_sha
-        run: echo "::set-output name=value::$(git rev-parse HEAD)"
+        run: |
+          echo "value=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Get Docker image tag
         id: get_tag
@@ -60,15 +61,17 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           short_sha="$(echo $HEAD_SHA | head -c7)"
-          echo "::set-output name=image_tag::adpr-$short_sha"
+          echo "image_tag=adpr-$short_sha" >> $GITHUB_OUTPUT
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - prepare
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v1
@@ -76,37 +79,38 @@ jobs:
           node-version: 20.9.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
-
+          token: ${{ secrets.GH_PAT }}
+      - run: |
+          echo "@kybernetwork:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PAT }}" >> .npmrc
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@master
 
       - name: Gcloud Auth
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCR_CREDENTIALS }}'
 
       - name: Setup Gcloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v1
 
       - name: Configure docker
         run: gcloud auth configure-docker
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-${{ env.SERVICE }}-buildx
 
       - name: Restore node_modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependences
-        uses: bahmutov/npm-install@HEAD
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
+        uses: bahmutov/npm-install@v1
 
       - name: Yarn Build
         env:
@@ -117,7 +121,7 @@ jobs:
         run: yarn build-prod
 
       - name: Docker build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
@@ -137,12 +141,14 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   linter:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - prepare
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v1
@@ -150,11 +156,13 @@ jobs:
           node-version: 20.9.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
-
+          
+      - run: |
+          echo "@kybernetwork:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PAT }}" >> .npmrc
+          
       - name: Install dependences
-        uses: bahmutov/npm-install@HEAD
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
+        uses: bahmutov/npm-install@v1
 
       - name: Run Lint
         run: yarn lint --quiet
