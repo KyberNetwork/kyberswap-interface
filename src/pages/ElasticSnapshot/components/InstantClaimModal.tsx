@@ -67,8 +67,7 @@ const format = (value: number) => formatDisplayNumber(value, { style: 'currency'
 
 const contractAddress = '0xD0806364e9672EF21039Dc4DC84651B9b535E535'
 const phase2ContractAddress = '0x3771cb0e40f55316a9cf9a79a60b562946a39d8b'
-// TODO: update
-const phase2_5ContractAddress = '0x3771cb0e40f55316a9cf9a79a60b562946a39d8b'
+const phase2_5ContractAddress = '0x39c4620d26c87beef4fdd78295001d1e1e5366f1'
 
 const ContractInterface = new Interface(InstantAbi)
 
