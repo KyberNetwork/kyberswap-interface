@@ -32,7 +32,8 @@ import InstantAbi from '../data/abis/instantClaimAbi.json'
 import avalanche from '../data/instant/avalanche.json'
 import ethereum from '../data/instant/ethereum.json'
 import optimism from '../data/instant/optimism.json'
-import user3rd from '../data/instant/pendle_dappos_instant_polygon.json'
+import userPhase2 from '../data/instant/pendle_dappos_instant_polygon.json'
+import userPhase2_5 from '../data/instant/phase2.5.json'
 import polygon from '../data/instant/polygon.json'
 
 const Total = styled.div`
@@ -66,6 +67,8 @@ const format = (value: number) => formatDisplayNumber(value, { style: 'currency'
 
 const contractAddress = '0xD0806364e9672EF21039Dc4DC84651B9b535E535'
 const phase2ContractAddress = '0x3771cb0e40f55316a9cf9a79a60b562946a39d8b'
+// TODO: update
+const phase2_5ContractAddress = '0x3771cb0e40f55316a9cf9a79a60b562946a39d8b'
 
 const ContractInterface = new Interface(InstantAbi)
 
@@ -84,18 +87,17 @@ const snapshotPrices: { [key: string]: number } = {
   '0x5cc8d49984834314f54211b1d872318cf766d466': 1,
 }
 
-export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () => void; is3rd: boolean }) {
+export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () => void; phase: '1' | '2' | '2.5' }) {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
 
+  const polygonContractAddress =
+    phase === '2' ? phase2ContractAddress : phase === '2.5' ? phase2_5ContractAddress : contractAddress
+
   const ethereumContract = useReadingContract(contractAddress, ContractInterface, ChainId.MAINNET)
   const optimismContract = useReadingContract(contractAddress, ContractInterface, ChainId.OPTIMISM)
-  const polygonContract = useReadingContract(
-    is3rd ? phase2ContractAddress : contractAddress,
-    ContractInterface,
-    ChainId.MATIC,
-  )
+  const polygonContract = useReadingContract(polygonContractAddress, ContractInterface, ChainId.MATIC)
   const avalancheContract = useReadingContract(contractAddress, ContractInterface, ChainId.AVAXMAINNET)
 
   const [claimed, setClaimed] = useState([true, true, true, true])
@@ -107,17 +109,21 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
 
   const allTokens = [ethereumTokens, optimismTokens, polygonTokens, avalancheTokens]
 
-  const user3rdData = useMemo(() => {
-    return user3rd.find(info => info.claimData.receiver.toLowerCase() === account?.toLowerCase())
+  const phase2Data = useMemo(() => {
+    return userPhase2.find(info => info.claimData.receiver.toLowerCase() === account?.toLowerCase())
+  }, [account])
+
+  const phase2_5Data = useMemo(() => {
+    return userPhase2_5.find(info => info.claimData.receiver.toLowerCase() === account?.toLowerCase())
   }, [account])
 
   const userData = useMemo(() => {
     if (!account) return []
-    if (is3rd) return [undefined, undefined, user3rdData, undefined]
+    if (phase !== '1') return [undefined, undefined, phase2Data || phase2_5Data, undefined]
     return [ethereum, optimism, polygon, avalanche].map(data =>
       data.find(info => info.claimData.receiver.toLowerCase() === account.toLowerCase()),
     )
-  }, [account, is3rd, user3rdData])
+  }, [account, phase, phase2Data, phase2_5Data])
 
   useEffect(() => {
     ;(() => {
@@ -167,9 +173,10 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
   const addTransactionWithType = useTransactionAdder()
 
   const [signing, setSigning] = useState(false)
-  const ipfsLink = is3rd
-    ? 'https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
-    : 'https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link'
+  const ipfsLink =
+    phase !== '1'
+      ? 'https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
+      : 'https://bafkreiclpbxs5phtgmdicdxp4v6iul5agoadbd4u7vtut23dmoifiirqli.ipfs.w3s.link'
   const signAndClaim = useCallback(() => {
     setAutoSign(false)
     setSigning(true)
@@ -213,13 +220,14 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
             name: 'Kyberswap Instant Grant',
             version: '1',
             chainId: selectedNetworkToClaim,
-            verifyingContract: is3rd ? phase2ContractAddress : contractAddress,
+            verifyingContract: phase !== '1' ? polygonContractAddress : contractAddress,
           },
           message: {
             leafIndex: userData[selectedIndex]?.claimData?.index,
-            termsAndConditions: is3rd
-              ? 'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms and Conditions which can be found at this link https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
-              : `By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link ${ipfsLink}`,
+            termsAndConditions:
+              phase !== '1'
+                ? 'By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms and Conditions which can be found at this link https://bafkreibjr6w7fahoj5rbe4utot3xqeffedyxxgiw4xvryw4d6n6pb6sxzq.ipfs.w3s.link'
+                : `By confirming this transaction, I agree to the KyberSwap Elastic Recovered Asset Redemption Terms which can be found at this link ${ipfsLink}`,
           },
         }),
       ])
@@ -239,7 +247,7 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
         library
           ?.getSigner()
           .sendTransaction({
-            to: is3rd ? phase2ContractAddress : contractAddress,
+            to: phase !== '1' ? polygonContractAddress : contractAddress,
             data: encodedData,
           })
           .then(tx => {
@@ -270,7 +278,8 @@ export default function InstantClaimModal({ onDismiss, is3rd }: { onDismiss: () 
         })
       })
   }, [
-    is3rd,
+    phase,
+    polygonContractAddress,
     ipfsLink,
     account,
     library,

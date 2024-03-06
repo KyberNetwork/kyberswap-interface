@@ -12,7 +12,8 @@ import { formatDisplayNumber } from 'utils/numbers'
 import avalanche from '../data/instant/avalanche.json'
 import ethereum from '../data/instant/ethereum.json'
 import optimism from '../data/instant/optimism.json'
-import user3rd from '../data/instant/pendle_dappos_instant_polygon.json'
+import userPhase2 from '../data/instant/pendle_dappos_instant_polygon.json'
+import userPhase2_5 from '../data/instant/phase2.5.json'
 import polygon from '../data/instant/polygon.json'
 import InstantClaimModal from './InstantClaimModal'
 
@@ -20,7 +21,7 @@ const format = (value: number) => formatDisplayNumber(value, { style: 'currency'
 
 export default function InstantClaim() {
   const theme = useTheme()
-  const [show, setShow] = useState<'3rd' | 'kyber' | null>(null)
+  const [phase, setShow] = useState<'1' | '2' | '2.5' | null>(null)
   const { account } = useActiveWeb3React()
 
   const userData = useMemo(() => {
@@ -30,26 +31,34 @@ export default function InstantClaim() {
     )
   }, [account])
 
-  const user3rdData = useMemo(() => {
-    return user3rd.find(info => info.claimData.receiver.toLowerCase() === account?.toLowerCase())
+  const phase2Data = useMemo(() => {
+    return userPhase2.find(info => info.claimData.receiver.toLowerCase() === account?.toLowerCase())
   }, [account])
 
-  const kyberValue = userData.reduce(
+  const phase2_5Data = useMemo(() => {
+    return userPhase2_5.find(info => info.claimData.receiver.toLowerCase() === account?.toLowerCase())
+  }, [account])
+
+  const phase1Value = userData.reduce(
     (acc, cur) => acc + (cur?.claimData?.tokenInfo?.reduce((total, item) => total + item.value, 0) || 0),
     0,
   )
+  const phase2Value = phase2Data?.claimData.tokenInfo.reduce((acc, cur) => acc + cur.value, 0) || 0
+  const phase2_5Value = phase2_5Data?.claimData.tokenInfo.reduce((acc, cur) => acc + cur.value, 0) || 0
 
-  const value3rd = user3rdData?.claimData.tokenInfo.reduce((acc, cur) => acc + cur.value, 0) || 0
-  const totalValue = kyberValue + value3rd
+  // no overlap user, ensure that only phase 2 or phase 2.5
+  const valuePhase2 = phase2_5Value || phase2Value
+
+  const totalValue = phase1Value + phase2Value + phase2_5Value
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const onDismiss = useCallback(() => setShow(null), [])
-  if (!userData.filter(Boolean).length && !user3rdData) return null
+  if (!userData.filter(Boolean).length && !phase2Data && !phase2_5Data) return null
 
   return (
     <Flex flexDirection="column">
-      {show && <InstantClaimModal onDismiss={onDismiss} is3rd={show === '3rd'} />}
+      {phase && <InstantClaimModal onDismiss={onDismiss} phase={phase} />}
       <Text fontSize={20} fontWeight="500">
         <Trans>Available assets for claiming</Trans>
       </Text>
@@ -82,9 +91,9 @@ export default function InstantClaim() {
           </Text>
           <Flex sx={{ gap: '1rem' }} alignItems="flex-end">
             <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {format(kyberValue)}
+              {format(phase1Value)}
             </Text>
-            {kyberValue !== 0 && (
+            {phase1Value !== 0 && (
               <Text
                 sx={{ fontSize: '14px', cursor: 'pointer' }}
                 fontWeight="500"
@@ -92,7 +101,7 @@ export default function InstantClaim() {
                 color={theme.primary}
                 mb="2px"
                 onClick={() => {
-                  setShow('kyber')
+                  setShow('1')
                 }}
               >
                 <Trans>Details</Trans>
@@ -114,9 +123,9 @@ export default function InstantClaim() {
           </Text>
           <Flex sx={{ gap: '1rem' }} alignItems="flex-end">
             <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {format(value3rd || 0)}
+              {format(valuePhase2 || 0)}
             </Text>
-            {value3rd !== 0 && (
+            {valuePhase2 !== 0 && (
               <Text
                 sx={{ fontSize: '14px', cursor: 'pointer' }}
                 fontWeight="500"
@@ -124,7 +133,7 @@ export default function InstantClaim() {
                 color={theme.primary}
                 mb="2px"
                 onClick={() => {
-                  setShow('3rd')
+                  setShow(phase2Data ? '2' : '2.5')
                 }}
               >
                 <Trans>Details</Trans>

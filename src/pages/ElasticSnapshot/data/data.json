@@ -1,5 +1,3091 @@
 [
     {
+        "user_address": "0xcea27b18ca254e4f2ec92ae53255060b5a490b70",
+        "total_usd": 3.4658614672294044,
+        "total_liquidity_usd": 3.4657828631078305,
+        "total_fee_usd": 7.860412157419325e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.7532486265175411,
+                "liquidity_usd": 0.7532482642865661,
+                "fee_usd": 3.6223097491286416e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 563229,
+                    "liquidity_token1": 190243708024236256,
+                    "fee_token0": 0,
+                    "fee_token1": 175969453111
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 2.7126128407118633,
+                "liquidity_usd": 2.7125345988212644,
+                "fee_usd": 7.824189059928038e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 1588850,
+                    "liquidity_token1": 1122625,
+                    "fee_token0": 39,
+                    "fee_token1": 39
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x88888887c3ebd4a33e34a15db4254c74c75e5d4a",
+        "total_usd": 1.2398829559687445,
+        "total_liquidity_usd": 1.2398718456517877,
+        "total_fee_usd": 1.1110316956774714e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.10646809377353915,
+                "liquidity_usd": 0.10646804257392184,
+                "fee_usd": 5.1199617293700074e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 79609,
+                    "liquidity_token1": 26890039002651280,
+                    "fee_token0": 0,
+                    "fee_token1": 24872441283
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.3834148621952053,
+                "liquidity_usd": 0.38340380307786587,
+                "fee_usd": 1.1059117339481014e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 224576,
+                    "liquidity_token1": 158677,
+                    "fee_token0": 5,
+                    "fee_token1": 5
+                }
+            },
+            {
+                "position_id": 8062,
+                "position_usd": 0.73,
+                "liquidity_usd": 0.73,
+                "fee_usd": 0.0,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 0,
+                    "liquidity_token1": 727000000000000000,
+                    "fee_token0": 0,
+                    "fee_token1": 0
+                }
+            },
+            {
+                "position_id": 8547,
+                "position_usd": 0.02,
+                "liquidity_usd": 0.02,
+                "fee_usd": 0.0,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 13245,
+                    "liquidity_token1": 6683,
+                    "fee_token0": 0,
+                    "fee_token1": 0
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x0644141dd9c2c34802d28d334217bd2034206bf7",
+        "total_usd": 18534.256520036906,
+        "total_liquidity_usd": 18533.836171743547,
+        "total_fee_usd": 0.4203482933625954,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 4028.1192423584844,
+                "liquidity_usd": 4028.117305269575,
+                "fee_usd": 0.0019370889091037764,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 3011960877,
+                    "liquidity_token1": 1017359095061303263232,
+                    "fee_token0": 940,
+                    "fee_token1": 941025200964705
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 14506.137277678423,
+                "liquidity_usd": 14505.718866473972,
+                "fee_usd": 0.4184112044534916,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 8496637395,
+                    "liquidity_token1": 6003422071,
+                    "fee_token0": 209104,
+                    "fee_token1": 209050
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xca1f1e5248b391e64dd160fc14694c9da088af96",
+        "total_usd": 2245.587702940628,
+        "total_liquidity_usd": 2245.5367740588867,
+        "total_fee_usd": 0.05092888174162244,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 488.0419685881111,
+                "liquidity_usd": 488.0417338928035,
+                "fee_usd": 0.00023469530757378433,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 364925472,
+                    "liquidity_token1": 123261975537751523328,
+                    "fee_token0": 113,
+                    "fee_token1": 114013454899845
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 1757.5457343525168,
+                "liquidity_usd": 1757.495040166083,
+                "fee_usd": 0.05069418643404865,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 1029442126,
+                    "liquidity_token1": 727367227,
+                    "fee_token0": 25334,
+                    "fee_token1": 25328
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xa69e15c6aa3667484d278f19701b2de54aa05f9b",
+        "total_usd": 4.556500419106232,
+        "total_liquidity_usd": 4.556397079801913,
+        "total_fee_usd": 0.00010333930431896061,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.9902812663212608,
+                "liquidity_usd": 0.9902807901032685,
+                "fee_usd": 4.7621799218659784e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 740466,
+                    "liquidity_token1": 250109689496401184,
+                    "fee_token0": 0,
+                    "fee_token1": 231343605187
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 3.566219152784971,
+                "liquidity_usd": 3.5661162896986447,
+                "fee_usd": 0.00010286308632677401,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 2088831,
+                    "liquidity_token1": 1475893,
+                    "fee_token0": 51,
+                    "fee_token1": 51
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xcbc3f3dee4808b1115773139c51d0e05bf22ef92",
+        "total_usd": 1.3579231064407826,
+        "total_liquidity_usd": 1.3578923093780775,
+        "total_fee_usd": 3.079706270541485e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.2951225041612741,
+                "liquidity_usd": 0.2951223622393261,
+                "fee_usd": 1.4192194799650876e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 220673,
+                    "liquidity_token1": 74537407087766400,
+                    "fee_token0": 0,
+                    "fee_token1": 68944759844
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 1.0628006022795085,
+                "liquidity_usd": 1.0627699471387513,
+                "fee_usd": 3.0655140757418345e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 622511,
+                    "liquidity_token1": 439844,
+                    "fee_token0": 15,
+                    "fee_token1": 15
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x2f5294b805f6c0b4b7942c88111d8fb3c0597051",
+        "total_usd": 7.076947351746674,
+        "total_liquidity_usd": 7.0767868498814765,
+        "total_fee_usd": 0.00016050186519885853,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 1.5380594184251963,
+                "liquidity_usd": 1.5380586787852646,
+                "fee_usd": 7.396399316197061e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 1150059,
+                    "liquidity_token1": 388458892086669696,
+                    "fee_token0": 0,
+                    "fee_token1": 359312271121
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 5.538887933321478,
+                "liquidity_usd": 5.538728171096212,
+                "fee_usd": 0.00015976222526723882,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 3244276,
+                    "liquidity_token1": 2292290,
+                    "fee_token0": 79,
+                    "fee_token1": 79
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xcae1b304a284c700d93c861ceebce054d837dbf3",
+        "total_usd": 1136.0185750154449,
+        "total_liquidity_usd": 1135.992810644013,
+        "total_fee_usd": 0.025764371431957866,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 246.89516291672686,
+                "liquidity_usd": 246.89504418690453,
+                "fee_usd": 0.00011872982228732114,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 184611856,
+                    "liquidity_token1": 62356902665301057536,
+                    "fee_token0": 57,
+                    "fee_token1": 57678175923335
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 889.1234120987181,
+                "liquidity_usd": 889.0977664571085,
+                "fee_usd": 0.025645641609670547,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 520783657,
+                    "liquidity_token1": 367967227,
+                    "fee_token0": 12816,
+                    "fee_token1": 12813
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x51c1ce246708b2a198f7e7e9dc3d154ee4cd9572",
+        "total_usd": 221.44530766906777,
+        "total_liquidity_usd": 221.44028539277383,
+        "total_fee_usd": 0.005022276293961017,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 48.12753639005297,
+                "liquidity_usd": 48.12751324592257,
+                "fee_usd": 2.3144130388025684e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 35986585,
+                    "liquidity_token1": 12155297279791089664,
+                    "fee_token0": 11,
+                    "fee_token1": 11243268105655
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 173.3177712790148,
+                "liquidity_usd": 173.31277214685124,
+                "fee_usd": 0.004999132163572991,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 101516911,
+                    "liquidity_token1": 71728242,
+                    "fee_token0": 2498,
+                    "fee_token1": 2497
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xaa79498766a787bd1dea8ce53de7603f62dcd2f6",
+        "total_usd": 670.3747655195242,
+        "total_liquidity_usd": 670.3595617325115,
+        "total_fee_usd": 0.015203787012833125,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 145.69505340748572,
+                "liquidity_usd": 145.69498334395107,
+                "fee_usd": 7.006353463897935e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 108941114,
+                    "liquidity_token1": 36797368392391954432,
+                    "fee_token0": 34,
+                    "fee_token1": 34036409714641
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 524.6797121120385,
+                "liquidity_usd": 524.6645783885604,
+                "fee_usd": 0.015133723478194146,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 307319114,
+                    "liquidity_token1": 217140766,
+                    "fee_token0": 7563,
+                    "fee_token1": 7561
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x941eaaf5f9f8463bec0cc22da1dada6f0d30e28a",
+        "total_usd": 1816.7622518855537,
+        "total_liquidity_usd": 1816.721048565034,
+        "total_fee_usd": 0.04120332051975947,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 394.84373052346507,
+                "liquidity_usd": 394.84354064641195,
+                "fee_usd": 0.0001898770530880169,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 295238000,
+                    "liquidity_token1": 99723428281826476032,
+                    "fee_token0": 92,
+                    "fee_token1": 92241038189313
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 1421.9185213620885,
+                "liquidity_usd": 1421.877507918622,
+                "fee_usd": 0.041013443466671455,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 832856180,
+                    "liquidity_token1": 588466582,
+                    "fee_token0": 20496,
+                    "fee_token1": 20491
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xdd4944a8c06a5eefae1abd90c37955bb47533874",
+        "total_usd": 0.6811323253420056,
+        "total_liquidity_usd": 0.6811168775785525,
+        "total_fee_usd": 1.5447763453112754e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.14803303405863324,
+                "liquidity_usd": 0.1480329628707832,
+                "fee_usd": 7.118785001212243e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 110689,
+                    "liquidity_token1": 37387858826366704,
+                    "fee_token0": 0,
+                    "fee_token1": 34582594814
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.5330992912833724,
+                "liquidity_usd": 0.5330839147077694,
+                "fee_usd": 1.537657560310063e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 312250,
+                    "liquidity_token1": 220625,
+                    "fee_token0": 7,
+                    "fee_token1": 7
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xaf1bff74708098db603e48aaebec1bbae03dcf11",
+        "total_usd": 1360.1501364576277,
+        "total_liquidity_usd": 1360.1192888869168,
+        "total_fee_usd": 0.03084757071097393,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 295.6065127957932,
+                "liquidity_usd": 295.6063706410895,
+                "fee_usd": 0.00014215470370740685,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 221034978,
+                    "liquidity_token1": 74659650387130073088,
+                    "fee_token0": 69,
+                    "fee_token1": 69057831055484
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 1064.5436236618345,
+                "liquidity_usd": 1064.5129182458274,
+                "fee_usd": 0.030705416007266523,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 623532025,
+                    "liquidity_token1": 440565573,
+                    "fee_token0": 15345,
+                    "fee_token1": 15341
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x17b1d9a1a8f0363e04bccdf2839cb107b2297774",
+        "total_usd": 542.9920719241967,
+        "total_liquidity_usd": 542.9797571172606,
+        "total_fee_usd": 0.012314806936061542,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 118.0104964462572,
+                "liquidity_usd": 118.01043969599483,
+                "fee_usd": 5.6750262360662096e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 88240436,
+                    "liquidity_token1": 29805237791819735040,
+                    "fee_token0": 27,
+                    "fee_token1": 27568908578104
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 424.9815754779395,
+                "liquidity_usd": 424.9693174212658,
+                "fee_usd": 0.01225805667370088,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 248923216,
+                    "liquidity_token1": 175880299,
+                    "fee_token0": 6126,
+                    "fee_token1": 6124
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x1a8042ded3d7b02929a1bec785a5325b2e89ead8",
+        "total_usd": 0.9301146026371812,
+        "total_liquidity_usd": 0.9300935080718059,
+        "total_fee_usd": 2.1094565375283447e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.2021452829597866,
+                "liquidity_usd": 0.2021451857498079,
+                "fee_usd": 9.720997867475713e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 151150,
+                    "liquidity_token1": 51054680799982448,
+                    "fee_token0": 0,
+                    "fee_token1": 47223975775
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.7279693196773945,
+                "liquidity_usd": 0.727948322321998,
+                "fee_usd": 2.099735539660869e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 426391,
+                    "liquidity_token1": 301272,
+                    "fee_token0": 10,
+                    "fee_token1": 10
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x64b238b98c80c7f9bd598c308d46c69407227cd2",
+        "total_usd": 7.637186244289913,
+        "total_liquidity_usd": 7.63701303646795,
+        "total_fee_usd": 0.000173207821964504,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 1.6598182314926933,
+                "liquidity_usd": 1.659817433299965,
+                "fee_usd": 7.981927281453106e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 1241102,
+                    "liquidity_token1": 419210820821917120,
+                    "fee_token0": 0,
+                    "fee_token1": 387756839080
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 5.97736801279722,
+                "liquidity_usd": 5.977195603167985,
+                "fee_usd": 0.0001724096292363587,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 3501106,
+                    "liquidity_token1": 2473757,
+                    "fee_token0": 86,
+                    "fee_token1": 86
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xfb0a73d2e87c5ec9d4a721f25fd5da71abe0a910",
+        "total_usd": 18179.894415097973,
+        "total_liquidity_usd": 18179.482103571878,
+        "total_fee_usd": 0.41231152609806687,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 3951.104401698634,
+                "liquidity_usd": 3951.1025016455183,
+                "fee_usd": 0.001900053115299608,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 2954374278,
+                    "liquidity_token1": 997907896155354169344,
+                    "fee_token0": 922,
+                    "fee_token1": 923033453067300
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 14228.790013399339,
+                "liquidity_usd": 14228.37960192636,
+                "fee_usd": 0.41041147298276726,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 8334187592,
+                    "liquidity_token1": 5888640813,
+                    "fee_token0": 205106,
+                    "fee_token1": 205053
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x093cfb323e28bd797224e3b994e3496a0d14660f",
+        "total_usd": 18060.042463110232,
+        "total_liquidity_usd": 18059.63286977052,
+        "total_fee_usd": 0.40959333971405754,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 3925.056529468982,
+                "liquidity_usd": 3925.0546419420707,
+                "fee_usd": 0.0018875269110424898,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 2934897404,
+                    "liquidity_token1": 991329133679515533312,
+                    "fee_token0": 916,
+                    "fee_token1": 916948304459519
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 14134.98593364125,
+                "liquidity_usd": 14134.57822782845,
+                "fee_usd": 0.40770581280301504,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 8279244003,
+                    "liquidity_token1": 5849819625,
+                    "fee_token0": 203754,
+                    "fee_token1": 203701
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x36fefa17f0754d814e323358ca18e809e4cd4b12",
+        "total_usd": 17886.937884411916,
+        "total_liquidity_usd": 17886.5322170033,
+        "total_fee_usd": 0.4056674086179107,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 3887.4350639866734,
+                "liquidity_usd": 3887.4331945516105,
+                "fee_usd": 0.0018694350624289563,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 2906766563,
+                    "liquidity_token1": 981827294787687809024,
+                    "fee_token0": 907,
+                    "fee_token1": 908159402000081
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 13999.502820425243,
+                "liquidity_usd": 13999.09902245169,
+                "fee_usd": 0.4037979735554817,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 8199887875,
+                    "liquidity_token1": 5793749405,
+                    "fee_token0": 201801,
+                    "fee_token1": 201748
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x38cc8e2bfe87ba71a0b4c893d5a94fbdcbd5e5ec",
+        "total_usd": 3.6289398544918865,
+        "total_liquidity_usd": 3.6288575518285535,
+        "total_fee_usd": 8.230266333357241e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.788691062034589,
+                "liquidity_usd": 0.7886906827596427,
+                "fee_usd": 3.7927494621086904e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 589730,
+                    "liquidity_token1": 199195201749948416,
+                    "fee_token0": 0,
+                    "fee_token1": 184249303582
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 2.8402487924572974,
+                "liquidity_usd": 2.8401668690689106,
+                "fee_usd": 8.192338838736155e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 1663610,
+                    "liquidity_token1": 1175448,
+                    "fee_token0": 40,
+                    "fee_token1": 40
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x2c29a4cf9cf49dbd0495dafbd8343acdb2fec6dd",
+        "total_usd": 11.589329523659533,
+        "total_liquidity_usd": 11.5890666830713,
+        "total_fee_usd": 0.0002628405882332533,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 2.518752301728534,
+                "liquidity_usd": 2.518751090481583,
+                "fee_usd": 1.2112469504753894e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 1883356,
+                    "liquidity_token1": 636146898389674496,
+                    "fee_token0": 0,
+                    "fee_token1": 588415895435
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 9.070577221930998,
+                "liquidity_usd": 9.070315592589717,
+                "fee_usd": 0.0002616293412827779,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 5312882,
+                    "liquidity_token1": 3753894,
+                    "fee_token0": 130,
+                    "fee_token1": 130
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x88c5ed1f1524f96fdf7ab8f11434ce4dee96d7a1",
+        "total_usd": 14.08974988405062,
+        "total_liquidity_usd": 14.089430335094818,
+        "total_fee_usd": 0.00031954895580250193,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 3.0621780037731727,
+                "liquidity_usd": 3.0621765311973395,
+                "fee_usd": 1.4725758330176708e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 2289693,
+                    "liquidity_token1": 773396827500880640,
+                    "fee_token0": 0,
+                    "fee_token1": 715367767937
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 11.027571880277447,
+                "liquidity_usd": 11.027253803897478,
+                "fee_usd": 0.00031807637996948424,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 6459147,
+                    "liquidity_token1": 4563804,
+                    "fee_token0": 158,
+                    "fee_token1": 158
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x193db18a5ef9a0320b7374c1fe8af976235f3211",
+        "total_usd": 41413.46497094526,
+        "total_liquidity_usd": 41406.00426980814,
+        "total_fee_usd": 7.460701137122048,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 6.718866182837612,
+                "liquidity_usd": 6.718862951790967,
+                "fee_usd": 3.2310466452097357e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 5023923,
+                    "liquidity_token1": 1696945698064153088,
+                    "fee_token0": 1,
+                    "fee_token1": 1569621458439
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 24.19610476241736,
+                "liquidity_usd": 24.19540685634196,
+                "fee_usd": 0.0006979060754032899,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 14172313,
+                    "liquidity_token1": 10013653,
+                    "fee_token0": 348,
+                    "fee_token1": 348
+                }
+            },
+            {
+                "source": "pendle",
+                "position_id": 17192,
+                "position_usd": 2592.08,
+                "liquidity_usd": 2592.08,
+                "fee_usd": 0.0,
+                "info": {
+                    "pool": "0x83fe9065ed68506a0d2ece59cd71c43bbff6e450",
+                    "chain": "arbitrum",
+                    "liquidity": 1.09e+21,
+                    "fee_token0": 604344300827.0,
+                    "fee_token1": 604276590562.0,
+                    "pair": "wstETH-axl-wstETH",
+                    "token0": "0x5979d7b546e38e414f7e9822514be443a4800535",
+                    "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e10"
+                }
+            },
+            {
+                "position_id": 12536,
+                "position_usd": 38543.96,
+                "liquidity_usd": 38538.79,
+                "fee_usd": 5.17,
+                "info": {
+                    "pool": "0x32f35bfdcf154eb604b16fa2056d84462fc7d10c",
+                    "chain": "optimism",
+                    "pair": "wstETH-axl-wstETH",
+                    "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+                    "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4",
+                    "liquidity_token0": 16121900000000000000,
+                    "liquidity_token1": 46578200000000000,
+                    "fee_token0": 1083230000000000,
+                    "fee_token1": 1082800000000000
+                }
+            },
+            {
+                "position_id": 14204,
+                "position_usd": 165.04,
+                "liquidity_usd": 163.16,
+                "fee_usd": 1.88,
+                "info": {
+                    "pool": "0x6298d1248d06d6cfd5ac3983016fbe2f096fddfe",
+                    "chain": "arbitrum",
+                    "pair": "wstETH-USDC",
+                    "token0": "0x5979d7b546e38e414f7e9822514be443a4800529",
+                    "token1": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+                    "liquidity_token0": 0,
+                    "liquidity_token1": 163163338,
+                    "fee_token0": 395384104846680,
+                    "fee_token1": 937779
+                }
+            },
+            {
+                "position_id": 6939,
+                "position_usd": 81.47,
+                "liquidity_usd": 81.06,
+                "fee_usd": 0.41,
+                "info": {
+                    "pool": "0xc0fa0dd169f4ea52d70bc44fd55ae0e0fbcbad8e",
+                    "chain": "optimism",
+                    "pair": "wstETH-USDC",
+                    "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+                    "token1": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+                    "liquidity_token0": 0,
+                    "liquidity_token1": 81058181,
+                    "fee_token0": 85919792141601,
+                    "fee_token1": 203646
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x4f82e73edb06d29ff62c91ec8f5ff06571bdeb29",
+        "total_usd": 2.78225624963134,
+        "total_liquidity_usd": 2.7821931493572643,
+        "total_fee_usd": 6.310027407614268e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.6046781496109069,
+                "liquidity_usd": 0.6046778588262338,
+                "fee_usd": 2.907846731227526e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 452138,
+                    "liquidity_token1": 152720110324069664,
+                    "fee_token0": 0,
+                    "fee_token1": 141261304102
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 2.177578100020433,
+                "liquidity_usd": 2.1775152905310304,
+                "fee_usd": 6.280948940301993e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 1275466,
+                    "liquidity_token1": 901199,
+                    "fee_token0": 31,
+                    "fee_token1": 31
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xc51a5d21757c1a1eed2be5eebbd40e3c6417518a",
+        "total_usd": 8.727790811467187,
+        "total_liquidity_usd": 8.727592869242297,
+        "total_fee_usd": 0.00019794222489180036,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 1.896843397936474,
+                "liquidity_usd": 1.8968424857603223,
+                "fee_usd": 9.121761515426518e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 1418333,
+                    "liquidity_token1": 479074914790200704,
+                    "fee_token0": 0,
+                    "fee_token1": 443129245274
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 6.830947413530714,
+                "liquidity_usd": 6.830750383481974,
+                "fee_usd": 0.0001970300487402577,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 4001070,
+                    "liquidity_token1": 2827014,
+                    "fee_token0": 98,
+                    "fee_token1": 98
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x20d61737f972eecb0af5f0a85ab358cd083dd56a",
+        "total_usd": 103532.20423341574,
+        "total_liquidity_usd": 103529.85617131207,
+        "total_fee_usd": 2.348062103682536,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 22501.040909287203,
+                "liquidity_usd": 22501.03008872451,
+                "fee_usd": 0.010820562690976959,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 16824788654,
+                    "liquidity_token1": 5682959525301098381312,
+                    "fee_token0": 5255,
+                    "fee_token1": 5256559021619115
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 81031.16332412855,
+                "liquidity_usd": 81028.82608258756,
+                "fee_usd": 2.3372415409915592,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 47462146489,
+                    "liquidity_token1": 33535066232,
+                    "fee_token0": 1168054,
+                    "fee_token1": 1167751
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x09fa38eba245bb68354b8950fa2fe71f02863393",
+        "total_usd": 2.600021887422077,
+        "total_liquidity_usd": 2.5999629201383434,
+        "total_fee_usd": 5.896728373394791e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.5650724746563209,
+                "liquidity_usd": 0.5650722029176861,
+                "fee_usd": 2.7173863474202727e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 422523,
+                    "liquidity_token1": 142717130966512736,
+                    "fee_token0": 0,
+                    "fee_token1": 132008862456
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 2.0349494127657564,
+                "liquidity_usd": 2.0348907172206574,
+                "fee_usd": 5.8695545099205885e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 1191924,
+                    "liquidity_token1": 842171,
+                    "fee_token0": 29,
+                    "fee_token1": 29
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x5a2c70b16b9cfd4b81aa86d0175ff139dc23ba1c",
+        "total_usd": 161.83530953209532,
+        "total_liquidity_usd": 158.92510756382865,
+        "total_fee_usd": 2.9202019682666784,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 1.9354242050125672,
+                "liquidity_usd": 1.9354232742832274,
+                "fee_usd": 9.307293395181932e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 1447182,
+                    "liquidity_token1": 488819049114955072,
+                    "fee_token0": 0,
+                    "fee_token1": 452142263397
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 6.969885327082735,
+                "liquidity_usd": 6.9696842895453965,
+                "fee_usd": 0.00020103753733910132,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 4082450,
+                    "liquidity_token1": 2884514,
+                    "fee_token0": 100,
+                    "fee_token1": 100
+                }
+            },
+            {
+                "position_id": 16008,
+                "position_usd": 41.94,
+                "liquidity_usd": 41.26,
+                "fee_usd": 0.68,
+                "info": {
+                    "pool": "0x836edfa0630096f5c387546b00c42ab9e1099812",
+                    "chain": "arbitrum",
+                    "pair": "WETH-ARB",
+                    "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                    "token1": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+                    "liquidity_token0": 7173370000000000,
+                    "liquidity_token1": 25864900000000000000,
+                    "fee_token0": 165473875095238,
+                    "fee_token1": 331127000000000000
+                }
+            },
+            {
+                "position_id": 16012,
+                "position_usd": 28.12,
+                "liquidity_usd": 27.95,
+                "fee_usd": 0.17,
+                "info": {
+                    "pool": "0x6298d1248d06d6cfd5ac3983016fbe2f096fddfe",
+                    "chain": "arbitrum",
+                    "pair": "wstETH-USDC",
+                    "token0": "0x5979d7b546e38e414f7e9822514be443a4800529",
+                    "token1": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+                    "liquidity_token0": 1725900000000000,
+                    "liquidity_token1": 23837066,
+                    "fee_token0": 34800277673755,
+                    "fee_token1": 82539
+                }
+            },
+            {
+                "position_id": 16010,
+                "position_usd": 27.85,
+                "liquidity_usd": 26.67,
+                "fee_usd": 1.19,
+                "info": {
+                    "pool": "0xdac2b8ba301024e4f01bb37aeb87ca9bcded68ea",
+                    "chain": "arbitrum",
+                    "pair": "ARB-USDC",
+                    "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                    "liquidity_token0": 5125390000000000000,
+                    "liquidity_token1": 21438444,
+                    "fee_token0": 579718000000000000,
+                    "fee_token1": 594045
+                }
+            },
+            {
+                "position_id": 16009,
+                "position_usd": 24.5,
+                "liquidity_usd": 24.1,
+                "fee_usd": 0.39,
+                "info": {
+                    "pool": "0x0559bf66543012022b1aee4c06bdee604e057f95",
+                    "chain": "arbitrum",
+                    "pair": "WETH-USDC",
+                    "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                    "liquidity_token0": 1957870000000000,
+                    "liquidity_token1": 20043742,
+                    "fee_token0": 95416532100818,
+                    "fee_token1": 195577
+                }
+            },
+            {
+                "position_id": 13078,
+                "position_usd": 19.67,
+                "liquidity_usd": 19.65,
+                "fee_usd": 0.03,
+                "info": {
+                    "pool": "0xc23f1d198477c0bcae0cac2ec734ceda438a8990",
+                    "chain": "arbitrum",
+                    "pair": "USDT-USDC",
+                    "token0": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                    "liquidity_token0": 5426771,
+                    "liquidity_token1": 14213313,
+                    "fee_token0": 13530,
+                    "fee_token1": 13531
+                }
+            },
+            {
+                "position_id": 16011,
+                "position_usd": 10.85,
+                "liquidity_usd": 10.39,
+                "fee_usd": 0.46,
+                "info": {
+                    "pool": "0x6bdd1ad85ed3c9c2530d372dd8c37abdc5a22905",
+                    "chain": "arbitrum",
+                    "pair": "ARB-USDT",
+                    "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+                    "token1": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+                    "liquidity_token0": 2111280000000000000,
+                    "liquidity_token1": 8226310,
+                    "fee_token0": 225628000000000000,
+                    "fee_token1": 228806
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x947ebecd725e07bac225363f328de957aa5819b3",
+        "total_usd": 183.27697461861908,
+        "total_liquidity_usd": 183.27281798231644,
+        "total_fee_usd": 0.0041566363026823904,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 39.832269900634415,
+                "liquidity_usd": 39.832250745628414,
+                "fee_usd": 1.915500599822619e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 29783934,
+                    "liquidity_token1": 10060209150268395520,
+                    "fee_token0": 9,
+                    "fee_token1": 9305377406399
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 143.44470471798468,
+                "liquidity_usd": 143.44056723668803,
+                "fee_usd": 0.004137481296684164,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 84019447,
+                    "liquidity_token1": 59365156,
+                    "fee_token0": 2067,
+                    "fee_token1": 2067
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xe382620e8f0d27af43b32bc34c6c5ae3b96995d9",
+        "total_usd": 1.9288714463842076,
+        "total_liquidity_usd": 1.9288277004794414,
+        "total_fee_usd": 4.374590476644673e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.4192088406374362,
+                "liquidity_usd": 0.41920863904340505,
+                "fee_usd": 2.0159403109466385e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 313456,
+                    "liquidity_token1": 105877185130917456,
+                    "fee_token0": 0,
+                    "fee_token1": 97933069944
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 1.5096626057467715,
+                "liquidity_usd": 1.5096190614360363,
+                "fee_usd": 4.354431073535206e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 884250,
+                    "liquidity_token1": 624779,
+                    "fee_token0": 21,
+                    "fee_token1": 21
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x7754d8b057cc1d2d857d897461dac6c3235b4aae",
+        "total_usd": 0.7858226765903886,
+        "total_liquidity_usd": 0.7858048544985986,
+        "total_fee_usd": 1.782209179002518e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.1707857794191054,
+                "liquidity_usd": 0.1707856972896501,
+                "fee_usd": 8.212945527195764e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 127702,
+                    "liquidity_token1": 43134389908832144,
+                    "fee_token0": 0,
+                    "fee_token1": 39897955529
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.6150368971712832,
+                "liquidity_usd": 0.6150191572089485,
+                "fee_usd": 1.773996233475322e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 360243,
+                    "liquidity_token1": 254535,
+                    "fee_token0": 8,
+                    "fee_token1": 8
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x4b7e5cd5654b8173f7bc393b138a89dccf85bcf7",
+        "total_usd": 942.732781411428,
+        "total_liquidity_usd": 942.7114006716448,
+        "total_fee_usd": 0.021380739783336686,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 204.88763896108895,
+                "liquidity_usd": 204.88754043233416,
+                "fee_usd": 9.852875477728054e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 153201411,
+                    "liquidity_token1": 51747302009027739648,
+                    "fee_token0": 47,
+                    "fee_token1": 47864628633896
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 737.845142450339,
+                "liquidity_usd": 737.8238602393106,
+                "fee_usd": 0.021282211028559407,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 432175879,
+                    "liquidity_token1": 305360119,
+                    "fee_token0": 10635,
+                    "fee_token1": 10633
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x20a2454b42e3eee43dd83bd98506c04dc614fe62",
+        "total_usd": 105.62850432006861,
+        "total_liquidity_usd": 105.62610871485671,
+        "total_fee_usd": 0.002395605211905999,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 22.956637642594185,
+                "liquidity_usd": 22.956626602938826,
+                "fee_usd": 1.1039655355819755e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 17165453,
+                    "liquidity_token1": 5798026992876534784,
+                    "fee_token0": 5,
+                    "fee_token1": 5362992814097
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 82.67186667747443,
+                "liquidity_usd": 82.66948211191789,
+                "fee_usd": 0.0023845655565501796,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 48423150,
+                    "liquidity_token1": 34214077,
+                    "fee_token0": 1191,
+                    "fee_token1": 1191
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x38e481367e0c50f4166ad2a1c9fde0e3c662cfba",
+        "total_usd": 0.5624092053640237,
+        "total_liquidity_usd": 0.5623964501855587,
+        "total_fee_usd": 1.2755178465056746e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.12223049466916863,
+                "liquidity_usd": 0.12223043588954434,
+                "fee_usd": 5.877962426933617e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 91395,
+                    "liquidity_token1": 30871058666255356,
+                    "fee_token0": 0,
+                    "fee_token1": 28554759402
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.44017871069485515,
+                "liquidity_usd": 0.44016601429601443,
+                "fee_usd": 1.269639884078741e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 257824,
+                    "liquidity_token1": 182169,
+                    "fee_token0": 6,
+                    "fee_token1": 6
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xaffd9f38200a9eda526dc275599e5e7b8ccc8f20",
+        "total_usd": 40.1639519658621,
+        "total_liquidity_usd": 40.16304106616431,
+        "total_fee_usd": 0.0009108996977890535,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 8.728981797174539,
+                "liquidity_usd": 8.728977599480078,
+                "fee_usd": 4.1976944598033675e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 6526954,
+                    "liquidity_token1": 2204629130288728576,
+                    "fee_token0": 2,
+                    "fee_token1": 2039212683558
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 31.43497016868756,
+                "liquidity_usd": 31.434063466684236,
+                "fee_usd": 0.0009067020033292501,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 18412313,
+                    "liquidity_token1": 13009486,
+                    "fee_token0": 453,
+                    "fee_token1": 453
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x8c823c1489dcf2af7ded0eccdbf81ff993e1435b",
+        "total_usd": 15.408773763703017,
+        "total_liquidity_usd": 15.40842429990083,
+        "total_fee_usd": 0.0003494638021901403,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 3.348846393486083,
+                "liquidity_usd": 3.3488447830538144,
+                "fee_usd": 1.610432267967294e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 2504045,
+                    "liquidity_token1": 845799027136422656,
+                    "fee_token0": 0,
+                    "fee_token1": 782337527968
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 12.059927370216935,
+                "liquidity_usd": 12.059579516847014,
+                "fee_usd": 0.00034785336992217304,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 7063826,
+                    "liquidity_token1": 4991048,
+                    "fee_token0": 173,
+                    "fee_token1": 173
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x3838433f63f4d4a24260f2485aacf5894ba7bc93",
+        "total_usd": 1.1083338383726558,
+        "total_liquidity_usd": 1.1083087018781368,
+        "total_fee_usd": 2.513649451912074e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.24087833556329313,
+                "liquidity_usd": 0.24087821972691284,
+                "fee_usd": 1.1583638025319095e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 180112,
+                    "liquidity_token1": 60837266908975888,
+                    "fee_token0": 0,
+                    "fee_token1": 56272560590
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.8674555028093626,
+                "liquidity_usd": 0.8674304821512239,
+                "fee_usd": 2.502065813886755e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 508092,
+                    "liquidity_token1": 358999,
+                    "fee_token0": 12,
+                    "fee_token1": 12
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x392f8d754e3301bd1cbeac7ea856a146781233df",
+        "total_usd": 1.9054880820082967,
+        "total_liquidity_usd": 1.9054448664273336,
+        "total_fee_usd": 4.32155809631986e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.4141268468503916,
+                "liquidity_usd": 0.4141266477002488,
+                "fee_usd": 1.9915014271680774e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 309656,
+                    "liquidity_token1": 104593654954867424,
+                    "fee_token0": 0,
+                    "fee_token1": 96745844855
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 1.491361235157905,
+                "liquidity_usd": 1.4913182187270848,
+                "fee_usd": 4.30164308204818e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 873530,
+                    "liquidity_token1": 617205,
+                    "fee_token0": 21,
+                    "fee_token1": 21
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x823bf98d9f1119ae040aaef8118f13a612324112",
+        "total_usd": 1.0206759100175087,
+        "total_liquidity_usd": 1.0206527615639214,
+        "total_fee_usd": 2.3148453587283465e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.22182731040383602,
+                "liquidity_usd": 0.22182720372893466,
+                "fee_usd": 1.0667490132888925e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 165867,
+                    "liquidity_token1": 56025658177932640,
+                    "fee_token0": 0,
+                    "fee_token1": 51821973678
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.7988485996136726,
+                "liquidity_usd": 0.7988255578349868,
+                "fee_usd": 2.3041778685954575e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 467907,
+                    "liquidity_token1": 330606,
+                    "fee_token0": 11,
+                    "fee_token1": 11
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x6c2693f5a936f37ed03cfa8465bf2d8beff19a0f",
+        "total_usd": 2184.7878949507603,
+        "total_liquidity_usd": 2184.786182240125,
+        "total_fee_usd": 0.0017127106354175882,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 16.412586361140004,
+                "liquidity_usd": 16.412578468464268,
+                "fee_usd": 7.892675736991704e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 12272245,
+                    "liquidity_token1": 4145233297068042240,
+                    "fee_token0": 3,
+                    "fee_token1": 3834210570638
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 59.105308589620385,
+                "liquidity_usd": 59.103603771660715,
+                "fee_usd": 0.0017048179596805965,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 34619579,
+                    "liquidity_token1": 24460964,
+                    "fee_token0": 851,
+                    "fee_token1": 851
+                }
+            },
+            {
+                "source": "pendle",
+                "position_id": 17192,
+                "position_usd": 2109.27,
+                "liquidity_usd": 2109.27,
+                "fee_usd": 0.0,
+                "info": {
+                    "pool": "0x83fe9065ed68506a0d2ece59cd71c43bbff6e450",
+                    "chain": "arbitrum",
+                    "liquidity": 8.84e+20,
+                    "fee_token0": 491776083510.0,
+                    "fee_token1": 491720985301.0,
+                    "pair": "wstETH-axl-wstETH",
+                    "token0": "0x5979d7b546e38e414f7e9822514be443a4800619",
+                    "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e94"
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x3cef0d05ae5eb9d4c1eb8618aa3c7c63412d8db3",
+        "total_usd": 0.9189219462417548,
+        "total_liquidity_usd": 0.9189011055206063,
+        "total_fee_usd": 2.0840721148651883e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.19971274110932863,
+                "liquidity_usd": 0.199712645069139,
+                "fee_usd": 9.604018961044585e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 149331,
+                    "liquidity_token1": 50440307583406152,
+                    "fee_token0": 0,
+                    "fee_token1": 46655699851
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.7192092051324263,
+                "liquidity_usd": 0.7191884604514673,
+                "fee_usd": 2.0744680959041437e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 421260,
+                    "liquidity_token1": 297647,
+                    "fee_token0": 10,
+                    "fee_token1": 10
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x62e1af3e818afc059d111c4f53cf0a2d9fd29110",
+        "total_usd": 0.7750701345278528,
+        "total_liquidity_usd": 0.7750525562987014,
+        "total_fee_usd": 1.757822915140724e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.1684488892539451,
+                "liquidity_usd": 0.16844880824828076,
+                "fee_usd": 8.100566430442032e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 125954,
+                    "liquidity_token1": 42544174892681552,
+                    "fee_token0": 0,
+                    "fee_token1": 39352025182
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.6066212452739077,
+                "liquidity_usd": 0.6066037480504206,
+                "fee_usd": 1.749722348710282e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 355314,
+                    "liquidity_token1": 251052,
+                    "fee_token0": 8,
+                    "fee_token1": 8
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x44a03946c8e690c6ecdb254b3744690a42e1ed17",
+        "total_usd": 338.53424775492516,
+        "total_liquidity_usd": 338.5265699560812,
+        "total_fee_usd": 0.0076777988439715,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 73.5749133657863,
+                "liquidity_usd": 73.5748779842248,
+                "fee_usd": 3.538156149163275e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 55014449,
+                    "liquidity_token1": 18582396095405518848,
+                    "fee_token0": 17,
+                    "fee_token1": 17188132592485
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 264.95933438913886,
+                "liquidity_usd": 264.9516919718564,
+                "fee_usd": 0.007642417282479867,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 155193856,
+                    "liquidity_token1": 109654464,
+                    "fee_token0": 3819,
+                    "fee_token1": 3818
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x5275817b74021e97c980e95ede6bbac0d0d6f3a2",
+        "total_usd": 0.6664728520611631,
+        "total_liquidity_usd": 0.666457736767726,
+        "total_fee_usd": 1.5115293437258265e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.14484703590919426,
+                "liquidity_usd": 0.14484696625346413,
+                "fee_usd": 6.965573010494463e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 108307,
+                    "liquidity_token1": 36583189451116912,
+                    "fee_token0": 0,
+                    "fee_token1": 33838300922
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.5216258161519689,
+                "liquidity_usd": 0.5216107705142619,
+                "fee_usd": 1.504563770715332e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 305530,
+                    "liquidity_token1": 215876,
+                    "fee_token0": 7,
+                    "fee_token1": 7
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x66aeff517e9e00210c9298e10094f438401d221a",
+        "total_usd": 32.216303608916355,
+        "total_liquidity_usd": 32.215572958176445,
+        "total_fee_usd": 0.0007306507399160678,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 7.001689674200075,
+                "liquidity_usd": 7.001686307145974,
+                "fee_usd": 3.3670541006472923e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 5235399,
+                    "liquidity_token1": 1768376813659957760,
+                    "fee_token0": 1,
+                    "fee_token1": 1635692996242
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 25.214613934716283,
+                "liquidity_usd": 25.21388665103047,
+                "fee_usd": 0.0007272836858154205,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 14768882,
+                    "liquidity_token1": 10435167,
+                    "fee_token0": 363,
+                    "fee_token1": 363
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x83090029c7f7c50b2c365648161c2f9c36bc58bd",
+        "total_usd": 0.9448483451248475,
+        "total_liquidity_usd": 0.9448269164050662,
+        "total_fee_usd": 2.1428719781290945e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.20534742234237255,
+                "liquidity_usd": 0.20534732359251176,
+                "fee_usd": 9.874986076617702e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 153545,
+                    "liquidity_token1": 51863426874396176,
+                    "fee_token0": 0,
+                    "fee_token1": 47972040486
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.7395009227824749,
+                "liquidity_usd": 0.7394795928125545,
+                "fee_usd": 2.1329969920524767e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 433145,
+                    "liquidity_token1": 306045,
+                    "fee_token0": 10,
+                    "fee_token1": 10
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x1e670bb5fec8d4cebddc3d2ad99d68f15210d742",
+        "total_usd": 0.6379589479571951,
+        "total_liquidity_usd": 0.6379444793458049,
+        "total_fee_usd": 1.4468611390204998e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.1386500025955357,
+                "liquidity_usd": 0.13864993591990715,
+                "fee_usd": 6.667562852925092e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 103673,
+                    "liquidity_token1": 35018040103562584,
+                    "fee_token0": 0,
+                    "fee_token1": 32390586947
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.49930894536165943,
+                "liquidity_usd": 0.4992945434258978,
+                "fee_usd": 1.4401935761675747e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 292458,
+                    "liquidity_token1": 206640,
+                    "fee_token0": 7,
+                    "fee_token1": 7
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x78830aded41d1c679a164ddbda5ce745506cc387",
+        "total_usd": 219.17493735664468,
+        "total_liquidity_usd": 219.16996657129053,
+        "total_fee_usd": 0.004970785354169444,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 47.6341083252249,
+                "liquidity_usd": 47.63408541837995,
+                "fee_usd": 2.2906844951743675e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 35617632,
+                    "liquidity_token1": 12030674968655777792,
+                    "fee_token0": 11,
+                    "fee_token1": 11127996383064
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 171.54082903141978,
+                "liquidity_usd": 171.53588115291058,
+                "fee_usd": 0.0049478785092177,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 100476108,
+                    "liquidity_token1": 70992848,
+                    "fee_token0": 2472,
+                    "fee_token1": 2472
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x27ab111c7348081f404fd66729fa10a29f6d7ba7",
+        "total_usd": 36.93642430706404,
+        "total_liquidity_usd": 36.93558660618818,
+        "total_fee_usd": 0.0008377008758579744,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 8.027531147024616,
+                "liquidity_usd": 8.027527286651916,
+                "fee_usd": 3.860372699215793e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 6002456,
+                    "liquidity_token1": 2027467741628134656,
+                    "fee_token0": 1,
+                    "fee_token1": 1875343964856
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 28.908893160039423,
+                "liquidity_usd": 28.908059319536267,
+                "fee_usd": 0.0008338405031587586,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 16932721,
+                    "liquidity_token1": 11964059,
+                    "fee_token0": 416,
+                    "fee_token1": 416
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x167d87a906da361a10061fe42bbe89451c2ee584",
+        "total_usd": 0.6708396109907366,
+        "total_liquidity_usd": 0.6708243966612453,
+        "total_fee_usd": 1.521432949156086e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.14579608000238956,
+                "liquidity_usd": 0.14579600989027205,
+                "fee_usd": 7.011211748490279e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 109016,
+                    "liquidity_token1": 36822884103070944,
+                    "fee_token0": 0,
+                    "fee_token1": 34060010945
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.5250435309883471,
+                "liquidity_usd": 0.5250283867709732,
+                "fee_usd": 1.5144217374075958e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 307532,
+                    "liquidity_token1": 217291,
+                    "fee_token0": 7,
+                    "fee_token1": 7
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xd412da7894bce0d470c8919bca6e27f24d0cbc3b",
+        "total_usd": 91.67267250014538,
+        "total_liquidity_usd": 91.67059340668996,
+        "total_fee_usd": 0.0020790934554352583,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 19.923564548779364,
+                "liquidity_usd": 19.92355496770353,
+                "fee_usd": 9.581075830976857e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 14897522,
+                    "liquidity_token1": 5031981026429045760,
+                    "fee_token0": 4,
+                    "fee_token1": 4654424361695
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 71.74910795136601,
+                "liquidity_usd": 71.74703843898642,
+                "fee_usd": 0.0020695123796042815,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 42025395,
+                    "liquidity_token1": 29693651,
+                    "fee_token0": 1034,
+                    "fee_token1": 1033
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x0bd27fac898a59680b9dc92bb7378df610825e8d",
+        "total_usd": 2846.0368260757145,
+        "total_liquidity_usd": 2845.972279287914,
+        "total_fee_usd": 0.0645467878006397,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 618.5398207273703,
+                "liquidity_usd": 618.5395232767353,
+                "fee_usd": 0.00029745063501856377,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 462503125,
+                    "liquidity_token1": 156221073511749681152,
+                    "fee_token0": 144,
+                    "fee_token1": 144499585062890
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 2227.4970053483444,
+                "liquidity_usd": 2227.4327560111788,
+                "fee_usd": 0.06424933716562113,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 1304705311,
+                    "liquidity_token1": 921858412,
+                    "fee_token0": 32109,
+                    "fee_token1": 32100
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xee28f0e5740ece71ea63c6afbd82f725243974a3",
+        "total_usd": 72.76151407500451,
+        "total_liquidity_usd": 72.75986387780182,
+        "total_fee_usd": 0.0016501972027011373,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 15.813531805054318,
+                "liquidity_usd": 15.813524200458913,
+                "fee_usd": 7.60459540303857e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 11824312,
+                    "liquidity_token1": 3993933505675856896,
+                    "fee_token0": 3,
+                    "fee_token1": 3694263016926
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 56.947982269950195,
+                "liquidity_usd": 56.946339677342905,
+                "fee_usd": 0.0016425926072980988,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 33355975,
+                    "liquidity_token1": 23568146,
+                    "fee_token0": 820,
+                    "fee_token1": 820
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x8c9d080fca8b8ee7c9b62b1aae91beddc4849fdf",
+        "total_usd": 2.7372568561706925,
+        "total_liquidity_usd": 2.7371947764618727,
+        "total_fee_usd": 6.207970881971378e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.594898263269949,
+                "liquidity_usd": 0.5948979771883415,
+                "fee_usd": 2.860816074428317e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 444825,
+                    "liquidity_token1": 150250060228975200,
+                    "fee_token0": 0,
+                    "fee_token1": 138976585365
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 2.1423585929007434,
+                "liquidity_usd": 2.1422967992735313,
+                "fee_usd": 6.179362721227095e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 1254837,
+                    "liquidity_token1": 886623,
+                    "fee_token0": 30,
+                    "fee_token1": 30
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x6efe85bbcb6a35f4ec2aa0d4a8dd788fb705e822",
+        "total_usd": 4.233171836798463,
+        "total_liquidity_usd": 4.233075830435588,
+        "total_fee_usd": 9.600636287452653e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.9200110570863554,
+                "liquidity_usd": 0.92001061466072,
+                "fee_usd": 4.4242563531743075e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 687923,
+                    "liquidity_token1": 232361943668714624,
+                    "fee_token0": 0,
+                    "fee_token1": 214927497870
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 3.313160779712107,
+                "liquidity_usd": 3.3130652157748686,
+                "fee_usd": 9.55639372392091e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 1940607,
+                    "liquidity_token1": 1371164,
+                    "fee_token0": 47,
+                    "fee_token1": 47
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x95603220f8245535385037c3cd9819ebcf818866",
+        "total_usd": 1.0302694845134013,
+        "total_liquidity_usd": 1.030246118482019,
+        "total_fee_usd": 2.3366031382182073e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.22391231781104926,
+                "liquidity_usd": 0.22391221013348525,
+                "fee_usd": 1.0767756398133527e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 167426,
+                    "liquidity_token1": 56552256602997288,
+                    "fee_token0": 0,
+                    "fee_token1": 52309060677
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.806357166702352,
+                "liquidity_usd": 0.8063339083485339,
+                "fee_usd": 2.3258353818200737e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 472305,
+                    "liquidity_token1": 333714,
+                    "fee_token0": 11,
+                    "fee_token1": 11
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x8fc6f7b80419aba7659bd24736519f62d5d738a8",
+        "total_usd": 39.74653795385603,
+        "total_liquidity_usd": 39.745636520913344,
+        "total_fee_usd": 0.0009014329426846843,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 8.638263649730336,
+                "liquidity_usd": 8.638259495661474,
+                "fee_usd": 4.154068860188367e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 6459121,
+                    "liquidity_token1": 2181716965370930688,
+                    "fee_token0": 2,
+                    "fee_token1": 2018019650831
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 31.10827430412569,
+                "liquidity_usd": 31.10737702525187,
+                "fee_usd": 0.0008972788738244959,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 18220958,
+                    "liquidity_token1": 12874281,
+                    "fee_token0": 448,
+                    "fee_token1": 448
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x8fd1fa331182678da3dc75f6717ba800e0b27732",
+        "total_usd": 2.8404737419000803,
+        "total_liquidity_usd": 2.8404093212804313,
+        "total_fee_usd": 6.442061964915451e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.6173307747469317,
+                "liquidity_usd": 0.6173304778777168,
+                "fee_usd": 2.9686921490202994e-07,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 461599,
+                    "liquidity_token1": 155915711666546112,
+                    "fee_token0": 0,
+                    "fee_token1": 144217134949
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 2.2231429671531484,
+                "liquidity_usd": 2.2230788434027144,
+                "fee_usd": 6.412375043425248e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 1302155,
+                    "liquidity_token1": 920056,
+                    "fee_token0": 32,
+                    "fee_token1": 32
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x29991b99815c3a97194445b19145b4b622bffd28",
+        "total_usd": 0.5302059921202638,
+        "total_liquidity_usd": 0.5301939672956554,
+        "total_fee_usd": 1.2024824608456578e-05,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 0.11523164997508373,
+                "liquidity_usd": 0.11523159456114541,
+                "fee_usd": 5.541393829587086e-08,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 86162,
+                    "liquidity_token1": 29103400392991376,
+                    "fee_token0": 0,
+                    "fee_token1": 26919731033
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 0.41497434214518003,
+                "liquidity_usd": 0.4149623727345099,
+                "fee_usd": 1.1969410670160708e-05,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 243061,
+                    "liquidity_token1": 171738,
+                    "fee_token0": 5,
+                    "fee_token1": 5
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xf9c97ba6b1348fa9d07777db6c2e9a954360e238",
+        "total_usd": 93.53113492396996,
+        "total_liquidity_usd": 93.52901368145365,
+        "total_fee_usd": 0.002121242516335253,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 20.327471135997943,
+                "liquidity_usd": 20.327461360686804,
+                "fee_usd": 9.775311136175262e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 15199537,
+                    "liquidity_token1": 5133993408719247360,
+                    "fee_token0": 4,
+                    "fee_token1": 4748782610431
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 73.20366378797202,
+                "liquidity_usd": 73.20155232076684,
+                "fee_usd": 0.002111467205199078,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 42877368,
+                    "liquidity_token1": 30295624,
+                    "fee_token0": 1055,
+                    "fee_token1": 1054
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x47d574e85df71a059ec442cad8dee2224f58b0d8",
+        "total_usd": 2195.194392907391,
+        "total_liquidity_usd": 2185.1241712287183,
+        "total_fee_usd": 10.06022167867228,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 2.124305343361234,
+                "liquidity_usd": 2.1243043218005324,
+                "fee_usd": 1.02156070180425e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 1588414,
+                    "liquidity_token1": 536523680587592000,
+                    "fee_token0": 0,
+                    "fee_token1": 496267548791
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 7.650087564029511,
+                "liquidity_usd": 7.649866906917935,
+                "fee_usd": 0.00022065711157757208,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 4480863,
+                    "liquidity_token1": 3166018,
+                    "fee_token0": 110,
+                    "fee_token1": 110
+                }
+            },
+            {
+                "position_id": 12021,
+                "position_usd": 1042.41,
+                "liquidity_usd": 1042.32,
+                "fee_usd": 0.09,
+                "info": {
+                    "pool": "0x9af350aca2e6043a567b68456e7d6f532a301de9",
+                    "chain": "polygon",
+                    "pair": "wstETH-axl-wstETH",
+                    "token0": "0x03b54a6e9a984069379fae1a4fc4dbae93b3bccd",
+                    "token1": "0xd7bb095a60d7666d4a6f236423b47ddd6ae6cfa7",
+                    "liquidity_token0": 117963000000000000,
+                    "liquidity_token1": 318260000000000000,
+                    "fee_token0": 19186180376785,
+                    "fee_token1": 19187942216075
+                }
+            },
+            {
+                "position_id": 16817,
+                "position_usd": 777.07,
+                "liquidity_usd": 774.92,
+                "fee_usd": 2.14,
+                "info": {
+                    "pool": "0xa852ddd69c13d42669840a692f6bbf94245ac54a",
+                    "chain": "polygon",
+                    "pair": "WMATIC-USDC",
+                    "token0": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+                    "token1": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "liquidity_token0": 325987000000000032768,
+                    "liquidity_token1": 523031218,
+                    "fee_token0": 1381800000000000000,
+                    "fee_token1": 1074882
+                }
+            },
+            {
+                "position_id": 16432,
+                "position_usd": 365.94,
+                "liquidity_usd": 358.11,
+                "fee_usd": 7.83,
+                "info": {
+                    "pool": "0x9c777839adc4ac86f2a360a525017ccabbcb0c1e",
+                    "chain": "polygon",
+                    "pair": "USDC-stMATIC",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x3a58a54c066fdc0f2d55fc9c89f0415c92ebf3c4",
+                    "liquidity_token0": 118742352,
+                    "liquidity_token1": 282442000000000000000,
+                    "fee_token0": 3902014,
+                    "fee_token1": 4633150000000000000
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xc9e847261ae6f2776732d0e7eadd0e3ce212b454",
+        "total_usd": 72.95439065675214,
+        "total_liquidity_usd": 72.95273608519868,
+        "total_fee_usd": 0.0016545715534733458,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 15.855450398487328,
+                "liquidity_usd": 15.855442773733621,
+                "fee_usd": 7.624753704602843e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 11855656,
+                    "liquidity_token1": 4004520645657413120,
+                    "fee_token0": 3,
+                    "fee_token1": 3704055788796
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 57.09894025826482,
+                "liquidity_usd": 57.09729331146506,
+                "fee_usd": 0.001646946799768743,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 33444395,
+                    "liquidity_token1": 23630621,
+                    "fee_token0": 823,
+                    "fee_token1": 822
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x7617452156f474836604c1a79c79c0627be5fe74",
+        "total_usd": 23.568436506696152,
+        "total_liquidity_usd": 23.56790198554868,
+        "total_fee_usd": 0.0005345211474735515,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 5.122216394693965,
+                "liquidity_usd": 5.122213931462871,
+                "fee_usd": 2.4632310940183886e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 3830054,
+                    "liquidity_token1": 1293688970578457600,
+                    "fee_token0": 1,
+                    "fee_token1": 1196621654472
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 18.446220112002187,
+                "liquidity_usd": 18.44568805408581,
+                "fee_usd": 0.0005320579163795332,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 10804450,
+                    "liquidity_token1": 7634040,
+                    "fee_token0": 265,
+                    "fee_token1": 265
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xc467bb07d0509494e413b62f4f2797b6826f4ed8",
+        "total_usd": 173.01223066704517,
+        "total_liquidity_usd": 173.00830683034823,
+        "total_fee_usd": 0.003923836696956274,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 37.60139474862423,
+                "liquidity_usd": 37.60137666642746,
+                "fee_usd": 1.8082196765293966e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 28115833,
+                    "liquidity_token1": 9496769741132392448,
+                    "fee_token0": 8,
+                    "fee_token1": 8784213654300
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 135.41083591842093,
+                "liquidity_usd": 135.40693016392078,
+                "fee_usd": 0.0039057545001909798,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 79313793,
+                    "liquidity_token1": 56040308,
+                    "fee_token0": 1951,
+                    "fee_token1": 1951
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x3c948a11c4d5462ace49a505ece7112531b16725",
+        "total_usd": 1374.6747588517171,
+        "total_liquidity_usd": 1374.6435818693446,
+        "total_fee_usd": 0.0311769823727158,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 298.7632032590944,
+                "liquidity_usd": 298.7630595863646,
+                "fee_usd": 0.00014367272979303835,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 223395343,
+                    "liquidity_token1": 75456917687303749632,
+                    "fee_token0": 69,
+                    "fee_token1": 69795278260714
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 1075.9115555926228,
+                "liquidity_usd": 1075.88052228298,
+                "fee_usd": 0.031033309642922762,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 630190531,
+                    "liquidity_token1": 445270236,
+                    "fee_token0": 15509,
+                    "fee_token1": 15505
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x29f82d09c2afd12f3c10ee49cd713331f4a7228e",
+        "total_usd": 167.32648423292585,
+        "total_liquidity_usd": 167.3226893463059,
+        "total_fee_usd": 0.0037948866199446402,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 36.365690216801234,
+                "liquidity_usd": 36.36567272884446,
+                "fee_usd": 1.7487956773996666e-05,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 27191855,
+                    "liquidity_token1": 9184674897703049216,
+                    "fee_token0": 8,
+                    "fee_token1": 8495535729088
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 130.96079401612462,
+                "liquidity_usd": 130.95701661746145,
+                "fee_usd": 0.003777398663170644,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 76707283,
+                    "liquidity_token1": 54198640,
+                    "fee_token0": 1887,
+                    "fee_token1": 1887
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x6672A074B98A7585A8549356F97dB02f9416849E",
+        "total_usd": 87.91249103797264,
+        "total_liquidity_usd": 87.91049722367903,
+        "total_fee_usd": 0.001993814293617145,
+        "positions": [
+            {
+                "position_id": 16919,
+                "position_usd": 19.106350258836454,
+                "liquidity_usd": 19.106341070752148,
+                "fee_usd": 9.188084302632065e-06,
+                "info": {
+                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
+                    "chain": "polygon",
+                    "pair": "USDC-DAI",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                    "liquidity_token0": 14286463,
+                    "liquidity_token1": 4825581875742360576,
+                    "fee_token0": 4,
+                    "fee_token1": 4463511631670
+                }
+            },
+            {
+                "position_id": 16965,
+                "position_usd": 68.80614077913619,
+                "liquidity_usd": 68.80415615292688,
+                "fee_usd": 0.001984626209314513,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 40301619,
+                    "liquidity_token1": 28475692,
+                    "fee_token0": 991,
+                    "fee_token1": 991
+                }
+            }
+        ]
+    },
+    {
         "user_address": "0x0116a3d95994bcc7d6a84380ed6256fbb32cd25d",
         "total_usd": 98.31,
         "total_liquidity_usd": 98.31,
@@ -499,82 +3585,6 @@
                     "pair": "wstETH-axl-wstETH",
                     "token0": "0x5979d7b546e38e414f7e9822514be443a4800597",
                     "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e72"
-                }
-            }
-        ]
-    },
-    {
-        "user_address": "0x193db18a5ef9a0320b7374c1fe8af976235f3211",
-        "total_usd": 41382.55,
-        "total_liquidity_usd": 41375.090000000004,
-        "total_fee_usd": 7.46,
-        "positions": [
-            {
-                "source": "pendle",
-                "position_id": 17192,
-                "position_usd": 2592.08,
-                "liquidity_usd": 2592.08,
-                "fee_usd": 0.0,
-                "info": {
-                    "pool": "0x83fe9065ed68506a0d2ece59cd71c43bbff6e450",
-                    "chain": "arbitrum",
-                    "liquidity": 1.09e+21,
-                    "fee_token0": 604344300827.0,
-                    "fee_token1": 604276590562.0,
-                    "pair": "wstETH-axl-wstETH",
-                    "token0": "0x5979d7b546e38e414f7e9822514be443a4800535",
-                    "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e10"
-                }
-            },
-            {
-                "position_id": 12536,
-                "position_usd": 38543.96,
-                "liquidity_usd": 38538.79,
-                "fee_usd": 5.17,
-                "info": {
-                    "pool": "0x32f35bfdcf154eb604b16fa2056d84462fc7d10c",
-                    "chain": "optimism",
-                    "pair": "wstETH-axl-wstETH",
-                    "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
-                    "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4",
-                    "liquidity_token0": 16121900000000000000,
-                    "liquidity_token1": 46578200000000000,
-                    "fee_token0": 1083230000000000,
-                    "fee_token1": 1082800000000000
-                }
-            },
-            {
-                "position_id": 14204,
-                "position_usd": 165.04,
-                "liquidity_usd": 163.16,
-                "fee_usd": 1.88,
-                "info": {
-                    "pool": "0x6298d1248d06d6cfd5ac3983016fbe2f096fddfe",
-                    "chain": "arbitrum",
-                    "pair": "wstETH-USDC",
-                    "token0": "0x5979d7b546e38e414f7e9822514be443a4800529",
-                    "token1": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
-                    "liquidity_token0": 0,
-                    "liquidity_token1": 163163338,
-                    "fee_token0": 395384104846680,
-                    "fee_token1": 937779
-                }
-            },
-            {
-                "position_id": 6939,
-                "position_usd": 81.47,
-                "liquidity_usd": 81.06,
-                "fee_usd": 0.41,
-                "info": {
-                    "pool": "0xc0fa0dd169f4ea52d70bc44fd55ae0e0fbcbad8e",
-                    "chain": "optimism",
-                    "pair": "wstETH-USDC",
-                    "token0": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
-                    "token1": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
-                    "liquidity_token0": 0,
-                    "liquidity_token1": 81058181,
-                    "fee_token0": 85919792141601,
-                    "fee_token1": 203646
                 }
             }
         ]
@@ -1729,31 +4739,6 @@
                     "pair": "wstETH-axl-wstETH",
                     "token0": "0x5979d7b546e38e414f7e9822514be443a4800563",
                     "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e38"
-                }
-            }
-        ]
-    },
-    {
-        "user_address": "0x6c2693f5a936f37ed03cfa8465bf2d8beff19a0f",
-        "total_usd": 2109.27,
-        "total_liquidity_usd": 2109.27,
-        "total_fee_usd": 0.0,
-        "positions": [
-            {
-                "source": "pendle",
-                "position_id": 17192,
-                "position_usd": 2109.27,
-                "liquidity_usd": 2109.27,
-                "fee_usd": 0.0,
-                "info": {
-                    "pool": "0x83fe9065ed68506a0d2ece59cd71c43bbff6e450",
-                    "chain": "arbitrum",
-                    "liquidity": 8.84e+20,
-                    "fee_token0": 491776083510.0,
-                    "fee_token1": 491720985301.0,
-                    "pair": "wstETH-axl-wstETH",
-                    "token0": "0x5979d7b546e38e414f7e9822514be443a4800619",
-                    "token1": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e94"
                 }
             }
         ]
@@ -23050,65 +26035,6 @@
         ]
     },
     {
-        "user_address": "0x47d574e85df71a059ec442cad8dee2224f58b0d8",
-        "total_usd": 2185.42,
-        "total_liquidity_usd": 2175.35,
-        "total_fee_usd": 10.06,
-        "positions": [
-            {
-                "position_id": 12021,
-                "position_usd": 1042.41,
-                "liquidity_usd": 1042.32,
-                "fee_usd": 0.09,
-                "info": {
-                    "pool": "0x9af350aca2e6043a567b68456e7d6f532a301de9",
-                    "chain": "polygon",
-                    "pair": "wstETH-axl-wstETH",
-                    "token0": "0x03b54a6e9a984069379fae1a4fc4dbae93b3bccd",
-                    "token1": "0xd7bb095a60d7666d4a6f236423b47ddd6ae6cfa7",
-                    "liquidity_token0": 117963000000000000,
-                    "liquidity_token1": 318260000000000000,
-                    "fee_token0": 19186180376785,
-                    "fee_token1": 19187942216075
-                }
-            },
-            {
-                "position_id": 16817,
-                "position_usd": 777.07,
-                "liquidity_usd": 774.92,
-                "fee_usd": 2.14,
-                "info": {
-                    "pool": "0xa852ddd69c13d42669840a692f6bbf94245ac54a",
-                    "chain": "polygon",
-                    "pair": "WMATIC-USDC",
-                    "token0": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
-                    "token1": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-                    "liquidity_token0": 325987000000000032768,
-                    "liquidity_token1": 523031218,
-                    "fee_token0": 1381800000000000000,
-                    "fee_token1": 1074882
-                }
-            },
-            {
-                "position_id": 16432,
-                "position_usd": 365.94,
-                "liquidity_usd": 358.11,
-                "fee_usd": 7.83,
-                "info": {
-                    "pool": "0x9c777839adc4ac86f2a360a525017ccabbcb0c1e",
-                    "chain": "polygon",
-                    "pair": "USDC-stMATIC",
-                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-                    "token1": "0x3a58a54c066fdc0f2d55fc9c89f0415c92ebf3c4",
-                    "liquidity_token0": 118742352,
-                    "liquidity_token1": 282442000000000000000,
-                    "fee_token0": 3902014,
-                    "fee_token1": 4633150000000000000
-                }
-            }
-        ]
-    },
-    {
         "user_address": "0x47ebbf9ab03e052b4b2eacf05c8ff51b821be80d",
         "total_usd": 19.84,
         "total_liquidity_usd": 19.84,
@@ -23294,9 +26220,9 @@
     },
     {
         "user_address": "0x48cddc4602ad1b30c25484f345e9288def388bdf",
-        "total_usd": 446.93,
-        "total_liquidity_usd": 441.91,
-        "total_fee_usd": 5.02,
+        "total_usd": 531.9300000000001,
+        "total_liquidity_usd": 522.58,
+        "total_fee_usd": 9.34,
         "positions": [
             {
                 "position_id": 7990,
@@ -23313,6 +26239,23 @@
                     "liquidity_token1": 194141956,
                     "fee_token0": 2454420000000000000,
                     "fee_token1": 2515076
+                }
+            },
+            {
+                "position_id": 788,
+                "position_usd": 85.0,
+                "liquidity_usd": 80.67,
+                "fee_usd": 4.32,
+                "info": {
+                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
+                    "chain": "avalanche",
+                    "pair": "WAVAX-USDC",
+                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+                    "liquidity_token0": 523087000000000000,
+                    "liquidity_token1": 69726887,
+                    "fee_token0": 103767000000000000,
+                    "fee_token1": 2150176
                 }
             }
         ]
@@ -29285,116 +32228,6 @@
                     "liquidity_token1": 318251000000000000,
                     "fee_token0": 812,
                     "fee_token1": 147343921550121
-                }
-            }
-        ]
-    },
-    {
-        "user_address": "0x5a2c70b16b9cfd4b81aa86d0175ff139dc23ba1c",
-        "total_usd": 152.93,
-        "total_liquidity_usd": 150.02,
-        "total_fee_usd": 2.92,
-        "positions": [
-            {
-                "position_id": 16008,
-                "position_usd": 41.94,
-                "liquidity_usd": 41.26,
-                "fee_usd": 0.68,
-                "info": {
-                    "pool": "0x836edfa0630096f5c387546b00c42ab9e1099812",
-                    "chain": "arbitrum",
-                    "pair": "WETH-ARB",
-                    "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
-                    "token1": "0x912ce59144191c1204e64559fe8253a0e49e6548",
-                    "liquidity_token0": 7173370000000000,
-                    "liquidity_token1": 25864900000000000000,
-                    "fee_token0": 165473875095238,
-                    "fee_token1": 331127000000000000
-                }
-            },
-            {
-                "position_id": 16012,
-                "position_usd": 28.12,
-                "liquidity_usd": 27.95,
-                "fee_usd": 0.17,
-                "info": {
-                    "pool": "0x6298d1248d06d6cfd5ac3983016fbe2f096fddfe",
-                    "chain": "arbitrum",
-                    "pair": "wstETH-USDC",
-                    "token0": "0x5979d7b546e38e414f7e9822514be443a4800529",
-                    "token1": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
-                    "liquidity_token0": 1725900000000000,
-                    "liquidity_token1": 23837066,
-                    "fee_token0": 34800277673755,
-                    "fee_token1": 82539
-                }
-            },
-            {
-                "position_id": 16010,
-                "position_usd": 27.85,
-                "liquidity_usd": 26.67,
-                "fee_usd": 1.19,
-                "info": {
-                    "pool": "0xdac2b8ba301024e4f01bb37aeb87ca9bcded68ea",
-                    "chain": "arbitrum",
-                    "pair": "ARB-USDC",
-                    "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
-                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
-                    "liquidity_token0": 5125390000000000000,
-                    "liquidity_token1": 21438444,
-                    "fee_token0": 579718000000000000,
-                    "fee_token1": 594045
-                }
-            },
-            {
-                "position_id": 16009,
-                "position_usd": 24.5,
-                "liquidity_usd": 24.1,
-                "fee_usd": 0.39,
-                "info": {
-                    "pool": "0x0559bf66543012022b1aee4c06bdee604e057f95",
-                    "chain": "arbitrum",
-                    "pair": "WETH-USDC",
-                    "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
-                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
-                    "liquidity_token0": 1957870000000000,
-                    "liquidity_token1": 20043742,
-                    "fee_token0": 95416532100818,
-                    "fee_token1": 195577
-                }
-            },
-            {
-                "position_id": 13078,
-                "position_usd": 19.67,
-                "liquidity_usd": 19.65,
-                "fee_usd": 0.03,
-                "info": {
-                    "pool": "0xc23f1d198477c0bcae0cac2ec734ceda438a8990",
-                    "chain": "arbitrum",
-                    "pair": "USDT-USDC",
-                    "token0": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
-                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
-                    "liquidity_token0": 5426771,
-                    "liquidity_token1": 14213313,
-                    "fee_token0": 13530,
-                    "fee_token1": 13531
-                }
-            },
-            {
-                "position_id": 16011,
-                "position_usd": 10.85,
-                "liquidity_usd": 10.39,
-                "fee_usd": 0.46,
-                "info": {
-                    "pool": "0x6bdd1ad85ed3c9c2530d372dd8c37abdc5a22905",
-                    "chain": "arbitrum",
-                    "pair": "ARB-USDT",
-                    "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
-                    "token1": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
-                    "liquidity_token0": 2111280000000000000,
-                    "liquidity_token1": 8226310,
-                    "fee_token0": 225628000000000000,
-                    "fee_token1": 228806
                 }
             }
         ]
@@ -43671,48 +46504,6 @@
                     "liquidity_token1": 4645281728,
                     "fee_token0": 7607810000000000000,
                     "fee_token1": 7714972
-                }
-            }
-        ]
-    },
-    {
-        "user_address": "0x88888887c3ebd4a33e34a15db4254c74c75e5d4a",
-        "total_usd": 0.75,
-        "total_liquidity_usd": 0.75,
-        "total_fee_usd": 0.0,
-        "positions": [
-            {
-                "position_id": 8062,
-                "position_usd": 0.73,
-                "liquidity_usd": 0.73,
-                "fee_usd": 0.0,
-                "info": {
-                    "pool": "0x02a3e4184b145ee64a6df3c561a3c0c6e2f23dfa",
-                    "chain": "polygon",
-                    "pair": "USDC-DAI",
-                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-                    "token1": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
-                    "liquidity_token0": 0,
-                    "liquidity_token1": 727000000000000000,
-                    "fee_token0": 0,
-                    "fee_token1": 0
-                }
-            },
-            {
-                "position_id": 8547,
-                "position_usd": 0.02,
-                "liquidity_usd": 0.02,
-                "fee_usd": 0.0,
-                "info": {
-                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
-                    "chain": "polygon",
-                    "pair": "USDC-USDT",
-                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
-                    "liquidity_token0": 13245,
-                    "liquidity_token1": 6683,
-                    "fee_token0": 0,
-                    "fee_token1": 0
                 }
             }
         ]
@@ -84071,32 +86862,6 @@
         ]
     },
     {
-        "user_address": "0x48cddc4602ad1b30c25484f345e9288def388bdf",
-        "total_usd": 85.0,
-        "total_liquidity_usd": 80.67,
-        "total_fee_usd": 4.32,
-        "option": "a",
-        "positions": [
-            {
-                "position_id": 788,
-                "position_usd": 85.0,
-                "liquidity_usd": 80.67,
-                "fee_usd": 4.32,
-                "info": {
-                    "pool": "0xb2c8e1fa23eace8474e8e1deae1e1aa171664bbb",
-                    "chain": "avalanche",
-                    "pair": "WAVAX-USDC",
-                    "token0": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
-                    "token1": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
-                    "liquidity_token0": 523087000000000000,
-                    "liquidity_token1": 69726887,
-                    "fee_token0": 103767000000000000,
-                    "fee_token1": 2150176
-                }
-            }
-        ]
-    },
-    {
         "user_address": "0x89249f352edd0b4e45e7e90f1cad69460f27bd55",
         "total_usd": 21.86,
         "total_liquidity_usd": 21.68,
@@ -84356,7 +87121,349 @@
             }
         ]
     },
-    {"user_address": "0xf666d53ce0e4d979690fed2ff6bb9ee2a9e7f083", "total_usd": 2074.83, "total_liquidity_usd": 2051.47, "total_fee_usd": 23.35, "option": "a", "positions": [{"position_id": 19984, "position_usd": 765.39, "liquidity_usd": 754.74, "fee_usd": 10.65, "info": {"pool": "0x328d434488f420654de553df518ac4198027ef1a", "chain": "arbitrum", "pair": "WBTC-WETH", "token0": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f", "token1": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", "liquidity_token0": 2019820, "liquidity_token1": 0, "fee_token0": 14238, "fee_token1": 2573180000000000}}, {"position_id": 23190, "position_usd": 239.94, "liquidity_usd": 239.85, "fee_usd": 0.08, "info": {"pool": "0x328d434488f420654de553df518ac4198027ef1a", "chain": "arbitrum", "pair": "WBTC-WETH", "token0": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f", "token1": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", "liquidity_token0": 208912, "liquidity_token1": 78046300000000000, "fee_token0": 111, "fee_token1": 20080576845745}}, {"position_id": 20024, "position_usd": 559.97, "liquidity_usd": 550.99, "fee_usd": 8.98, "info": {"pool": "0xdf03ca6c633f784ac5e062dd708b15728b488621", "chain": "arbitrum", "pair": "WETH-ARB", "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", "token1": "0x912ce59144191c1204e64559fe8253a0e49e6548", "liquidity_token0": 115448000000000000, "liquidity_token1": 305495000000000032768, "fee_token0": 2168940000000000, "fee_token1": 4391440000000000000}}, {"position_id": 20026, "position_usd": 288.04, "liquidity_usd": 284.79, "fee_usd": 3.25, "info": {"pool": "0x328d434488f420654de553df518ac4198027ef1a", "chain": "arbitrum", "pair": "WBTC-WETH", "token0": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f", "token1": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", "liquidity_token0": 762159, "liquidity_token1": 0, "fee_token0": 4342, "fee_token1": 784715554714126}}, {"position_id": 19666, "position_usd": 221.49, "liquidity_usd": 221.1, "fee_usd": 0.39, "info": {"pool": "0xc23f1d198477c0bcae0cac2ec734ceda438a8990", "chain": "arbitrum", "pair": "USDT-USDC", "token0": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9", "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8", "liquidity_token0": 203451714, "liquidity_token1": 17459512, "fee_token0": 192731, "fee_token1": 192760}}]}, {"user_address": "0xb0957ef31a6d5271993994dc71e4607019ceb3a1", "total_usd": 10597.689999999999, "total_liquidity_usd": 10597.48, "total_fee_usd": 0.21, "option": "a", "positions": [{"position_id": 1105, "position_usd": 5091.94, "liquidity_usd": 5091.82, "fee_usd": 0.12, "info": {"pool": "0x645f3db18b9eae19018cde0dd329a2a6785eb26a", "chain": "base", "pair": "axl-wstETH-wstETH", "token0": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4", "token1": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", "liquidity_token0": 1707840000000000000, "liquidity_token1": 422629000000000000, "fee_token0": 25120684394812, "fee_token1": 25114624165094}}, {"position_id": 1107, "position_usd": 3115.55, "liquidity_usd": 3115.52, "fee_usd": 0.03, "info": {"pool": "0x645f3db18b9eae19018cde0dd329a2a6785eb26a", "chain": "base", "pair": "axl-wstETH-wstETH", "token0": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4", "token1": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", "liquidity_token0": 809577000000000000, "liquidity_token1": 494780000000000000, "fee_token0": 6068485189415, "fee_token1": 6067021200070}}, {"position_id": 1106, "position_usd": 2390.2, "liquidity_usd": 2390.14, "fee_usd": 0.06, "info": {"pool": "0x645f3db18b9eae19018cde0dd329a2a6785eb26a", "chain": "base", "pair": "axl-wstETH-wstETH", "token0": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4", "token1": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", "liquidity_token0": 801674000000000000, "liquidity_token1": 198385000000000000, "fee_token0": 11714938581690, "fee_token1": 11712112415897}}]}, {"user_address": "0x98033efb9125333f4f6353bcc5e2d0ae06b436a2", "total_usd": 424026.83, "total_liquidity_usd": 422076.75, "total_fee_usd": 1950.09, "option": "a", "positions": [{"position_id": 24837, "position_usd": 111853.89, "liquidity_usd": 111041.72, "fee_usd": 812.17, "info": {"pool": "0xdac2b8ba301024e4f01bb37aeb87ca9bcded68ea", "chain": "arbitrum", "pair": "ARB-USDC", "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548", "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8", "liquidity_token0": 90278599999999998689280, "liquidity_token1": 18937440995, "fee_token0": 397159000000000032768, "fee_token1": 406975109}}, {"position_id": 25150, "position_usd": 110802.21, "liquidity_usd": 109997.78, "fee_usd": 804.43, "info": {"pool": "0xdac2b8ba301024e4f01bb37aeb87ca9bcded68ea", "chain": "arbitrum", "pair": "ARB-USDC", "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548", "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8", "liquidity_token0": 52982399999999995805696, "liquidity_token1": 55943938392, "fee_token0": 393379000000000032768, "fee_token1": 403100982}}, {"position_id": 24828, "position_usd": 201370.73, "liquidity_usd": 201037.25, "fee_usd": 333.49, "info": {"pool": "0xdb0f89c3aeb216d4329985442039f3737cbfc949", "chain": "arbitrum", "pair": "WETH-USDC", "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8", "liquidity_token0": 49389000000000000000, "liquidity_token1": 98654711869, "fee_token0": 80537200000000000, "fee_token1": 166532945}}]}, {"user_address": "0x685762777631ae66a865427c7c42ae1af90b46fb", "total_usd": 73491.79, "total_liquidity_usd": 73401.94, "total_fee_usd": 89.85999999999999, "option": "a", "positions": [{"position_id": 31, "position_usd": 40324.15, "liquidity_usd": 40285.02, "fee_usd": 39.12, "info": {"pool": "0x16822d6c6af710015ccd1e69243932bd9a79d983", "chain": "ethereum", "pair": "WETH-ELK", "token0": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee", "liquidity_token0": 9615730000000000000, "liquidity_token1": 193547999999999988465664, "fee_token0": 9337880000000000, "fee_token1": 187955000000000000000}}, {"position_id": 3568, "position_usd": 15293.8, "liquidity_usd": 15280.11, "fee_usd": 13.69, "info": {"pool": "0x19a83475bea663c880a9c8af518fdca27097154b", "chain": "optimism", "pair": "WETH-ELK", "token0": "0x4200000000000000000000000000000000000006", "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee", "liquidity_token0": 3738970000000000000, "liquidity_token1": 72384900000000002490368, "fee_token0": 3349560000000000, "fee_token1": 64846100000000000000}}, {"position_id": 9139, "position_usd": 14043.96, "liquidity_usd": 14009.74, "fee_usd": 34.23, "info": {"pool": "0x5594c7c45a1b91009a9442f1954ecb18e09f4806", "chain": "arbitrum", "pair": "WETH-ELK", "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee", "liquidity_token0": 3396600000000000000, "liquidity_token1": 66272599999999996067840, "fee_token0": 8297830000000000, "fee_token1": 161903000000000000000}}, {"position_id": 9, "position_usd": 3829.88, "liquidity_usd": 3827.07, "fee_usd": 2.82, "info": {"pool": "0x4cd62dfe871e06fd8e08614d07ddc06af87cee90", "chain": "cronos", "pair": "WCRO-ELK", "token0": "0x5c7f8a570d578ed84e63fdfa7b1ee72deae1ae23", "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee", "liquidity_token0": 19406000000000000524288, "liquidity_token1": 18142499999999999344640, "fee_token0": 14275900000000000000, "fee_token1": 13346400000000000000}}]}, {"user_address": "0xdd982cbd40f429819c15a65d791692c07ac2c64e", "total_usd": 53370.22, "total_liquidity_usd": 53358.91, "total_fee_usd": 11.32, "option": "a", "positions": [{"position_id": 24131, "position_usd": 53370.22, "liquidity_usd": 53358.91, "fee_usd": 11.32, "info": {"pool": "0xff128f2308793883acadd5d207ee921b7eedce0e", "chain": "arbitrum", "pair": "USDC-USDC", "token0": "0xaf88d065e77c8cc2239327c5edb3a432268e5831", "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8", "liquidity_token0": 13067436791, "liquidity_token1": 40291471109, "fee_token0": 5657963, "fee_token1": 5658390}}]}, {"user_address": "0xdf2f03adccd26e8123fc27a1b22b0a846dd2a469", "total_usd": 1047420.72, "total_liquidity_usd": 1047415.14, "total_fee_usd": 5.58, "option": "a", "positions": [{"position_id": 7484, "position_usd": 1047420.72, "liquidity_usd": 1047415.14, "fee_usd": 5.58, "info": {"pool": "0x30ec378b28b600a1bad3cda393633d86ca17b5b4", "chain": "polygon", "pair": "dBSGG-USDT", "token0": "0x5cc8d49984834314f54211b1d872318cf766d466", "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f", "liquidity_token0": 903550864841, "liquidity_token1": 99135410772, "fee_token0": 2721607, "fee_token1": 2721634}}]},
+    {
+        "user_address": "0xf666d53ce0e4d979690fed2ff6bb9ee2a9e7f083",
+        "total_usd": 2074.83,
+        "total_liquidity_usd": 2051.47,
+        "total_fee_usd": 23.35,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 19984,
+                "position_usd": 765.39,
+                "liquidity_usd": 754.74,
+                "fee_usd": 10.65,
+                "info": {
+                    "pool": "0x328d434488f420654de553df518ac4198027ef1a",
+                    "chain": "arbitrum",
+                    "pair": "WBTC-WETH",
+                    "token0": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
+                    "token1": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                    "liquidity_token0": 2019820,
+                    "liquidity_token1": 0,
+                    "fee_token0": 14238,
+                    "fee_token1": 2573180000000000
+                }
+            },
+            {
+                "position_id": 23190,
+                "position_usd": 239.94,
+                "liquidity_usd": 239.85,
+                "fee_usd": 0.08,
+                "info": {
+                    "pool": "0x328d434488f420654de553df518ac4198027ef1a",
+                    "chain": "arbitrum",
+                    "pair": "WBTC-WETH",
+                    "token0": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
+                    "token1": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                    "liquidity_token0": 208912,
+                    "liquidity_token1": 78046300000000000,
+                    "fee_token0": 111,
+                    "fee_token1": 20080576845745
+                }
+            },
+            {
+                "position_id": 20024,
+                "position_usd": 559.97,
+                "liquidity_usd": 550.99,
+                "fee_usd": 8.98,
+                "info": {
+                    "pool": "0xdf03ca6c633f784ac5e062dd708b15728b488621",
+                    "chain": "arbitrum",
+                    "pair": "WETH-ARB",
+                    "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                    "token1": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+                    "liquidity_token0": 115448000000000000,
+                    "liquidity_token1": 305495000000000032768,
+                    "fee_token0": 2168940000000000,
+                    "fee_token1": 4391440000000000000
+                }
+            },
+            {
+                "position_id": 20026,
+                "position_usd": 288.04,
+                "liquidity_usd": 284.79,
+                "fee_usd": 3.25,
+                "info": {
+                    "pool": "0x328d434488f420654de553df518ac4198027ef1a",
+                    "chain": "arbitrum",
+                    "pair": "WBTC-WETH",
+                    "token0": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
+                    "token1": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                    "liquidity_token0": 762159,
+                    "liquidity_token1": 0,
+                    "fee_token0": 4342,
+                    "fee_token1": 784715554714126
+                }
+            },
+            {
+                "position_id": 19666,
+                "position_usd": 221.49,
+                "liquidity_usd": 221.1,
+                "fee_usd": 0.39,
+                "info": {
+                    "pool": "0xc23f1d198477c0bcae0cac2ec734ceda438a8990",
+                    "chain": "arbitrum",
+                    "pair": "USDT-USDC",
+                    "token0": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                    "liquidity_token0": 203451714,
+                    "liquidity_token1": 17459512,
+                    "fee_token0": 192731,
+                    "fee_token1": 192760
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xb0957ef31a6d5271993994dc71e4607019ceb3a1",
+        "total_usd": 10597.689999999999,
+        "total_liquidity_usd": 10597.48,
+        "total_fee_usd": 0.21,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 1105,
+                "position_usd": 5091.94,
+                "liquidity_usd": 5091.82,
+                "fee_usd": 0.12,
+                "info": {
+                    "pool": "0x645f3db18b9eae19018cde0dd329a2a6785eb26a",
+                    "chain": "base",
+                    "pair": "axl-wstETH-wstETH",
+                    "token0": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4",
+                    "token1": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+                    "liquidity_token0": 1707840000000000000,
+                    "liquidity_token1": 422629000000000000,
+                    "fee_token0": 25120684394812,
+                    "fee_token1": 25114624165094
+                }
+            },
+            {
+                "position_id": 1107,
+                "position_usd": 3115.55,
+                "liquidity_usd": 3115.52,
+                "fee_usd": 0.03,
+                "info": {
+                    "pool": "0x645f3db18b9eae19018cde0dd329a2a6785eb26a",
+                    "chain": "base",
+                    "pair": "axl-wstETH-wstETH",
+                    "token0": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4",
+                    "token1": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+                    "liquidity_token0": 809577000000000000,
+                    "liquidity_token1": 494780000000000000,
+                    "fee_token0": 6068485189415,
+                    "fee_token1": 6067021200070
+                }
+            },
+            {
+                "position_id": 1106,
+                "position_usd": 2390.2,
+                "liquidity_usd": 2390.14,
+                "fee_usd": 0.06,
+                "info": {
+                    "pool": "0x645f3db18b9eae19018cde0dd329a2a6785eb26a",
+                    "chain": "base",
+                    "pair": "axl-wstETH-wstETH",
+                    "token0": "0x9cfb13e6c11054ac9fcb92ba89644f30775436e4",
+                    "token1": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+                    "liquidity_token0": 801674000000000000,
+                    "liquidity_token1": 198385000000000000,
+                    "fee_token0": 11714938581690,
+                    "fee_token1": 11712112415897
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x98033efb9125333f4f6353bcc5e2d0ae06b436a2",
+        "total_usd": 424026.83,
+        "total_liquidity_usd": 422076.75,
+        "total_fee_usd": 1950.09,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 24837,
+                "position_usd": 111853.89,
+                "liquidity_usd": 111041.72,
+                "fee_usd": 812.17,
+                "info": {
+                    "pool": "0xdac2b8ba301024e4f01bb37aeb87ca9bcded68ea",
+                    "chain": "arbitrum",
+                    "pair": "ARB-USDC",
+                    "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                    "liquidity_token0": 90278599999999998689280,
+                    "liquidity_token1": 18937440995,
+                    "fee_token0": 397159000000000032768,
+                    "fee_token1": 406975109
+                }
+            },
+            {
+                "position_id": 25150,
+                "position_usd": 110802.21,
+                "liquidity_usd": 109997.78,
+                "fee_usd": 804.43,
+                "info": {
+                    "pool": "0xdac2b8ba301024e4f01bb37aeb87ca9bcded68ea",
+                    "chain": "arbitrum",
+                    "pair": "ARB-USDC",
+                    "token0": "0x912ce59144191c1204e64559fe8253a0e49e6548",
+                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                    "liquidity_token0": 52982399999999995805696,
+                    "liquidity_token1": 55943938392,
+                    "fee_token0": 393379000000000032768,
+                    "fee_token1": 403100982
+                }
+            },
+            {
+                "position_id": 24828,
+                "position_usd": 201370.73,
+                "liquidity_usd": 201037.25,
+                "fee_usd": 333.49,
+                "info": {
+                    "pool": "0xdb0f89c3aeb216d4329985442039f3737cbfc949",
+                    "chain": "arbitrum",
+                    "pair": "WETH-USDC",
+                    "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                    "liquidity_token0": 49389000000000000000,
+                    "liquidity_token1": 98654711869,
+                    "fee_token0": 80537200000000000,
+                    "fee_token1": 166532945
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x685762777631ae66a865427c7c42ae1af90b46fb",
+        "total_usd": 73491.79,
+        "total_liquidity_usd": 73401.94,
+        "total_fee_usd": 89.85999999999999,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 31,
+                "position_usd": 40324.15,
+                "liquidity_usd": 40285.02,
+                "fee_usd": 39.12,
+                "info": {
+                    "pool": "0x16822d6c6af710015ccd1e69243932bd9a79d983",
+                    "chain": "ethereum",
+                    "pair": "WETH-ELK",
+                    "token0": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                    "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee",
+                    "liquidity_token0": 9615730000000000000,
+                    "liquidity_token1": 193547999999999988465664,
+                    "fee_token0": 9337880000000000,
+                    "fee_token1": 187955000000000000000
+                }
+            },
+            {
+                "position_id": 3568,
+                "position_usd": 15293.8,
+                "liquidity_usd": 15280.11,
+                "fee_usd": 13.69,
+                "info": {
+                    "pool": "0x19a83475bea663c880a9c8af518fdca27097154b",
+                    "chain": "optimism",
+                    "pair": "WETH-ELK",
+                    "token0": "0x4200000000000000000000000000000000000006",
+                    "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee",
+                    "liquidity_token0": 3738970000000000000,
+                    "liquidity_token1": 72384900000000002490368,
+                    "fee_token0": 3349560000000000,
+                    "fee_token1": 64846100000000000000
+                }
+            },
+            {
+                "position_id": 9139,
+                "position_usd": 14043.96,
+                "liquidity_usd": 14009.74,
+                "fee_usd": 34.23,
+                "info": {
+                    "pool": "0x5594c7c45a1b91009a9442f1954ecb18e09f4806",
+                    "chain": "arbitrum",
+                    "pair": "WETH-ELK",
+                    "token0": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                    "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee",
+                    "liquidity_token0": 3396600000000000000,
+                    "liquidity_token1": 66272599999999996067840,
+                    "fee_token0": 8297830000000000,
+                    "fee_token1": 161903000000000000000
+                }
+            },
+            {
+                "position_id": 9,
+                "position_usd": 3829.88,
+                "liquidity_usd": 3827.07,
+                "fee_usd": 2.82,
+                "info": {
+                    "pool": "0x4cd62dfe871e06fd8e08614d07ddc06af87cee90",
+                    "chain": "cronos",
+                    "pair": "WCRO-ELK",
+                    "token0": "0x5c7f8a570d578ed84e63fdfa7b1ee72deae1ae23",
+                    "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee",
+                    "liquidity_token0": 19406000000000000524288,
+                    "liquidity_token1": 18142499999999999344640,
+                    "fee_token0": 14275900000000000000,
+                    "fee_token1": 13346400000000000000
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xdd982cbd40f429819c15a65d791692c07ac2c64e",
+        "total_usd": 53370.22,
+        "total_liquidity_usd": 53358.91,
+        "total_fee_usd": 11.32,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 24131,
+                "position_usd": 53370.22,
+                "liquidity_usd": 53358.91,
+                "fee_usd": 11.32,
+                "info": {
+                    "pool": "0xff128f2308793883acadd5d207ee921b7eedce0e",
+                    "chain": "arbitrum",
+                    "pair": "USDC-USDC",
+                    "token0": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+                    "token1": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                    "liquidity_token0": 13067436791,
+                    "liquidity_token1": 40291471109,
+                    "fee_token0": 5657963,
+                    "fee_token1": 5658390
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xdf2f03adccd26e8123fc27a1b22b0a846dd2a469",
+        "total_usd": 1047420.72,
+        "total_liquidity_usd": 1047415.14,
+        "total_fee_usd": 5.58,
+        "option": "a",
+        "positions": [
+            {
+                "position_id": 7484,
+                "position_usd": 1047420.72,
+                "liquidity_usd": 1047415.14,
+                "fee_usd": 5.58,
+                "info": {
+                    "pool": "0x30ec378b28b600a1bad3cda393633d86ca17b5b4",
+                    "chain": "polygon",
+                    "pair": "dBSGG-USDT",
+                    "token0": "0x5cc8d49984834314f54211b1d872318cf766d466",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 903550864841,
+                    "liquidity_token1": 99135410772,
+                    "fee_token0": 2721607,
+                    "fee_token1": 2721634
+                }
+            }
+        ]
+    },
     {
         "user_address": "0xff42a85bd6dbc452bec2bb2bd4abfbe0dc34f04b",
         "total_usd": 194393.59,
@@ -84396,6 +87503,81 @@
                     "liquidity_token1": 1070808974,
                     "fee_token0": 1616454,
                     "fee_token1": 1616037
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d",
+        "total_usd": 0.4,
+        "total_liquidity_usd": 0.4,
+        "total_fee_usd": 0,
+        "positions": [
+            {
+                "position_id": 8547,
+                "position_usd": 0.4,
+                "liquidity_usd": 0.4,
+                "fee_usd": 0.0,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 264900,
+                    "liquidity_token1": 133660,
+                    "fee_token0": 0,
+                    "fee_token1": 0
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0x0193a8a52d77e27bdd4f12e0cdd52d8ff1d97d68",
+        "total_usd": 0.4,
+        "total_liquidity_usd": 0.4,
+        "total_fee_usd": 0,
+        "positions": [
+            {
+                "position_id": 8547,
+                "position_usd": 0.4,
+                "liquidity_usd": 0.4,
+                "fee_usd": 0.0,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 264900,
+                    "liquidity_token1": 133660,
+                    "fee_token0": 0,
+                    "fee_token1": 0
+                }
+            }
+        ]
+    },
+    {
+        "user_address": "0xdcfcd5dd752492b95ac8c1964c83f992e7e39fa9",
+        "total_usd": 0.4,
+        "total_liquidity_usd": 0.4,
+        "total_fee_usd": 0,
+        "positions": [
+            {
+                "position_id": 8547,
+                "position_usd": 0.4,
+                "liquidity_usd": 0.4,
+                "fee_usd": 0.0,
+                "info": {
+                    "pool": "0x879664ce5a919727b3ed4035cf12f7f740e8df00",
+                    "chain": "polygon",
+                    "pair": "USDC-USDT",
+                    "token0": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                    "token1": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "liquidity_token0": 264900,
+                    "liquidity_token1": 133660,
+                    "fee_token0": 0,
+                    "fee_token1": 0
                 }
             }
         ]
