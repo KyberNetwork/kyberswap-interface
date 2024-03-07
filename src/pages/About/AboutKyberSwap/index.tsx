@@ -23,7 +23,6 @@ import Banner from 'components/Banner'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import {
-  AuroraFull,
   BestPrice,
   CircleFocus,
   Clock,
@@ -741,7 +740,6 @@ function AboutKyberSwap() {
               <FantomLogoFull color={'#fff'} width="100%" height="unset" />
               <CronosLogoFull color={undefined} />
               <img src={ArbitrumDark} alt="" width="100%" />
-              <AuroraFull />
               <img src={BTTCDark} alt="btt" width="100%" />
               <OptimismLogoFull />
               <ZkSyncFull color={theme.text} />

@@ -115,6 +115,7 @@ const DraggableNetworkButton = ({
   onChangedNetwork,
   onDrag,
   onDrop,
+  isComingSoon,
 }: {
   networkInfo: NetworkInfo
   activeChainIds?: ChainId[]
@@ -129,6 +130,7 @@ const DraggableNetworkButton = ({
   onDrag?: (x: number, y: number) => void
   onDrop?: () => void
   onFavoriteClick?: () => void
+  isComingSoon?: boolean
 }) => {
   const theme = useTheme()
   const { isWrongNetwork, wallet } = useActiveWeb3React()
@@ -141,7 +143,7 @@ const DraggableNetworkButton = ({
   const navigate = useNavigate()
   const { state, icon, chainId, name } = networkInfo
   const isMaintenance = state === ChainState.MAINTENANCE
-  const disabled = (activeChainIds ? !activeChainIds?.includes(chainId) : false) || isMaintenance
+  const disabled = isComingSoon || (activeChainIds ? !activeChainIds?.includes(chainId) : false) || isMaintenance
   const selected = isSelected && !isWrongNetwork
   const walletKey = wallet.chainId === chainId ? wallet.walletKey : null
 
@@ -270,6 +272,11 @@ const DraggableNetworkButton = ({
             <Text as="span" textAlign="left">
               {name}
             </Text>
+            {isComingSoon && (
+              <MaintainLabel>
+                <Trans>Coming Soon</Trans>
+              </MaintainLabel>
+            )}
             {state === ChainState.NEW && (
               <NewLabel>
                 <Trans>New</Trans>

@@ -1,6 +1,4 @@
 export { default as Arbitrum } from './Arbitrum'
-export { default as Aurora } from './Aurora'
-export { default as AuroraFull } from './AuroraFull'
 export { default as Avalanche } from './Avalanche'
 export { default as BestPrice } from './BestPrice'
 export { default as Binance } from './Binance'
