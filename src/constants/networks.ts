@@ -3,10 +3,10 @@ import { t } from '@lingui/macro'
 
 import {
   arbitrum,
-  aurora,
   avax,
   avaxTestnet,
   base,
+  blast,
   bnb,
   bnbTestnet,
   bttc,
@@ -39,13 +39,13 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.CRONOS]: cronos,
   [ChainId.ARBITRUM]: arbitrum,
   [ChainId.BTTC]: bttc,
-  [ChainId.AURORA]: aurora,
   [ChainId.OPTIMISM]: optimism,
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA]: linea,
   [ChainId.ZKEVM]: zkEvm,
   [ChainId.BASE]: base,
   [ChainId.SCROLL]: scroll,
+  [ChainId.BLAST]: blast,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -74,7 +74,7 @@ export const MAINNET_NETWORKS = [
   ChainId.FANTOM,
   ChainId.BTTC,
   ChainId.CRONOS,
-  ChainId.AURORA,
+  ChainId.BLAST,
 ] as const
 
 // These option of walletconnect is not support by wallets properly
@@ -104,7 +104,6 @@ export const FAUCET_NETWORKS = [ChainId.BTTC]
 // Fee options instead of dynamic fee
 export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.ARBITRUM]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.AURORA]: [8, 10, 50, 300, 500, 1000],
   [ChainId.MAINNET]: [8, 10, 50, 300, 500, 1000],
   [ChainId.MATIC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.AVAXMAINNET]: [8, 10, 50, 300, 500, 1000],
@@ -123,7 +122,6 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
 
 export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.ARBITRUM,
-  ChainId.AURORA,
   ChainId.OPTIMISM,
   ChainId.GÖRLI,
   ChainId.ZKSYNC,
@@ -163,11 +161,10 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.FANTOM,
   ChainId.CRONOS,
   ChainId.BTTC,
-  ChainId.AURORA,
 ]
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = []
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [ChainId.CRONOS, ChainId.AURORA]
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [ChainId.CRONOS]
 export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.ARBITRUM,
@@ -180,10 +177,11 @@ export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
 ]
 
 export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
-  [ChainId.AURORA]: t`Elastic is not supported on Aurora. Please switch to other chains`,
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,
+  [ChainId.BLAST]: t`Elastic is not supported on Blast. Please switch to other chains`,
 })
 
 export const CLASSIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.BASE]: t`Classic is not supported on Base. Please switch to other chains`,
+  [ChainId.BLAST]: t`Classic is not supported on Blast. Please switch to other chains`,
 })

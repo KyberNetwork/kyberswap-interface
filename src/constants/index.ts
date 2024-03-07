@@ -57,10 +57,7 @@ export const AGGREGATOR_ANALYTICS_URL = 'https://lookerstudio.google.com/reporti
 export const PROMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_NETWORKS.reduce((acc, cur) => {
   return {
     ...acc,
-    [cur]:
-      cur === ChainId.AURORA
-        ? `${DMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`
-        : `${PROMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
+    [cur]: `${PROMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
   }
 }, {}) as { [chainId in ChainId]: string }
 
@@ -234,7 +231,7 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
   pendingText: '',
 }
 
-export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.AURORA, ChainId.CRONOS]
+export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.CRONOS]
 export const CHAINS_SUPPORT_CROSS_CHAIN =
   ENV.ENV_KEY === ENV.EnvKeys.PROD || ENV.ENV_KEY === ENV.EnvKeys.STG
     ? [

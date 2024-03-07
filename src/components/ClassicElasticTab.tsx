@@ -47,7 +47,7 @@ function ClassicElasticTab() {
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const dontShowLegacy = [ChainId.ZKEVM, ChainId.BASE, ChainId.LINEA, ChainId.SCROLL].includes(chainId)
+  const dontShowLegacy = [ChainId.ZKEVM, ChainId.BASE, ChainId.LINEA, ChainId.SCROLL, ChainId.BLAST].includes(chainId)
 
   const showLegacyExplicit =
     upToMedium || dontShowLegacy ? false : isFarmPage ? shouldShowFarmTab : shouldShowPositionTab
@@ -127,6 +127,9 @@ function ClassicElasticTab() {
   const legacyElasticColor = getColorOfLegacyElasticTab()
 
   useEffect(() => {
+    if (!!notSupportedClassicMsg && !!notSupportedElasticMsg) {
+      return
+    }
     if (!!notSupportedClassicMsg && tab === VERSION.CLASSIC) {
       const newQs = { ...qs, tab: VERSION.ELASTIC }
       setSearchParams(newQs)
@@ -142,39 +145,37 @@ function ClassicElasticTab() {
         width="fit-content"
         placement="bottom"
         text={
-          dontShowLegacy
-            ? ''
-            : tab === VERSION.CLASSIC && notSupportedClassicMsg
-            ? notSupportedClassicMsg
-            : notSupportedElasticMsg ||
-              (!showLegacyExplicit ? (
-                <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
-                  <Flex
-                    role="button"
-                    color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
-                    sx={{ gap: '8px', cursor: 'pointer' }}
-                    fontSize="14px"
-                    fontWeight={500}
-                    onClick={() => handleSwitchTab(VERSION.ELASTIC)}
-                  >
-                    <PoolElasticIcon size={16} />
-                    {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
-                  </Flex>
+          notSupportedElasticMsg ||
+          (dontShowLegacy ? (
+            ''
+          ) : !showLegacyExplicit ? (
+            <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
+              <Flex
+                role="button"
+                color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
+                sx={{ gap: '8px', cursor: 'pointer' }}
+                fontSize="14px"
+                fontWeight={500}
+                onClick={() => handleSwitchTab(VERSION.ELASTIC)}
+              >
+                <PoolElasticIcon size={16} />
+                {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
+              </Flex>
 
-                  <Flex
-                    role="button"
-                    color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
-                    sx={{ gap: '8px', cursor: 'pointer' }}
-                    fontWeight={500}
-                    fontSize="14px"
-                    onClick={() => handleSwitchTab(VERSION.ELASTIC_LEGACY)}
-                  >
-                    <PoolElasticIcon size={16} />
-                    {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
-                    {legacyTag(true)}
-                  </Flex>
-                </Flex>
-              ) : null)
+              <Flex
+                role="button"
+                color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
+                sx={{ gap: '8px', cursor: 'pointer' }}
+                fontWeight={500}
+                fontSize="14px"
+                onClick={() => handleSwitchTab(VERSION.ELASTIC_LEGACY)}
+              >
+                <PoolElasticIcon size={16} />
+                {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
+                {legacyTag(true)}
+              </Flex>
+            </Flex>
+          ) : null)
         }
       >
         <Flex

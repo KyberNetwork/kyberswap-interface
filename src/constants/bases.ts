@@ -17,7 +17,6 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.AVAXMAINNET]: [WETH[ChainId.AVAXMAINNET]],
   [ChainId.FANTOM]: [WETH[ChainId.FANTOM]],
   [ChainId.CRONOS]: [WETH[ChainId.CRONOS]],
-  [ChainId.AURORA]: [WETH[ChainId.AURORA]],
   [ChainId.BTTC]: [WETH[ChainId.BTTC]],
   [ChainId.ARBITRUM]: [WETH[ChainId.ARBITRUM]],
   [ChainId.OPTIMISM]: [WETH[ChainId.OPTIMISM]],
@@ -26,6 +25,7 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.ZKEVM]: [WETH[ChainId.ZKEVM]],
   [ChainId.BASE]: [WETH[ChainId.BASE]],
   [ChainId.SCROLL]: [WETH[ChainId.SCROLL]],
+  [ChainId.BLAST]: [WETH[ChainId.BLAST]],
 }
 
 // used to construct intermediary pairs for trading
