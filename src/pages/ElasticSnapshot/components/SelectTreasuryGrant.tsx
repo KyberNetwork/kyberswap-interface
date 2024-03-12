@@ -384,7 +384,7 @@ export default function SelectTreasuryGrant() {
               {userSelectedOption ? (
                 <Text>
                   You have selected option {userSelectedOption}. The UI for claiming tokens will be enabled on{' '}
-                  {totalPhase2Value ? 'March 11, 2024.' : 'February 6th, 2024.'}
+                  {totalPhase2Value ? 'March 20, 2024.' : 'February 6th, 2024.'}
                 </Text>
               ) : (
                 <Trans>

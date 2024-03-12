@@ -66,7 +66,7 @@ const scroll: NetworkInfo = {
       helper: '0x214061F0e250A27a49f609d9caf2987a7bC8fA6B',
     },
   },
-  limitOrder: NOT_SUPPORT,
+  limitOrder: '*',
   averageBlockTimeInSeconds: 2.0, // dont use for base
   coingeckoNetworkId: 'blast',
   coingeckoNativeTokenId: 'ethereum',
