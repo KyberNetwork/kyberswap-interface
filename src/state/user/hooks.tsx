@@ -28,6 +28,7 @@ import {
   pinSlippageControl,
   removeSerializedToken,
   setCrossChainSetting,
+  setPaymentToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   toggleLiveChart,
@@ -437,6 +438,20 @@ export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {
   const setViewMode = useCallback((mode: VIEW_MODE) => dispatch(changeViewMode(mode)), [dispatch])
 
   return [viewMode, setViewMode]
+}
+
+export const usePaymentToken: () => [Token | null, (paymentToken: Token | null) => void] = () => {
+  const dispatch = useAppDispatch()
+  const { chainId } = useActiveWeb3React()
+  const paymentToken = useAppSelector(state => state.user.paymentToken)
+  const p = useMemo(() => {
+    if (chainId !== ChainId.ZKSYNC) return null
+    return paymentToken
+  }, [paymentToken, chainId])
+
+  const updatePaymentToken = useCallback((pt: Token | null) => dispatch(setPaymentToken(pt)), [dispatch])
+
+  return [p, updatePaymentToken]
 }
 
 export const useHolidayMode: () => [boolean, () => void] = () => {

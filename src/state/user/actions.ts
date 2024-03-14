@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
 import { SupportedLocale } from 'constants/locales'
@@ -72,3 +72,4 @@ export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl
 export const toggleMyEarningChart = createAction<void>('user/toggleMyEarningChart')
 
 export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')
+export const setPaymentToken = createAction<Token | null>('user/setPaymentToken')

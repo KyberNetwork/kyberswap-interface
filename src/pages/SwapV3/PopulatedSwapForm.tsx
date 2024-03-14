@@ -17,16 +17,16 @@ import useResetCurrenciesOnRemoveImportedTokens from './useResetCurrenciesOnRemo
 type Props = {
   routeSummary: DetailedRouteSummary | undefined
   setRouteSummary: React.Dispatch<React.SetStateAction<DetailedRouteSummary | undefined>>
-  goToSettingsView: () => void
   onSelectSuggestedPair: (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => void
   hidden: boolean
+  onOpenGasToken: () => void
 }
 const PopulatedSwapForm: React.FC<Props> = ({
   routeSummary,
   setRouteSummary,
-  goToSettingsView,
   hidden,
   onSelectSuggestedPair,
+  onOpenGasToken,
 }) => {
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
@@ -91,7 +91,7 @@ const PopulatedSwapForm: React.FC<Props> = ({
     permit: permitData?.rawSignature,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
-    goToSettingsView,
+    onOpenGasToken,
   }
 
   return <SwapForm {...props} />

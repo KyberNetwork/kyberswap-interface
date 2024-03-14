@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
 import {
@@ -24,6 +24,7 @@ import {
   removeSerializedToken,
   revokePermit,
   setCrossChainSetting,
+  setPaymentToken,
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleLiveChart,
@@ -109,6 +110,7 @@ export interface UserState {
   readonly chainId: ChainId
   acceptedTermVersion: number | null
   viewMode: VIEW_MODE
+  paymentToken: Token | null
   holidayMode: boolean
   permitData: {
     [account: string]: {
@@ -164,6 +166,7 @@ const initialState: UserState = {
   isSlippageControlPinned: true,
   crossChain: CROSS_CHAIN_SETTING_DEFAULT,
   myEarningChart: true,
+  paymentToken: null,
 }
 
 export default createReducer(initialState, builder =>
@@ -351,5 +354,8 @@ export default createReducer(initialState, builder =>
       } else {
         state.useAggregatorForZap = !state.useAggregatorForZap
       }
+    })
+    .addCase(setPaymentToken, (state, { payload }) => {
+      state.paymentToken = payload
     }),
 )
