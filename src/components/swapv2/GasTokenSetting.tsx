@@ -10,6 +10,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { usePaymentToken } from 'state/user/hooks'
 import { useCurrencyBalances, useNativeBalance } from 'state/wallet/hooks'
+import { formattedNum } from 'utils'
 
 const tokens = [
   new Token(ChainId.ZKSYNC, '0xed4040fd47629e7c8fbb7da76bb50b3e7695f0f2', 18, 'HOLD', 'HOLD'),
@@ -18,12 +19,45 @@ const tokens = [
   new Token(ChainId.ZKSYNC, '0xbbeb516fb02a01611cbbe0453fe3c580d7281011', 8, 'wBTC', 'wBTC'),
 ]
 
-export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
+export default function GasTokenSetting({ onBack, gasUsd }: { onBack: () => void; gasUsd: number }) {
   const theme = useTheme()
   const ethBalance = useNativeBalance()
   const balances = useCurrencyBalances(tokens)
 
   const [paymentToken, setPaymentToken] = usePaymentToken()
+
+  const gasIcon = (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M4.33331 4.66667H8.33331V7.33333H4.33331V4.66667Z"
+        stroke="#A9A9A9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M5 10H7.66667" stroke="#A9A9A9" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2.33331 14V3.33333C2.33331 2.59667 2.92998 2 3.66665 2H8.99998C9.73665 2 10.3333 2.59667 10.3333 3.33333V14"
+        stroke="#A9A9A9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M13 3.33333L13.9426 4.276C14.1926 4.526 14.3333 4.86533 14.3333 5.21867V11.6667C14.3333 12.2187 13.8853 12.6667 13.3333 12.6667V12.6667C12.7813 12.6667 12.3333 12.2187 12.3333 11.6667V10.6667C12.3333 10.2987 12.0346 10 11.6666 10H10.3333"
+        stroke="#A9A9A9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14.3334 8H13.0887C12.688 8 12.3774 7.64867 12.4274 7.25067L12.594 5.91733C12.6354 5.584 12.9187 5.33333 13.2554 5.33333H14.3334"
+        stroke="#A9A9A9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M1.66669 14H11" stroke="#A9A9A9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
 
   return (
     <>
@@ -49,11 +83,12 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
         </Text>
       </Flex>
 
-      <Divider />
+      <Divider marginX="-1rem" />
 
       <Flex
         justifyContent="space-between"
-        marginY="0.5rem"
+        padding="0.5rem 1rem"
+        marginX="-1rem"
         role="button"
         onClick={() => {
           setPaymentToken(null)
@@ -61,6 +96,10 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
         }}
         sx={{
           cursor: 'pointer',
+          background: !paymentToken ? rgba(theme.primary, 0.15) : 'transparent',
+          '&:hover': {
+            background: theme.buttonBlack,
+          },
         }}
       >
         <Flex alignItems="center" sx={{ gap: '6px' }}>
@@ -72,9 +111,14 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
             </Text>
           </div>
         </Flex>
+
+        <Flex alignItems="center" sx={{ gap: '6px' }}>
+          {gasIcon}
+          {gasUsd ? formattedNum(gasUsd, true) : '--'}
+        </Flex>
       </Flex>
 
-      <Divider />
+      <Divider marginX="-1rem" />
 
       <Flex marginTop="0.75rem" alignItems="center" sx={{ gap: '8px' }}>
         <svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="EvStationRoundedIcon" width="24px">
@@ -135,6 +179,16 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
                 {balances[index]?.toSignificant(6) || '0'} {item.symbol}
               </Text>
             </div>
+          </Flex>
+
+          <Flex alignItems="center" sx={{ gap: '6px' }}>
+            {gasIcon}{' '}
+            {index === 0 && !!gasUsd && (
+              <Text sx={{ textDecoration: 'line-through' }} color={theme.subText}>
+                {formattedNum(gasUsd, true)}
+              </Text>
+            )}{' '}
+            <Text>{gasUsd ? formattedNum(gasUsd * (index === 0 ? 0.8 : 1), true) : '--'}</Text>
           </Flex>
         </Flex>
       ))}

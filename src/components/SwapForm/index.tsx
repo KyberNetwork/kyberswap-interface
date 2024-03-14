@@ -85,6 +85,7 @@ export type SwapFormProps = {
   customChainId?: ChainId
   omniView?: boolean
   onOpenGasToken?: () => void
+  setGasUsd?: (val: number) => void
 }
 
 const SwapForm: React.FC<SwapFormProps> = props => {
@@ -107,6 +108,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     customChainId,
     omniView,
     onOpenGasToken,
+    setGasUsd,
   } = props
 
   const { chainId: walletChainId } = useActiveWeb3React()
@@ -297,6 +299,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             buildRoute={buildRoute}
             swapInputError={swapInputError}
             customChainId={customChainId}
+            setGasUsd={setGasUsd}
           />
 
           {!isWrapOrUnwrap && <TradeSummary routeSummary={routeSummary} slippage={slippage} />}
