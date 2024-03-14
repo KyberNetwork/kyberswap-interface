@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { INITIAL_ALLOWED_SLIPPAGE, TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
+import { GAS_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import {
@@ -446,6 +447,7 @@ export const usePaymentToken: () => [Token | null, (paymentToken: Token | null) 
   const paymentToken = useAppSelector(state => state.user.paymentToken)
   const p = useMemo(() => {
     if (chainId !== ChainId.ZKSYNC) return null
+    if (!GAS_TOKENS.map(item => item.address.toLowerCase()).includes(paymentToken?.address.toLowerCase())) return null
     return paymentToken
   }, [paymentToken, chainId])
 

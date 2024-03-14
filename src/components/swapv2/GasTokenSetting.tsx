@@ -1,4 +1,4 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ArrowLeft } from 'react-feather'
@@ -6,23 +6,16 @@ import { Box, Flex, Text } from 'rebass'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
-import { NativeCurrencies } from 'constants/tokens'
+import { GAS_TOKENS, NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { usePaymentToken } from 'state/user/hooks'
 import { useCurrencyBalances, useNativeBalance } from 'state/wallet/hooks'
 import { formattedNum } from 'utils'
 
-const tokens = [
-  new Token(ChainId.ZKSYNC, '0xed4040fd47629e7c8fbb7da76bb50b3e7695f0f2', 18, 'HOLD', 'HOLD'),
-  new Token(ChainId.ZKSYNC, '0x493257fd37edb34451f62edf8d2a0c418852ba4c', 6, 'USDT', 'USDT'),
-  new Token(ChainId.ZKSYNC, '0x3355df6d4c9c3035724fd0e3914de96a5a83aaf4', 6, 'USDC', 'USDC'),
-  new Token(ChainId.ZKSYNC, '0xbbeb516fb02a01611cbbe0453fe3c580d7281011', 8, 'wBTC', 'wBTC'),
-]
-
 export default function GasTokenSetting({ onBack, gasUsd }: { onBack: () => void; gasUsd: number }) {
   const theme = useTheme()
   const ethBalance = useNativeBalance()
-  const balances = useCurrencyBalances(tokens)
+  const balances = useCurrencyBalances(GAS_TOKENS)
 
   const [paymentToken, setPaymentToken] = usePaymentToken()
 
@@ -136,7 +129,7 @@ export default function GasTokenSetting({ onBack, gasUsd }: { onBack: () => void
         <Trans>Pay network fees in the token of your choice.</Trans>
       </Text>
 
-      {tokens.map((item, index) => (
+      {GAS_TOKENS.map((item, index) => (
         <Flex
           justifyContent="space-between"
           key={item.address}
