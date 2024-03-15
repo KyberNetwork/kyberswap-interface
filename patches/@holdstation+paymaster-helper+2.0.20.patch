@@ -1,0 +1,30 @@
+diff --git a/node_modules/@holdstation/paymaster-helper/dist/builders.js b/node_modules/@holdstation/paymaster-helper/dist/builders.js
+index 95078f0..3331f25 100644
+--- a/node_modules/@holdstation/paymaster-helper/dist/builders.js
++++ b/node_modules/@holdstation/paymaster-helper/dist/builders.js
+@@ -29,6 +29,14 @@ async function estimateGasErc20Payment(props, provider, from, paymentToken) {
+     };
+     const defaultGasLimit = ethers_1.BigNumber.from(props.defaultGasLimit || config_1.DEFAULT_GAS_LIMIT);
+     let gasLimit = defaultGasLimit;
++
++    if (defaultGasLimit) {
++      return {
++        gasLimit: defaultGasLimit,
++        gasPrice,
++      }
++    }
++
+     try {
+         gasLimit = await provider.estimateGas({
+             ...populatedTx,
+@@ -43,9 +51,7 @@ async function estimateGasErc20Payment(props, provider, from, paymentToken) {
+             ...populatedTx,
+             from,
+         });
+-        gasLimit = preGasLimit.mul(150).div(100).gt(defaultGasLimit)
+-            ? preGasLimit.mul(150).div(100)
+-            : defaultGasLimit;
++        gasLimit = preGasLimit.mul(150).div(100);
+     }
+     return { gasLimit, gasPrice };
+ }
