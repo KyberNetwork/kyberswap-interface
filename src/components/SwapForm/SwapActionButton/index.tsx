@@ -60,7 +60,6 @@ type Props = {
   onWrap: (() => Promise<string | undefined>) | undefined
   buildRoute: () => Promise<BuildRouteResult>
   customChainId?: ChainId
-  setGasUsd?: (val: number) => void
 }
 
 const SwapActionButton: React.FC<Props> = ({
@@ -85,7 +84,6 @@ const SwapActionButton: React.FC<Props> = ({
   onWrap,
   buildRoute,
   customChainId,
-  setGasUsd,
 }) => {
   const theme = useTheme()
   const { changeNetwork } = useChangeNetwork()
@@ -94,10 +92,6 @@ const SwapActionButton: React.FC<Props> = ({
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
 
-  useEffect(() => {
-    if (wrapType === WrapType.WRAP || wrapType === WrapType.UNWRAP) setGasUsd?.(0)
-    if (routeSummary?.gasUsd) setGasUsd?.(+routeSummary.gasUsd)
-  }, [routeSummary?.gasUsd, setGasUsd, wrapType])
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
 

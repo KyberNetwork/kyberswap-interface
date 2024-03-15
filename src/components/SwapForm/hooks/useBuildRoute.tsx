@@ -63,6 +63,7 @@ const useBuildRoute = (args: Args) => {
       recipient: to || account,
       source: clientId || 'kyberswap',
       skipSimulateTx: false,
+      enableGasEstimation: true,
       permit,
     }
 
@@ -89,7 +90,7 @@ const useBuildRoute = (args: Args) => {
         }
       }
       return {
-        error: e?.data?.errorEntities?.[0] || e.message || t`Something went wrong`,
+        error: e?.data?.errorEntities?.[0] || e.message || e?.data?.message || t`Something went wrong`,
       }
     }
   }, [

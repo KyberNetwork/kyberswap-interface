@@ -10,47 +10,13 @@ import { GAS_TOKENS, NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { usePaymentToken } from 'state/user/hooks'
 import { useCurrencyBalances, useNativeBalance } from 'state/wallet/hooks'
-import { formattedNum } from 'utils'
 
-export default function GasTokenSetting({ onBack, gasUsd }: { onBack: () => void; gasUsd: number }) {
+export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
   const theme = useTheme()
   const ethBalance = useNativeBalance()
   const balances = useCurrencyBalances(GAS_TOKENS)
 
   const [paymentToken, setPaymentToken] = usePaymentToken()
-
-  const gasIcon = (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M4.33331 4.66667H8.33331V7.33333H4.33331V4.66667Z"
-        stroke="#A9A9A9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="M5 10H7.66667" stroke="#A9A9A9" strokeLinecap="round" strokeLinejoin="round" />
-      <path
-        d="M2.33331 14V3.33333C2.33331 2.59667 2.92998 2 3.66665 2H8.99998C9.73665 2 10.3333 2.59667 10.3333 3.33333V14"
-        stroke="#A9A9A9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13 3.33333L13.9426 4.276C14.1926 4.526 14.3333 4.86533 14.3333 5.21867V11.6667C14.3333 12.2187 13.8853 12.6667 13.3333 12.6667V12.6667C12.7813 12.6667 12.3333 12.2187 12.3333 11.6667V10.6667C12.3333 10.2987 12.0346 10 11.6666 10H10.3333"
-        stroke="#A9A9A9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M14.3334 8H13.0887C12.688 8 12.3774 7.64867 12.4274 7.25067L12.594 5.91733C12.6354 5.584 12.9187 5.33333 13.2554 5.33333H14.3334"
-        stroke="#A9A9A9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="M1.66669 14H11" stroke="#A9A9A9" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
 
   return (
     <>
@@ -72,7 +38,7 @@ export default function GasTokenSetting({ onBack, gasUsd }: { onBack: () => void
           <Trans>Token</Trans>
         </Text>
         <Text>
-          <Trans>Est. Gas Fee</Trans>
+          <Trans>Balance</Trans>
         </Text>
       </Flex>
 
@@ -99,16 +65,9 @@ export default function GasTokenSetting({ onBack, gasUsd }: { onBack: () => void
           <CurrencyLogo currency={NativeCurrencies[ChainId.ZKSYNC]} size="24px" />
           <div>
             <Text fontSize={16}>ETH</Text>
-            <Text fontSize={14} color={theme.subText}>
-              {ethBalance?.toSignificant(6)} ETH
-            </Text>
           </div>
         </Flex>
-
-        <Flex alignItems="center" sx={{ gap: '6px' }}>
-          {gasIcon}
-          {gasUsd ? formattedNum(gasUsd, true) : '--'}
-        </Flex>
+        <Text fontSize={14}>{ethBalance?.toSignificant(6)}</Text>
       </Flex>
 
       <Divider marginX="-1rem" />
@@ -150,39 +109,25 @@ export default function GasTokenSetting({ onBack, gasUsd }: { onBack: () => void
         >
           <Flex alignItems="center" sx={{ gap: '6px' }}>
             <CurrencyLogo currency={item} size="24px" />
-            <div>
-              <Flex alignItems="center" sx={{ gap: '6px' }}>
-                <Text fontSize={16}>{item.symbol}</Text>
-                {index === 0 && (
-                  <Box
-                    sx={{
-                      borderRadius: '999px',
-                      background: rgba(theme.primary, 0.2),
-                      color: theme.primary,
-                      fontSize: '12px',
-                      fontWeight: 500,
-                      padding: '4px 8px',
-                    }}
-                  >
-                    20% OFF
-                  </Box>
-                )}
-              </Flex>
-              <Text fontSize={14} color={theme.subText}>
-                {balances[index]?.toSignificant(6) || '0'} {item.symbol}
-              </Text>
-            </div>
+            <Flex alignItems="center" sx={{ gap: '6px' }}>
+              <Text fontSize={16}>{item.symbol}</Text>
+              {index === 0 && (
+                <Box
+                  sx={{
+                    borderRadius: '999px',
+                    background: rgba(theme.primary, 0.2),
+                    color: theme.primary,
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    padding: '4px 8px',
+                  }}
+                >
+                  20% OFF
+                </Box>
+              )}
+            </Flex>
           </Flex>
-
-          <Flex alignItems="center" sx={{ gap: '6px' }}>
-            {gasIcon}{' '}
-            {index === 0 && !!gasUsd && (
-              <Text sx={{ textDecoration: 'line-through' }} color={theme.subText}>
-                {formattedNum(gasUsd, true)}
-              </Text>
-            )}{' '}
-            <Text>{gasUsd ? formattedNum(gasUsd * (index === 0 ? 0.8 : 1), true) : '--'}</Text>
-          </Flex>
+          <Text fontSize={14}>{balances[index]?.toSignificant(6) || '0'}</Text>
         </Flex>
       ))}
     </>

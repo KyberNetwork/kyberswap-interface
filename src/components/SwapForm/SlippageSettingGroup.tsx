@@ -71,7 +71,7 @@ export default function SlippageSettingGroup({
   if (chainId === ChainId.ZKSYNC && !isPartnerSwap) {
     rightButton = (
       <Flex alignItems="center" width="fit-content" role="button" sx={{ cursor: 'pointer' }} onClick={onOpenGasToken}>
-        <MouseoverTooltip text="You can pay network fees in tokens other than Ether" placement="top">
+        <MouseoverTooltip text="Pay network fees in the token of your choice." placement="top">
           <TextDashed>
             <Trans>Gas Token</Trans>
           </TextDashed>

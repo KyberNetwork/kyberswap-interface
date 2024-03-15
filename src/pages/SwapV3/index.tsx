@@ -164,7 +164,6 @@ export default function Swap() {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
 
-  const [gasUsd, setGasUsd] = useState(0)
   const swapActionsRef = useRef(null)
 
   return (
@@ -188,7 +187,6 @@ export default function Swap() {
                   setRouteSummary={setRouteSummary}
                   hidden={activeTab !== TAB.SWAP}
                   onOpenGasToken={() => setActiveTab(TAB.GAS_TOKEN)}
-                  setGasUsd={setGasUsd}
                 />
               )}
               {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
@@ -216,7 +214,7 @@ export default function Swap() {
                 />
               )}
               {isCrossChainPage && <CrossChain visible={activeTab === TAB.CROSS_CHAIN} />}
-              {activeTab === TAB.GAS_TOKEN && <GasTokenSetting onBack={() => setActiveTab(TAB.SWAP)} gasUsd={gasUsd} />}
+              {activeTab === TAB.GAS_TOKEN && <GasTokenSetting onBack={() => setActiveTab(TAB.SWAP)} />}
             </AppBodyWrapped>
             {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>

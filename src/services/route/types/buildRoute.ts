@@ -8,6 +8,7 @@ export type BuildRoutePayload = {
   recipient: string
   source: string
   skipSimulateTx: boolean
+  enableGasEstimation?: boolean
   permit?: string
 }
 

@@ -20,7 +20,6 @@ type Props = {
   onSelectSuggestedPair: (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => void
   hidden: boolean
   onOpenGasToken: () => void
-  setGasUsd?: (value: number) => void
 }
 const PopulatedSwapForm: React.FC<Props> = ({
   routeSummary,
@@ -28,7 +27,6 @@ const PopulatedSwapForm: React.FC<Props> = ({
   hidden,
   onSelectSuggestedPair,
   onOpenGasToken,
-  setGasUsd,
 }) => {
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
@@ -94,7 +92,6 @@ const PopulatedSwapForm: React.FC<Props> = ({
     onChangeCurrencyIn,
     onChangeCurrencyOut,
     onOpenGasToken,
-    setGasUsd,
   }
 
   return <SwapForm {...props} />

@@ -232,7 +232,7 @@ export default function SwapDetails({
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                <Trans>Est. Gas Fee</Trans>
+                Est. {paymentToken ? 'Paymaster' : ''} Gas Fee
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
@@ -244,9 +244,16 @@ export default function SwapDetails({
             }}
             isShowingSkeleton={isLoading}
             content={
-              <TYPE.black color={theme.text} fontSize={12}>
-                {gasUsd ? formattedNum(isHold ? +gasUsd * 0.8 : gasUsd, true) : '--'}
-              </TYPE.black>
+              <Flex sx={{ gap: '4px' }}>
+                {isHold && !!gasUsd && (
+                  <Text sx={{ textDecoration: 'line-through' }} fontSize={12} color={theme.subText}>
+                    {formattedNum(gasUsd, true)}
+                  </Text>
+                )}
+                <TYPE.black color={theme.text} fontSize={12}>
+                  {gasUsd ? formattedNum(isHold ? +gasUsd * 0.8 : gasUsd, true) : '--'}
+                </TYPE.black>
+              </Flex>
             }
           />
         </RowBetween>
