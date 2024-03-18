@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Edit, FileText, Plus, Repeat } from 'react-feather'
+import { Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -18,22 +18,16 @@ import KyberDark from 'assets/svg/about_icon_kyber.svg'
 import ChainSecurity from 'assets/svg/chainsecurity.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
 import { ReactComponent as KNCSVG } from 'assets/svg/knc_black.svg'
-import SeamlessImg from 'assets/svg/seamless.svg'
 import Banner from 'components/Banner'
-import { ButtonEmpty, ButtonLight } from 'components/Button'
+import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import {
   BestPrice,
-  CircleFocus,
   Clock,
   CronosLogoFull,
-  Drop,
-  Enter,
   FantomLogoFull,
-  FarmIcon,
   LineaFull,
   LowestSlippage,
-  MoneyBagOutline,
   OptimismLogoFull,
   PolygonLogoFull,
 } from 'components/Icons'
@@ -51,25 +45,18 @@ import KyberSwapGeneralIntro from '../KyberSwapGeneralIntro'
 import {
   AboutKNC,
   AboutPage,
-  BtnOutlined,
   BtnPrimary,
   CommittedToSecurityDivider,
   Footer,
   FooterContainer,
-  ForLiquidityProviderItem,
   ForTrader,
   ForTraderDivider,
   ForTraderInfo,
   ForTraderInfoShadow,
-  GridWrapper,
-  KyberSwapSlippage,
   Powered,
   StatisticItem,
   StatisticWrapper,
   SupportedChain,
-  TabItem,
-  Tabs,
-  TypicalAMM,
   VerticalDivider,
   Wrapper,
 } from '../styleds'
@@ -178,170 +165,6 @@ function AboutKyberSwap() {
     '24hTradingVolume': aggregatorData?.last24hVolume,
   }
 
-  const ForLPLowerSlippage = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      flexDirection={above768 ? 'row' : 'column'}
-      sx={{ gap: above768 ? '32px' : '48px' }}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-    >
-      <Flex flexDirection="column" alignItems={above768 ? 'flex-start' : 'center'} width="max-content">
-        <LowestSlippage size={64} />
-        <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-          <Trans>LOWER SLIPPAGE</Trans>
-        </Text>
-      </Flex>
-
-      <Flex sx={{ gap: '24px' }} flexDirection="column" alignItems={above768 ? 'flex-start' : 'center'} flex={1}>
-        <Text>
-          <Trans>Amplified Liquidity Pools</Trans>
-        </Text>
-        <Text color={theme.text} textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-          <Trans>
-            We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you.
-            Deposit less tokens and still achieve better liquidity and volume.
-          </Trans>
-        </Text>
-
-        <ButtonEmpty padding="0" width="fit-content">
-          <ExternalLink href="https://docs.kyberswap.com/Classic/introduction">
-            <Text color={theme.primary} fontSize="14px" fontWeight={600}>
-              <Trans>Learn More</Trans>↗
-            </Text>
-          </ExternalLink>
-        </ButtonEmpty>
-      </Flex>
-
-      {above768 && (
-        <Flex alignItems="center" width="fit-content">
-          <KyberSwapSlippage>
-            <img src={'/logo-dark.svg'} width="88px" alt="KyberSwap" />
-            <Flex justifyContent="center">
-              <Text fontWeight="500" fontSize="40px" lineHeight="48px">
-                ~0.1
-              </Text>
-              <Text marginTop="6px">%</Text>
-            </Flex>
-            <Text fontSize="12px">Slippage</Text>
-            <Text fontSize="10px" color={theme.subText} marginTop="12px">
-              AMP Factor = 100
-            </Text>
-          </KyberSwapSlippage>
-          <TypicalAMM background={undefined}>
-            <Text color={theme.subText} fontSize="12px">
-              Typical AMM
-            </Text>
-            <Flex marginTop="8px" justifyContent="center">
-              <Text fontWeight="500" fontSize="40px" lineHeight="48px">
-                ~11
-              </Text>
-              <Text marginTop="6px">%</Text>
-            </Flex>
-            <Text fontSize="12px">Slippage</Text>
-          </TypicalAMM>
-        </Flex>
-      )}
-    </ForLiquidityProviderItem>
-  )
-
-  const ForLPHigherReturn = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-    >
-      <BestPrice size={64} />
-      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-        <Trans>HIGHER RETURNS</Trans>
-      </Text>
-
-      <Text marginTop={['40px', '48px']}>
-        <Trans>Dynamic Fees</Trans>
-      </Text>
-      <Text color={theme.text} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-        <Trans>We adjust trading fees dynamically based on market conditions to give you the best returns.</Trans>
-      </Text>
-
-      <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com/Classic/overview/dynamic-fee">
-          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-            <Trans>Learn More</Trans>↗
-          </Text>
-        </ExternalLink>
-      </ButtonEmpty>
-    </ForLiquidityProviderItem>
-  )
-
-  const ForLPBonusReward = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-    >
-      <Drop />
-      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-        <Trans>BONUS REWARDS</Trans>
-      </Text>
-
-      <Text marginTop={['40px', '48px']}>
-        <Trans>Rainmaker Yield Farming</Trans>
-      </Text>
-      <Text color={theme.text} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-        <Trans>
-          Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards.
-        </Trans>
-      </Text>
-
-      <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com/Classic/introduction">
-          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-            <Trans>Learn More</Trans>↗
-          </Text>
-        </ExternalLink>
-      </ButtonEmpty>
-    </ForLiquidityProviderItem>
-  )
-
-  const renderCreateNewPoolButton = () => {
-    return (
-      <BtnPrimary
-        as={Link}
-        to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic&highlightCreateButton=true`}
-        onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_CREATE_NEW_POOL_CLICKED)}
-        style={{ flex: '0 0 216px', padding: '12px' }}
-      >
-        <Plus size={20} />
-        <Text marginLeft="8px" fontSize={['14px', '16px']}>
-          <Trans>Create New Pool</Trans>
-        </Text>
-      </BtnPrimary>
-    )
-  }
-
-  const renderContactUsButton = () => {
-    return (
-      <ButtonLight style={{ flex: '0 0 216px' }} as={ExternalLink} href="https://forms.gle/gLiNsi7iUzHws2BY8">
-        <Edit color={theme.primary} size={20} />
-        <Text marginLeft="8px" fontSize={['14px', '16px']}>
-          <Trans>Contact Us</Trans>
-        </Text>
-      </ButtonLight>
-    )
-  }
-
-  const renderDocsButton = () => {
-    return (
-      <BtnOutlined style={{ flex: '0 0 216px' }} as={ExternalLink} href="https://docs.kyberswap.com/">
-        <FileText color={theme.subText} size={20} />
-        <Text marginLeft="8px" fontSize={['14px', '16px']}>
-          <Trans>Docs</Trans>
-        </Text>
-      </BtnOutlined>
-    )
-  }
-
   const { supportedChains } = useChainsConfig()
 
   return (
@@ -354,10 +177,6 @@ function AboutKyberSwap() {
             <Trans>
               <Text color={theme.primary} as="span" fontWeight="500">
                 Swap
-              </Text>{' '}
-              and{' '}
-              <Text fontWeight="500" color={theme.primary} as="span">
-                Earn
               </Text>{' '}
               Tokens at Superior Rates
             </Trans>
@@ -477,156 +296,6 @@ function AboutKyberSwap() {
               </BtnPrimary>
             )}
           </ForTrader>
-
-          <Text
-            color={theme.primary}
-            marginTop={['100px', '160px']}
-            fontWeight="500"
-            fontSize={['16px', '20px']}
-            textAlign="center"
-          >
-            <Trans>FOR LIQUIDITY PROVIDERS</Trans>
-          </Text>
-          <Text as="h2" marginTop={['24px', '32px']} fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
-            <Trans>Earn more with your crypto assets</Trans>
-          </Text>
-          <Text
-            color={theme.text}
-            margin="auto"
-            marginTop={['40px', '48px']}
-            fontSize="1rem"
-            textAlign="center"
-            maxWidth="900px"
-            lineHeight={1.5}
-          >
-            <Trans>
-              Liquidity providers can earn passive income by participating in our KyberSwap Classic protocol. Simply
-              deposit your liquidity and start earning.
-            </Trans>
-          </Text>
-
-          <Tabs>
-            <TabItem role="button" active>
-              KyberSwap Classic
-            </TabItem>
-          </Tabs>
-
-          {above500 ? (
-            <Flex marginTop={['40px', '48px']} flexDirection="column">
-              <ForLPLowerSlippage />
-              <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
-                <ForLPHigherReturn />
-                <ForLPBonusReward />
-              </Flex>
-            </Flex>
-          ) : (
-            <GridWrapper>
-              <ForLPLowerSlippage width="300px" />
-              <ForLPHigherReturn width="300px" />
-              <ForLPBonusReward width="300px" />
-            </GridWrapper>
-          )}
-
-          <Flex
-            justifyContent="center"
-            maxWidth="456px"
-            margin="auto"
-            marginTop={['40px', '48px']}
-            sx={{ gap: above768 ? '24px' : '16px' }}
-          >
-            <BtnPrimary
-              as={Link}
-              to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic&highlightCreateButton=true`}
-              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
-            >
-              <MoneyBagOutline size={20} color={theme.textReverse} />
-              <Text fontSize="16px" marginLeft="8px">
-                <Trans>Start Earning</Trans>
-              </Text>
-            </BtnPrimary>
-            <ButtonLight
-              as={Link}
-              to={`${APP_PATHS.FARMS}/${networkInfo.route}?tab=classic`}
-              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}
-              style={{
-                flex: 1,
-              }}
-            >
-              <FarmIcon size={20} />
-              <Text fontSize="16px" marginLeft="8px">
-                <Trans>View Farms</Trans>
-              </Text>
-            </ButtonLight>{' '}
-          </Flex>
-
-          <Flex
-            sx={{ gap: '24px' }}
-            marginTop={['100px', '160px']}
-            alignItems="center"
-            flexDirection={above768 ? 'row' : 'column'}
-          >
-            <Flex flex={1} flexDirection="column">
-              <Text as="h2" fontWeight="500" fontSize={['28px', '36px']}>
-                <Trans>Seamless liquidity.</Trans>
-              </Text>
-              <Text fontWeight="500" fontSize={['28px', '36px']}>
-                <Trans>For everyone</Trans>
-              </Text>
-
-              <Text color={theme.text} marginTop={['40px', '48px']} lineHeight={1.5}>
-                <Trans>Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams.</Trans>
-              </Text>
-              <Text color={theme.text} marginTop="24px" lineHeight={1.5}>
-                <Trans>
-                  Anyone can access this liquidity from KyberSwap for their own use case e.g. Dapps, Aggregators.
-                </Trans>
-              </Text>
-              <Text color={theme.text} marginTop="24px" lineHeight={1.5}>
-                <Trans>
-                  Thousands of users and multiple decentralized applications are already providing and using our
-                  liquidity.
-                </Trans>
-              </Text>
-
-              <Flex marginTop="20px" alignItems="center">
-                <Enter />
-                <Text marginLeft="12px">
-                  <Trans>No KYC or sign-ups required.</Trans>
-                </Text>
-              </Flex>
-              <Flex marginTop="20px" alignItems="center">
-                <BestPrice />
-                <Text marginLeft="12px">
-                  <Trans>No extra deposit or withdrawal fees.</Trans>
-                </Text>
-              </Flex>
-              <Flex marginTop="20px" alignItems="center">
-                <CircleFocus />
-                <Text marginLeft="12px">
-                  <Trans>List your tokens permissionlessly.</Trans>
-                </Text>
-              </Flex>
-            </Flex>
-            <Flex flex={1}>
-              <img src={SeamlessImg} style={{ flex: 1 }} width="100%" alt="SeamlessImg" />
-            </Flex>
-          </Flex>
-
-          {above768 ? (
-            <Flex sx={{ gap: '24px' }} marginTop={['40px', '48px']} maxWidth="696px">
-              {renderCreateNewPoolButton()}
-              {renderContactUsButton()}
-              {renderDocsButton()}
-            </Flex>
-          ) : (
-            <Flex sx={{ gap: '24px', alignItems: 'center' }} marginTop={['40px', '48px']} flexDirection="column">
-              <Flex sx={{ justifyContent: 'center' }}>{renderCreateNewPoolButton()}</Flex>
-              <Flex sx={{ gap: '16px', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
-                {renderContactUsButton()}
-                {renderDocsButton()}
-              </Flex>
-            </Flex>
-          )}
 
           <Text as="h2" marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
             <Trans>Committed to Security</Trans>

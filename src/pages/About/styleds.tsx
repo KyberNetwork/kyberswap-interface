@@ -1,4 +1,4 @@
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
@@ -313,24 +313,4 @@ export const MoreInfoWrapper = styled.div`
     align-items:center;
     text-align:center;
   `}
-`
-
-export const Tabs = styled.div`
-  font-size: 24px;
-  display: flex;
-  gap: 20px;
-  margin-top: 24px;
-  align-items: center;
-  justify-content: center;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    gap: 12px;
-    font-size: 16px;
-  `}
-`
-
-export const TabItem = styled(Text)<{ active?: boolean }>`
-  font-weight: ${({ active }) => (active ? 500 : 400)};
-  cursor: pointer;
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
 `
