@@ -15,6 +15,7 @@ import {
   fantom,
   görli,
   linea,
+  mantle,
   matic,
   mumbai,
   optimism,
@@ -46,6 +47,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.BASE]: base,
   [ChainId.SCROLL]: scroll,
   [ChainId.BLAST]: blast,
+  [ChainId.MANTLE]: mantle,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info

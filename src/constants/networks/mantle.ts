@@ -27,7 +27,7 @@ const mantle: NetworkInfo = {
     decimal: 18,
     minForGas: 10 ** 16,
   },
-  defaultRpcUrl: '',
+  defaultRpcUrl: 'https://rpc.mantle.xyz',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
@@ -65,8 +65,8 @@ const mantle: NetworkInfo = {
   },
   limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 2.0, // dont use for base
-  coingeckoNetworkId: 'blast',
-  coingeckoNativeTokenId: 'ethereum',
+  coingeckoNetworkId: 'mantle',
+  coingeckoNativeTokenId: 'mnt',
   deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
