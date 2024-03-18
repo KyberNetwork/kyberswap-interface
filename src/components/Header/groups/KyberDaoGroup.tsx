@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { ReactComponent as KyberLogo } from 'assets/svg/knc_black.svg'
@@ -9,7 +10,6 @@ import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
-import { THRESHOLD_HEADER } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
@@ -17,19 +17,18 @@ import NavGroup from './NavGroup'
 
 const KyberDaoWrapper = styled.span`
   display: inline-flex;
-  @media (max-width: ${THRESHOLD_HEADER.KYBERDAO}) {
-    display: none;
-  }
 `
 
 const KyberDAONavGroup = () => {
   const { pathname } = useLocation()
   const isActive = pathname.includes(APP_PATHS.KYBERDAO_STAKE)
   const { mixpanelHandler } = useMixpanel()
+  const upTo600 = useMedia('(max-width: 600px)')
 
   return (
     <KyberDaoWrapper id={TutorialIds.KYBER_DAO_LINK}>
       <NavGroup
+        dropdownAlign={upTo600 ? 'right' : 'left'}
         isActive={isActive}
         anchor={
           <DropdownTextAnchor>

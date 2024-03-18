@@ -51,7 +51,7 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 const SwapNavGroup = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
-  const upTo420 = useMedia('(max-width: 420px)')
+  const upTo420 = useMedia('(max-width: 600px)')
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
   const { mixpanelHandler } = useMixpanel()
@@ -67,7 +67,7 @@ const SwapNavGroup = () => {
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={
         <DropdownTextAnchor>
-          <Trans>Swap</Trans>
+          <Trans>Trade</Trans>
         </DropdownTextAnchor>
       }
       dropdownContent={
