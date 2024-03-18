@@ -1,17 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import {
-  AlertOctagon,
-  BookOpen,
-  ChevronDown,
-  Edit,
-  FileText,
-  HelpCircle,
-  Info,
-  MessageCircle,
-  PieChart,
-} from 'react-feather'
+import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -427,28 +417,6 @@ export default function Menu() {
               >
                 <FileText />
                 <Trans>Privacy Policy</Trans>
-              </ExternalLink>
-            </MenuItem>
-            <MenuItem>
-              <ExternalLink
-                href="https://forms.gle/gLiNsi7iUzHws2BY8"
-                onClick={() => {
-                  handleMenuClickMixpanel('Business Enquiries')
-                }}
-              >
-                <Edit />
-                <Trans>Business Enquiries</Trans>
-              </ExternalLink>
-            </MenuItem>
-            <MenuItem>
-              <ExternalLink
-                href="https://support.kyberswap.com"
-                onClick={() => {
-                  handleMenuClickMixpanel('Help')
-                }}
-              >
-                <HelpCircle size={20} />
-                <Trans>Help</Trans>
               </ExternalLink>
             </MenuItem>
             {ENV_LEVEL === ENV_TYPE.LOCAL && (
