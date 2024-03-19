@@ -448,7 +448,9 @@ export const usePaymentToken: () => [Token | null, (paymentToken: Token | null) 
   const p = useMemo(() => {
     if (chainId !== ChainId.ZKSYNC) return null
     if (!GAS_TOKENS.map(item => item.address.toLowerCase()).includes(paymentToken?.address.toLowerCase())) return null
-    return paymentToken
+
+    // TODO: hardcode to temp disable for now
+    return null
   }, [paymentToken, chainId])
 
   const updatePaymentToken = useCallback((pt: Token | null) => dispatch(setPaymentToken(pt)), [dispatch])

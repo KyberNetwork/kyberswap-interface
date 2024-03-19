@@ -68,7 +68,8 @@ export default function SlippageSettingGroup({
       </PriceAlertButton>
     ) : null
 
-  if (chainId === ChainId.ZKSYNC && !isPartnerSwap) {
+  // fake to hide for now
+  if (chainId === ChainId.ZKSYNC && !isPartnerSwap && 1 + 1 > 3) {
     rightButton = (
       <Flex alignItems="center" width="fit-content" role="button" sx={{ cursor: 'pointer' }} onClick={onOpenGasToken}>
         <MouseoverTooltip text="Pay network fees in the token of your choice." placement="top">
