@@ -231,7 +231,7 @@ export default function SwapDetails({
         <RowBetween height="20px" style={{ gap: '16px' }}>
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-              {buildData?.additionalCostUsd ? (
+              {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' ? (
                 <MouseoverTooltip text={<Trans>L2 execution fee</Trans>} placement="right">
                   Est. L2 gas fee
                 </MouseoverTooltip>
