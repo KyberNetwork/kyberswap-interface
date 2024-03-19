@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { SignerPaymaster } from '@holdstation/paymaster-helper'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 
@@ -7,6 +8,24 @@ import { SUPPORTED_WALLET } from 'constants/wallets'
 import { calculateGasMargin } from 'utils'
 
 import { ErrorName, TransactionError } from './sentry'
+
+const projectName = 'KyberSwap'
+const partnerCode = ethers.utils.formatBytes32String(projectName)
+
+export const paymasterExecute = (
+  paymentToken: string,
+  populateTransaction: ethers.PopulatedTransaction,
+  gasLimit: number,
+) => {
+  return SignerPaymaster.paymasterExecute({
+    network: 'mainnet',
+    populateTransaction,
+    // signer: library.getSigner(),
+    paymentToken,
+    innerInput: partnerCode,
+    defaultGasLimit: gasLimit,
+  })
+}
 
 export async function sendEVMTransaction({
   account,
@@ -16,6 +35,7 @@ export async function sendEVMTransaction({
   value,
   sentryInfo,
   chainId,
+  paymentToken,
 }: {
   account: string
   library: ethers.providers.Web3Provider | undefined
@@ -27,6 +47,7 @@ export async function sendEVMTransaction({
     wallet: SUPPORTED_WALLET | undefined
   }
   chainId?: ChainId
+  paymentToken?: string
 }): Promise<TransactionResponse | undefined> {
   if (!account || !library) throw new Error('Invalid transaction')
 
@@ -52,16 +73,19 @@ export async function sendEVMTransaction({
     )
   }
 
+  const gasLimit = calculateGasMargin(gasEstimate, chainId)
   const sendTransactionOption = {
     from: account,
     to: contractAddress,
     data: encodedData,
-    gasLimit: calculateGasMargin(gasEstimate, chainId),
+    gasLimit,
     ...(value.eq('0') ? {} : { value }),
   }
 
   try {
-    const response = await library.getSigner().sendTransaction(sendTransactionOption)
+    const response = await (paymentToken
+      ? paymasterExecute(paymentToken, sendTransactionOption, gasLimit.toNumber())
+      : library.getSigner().sendTransaction(sendTransactionOption))
     return response
   } catch (error) {
     throw new TransactionError(

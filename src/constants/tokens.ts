@@ -252,3 +252,10 @@ export const mKNC: { [chain in ChainId]?: string } = {
   [ChainId.OPTIMISM]: '0x4518231a8FDF6ac553B9BBD51Bbb86825B583263',
   [ChainId.FANTOM]: '0x1e1085eFaA63EDFE74aaD7C05a28EAE4ef917C3F',
 }
+
+export const GAS_TOKENS = [
+  new Token(ChainId.ZKSYNC, '0xed4040fd47629e7c8fbb7da76bb50b3e7695f0f2', 18, 'HOLD', 'HOLD'),
+  new Token(ChainId.ZKSYNC, '0x493257fd37edb34451f62edf8d2a0c418852ba4c', 6, 'USDT', 'USDT'),
+  new Token(ChainId.ZKSYNC, '0x3355df6d4c9c3035724fd0e3914de96a5a83aaf4', 6, 'USDC', 'USDC'),
+  // new Token(ChainId.ZKSYNC, '0xbbeb516fb02a01611cbbe0453fe3c580d7281011', 8, 'wBTC', 'wBTC'),
+]

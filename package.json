@@ -48,6 +48,7 @@
     "@blocto/web3-react-connector": "^1.0.0",
     "@coinbase/wallet-sdk": "^3.0.4",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@holdstation/paymaster-helper": "^2.0.20",
     "@kybernetwork/oauth2": "1.0.1",
     "@kyberswap/krystal-walletconnect-v2": "0.0.1",
     "@kyberswap/ks-sdk-classic": "^1.0.3",

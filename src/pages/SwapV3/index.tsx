@@ -12,6 +12,7 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
+import GasTokenSetting from 'components/swapv2/GasTokenSetting'
 import LimitOrder from 'components/swapv2/LimitOrder'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
@@ -63,6 +64,7 @@ export enum TAB {
   LIQUIDITY_SOURCES = 'liquidity_sources',
   LIMIT = 'limit',
   CROSS_CHAIN = 'cross_chain',
+  GAS_TOKEN = 'gas_token',
 }
 
 export const isSettingTab = (tab: TAB) =>
@@ -161,6 +163,7 @@ export default function Swap() {
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
+
   const swapActionsRef = useRef(null)
 
   return (
@@ -182,8 +185,8 @@ export default function Swap() {
                   onSelectSuggestedPair={onSelectSuggestedPair}
                   routeSummary={routeSummary}
                   setRouteSummary={setRouteSummary}
-                  goToSettingsView={() => setActiveTab(TAB.SETTINGS)}
                   hidden={activeTab !== TAB.SWAP}
+                  onOpenGasToken={() => setActiveTab(TAB.GAS_TOKEN)}
                 />
               )}
               {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
@@ -211,6 +214,7 @@ export default function Swap() {
                 />
               )}
               {isCrossChainPage && <CrossChain visible={activeTab === TAB.CROSS_CHAIN} />}
+              {activeTab === TAB.GAS_TOKEN && <GasTokenSetting onBack={() => setActiveTab(TAB.SWAP)} />}
             </AppBodyWrapped>
             {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>

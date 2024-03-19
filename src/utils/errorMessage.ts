@@ -9,6 +9,8 @@ const matchPatterns = (patterns: string[], error: string) =>
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''
 
+  if (matchPatterns(['insufficient erc20 balance'], error)) return t`Insufficient ERC20 balance to pay gas fee`
+
   if (!error || error.includes('router: expired')) return t`An error occurred. Refresh the page and try again.`
 
   if (matchPatterns(['already pending'], error)) return t`Pending request(s), please approve it in your wallet.`

@@ -22,6 +22,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
+import { usePaymentToken } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, shortenAddress } from 'utils'
@@ -110,6 +111,9 @@ export default function SwapDetails({
   const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
 
   const feeAmount = routeSummary?.extraFee?.feeAmount
+
+  const [paymentToken] = usePaymentToken()
+  const isHold = paymentToken?.address.toLowerCase() === '0xed4040fD47629e7c8FBB7DA76bb50B3e7695F0f2'.toLowerCase()
 
   return (
     <>
@@ -228,7 +232,7 @@ export default function SwapDetails({
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                <Trans>Est. Gas Fee</Trans>
+                Est. {paymentToken ? 'Paymaster' : ''} Gas Fee
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
@@ -240,9 +244,16 @@ export default function SwapDetails({
             }}
             isShowingSkeleton={isLoading}
             content={
-              <TYPE.black color={theme.text} fontSize={12}>
-                {gasUsd ? formattedNum(String(gasUsd), true) : '--'}
-              </TYPE.black>
+              <Flex sx={{ gap: '4px' }}>
+                {isHold && !!gasUsd && (
+                  <Text sx={{ textDecoration: 'line-through' }} fontSize={12} color={theme.subText}>
+                    {formattedNum(gasUsd, true)}
+                  </Text>
+                )}
+                <TYPE.black color={theme.text} fontSize={12}>
+                  {gasUsd ? formattedNum(isHold ? +gasUsd * 0.8 : gasUsd, true) : '--'}
+                </TYPE.black>
+              </Flex>
             }
           />
         </RowBetween>
