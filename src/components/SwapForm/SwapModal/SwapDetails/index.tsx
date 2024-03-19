@@ -263,7 +263,7 @@ export default function SwapDetails({
             }
           />
         </RowBetween>
-        {buildData?.additionalCostUsd && (
+        {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
           <RowBetween>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
