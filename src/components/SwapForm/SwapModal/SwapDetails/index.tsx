@@ -231,9 +231,15 @@ export default function SwapDetails({
         <RowBetween height="20px" style={{ gap: '16px' }}>
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-              <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                Est. {paymentToken ? 'Paymaster' : ''} Gas Fee
-              </MouseoverTooltip>
+              {buildData?.additionalCostUsd ? (
+                <MouseoverTooltip text={<Trans>L2 execution fee</Trans>} placement="right">
+                  Est. L2 gas fee
+                </MouseoverTooltip>
+              ) : (
+                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
+                  Est. {paymentToken ? 'Paymaster' : ''} Gas Fee
+                </MouseoverTooltip>
+              )}
             </TextDashed>
           </RowFixed>
 
@@ -257,6 +263,31 @@ export default function SwapDetails({
             }
           />
         </RowBetween>
+        {buildData?.additionalCostUsd && (
+          <RowBetween>
+            <RowFixed>
+              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                <MouseoverTooltip text={<Trans>L1 fee that pays for rolls up cost</Trans>} placement="right">
+                  Est. L1 gas fee
+                </MouseoverTooltip>
+              </TextDashed>
+            </RowFixed>
+            <ValueWithLoadingSkeleton
+              skeletonStyle={{
+                width: '64px',
+                height: '19px',
+              }}
+              isShowingSkeleton={isLoading}
+              content={
+                <Flex sx={{ gap: '4px' }}>
+                  <TYPE.black color={theme.text} fontSize={12}>
+                    {formattedNum(buildData.additionalCostUsd, true)}
+                  </TYPE.black>
+                </Flex>
+              }
+            />
+          </RowBetween>
+        )}
 
         {!!feeAmount && feeAmount !== '0' && (
           <RowBetween height="20px" style={{ gap: '16px' }}>

@@ -25,6 +25,7 @@ export type BuildRouteData = {
   gas: string
   gasUsd: string
   routerAddress: string
+  additionalCostUsd?: string
 }
 
 export type BuildRouteResponse = {
