@@ -25,7 +25,7 @@ const mantle: NetworkInfo = {
     name: 'MNT',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 2 * 10 ** 17,
   },
   defaultRpcUrl: 'https://rpc.mantle.xyz',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
