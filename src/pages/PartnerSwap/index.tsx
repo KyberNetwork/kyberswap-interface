@@ -200,7 +200,6 @@ export default function PartnerSwap() {
     permit: permitData?.rawSignature,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
-    goToSettingsView: () => setActiveTab(TAB.SETTINGS),
     customChainId: expectedChainId,
     omniView: true,
   }

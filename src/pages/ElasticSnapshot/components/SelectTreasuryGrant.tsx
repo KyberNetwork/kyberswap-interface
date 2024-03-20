@@ -52,6 +52,14 @@ const Step = styled.div`
 
 const APP_ID = 'M2023122583510932543540072365652'
 
+const MANUAL_KYCS = [
+  '0x5119d8c206546C5361Bb6317D7508d9bd4787C16',
+  '0x2130FD01026867A6c8DdE24ad5E64F2e2DFce196',
+  '0x6Ef7173Ba0552f8940Dda4B5eA5AC48b17f8b8a2',
+  '0x5da35491fF9d73E3F5ff0D3C6ED1eA5ab68770C0',
+  '0x4526B09df42775975a543e0E984172Ab202b4Ff8',
+]
+
 export default function SelectTreasuryGrant() {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
@@ -133,6 +141,10 @@ export default function SelectTreasuryGrant() {
 
   useEffect(() => {
     const fn = async () => {
+      if (account && MANUAL_KYCS.includes(account)) {
+        setIsKyc(true)
+        return
+      }
       if (zkMe && account) {
         setLoading(true)
         const results: boolean = await verifyKYCWithZkMeServices(

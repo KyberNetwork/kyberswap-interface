@@ -16,6 +16,7 @@ import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { usePaymentToken } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
@@ -186,6 +187,8 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
     }
   }, [hasTrade])
 
+  const [paymentToken] = usePaymentToken()
+  const isHold = paymentToken?.address.toLowerCase() === '0xed4040fD47629e7c8FBB7DA76bb50B3e7695F0f2'.toLowerCase()
   const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
   return (
     <Wrapper $visible={alreadyVisible} $disabled={!hasTrade}>
@@ -228,7 +231,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
               </TextDashed>
             </RowFixed>
             <TYPE.black color={theme.text} fontSize={12}>
-              {gasUsd ? formattedNum(gasUsd, true) : '--'}
+              {gasUsd ? formattedNum(isHold ? +gasUsd * 0.8 : gasUsd, true) : '--'}
             </TYPE.black>
           </RowBetween>
 

@@ -22,6 +22,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
+import { usePaymentToken } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, shortenAddress } from 'utils'
@@ -110,6 +111,9 @@ export default function SwapDetails({
   const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
 
   const feeAmount = routeSummary?.extraFee?.feeAmount
+
+  const [paymentToken] = usePaymentToken()
+  const isHold = paymentToken?.address.toLowerCase() === '0xed4040fD47629e7c8FBB7DA76bb50B3e7695F0f2'.toLowerCase()
 
   return (
     <>
@@ -227,9 +231,15 @@ export default function SwapDetails({
         <RowBetween height="20px" style={{ gap: '16px' }}>
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-              <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                <Trans>Est. Gas Fee</Trans>
-              </MouseoverTooltip>
+              {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' ? (
+                <MouseoverTooltip text={<Trans>L2 execution fee</Trans>} placement="right">
+                  Est. L2 gas fee
+                </MouseoverTooltip>
+              ) : (
+                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
+                  Est. {paymentToken ? 'Paymaster' : ''} Gas Fee
+                </MouseoverTooltip>
+              )}
             </TextDashed>
           </RowFixed>
 
@@ -240,12 +250,44 @@ export default function SwapDetails({
             }}
             isShowingSkeleton={isLoading}
             content={
-              <TYPE.black color={theme.text} fontSize={12}>
-                {gasUsd ? formattedNum(String(gasUsd), true) : '--'}
-              </TYPE.black>
+              <Flex sx={{ gap: '4px' }}>
+                {isHold && !!gasUsd && (
+                  <Text sx={{ textDecoration: 'line-through' }} fontSize={12} color={theme.subText}>
+                    {formattedNum(gasUsd, true)}
+                  </Text>
+                )}
+                <TYPE.black color={theme.text} fontSize={12}>
+                  {gasUsd ? formattedNum(isHold ? +gasUsd * 0.8 : gasUsd, true) : '--'}
+                </TYPE.black>
+              </Flex>
             }
           />
         </RowBetween>
+        {buildData?.additionalCostUsd && buildData?.additionalCostUsd !== '0' && (
+          <RowBetween>
+            <RowFixed>
+              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                <MouseoverTooltip text={<Trans>L1 fee that pays for rolls up cost</Trans>} placement="right">
+                  Est. L1 gas fee
+                </MouseoverTooltip>
+              </TextDashed>
+            </RowFixed>
+            <ValueWithLoadingSkeleton
+              skeletonStyle={{
+                width: '64px',
+                height: '19px',
+              }}
+              isShowingSkeleton={isLoading}
+              content={
+                <Flex sx={{ gap: '4px' }}>
+                  <TYPE.black color={theme.text} fontSize={12}>
+                    {formattedNum(buildData.additionalCostUsd, true)}
+                  </TYPE.black>
+                </Flex>
+              }
+            />
+          </RowBetween>
+        )}
 
         {!!feeAmount && feeAmount !== '0' && (
           <RowBetween height="20px" style={{ gap: '16px' }}>

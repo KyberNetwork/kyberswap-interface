@@ -95,7 +95,11 @@ export default function ConfirmSwapModalContent({
         </Text>
       )
     }
-    if (errorWhileBuildRoute.includes('enough') || errorWhileBuildRoute.includes('min')) {
+    if (
+      errorWhileBuildRoute.includes('enough') ||
+      errorWhileBuildRoute.includes('min') ||
+      errorWhileBuildRoute.includes('smaller')
+    ) {
       return (
         <Text>
           <Trans>

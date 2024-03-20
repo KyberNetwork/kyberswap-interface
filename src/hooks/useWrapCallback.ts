@@ -1,16 +1,21 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { BigNumber } from 'ethers'
+import { Interface } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
+import WETH_ABI from 'constants/abis/weth.json'
 import { NativeCurrencies } from 'constants/tokens'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { usePaymentToken } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
+import { paymasterExecute } from 'utils/sendTransaction'
 
 import { useActiveWeb3React } from './index'
 import { useWETHContract } from './useContract'
@@ -20,6 +25,8 @@ export enum WrapType {
   WRAP,
   UNWRAP,
 }
+
+const WETHInterface = new Interface(WETH_ABI)
 
 const NOT_APPLICABLE = { wrapType: WrapType.NOT_APPLICABLE }
 /**
@@ -40,7 +47,8 @@ export default function useWrapCallback(
   inputError?: string
   allowUnwrap?: boolean
 } {
-  const { chainId: walletChainId } = useActiveWeb3React()
+  const { chainId: walletChainId, account } = useActiveWeb3React()
+  const [paymentToken] = usePaymentToken()
   const chainId = customChainId || walletChainId
   const wethContract = useWETHContract(chainId)
   const balance = useCurrencyBalance(inputCurrency ?? undefined, chainId)
@@ -68,10 +76,21 @@ export default function useWrapCallback(
                     const estimateGas = await wethContract.estimateGas.deposit({
                       value: `0x${inputAmount.quotient.toString(16)}`,
                     })
-                    const txReceipt = await wethContract.deposit({
-                      value: `0x${inputAmount.quotient.toString(16)}`,
-                      gasLimit: calculateGasMargin(estimateGas),
-                    })
+                    const txReceipt = await (paymentToken?.address
+                      ? paymasterExecute(
+                          paymentToken.address,
+                          {
+                            from: account,
+                            to: WETH[chainId].address,
+                            value: BigNumber.from(inputAmount.quotient.toString()),
+                            data: WETHInterface.encodeFunctionData('deposit'),
+                          },
+                          calculateGasMargin(estimateGas).toNumber(),
+                        )
+                      : wethContract.deposit({
+                          value: `0x${inputAmount.quotient.toString(16)}`,
+                          gasLimit: calculateGasMargin(estimateGas),
+                        }))
                     hash = txReceipt?.hash
                   }
                   if (hash) {
@@ -125,9 +144,21 @@ export default function useWrapCallback(
                     const estimateGas = await wethContract.estimateGas.withdraw(
                       `0x${inputAmount.quotient.toString(16)}`,
                     )
-                    const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`, {
-                      gasLimit: calculateGasMargin(estimateGas),
-                    })
+                    const txReceipt = await (paymentToken?.address
+                      ? paymasterExecute(
+                          paymentToken.address,
+                          {
+                            from: account,
+                            to: WETH[chainId].address,
+                            data: WETHInterface.encodeFunctionData('withdraw', [
+                              BigNumber.from(inputAmount.quotient.toString()),
+                            ]),
+                          },
+                          calculateGasMargin(estimateGas).toNumber(),
+                        )
+                      : wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`, {
+                          gasLimit: calculateGasMargin(estimateGas),
+                        }))
                     hash = txReceipt.hash
                   }
                   if (hash) {
@@ -181,5 +212,7 @@ export default function useWrapCallback(
     addTransactionWithType,
     forceWrap,
     notify,
+    account,
+    paymentToken?.address,
   ])
 }

@@ -1,22 +1,28 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { Interface } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
+import ERC20_ABI from 'constants/abis/erc20.json'
 import { useTokenAllowance } from 'data/Allowances'
 import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { usePaymentToken } from 'state/user/hooks'
 import { calculateGasMargin } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { friendlyError } from 'utils/errorMessage'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
+import { paymasterExecute } from 'utils/sendTransaction'
 
 import { useActiveWeb3React } from './index'
 import { useTokenSigningContract } from './useContract'
+
+const ERC20Interface = new Interface(ERC20_ABI)
 
 export enum ApprovalState {
   UNKNOWN = 'UNKNOWN',
@@ -61,6 +67,7 @@ export function useApproveCallback(
 
   const tokenContract = useTokenSigningContract(token?.address)
   const addTransactionWithType = useTransactionAdder()
+  const [paymentToken] = usePaymentToken()
 
   const approve = useCallback(
     async (customAmount?: CurrencyAmount<Currency>): Promise<void> => {
@@ -105,15 +112,36 @@ export function useApproveCallback(
             approvedAmount = amountToApprove.quotient.toString()
           } catch {
             estimatedGas = await tokenContract.estimateGas.approve(spender, '0')
-            return tokenContract.approve(spender, '0', {
-              gasLimit: calculateGasMargin(estimatedGas),
-            })
+            return paymentToken?.address
+              ? paymasterExecute(
+                  paymentToken.address,
+                  {
+                    from: account,
+                    to: token.address,
+                    data: ERC20Interface.encodeFunctionData('approve', [spender, '0']),
+                  },
+                  calculateGasMargin(estimatedGas).toNumber(),
+                )
+              : tokenContract.approve(spender, '0', {
+                  gasLimit: calculateGasMargin(estimatedGas),
+                })
           }
         }
 
-        const response = await tokenContract.approve(spender, approvedAmount, {
-          gasLimit: calculateGasMargin(estimatedGas),
-        })
+        const gasLimit = calculateGasMargin(estimatedGas)
+        const response = await (paymentToken?.address
+          ? paymasterExecute(
+              paymentToken.address,
+              {
+                from: account,
+                to: token.address,
+                data: ERC20Interface.encodeFunctionData('approve', [spender, approvedAmount]),
+              },
+              gasLimit.toNumber(),
+            )
+          : tokenContract.approve(spender, approvedAmount, {
+              gasLimit: calculateGasMargin(estimatedGas),
+            }))
         addTransactionWithType({
           hash: response.hash,
           type: TRANSACTION_TYPE.APPROVE,
@@ -136,7 +164,18 @@ export function useApproveCallback(
         )
       }
     },
-    [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, forceApprove, notify],
+    [
+      account,
+      approvalState,
+      token,
+      tokenContract,
+      amountToApprove,
+      spender,
+      addTransactionWithType,
+      forceApprove,
+      notify,
+      paymentToken?.address,
+    ],
   )
 
   return [approvalState, approve, currentAllowance]

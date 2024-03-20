@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { INITIAL_ALLOWED_SLIPPAGE, TERM_FILES_PATH } from 'constants/index'
 import { LOCALE_INFO, SupportedLocale } from 'constants/locales'
+import { GAS_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import {
@@ -28,6 +29,7 @@ import {
   pinSlippageControl,
   removeSerializedToken,
   setCrossChainSetting,
+  setPaymentToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   toggleLiveChart,
@@ -439,6 +441,23 @@ export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {
   const setViewMode = useCallback((mode: VIEW_MODE) => dispatch(changeViewMode(mode)), [dispatch])
 
   return [viewMode, setViewMode]
+}
+
+export const usePaymentToken: () => [Token | null, (paymentToken: Token | null) => void] = () => {
+  const dispatch = useAppDispatch()
+  const { chainId } = useActiveWeb3React()
+  const paymentToken = useAppSelector(state => state.user.paymentToken)
+  const p = useMemo(() => {
+    if (chainId !== ChainId.ZKSYNC) return null
+    if (!GAS_TOKENS.map(item => item.address.toLowerCase()).includes(paymentToken?.address.toLowerCase())) return null
+
+    // TODO: hardcode to temp disable for now
+    return null
+  }, [paymentToken, chainId])
+
+  const updatePaymentToken = useCallback((pt: Token | null) => dispatch(setPaymentToken(pt)), [dispatch])
+
+  return [p, updatePaymentToken]
 }
 
 export const useHolidayMode: () => [boolean, () => void] = () => {

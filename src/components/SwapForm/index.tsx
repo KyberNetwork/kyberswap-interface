@@ -82,9 +82,9 @@ export type SwapFormProps = {
 
   onChangeCurrencyIn: (c: Currency) => void
   onChangeCurrencyOut: (c: Currency) => void
-  goToSettingsView: () => void
   customChainId?: ChainId
   omniView?: boolean
+  onOpenGasToken?: () => void
 }
 
 const SwapForm: React.FC<SwapFormProps> = props => {
@@ -106,6 +106,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     onChangeCurrencyOut,
     customChainId,
     omniView,
+    onOpenGasToken,
   } = props
 
   const { chainId: walletChainId } = useActiveWeb3React()
@@ -262,7 +263,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             {isDegenMode && !isWrapOrUnwrap && (
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
-            <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} isStablePairSwap={isStablePairSwap} />
+            <SlippageSettingGroup
+              isWrapOrUnwrap={isWrapOrUnwrap}
+              isStablePairSwap={isStablePairSwap}
+              onOpenGasToken={onOpenGasToken}
+            />
             <FeeControlGroup />
           </Flex>
         </Wrapper>

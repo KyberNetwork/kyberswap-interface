@@ -8,6 +8,7 @@ export type BuildRoutePayload = {
   recipient: string
   source: string
   skipSimulateTx: boolean
+  enableGasEstimation?: boolean
   permit?: string
 }
 
@@ -24,6 +25,7 @@ export type BuildRouteData = {
   gas: string
   gasUsd: string
   routerAddress: string
+  additionalCostUsd?: string
 }
 
 export type BuildRouteResponse = {
