@@ -16,9 +16,7 @@ import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import abi from '../data/abis/vestingAbi.json'
-import vestingOptionA from '../data/vesting/optionA.json'
-import vestingOptionB from '../data/vesting/optionB.json'
-import VestingClaimModal, { vestingContractAddress } from './VestingClaimModal'
+import VestingClaimModal from './VestingClaimModal'
 
 const Details = styled.div`
   margin-top: 24px;
@@ -87,15 +85,24 @@ const Legend = styled.div`
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 6 })
 
-export default function Vesting({ userSelectedOption }: { userSelectedOption: 'A' | 'B' }) {
+export interface VestingInterface {
+  claimData: { receiver: string; vestingAmount: number; index: number }
+  proof: string[]
+}
+
+export default function Vesting({
+  userSelectedOption,
+  userVestingData,
+  contractAddress,
+  tcLink,
+}: {
+  userSelectedOption: 'A' | 'B'
+  userVestingData: VestingInterface
+  contractAddress: string
+  tcLink: string
+}) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const userVestingData = useMemo(
-    () =>
-      vestingOptionA.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()) ||
-      vestingOptionB.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()),
-    [account],
-  )
 
   const proof = useMemo(() => userVestingData?.proof, [userVestingData])
 
@@ -105,7 +112,7 @@ export default function Vesting({ userSelectedOption }: { userSelectedOption: 'A
   const [endTime, setEndTime] = useState(0)
   const [vestedAmount, setVestedAmount] = useState(0)
 
-  const vestingContract = useReadingContract(vestingContractAddress[userSelectedOption], abi, ChainId.MATIC)
+  const vestingContract = useReadingContract(contractAddress, abi, ChainId.MATIC)
 
   const [, setRender] = useState(0)
   const getVestedData = useCallback(() => {
@@ -164,15 +171,10 @@ export default function Vesting({ userSelectedOption }: { userSelectedOption: 'A
           proof={proof}
           tokenAmount={claimableAmount}
           vestingAmount={userVestingData.claimData.vestingAmount}
-          option={userSelectedOption}
+          contractAddress={contractAddress}
+          tcLink={tcLink}
         />
       )}
-      <Text fontSize={14} color={theme.subText} lineHeight="20px">
-        <Trans>
-          You can find the vesting details of each category of assets that were affected by the exploit below.
-        </Trans>
-      </Text>
-
       <Details>
         <Box
           sx={{ borderBottom: `1px solid ${theme.border}`, padding: '1rem 1.5rem', background: theme.background }}
