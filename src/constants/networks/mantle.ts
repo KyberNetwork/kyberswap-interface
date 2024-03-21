@@ -27,7 +27,7 @@ const mantle: NetworkInfo = {
     decimal: 18,
     minForGas: 2 * 10 ** 17,
   },
-  defaultRpcUrl: 'https://rpc.mantle.xyz',
+  defaultRpcUrl: 'https://rpc.ankr.com/mantle',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
