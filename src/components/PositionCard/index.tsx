@@ -743,20 +743,6 @@ export default function FullPositionCard({
               </Text>
             </ButtonPrimary>
           )}
-
-          <ButtonPrimary
-            padding="10px"
-            style={{ fontSize: '14px' }}
-            as={Link}
-            to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyId(currency0, chainId)}/${currencyId(
-              currency1,
-              chainId,
-            )}/${pair.address}`}
-          >
-            <Text width="max-content">
-              <Trans>Add Liquidity</Trans>
-            </Text>
-          </ButtonPrimary>
         </Flex>
       ) : (
         <ButtonPrimary padding="10px" style={{ fontSize: '14px' }} as={Link} to={goToFarmPath}>

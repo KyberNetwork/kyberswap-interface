@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { BookOpen, ChevronDown, Edit, FileText, HelpCircle, Info, MessageCircle, PieChart } from 'react-feather'
+import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -16,6 +16,7 @@ import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import ArrowRight from 'components/Icons/ArrowRight'
 import Faucet from 'components/Icons/Faucet'
+import Icon from 'components/Icons/Icon'
 import MailIcon from 'components/Icons/MailIcon'
 import LanguageSelector from 'components/LanguageSelector'
 import Loader from 'components/Loader'
@@ -24,10 +25,9 @@ import Row, { AutoRow } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { ENV_LEVEL, TAG } from 'constants/env'
-import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL, TERM_FILES_PATH } from 'constants/index'
+import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
-import { THRESHOLD_HEADER } from 'constants/styles'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
@@ -38,7 +38,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useHolidayMode, useUserLocale } from 'state/user/hooks'
-import { ExternalLink } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { isChristmasTime } from 'utils'
 
 import ClaimRewardModal from './ClaimRewardModal'
@@ -217,10 +217,9 @@ export default function Menu() {
     toggle()
   }
 
-  const showAbout = useMedia(`(max-width: ${THRESHOLD_HEADER.ABOUT})`)
-  const showBlog = useMedia(`(max-width: ${THRESHOLD_HEADER.BLOG})`)
-  const showAnalytics = useMedia(`(max-width: ${THRESHOLD_HEADER.ANALYTIC})`)
-  const showKyberDao = useMedia(`(max-width: ${THRESHOLD_HEADER.KYBERDAO})`)
+  const showAbout = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const showBlog = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const showAnalytics = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -281,6 +280,26 @@ export default function Menu() {
         ) : (
           <ListWrapper ref={wrapperNode => setWrapperNode(wrapperNode)}>
             <Title style={{ paddingTop: 0 }}>
+              <Trans>Legacy</Trans>
+            </Title>
+
+            <MenuItem onClick={toggle}>
+              <NavLink to={APP_PATHS.ELASTIC_SNAPSHOT}>
+                <AlertOctagon size={14} />
+                <Trans>Snapshot</Trans>
+              </NavLink>
+            </MenuItem>
+
+            <MenuItem onClick={toggle}>
+              <NavLink to={APP_PATHS.MY_POOLS}>
+                <Icon id="liquid-outline" size={16} />
+                <Trans>My Pools</Trans>
+              </NavLink>
+            </MenuItem>
+
+            <Divider />
+
+            <Title style={{ paddingTop: 0 }}>
               <Trans>Menu</Trans>
             </Title>
             {FAUCET_NETWORKS.includes(chainId) && (
@@ -307,36 +326,12 @@ export default function Menu() {
               </MenuItem>
             )}
 
-            {showKyberDao && (
-              <MenuItem>
-                <NavDropDown
-                  icon={<Info />}
-                  title={'KyberDAO'}
-                  link={'/kyberdao/stake-knc'}
-                  options={[
-                    { link: '/kyberdao/stake-knc', label: t`Stake KNC` },
-                    { link: '/kyberdao/vote', label: t`Vote` },
-                    { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
-                    { link: 'https://kyberswap.canny.io/feature-request', label: t`Feature Request`, external: true },
-                  ]}
-                />
-              </MenuItem>
-            )}
             {showAnalytics && (
               <MenuItem>
-                <NavDropDown
-                  icon={<PieChart />}
-                  link="#"
-                  title={t`Analytics`}
-                  options={[
-                    { link: DMM_ANALYTICS_URL[chainId], label: t`Liquidity`, external: true },
-                    {
-                      link: AGGREGATOR_ANALYTICS_URL,
-                      label: t`Aggregator`,
-                      external: true,
-                    },
-                  ]}
-                />
+                <ExternalLink href={AGGREGATOR_ANALYTICS_URL}>
+                  <PieChart />
+                  <Trans>Analytics</Trans>
+                </ExternalLink>
               </MenuItem>
             )}
             {showAbout && (
@@ -422,28 +417,6 @@ export default function Menu() {
               >
                 <FileText />
                 <Trans>Privacy Policy</Trans>
-              </ExternalLink>
-            </MenuItem>
-            <MenuItem>
-              <ExternalLink
-                href="https://forms.gle/gLiNsi7iUzHws2BY8"
-                onClick={() => {
-                  handleMenuClickMixpanel('Business Enquiries')
-                }}
-              >
-                <Edit />
-                <Trans>Business Enquiries</Trans>
-              </ExternalLink>
-            </MenuItem>
-            <MenuItem>
-              <ExternalLink
-                href="https://support.kyberswap.com"
-                onClick={() => {
-                  handleMenuClickMixpanel('Help')
-                }}
-              >
-                <HelpCircle size={20} />
-                <Trans>Help</Trans>
               </ExternalLink>
             </MenuItem>
             {ENV_LEVEL === ENV_TYPE.LOCAL && (

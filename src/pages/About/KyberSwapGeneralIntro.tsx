@@ -4,17 +4,14 @@ import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
-import { ButtonLight, ButtonPrimary } from 'components/Button'
-import { MoneyBagOutline } from 'components/Icons'
+import { ButtonPrimary } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useTheme from 'hooks/useTheme'
 
 const KyberSwapGeneralIntro = () => {
   const { networkInfo } = useActiveWeb3React()
   const above768 = useMedia('(min-width: 768px)')
-  const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
 
   const renderKyberSwapIntroDEX = () => {
@@ -31,25 +28,6 @@ const KyberSwapGeneralIntro = () => {
         <Trans>
           KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with{' '}
           <b>superior token prices</b> by analyzing rates across thousands of exchanges instantly!
-        </Trans>
-      </Text>
-    )
-  }
-
-  const renderKyberSwapIntroAMM = () => {
-    return (
-      <Text
-        as="span"
-        sx={{
-          fontWeight: 400,
-          fontSize: '18px',
-          lineHeight: '28px',
-          textAlign: 'center',
-        }}
-      >
-        <Trans>
-          KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols and{' '}
-          <b>concentrated liquidity</b>. Liquidity providers can add liquidity to our pools & <b>earn fees</b>!
         </Trans>
       </Text>
     )
@@ -75,24 +53,6 @@ const KyberSwapGeneralIntro = () => {
     )
   }
 
-  const renderStartEarningButton = () => {
-    return (
-      <ButtonLight
-        as={Link}
-        to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`}
-        onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
-        style={{
-          width: '216px',
-        }}
-      >
-        <MoneyBagOutline color={theme.primary} size={20} />
-        <Text fontSize="14px" marginLeft="8px">
-          <Trans>Start Earning</Trans>
-        </Text>
-      </ButtonLight>
-    )
-  }
-
   if (above768) {
     return (
       <Box
@@ -104,15 +64,13 @@ const KyberSwapGeneralIntro = () => {
 
           display: 'grid',
           gap: '24px 72px ',
-          gridTemplateColumns: '1fr 1fr',
+          gridTemplateColumns: '1fr',
           gridTemplateRows: '1fr auto',
           justifyItems: 'center',
         }}
       >
         {renderKyberSwapIntroDEX()}
-        {renderKyberSwapIntroAMM()}
         {renderSwapNowButton()}
-        {renderStartEarningButton()}
       </Box>
     )
   }
@@ -137,17 +95,6 @@ const KyberSwapGeneralIntro = () => {
       >
         {renderKyberSwapIntroDEX()}
         {renderSwapNowButton()}
-      </Flex>
-
-      <Flex
-        flexDirection={'column'}
-        sx={{
-          alignItems: 'center',
-          rowGap: '16px',
-        }}
-      >
-        {renderKyberSwapIntroAMM()}
-        {renderStartEarningButton()}
       </Flex>
     </Flex>
   )

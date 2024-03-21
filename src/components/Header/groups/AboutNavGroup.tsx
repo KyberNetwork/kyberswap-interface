@@ -1,28 +1,32 @@
 import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
-import { THRESHOLD_HEADER } from 'constants/styles'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
-import { DropdownTextAnchor, StyledNavLink } from '../styleds'
+import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
 
 const AboutWrapper = styled.span`
   display: inline-flex;
-  @media (max-width: ${THRESHOLD_HEADER.ABOUT}) {
-    display: none;
-  }
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    display: none
+  `}
 `
 
 const AboutNavGroup = () => {
   const { pathname } = useLocation()
   const isActive = pathname.includes(APP_PATHS.ABOUT)
+  const upTo1000 = useMedia('(max-width: 1000px)')
 
+  const { mixpanelHandler } = useMixpanel()
   return (
     <AboutWrapper>
       <NavGroup
+        dropdownAlign={upTo1000 ? 'right' : 'left'}
         isActive={isActive}
         anchor={
           <DropdownTextAnchor>
@@ -42,6 +46,15 @@ const AboutNavGroup = () => {
             <StyledNavLink id="about-knc" to={`${APP_PATHS.ABOUT}/knc`}>
               <Trans> KNC</Trans>
             </StyledNavLink>
+            <StyledNavExternalLink
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.BLOG_MENU_CLICKED)
+              }}
+              target="_blank"
+              href="https://blog.kyberswap.com"
+            >
+              <Trans>Blog</Trans>
+            </StyledNavExternalLink>
           </Flex>
         }
       />

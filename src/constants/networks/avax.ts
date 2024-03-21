@@ -17,7 +17,7 @@ const avaxInfo: NetworkInfo = {
   iconSelected: NOT_SUPPORT,
 
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks',
-  etherscanUrl: 'https://snowtrace.io',
+  etherscanUrl: 'https://snowscan.xyz',
   etherscanName: 'Snowtrace',
   bridgeURL: 'https://core.app/bridge',
   nativeToken: {
