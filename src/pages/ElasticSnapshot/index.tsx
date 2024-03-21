@@ -1,11 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Info } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import { useGetUserSelectedOptionQuery } from 'services/commonService'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -23,11 +23,13 @@ import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import TreasuryGrantAndInstantClaim from './components/TreasuryGrantAndInstantClaim'
-import Vesting from './components/Vesting'
+import Vesting, { VestingInterface } from './components/Vesting'
 import poolsByCategoriesRaw from './data/category.json'
 import data from './data/data.json'
 import vestingOptionA from './data/vesting/optionA.json'
+import vestingOptionAPhase2 from './data/vesting/optionA_phase2.json'
 import vestingOptionB from './data/vesting/optionB.json'
+import vestingOptionBPhase2 from './data/vesting/optionB_phase2.json'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
@@ -121,6 +123,16 @@ interface Position {
   }
 }
 
+const vestingContractAddress = {
+  A: '0x04F57dE350E76ec952b6B4d1283Ba800ab3c95e3',
+  B: '0xF3E4C1f21a1218Ae8e48569c94275ABd605563fD',
+}
+
+const phase2AddressVestingContract = {
+  A: '0xde919Fe1e7FccCb29d4B7cBd6E803d8d25DCD2d8',
+  B: '0xbA04Fa014fF307a3E731b3898bC0633f9B559995',
+}
+
 export default function ElasticSnapshot() {
   const { account } = useActiveWeb3React()
 
@@ -128,12 +140,16 @@ export default function ElasticSnapshot() {
 
   const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
 
-  const userVestingData = useMemo(
-    () =>
-      vestingOptionA.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()) ||
-      vestingOptionB.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase()),
-    [account],
+  const vestingA = vestingOptionA.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase())
+  const vestingB = vestingOptionB.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase())
+
+  const vestingAPhase2 = vestingOptionAPhase2.find(
+    item => item.claimData.receiver.toLowerCase() === account?.toLowerCase(),
   )
+  const vestingBPhase2 = vestingOptionBPhase2.find(
+    item => item.claimData.receiver.toLowerCase() === account?.toLowerCase(),
+  )
+  const userHaveVestingData = !!(vestingA || vestingB || vestingAPhase2 || vestingBPhase2)
 
   const categories = ['category 1', 'category 2', 'category 3', 'category 4', 'category 5']
 
@@ -179,20 +195,19 @@ export default function ElasticSnapshot() {
     </Trans>,
   ]
 
-  const [tab, setTab] = useState<'snapshot' | 'vesting'>('snapshot')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tab = searchParams.get('tab') || 'snapshot'
+  const setTab = useCallback(
+    (t: string) => {
+      searchParams.set('tab', t)
+      setSearchParams(searchParams)
+    },
+    [searchParams, setSearchParams],
+  )
 
   useEffect(() => {
-    if (!userVestingData) setTab('snapshot')
-  }, [account, userVestingData])
-
-  const { data: userSelectedData, error } = useGetUserSelectedOptionQuery(account || '', {
-    skip: !account,
-  })
-
-  const userSelectedOption = useMemo(
-    () => (error ? '' : userSelectedData?.data.option?.toUpperCase()),
-    [error, userSelectedData],
-  )
+    if (!userHaveVestingData) setTab('snapshot')
+  }, [account, userHaveVestingData, setTab])
 
   return (
     <PoolsPageWrapper>
@@ -215,7 +230,7 @@ export default function ElasticSnapshot() {
               <Trans>Snapshot</Trans>
             </Text>
 
-            {userVestingData && (
+            {userHaveVestingData && (
               <>
                 <Text fontSize={24} color={theme.subText}>
                   |
@@ -324,7 +339,7 @@ export default function ElasticSnapshot() {
 
       {tab === 'snapshot' ? (
         <>
-          {userInfo && <TreasuryGrantAndInstantClaim />}
+          {userInfo && <TreasuryGrantAndInstantClaim userHaveVestingData={userHaveVestingData} />}
 
           <Flex flexDirection="column" marginTop="1.5rem" marginX={upToSmall ? '-1rem' : 0}>
             <Wrapper>
@@ -519,7 +534,32 @@ export default function ElasticSnapshot() {
           </Flex>
         </>
       ) : (
-        ['A', 'B'].includes(userSelectedOption) && <Vesting userSelectedOption={userSelectedOption as 'A' | 'B'} />
+        userHaveVestingData && (
+          <>
+            <Text fontSize={14} color={theme.subText} lineHeight="20px">
+              <Trans>
+                You can find the vesting details of each category of assets that were affected by the exploit below.
+              </Trans>
+            </Text>
+
+            {(vestingA || vestingB) && (
+              <Vesting
+                userSelectedOption={vestingA ? 'A' : 'B'}
+                userVestingData={(vestingA || vestingB) as VestingInterface}
+                contractAddress={vestingContractAddress[vestingA ? 'A' : 'B']}
+                tcLink="https://bafkreidnmptjtdvhzcuy4jiib34j5aapsuklhrryqptvfprnld7o6st42y.ipfs.w3s.link"
+              />
+            )}
+            {(vestingAPhase2 || vestingBPhase2) && (
+              <Vesting
+                userSelectedOption={vestingAPhase2 ? 'A' : 'B'}
+                userVestingData={(vestingAPhase2 || vestingBPhase2) as VestingInterface}
+                contractAddress={phase2AddressVestingContract[vestingAPhase2 ? 'A' : 'B']}
+                tcLink="https://bafkreieg7lvkcjcx3gczdqta2izunwovrn7rcjg6j24ixjftniiyopp5w4.ipfs.w3s.link"
+              />
+            )}
+          </>
+        )
       )}
     </PoolsPageWrapper>
   )

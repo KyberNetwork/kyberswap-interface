@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Archive, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -49,18 +50,9 @@ import {
   Upbit,
 } from 'components/ExchangeIcons'
 import { FooterSocialLink } from 'components/Footer/Footer'
-import {
-  Arbitrum,
-  Avalanche,
-  BestPrice,
-  Binance as BinanceIcon,
-  Bttc,
-  Ethereum,
-  OptimismLogo,
-  Polygon,
-} from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks/index'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, StyledInternalLink } from 'theme'
@@ -177,28 +169,6 @@ function AboutKNC() {
     </ForLiquidityProviderItem>
   )
 
-  const LiquidityIncentitives = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-      minHeight="360px"
-    >
-      <BestPrice size={64} />
-      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-        <Trans>LIQUIDITY INCENTIVES</Trans>
-      </Text>
-
-      <Text color={theme.text} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-        <Trans>
-          KyberDAO can propose various KNC incentives like liquidity mining rewards on KyberSwap on top of standard
-          trading fees to provide more value to liquidity providers.
-        </Trans>
-      </Text>
-    </ForLiquidityProviderItem>
-  )
-
   return (
     <div
       style={{
@@ -228,19 +198,29 @@ function AboutKNC() {
           >
             <Trans>
               KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap -
-              the multi-chain decentralized exchange (DEX) protocol that provides superior rates for traders and
-              maximizes earnings for liquidity providers.
+              the multi-chain decentralized exchange (DEX) protocol that provides superior rates for traders.{' '}
             </Trans>
           </Text>
 
           <SupportedChain>
-            <Ethereum />
-            <Polygon />
-            <BinanceIcon />
-            <Avalanche />
-            <Bttc />
-            <Arbitrum />
-            <OptimismLogo />
+            {[
+              ChainId.MAINNET,
+              ChainId.MATIC,
+              ChainId.BSCMAINNET,
+              ChainId.AVAXMAINNET,
+              ChainId.BTTC,
+              ChainId.ARBITRUM,
+              ChainId.OPTIMISM,
+              ChainId.LINEA,
+              ChainId.SCROLL,
+            ].map(item => (
+              <img
+                src={NETWORKS_INFO[item].icon}
+                width="36px"
+                alt={NETWORKS_INFO[item].name}
+                key={NETWORKS_INFO[item].name}
+              />
+            ))}
           </SupportedChain>
 
           <Text
@@ -271,13 +251,11 @@ function AboutKNC() {
             <Flex sx={{ gap: '24px' }} marginTop={['40px', '48px']} flexDirection="row">
               <ParticipationRewards width="392px" />
               <DynamicTokenModel width="392px" />
-              <LiquidityIncentitives width="392px" />
             </Flex>
           ) : (
             <GridWrapper>
               <ParticipationRewards />
               <DynamicTokenModel />
-              <LiquidityIncentitives />
             </GridWrapper>
           )}
 

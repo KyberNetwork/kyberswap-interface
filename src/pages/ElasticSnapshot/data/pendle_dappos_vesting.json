@@ -2601,8 +2601,8 @@
   },
   {
     "receiver": "0xdf2f03adccd26e8123fc27a1b22b0a846dd2a469",
-    "vestingAmount": null,
-    "value": null
+    "vestingAmount": 100603122486,
+    "value": 100603.12248664896
   },
   {
     "receiver": "0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d",

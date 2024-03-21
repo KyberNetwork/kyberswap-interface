@@ -52,11 +52,6 @@ const PoolFinder = lazy(() => import('./PoolFinder'))
 const ElasticRemoveLiquidity = lazy(() => import('pages/RemoveLiquidityProAmm'))
 const RedirectCreatePool = lazy(() => import('pages/CreatePool/RedirectCreatePool'))
 
-// const RedirectElasticCreatePool = lazy(() => import('pages/AddLiquidityV2/RedirectElasticCreatePool'))
-
-const AddLiquidity = lazy(() => import('pages/AddLiquidity'))
-// const ElasticIncreaseLiquidity = lazy(() => import('pages/IncreaseLiquidity'))
-
 const RemoveLiquidity = lazy(() => import('pages/RemoveLiquidity'))
 
 const KyberDAOStakeKNC = lazy(() => import('pages/KyberDAO/StakeKNC'))
@@ -163,10 +158,12 @@ const RoutesWithNetworkPrefix = () => {
             path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?`}
             element={<RedirectCreatePool />}
           />
+          {/*
           <Route
             path={`${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB?/:pairAddress?`}
             element={<AddLiquidity />}
           />
+          */}
           <Route
             path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
             element={<RemoveLiquidity />}

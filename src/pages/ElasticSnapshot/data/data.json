@@ -87440,16 +87440,16 @@
     },
     {
         "user_address": "0xdf2f03adccd26e8123fc27a1b22b0a846dd2a469",
-        "total_usd": 1047420.72,
-        "total_liquidity_usd": 1047415.14,
-        "total_fee_usd": 5.58,
+        "total_usd": 1002785.18,
+        "total_liquidity_usd": 1002779.73,
+        "total_fee_usd": 5.45,
         "option": "a",
         "positions": [
             {
                 "position_id": 7484,
-                "position_usd": 1047420.72,
-                "liquidity_usd": 1047415.14,
-                "fee_usd": 5.58,
+                "position_usd": 1002785.18,
+                "liquidity_usd": 1002779.73,
+                "fee_usd": 5.45,
                 "info": {
                     "pool": "0x30ec378b28b600a1bad3cda393633d86ca17b5b4",
                     "chain": "polygon",

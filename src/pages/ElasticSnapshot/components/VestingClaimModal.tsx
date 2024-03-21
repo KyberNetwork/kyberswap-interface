@@ -23,10 +23,6 @@ import { friendlyError } from 'utils/errorMessage'
 import VestingAbi from '../data/abis/vestingAbi.json'
 
 const ContractInterface = new Interface(VestingAbi)
-export const vestingContractAddress = {
-  A: '0x04F57dE350E76ec952b6B4d1283Ba800ab3c95e3',
-  B: '0xF3E4C1f21a1218Ae8e48569c94275ABd605563fD',
-}
 
 export default function VestingClaimModal({
   onDismiss,
@@ -34,14 +30,16 @@ export default function VestingClaimModal({
   proof,
   tokenAmount,
   vestingAmount,
-  option,
+  contractAddress,
+  tcLink,
 }: {
   leafIndex: number
   onDismiss: () => void
   proof: string[]
   tokenAmount: number
   vestingAmount: number
-  option: 'A' | 'B'
+  contractAddress: string
+  tcLink: string
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
@@ -108,12 +106,11 @@ export default function VestingClaimModal({
             name: 'Kyberswap Linear Vesting Grant',
             version: '1',
             chainId: ChainId.MATIC,
-            verifyingContract: vestingContractAddress[option],
+            verifyingContract: contractAddress,
           },
           message: {
             leafIndex,
-            termsAndConditions:
-              'By confirming this transaction, I agree to the Terms and Conditions of KyberSwap Treasury Grant Program which can be found at this link https://bafkreidnmptjtdvhzcuy4jiib34j5aapsuklhrryqptvfprnld7o6st42y.ipfs.w3s.link',
+            termsAndConditions: `By confirming this transaction, I agree to the Terms and Conditions of KyberSwap Treasury Grant Program which can be found at this link ${tcLink}`,
           },
         }),
       ])
@@ -131,7 +128,7 @@ export default function VestingClaimModal({
         library
           ?.getSigner()
           .sendTransaction({
-            to: vestingContractAddress[option],
+            to: contractAddress,
             data: encodedData,
           })
           .then(tx => {
@@ -161,7 +158,18 @@ export default function VestingClaimModal({
           type: NotificationType.ERROR,
         })
       })
-  }, [option, account, library, notify, addTransactionWithType, onDismiss, leafIndex, proof, vestingAmount])
+  }, [
+    account,
+    library,
+    notify,
+    addTransactionWithType,
+    onDismiss,
+    leafIndex,
+    proof,
+    vestingAmount,
+    contractAddress,
+    tcLink,
+  ])
 
   useEffect(() => {
     if (autoSign && chainId === ChainId.MATIC) {
@@ -222,11 +230,8 @@ export default function VestingClaimModal({
 
         <Text color={theme.subText} fontSize={14} marginTop="24px">
           Make sure you have read and understand the{' '}
-          <ExternalLink href="https://bafkreidnmptjtdvhzcuy4jiib34j5aapsuklhrryqptvfprnld7o6st42y.ipfs.w3s.link/">
-            KyberSwap’s Terms and Conditions
-          </ExternalLink>{' '}
-          before proceeding. You will need to Sign a message to confirm that you have read and accepted before claiming
-          your assets.
+          <ExternalLink href={tcLink}>KyberSwap’s Terms and Conditions</ExternalLink> before proceeding. You will need
+          to Sign a message to confirm that you have read and accepted before claiming your assets.
         </Text>
 
         <TermAndCondition
@@ -240,10 +245,7 @@ export default function VestingClaimModal({
             style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
           />
           <Text>
-            Accept{' '}
-            <ExternalLink href="https://bafkreidnmptjtdvhzcuy4jiib34j5aapsuklhrryqptvfprnld7o6st42y.ipfs.w3s.link/">
-              KyberSwap’s Terms and Conditions
-            </ExternalLink>
+            Accept <ExternalLink href={tcLink}>KyberSwap’s Terms and Conditions</ExternalLink>
           </Text>
         </TermAndCondition>
         <Flex marginTop="24px" sx={{ gap: '1rem' }}>

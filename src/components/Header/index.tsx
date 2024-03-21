@@ -8,20 +8,16 @@ import styled from 'styled-components'
 import Announcement from 'components/Announcement'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
-import SignWallet from 'components/Header/web3/SignWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
-import { APP_PATHS } from 'constants/index'
-import { THRESHOLD_HEADER, Z_INDEXS } from 'constants/styles'
+import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
+import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import AboutNavGroup from './groups/AboutNavGroup'
-import AnalyticNavGroup from './groups/AnalyticNavGroup'
-import EarnNavGroup from './groups/EarnNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
 import { StyledNavExternalLink } from './styleds'
@@ -142,12 +138,6 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
   `}
 `
 
-const BlogWrapper = styled.span`
-  @media (max-width: ${THRESHOLD_HEADER.BLOG}) {
-    display: none;
-  }
-`
-
 const Title = styled(Link)`
   display: flex;
   align-items: center;
@@ -183,7 +173,6 @@ export default function Header() {
   const { pathname } = useLocation()
   const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
 
-  const { mixpanelHandler } = useMixpanel()
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
@@ -218,21 +207,11 @@ export default function Header() {
         {!isPartnerSwap && (
           <HeaderLinks>
             <SwapNavGroup />
-            <EarnNavGroup />
             <KyberDAONavGroup />
-            <AnalyticNavGroup />
+            <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
+              <Trans>Analytics</Trans>
+            </StyledNavExternalLink>
             <AboutNavGroup />
-            <BlogWrapper>
-              <StyledNavExternalLink
-                onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.BLOG_MENU_CLICKED)
-                }}
-                target="_blank"
-                href="https://blog.kyberswap.com"
-              >
-                <Trans>Blog</Trans>
-              </StyledNavExternalLink>
-            </BlogWrapper>
           </HeaderLinks>
         )}
       </HeaderRow>
@@ -256,7 +235,6 @@ export default function Header() {
             <SelectNetwork />
             <SelectWallet />
             {menu}
-            <SignWallet />
           </HeaderElement>
         ) : (
           <>
@@ -264,10 +242,7 @@ export default function Header() {
               <SelectNetwork />
               <SelectWallet />
             </HeaderElement>
-            <HeaderElement style={{ justifyContent: 'flex-end' }}>
-              {menu}
-              <SignWallet />
-            </HeaderElement>
+            <HeaderElement style={{ justifyContent: 'flex-end' }}>{menu}</HeaderElement>
           </>
         )}
       </HeaderControls>

@@ -24,7 +24,6 @@ import { Dots } from 'pages/MyPool/styleds'
 import { usePairAdderByTokens } from 'state/user/hooks'
 import { useTokenBalances } from 'state/wallet/hooks'
 import { StyledInternalLink } from 'theme'
-import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 enum Fields {
@@ -160,15 +159,6 @@ export default function PoolFinder() {
             </Text>
           )}
         </ButtonDropdownLight>
-        <StyledInternalLink
-          to={`${APP_PATHS.POOLS}/${networkInfo.route}/${!!currency0 ? currencyId(currency0, chainId) : undefined}/${
-            !!currency1 ? currencyId(currency1, chainId) : undefined
-          }?tab=classic`}
-        >
-          <Text textAlign="center">
-            <Trans>Add liquidity</Trans>
-          </Text>
-        </StyledInternalLink>
         {pairs.filter(([pairState]) => pairState === PairState.LOADING).length > 0 && (
           <LightCard padding="45px 10px">
             <AutoColumn gap="sm" justify="center">
