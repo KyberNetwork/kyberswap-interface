@@ -8,7 +8,6 @@ import styled from 'styled-components'
 import Announcement from 'components/Announcement'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
-import SignWallet from 'components/Header/web3/SignWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
@@ -236,7 +235,6 @@ export default function Header() {
             <SelectNetwork />
             <SelectWallet />
             {menu}
-            <SignWallet />
           </HeaderElement>
         ) : (
           <>
@@ -244,10 +242,7 @@ export default function Header() {
               <SelectNetwork />
               <SelectWallet />
             </HeaderElement>
-            <HeaderElement style={{ justifyContent: 'flex-end' }}>
-              {menu}
-              <SignWallet />
-            </HeaderElement>
+            <HeaderElement style={{ justifyContent: 'flex-end' }}>{menu}</HeaderElement>
           </>
         )}
       </HeaderControls>

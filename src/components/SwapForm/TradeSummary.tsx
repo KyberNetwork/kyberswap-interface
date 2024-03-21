@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
 import { NavLink, useSearchParams } from 'react-router-dom'
@@ -226,7 +227,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
                 <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                  <Trans>Est. Gas Fee</Trans>
+                  {chainId === ChainId.SCROLL ? <Trans>Est. L2 Gas Fee</Trans> : <Trans>Est. Gas Fee</Trans>}
                 </MouseoverTooltip>
               </TextDashed>
             </RowFixed>
