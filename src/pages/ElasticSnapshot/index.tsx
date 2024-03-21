@@ -1,8 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Info } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -194,11 +195,19 @@ export default function ElasticSnapshot() {
     </Trans>,
   ]
 
-  const [tab, setTab] = useState<'snapshot' | 'vesting'>('snapshot')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tab = searchParams.get('tab') || 'snapshot'
+  const setTab = useCallback(
+    (t: string) => {
+      searchParams.set('tab', t)
+      setSearchParams(searchParams)
+    },
+    [searchParams, setSearchParams],
+  )
 
   useEffect(() => {
     if (!userHaveVestingData) setTab('snapshot')
-  }, [account, userHaveVestingData])
+  }, [account, userHaveVestingData, setTab])
 
   return (
     <PoolsPageWrapper>
@@ -330,7 +339,7 @@ export default function ElasticSnapshot() {
 
       {tab === 'snapshot' ? (
         <>
-          {userInfo && <TreasuryGrantAndInstantClaim />}
+          {userInfo && <TreasuryGrantAndInstantClaim userHaveVestingData={userHaveVestingData} />}
 
           <Flex flexDirection="column" marginTop="1.5rem" marginX={upToSmall ? '-1rem' : 0}>
             <Wrapper>

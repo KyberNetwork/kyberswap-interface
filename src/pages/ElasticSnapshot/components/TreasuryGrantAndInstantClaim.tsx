@@ -16,10 +16,10 @@ const Wrapper = styled.div`
   `}
 `
 
-export default function TreasuryGrantAndInstantClaim() {
+export default function TreasuryGrantAndInstantClaim({ userHaveVestingData }: { userHaveVestingData: boolean }) {
   return (
     <Wrapper>
-      <SelectTreasuryGrant />
+      <SelectTreasuryGrant userHaveVestingData={userHaveVestingData} />
       <InstantClaim />
     </Wrapper>
   )

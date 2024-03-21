@@ -4,6 +4,7 @@ import { type Provider, ZkMeWidget, verifyKYCWithZkMeServices } from '@zkmelabs/
 import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
 import { Check, Info } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import {
@@ -60,7 +61,7 @@ const MANUAL_KYCS = [
   '0x4526B09df42775975a543e0E984172Ab202b4Ff8',
 ]
 
-export default function SelectTreasuryGrant() {
+export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveVestingData: boolean }) {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const [showOptionModal, setShowOptionsModal] = useState(false)
@@ -188,6 +189,7 @@ export default function SelectTreasuryGrant() {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const [showTermModal, setShowTermModal] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
 
   return (
     <>
@@ -216,7 +218,7 @@ export default function SelectTreasuryGrant() {
           <Text fontSize={14} lineHeight="20px">
             For anyone who missed the{' '}
             <Text color="#58B5EE" as="span">
-              January 31st
+              March 13
             </Text>{' '}
             Treasury Grant program registration deadline, you will still be able to complete registration steps.
             However, if eligible, your grant will be processed at a later time. We will announce the Grant processing
@@ -394,9 +396,29 @@ export default function SelectTreasuryGrant() {
           >
             <Text fontSize={14} flex={1} lineHeight="20px" color={userSelectedOption ? theme.subText : theme.text}>
               {userSelectedOption ? (
-                <Text>
-                  You have selected option {userSelectedOption}. The UI for claiming tokens will be enabled on{' '}
-                  {totalPhase2Value ? 'March 20, 2024.' : 'February 6th, 2024.'}
+                <Text display="flex" sx={{ gap: '4px' }}>
+                  You have selected option {userSelectedOption}.{' '}
+                  {userHaveVestingData ? (
+                    <Text>
+                      Please go to{' '}
+                      <Text
+                        as="span"
+                        color={theme.primary}
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          searchParams.set('tab', 'vesting')
+                          setSearchParams(searchParams)
+                        }}
+                      >
+                        Vesting
+                      </Text>{' '}
+                      tab to claim tokens{' '}
+                    </Text>
+                  ) : (
+                    `The UI for claiming tokens will be enabled on ${
+                      totalPhase2Value ? 'March 20, 2024.' : 'February 6th, 2024.'
+                    }`
+                  )}
                 </Text>
               ) : (
                 <Trans>
