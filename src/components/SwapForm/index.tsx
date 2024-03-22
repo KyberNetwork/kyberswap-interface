@@ -220,7 +220,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               </Flex>
 
               <Flex sx={{ gap: '12px' }}>
-                {!isPartnerSwap && chainId !== ChainId.BLAST && (
+                {!isPartnerSwap && ![ChainId.BLAST, ChainId.MANTLE].includes(chainId) && (
                   <PriceAlertButton
                     onClick={() =>
                       navigate(

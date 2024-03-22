@@ -17,7 +17,7 @@ const mantle: NetworkInfo = {
   iconSelected: NOT_SUPPORT,
 
   defaultBlockSubgraph: '',
-  etherscanUrl: '',
+  etherscanUrl: 'https://explorer.mantle.xyz',
   etherscanName: 'Mantle scan',
   bridgeURL: 'https://bridge.mantle.xyz',
   nativeToken: {
@@ -25,9 +25,9 @@ const mantle: NetworkInfo = {
     name: 'MNT',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 2 * 10 ** 17,
   },
-  defaultRpcUrl: '',
+  defaultRpcUrl: 'https://rpc.ankr.com/mantle',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
@@ -63,10 +63,10 @@ const mantle: NetworkInfo = {
       helper: '0x214061F0e250A27a49f609d9caf2987a7bC8fA6B',
     },
   },
-  limitOrder: NOT_SUPPORT,
+  limitOrder: '*',
   averageBlockTimeInSeconds: 2.0, // dont use for base
-  coingeckoNetworkId: 'blast',
-  coingeckoNativeTokenId: 'ethereum',
+  coingeckoNetworkId: 'mantle',
+  coingeckoNativeTokenId: 'mnt',
   deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
