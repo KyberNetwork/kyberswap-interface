@@ -47,7 +47,14 @@ function ClassicElasticTab() {
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const dontShowLegacy = [ChainId.ZKEVM, ChainId.BASE, ChainId.LINEA, ChainId.SCROLL, ChainId.BLAST].includes(chainId)
+  const dontShowLegacy = [
+    ChainId.ZKEVM,
+    ChainId.BASE,
+    ChainId.LINEA,
+    ChainId.SCROLL,
+    ChainId.BLAST,
+    ChainId.MANTLE,
+  ].includes(chainId)
 
   const showLegacyExplicit =
     upToMedium || dontShowLegacy ? false : isFarmPage ? shouldShowFarmTab : shouldShowPositionTab

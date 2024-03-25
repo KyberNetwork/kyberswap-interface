@@ -6,10 +6,12 @@ import { Box, Flex, Text } from 'rebass'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { GAS_TOKENS, NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { usePaymentToken } from 'state/user/hooks'
 import { useCurrencyBalances, useNativeBalance } from 'state/wallet/hooks'
+import { ExternalLink } from 'theme'
 
 export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
   const theme = useTheme()
@@ -80,9 +82,22 @@ export default function GasTokenSetting({ onBack }: { onBack: () => void }) {
           />
         </svg>
 
-        <Text fontSize={14} fontWeight="500">
-          Paymaster
-        </Text>
+        <TextDashed fontSize={14} fontWeight="500" lineHeight="20px">
+          <MouseoverTooltip
+            text={
+              <Text>
+                <Trans>
+                  The PayMaster module & contracts are developed and operated by HoldStations,{' '}
+                  <ExternalLink href="https://docs.kyberswap.com/reference/third-party-integrations#what-is-paymaster">
+                    details
+                  </ExternalLink>
+                </Trans>
+              </Text>
+            }
+          >
+            Paymaster
+          </MouseoverTooltip>
+        </TextDashed>
       </Flex>
       <Text fontSize={14} color={theme.subText} marginTop="4px" marginBottom="1rem">
         <Trans>Pay network fees in the token of your choice.</Trans>

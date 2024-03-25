@@ -26,6 +26,7 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.BASE]: [WETH[ChainId.BASE]],
   [ChainId.SCROLL]: [WETH[ChainId.SCROLL]],
   [ChainId.BLAST]: [WETH[ChainId.BLAST]],
+  [ChainId.MANTLE]: [WETH[ChainId.MANTLE]],
 }
 
 // used to construct intermediary pairs for trading

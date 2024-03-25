@@ -432,6 +432,8 @@ function AboutKyberSwap() {
               />
 
               <img src="https://blastscan.io/images/logo-ether.svg?v=0.1.0" alt="Blast" width="100%" />
+
+              <img src="https://www.mantle.xyz/logo-lockup.svg" alt="mantle" width="100%" />
             </Powered>
           </Text>
         </Wrapper>
