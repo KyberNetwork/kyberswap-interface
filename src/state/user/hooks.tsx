@@ -370,8 +370,11 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
 }
 
 export function useShowLiveChart(): boolean {
-  const showLiveChart = useSelector((state: AppState) => state.user.showLiveChart)
-  return typeof showLiveChart !== 'boolean' || showLiveChart
+  // const showLiveChart = useSelector((state: AppState) => state.user.showLiveChart)
+  // return typeof showLiveChart !== 'boolean' || showLiveChart
+
+  // TODO: HARD CODE to remove live chart
+  return false
 }
 
 export function useShowTradeRoutes(): boolean {

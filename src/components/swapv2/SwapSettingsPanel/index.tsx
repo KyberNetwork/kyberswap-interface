@@ -80,6 +80,8 @@ const SettingsPanel: React.FC<Props> = ({
   useOnClickOutside([containerRef, swapActionsRef], () => !showConfirmation && onBack())
 
   const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
+  // TODO: Hardcode to hide live chart
+  const showLiveChartSetting = !isPartnerSwap && 1 + 1 > 2
 
   return (
     <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT} ref={containerRef}>
@@ -132,7 +134,7 @@ const SettingsPanel: React.FC<Props> = ({
               <Trans>Display Settings</Trans>
             </Text>
             <AutoColumn gap="md">
-              {!isPartnerSwap && (
+              {showLiveChartSetting && (
                 <RowBetween>
                   <RowFixed>
                     <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
