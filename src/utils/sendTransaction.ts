@@ -12,6 +12,8 @@ import { ErrorName, TransactionError } from './sentry'
 const projectName = 'KyberSwap'
 const partnerCode = ethers.utils.formatBytes32String(projectName)
 
+const CUSTOM_PAYMASTER_ADDRESS = '0x069246dFEcb95A6409180b52C071003537B23c27'
+
 export const paymasterExecute = (
   paymentToken: string,
   populateTransaction: ethers.PopulatedTransaction,
@@ -23,6 +25,7 @@ export const paymasterExecute = (
     // signer: library.getSigner(),
     paymentToken,
     innerInput: partnerCode,
+    paymasterAddress: CUSTOM_PAYMASTER_ADDRESS,
     defaultGasLimit: gasLimit,
   })
 }
