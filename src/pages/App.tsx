@@ -43,14 +43,12 @@ const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV3 = lazy(() => import('./SwapV3'))
 const PartnerSwap = lazy(() => import('./PartnerSwap'))
 // const Bridge = lazy(() => import('./Bridge'))
-const Pools = lazy(() => import('./Pools'))
 const MyPool = lazy(() => import('./MyPool'))
 
 const Farm = lazy(() => import('./Farm'))
 
 const PoolFinder = lazy(() => import('./PoolFinder'))
 const ElasticRemoveLiquidity = lazy(() => import('pages/RemoveLiquidityProAmm'))
-const RedirectCreatePool = lazy(() => import('pages/CreatePool/RedirectCreatePool'))
 
 const RemoveLiquidity = lazy(() => import('pages/RemoveLiquidity'))
 
@@ -154,16 +152,6 @@ const RoutesWithNetworkPrefix = () => {
     <Routes>
       {!CLASSIC_NOT_SUPPORTED()[chainId] && (
         <>
-          <Route
-            path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?`}
-            element={<RedirectCreatePool />}
-          />
-          {/*
-          <Route
-            path={`${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB?/:pairAddress?`}
-            element={<AddLiquidity />}
-          />
-          */}
           <Route
             path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
             element={<RemoveLiquidity />}
@@ -272,12 +260,6 @@ export default function App() {
 
                 <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
                 <>
-                  {/* Pools Routes  */}
-                  <Route path={`${APP_PATHS.POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                  <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA?/:currencyIdB?`} element={<Pools />} />
-                </>
-
-                <>
                   {/* Farms Routes */}
                   <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
                   <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
@@ -298,8 +280,6 @@ export default function App() {
 
                   <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
 
-                  <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
-                  <Route path={`${APP_PATHS.CLASSIC_ADD_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
                   <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
                 </>
 
