@@ -7,14 +7,13 @@ import {
   cronosTokens,
   arbitrumTokens,
   bttcTokens,
-  velasTokens,
-  auroraTokens,
-  oasisTokens,
   optimismTokens,
   lineaTokens,
   zkSyncTokens,
   zkEvmTokens,
   baseTokens,
+  blastTokens,
+  mantleTokens,
 } from './tokens'
 
 export enum ZIndex {
@@ -98,28 +97,20 @@ export const NATIVE_TOKEN: {
     chainId: 199,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/16086.png',
   },
-  106: {
-    name: 'VLX',
-    symbol: 'VLX',
-    decimals: 18,
-    address: NATIVE_TOKEN_ADDRESS,
-    chainId: 106,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4747.png',
-  },
-  1313161554: eth(1313161554),
-  42262: {
-    name: 'ROSE',
-    symbol: 'ROSE',
-    decimals: 18,
-    address: NATIVE_TOKEN_ADDRESS,
-    chainId: 42262,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/7653.png',
-  },
   10: eth(10),
   59144: eth(59144),
   1101: eth(1101),
   324: eth(324),
   8453: eth(8453),
+  81457: eth(81457), // Blast
+  5000: {
+    name: 'MNT',
+    symbol: 'MNT',
+    decimals: 18,
+    address: NATIVE_TOKEN_ADDRESS,
+    chainId: 5000,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
+  },
 }
 
 export const WRAPPED_NATIVE_TOKEN: {
@@ -189,30 +180,6 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 199,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/16086.png',
   },
-  106: {
-    name: 'Wrapped VLX',
-    decimals: 18,
-    symbol: 'WVLX',
-    address: '0xc579D1f3CF86749E05CD06f7ADe17856c2CE3126',
-    chainId: 106,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4747.png',
-  },
-  1313161554: {
-    name: 'Wrapped ETH',
-    decimals: 18,
-    symbol: 'WETH',
-    address: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB',
-    chainId: 1313161554,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
-  },
-  42262: {
-    name: 'Wrapped ROSE',
-    decimals: 18,
-    symbol: 'WROSE',
-    address: '0x21C718C22D52d0F3a789b752D4c2fD5908a8A733',
-    chainId: 42262,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/7653.png',
-  },
   10: {
     name: 'Wrapped Ether',
     decimals: 18,
@@ -253,6 +220,22 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 8453,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
   },
+  81457: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x4300000000000000000000000000000000000004',
+    chainId: 81457,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+  5000: {
+    name: 'Wrapped MNT',
+    decimals: 18,
+    symbol: 'WMNT',
+    address: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
+    chainId: 5000,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
+  },
 }
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -268,14 +251,13 @@ export const DEFAULT_TOKENS: {
   25: cronosTokens,
   42161: arbitrumTokens,
   199: bttcTokens,
-  106: velasTokens,
-  1313161554: auroraTokens,
-  42262: oasisTokens,
   10: optimismTokens,
   59144: lineaTokens,
   1101: zkEvmTokens,
   324: zkSyncTokens,
   8453: baseTokens,
+  81457: blastTokens,
+  5000: mantleTokens,
 }
 
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
@@ -287,14 +269,13 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   25: '0x63Abb9973506189dC3741f61d25d4ed508151E6d',
   42161: '0x80C7DD17B01855a6D2347444a0FCC36136a314de',
   199: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
-  106: '0x1877Ec0770901cc6886FDA7E7525a78c2Ed4e975',
-  1313161554: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
-  42262: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   10: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   59144: '0xcA11bde05977b3631167028862bE2a173976CA11',
   1101: '0xcA11bde05977b3631167028862bE2a173976CA11',
   324: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
   8453: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  81457: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  5000: '0xcA11bde05977b3631167028862bE2a173976CA11',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
@@ -306,14 +287,13 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   25: 'cronos',
   42161: 'arbitrum',
   199: 'bttc',
-  106: 'velas',
-  1313161554: 'aurora',
-  42262: 'oasis',
   10: 'optimism',
   59144: 'linea',
   1101: 'polygon-zkevm',
   324: 'zksync',
   8453: 'base',
+  81457: 'blast',
+  5000: 'mantle',
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -325,14 +305,13 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   25: 'https://cronoscan.com',
   42161: 'https://arbiscan.io',
   199: 'https://bttcscan.com',
-  106: 'https://evmexplorer.velas.com',
-  1313161554: 'https://aurorascan.dev',
-  42262: 'https://www.oasisscan.com',
   10: 'https://optimistic.etherscan.io',
   59144: 'https://lineascan.build',
   1101: 'https://zkevm.polygonscan.com',
   324: 'https://explorer.zksync.io',
   8453: 'https://basescan.org',
+  81457: 'https://blastscan.io',
+  5000: 'https://explorer.mantle.xyz',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)
