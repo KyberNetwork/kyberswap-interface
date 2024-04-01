@@ -3751,7 +3751,7 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/oauth2@1.0.1":
+"@kyberswap/oauth2@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@kyberswap/oauth2/-/oauth2-1.0.2.tgz#4e0fdfa9722ba2f185a104293b85b6ca58be775b"
   integrity sha512-BX6CBSQ5lui4u6KQoaxi31h3cgNSEMdynQ6ie3Z/Dh43nfrSjMlO4uXvhWleBimYO9NRu5LNRe/25G+L72VPGw==
