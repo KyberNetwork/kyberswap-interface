@@ -274,12 +274,6 @@ export const VerticalDivider = styled.div`
   `}
 `
 
-export const CommittedToSecurityDivider = styled.div<{ height?: string }>`
-  width: 1px;
-  height: ${({ height }) => (height ? height : '80px')};
-  background: ${({ theme }) => theme.border};
-`
-
 export const AboutKNC = styled.div`
   margin-top: 160px;
   gap: 76px;

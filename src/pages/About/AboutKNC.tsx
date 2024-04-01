@@ -17,7 +17,6 @@ import TrophyIcon from 'assets/svg/trophy.svg'
 import Argent from 'assets/wallets/argent.svg'
 import ArgentLight from 'assets/wallets/argent_light.svg'
 import Coin98 from 'assets/wallets/coin98.svg'
-import Eidoo from 'assets/wallets/eidoo.svg'
 import Enjin from 'assets/wallets/enjin.svg'
 import KrystalWallet from 'assets/wallets/krystal.svg'
 import KrystalLight from 'assets/wallets/krystal_light.svg'
@@ -26,7 +25,6 @@ import LedgerLight from 'assets/wallets/ledger_light.svg'
 import Metamask from 'assets/wallets/metamask.svg'
 import MetamaskLight from 'assets/wallets/metamask_light.svg'
 import Mew from 'assets/wallets/mew.svg'
-import Torus from 'assets/wallets/torus.svg'
 import Trezor from 'assets/wallets/trezor.svg'
 import TrezorLight from 'assets/wallets/trezor_light.svg'
 import Trust from 'assets/wallets/trust.svg'
@@ -100,9 +98,16 @@ const LIST_WALLETS = [
   { logo: Mew, lightLogo: Mew },
   { logo: Trust, lightLogo: TrustLight },
   { logo: Enjin, lightLogo: Enjin },
-  { logo: Torus, lightLogo: Torus },
   { logo: Argent, lightLogo: ArgentLight },
-  { logo: Eidoo, lightLogo: Eidoo },
+  { logo: 'https://rabby.io/assets/images/logo-white.svg', lightLogo: 'https://rabby.io/assets/images/logo-white.svg' },
+  {
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Coinbase.svg/1024px-Coinbase.svg.png',
+    lightLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Coinbase.svg/1024px-Coinbase.svg.png',
+  },
+  {
+    logo: 'https://www.cloudwards.net/wp-content/uploads/2023/05/OKX-logo.png',
+    lightLogo: 'https://www.cloudwards.net/wp-content/uploads/2023/05/OKX-logo.png',
+  },
 ]
 
 function AboutKNC() {
@@ -198,7 +203,7 @@ function AboutKNC() {
           >
             <Trans>
               KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap -
-              the multi-chain decentralized exchange (DEX) protocol that provides superior rates for traders.{' '}
+              the multi-chain decentralized exchange (DEX) that provides superior rates for traders.{' '}
             </Trans>
           </Text>
 
@@ -377,7 +382,7 @@ function AboutKNC() {
           {above768 ? (
             <Exchange>
               {LIST_WALLETS.map(wallet => (
-                <img key={wallet.logo} src={wallet.logo} alt={wallet.logo} style={{ margin: 'auto' }} />
+                <img key={wallet.logo} src={wallet.logo} alt={wallet.logo} style={{ margin: 'auto' }} width="100%" />
               ))}
             </Exchange>
           ) : (

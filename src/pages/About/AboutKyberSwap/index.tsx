@@ -11,15 +11,10 @@ import BTTCDark from 'assets/images/btt-logo-dark.svg'
 import KNCGraphic from 'assets/images/knc-graphic.png'
 import AboutAvalanche from 'assets/svg/about_icon_avalanche.svg'
 import BSC from 'assets/svg/about_icon_bsc.svg'
-import BugBounty from 'assets/svg/about_icon_bug_bounty.svg'
-import EthereumDark from 'assets/svg/about_icon_ethereum.png'
-import githubImg from 'assets/svg/about_icon_github.png'
 import KyberDark from 'assets/svg/about_icon_kyber.svg'
-import ChainSecurity from 'assets/svg/chainsecurity.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
 import { ReactComponent as KNCSVG } from 'assets/svg/knc_black.svg'
 import Banner from 'components/Banner'
-import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import {
   BestPrice,
@@ -46,7 +41,6 @@ import {
   AboutKNC,
   AboutPage,
   BtnPrimary,
-  CommittedToSecurityDivider,
   Footer,
   FooterContainer,
   ForTrader,
@@ -233,8 +227,8 @@ function AboutKyberSwap() {
                 textAlign="justify"
               >
                 <Trans>
-                  With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including
-                  KyberSwap) and identify superior trade routes for you.
+                  With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs and identify
+                  superior trade routes for you.
                 </Trans>
               </Text>
 
@@ -297,68 +291,6 @@ function AboutKyberSwap() {
             )}
           </ForTrader>
 
-          <Text as="h2" marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
-            <Trans>Committed to Security</Trans>
-          </Text>
-
-          <Flex
-            marginTop="40px"
-            sx={{ gap: above992 ? '24px' : '0' }}
-            flexDirection={above992 ? 'row' : 'column'}
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Flex
-              flex={1}
-              sx={{ gap: above992 ? '24px' : '10px' }}
-              alignItems="center"
-              justifyContent="center"
-              width="100%"
-            >
-              <div style={{ flex: 1, textAlign: 'center' }}>
-                <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '21px' : '14px'}>
-                  <Trans>Code Audited</Trans>
-                </Text>
-
-                <ButtonEmpty padding="0">
-                  <ExternalLink href="https://chainsecurity.com/security-audit/kyberswap-elastic">
-                    <img src={ChainSecurity} alt="security" width={above992 ? '197px' : '140px'} />
-                  </ExternalLink>
-                </ButtonEmpty>
-              </div>
-            </Flex>
-
-            {above992 ? <CommittedToSecurityDivider /> : <div />}
-
-            <Flex
-              flex={2}
-              sx={{ gap: above992 ? '24px' : '10px' }}
-              alignItems="center"
-              justifyContent="center"
-              width="100%"
-              marginTop={above992 ? '0' : '16px'}
-            >
-              <div style={{ flex: 1, textAlign: 'center' }}>
-                <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '16px' : '12px'}>
-                  <Trans>On-chain & Open Source</Trans>
-                </Text>
-                <ButtonEmpty padding="0">
-                  <ExternalLink href="https://github.com/KyberNetwork">
-                    <img src={githubImg} alt="github" width="125px" />
-                  </ExternalLink>
-                </ButtonEmpty>
-              </div>
-              <CommittedToSecurityDivider height={!above992 ? '90px' : undefined} />
-
-              <div style={{ flex: 1, textAlign: 'center' }}>
-                <Text color={theme.subText} textAlign="center" marginBottom="16px">
-                  <Trans>Bug Bounty</Trans>
-                </Text>
-                <img src={BugBounty} alt="bugbounty" width={above992 ? '186px' : '140px'} />
-              </div>
-            </Flex>
-          </Flex>
-
           <AboutKNC>
             <img height="400px" src={KNCGraphic} alt="KNCGraphic" style={{ display: above768 ? 'block' : 'none' }} />
             <Flex width="100%" alignSelf="center" flexDirection="column" height="max-content">
@@ -402,7 +334,7 @@ function AboutKyberSwap() {
 
             <Powered>
               <img src={KyberDark} alt="kyber_icon" width="100%" />
-              <img src={EthereumDark} alt="ethereum_icon" width="100%" />
+              <img src="https://i.imgur.com/1l1KyxF.png" alt="ethereum_icon" width="100%" />
               <img src={BSC} alt="bsc_icon" width="100%" />
               <PolygonLogoFull />
               <img src={AboutAvalanche} alt="avalanche_icon" width="100%" />
@@ -431,7 +363,7 @@ function AboutKyberSwap() {
                 width="100%"
               />
 
-              <img src="https://blastscan.io/images/logo-ether.svg?v=0.1.0" alt="Blast" width="100%" />
+              <img src="https://i.imgur.com/kG2lDVA.png" alt="Blast" width="100%" />
 
               <img src="https://www.mantle.xyz/logo-lockup.svg" alt="mantle" width="100%" />
             </Powered>
