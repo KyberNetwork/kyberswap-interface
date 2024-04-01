@@ -1,4 +1,4 @@
-import KyberOauth2, { AnonymousAccount, LoginMethod } from '@kybernetwork/oauth2'
+import KyberOauth2, { AnonymousAccount, LoginMethod } from '@kyberswap/oauth2'
 import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { useCallback, useEffect, useRef } from 'react'

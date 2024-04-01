@@ -1,4 +1,4 @@
-import { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
+import { LoginFlow, LoginMethod } from '@kyberswap/oauth2'
 import React, { Fragment, useMemo } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'

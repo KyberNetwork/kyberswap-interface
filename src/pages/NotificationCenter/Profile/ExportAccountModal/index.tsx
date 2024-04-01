@@ -1,4 +1,4 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
+import KyberOauth2 from '@kyberswap/oauth2'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'

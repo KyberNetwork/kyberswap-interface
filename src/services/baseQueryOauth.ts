@@ -1,4 +1,4 @@
-import { KyberOauth2Api } from '@kybernetwork/oauth2'
+import { KyberOauth2Api } from '@kyberswap/oauth2'
 import { FetchBaseQueryArgs } from '@reduxjs/toolkit/dist/query/fetchBaseQuery'
 import { BaseQueryFn, fetchBaseQuery } from '@reduxjs/toolkit/query'
 import axios from 'axios'

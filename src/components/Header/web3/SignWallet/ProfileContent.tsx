@@ -1,4 +1,4 @@
-import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
+import KyberOauth2, { LoginMethod } from '@kyberswap/oauth2'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'

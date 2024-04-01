@@ -1,4 +1,4 @@
-import { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
+import { LoginFlow, LoginMethod } from '@kyberswap/oauth2'
 
 import { isInEnum, queryStringToObject } from 'utils/string'
 

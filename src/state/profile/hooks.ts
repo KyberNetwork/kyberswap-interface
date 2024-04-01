@@ -1,4 +1,4 @@
-import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
+import KyberOauth2, { LoginMethod } from '@kyberswap/oauth2'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'

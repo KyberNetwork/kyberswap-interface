@@ -1,4 +1,4 @@
-import { LoginMethod } from '@kybernetwork/oauth2'
+import { LoginMethod } from '@kyberswap/oauth2'
 import { useEffect, useRef } from 'react'
 
 import { useActiveWeb3React } from 'hooks'

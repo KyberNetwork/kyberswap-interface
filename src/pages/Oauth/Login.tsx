@@ -1,4 +1,4 @@
-import KyberOauth2, { LoginFlow, LoginMethod } from '@kybernetwork/oauth2'
+import KyberOauth2, { LoginFlow, LoginMethod } from '@kyberswap/oauth2'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 

@@ -1,4 +1,4 @@
-import { LoginMethod } from '@kybernetwork/oauth2'
+import { LoginMethod } from '@kyberswap/oauth2'
 import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { LogIn, X } from 'react-feather'

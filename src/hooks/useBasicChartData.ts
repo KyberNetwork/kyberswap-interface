@@ -1,4 +1,4 @@
-import { KyberOauth2Api } from '@kybernetwork/oauth2'
+import { KyberOauth2Api } from '@kyberswap/oauth2'
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { AxiosResponse } from 'axios'
 import { getUnixTime, subHours } from 'date-fns'

@@ -1,4 +1,4 @@
-import KyberOauth2, { KyberOauth2Event, LoginMethod } from '@kybernetwork/oauth2'
+import KyberOauth2, { KyberOauth2Event, LoginMethod } from '@kyberswap/oauth2'
 import { t } from '@lingui/macro'
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
