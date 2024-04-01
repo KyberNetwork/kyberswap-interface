@@ -5,7 +5,7 @@ import { Connector } from '@web3-react/types'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
-import { useCheckBlackjackQuery } from 'services/blackjack'
+import blackjackApi from 'services/blackjack'
 
 import { blocto, coinbaseWallet, gnosisSafe, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors'
 import { MOCK_ACCOUNT_EVM } from 'constants/env'
@@ -13,7 +13,7 @@ import { isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { AppState } from 'state'
+import store, { AppState } from 'state'
 import { detectInjectedType } from 'utils'
 
 export function useActiveWeb3React(): {
@@ -93,17 +93,23 @@ type Web3React = {
   active: boolean
 }
 
-const wrapProvider = (provider: Web3Provider): Web3Provider =>
+const wrapProvider = (provider: Web3Provider, account: string): Web3Provider =>
   new Proxy(provider, {
     get(target, prop) {
       if (prop === 'send') {
-        return (...params: any[]) => {
+        return async (...params: any[]) => {
           if (params[0] === 'eth_chainId') {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return target[prop](...params)
           }
-          throw new Error('There was an error with your transaction.')
+
+          const res = await store.dispatch(blackjackApi.endpoints.checkBlackjack.initiate(account))
+          if (res?.data?.blacklisted) throw new Error('There was an error with your transaction.')
+
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          return target[prop](...params)
         }
       }
       return target[prop as unknown as keyof Web3Provider]
@@ -112,14 +118,11 @@ const wrapProvider = (provider: Web3Provider): Web3Provider =>
 const cacheProvider = new WeakMap<Web3Provider, Web3Provider>()
 const useWrappedProvider = () => {
   const { provider, account } = useWeb3ReactCore<Web3Provider>()
-  const { data: blackjackData } = useCheckBlackjackQuery(account ?? '', { skip: !account })
 
   if (!provider) return undefined
-  if (!blackjackData) return provider
-  if (!blackjackData.blacklisted) return provider
   let wrappedProvider = cacheProvider.get(provider)
   if (!wrappedProvider) {
-    wrappedProvider = wrapProvider(provider)
+    wrappedProvider = account ? wrapProvider(provider, account) : provider
     cacheProvider.set(provider, wrappedProvider)
   }
   return wrappedProvider
