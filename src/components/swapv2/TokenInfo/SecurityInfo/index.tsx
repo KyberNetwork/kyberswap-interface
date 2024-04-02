@@ -63,6 +63,7 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
 
       <CollapseItem
         animation
+        expandedOnMount
         maxHeight="400px"
         arrowStyle={arrowStyle}
         headerStyle={headerStyle}

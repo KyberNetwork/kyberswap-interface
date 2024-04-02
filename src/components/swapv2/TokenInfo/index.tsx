@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as Coingecko } from 'assets/svg/coingecko_color.svg'
@@ -104,6 +104,7 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
   const outputToken = outputNativeCurrency?.wrapped
   const [activeTab, setActiveTab] = useState(TAB.TOKEN_IN)
   const selectedToken = activeTab === TAB.TOKEN_OUT ? outputToken : inputToken
+  const isOneToken = inputToken?.address === outputToken?.address
 
   // Handle switch network case
   useEffect(() => {
@@ -120,19 +121,26 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
         {onBack && (
           <Flex alignItems="center" sx={{ gap: '4px' }}>
             <ChevronLeft onClick={onBack} color={theme.subText} cursor={'pointer'} size={26} />
-            <BackText>{t`Token Info`}</BackText>
+            {isOneToken ? <Text fontWeight="500">{inputToken?.symbol}</Text> : <BackText>{t`Token Info`}</BackText>}
+            {isOneToken && (
+              <Text fontSize={12} color={theme.subText} marginTop="4px">
+                {inputToken?.name}
+              </Text>
+            )}
           </Flex>
         )}
-        <TabContainer>
-          <Tab isActive={isActiveTokenIn} padding="0" onClick={() => setActiveTab(TAB.TOKEN_IN)}>
-            <CurrencyLogo currency={inputNativeCurrency} size="16px" />
-            <TabText isActive={isActiveTokenIn}>{inputNativeCurrency?.symbol}</TabText>
-          </Tab>
-          <Tab isActive={isActiveTokenOut} padding="0" onClick={() => setActiveTab(TAB.TOKEN_OUT)}>
-            <CurrencyLogo currency={outputNativeCurrency} size="16px" />
-            <TabText isActive={isActiveTokenOut}>{outputNativeCurrency?.symbol}</TabText>
-          </Tab>
-        </TabContainer>
+        {!isOneToken && (
+          <TabContainer>
+            <Tab isActive={isActiveTokenIn} padding="0" onClick={() => setActiveTab(TAB.TOKEN_IN)}>
+              <CurrencyLogo currency={inputNativeCurrency} size="16px" />
+              <TabText isActive={isActiveTokenIn}>{inputNativeCurrency?.symbol}</TabText>
+            </Tab>
+            <Tab isActive={isActiveTokenOut} padding="0" onClick={() => setActiveTab(TAB.TOKEN_OUT)}>
+              <CurrencyLogo currency={outputNativeCurrency} size="16px" />
+              <TabText isActive={isActiveTokenOut}>{outputNativeCurrency?.symbol}</TabText>
+            </Tab>
+          </TabContainer>
+        )}
       </Flex>
       <HeaderPanel>
         <LabelHeaderPanel>

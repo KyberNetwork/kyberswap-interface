@@ -4,7 +4,9 @@ import { isMobile } from 'react-device-detect'
 import { usePrevious } from 'react-use'
 
 import Modal from 'components/Modal'
+import TokenInfoTab from 'components/swapv2/TokenInfo'
 import useLast from 'hooks/useLast'
+import { Field } from 'state/swap/actions'
 
 import { CurrencySearch } from './CurrencySearch'
 import { ImportToken } from './ImportToken'
@@ -78,16 +80,28 @@ export default function CurrencySearchModal({
     [onCurrencyImport],
   )
 
+  const [tokenToShowInfo, setTokenToShowInfo] = useState<Token | null>(null)
+
   return (
     <Modal
       isOpen={isOpen}
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        setTokenToShowInfo(null)
+        onDismiss()
+      }}
       margin="auto"
       maxHeight={isMobileHorizontal ? 100 : 80}
       height={isMobileHorizontal ? '95vh' : undefined}
       minHeight={minHeight}
     >
-      {modalView === CurrencyModalView.search ? (
+      {tokenToShowInfo ? (
+        <div style={{ width: '100%' }}>
+          <TokenInfoTab
+            currencies={{ [Field.INPUT]: tokenToShowInfo, [Field.OUTPUT]: tokenToShowInfo }}
+            onBack={() => setTokenToShowInfo(null)}
+          />
+        </div>
+      ) : modalView === CurrencyModalView.search ? (
         <CurrencySearch
           isOpen={isOpen}
           onDismiss={onDismiss}
@@ -100,6 +114,7 @@ export default function CurrencySearchModal({
           title={title}
           tooltip={tooltip}
           customChainId={customChainId}
+          setTokenToShowInfo={setTokenToShowInfo}
         />
       ) : modalView === CurrencyModalView.importToken && importToken ? (
         <ImportToken
