@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as Coingecko } from 'assets/svg/coingecko_color.svg'
@@ -121,7 +121,12 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
         {onBack && (
           <Flex alignItems="center" sx={{ gap: '4px' }}>
             <ChevronLeft onClick={onBack} color={theme.subText} cursor={'pointer'} size={26} />
-            {isOneToken ? inputToken?.symbol : <BackText>{t`Token Info`}</BackText>}
+            {isOneToken ? <Text fontWeight="500">{inputToken?.symbol}</Text> : <BackText>{t`Token Info`}</BackText>}
+            {isOneToken && (
+              <Text fontSize={12} color={theme.subText} marginTop="4px">
+                {inputToken?.name}
+              </Text>
+            )}
           </Flex>
         )}
         {!isOneToken && (

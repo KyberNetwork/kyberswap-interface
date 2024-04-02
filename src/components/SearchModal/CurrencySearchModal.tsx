@@ -85,7 +85,10 @@ export default function CurrencySearchModal({
   return (
     <Modal
       isOpen={isOpen}
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        setTokenToShowInfo(null)
+        onDismiss()
+      }}
       margin="auto"
       maxHeight={isMobileHorizontal ? 100 : 80}
       height={isMobileHorizontal ? '95vh' : undefined}
