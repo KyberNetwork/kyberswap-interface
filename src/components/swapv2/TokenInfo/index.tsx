@@ -104,6 +104,7 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
   const outputToken = outputNativeCurrency?.wrapped
   const [activeTab, setActiveTab] = useState(TAB.TOKEN_IN)
   const selectedToken = activeTab === TAB.TOKEN_OUT ? outputToken : inputToken
+  const isOneToken = inputToken?.address === outputToken?.address
 
   // Handle switch network case
   useEffect(() => {
@@ -120,19 +121,21 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
         {onBack && (
           <Flex alignItems="center" sx={{ gap: '4px' }}>
             <ChevronLeft onClick={onBack} color={theme.subText} cursor={'pointer'} size={26} />
-            <BackText>{t`Token Info`}</BackText>
+            {isOneToken ? inputToken?.symbol : <BackText>{t`Token Info`}</BackText>}
           </Flex>
         )}
-        <TabContainer>
-          <Tab isActive={isActiveTokenIn} padding="0" onClick={() => setActiveTab(TAB.TOKEN_IN)}>
-            <CurrencyLogo currency={inputNativeCurrency} size="16px" />
-            <TabText isActive={isActiveTokenIn}>{inputNativeCurrency?.symbol}</TabText>
-          </Tab>
-          <Tab isActive={isActiveTokenOut} padding="0" onClick={() => setActiveTab(TAB.TOKEN_OUT)}>
-            <CurrencyLogo currency={outputNativeCurrency} size="16px" />
-            <TabText isActive={isActiveTokenOut}>{outputNativeCurrency?.symbol}</TabText>
-          </Tab>
-        </TabContainer>
+        {!isOneToken && (
+          <TabContainer>
+            <Tab isActive={isActiveTokenIn} padding="0" onClick={() => setActiveTab(TAB.TOKEN_IN)}>
+              <CurrencyLogo currency={inputNativeCurrency} size="16px" />
+              <TabText isActive={isActiveTokenIn}>{inputNativeCurrency?.symbol}</TabText>
+            </Tab>
+            <Tab isActive={isActiveTokenOut} padding="0" onClick={() => setActiveTab(TAB.TOKEN_OUT)}>
+              <CurrencyLogo currency={outputNativeCurrency} size="16px" />
+              <TabText isActive={isActiveTokenOut}>{outputNativeCurrency?.symbol}</TabText>
+            </Tab>
+          </TabContainer>
+        )}
       </Flex>
       <HeaderPanel>
         <LabelHeaderPanel>

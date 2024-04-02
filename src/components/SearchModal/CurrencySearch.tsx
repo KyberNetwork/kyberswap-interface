@@ -84,6 +84,7 @@ interface CurrencySearchProps {
   filterWrap?: boolean
   title?: string
   tooltip?: ReactNode
+  setTokenToShowInfo: (token: Token) => void
 }
 
 const PAGE_SIZE = 20
@@ -143,6 +144,7 @@ export function CurrencySearch({
   filterWrap = false,
   title,
   tooltip,
+  setTokenToShowInfo,
 }: CurrencySearchProps) {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
@@ -498,6 +500,7 @@ export function CurrencySearch({
           loadMoreRows={fetchListTokens}
           hasMore={hasMoreToken}
           customChainId={customChainId}
+          setTokenToShowInfo={setTokenToShowInfo}
         />
       ) : (
         <NoResult />
