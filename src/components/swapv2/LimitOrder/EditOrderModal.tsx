@@ -196,7 +196,6 @@ export default function EditOrderModal({
             note={note}
             orderInfo={order}
             defaultExpire={defaultExpire}
-            useUrlParams
           />
         )}
       </Wrapper>

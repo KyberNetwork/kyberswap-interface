@@ -382,7 +382,10 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       if (currencyIn && activeOrderMakingAmount) {
         const value = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(activeOrderMakingAmount))
         if (isEdit && orderInfo) {
-          return value.subtract(TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(orderInfo.makingAmount)))
+          const makingAmount = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(orderInfo.makingAmount))
+          return value.greaterThan(makingAmount)
+            ? value.subtract(makingAmount)
+            : TokenAmount.fromRawAmount(currencyIn, 0)
         }
         return value
       }
@@ -615,11 +618,11 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
   const autoFillMarketPrice = useRef(false)
   useEffect(() => {
-    if (tradeInfo && !autoFillMarketPrice.current && !loadingTrade) {
+    if (tradeInfo && !autoFillMarketPrice.current && !loadingTrade && !defaultRate?.rate) {
       autoFillMarketPrice.current = true
       setPriceRateMarket(true)
     }
-  }, [tradeInfo, setPriceRateMarket, loadingTrade])
+  }, [tradeInfo, setPriceRateMarket, loadingTrade, defaultRate?.rate])
 
   const trackingTouchInput = useCallback(() => {
     mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
