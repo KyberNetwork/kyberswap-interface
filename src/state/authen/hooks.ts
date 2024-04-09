@@ -5,22 +5,7 @@ import { AppState } from 'state'
 import { AuthenState, AutoSignIn, UserProfile, authenActions } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 
-const { setConfirmChangeProfile, updateConnectingWallet, updateProcessingLogin, setAutoSignIn } = authenActions
-
-// connecting metamask ...
-export function useIsConnectingWallet(): [boolean, (data: boolean) => void] {
-  const dispatch = useAppDispatch()
-  const connectingWallet = useSelector((state: AppState) => state.authen.isConnectingWallet)
-
-  const setConnectedWallet = useCallback(
-    (data: boolean) => {
-      dispatch(updateConnectingWallet(data))
-    },
-    [dispatch],
-  )
-
-  return [connectingWallet, setConnectedWallet]
-}
+const { setConfirmChangeProfile, updateProcessingLogin, setAutoSignIn } = authenActions
 
 // info relate profile, session
 export function useSessionInfo(): AuthenState & { userInfo: UserProfile | undefined } {

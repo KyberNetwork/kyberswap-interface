@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
+import { getConnection } from 'connection'
 import { darken, lighten } from 'polished'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Activity } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
@@ -14,15 +15,17 @@ import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useLogin from 'hooks/useLogin'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { useAppDispatch } from 'state/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
+import { updateRecentConnectionMeta } from 'state/user/actions'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
@@ -109,6 +112,9 @@ function Web3StatusInner() {
   const { signIn } = useLogin()
   const { ENSName } = useENSName(account ?? undefined)
   const theme = useTheme()
+  const { connector } = useWeb3React()
+  const connection = getConnection(connector)
+  const dispatch = useAppDispatch()
 
   const allTransactions = useAllTransactions()
 
@@ -120,6 +126,15 @@ function Web3StatusInner() {
   }, [allTransactions])
 
   const pendingLength = sortedRecentTransactions.filter(tx => !tx.receipt).length
+
+  useEffect(() => {
+    if (account || ENSName) {
+      const { rdns } = connection.getProviderInfo()
+      dispatch(
+        updateRecentConnectionMeta({ type: connection.type, address: account, ENSName: ENSName ?? undefined, rdns }),
+      )
+    }
+  }, [ENSName, account, connection, dispatch])
 
   const hasPendingTransactions = !!pendingLength
   const toggleWalletModal = useWalletModalToggle()

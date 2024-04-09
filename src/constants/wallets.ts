@@ -176,14 +176,6 @@ export const SUPPORTED_WALLETS = {
     icon: INJECTED_DARK_ICON,
     readyState: detectGenericInjected,
   } as WalletInfo,
-  METAMASK: {
-    connector: metaMask,
-    hooks: metamaskHooks,
-    name: 'MetaMask',
-    icon: METAMASK,
-    installLink: 'https://metamask.io/download',
-    readyState: detectMetamaskInjected,
-  } as WalletInfo,
   KRYSTAL: {
     connector: krystal,
     hooks: krystalHooks,
@@ -276,6 +268,14 @@ export const SUPPORTED_WALLETS = {
     icon: BLOCTO,
     installLink: 'https://www.blocto.io/download',
     readyState: detectBlocto,
+  } as WalletInfo,
+  METAMASK: {
+    connector: metaMask,
+    hooks: metamaskHooks,
+    name: 'MetaMask',
+    icon: METAMASK,
+    installLink: 'https://metamask.io/download',
+    readyState: detectMetamaskInjected,
   } as WalletInfo,
 } as const
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS

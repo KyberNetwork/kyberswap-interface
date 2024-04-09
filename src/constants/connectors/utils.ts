@@ -25,6 +25,8 @@ if (ENV_LEVEL == ENV_TYPE.ADPR) {
           'window.ethereum': window.ethereum,
           'window.web3': window.web3,
           'window.coin98': window.coin98,
+          'window.rabby': window.rabby,
+          'window.okxwallet': window.okxwallet,
           'window.coinbaseWalletExtension': window.coinbaseWalletExtension,
           'navigator.brave': navigator.brave,
         },
@@ -53,7 +55,9 @@ const allNonMetamaskFlags = [
 export const getIsMetaMaskWallet = () =>
   Boolean(window.ethereum?.isMetaMask && !allNonMetamaskFlags.some(flag => window.ethereum?.[flag]))
 
-export const getIsRabbyWallet = () => Boolean(window.ethereum?.isRabby)
+export const getIsOkxWallet = () => Boolean(window.okxwallet)
+
+export const getIsRabbyWallet = () => Boolean(window.rabby)
 
 export const getIsKrystalWallet = () => Boolean(window.ethereum?.isKrystalWallet || window.ethereum?.isKrystal)
 
