@@ -19,8 +19,8 @@ import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
 
 let latestChainId: ChainId
 export function useChangeNetwork() {
-  const { chainId, wallet, isWrongNetwork } = useActiveWeb3React()
-  const { connector, library } = useWeb3React()
+  const { chainId, walletKey, isWrongNetwork } = useActiveWeb3React()
+  const { connector, library, active } = useWeb3React()
   const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
@@ -85,11 +85,11 @@ export function useChangeNetwork() {
         message = t`Your wallet not support chain ${name}`
       } else {
         message = error?.message || message
-        const e = new Error(`[Activate chain] ${wallet.walletKey} ${message}`)
+        const e = new Error(`[Activate chain] ${walletKey} ${message}`)
         e.name = 'Activate chain error'
         captureException(e, {
           level: 'warning',
-          extra: { error, wallet: wallet.walletKey, chainId, desiredChainId, message },
+          extra: { error, wallet: walletKey, chainId, desiredChainId, message },
         })
       }
       notify({
@@ -99,7 +99,7 @@ export function useChangeNetwork() {
       })
       customFailureCallback?.(error)
     },
-    [chainId, notify, wallet.walletKey],
+    [chainId, notify, walletKey],
   )
 
   const addNewNetwork = useCallback(
@@ -157,10 +157,10 @@ export function useChangeNetwork() {
       }
 
       const solutionPrefer: readonly Solution[] = (() => {
-        if (wallet.walletKey === 'KRYSTAL') {
+        if (walletKey === 'Krystal') {
           // Krystal break when call by web3-react .activate
           return [Solution.provider_request]
-        } else if (wallet.walletKey === 'BLOCTO') {
+        } else if (walletKey === 'Blocto') {
           // Blocto break when call by provider.request
           return [Solution.web3_react]
         }
@@ -171,13 +171,13 @@ export function useChangeNetwork() {
       for (let i = 0; i < solutionPrefer.length; i++) {
         try {
           console.info('[Add network] start:', {
-            wallet: wallet.walletKey,
+            wallet: walletKey,
             solution: solutionPrefer[i],
             addChainParameter,
           })
           await solutions[solutionPrefer[i]]()
           console.info('[Add network] success:', {
-            wallet: wallet.walletKey,
+            wallet: walletKey,
             solution: solutionPrefer[i],
             addChainParameter,
           })
@@ -188,7 +188,7 @@ export function useChangeNetwork() {
             '[Add network] error:',
             JSON.stringify(
               {
-                wallet: wallet.walletKey,
+                wallet: walletKey,
                 desiredChainId,
                 solution: solutionPrefer[i],
                 message: friendlyError(error),
@@ -210,13 +210,13 @@ export function useChangeNetwork() {
       }
 
       failureCallback(desiredChainId, errors.at(-1), customFailureCallback, customTexts)
-      const e = new Error(`[Add network] ${wallet.walletKey} ${friendlyError(errors.at(-1) || '')}`)
+      const e = new Error(`[Add network] ${walletKey} ${friendlyError(errors.at(-1) || '')}`)
       e.name = 'Add new network Error'
       e.stack = ''
       captureException(e, {
         level: 'error',
         extra: {
-          wallet: wallet.walletKey,
+          wallet: walletKey,
           desiredChainId,
           addChainParameterWeb3,
           friendlyMessages: errors.map(friendlyError),
@@ -224,7 +224,7 @@ export function useChangeNetwork() {
         },
       })
     },
-    [library?.provider, failureCallback, fetchKyberswapConfig, successCallback, wallet.walletKey, connector],
+    [library?.provider, failureCallback, fetchKyberswapConfig, successCallback, walletKey, connector],
   )
 
   const changeNetwork = useCallback(
@@ -244,7 +244,7 @@ export function useChangeNetwork() {
       }
 
       // if changing to network not connected wallet, update redux and success return
-      if (!wallet.isConnected) {
+      if (!active) {
         changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
         return
       }
@@ -286,16 +286,7 @@ export function useChangeNetwork() {
         }
       }
     },
-    [
-      chainId,
-      wallet.isConnected,
-      connector,
-      changeNetworkHandler,
-      successCallback,
-      failureCallback,
-      addNewNetwork,
-      isWrongNetwork,
-    ],
+    [chainId, active, connector, changeNetworkHandler, successCallback, failureCallback, addNewNetwork, isWrongNetwork],
   )
 
   return { changeNetwork, addNewNetwork }

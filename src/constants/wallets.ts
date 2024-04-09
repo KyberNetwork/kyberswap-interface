@@ -282,7 +282,6 @@ export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
 
 export const connections = Object.values(SUPPORTED_WALLETS).filter(wallet => 'connector' in wallet) as WalletInfo[]
 
-export const LOCALSTORAGE_LAST_WALLETKEY_EVM = 'last-wallet-key-evm'
 export const INJECTED_KEYS = [
   'COIN98',
   'BRAVE',

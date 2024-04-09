@@ -4,7 +4,6 @@ import { SignerPaymaster } from '@holdstation/paymaster-helper'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 
-import { SUPPORTED_WALLET } from 'constants/wallets'
 import { calculateGasMargin } from 'utils'
 
 import { ErrorName, TransactionError } from './sentry'
@@ -47,7 +46,7 @@ export async function sendEVMTransaction({
   value: BigNumber
   sentryInfo: {
     name: ErrorName
-    wallet: SUPPORTED_WALLET | undefined
+    wallet: string | undefined
   }
   chainId?: ChainId
   paymentToken?: string

@@ -4,18 +4,10 @@ import { darken } from 'polished'
 import React from 'react'
 import styled, { css } from 'styled-components'
 
-// import { MouseoverTooltip } from 'components/Tooltip'
-// import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletReadyState } from 'constants/wallets'
 import { useWeb3React } from 'hooks'
 import { useCloseModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { useIsAcceptedTerm } from 'state/user/hooks'
-
-// import { ExternalLink } from 'theme'
-
-// import checkForBraveBrowser from 'utils/checkForBraveBrowser'
-
-// import { C98OverrideGuide } from './WarningBox'
 
 const IconWrapper = styled.div`
   display: flex;

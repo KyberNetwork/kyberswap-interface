@@ -8,9 +8,7 @@ import { ReactComponent as WarningIcon } from 'assets/images/warning.svg'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
-import { detectInjectedType } from 'utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
-import { isOverriddenWallet } from 'utils/index'
 
 const WarningBoxWrapper = styled.div`
   width: 100%;
@@ -73,13 +71,12 @@ export const C98OverrideGuide = ({
 }) => {
   const theme = useTheme()
   const [show, setShow] = useState(false)
-  const injectedType = detectInjectedType()
 
   if (!walletKey) return null
-  if (!injectedType) return null
 
   const walletName = SUPPORTED_WALLETS[walletKey].name
-  const injectedName = SUPPORTED_WALLETS[injectedType].name
+  // TODO: remove
+  const injectedName = 'BRAVE'
 
   const isSelectCoin98 = walletKey === 'COIN98'
   return (
@@ -133,12 +130,8 @@ export const WarningBox = ({ walletKey }: { walletKey?: SUPPORTED_WALLET }) => {
   const theme = useTheme()
 
   const isBraveBrowser = checkForBraveBrowser()
-  const injectedType = detectInjectedType()
 
   if (!walletKey) return null
-  if (!injectedType) return null
-
-  if (walletKey === injectedType) return null
 
   if (!isBraveBrowser && walletKey === 'BRAVE') {
     return (
@@ -179,10 +172,6 @@ export const WarningBox = ({ walletKey }: { walletKey?: SUPPORTED_WALLET }) => {
         </Text>
       </Flex>
     )
-  }
-
-  if (isOverriddenWallet(walletKey)) {
-    return <C98OverrideGuide walletKey={walletKey} isOpened={true} />
   }
 
   return null

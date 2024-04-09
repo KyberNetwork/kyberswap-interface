@@ -14,7 +14,6 @@ import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useLogin from 'hooks/useLogin'
@@ -197,7 +196,7 @@ function Web3StatusInner() {
             ) : (
               walletKey && (
                 <IconWrapper size={16}>
-                  <img src={SUPPORTED_WALLETS[walletKey].icon} alt={SUPPORTED_WALLETS[walletKey].name + ' icon'} />
+                  <img src={connection.getProviderInfo().icon} alt="" />
                 </IconWrapper>
               )
             )}

@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { getConnection } from 'connection'
 import { useCallback, useMemo } from 'react'
 
 import { ZERO_ADDRESS } from 'constants/index'
@@ -26,8 +27,9 @@ enum SwapCallbackState {
 export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
-  const { account, chainId, walletKey } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library, connector } = useWeb3React()
+  const { name: walletKey } = getConnection(connector).getProviderInfo()
 
   const { saveGas, recipient: recipientAddressOrName } = useSwapState()
 
