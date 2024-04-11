@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Connection } from 'connection/types'
+import { Connection, ConnectionType } from 'connection/types'
 import { atom } from 'jotai'
 import { useAtomValue, useUpdateAtom } from 'jotai/utils'
 import { useCallback } from 'react'
@@ -33,7 +33,7 @@ function useTryActivation() {
         setActivationState({ status: ActivationStatus.PENDING, connection })
 
         console.debug(`Connection activating: ${name}`)
-        await connection.connector.activate(chainId)
+        await connection.connector.activate(connection.type === ConnectionType.WALLET_CONNECT_V2 ? undefined : chainId)
 
         console.debug(`Connection activated: ${name}`)
 
