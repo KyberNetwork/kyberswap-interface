@@ -116,6 +116,7 @@ const Option = ({ connection }: { connection: Connection }) => {
       role="button"
       id={`connect-${connection.getProviderInfo().name}`}
       onClick={() =>
+        isAcceptedTerm &&
         tryActivation(
           connection,
           () => {
