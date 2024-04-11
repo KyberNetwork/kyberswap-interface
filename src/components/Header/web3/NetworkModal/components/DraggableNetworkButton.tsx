@@ -290,7 +290,7 @@ const DraggableNetworkButton = ({
               </MaintainLabel>
             )}
             {selected && !walletKey && <CircleGreen />}
-            {walletKey && (
+            {walletKey && connection.getProviderInfo().icon && (
               <WalletWrapper>
                 <img src={connection.getProviderInfo().icon} alt="" />
               </WalletWrapper>
