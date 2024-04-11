@@ -33,7 +33,7 @@ function useTryActivation() {
         setActivationState({ status: ActivationStatus.PENDING, connection })
 
         console.debug(`Connection activating: ${name}`)
-        await connection.connector.activate()
+        await connection.connector.activate(chainId)
 
         console.debug(`Connection activated: ${name}`)
 

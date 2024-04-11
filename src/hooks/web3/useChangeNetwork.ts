@@ -17,10 +17,10 @@ import { wait } from 'utils/retry'
 
 import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
 
-let latestChainId: ChainId
+let latestChainId: number | undefined
 export function useChangeNetwork() {
-  const { chainId, walletKey, isWrongNetwork } = useActiveWeb3React()
-  const { connector, library, active } = useWeb3React()
+  const { walletKey, isWrongNetwork } = useActiveWeb3React()
+  const { chainId, connector, library, active } = useWeb3React()
   const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()

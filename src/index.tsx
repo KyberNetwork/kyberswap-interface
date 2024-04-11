@@ -1,17 +1,17 @@
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
 import 'inter-ui'
-import '@zkmelabs/widget/dist/style.css'
-import 'aos/dist/aos.css'
 import 'react-loading-skeleton/dist/skeleton.css'
 import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
+import 'aos/dist/aos.css'
 import 'connection/eagerlyConnect'
 
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 import { Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
+import '@zkmelabs/widget/dist/style.css'
 import AOS from 'aos'
 import { connections } from 'connection'
 import dayjs from 'dayjs'

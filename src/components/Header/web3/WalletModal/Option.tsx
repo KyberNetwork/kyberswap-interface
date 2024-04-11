@@ -4,7 +4,7 @@ import { darken } from 'polished'
 import React from 'react'
 import styled, { css } from 'styled-components'
 
-import { useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useCloseModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { useIsAcceptedTerm } from 'state/user/hooks'
@@ -102,7 +102,7 @@ const Option = ({ connection }: { connection: Connection }) => {
   const { activationState, tryActivation } = useActivationState()
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
-  const { chainId } = useWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const { name, icon } = connection.getProviderInfo()
 

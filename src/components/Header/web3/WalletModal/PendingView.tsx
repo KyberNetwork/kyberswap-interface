@@ -4,6 +4,9 @@ import { darken } from 'polished'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
+import { useActiveWeb3React } from 'hooks'
+import { useCloseModal } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/types'
 
 const PendingSection = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
@@ -67,6 +70,8 @@ const LoadingWrapper = styled.div`
 export default function PendingView() {
   const { activationState, tryActivation } = useActivationState()
 
+  const { chainId } = useActiveWeb3React()
+  const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
   if (activationState.status === ActivationStatus.IDLE) return null
 
   const { name } = activationState.connection.getProviderInfo()
@@ -82,10 +87,13 @@ export default function PendingView() {
               </div>
               <ErrorButton
                 onClick={() =>
-                  tryActivation(activationState.connection, () => {
-                    console.log('xusdasdja')
-                    //TODO
-                  })
+                  tryActivation(
+                    activationState.connection,
+                    () => {
+                      closeWalletModal()
+                    },
+                    chainId,
+                  )
                 }
               >
                 <Trans>Try Again</Trans>
