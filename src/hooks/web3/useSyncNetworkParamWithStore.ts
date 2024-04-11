@@ -3,7 +3,6 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useEagerConnect } from 'hooks/web3/useEagerConnect'
 import { getChainIdFromSlug } from 'utils/string'
 
 import { useChangeNetwork } from './useChangeNetwork'
@@ -12,20 +11,15 @@ export function useSyncNetworkParamWithStore() {
   const { network: networkParam } = useParams<{ network?: string }>()
   const paramChainId = getChainIdFromSlug(networkParam)
   const { changeNetwork } = useChangeNetwork()
-  const { networkInfo, chainId } = useActiveWeb3React()
+  const { networkInfo, chainId, isWrongNetwork } = useActiveWeb3React()
   const navigate = useNavigate()
-  const triedEager = useEagerConnect()
   const location = useLocation()
   const [requestingNetwork, setRequestingNetwork] = useState<string>()
   const triedSync = useRef(false)
-  const tried = triedEager.current
 
   useEffect(() => {
-    if (!networkParam || !paramChainId) {
+    if (!networkParam || !paramChainId || isWrongNetwork) {
       triedSync.current = true
-      return
-    }
-    if (!tried) {
       return
     }
 
@@ -45,13 +39,16 @@ export function useSyncNetworkParamWithStore() {
       })
       triedSync.current = true
     })()
-  }, [changeNetwork, location, navigate, networkInfo.route, networkParam, paramChainId, tried])
+  }, [changeNetwork, location, navigate, networkInfo.route, networkParam, paramChainId, isWrongNetwork])
 
   useEffect(() => {
     if (NETWORKS_INFO[chainId].route === requestingNetwork) setRequestingNetwork(undefined)
   }, [chainId, requestingNetwork])
 
   useEffect(() => {
+    if (isWrongNetwork) {
+      return
+    }
     /**
      * Sync network route param with current active network, only after eager tried
      */
@@ -59,13 +56,12 @@ export function useSyncNetworkParamWithStore() {
       ((requestingNetwork && requestingNetwork !== networkParam) || !requestingNetwork) &&
       networkParam &&
       networkInfo.route !== networkParam &&
-      triedSync.current &&
-      tried
+      triedSync.current
     ) {
       navigate(
         { ...location, pathname: location.pathname.replace(encodeURIComponent(networkParam), networkInfo.route) },
         { replace: true },
       )
     }
-  }, [location, networkInfo.route, navigate, tried, networkParam, requestingNetwork])
+  }, [location, networkInfo.route, navigate, networkParam, requestingNetwork, isWrongNetwork])
 }

@@ -1,5 +1,7 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { getConnection } from 'connection'
+import { ConnectionType } from 'connection/types'
 import React, { useState } from 'react'
 import { ArrowUpCircle, BarChart2 } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -13,8 +15,7 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { RowBetween, RowFixed } from 'components/Row'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
@@ -85,7 +86,8 @@ export function ConfirmationPendingContent({
 }
 
 function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: ChainId }) {
-  const { walletKey } = useActiveWeb3React()
+  const { connector } = useWeb3React()
+  const connection = getConnection(connector)
   const handleClick = async () => {
     const tokenAddress = token.address
     const tokenSymbol = token.symbol
@@ -113,18 +115,16 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
     }
   }
 
-  if (!walletKey) return null
-  if (walletKey === 'WALLET_CONNECT') return null
-  if (walletKey === 'KRYSTAL_WC') return null
-  const walletConfig = SUPPORTED_WALLETS[walletKey]
+  if (!connection || connection.type === ConnectionType.WALLET_CONNECT_V2) return null
+  const { name, icon } = connection.getProviderInfo()
 
   return (
     <ButtonLight mt="12px" padding="6px 12px" width="fit-content" onClick={handleClick}>
       <RowFixed>
         <Trans>
-          Add {token.symbol} to {walletConfig.name}
+          Add {token.symbol} to {name}
         </Trans>{' '}
-        <StyledLogo src={walletConfig.icon} />
+        <StyledLogo src={icon} />
       </RowFixed>
     </ButtonLight>
   )

@@ -1,12 +1,12 @@
 import { Trans } from '@lingui/macro'
+import { ActivationStatus, useActivationState } from 'connection/activate'
 import { darken } from 'polished'
-import { ReactNode } from 'react'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
-
-import { WarningBox } from './WarningBox'
+import { useActiveWeb3React } from 'hooks'
+import { useCloseModal } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/types'
 
 const PendingSection = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
@@ -67,42 +67,46 @@ const LoadingWrapper = styled.div`
   width: 100%;
 `
 
-export default function PendingView({
-  walletKey,
-  hasError = false,
-  onClickTryAgain,
-  context,
-}: {
-  walletKey?: SUPPORTED_WALLET
-  hasError?: boolean
-  onClickTryAgain: () => void
-  context?: ReactNode
-}) {
-  const walletName = walletKey ? SUPPORTED_WALLETS[walletKey].name : ''
+export default function PendingView() {
+  const { activationState, tryActivation } = useActivationState()
+
+  const { chainId } = useActiveWeb3React()
+  const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
+  if (activationState.status === ActivationStatus.IDLE) return null
+
+  const { name } = activationState.connection.getProviderInfo()
 
   return (
     <PendingSection>
-      <LoadingMessage hasError={hasError}>
+      <LoadingMessage hasError={activationState.status === ActivationStatus.ERROR}>
         <LoadingWrapper>
-          {hasError ? (
+          {activationState.status === ActivationStatus.ERROR ? (
             <ErrorGroup>
               <div>
-                <Trans>Error connecting to {walletName}.</Trans>
+                <Trans>Error connecting to {name}.</Trans>
               </div>
-              <ErrorButton onClick={onClickTryAgain}>
+              <ErrorButton
+                onClick={() =>
+                  tryActivation(
+                    activationState.connection,
+                    () => {
+                      closeWalletModal()
+                    },
+                    chainId,
+                  )
+                }
+              >
                 <Trans>Try Again</Trans>
               </ErrorButton>
             </ErrorGroup>
           ) : (
             <>
               <StyledLoader />
-              <Trans>Initializing with {walletName}...</Trans>
+              <Trans>Initializing with {name}...</Trans>
             </>
           )}
         </LoadingWrapper>
       </LoadingMessage>
-      <WarningBox walletKey={walletKey} />
-      {context}
     </PendingSection>
   )
 }

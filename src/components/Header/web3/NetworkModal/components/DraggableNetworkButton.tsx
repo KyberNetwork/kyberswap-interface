@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { getConnection } from 'connection'
 import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -14,8 +15,7 @@ import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
@@ -133,8 +133,10 @@ const DraggableNetworkButton = ({
   isComingSoon?: boolean
 }) => {
   const theme = useTheme()
-  const { isWrongNetwork, wallet } = useActiveWeb3React()
+  const { isWrongNetwork, walletKey: walletName, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
+  const { connector } = useWeb3React()
+  const connection = getConnection(connector)
   const [dragging, setDragging] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const dragControls = useDragControls()
@@ -145,7 +147,7 @@ const DraggableNetworkButton = ({
   const isMaintenance = state === ChainState.MAINTENANCE
   const disabled = isComingSoon || (activeChainIds ? !activeChainIds?.includes(chainId) : false) || isMaintenance
   const selected = isSelected && !isWrongNetwork
-  const walletKey = wallet.chainId === chainId ? wallet.walletKey : null
+  const walletKey = walletChainId === chainId ? walletName : null
 
   const handleChainSelect = () => {
     if (disabled) return
@@ -288,9 +290,9 @@ const DraggableNetworkButton = ({
               </MaintainLabel>
             )}
             {selected && !walletKey && <CircleGreen />}
-            {walletKey && (
+            {walletKey && connection.getProviderInfo().icon && (
               <WalletWrapper>
-                <img src={SUPPORTED_WALLETS[walletKey].icon} alt={SUPPORTED_WALLETS[walletKey].name + ' icon'} />
+                <img src={connection.getProviderInfo().icon} alt="" />
               </WalletWrapper>
             )}
           </Row>
