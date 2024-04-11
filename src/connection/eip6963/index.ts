@@ -7,6 +7,9 @@ import {
   ProviderRpcError,
 } from '@web3-react/types'
 
+import store from 'state'
+import { updateChainId } from 'state/user/actions'
+
 import { EIP6963_PROVIDER_MANAGER } from './providers'
 import { EIP6963ProviderDetail, EIP6963ProviderInfo } from './types'
 
@@ -88,6 +91,7 @@ export class EIP6963 extends Connector {
     })
 
     this.provider.on('chainChanged', (chainId: string): void => {
+      store.dispatch(updateChainId(parseChainId(chainId)))
       this.actions.update({ chainId: parseChainId(chainId) })
     })
 

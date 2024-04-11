@@ -11,14 +11,14 @@ export function useSyncNetworkParamWithStore() {
   const { network: networkParam } = useParams<{ network?: string }>()
   const paramChainId = getChainIdFromSlug(networkParam)
   const { changeNetwork } = useChangeNetwork()
-  const { networkInfo, chainId } = useActiveWeb3React()
+  const { networkInfo, chainId, isWrongNetwork } = useActiveWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
   const [requestingNetwork, setRequestingNetwork] = useState<string>()
   const triedSync = useRef(false)
 
   useEffect(() => {
-    if (!networkParam || !paramChainId) {
+    if (!networkParam || !paramChainId || isWrongNetwork) {
       triedSync.current = true
       return
     }
@@ -39,13 +39,16 @@ export function useSyncNetworkParamWithStore() {
       })
       triedSync.current = true
     })()
-  }, [changeNetwork, location, navigate, networkInfo.route, networkParam, paramChainId])
+  }, [changeNetwork, location, navigate, networkInfo.route, networkParam, paramChainId, isWrongNetwork])
 
   useEffect(() => {
     if (NETWORKS_INFO[chainId].route === requestingNetwork) setRequestingNetwork(undefined)
   }, [chainId, requestingNetwork])
 
   useEffect(() => {
+    if (isWrongNetwork) {
+      return
+    }
     /**
      * Sync network route param with current active network, only after eager tried
      */
@@ -60,5 +63,5 @@ export function useSyncNetworkParamWithStore() {
         { replace: true },
       )
     }
-  }, [location, networkInfo.route, navigate, networkParam, requestingNetwork])
+  }, [location, networkInfo.route, navigate, networkParam, requestingNetwork, isWrongNetwork])
 }
