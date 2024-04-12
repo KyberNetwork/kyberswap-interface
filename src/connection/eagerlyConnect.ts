@@ -47,7 +47,6 @@ connect(networkConnection.connector)
 // Get the persisted wallet type from the last session.
 const recentConnectionMeta = getRecentConnectionMeta()
 
-console.log('xxx', recentConnectionMeta)
 if (recentConnectionMeta?.type && !recentConnectionMeta.disconnected) {
   const selectedConnection = getConnection(recentConnectionMeta.type)
 

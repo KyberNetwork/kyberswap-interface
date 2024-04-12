@@ -177,7 +177,6 @@ export class Aggregator {
    * @param baseURL
    * @param currencyAmountIn exact amount of input currency to spend
    * @param currencyOut the desired currency out
-   * @param saveGas
    * @param dexes
    * @param slippageTolerance
    * @param deadline
@@ -189,7 +188,6 @@ export class Aggregator {
     baseURL: string,
     currencyAmountIn: CurrencyAmount<Currency>,
     currencyOut: Currency,
-    saveGas = false,
     dexes = '',
     slippageTolerance: number,
     deadline: number | undefined,
@@ -209,7 +207,7 @@ export class Aggregator {
         tokenIn: tokenInAddress,
         tokenOut: tokenOutAddress,
         amountIn: currencyAmountIn.quotient?.toString(),
-        saveGas: saveGas ? '1' : '0',
+        saveGas: '0',
         gasInclude: '1',
         ...(dexes ? { dexes } : {}),
         slippageTolerance: slippageTolerance?.toString() ?? '',

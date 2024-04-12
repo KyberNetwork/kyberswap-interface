@@ -31,7 +31,7 @@ export function useSwapV2Callback(
   const { library, connector } = useWeb3React()
   const { name: walletKey } = getConnection(connector).getProviderInfo()
 
-  const { saveGas, recipient: recipientAddressOrName } = useSwapState()
+  const { recipient: recipientAddressOrName } = useSwapState()
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -80,14 +80,13 @@ export function useSwapV2Callback(
           inputDecimals: trade.inputAmount.currency.decimals,
           outputDecimals: trade.outputAmount.currency.decimals,
           withRecipient,
-          saveGas,
           inputAmount: trade.inputAmount.toExact(),
           slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
           priceImpact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
         },
       } as TransactionExtraInfo2Token,
     }
-  }, [account, allowedSlippage, chainId, recipient, recipientAddressOrName, saveGas, trade])
+  }, [account, allowedSlippage, chainId, recipient, recipientAddressOrName, trade])
 
   return useMemo(() => {
     if (!trade || !account) {
