@@ -1,13 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { RefObject, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { Box, Flex } from 'rebass'
 import styled from 'styled-components'
 
 import Toggle from 'components/Toggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 
 import DegenModeSetting from './DegenModeSetting'
@@ -23,7 +22,6 @@ type Props = {
   onClickLiquiditySources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
-  swapActionsRef: RefObject<HTMLDivElement>
 }
 
 const BackText = styled.span`
@@ -39,17 +37,13 @@ const SettingsPanel: React.FC<Props> = ({
   onBack,
   onClickLiquiditySources,
   onClickGasPriceTracker,
-  swapActionsRef,
 }) => {
   const theme = useTheme()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  useOnClickOutside([containerRef, swapActionsRef], () => !showConfirmation && onBack())
-
   return (
-    <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT} ref={containerRef}>
+    <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
       <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
         <Flex alignItems="center" sx={{ gap: '4px' }}>
           <ChevronLeft onClick={onBack} color={theme.subText} cursor={'pointer'} size={26} />

@@ -1,6 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { Flex } from 'rebass'
@@ -126,8 +126,6 @@ export default function PartnerSwap() {
 
   const onBackToSwapTab = () => setActiveTab(previousTab || TAB.SWAP)
 
-  const swapActionsRef = useRef(null)
-
   const [balanceIn, balanceOut] = useCurrencyBalances(
     useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
     expectedChainId,
@@ -203,7 +201,6 @@ export default function PartnerSwap() {
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
                   onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
-                  swapActionsRef={swapActionsRef}
                 />
               )}
               {activeTab === TAB.GAS_PRICE_TRACKER && (

@@ -1,5 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
@@ -133,8 +133,6 @@ export default function Swap() {
 
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())
 
-  const swapActionsRef = useRef(null)
-
   return (
     <>
       {isSwapPage && <TutorialSwap />}
@@ -166,7 +164,6 @@ export default function Swap() {
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
                   onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
-                  swapActionsRef={swapActionsRef}
                 />
               )}
               {activeTab === TAB.GAS_PRICE_TRACKER && (
