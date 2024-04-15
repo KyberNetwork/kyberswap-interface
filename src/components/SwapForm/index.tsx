@@ -1,11 +1,16 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
-import { Box, Flex } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
+import styled from 'styled-components'
 
+import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
 import FeeControlGroup from 'components/FeeControlGroup'
+import Modal from 'components/Modal'
 import { NetworkSelector } from 'components/NetworkSelector'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
@@ -18,19 +23,32 @@ import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePair
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
+import TradeRouting from 'components/TradeRouting'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { Wrapper } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
+import { useAllTokens } from 'hooks/Tokens'
+import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
+import { getTradeComposition } from 'utils/aggregationRouting'
 
 import MultichainKNCNote from './MultichainKNCNote'
 import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
 import SwapActionButton from './SwapActionButton'
 import TradeSummary from './TradeSummary'
+
+export const RoutingIconWrapper = styled(RoutingIcon)`
+  height: 20px;
+  width: 20px;
+  margin-right: 10px;
+  path {
+    fill: ${({ theme }) => theme.text} !important;
+  }
+`
 
 export type SwapFormProps = {
   hidden: boolean
@@ -142,6 +160,16 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
+  const theme = useTheme()
+  const [showRoute, setShowRoute] = useState(false)
+  const toggleRoute = useCallback(() => setShowRoute(prev => !prev), [])
+
+  const defaultTokens = useAllTokens()
+
+  const tradeRouteComposition = useMemo(() => {
+    return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
+  }, [chainId, defaultTokens, routeSummary])
+
   return (
     <SwapFormContextProvider
       slippage={slippage}
@@ -210,6 +238,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               slippage={slippage}
               disableRefresh={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
               refreshCallback={getRoute}
+              toggleRoute={toggleRoute}
             />
           )}
 
@@ -234,6 +263,26 @@ const SwapForm: React.FC<SwapFormProps> = props => {
           />
         </Flex>
       </Box>
+      <Modal isOpen={showRoute} onDismiss={() => setShowRoute(false)} width="100%" maxWidth="1000px">
+        <Flex width="100%" flexDirection="column" padding="1rem">
+          <Flex justifyContent="space-between">
+            <Flex alignItems={'center'}>
+              <RoutingIconWrapper />
+              <Text fontSize={16} fontWeight={500} color={theme.text}>
+                <Trans>Your trade route</Trans>
+              </Text>
+            </Flex>
+            <X role="button" onClick={toggleRoute} />
+          </Flex>
+          <TradeRouting
+            tradeComposition={tradeRouteComposition}
+            currencyIn={currencyIn}
+            currencyOut={currencyOut}
+            inputAmount={routeSummary?.parsedAmountIn}
+            outputAmount={routeSummary?.parsedAmountOut}
+          />
+        </Flex>
+      </Modal>
     </SwapFormContextProvider>
   )
 }

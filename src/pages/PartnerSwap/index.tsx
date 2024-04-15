@@ -1,10 +1,9 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
-import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import Skeleton from 'react-loading-skeleton'
+import { t } from '@lingui/macro'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
@@ -19,20 +18,12 @@ import Tutorial from 'components/swapv2/LimitOrder/Tutorial'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
-import {
-  Container,
-  InfoComponentsWrapper,
-  PageWrapper,
-  RoutesWrapper,
-  SwapFormWrapper,
-  highlight,
-} from 'components/swapv2/styleds'
+import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper, highlight } from 'components/swapv2/styleds'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens, useCurrencyV2 } from 'hooks/Tokens'
-import useTheme from 'hooks/useTheme'
+import { useCurrencyV2 } from 'hooks/Tokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChain from 'pages/CrossChain'
@@ -42,19 +33,10 @@ import { TAB, isSettingTab } from 'pages/SwapV3'
 import Header from 'pages/SwapV3/Header'
 import Updater from 'state/customizeDexes/updater'
 import { Field } from 'state/swap/actions'
-import {
-  useDegenModeManager,
-  usePermitData,
-  useShowTradeRoutes,
-  useUserSlippageTolerance,
-  useUserTransactionTTL,
-} from 'state/user/hooks'
+import { useDegenModeManager, usePermitData, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { DetailedRouteSummary } from 'types/route'
-import { getTradeComposition } from 'utils/aggregationRouting'
-
-const TradeRouting = lazy(() => import('components/TradeRouting'))
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
@@ -118,7 +100,6 @@ export default function PartnerSwap() {
     [currencyIn, currencyOut],
   )
 
-  const isShowTradeRoutes = useShowTradeRoutes()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
 
   const activeTab = Object.values(TAB).includes(searchParams.get('tab')) ? (searchParams.get('tab') as TAB) : TAB.SWAP
@@ -143,15 +124,8 @@ export default function PartnerSwap() {
   const isLimitPage = activeTab === TAB.LIMIT || (previousTab === TAB.LIMIT && isSetting)
   const isCrossChainPage = activeTab === TAB.CROSS_CHAIN || (previousTab === TAB.CROSS_CHAIN && isSetting)
 
-  const theme = useTheme()
-
-  const allTokens = useAllTokens()
-
   const onBackToSwapTab = () => setActiveTab(previousTab || TAB.SWAP)
 
-  const tradeRouteComposition = useMemo(() => {
-    return getTradeComposition(expectedChainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, allTokens)
-  }, [expectedChainId, allTokens, routeSummary])
   const swapActionsRef = useRef(null)
 
   const [balanceIn, balanceOut] = useCurrencyBalances(
@@ -217,12 +191,7 @@ export default function PartnerSwap() {
         <Banner />
         <Container>
           <SwapFormWrapper isShowTutorial={false}>
-            <Header
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              swapActionsRef={swapActionsRef}
-              customChainId={expectedChainId}
-            />
+            <Header activeTab={activeTab} setActiveTab={setActiveTab} customChainId={expectedChainId} />
 
             <AppBodyWrapped style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}>
               {isSwapPage && <SwapForm {...props} />}
@@ -230,7 +199,6 @@ export default function PartnerSwap() {
               {activeTab === TAB.SETTINGS && (
                 <SettingsPanel
                   isCrossChainPage={isCrossChainPage}
-                  isLimitOrder={isLimitPage}
                   isSwapPage={isSwapPage}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
@@ -274,37 +242,6 @@ export default function PartnerSwap() {
           </SwapFormWrapper>
 
           <InfoComponents>
-            {isShowTradeRoutes && isSwapPage && (
-              <RoutesWrapper isOpenChart={false}>
-                <Flex flexDirection="column" width="100%">
-                  <Flex alignItems={'center'}>
-                    <RoutingIconWrapper />
-                    <Text fontSize={20} fontWeight={500} color={theme.subText}>
-                      <Trans>Your trade route</Trans>
-                    </Text>
-                  </Flex>
-                  <Suspense
-                    fallback={
-                      <Skeleton
-                        height="100px"
-                        baseColor={theme.background}
-                        highlightColor={theme.buttonGray}
-                        borderRadius="1rem"
-                      />
-                    }
-                  >
-                    <TradeRouting
-                      tradeComposition={tradeRouteComposition}
-                      currencyIn={currencyIn || undefined}
-                      currencyOut={currencyOut || undefined}
-                      inputAmount={routeSummary?.parsedAmountIn}
-                      outputAmount={routeSummary?.parsedAmountOut}
-                      customChainId={expectedChainId}
-                    />
-                  </Suspense>
-                </Flex>
-              </RoutesWrapper>
-            )}
             {isLimitPage && <ListLimitOrder customChainId={expectedChainId} />}
             {isCrossChainPage && <CrossChainTransfersHistory />}
           </InfoComponents>

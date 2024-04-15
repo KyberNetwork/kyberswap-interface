@@ -4,6 +4,7 @@ import { NavLink, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import { ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -28,6 +29,16 @@ type WrapperProps = {
   $visible: boolean
   $disabled: boolean
 }
+
+export const RoutingIconWrapper = styled(RoutingIcon)`
+  height: 16px;
+  width: 16px;
+  cursor: pointer;
+  path {
+    fill: ${({ theme }) => theme.text} !important;
+  }
+`
+
 const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   'data-visible': props.$visible,
   'data-disabled': props.$disabled,
@@ -135,8 +146,9 @@ type Props = {
   slippage: number
   disableRefresh: boolean
   refreshCallback: () => void
+  toggleRoute: () => void
 }
-const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback }) => {
+const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback, toggleRoute }) => {
   const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { gasRefundPercentage } = useGasRefundTier()
@@ -271,6 +283,13 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh,
             </NavLink>
           </RowBetween>
         )}
+
+        <RowBetween>
+          <Text fontSize={12} fontWeight={400} color={theme.subText}>
+            Routing
+          </Text>
+          <RoutingIconWrapper role="button" onClick={toggleRoute} />
+        </RowBetween>
         <SwapFee />
       </AutoColumn>
     </Wrapper>

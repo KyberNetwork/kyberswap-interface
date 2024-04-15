@@ -31,9 +31,7 @@ import {
   setRecentConnectionDisconnected,
   toggleFavoriteToken,
   toggleHolidayMode,
-  toggleLiveChart,
   toggleMyEarningChart,
-  toggleTradeRoutes,
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updateChainId,
@@ -95,8 +93,6 @@ export interface UserState {
   }
 
   timestamp: number
-  showLiveChart: boolean
-  showTradeRoutes: boolean
   favoriteTokensByChainId?: Partial<
     Record<
       ChainId,
@@ -162,8 +158,6 @@ const initialState: UserState = {
   tokens: {},
   pairs: {},
   timestamp: currentTimestamp(),
-  showLiveChart: true,
-  showTradeRoutes: true,
   favoriteTokensByChainId: {},
   favoriteTokensByChainIdv2: {},
   chainId: ChainId.MAINNET,
@@ -279,13 +273,6 @@ export default createReducer(initialState, builder =>
       }
       state.timestamp = currentTimestamp()
     })
-    .addCase(toggleLiveChart, state => {
-      state.showLiveChart = !state.showLiveChart
-    })
-    .addCase(toggleTradeRoutes, state => {
-      state.showTradeRoutes = !state.showTradeRoutes
-    })
-
     .addCase(toggleFavoriteToken, (state, { payload: { chainId, address, newValue } }) => {
       if (!state.favoriteTokensByChainIdv2) {
         state.favoriteTokensByChainIdv2 = {}
