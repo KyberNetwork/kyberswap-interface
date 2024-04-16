@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { RefObject, useState } from 'react'
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -25,12 +25,10 @@ const DegenBanner = styled(RowBetween)`
 export default function Header({
   activeTab,
   setActiveTab,
-  swapActionsRef,
   customChainId,
 }: {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
-  swapActionsRef: RefObject<HTMLDivElement>
   customChainId?: ChainId
 }) {
   const theme = useTheme()
@@ -46,7 +44,7 @@ export default function Header({
       <ColumnCenter gap="sm">
         <RowBetween>
           <Tabs activeTab={activeTab} setActiveTab={setActiveTab} customChainId={customChainId} />
-          <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
+          <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
         </RowBetween>
         <RowBetween>
           <Text fontSize={12} color={theme.subText}>

@@ -40,7 +40,8 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
       console.error(error)
     }
   }
-  if (!walletKey) return null
+  const { icon } = connection.getProviderInfo()
+  if (!walletKey || !icon) return null
   if (walletKey === 'WALLET_CONNECT') return null
   if (walletKey === 'COINBASE') return null // Coinbase wallet no need to add since it automatically track token
   return (

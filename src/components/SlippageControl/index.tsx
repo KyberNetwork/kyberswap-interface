@@ -46,9 +46,9 @@ const slippageOptionCSS = css`
   }
 `
 
-const DefaultSlippageOption = styled.button`
+export const DefaultSlippageOption = styled.button`
   ${slippageOptionCSS};
-  flex: 0 0 18%;
+  flex: 1;
 
   @media only screen and (max-width: 375px) {
     font-size: 10px;

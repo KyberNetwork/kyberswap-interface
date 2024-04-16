@@ -135,7 +135,7 @@ const DraggableNetworkButton = ({
   const theme = useTheme()
   const { isWrongNetwork, walletKey: walletName, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
-  const { connector } = useWeb3React()
+  const { connector, account } = useWeb3React()
   const connection = getConnection(connector)
   const [dragging, setDragging] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -290,7 +290,7 @@ const DraggableNetworkButton = ({
               </MaintainLabel>
             )}
             {selected && !walletKey && <CircleGreen />}
-            {walletKey && connection.getProviderInfo().icon && (
+            {account && walletKey && connection.getProviderInfo().icon && (
               <WalletWrapper>
                 <img src={connection.getProviderInfo().icon} alt="" />
               </WalletWrapper>

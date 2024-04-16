@@ -4,7 +4,6 @@ export type GetRouteParams = {
   tokenIn: string
   tokenOut: string
   amountIn: string
-  saveGas: string
   includedSources?: string
   excludedSources?: string
   excludedPools?: string

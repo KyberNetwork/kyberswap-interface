@@ -17,7 +17,6 @@ import { useAppDispatch } from 'state/hooks'
 import { ChargeFeeBy } from 'types/route'
 
 export type ArgsGetRoute = {
-  isSaveGas: boolean
   parsedAmount: CurrencyAmount<Currency> | undefined
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
@@ -77,7 +76,7 @@ export const useRouteApiDomain = () => {
 
 const useGetRoute = (args: ArgsGetRoute) => {
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
-  const { isSaveGas, parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
+  const { parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
@@ -148,7 +147,6 @@ const useGetRoute = (args: ArgsGetRoute) => {
       tokenIn: tokenInAddress,
       tokenOut: tokenOutAddress,
       amountIn,
-      saveGas: String(isSaveGas),
       includedSources: dexes,
       gasInclude: 'true', // default
       gasPrice: '', // default
@@ -177,7 +175,6 @@ const useGetRoute = (args: ArgsGetRoute) => {
     dexes,
     getSwapFeeConfig,
     isEnableAuthenAggregator,
-    isSaveGas,
     parsedAmount?.currency,
     parsedAmount?.quotient,
     triggerDebounced,

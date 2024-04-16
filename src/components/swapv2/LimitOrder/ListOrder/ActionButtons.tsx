@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
-import { Edit3, ExternalLink as LinkIcon, Trash } from 'react-feather'
+import { ExternalLink as LinkIcon, Trash } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties, css } from 'styled-components'
 
@@ -86,7 +86,7 @@ const ActionButtons = ({
   isChildren,
   itemStyle = {},
   onCancelOrder,
-  onEditOrder,
+  // onEditOrder,
   isCancelling = false,
 }: {
   order: LimitOrder
@@ -133,7 +133,7 @@ const ActionButtons = ({
       {iconCancelling}
       {isActiveTab && !isChildren ? (
         <>
-          {numberTxs === 0 && (
+          {/* numberTxs === 0 && (
             <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Edit`} placement="top" width="fit-content">
               <IconWrap
                 color={theme.primary}
@@ -147,7 +147,7 @@ const ActionButtons = ({
                 <Edit3 color={disabledCancel ? theme.border : theme.primary} size={15} />
               </IconWrap>
             </MouseoverTooltipDesktopOnly>
-          )}
+          ) */}
           <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Cancel`} placement="top" width="fit-content">
             <IconWrap
               color={theme.red}

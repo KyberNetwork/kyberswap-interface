@@ -31,7 +31,6 @@ import {
   setRecentConnectionDisconnected,
   toggleFavoriteToken,
   toggleHolidayMode,
-  toggleLiveChart,
   toggleMyEarningChart,
   toggleTradeRoutes,
   toggleUseAggregatorForZap,
@@ -77,7 +76,6 @@ export interface UserState {
   // user defined slippage tolerance in bips, used in SWAP page
   userSlippageTolerance: number // For SWAP page
   poolSlippageTolerance: number // For POOL and other pages
-
   // deadline set by user in minutes, used in all txns
   userDeadline: number
 
@@ -95,8 +93,6 @@ export interface UserState {
   }
 
   timestamp: number
-  showLiveChart: boolean
-  showTradeRoutes: boolean
   favoriteTokensByChainId?: Partial<
     Record<
       ChainId,
@@ -136,6 +132,7 @@ export interface UserState {
 
   crossChain: CrossChainSetting
   myEarningChart: boolean
+  showTradeRoutes: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -162,8 +159,6 @@ const initialState: UserState = {
   tokens: {},
   pairs: {},
   timestamp: currentTimestamp(),
-  showLiveChart: true,
-  showTradeRoutes: true,
   favoriteTokensByChainId: {},
   favoriteTokensByChainIdv2: {},
   chainId: ChainId.MAINNET,
@@ -175,6 +170,7 @@ const initialState: UserState = {
   crossChain: CROSS_CHAIN_SETTING_DEFAULT,
   myEarningChart: true,
   paymentToken: null,
+  showTradeRoutes: true,
 }
 
 export default createReducer(initialState, builder =>
@@ -279,13 +275,6 @@ export default createReducer(initialState, builder =>
       }
       state.timestamp = currentTimestamp()
     })
-    .addCase(toggleLiveChart, state => {
-      state.showLiveChart = !state.showLiveChart
-    })
-    .addCase(toggleTradeRoutes, state => {
-      state.showTradeRoutes = !state.showTradeRoutes
-    })
-
     .addCase(toggleFavoriteToken, (state, { payload: { chainId, address, newValue } }) => {
       if (!state.favoriteTokensByChainIdv2) {
         state.favoriteTokensByChainIdv2 = {}
@@ -380,5 +369,8 @@ export default createReducer(initialState, builder =>
     .addCase(clearRecentConnectionMeta, state => {
       setRecentConnectionMeta(undefined)
       state.recentConnectionMeta = undefined
+    })
+    .addCase(toggleTradeRoutes, state => {
+      state.showTradeRoutes = !state.showTradeRoutes
     }),
 )

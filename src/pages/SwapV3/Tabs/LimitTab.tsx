@@ -55,7 +55,7 @@ export default function LimitTab({ onClick, active, customChainId }: Props) {
       isActive={active || isLimitPage}
       style={{ display: 'flex', gap: '4px', fontSize: '20px', fontWeight: '500' }}
     >
-      <Trans>Limit</Trans>{' '}
+      <Trans>Limit Order</Trans>{' '}
       {!!numberOfInsufficientFundOrders && (
         <MouseoverTooltip
           placement="top"

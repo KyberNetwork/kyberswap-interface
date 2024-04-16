@@ -24,7 +24,7 @@ import { AppDispatch } from 'state'
 import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
 import { RANGE } from 'state/mint/proamm/type'
 import { Field } from 'state/swap/actions'
-import { useInputCurrency, useOutputCurrency, useSwapState } from 'state/swap/hooks'
+import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { modifyTransaction } from 'state/transactions/actions'
 import { TRANSACTION_TYPE, TransactionDetails, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -263,7 +263,6 @@ type FeeInfo = {
 
 export default function useMixpanel(currencies?: { [field in Field]?: Currency }) {
   const { chainId, account, networkInfo } = useActiveWeb3React()
-  const { saveGas } = useSwapState()
   const network = networkInfo.name
 
   const inputCurrencyFromHook = useInputCurrency()
@@ -336,7 +335,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             input_token: inputSymbol,
             output_token: outputSymbol,
             estimated_gas: gasUsd ? Number(gasUsd).toFixed(4) : undefined,
-            max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: inputAmount?.toExact(),
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
             price_impact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
@@ -372,7 +370,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             input_token: inputSymbol,
             output_token: outputSymbol,
             estimated_gas: gasUsd,
-            max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: inputAmount?.toExact(),
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
             price_impact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
@@ -409,7 +406,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
               ethPrice.currentPrice &&
               (actual_gas.toNumber() * parseFloat(formattedGas) * parseFloat(ethPrice.currentPrice)).toFixed(4),
             tx_hash: tx_hash,
-            max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
             slippage_setting: arbitrary.slippageSetting,
             price_impact: arbitrary.priceImpact,
@@ -1266,7 +1262,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
       }
     },
     /* eslint-disable */
-    [currencies, network, saveGas, account, mixpanel.hasOwnProperty('get_distinct_id'), ethPrice?.currentPrice],
+    [currencies, network, account, mixpanel.hasOwnProperty('get_distinct_id'), ethPrice?.currentPrice],
     /* eslint-enable */
   )
   const subgraphMixpanelHandler = useCallback(

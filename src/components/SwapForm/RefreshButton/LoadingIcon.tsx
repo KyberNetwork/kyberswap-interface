@@ -20,7 +20,7 @@ const LoadingIcon = React.forwardRef<SVGSVGElement, Props>((props, ref) => {
       className="arrow-loading"
       width={size}
       height={size}
-      color={theme.subText}
+      color={theme.text}
     >
       <path
         stroke="none"
