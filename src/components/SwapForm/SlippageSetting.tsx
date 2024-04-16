@@ -7,7 +7,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import SlippageControl from 'components/SlippageControl'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { useSlippageSettingByPage } from 'state/user/hooks'
+import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { checkWarningSlippage, formatSlippage, getDefaultSlippage } from 'utils/slippage'
 
@@ -27,6 +27,7 @@ type Props = {
 const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
+  const [isDegenMode] = useDegenModeManager()
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
   const defaultRawSlippage = getDefaultSlippage(isStablePairSwap)
@@ -127,6 +128,11 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) =
           defaultRawSlippage={defaultRawSlippage}
         />
       </Flex>
+      {isDegenMode && expanded && (
+        <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px">
+          Maximum Slippage allow for Degen mode is 50%
+        </Text>
+      )}
     </Flex>
   )
 }
