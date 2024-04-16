@@ -102,6 +102,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
       return
     }
 
+    setActiveTab(tab)
     const { inputCurrency, outputCurrency, ...newQs } = qs
     navigateFn({
       pathname:

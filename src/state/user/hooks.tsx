@@ -34,6 +34,7 @@ import {
   toggleHolidayMode,
   toggleMyEarningChart,
   toggleTopTrendingTokens,
+  toggleTradeRoutes,
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updatePoolDegenMode,
@@ -526,4 +527,14 @@ export const useShowMyEarningChart: () => [boolean, () => void] = () => {
     dispatch(toggleMyEarningChart())
   }, [dispatch])
   return [isShowMyEarningChart, toggle]
+}
+
+export function useShowTradeRoutes(): boolean {
+  const showTradeRoutes = useSelector((state: AppState) => state.user.showTradeRoutes)
+  return showTradeRoutes
+}
+
+export function useToggleTradeRoutes(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
 }

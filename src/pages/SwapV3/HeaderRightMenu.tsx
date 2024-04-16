@@ -16,8 +16,6 @@ import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useDegenModeManager } from 'state/user/hooks'
 
 const ActionPanel = styled.div`
-  position: absolute;
-  right: 0;
   display: flex;
   gap: 0.5rem;
   border-radius: 18px;

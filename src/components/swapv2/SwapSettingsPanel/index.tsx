@@ -2,12 +2,16 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { Box, Flex } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { AutoColumn } from 'components/Column'
+import { RowBetween, RowFixed } from 'components/Row'
 import Toggle from 'components/Toggle'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useTheme from 'hooks/useTheme'
+import { useShowTradeRoutes, useToggleTradeRoutes } from 'state/user/hooks'
 
 import DegenModeSetting from './DegenModeSetting'
 import GasPriceTrackerSetting from './GasPriceTrackerSetting'
@@ -41,6 +45,8 @@ const SettingsPanel: React.FC<Props> = ({
   const theme = useTheme()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const isShowTradeRoutes = useShowTradeRoutes()
+  const toggleTradeRoutes = useToggleTradeRoutes()
 
   return (
     <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
@@ -75,6 +81,39 @@ const SettingsPanel: React.FC<Props> = ({
               )}
             </>
           )}
+
+          <Flex
+            sx={{
+              flexDirection: 'column',
+              rowGap: '12px',
+              paddingTop: '16px',
+              borderTop: `1px solid ${theme.border}`,
+            }}
+          >
+            <Text
+              as="span"
+              sx={{
+                fontSize: '16px',
+                fontWeight: 500,
+              }}
+            >
+              <Trans>Display Settings</Trans>
+            </Text>
+            <AutoColumn gap="md">
+              {(isSwapPage || isCrossChainPage) && (
+                <RowBetween>
+                  <RowFixed>
+                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                      <MouseoverTooltip text={<Trans>Turn on to display trade route.</Trans>} placement="right">
+                        <Trans>Trade Route</Trans>
+                      </MouseoverTooltip>
+                    </TextDashed>
+                  </RowFixed>
+                  <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} />
+                </RowBetween>
+              )}
+            </AutoColumn>
+          </Flex>
         </Flex>
       </Flex>
     </Box>

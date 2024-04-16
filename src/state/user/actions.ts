@@ -27,6 +27,7 @@ export const updatePoolDegenMode = createAction<{ poolDegenMode: boolean; isStab
   'user/updatePoolDegenMode',
 )
 export const toggleUseAggregatorForZap = createAction('user/toggleUseAggregatorForZap')
+export const toggleTradeRoutes = createAction('user/toggleTradeRoutes')
 export const updateUserLocale = createAction<{ userLocale: SupportedLocale }>('user/updateUserLocale')
 export const updateUserSlippageTolerance = createAction<{ userSlippageTolerance: number }>(
   'user/updateUserSlippageTolerance',

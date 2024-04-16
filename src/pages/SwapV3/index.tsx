@@ -1,7 +1,9 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
+import Skeleton from 'react-loading-skeleton'
 import { useLocation } from 'react-router-dom'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
@@ -16,9 +18,19 @@ import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
-import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper, highlight } from 'components/swapv2/styleds'
+import {
+  Container,
+  InfoComponentsWrapper,
+  PageWrapper,
+  RoutesWrapper,
+  SwapFormWrapper,
+  highlight,
+} from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import { useAllTokens } from 'hooks/Tokens'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChain from 'pages/CrossChain'
 import CrossChainLink from 'pages/CrossChain/CrossChainLink'
@@ -29,9 +41,13 @@ import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
+import { useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
+import { getTradeComposition } from 'utils/aggregationRouting'
 
 import PopulatedSwapForm from './PopulatedSwapForm'
+
+const TradeRouting = lazy(() => import('components/TradeRouting'))
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
@@ -78,6 +94,11 @@ export const RoutingIconWrapper = styled(RoutingIcon)`
 `
 
 export default function Swap() {
+  const { chainId } = useActiveWeb3React()
+  const isShowTradeRoutes = useShowTradeRoutes()
+  const defaultTokens = useAllTokens()
+  const theme = useTheme()
+  const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
   const qs = useParsedQueryString<{ highlightBox: string }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
@@ -107,7 +128,10 @@ export default function Swap() {
   useDefaultsFromURLSearch()
 
   const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
-  const { currencies } = useCurrenciesByPage()
+
+  const tradeRouteComposition = useMemo(() => {
+    return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
+  }, [chainId, defaultTokens, routeSummary])
 
   const handleTypeInput = useCallback(
     (value: string) => {
@@ -185,6 +209,37 @@ export default function Swap() {
           </SwapFormWrapper>
 
           <InfoComponents>
+            {isShowTradeRoutes && isSwapPage && (
+              <RoutesWrapper isOpenChart={false}>
+                <Flex flexDirection="column" width="100%">
+                  <Flex alignItems={'center'}>
+                    <RoutingIconWrapper />
+                    <Text fontSize={20} fontWeight={500} color={theme.subText}>
+                      <Trans>Your trade route</Trans>
+                    </Text>
+                  </Flex>
+                  <Suspense
+                    fallback={
+                      <Skeleton
+                        height="100px"
+                        baseColor={theme.background}
+                        highlightColor={theme.buttonGray}
+                        borderRadius="1rem"
+                      />
+                    }
+                  >
+                    <TradeRouting
+                      tradeComposition={tradeRouteComposition}
+                      currencyIn={currencyIn}
+                      currencyOut={currencyOut}
+                      inputAmount={routeSummary?.parsedAmountIn}
+                      outputAmount={routeSummary?.parsedAmountOut}
+                    />
+                  </Suspense>
+                </Flex>
+              </RoutesWrapper>
+            )}
+
             {isLimitPage && <ListLimitOrder />}
             {isCrossChainPage && <CrossChainTransfersHistory />}
           </InfoComponents>

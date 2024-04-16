@@ -146,9 +146,8 @@ type Props = {
   slippage: number
   disableRefresh: boolean
   refreshCallback: () => void
-  toggleRoute: () => void
 }
-const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback, toggleRoute }) => {
+const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback }) => {
   const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { gasRefundPercentage } = useGasRefundTier()
@@ -283,13 +282,6 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh,
             </NavLink>
           </RowBetween>
         )}
-
-        <RowBetween>
-          <Text fontSize={12} fontWeight={400} color={theme.subText}>
-            Routing
-          </Text>
-          <RoutingIconWrapper role="button" onClick={toggleRoute} />
-        </RowBetween>
         <SwapFee />
       </AutoColumn>
     </Wrapper>
