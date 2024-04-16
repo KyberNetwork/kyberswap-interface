@@ -452,11 +452,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
   const expiredAt = customDateExpire?.getTime() || Date.now() + expire * 1000
 
-  const displayTime = customDateExpire
-    ? expiredAt > 3124224000
-      ? 'Forever'
-      : dayjs(customDateExpire).format('DD/MM/YYYY HH:mm')
-    : formatTimeDuration(expire)
+  const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : formatTimeDuration(expire)
 
   const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
