@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
@@ -65,8 +65,6 @@ const slippageOptionCSS = css`
 
 const CustomSlippageOption = styled.div`
   ${slippageOptionCSS};
-
-  flex: 0 0 24%;
 
   display: inline-flex;
   align-items: center;
@@ -179,32 +177,34 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
   }, [rawSlippage])
 
   return (
-    <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
-      <CustomSlippageOption data-active={isCustomOptionActive} data-warning={isCustomOptionActive && isWarning}>
-        {isCustomOptionActive && isWarning && (
-          <EmojiContainer>
-            <span role="img" aria-label="warning">
-              ⚠️
-            </span>
-          </EmojiContainer>
-        )}
-        <CustomInput
-          ref={inputRef}
-          placeholder={t`Custom`}
-          value={rawText}
-          onChange={handleChangeInput}
-          onBlur={handleCommitChange}
-        />
-        <Text
-          as="span"
-          sx={{
-            flex: '0 0 12px',
-          }}
-        >
-          %
-        </Text>
-      </CustomSlippageOption>
-    </Tooltip>
+    <Flex sx={{ flex: 1 }}>
+      <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
+        <CustomSlippageOption data-active={isCustomOptionActive} data-warning={isCustomOptionActive && isWarning}>
+          {isCustomOptionActive && isWarning && (
+            <EmojiContainer>
+              <span role="img" aria-label="warning">
+                ⚠️
+              </span>
+            </EmojiContainer>
+          )}
+          <CustomInput
+            ref={inputRef}
+            placeholder={t`Custom`}
+            value={rawText}
+            onChange={handleChangeInput}
+            onBlur={handleCommitChange}
+          />
+          <Text
+            as="span"
+            sx={{
+              flex: '0 0 12px',
+            }}
+          >
+            %
+          </Text>
+        </CustomSlippageOption>
+      </Tooltip>
+    </Flex>
   )
 }
 

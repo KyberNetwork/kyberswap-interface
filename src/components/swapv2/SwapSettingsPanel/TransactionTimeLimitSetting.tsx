@@ -4,6 +4,7 @@ import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useUserTransactionTTL } from 'state/user/hooks'
 
@@ -56,6 +57,8 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
       inputRef.current?.blur()
     }
   }
+
+  useOnClickOutside(inputRef, () => handleCommitChange())
 
   useEffect(() => {
     setDeadlineInput(String(Math.floor(deadline / 60)))

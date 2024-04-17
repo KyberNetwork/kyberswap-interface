@@ -17,7 +17,6 @@ import { getUrlMatchParams } from 'hooks/useSyncTokenSymbolToUrl'
 import { AppDispatch, AppState } from 'state/index'
 import {
   Field,
-  chooseToSaveGas,
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,
@@ -45,7 +44,6 @@ export function useSwapActionHandlers(): {
   onSwitchTokensV2: () => void
   onUserInput: (field: Field, typedValue: string) => void
   onChangeRecipient: (recipient: string | null) => void
-  onChooseToSaveGas: (saveGas: boolean) => void
   onResetSelectCurrency: (field: Field) => void
   onChangeTrade: (trade: Aggregator | undefined) => void
 } {
@@ -103,13 +101,6 @@ export function useSwapActionHandlers(): {
     [dispatch],
   )
 
-  const onChooseToSaveGas = useCallback(
-    (saveGas: boolean) => {
-      dispatch(chooseToSaveGas({ saveGas }))
-    },
-    [dispatch],
-  )
-
   const onChangeTrade = useCallback(
     (trade: Aggregator | undefined) => {
       dispatch(setTrade({ trade }))
@@ -123,7 +114,6 @@ export function useSwapActionHandlers(): {
     onCurrencySelection,
     onUserInput,
     onChangeRecipient,
-    onChooseToSaveGas,
     onResetSelectCurrency, // deselect token in select input: (use cases: remove "imported token")
     onChangeTrade,
   }
@@ -295,7 +285,7 @@ export function queryParametersToSwapState(
   parsedQs: ParsedUrlQuery,
   chainId: ChainId,
   isMatchPath: boolean,
-): Omit<SwapState, 'saveGas'> {
+): SwapState {
   let inputCurrency = parseCurrencyFromURLParameter(isMatchPath ? parsedQs.inputCurrency : null, chainId)
   let outputCurrency = parseCurrencyFromURLParameter(isMatchPath ? parsedQs.outputCurrency : null, chainId)
   if (inputCurrency === outputCurrency) {

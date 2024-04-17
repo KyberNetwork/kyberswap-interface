@@ -81,8 +81,10 @@ const useWrappedProvider = () => {
 
   if (!provider) return undefined
   let wrappedProvider = cacheProvider.get(provider)
-  if (!wrappedProvider) {
-    wrappedProvider = account ? wrapProvider(provider, account, kyberChainId !== chainId) : provider
+  if (chainId !== kyberChainId) {
+    wrappedProvider = account ? wrapProvider(provider, account, true) : provider
+  } else if (!wrappedProvider) {
+    wrappedProvider = account ? wrapProvider(provider, account, false) : provider
     cacheProvider.set(provider, wrappedProvider)
   }
   return wrappedProvider

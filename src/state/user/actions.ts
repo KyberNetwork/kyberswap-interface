@@ -27,6 +27,7 @@ export const updatePoolDegenMode = createAction<{ poolDegenMode: boolean; isStab
   'user/updatePoolDegenMode',
 )
 export const toggleUseAggregatorForZap = createAction('user/toggleUseAggregatorForZap')
+export const toggleTradeRoutes = createAction('user/toggleTradeRoutes')
 export const updateUserLocale = createAction<{ userLocale: SupportedLocale }>('user/updateUserLocale')
 export const updateUserSlippageTolerance = createAction<{ userSlippageTolerance: number }>(
   'user/updateUserSlippageTolerance',
@@ -42,10 +43,6 @@ export const addSerializedPair = createAction<{ serializedPair: SerializedPair }
 export const removeSerializedPair = createAction<{ chainId: number; tokenAAddress: string; tokenBAddress: string }>(
   'user/removeSerializedPair',
 )
-export const toggleLiveChart = createAction('user/toggleLiveChart')
-
-export const toggleTradeRoutes = createAction<void>('user/toggleTradeRoutes')
-
 export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendingTokens')
 
 export type ToggleFavoriteTokenPayload = {

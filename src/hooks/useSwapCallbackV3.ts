@@ -23,7 +23,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   const { library, connector } = useWeb3React()
   const { name: walletKey } = getConnection(connector).getProviderInfo()
 
-  const { isSaveGas, recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
+  const { recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
   const { parsedAmountIn: inputAmount, parsedAmountOut: outputAmount, priceImpact } = routeSummary || {}
 
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -73,7 +73,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           inputDecimals: inputAmount.currency.decimals,
           outputDecimals: outputAmount.currency.decimals,
           withRecipient,
-          saveGas: isSaveGas,
           inputAmount: inputAmount.toExact(),
           slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
           priceImpact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
@@ -95,7 +94,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     chainId,
     inputAmount,
     isPermitSwap,
-    isSaveGas,
     outputAmount,
     priceImpact,
     recipient,

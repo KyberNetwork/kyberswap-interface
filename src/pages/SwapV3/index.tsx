@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -21,7 +21,6 @@ import TokenInfoTab from 'components/swapv2/TokenInfo'
 import {
   Container,
   InfoComponentsWrapper,
-  LiveChartWrapper,
   PageWrapper,
   RoutesWrapper,
   SwapFormWrapper,
@@ -42,15 +41,13 @@ import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useShowLiveChart, useShowTradeRoutes } from 'state/user/hooks'
+import { useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 
 import PopulatedSwapForm from './PopulatedSwapForm'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
-
-const LiveChart = lazy(() => import('components/LiveChart'))
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
@@ -98,8 +95,10 @@ export const RoutingIconWrapper = styled(RoutingIcon)`
 
 export default function Swap() {
   const { chainId } = useActiveWeb3React()
-  const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
+  const defaultTokens = useAllTokens()
+  const theme = useTheme()
+  const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
   const qs = useParsedQueryString<{ highlightBox: string }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
@@ -128,13 +127,11 @@ export default function Swap() {
 
   useDefaultsFromURLSearch()
 
-  const theme = useTheme()
-
   const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
-  const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
 
-  // dismiss warning if all imported tokens are in active lists
-  const defaultTokens = useAllTokens()
+  const tradeRouteComposition = useMemo(() => {
+    return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
+  }, [chainId, defaultTokens, routeSummary])
 
   const handleTypeInput = useCallback(
     (value: string) => {
@@ -160,12 +157,6 @@ export default function Swap() {
 
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())
 
-  const tradeRouteComposition = useMemo(() => {
-    return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
-  }, [chainId, defaultTokens, routeSummary])
-
-  const swapActionsRef = useRef(null)
-
   return (
     <>
       {isSwapPage && <TutorialSwap />}
@@ -173,7 +164,7 @@ export default function Swap() {
         <Banner />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
-            <Header activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
+            <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
             <AppBodyWrapped
               data-highlight={shouldHighlightSwapBox}
@@ -193,12 +184,10 @@ export default function Swap() {
               {activeTab === TAB.SETTINGS && (
                 <SettingsPanel
                   isCrossChainPage={isCrossChainPage}
-                  isLimitOrder={isLimitPage}
                   isSwapPage={isSwapPage}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
                   onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
-                  swapActionsRef={swapActionsRef}
                 />
               )}
               {activeTab === TAB.GAS_PRICE_TRACKER && (
@@ -220,24 +209,8 @@ export default function Swap() {
           </SwapFormWrapper>
 
           <InfoComponents>
-            {isShowLiveChart && (
-              <LiveChartWrapper>
-                <Suspense
-                  fallback={
-                    <Skeleton
-                      height="100%"
-                      baseColor={theme.background}
-                      highlightColor={theme.buttonGray}
-                      borderRadius="1rem"
-                    />
-                  }
-                >
-                  <LiveChart currencies={currencies} enableProChart={isSwapPage} />
-                </Suspense>
-              </LiveChartWrapper>
-            )}
             {isShowTradeRoutes && isSwapPage && (
-              <RoutesWrapper isOpenChart={isShowLiveChart}>
+              <RoutesWrapper isOpenChart={false}>
                 <Flex flexDirection="column" width="100%">
                   <Flex alignItems={'center'}>
                     <RoutingIconWrapper />
@@ -266,6 +239,7 @@ export default function Swap() {
                 </Flex>
               </RoutesWrapper>
             )}
+
             {isLimitPage && <ListLimitOrder />}
             {isCrossChainPage && <CrossChainTransfersHistory />}
           </InfoComponents>

@@ -97,14 +97,21 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
       <WarningNote
         level="serious"
         shortText={
-          <Row alignItems="center" style={{ gap: '0.5ch' }}>
+          <Text alignItems="center" style={{ gap: '0.5ch' }}>
             <Trans>
-              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
-                Price Impact
-              </TextUnderlineColor>
-              <TextUnderlineTransparent>is very high. You will lose funds!</TextUnderlineTransparent>
+              <span>
+                <TextUnderlineColor
+                  as="a"
+                  href={PRICE_IMPACT_EXPLANATION_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  Price Impact
+                </TextUnderlineColor>
+              </span>{' '}
+              is very high. You will lose funds!
             </Trans>
-          </Row>
+          </Text>
         }
         longText={
           <Text>

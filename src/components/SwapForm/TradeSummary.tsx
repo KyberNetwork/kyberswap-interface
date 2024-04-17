@@ -1,23 +1,21 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
 import { NavLink, useSearchParams } from 'react-router-dom'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import { ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import Divider from 'components/Divider'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import TradePrice from 'components/swapv2/TradePrice'
 import { APP_PATHS, BIPS_BASE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { usePaymentToken } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
@@ -25,21 +23,22 @@ import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
-const IconWrapper = styled.div<{ $flip: boolean }>`
-  transform: rotate(${({ $flip }) => (!$flip ? '0deg' : '-180deg')});
-  transition: transform 300ms;
-`
-const ContentWrapper = styled(AutoColumn)<{ $expanded: boolean }>`
-  max-height: ${({ $expanded }) => ($expanded ? '500px' : 0)};
-  margin-top: ${({ $expanded }) => ($expanded ? '12px' : 0)};
-  transition: margin-top 300ms ease, height 300ms ease;
-  overflow: hidden;
-`
+import RefreshButton from './RefreshButton'
 
 type WrapperProps = {
   $visible: boolean
   $disabled: boolean
 }
+
+export const RoutingIconWrapper = styled(RoutingIcon)`
+  height: 16px;
+  width: 16px;
+  cursor: pointer;
+  path {
+    fill: ${({ theme }) => theme.text} !important;
+  }
+`
+
 const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   'data-visible': props.$visible,
   'data-disabled': props.$disabled,
@@ -49,7 +48,6 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   width: 100%;
   max-width: 425px;
   border-radius: 16px;
-  background-color: ${({ theme }) => theme.buttonBlack};
   max-height: 0;
   transition: height 300ms ease-in-out, transform 300ms;
   border: 1px solid ${({ theme }) => theme.border};
@@ -146,14 +144,15 @@ const SwapFee: React.FC = () => {
 type Props = {
   routeSummary: DetailedRouteSummary | undefined
   slippage: number
+  disableRefresh: boolean
+  refreshCallback: () => void
 }
-const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
+const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback }) => {
   const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { gasRefundPercentage } = useGasRefundTier()
-  const [expanded, setExpanded] = useState(true)
   const [alreadyVisible, setAlreadyVisible] = useState(false)
-  const { parsedAmountOut, priceImpact, gasUsd } = routeSummary || {}
+  const { parsedAmountOut, priceImpact } = routeSummary || {}
   const hasTrade = !!routeSummary?.route
 
   const priceImpactResult = checkPriceImpact(priceImpact)
@@ -177,10 +176,6 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
     )
 
   const { mixpanelHandler } = useMixpanel()
-  const handleClickExpand = () => {
-    setExpanded(prev => !prev)
-    mixpanelHandler(MIXPANEL_TYPE.SWAP_MORE_INFO_CLICK, { option: expanded ? 'Close' : 'Open' })
-  }
 
   useEffect(() => {
     if (hasTrade) {
@@ -188,122 +183,106 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
     }
   }, [hasTrade])
 
-  const [paymentToken] = usePaymentToken()
-  const isHold = paymentToken?.address.toLowerCase() === '0xed4040fD47629e7c8FBB7DA76bb50B3e7695F0f2'.toLowerCase()
   const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
   return (
     <Wrapper $visible={alreadyVisible} $disabled={!hasTrade}>
-      <AutoColumn>
-        <RowBetween style={{ cursor: 'pointer' }} onClick={handleClickExpand} role="button">
-          <Text fontSize={12} fontWeight={500} color={theme.text}>
-            <Trans>MORE INFORMATION</Trans>
+      <AutoColumn gap="0.75rem">
+        <RowBetween>
+          <Text fontSize={12} fontWeight={400} color={theme.subText}>
+            <Trans>Rate</Trans>
           </Text>
-          <IconWrapper $flip={expanded}>
-            <DropdownSVG color={theme.text} />
-          </IconWrapper>
+
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
+            <RefreshButton shouldDisable={disableRefresh} callback={refreshCallback} size={16} />
+            <TradePrice price={routeSummary?.executionPrice} color={theme.text} />
+          </Flex>
         </RowBetween>
-        <ContentWrapper $expanded={expanded} gap="0.75rem">
-          <Divider />
-          <RowBetween>
-            <RowFixed>
-              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip
-                  width="200px"
-                  text={<Trans>You will receive at least this amount or your transaction will revert.</Trans>}
-                  placement="right"
-                >
-                  <Trans>Minimum Received</Trans>
-                </MouseoverTooltip>
-              </TextDashed>
-            </RowFixed>
-            <RowFixed>
-              <TYPE.black color={theme.text} fontSize={12}>
-                {minimumAmountOutStr || '--'}
-              </TYPE.black>
-            </RowFixed>
-          </RowBetween>
-
-          <RowBetween>
-            <RowFixed>
-              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                  {chainId === ChainId.SCROLL ? <Trans>Est. L2 Gas Fee</Trans> : <Trans>Est. Gas Fee</Trans>}
-                </MouseoverTooltip>
-              </TextDashed>
-            </RowFixed>
+        <RowBetween>
+          <RowFixed>
+            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+              <MouseoverTooltip
+                width="200px"
+                text={<Trans>You will receive at least this amount or your transaction will revert.</Trans>}
+                placement="right"
+              >
+                <Trans>Minimum Received</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
+          </RowFixed>
+          <RowFixed>
             <TYPE.black color={theme.text} fontSize={12}>
-              {gasUsd ? formattedNum(isHold ? +gasUsd * 0.8 : gasUsd, true) : '--'}
+              {minimumAmountOutStr || '--'}
             </TYPE.black>
-          </RowBetween>
+          </RowFixed>
+        </RowBetween>
 
+        <RowBetween>
+          <RowFixed>
+            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+              <MouseoverTooltip
+                text={
+                  <div>
+                    <Trans>Estimated change in price due to the size of your transaction.</Trans>
+                    <Text fontSize={12}>
+                      <Trans>
+                        Read more{' '}
+                        <a
+                          href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <b>here ↗</b>
+                        </a>
+                      </Trans>
+                    </Text>
+                  </div>
+                }
+                placement="right"
+              >
+                <Trans>Price Impact</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
+          </RowFixed>
+          <TYPE.black
+            fontSize={12}
+            color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
+          >
+            {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
+          </TYPE.black>
+        </RowBetween>
+
+        {!isPartnerSwap && isSupportKyberDao(chainId) && (
           <RowBetween>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
                 <MouseoverTooltip
                   text={
-                    <div>
-                      <Trans>Estimated change in price due to the size of your transaction.</Trans>
-                      <Text fontSize={12}>
-                        <Trans>
-                          Read more{' '}
-                          <a
-                            href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <b>here ↗</b>
-                          </a>
-                        </Trans>
-                      </Text>
-                    </div>
+                    <Trans>
+                      Stake KNC in KyberDAO to get gas refund. Read more{' '}
+                      <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
+                        here ↗
+                      </ExternalLink>
+                    </Trans>
                   }
                   placement="right"
                 >
-                  <Trans>Price Impact</Trans>
+                  <Trans>Gas Refund</Trans>
                 </MouseoverTooltip>
               </TextDashed>
             </RowFixed>
-            <TYPE.black
-              fontSize={12}
-              color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
+            <NavLink
+              to={APP_PATHS.KYBERDAO_KNC_UTILITY}
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'Swap_page_more_info' })
+              }}
             >
-              {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
-            </TYPE.black>
+              <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
+                <Trans>{account ? gasRefundPercentage * 100 : '--'}% Refund</Trans>
+              </ButtonLight>
+            </NavLink>
           </RowBetween>
-
-          {!isPartnerSwap && isSupportKyberDao(chainId) && (
-            <RowBetween>
-              <RowFixed>
-                <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                  <MouseoverTooltip
-                    text={
-                      <Trans>
-                        Stake KNC in KyberDAO to get gas refund. Read more{' '}
-                        <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
-                          here ↗
-                        </ExternalLink>
-                      </Trans>
-                    }
-                    placement="right"
-                  >
-                    <Trans>Gas Refund</Trans>
-                  </MouseoverTooltip>
-                </TextDashed>
-              </RowFixed>
-              <NavLink
-                to={APP_PATHS.KYBERDAO_KNC_UTILITY}
-                onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'Swap_page_more_info' })
-                }}
-              >
-                <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-                  <Trans>{account ? gasRefundPercentage * 100 : '--'}% Refund</Trans>
-                </ButtonLight>
-              </NavLink>
-            </RowBetween>
-          )}
-          <SwapFee />
-        </ContentWrapper>
+        )}
+        <SwapFee />
       </AutoColumn>
     </Wrapper>
   )

@@ -390,7 +390,13 @@ export const ButtonApprove = ({
       disabled={disabled}
       onClick={approveWrap}
       confirmed={approval === ApprovalState.APPROVED && !forceApprove}
-      text={approval === ApprovalState.PENDING ? t`Approving` : t`Approve ${tokenSymbol}`}
+      text={
+        approval === ApprovalState.PENDING
+          ? t`Approving`
+          : approval === ApprovalState.APPROVED
+          ? t`Approved ${tokenSymbol}`
+          : t`Approve ${tokenSymbol}`
+      }
     />
   )
 }

@@ -101,7 +101,6 @@ export default function CreateAlert({
     currencyIn,
     currencyOut,
     parsedAmount,
-    isSaveGas: false,
     customChain: selectedChain,
   })
 
