@@ -50,7 +50,7 @@ type Web3React = {
   active: boolean
 }
 
-const wrapProvider = (provider: Web3Provider, account: string): Web3Provider =>
+const wrapProvider = (provider: Web3Provider, account: string, wrongChain = false): Web3Provider =>
   new Proxy(provider, {
     get(target, prop) {
       if (prop === 'send') {
@@ -60,6 +60,8 @@ const wrapProvider = (provider: Web3Provider, account: string): Web3Provider =>
             // @ts-ignore
             return target[prop](...params)
           }
+          if (wrongChain)
+            throw new Error('Chain is mismatched. Please make sure your wallet is switched to expected chain')
 
           const res = await store.dispatch(blackjackApi.endpoints.checkBlackjack.initiate(account))
           if (res?.data?.blacklisted) throw new Error('There was an error with your transaction.')
@@ -74,12 +76,13 @@ const wrapProvider = (provider: Web3Provider, account: string): Web3Provider =>
   })
 const cacheProvider = new WeakMap<Web3Provider, Web3Provider>()
 const useWrappedProvider = () => {
-  const { provider, account } = useWeb3ReactCore<Web3Provider>()
+  const kyberChainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
+  const { provider, account, chainId } = useWeb3ReactCore<Web3Provider>()
 
   if (!provider) return undefined
   let wrappedProvider = cacheProvider.get(provider)
   if (!wrappedProvider) {
-    wrappedProvider = account ? wrapProvider(provider, account) : provider
+    wrappedProvider = account ? wrapProvider(provider, account, kyberChainId !== chainId) : provider
     cacheProvider.set(provider, wrappedProvider)
   }
   return wrappedProvider
