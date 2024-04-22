@@ -162,6 +162,7 @@ export const APP_PATHS = {
 
   DEPRECATED_NOTI_CENTER: '/notification-center/overview',
   ELASTIC_SNAPSHOT: '/elastic-snapshot',
+  MARKET_OVERVIEW: '/market-overview',
 } as const
 
 export const TERM_FILES_PATH = {
