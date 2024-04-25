@@ -1,14 +1,14 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonConfirmed, ButtonLight, ButtonPrimary } from 'components/Button'
-import Column from 'components/Column/index'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
-import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
+import Select from 'components/Select'
 import SwapOnlyButton from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { SwapCallbackError } from 'components/swapv2/styleds'
@@ -20,12 +20,15 @@ import { PermitState, usePermit } from 'hooks/usePermit'
 import useTheme from 'hooks/useTheme'
 import { WrapType } from 'hooks/useWrapCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import ApprovalModal from 'pages/SwapV3/ApprovalModal'
-import { ApplicationModal } from 'state/application/actions'
-import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { DetailedRouteSummary } from 'types/route'
 
 import { Props as SwapOnlyButtonProps } from './SwapOnlyButton'
+
+enum AllowanceType {
+  EXACT = 'EXACT',
+  INFINITE = 'INFINITE',
+}
 
 const CustomPrimaryButton = styled(ButtonPrimary).attrs({
   id: 'swap-button',
@@ -133,19 +136,14 @@ const SwapActionButton: React.FC<Props> = ({
   // never show if price impact is above threshold in non degen mode
   const showApproveFlow =
     !swapInputError &&
-    (approval === ApprovalState.NOT_APPROVED ||
-      approval === ApprovalState.PENDING ||
-      (approvalSubmitted && approval === ApprovalState.APPROVED)) &&
+    (approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) &&
     permitState !== PermitState.SIGNED
 
-  const toggleApprovalModal = useToggleModal(ApplicationModal.SWAP_APPROVAL)
-
+  const [approvalType, setApprovalType] = useState(AllowanceType.INFINITE)
   const handleApproveClick = () => {
-    if (['COIN98', 'BRAVE', 'COINBASE'].includes(walletKey)) {
-      toggleApprovalModal()
-    } else {
-      approveCallback()
-    }
+    approveCallback(
+      approvalType === AllowanceType.EXACT && parsedAmountFromTypedValue ? parsedAmountFromTypedValue : undefined,
+    )
   }
 
   const approveTooltipText = () => {
@@ -258,34 +256,11 @@ const SwapActionButton: React.FC<Props> = ({
 
     if (showApproveFlow) {
       return (
-        <>
-          <RowBetween gap="12px">
-            {permitState === PermitState.NOT_APPLICABLE ? (
+        <div>
+          <RowBetween style={{ gap: '1rem' }}>
+            {permitState === PermitState.NOT_SIGNED && (
               <ButtonConfirmed
-                onClick={handleApproveClick}
-                disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
-                altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
-                confirmed={approval === ApprovalState.APPROVED}
-                style={{
-                  border: 'none',
-                  flex: 1,
-                }}
-              >
-                {approval === ApprovalState.PENDING ? (
-                  <AutoRow gap="6px" justify="center">
-                    <Trans>Approving</Trans> <Loader stroke="white" />
-                  </AutoRow>
-                ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
-                  <Trans>Approved</Trans>
-                ) : (
-                  <RowFit gap="4px">
-                    <InfoHelper color={theme.textReverse} placement="top" text={approveTooltipText()} />
-                    <Trans>Approve {currencyIn?.symbol}</Trans>
-                  </RowFit>
-                )}
-              </ButtonConfirmed>
-            ) : (
-              <ButtonConfirmed
+                disabled={approval === ApprovalState.PENDING}
                 onClick={() => {
                   mixpanelHandler(MIXPANEL_TYPE.PERMIT_CLICK)
                   permitCallback()
@@ -317,12 +292,61 @@ const SwapActionButton: React.FC<Props> = ({
               </ButtonConfirmed>
             )}
 
-            <SwapOnlyButton minimal {...swapOnlyButtonProps} />
+            <ButtonLight
+              onClick={handleApproveClick}
+              disabled={approval === ApprovalState.PENDING}
+              style={{
+                border: 'none',
+                flex: 1,
+              }}
+            >
+              {approval === ApprovalState.PENDING ? (
+                <AutoRow gap="6px" justify="center">
+                  <Trans>Approving</Trans> <Loader stroke={theme.border} />
+                </AutoRow>
+              ) : (
+                <RowFit gap="4px">
+                  <InfoHelper color={theme.primary} placement="top" text={approveTooltipText()} />
+                  <Trans>Approve {currencyIn?.symbol}</Trans>
+                </RowFit>
+              )}
+            </ButtonLight>
           </RowBetween>
-          <Column>
-            <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
-          </Column>
-        </>
+          <RowBetween>
+            <div />
+            <Select
+              value={approvalType}
+              style={{ marginTop: '1rem', fontSize: '14px', padding: 0, background: 'transparent' }}
+              optionStyle={{ fontSize: '14px' }}
+              options={[
+                {
+                  value: AllowanceType.INFINITE,
+                  label: 'Infinite Allowance',
+                  onSelect: () => setApprovalType(AllowanceType.INFINITE),
+                },
+                {
+                  value: AllowanceType.EXACT,
+                  label: 'Exact Allowance',
+                  onSelect: () => setApprovalType(AllowanceType.EXACT),
+                },
+              ]}
+              activeRender={selected =>
+                selected ? (
+                  <Flex>
+                    {selected.label}{' '}
+                    <InfoHelper
+                      text={
+                        selected.value === AllowanceType.EXACT
+                          ? 'You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again.'
+                          : 'You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke.'
+                      }
+                    />
+                  </Flex>
+                ) : null
+              }
+            />
+          </RowBetween>
+        </div>
       )
     }
 
@@ -339,7 +363,6 @@ const SwapActionButton: React.FC<Props> = ({
       {isDegenMode && errorWhileSwap ? (
         <SwapCallbackError style={{ margin: 0, zIndex: 'unset' }} error={errorWhileSwap} />
       ) : null}
-      <ApprovalModal typedValue={typedValue} currencyInput={currencyIn} onApprove={approveCallback} />
     </>
   )
 }

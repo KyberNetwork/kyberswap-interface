@@ -777,7 +777,7 @@ export default function AddLiquidity() {
             <>
               {showApprovalA && (
                 <ButtonPrimary
-                  onClick={approveACallback}
+                  onClick={() => approveACallback()}
                   disabled={approvalA === ApprovalState.PENDING}
                   width={upToMedium ? '100%' : 'fit-content'}
                   minWidth="150px"
@@ -793,7 +793,7 @@ export default function AddLiquidity() {
               )}
               {showApprovalB && (
                 <ButtonPrimary
-                  onClick={approveBCallback}
+                  onClick={() => approveBCallback()}
                   disabled={approvalB === ApprovalState.PENDING}
                   width={upToMedium ? '100%' : 'fit-content'}
                   minWidth="150px"

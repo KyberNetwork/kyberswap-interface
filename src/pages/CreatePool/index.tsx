@@ -765,7 +765,7 @@ export default function CreatePool() {
                         <RowBetween>
                           {approvalA !== ApprovalState.APPROVED && (
                             <ButtonPrimary
-                              onClick={approveACallback}
+                              onClick={() => approveACallback()}
                               disabled={approvalA === ApprovalState.PENDING}
                               width={approvalB !== ApprovalState.APPROVED ? '48%' : '100%'}
                             >
@@ -778,7 +778,7 @@ export default function CreatePool() {
                           )}
                           {approvalB !== ApprovalState.APPROVED && (
                             <ButtonPrimary
-                              onClick={approveBCallback}
+                              onClick={() => approveBCallback()}
                               disabled={approvalB === ApprovalState.PENDING}
                               width={approvalA !== ApprovalState.APPROVED ? '48%' : '100%'}
                             >

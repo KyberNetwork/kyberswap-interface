@@ -156,7 +156,7 @@ export default function MigrateModal({
             {account ? (
               <>
                 {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) && !error && (
-                  <ButtonPrimary onClick={approveCallback} disabled={approval === ApprovalState.PENDING}>
+                  <ButtonPrimary onClick={() => approveCallback()} disabled={approval === ApprovalState.PENDING}>
                     {approval === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
                   </ButtonPrimary>
                 )}
