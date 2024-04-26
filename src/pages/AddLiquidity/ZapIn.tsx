@@ -749,7 +749,7 @@ const ZapIn = ({
                   (isDegenMode || priceImpactSeverity <= 3) && (
                     <RowBetween>
                       <ButtonPrimary
-                        onClick={approveCallback}
+                        onClick={() => approveCallback()}
                         disabled={
                           !isValid || approval === ApprovalState.PENDING || (priceImpactSeverity > 3 && !isDegenMode)
                         }
