@@ -139,11 +139,18 @@ const SwapActionButton: React.FC<Props> = ({
     (approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) &&
     permitState !== PermitState.SIGNED
 
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!showApproveFlow) setLoading(false)
+  }, [showApproveFlow])
+
   const [approvalType, setApprovalType] = useState(AllowanceType.INFINITE)
   const handleApproveClick = () => {
+    setLoading(true)
     approveCallback(
       approvalType === AllowanceType.EXACT && parsedAmountFromTypedValue ? parsedAmountFromTypedValue : undefined,
-    )
+    ).finally(() => setLoading(false))
   }
 
   const approveTooltipText = () => {
@@ -254,16 +261,19 @@ const SwapActionButton: React.FC<Props> = ({
       isApproved: approval === ApprovalState.APPROVED || permitState === PermitState.SIGNED,
     }
 
+    const Approvebtn = permitState === PermitState.NOT_SIGNED ? ButtonLight : ButtonPrimary
+
     if (showApproveFlow) {
       return (
         <div>
           <RowBetween style={{ gap: '1rem' }}>
             {permitState === PermitState.NOT_SIGNED && (
               <ButtonConfirmed
-                disabled={approval === ApprovalState.PENDING}
+                disabled={loading || approval === ApprovalState.PENDING}
                 onClick={() => {
                   mixpanelHandler(MIXPANEL_TYPE.PERMIT_CLICK)
-                  permitCallback()
+                  setLoading(true)
+                  permitCallback().finally(() => setLoading(false))
                 }}
                 style={{
                   flex: 1,
@@ -275,8 +285,8 @@ const SwapActionButton: React.FC<Props> = ({
                     placement="top"
                     text={
                       <Trans>
-                        You need to first give a temporary 24H approval to KyberSwaps smart contract to use your{' '}
-                        {currencyIn?.symbol}. This doesnt require a gas fees.{' '}
+                        You need to first give a temporary 24H approval to KyberSwap&apos;s smart contract to use your{' '}
+                        {currencyIn?.symbol}. This doesn&apos;t require a gas fees.{' '}
                         <a
                           href="https://docs.kyberswap.com/reference/permitable-tokens"
                           target="_blank"
@@ -292,9 +302,9 @@ const SwapActionButton: React.FC<Props> = ({
               </ButtonConfirmed>
             )}
 
-            <ButtonLight
+            <Approvebtn
               onClick={handleApproveClick}
-              disabled={approval === ApprovalState.PENDING}
+              disabled={loading || approval === ApprovalState.PENDING}
               style={{
                 border: 'none',
                 flex: 1,
@@ -306,11 +316,15 @@ const SwapActionButton: React.FC<Props> = ({
                 </AutoRow>
               ) : (
                 <RowFit gap="4px">
-                  <InfoHelper color={theme.primary} placement="top" text={approveTooltipText()} />
+                  <InfoHelper
+                    color={!loading && permitState === PermitState.NOT_SIGNED ? theme.primary : theme.textReverse}
+                    placement="top"
+                    text={approveTooltipText()}
+                  />
                   <Trans>Approve {currencyIn?.symbol}</Trans>
                 </RowFit>
               )}
-            </ButtonLight>
+            </Approvebtn>
           </RowBetween>
           <RowBetween>
             <div />
