@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import { getConnection } from 'connection'
 import { rgba } from 'polished'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, FileText, LogOut, StopCircle, X } from 'react-feather'
@@ -16,8 +17,7 @@ import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
 import SendToken from 'components/WalletPopup/SendToken'
 import { APP_PATHS } from 'constants/index'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
@@ -132,6 +132,8 @@ export default function WalletView({
   const nodeRef = useRef<HTMLDivElement>(null)
   const [isMinimal, setMinimal] = useState(false)
   const { chainId, account = '', walletKey } = useActiveWeb3React()
+  const { connector } = useWeb3React()
+  const connection = getConnection(connector)
   const disconnectWallet = useDisconnectWallet()
 
   const {
@@ -327,11 +329,7 @@ export default function WalletView({
               <Flex alignItems={'center'} style={{ gap: 8 }} color={theme.subText}>
                 {walletKey && (
                   <IconWrapper>
-                    <img
-                      height={18}
-                      src={SUPPORTED_WALLETS[walletKey].icon}
-                      alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
-                    />
+                    <img height={18} src={connection.getProviderInfo().icon} alt="" />
                   </IconWrapper>
                 )}
                 <Text as="span" fontWeight="500">

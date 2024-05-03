@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ethers } from 'ethers'
 import { findReplacementTx } from 'find-replacement-tx'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -12,7 +13,7 @@ import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/user/actions'
 import { findTx } from 'utils'
 
-import { checkedTransaction, finalizeTransaction, removeTx, replaceTx } from './actions'
+import { checkedTransaction, finalizeTransaction, modifyTransaction, removeTx, replaceTx } from './actions'
 import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
 
 function shouldCheck(
@@ -138,6 +139,36 @@ export default function Updater(): null {
               account: account ?? '',
             })
             if (receipt.status === 1) {
+              // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
+              const swapEventTopic = ethers.utils.id('Swapped(address,address,address,address,uint256,uint256)')
+              const swapLogs = receipt.logs.filter(log => log.topics[0] === swapEventTopic)
+              // take the last swap event
+              const lastSwapEvent = swapLogs.slice(-1)[0]
+
+              // decode the data
+              const swapInterface = new ethers.utils.Interface([
+                'event Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)',
+              ])
+              const parsed = swapInterface.parseLog(lastSwapEvent)
+
+              if (
+                (transaction.extraInfo as any)?.tokenAmountOut &&
+                transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
+              ) {
+                const extraInfo = { ...transaction.extraInfo }
+                ;(extraInfo as any).tokenAmountOut = ethers.utils.formatUnits(
+                  parsed.args.returnAmount.toString(),
+                  transaction.extraInfo?.arbitrary?.outputDecimals,
+                )
+                dispatch(
+                  modifyTransaction({
+                    chainId: transaction.chainId,
+                    hash: transaction.hash,
+                    extraInfo,
+                  }),
+                )
+              }
+
               const arbitrary = transaction.extraInfo?.arbitrary
               switch (transaction.type) {
                 case TRANSACTION_TYPE.SWAP: {

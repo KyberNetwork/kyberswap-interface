@@ -3,7 +3,6 @@ import { captureException } from '@sentry/react'
 import { Deferrable } from 'ethers/lib/utils'
 
 import { didUserReject } from 'constants/connectors/utils'
-import { SUPPORTED_WALLET } from 'constants/wallets'
 
 import { friendlyError } from './errorMessage'
 
@@ -49,7 +48,7 @@ export class TransactionError extends Error {
   type: 'estimateGas' | 'sendTransaction'
   rawData: Deferrable<TransactionRequest>
   code?: number
-  wallet: SUPPORTED_WALLET | undefined
+  wallet: string | undefined
 
   constructor(
     name: ErrorName,
@@ -57,7 +56,7 @@ export class TransactionError extends Error {
     message: string,
     rawData: Deferrable<TransactionRequest>,
     options: ErrorOptions | undefined,
-    wallet: SUPPORTED_WALLET | undefined,
+    wallet: string | undefined,
   ) {
     super(message, options)
     this.name = name

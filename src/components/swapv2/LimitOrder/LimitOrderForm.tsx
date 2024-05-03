@@ -10,17 +10,17 @@ import { Flex, Text } from 'rebass'
 import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { NotificationType } from 'components/Announcement/type'
 import ArrowRotate from 'components/ArrowRotate'
 import { ButtonLight } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
-import InfoHelper from 'components/InfoHelper'
 import { NetworkSelector } from 'components/NetworkSelector'
 import NumericalInput from 'components/NumericalInput'
 import { RowBetween } from 'components/Row'
-import Select from 'components/Select'
-import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
+import { DefaultSlippageOption } from 'components/SlippageControl'
+import Tooltip, { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
@@ -51,6 +51,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { formatTimeDuration } from 'utils/time'
 
 import ExpirePicker from './ExpirePicker'
 import { DEFAULT_EXPIRED, getExpireOptions } from './const'
@@ -66,6 +67,14 @@ import {
   removeTrailingZero,
 } from './helpers'
 import { CreateOrderParam, EditOrderInfo, LimitOrder, RateInfo } from './type'
+
+const DropdownIcon = styled(DropdownSVG)`
+  transition: transform 300ms;
+  color: ${({ theme }) => theme.subText};
+  &[data-flip='true'] {
+    transform: rotate(180deg);
+  }
+`
 
 export const Label = styled.div`
   font-weight: 500;
@@ -110,12 +119,7 @@ const InputWrapper = styled.div`
     width: 100%;
   `}
 `
-const ExpiredInput = styled(InputWrapper)`
-  max-width: 30%;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    max-width: unset;
-  `}
-`
+
 const useInputAmount = ({
   defaultInputAmount,
   isEdit,
@@ -382,7 +386,10 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       if (currencyIn && activeOrderMakingAmount) {
         const value = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(activeOrderMakingAmount))
         if (isEdit && orderInfo) {
-          return value.subtract(TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(orderInfo.makingAmount)))
+          const makingAmount = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(orderInfo.makingAmount))
+          return value.greaterThan(makingAmount)
+            ? value.subtract(makingAmount)
+            : TokenAmount.fromRawAmount(currencyIn, 0)
         }
         return value
       }
@@ -444,6 +451,8 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const isNotFillAllInput = [outputAmount, inputAmount, currencyIn, currencyOut, displayRate].some(e => !e)
 
   const expiredAt = customDateExpire?.getTime() || Date.now() + expire * 1000
+
+  const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : formatTimeDuration(expire)
 
   const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
@@ -590,6 +599,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   // use ref to prevent too many api call when firebase update status
   const refSubmitCreateOrder = useRef(onSubmitCreateOrder)
   refSubmitCreateOrder.current = onSubmitCreateOrder
+  const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
     if (!account) return
@@ -615,11 +625,11 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
   const autoFillMarketPrice = useRef(false)
   useEffect(() => {
-    if (tradeInfo && !autoFillMarketPrice.current && !loadingTrade) {
+    if (tradeInfo && !autoFillMarketPrice.current && !loadingTrade && !defaultRate?.rate) {
       autoFillMarketPrice.current = true
       setPriceRateMarket(true)
     }
-  }, [tradeInfo, setPriceRateMarket, loadingTrade])
+  }, [tradeInfo, setPriceRateMarket, loadingTrade, defaultRate?.rate])
 
   const trackingTouchInput = useCallback(() => {
     mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
@@ -830,33 +840,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
               )}
             </Flex>
           </InputWrapper>
-          <ExpiredInput>
-            <Label>
-              <Trans>Expires In</Trans>
-              <InfoHelper
-                color={theme.primary}
-                text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}
-              />
-            </Label>
-            <Select
-              value={expire}
-              onChange={onChangeExpire}
-              optionStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
-              menuStyle={{ left: upToSmall ? 'unset' : 0, ...(isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}) }}
-              style={{ width: '100%', padding: 0, height: INPUT_HEIGHT }}
-              options={[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }]}
-              activeRender={item => {
-                const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : item?.label
-                return (
-                  <MouseoverTooltip text={customDateExpire ? displayTime : ''} width="130px">
-                    <Text color={theme.text} fontSize={14}>
-                      {displayTime}
-                    </Text>
-                  </MouseoverTooltip>
-                )
-              }}
-            />
-          </ExpiredInput>
         </RowBetween>
 
         <RowBetween>
@@ -910,6 +893,88 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
             customChainId={chainId}
           />
         </Tooltip>
+
+        <div>
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
+            <TextDashed
+              color={theme.subText}
+              fontSize={12}
+              fontWeight={500}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                lineHeight: '1',
+                height: 'fit-content',
+              }}
+            >
+              <MouseoverTooltip
+                placement="right"
+                text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}
+              >
+                <Trans>Expires in</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
+            <Flex
+              sx={{
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+              }}
+              role="button"
+              onClick={() => setExpanded(e => !e)}
+            >
+              <Text
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  lineHeight: '1',
+                  color: theme.text,
+                }}
+              >
+                <Text color={theme.text} fontSize={14}>
+                  {displayTime}
+                </Text>
+              </Text>
+              <DropdownIcon data-flip={expanded} />
+            </Flex>
+          </Flex>
+
+          <Flex
+            sx={{
+              transition: 'all 100ms linear',
+              paddingTop: expanded ? '8px' : '0px',
+              height: expanded ? '36px' : '0px',
+              overflow: 'hidden',
+            }}
+          >
+            <Flex
+              sx={{
+                justifyContent: 'space-between',
+                width: '100%',
+                maxWidth: '100%',
+                height: '28px',
+                borderRadius: '20px',
+                background: theme.tabBackground,
+                padding: '2px',
+              }}
+            >
+              {[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }].map((item: any) => {
+                return (
+                  <DefaultSlippageOption
+                    key={item.label}
+                    onClick={() => {
+                      if (item.label === 'Custom') item.onSelect()
+                      else onChangeExpire(item.value)
+                    }}
+                    data-active={customDateExpire ? item.label === 'Custom' : item.value === expire}
+                  >
+                    {item.label}
+                  </DefaultSlippageOption>
+                )
+              })}
+            </Flex>
+          </Flex>
+        </div>
 
         {warningMessage.map((mess, i) => (
           <ErrorWarningPanel type="warn" key={i} title={mess} />

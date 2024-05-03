@@ -1780,22 +1780,21 @@
   resolved "https://registry.yarnpkg.com/@base2/pretty-print-object/-/pretty-print-object-1.0.1.tgz#371ba8be66d556812dc7fb169ebc3c08378f69d4"
   integrity sha512-4iri8i1AqYHJE2DstZYkyEprg6Pq6sKx3xn5FpySk9sNhH7qN2LLlHJCfDTZRILNwQNPD7mATWM0TBui7uC1pA==
 
-"@blocto/sdk@^0.5.5":
-  version "0.5.5"
-  resolved "https://registry.yarnpkg.com/@blocto/sdk/-/sdk-0.5.5.tgz#807b9eaeee924c3eb0c5517c6b32891025f1f6b0"
-  integrity sha512-u7bbAYmYDCf0QWvXleVOTeGFRbo8evT3uacsLJ6dv01HspmLDKZWjFyu7i3ARebJTpenHvwM78XHV7KTvBqTRg==
+"@blocto/sdk@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@blocto/sdk/-/sdk-0.10.0.tgz#31a4777773673b137e8c039b39ca6b348c852e64"
+  integrity sha512-PjmyQZtYTl7UkQcl223S8nh7j5pmWSEnyE3bTdMoXOaXd0blj9aIbkqu1ErvHb96GII2Co+FnbcSp6ioTZG+XQ==
   dependencies:
-    bs58 "^5.0.0"
     buffer "^6.0.3"
     eip1193-provider "^1.0.1"
     js-sha3 "^0.8.0"
 
-"@blocto/web3-react-connector@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@blocto/web3-react-connector/-/web3-react-connector-1.0.0.tgz#22c62918c260fe2df5a8fbe1f79deef685998689"
-  integrity sha512-p3lo7K4Y86P50d6LxbxbSiN4ungg1wNmU85F0OEYDUK8NW8l/opG2EeeodFYSOo+MB7BgiaGMN9m+vPzrn+4pQ==
+"@blocto/web3-react-connector@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@blocto/web3-react-connector/-/web3-react-connector-1.0.7.tgz#eef9cf081b75cb17b7a59a7bd28f0f99f22a6313"
+  integrity sha512-Zy+4NQcIb21q8Nw2BTVGDHzqLg4GAihMiNngCdHLIQwy/Xj9o6HR8phGvOlUCmAK0zdMykY54jvLSKkOYCTdnQ==
   dependencies:
-    "@blocto/sdk" "^0.5.5"
+    "@blocto/sdk" "^0.10.0"
     "@web3-react/types" "^8.1.2-beta.0"
 
 "@coinbase/wallet-sdk@^3.0.4":
@@ -7658,6 +7657,21 @@
   optionalDependencies:
     "@ethersproject/providers" "^5"
 
+"@web3-react/eip1193@8.2.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@web3-react/eip1193/-/eip1193-8.2.0.tgz#a7953769f9d0bec54472aceb01f72c889458378f"
+  integrity sha512-Ugbt+FisHO8aLD5o5B4AZdtgSVpjrbmtC5MgHrOEBw+IwFqr20EJreh052u8ExI2OrPjARIVOkNcp50Xxs7oUw==
+  dependencies:
+    "@web3-react/types" "^8.2.0"
+    eventemitter3 "^4.0.7"
+
+"@web3-react/empty@8.2.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@web3-react/empty/-/empty-8.2.0.tgz#dac248ab22867700b5be716cd5a3f8f95308e8c5"
+  integrity sha512-U8BIF56lW1GHXFz9cPAJnlmKM8VcsjpXr+LXNXGS+9mr5AEjNcjbn9T9EnQf4hY4YXUPHAnjsVcZoUfw3q6u7Q==
+  dependencies:
+    "@web3-react/types" "^8.2.0"
+
 "@web3-react/gnosis-safe@8.2.0":
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/@web3-react/gnosis-safe/-/gnosis-safe-8.2.0.tgz#003e7f5b335751b6699152be301256c989631b51"
@@ -7667,12 +7681,20 @@
     "@safe-global/safe-apps-sdk" "^7.10.0"
     "@web3-react/types" "^8.2.0"
 
-"@web3-react/metamask@^8.2.1":
+"@web3-react/metamask@8.2.1":
   version "8.2.1"
   resolved "https://registry.yarnpkg.com/@web3-react/metamask/-/metamask-8.2.1.tgz#7ffac16e2a55ff8f1195e2831a9f9f99fa0bfba9"
   integrity sha512-JysxkAImIygkD95Bimrj7HwcTq79tq4ZSlphZt24LBMrEVY5K8k+e5mCAuJuDZ7Fu+aBxqpS0lgPjaBGKdNu/A==
   dependencies:
     "@metamask/detect-provider" "^1.2.0"
+    "@web3-react/types" "^8.2.0"
+
+"@web3-react/network@8.2.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@web3-react/network/-/network-8.2.0.tgz#225ae9e135711e8c64ab3123570abaa5b82b8145"
+  integrity sha512-3OcJwuaot8A+VTSoCe17MZv/K/TNVw7DjtYoS7lBRS/CmzYIwP53Tosea4MkliOuXiUUKj7Ge1D2FpWohq6pHw==
+  dependencies:
+    "@ethersproject/providers" "^5"
     "@web3-react/types" "^8.2.0"
 
 "@web3-react/store@^8.2.0":
@@ -8490,11 +8512,6 @@ base-x@^3.0.2:
   dependencies:
     safe-buffer "^5.0.1"
 
-base-x@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/base-x/-/base-x-4.0.0.tgz#d0e3b7753450c73f8ad2389b5c018a4af7b2224a"
-  integrity sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw==
-
 base64-arraybuffer@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/base64-arraybuffer/-/base64-arraybuffer-1.0.2.tgz#1c37589a7c4b0746e34bd1feb951da2df01c1bdc"
@@ -8754,13 +8771,6 @@ bs58@^4.0.0, bs58@^4.0.1:
   integrity sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw==
   dependencies:
     base-x "^3.0.2"
-
-bs58@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/bs58/-/bs58-5.0.0.tgz#865575b4d13c09ea2a84622df6c8cbeb54ffc279"
-  integrity sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ==
-  dependencies:
-    base-x "^4.0.0"
 
 bser@2.1.1:
   version "2.1.1"
@@ -13407,6 +13417,11 @@ joi@^17.7.0:
     "@sideway/address" "^4.1.3"
     "@sideway/formula" "^3.0.1"
     "@sideway/pinpoint" "^2.0.0"
+
+jotai@1.3.7:
+  version "1.3.7"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-1.3.7.tgz#527e9764a8a1f69d7c059545c4b3f651c18938a4"
+  integrity sha512-vLs/7CpXZy11REfeHaEUaXe3oqY9O0YwUAHUI/mph2Lujw4YqtyRk8r5qo0vq10nA9rESWHO+ky84Bf+lRG1lg==
 
 jpeg-js@^0.4.2:
   version "0.4.4"

@@ -40,6 +40,8 @@ interface Window {
   }
   tag?: string
   coin98?: any
+  okxwallet?: any
+  rabby?: any
   coinbaseWalletExtension?: any
   dataLayer?: any[]
   chrome?: any

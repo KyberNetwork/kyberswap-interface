@@ -12,6 +12,7 @@ import { ReactComponent as SecurityInfoIcon } from 'assets/svg/security_info.svg
 import { ReactComponent as ZiczacIcon } from 'assets/svg/ziczac.svg'
 import { ButtonEmpty } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import MarketInfo from 'components/swapv2/TokenInfo/MarketInfo'
 import SecurityInfo from 'components/swapv2/TokenInfo/SecurityInfo'
 import { useActiveWeb3React } from 'hooks'
@@ -158,7 +159,14 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
       <HeaderPanel>
         <LabelHeaderPanel>
           <SecurityInfoIcon />
-          <Trans>Security Info</Trans>
+
+          <TextDashed underlineColor={theme.text}>
+            <MouseoverTooltip
+              text={t`Token security info provided by Goplus. Please conduct your own research before trading`}
+            >
+              <Trans>Security Info</Trans>
+            </MouseoverTooltip>
+          </TextDashed>
         </LabelHeaderPanel>
         <PoweredByWrapper>
           <PoweredByText>

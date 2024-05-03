@@ -1,5 +1,6 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
+import { RecentConnectionMeta } from 'connection/types'
 
 import { SupportedLocale } from 'constants/locales'
 
@@ -26,6 +27,7 @@ export const updatePoolDegenMode = createAction<{ poolDegenMode: boolean; isStab
   'user/updatePoolDegenMode',
 )
 export const toggleUseAggregatorForZap = createAction('user/toggleUseAggregatorForZap')
+export const toggleTradeRoutes = createAction('user/toggleTradeRoutes')
 export const updateUserLocale = createAction<{ userLocale: SupportedLocale }>('user/updateUserLocale')
 export const updateUserSlippageTolerance = createAction<{ userSlippageTolerance: number }>(
   'user/updateUserSlippageTolerance',
@@ -41,10 +43,6 @@ export const addSerializedPair = createAction<{ serializedPair: SerializedPair }
 export const removeSerializedPair = createAction<{ chainId: number; tokenAAddress: string; tokenBAddress: string }>(
   'user/removeSerializedPair',
 )
-export const toggleLiveChart = createAction('user/toggleLiveChart')
-
-export const toggleTradeRoutes = createAction<void>('user/toggleTradeRoutes')
-
 export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendingTokens')
 
 export type ToggleFavoriteTokenPayload = {
@@ -73,3 +71,6 @@ export const toggleMyEarningChart = createAction<void>('user/toggleMyEarningChar
 
 export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')
 export const setPaymentToken = createAction<Token | null>('user/setPaymentToken')
+export const updateRecentConnectionMeta = createAction<RecentConnectionMeta>('user/updateRecentConnectionMeta')
+export const setRecentConnectionDisconnected = createAction<void>('user/setRecentConnectionDisconnected')
+export const clearRecentConnectionMeta = createAction<void>('user/clearRecentConnectionMeta')

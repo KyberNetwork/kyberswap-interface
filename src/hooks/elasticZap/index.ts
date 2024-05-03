@@ -85,7 +85,6 @@ export function useZapInPoolResult(params?: {
               params: {
                 tokenIn,
                 tokenOut,
-                saveGas: '',
                 amountIn: item.quotient.toString(),
                 excludedPools: poolAddress,
                 gasInclude: 'true',
