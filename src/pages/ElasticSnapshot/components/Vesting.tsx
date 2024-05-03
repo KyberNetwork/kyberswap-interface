@@ -154,7 +154,7 @@ export default function Vesting({
   const totalAmount = userVestingData.claimData.vestingAmount / 10 ** 6
 
   const now = Math.floor(Date.now() / 1000)
-  const unlockedAmount = (totalAmount * (now - startTime)) / (endTime - startTime)
+  const unlockedAmount = now < endTime ? (totalAmount * (now - startTime)) / (endTime - startTime) : totalAmount
   const claimableAmount = unlockedAmount - vestedAmount
 
   const claimedPercent = (vestedAmount * 100) / totalAmount

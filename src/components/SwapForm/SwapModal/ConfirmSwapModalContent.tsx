@@ -215,7 +215,9 @@ export default function ConfirmSwapModalContent({
   }
 
   const warningStyle =
-    priceImpactResult.isVeryHigh || priceImpactResult.isInvalid ? { background: theme.red } : undefined
+    priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
+      ? { background: theme.red, color: theme.text }
+      : undefined
 
   const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isAdvancedMode, priceImpactFromBuild)
 
