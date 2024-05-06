@@ -366,6 +366,11 @@ function AboutKyberSwap() {
               <img src="https://i.imgur.com/kG2lDVA.png" alt="Blast" width="100%" />
 
               <img src="https://www.mantle.xyz/logo-lockup.svg" alt="mantle" width="100%" />
+
+              <Flex alignItems="center" sx={{ minWidth: '190px', gap: '6px' }}>
+                <img src="https://static.okx.com/cdn/assets/imgs/243/230501A8E74482AB.png" alt="X Layer" width="50px" />
+                <Text>X Layer</Text>
+              </Flex>
             </Powered>
           </Text>
         </Wrapper>

@@ -10,7 +10,6 @@ import { ButtonAction } from 'components/Button'
 import Column from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
-import { x1 } from 'constants/networks/index'
 import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -204,7 +203,6 @@ export default function NetworkModal({
                     .map((networkInfo: NetworkInfo) => {
                       return renderNetworkButton(networkInfo)
                     })}
-                  <DraggableNetworkButton networkInfo={x1} isComingSoon />
                 </>
               </NetworkList>
             )}

@@ -51,7 +51,7 @@
     "@holdstation/paymaster-helper": "^2.0.20",
     "@kyberswap/krystal-walletconnect-v2": "0.0.1",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.1.3",
+    "@kyberswap/ks-sdk-core": "1.1.5",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/oauth2": "1.0.2",
     "@lingui/macro": "^4.6.0",
@@ -210,7 +210,7 @@
     "vite-tsconfig-paths": "^4.0.8"
   },
   "resolutions": {
-    "@kyberswap/ks-sdk-core": "1.1.3",
+    "@kyberswap/ks-sdk-core": "1.1.5",
     "babel-plugin-lodash/@babel/types": "~7.20.0",
     "react-error-overlay": "6.0.9"
   }
