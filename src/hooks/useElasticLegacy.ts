@@ -1,11 +1,18 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { ChainId, CurrencyAmount, Percent, Token as TokenSDK } from '@kyberswap/ks-sdk-core'
-import { NonfungiblePositionManager, Pool, Position as PositionSDK } from '@kyberswap/ks-sdk-elastic'
+import { ChainId, Currency, CurrencyAmount, Percent, Token as TokenSDK } from '@kyberswap/ks-sdk-core'
+import {
+  FeeAmount,
+  NonfungiblePositionManager,
+  Pool,
+  Position as PositionSDK,
+  computePoolAddress,
+} from '@kyberswap/ks-sdk-elastic'
 import { captureException } from '@sentry/react'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 
 import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import { didUserReject } from 'constants/connectors/utils'
@@ -18,6 +25,8 @@ import { ErrorName } from 'utils/sentry'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { useMulticallContract } from './useContract'
+import { PoolState, usePools } from './usePools'
+import { useProAmmPositions } from './useProAmmPositions'
 import useTransactionDeadline from './useTransactionDeadline'
 
 const tickReaderInterface = new Interface(TickReaderABI.abi)
@@ -92,78 +101,6 @@ export const config: {
   },
 }
 
-const query = (user: string) => `
-{
-  depositedPositions(subgraphError: allow, first: 1000, where: {user: "${user.toLowerCase()}"}) {
-    user
-    farm {
-      id
-    }
-    position {
-      id
-      owner
-      tickLower {
-        tickIdx
-      }
-      tickUpper {
-        tickIdx
-      }
-      liquidity
-      token0 {
-        id
-        symbol
-        decimals
-        name
-      }
-      token1 {
-        id
-        symbol
-        decimals
-        name
-      }
-      pool {
-        id
-        feeTier
-        sqrtPrice
-        liquidity
-        reinvestL
-        tick
-      }
-    }
-  }
-  positions(subgraphError: allow, first: 1000, where: {owner: "${user.toLowerCase()}"}) {
-    id
-    liquidity
-    owner
-    tickLower {
-      tickIdx
-    }
-    tickUpper {
-      tickIdx
-    }
-    token0 {
-      id
-      symbol
-      decimals
-      name
-    }
-    token1 {
-      id
-      symbol
-      decimals
-      name
-    }
-    pool {
-      id
-      feeTier
-      sqrtPrice
-      liquidity
-      reinvestL
-      tick
-    }
-  }
-}`
-
 interface Token {
   id: string
   symbol: string
@@ -192,72 +129,130 @@ export interface Position {
   }
 }
 
-export default function useElasticLegacy(interval = true) {
+export default function useElasticLegacy(_interval = true) {
   const { chainId, account } = useActiveWeb3React()
-  const [loading, setLoading] = useState(false)
-  const [positions, setPositions] = useState<Position[]>([])
-  const [farmPositions, setFarmPostions] = useState<Position[]>([])
-  const previousChainIdRef = useRef(chainId)
+  const [loading, _setLoading] = useState(false)
+  // const [positions, setPositions] = useState<Position[]>([])
+  // const [farmPositions, setFarmPostions] = useState<Position[]>([])
+  // const previousChainIdRef = useRef(chainId)
 
-  useEffect(() => {
-    if (previousChainIdRef.current !== chainId || !account) {
-      setPositions([])
-      setFarmPostions([])
-    }
-    const getData = () => {
-      if (!account || !config[chainId]) {
-        setLoading(false)
-        return
-      }
-      fetch(config[chainId].subgraphUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-          query: query(account),
-        }),
+  const { positions: positionsFromContract } = useProAmmPositions(
+    account,
+    config[chainId]?.positionManagerContract,
+    '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
+    '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
+  )
+
+  const activePositions = useMemo(
+    () => positionsFromContract?.filter(item => item.liquidity.gt('0')) || [],
+    [positionsFromContract],
+  )
+
+  const tokenAddresses = useMemo(() => {
+    return [...new Set(activePositions.map(item => [item.token0, item.token1]).flat())]
+  }, [activePositions])
+
+  const { data: tokens } = useGetTokenByAddressesQuery(
+    { addresses: tokenAddresses, chainId },
+    {
+      skip: !tokenAddresses.length,
+    },
+  )
+
+  const poolIds = useMemo(() => {
+    const ids = [...new Set(activePositions.map(item => item.poolId))]
+
+    const poolKeys = ids.map(id => {
+      const pos = activePositions.find(item => item.poolId === id)
+      const t0 = tokens?.find(t => t.wrapped.address === pos?.token0)
+      const t1 = tokens?.find(t => t.wrapped.address === pos?.token1)
+
+      if (!pos || !t0 || !t1) return null
+
+      return [t0.wrapped, t1.wrapped, pos.fee]
+    })
+
+    return poolKeys.filter(Boolean) as [Currency, Currency, FeeAmount][]
+  }, [activePositions, tokens])
+
+  const poolRes = usePools(
+    poolIds,
+    '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
+    '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
+  )
+
+  const pools = useMemo(() => {
+    return poolRes
+      .map(p => {
+        if (p[0] === PoolState.EXISTS) {
+          return p[1]
+        }
+        return null
       })
-        .then(res => res.json())
-        .then(
-          (res: {
-            data: {
-              positions: Position[]
-              depositedPositions: {
-                user: string
-                farm: { id: string }
-                position: Position
-              }[]
-            }
-          }) => {
-            setPositions(res.data.positions)
-            const farmPositions = res.data.depositedPositions.filter(
-              item => item.farm.id === config[chainId].farmContract && item.user !== item.position.owner,
-            )
+      .filter(Boolean)
+  }, [poolRes])
 
-            setFarmPostions(farmPositions.map(item => item.position))
+  const positions: Position[] = useMemo(() => {
+    return activePositions
+      .map(pos => {
+        const t0 = tokens?.find(t => t.wrapped.address === pos?.token0)
+        const t1 = tokens?.find(t => t.wrapped.address === pos?.token1)
+
+        const pool = pools.find(p => {
+          if (!p) return false
+          const pId = computePoolAddress({
+            factoryAddress: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
+            tokenA: p.token0.wrapped,
+            tokenB: p.token1.wrapped,
+            fee: p.fee,
+            initCodeHashManualOverride: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
+          })
+          return pId === pos.poolId
+        })
+
+        if (!t0 || !t1 || !pool || !account) return null
+
+        return {
+          id: pos.tokenId.toString(),
+          owner: account,
+          liquidity: pos.liquidity.toString(),
+          token0: {
+            id: t0.wrapped.address,
+            symbol: t0.symbol,
+            decimals: t0.wrapped.decimals.toString(),
+            name: t0.name,
           },
-        )
-        .finally(() => setLoading(false))
-    }
+          token1: {
+            id: t1.wrapped.address,
+            symbol: t1.symbol,
+            decimals: t1.wrapped.decimals.toString(),
+            name: t1.name,
+          },
+          tickLower: {
+            tickIdx: pos.tickLower.toString(),
+          },
+          tickUpper: {
+            tickIdx: pos.tickUpper.toString(),
+          },
+          pool: {
+            id: pos.poolId,
+            feeTier: pos.fee.toString(),
+            sqrtPrice: pool.sqrtRatioX96.toString(),
 
-    setLoading(true)
-    getData()
-    const i =
-      interval &&
-      setInterval(() => {
-        getData()
-      }, 15_000)
-
-    return () => (i ? clearInterval(i) : undefined)
-  }, [chainId, account, interval])
-
-  useEffect(() => {
-    previousChainIdRef.current = chainId
-  }, [chainId])
+            liquidity: pool.liquidity.toString(),
+            reinvestL: pool.reinvestLiquidity.toString(),
+            tick: pool.tickCurrent.toString(),
+          },
+        }
+      })
+      .filter(Boolean) as Position[]
+  }, [activePositions, account, pools, tokens])
 
   return {
     loading,
     positions: positions.filter(item => item.liquidity !== '0'),
     allPositions: positions,
-    farmPositions,
+    farmPositions: [] as Position[],
   }
 }
 
