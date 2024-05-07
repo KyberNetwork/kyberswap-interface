@@ -153,6 +153,36 @@ const ksSettingApi = createApi({
         return { data }
       },
     }),
+
+    getTokenByAddresses: builder.query<
+      Array<WrappedTokenInfo | NativeCurrency>,
+      { addresses: string[]; chainId: ChainId }
+    >({
+      queryFn: async ({ addresses, chainId }, _api, _extra, fetchWithBQ): Promise<any> => {
+        const tokenListRes = await fetchWithBQ({
+          url: '/tokens',
+          params: { chainIds: chainId, addresses: addresses.join(','), page: 1, pageSize: 100 },
+        })
+        const tokens = (tokenListRes.data as TokenListResponse)?.data.tokens
+        const foundedTokenAddress = tokens.map(item => item.address)
+
+        const tokensNotFound = addresses.filter(item => !foundedTokenAddress.includes(item.toLowerCase()))
+
+        if (tokensNotFound.length) {
+          const importTokenRes = await fetchWithBQ({
+            url: '/tokens/import',
+            method: 'POST',
+            body: { tokens: tokensNotFound.map(item => ({ chainId: chainId.toString(), address: item })) },
+          })
+          const importedTokens = (importTokenRes.data as TokenImportResponse)?.data.tokens?.map(item => item.data)
+          return {
+            data: [...tokens, ...importedTokens].map(formatTokenInfo),
+          }
+        }
+        return { data: tokens.map(formatTokenInfo) }
+      },
+    }),
+
     importToken: builder.mutation<TokenListResponse, Array<{ chainId: string; address: string }>>({
       query: tokens => ({
         url: `/tokens/import`,
@@ -185,6 +215,7 @@ export const {
   useImportTokenMutation,
   useLazyGetTopTokensQuery,
   useGetChainsConfigurationQuery,
+  useGetTokenByAddressesQuery,
 } = ksSettingApi
 
 export default ksSettingApi
