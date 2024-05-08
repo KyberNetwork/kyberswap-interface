@@ -36,7 +36,7 @@ export function useApproveCallback(
   amountToApprove?: CurrencyAmount<Currency>,
   spender?: string,
   forceApprove = false,
-): [ApprovalState, () => Promise<void>, TokenAmount | undefined] {
+): [ApprovalState, (customAllowance?: CurrencyAmount<Currency>) => Promise<void>, TokenAmount | undefined] {
   const { account } = useActiveWeb3React()
   const token = amountToApprove?.currency.wrapped
   const currentAllowance = useTokenAllowance(token, account ?? undefined, spender)

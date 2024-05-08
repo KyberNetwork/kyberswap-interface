@@ -19,7 +19,7 @@ import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
 
 let latestChainId: number | undefined
 export function useChangeNetwork() {
-  const { walletKey, isWrongNetwork } = useActiveWeb3React()
+  const { walletKey, isWrongNetwork, chainId: kyberChainId } = useActiveWeb3React()
   const { chainId, connector, library, active } = useWeb3React()
   const fetchKyberswapConfig = useLazyKyberswapConfig()
 
@@ -255,6 +255,7 @@ export function useChangeNetwork() {
         console.info('[Switch network] success:', { desiredChainId })
         changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
       } catch (error) {
+        if (kyberChainId !== chainId && chainId) dispatch(updateChainId(chainId))
         console.error(
           '[Switch network] error:',
           JSON.stringify({ desiredChainId, error, didUserReject: didUserReject(error) }, null, 2),
@@ -286,7 +287,18 @@ export function useChangeNetwork() {
         }
       }
     },
-    [chainId, active, connector, changeNetworkHandler, successCallback, failureCallback, addNewNetwork, isWrongNetwork],
+    [
+      chainId,
+      kyberChainId,
+      active,
+      connector,
+      dispatch,
+      changeNetworkHandler,
+      successCallback,
+      failureCallback,
+      addNewNetwork,
+      isWrongNetwork,
+    ],
   )
 
   return { changeNetwork, addNewNetwork }

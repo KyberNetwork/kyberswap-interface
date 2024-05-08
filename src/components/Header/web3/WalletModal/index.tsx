@@ -24,6 +24,8 @@ import {
   useOpenNetworkModal,
   useWalletModalToggle,
 } from 'state/application/hooks'
+import { useAppDispatch } from 'state/hooks'
+import { clearRecentConnectionMeta } from 'state/user/actions'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 
@@ -109,6 +111,7 @@ export default function WalletModal() {
   const { activationState, cancelActivation } = useActivationState()
 
   const theme = useTheme()
+  const dispatch = useAppDispatch()
 
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
@@ -168,6 +171,8 @@ export default function WalletModal() {
             onClick={() => {
               if (!isAcceptedTerm) {
                 mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
+              } else {
+                dispatch(clearRecentConnectionMeta())
               }
               setIsAcceptedTerm(!isAcceptedTerm)
             }}
