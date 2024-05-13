@@ -68,6 +68,7 @@ const blockServiceApi = createApi({
           ...params,
           chainIds: params.chainId,
           isFavorite: params.isFavorite || undefined,
+          search: (params.search || '').trim(),
         },
       }),
     }),

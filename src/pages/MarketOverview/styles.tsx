@@ -33,6 +33,10 @@ export const TableHeader = styled.div`
 export const TableRow = styled(TableHeader)`
   grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.6fr 160px;
   border-bottom: none;
+
+  &:hover {
+    background: ${({ theme }) => theme.buttonBlack};
+  }
 `
 
 export const InnerGrid = styled(Box)`
