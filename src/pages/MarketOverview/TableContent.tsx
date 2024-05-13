@@ -1,11 +1,17 @@
 import { Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { AssetToken, useAddFavoriteMutation, useMarketOverviewQuery } from 'services/marketOverview'
+import {
+  AssetToken,
+  useAddFavoriteMutation,
+  useMarketOverviewQuery,
+  useRemoveFavoriteMutation,
+} from 'services/marketOverview'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined } from 'components/Button'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { TableRow } from './styles'
@@ -14,7 +20,8 @@ import useFilter from './useFilter'
 export default function TableContent() {
   const theme = useTheme()
   const { filters } = useFilter()
-  const { data, isLoading } = useMarketOverviewQuery(filters)
+  const { data, isLoading, refetch } = useMarketOverviewQuery(filters)
+  const notify = useNotify()
 
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -22,6 +29,7 @@ export default function TableContent() {
 
   const tokens = data?.data.assets || []
   const [addFavorite] = useAddFavoriteMutation()
+  const [removeFavorite] = useRemoveFavoriteMutation()
 
   if (!tokens.length && !isLoading) {
     return (
@@ -35,20 +43,77 @@ export default function TableContent() {
     return !value ? undefined : value > 0 ? theme.green : theme.red1
   }
 
-  const toggleFavorite = (token: AssetToken) => {
+  const toggleFavorite = async (token: AssetToken) => {
     if (!account) {
       toggleWalletModal()
       return
     }
-    const msg = `Add ${token.symbol} to my favorite list`
-    library?.send('personal_sign', [`0x${Buffer.from(msg, 'utf8').toString('hex')}`, account]).then(signature => {
-      addFavorite({
-        user: account,
-        asset_ids: [token.id],
-        message: msg,
-        signature,
-      })
+
+    let signature = ''
+    let msg = ''
+
+    const key = `marketoverview_${account}`
+    try {
+      const data = JSON.parse(localStorage.getItem(key) || '')
+      console.log(data)
+      if (data.issuedAt) {
+        const expire = new Date(data.issuedAt)
+        expire.setDate(expire.getDate() + 7)
+        const now = new Date()
+        if (expire > now) {
+          signature = data.signature
+          msg = data.msg
+        }
+      }
+    } catch {
+      //
+    }
+    if (!signature) {
+      const issuedAt = new Date().toISOString()
+      msg = `Click sign to add favorite tokens at Kyberswap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in 7 days. \n\nIssued at: ${issuedAt}`
+      signature = await library?.send('personal_sign', [`0x${Buffer.from(msg, 'utf8').toString('hex')}`, account])
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          signature,
+          msg,
+          issuedAt,
+        }),
+      )
+    }
+
+    await (token.isFavorite ? removeFavorite : addFavorite)({
+      user: account,
+      assetIds: [token.id],
+      message: msg,
+      signature,
     })
+      .then(res => {
+        if ((res as any).error) {
+          notify(
+            {
+              title: `${!token.isFavorite ? 'Add' : 'Remove'} failed`,
+              summary: (res as any).error.data.message || 'Some thing went wrong',
+              type: NotificationType.ERROR,
+            },
+            8000,
+          )
+        }
+      })
+      .catch(err => {
+        // localStorage.removeItem(key)
+        console.log(err)
+        notify(
+          {
+            title: `${token.isFavorite ? 'Add' : 'Remove'} failed`,
+            summary: err.message || 'Some thing went wrong',
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
+      })
+
+    refetch()
   }
 
   return (

@@ -50,7 +50,7 @@ interface Response {
 
 interface AddRemoveFavoriteParams {
   user: string
-  asset_ids: number[]
+  assetIds: number[]
   message: string
   signature: string
 }
@@ -67,6 +67,7 @@ const blockServiceApi = createApi({
         params: {
           ...params,
           chainIds: params.chainId,
+          isFavorite: params.isFavorite || undefined,
         },
       }),
     }),
@@ -77,9 +78,16 @@ const blockServiceApi = createApi({
         url: `/v1/public/assets/favorite`,
       }),
     }),
+    removeFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
+      query: body => ({
+        method: 'DELETE',
+        body,
+        url: `/v1/public/assets/favorite`,
+      }),
+    }),
   }),
 })
 
-export const { useMarketOverviewQuery, useAddFavoriteMutation } = blockServiceApi
+export const { useMarketOverviewQuery, useAddFavoriteMutation, useRemoveFavoriteMutation } = blockServiceApi
 
 export default blockServiceApi
