@@ -14,7 +14,7 @@ import useFilter from './useFilter'
 export default function TableContent() {
   const theme = useTheme()
   const { filters } = useFilter()
-  const { data, isLoading, refetch } = useMarketOverviewQuery(filters)
+  const { data, isLoading } = useMarketOverviewQuery(filters)
 
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
