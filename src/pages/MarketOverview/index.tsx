@@ -66,7 +66,7 @@ export default function MarketOverview() {
   return (
     <PoolsPageWrapper>
       <Flex justifyContent="space-between">
-        <Text as="h1" fontSize={20} fontWeight="500">
+        <Text as="h1" fontSize={24} fontWeight="500">
           <Trans>Market Overview</Trans>
         </Text>
         <SearchInput
@@ -273,7 +273,7 @@ export default function MarketOverview() {
           }}
           totalCount={data?.data?.pagination?.totalItems || 0}
           currentPage={filters.page || 1}
-          pageSize={10}
+          pageSize={filters.pageSize || 20}
         />
       </TableWrapper>
     </PoolsPageWrapper>
