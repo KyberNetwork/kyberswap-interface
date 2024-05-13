@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Star } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import {
@@ -410,7 +410,10 @@ export default function TableContent() {
                 role="button"
                 cursor="pointer"
                 fill={item.isFavorite ? theme.yellow1 : 'none'}
-                onClick={() => toggleFavorite(item)}
+                onClick={e => {
+                  e.stopPropagation()
+                  toggleFavorite(item)
+                }}
               />
             </Flex>
           </TableRow>

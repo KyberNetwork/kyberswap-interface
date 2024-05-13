@@ -15,10 +15,10 @@ export default function useFilter() {
       search: searchParams.get('search') || undefined,
       user: account,
       isFavorite,
-      tags: searchParams.get('tags') || undefined,
-      sort: searchParams.get('sort') || 'volume_24h desc',
+      tags: (searchParams.get('tags') || '').split(',').filter(Boolean),
+      sort: searchParams.get('sort') || 'market_cap desc',
       page: +(searchParams.get('page') || '1'),
-      pageSize: +(searchParams.get('pageSize') || 10),
+      pageSize: +(searchParams.get('pageSize') || 20),
     }
   }, [searchParams, account, chainId])
 

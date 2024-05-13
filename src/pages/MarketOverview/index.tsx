@@ -22,8 +22,8 @@ import useFilter from './useFilter'
 
 const filterTags = [
   { label: 'Defi', value: 'defi' },
-  // { label: 'Gainers', value: 'gainers' },
-  // { label: 'Losers', value: 'losers' },
+  { label: 'Gainers', value: 'gainers' },
+  { label: 'Losers', value: 'losers' },
   { label: 'Meme', value: 'memes' },
   { label: 'AI', value: 'ai-big-data' },
   { label: 'RWA', value: 'real-world-assets' },
@@ -49,19 +49,6 @@ export default function MarketOverview() {
     }
   }, [deboundedInput, search, updateFilters])
 
-  const onTagClick = (t: string) => {
-    // if (t === 'losers') {
-    //   updateFilters('sort', `price_change_7d-1 asc`)
-    //   updateFilters('tags', '')
-    // } else if (t === 'gainers') {
-    //   updateFilters('sort', `price_change_7d-1 desc`)
-    //   updateFilters('tags', '')
-    // } else
-    if (t === 'Favorite') {
-      updateFilters('isFavorite', isFavorite ? '' : 'true')
-    } else updateFilters('tags', t === 'All' ? '' : t)
-  }
-
   const updateSort = (col: string, appendChain = true) => {
     const c = appendChain ? `${col}-${filters.chainId}` : col
     // desc -> acs -> none
@@ -72,6 +59,9 @@ export default function MarketOverview() {
     }
     updateFilters('sort', newDirection ? `${c} ${newDirection}` : '')
   }
+
+  const isGainerActive = sortCol.includes('price_change_24h') && 'desc' === sortDirection
+  const isLoserActive = sortCol.includes('price_change_24h') && 'asc' === sortDirection
 
   return (
     <PoolsPageWrapper>
@@ -89,14 +79,43 @@ export default function MarketOverview() {
       <TableWrapper>
         <ContentWrapper>
           <Flex sx={{ gap: '1rem' }} marginBottom="24px">
-            <Tag active={!tags} onClick={() => onTagClick('All')} role="button">
+            <Tag active={!tags.length} onClick={() => updateFilters('tags', '')} role="button">
               All
             </Tag>
-            <Tag active={!!isFavorite} onClick={() => onTagClick('Favorite')} role="button">
+            <Tag
+              active={!!isFavorite}
+              onClick={() => updateFilters('isFavorite', isFavorite ? '' : 'true')}
+              role="button"
+            >
               <Star size={14} />
             </Tag>
             {filterTags.map(item => (
-              <Tag active={item.value === tags} onClick={() => onTagClick(item.value)} key={item.value} role="button">
+              <Tag
+                active={
+                  ['gainers', 'losers'].includes(item.value)
+                    ? sortCol.includes('price_change_24h') &&
+                      (item.value === 'gainers' ? 'desc' : 'asc') === sortDirection
+                    : tags?.includes(item.value)
+                }
+                onClick={() => {
+                  if (['gainers', 'losers'].includes(item.value)) {
+                    updateFilters(
+                      'sort',
+                      (isGainerActive && item.value === 'gainers') || (isLoserActive && item.value === 'losers')
+                        ? ''
+                        : `price_change_24h-${filters.chainId} ${item.value === 'gainers' ? 'desc' : 'asc'}`,
+                    )
+                    return
+                  }
+                  if (tags.includes(item.value)) {
+                    updateFilters('tags', tags.filter(t => t !== item.value).join(','))
+                  } else {
+                    updateFilters('tags', [...tags, item.value].join(','))
+                  }
+                }}
+                key={item.value}
+                role="button"
+              >
                 {item.label}
               </Tag>
             ))}
@@ -114,7 +133,7 @@ export default function MarketOverview() {
               alignItems="center"
               sx={{ borderRight: `1px solid ${theme.border}` }}
             >
-              # Name
+              Name
             </Text>
             <Box
               sx={{
@@ -139,7 +158,12 @@ export default function MarketOverview() {
                       alignItems="center"
                       padding="4px"
                       role="button"
-                      onClick={() => updateFilters('chainId', item.toString())}
+                      onClick={() => {
+                        updateFilters('chainId', item.toString())
+                        if (sortCol.startsWith('price_change')) {
+                          updateFilters('sort', sortCol.split('-')[0] + '-' + item + ' ' + sortDirection)
+                        }
+                      }}
                       sx={{
                         background: filters.chainId === item ? rgba(theme.primary, 0.2) : undefined,
                         border: filters.chainId === item ? `1px solid ${theme.primary}` : 'none',
@@ -236,6 +260,10 @@ export default function MarketOverview() {
                 </Flex>
               </InnerGrid>
             </Box>
+
+            <Text textAlign="center" fontSize={14}>
+              Actions
+            </Text>
           </TableHeader>
           <TableContent />
         </ContentWrapper>

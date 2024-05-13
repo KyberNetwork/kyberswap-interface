@@ -8,7 +8,7 @@ export interface QueryParams {
   search?: string
   user?: string
   isFavorite?: boolean
-  tags?: string
+  tags: string[]
   sort?: string
   page?: number
   pageSize?: number
@@ -69,6 +69,7 @@ const blockServiceApi = createApi({
           chainIds: params.chainId,
           isFavorite: params.isFavorite || undefined,
           search: (params.search || '').trim(),
+          tags: params.tags.length ? params.tags.join(',') : undefined,
         },
       }),
     }),
