@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
 import { Star, X } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import {
   AssetToken,
@@ -14,11 +15,13 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Modal from 'components/Modal'
+import { MAINNET_NETWORKS } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -39,6 +42,7 @@ export default function TableContent() {
   const tokens = data?.data.assets || []
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   if (!tokens.length && !isLoading) {
     return (
@@ -131,7 +135,12 @@ export default function TableContent() {
     <>
       <Modal isOpen={!!tokenToShow} onDismiss={() => setShowTokenId(null)} width="100%" maxWidth="600px">
         {tokenToShow ? (
-          <Flex width="100%" flexDirection="column" padding="2rem" sx={{ position: 'relative' }}>
+          <Flex
+            width="100%"
+            flexDirection="column"
+            padding={upToMedium ? '1rem' : '2rem'}
+            sx={{ position: 'relative' }}
+          >
             <Flex alignItems="center" sx={{ gap: '6px' }}>
               <img
                 src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
@@ -160,7 +169,11 @@ export default function TableContent() {
             <ButtonEmpty
               onClick={() => setShowTokenId(null)}
               width="fit-content"
-              style={{ position: 'absolute', top: '1rem', right: '1rem' }}
+              style={{
+                position: 'absolute',
+                top: upToMedium ? '0.5rem' : '1rem',
+                right: upToMedium ? '0.5rem' : '1rem',
+              }}
             >
               <X color={theme.text} />
             </ButtonEmpty>
@@ -170,8 +183,8 @@ export default function TableContent() {
                 background: '#ffffff20',
                 padding: '0.75rem 1rem',
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr 1fr',
-                gap: '1.5rem',
+                gridTemplateColumns: upToMedium ? '1fr 1fr' : '1fr 1fr 1fr 1fr',
+                gap: upToMedium ? '0.75rem' : '1.5rem',
                 height: 'fit-content',
                 borderRadius: '1rem',
                 marginTop: '1.25rem',
@@ -179,7 +192,7 @@ export default function TableContent() {
             >
               <div>
                 <Text fontSize={12} color={theme.subText}>
-                  Market cap
+                  Market Cap
                 </Text>
                 <Text marginTop="4px">
                   {formatDisplayNumber(tokenToShow.marketCap, { style: 'currency', fractionDigits: 2 })}
@@ -187,7 +200,7 @@ export default function TableContent() {
               </div>
               <div>
                 <Text fontSize={12} color={theme.subText}>
-                  24h volume
+                  24h Volume
                 </Text>
                 <Text marginTop="4px">
                   {formatDisplayNumber(tokenToShow.volume24h, { style: 'currency', fractionDigits: 2 })}
@@ -219,94 +232,82 @@ export default function TableContent() {
               <div />
             </Box>
 
-            {tokenToShow.tokens.map(token => {
-              return (
-                <Box
-                  sx={{ display: 'grid', gridTemplateColumns: '1.2fr 0.5fr 1fr' }}
-                  key={token.chainId}
-                  marginBottom="1rem"
-                  alignItems="center"
-                >
-                  <Flex sx={{ gap: '12px' }} alignItems="center">
-                    <Box sx={{ position: 'relative' }}>
-                      <img
-                        src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
-                        width="32px"
-                        height="32px"
-                        alt=""
-                        style={{
-                          borderRadius: '50%',
-                        }}
-                      />
+            {tokenToShow.tokens
+              .filter(token => MAINNET_NETWORKS.includes(+token.chainId))
+              .map(token => {
+                return (
+                  <Box
+                    sx={{ display: 'grid', gridTemplateColumns: '1.2fr 0.5fr 1fr' }}
+                    key={token.chainId}
+                    marginBottom="1rem"
+                    alignItems="center"
+                  >
+                    <Flex sx={{ gap: '12px' }} alignItems="center">
+                      <Box sx={{ position: 'relative' }}>
+                        <img
+                          src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
+                          width="32px"
+                          height="32px"
+                          alt=""
+                          style={{
+                            borderRadius: '50%',
+                          }}
+                        />
 
-                      <img
-                        src={NETWORKS_INFO[token.chainId as ChainId].icon}
-                        alt=""
-                        width="16px"
-                        height="16px"
-                        style={{ position: 'absolute', right: '-8px', bottom: 0 }}
-                      />
-                    </Box>
-                    <div>
-                      <Text>
-                        {tokenToShow.symbol}{' '}
-                        <Text as="span" color={theme.subText}>
-                          {NETWORKS_INFO[token.chainId as ChainId].name}
+                        <img
+                          src={NETWORKS_INFO[token.chainId as ChainId].icon}
+                          alt=""
+                          width="16px"
+                          height="16px"
+                          style={{ position: 'absolute', right: '-8px', bottom: 0 }}
+                        />
+                      </Box>
+                      <div>
+                        <Text>
+                          {tokenToShow.symbol}{' '}
+                          <Text as="span" color={theme.subText}>
+                            {NETWORKS_INFO[token.chainId as ChainId].name}
+                          </Text>
                         </Text>
-                      </Text>
-                      <Text color={theme.subText} display="flex" marginTop="2px">
-                        {shortenAddress(1, token.address)}
-                        <CopyHelper toCopy={token.address} />
-                      </Text>
-                    </div>
-                  </Flex>
+                        <Text color={theme.subText} display="flex" marginTop="2px">
+                          {shortenAddress(1, token.address)}
+                          <CopyHelper toCopy={token.address} />
+                        </Text>
+                      </div>
+                    </Flex>
 
-                  <Text textAlign="right">
-                    {token.price
-                      ? formatDisplayNumber(token.price, { style: 'currency', fractionDigits: 2, significantDigits: 7 })
-                      : '--'}
-                  </Text>
+                    <Text textAlign="right">
+                      {token.price
+                        ? formatDisplayNumber(token.price, {
+                            style: 'currency',
+                            fractionDigits: 2,
+                            significantDigits: 7,
+                          })
+                        : '--'}
+                    </Text>
 
-                  <Flex sx={{ gap: '12px' }} alignItems="center" justifyContent="flex-end">
-                    <ButtonOutlined
-                      color={theme.primary}
-                      style={{
-                        width: 'fit-content',
-                        padding: '4px 12px',
-                      }}
-                      onClick={() => {
-                        window.open(
-                          `/swap/${NETWORKS_INFO[token.chainId as ChainId].route}?inputCurrency=${
-                            NativeCurrencies[token.chainId as ChainId].symbol
-                          }&outputCurrency=${token.address}`,
-                          '_blank',
-                        )
-                      }}
-                    >
-                      Buy
-                    </ButtonOutlined>
-
-                    <ButtonOutlined
-                      color={theme.primary}
-                      style={{
-                        width: 'fit-content',
-                        padding: '4px 12px',
-                      }}
-                      onClick={() => {
-                        window.open(
-                          `/swap/${NETWORKS_INFO[token.chainId as ChainId].route}?outputCurrency=${
-                            NativeCurrencies[token.chainId as ChainId].symbol
-                          }&inputCurrency=${token.address}`,
-                          '_blank',
-                        )
-                      }}
-                    >
-                      Sell
-                    </ButtonOutlined>
-                  </Flex>
-                </Box>
-              )
-            })}
+                    <Flex sx={{ gap: '12px' }} alignItems="center" justifyContent="flex-end">
+                      <ButtonOutlined
+                        color={theme.primary}
+                        style={{
+                          width: 'fit-content',
+                          padding: '4px 12px',
+                        }}
+                        onClick={() => {
+                          window.open(
+                            `/swap/${NETWORKS_INFO[token.chainId as ChainId].route}?inputCurrency=${
+                              NativeCurrencies[token.chainId as ChainId].symbol
+                            }&outputCurrency=${token.address}`,
+                            '_blank',
+                          )
+                        }}
+                      >
+                        Swap
+                      </ButtonOutlined>
+                    </Flex>
+                  </Box>
+                )
+              })}
           </Flex>
         ) : null}
       </Modal>
@@ -316,9 +317,9 @@ export default function TableContent() {
         return (
           <TableRow key={item.id + '-' + idx} role="button" onClick={() => setShowTokenId(item.id)}>
             <Flex
-              sx={{ gap: '8px', borderRight: `1px solid ${theme.border}` }}
+              sx={{ gap: '8px', borderRight: upToMedium ? 'none' : `1px solid ${theme.border}` }}
               alignItems="flex-start"
-              padding="0.75rem 1rem"
+              padding={upToMedium ? '0.75rem 0' : '0.75rem'}
             >
               <img
                 src={item.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
@@ -355,100 +356,84 @@ export default function TableContent() {
               {!token?.priceChange1h ? '--' : `${Math.abs(token.priceChange1h).toFixed(2)}%`}
             </Flex>
 
-            <Flex
-              alignItems="center"
-              justifyContent="flex-end"
-              color={getColor(token?.priceChange24h)}
-              title={token?.priceChange24h?.toString()}
-            >
-              {!!token?.priceChange24h && (
-                <DropdownSVG style={{ transform: `rotate(${token.priceChange24h > 0 ? '180deg' : '0'} )` }} />
-              )}
-              {!token?.priceChange24h ? '--' : Math.abs(token.priceChange24h).toFixed(2) + '%'}
-            </Flex>
+            {!upToMedium && (
+              <>
+                <Flex
+                  alignItems="center"
+                  justifyContent="flex-end"
+                  color={getColor(token?.priceChange24h)}
+                  title={token?.priceChange24h?.toString()}
+                >
+                  {!!token?.priceChange24h && (
+                    <DropdownSVG style={{ transform: `rotate(${token.priceChange24h > 0 ? '180deg' : '0'} )` }} />
+                  )}
+                  {!token?.priceChange24h ? '--' : Math.abs(token.priceChange24h).toFixed(2) + '%'}
+                </Flex>
 
-            <Flex
-              alignItems="center"
-              justifyContent="flex-end"
-              padding="0.75rem 1.5rem 0.75rem"
-              height="100%"
-              sx={{ borderRight: `1px solid ${theme.border}` }}
-              color={getColor(token?.priceChange7d)}
-              title={token?.priceChange7d?.toString()}
-            >
-              {!!token?.priceChange7d && (
-                <DropdownSVG style={{ transform: `rotate(${token.priceChange7d > 0 ? '180deg' : '0'} )` }} />
-              )}
-              {!token?.priceChange7d ? '--' : Math.abs(token.priceChange7d).toFixed(2) + '%'}
-            </Flex>
+                <Flex
+                  alignItems="center"
+                  justifyContent="flex-end"
+                  padding="0.75rem 1.5rem 0.75rem"
+                  height="100%"
+                  sx={{ borderRight: `1px solid ${theme.border}` }}
+                  color={getColor(token?.priceChange7d)}
+                  title={token?.priceChange7d?.toString()}
+                >
+                  {!!token?.priceChange7d && (
+                    <DropdownSVG style={{ transform: `rotate(${token.priceChange7d > 0 ? '180deg' : '0'} )` }} />
+                  )}
+                  {!token?.priceChange7d ? '--' : Math.abs(token.priceChange7d).toFixed(2) + '%'}
+                </Flex>
 
-            <Flex alignItems="center" justifyContent="flex-end" padding="0.75rem" height="100%">
-              {formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 })}
-            </Flex>
-            <Flex
-              alignItems="center"
-              justifyContent="flex-end"
-              height="100%"
-              padding="0.75rem"
-              paddingRight="1.5rem"
-              sx={{ borderRight: `1px solid ${theme.border}` }}
-            >
-              {formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })}
-            </Flex>
+                <Flex alignItems="center" justifyContent="flex-end" padding="0.75rem" height="100%">
+                  {formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 })}
+                </Flex>
+                <Flex
+                  alignItems="center"
+                  justifyContent="flex-end"
+                  height="100%"
+                  padding="0.75rem"
+                  paddingRight="1.5rem"
+                  sx={{ borderRight: `1px solid ${theme.border}` }}
+                >
+                  {formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })}
+                </Flex>
 
-            <Flex justifyContent="center" alignItems="center" sx={{ gap: '0.75rem' }}>
-              <ButtonOutlined
-                color={theme.primary}
-                style={{
-                  width: 'fit-content',
-                  padding: '4px 12px',
-                }}
-                onClick={e => {
-                  e.stopPropagation()
-                  if (token)
-                    window.open(
-                      `/swap/${NETWORKS_INFO[token.chainId as ChainId].route}?inputCurrency=${
-                        NativeCurrencies[token.chainId as ChainId].symbol
-                      }&outputCurrency=${token.address}`,
-                      '_blank',
-                    )
-                }}
-              >
-                Buy
-              </ButtonOutlined>
+                <Flex justifyContent="center" alignItems="center" sx={{ gap: '0.75rem' }}>
+                  <ButtonOutlined
+                    color={theme.primary}
+                    style={{
+                      width: 'fit-content',
+                      padding: '4px 12px',
+                    }}
+                    onClick={e => {
+                      e.stopPropagation()
+                      if (token)
+                        window.open(
+                          `/swap/${NETWORKS_INFO[token.chainId as ChainId].route}?inputCurrency=${
+                            NativeCurrencies[token.chainId as ChainId].symbol
+                          }&outputCurrency=${token.address}`,
+                          '_blank',
+                        )
+                    }}
+                  >
+                    Swap
+                  </ButtonOutlined>
 
-              <ButtonOutlined
-                color={theme.primary}
-                style={{
-                  width: 'fit-content',
-                  padding: '4px 12px',
-                }}
-                onClick={e => {
-                  e.stopPropagation()
-                  if (token)
-                    window.open(
-                      `/swap/${NETWORKS_INFO[token.chainId as ChainId].route}?outputCurrency=${
-                        NativeCurrencies[token.chainId as ChainId].symbol
-                      }&inputCurrency=${token.address}`,
-                      '_blank',
-                    )
-                }}
-              >
-                Sell
-              </ButtonOutlined>
-
-              <Star
-                size={16}
-                color={item.isFavorite ? theme.yellow1 : theme.subText}
-                role="button"
-                cursor="pointer"
-                fill={item.isFavorite ? theme.yellow1 : 'none'}
-                onClick={e => {
-                  e.stopPropagation()
-                  toggleFavorite(item)
-                }}
-              />
-            </Flex>
+                  <Star
+                    size={16}
+                    color={item.isFavorite ? theme.yellow1 : theme.subText}
+                    role="button"
+                    cursor="pointer"
+                    fill={item.isFavorite ? theme.yellow1 : 'none'}
+                    onClick={e => {
+                      e.stopPropagation()
+                      toggleFavorite(item)
+                    }}
+                  />
+                </Flex>
+              </>
+            )}
           </TableRow>
         )
       })}

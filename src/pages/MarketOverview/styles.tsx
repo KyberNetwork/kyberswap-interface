@@ -6,10 +6,18 @@ export const TableWrapper = styled.div`
   background: ${({ theme }) => rgba(theme.background, 0.8)};
   border-radius: 16px;
   overflow: hidden;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin: 0 -20px;
+  `}
 `
 
 export const ContentWrapper = styled.div`
   padding: 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 16px;
+  `}
 `
 
 export const Tag = styled.div<{ active: boolean }>`
@@ -37,6 +45,10 @@ export const TableRow = styled(TableHeader)`
   &:hover {
     background: ${({ theme }) => theme.buttonBlack};
   }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: 1fr 1fr 1fr;
+  `}
 `
 
 export const InnerGrid = styled(Box)`
@@ -44,4 +56,19 @@ export const InnerGrid = styled(Box)`
   grid-template-columns: 1fr 1fr 1fr 1fr;
   font-size: 14px;
   color: ${({ theme }) => theme.subText};
+`
+
+export const Tabs = styled.div`
+  padding: 1rem 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: ${({ theme }) => theme.subText};
+`
+
+export const Tab = styled.div<{ active: boolean }>`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  cursor: pointer;
 `
