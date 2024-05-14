@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
-import { Star } from 'react-feather'
+import { Star, X } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import {
   AssetToken,
@@ -9,8 +9,9 @@ import {
   useRemoveFavoriteMutation,
 } from 'services/marketOverview'
 
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { NotificationType } from 'components/Announcement/type'
-import { ButtonOutlined } from 'components/Button'
+import { ButtonEmpty, ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Modal from 'components/Modal'
 import { NativeCurrencies } from 'constants/tokens'
@@ -130,7 +131,7 @@ export default function TableContent() {
     <>
       <Modal isOpen={!!tokenToShow} onDismiss={() => setShowTokenId(null)} width="100%" maxWidth="600px">
         {tokenToShow ? (
-          <Flex width="100%" flexDirection="column" padding="2rem">
+          <Flex width="100%" flexDirection="column" padding="2rem" sx={{ position: 'relative' }}>
             <Flex alignItems="center" sx={{ gap: '6px' }}>
               <img
                 src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
@@ -155,6 +156,14 @@ export default function TableContent() {
                 onClick={() => toggleFavorite(tokenToShow)}
               />
             </Flex>
+
+            <ButtonEmpty
+              onClick={() => setShowTokenId(null)}
+              width="fit-content"
+              style={{ position: 'absolute', top: '1rem', right: '1rem' }}
+            >
+              <X color={theme.text} />
+            </ButtonEmpty>
 
             <Box
               sx={{
@@ -253,7 +262,9 @@ export default function TableContent() {
                   </Flex>
 
                   <Text textAlign="right">
-                    {token.price ? formatDisplayNumber(token.price, { style: 'currency', fractionDigits: 2 }) : '--'}
+                    {token.price
+                      ? formatDisplayNumber(token.price, { style: 'currency', fractionDigits: 2, significantDigits: 7 })
+                      : '--'}
                   </Text>
 
                   <Flex sx={{ gap: '12px' }} alignItems="center" justifyContent="flex-end">
@@ -327,15 +338,33 @@ export default function TableContent() {
             </Flex>
 
             <Flex alignItems="center" justifyContent="flex-end">
-              {!token?.price ? '--' : formatDisplayNumber(token.price, { style: 'currency', fractionDigits: 2 })}
+              {!token?.price
+                ? '--'
+                : formatDisplayNumber(token.price, { style: 'currency', fractionDigits: 2, significantDigits: 7 })}
             </Flex>
 
-            <Flex alignItems="center" justifyContent="flex-end" color={getColor(token?.priceChange1h)}>
-              {!token?.priceChange1h ? '--' : token.priceChange1h.toFixed(2)}
+            <Flex
+              alignItems="center"
+              justifyContent="flex-end"
+              color={getColor(token?.priceChange1h)}
+              title={token?.priceChange1h?.toString()}
+            >
+              {!!token?.priceChange1h && (
+                <DropdownSVG style={{ transform: `rotate(${token.priceChange1h > 0 ? '180deg' : '0'} )` }} />
+              )}
+              {!token?.priceChange1h ? '--' : `${Math.abs(token.priceChange1h).toFixed(2)}%`}
             </Flex>
 
-            <Flex alignItems="center" justifyContent="flex-end" color={getColor(token?.priceChange24h)}>
-              {!token?.priceChange24h ? '--' : token.priceChange24h.toFixed(2)}
+            <Flex
+              alignItems="center"
+              justifyContent="flex-end"
+              color={getColor(token?.priceChange24h)}
+              title={token?.priceChange24h?.toString()}
+            >
+              {!!token?.priceChange24h && (
+                <DropdownSVG style={{ transform: `rotate(${token.priceChange24h > 0 ? '180deg' : '0'} )` }} />
+              )}
+              {!token?.priceChange24h ? '--' : Math.abs(token.priceChange24h).toFixed(2) + '%'}
             </Flex>
 
             <Flex
@@ -345,8 +374,12 @@ export default function TableContent() {
               height="100%"
               sx={{ borderRight: `1px solid ${theme.border}` }}
               color={getColor(token?.priceChange7d)}
+              title={token?.priceChange7d?.toString()}
             >
-              {!token?.priceChange7d ? '--' : token.priceChange7d.toFixed(2)}
+              {!!token?.priceChange7d && (
+                <DropdownSVG style={{ transform: `rotate(${token.priceChange7d > 0 ? '180deg' : '0'} )` }} />
+              )}
+              {!token?.priceChange7d ? '--' : Math.abs(token.priceChange7d).toFixed(2) + '%'}
             </Flex>
 
             <Flex alignItems="center" justifyContent="flex-end" padding="0.75rem" height="100%">
