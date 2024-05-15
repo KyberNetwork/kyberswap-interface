@@ -60,6 +60,7 @@ const blockServiceApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_TOKEN_API,
   }),
+  keepUnusedDataFor: 1,
   endpoints: builder => ({
     marketOverview: builder.query<Response, QueryParams>({
       query: params => ({

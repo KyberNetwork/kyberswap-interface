@@ -34,6 +34,7 @@ const filterTags = [
 
 export default function MarketOverview() {
   const theme = useTheme()
+
   const [showMarketInfo, setShowMarketInfo] = useState(false)
   const { filters, updateFilters } = useFilter()
   const { data } = useMarketOverviewQuery(filters)

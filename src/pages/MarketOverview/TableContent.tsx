@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Star, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -33,7 +33,7 @@ import useFilter from './useFilter'
 export default function TableContent({ showMarketInfo }: { showMarketInfo: boolean }) {
   const theme = useTheme()
   const { filters, updateFilters } = useFilter()
-  const { data, isLoading, refetch } = useMarketOverviewQuery(filters)
+  const { data, isLoading } = useMarketOverviewQuery(filters)
   const notify = useNotify()
   const [tokenToShowId, setShowTokenId] = useState<number | null>(null)
 
@@ -43,7 +43,12 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
-  const tokens = data?.data.assets || []
+  const tokensFromApi = useMemo(() => data?.data.assets || [], [data])
+  const [tokens, setTokens] = useState<AssetToken[]>(() => JSON.parse(JSON.stringify(tokensFromApi)))
+  useEffect(() => {
+    setTokens(JSON.parse(JSON.stringify(tokensFromApi)))
+  }, [tokensFromApi])
+
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -85,7 +90,6 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
     const key = `marketoverview_${account}`
     try {
       const data = JSON.parse(localStorage.getItem(key) || '')
-      console.log(data)
       if (data.issuedAt) {
         const expire = new Date(data.issuedAt)
         expire.setDate(expire.getDate() + 7)
@@ -112,7 +116,8 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
       )
     }
 
-    await (token.isFavorite ? removeFavorite : addFavorite)({
+    const isTokenFavorite = token.isFavorite
+    await (isTokenFavorite ? removeFavorite : addFavorite)({
       user: account,
       assetIds: [token.id],
       message: msg,
@@ -122,12 +127,18 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
         if ((res as any).error) {
           notify(
             {
-              title: `${!token.isFavorite ? 'Add' : 'Remove'} failed`,
+              title: `${!isTokenFavorite ? 'Add' : 'Remove'} failed`,
               summary: (res as any).error.data.message || 'Some thing went wrong',
               type: NotificationType.ERROR,
             },
             8000,
           )
+        } else {
+          const newTokens = tokens.map(item => {
+            if (item.id === token.id) item.isFavorite = !isTokenFavorite
+            return item
+          })
+          setTokens(newTokens)
         }
       })
       .catch(err => {
@@ -135,15 +146,13 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
         console.log(err)
         notify(
           {
-            title: `${token.isFavorite ? 'Add' : 'Remove'} failed`,
+            title: `${!isTokenFavorite ? 'Add' : 'Remove'} failed`,
             summary: err.message || 'Some thing went wrong',
             type: NotificationType.ERROR,
           },
           8000,
         )
       })
-
-    refetch()
   }
 
   const tokenToShow = tokens.find(item => item.id === tokenToShowId)
