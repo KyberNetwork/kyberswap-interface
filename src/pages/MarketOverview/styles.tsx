@@ -8,7 +8,7 @@ export const TableWrapper = styled.div`
   overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin: 0 -20px;
+    margin: 0 -16px;
   `}
 `
 

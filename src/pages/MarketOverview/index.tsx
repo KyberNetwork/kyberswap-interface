@@ -35,9 +35,7 @@ const filterTags = [
 export default function MarketOverview() {
   const theme = useTheme()
   const [showMarketInfo, setShowMarketInfo] = useState(false)
-
   const { filters, updateFilters } = useFilter()
-
   const { data } = useMarketOverviewQuery(filters)
 
   const [sortCol, sortDirection] = (filters.sort || '').split(' ')
@@ -66,6 +64,7 @@ export default function MarketOverview() {
   const isGainerActive = sortCol.includes('price_change_24h') && 'desc' === sortDirection
   const isLoserActive = sortCol.includes('price_change_24h') && 'asc' === sortDirection
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const chainSelector = (
     <>
@@ -77,7 +76,7 @@ export default function MarketOverview() {
           role="button"
           onClick={() => {
             updateFilters('chainId', item.toString())
-            if (sortCol.startsWith('price_change')) {
+            if (sortCol.startsWith('price')) {
               updateFilters('sort', sortCol.split('-')[0] + '-' + item + ' ' + sortDirection)
             }
           }}
@@ -95,7 +94,7 @@ export default function MarketOverview() {
 
   return (
     <PoolsPageWrapper>
-      <Flex justifyContent="space-between">
+      <Flex justifyContent="space-between" flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Text as="h1" fontSize={24} fontWeight="500">
           <Trans>Market Overview</Trans>
         </Text>
@@ -299,7 +298,7 @@ export default function MarketOverview() {
               <Divider />
             </>
           )}
-          <TableContent />
+          <TableContent showMarketInfo={showMarketInfo} />
         </ContentWrapper>
         <Pagination
           onPageChange={(newPage: number) => {

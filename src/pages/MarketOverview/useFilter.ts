@@ -12,7 +12,7 @@ export default function useFilter() {
     const isFavorite = searchParams.get('isFavorite') === 'true'
     return {
       chainId: +(searchParams.get('chainId') || (chainId as number)),
-      search: searchParams.get('search') || undefined,
+      search: searchParams.get('search') || '',
       user: account,
       isFavorite,
       tags: (searchParams.get('tags') || '').split(',').filter(Boolean),
@@ -26,6 +26,7 @@ export default function useFilter() {
     (key: keyof QueryParams, value: string) => {
       if (!value) searchParams.delete(key)
       else searchParams.set(key, value)
+      if (key !== 'sort' && key !== 'page') searchParams.set('page', '1')
       setSearchParams(searchParams)
     },
     [setSearchParams, searchParams],

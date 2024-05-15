@@ -14,6 +14,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'
+import Divider from 'components/Divider'
 import Modal from 'components/Modal'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
@@ -25,15 +26,18 @@ import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import SortIcon, { Direction } from './SortIcon'
 import { TableRow } from './styles'
 import useFilter from './useFilter'
 
-export default function TableContent() {
+export default function TableContent({ showMarketInfo }: { showMarketInfo: boolean }) {
   const theme = useTheme()
-  const { filters } = useFilter()
+  const { filters, updateFilters } = useFilter()
   const { data, isLoading, refetch } = useMarketOverviewQuery(filters)
   const notify = useNotify()
   const [tokenToShowId, setShowTokenId] = useState<number | null>(null)
+
+  const [sortCol, sortDirection] = (filters.sort || '').split(' ')
 
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -44,12 +48,25 @@ export default function TableContent() {
   const [removeFavorite] = useRemoveFavoriteMutation()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
+  const [selectedSort, setSelectedSort] = useState('24h')
+
   if (!tokens.length && !isLoading) {
     return (
       <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
         No data found
       </Text>
     )
+  }
+
+  const updateSort = (col: string, appendChain = true) => {
+    const c = appendChain ? `${col}-${filters.chainId}` : col
+    // desc -> acs -> none
+    let newDirection: Direction | '' = Direction.DESC
+    if (sortCol === c) {
+      if (sortDirection === Direction.DESC) newDirection = Direction.ASC
+      else if (sortDirection === Direction.ASC) newDirection = ''
+    }
+    updateFilters('sort', newDirection ? `${c} ${newDirection}` : '')
   }
 
   const getColor = (value?: number) => {
@@ -224,7 +241,11 @@ export default function TableContent() {
                 </Text>
               </div>
             </Box>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1.2fr 0.5fr 1fr' }} marginTop="1.5rem" marginBottom="8px">
+            <Box
+              sx={{ display: 'grid', gridTemplateColumns: '1fr 0.75fr 0.75fr' }}
+              marginTop="1.5rem"
+              marginBottom="8px"
+            >
               <div />
               <Text fontSize={12} color={theme.subText} textAlign="right">
                 On-chain Price
@@ -237,7 +258,7 @@ export default function TableContent() {
               .map(token => {
                 return (
                   <Box
-                    sx={{ display: 'grid', gridTemplateColumns: '1.2fr 0.5fr 1fr' }}
+                    sx={{ display: 'grid', gridTemplateColumns: '1fr 0.75fr 0.75fr' }}
                     key={token.chainId}
                     marginBottom="1rem"
                     alignItems="center"
@@ -265,11 +286,11 @@ export default function TableContent() {
                       <div>
                         <Text>
                           {tokenToShow.symbol}{' '}
-                          <Text as="span" color={theme.subText}>
+                          <Text as="span" color={theme.subText} fontSize={14}>
                             {NETWORKS_INFO[token.chainId as ChainId].name}
                           </Text>
                         </Text>
-                        <Text color={theme.subText} display="flex" marginTop="2px">
+                        <Text color={theme.subText} display="flex" marginTop="2px" fontSize="12px">
                           {shortenAddress(1, token.address)}
                           <CopyHelper toCopy={token.address} />
                         </Text>
@@ -312,6 +333,129 @@ export default function TableContent() {
         ) : null}
       </Modal>
 
+      {upToMedium && (
+        <>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', paddingY: '0.75rem' }}>
+            <Text color={theme.subText} fontSize={14} height="100%">
+              Name
+            </Text>
+
+            {showMarketInfo ? (
+              <>
+                <Flex
+                  justifyContent="flex-end"
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  fontSize={14}
+                  color={theme.subText}
+                  role="button"
+                  onClick={() => updateSort('volume_24h', false)}
+                >
+                  24h Volume
+                  <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
+                </Flex>
+
+                <Flex
+                  justifyContent="flex-end"
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  fontSize={14}
+                  role="button"
+                  color={theme.subText}
+                  onClick={() => updateSort('market_cap', false)}
+                >
+                  Market cap
+                  <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
+                </Flex>
+              </>
+            ) : (
+              <>
+                <Flex
+                  color={theme.subText}
+                  justifyContent="flex-end"
+                  sx={{ gap: '4px', cursor: 'pointer' }}
+                  fontSize={14}
+                  role="button"
+                  onClick={() => updateSort('price')}
+                >
+                  Price
+                  <Flex marginTop="3px">
+                    <SortIcon sorted={sortCol.startsWith('price-') ? (sortDirection as Direction) : undefined} />
+                  </Flex>
+                </Flex>
+
+                <Flex alignItems="flex-end" flexDirection="column" fontSize={12}>
+                  <Flex
+                    justifyContent="flex-end"
+                    sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                    role="button"
+                    onClick={() => updateSort(`price_change_${selectedSort}`)}
+                    color={theme.subText}
+                  >
+                    {selectedSort} Change
+                    <SortIcon sorted={sortCol.startsWith('price_change') ? (sortDirection as Direction) : undefined} />
+                  </Flex>
+
+                  <Flex
+                    sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
+                    padding="1px"
+                    marginTop="8px"
+                    width="fit-content"
+                  >
+                    <Flex
+                      padding="4px 8px"
+                      alignItems="center"
+                      sx={{
+                        borderRadius: '999px',
+                        background: selectedSort === '1h' ? theme.tabActive : 'transparent',
+                      }}
+                      color={selectedSort === '1h' ? theme.text : theme.subText}
+                      onClick={() => {
+                        setSelectedSort('1h')
+                        updateSort('price_change_1h')
+                      }}
+                    >
+                      1h
+                    </Flex>
+
+                    <Flex
+                      padding="4px 8px"
+                      alignItems="center"
+                      sx={{
+                        borderRadius: '999px',
+                        background: selectedSort === '24h' ? theme.tabActive : 'transparent',
+                      }}
+                      color={selectedSort === '24h' ? theme.text : theme.subText}
+                      onClick={() => {
+                        setSelectedSort('24h')
+                        updateSort('price_change_24h')
+                      }}
+                    >
+                      24h
+                    </Flex>
+
+                    <Flex
+                      padding="4px 8px"
+                      alignItems="center"
+                      sx={{
+                        borderRadius: '999px',
+                        background: selectedSort === '7d' ? theme.tabActive : 'transparent',
+                      }}
+                      color={selectedSort === '7d' ? theme.text : theme.subText}
+                      onClick={() => {
+                        setSelectedSort('7d')
+                        updateSort('price_change_7d')
+                      }}
+                    >
+                      7d
+                    </Flex>
+                  </Flex>
+                </Flex>
+              </>
+            )}
+          </Box>
+          <Divider />
+        </>
+      )}
+
       {tokens.map((item, idx) => {
         const token = item.tokens.find(t => +t.chainId === filters.chainId)
         return (
@@ -338,23 +482,36 @@ export default function TableContent() {
               </div>
             </Flex>
 
-            <Flex alignItems="center" justifyContent="flex-end">
-              {!token?.price
-                ? '--'
-                : formatDisplayNumber(token.price, { style: 'currency', fractionDigits: 2, significantDigits: 7 })}
-            </Flex>
+            {showMarketInfo ? (
+              <>
+                <Flex alignItems="center" justifyContent="flex-end">
+                  {formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 })}
+                </Flex>
+                <Flex alignItems="center" justifyContent="flex-end" height="100%">
+                  {formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })}
+                </Flex>
+              </>
+            ) : (
+              <>
+                <Flex alignItems="center" justifyContent="flex-end">
+                  {!token?.price
+                    ? '--'
+                    : formatDisplayNumber(token.price, { style: 'currency', fractionDigits: 2, significantDigits: 7 })}
+                </Flex>
 
-            <Flex
-              alignItems="center"
-              justifyContent="flex-end"
-              color={getColor(token?.priceChange1h)}
-              title={token?.priceChange1h?.toString()}
-            >
-              {!!token?.priceChange1h && (
-                <DropdownSVG style={{ transform: `rotate(${token.priceChange1h > 0 ? '180deg' : '0'} )` }} />
-              )}
-              {!token?.priceChange1h ? '--' : `${Math.abs(token.priceChange1h).toFixed(2)}%`}
-            </Flex>
+                <Flex
+                  alignItems="center"
+                  justifyContent="flex-end"
+                  color={getColor(token?.priceChange1h)}
+                  title={token?.priceChange1h?.toString()}
+                >
+                  {!!token?.priceChange1h && (
+                    <DropdownSVG style={{ transform: `rotate(${token.priceChange1h > 0 ? '180deg' : '0'} )` }} />
+                  )}
+                  {!token?.priceChange1h ? '--' : `${Math.abs(token.priceChange1h).toFixed(2)}%`}
+                </Flex>
+              </>
+            )}
 
             {!upToMedium && (
               <>
