@@ -58,7 +58,7 @@ interface AddRemoveFavoriteParams {
 const blockServiceApi = createApi({
   reducerPath: 'marketOverviewApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://token-api.stg.kyberengineering.io/api',
+    baseUrl: import.meta.env.VITE_TOKEN_API,
   }),
   endpoints: builder => ({
     marketOverview: builder.query<Response, QueryParams>({

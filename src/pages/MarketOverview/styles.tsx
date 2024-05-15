@@ -33,13 +33,13 @@ export const Tag = styled.div<{ active: boolean }>`
 
 export const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 2fr 1.2fr 160px;
+  grid-template-columns: 1fr 2fr 1.2fr 140px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
   align-items: center;
 `
 
 export const TableRow = styled(TableHeader)`
-  grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.6fr 160px;
+  grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.6fr 140px;
   border-bottom: none;
 
   &:hover {

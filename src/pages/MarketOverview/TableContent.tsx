@@ -152,48 +152,44 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
     <>
       <Modal isOpen={!!tokenToShow} onDismiss={() => setShowTokenId(null)} width="100%" maxWidth="600px">
         {tokenToShow ? (
-          <Flex
-            width="100%"
-            flexDirection="column"
-            padding={upToMedium ? '1rem' : '2rem'}
-            sx={{ position: 'relative' }}
-          >
-            <Flex alignItems="center" sx={{ gap: '6px' }}>
-              <img
-                src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
-                width="24px"
-                height="24px"
-                alt=""
-                style={{
-                  borderRadius: '50%',
-                }}
-              />
-              <Text fontSize={16}>{tokenToShow.symbol}</Text>
-              <Text fontSize={14} color={theme.subText}>
-                {tokenToShow.name}
-              </Text>
+          <Flex width="100%" flexDirection="column" padding={upToMedium ? '1rem' : '2rem'}>
+            <Flex justifyContent="space-between" sx={{ gap: '4px' }}>
+              <Flex alignItems="center" sx={{ gap: '6px' }} flex="1">
+                <img
+                  src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
+                  width="24px"
+                  height="24px"
+                  alt=""
+                  style={{
+                    borderRadius: '50%',
+                  }}
+                />
+                <Text fontSize={16} minWidth="max-content">
+                  {tokenToShow.symbol}
+                </Text>
+                <Text
+                  fontSize={14}
+                  color={theme.subText}
+                  sx={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}
+                >
+                  {tokenToShow.name}
+                </Text>
 
-              <Star
-                size={16}
-                color={tokenToShow.isFavorite ? theme.yellow1 : theme.subText}
-                role="button"
-                cursor="pointer"
-                fill={tokenToShow.isFavorite ? theme.yellow1 : 'none'}
-                onClick={() => toggleFavorite(tokenToShow)}
-              />
+                <Star
+                  size={16}
+                  color={tokenToShow.isFavorite ? theme.yellow1 : theme.subText}
+                  role="button"
+                  cursor="pointer"
+                  fill={tokenToShow.isFavorite ? theme.yellow1 : 'none'}
+                  onClick={() => toggleFavorite(tokenToShow)}
+                  style={{ minWidth: '16px' }}
+                />
+              </Flex>
+
+              <ButtonEmpty onClick={() => setShowTokenId(null)} width="fit-content" style={{ padding: 0 }}>
+                <X color={theme.text} />
+              </ButtonEmpty>
             </Flex>
-
-            <ButtonEmpty
-              onClick={() => setShowTokenId(null)}
-              width="fit-content"
-              style={{
-                position: 'absolute',
-                top: upToMedium ? '0.5rem' : '1rem',
-                right: upToMedium ? '0.5rem' : '1rem',
-              }}
-            >
-              <X color={theme.text} />
-            </ButtonEmpty>
 
             <Box
               sx={{
@@ -242,7 +238,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
               </div>
             </Box>
             <Box
-              sx={{ display: 'grid', gridTemplateColumns: '1fr 0.75fr 0.75fr' }}
+              sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToMedium ? '100px 80px' : '0.75fr  0.75fr'}` }}
               marginTop="1.5rem"
               marginBottom="8px"
             >
@@ -258,13 +254,13 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
               .map(token => {
                 return (
                   <Box
-                    sx={{ display: 'grid', gridTemplateColumns: '1fr 0.75fr 0.75fr' }}
                     key={token.chainId}
+                    sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToMedium ? '100px 80px' : '0.75fr 0.75fr'}` }}
                     marginBottom="1rem"
                     alignItems="center"
                   >
                     <Flex sx={{ gap: '12px' }} alignItems="center">
-                      <Box sx={{ position: 'relative' }}>
+                      <Box sx={{ position: 'relative' }} width="32px">
                         <img
                           src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
                           width="32px"
@@ -283,13 +279,22 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                           style={{ position: 'absolute', right: '-8px', bottom: 0 }}
                         />
                       </Box>
-                      <div>
-                        <Text>
+                      <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <Flex alignItems="center" sx={{ gap: '4px' }}>
                           {tokenToShow.symbol}{' '}
-                          <Text as="span" color={theme.subText} fontSize={14}>
+                          <Text
+                            as="span"
+                            color={theme.subText}
+                            fontSize={14}
+                            sx={{
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                            }}
+                          >
                             {NETWORKS_INFO[token.chainId as ChainId].name}
                           </Text>
-                        </Text>
+                        </Flex>
                         <Text color={theme.subText} display="flex" marginTop="2px" fontSize="12px">
                           {shortenAddress(1, token.address)}
                           <CopyHelper toCopy={token.address} />
@@ -506,7 +511,9 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   title={token?.priceChange1h?.toString()}
                 >
                   {!!token?.priceChange1h && (
-                    <DropdownSVG style={{ transform: `rotate(${token.priceChange1h > 0 ? '180deg' : '0'} )` }} />
+                    <DropdownSVG
+                      style={{ transform: `rotate(${token.priceChange1h > 0 ? '180deg' : '0'} )`, width: '24px' }}
+                    />
                   )}
                   {!token?.priceChange1h ? '--' : `${Math.abs(token.priceChange1h).toFixed(2)}%`}
                 </Flex>
@@ -522,7 +529,9 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   title={token?.priceChange24h?.toString()}
                 >
                   {!!token?.priceChange24h && (
-                    <DropdownSVG style={{ transform: `rotate(${token.priceChange24h > 0 ? '180deg' : '0'} )` }} />
+                    <DropdownSVG
+                      style={{ transform: `rotate(${token.priceChange24h > 0 ? '180deg' : '0'} )`, width: '24px' }}
+                    />
                   )}
                   {!token?.priceChange24h ? '--' : Math.abs(token.priceChange24h).toFixed(2) + '%'}
                 </Flex>
@@ -537,9 +546,11 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   title={token?.priceChange7d?.toString()}
                 >
                   {!!token?.priceChange7d && (
-                    <DropdownSVG style={{ transform: `rotate(${token.priceChange7d > 0 ? '180deg' : '0'} )` }} />
+                    <DropdownSVG
+                      style={{ transform: `rotate(${token.priceChange7d > 0 ? '180deg' : '0'} )`, minWidth: '24px' }}
+                    />
                   )}
-                  {!token?.priceChange7d ? '--' : Math.abs(token.priceChange7d).toFixed(2) + '%'}
+                  <span>{!token?.priceChange7d ? '--' : Math.abs(token.priceChange7d).toFixed(2) + '%'}</span>
                 </Flex>
 
                 <Flex alignItems="center" justifyContent="flex-end" padding="0.75rem" height="100%">

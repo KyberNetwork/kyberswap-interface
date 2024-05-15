@@ -248,7 +248,7 @@ export default function MarketOverview() {
                     borderBottom: `1px solid ${theme.border}`,
                   }}
                 >
-                  Market Overview <InfoHelper text="Marketcap & 24h volume data sourced from Coingecko" />
+                  Market Overview <InfoHelper text="Market cap & 24h volume data sourced from Coingecko" />
                 </Text>
 
                 <InnerGrid sx={{ gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -288,7 +288,7 @@ export default function MarketOverview() {
                 <span>|</span>
                 <Tab role="button" active={showMarketInfo} onClick={() => setShowMarketInfo(true)}>
                   Market Overview
-                  <InfoHelper text="Marketcap & 24h volume data sourced from Coingecko" />
+                  <InfoHelper text="Market cap & 24h volume data sourced from Coingecko" />
                 </Tab>
               </Tabs>
 
