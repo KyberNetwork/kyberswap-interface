@@ -26,7 +26,6 @@ export const AGGREGATOR_STATS_API = required('AGGREGATOR_STATS_API')
 export const NOTIFICATION_API = required('NOTIFICATION_API')
 export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
-export const TYPE_AND_SWAP_URL = required('TYPE_AND_SWAP_URL')
 export const POOL_FARM_BASE_URL = required('POOL_FARM_BASE_URL')
 export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
 export const GTM_ID = import.meta.env.VITE_GTM_ID
