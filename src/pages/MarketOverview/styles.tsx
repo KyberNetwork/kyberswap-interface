@@ -41,6 +41,7 @@ export const TableHeader = styled.div`
 export const TableRow = styled(TableHeader)`
   grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.6fr 140px;
   border-bottom: none;
+  cursor: pointer;
 
   &:hover {
     background: ${({ theme }) => theme.buttonBlack};

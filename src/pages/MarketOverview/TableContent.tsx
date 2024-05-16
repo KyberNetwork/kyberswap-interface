@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useState } from 'react'
 import { Star, X } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -16,6 +16,7 @@ import { ButtonEmpty, ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Modal from 'components/Modal'
+import { ETHER_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -260,7 +261,13 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
 
             {tokenToShow.tokens
               .filter(token => MAINNET_NETWORKS.includes(+token.chainId))
+              .sort((a, b) => b.price - a.price)
               .map(token => {
+                const address =
+                  token.address.toLowerCase() === ETHER_ADDRESS.toLowerCase()
+                    ? WETH[token.chainId as ChainId].address
+                    : token.address
+
                 return (
                   <Box
                     key={token.chainId}
@@ -305,8 +312,8 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                           </Text>
                         </Flex>
                         <Text color={theme.subText} display="flex" marginTop="2px" fontSize="12px">
-                          {shortenAddress(1, token.address)}
-                          <CopyHelper toCopy={token.address} />
+                          {shortenAddress(1, address)}
+                          <CopyHelper toCopy={address} />
                         </Text>
                       </div>
                     </Flex>
