@@ -64,11 +64,11 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
     )
   }
 
-  const updateSort = (col: string, appendChain = true) => {
+  const updateSort = (col: string, appendChain = true, keepDirection = false) => {
     const c = appendChain ? `${col}-${filters.chainId}` : col
     // desc -> acs -> none
-    let newDirection: Direction | '' = Direction.DESC
-    if (sortCol === c) {
+    let newDirection: Direction | '' = keepDirection ? (sortDirection as Direction) : Direction.DESC
+    if (sortCol === c && !keepDirection) {
       if (sortDirection === Direction.DESC) newDirection = Direction.ASC
       else if (sortDirection === Direction.ASC) newDirection = ''
     }
@@ -431,7 +431,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                       color={selectedSort === '1h' ? theme.text : theme.subText}
                       onClick={() => {
                         setSelectedSort('1h')
-                        updateSort('price_change_1h')
+                        updateSort('price_change_1h', true, true)
                       }}
                     >
                       1h
@@ -447,7 +447,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                       color={selectedSort === '24h' ? theme.text : theme.subText}
                       onClick={() => {
                         setSelectedSort('24h')
-                        updateSort('price_change_24h')
+                        updateSort('price_change_24h', true, true)
                       }}
                     >
                       24h
@@ -463,7 +463,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                       color={selectedSort === '7d' ? theme.text : theme.subText}
                       onClick={() => {
                         setSelectedSort('7d')
-                        updateSort('price_change_7d')
+                        updateSort('price_change_7d', true, true)
                       }}
                     >
                       7d
