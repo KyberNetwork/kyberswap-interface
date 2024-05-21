@@ -843,7 +843,7 @@ export default function AddLiquidity() {
   }, [isClient])
 
   const [allowedSlippage] = useUserSlippageTolerance()
-  const slippageStatus = checkRangeSlippage(allowedSlippage, false)
+  const slippageStatus = checkRangeSlippage(allowedSlippage, false, false)
 
   useEffect(() => {
     if (noLiquidity) {

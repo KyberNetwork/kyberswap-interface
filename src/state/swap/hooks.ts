@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { APP_PATHS, BAD_RECIPIENT_ADDRESSES } from 'constants/index'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
+import { CORRELATED_COINS_ADDRESS, DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2, useStableCoins } from 'hooks/Tokens'
 import { useTradeExactIn } from 'hooks/Trades'
@@ -29,7 +29,7 @@ import {
 import { SwapState } from 'state/swap/reducer'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { isAddress } from 'utils'
+import { isAddress, isAddressString } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
@@ -426,6 +426,23 @@ export const useCheckStablePairSwap = () => {
   const isStablePairSwap = isStableCoin(inputCurrencyId) && isStableCoin(outputCurrencyId)
 
   return isStablePairSwap
+}
+
+export const useCheckCorrelatedPair = () => {
+  const { chainId } = useActiveWeb3React()
+  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
+  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const inputAddress =
+    NativeCurrencies[chainId].symbol === inputCurrencyId
+      ? NativeCurrencies[chainId].wrapped.address
+      : isAddressString(inputCurrencyId)
+
+  const outputAddress =
+    NativeCurrencies[chainId].symbol === inputCurrencyId
+      ? NativeCurrencies[chainId].wrapped.address
+      : isAddressString(outputCurrencyId)
+
+  return CORRELATED_COINS_ADDRESS[chainId].some(pair => pair.includes(inputAddress) && pair.includes(outputAddress))
 }
 
 export const useSwitchPairToLimitOrder = () => {

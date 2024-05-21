@@ -10,28 +10,39 @@ export const getDefaultSlippage = (isStablePairSwap: boolean): number => {
   return isStablePairSwap ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP : DEFAULT_SLIPPAGE
 }
 
-export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean): SLIPPAGE_STATUS => {
+export const checkRangeSlippage = (
+  slippage: number,
+  isStablePairSwap: boolean,
+  isCorrelatedPair: boolean,
+): SLIPPAGE_STATUS => {
   if (isStablePairSwap) {
-    if (slippage >= 100) {
+    if (slippage >= 10) {
       return SLIPPAGE_STATUS.HIGH
     }
 
     return SLIPPAGE_STATUS.NORMAL
   }
 
-  if (slippage < 5) {
-    return SLIPPAGE_STATUS.LOW
+  if (isCorrelatedPair) {
+    if (slippage > 25) {
+      return SLIPPAGE_STATUS.HIGH
+    }
+    return SLIPPAGE_STATUS.NORMAL
   }
 
-  if (slippage >= 500) {
+  // if (slippage < 5) {
+  //   return SLIPPAGE_STATUS.LOW
+  // }
+
+  if (slippage > 100) {
     return SLIPPAGE_STATUS.HIGH
   }
 
   return SLIPPAGE_STATUS.NORMAL
 }
 
-export const checkWarningSlippage = (slippage: number, isStablePairSwap: boolean) => {
-  return checkRangeSlippage(slippage, isStablePairSwap) !== SLIPPAGE_STATUS.NORMAL
+export const checkWarningSlippage = (slippage: number, isStablePairSwap: boolean, isCorrelatedPair: boolean) => {
+  return checkRangeSlippage(slippage, isStablePairSwap, isCorrelatedPair) !== SLIPPAGE_STATUS.NORMAL
 }
 
 export const formatSlippage = (slp: number, withPercent = true) => {

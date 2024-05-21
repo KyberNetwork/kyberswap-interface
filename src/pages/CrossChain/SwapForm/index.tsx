@@ -36,7 +36,7 @@ import useValidateInput, { useIsTokensSupport } from 'pages/CrossChain/useValida
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { tryParseAmount } from 'state/swap/hooks'
+import { tryParseAmount, useCheckCorrelatedPair } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCrossChainSetting, useDegenModeManager } from 'state/user/hooks'
@@ -297,6 +297,7 @@ export default function SwapForm() {
 
   const priceImpactResult = checkPriceImpact(priceImpact)
   const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
+  const isCorrelatedPair = useCheckCorrelatedPair()
 
   return (
     <>
@@ -352,6 +353,7 @@ export default function SwapForm() {
         </div>
 
         <SlippageSetting
+          isCorrelatedPair={isCorrelatedPair}
           isStablePairSwap={isStablePairSwap}
           tooltip={
             <Text>
@@ -368,7 +370,11 @@ export default function SwapForm() {
         />
 
         <TradeTypeSelection />
-        <SlippageWarningNote rawSlippage={slippageTolerance} isStablePairSwap={isStablePairSwap} />
+        <SlippageWarningNote
+          rawSlippage={slippageTolerance}
+          isStablePairSwap={isStablePairSwap}
+          isCorrelatedPair={isCorrelatedPair}
+        />
 
         {!!priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 

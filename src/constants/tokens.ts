@@ -152,6 +152,110 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
       '0x9ee91F9f426fA633d227f7a9b000E28b9dfd8599', //stMATIC
     ],
     [
+      '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', //maxtic
+      '0xf03A7Eb46d01d9EcAA104558C732Cf82f6B6B645', //maticX
+    ],
+    [
+      '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', //maxtic
+      '0xf03A7Eb46d01d9EcAA104558C732Cf82f6B6B645', //maticX
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // weth
+      '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704', //cbETH
+    ],
+    [
+      '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51', // susd
+      '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', //usdc
+    ],
+    [
+      '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51', // susd
+      '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', //usdc
+    ],
+    [
+      '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51', // susd
+      '0xdAC17F958D2ee523a2206206994597C13D831ec7', // usdt
+    ],
+    [
+      '0x6B175474E89094C44Da98b954EedeAC495271d0F', // Dai
+      '0x83F20F44975D03b1b09e64809B757c47f942BEeA', // sdai
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee', // weETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110', // ezETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xae78736Cd615f374D3085123A210448E74Fc6393', // rETH rocket pool eth
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x9559Aaa82d9649C7A7b220E7c461d2E74c9a3593', // rETH stafi eth
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xf951E335afb289353dc249e82926178EaC7DEd78', // swETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0', // rswETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xD9A442856C234a39a81a089C06451EBAa4306a72', // puffETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xF1376bceF0f78459C0Ed0ba5ddce976F1ddF51F4', // uniETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xA35b1B31Ce002FBF2058D22F30f95D405200A15b', // ethx
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x35fA164735182de50811E8e2E824cFb9B6118ac2', // eETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x5E8422345238F34275888049021821E8E08CAa1f', // frxETH
+      '0xac3E018457B222d93114458476f3E3416Abbe38F', // sfrxETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3', // OETH
+    ],
+
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x6ef3D766Dfe02Dc4bF04aAe9122EB9A0Ded25615', // primeETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb', // sETH
+    ],
+    [
+      '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', // wbtc
+      '0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa', // tbtc
+      '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6', // sbtc
+    ],
+    [
+      '0x853d955aCEf822Db058eb8505911ED77F175b99e', // frax
+      '0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32', // sfrax
+    ],
+    [
+      '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f', // gho
+      '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // usdc
+    ],
+    [
+      '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // usdc
+      '0xe07F9D810a48ab5c3c914BA3cA53AF14E4491e8A', // gyd
+    ],
+
+    [
       '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', //WETH
       '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84', //stETH
       '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0', //wstETH
@@ -269,3 +373,7 @@ export const GAS_TOKENS = [
   new Token(ChainId.ZKSYNC, '0x3355df6d4c9c3035724fd0e3914de96a5a83aaf4', 6, 'USDC', 'USDC'),
   // new Token(ChainId.ZKSYNC, '0xbbeb516fb02a01611cbbe0453fe3c580d7281011', 8, 'wBTC', 'wBTC'),
 ]
+
+export const CORRELATED_PAIR_FOR_SLIPPAGE: { [chainId: number]: { [address: string]: string } } = {
+  [ChainId.MAINNET]: {},
+}
