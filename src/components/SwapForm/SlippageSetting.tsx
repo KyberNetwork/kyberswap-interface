@@ -32,7 +32,7 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
   const [isDegenMode] = useDegenModeManager()
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
-  const defaultRawSlippage = getDefaultSlippage(isStablePairSwap)
+  const defaultRawSlippage = getDefaultSlippage(isStablePairSwap, isCorrelatedPair)
 
   const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap, isCorrelatedPair)
   if (!isSlippageControlPinned) {
@@ -106,7 +106,7 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
                 borderBottom: isWarningSlippage ? `1px dashed ${theme.warning}` : 'none',
               }}
             >
-              <MouseoverTooltip text={isWarningSlippage ? t`Slippage is low. Your transaction may fail.` : ''}>
+              <MouseoverTooltip text={isWarningSlippage ? t`Slippage is high. Your transaction may be front-run.` : ''}>
                 {formatSlippage(rawSlippage)}
               </MouseoverTooltip>
             </Text>

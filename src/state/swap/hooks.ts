@@ -428,17 +428,17 @@ export const useCheckStablePairSwap = () => {
   return isStablePairSwap
 }
 
-export const useCheckCorrelatedPair = () => {
+export const useCheckCorrelatedPair = (customIn?: string, customOut?: string) => {
   const { chainId } = useActiveWeb3React()
-  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
-  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const inputCurrencyId = useSelector((state: AppState) => customIn || state.swap[Field.INPUT].currencyId)
+  const outputCurrencyId = useSelector((state: AppState) => customOut || state.swap[Field.OUTPUT].currencyId)
   const inputAddress =
     NativeCurrencies[chainId].symbol === inputCurrencyId
       ? NativeCurrencies[chainId].wrapped.address
       : isAddressString(inputCurrencyId)
 
   const outputAddress =
-    NativeCurrencies[chainId].symbol === inputCurrencyId
+    NativeCurrencies[chainId].symbol === outputCurrencyId
       ? NativeCurrencies[chainId].wrapped.address
       : isAddressString(outputCurrencyId)
 

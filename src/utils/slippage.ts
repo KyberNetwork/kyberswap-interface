@@ -1,4 +1,4 @@
-import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
+import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_CORRELATED_PAIR, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 
 export enum SLIPPAGE_STATUS {
   NORMAL,
@@ -6,8 +6,12 @@ export enum SLIPPAGE_STATUS {
   HIGH,
 }
 
-export const getDefaultSlippage = (isStablePairSwap: boolean): number => {
-  return isStablePairSwap ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP : DEFAULT_SLIPPAGE
+export const getDefaultSlippage = (isStablePairSwap: boolean, isCorrelatedPair: boolean): number => {
+  return isStablePairSwap
+    ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP
+    : isCorrelatedPair
+    ? DEFAULT_SLIPPAGE_CORRELATED_PAIR
+    : DEFAULT_SLIPPAGE
 }
 
 export const checkRangeSlippage = (
