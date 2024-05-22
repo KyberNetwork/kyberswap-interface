@@ -55,7 +55,7 @@ interface AddRemoveFavoriteParams {
   signature: string
 }
 
-const blockServiceApi = createApi({
+const marketOverviewServiceApi = createApi({
   reducerPath: 'marketOverviewApi',
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_TOKEN_API,
@@ -88,9 +88,21 @@ const blockServiceApi = createApi({
         url: `/v1/public/assets/favorite`,
       }),
     }),
+
+    getPrices: builder.mutation<
+      { data: { [chainId: string]: { [address: string]: number } } },
+      { [chainId: number]: string[] }
+    >({
+      query: body => ({
+        method: 'POST',
+        body,
+        url: 'v1/public/tokens/prices',
+      }),
+    }),
   }),
 })
 
-export const { useMarketOverviewQuery, useAddFavoriteMutation, useRemoveFavoriteMutation } = blockServiceApi
+export const { useMarketOverviewQuery, useAddFavoriteMutation, useRemoveFavoriteMutation, useGetPricesMutation } =
+  marketOverviewServiceApi
 
-export default blockServiceApi
+export default marketOverviewServiceApi

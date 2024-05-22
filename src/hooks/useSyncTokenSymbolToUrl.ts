@@ -45,7 +45,6 @@ export default function useSyncTokenSymbolToUrl(
 ) {
   const params = useParams<TokenSymbolParams>()
   const { fromCurrency, toCurrency, network } = getUrlMatchParams(params)
-  console.log(fromCurrency, toCurrency, network)
 
   const { chainId } = useActiveWeb3React()
   const navigate = useNavigate()

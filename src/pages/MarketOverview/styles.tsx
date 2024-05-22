@@ -1,6 +1,6 @@
 import { rgba } from 'polished'
 import { Box } from 'rebass'
-import styled from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 export const TableWrapper = styled.div`
   background: ${({ theme }) => rgba(theme.background, 0.8)};
@@ -33,13 +33,12 @@ export const Tag = styled.div<{ active: boolean }>`
 
 export const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 2fr 1.2fr 140px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
+  grid-template-columns: 1fr 2fr 1.2fr 100px;
   align-items: center;
 `
 
 export const TableRow = styled(TableHeader)`
-  grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.6fr 140px;
+  grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.6fr 100px;
   border-bottom: none;
   cursor: pointer;
 
@@ -50,6 +49,14 @@ export const TableRow = styled(TableHeader)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     grid-template-columns: 1fr 1fr 1fr;
   `}
+`
+
+export const SubHeaderRow = styled(TableRow)`
+  font-size: 14px;
+  color: ${({ theme }) => theme.subText};
+  &:hover {
+    background: none;
+  }
 `
 
 export const InnerGrid = styled(Box)`
@@ -72,4 +79,44 @@ export const Tab = styled.div<{ active: boolean }>`
   font-weight: 500;
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
   cursor: pointer;
+`
+
+const pulse = keyframes`
+  0% {
+    color: #31CB9E;
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    color: #ffffff;
+    opacity: 1;
+  }
+`
+
+const pulseRed = keyframes`
+  0% {
+    color: #FF6871;
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    color: #ffffff;
+    opacity: 1;
+  }
+`
+
+export const ContentChangable = styled.div<{ animate: boolean; up: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  ${({ animate, up }) =>
+    animate &&
+    css`
+      animation: ${up ? pulse : pulseRed} 1.2s;
+    `}
 `

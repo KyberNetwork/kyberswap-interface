@@ -3,7 +3,7 @@ import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { useMarketOverviewQuery } from 'services/marketOverview'
 
 import Divider from 'components/Divider'
@@ -19,7 +19,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 import SortIcon, { Direction } from './SortIcon'
 import TableContent from './TableContent'
-import { ContentWrapper, InnerGrid, Tab, TableHeader, TableWrapper, Tabs, Tag } from './styles'
+import { ContentWrapper, SubHeaderRow, Tab, TableHeader, TableWrapper, Tabs, Tag } from './styles'
 import useFilter from './useFilter'
 
 const filterTags = [
@@ -95,189 +95,85 @@ export default function MarketOverview() {
 
   return (
     <PoolsPageWrapper>
+      <Text as="h1" fontSize={24} fontWeight="500">
+        <Trans>Market Overview</Trans>
+      </Text>
+
       <Flex justifyContent="space-between" flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: '1rem' }}>
-        <Text as="h1" fontSize={24} fontWeight="500">
-          <Trans>Market Overview</Trans>
-        </Text>
+        <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
+          <Tag active={!tags.length} onClick={() => updateFilters('tags', '')} role="button">
+            All
+          </Tag>
+          <Tag
+            active={!!isFavorite}
+            onClick={() => updateFilters('isFavorite', isFavorite ? '' : 'true')}
+            role="button"
+          >
+            <Star size={14} />
+          </Tag>
+          {filterTags.map(item => (
+            <Tag
+              active={
+                ['gainers', 'losers'].includes(item.value)
+                  ? sortCol.includes('price_change_24h') &&
+                    (item.value === 'gainers' ? 'desc' : 'asc') === sortDirection
+                  : tags?.includes(item.value)
+              }
+              onClick={() => {
+                if (['gainers', 'losers'].includes(item.value)) {
+                  updateFilters(
+                    'sort',
+                    (isGainerActive && item.value === 'gainers') || (isLoserActive && item.value === 'losers')
+                      ? ''
+                      : `price_change_24h-${filters.chainId} ${item.value === 'gainers' ? 'desc' : 'asc'}`,
+                  )
+                  return
+                }
+                if (tags.includes(item.value)) {
+                  updateFilters('tags', tags.filter(t => t !== item.value).join(','))
+                } else {
+                  updateFilters('tags', [...tags, item.value].join(','))
+                }
+              }}
+              key={item.value}
+              role="button"
+            >
+              {item.label}
+            </Tag>
+          ))}
+        </Flex>
         <SearchInput
           placeholder="Search by token name, symbol or address"
           value={input}
           onChange={val => setInput(val)}
+          style={{ height: '36px' }}
         />
       </Flex>
 
       <TableWrapper>
         <ContentWrapper>
-          <Flex sx={{ gap: '1rem' }} marginBottom="24px" flexWrap="wrap">
-            <Tag active={!tags.length} onClick={() => updateFilters('tags', '')} role="button">
-              All
-            </Tag>
-            <Tag
-              active={!!isFavorite}
-              onClick={() => updateFilters('isFavorite', isFavorite ? '' : 'true')}
-              role="button"
-            >
-              <Star size={14} />
-            </Tag>
-            {filterTags.map(item => (
-              <Tag
-                active={
-                  ['gainers', 'losers'].includes(item.value)
-                    ? sortCol.includes('price_change_24h') &&
-                      (item.value === 'gainers' ? 'desc' : 'asc') === sortDirection
-                    : tags?.includes(item.value)
-                }
-                onClick={() => {
-                  if (['gainers', 'losers'].includes(item.value)) {
-                    updateFilters(
-                      'sort',
-                      (isGainerActive && item.value === 'gainers') || (isLoserActive && item.value === 'losers')
-                        ? ''
-                        : `price_change_24h-${filters.chainId} ${item.value === 'gainers' ? 'desc' : 'asc'}`,
-                    )
-                    return
-                  }
-                  if (tags.includes(item.value)) {
-                    updateFilters('tags', tags.filter(t => t !== item.value).join(','))
-                  } else {
-                    updateFilters('tags', [...tags, item.value].join(','))
-                  }
-                }}
-                key={item.value}
-                role="button"
-              >
-                {item.label}
-              </Tag>
-            ))}
-          </Flex>
-
-          <Divider />
-
           {!upToMedium ? (
             <TableHeader>
-              <Text
-                color={theme.subText}
-                fontSize={14}
-                height="100%"
-                paddingX="12px"
-                display="flex"
-                alignItems="center"
-                sx={{ borderRight: `1px solid ${theme.border}` }}
-              >
+              <Text color={theme.text} fontSize={14} height="100%" paddingX="12px" display="flex" alignItems="center">
                 Name
               </Text>
-              <Box
+              <Flex
+                padding="8px 16px"
                 sx={{
-                  borderRight: `1px solid ${theme.border}`,
+                  fontSize: '14px',
+                  gap: '6px',
                 }}
-                height="100%"
+                alignItems="flex-start"
+                justifyContent="flex-end"
               >
-                <Flex
-                  padding="8px 16px"
-                  sx={{
-                    borderBottom: `1px solid ${theme.border}`,
-                    fontSize: '14px',
-                    gap: '4px',
-                  }}
-                  alignItems="center"
-                >
-                  <span>On-chain Price</span>
-                  <Flex flexWrap="wrap" alignItems="center">
-                    {chainSelector}
-                  </Flex>
+                <Text sx={{ lineHeight: '24px', whiteSpace: 'nowrap', minWidth: 'max-content' }}>On-chain Price</Text>
+                <Flex flexWrap="wrap" alignItems="center" justifyContent="flex-end">
+                  {chainSelector}
                 </Flex>
-                <InnerGrid>
-                  <Flex
-                    justifyContent="flex-end"
-                    sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                    role="button"
-                    onClick={() => updateSort('price')}
-                  >
-                    Price
-                    <SortIcon sorted={sortCol.startsWith('price-') ? (sortDirection as Direction) : undefined} />
-                  </Flex>
-                  <Flex
-                    justifyContent="flex-end"
-                    sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                    role="button"
-                    onClick={() => updateSort('price_change_1h')}
-                  >
-                    1h
-                    <SortIcon
-                      sorted={sortCol.startsWith('price_change_1h') ? (sortDirection as Direction) : undefined}
-                    />
-                  </Flex>
+              </Flex>
 
-                  <Flex
-                    justifyContent="flex-end"
-                    sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                    role="button"
-                    onClick={() => updateSort('price_change_24h')}
-                  >
-                    24h
-                    <SortIcon
-                      sorted={sortCol.startsWith('price_change_24h') ? (sortDirection as Direction) : undefined}
-                    />
-                  </Flex>
-
-                  <Flex
-                    justifyContent="flex-end"
-                    sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                    role="button"
-                    onClick={() => updateSort('price_change_7d')}
-                    padding="0.5rem 1.5rem"
-                  >
-                    7D
-                    <SortIcon
-                      sorted={sortCol.startsWith('price_change_7d') ? (sortDirection as Direction) : undefined}
-                    />
-                  </Flex>
-                </InnerGrid>
-              </Box>
-
-              <Box
-                sx={{
-                  borderRight: `1px solid ${theme.border}`,
-                }}
-                height="100%"
-              >
-                <Text
-                  textAlign="center"
-                  fontSize="14px"
-                  padding="8px 16px"
-                  sx={{
-                    borderBottom: `1px solid ${theme.border}`,
-                  }}
-                >
-                  Market Overview <InfoHelper text="Market cap & 24h volume data sourced from Coingecko" />
-                </Text>
-
-                <InnerGrid sx={{ gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <Flex
-                    justifyContent="flex-end"
-                    sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                    role="button"
-                    onClick={() => updateSort('volume_24h', false)}
-                  >
-                    24h Volume
-                    <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
-                  </Flex>
-
-                  <Flex
-                    justifyContent="flex-end"
-                    sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                    role="button"
-                    onClick={() => updateSort('market_cap', false)}
-                    padding="0.5rem 1.5rem"
-                  >
-                    Market cap
-                    <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
-                  </Flex>
-                </InnerGrid>
-              </Box>
-
-              <Text textAlign="center" fontSize={14}>
-                Actions
+              <Text textAlign="right" fontSize="14px" padding="8px 16px">
+                Market Overview <InfoHelper text="Market cap & 24h volume data sourced from Coingecko" />
               </Text>
             </TableHeader>
           ) : (
@@ -296,6 +192,76 @@ export default function MarketOverview() {
               <Flex flexWrap="wrap" alignItems="center" padding="0 0 1rem">
                 {chainSelector}
               </Flex>
+              <Divider />
+            </>
+          )}
+          {!upToMedium && (
+            <>
+              <SubHeaderRow>
+                <div />
+                <Flex
+                  justifyContent="flex-end"
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  role="button"
+                  onClick={() => updateSort('price')}
+                >
+                  Price
+                  <SortIcon sorted={sortCol.startsWith('price-') ? (sortDirection as Direction) : undefined} />
+                </Flex>
+                <Flex
+                  justifyContent="flex-end"
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  role="button"
+                  onClick={() => updateSort('price_change_1h')}
+                >
+                  1h
+                  <SortIcon sorted={sortCol.startsWith('price_change_1h') ? (sortDirection as Direction) : undefined} />
+                </Flex>
+
+                <Flex
+                  justifyContent="flex-end"
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  role="button"
+                  onClick={() => updateSort('price_change_24h')}
+                >
+                  24h
+                  <SortIcon
+                    sorted={sortCol.startsWith('price_change_24h') ? (sortDirection as Direction) : undefined}
+                  />
+                </Flex>
+
+                <Flex
+                  justifyContent="flex-end"
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  role="button"
+                  onClick={() => updateSort('price_change_7d')}
+                  padding="0.5rem 1.5rem"
+                >
+                  7D
+                  <SortIcon sorted={sortCol.startsWith('price_change_7d') ? (sortDirection as Direction) : undefined} />
+                </Flex>
+
+                <Flex
+                  justifyContent="flex-end"
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  role="button"
+                  onClick={() => updateSort('volume_24h', false)}
+                >
+                  24h Volume
+                  <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
+                </Flex>
+
+                <Flex
+                  justifyContent="flex-end"
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  role="button"
+                  onClick={() => updateSort('market_cap', false)}
+                  padding="0.5rem 1.5rem"
+                >
+                  Market cap
+                  <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
+                </Flex>
+              </SubHeaderRow>
               <Divider />
             </>
           )}

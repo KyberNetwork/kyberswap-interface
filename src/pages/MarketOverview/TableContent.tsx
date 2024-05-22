@@ -1,16 +1,16 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Star, X } from 'react-feather'
-import { useMedia } from 'react-use'
+import { useMedia, usePreviousDistinct } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import {
   AssetToken,
   useAddFavoriteMutation,
+  useGetPricesMutation,
   useMarketOverviewQuery,
   useRemoveFavoriteMutation,
 } from 'services/marketOverview'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'
@@ -28,7 +28,7 @@ import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import SortIcon, { Direction } from './SortIcon'
-import { TableRow } from './styles'
+import { ContentChangable, TableRow } from './styles'
 import useFilter from './useFilter'
 
 export default function TableContent({ showMarketInfo }: { showMarketInfo: boolean }) {
@@ -49,6 +49,37 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
   useEffect(() => {
     setTokens(JSON.parse(JSON.stringify(tokensFromApi)))
   }, [tokensFromApi])
+
+  const allTokenAddressByChain = useMemo(
+    () =>
+      tokensFromApi.reduce((tokenByChain, token) => {
+        token.tokens.forEach(item => {
+          if (tokenByChain[item.chainId]) {
+            tokenByChain[item.chainId] = [...new Set([...tokenByChain[item.chainId], item.address])]
+          } else {
+            tokenByChain[item.chainId] = [item.address]
+          }
+        })
+
+        return tokenByChain
+      }, {} as { [chainId: number]: string[] }),
+    [tokensFromApi],
+  )
+
+  const [getPrices, { data: priceData }] = useGetPricesMutation()
+  useEffect(() => {
+    const i = setInterval(async () => {
+      await getPrices(allTokenAddressByChain)
+    }, 10_000)
+
+    return () => clearInterval(i)
+  }, [allTokenAddressByChain, getPrices])
+
+  // filter undefined, keep last value
+  const latestPrices = useRef(priceData)
+  useEffect(() => {
+    if (priceData) latestPrices.current = priceData
+  }, [priceData])
 
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
@@ -268,6 +299,8 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                     ? WETH[token.chainId as ChainId].address
                     : token.address
 
+                const price = token ? latestPrices.current?.data?.[token.chainId]?.[token.address] || token.price : ''
+
                 return (
                   <Box
                     key={token.chainId}
@@ -319,13 +352,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                     </Flex>
 
                     <Text textAlign="right">
-                      {token.price
-                        ? formatDisplayNumber(token.price, {
-                            style: 'currency',
-                            fractionDigits: 2,
-                            significantDigits: 7,
-                          })
-                        : '--'}
+                      <Price price={+price} />
                     </Text>
 
                     <Flex sx={{ gap: '12px' }} alignItems="center" justifyContent="flex-end">
@@ -344,7 +371,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                           )
                         }}
                       >
-                        Swap
+                        Buy
                       </ButtonOutlined>
                     </Flex>
                   </Box>
@@ -479,13 +506,10 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
 
       {tokens.map((item, idx) => {
         const token = item.tokens.find(t => +t.chainId === filters.chainId)
+        const price = token ? latestPrices.current?.data?.[token.chainId]?.[token.address] || token.price : ''
         return (
           <TableRow key={item.id + '-' + idx} role="button" onClick={() => setShowTokenId(item.id)}>
-            <Flex
-              sx={{ gap: '8px', borderRight: upToMedium ? 'none' : `1px solid ${theme.border}` }}
-              alignItems="flex-start"
-              padding={upToMedium ? '0.75rem 0' : '0.75rem'}
-            >
+            <Flex sx={{ gap: '8px' }} alignItems="flex-start" padding={upToMedium ? '0.75rem 0' : '0.75rem'}>
               <img
                 src={item.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
                 width="24px"
@@ -514,24 +538,16 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
               </>
             ) : (
               <>
-                <Flex alignItems="center" justifyContent="flex-end">
-                  {!token?.price
-                    ? '--'
-                    : formatDisplayNumber(token.price, { style: 'currency', fractionDigits: 2, significantDigits: 7 })}
-                </Flex>
-
+                <Price price={+price} />
                 <Flex
                   alignItems="center"
                   justifyContent="flex-end"
                   color={getColor(token?.priceChange1h)}
                   title={token?.priceChange1h?.toString()}
                 >
-                  {!!token?.priceChange1h && (
-                    <DropdownSVG
-                      style={{ transform: `rotate(${token.priceChange1h > 0 ? '180deg' : '0'} )`, width: '24px' }}
-                    />
-                  )}
-                  {!token?.priceChange1h ? '--' : `${Math.abs(token.priceChange1h).toFixed(2)}%`}
+                  {!token?.priceChange1h
+                    ? '--'
+                    : `${token.priceChange1h > 0 ? '+' : '-'}${Math.abs(token.priceChange1h).toFixed(2)}%`}
                 </Flex>
               </>
             )}
@@ -544,12 +560,9 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   color={getColor(token?.priceChange24h)}
                   title={token?.priceChange24h?.toString()}
                 >
-                  {!!token?.priceChange24h && (
-                    <DropdownSVG
-                      style={{ transform: `rotate(${token.priceChange24h > 0 ? '180deg' : '0'} )`, width: '24px' }}
-                    />
-                  )}
-                  {!token?.priceChange24h ? '--' : Math.abs(token.priceChange24h).toFixed(2) + '%'}
+                  {!token?.priceChange24h
+                    ? '--'
+                    : `${token.priceChange24h > 0 ? '+' : '-'}${Math.abs(token.priceChange24h).toFixed(2)}%`}
                 </Flex>
 
                 <Flex
@@ -557,16 +570,12 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   justifyContent="flex-end"
                   padding="0.75rem 1.5rem 0.75rem"
                   height="100%"
-                  sx={{ borderRight: `1px solid ${theme.border}` }}
                   color={getColor(token?.priceChange7d)}
                   title={token?.priceChange7d?.toString()}
                 >
-                  {!!token?.priceChange7d && (
-                    <DropdownSVG
-                      style={{ transform: `rotate(${token.priceChange7d > 0 ? '180deg' : '0'} )`, minWidth: '24px' }}
-                    />
-                  )}
-                  <span>{!token?.priceChange7d ? '--' : Math.abs(token.priceChange7d).toFixed(2) + '%'}</span>
+                  {!token?.priceChange7d
+                    ? '--'
+                    : `${token.priceChange7d > 0 ? '+' : '-'}` + Math.abs(token.priceChange7d).toFixed(2) + '%'}
                 </Flex>
 
                 <Flex alignItems="center" justifyContent="flex-end" padding="0.75rem" height="100%">
@@ -578,7 +587,6 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   height="100%"
                   padding="0.75rem"
                   paddingRight="1.5rem"
-                  sx={{ borderRight: `1px solid ${theme.border}` }}
                 >
                   {formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })}
                 </Flex>
@@ -601,7 +609,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                         )
                     }}
                   >
-                    Swap
+                    Buy
                   </ButtonOutlined>
 
                   <Star
@@ -622,5 +630,21 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
         )
       })}
     </>
+  )
+}
+
+export const Price = ({ price }: { price: number }) => {
+  const [animate, setAnimate] = useState(false)
+  useEffect(() => {
+    setAnimate(true)
+    setTimeout(() => setAnimate(false), 1200)
+  }, [price])
+
+  const lastPrice = usePreviousDistinct(price)
+
+  return (
+    <ContentChangable animate={!!lastPrice && animate} up={!!lastPrice && price - lastPrice >= 0}>
+      {!price ? '--' : formatDisplayNumber(price, { style: 'currency', fractionDigits: 2, significantDigits: 7 })}
+    </ContentChangable>
   )
 }
