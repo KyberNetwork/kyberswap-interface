@@ -515,16 +515,18 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
         const price = token ? latestPrices.current?.data?.[token.chainId]?.[token.address] || token.price : ''
         const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[filters.chainId || 1]?.symbol
         const priceChange1h =
-          token?.priceChange1h && price ? (token.priceChange1h * price) / token.price : token?.priceChange1h
+          token?.priceChange1h && price
+            ? ((100 + token.priceChange1h) * price) / token.price - 100
+            : token?.priceChange1h
 
         const priceChange24h =
           token?.priceChange24h !== undefined && price
-            ? (token.priceChange24h * price) / token.price
+            ? ((100 + token.priceChange24h) * price) / token.price - 100
             : token?.priceChange24h
 
         const priceChange7d =
           token?.priceChange7d !== undefined && price
-            ? (token.priceChange7d * price) / token.price
+            ? ((100 + token.priceChange7d) * price) / token.price - 100
             : token?.priceChange7d
 
         return (
@@ -572,7 +574,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   color={getColor(priceChange1h)}
                   title={priceChange1h?.toString()}
                 >
-                  {!priceChange1h ? '--' : `${priceChange1h > 0 ? '+' : '-'}${Math.abs(priceChange1h).toFixed(2)}%`}
+                  <PriceChange priceChange={priceChange1h} />
                 </Flex>
               </>
             )}
@@ -585,7 +587,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   color={getColor(priceChange24h)}
                   title={priceChange24h?.toString()}
                 >
-                  {!priceChange24h ? '--' : `${priceChange24h > 0 ? '+' : '-'}${Math.abs(priceChange24h).toFixed(2)}%`}
+                  <PriceChange priceChange={priceChange24h} />
                 </Flex>
 
                 <Flex
@@ -596,9 +598,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   color={getColor(priceChange7d)}
                   title={priceChange7d?.toString()}
                 >
-                  {!priceChange7d
-                    ? '--'
-                    : `${priceChange7d > 0 ? '+' : '-'}` + Math.abs(priceChange7d).toFixed(2) + '%'}
+                  <PriceChange priceChange={priceChange7d} />
                 </Flex>
 
                 <Flex alignItems="center" justifyContent="flex-end" padding="0.75rem" height="100%">
@@ -668,6 +668,25 @@ export const Price = ({ price }: { price: number }) => {
   return (
     <ContentChangable animate={!!lastPrice && animate} up={!!lastPrice && price - lastPrice >= 0}>
       {!price ? '--' : formatDisplayNumber(price, { style: 'currency', fractionDigits: 2, significantDigits: 7 })}
+    </ContentChangable>
+  )
+}
+
+export const PriceChange = ({ priceChange }: { priceChange: number | undefined }) => {
+  const [animate, setAnimate] = useState(false)
+  useEffect(() => {
+    setAnimate(true)
+    setTimeout(() => setAnimate(false), 1200)
+  }, [priceChange])
+
+  const lastPriceChange = usePreviousDistinct(priceChange)
+
+  return (
+    <ContentChangable
+      animate={!!lastPriceChange && animate}
+      up={!!lastPriceChange && !!priceChange && priceChange - lastPriceChange >= 0}
+    >
+      {!priceChange ? '--' : priceChange.toFixed(2) + '%'}
     </ContentChangable>
   )
 }
