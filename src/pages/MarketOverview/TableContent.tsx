@@ -530,6 +530,9 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
             ? ((100 + token.priceChange7d) * price) / token.price - 100
             : token?.priceChange7d
 
+        const priceChange =
+          selectedSort === '1h' ? priceChange1h : selectedSort === '24h' ? priceChange24h : priceChange7d
+
         return (
           <TableRow key={item.id + '-' + idx} role="button" onClick={() => setShowTokenId(item.id)}>
             <Flex sx={{ gap: '8px' }} alignItems="flex-start" padding={upToMedium ? '0.75rem 0' : '0.75rem'}>
@@ -572,10 +575,10 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                 <Flex
                   alignItems="center"
                   justifyContent="flex-end"
-                  color={getColor(priceChange1h)}
-                  title={priceChange1h?.toString()}
+                  color={getColor(priceChange)}
+                  title={priceChange?.toString()}
                 >
-                  <PriceChange priceChange={priceChange1h} />
+                  <PriceChange priceChange={priceChange} />
                 </Flex>
               </>
             )}
