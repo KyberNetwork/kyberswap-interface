@@ -96,13 +96,25 @@ const marketOverviewServiceApi = createApi({
       query: body => ({
         method: 'POST',
         body,
-        url: 'v1/public/tokens/prices',
+        url: '/v1/public/tokens/prices',
       }),
+    }),
+
+    getQuoteByChain: builder.query<
+      { data: { onchainPrice: { usdQuoteTokenByChainId: { [chain: string]: { symbol: string } } } } },
+      void
+    >({
+      query: () => ({ url: '/v1/public/tokens/config' }),
     }),
   }),
 })
 
-export const { useMarketOverviewQuery, useAddFavoriteMutation, useRemoveFavoriteMutation, useGetPricesMutation } =
-  marketOverviewServiceApi
+export const {
+  useMarketOverviewQuery,
+  useAddFavoriteMutation,
+  useRemoveFavoriteMutation,
+  useGetPricesMutation,
+  useGetQuoteByChainQuery,
+} = marketOverviewServiceApi
 
 export default marketOverviewServiceApi

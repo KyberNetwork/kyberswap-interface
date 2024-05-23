@@ -7,6 +7,7 @@ import {
   AssetToken,
   useAddFavoriteMutation,
   useGetPricesMutation,
+  useGetQuoteByChainQuery,
   useMarketOverviewQuery,
   useRemoveFavoriteMutation,
 } from 'services/marketOverview'
@@ -36,6 +37,8 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
   const { filters, updateFilters } = useFilter()
   const { data, isLoading } = useMarketOverviewQuery(filters)
   const notify = useNotify()
+  const { data: quoteData } = useGetQuoteByChainQuery()
+
   const [tokenToShowId, setShowTokenId] = useState<number | null>(null)
 
   const [sortCol, sortDirection] = (filters.sort || '').split(' ')
@@ -206,7 +209,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   }}
                 />
                 <Text fontSize={16} minWidth="max-content">
-                  {tokenToShow.symbol}
+                  {tokenToShow.symbol} {}
                 </Text>
                 <Text
                   fontSize={14}
@@ -294,6 +297,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
               .filter(token => MAINNET_NETWORKS.includes(+token.chainId))
               .sort((a, b) => b.price - a.price)
               .map(token => {
+                const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[token.chainId]?.symbol
                 const address =
                   token.address.toLowerCase() === ETHER_ADDRESS.toLowerCase()
                     ? WETH[token.chainId as ChainId].address
@@ -329,20 +333,22 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                         />
                       </Box>
                       <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <Flex alignItems="center" sx={{ gap: '4px' }}>
+                        <Flex alignItems="center" fontSize={16}>
                           {tokenToShow.symbol}{' '}
-                          <Text
-                            as="span"
-                            color={theme.subText}
-                            fontSize={14}
-                            sx={{
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            {NETWORKS_INFO[token.chainId as ChainId].name}
-                          </Text>
+                          {quoteSymbol && (
+                            <Text
+                              as="span"
+                              color={theme.subText}
+                              fontSize={14}
+                              sx={{
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                              }}
+                            >
+                              /{quoteSymbol}
+                            </Text>
+                          )}
                         </Flex>
                         <Text color={theme.subText} display="flex" marginTop="2px" fontSize="12px">
                           {shortenAddress(1, address)}
@@ -507,6 +513,20 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
       {tokens.map((item, idx) => {
         const token = item.tokens.find(t => +t.chainId === filters.chainId)
         const price = token ? latestPrices.current?.data?.[token.chainId]?.[token.address] || token.price : ''
+        const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[filters.chainId || 1]?.symbol
+        const priceChange1h =
+          token?.priceChange1h && price ? (token.priceChange1h * price) / token.price : token?.priceChange1h
+
+        const priceChange24h =
+          token?.priceChange24h !== undefined && price
+            ? (token.priceChange24h * price) / token.price
+            : token?.priceChange24h
+
+        const priceChange7d =
+          token?.priceChange7d !== undefined && price
+            ? (token.priceChange7d * price) / token.price
+            : token?.priceChange7d
+
         return (
           <TableRow key={item.id + '-' + idx} role="button" onClick={() => setShowTokenId(item.id)}>
             <Flex sx={{ gap: '8px' }} alignItems="flex-start" padding={upToMedium ? '0.75rem 0' : '0.75rem'}>
@@ -520,8 +540,15 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                 }}
               />
               <div>
-                <Text fontSize={16}>{item.symbol}</Text>
-                <Text fontSize={14} color={theme.subText}>
+                <Flex fontSize={16} alignItems="flex-end">
+                  {item.symbol}
+                  {quoteSymbol && (
+                    <Text fontSize={14} color={theme.subText}>
+                      /{quoteSymbol}
+                    </Text>
+                  )}
+                </Flex>
+                <Text fontSize={14} color={theme.subText} marginTop="2px">
                   {item.name}
                 </Text>
               </div>
@@ -542,12 +569,10 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                 <Flex
                   alignItems="center"
                   justifyContent="flex-end"
-                  color={getColor(token?.priceChange1h)}
-                  title={token?.priceChange1h?.toString()}
+                  color={getColor(priceChange1h)}
+                  title={priceChange1h?.toString()}
                 >
-                  {!token?.priceChange1h
-                    ? '--'
-                    : `${token.priceChange1h > 0 ? '+' : '-'}${Math.abs(token.priceChange1h).toFixed(2)}%`}
+                  {!priceChange1h ? '--' : `${priceChange1h > 0 ? '+' : '-'}${Math.abs(priceChange1h).toFixed(2)}%`}
                 </Flex>
               </>
             )}
@@ -557,12 +582,10 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                 <Flex
                   alignItems="center"
                   justifyContent="flex-end"
-                  color={getColor(token?.priceChange24h)}
-                  title={token?.priceChange24h?.toString()}
+                  color={getColor(priceChange24h)}
+                  title={priceChange24h?.toString()}
                 >
-                  {!token?.priceChange24h
-                    ? '--'
-                    : `${token.priceChange24h > 0 ? '+' : '-'}${Math.abs(token.priceChange24h).toFixed(2)}%`}
+                  {!priceChange24h ? '--' : `${priceChange24h > 0 ? '+' : '-'}${Math.abs(priceChange24h).toFixed(2)}%`}
                 </Flex>
 
                 <Flex
@@ -570,12 +593,12 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   justifyContent="flex-end"
                   padding="0.75rem 1.5rem 0.75rem"
                   height="100%"
-                  color={getColor(token?.priceChange7d)}
-                  title={token?.priceChange7d?.toString()}
+                  color={getColor(priceChange7d)}
+                  title={priceChange7d?.toString()}
                 >
-                  {!token?.priceChange7d
+                  {!priceChange7d
                     ? '--'
-                    : `${token.priceChange7d > 0 ? '+' : '-'}` + Math.abs(token.priceChange7d).toFixed(2) + '%'}
+                    : `${priceChange7d > 0 ? '+' : '-'}` + Math.abs(priceChange7d).toFixed(2) + '%'}
                 </Flex>
 
                 <Flex alignItems="center" justifyContent="flex-end" padding="0.75rem" height="100%">
