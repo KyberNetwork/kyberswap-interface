@@ -169,10 +169,11 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
             8000,
           )
         } else {
-          const newTokens = tokens.map(item => {
+          let newTokens = tokens.map(item => {
             if (item.id === token.id) item.isFavorite = !isTokenFavorite
             return item
           })
+          if (filters.isFavorite) newTokens = newTokens.filter(item => item.isFavorite)
           setTokens(newTokens)
         }
       })
@@ -667,7 +668,7 @@ export const Price = ({ price }: { price: number }) => {
 
   return (
     <ContentChangable animate={!!lastPrice && animate} up={!!lastPrice && price - lastPrice >= 0}>
-      {!price ? '--' : formatDisplayNumber(price, { style: 'currency', fractionDigits: 2, significantDigits: 7 })}
+      {!price ? '--' : formatDisplayNumber(price, { fractionDigits: 2, significantDigits: 7 })}
     </ContentChangable>
   )
 }
