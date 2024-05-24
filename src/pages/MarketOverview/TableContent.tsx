@@ -583,22 +583,16 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                 <Flex
                   alignItems="center"
                   justifyContent="flex-end"
-                  color={getColor(priceChange)}
-                  title={priceChange?.toString()}
+                  color={getColor(upToMedium ? priceChange : priceChange1h)}
                 >
-                  <PriceChange priceChange={priceChange} />
+                  <PriceChange priceChange={upToMedium ? priceChange : priceChange1h} />
                 </Flex>
               </>
             )}
 
             {!upToMedium && (
               <>
-                <Flex
-                  alignItems="center"
-                  justifyContent="flex-end"
-                  color={getColor(priceChange24h)}
-                  title={priceChange24h?.toString()}
-                >
+                <Flex alignItems="center" justifyContent="flex-end" color={getColor(priceChange24h)}>
                   <PriceChange priceChange={priceChange24h} />
                 </Flex>
 
@@ -608,7 +602,6 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   padding="0.75rem 1.5rem 0.75rem"
                   height="100%"
                   color={getColor(priceChange7d)}
-                  title={priceChange7d?.toString()}
                 >
                   <PriceChange priceChange={priceChange7d} />
                 </Flex>
