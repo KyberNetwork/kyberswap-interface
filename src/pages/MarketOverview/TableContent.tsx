@@ -253,7 +253,9 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   Market Cap
                 </Text>
                 <Text marginTop="4px">
-                  {formatDisplayNumber(tokenToShow.marketCap, { style: 'currency', fractionDigits: 2 })}
+                  {tokenToShow.marketCap
+                    ? formatDisplayNumber(tokenToShow.marketCap, { style: 'currency', fractionDigits: 2 })
+                    : '--'}
                 </Text>
               </div>
               <div>
@@ -261,7 +263,9 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   24h Volume
                 </Text>
                 <Text marginTop="4px">
-                  {formatDisplayNumber(tokenToShow.volume24h, { style: 'currency', fractionDigits: 2 })}
+                  {tokenToShow.volume24h
+                    ? formatDisplayNumber(tokenToShow.volume24h, { style: 'currency', fractionDigits: 2 })
+                    : '--'}
                 </Text>
               </div>
 
@@ -563,10 +567,14 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
             {showMarketInfo ? (
               <>
                 <Flex alignItems="center" justifyContent="flex-end">
-                  {formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 })}
+                  {item.volume24h
+                    ? formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 })
+                    : '--'}
                 </Flex>
                 <Flex alignItems="center" justifyContent="flex-end" height="100%">
-                  {formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })}
+                  {item.marketCap
+                    ? formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })
+                    : '--'}
                 </Flex>
               </>
             ) : (
@@ -615,7 +623,9 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   padding="0.75rem"
                   paddingRight="1.5rem"
                 >
-                  {formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })}
+                  {item.marketCap
+                    ? formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })
+                    : '--'}
                 </Flex>
 
                 <Flex justifyContent="center" alignItems="center" sx={{ gap: '0.75rem' }}>
