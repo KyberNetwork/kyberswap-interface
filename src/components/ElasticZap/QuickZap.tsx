@@ -523,7 +523,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId, expectedChainI
                 )}
 
                 <div style={{ margin: '20px -8px' }}>
-                  <SlippageSettingGroup isWrapOrUnwrap={false} isStablePairSwap={false} />
+                  <SlippageSettingGroup isWrapOrUnwrap={false} isStablePairSwap={false} isCorrelatedPair={false} />
                 </div>
 
                 <ZapDetail zapLoading={zapLoading} zapDetail={zapDetail} />
