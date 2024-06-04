@@ -265,11 +265,16 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
       '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202', //KNC
     ],
   ],
+
   [ChainId.MATIC]: [
     [
       '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', //WMATIC
       '0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4', //stMATIC
       '0x0000000000000000000000000000000000001010', //MATIC
+    ],
+    [
+      '0xfa68FB4628DFF1028CFEc22b4162FCcd0d45efb6', // MATICX
+      '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', // WMATIC
     ],
   ],
   [ChainId.BSCMAINNET]: [],
@@ -280,19 +285,134 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
     ],
   ],
   // TODO: fill here
-  [ChainId.ZKSYNC]: [],
+  [ChainId.ZKSYNC]: [
+    [
+      '0x5aea5775959fbc2557cc8789bc1bf90a239d9a91', // ETH - rETH
+      '0x32fd44bb869620c0ef993754c8a00be67c464806',
+    ],
+  ],
   [ChainId.FANTOM]: [],
   [ChainId.CRONOS]: [],
-  [ChainId.ARBITRUM]: [],
+  [ChainId.ARBITRUM]: [
+    [
+      // Eth/wstEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x5979d7b546e38e414f7e9822514be443a4800529',
+    ],
+    [
+      // Eth/cbEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x1debd73e752beaf79865fd6446b0c970eae7732f',
+    ],
+    [
+      // Eth/sfrxEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x95ab45875cffdba1e5f451b950bc2e42c0053f39',
+    ],
+    [
+      // sFrax/Frax:
+      '0xe3b3fe7bca19ca77ad877a5bebab186becfad906',
+      '0x17fc002b466eec40dae837fc4be5c67993ddbd6f',
+    ],
+    [
+      // Eth/frxEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x178412e79c25968a32e89b11f63b33f733770c2a',
+    ],
+    [
+      // Eth/ezEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x2416092f143378750bb29b79ed961ab195cceea5',
+    ],
+    [
+      // Eth/swEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0xbc011a12da28e8f0f528d9ee5e7039e22f91cf18',
+    ],
+    [
+      // Eth/rEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0xec70dcb4a1efa46b8f2d97c310c9c4790ba5ffa8',
+    ],
+    [
+      // Eth/weEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x35751007a407ca6feffe80b3cb397736d2cf4dbe',
+    ],
+  ],
   [ChainId.BTTC]: [],
-  [ChainId.OPTIMISM]: [],
+  [ChainId.OPTIMISM]: [
+    [
+      // wBtc/sBtc:
+      '0x68f180fcCe6836688e9084f035309E29Bf0A2095',
+      '0x298B9B95708152ff6968aafd889c6586e9169f1D',
+    ],
+    [
+      // Eth/frxEth:
+      '0x4f9a0e7fd2bf6067db6994cf12e4495df938e6e9',
+      '0xcf7ecee185f19e2e970a301ee37f93536ed66179',
+    ],
+    [
+      // stMatic/Matic:
+      '0x83b874c1e09d316059d929da402dcb1a98e92082',
+      '0xa2036f0538221a77a3937f1379699f44945018d0',
+    ],
+    [
+      // Eth/wstEth:
+      '0x4f9a0e7fd2bf6067db6994cf12e4495df938e6e9',
+      '0x5d8cff95d7a57c0bf50b30b43c7cc0d52825d4a9',
+    ],
+  ],
   [ChainId.GÖRLI]: [],
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
-  [ChainId.ZKEVM]: [],
-  [ChainId.LINEA]: [],
-  [ChainId.BASE]: [],
+  [ChainId.ZKEVM]: [
+    [
+      // Eth/rEth:
+      '0x4f9a0e7fd2bf6067db6994cf12e4495df938e6e9',
+      '0xb23c20efce6e24acca0cef9b7b7aa196b84ec942',
+    ],
+  ],
+  [ChainId.LINEA]: [
+    [
+      // Eth/wstEth:
+      '0x5300000000000000000000000000000000000004',
+      '0xf610a9dfb7c89644979b4a0f27063e9e7d7cda32',
+    ],
+    [
+      // Eth/weEth:
+      '0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f',
+      '0x1bf74c010e6320bab11e2e5a532b5ac15e0b8aa6',
+    ],
+    [
+      // Eth/ezEth:
+      '0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f',
+      '0x2416092f143378750bb29b79ed961ab195cceea5',
+    ],
+  ],
+  [ChainId.BASE]: [
+    [
+      // Eth/ezEth:
+      '0x4200000000000000000000000000000000000006',
+      '0x2416092f143378750bb29b79ed961ab195cceea5',
+    ],
+    [
+      // Eth/wstEth:
+      '0x4200000000000000000000000000000000000006',
+      '0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452',
+    ],
+    [
+      // Eth/cbEth:
+      '0x4200000000000000000000000000000000000006',
+      '0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22',
+    ],
+    [
+      // Eth/weEth:
+      '0x4200000000000000000000000000000000000006',
+      '0x04c0599ae5a44757c0af6f9ec3b93da8976c150a',
+    ],
+  ],
   [ChainId.SCROLL]: [],
   [ChainId.BLAST]: [],
   [ChainId.MANTLE]: [],
