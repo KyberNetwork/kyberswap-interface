@@ -139,7 +139,6 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   ],
   [ChainId.LINEA]: [],
   [ChainId.SCROLL]: [],
-  [ChainId.SCROLL]: [],
   [ChainId.BLAST]: [],
   [ChainId.MANTLE]: [],
   [ChainId.XLAYER]: [],
