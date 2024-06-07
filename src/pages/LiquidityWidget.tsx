@@ -59,7 +59,7 @@ export default function LiquidityWidget() {
 
   return (
     <>
-      <StyledModal isOpen={openModal} onDismiss={() => setOpenModal(false)} width="100%" maxWidth="680px">
+      {openModal ? (
         <KsLiquidityWidget
           provider={library}
           theme={pancakeTheme}
@@ -72,24 +72,25 @@ export default function LiquidityWidget() {
             //
           }}
         />
-      </StyledModal>
-      <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', gap: '1rem', width: '100%' }}>
-        <NetworkSelector chainId={selectedChainId} customOnSelectNetwork={chain => setSelectedChainId(chain)} />
-        <Input placeholder="Pool address..." value={poolAddress} onChange={e => setPoolAddress(e.target.value)} />
-        <Input placeholder="Position id..." value={positionId} onChange={e => setPositionId(e.target.value)} />
-        <ButtonPrimary
-          onClick={() => {
-            if (selectedChainId !== chainId) {
-              changeNetwork(selectedChainId)
-              setAutoAfterChange(true)
-            } else {
-              setOpenModal(true)
-            }
-          }}
-        >
-          Launch
-        </ButtonPrimary>
-      </Box>
+      ) : (
+        <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', gap: '1rem', width: '100%' }}>
+          <NetworkSelector chainId={selectedChainId} customOnSelectNetwork={chain => setSelectedChainId(chain)} />
+          <Input placeholder="Pool address..." value={poolAddress} onChange={e => setPoolAddress(e.target.value)} />
+          <Input placeholder="Position id..." value={positionId} onChange={e => setPositionId(e.target.value)} />
+          <ButtonPrimary
+            onClick={() => {
+              if (selectedChainId !== chainId) {
+                changeNetwork(selectedChainId)
+                setAutoAfterChange(true)
+              } else {
+                setOpenModal(true)
+              }
+            }}
+          >
+            Load
+          </ButtonPrimary>
+        </Box>
+      )}
     </>
   )
 }
