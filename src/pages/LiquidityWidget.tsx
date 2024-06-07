@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { LiquidityWidget as KsLiquidityWidget, PoolType } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Box } from 'rebass'
 import styled from 'styled-components'
 
@@ -15,13 +15,14 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 const StyledModal = styled(Modal)`
   transition: all 0.2s;
 `
-
 export default function LiquidityWidget() {
-  const [selectedChainId, setSelectedChainId] = useState(ChainId.MATIC)
-  const [poolAddress, setPoolAddress] = useState('')
+  const [selectedChainId, setSelectedChainId] = useState(ChainId.ARBITRUM)
+  const [poolAddress, setPoolAddress] = useState('0x0bacc7a9717e70ea0da5ac075889bd87d4c81197')
+  const [positionId, setPositionId] = useState('24654')
   const [openModal, setOpenModal] = useState(false)
   const { changeNetwork } = useChangeNetwork()
   const [autoAfterChange, setAutoAfterChange] = useState(false)
+  console.log(positionId)
 
   const { chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -33,44 +34,49 @@ export default function LiquidityWidget() {
     }
   }, [autoAfterChange, chainId, selectedChainId])
 
-  const [maxWidth, setMaxWidth] = useState('680px')
+  const pancakeTheme = useMemo(
+    () => ({
+      text: '#FFFFFF',
+      subText: '#B6AECF',
+      icons: '#a9a9a9',
+      layer1: '#27262C',
+      dialog: '#27262C',
+      layer2: '#363046',
+      stroke: '#363046',
+      chartRange: '#5DC5D2',
+      chartArea: '#457F89',
+      accent: '#5DC5D2',
+      warning: '#F4B452',
+      error: '#FF5353',
+      success: '#189470',
+      fontFamily: 'Kanit, Sans-serif',
+      borderRadius: '20px',
+      buttonRadius: '16px',
+      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.04)',
+    }),
+    [],
+  )
 
   return (
     <>
-      <StyledModal isOpen={openModal} onDismiss={() => setOpenModal(false)} width="100%" maxWidth={maxWidth}>
+      <StyledModal isOpen={openModal} onDismiss={() => setOpenModal(false)} width="100%" maxWidth="680px">
         <KsLiquidityWidget
           provider={library}
-          theme={{
-            primary: '#1C1C1C',
-            secondary: '#0F0F0F',
-            text: '#FFFFFF',
-            subText: '#A9A9A9',
-            interactive: '#292929',
-            dialog: '#313131',
-            stroke: '#505050',
-            accent: '#28E0B9',
-
-            success: '#189470',
-            warning: '#FF9901',
-            error: '#F84242',
-            fontFamily: 'Work Sans',
-            borderRadius: '10px',
-            buttonRadius: '10px',
-            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.04)',
-          }}
+          theme={pancakeTheme}
           poolAddress={poolAddress}
-          poolType={PoolType.DEX_UNISWAPV3}
-          chainId={selectedChainId}
+          positionId={positionId || undefined}
+          poolType={PoolType.DEX_PANCAKESWAPV3}
+          chainId={ChainId.ARBITRUM}
           onDismiss={() => setOpenModal(false)}
-          onTogglePreview={show => {
-            if (show) setMaxWidth('500px')
-            else setMaxWidth('680px')
+          onTogglePreview={() => {
+            //
           }}
         />
       </StyledModal>
       <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', gap: '1rem', width: '100%' }}>
         <NetworkSelector chainId={selectedChainId} customOnSelectNetwork={chain => setSelectedChainId(chain)} />
         <Input placeholder="Pool address..." value={poolAddress} onChange={e => setPoolAddress(e.target.value)} />
+        <Input placeholder="Position id..." value={positionId} onChange={e => setPositionId(e.target.value)} />
         <ButtonPrimary
           onClick={() => {
             if (selectedChainId !== chainId) {

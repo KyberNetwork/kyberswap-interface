@@ -3750,14 +3750,19 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/liquidity-widgets@^0.0.1-rc5":
-  version "0.0.1-rc5"
-  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-0.0.1-rc5.tgz#a969e2249ba64e875146c08f8edae42472b20af0"
-  integrity sha512-ZOgTlT1AcXYgGYHeLn01AdTxd+t3mZ2LIw8CwmezdQf5uQ9tjTNZG1rK10gIk6z3d1Wv9xfZQyrYfe1xk8y96w==
+"@kyberswap/liquidity-widgets@^0.0.1-rc7":
+  version "0.0.1-rc7"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-0.0.1-rc7.tgz#b876bedda287f963ce9b4773215808d8ab7c8729"
+  integrity sha512-Xx3zhAnWecCDS/bn8nmDIvpJJYdg9yn4nw4eBqMoQC87TFesLU9CUdb9ThGa2Vf8NyzXXyZh3KbhufJpNe7y5A==
   dependencies:
+    "@pancakeswap/sdk" "^5.8.2"
+    "@pancakeswap/v3-sdk" "^3.8.3"
+    "@popperjs/core" "^2.11.8"
+    "@reach/portal" "^0.18.0"
     "@uniswap/sdk-core" "^4.1.4"
     "@uniswap/v3-sdk" "^3.10.2"
     ethers "^5.7.0"
+    typescript "^5.2.2"
 
 "@kyberswap/oauth2@1.0.2":
   version "1.0.2"
@@ -4083,6 +4088,75 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.4.2-solc-0.7.tgz#38f4dbab672631034076ccdf2f3201fab1726635"
   integrity sha512-W6QmqgkADuFcTLzHL8vVoNBtkwjvQRpYIAom7KiUNoLKghyx3FgH0GBjt8NRvigV1ZmMOBllvE1By1C+bi8WpA==
 
+"@pancakeswap/chains@0.4.4", "@pancakeswap/chains@^0.4.4":
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/@pancakeswap/chains/-/chains-0.4.4.tgz#f15069cdcbbcb3325775f164d62dae9942fa1331"
+  integrity sha512-jFvJghSMVVb3ZuaxkY9blslaJnukt6QYO/RvXDGg8JXNToGwLGXyK80UxLVaSh6LnrviGDpCIv7q8s/E0352yQ==
+
+"@pancakeswap/sdk@5.8.5", "@pancakeswap/sdk@^5.8.2":
+  version "5.8.5"
+  resolved "https://registry.yarnpkg.com/@pancakeswap/sdk/-/sdk-5.8.5.tgz#4bf95625504d776a718dbc014a918f5527d2bded"
+  integrity sha512-lZs53sVNUc7SQOlvICqDhsi5LC+DP+bJYSf8uCT9TKL/JTIFaaHMhPGSRD+IN9ORt7S4BGXMe49txIywvXbJ2w==
+  dependencies:
+    "@pancakeswap/chains" "^0.4.4"
+    "@pancakeswap/swap-sdk-core" "1.1.0"
+    "@pancakeswap/swap-sdk-evm" "1.0.2"
+    "@pancakeswap/v2-sdk" "1.0.2"
+    big.js "^5.2.2"
+    decimal.js-light "^2.5.0"
+    tiny-invariant "^1.3.0"
+    tiny-warning "^1.0.3"
+    toformat "^2.0.0"
+    viem "2.13.3"
+
+"@pancakeswap/swap-sdk-core@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@pancakeswap/swap-sdk-core/-/swap-sdk-core-1.1.0.tgz#4edc1ef77db9188a1f90153b1983c72326a942e4"
+  integrity sha512-RBl7M8NoViUeRJuISvkYXCwzeNRjGyMPhZTenJyHVrrkV0Wb37S8RCPirYzVt/63YtU0ZxXHcqCxD64XogtE/Q==
+  dependencies:
+    big.js "^5.2.2"
+    decimal.js-light "^2.5.0"
+    tiny-invariant "^1.3.0"
+    tiny-warning "^1.0.3"
+    toformat "^2.0.0"
+
+"@pancakeswap/swap-sdk-evm@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@pancakeswap/swap-sdk-evm/-/swap-sdk-evm-1.0.2.tgz#4188190b21f32c3cbb5441043fcafa63dedce46f"
+  integrity sha512-Xv9WHVCqBWssHwguF+gm9qIH/mNDRL4126zn5rH0XwMlwZxr1M4IblnKmseVTLq/eVwZQgBet7auRGi9bXQMhw==
+  dependencies:
+    "@pancakeswap/chains" "0.4.4"
+    "@pancakeswap/swap-sdk-core" "1.1.0"
+    tiny-invariant "^1.3.0"
+    tiny-warning "^1.0.3"
+    viem "2.13.3"
+
+"@pancakeswap/v2-sdk@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@pancakeswap/v2-sdk/-/v2-sdk-1.0.2.tgz#ba7b3faf54085b8f14a9e480f8c9a495851a7c77"
+  integrity sha512-kqwRTeY7z9pVvUpypmX27JmyW2FgvXvLUrAV6kPLalvTXg7GUkCht3NRCZlx4JWf/urDeuwK5KgyrPGkBLmH6w==
+  dependencies:
+    "@pancakeswap/chains" "0.4.4"
+    "@pancakeswap/swap-sdk-core" "1.1.0"
+    "@pancakeswap/swap-sdk-evm" "1.0.2"
+    tiny-invariant "^1.3.0"
+    viem "2.13.3"
+
+"@pancakeswap/v3-sdk@^3.8.3":
+  version "3.8.6"
+  resolved "https://registry.yarnpkg.com/@pancakeswap/v3-sdk/-/v3-sdk-3.8.6.tgz#75d298bbb07515d652af7f0ba2e8db6f59347c41"
+  integrity sha512-JSdmASNlAJeyJK1opiZmcjH8r/YerZ6Xm9isJKo7OQn2I5KnnPbYYqgGgk3MqSiWEMwbx9PZt1eFTXxE1krDsQ==
+  dependencies:
+    "@pancakeswap/chains" "0.4.4"
+    "@pancakeswap/sdk" "5.8.5"
+    "@pancakeswap/swap-sdk-core" "1.1.0"
+    big.js "^5.2.2"
+    decimal.js-light "^2.5.0"
+    tiny-invariant "^1.3.0"
+    tiny-warning "^1.0.3"
+    toformat "^2.0.0"
+    viem "2.13.3"
+
 "@pedrouid/environment@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@pedrouid/environment/-/environment-1.0.1.tgz#858f0f8a057340e0b250398b75ead77d6f4342ec"
@@ -4107,6 +4181,11 @@
   version "2.11.6"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.6.tgz#cee20bd55e68a1720bdab363ecf0c821ded4cd45"
   integrity sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==
+
+"@popperjs/core@^2.11.8":
+  version "2.11.8"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
+  integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
 "@project-serum/anchor@^0.11.1":
   version "0.11.1"
@@ -4532,6 +4611,13 @@
     tiny-warning "^1.0.3"
     tslib "^2.3.0"
 
+"@reach/portal@^0.18.0":
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/@reach/portal/-/portal-0.18.0.tgz#dd466f5110689d14a0e7491b3aa8a449e8cefb40"
+  integrity sha512-TImozRapd576ofRk30Le2L3lRTFXF1p47B182wnp5eMTdZa74JX138BtNGEPJFOyrMaVmguVF8SSwZ6a0fon1Q==
+  dependencies:
+    "@reach/utils" "0.18.0"
+
 "@reach/utils@0.17.0":
   version "0.17.0"
   resolved "https://registry.yarnpkg.com/@reach/utils/-/utils-0.17.0.tgz#3d1d2ec56d857f04fe092710d8faee2b2b121303"
@@ -4539,6 +4625,11 @@
   dependencies:
     tiny-warning "^1.0.3"
     tslib "^2.3.0"
+
+"@reach/utils@0.18.0":
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/@reach/utils/-/utils-0.18.0.tgz#4f3cebe093dd436eeaff633809bf0f68f4f9d2ee"
+  integrity sha512-KdVMdpTgDyK8FzdKO9SCpiibuy/kbv3pwgfXshTI6tEcQT1OOwj7BAksnzGC0rPz0UholwC+AgkqEl3EJX3M1A==
 
 "@reduxjs/toolkit@1.9.3":
   version "1.9.3"
@@ -7894,6 +7985,11 @@ abitype@0.9.8:
   version "0.9.8"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.9.8.tgz#1f120b6b717459deafd213dfbf3a3dd1bf10ae8c"
   integrity sha512-puLifILdm+8sjyss4S+fsUN09obiT1g2YW6CtcQF+QDzxR0euzgEB29MZujC6zMk2a6SVmtttq1fc6+YFA7WYQ==
+
+abitype@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.0.0.tgz#237176dace81d90d018bebf3a45cb42f2a2d9e97"
+  integrity sha512-NMeMah//6bJ56H5XRj8QCV4AwuW6hB6zqz2LnhhLdcWVQOsXki6/Pn3APeqxCma62nXIcmZWdu1DlHWS74umVQ==
 
 accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.8:
   version "1.3.8"
@@ -13270,6 +13366,11 @@ isomorphic-ws@^4.0.1:
   resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-4.0.1.tgz#55fd4cd6c5e6491e76dc125938dd863f5cd4f2dc"
   integrity sha512-BhBvN2MBpWTaSHdWRb/bwdZJ1WaehQ2L1KngkCkfLUGF0mAWAT1sQUQacEmQ0jXkFw/czDXPNQSL5u2/Krsz1w==
 
+isows@1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/isows/-/isows-1.0.4.tgz#810cd0d90cc4995c26395d2aa4cfa4037ebdf061"
+  integrity sha512-hEzjY+x9u9hPmBom9IIAqdJCwNLax+xrPb51vEPpERoFlIxgmZcHzsT5jKG06nvInKOBGvReAVz80Umed5CczQ==
+
 isstream@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
@@ -18153,6 +18254,11 @@ tiny-invariant@^1.1.0, tiny-invariant@^1.3.1:
   resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.3.1.tgz#8560808c916ef02ecfd55e66090df23a4b7aa642"
   integrity sha512-AD5ih2NlSssTCwsMznbvwMZpJ1cbhkGd2uueNxzv2jDlEeZdU04JQfRnggJQ8DrcVBGjAsCKwFBbDlVNtEMlzw==
 
+tiny-invariant@^1.3.0:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.3.3.tgz#46680b7a873a0d5d10005995eb90a70d74d60127"
+  integrity sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==
+
 tiny-warning@^1.0.0, tiny-warning@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tiny-warning/-/tiny-warning-1.0.3.tgz#94a30db453df4c643d0fd566060d60a875d84754"
@@ -18475,6 +18581,11 @@ typescript@^4.7.4:
   version "4.9.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
   integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
+
+typescript@^5.2.2:
+  version "5.4.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.4.5.tgz#42ccef2c571fdbd0f6718b1d1f5e6e5ef006f611"
+  integrity sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==
 
 ua-parser-js@^0.7.24:
   version "0.7.35"
@@ -18912,6 +19023,20 @@ victory-vendor@^36.6.8:
     d3-shape "^3.1.0"
     d3-time "^3.0.0"
     d3-timer "^3.0.1"
+
+viem@2.13.3:
+  version "2.13.3"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.13.3.tgz#950426e4cacf5e12fab2c202a339371901712481"
+  integrity sha512-3tlwDRKHSelupFjbFMdUxF41f79ktyH2F9PAQ9Dltbs1DpdDlR1x+Ksa0th6qkyjjAbpDZP3F5nMTJv/1GVPdQ==
+  dependencies:
+    "@adraffy/ens-normalize" "1.10.0"
+    "@noble/curves" "1.2.0"
+    "@noble/hashes" "1.3.2"
+    "@scure/bip32" "1.3.2"
+    "@scure/bip39" "1.2.1"
+    abitype "1.0.0"
+    isows "1.0.4"
+    ws "8.13.0"
 
 viem@^1.6.0:
   version "1.10.7"
