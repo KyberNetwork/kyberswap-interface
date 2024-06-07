@@ -261,4 +261,8 @@ export const ThemedGlobalStyle = createGlobalStyle`
     padding-right: 1.5rem;
   }
 
+  .ks-lw-modal-overlay {
+    z-index: 9999
+  }
+
 `
