@@ -54,6 +54,7 @@ function ClassicElasticTab() {
     ChainId.SCROLL,
     ChainId.BLAST,
     ChainId.MANTLE,
+    ChainId.XLAYER,
   ].includes(chainId)
 
   const showLegacyExplicit =

@@ -1,16 +1,13 @@
-import { Trans } from '@lingui/macro'
+import { ActivationStatus, useActivationState } from 'connection/activate'
+import { Connection } from 'connection/types'
 import { darken } from 'polished'
 import React from 'react'
 import styled, { css } from 'styled-components'
 
-import { MouseoverTooltip } from 'components/Tooltip'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletReadyState } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
+import { useCloseModal } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/types'
 import { useIsAcceptedTerm } from 'state/user/hooks'
-import { ExternalLink } from 'theme'
-import checkForBraveBrowser from 'utils/checkForBraveBrowser'
-
-import { C98OverrideGuide } from './WarningBox'
 
 const IconWrapper = styled.div`
   display: flex;
@@ -94,163 +91,90 @@ const OptionCardLeft = styled.div`
   height: 100%;
 `
 
-const StyledLink = styled(ExternalLink)`
-  width: 100%;
-  &:hover {
-    text-decoration: none;
-  }
-`
+// const StyledLink = styled(ExternalLink)`
+//   width: 100%;
+//   &:hover {
+//     text-decoration: none;
+//   }
+// `
 
-const Option = ({
-  walletKey,
-  readyState,
-  installLink,
-  isOverridden,
-  onSelected,
-}: {
-  walletKey: SUPPORTED_WALLET
-  readyState?: WalletReadyState
-  installLink?: string
-  isOverridden?: boolean
-  onSelected?: (walletKey: SUPPORTED_WALLET) => any
-}) => {
-  const { walletKey: walletKeyConnected } = useActiveWeb3React()
-  const isBraveBrowser = checkForBraveBrowser()
+const Option = ({ connection }: { connection: Connection }) => {
+  const { activationState, tryActivation } = useActivationState()
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
-  const wallet = SUPPORTED_WALLETS[walletKey]
-  const isConnected = !!walletKeyConnected && walletKey === walletKeyConnected
+  const { chainId } = useActiveWeb3React()
 
-  const icon = wallet.icon
+  const { name, icon } = connection.getProviderInfo()
+
+  const isSomeOptionPending = activationState.status === ActivationStatus.PENDING
+  const isCurrentOptionPending = isSomeOptionPending && activationState.connection === connection
+
+  const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
 
   const content = (
     <OptionCardClickable
       role="button"
-      id={`connect-${walletKey}`}
-      data-testid={`connect-${walletKey}`}
-      onClick={
-        onSelected &&
-        !isConnected &&
-        readyState === WalletReadyState.Installed &&
+      id={`connect-${connection.getProviderInfo().name}`}
+      onClick={() =>
         isAcceptedTerm &&
-        !isOverridden &&
-        !(walletKey === 'BRAVE' && !isBraveBrowser)
-          ? () => onSelected(walletKey)
-          : undefined
+        tryActivation(
+          connection,
+          () => {
+            closeWalletModal()
+          },
+          chainId,
+        )
       }
-      connected={isConnected}
+      connected={isCurrentOptionPending}
       isDisabled={!isAcceptedTerm}
-      installLink={installLink}
-      overridden={isOverridden}
     >
       <IconWrapper>
         <img src={icon} alt={'Icon'} />
       </IconWrapper>
       <OptionCardLeft>
-        <HeaderText>{wallet.name}</HeaderText>
+        <HeaderText>{name}</HeaderText>
       </OptionCardLeft>
     </OptionCardClickable>
   )
 
   if (!isAcceptedTerm) return content
 
-  if (readyState === WalletReadyState.Loadable && wallet.href) {
-    return <StyledLink href={wallet.href}>{content}</StyledLink>
-  }
-
-  if (walletKey === 'WALLET_CONNECT') {
-    return (
-      <MouseoverTooltip placement="bottom" text={<Trans>Under development and unsupported by most wallets.</Trans>}>
-        {content}
-      </MouseoverTooltip>
-    )
-  }
-
-  if (walletKey === 'BRAVE') {
-    // Brave wallet only can use in Brave browser
-    if (!isBraveBrowser) {
-      return (
-        <MouseoverTooltip
-          placement="bottom"
-          text={
-            <Trans>
-              Brave wallet can only be used in Brave Browser. Download it{' '}
-              <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
-            </Trans>
-          }
-        >
-          {content}
-        </MouseoverTooltip>
-      )
-    }
-    // Brave wallet overrided by Metamask extension
-    if (isBraveBrowser && !window.ethereum?.isBraveWallet) {
-      return (
-        <MouseoverTooltip
-          placement="bottom"
-          text={
-            <Trans>
-              Brave Wallet overridden by MetaMask Wallet. Disable MetaMask extension in order to use Brave Wallet.
-            </Trans>
-          }
-        >
-          {content}
-        </MouseoverTooltip>
-      )
-    }
-    // Brave wallet overrided by Metamask extension
-    if (isBraveBrowser) {
-      return (
-        <MouseoverTooltip
-          placement="bottom"
-          text={
-            <Trans>
-              Brave Wallet overridden by Phantom Wallet. Disable Phantom extension in order to use Brave Wallet.
-            </Trans>
-          }
-        >
-          {content}
-        </MouseoverTooltip>
-      )
-    }
-  }
-
-  if (readyState === WalletReadyState.NotDetected) {
-    return (
-      <MouseoverTooltip
-        placement="bottom"
-        text={
-          <Trans>
-            You will need to install {wallet.name} extension/dapp before you can connect with it on KyberSwap. Get it{' '}
-            <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
-          </Trans>
-        }
-      >
-        {content}
-      </MouseoverTooltip>
-    )
-  }
-
-  if (isOverridden) {
-    return (
-      <MouseoverTooltip
-        width="fit-content"
-        maxWidth="500px"
-        text={
-          walletKey === 'COIN98' ? (
-            <Trans>
-              You need to enable <b>&quot;Override Wallet&quot;</b> in Coin98 settings.
-            </Trans>
-          ) : (
-            <C98OverrideGuide walletKey={walletKey} isOpened={false} />
-          )
-        }
-        placement="bottom"
-      >
-        {content}
-      </MouseoverTooltip>
-    )
-  }
+  // if (readyState === WalletReadyState.NotDetected) {
+  //   return (
+  //     <MouseoverTooltip
+  //       placement="bottom"
+  //       text={
+  //         <Trans>
+  //           You will need to install {wallet.name} extension/dapp before you can connect with it on KyberSwap. Get it{' '}
+  //           <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
+  //         </Trans>
+  //       }
+  //     >
+  //       {content}
+  //     </MouseoverTooltip>
+  //   )
+  // }
+  //
+  // if (isOverridden) {
+  //   return (
+  //     <MouseoverTooltip
+  //       width="fit-content"
+  //       maxWidth="500px"
+  //       text={
+  //         walletKey === 'COIN98' ? (
+  //           <Trans>
+  //             You need to enable <b>&quot;Override Wallet&quot;</b> in Coin98 settings.
+  //           </Trans>
+  //         ) : (
+  //           <C98OverrideGuide walletKey={walletKey} isOpened={false} />
+  //         )
+  //       }
+  //       placement="bottom"
+  //     >
+  //       {content}
+  //     </MouseoverTooltip>
+  //   )
+  // }
 
   return content
 }

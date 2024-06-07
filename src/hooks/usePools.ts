@@ -18,6 +18,8 @@ const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI.abi)
 
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][],
+  customFactory?: string,
+  customHash?: string,
 ): [PoolState, Pool | null][] {
   const { networkInfo } = useActiveWeb3React()
 
@@ -39,16 +41,16 @@ export function usePools(
       if (!proAmmCoreFactoryAddress || !value || value[0].equals(value[1])) return undefined
 
       const param = {
-        factoryAddress: proAmmCoreFactoryAddress,
+        factoryAddress: customFactory || proAmmCoreFactoryAddress,
         tokenA: value[0],
         tokenB: value[1],
         fee: value[2],
-        initCodeHashManualOverride: networkInfo.elastic.initCodeHash,
+        initCodeHashManualOverride: customHash || networkInfo.elastic.initCodeHash,
       }
 
       return computePoolAddress(param)
     })
-  }, [transformed, networkInfo])
+  }, [transformed, networkInfo, customFactory, customHash])
 
   const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getPoolState')
   const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getLiquidityState')

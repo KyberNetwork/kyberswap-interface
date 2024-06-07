@@ -176,14 +176,6 @@ export const SUPPORTED_WALLETS = {
     icon: INJECTED_DARK_ICON,
     readyState: detectGenericInjected,
   } as WalletInfo,
-  METAMASK: {
-    connector: metaMask,
-    hooks: metamaskHooks,
-    name: 'MetaMask',
-    icon: METAMASK,
-    installLink: 'https://metamask.io/download',
-    readyState: detectMetamaskInjected,
-  } as WalletInfo,
   KRYSTAL: {
     connector: krystal,
     hooks: krystalHooks,
@@ -277,12 +269,19 @@ export const SUPPORTED_WALLETS = {
     installLink: 'https://www.blocto.io/download',
     readyState: detectBlocto,
   } as WalletInfo,
+  METAMASK: {
+    connector: metaMask,
+    hooks: metamaskHooks,
+    name: 'MetaMask',
+    icon: METAMASK,
+    installLink: 'https://metamask.io/download',
+    readyState: detectMetamaskInjected,
+  } as WalletInfo,
 } as const
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
 
 export const connections = Object.values(SUPPORTED_WALLETS).filter(wallet => 'connector' in wallet) as WalletInfo[]
 
-export const LOCALSTORAGE_LAST_WALLETKEY_EVM = 'last-wallet-key-evm'
 export const INJECTED_KEYS = [
   'COIN98',
   'BRAVE',

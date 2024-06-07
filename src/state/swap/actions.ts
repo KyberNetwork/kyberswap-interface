@@ -10,7 +10,6 @@ export enum Field {
 export const selectCurrency = createAction<{ field: Field; currencyId: string }>('swap/selectCurrency')
 export const resetSelectCurrency = createAction<{ field: Field }>('swap/resetSelectCurrency')
 
-export const chooseToSaveGas = createAction<{ saveGas: boolean }>('swap/chooseToSaveGas')
 export const switchCurrencies = createAction<void>('swap/switchCurrencies')
 export const switchCurrenciesV2 = createAction<void>('swap/switchCurrenciesV2')
 export const typeInput = createAction<{ field: Field; typedValue: string }>('swap/typeInput')

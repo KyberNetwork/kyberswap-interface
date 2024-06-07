@@ -110,14 +110,17 @@ export const useTokenPricesWithLoading = (
         if (prices?.length) {
           const formattedPrices = list.map(address => {
             const price = prices.find(
-              (p: { address: string; marketPrice: number; price: number }) =>
+              (p: { address: string; marketPrice: number; price: number; preferPriceSource: string }) =>
                 p.address.toLowerCase() === address.toLowerCase(),
             )
 
             return {
               address,
               chainId: chainId,
-              price: price?.marketPrice || price?.price || 0,
+              price:
+                price?.preferPriceSource === 'kyberswap'
+                  ? price?.price || price?.marketPrice || 0
+                  : price?.marketPrice || price?.price || 0,
             }
           })
 

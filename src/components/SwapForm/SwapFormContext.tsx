@@ -6,9 +6,9 @@ type SwapFormContextProps = {
   slippage: number
   routeSummary: DetailedRouteSummary | undefined
   typedValue: string
-  isSaveGas: boolean
   recipient: string | null
   isStablePairSwap: boolean
+  isCorrelatedPair: boolean
   isAdvancedMode: boolean
 }
 

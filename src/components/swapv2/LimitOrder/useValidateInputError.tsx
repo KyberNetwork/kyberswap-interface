@@ -37,7 +37,7 @@ const useValidateInputError = ({
   const { setInputValue } = useLimitActionHandlers()
   const inputError = useMemo(() => {
     try {
-      if (!inputAmount || !account) return
+      if (!account) return
       if (parseFloat(inputAmount) === 0 && (parseFloat(outputAmount) === 0 || parseFloat(displayRate) === 0)) {
         return t`Invalid input amount`
       }

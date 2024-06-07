@@ -6,7 +6,6 @@ import { queryStringToObject } from 'utils/string'
 
 import {
   Field,
-  chooseToSaveGas,
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,
@@ -29,7 +28,6 @@ export interface SwapState {
   }
   // the typed recipient address or ENS name, or null if swap should go to sender
   readonly recipient: string | null
-  readonly saveGas: boolean
   readonly trendingSoonShowed?: boolean
   readonly trade?: Aggregator
 
@@ -57,7 +55,6 @@ const initialState: SwapState = {
     currencyId: outputCurrency?.toString() || '',
   },
   recipient: null,
-  saveGas: false,
   // Flag to only show animation of trending soon banner 1 time
   trendingSoonShowed: false,
   trade: undefined,
@@ -140,9 +137,6 @@ export default createReducer<SwapState>(initialState, builder =>
     })
     .addCase(setRecipient, (state, { payload: { recipient } }) => {
       state.recipient = recipient
-    })
-    .addCase(chooseToSaveGas, (state, { payload: { saveGas } }) => {
-      state.saveGas = saveGas
     })
     .addCase(setTrendingSoonShowed, state => {
       state.trendingSoonShowed = true

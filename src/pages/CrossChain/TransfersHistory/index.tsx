@@ -10,7 +10,6 @@ import { APP_PATHS } from 'constants/index'
 import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { useShowTradeRoutes } from 'state/user/hooks'
 
 import HistoryCrossChain from './History'
 import TabSelector, { CrossChainTab } from './TabSelector'
@@ -25,7 +24,6 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
   const navigate = useNavigate()
   const theme = useTheme()
   const qs = useParsedQueryString<{ tab: CrossChainTab }>()
-  const isShowTradeRoutes = useShowTradeRoutes()
   const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
 
   const [activeTab, setTab] = useState<CrossChainTab>(
@@ -42,7 +40,7 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
   return (
     <div className={className}>
       <RowBetween>
-        <TabSelector activeTab={activeTab} setTab={onClickTab} isShowTradeRoutes={isShowTradeRoutes} />
+        <TabSelector activeTab={activeTab} setTab={onClickTab} />
         {!isPartnerSwap && (
           <SubscribeNotificationButton
             subscribeTooltip={t`Subscribe to receive notifications on your cross-chain transaction.`}
@@ -50,7 +48,7 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
           />
         )}
       </RowBetween>
-      {activeTab === CrossChainTab.HISTORY || !isShowTradeRoutes ? (
+      {activeTab === CrossChainTab.HISTORY ? (
         <HistoryCrossChain />
       ) : (
         <Suspense

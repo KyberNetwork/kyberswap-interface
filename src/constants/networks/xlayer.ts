@@ -1,4 +1,5 @@
-import EthereumLogo from 'assets/images/ethereum-logo.png'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -6,29 +7,29 @@ const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
 const x1: NetworkInfo = {
-  chainId: 196,
-  route: 'x1',
-  ksSettingRoute: 'x1',
-  priceRoute: 'x1',
-  poolFarmRoute: 'x1',
-  aggregatorRoute: 'x1',
-  name: 'Okx X1',
+  chainId: ChainId.XLAYER,
+  route: 'xlayer',
+  ksSettingRoute: 'xlayer',
+  priceRoute: 'xlayer',
+  poolFarmRoute: 'xlayer',
+  aggregatorRoute: 'xlayer',
+  name: 'X Layer',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/bafc6027-7c84-4517-8fbd-f18fda18c5b91709787884512.png',
 
   iconSelected: NOT_SUPPORT,
 
   defaultBlockSubgraph: '',
-  etherscanUrl: '',
-  etherscanName: 'Okx X1 Scan',
-  bridgeURL: 'https://www.okx.com/x1/bridge',
+  etherscanUrl: 'https://www.okx.com/explorer/xlayer',
+  etherscanName: 'X Layer Explorer',
+  bridgeURL: 'https://www.okx.com/xlayer/bridge',
   nativeToken: {
-    symbol: 'ETH',
-    name: 'ETH',
-    logo: EthereumLogo,
+    symbol: 'OKB',
+    name: 'OKB',
+    logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3897.png',
     decimal: 18,
     minForGas: 10 ** 16,
   },
-  defaultRpcUrl: '',
+  defaultRpcUrl: 'https://rpc.xlayer.tech',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
@@ -64,10 +65,10 @@ const x1: NetworkInfo = {
       helper: '0x214061F0e250A27a49f609d9caf2987a7bC8fA6B',
     },
   },
-  limitOrder: NOT_SUPPORT,
+  limitOrder: '*',
   averageBlockTimeInSeconds: 2.0, // dont use for base
-  coingeckoNetworkId: 'blast',
-  coingeckoNativeTokenId: 'ethereum',
+  coingeckoNetworkId: 'xlayer',
+  coingeckoNativeTokenId: 'okb',
   deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,

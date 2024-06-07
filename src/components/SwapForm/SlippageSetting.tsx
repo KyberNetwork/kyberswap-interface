@@ -1,13 +1,14 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { ReactNode, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import SlippageControl from 'components/SlippageControl'
+import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { useSlippageSettingByPage } from 'state/user/hooks'
+import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { checkWarningSlippage, formatSlippage, getDefaultSlippage } from 'utils/slippage'
 
@@ -21,17 +22,19 @@ const DropdownIcon = styled(DropdownSVG)`
 
 type Props = {
   isStablePairSwap: boolean
+  isCorrelatedPair: boolean
   rightComponent?: ReactNode
   tooltip?: ReactNode
 }
-const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) => {
+const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, tooltip }: Props) => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
+  const [isDegenMode] = useDegenModeManager()
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
-  const defaultRawSlippage = getDefaultSlippage(isStablePairSwap)
+  const defaultRawSlippage = getDefaultSlippage(isStablePairSwap, isCorrelatedPair)
 
-  const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap)
+  const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap, isCorrelatedPair)
   if (!isSlippageControlPinned) {
     return null
   }
@@ -41,7 +44,6 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) =
       sx={{
         flexDirection: 'column',
         width: '100%',
-        padding: '0 8px',
       }}
     >
       <Flex
@@ -100,10 +102,13 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) =
                 fontSize: '14px',
                 fontWeight: 500,
                 lineHeight: '1',
-                color: theme.text,
+                color: isWarningSlippage ? theme.warning : theme.text,
+                borderBottom: isWarningSlippage ? `1px dashed ${theme.warning}` : 'none',
               }}
             >
-              {formatSlippage(rawSlippage)}
+              <MouseoverTooltip text={isWarningSlippage ? t`Slippage is high. Your transaction may be front-run.` : ''}>
+                {formatSlippage(rawSlippage)}
+              </MouseoverTooltip>
             </Text>
 
             <DropdownIcon data-flip={expanded} />
@@ -116,8 +121,10 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) =
         sx={{
           transition: 'all 100ms linear',
           paddingTop: expanded ? '8px' : '0px',
-          height: expanded ? '36px' : '0px',
+          height: expanded ? 'max-content' : '0px',
           overflow: 'hidden',
+          flexDirection: 'column',
+          gap: '1rem',
         }}
       >
         <SlippageControl
@@ -126,7 +133,18 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) =
           isWarning={isWarningSlippage}
           defaultRawSlippage={defaultRawSlippage}
         />
+
+        <SlippageWarningNote
+          rawSlippage={rawSlippage}
+          isStablePairSwap={isStablePairSwap}
+          isCorrelatedPair={isCorrelatedPair}
+        />
       </Flex>
+      {isDegenMode && expanded && (
+        <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px">
+          Maximum Slippage allow for Degen mode is 50%
+        </Text>
+      )}
     </Flex>
   )
 }

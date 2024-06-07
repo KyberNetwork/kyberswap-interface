@@ -402,7 +402,7 @@ export default function IncreaseLiquidity() {
               <RowBetween>
                 {showApprovalA && (
                   <ButtonPrimary
-                    onClick={approveACallback}
+                    onClick={() => approveACallback()}
                     disabled={approvalA === ApprovalState.PENDING}
                     width={showApprovalB ? '48%' : '100%'}
                   >
@@ -417,7 +417,7 @@ export default function IncreaseLiquidity() {
                 )}
                 {showApprovalB && (
                   <ButtonPrimary
-                    onClick={approveBCallback}
+                    onClick={() => approveBCallback()}
                     disabled={approvalB === ApprovalState.PENDING}
                     width={showApprovalA ? '48%' : '100%'}
                   >
@@ -452,7 +452,7 @@ export default function IncreaseLiquidity() {
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const slippageStatus = checkRangeSlippage(allowedSlippage, false)
+  const slippageStatus = checkRangeSlippage(allowedSlippage, false, false)
 
   // ZAP STATE
   const [value, setValue] = useState('')

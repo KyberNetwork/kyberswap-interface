@@ -11,7 +11,6 @@ import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
-import { INJECTED_KEY, INJECTED_KEYS, SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletReadyState } from 'constants/wallets'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 import { chunk } from 'utils/array'
@@ -404,29 +403,6 @@ export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
     return [...set]
   }
   return array
-}
-
-// https://docs.metamask.io/guide/ethereum-provider.html#basic-usage
-// https://docs.cloud.coinbase.com/wallet-sdk/docs/injected-provider#properties
-// Coin98 and Brave wallet is overriding Metamask. So at a time, there is only 1 exists
-export const detectInjectedType = (): INJECTED_KEY | undefined => {
-  return INJECTED_KEYS.find(walletKey => {
-    const wallet = SUPPORTED_WALLETS[walletKey]
-    return wallet.readyState() === WalletReadyState.Installed
-  })
-}
-
-export const isOverriddenWallet = (wallet: SUPPORTED_WALLET) => {
-  const injectedType = detectInjectedType()
-  return (
-    (wallet === 'COIN98' && injectedType === 'METAMASK') ||
-    (wallet === 'METAMASK' && injectedType === 'COIN98') ||
-    (wallet === 'BRAVE' && injectedType === 'COIN98') ||
-    (wallet === 'COIN98' && injectedType === 'BRAVE') ||
-    (wallet === 'COINBASE' && injectedType === 'COIN98') ||
-    // Coin98 turned off override MetaMask in setting
-    (wallet === 'COIN98' && window.coin98 && !window.ethereum?.isCoin98)
-  )
 }
 
 export const filterTruthy = <T>(array: (T | undefined | null | false)[]): T[] => {

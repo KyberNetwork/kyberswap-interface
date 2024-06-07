@@ -1,10 +1,10 @@
 import { Trans } from '@lingui/macro'
+import { ActivationStatus, useActivationState } from 'connection/activate'
+import { ConnectionType } from 'connection/types'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { useLocation } from 'react-router-dom'
-import { usePrevious } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -13,11 +13,9 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import WalletPopup from 'components/WalletPopup'
 import { TERM_FILES_PATH } from 'constants/index'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo, WalletReadyState } from 'constants/wallets'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useActivationWallet } from 'hooks/web3/useActivationWallet'
 import { ApplicationModal } from 'state/application/actions'
 import {
   useCloseModal,
@@ -26,13 +24,13 @@ import {
   useOpenNetworkModal,
   useWalletModalToggle,
 } from 'state/application/hooks'
-import { useIsConnectingWallet } from 'state/authen/hooks'
+import { useAppDispatch } from 'state/hooks'
+import { clearRecentConnectionMeta } from 'state/user/actions'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { isOverriddenWallet } from 'utils'
 
-import Option from './Option'
 import PendingView from './PendingView'
+import { useConnections } from './useConnections'
 
 const CloseIcon = styled.div`
   height: 24px;
@@ -107,31 +105,13 @@ const HoverText = styled.div`
   }
 `
 
-enum WALLET_VIEWS {
-  CHANGE_WALLET = 'CHANGE_WALLET',
-  ACCOUNT = 'account',
-  PENDING = 'pending',
-}
-
-type WalletInfoExtended = WalletInfo & {
-  key: SUPPORTED_WALLET
-  readyStateResult: WalletReadyState | undefined
-  isOverridden: boolean
-}
-
 export default function WalletModal() {
-  const { isWrongNetwork, account, walletKey } = useActiveWeb3React()
-  // important that these are destructed from the account-specific web3-react context
-  const { active, connector } = useWeb3React()
-  const { tryActivation } = useActivationWallet()
+  const { isWrongNetwork, account } = useActiveWeb3React()
+
+  const { activationState, cancelActivation } = useActivationState()
 
   const theme = useTheme()
-
-  const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
-  const [pendingWalletKey, setPendingWalletKey] = useState<SUPPORTED_WALLET | undefined>()
-
-  const [pendingError, setPendingError] = useState<boolean>()
-  const [error, setError] = useState<Error | null>(null)
+  const dispatch = useAppDispatch()
 
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
@@ -139,23 +119,14 @@ export default function WalletModal() {
   const openWalletModal = useOpenModal(ApplicationModal.WALLET)
   const openNetworkModal = useOpenNetworkModal()
 
-  const previousAccount = usePrevious(account)
+  const onDismiss = () => {
+    cancelActivation()
+    closeWalletModal()
+  }
 
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
 
-  const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
-
-  useEffect(() => {
-    !account && walletModalOpen && mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_CLICK)
-  }, [mixpanelHandler, walletModalOpen, account])
-
-  // close on connection, when logged out before
-  useEffect(() => {
-    if (account && !previousAccount && walletModalOpen) {
-      toggleWalletModal()
-    }
-  }, [account, previousAccount, toggleWalletModal, walletModalOpen, location.pathname])
 
   useEffect(() => {
     if (isWrongNetwork) {
@@ -163,106 +134,20 @@ export default function WalletModal() {
     }
   }, [isWrongNetwork, openNetworkModal])
 
-  // always reset to account view
-  useEffect(() => {
-    if (walletModalOpen) {
-      setPendingError(false)
-      setError(null)
-      setWalletView(WALLET_VIEWS.ACCOUNT)
-    }
-  }, [walletModalOpen])
+  const { orderedConnections } = useConnections()
 
-  // close modal when a connection is successful
-  const activePrevious = usePrevious(active)
-  const connectorPrevious = usePrevious(connector)
-
-  useEffect(() => {
-    if (walletModalOpen && ((active && !activePrevious) || (connector !== connectorPrevious && !error))) {
-      setWalletView(WALLET_VIEWS.ACCOUNT)
-    }
-  }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
-
-  const [, setIsConnectingWallet] = useIsConnectingWallet()
-  const handleWalletChange = useCallback(
-    async (walletKey: SUPPORTED_WALLET) => {
-      mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_WALLET_CLICK, { wallet: walletKey })
-      setPendingWalletKey(walletKey)
-      setWalletView(WALLET_VIEWS.PENDING)
-      setIsConnectingWallet(true)
-      try {
-        await tryActivation(walletKey)
-        setPendingError(false)
-        setError(null)
-      } catch (error) {
-        setPendingError(true)
-        setError(error)
-      }
-      setTimeout(() => {
-        setIsConnectingWallet(false)
-      }, 1000)
-    },
-    [tryActivation, setIsConnectingWallet, mixpanelHandler],
-  )
-
-  function getOptions() {
-    // Generate list of wallets and states of it depend on current network
-    const parsedWalletList: WalletInfoExtended[] = (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).map(k => {
-      const wallet = SUPPORTED_WALLETS[k]
-      const readyState = wallet.readyState()
-      const overridden = isOverriddenWallet(k) || (walletKey === 'COIN98' && !window.ethereum?.isCoin98)
-
-      return {
-        ...wallet,
-        key: k,
-        readyStateResult: readyState,
-        isOverridden: overridden,
-        installLink: readyState === WalletReadyState.NotDetected ? wallet.installLink : undefined,
-      }
-    })
-
-    const sortPoint: { [readyState in WalletReadyState]: number } = {
-      [WalletReadyState.Installed]: 1000,
-      [WalletReadyState.Loadable]: 100,
-      [WalletReadyState.NotDetected]: 10,
-      [WalletReadyState.Unsupported]: 1,
-    }
-    const sortWallets = (walletA: WalletInfoExtended, walletB: WalletInfoExtended): number => {
-      return (
-        sortPoint[walletB.readyStateResult || WalletReadyState.Unsupported] -
-        sortPoint[walletA.readyStateResult || WalletReadyState.Unsupported]
-      )
-    }
-    return (
-      parsedWalletList
-        .sort(sortWallets)
-        // Filter Unsupported state wallets
-        .filter(wallet => wallet.readyStateResult !== WalletReadyState.Unsupported)
-        .map(wallet => (
-          <Option
-            key={wallet.key}
-            walletKey={wallet.key}
-            onSelected={handleWalletChange}
-            isOverridden={wallet.isOverridden}
-            readyState={wallet.readyStateResult}
-            installLink={wallet.installLink}
-          />
-        ))
-    )
-  }
-
-  const showAccount = account && walletView === WALLET_VIEWS.ACCOUNT
   const [isPinnedPopupWallet, setPinnedPopupWallet] = useState(false)
+
+  const isSomeOptionPending = activationState.status === ActivationStatus.PENDING
 
   function getModalContent() {
     return (
       <UpperSection>
         <RowBetween marginBottom="26px" gap="20px">
-          {walletView === WALLET_VIEWS.PENDING && (
+          {(isSomeOptionPending || activationState.status === ActivationStatus.ERROR) && (
             <HoverText
               onClick={() => {
-                setPendingError(false)
-                setError(null)
-                setWalletView(WALLET_VIEWS.ACCOUNT)
+                cancelActivation()
               }}
               style={{ marginRight: '1rem', flex: 1 }}
             >
@@ -270,21 +155,24 @@ export default function WalletModal() {
             </HoverText>
           )}
           <HoverText>
-            {walletView === WALLET_VIEWS.ACCOUNT ? (
-              <Trans>Connect your Wallet</Trans>
-            ) : (
-              <Trans>Connecting Wallet</Trans>
-            )}
+            {!isSomeOptionPending ? <Trans>Connect your Wallet</Trans> : <Trans>Connecting Wallet</Trans>}
           </HoverText>
-          <CloseIcon onClick={toggleWalletModal}>
+          <CloseIcon
+            onClick={() => {
+              cancelActivation()
+              toggleWalletModal()
+            }}
+          >
             <Close />
           </CloseIcon>
         </RowBetween>
-        {(walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET) && (
+        {activationState.status === ActivationStatus.IDLE && (
           <TermAndCondition
             onClick={() => {
               if (!isAcceptedTerm) {
                 mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
+              } else {
+                dispatch(clearRecentConnectionMeta())
               }
               setIsAcceptedTerm(!isAcceptedTerm)
             }}
@@ -312,29 +200,23 @@ export default function WalletModal() {
           </TermAndCondition>
         )}
         <ContentWrapper>
-          {walletView === WALLET_VIEWS.PENDING ? (
-            <PendingView
-              walletKey={pendingWalletKey}
-              hasError={pendingError}
-              onClickTryAgain={() => {
-                pendingWalletKey && tryActivation(pendingWalletKey)
-              }}
-            />
+          {activationState.status !== ActivationStatus.IDLE ? (
+            <PendingView />
           ) : (
-            <OptionGrid>{getOptions()}</OptionGrid>
+            <OptionGrid>{orderedConnections}</OptionGrid>
           )}
         </ContentWrapper>
       </UpperSection>
     )
   }
 
-  if (showAccount) {
+  if (account) {
     return (
       <WalletPopup
         isPinned={isPinnedPopupWallet}
         setPinned={setPinnedPopupWallet}
         isModalOpen={walletModalOpen}
-        onDismissModal={closeWalletModal}
+        onDismissModal={onDismiss}
         onOpenModal={openWalletModal}
       />
     )
@@ -343,15 +225,14 @@ export default function WalletModal() {
   return (
     <Modal
       isOpen={walletModalOpen}
-      onDismiss={closeWalletModal}
+      onDismiss={onDismiss}
       minHeight={false}
       maxHeight={90}
       maxWidth={600}
-      bypassScrollLock={
-        walletView === WALLET_VIEWS.PENDING && ['WALLET_CONNECT', 'KRYSTAL_WC'].includes(pendingWalletKey)
-      }
+      bypassScrollLock={isSomeOptionPending && activationState.connection.type === ConnectionType.WALLET_CONNECT_V2}
       bypassFocusLock={
-        walletView === WALLET_VIEWS.PENDING && ['WALLET_CONNECT', 'KRYSTAL_WC', 'BLOCTO'].includes(pendingWalletKey)
+        isSomeOptionPending && activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
+        // walletView === WALLET_VIEWS.PENDING && ['WALLET_CONNECT', 'KRYSTAL_WC', 'BLOCTO'].includes(pendingWalletKey)
       }
     >
       <Wrapper>{getModalContent()}</Wrapper>

@@ -17,8 +17,13 @@ interface UseProAmmPositionsResults {
   positions: PositionDetails[] | undefined
 }
 
-export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseProAmmPositionsResults {
-  const positionManager = useProAmmNFTPositionManagerReadingContract()
+export function useProAmmPositionsFromTokenIds(
+  tokenIds: BigNumber[] | undefined,
+  customContract?: string,
+  customFactory?: string,
+  customInitCodeHash?: string,
+): UseProAmmPositionsResults {
+  const positionManager = useProAmmNFTPositionManagerReadingContract(customContract)
   const { networkInfo } = useActiveWeb3React()
 
   const inputs = useMemo(() => (tokenIds ? tokenIds.map(tokenId => [tokenId]) : []), [tokenIds])
@@ -36,7 +41,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
         return {
           tokenId: tokenId,
           poolId: getCreate2Address(
-            networkInfo.elastic.coreFactory,
+            customFactory || networkInfo.elastic.coreFactory,
             keccak256(
               ['bytes'],
               [
@@ -46,7 +51,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
                 ),
               ],
             ),
-            networkInfo.elastic.initCodeHash,
+            customInitCodeHash || networkInfo.elastic.initCodeHash,
           ),
           feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
           nonce: result.pos.nonce,
@@ -62,7 +67,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
       })
     }
     return undefined
-  }, [loading, error, results, tokenIds, networkInfo])
+  }, [loading, error, results, tokenIds, networkInfo, customInitCodeHash, customFactory])
 
   return useMemo(() => {
     return {
@@ -85,8 +90,13 @@ export function useProAmmPositionsFromTokenId(tokenId: BigNumber | undefined): U
   }
 }
 
-export function useProAmmPositions(account: string | null | undefined): UseProAmmPositionsResults {
-  const positionManager = useProAmmNFTPositionManagerReadingContract()
+export function useProAmmPositions(
+  account: string | null | undefined,
+  customContract?: string,
+  customFactory?: string,
+  customInitCodeHash?: string,
+): UseProAmmPositionsResults {
+  const positionManager = useProAmmNFTPositionManagerReadingContract(customContract)
   const { loading: balanceLoading, result: balanceResult } = useSingleCallResult(positionManager, 'balanceOf', [
     account ?? undefined,
   ])
@@ -118,7 +128,12 @@ export function useProAmmPositions(account: string | null | undefined): UseProAm
     return []
   }, [account, tokenIdResults])
 
-  const { positions, loading: positionsLoading } = useProAmmPositionsFromTokenIds(tokenIds)
+  const { positions, loading: positionsLoading } = useProAmmPositionsFromTokenIds(
+    tokenIds,
+    customContract,
+    customFactory,
+    customInitCodeHash,
+  )
 
   return useMemo(() => {
     return {

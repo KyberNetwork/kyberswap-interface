@@ -1,20 +1,14 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
-import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
+import { useSearchParams } from 'react-router-dom'
+import { Box, Flex } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 import styled from 'styled-components'
 
+import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
 import FeeControlGroup from 'components/FeeControlGroup'
-import { Clock } from 'components/Icons'
 import { NetworkSelector } from 'components/NetworkSelector'
-import { AutoRow } from 'components/Row'
-import SlippageWarningNote from 'components/SlippageWarningNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
@@ -26,41 +20,26 @@ import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { Field } from 'state/swap/actions'
-import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import { MEDIA_WIDTHS } from 'theme'
+import { useCheckCorrelatedPair, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
-import { currencyId } from 'utils/currencyId'
 
 import MultichainKNCNote from './MultichainKNCNote'
-import RefreshButton from './RefreshButton'
 import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
 import SwapActionButton from './SwapActionButton'
 import TradeSummary from './TradeSummary'
-import TradeTypeSelection from './TradeTypeSelection'
 
-const PriceAlertButton = styled.div`
-  background: ${({ theme }) => rgba(theme.subText, 0.2)};
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 6px;
-  cursor: pointer;
-  user-select: none;
-  font-weight: 500;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  align-items: center;
-  height: fit-content;
+export const RoutingIconWrapper = styled(RoutingIcon)`
+  height: 20px;
+  width: 20px;
+  margin-right: 10px;
+  path {
+    fill: ${({ theme }) => theme.text} !important;
+  }
 `
 
 export type SwapFormProps = {
@@ -88,8 +67,6 @@ export type SwapFormProps = {
 }
 
 const SwapForm: React.FC<SwapFormProps> = props => {
-  const { pathname } = useLocation()
-  const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const [searchParams] = useSearchParams()
   const {
     hidden,
@@ -111,13 +88,9 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
-  const navigate = useNavigate()
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const { typedValue } = useSwapState()
   const [recipient, setRecipient] = useState<string | null>(null)
-  const [isSaveGas, setSaveGas] = useState(false)
-  const theme = useTheme()
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   useUpdateSlippageInStableCoinSwap(chainId)
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
@@ -137,11 +110,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
 
   const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
+  const isCorrelatedPair = useCheckCorrelatedPair()
 
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
     currencyOut,
-    isSaveGas,
     parsedAmount,
     isProcessingSwap,
     customChain: chainId,
@@ -185,80 +158,46 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       slippage={slippage}
       routeSummary={routeSummary}
       typedValue={typedValue}
-      isSaveGas={isSaveGas}
       recipient={recipient}
       isStablePairSwap={isStablePairSwap}
+      isCorrelatedPair={isCorrelatedPair}
       isAdvancedMode={isDegenMode}
     >
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
           <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
             {omniView ? <NetworkSelector chainId={chainId} /> : null}
-            <InputCurrencyPanel
-              wrapType={wrapType}
-              typedValue={typedValue}
-              setTypedValue={onUserInput}
-              currencyIn={currencyIn}
-              currencyOut={currencyOut}
-              balanceIn={balanceIn}
-              onChangeCurrencyIn={onChangeCurrencyIn}
-              customChainId={customChainId}
-            />
 
-            <AutoRow justify="space-between">
-              <Flex alignItems="center" style={{ gap: '4px' }}>
-                {!isWrapOrUnwrap && (
-                  <>
-                    <RefreshButton
-                      shouldDisable={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
-                      callback={getRoute}
-                      size={16}
-                    />
-                    <TradePrice price={routeSummary?.executionPrice} />
-                  </>
-                )}
-              </Flex>
+            <Flex flexDirection="column" sx={{ gap: '0.5rem' }}>
+              <InputCurrencyPanel
+                wrapType={wrapType}
+                typedValue={typedValue}
+                setTypedValue={onUserInput}
+                currencyIn={currencyIn}
+                currencyOut={currencyOut}
+                balanceIn={balanceIn}
+                onChangeCurrencyIn={onChangeCurrencyIn}
+                customChainId={customChainId}
+              />
 
-              <Flex sx={{ gap: '12px' }}>
-                {!isPartnerSwap && ![ChainId.BLAST, ChainId.MANTLE].includes(chainId) && (
-                  <PriceAlertButton
-                    onClick={() =>
-                      navigate(
-                        `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
-                          amount: typedValue || undefined,
-                          inputCurrency: currencyId(currencyIn, chainId),
-                          outputCurrency: currencyId(currencyOut, chainId),
-                        })}`,
-                      )
-                    }
-                  >
-                    <Clock size={14} color={theme.subText} />
-                    {upToExtraSmall ? null : (
-                      <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
-                        <Trans>Price Alert</Trans>
-                      </Text>
-                    )}
-                  </PriceAlertButton>
-                )}
-                <ReverseTokenSelectionButton
-                  onClick={() => {
-                    currencyIn && onChangeCurrencyOut(currencyIn)
-                    routeSummary && onUserInput(routeSummary.parsedAmountOut.toExact())
-                  }}
-                />
-              </Flex>
-            </AutoRow>
+              <ReverseTokenSelectionButton
+                onClick={() => {
+                  currencyIn && onChangeCurrencyOut(currencyIn)
+                  routeSummary && onUserInput(routeSummary.parsedAmountOut.toExact())
+                }}
+              />
 
-            <OutputCurrencyPanel
-              wrapType={wrapType}
-              parsedAmountIn={parsedAmount}
-              parsedAmountOut={routeSummary?.parsedAmountOut}
-              currencyIn={currencyIn}
-              currencyOut={currencyOut}
-              amountOutUsd={routeSummary?.amountOutUsd}
-              onChangeCurrencyOut={onChangeCurrencyOut}
-              customChainId={customChainId}
-            />
+              <OutputCurrencyPanel
+                wrapType={wrapType}
+                parsedAmountIn={parsedAmount}
+                parsedAmountOut={routeSummary?.parsedAmountOut}
+                currencyIn={currencyIn}
+                currencyOut={currencyOut}
+                amountOutUsd={routeSummary?.amountOutUsd}
+                onChangeCurrencyOut={onChangeCurrencyOut}
+                customChainId={customChainId}
+              />
+            </Flex>
 
             {isDegenMode && !isWrapOrUnwrap && (
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
@@ -267,17 +206,23 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               isWrapOrUnwrap={isWrapOrUnwrap}
               isStablePairSwap={isStablePairSwap}
               onOpenGasToken={onOpenGasToken}
+              isCorrelatedPair={isCorrelatedPair}
             />
             <FeeControlGroup />
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
-          <TradeTypeSelection isSaveGas={isSaveGas} setSaveGas={setSaveGas} />
-
-          {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
-
           <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
+
+          {!isWrapOrUnwrap && (
+            <TradeSummary
+              routeSummary={routeSummary}
+              slippage={slippage}
+              disableRefresh={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
+              refreshCallback={getRoute}
+            />
+          )}
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
@@ -298,8 +243,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             swapInputError={swapInputError}
             customChainId={customChainId}
           />
-
-          {!isWrapOrUnwrap && <TradeSummary routeSummary={routeSummary} slippage={slippage} />}
         </Flex>
       </Box>
     </SwapFormContextProvider>

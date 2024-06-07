@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { APP_PATHS, BAD_RECIPIENT_ADDRESSES } from 'constants/index'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
+import { CORRELATED_COINS_ADDRESS, DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2, useStableCoins } from 'hooks/Tokens'
 import { useTradeExactIn } from 'hooks/Trades'
@@ -17,7 +17,6 @@ import { getUrlMatchParams } from 'hooks/useSyncTokenSymbolToUrl'
 import { AppDispatch, AppState } from 'state/index'
 import {
   Field,
-  chooseToSaveGas,
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,
@@ -30,7 +29,7 @@ import {
 import { SwapState } from 'state/swap/reducer'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { isAddress } from 'utils'
+import { isAddress, isAddressString } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
@@ -45,7 +44,6 @@ export function useSwapActionHandlers(): {
   onSwitchTokensV2: () => void
   onUserInput: (field: Field, typedValue: string) => void
   onChangeRecipient: (recipient: string | null) => void
-  onChooseToSaveGas: (saveGas: boolean) => void
   onResetSelectCurrency: (field: Field) => void
   onChangeTrade: (trade: Aggregator | undefined) => void
 } {
@@ -103,13 +101,6 @@ export function useSwapActionHandlers(): {
     [dispatch],
   )
 
-  const onChooseToSaveGas = useCallback(
-    (saveGas: boolean) => {
-      dispatch(chooseToSaveGas({ saveGas }))
-    },
-    [dispatch],
-  )
-
   const onChangeTrade = useCallback(
     (trade: Aggregator | undefined) => {
       dispatch(setTrade({ trade }))
@@ -123,7 +114,6 @@ export function useSwapActionHandlers(): {
     onCurrencySelection,
     onUserInput,
     onChangeRecipient,
-    onChooseToSaveGas,
     onResetSelectCurrency, // deselect token in select input: (use cases: remove "imported token")
     onChangeTrade,
   }
@@ -295,7 +285,7 @@ export function queryParametersToSwapState(
   parsedQs: ParsedUrlQuery,
   chainId: ChainId,
   isMatchPath: boolean,
-): Omit<SwapState, 'saveGas'> {
+): SwapState {
   let inputCurrency = parseCurrencyFromURLParameter(isMatchPath ? parsedQs.inputCurrency : null, chainId)
   let outputCurrency = parseCurrencyFromURLParameter(isMatchPath ? parsedQs.outputCurrency : null, chainId)
   if (inputCurrency === outputCurrency) {
@@ -436,6 +426,23 @@ export const useCheckStablePairSwap = () => {
   const isStablePairSwap = isStableCoin(inputCurrencyId) && isStableCoin(outputCurrencyId)
 
   return isStablePairSwap
+}
+
+export const useCheckCorrelatedPair = (customIn?: string, customOut?: string) => {
+  const { chainId } = useActiveWeb3React()
+  const inputCurrencyId = useSelector((state: AppState) => customIn || state.swap[Field.INPUT].currencyId)
+  const outputCurrencyId = useSelector((state: AppState) => customOut || state.swap[Field.OUTPUT].currencyId)
+  const inputAddress =
+    NativeCurrencies[chainId].symbol === inputCurrencyId
+      ? NativeCurrencies[chainId].wrapped.address
+      : isAddressString(inputCurrencyId)
+
+  const outputAddress =
+    NativeCurrencies[chainId].symbol === outputCurrencyId
+      ? NativeCurrencies[chainId].wrapped.address
+      : isAddressString(outputCurrencyId)
+
+  return CORRELATED_COINS_ADDRESS[chainId].some(pair => pair.includes(inputAddress) && pair.includes(outputAddress))
 }
 
 export const useSwitchPairToLimitOrder = () => {

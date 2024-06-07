@@ -1,3 +1,4 @@
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { darken, rgba } from 'polished'
 import React, { ReactNode, useRef } from 'react'
@@ -366,7 +367,7 @@ export const ButtonApprove = ({
   tooltipMsg: string
   tokenSymbol: string | undefined
   approval: ApprovalState
-  approveCallback: () => Promise<void>
+  approveCallback: (customAllowance?: CurrencyAmount<Currency>) => Promise<void>
   disabled: boolean
   forceApprove?: boolean
 }) => {
@@ -390,7 +391,13 @@ export const ButtonApprove = ({
       disabled={disabled}
       onClick={approveWrap}
       confirmed={approval === ApprovalState.APPROVED && !forceApprove}
-      text={approval === ApprovalState.PENDING ? t`Approving` : t`Approve ${tokenSymbol}`}
+      text={
+        approval === ApprovalState.PENDING
+          ? t`Approving`
+          : approval === ApprovalState.APPROVED
+          ? t`Approved ${tokenSymbol}`
+          : t`Approve ${tokenSymbol}`
+      }
     />
   )
 }

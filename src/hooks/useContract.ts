@@ -349,9 +349,9 @@ export function useProAmmNFTPositionManagerSigningContract(): Contract | null {
   return useSigningContract(networkInfo.elastic.nonfungiblePositionManager, NFTPositionManagerABI.abi)
 }
 
-export function useProAmmNFTPositionManagerReadingContract(): Contract | null {
+export function useProAmmNFTPositionManagerReadingContract(customContract?: string): Contract | null {
   const { networkInfo } = useActiveWeb3React()
-  return useReadingContract(networkInfo.elastic.nonfungiblePositionManager, NFTPositionManagerABI.abi)
+  return useReadingContract(customContract || networkInfo.elastic.nonfungiblePositionManager, NFTPositionManagerABI.abi)
 }
 
 export function useProAmmTickReader(): Contract | null {

@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
 import React, { CSSProperties, ReactNode, memo, useCallback } from 'react'
-import { Star, Trash } from 'react-feather'
+import { Info, Star, Trash } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
@@ -44,6 +44,14 @@ const FavoriteButton = styled(Star)`
     fill: currentColor;
   }
 `
+
+const StyledInfo = styled(Info)`
+  color: ${({ theme }) => theme.subText};
+  :hover {
+    color: ${({ theme }) => theme.text};
+  }
+`
+
 const DeleteButton = styled(Trash)`
   width: 16px;
   height: 20px;
@@ -104,6 +112,7 @@ export function CurrencyRow({
   hideBalance,
   showLoading,
   isFavorite,
+  setTokenToShowInfo,
 }: {
   showImported?: boolean
   showFavoriteIcon?: boolean
@@ -122,6 +131,7 @@ export function CurrencyRow({
   hideBalance?: boolean
   showLoading?: boolean
   isFavorite?: boolean
+  setTokenToShowInfo?: (t: Token) => void
 }) {
   const theme = useTheme()
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
@@ -147,6 +157,7 @@ export function CurrencyRow({
       hoverColor={hoverColor}
       onClick={() => onSelect?.(currency)}
       data-selected={isSelected || otherSelected}
+      role="button"
     >
       <Flex alignItems="center" style={{ gap: 8 }}>
         <CurrencyLogo currency={currency} size={'24px'} />
@@ -172,6 +183,17 @@ export function CurrencyRow({
               onClick={e => handleClickFavorite?.(e, currency)}
               data-active={isFavorite}
               data-testid="button-favorite-token"
+              role="button"
+            />
+          )}
+          {setTokenToShowInfo && (
+            <StyledInfo
+              role="button"
+              onClick={e => {
+                e.stopPropagation()
+                setTokenToShowInfo(currency.wrapped)
+              }}
+              size={18}
             />
           )}
         </RowFixed>
@@ -207,6 +229,7 @@ function CurrencyList({
   showFavoriteIcon,
   itemStyle = {},
   customChainId,
+  setTokenToShowInfo,
 }: {
   showFavoriteIcon?: boolean
   showImported?: boolean
@@ -222,6 +245,7 @@ function CurrencyList({
   listTokenRef?: React.Ref<HTMLDivElement>
   itemStyle?: CSSProperties
   customChainId?: ChainId
+  setTokenToShowInfo?: (t: Token) => void
 }) {
   const currencyBalances = useCurrencyBalances(currencies, customChainId)
   const { account } = useActiveWeb3React()
@@ -270,6 +294,7 @@ function CurrencyList({
             showFavoriteIcon={showFavoriteIcon}
             onSelect={onCurrencySelect}
             otherSelected={otherSelected}
+            setTokenToShowInfo={setTokenToShowInfo}
           />
         )
       }
@@ -289,6 +314,7 @@ function CurrencyList({
       tokenImports,
       account,
       favoriteTokens,
+      setTokenToShowInfo,
     ],
   )
   const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])

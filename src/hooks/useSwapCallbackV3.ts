@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { getConnection } from 'connection'
 import { useCallback } from 'react'
 
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
@@ -18,10 +19,11 @@ import { ErrorName } from 'utils/sentry'
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
 const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
-  const { account, chainId, walletKey } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library, connector } = useWeb3React()
+  const { name: walletKey } = getConnection(connector).getProviderInfo()
 
-  const { isSaveGas, recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
+  const { recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
   const { parsedAmountIn: inputAmount, parsedAmountOut: outputAmount, priceImpact } = routeSummary || {}
 
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -71,7 +73,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           inputDecimals: inputAmount.currency.decimals,
           outputDecimals: outputAmount.currency.decimals,
           withRecipient,
-          saveGas: isSaveGas,
           inputAmount: inputAmount.toExact(),
           slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
           priceImpact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
@@ -93,7 +94,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     chainId,
     inputAmount,
     isPermitSwap,
-    isSaveGas,
     outputAmount,
     priceImpact,
     recipient,

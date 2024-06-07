@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { getConnection } from 'connection'
 import { useCallback, useMemo } from 'react'
 
 import { ZERO_ADDRESS } from 'constants/index'
@@ -26,10 +27,11 @@ enum SwapCallbackState {
 export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
-  const { account, chainId, walletKey } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library, connector } = useWeb3React()
+  const { name: walletKey } = getConnection(connector).getProviderInfo()
 
-  const { saveGas, recipient: recipientAddressOrName } = useSwapState()
+  const { recipient: recipientAddressOrName } = useSwapState()
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -78,14 +80,13 @@ export function useSwapV2Callback(
           inputDecimals: trade.inputAmount.currency.decimals,
           outputDecimals: trade.outputAmount.currency.decimals,
           withRecipient,
-          saveGas,
           inputAmount: trade.inputAmount.toExact(),
           slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
           priceImpact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
         },
       } as TransactionExtraInfo2Token,
     }
-  }, [account, allowedSlippage, chainId, recipient, recipientAddressOrName, saveGas, trade])
+  }, [account, allowedSlippage, chainId, recipient, recipientAddressOrName, trade])
 
   return useMemo(() => {
     if (!trade || !account) {

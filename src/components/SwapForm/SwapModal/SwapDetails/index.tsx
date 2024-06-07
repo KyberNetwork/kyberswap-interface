@@ -21,7 +21,9 @@ import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
+import useENS from 'hooks/useENS'
 import useTheme from 'hooks/useTheme'
+import { useCheckCorrelatedPair } from 'state/swap/hooks'
 import { usePaymentToken } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
@@ -96,6 +98,7 @@ export default function SwapDetails({
 
   const priceImpactResult = checkPriceImpact(priceImpact)
   const isStablePair = useCheckStablePairSwap(currencyIn, currencyOut)
+  const isCorrelated = useCheckCorrelatedPair()
 
   const { formattedAmountUsd: feeAmountUsdFromGet = '' } = routeSummary?.fee || {}
 
@@ -114,6 +117,10 @@ export default function SwapDetails({
 
   const [paymentToken] = usePaymentToken()
   const isHold = paymentToken?.address.toLowerCase() === '0xed4040fD47629e7c8FBB7DA76bb50B3e7695F0f2'.toLowerCase()
+
+  const { recipient: recipientAddressOrName } = useSwapFormContext()
+  const { address: recipientAddress } = useENS(recipientAddressOrName)
+  const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
 
   return (
     <>
@@ -365,7 +372,10 @@ export default function SwapDetails({
             </TextDashed>
           </RowFixed>
 
-          <TYPE.black fontSize={12} color={checkWarningSlippage(slippage, isStablePair) ? theme.warning : undefined}>
+          <TYPE.black
+            fontSize={12}
+            color={checkWarningSlippage(slippage, isStablePair, isCorrelated) ? theme.warning : undefined}
+          >
             {formatSlippage(slippage)}
           </TYPE.black>
         </RowBetween>
@@ -406,17 +416,22 @@ export default function SwapDetails({
         )}
 
         <Divider />
-        <RowBetween>
-          <TextDashed fontSize={12} color={theme.subText}>
-            <MouseoverTooltip text={<Trans>Chain on which the swap will be executed.</Trans>}>
-              <Trans>Chain</Trans>
-            </MouseoverTooltip>
-          </TextDashed>
-          <Flex fontSize={12} fontWeight="501" alignItems="center" sx={{ gap: '4px' }}>
-            <img src={networkInfo.icon} alt="network icon" width="12px" height="12px" />
-            {networkInfo.name}
-          </Flex>
-        </RowBetween>
+        {recipient && (
+          <RowBetween>
+            <Text fontSize={12} color={theme.subText}>
+              <Trans>Recipient</Trans>
+            </Text>
+            <Flex fontSize={12} fontWeight="501" alignItems="center" sx={{ gap: '4px' }}>
+              <img src={networkInfo.icon} alt="network icon" width="12px" height="12px" />
+              <ExternalLink href={`${networkInfo.etherscanUrl}/address/${recipient}`}>
+                <Flex color={theme.text} sx={{ gap: '4px' }}>
+                  <Text fontSize={12}>{shortenAddress(chainId, recipient)}</Text>
+                  <ExternalLinkIcon size={12} />
+                </Flex>
+              </ExternalLink>
+            </Flex>
+          </RowBetween>
+        )}
 
         <RowBetween>
           <TextDashed fontSize={12} color={theme.subText}>

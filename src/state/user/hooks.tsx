@@ -32,7 +32,6 @@ import {
   setPaymentToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
-  toggleLiveChart,
   toggleMyEarningChart,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
@@ -369,32 +368,9 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
   }, [combinedList])
 }
 
-export function useShowLiveChart(): boolean {
-  // const showLiveChart = useSelector((state: AppState) => state.user.showLiveChart)
-  // return typeof showLiveChart !== 'boolean' || showLiveChart
-
-  // TODO: HARD CODE to remove live chart
-  return false
-}
-
-export function useShowTradeRoutes(): boolean {
-  const showTradeRoutes = useSelector((state: AppState) => state.user.showTradeRoutes)
-  return showTradeRoutes
-}
-
 export function useUpdateTokenAnalysisSettings(): (payload: string) => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback((payload: string) => dispatch(updateTokenAnalysisSettings(payload)), [dispatch])
-}
-
-export function useToggleLiveChart(): () => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(toggleLiveChart()), [dispatch])
-}
-
-export function useToggleTradeRoutes(): () => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
 }
 
 export function useToggleTopTrendingTokens(): () => void {
@@ -551,4 +527,14 @@ export const useShowMyEarningChart: () => [boolean, () => void] = () => {
     dispatch(toggleMyEarningChart())
   }, [dispatch])
   return [isShowMyEarningChart, toggle]
+}
+
+export function useShowTradeRoutes(): boolean {
+  const showTradeRoutes = useSelector((state: AppState) => state.user.showTradeRoutes)
+  return showTradeRoutes
+}
+
+export function useToggleTradeRoutes(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
 }

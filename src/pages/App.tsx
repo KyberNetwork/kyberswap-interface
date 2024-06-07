@@ -17,7 +17,6 @@ import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import SupportButton from 'components/SupportButton'
-import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -246,91 +245,89 @@ export default function App() {
 
           <BodyWrapper>
             <Popups />
-            <Web3ReactManager>
-              <Routes>
-                {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
-                <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
-                <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
-                {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
-                  <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
-                )}
+            <Routes>
+              {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
+              <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
+              <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
+              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+                <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
+              )}
 
-                {isSupportLimitOrder(chainId) && (
-                  <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
-                )}
+              {isSupportLimitOrder(chainId) && (
+                <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
+              )}
 
-                <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
-                <>
-                  {/* Farms Routes */}
-                  <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
-                  <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
-                </>
+              <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
+              <>
+                {/* Farms Routes */}
+                <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
+                <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
+              </>
 
-                <>
-                  {/* My Pools Routes */}
-                  <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                  <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPool />} />
-                </>
+              <>
+                {/* My Pools Routes */}
+                <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
+                <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPool />} />
+              </>
 
-                <>
-                  {/* These are old routes and will soon be deprecated - Check: RoutesWithNetworkParam */}
-                  {/*
+              <>
+                {/* These are old routes and will soon be deprecated - Check: RoutesWithNetworkParam */}
+                {/*
                   <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
                   <Route path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
                   */}
 
-                  <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+                <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
 
-                  <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
-                </>
+                <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+              </>
 
-                <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
-                <Route path={`${APP_PATHS.KYBERDAO_VOTE}`} element={<KyberDAOVote />} />
-                <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
-                <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
-                <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-                <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
-                {/* <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} /> */}
-                <Route
-                  path={`${APP_PATHS.PROFILE_MANAGE}`}
-                  element={
-                    <ProtectedRoute>
-                      <NotificationCenter />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path={`${APP_PATHS.PROFILE_MANAGE}/*`}
-                  element={
-                    <ProtectedRoute>
-                      <NotificationCenter />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path={APP_PATHS.DEPRECATED_NOTI_CENTER}
-                  element={
-                    <ProtectedRoute>
-                      <NotificationCenter redirectRoute={PROFILE_MANAGE_ROUTES.PREFERENCE} />
-                    </ProtectedRoute>
-                  }
-                />
+              <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
+              <Route path={`${APP_PATHS.KYBERDAO_VOTE}`} element={<KyberDAOVote />} />
+              <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
+              <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
+              <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
+              <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
+              {/* <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} /> */}
+              <Route
+                path={`${APP_PATHS.PROFILE_MANAGE}`}
+                element={
+                  <ProtectedRoute>
+                    <NotificationCenter />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path={`${APP_PATHS.PROFILE_MANAGE}/*`}
+                element={
+                  <ProtectedRoute>
+                    <NotificationCenter />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path={APP_PATHS.DEPRECATED_NOTI_CENTER}
+                element={
+                  <ProtectedRoute>
+                    <NotificationCenter redirectRoute={PROFILE_MANAGE_ROUTES.PREFERENCE} />
+                  </ProtectedRoute>
+                }
+              />
 
-                <Route path={`elastic-swap`} element={<ElasticSwap />} />
+              <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
-                <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
+              <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
 
-                <Route path={APP_PATHS.VERIFY_AUTH} element={<VerifyAuth />} />
-                <Route path={APP_PATHS.IAM_LOGIN} element={<Login />} />
-                <Route path={APP_PATHS.IAM_LOGOUT} element={<Logout />} />
-                <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
+              <Route path={APP_PATHS.VERIFY_AUTH} element={<VerifyAuth />} />
+              <Route path={APP_PATHS.IAM_LOGIN} element={<Login />} />
+              <Route path={APP_PATHS.IAM_LOGOUT} element={<Logout />} />
+              <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
 
-                <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
-                <Route path="/liquidity-widget" element={<LiquidityWidget />} />
+              <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
+              <Route path="/liquidity-widget" element={<LiquidityWidget />} />
 
-                <Route path="*" element={<RedirectPathToSwapV3Network />} />
-              </Routes>
-            </Web3ReactManager>
+              <Route path="*" element={<RedirectPathToSwapV3Network />} />
+            </Routes>
           </BodyWrapper>
           {showFooter && <Footer />}
           {!showFooter && <div style={{ marginBottom: '4rem' }} />}

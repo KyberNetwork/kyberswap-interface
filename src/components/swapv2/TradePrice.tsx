@@ -38,7 +38,7 @@ export default function TradePrice({ price, label, icon, style = {}, color }: Tr
     <Text
       fontWeight={500}
       fontSize={12}
-      color={theme.subText}
+      color={color || theme.subText}
       style={{ alignItems: 'center', display: 'flex', cursor: 'pointer', ...style }}
       onClick={() => setShowInverted(!showInverted)}
       height="22px"
@@ -46,7 +46,7 @@ export default function TradePrice({ price, label, icon, style = {}, color }: Tr
       {show ? (
         <>
           {label && <>{label}&nbsp;</>} <Text color={color}>{value}</Text>
-          <StyledBalanceMaxMini>{icon || <Repeat size={12} />}</StyledBalanceMaxMini>
+          <StyledBalanceMaxMini>{icon || <Repeat size={12} color={color} />}</StyledBalanceMaxMini>
         </>
       ) : (
         <Dots>

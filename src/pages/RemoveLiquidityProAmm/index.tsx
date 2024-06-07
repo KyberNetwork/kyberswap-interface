@@ -490,8 +490,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const isWarningSlippage = checkWarningSlippage(allowedSlippage, false)
-  const slippageStatus = checkRangeSlippage(allowedSlippage, false)
+  const isWarningSlippage = checkWarningSlippage(allowedSlippage, false, false)
+  const slippageStatus = checkRangeSlippage(allowedSlippage, false, false)
 
   return (
     <>

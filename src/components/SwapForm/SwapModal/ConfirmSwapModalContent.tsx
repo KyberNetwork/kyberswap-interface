@@ -77,7 +77,7 @@ export default function ConfirmSwapModalContent({
   onSwap,
 }: Props) {
   const theme = useTheme()
-  const { routeSummary, slippage, isStablePairSwap, isAdvancedMode } = useSwapFormContext()
+  const { routeSummary, slippage, isStablePairSwap, isCorrelatedPair, isAdvancedMode } = useSwapFormContext()
   const [hasAcceptedNewAmount, setHasAcceptedNewAmount] = useState(false)
   const [showAreYouSureModal, setShowAreYouSureModal] = useState(false)
   const [isDegenMode] = useDegenModeManager()
@@ -215,7 +215,9 @@ export default function ConfirmSwapModalContent({
   }
 
   const warningStyle =
-    priceImpactResult.isVeryHigh || priceImpactResult.isInvalid ? { background: theme.red } : undefined
+    priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
+      ? { background: theme.red, color: theme.text }
+      : undefined
 
   const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isAdvancedMode, priceImpactFromBuild)
 
@@ -300,7 +302,11 @@ export default function ConfirmSwapModalContent({
         <SwapDetails {...getSwapDetailsProps()} />
 
         <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
-          <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />
+          <SlippageWarningNote
+            rawSlippage={slippage}
+            isStablePairSwap={isStablePairSwap}
+            isCorrelatedPair={isCorrelatedPair}
+          />
 
           <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 

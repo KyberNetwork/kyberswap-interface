@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 
 // ex: 60 => 1 minute
 export const formatTimeDuration = (t: number) => {
+  if (t > 3124224000) return 'Forever'
   const str = dayjs.duration(t, 'seconds').humanize()
   return str.includes('few') ? str : str.replace('a ', '1 ').replace('an ', '1 ')
 }

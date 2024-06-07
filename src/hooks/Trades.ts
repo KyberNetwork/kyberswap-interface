@@ -10,7 +10,6 @@ import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
 import useDebounce from 'hooks/useDebounce'
 import { AppState } from 'state'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-import { useSwapState } from 'state/swap/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { usePermitData, useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress } from 'utils'
@@ -113,7 +112,6 @@ export function useTradeExactInV2(
 
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
-  const { saveGas } = useSwapState()
   const permitData = usePermitData(currencyAmountIn?.currency.wrapped.address)
 
   // refresh aggregator data on new sent tx
@@ -142,7 +140,6 @@ export function useTradeExactInV2(
           aggregatorAPI,
           debounceCurrencyAmountIn,
           currencyOut,
-          saveGas,
           dexes,
           allowedSlippage,
           deadline,
@@ -177,7 +174,6 @@ export function useTradeExactInV2(
       account,
       ttl,
       aggregatorAPI,
-      saveGas,
       dexes,
       allowedSlippage,
       permitData,
