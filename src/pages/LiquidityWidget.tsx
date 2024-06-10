@@ -3,18 +3,13 @@ import { LiquidityWidget as KsLiquidityWidget, PoolType } from '@kyberswap/liqui
 import '@kyberswap/liquidity-widgets/dist/style.css'
 import { useEffect, useMemo, useState } from 'react'
 import { Box } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Input from 'components/Input'
-import Modal from 'components/Modal'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 
-const StyledModal = styled(Modal)`
-  transition: all 0.2s;
-`
 export default function LiquidityWidget() {
   const [selectedChainId, setSelectedChainId] = useState(ChainId.ARBITRUM)
   const [poolAddress, setPoolAddress] = useState('0x0bacc7a9717e70ea0da5ac075889bd87d4c81197')
@@ -22,10 +17,10 @@ export default function LiquidityWidget() {
   const [openModal, setOpenModal] = useState(false)
   const { changeNetwork } = useChangeNetwork()
   const [autoAfterChange, setAutoAfterChange] = useState(false)
-  console.log(positionId)
 
   const { chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, account } = useWeb3React()
+  console.log(library, account)
 
   useEffect(() => {
     if (autoAfterChange && chainId === selectedChainId) {
@@ -57,6 +52,7 @@ export default function LiquidityWidget() {
     [],
   )
 
+  const [dexType, setType] = useState(PoolType.DEX_PANCAKESWAPV3)
   return (
     <>
       {openModal ? (
@@ -65,7 +61,7 @@ export default function LiquidityWidget() {
           theme={pancakeTheme}
           poolAddress={poolAddress}
           positionId={positionId || undefined}
-          poolType={PoolType.DEX_PANCAKESWAPV3}
+          poolType={dexType}
           chainId={ChainId.ARBITRUM}
           onDismiss={() => setOpenModal(false)}
           onTogglePreview={() => {
@@ -75,6 +71,28 @@ export default function LiquidityWidget() {
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', gap: '1rem', width: '100%' }}>
           <NetworkSelector chainId={selectedChainId} customOnSelectNetwork={chain => setSelectedChainId(chain)} />
+          <div>
+            <input
+              type="radio"
+              id="html"
+              name="fav_language"
+              value={PoolType.DEX_PANCAKESWAPV3}
+              checked={dexType === PoolType.DEX_PANCAKESWAPV3}
+              onChange={e => setType(e.currentTarget.value as PoolType)}
+            />
+              <label htmlFor="html">Pancake</label>
+            <br />
+            <input
+              type="radio"
+              id="css"
+              name="fav_language"
+              value={PoolType.DEX_UNISWAPV3}
+              checked={dexType === PoolType.DEX_UNISWAPV3}
+              onChange={e => setType(e.currentTarget.value as PoolType)}
+            />
+              <label htmlFor="css">Uniswap</label>
+            <br />
+          </div>
           <Input placeholder="Pool address..." value={poolAddress} onChange={e => setPoolAddress(e.target.value)} />
           <Input placeholder="Position id..." value={positionId} onChange={e => setPositionId(e.target.value)} />
           <ButtonPrimary

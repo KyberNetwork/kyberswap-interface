@@ -265,4 +265,8 @@ export const ThemedGlobalStyle = createGlobalStyle`
     z-index: 9999
   }
 
+  .ks-lw {
+    max-width: 900px;
+  }
+
 `
