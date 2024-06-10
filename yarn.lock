@@ -3750,10 +3750,10 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/liquidity-widgets@^0.0.1-rc8":
-  version "0.0.1-rc8"
-  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-0.0.1-rc8.tgz#439d33ef7b694dc3f5d05fb524ef1bb07aa828f8"
-  integrity sha512-JGBkzu0GEpID1wIfI7ADfdprQLtvmEpYxo6rU3thZeMmEsVfuYd5spgUC3qmjGX4kwNC7i1JyYWpNwQzdOAHqg==
+"@kyberswap/liquidity-widgets@^0.0.1-rc10":
+  version "0.0.1-rc10"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-0.0.1-rc10.tgz#f9f70be878f17408bbf673cbedff40fdf9477cdf"
+  integrity sha512-Jv5X/m+AH18OFXr6vo6Brj6DgB0ImJ3Uf3Lw7vQtYDYKjPk/PGlX71BGKMCr0w3Nsl1AoqoP3IIJDfUwKYrVcA==
   dependencies:
     "@pancakeswap/sdk" "^5.8.2"
     "@pancakeswap/v3-sdk" "^3.8.3"
