@@ -9,6 +9,7 @@ import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 type Props = {
   rawSlippage: number
   isStablePairSwap: boolean
+  isCorrelatedPair: boolean
   className?: string
 }
 
@@ -30,8 +31,8 @@ const TextUnderlineTransparent = styled(Text)`
   display: inline;
 `
 
-const SlippageWarningNote: FC<Props> = ({ className, rawSlippage, isStablePairSwap }) => {
-  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap)
+const SlippageWarningNote: FC<Props> = ({ className, rawSlippage, isStablePairSwap, isCorrelatedPair }) => {
+  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap, isCorrelatedPair)
 
   if (slippageStatus === SLIPPAGE_STATUS.NORMAL) {
     return null

@@ -35,7 +35,8 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } = useSlippageSettingByPage()
 
   const isStablePairSwap = useCheckStablePairSwap()
-  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap)
+  const isCorrelatedPair = useCheckStablePairSwap()
+  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap, isCorrelatedPair)
   const isWarning = slippageStatus !== SLIPPAGE_STATUS.NORMAL
   const theme = useTheme()
 

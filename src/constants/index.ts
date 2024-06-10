@@ -125,7 +125,8 @@ export const DEFAULT_TIPS = [0, 10, 50, 100]
 export const MAX_FEE_IN_BIPS = 1500
 
 export const DEFAULT_SLIPPAGE = 50
-export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 5
+export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 1
+export const DEFAULT_SLIPPAGE_CORRELATED_PAIR = 5
 
 export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show '.' '..' '...' '.' '..' '...'
 

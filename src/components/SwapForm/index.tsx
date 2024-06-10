@@ -9,7 +9,6 @@ import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
 import FeeControlGroup from 'components/FeeControlGroup'
 import { NetworkSelector } from 'components/NetworkSelector'
-import SlippageWarningNote from 'components/SlippageWarningNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
@@ -26,7 +25,7 @@ import { useActiveWeb3React } from 'hooks'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { Field } from 'state/swap/actions'
-import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { useCheckCorrelatedPair, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
 
 import MultichainKNCNote from './MultichainKNCNote'
@@ -111,6 +110,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
 
   const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
+  const isCorrelatedPair = useCheckCorrelatedPair()
 
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
@@ -160,6 +160,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       typedValue={typedValue}
       recipient={recipient}
       isStablePairSwap={isStablePairSwap}
+      isCorrelatedPair={isCorrelatedPair}
       isAdvancedMode={isDegenMode}
     >
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
@@ -205,13 +206,12 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               isWrapOrUnwrap={isWrapOrUnwrap}
               isStablePairSwap={isStablePairSwap}
               onOpenGasToken={onOpenGasToken}
+              isCorrelatedPair={isCorrelatedPair}
             />
             <FeeControlGroup />
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
-          {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
-
           <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 

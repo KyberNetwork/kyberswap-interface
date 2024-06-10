@@ -8,6 +8,7 @@ type SwapFormContextProps = {
   typedValue: string
   recipient: string | null
   isStablePairSwap: boolean
+  isCorrelatedPair: boolean
   isAdvancedMode: boolean
 }
 

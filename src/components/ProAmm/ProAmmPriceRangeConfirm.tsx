@@ -67,7 +67,7 @@ export default function ProAmmPriceRangeConfirm({
   }, [quoteCurrency])
 
   const [allowedSlippage] = useUserSlippageTolerance()
-  const isWarningSlippage = checkWarningSlippage(allowedSlippage, false)
+  const isWarningSlippage = checkWarningSlippage(allowedSlippage, false, false)
 
   const baseSymbol = baseCurrency?.symbol
   const quoteSymbol = quoteCurrency?.symbol
