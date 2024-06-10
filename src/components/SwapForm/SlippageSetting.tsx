@@ -106,7 +106,17 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
                 borderBottom: isWarningSlippage ? `1px dashed ${theme.warning}` : 'none',
               }}
             >
-              <MouseoverTooltip text={isWarningSlippage ? t`Slippage is high. Your transaction may be front-run.` : ''}>
+              <MouseoverTooltip
+                text={
+                  isWarningSlippage
+                    ? isStablePairSwap
+                      ? t`Your slippage setting might be high compared to typical stable pair trades. Consider adjusting it to reduce the risk of front-running.`
+                      : isCorrelatedPair
+                      ? t`Your slippage setting might be high compared with other similar trades. You might want to adjust it to avoid potential front-running.`
+                      : t`Your slippage setting might be high. You might want to adjust it to avoid potential front-running.`
+                    : ''
+                }
+              >
                 {formatSlippage(rawSlippage)}
               </MouseoverTooltip>
             </Text>
