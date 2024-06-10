@@ -38,13 +38,23 @@ const SlippageWarningNote: FC<Props> = ({ className, rawSlippage, isStablePairSw
     return null
   }
 
-  let msg = 'is high. Your transaction may be front-run.'
+  let msg = 'setting might be high. You might want to adjust it to avoid potential front-running.'
   if (slippageStatus === SLIPPAGE_STATUS.LOW) {
     msg = 'is low. Your transaction may fail.'
   }
+
+  if (isStablePairSwap)
+    msg =
+      'setting might be high compared to typical stable pair trades. Consider adjusting it to reduce the risk of front-running.'
+  if (isCorrelatedPair)
+    msg =
+      'setting might be high compared with other similar trades. You might want to adjust it to avoid potential front-running.'
+
   const shortText = (
     <div>
       <Trans>
+        <TextUnderlineTransparent>Your </TextUnderlineTransparent>
+
         <TextUnderlineColor
           style={{ minWidth: 'max-content' }}
           as="a"
