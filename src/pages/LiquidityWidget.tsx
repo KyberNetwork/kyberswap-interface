@@ -52,13 +52,37 @@ export default function LiquidityWidget() {
     [],
   )
 
+  const ksTheme = useMemo(
+    () => ({
+      text: '#ffffff',
+      subText: '#979797',
+      icons: '#a9a9a9',
+      layer1: '#1C1C1C',
+      dialog: '#1c1c1c',
+      layer2: '#313131',
+      stroke: '#313131',
+      chartRange: '#28e0b9',
+      chartArea: '#047855',
+      accent: '#31cb9e',
+      warning: '#ff9901',
+      error: '#ff537b',
+      success: '#189470',
+      fontFamily: 'Work Sans',
+      borderRadius: '20px',
+      buttonRadius: '24px',
+      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.04)',
+    }),
+    [],
+  )
+
   const [dexType, setType] = useState(PoolType.DEX_PANCAKESWAPV3)
+  const [selectedTheme, setSelectedTheme] = useState('pc')
   return (
     <>
       {openModal ? (
         <KsLiquidityWidget
           provider={library}
-          theme={pancakeTheme}
+          theme={selectedTheme === 'pc' ? pancakeTheme : ksTheme}
           poolAddress={poolAddress}
           positionId={positionId || undefined}
           poolType={dexType}
@@ -74,8 +98,28 @@ export default function LiquidityWidget() {
           <div>
             <input
               type="radio"
+              id="kstheme"
+              value="ks"
+              checked={selectedTheme === 'ks'}
+              onChange={e => setSelectedTheme(e.currentTarget.value)}
+            />
+              <label htmlFor="kstheme">KyberSwap Theme</label>
+            <br />
+            <input
+              type="radio"
+              id="pctheme"
+              value="pc"
+              checked={selectedTheme === 'pc'}
+              onChange={e => setSelectedTheme(e.currentTarget.value)}
+            />
+              <label htmlFor="pctheme">Pancake Theme</label>
+            <br />
+          </div>
+
+          <div>
+            <input
+              type="radio"
               id="html"
-              name="fav_language"
               value={PoolType.DEX_PANCAKESWAPV3}
               checked={dexType === PoolType.DEX_PANCAKESWAPV3}
               onChange={e => setType(e.currentTarget.value as PoolType)}
@@ -85,7 +129,6 @@ export default function LiquidityWidget() {
             <input
               type="radio"
               id="css"
-              name="fav_language"
               value={PoolType.DEX_UNISWAPV3}
               checked={dexType === PoolType.DEX_UNISWAPV3}
               onChange={e => setType(e.currentTarget.value as PoolType)}
