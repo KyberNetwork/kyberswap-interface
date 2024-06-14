@@ -1,0 +1,118 @@
+.ks-lw-setting {
+  position: absolute;
+  right: 24px;
+  top: 116px;
+  background: var(--ks-lw-layer2);
+  padding: 20px;
+  border-radius: var(--ks-lw-borderRadius);
+
+  .title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+
+  .setting-title {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .underline {
+    border-bottom: 1px dotted var(--ks-lw-subText);
+  }
+
+  .row-btw {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+  }
+
+  .slp-input-wrapper {
+    border-radius: 999px;
+    margin-top: 8px;
+    background: var(--ks-lw-layer1);
+    padding: 4px;
+    display: flex;
+
+    .slp-item {
+      position: relative;
+      border-radius: 999px;
+      color: var(--ks-lw-subText);
+      font-size: 14px;
+      padding: 4px;
+      font-weight: 500;
+      flex: 2;
+      width: 48px;
+      display: flex;
+      border: 1px solid transparent;
+      align-items: center;
+      gap: 4px;
+      justify-content: center;
+      cursor: pointer;
+
+      &:hover {
+        border: 1px solid var(--ks-lw-accent);
+      }
+
+      &[data-active="true"] {
+        color: var(--ks-lw-text);
+        border: 1px solid var(--ks-lw-accent);
+      }
+
+      &[data-error="true"] {
+        border: 1px solid var(--ks-lw-error);
+      }
+
+      &[data-warning="true"] {
+        border: 1px solid var(--ks-lw-warning);
+      }
+
+      &[data-focus="true"] {
+        border: 1px solid var(--ks-lw-accent);
+      }
+
+      input {
+        width: 72px;
+        background: var(--ks-lw-layer1);
+        border: none;
+        outline: none;
+        color: var(--ks-lw-text);
+        text-align: right;
+        width: 100%;
+        font-size: 12px;
+        padding: 0;
+
+        &:focus {
+          background: var(--ks-lw-layer1);
+        }
+      }
+    }
+
+    .slp-item-input {
+      flex: 3;
+    }
+  }
+
+  .ttl-input {
+    display: flex;
+    padding: 6px 8px;
+    gap: 4px;
+    border-radius: 999px;
+    background: var(--ks-lw-secondary);
+    color: var(--ks-lw-text);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: right;
+
+    input {
+      border: none;
+      outline: none;
+      width: 48px;
+      padding: 0;
+      background: transparent;
+      text-align: right;
+      color: var(--ks-lw-text);
+    }
+  }
+}

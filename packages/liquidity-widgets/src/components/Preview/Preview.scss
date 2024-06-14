@@ -1,0 +1,220 @@
+.ks-lw-preview {
+  .warning-msg {
+    border-radius: var(--ks-lw-borderRadius);
+    font-size: 12px;
+    padding: 12px 16px;
+    margin-top: 1rem;
+    font-weight: 400;
+  }
+
+  .est-usd {
+    color: var(--ks-lw-subText);
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    height: 36px;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-size: 16px;
+
+    .logo {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .network-logo {
+        position: absolute;
+        bottom: 0px;
+        right: -8px;
+      }
+    }
+
+    .pool-info {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      .tag {
+        border-radius: 999px;
+        font-size: 12px;
+        line-height: 16px;
+        background: var(--ks-lw-layer2);
+        padding: 0 8px;
+        height: max-content;
+      }
+
+      .tag-primary {
+        background: var(--ks-lw-success);
+      }
+    }
+  }
+
+  .card {
+    background: var(--ks-lw-layer2);
+    border-radius: var(--ks-lw-borderRadius);
+    padding: 12px 16px;
+
+    .card-title {
+      color: var(--ks-lw-subText);
+      font-size: 14px;
+    }
+  }
+
+  .card-outline {
+    border: 1px solid var(--ks-lw-stroke);
+    border-radius: var(--ks-lw-borderRadius);
+    background: transparent;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+  }
+
+  .row-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .flex-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .summary-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ks-lw-subText);
+  }
+
+  .underline {
+    border-bottom: 1px dotted var(--ks-lw-subText);
+  }
+
+  .summary-value {
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.ks-lw-confirming {
+  margin-top: 1rem;
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 500;
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spinner {
+    color: var(--ks-lw-success);
+    animation-name: spin;
+    animation-duration: 2000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+
+  .loading-area {
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .subText {
+    font-size: 14px;
+    color: var(--ks-lw-subText);
+  }
+
+  .error-icon {
+    color: var(--ks-lw-error);
+  }
+
+  .success-icon {
+    color: var(--ks-lw-success);
+  }
+
+  .view-tx {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    color: var(--ks-lw-accent);
+    font-size: 14px;
+    gap: 4px;
+  }
+
+  .error-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .error-msg {
+    margin-top: 0;
+    max-height: 0;
+    transition: 0.2s ease-out;
+
+    font-size: 12px;
+    color: var(--ks-lw-subText);
+    overflow-wrap: break-word;
+    overflow-y: scroll;
+
+    /* width */
+    ::-webkit-scrollbar {
+      display: unset;
+      width: 6px;
+      border-radius: 999px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 999px;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+      background: var(--ks-lw-subText);
+      border-radius: 999px;
+    }
+  }
+
+  .error-open {
+    margin-top: 12px;
+    max-height: 200px;
+  }
+
+  .divider {
+    height: 1px;
+    width: 100%;
+    background: var(--ks-lw-stroke);
+  }
+}
