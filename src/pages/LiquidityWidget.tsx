@@ -81,6 +81,9 @@ export default function LiquidityWidget() {
   const [selectedTheme, setSelectedTheme] = useState('pc')
   const [feeAddress, setFeeAddress] = useState('')
   const [feePcm, setFeePcm] = useState(0)
+
+  console.log(feeAddress, feePcm)
+
   return (
     <>
       {openModal ? (
