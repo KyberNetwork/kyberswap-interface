@@ -88,9 +88,6 @@ export default function LiquidityWidget() {
           poolType={dexType}
           chainId={ChainId.ARBITRUM}
           onDismiss={() => setOpenModal(false)}
-          onTogglePreview={() => {
-            //
-          }}
         />
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', gap: '1rem', width: '100%' }}>
