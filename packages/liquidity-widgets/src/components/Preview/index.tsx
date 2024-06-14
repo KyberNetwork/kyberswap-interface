@@ -15,6 +15,7 @@ import {
   ZAP_URL,
   ZapRouteDetail,
   chainIdToChain,
+  useZapState,
 } from "../../hooks/useZapInState";
 import { NetworkInfo, UNI_V3_BPS } from "../../constants";
 import { useWeb3Provider } from "../../hooks/useProvider";
@@ -35,6 +36,7 @@ import { PoolAdapter, Token, Price } from "../../entities/Pool";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "../Tooltip";
+import { formatUnits } from "ethers/lib/utils";
 
 export interface ZapState {
   pool: PoolAdapter;
@@ -83,6 +85,7 @@ export default function Preview({
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
   const { poolType, positionId, theme } = useWidgetInfo();
+  const { source } = useZapState();
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
@@ -222,7 +225,54 @@ export default function Preview({
     (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
     (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
 
-  const handleClick = () => {
+  const [gasUsd, setGasUsd] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`${ZAP_URL}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
+      method: "POST",
+      body: JSON.stringify({
+        sender: account,
+        recipient: account,
+        route: zapInfo.route,
+        deadline,
+        source,
+      }),
+    })
+      .then((res) => res.json())
+      .then(async (res) => {
+        const { data } = res || {};
+        if (data.callData) {
+          const txData = {
+            from: account,
+            to: data.routerAddress,
+            data: data.callData,
+            value: data.value,
+          };
+
+          try {
+            const [estimateGas, priceRes, gasPrice] = await Promise.all([
+              provider.getSigner().estimateGas(txData),
+              fetch(
+                `https://price.kyberswap.com/${chainIdToChain[chainId]}/api/v1/prices?ids=${NetworkInfo[chainId].wrappedToken.address}`
+              )
+                .then((res) => res.json())
+                .then((res) => res.data.prices[0]),
+              provider.getGasPrice(),
+            ]);
+            const price = priceRes?.marketPrice || priceRes?.price || 0;
+
+            const gasUsd =
+              +formatUnits(gasPrice) * +estimateGas.toString() * price;
+
+            setGasUsd(gasUsd);
+          } catch (e) {
+            console.log("Estimate gas failed", e);
+          }
+        }
+      });
+  }, [account, chainId, deadline, provider, source, zapInfo.route]);
+
+  const handleClick = async () => {
     setAttempTx(true);
     setTxHash("");
     setTxError(null);
@@ -626,6 +676,16 @@ export default function Preview({
           ) : (
             "--"
           )}
+        </div>
+
+        <div className="row-between">
+          <MouseoverTooltip
+            text="Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees."
+            width="220px"
+          >
+            <div className="summary-title underline">Est. Gas Fee</div>
+          </MouseoverTooltip>
+          {gasUsd ? formatCurrency(gasUsd) : "--"}
         </div>
 
         <div className="row-between">

@@ -35,6 +35,9 @@ export interface WidgetProps {
   onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;
   feePcm?: number;
+  source: string;
+  includedSources?: string;
+  excludedSources?: string;
 }
 
 export default function Widget({
@@ -48,6 +51,9 @@ export default function Widget({
   onTxSubmit,
   feeAddress,
   feePcm,
+  includedSources,
+  excludedSources,
+  source,
 }: WidgetProps) {
   const defaultProvider = useMemo(
     () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
@@ -72,7 +78,11 @@ export default function Widget({
         feeAddress={feeAddress}
         feePcm={feePcm}
       >
-        <ZapContextProvider>
+        <ZapContextProvider
+          includedSources={includedSources}
+          excludedSources={excludedSources}
+          source={source}
+        >
           <div className="ks-lw">
             <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
             <Setting />

@@ -153,6 +153,7 @@ const ZapContext = createContext<{
   setDegenMode: (val: boolean) => void;
   positionId?: string;
   marketPrice: number | undefined | null;
+  source: string;
 }>({
   revertPrice: false,
   tickLower: null,
@@ -181,6 +182,7 @@ const ZapContext = createContext<{
   degenMode: false,
   setDegenMode: () => {},
   marketPrice: undefined,
+  source: "",
 });
 
 export const chainIdToChain: { [chainId: number]: string } = {
@@ -195,7 +197,17 @@ export enum Type {
   PriceUpper = "PriceUpper",
 }
 
-export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
+export const ZapContextProvider = ({
+  children,
+  source,
+  excludedSources,
+  includedSources,
+}: {
+  children: ReactNode;
+  source: string;
+  includedSources?: string;
+  excludedSources?: string;
+}) => {
   const {
     pool,
     poolType,
@@ -438,6 +450,12 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         "aggregatorOptions.disable": !enableAggregator,
         ...(positionId ? { "position.id": positionId } : {}),
         ...(feeAddress ? { feeAddress, feePcm } : {}),
+        ...(includedSources
+          ? { "aggregatorOptions.includedSources": includedSources }
+          : {}),
+        ...(excludedSources
+          ? { "aggregatorOptions.excludedSources": excludedSources }
+          : {}),
       };
 
       let tmp = "";
@@ -446,7 +464,12 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       });
 
       fetch(
-        `${ZAP_URL}/${chainIdToChain[chainId]}/api/v1/in/route?${tmp.slice(1)}`
+        `${ZAP_URL}/${chainIdToChain[chainId]}/api/v1/in/route?${tmp.slice(1)}`,
+        {
+          headers: {
+            "X-Client-Id": source,
+          },
+        }
       )
         .then((res) => res.json())
         .then((res) => {
@@ -481,6 +504,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     enableAggregator,
     slippage,
     positionId,
+    includedSources,
+    excludedSources,
+    source,
   ]);
 
   return (
@@ -514,6 +540,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         degenMode,
         setDegenMode,
         marketPrice,
+        source,
       }}
     >
       {children}
