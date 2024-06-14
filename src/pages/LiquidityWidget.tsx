@@ -109,6 +109,7 @@ export default function LiquidityWidget() {
             )
           }}
           onDismiss={() => setOpenModal(false)}
+          source={'kyberswap-demo-zap'}
         />
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', gap: '1rem', width: '100%' }}>
