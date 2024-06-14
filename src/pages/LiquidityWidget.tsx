@@ -4,11 +4,13 @@ import '@kyberswap/liquidity-widgets/dist/style.css'
 import { useEffect, useMemo, useState } from 'react'
 import { Box } from 'rebass'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import Input from 'components/Input'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useNotify } from 'state/application/hooks'
 
 export default function LiquidityWidget() {
   const [selectedChainId, setSelectedChainId] = useState(ChainId.ARBITRUM)
@@ -19,8 +21,8 @@ export default function LiquidityWidget() {
   const [autoAfterChange, setAutoAfterChange] = useState(false)
 
   const { chainId } = useActiveWeb3React()
-  const { library, account } = useWeb3React()
-  console.log(library, account)
+  const { library } = useWeb3React()
+  const notify = useNotify()
 
   useEffect(() => {
     if (autoAfterChange && chainId === selectedChainId) {
@@ -87,6 +89,18 @@ export default function LiquidityWidget() {
           positionId={positionId || undefined}
           poolType={dexType}
           chainId={ChainId.ARBITRUM}
+          onTxSubmit={tx => {
+            notify(
+              {
+                title: 'Send Zap tx success',
+                type: NotificationType.SUCCESS,
+                summary: `Tx: ${tx}`,
+                // icon?: ReactNode
+                // link: getEtherscanLink(ChainId.ARBITRUM, tx, 'transaction'),
+              },
+              10_000,
+            )
+          }}
           onDismiss={() => setOpenModal(false)}
         />
       ) : (

@@ -266,6 +266,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
   }
 
   .ks-lw {
+    width: 100%;
     max-width: 900px;
   }
 
