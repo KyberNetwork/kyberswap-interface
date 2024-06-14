@@ -680,7 +680,7 @@ export default function Preview({
 
         <div className="row-between">
           <MouseoverTooltip
-            text="Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees."
+            text="Estimated network fee for your transaction."
             width="220px"
           >
             <div className="summary-title underline">Est. Gas Fee</div>
