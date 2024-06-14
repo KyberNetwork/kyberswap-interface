@@ -79,6 +79,8 @@ export default function LiquidityWidget() {
 
   const [dexType, setType] = useState(PoolType.DEX_PANCAKESWAPV3)
   const [selectedTheme, setSelectedTheme] = useState('pc')
+  const [feeAddress, setFeeAddress] = useState('')
+  const [feePcm, setFeePcm] = useState(0)
   return (
     <>
       {openModal ? (
@@ -87,6 +89,8 @@ export default function LiquidityWidget() {
           theme={selectedTheme === 'pc' ? pancakeTheme : ksTheme}
           poolAddress={poolAddress}
           positionId={positionId || undefined}
+          feeAddress={feeAddress}
+          feePcm={feePcm}
           poolType={dexType}
           chainId={ChainId.ARBITRUM}
           onTxSubmit={tx => {
@@ -149,6 +153,9 @@ export default function LiquidityWidget() {
           </div>
           <Input placeholder="Pool address..." value={poolAddress} onChange={e => setPoolAddress(e.target.value)} />
           <Input placeholder="Position id..." value={positionId} onChange={e => setPositionId(e.target.value)} />
+
+          <Input placeholder="Fee address..." value={feeAddress} onChange={e => setFeeAddress(e.target.value)} />
+          <Input placeholder="Fee pcm..." value={feePcm} onChange={e => setFeePcm(+e.target.value)} />
           <ButtonPrimary
             onClick={() => {
               if (selectedChainId !== chainId) {
