@@ -191,7 +191,7 @@ export default function Content({
   const isDevated =
     !!marketPrice &&
     newPool &&
-    Math.abs(marketPrice / +newPool.priceOf(newPool.token0).toFixed() - 1) >
+    Math.abs(marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1) >
       0.02;
 
   const marketRate = marketPrice
