@@ -14,8 +14,8 @@ import { useNotify } from 'state/application/hooks'
 
 export default function LiquidityWidget() {
   const [selectedChainId, setSelectedChainId] = useState(ChainId.ARBITRUM)
-  const [poolAddress, setPoolAddress] = useState('0x0bacc7a9717e70ea0da5ac075889bd87d4c81197')
-  const [positionId, setPositionId] = useState('24654')
+  const [poolAddress, setPoolAddress] = useState('') // 0x0bacc7a9717e70ea0da5ac075889bd87d4c81197
+  const [positionId, setPositionId] = useState('') //24654
   const [openModal, setOpenModal] = useState(false)
   const { changeNetwork } = useChangeNetwork()
   const [autoAfterChange, setAutoAfterChange] = useState(false)
@@ -95,7 +95,7 @@ export default function LiquidityWidget() {
           feeAddress={feeAddress}
           feePcm={feePcm}
           poolType={dexType}
-          chainId={ChainId.ARBITRUM}
+          chainId={selectedChainId}
           onTxSubmit={tx => {
             notify(
               {
