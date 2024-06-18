@@ -452,7 +452,7 @@ export default function IncreaseLiquidity() {
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const slippageStatus = checkRangeSlippage(allowedSlippage, false)
+  const slippageStatus = checkRangeSlippage(allowedSlippage, false, false)
 
   // ZAP STATE
   const [value, setValue] = useState('')

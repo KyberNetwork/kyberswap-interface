@@ -139,7 +139,6 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   ],
   [ChainId.LINEA]: [],
   [ChainId.SCROLL]: [],
-  [ChainId.SCROLL]: [],
   [ChainId.BLAST]: [],
   [ChainId.MANTLE]: [],
   [ChainId.XLAYER]: [],
@@ -152,6 +151,110 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
       '0x9ee91F9f426fA633d227f7a9b000E28b9dfd8599', //stMATIC
     ],
     [
+      '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', //maxtic
+      '0xf03A7Eb46d01d9EcAA104558C732Cf82f6B6B645', //maticX
+    ],
+    [
+      '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', //maxtic
+      '0xf03A7Eb46d01d9EcAA104558C732Cf82f6B6B645', //maticX
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // weth
+      '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704', //cbETH
+    ],
+    [
+      '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51', // susd
+      '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', //usdc
+    ],
+    [
+      '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51', // susd
+      '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', //usdc
+    ],
+    [
+      '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51', // susd
+      '0xdAC17F958D2ee523a2206206994597C13D831ec7', // usdt
+    ],
+    [
+      '0x6B175474E89094C44Da98b954EedeAC495271d0F', // Dai
+      '0x83F20F44975D03b1b09e64809B757c47f942BEeA', // sdai
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee', // weETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110', // ezETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xae78736Cd615f374D3085123A210448E74Fc6393', // rETH rocket pool eth
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x9559Aaa82d9649C7A7b220E7c461d2E74c9a3593', // rETH stafi eth
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xf951E335afb289353dc249e82926178EaC7DEd78', // swETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0', // rswETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xD9A442856C234a39a81a089C06451EBAa4306a72', // puffETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xF1376bceF0f78459C0Ed0ba5ddce976F1ddF51F4', // uniETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0xA35b1B31Ce002FBF2058D22F30f95D405200A15b', // ethx
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x35fA164735182de50811E8e2E824cFb9B6118ac2', // eETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x5E8422345238F34275888049021821E8E08CAa1f', // frxETH
+      '0xac3E018457B222d93114458476f3E3416Abbe38F', // sfrxETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3', // OETH
+    ],
+
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x6ef3D766Dfe02Dc4bF04aAe9122EB9A0Ded25615', // primeETH
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ETH
+      '0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb', // sETH
+    ],
+    [
+      '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', // wbtc
+      '0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa', // tbtc
+      '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6', // sbtc
+    ],
+    [
+      '0x853d955aCEf822Db058eb8505911ED77F175b99e', // frax
+      '0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32', // sfrax
+    ],
+    [
+      '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f', // gho
+      '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // usdc
+    ],
+    [
+      '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // usdc
+      '0xe07F9D810a48ab5c3c914BA3cA53AF14E4491e8A', // gyd
+    ],
+
+    [
       '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', //WETH
       '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84', //stETH
       '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0', //wstETH
@@ -161,11 +264,16 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
       '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202', //KNC
     ],
   ],
+
   [ChainId.MATIC]: [
     [
       '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', //WMATIC
       '0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4', //stMATIC
       '0x0000000000000000000000000000000000001010', //MATIC
+    ],
+    [
+      '0xfa68FB4628DFF1028CFEc22b4162FCcd0d45efb6', // MATICX
+      '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', // WMATIC
     ],
   ],
   [ChainId.BSCMAINNET]: [],
@@ -176,19 +284,134 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
     ],
   ],
   // TODO: fill here
-  [ChainId.ZKSYNC]: [],
+  [ChainId.ZKSYNC]: [
+    [
+      '0x5aea5775959fbc2557cc8789bc1bf90a239d9a91', // ETH - rETH
+      '0x32fd44bb869620c0ef993754c8a00be67c464806',
+    ],
+  ],
   [ChainId.FANTOM]: [],
   [ChainId.CRONOS]: [],
-  [ChainId.ARBITRUM]: [],
+  [ChainId.ARBITRUM]: [
+    [
+      // Eth/wstEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x5979d7b546e38e414f7e9822514be443a4800529',
+    ],
+    [
+      // Eth/cbEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x1debd73e752beaf79865fd6446b0c970eae7732f',
+    ],
+    [
+      // Eth/sfrxEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x95ab45875cffdba1e5f451b950bc2e42c0053f39',
+    ],
+    [
+      // sFrax/Frax:
+      '0xe3b3fe7bca19ca77ad877a5bebab186becfad906',
+      '0x17fc002b466eec40dae837fc4be5c67993ddbd6f',
+    ],
+    [
+      // Eth/frxEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x178412e79c25968a32e89b11f63b33f733770c2a',
+    ],
+    [
+      // Eth/ezEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x2416092f143378750bb29b79ed961ab195cceea5',
+    ],
+    [
+      // Eth/swEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0xbc011a12da28e8f0f528d9ee5e7039e22f91cf18',
+    ],
+    [
+      // Eth/rEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0xec70dcb4a1efa46b8f2d97c310c9c4790ba5ffa8',
+    ],
+    [
+      // Eth/weEth:
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      '0x35751007a407ca6feffe80b3cb397736d2cf4dbe',
+    ],
+  ],
   [ChainId.BTTC]: [],
-  [ChainId.OPTIMISM]: [],
+  [ChainId.OPTIMISM]: [
+    [
+      // wBtc/sBtc:
+      '0x68f180fcCe6836688e9084f035309E29Bf0A2095',
+      '0x298B9B95708152ff6968aafd889c6586e9169f1D',
+    ],
+    [
+      // Eth/frxEth:
+      '0x4f9a0e7fd2bf6067db6994cf12e4495df938e6e9',
+      '0xcf7ecee185f19e2e970a301ee37f93536ed66179',
+    ],
+    [
+      // stMatic/Matic:
+      '0x83b874c1e09d316059d929da402dcb1a98e92082',
+      '0xa2036f0538221a77a3937f1379699f44945018d0',
+    ],
+    [
+      // Eth/wstEth:
+      '0x4f9a0e7fd2bf6067db6994cf12e4495df938e6e9',
+      '0x5d8cff95d7a57c0bf50b30b43c7cc0d52825d4a9',
+    ],
+  ],
   [ChainId.GÖRLI]: [],
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
-  [ChainId.ZKEVM]: [],
-  [ChainId.LINEA]: [],
-  [ChainId.BASE]: [],
+  [ChainId.ZKEVM]: [
+    [
+      // Eth/rEth:
+      '0x4f9a0e7fd2bf6067db6994cf12e4495df938e6e9',
+      '0xb23c20efce6e24acca0cef9b7b7aa196b84ec942',
+    ],
+  ],
+  [ChainId.LINEA]: [
+    [
+      // Eth/wstEth:
+      '0x5300000000000000000000000000000000000004',
+      '0xf610a9dfb7c89644979b4a0f27063e9e7d7cda32',
+    ],
+    [
+      // Eth/weEth:
+      '0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f',
+      '0x1bf74c010e6320bab11e2e5a532b5ac15e0b8aa6',
+    ],
+    [
+      // Eth/ezEth:
+      '0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f',
+      '0x2416092f143378750bb29b79ed961ab195cceea5',
+    ],
+  ],
+  [ChainId.BASE]: [
+    [
+      // Eth/ezEth:
+      '0x4200000000000000000000000000000000000006',
+      '0x2416092f143378750bb29b79ed961ab195cceea5',
+    ],
+    [
+      // Eth/wstEth:
+      '0x4200000000000000000000000000000000000006',
+      '0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452',
+    ],
+    [
+      // Eth/cbEth:
+      '0x4200000000000000000000000000000000000006',
+      '0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22',
+    ],
+    [
+      // Eth/weEth:
+      '0x4200000000000000000000000000000000000006',
+      '0x04c0599ae5a44757c0af6f9ec3b93da8976c150a',
+    ],
+  ],
   [ChainId.SCROLL]: [],
   [ChainId.BLAST]: [],
   [ChainId.MANTLE]: [],
@@ -269,3 +492,7 @@ export const GAS_TOKENS = [
   new Token(ChainId.ZKSYNC, '0x3355df6d4c9c3035724fd0e3914de96a5a83aaf4', 6, 'USDC', 'USDC'),
   // new Token(ChainId.ZKSYNC, '0xbbeb516fb02a01611cbbe0453fe3c580d7281011', 8, 'wBTC', 'wBTC'),
 ]
+
+export const CORRELATED_PAIR_FOR_SLIPPAGE: { [chainId: number]: { [address: string]: string } } = {
+  [ChainId.MAINNET]: {},
+}

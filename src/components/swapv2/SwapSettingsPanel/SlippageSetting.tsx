@@ -8,7 +8,7 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useCheckStablePairSwap } from 'state/swap/hooks'
+import { useCheckCorrelatedPair, useCheckStablePairSwap } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
@@ -35,7 +35,8 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } = useSlippageSettingByPage()
 
   const isStablePairSwap = useCheckStablePairSwap()
-  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap)
+  const isCorrelatedPair = useCheckCorrelatedPair()
+  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap, isCorrelatedPair)
   const isWarning = slippageStatus !== SLIPPAGE_STATUS.NORMAL
   const theme = useTheme()
 
@@ -83,7 +84,11 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
       {isWarning && (
         <Message data-warning={true} data-error={false}>
           {slippageStatus === SLIPPAGE_STATUS.HIGH
-            ? t`Slippage is high. Your transaction may be front-run.`
+            ? isStablePairSwap
+              ? t`Your slippage setting might be high compared to typical stable pair trades. Consider adjusting it to reduce the risk of front-running.`
+              : isCorrelatedPair
+              ? t`Your slippage setting might be high compared with other similar trades. You might want to adjust it to avoid potential front-running.`
+              : t`Your slippage setting might be high. You might want to adjust it to avoid potential front-running.`
             : t`Slippage is low. Your transaction may fail.`}
         </Message>
       )}
