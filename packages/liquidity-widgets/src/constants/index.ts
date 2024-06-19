@@ -196,7 +196,7 @@ export const NetworkInfo: {
     },
   },
   534352: {
-    name: "Scoll",
+    name: "Scroll",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/fe12013c-4d72-4ac3-9415-a278b7d474c71697595633825.png",
     nativeLogo:
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",

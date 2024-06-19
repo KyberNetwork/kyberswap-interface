@@ -100,6 +100,8 @@ export default function LiquidityToAdd() {
           </button>
         </div>
       </div>
+
+      <div className="note">Zap In with any tokens is coming soon</div>
     </div>
   );
 }

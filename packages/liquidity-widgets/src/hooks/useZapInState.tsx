@@ -81,6 +81,19 @@ export interface RefundAction {
     }>;
   };
 }
+
+export interface PartnerFeeAction {
+  type: "ACTION_TYPE_PARTNER_FEE";
+  partnerFee: {
+    pcm: number;
+    tokens: Array<{
+      address: string;
+      amount: string;
+      amountUsd: string;
+    }>;
+  };
+}
+
 export interface ProtocolFeeAction {
   type: "ACTION_TYPE_PROTOCOL_FEE";
   protocolFee: {
@@ -114,6 +127,7 @@ export interface ZapRouteDetail {
       | PoolSwapAction
       | AddLiquidityAction
       | RefundAction
+      | PartnerFeeAction
     >;
     finalAmountUsd: string;
     priceImpact: number;
@@ -190,6 +204,13 @@ export const chainIdToChain: { [chainId: number]: string } = {
   137: "polygon",
   56: "bsc",
   42161: "arbitrum",
+  43114: "avalanche",
+  8453: "base",
+  81457: "blast",
+  250: "fantom",
+  5000: "mantle",
+  10: "optimism",
+  534352: "scroll",
 };
 
 export enum Type {
@@ -423,7 +444,8 @@ export const ZapContextProvider = ({
       debounceTickUpper !== null &&
       debounceAmountIn &&
       pool &&
-      tokenIn?.address
+      tokenIn?.address &&
+      +debounceAmountIn !== 0
     ) {
       let amountInWei = "";
       try {

@@ -11,9 +11,10 @@ export function useOnClickOutside<T extends HTMLElement>(
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       let nodes: RefObject<T | undefined>[];
       if (
-        [...document.getElementsByClassName("setting")].some((el: Element) =>
-          el.contains(e.target as Node)
-        )
+        [
+          ...document.getElementsByClassName("setting"),
+          ...document.getElementsByClassName("ks-lw-modal-overlay"),
+        ].some((el: Element) => el.contains(e.target as Node))
       ) {
         return;
       }

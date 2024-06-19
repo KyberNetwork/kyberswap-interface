@@ -198,6 +198,13 @@
     .liquidity-to-add {
       margin-top: 1rem;
 
+      .note {
+        color: var(--ks-lw-subText);
+        font-style: italic;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+
       .label {
         font-size: 16px;
       }
@@ -330,6 +337,12 @@
         margin-bottom: 4px;
         display: flex;
         justify-content: space-between;
+      }
+
+      .subTitle {
+        color: var(--ks-lw-subText);
+        font-style: italic;
+        font-size: 12px;
       }
 
       .divider {

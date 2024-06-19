@@ -3,6 +3,7 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
+  PartnerFeeAction,
   PoolSwapAction,
   ProtocolFeeAction,
   RefundAction,
@@ -20,7 +21,7 @@ import { formatUnits } from "ethers/lib/utils";
 import { MouseoverTooltip } from "../Tooltip";
 
 export default function EstLiqValue() {
-  const { zapInfo } = useZapState();
+  const { zapInfo, source } = useZapState();
   const { pool, theme, position } = useWidgetInfo();
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
@@ -105,7 +106,13 @@ export default function EstLiqValue() {
   const feeInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
   ) as ProtocolFeeAction | undefined;
-  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+
+  const partnerFeeInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_PARTNER_FEE"
+  ) as PartnerFeeAction | undefined;
+
+  const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+  const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
   const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
   const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
@@ -146,19 +153,22 @@ export default function EstLiqValue() {
                     style={{ marginTop: "2px", borderRadius: "50%" }}
                   />
                 )}
-                <div>
-                  {position && (
-                    <div style={{ textAlign: "end" }}>
-                      {formatNumber(+position.amount0)} {pool?.token0.symbol}
-                    </div>
-                  )}
-
+                {position ? (
                   <div style={{ textAlign: "end" }}>
-                    {position && "+"} {formatNumber(+addedAmount0)}{" "}
-                    {pool?.token0.symbol}
+                    {formatNumber(+position.amount0)} {pool?.token0.symbol}
                   </div>
-                </div>
+                ) : (
+                  <div style={{ textAlign: "end" }}>
+                    {formatNumber(+addedAmount0)} {pool?.token0.symbol}
+                  </div>
+                )}
               </div>
+              {position && (
+                <div style={{ textAlign: "end" }}>
+                  + {formatNumber(+addedAmount0)} {pool?.token0.symbol}
+                </div>
+              )}
+
               <div className="label" style={{ marginLeft: "auto" }}>
                 ~
                 {formatCurrency(
@@ -185,19 +195,22 @@ export default function EstLiqValue() {
                   />
                 )}
 
-                <div>
-                  {position && (
-                    <div style={{ textAlign: "end" }}>
-                      {formatNumber(+position.amount1)} {pool?.token1.symbol}
-                    </div>
-                  )}
-
+                {position ? (
                   <div style={{ textAlign: "end" }}>
-                    {position && "+"} {formatNumber(+addedAmount1)}{" "}
-                    {pool?.token1.symbol}
+                    {formatNumber(+position.amount1)} {pool?.token1.symbol}
                   </div>
-                </div>
+                ) : (
+                  <div style={{ textAlign: "end" }}>
+                    {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+                  </div>
+                )}
               </div>
+              {position && (
+                <div style={{ textAlign: "end" }}>
+                  + {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+                </div>
+              )}
+
               <div className="label" style={{ marginLeft: "auto" }}>
                 ~
                 {formatCurrency(
@@ -290,12 +303,42 @@ export default function EstLiqValue() {
 
         <div className="detail-row">
           <MouseoverTooltip
-            text="Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees."
+            text={
+              <div>
+                Fees charged for automatically zapping into a liquidity pool.
+                You still have to pay the standard gas fees.{" "}
+                <a
+                  style={{ color: theme.accent }}
+                  href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                  target="_blank"
+                  rel="noopener norefferer"
+                >
+                  More details.
+                </a>
+              </div>
+            }
             width="220px"
           >
             <div className="label underline">Zap Fee</div>
           </MouseoverTooltip>
-          {feeInfo ? parseFloat(zapFee.toFixed(3)) + "%" : "--"}
+
+          <MouseoverTooltip
+            text={
+              partnerFee
+                ? `${parseFloat(
+                    protocolFee.toFixed(3)
+                  )}% Protocol Fee + ${parseFloat(
+                    partnerFee.toFixed(3)
+                  )}% Fee for ${source}`
+                : ""
+            }
+          >
+            <div className="underline">
+              {feeInfo
+                ? parseFloat((protocolFee + partnerFee).toFixed(3)) + "%"
+                : "--"}
+            </div>
+          </MouseoverTooltip>
         </div>
       </div>
 

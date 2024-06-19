@@ -11,9 +11,11 @@ interface IPosition {
 // Define the adapter class
 export class PositionAdaper implements IPosition {
   private position: UniPosition | PancakePosition;
+  public owner: string;
 
-  constructor(position: UniPosition | PancakePosition) {
+  constructor(position: UniPosition | PancakePosition, owner: string) {
     this.position = position;
+    this.owner = owner;
   }
 
   get amount0(): string {

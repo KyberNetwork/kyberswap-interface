@@ -14,12 +14,14 @@ interface TooltipProps extends Omit<PopoverProps, "content"> {
   dataTestId?: string;
 }
 
-export default function Tooltip({ text, width, size, ...rest }: TooltipProps) {
+export default function Tooltip({ text, width, size, onMouseEnter, onMouseLeave, ...rest }: TooltipProps) {
   return (
     <Popover
       content={
         text ? (
           <div
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
             style={{
               width: width || "max-content",
               padding: "10px 16px",

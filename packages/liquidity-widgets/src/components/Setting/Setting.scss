@@ -116,3 +116,48 @@
     }
   }
 }
+
+.ks-lw-degen-confirm {
+  .title {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    align-items: center;
+    font-weight: 500;
+  }
+
+  .content {
+    font-size: 14px;
+    color: var(--ks-lw-subText);
+    margin-top: 1.25rem;
+  }
+
+  input {
+    box-sizing: border-box;
+    margin-top: 1.25rem;
+    background: var(--ks-lw-layer2);
+    border-radius: var(--ks-lw-buttonRadius);
+    padding: 8px 16px;
+    font-size: 14px;
+    line-height: 20px;
+    outline: none;
+    color: rgb(255, 255, 255);
+    border: none;
+    width: 100%;
+  }
+
+  .action {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+
+    button {
+      flex: 1;
+    }
+
+    .warning {
+      background: var(--ks-lw-warning);
+      border: none;
+    }
+  }
+}

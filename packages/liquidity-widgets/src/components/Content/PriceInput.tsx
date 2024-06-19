@@ -13,7 +13,6 @@ export default function PriceInput({ type }: { type: Type }) {
     priceUpper,
     positionId,
   } = useZapState();
-  console.log(positionId)
   const { pool, poolType } = useWidgetInfo();
   const [localValue, setLocalValue] = useState("");
 

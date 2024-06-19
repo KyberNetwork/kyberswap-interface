@@ -13,6 +13,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId } = useWeb3Provider();
   const { loading, pool, poolType, positionId, position, theme } =
     useWidgetInfo();
+
   const { toggleSetting, degenMode } = useZapState();
   if (loading) return <span>loading...</span>;
 
@@ -82,10 +83,10 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
           <div
             className="setting"
             role="button"
-            onClick={e => {
-              e.stopPropagation()
-              e.preventDefault()
-              toggleSetting()
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              toggleSetting();
             }}
             style={{
               background: degenMode ? theme.warning + "33" : undefined,

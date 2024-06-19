@@ -1,10 +1,13 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import X from "../../assets/x.svg?react";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import { useZapState } from "../../hooks/useZapInState";
 import Toggle from "../Toggle";
 import "./Setting.scss";
 import SlippageInput from "./SlippageInput";
 import { MouseoverTooltip } from "../Tooltip";
+import Modal from "../Modal";
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 export default function Setting() {
   const {
@@ -17,78 +20,147 @@ export default function Setting() {
     degenMode,
     setDegenMode,
   } = useZapState();
+  const { theme } = useWidgetInfo();
   const ref = useRef(null);
   useOnClickOutside(ref, () => {
     if (showSetting) toggleSetting();
   });
+
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const [confirm, setConfirm] = useState("");
   if (!showSetting) return null;
 
   return (
-    <div className="ks-lw-setting" ref={ref}>
-      <div className="title">Advanced Setting</div>
-      <MouseoverTooltip
-        text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-        width="220px"
-      >
-        <div className="setting-title underline">Max Slippage</div>
-      </MouseoverTooltip>
-      <SlippageInput />
+    <>
+      <Modal isOpen={showConfirm}>
+        <div className="ks-lw-degen-confirm">
+          <div className="title">
+            <div>Are you sure?</div>
 
-      <div className="row-btw">
-        <MouseoverTooltip
-          text="Transaction will revert if it is pending for longer than the indicated time."
-          width="220px"
-        >
-          <div className="setting-title underline">Transaction Time Limit</div>
-        </MouseoverTooltip>
+            <X
+              style={{ cursor: "pointer" }}
+              role="button"
+              onClick={() => setShowConfirm(false)}
+            />
+          </div>
 
-        <div className="ttl-input">
+          <div className="content">
+            Turn this on to make trades with very high price impact or to set
+            very high slippage tolerance. This can result in bad rates and loss
+            of funds. Be cautious.
+          </div>
+
+          <div className="content">
+            Please type the word{" "}
+            <span style={{ color: theme.warning }}>Confirm</span> below to
+            enable Degen Mode
+          </div>
+
           <input
-            maxLength={5}
-            placeholder="20"
-            value={ttl ? ttl.toString() : ""}
+            placeholder="Confirm"
+            value={confirm}
             onChange={(e) => {
-              const v = +e.target.value
-                .trim()
-                .replace(/[^0-9.]/g, "")
-                .replace(/(\..*?)\..*/g, "$1")
-                .replace(/^0[^.]/, "0");
-              setTtl(v);
+              setConfirm(e.target.value.trim());
             }}
           />
-          <span>mins</span>
+
+          <div className="action">
+            <button
+              className="outline-btn"
+              onClick={() => {
+                setShowConfirm(false);
+                setConfirm("");
+              }}
+            >
+              No, Go back
+            </button>
+            <button
+              className="primary-btn warning"
+              onClick={() => {
+                if (confirm.toLowerCase() === "confirm") {
+                  setDegenMode(true);
+                  setShowConfirm(false);
+                  setConfirm("");
+                }
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </Modal>
+      <div className="ks-lw-setting" ref={ref}>
+        <div className="title">Advanced Setting</div>
+        <MouseoverTooltip
+          text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+          width="220px"
+        >
+          <div className="setting-title underline">Max Slippage</div>
+        </MouseoverTooltip>
+        <SlippageInput />
+
+        <div className="row-btw">
+          <MouseoverTooltip
+            text="Transaction will revert if it is pending for longer than the indicated time."
+            width="220px"
+          >
+            <div className="setting-title underline">
+              Transaction Time Limit
+            </div>
+          </MouseoverTooltip>
+
+          <div className="ttl-input">
+            <input
+              maxLength={5}
+              placeholder="20"
+              value={ttl ? ttl.toString() : ""}
+              onChange={(e) => {
+                const v = +e.target.value
+                  .trim()
+                  .replace(/[^0-9.]/g, "")
+                  .replace(/(\..*?)\..*/g, "$1")
+                  .replace(/^0[^.]/, "0");
+                setTtl(v);
+              }}
+            />
+            <span>mins</span>
+          </div>
+        </div>
+
+        <div className="row-btw">
+          <MouseoverTooltip
+            text="Zap will include DEX aggregator to find the best price."
+            width="220px"
+          >
+            <div className="setting-title underline">
+              Use Aggregator for Zaps
+            </div>
+          </MouseoverTooltip>
+          <Toggle
+            isActive={enableAggregator}
+            toggle={() => {
+              setEnableAggregator(!enableAggregator);
+            }}
+          />
+        </div>
+
+        <div className="row-btw">
+          <MouseoverTooltip
+            text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+            width="220px"
+          >
+            <div className="setting-title underline">Degen Mode</div>
+          </MouseoverTooltip>
+          <Toggle
+            isActive={degenMode}
+            toggle={() => {
+              if (!degenMode) setShowConfirm(true);
+              else setDegenMode(false);
+            }}
+          />
         </div>
       </div>
-
-      <div className="row-btw">
-        <MouseoverTooltip
-          text="Zap will include DEX aggregator to find the best price."
-          width="220px"
-        >
-          <div className="setting-title underline">Use Aggregator for Zaps</div>
-        </MouseoverTooltip>
-        <Toggle
-          isActive={enableAggregator}
-          toggle={() => {
-            setEnableAggregator(!enableAggregator);
-          }}
-        />
-      </div>
-
-      <div className="row-btw">
-        <MouseoverTooltip
-          text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
-          width="220px"
-        >
-          <div className="setting-title underline">Degen Mode</div>
-        </MouseoverTooltip>
-        <Toggle
-          isActive={degenMode}
-          toggle={() => {
-            setDegenMode(!degenMode);
-          }}
-        />
-      </div>
-    </div>
+    </>
   );
 }

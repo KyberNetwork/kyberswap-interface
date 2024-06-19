@@ -101,6 +101,7 @@ export default function ZapRoute() {
   return (
     <div className="zap-route">
       <div className="title">Zap Route</div>
+      <div className="subTitle">The actual Zap Route could be adjusted with on-chain states</div>
       <div className="divider" />
 
       {aggregatorSwapInfo && (

@@ -84,8 +84,8 @@ export default function Preview({
   onTxSubmit,
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
-  const { poolType, positionId, theme } = useWidgetInfo();
-  const { source } = useZapState();
+  const { poolType, positionId, theme, position } = useWidgetInfo();
+  const { source, revertPrice: revert, toggleRevertPrice } = useZapState();
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
@@ -114,14 +114,24 @@ export default function Preview({
   const addedLiqInfo = zapInfo.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
   ) as AddLiquidityAction;
-  const addedAmount0 = formatWei(
+  const addedAmount0 = formatUnits(
     addedLiqInfo?.addLiquidity.token0.amount,
     pool.token0.decimals
   );
-  const addedAmount1 = formatWei(
+  const addedAmount1 = formatUnits(
     addedLiqInfo?.addLiquidity.token1.amount,
     pool.token1.decimals
   );
+
+  const positionAmount0Usd =
+    (+(position?.amount0 || 0) *
+      +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
+      +addedAmount0 || 0;
+
+  const positionAmount1Usd =
+    (+(position?.amount1 || 0) *
+      +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
+      +addedAmount1 || 0;
 
   const refundInfo = zapInfo.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REFUND"
@@ -159,7 +169,6 @@ export default function Preview({
     refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
     0;
 
-  const [revert, setRevert] = useState(false);
   const price = pool
     ? (revert
         ? pool.priceOf(pool.token1)
@@ -341,8 +350,14 @@ export default function Preview({
           <div>{txStatusText}</div>
 
           {!txHash && (
-            <div className="subText">
-              Confirm this transaction in your wallet
+            <div className="subText" style={{ textAlign: "center" }}>
+              Confirm this transaction in your wallet - Zapping{" "}
+              {formatNumber(+amountIn)} {tokenIn.symbol} into{" "}
+              {positionId
+                ? `Position #${positionId}`
+                : `${getDexName(poolType)} ${pool.token0.symbol}/${
+                    pool.token1.symbol
+                  } ${(pool.fee / 10_000) * 100}`}
             </div>
           )}
           {txHash && txStatus === "" && (
@@ -501,7 +516,7 @@ export default function Preview({
             {quote}
             <SwitchIcon
               style={{ cursor: "pointer" }}
-              onClick={() => setRevert((prev) => !prev)}
+              onClick={() => toggleRevertPrice()}
               role="button"
             />
           </div>
@@ -553,34 +568,95 @@ export default function Preview({
 
       <div className="flex-col" style={{ gap: "12px", marginTop: "1rem" }}>
         <div className="row-between" style={{ alignItems: "flex-start" }}>
-          <div className="summary-title">Est. Pooled Amount</div>
+          <div className="summary-title">Est. Pooled {pool.token0.symbol}</div>
           <div>
-            <div className="row" style={{ justifyContent: "flex-end" }}>
-              <img
-                src={(pool.token0 as Token).logoURI}
-                alt=""
-                width="20px"
-                style={{ borderRadius: "50%" }}
-              />
-              {addedAmount0} {pool.token0.symbol}{" "}
-              <span className="est-usd">
-                ({formatCurrency(+addedLiqInfo.addLiquidity.token0.amountUsd)})
-              </span>
+            <div style={{ display: "flex", gap: "4px" }}>
+              {pool?.token0?.logoURI && (
+                <img
+                  src={pool.token0.logoURI}
+                  width="16px"
+                  height="16px"
+                  style={{ marginTop: "4px", borderRadius: "50%" }}
+                />
+              )}
+              <div>
+                {position ? (
+                  <div style={{ textAlign: "end" }}>
+                    {formatNumber(+position.amount0)} {pool?.token0.symbol}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: "end" }}>
+                    {formatNumber(+addedAmount0)} {pool?.token0.symbol}
+                  </div>
+                )}
+              </div>
             </div>
+
+            {position && (
+              <div style={{ textAlign: "end" }}>
+                + {formatNumber(+addedAmount0)} {pool?.token0.symbol}
+              </div>
+            )}
             <div
-              className="row"
-              style={{ marginTop: "8px", justifyContent: "flex-end" }}
+              style={{
+                marginLeft: "auto",
+                width: "fit-content",
+                color: theme.subText,
+              }}
             >
-              <img
-                src={(pool.token1 as Token).logoURI}
-                alt=""
-                width="20px"
-                style={{ borderRadius: "50%" }}
-              />
-              {addedAmount1} {pool.token1.symbol}
-              <span className="est-usd">
-                ({formatCurrency(+addedLiqInfo.addLiquidity.token1.amountUsd)})
-              </span>
+              ~
+              {formatCurrency(
+                +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) +
+                  positionAmount0Usd
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="row-between" style={{ alignItems: "flex-start" }}>
+          <div className="summary-title">Est. Pooled {pool.token1.symbol}</div>
+          <div>
+            <div
+              style={{
+                display: "flex",
+                gap: "4px",
+                justifyContent: "flex-end",
+              }}
+            >
+              {pool?.token1?.logoURI && (
+                <img
+                  src={pool.token1.logoURI}
+                  width="16px"
+                  height="16px"
+                  style={{ marginTop: "4px", borderRadius: "50%" }}
+                />
+              )}
+              {position ? (
+                <div style={{ textAlign: "end" }}>
+                  {formatNumber(+position.amount1)} {pool?.token1.symbol}
+                </div>
+              ) : (
+                <div style={{ textAlign: "end" }}>
+                  {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+                </div>
+              )}
+            </div>
+            {position && (
+              <div style={{ textAlign: "end" }}>
+                + {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+              </div>
+            )}
+            <div
+              style={{
+                marginLeft: "auto",
+                width: "fit-content",
+                color: theme.subText,
+              }}
+            >
+              ~
+              {formatCurrency(
+                +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) +
+                  positionAmount1Usd
+              )}
             </div>
           </div>
         </div>
@@ -690,7 +766,20 @@ export default function Preview({
 
         <div className="row-between">
           <MouseoverTooltip
-            text="Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees."
+            text={
+              <div>
+                Fees charged for automatically zapping into a liquidity pool.
+                You still have to pay the standard gas fees.{" "}
+                <a
+                  style={{ color: theme.accent }}
+                  href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                  target="_blank"
+                  rel="noopener norefferer"
+                >
+                  More details.
+                </a>
+              </div>
+            }
             width="220px"
           >
             <div className="summary-title underline">Zap Fee</div>

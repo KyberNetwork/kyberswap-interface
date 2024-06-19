@@ -1,5 +1,6 @@
 import "./Content.scss";
 import X from "../../assets/x.svg?react";
+import ErrorIcon from "../../assets/error.svg?react";
 import PriceInfo from "./PriceInfo";
 import LiquidityChart from "./LiquidityChart";
 import PriceInput from "./PriceInput";
@@ -23,6 +24,7 @@ import Modal from "../Modal";
 import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { BigNumber } from "ethers";
+import { useWeb3Provider } from "../../hooks/useProvider";
 
 export default function Content({
   onDismiss,
@@ -52,7 +54,8 @@ export default function Content({
     marketPrice,
   } = useZapState();
 
-  const { pool, theme } = useWidgetInfo();
+  const { pool, theme, error: loadPoolError, position } = useWidgetInfo();
+  const { account } = useWeb3Provider();
 
   let amountInWei = "0";
   try {
@@ -191,8 +194,15 @@ export default function Content({
   const isDevated =
     !!marketPrice &&
     newPool &&
-    Math.abs(marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1) >
-      0.02;
+    Math.abs(
+      marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1
+    ) > 0.02;
+
+  const isOutOfRangeAfterZap =
+    position && newPool
+      ? newPool.tickCurrent < position.tickLower ||
+        newPool.tickCurrent >= position.tickUpper
+      : false;
 
   const marketRate = marketPrice
     ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
@@ -207,6 +217,33 @@ export default function Content({
 
   return (
     <>
+      {loadPoolError && (
+        <Modal isOpen onClick={() => onDismiss()}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "2rem",
+              color: theme.error,
+            }}
+          >
+            <ErrorIcon className="error-icon" />
+            <div style={{ textAlign: "center" }}>{loadPoolError}</div>
+            <button
+              className="primary-btn"
+              onClick={onDismiss}
+              style={{
+                width: "95%",
+                background: theme.error,
+                border: `1px solid ${theme.error}`,
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </Modal>
+      )}
       {snapshotState && (
         <Modal isOpen onClick={() => setSnapshotState(null)}>
           <div className="ks-lw-modal-headline">
@@ -266,6 +303,18 @@ export default function Content({
           <ZapRoute />
           <EstLiqValue />
 
+          {isOutOfRangeAfterZap && (
+            <div
+              className="price-warning"
+              style={{
+                backgroundColor: `${theme.warning}33`,
+                color: theme.warning,
+              }}
+            >
+              The position will be inactive after zapping and won’t earn any
+              fees until the pool price moves back to select price range
+            </div>
+          )}
           {isDevated && (
             <div
               className="price-warning"
@@ -302,6 +351,21 @@ export default function Content({
               </div>
             </div>
           )}
+
+          {position?.owner &&
+            account &&
+            position.owner.toLowerCase() !== account.toLowerCase() && (
+              <div
+                className="price-warning"
+                style={{
+                  backgroundColor: `${theme.warning}33`,
+                  color: theme.warning,
+                }}
+              >
+                You are not the current owner of the position #{positionId},
+                please double check before proceeding
+              </div>
+            )}
         </div>
       </div>
 

@@ -9,7 +9,7 @@ const Modal = ({
 }: {
   isOpen: boolean;
   children: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
 }) => {
   if (!isOpen) return <></>;
 

@@ -21,54 +21,54 @@
     width: 12px;
     height: 12px;
     z-index: 9998;
+  }
 
-    ::before {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      z-index: 9998;
+  .arrow::before {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    z-index: 9998;
 
-      content: "";
-      border: 1px solid transparent;
-      transform: rotate(45deg);
+    content: "";
+    border: 1px solid transparent;
+    transform: rotate(45deg);
 
-      background: var(--ks-lw-layer2);
-    }
+    background: var(--ks-lw-layer2);
+  }
 
-    &.arrow-top {
-      bottom: -7px;
+  .arrow-top {
+    bottom: -7px;
+  }
 
-      ::before {
-        border-top: none;
-        border-left: none;
-      }
-    }
+  .arrow-top::before {
+    border-top: none;
+    border-left: none;
+  }
 
-    &.arrow-bottom {
-      top: -7px;
+  .arrow-bottom {
+    top: -7px;
+  }
 
-      ::before {
-        border-bottom: none;
-        border-right: none;
-      }
-    }
+  .arrow-bottom::before {
+    border-top: none;
+    border-left: none;
+  }
 
-    &.arrow-left {
-      right: -7px;
+  .arrow-left {
+    right: -7px;
+  }
 
-      ::before {
-        border-bottom: none;
-        border-left: none;
-      }
-    }
+  .arrow-left::before {
+    border-top: none;
+    border-left: none;
+  }
 
-    &.arrow-right {
-      left: -7px;
+  .arrow-right {
+    left: -7px;
+  }
 
-      ::before {
-        border-right: none;
-        border-top: none;
-      }
-    }
+  .arrow-right::before {
+    border-top: none;
+    border-left: none;
   }
 }

@@ -15,6 +15,7 @@ type ContextState = {
   theme: Theme;
   feeAddress?: string;
   feePcm?: number;
+  error?: string
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -31,21 +32,20 @@ type Props = {
   children: ReactNode;
   poolType: PoolType;
   positionId?: string;
-  position?: { tickLower: number; tickUpper: number };
+  position?: PositionAdaper;
   theme: Theme;
   feeAddress?: string;
   feePcm?: number;
+  error?: string;
 };
 
 const PancakeV3Provider = ({
   poolAddress,
   children,
   positionId,
-  theme,
-  feeAddress,
-  feePcm,
+  ...rest
 }: Omit<Props, "poolType">) => {
-  const { loading, pool, position } = usePancakeV3PoolInfo(
+  const { loading, pool, position, error } = usePancakeV3PoolInfo(
     poolAddress,
     positionId
   );
@@ -64,9 +64,8 @@ const PancakeV3Provider = ({
         positionId,
         position,
         poolType: PoolType.DEX_PANCAKESWAPV3,
-        theme,
-        feeAddress,
-        feePcm,
+        error,
+        ...rest,
       }}
     >
       {children}
@@ -77,12 +76,10 @@ const PancakeV3Provider = ({
 const UniV3Provider = ({
   poolAddress,
   children,
-  theme,
   positionId,
-  feePcm,
-  feeAddress,
+  ...rest
 }: Omit<Props, "poolType">) => {
-  const { loading, pool, position } = useUniV3PoolInfo(poolAddress, positionId);
+  const { loading, pool, position, error } = useUniV3PoolInfo(poolAddress, positionId);
 
   const poolAdapter = useMemo(
     () => (pool ? new PoolAdapter(pool) : null),
@@ -97,9 +94,8 @@ const UniV3Provider = ({
         pool: poolAdapter,
         position,
         poolType: PoolType.DEX_UNISWAPV3,
-        theme,
-        feeAddress,
-        feePcm,
+        error,
+        ...rest,
       }}
     >
       {children}
