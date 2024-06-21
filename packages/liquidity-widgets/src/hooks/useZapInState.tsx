@@ -211,6 +211,8 @@ export const chainIdToChain: { [chainId: number]: string } = {
   5000: "mantle",
   10: "optimism",
   534352: "scroll",
+  59144: "linea",
+  1101: "polygon-zkevm",
 };
 
 export enum Type {

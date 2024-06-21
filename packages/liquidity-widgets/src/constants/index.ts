@@ -211,6 +211,23 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
+  1101: {
+    name: "Polgyon ZkEVM",
+    logo: "https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
+    scanLink: "https://zkevm.polygonscan.com",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://zkevm-rpc.com",
+    wrappedToken: {
+      chainId: 1101,
+      name: "WETH",
+      address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+      symbol: "WETH",
+      decimals: 18,
+    },
+  },
 };
 
 export const UNI_V3_BPS = 10_000;
@@ -236,6 +253,7 @@ export const NFT_MANAGER_CONTRACT: {
     5000: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
     10: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
     534352: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+    1101: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
   },
   [PoolType.DEX_PANCAKESWAPV3]: {
     1: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
@@ -250,5 +268,6 @@ export const NFT_MANAGER_CONTRACT: {
     5000: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     10: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     534352: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    1101: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   },
 };
