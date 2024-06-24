@@ -32,7 +32,19 @@ import SortIcon, { Direction } from './SortIcon'
 import { ContentChangable, TableRow } from './styles'
 import useFilter from './useFilter'
 
-export default function TableContent({ showMarketInfo }: { showMarketInfo: boolean }) {
+export default function TableContent({
+  showMarketInfo,
+  buyPriceSelectedField,
+  sellPriceSelectedField,
+  setSetllPriceSelectedField,
+  setBuyPriceSelectedField,
+}: {
+  showMarketInfo: boolean
+  buyPriceSelectedField: string
+  sellPriceSelectedField: string
+  setSellPriceSelectedField: (val: '24h' | '1h' | '7d') => void
+  setBuyPriceSelectedField: (val: '24h' | '1h' | '7d') => void
+}) {
   const theme = useTheme()
   const { filters, updateFilters } = useFilter()
   const { data, isLoading } = useMarketOverviewQuery(filters)
@@ -300,7 +312,7 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
 
             {tokenToShow.tokens
               .filter(token => MAINNET_NETWORKS.includes(+token.chainId))
-              .sort((a, b) => b.price - a.price)
+              .sort((a, b) => b.priceBuy - a.priceBuy)
               .map(token => {
                 const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[token.chainId]?.symbol
                 const address =
@@ -517,25 +529,32 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
 
       {tokens.map((item, idx) => {
         const token = item.tokens.find(t => +t.chainId === filters.chainId)
-        const price = token ? latestPrices.current?.data?.[token.chainId]?.[token.address] || token.price : ''
+        const priceBuy = token
+          ? latestPrices.current?.data?.[token.chainId]?.[token.address]?.PriceBuy || token.priceBuy
+          : ''
+        const priceSell = token
+          ? latestPrices.current?.data?.[token.chainId]?.[token.address]?.PriceBuy || token.priceBuy
+          : ''
+
         const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[filters.chainId || 1]?.symbol
-        const priceChange1h =
-          token?.priceChange1h && price
-            ? ((100 + token.priceChange1h) * price) / token.price - 100
-            : token?.priceChange1h
 
-        const priceChange24h =
-          token?.priceChange24h !== undefined && price
-            ? ((100 + token.priceChange24h) * price) / token.price - 100
-            : token?.priceChange24h
+        const priceBuyChange1h =
+          token?.priceBuyChange1h && priceBuy
+            ? ((100 + token.priceBuyChange1h) * priceBuy) / token.priceBuy - 100
+            : token?.priceBuyChange1h
 
-        const priceChange7d =
-          token?.priceChange7d !== undefined && price
-            ? ((100 + token.priceChange7d) * price) / token.price - 100
-            : token?.priceChange7d
+        const priceBuyChange24h =
+          token?.priceBuyChange24h !== undefined && priceBuy
+            ? ((100 + token.priceBuyChange24h) * priceBuy) / token.priceBuy - 100
+            : token?.priceBuyChange24h
+
+        const priceBuyChange7d =
+          token?.priceBuyChange7d !== undefined && priceBuy
+            ? ((100 + token.priceBuyChange7d) * priceBuy) / token.priceBuy - 100
+            : token?.priceBuyChange7d
 
         const priceChange =
-          selectedSort === '1h' ? priceChange1h : selectedSort === '24h' ? priceChange24h : priceChange7d
+          selectedSort === '1h' ? priceBuyChange1h : selectedSort === '24h' ? priceBuyChange24h : priceBuyChange7d
 
         return (
           <TableRow key={item.id + '-' + idx} role="button" onClick={() => setShowTokenId(item.id)}>
@@ -579,21 +598,21 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
               </>
             ) : (
               <>
-                <Price price={+price} />
+                <Price price={+priceBuy} />
                 <Flex
                   alignItems="center"
                   justifyContent="flex-end"
-                  color={getColor(upToMedium ? priceChange : priceChange1h)}
+                  color={getColor(upToMedium ? priceChange : priceBuyChange1h)}
                 >
-                  <PriceChange priceChange={upToMedium ? priceChange : priceChange1h} />
+                  <PriceChange priceChange={upToMedium ? priceChange : priceBuyChange1h} />
                 </Flex>
               </>
             )}
 
             {!upToMedium && (
               <>
-                <Flex alignItems="center" justifyContent="flex-end" color={getColor(priceChange24h)}>
-                  <PriceChange priceChange={priceChange24h} />
+                <Flex alignItems="center" justifyContent="flex-end" color={getColor(priceBuyChange24h)}>
+                  <PriceChange priceChange={priceBuyChange24h} />
                 </Flex>
 
                 <Flex
@@ -601,9 +620,9 @@ export default function TableContent({ showMarketInfo }: { showMarketInfo: boole
                   justifyContent="flex-end"
                   padding="0.75rem 1.5rem 0.75rem"
                   height="100%"
-                  color={getColor(priceChange7d)}
+                  color={getColor(priceBuyChange7d)}
                 >
-                  <PriceChange priceChange={priceChange7d} />
+                  <PriceChange priceChange={priceBuyChange7d} />
                 </Flex>
 
                 <Flex alignItems="center" justifyContent="flex-end" padding="0.75rem" height="100%">

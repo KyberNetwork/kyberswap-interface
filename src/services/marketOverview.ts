@@ -26,10 +26,14 @@ export interface AssetToken {
   tokens: Array<{
     chainId: number
     address: string
-    price: number
-    priceChange24h: number
-    priceChange1h: number
-    priceChange7d: number
+    priceBuy: number
+    priceBuyChange24h: number
+    priceBuyChange1h: number
+    priceBuyChange7d: number
+    priceSell: number
+    priceSellChange24h: number
+    priceSellChange1h: number
+    priceSellChange7d: number
   }>
   isStable: string
   volume24h: string
@@ -90,7 +94,7 @@ const marketOverviewServiceApi = createApi({
     }),
 
     getPrices: builder.mutation<
-      { data: { [chainId: string]: { [address: string]: number } } },
+      { data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } } },
       { [chainId: number]: string[] }
     >({
       query: body => ({

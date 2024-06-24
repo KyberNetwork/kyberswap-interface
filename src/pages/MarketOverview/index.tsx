@@ -3,13 +3,15 @@ import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import { useMarketOverviewQuery } from 'services/marketOverview'
 
+import { ButtonEmpty } from 'components/Button'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
@@ -19,13 +21,11 @@ import { MEDIA_WIDTHS } from 'theme'
 
 import SortIcon, { Direction } from './SortIcon'
 import TableContent from './TableContent'
-import { ContentWrapper, SubHeaderRow, Tab, TableHeader, TableWrapper, Tabs, Tag } from './styles'
+import { ContentWrapper, PriceSelectionField, SubHeaderRow, Tab, TableHeader, TableWrapper, Tabs, Tag } from './styles'
 import useFilter from './useFilter'
 
 const filterTags = [
   { label: 'Defi', value: 'defi' },
-  { label: 'Gainers', value: 'gainers' },
-  { label: 'Losers', value: 'losers' },
   { label: 'Meme', value: 'memes' },
   { label: 'AI', value: 'ai-big-data' },
   { label: 'RWA', value: 'real-world-assets' },
@@ -92,6 +92,21 @@ export default function MarketOverview() {
       ))}
     </>
   )
+
+  const [buyPriceSelectedField, setBuyPriceSelectedField] = useState<'1h' | '24h' | '7d'>('24h')
+  const [sellPriceSelectedField, setSellPriceSelectedField] = useState<'1h' | '24h' | '7d'>('24h')
+
+  useEffect(() => {
+    if (sortCol.startsWith('price_buy_change')) {
+      updateFilters('sort', `price_buy_change_${buyPriceSelectedField}-${filters.chainId} ${sortDirection}`)
+    }
+  }, [buyPriceSelectedField, sortCol, updateFilters, filters.chainId, sortDirection])
+
+  useEffect(() => {
+    if (sortCol.startsWith('price_sell_change')) {
+      updateFilters('sort', `price_sell_change_${sellPriceSelectedField}-${filters.chainId} ${sortDirection}`)
+    }
+  }, [sellPriceSelectedField, sortCol, updateFilters, filters.chainId, sortDirection])
 
   return (
     <PoolsPageWrapper>
@@ -203,42 +218,134 @@ export default function MarketOverview() {
                   justifyContent="flex-end"
                   sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
                   role="button"
-                  onClick={() => updateSort('price')}
+                  onClick={() => updateSort('price_buy')}
                 >
-                  Price
-                  <SortIcon sorted={sortCol.startsWith('price-') ? (sortDirection as Direction) : undefined} />
+                  Buy Price
+                  <SortIcon sorted={sortCol.startsWith('price_buy-') ? (sortDirection as Direction) : undefined} />
                 </Flex>
                 <Flex
                   justifyContent="flex-end"
                   sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
                   role="button"
-                  onClick={() => updateSort('price_change_1h')}
                 >
-                  1h
-                  <SortIcon sorted={sortCol.startsWith('price_change_1h') ? (sortDirection as Direction) : undefined} />
+                  <MouseoverTooltip
+                    text={
+                      <Flex flexDirection="column" margin="-8px -12px">
+                        <PriceSelectionField
+                          active={buyPriceSelectedField === '1h'}
+                          onClick={() => setBuyPriceSelectedField('1h')}
+                        >
+                          1H
+                        </PriceSelectionField>
+                        <PriceSelectionField
+                          active={buyPriceSelectedField === '24h'}
+                          onClick={() => setBuyPriceSelectedField('24h')}
+                        >
+                          24H
+                        </PriceSelectionField>
+                        <PriceSelectionField
+                          onClick={() => setBuyPriceSelectedField('7d')}
+                          active={buyPriceSelectedField === '7d'}
+                        >
+                          7D
+                        </PriceSelectionField>
+                      </Flex>
+                    }
+                    noArrow
+                    width="fit-content"
+                    placement="bottom"
+                  >
+                    <Box
+                      width="48px"
+                      textAlign="center"
+                      sx={{
+                        borderRadius: '8px',
+                        border: `1px solid ${theme.border}`,
+                        // background: `${theme.primary}33`,
+                        color: theme.text,
+                      }}
+                      padding="4px 12px"
+                    >
+                      {buyPriceSelectedField.toUpperCase()}
+                    </Box>
+                  </MouseoverTooltip>
+                  <ButtonEmpty
+                    padding="6px"
+                    width="fit-content"
+                    onClick={() => updateSort(`price_buy_change_${buyPriceSelectedField}`)}
+                  >
+                    <SortIcon
+                      sorted={sortCol.startsWith('price_buy_change') ? (sortDirection as Direction) : undefined}
+                    />
+                  </ButtonEmpty>
                 </Flex>
 
                 <Flex
                   justifyContent="flex-end"
                   sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
                   role="button"
-                  onClick={() => updateSort('price_change_24h')}
+                  onClick={() => updateSort('price_sell')}
                 >
-                  24h
-                  <SortIcon
-                    sorted={sortCol.startsWith('price_change_24h') ? (sortDirection as Direction) : undefined}
-                  />
+                  Sell Price
+                  <SortIcon sorted={sortCol.startsWith('price_sell-') ? (sortDirection as Direction) : undefined} />
                 </Flex>
 
                 <Flex
                   justifyContent="flex-end"
                   sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
                   role="button"
-                  onClick={() => updateSort('price_change_7d')}
                   padding="0.5rem 1.5rem"
                 >
-                  7D
-                  <SortIcon sorted={sortCol.startsWith('price_change_7d') ? (sortDirection as Direction) : undefined} />
+                  <MouseoverTooltip
+                    text={
+                      <Flex flexDirection="column" margin="-8px -12px">
+                        <PriceSelectionField
+                          active={sellPriceSelectedField === '1h'}
+                          onClick={() => setSellPriceSelectedField('1h')}
+                        >
+                          1H
+                        </PriceSelectionField>
+                        <PriceSelectionField
+                          active={sellPriceSelectedField === '24h'}
+                          onClick={() => setSellPriceSelectedField('24h')}
+                        >
+                          24H
+                        </PriceSelectionField>
+                        <PriceSelectionField
+                          onClick={() => setSellPriceSelectedField('7d')}
+                          active={sellPriceSelectedField === '7d'}
+                        >
+                          7D
+                        </PriceSelectionField>
+                      </Flex>
+                    }
+                    noArrow
+                    width="fit-content"
+                    placement="bottom"
+                  >
+                    <Box
+                      width="48px"
+                      textAlign="center"
+                      sx={{
+                        borderRadius: '8px',
+                        border: `1px solid ${theme.border}`,
+                        // background: `${theme.primary}33`,
+                        color: theme.text,
+                      }}
+                      padding="4px 12px"
+                    >
+                      {sellPriceSelectedField.toUpperCase()}
+                    </Box>
+                  </MouseoverTooltip>
+                  <ButtonEmpty
+                    padding="6px"
+                    width="fit-content"
+                    onClick={() => updateSort(`price_sell_change_${buyPriceSelectedField}`)}
+                  >
+                    <SortIcon
+                      sorted={sortCol.startsWith('price_sell_change') ? (sortDirection as Direction) : undefined}
+                    />
+                  </ButtonEmpty>
                 </Flex>
 
                 <Flex
@@ -265,7 +372,13 @@ export default function MarketOverview() {
               <Divider />
             </>
           )}
-          <TableContent showMarketInfo={showMarketInfo} />
+          <TableContent
+            showMarketInfo={showMarketInfo}
+            buyPriceSelectedField={buyPriceSelectedField}
+            setBuyPriceSelectedField={setBuyPriceSelectedField}
+            sellPriceSelectedField={sellPriceSelectedField}
+            setSellPriceSelectedField={setSellPriceSelectedField}
+          />
         </ContentWrapper>
         <Pagination
           onPageChange={(newPage: number) => {

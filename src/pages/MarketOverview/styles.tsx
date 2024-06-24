@@ -120,3 +120,12 @@ export const ContentChangable = styled.div<{ animate: boolean; up: boolean }>`
       animation: ${up ? pulse : pulseRed} 1.2s;
     `}
 `
+
+export const PriceSelectionField = styled.div<{ active: boolean }>`
+  padding: 6px 12px;
+  background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.2) : undefined)};
+  font-size: 14px;
+  cursor: pointer;
+  color: ${({ theme }) => theme.text};
+  text-align: center;
+`
