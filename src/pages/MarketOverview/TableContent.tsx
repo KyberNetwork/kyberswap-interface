@@ -1,7 +1,6 @@
-import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Star, X } from 'react-feather'
-import { useMedia, usePreviousDistinct } from 'react-use'
+import { Info, Star } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import {
   AssetToken,
@@ -13,37 +12,26 @@ import {
 } from 'services/marketOverview'
 
 import { NotificationType } from 'components/Announcement/type'
-import { ButtonEmpty, ButtonOutlined } from 'components/Button'
-import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
-import Modal from 'components/Modal'
-import { ETHER_ADDRESS } from 'constants/index'
-import { MAINNET_NETWORKS } from 'constants/networks'
-import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import DetailModal, { Price, PriceChange } from './DetailModal'
 import SortIcon, { Direction } from './SortIcon'
-import { ContentChangable, TableRow } from './styles'
+import { TabItem, TableRow } from './styles'
 import useFilter from './useFilter'
 
 export default function TableContent({
   showMarketInfo,
   buyPriceSelectedField,
   sellPriceSelectedField,
-  setSetllPriceSelectedField,
-  setBuyPriceSelectedField,
 }: {
   showMarketInfo: boolean
   buyPriceSelectedField: string
   sellPriceSelectedField: string
-  setSellPriceSelectedField: (val: '24h' | '1h' | '7d') => void
-  setBuyPriceSelectedField: (val: '24h' | '1h' | '7d') => void
 }) {
   const theme = useTheme()
   const { filters, updateFilters } = useFilter()
@@ -101,6 +89,7 @@ export default function TableContent({
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const [selectedSort, setSelectedSort] = useState('24h')
+  const [selectedPrice, setSelectedPrice] = useState<'buy' | 'sell'>('buy')
 
   if (!tokens.length && !isLoading) {
     return (
@@ -205,327 +194,158 @@ export default function TableContent({
 
   const tokenToShow = tokens.find(item => item.id === tokenToShowId)
 
-  return (
+  const mobileHeader = (
     <>
-      <Modal isOpen={!!tokenToShow} onDismiss={() => setShowTokenId(null)} width="100%" maxWidth="600px">
-        {tokenToShow ? (
-          <Flex width="100%" flexDirection="column" padding={upToMedium ? '1rem' : '2rem'}>
-            <Flex justifyContent="space-between" sx={{ gap: '4px' }}>
-              <Flex alignItems="center" sx={{ gap: '6px' }} flex="1">
-                <img
-                  src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
-                  width="24px"
-                  height="24px"
-                  alt=""
-                  style={{
-                    borderRadius: '50%',
-                  }}
-                />
-                <Text fontSize={16} minWidth="max-content">
-                  {tokenToShow.symbol} {}
-                </Text>
-                <Text
-                  fontSize={14}
-                  color={theme.subText}
-                  sx={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}
-                >
-                  {tokenToShow.name}
-                </Text>
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', paddingY: '0.75rem' }}>
+        <Text color={theme.subText} fontSize={14} height="100%">
+          Name
+        </Text>
 
-                <Star
-                  size={16}
-                  color={tokenToShow.isFavorite ? theme.yellow1 : theme.subText}
-                  role="button"
-                  cursor="pointer"
-                  fill={tokenToShow.isFavorite ? theme.yellow1 : 'none'}
-                  onClick={() => toggleFavorite(tokenToShow)}
-                  style={{ minWidth: '16px' }}
+        {showMarketInfo ? (
+          <>
+            <Flex
+              justifyContent="flex-end"
+              sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+              fontSize={14}
+              color={theme.subText}
+              role="button"
+              onClick={() => updateSort('volume_24h', false)}
+            >
+              24h Volume
+              <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
+            </Flex>
+
+            <Flex
+              justifyContent="flex-end"
+              sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+              fontSize={14}
+              role="button"
+              color={theme.subText}
+              onClick={() => updateSort('market_cap', false)}
+            >
+              Market cap
+              <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
+            </Flex>
+          </>
+        ) : (
+          <>
+            <Flex alignItems="flex-end" flexDirection="column" fontSize={12}>
+              <Flex
+                color={theme.subText}
+                justifyContent="flex-end"
+                sx={{ gap: '4px', cursor: 'pointer' }}
+                fontSize={14}
+                role="button"
+                onClick={() => updateSort(`price_${selectedPrice}`)}
+              >
+                {selectedPrice === 'buy' ? 'Buy' : 'Sell'} Price
+                <Flex marginTop="3px">
+                  <SortIcon
+                    sorted={sortCol.startsWith(`price_${selectedPrice}`) ? (sortDirection as Direction) : undefined}
+                  />
+                </Flex>
+              </Flex>
+              <Flex
+                sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
+                padding="1px"
+                marginTop="8px"
+                width="fit-content"
+              >
+                <TabItem
+                  active={selectedPrice === 'buy'}
+                  onClick={() => {
+                    setSelectedPrice('buy')
+                    if (sortCol.startsWith('price_sell'))
+                      updateFilters('sort', `price_buy-${filters.chainId} ${sortDirection}`)
+                  }}
+                >
+                  Buy
+                </TabItem>
+
+                <TabItem
+                  active={selectedPrice === 'sell'}
+                  onClick={() => {
+                    setSelectedPrice('sell')
+                    if (sortCol.startsWith('price_buy'))
+                      updateFilters('sort', `price_sell-${filters.chainId} ${sortDirection}`)
+                  }}
+                >
+                  Sell
+                </TabItem>
+              </Flex>
+            </Flex>
+
+            <Flex alignItems="flex-end" flexDirection="column" fontSize={12}>
+              <Flex
+                justifyContent="flex-end"
+                sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                role="button"
+                onClick={() => updateSort(`price_${selectedPrice}_change_${selectedSort}`)}
+                color={theme.subText}
+              >
+                {selectedSort} Change
+                <SortIcon
+                  sorted={
+                    sortCol.startsWith(`price_${selectedPrice}_change`) ? (sortDirection as Direction) : undefined
+                  }
                 />
               </Flex>
 
-              <ButtonEmpty onClick={() => setShowTokenId(null)} width="fit-content" style={{ padding: 0 }}>
-                <X color={theme.text} />
-              </ButtonEmpty>
+              <Flex
+                sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
+                padding="1px"
+                marginTop="8px"
+                width="fit-content"
+              >
+                <TabItem
+                  active={selectedSort === '1h'}
+                  onClick={() => {
+                    setSelectedSort('1h')
+                    updateSort(`price_${selectedPrice}_change_1h`, true, true)
+                  }}
+                >
+                  1h
+                </TabItem>
+
+                <TabItem
+                  active={selectedSort === '24h'}
+                  onClick={() => {
+                    setSelectedSort('24h')
+                    updateSort(`price_${selectedPrice}_change_24h`, true, true)
+                  }}
+                >
+                  24h
+                </TabItem>
+
+                <TabItem
+                  active={selectedSort === '7d'}
+                  onClick={() => {
+                    setSelectedSort('7d')
+                    updateSort(`price_${selectedPrice}_change_7d`, true, true)
+                  }}
+                >
+                  7d
+                </TabItem>
+              </Flex>
             </Flex>
+          </>
+        )}
+      </Box>
+      <Divider />
+    </>
+  )
 
-            <Box
-              sx={{
-                background: '#ffffff20',
-                padding: '0.75rem 1rem',
-                display: 'grid',
-                gridTemplateColumns: upToMedium ? '1fr 1fr' : '1fr 1fr 1fr 1fr',
-                gap: upToMedium ? '0.75rem' : '1.5rem',
-                height: 'fit-content',
-                borderRadius: '1rem',
-                marginTop: '1.25rem',
-              }}
-            >
-              <div>
-                <Text fontSize={12} color={theme.subText}>
-                  Market Cap
-                </Text>
-                <Text marginTop="4px">
-                  {tokenToShow.marketCap
-                    ? formatDisplayNumber(tokenToShow.marketCap, { style: 'currency', fractionDigits: 2 })
-                    : '--'}
-                </Text>
-              </div>
-              <div>
-                <Text fontSize={12} color={theme.subText}>
-                  24h Volume
-                </Text>
-                <Text marginTop="4px">
-                  {tokenToShow.volume24h
-                    ? formatDisplayNumber(tokenToShow.volume24h, { style: 'currency', fractionDigits: 2 })
-                    : '--'}
-                </Text>
-              </div>
-
-              <div>
-                <Text fontSize={12} color={theme.subText}>
-                  All Time Low
-                </Text>
-                <Text marginTop="4px">
-                  {formatDisplayNumber(tokenToShow.allTimeLow, { style: 'currency', fractionDigits: 2 })}
-                </Text>
-              </div>
-              <div>
-                <Text fontSize={12} color={theme.subText}>
-                  All Time High
-                </Text>
-                <Text marginTop="4px">
-                  {formatDisplayNumber(tokenToShow.allTimeHigh, { style: 'currency', fractionDigits: 2 })}
-                </Text>
-              </div>
-            </Box>
-            <Box
-              sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToMedium ? '100px 80px' : '0.75fr  0.75fr'}` }}
-              marginTop="1.5rem"
-              marginBottom="8px"
-            >
-              <div />
-              <Text fontSize={12} color={theme.subText} textAlign="right">
-                On-chain Price
-              </Text>
-              <div />
-            </Box>
-
-            {tokenToShow.tokens
-              .filter(token => MAINNET_NETWORKS.includes(+token.chainId))
-              .sort((a, b) => b.priceBuy - a.priceBuy)
-              .map(token => {
-                const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[token.chainId]?.symbol
-                const address =
-                  token.address.toLowerCase() === ETHER_ADDRESS.toLowerCase()
-                    ? WETH[token.chainId as ChainId].address
-                    : token.address
-
-                const price = token ? latestPrices.current?.data?.[token.chainId]?.[token.address] || token.price : ''
-
-                return (
-                  <Box
-                    key={token.chainId}
-                    sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToMedium ? '100px 80px' : '0.75fr 0.75fr'}` }}
-                    marginBottom="1rem"
-                    alignItems="center"
-                  >
-                    <Flex sx={{ gap: '12px' }} alignItems="center">
-                      <Box sx={{ position: 'relative' }} width="32px">
-                        <img
-                          src={tokenToShow.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
-                          width="32px"
-                          height="32px"
-                          alt=""
-                          style={{
-                            borderRadius: '50%',
-                          }}
-                        />
-
-                        <img
-                          src={NETWORKS_INFO[token.chainId as ChainId].icon}
-                          alt=""
-                          width="16px"
-                          height="16px"
-                          style={{ position: 'absolute', right: '-8px', bottom: 0 }}
-                        />
-                      </Box>
-                      <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <Flex alignItems="center" fontSize={16}>
-                          {tokenToShow.symbol}{' '}
-                          {quoteSymbol && (
-                            <Text
-                              as="span"
-                              color={theme.subText}
-                              fontSize={14}
-                              sx={{
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                              }}
-                            >
-                              /{quoteSymbol}
-                            </Text>
-                          )}
-                        </Flex>
-                        <Text color={theme.subText} display="flex" marginTop="2px" fontSize="12px">
-                          {shortenAddress(1, address)}
-                          <CopyHelper toCopy={address} />
-                        </Text>
-                      </div>
-                    </Flex>
-
-                    <Text textAlign="right">
-                      <Price price={+price} />
-                    </Text>
-
-                    <Flex sx={{ gap: '12px' }} alignItems="center" justifyContent="flex-end">
-                      <ButtonOutlined
-                        color={theme.primary}
-                        style={{
-                          width: 'fit-content',
-                          padding: '4px 12px',
-                        }}
-                        onClick={() => {
-                          window.open(
-                            `/swap/${NETWORKS_INFO[token.chainId as ChainId].route}?inputCurrency=${
-                              NativeCurrencies[token.chainId as ChainId].symbol
-                            }&outputCurrency=${token.address}`,
-                            '_blank',
-                          )
-                        }}
-                      >
-                        Buy
-                      </ButtonOutlined>
-                    </Flex>
-                  </Box>
-                )
-              })}
-          </Flex>
-        ) : null}
-      </Modal>
-
-      {upToMedium && (
-        <>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', paddingY: '0.75rem' }}>
-            <Text color={theme.subText} fontSize={14} height="100%">
-              Name
-            </Text>
-
-            {showMarketInfo ? (
-              <>
-                <Flex
-                  justifyContent="flex-end"
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                  fontSize={14}
-                  color={theme.subText}
-                  role="button"
-                  onClick={() => updateSort('volume_24h', false)}
-                >
-                  24h Volume
-                  <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
-                </Flex>
-
-                <Flex
-                  justifyContent="flex-end"
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                  fontSize={14}
-                  role="button"
-                  color={theme.subText}
-                  onClick={() => updateSort('market_cap', false)}
-                >
-                  Market cap
-                  <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
-                </Flex>
-              </>
-            ) : (
-              <>
-                <Flex
-                  color={theme.subText}
-                  justifyContent="flex-end"
-                  sx={{ gap: '4px', cursor: 'pointer' }}
-                  fontSize={14}
-                  role="button"
-                  onClick={() => updateSort('price')}
-                >
-                  Price
-                  <Flex marginTop="3px">
-                    <SortIcon sorted={sortCol.startsWith('price-') ? (sortDirection as Direction) : undefined} />
-                  </Flex>
-                </Flex>
-
-                <Flex alignItems="flex-end" flexDirection="column" fontSize={12}>
-                  <Flex
-                    justifyContent="flex-end"
-                    sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                    role="button"
-                    onClick={() => updateSort(`price_change_${selectedSort}`)}
-                    color={theme.subText}
-                  >
-                    {selectedSort} Change
-                    <SortIcon sorted={sortCol.startsWith('price_change') ? (sortDirection as Direction) : undefined} />
-                  </Flex>
-
-                  <Flex
-                    sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
-                    padding="1px"
-                    marginTop="8px"
-                    width="fit-content"
-                  >
-                    <Flex
-                      padding="4px 8px"
-                      alignItems="center"
-                      sx={{
-                        borderRadius: '999px',
-                        background: selectedSort === '1h' ? theme.tabActive : 'transparent',
-                      }}
-                      color={selectedSort === '1h' ? theme.text : theme.subText}
-                      onClick={() => {
-                        setSelectedSort('1h')
-                        updateSort('price_change_1h', true, true)
-                      }}
-                    >
-                      1h
-                    </Flex>
-
-                    <Flex
-                      padding="4px 8px"
-                      alignItems="center"
-                      sx={{
-                        borderRadius: '999px',
-                        background: selectedSort === '24h' ? theme.tabActive : 'transparent',
-                      }}
-                      color={selectedSort === '24h' ? theme.text : theme.subText}
-                      onClick={() => {
-                        setSelectedSort('24h')
-                        updateSort('price_change_24h', true, true)
-                      }}
-                    >
-                      24h
-                    </Flex>
-
-                    <Flex
-                      padding="4px 8px"
-                      alignItems="center"
-                      sx={{
-                        borderRadius: '999px',
-                        background: selectedSort === '7d' ? theme.tabActive : 'transparent',
-                      }}
-                      color={selectedSort === '7d' ? theme.text : theme.subText}
-                      onClick={() => {
-                        setSelectedSort('7d')
-                        updateSort('price_change_7d', true, true)
-                      }}
-                    >
-                      7d
-                    </Flex>
-                  </Flex>
-                </Flex>
-              </>
-            )}
-          </Box>
-          <Divider />
-        </>
+  return (
+    <>
+      {tokenToShow && (
+        <DetailModal
+          onDismiss={() => setShowTokenId(null)}
+          tokenToShow={tokenToShow}
+          toggleFavorite={toggleFavorite}
+          latestPrices={latestPrices}
+        />
       )}
+      {upToMedium && mobileHeader}
 
       {tokens.map((item, idx) => {
         const token = item.tokens.find(t => +t.chainId === filters.chainId)
@@ -533,7 +353,7 @@ export default function TableContent({
           ? latestPrices.current?.data?.[token.chainId]?.[token.address]?.PriceBuy || token.priceBuy
           : ''
         const priceSell = token
-          ? latestPrices.current?.data?.[token.chainId]?.[token.address]?.PriceBuy || token.priceBuy
+          ? latestPrices.current?.data?.[token.chainId]?.[token.address]?.PriceSell || token.priceSell
           : ''
 
         const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[filters.chainId || 1]?.symbol
@@ -553,8 +373,67 @@ export default function TableContent({
             ? ((100 + token.priceBuyChange7d) * priceBuy) / token.priceBuy - 100
             : token?.priceBuyChange7d
 
-        const priceChange =
-          selectedSort === '1h' ? priceBuyChange1h : selectedSort === '24h' ? priceBuyChange24h : priceBuyChange7d
+        const priceSellChange1h =
+          token?.priceSellChange1h && priceSell
+            ? ((100 + token.priceSellChange1h) * priceSell) / token.priceSell - 100
+            : token?.priceSellChange1h
+
+        const priceSellChange24h =
+          token?.priceSellChange24h !== undefined && priceSell
+            ? ((100 + token.priceSellChange24h) * priceSell) / token.priceSell - 100
+            : token?.priceSellChange24h
+
+        const priceSellChange7d =
+          token?.priceSellChange7d !== undefined && priceSell
+            ? ((100 + token.priceSellChange7d) * priceSell) / token.priceSell - 100
+            : token?.priceBuyChange7d
+
+        const volAndMc = (
+          <>
+            <Flex alignItems="center" justifyContent="flex-end">
+              {item.volume24h ? formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 }) : '--'}
+            </Flex>
+            <Flex alignItems="center" justifyContent="flex-end" height="100%">
+              {item.marketCap ? formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 }) : '--'}
+            </Flex>
+          </>
+        )
+
+        let priceChangeToDisplayOnMobile
+        if (selectedPrice === 'buy') {
+          if (selectedSort === '1h') priceChangeToDisplayOnMobile = priceBuyChange1h
+          else if (selectedSort === '24h') priceChangeToDisplayOnMobile = priceBuyChange24h
+          else priceChangeToDisplayOnMobile = priceBuyChange7d
+        } else {
+          if (selectedSort === '1h') priceChangeToDisplayOnMobile = priceSellChange1h
+          else if (selectedSort === '24h') priceChangeToDisplayOnMobile = priceSellChange24h
+          else priceChangeToDisplayOnMobile = priceSellChange7d
+        }
+
+        const mobileDisplay = showMarketInfo ? (
+          volAndMc
+        ) : (
+          <>
+            <Price price={selectedPrice === 'buy' ? +priceBuy : +priceSell} />
+            <Flex alignItems="center" justifyContent="flex-end" color={getColor(priceChangeToDisplayOnMobile)}>
+              <PriceChange priceChange={priceChangeToDisplayOnMobile} />
+            </Flex>
+          </>
+        )
+
+        const desktopBuyPriceChange =
+          buyPriceSelectedField === '1h'
+            ? priceBuyChange1h
+            : buyPriceSelectedField === '24h'
+            ? priceBuyChange24h
+            : priceBuyChange7d
+
+        const desktopSellPriceChange =
+          sellPriceSelectedField === '1h'
+            ? priceSellChange1h
+            : sellPriceSelectedField === '24h'
+            ? priceSellChange24h
+            : priceSellChange7d
 
         return (
           <TableRow key={item.id + '-' + idx} role="button" onClick={() => setShowTokenId(item.id)}>
@@ -583,64 +462,38 @@ export default function TableContent({
               </div>
             </Flex>
 
-            {showMarketInfo ? (
-              <>
-                <Flex alignItems="center" justifyContent="flex-end">
-                  {item.volume24h
-                    ? formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 })
-                    : '--'}
-                </Flex>
-                <Flex alignItems="center" justifyContent="flex-end" height="100%">
-                  {item.marketCap
-                    ? formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })
-                    : '--'}
-                </Flex>
-              </>
+            {upToMedium ? (
+              mobileDisplay
             ) : (
               <>
                 <Price price={+priceBuy} />
-                <Flex
-                  alignItems="center"
-                  justifyContent="flex-end"
-                  color={getColor(upToMedium ? priceChange : priceBuyChange1h)}
-                >
-                  <PriceChange priceChange={upToMedium ? priceChange : priceBuyChange1h} />
-                </Flex>
-              </>
-            )}
-
-            {!upToMedium && (
-              <>
-                <Flex alignItems="center" justifyContent="flex-end" color={getColor(priceBuyChange24h)}>
-                  <PriceChange priceChange={priceBuyChange24h} />
-                </Flex>
 
                 <Flex
                   alignItems="center"
                   justifyContent="flex-end"
                   padding="0.75rem 1.5rem 0.75rem"
                   height="100%"
-                  color={getColor(priceBuyChange7d)}
+                  color={getColor(desktopBuyPriceChange)}
                 >
-                  <PriceChange priceChange={priceBuyChange7d} />
+                  <PriceChange priceChange={desktopBuyPriceChange} />
                 </Flex>
 
-                <Flex alignItems="center" justifyContent="flex-end" padding="0.75rem" height="100%">
-                  {formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 })}
-                </Flex>
+                <Price price={+priceSell} />
+
                 <Flex
                   alignItems="center"
                   justifyContent="flex-end"
+                  padding="0.75rem 1.5rem 0.75rem"
                   height="100%"
-                  padding="0.75rem"
-                  paddingRight="1.5rem"
+                  color={getColor(desktopSellPriceChange)}
                 >
-                  {item.marketCap
-                    ? formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 })
-                    : '--'}
+                  <PriceChange priceChange={desktopSellPriceChange} />
                 </Flex>
 
+                {volAndMc}
+
                 <Flex justifyContent="center" alignItems="center" sx={{ gap: '0.75rem' }}>
+                  {/*
                   <ButtonOutlined
                     color={theme.primary}
                     style={{
@@ -660,6 +513,9 @@ export default function TableContent({
                   >
                     Buy
                   </ButtonOutlined>
+                  */}
+
+                  <Info size={16} color={theme.subText} />
 
                   <Star
                     size={16}
@@ -679,40 +535,5 @@ export default function TableContent({
         )
       })}
     </>
-  )
-}
-
-export const Price = ({ price }: { price: number }) => {
-  const [animate, setAnimate] = useState(false)
-  useEffect(() => {
-    setAnimate(true)
-    setTimeout(() => setAnimate(false), 1200)
-  }, [price])
-
-  const lastPrice = usePreviousDistinct(price)
-
-  return (
-    <ContentChangable animate={!!lastPrice && animate} up={!!lastPrice && price - lastPrice >= 0}>
-      {!price ? '--' : formatDisplayNumber(price, { fractionDigits: 2, significantDigits: 7 })}
-    </ContentChangable>
-  )
-}
-
-export const PriceChange = ({ priceChange }: { priceChange: number | undefined }) => {
-  const [animate, setAnimate] = useState(false)
-  useEffect(() => {
-    setAnimate(true)
-    setTimeout(() => setAnimate(false), 1200)
-  }, [priceChange])
-
-  const lastPriceChange = usePreviousDistinct(priceChange)
-
-  return (
-    <ContentChangable
-      animate={!!lastPriceChange && animate}
-      up={!!lastPriceChange && !!priceChange && priceChange - lastPriceChange >= 0}
-    >
-      {!priceChange ? '--' : priceChange.toFixed(2) + '%'}
-    </ContentChangable>
   )
 }

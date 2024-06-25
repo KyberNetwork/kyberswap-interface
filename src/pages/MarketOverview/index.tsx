@@ -96,18 +96,6 @@ export default function MarketOverview() {
   const [buyPriceSelectedField, setBuyPriceSelectedField] = useState<'1h' | '24h' | '7d'>('24h')
   const [sellPriceSelectedField, setSellPriceSelectedField] = useState<'1h' | '24h' | '7d'>('24h')
 
-  useEffect(() => {
-    if (sortCol.startsWith('price_buy_change')) {
-      updateFilters('sort', `price_buy_change_${buyPriceSelectedField}-${filters.chainId} ${sortDirection}`)
-    }
-  }, [buyPriceSelectedField, sortCol, updateFilters, filters.chainId, sortDirection])
-
-  useEffect(() => {
-    if (sortCol.startsWith('price_sell_change')) {
-      updateFilters('sort', `price_sell_change_${sellPriceSelectedField}-${filters.chainId} ${sortDirection}`)
-    }
-  }, [sellPriceSelectedField, sortCol, updateFilters, filters.chainId, sortDirection])
-
   return (
     <PoolsPageWrapper>
       <Text as="h1" fontSize={24} fontWeight="500">
@@ -233,18 +221,33 @@ export default function MarketOverview() {
                       <Flex flexDirection="column" margin="-8px -12px">
                         <PriceSelectionField
                           active={buyPriceSelectedField === '1h'}
-                          onClick={() => setBuyPriceSelectedField('1h')}
+                          onClick={() => {
+                            setBuyPriceSelectedField('1h')
+                            if (sortCol.startsWith('price_buy_change')) {
+                              updateFilters('sort', `price_buy_change_1h-${filters.chainId} ${sortDirection}`)
+                            }
+                          }}
                         >
                           1H
                         </PriceSelectionField>
                         <PriceSelectionField
                           active={buyPriceSelectedField === '24h'}
-                          onClick={() => setBuyPriceSelectedField('24h')}
+                          onClick={() => {
+                            setBuyPriceSelectedField('24h')
+                            if (sortCol.startsWith('price_buy_change')) {
+                              updateFilters('sort', `price_buy_change_24h-${filters.chainId} ${sortDirection}`)
+                            }
+                          }}
                         >
                           24H
                         </PriceSelectionField>
                         <PriceSelectionField
-                          onClick={() => setBuyPriceSelectedField('7d')}
+                          onClick={() => {
+                            setBuyPriceSelectedField('7d')
+                            if (sortCol.startsWith('price_buy_change')) {
+                              updateFilters('sort', `price_buy_change_7d-${filters.chainId} ${sortDirection}`)
+                            }
+                          }}
                           active={buyPriceSelectedField === '7d'}
                         >
                           7D
@@ -301,18 +304,33 @@ export default function MarketOverview() {
                       <Flex flexDirection="column" margin="-8px -12px">
                         <PriceSelectionField
                           active={sellPriceSelectedField === '1h'}
-                          onClick={() => setSellPriceSelectedField('1h')}
+                          onClick={() => {
+                            setSellPriceSelectedField('1h')
+                            if (sortCol.startsWith('price_sell_change')) {
+                              updateFilters('sort', `price_sell_change_1h-${filters.chainId} ${sortDirection}`)
+                            }
+                          }}
                         >
                           1H
                         </PriceSelectionField>
                         <PriceSelectionField
                           active={sellPriceSelectedField === '24h'}
-                          onClick={() => setSellPriceSelectedField('24h')}
+                          onClick={() => {
+                            setSellPriceSelectedField('24h')
+                            if (sortCol.startsWith('price_sell_change')) {
+                              updateFilters('sort', `price_sell_change_24h-${filters.chainId} ${sortDirection}`)
+                            }
+                          }}
                         >
                           24H
                         </PriceSelectionField>
                         <PriceSelectionField
-                          onClick={() => setSellPriceSelectedField('7d')}
+                          onClick={() => {
+                            setSellPriceSelectedField('7d')
+                            if (sortCol.startsWith('price_sell_change')) {
+                              updateFilters('sort', `price_sell_change_7d-${filters.chainId} ${sortDirection}`)
+                            }
+                          }}
                           active={sellPriceSelectedField === '7d'}
                         >
                           7D
@@ -363,7 +381,6 @@ export default function MarketOverview() {
                   sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
                   role="button"
                   onClick={() => updateSort('market_cap', false)}
-                  padding="0.5rem 1.5rem"
                 >
                   Market cap
                   <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
@@ -375,9 +392,7 @@ export default function MarketOverview() {
           <TableContent
             showMarketInfo={showMarketInfo}
             buyPriceSelectedField={buyPriceSelectedField}
-            setBuyPriceSelectedField={setBuyPriceSelectedField}
             sellPriceSelectedField={sellPriceSelectedField}
-            setSellPriceSelectedField={setSellPriceSelectedField}
           />
         </ContentWrapper>
         <Pagination

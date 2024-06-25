@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import { Box } from 'rebass'
+import { Box, Flex } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
 export const TableWrapper = styled.div`
@@ -128,4 +128,12 @@ export const PriceSelectionField = styled.div<{ active: boolean }>`
   cursor: pointer;
   color: ${({ theme }) => theme.text};
   text-align: center;
+`
+
+export const TabItem = styled(Flex)<{ active?: boolean }>`
+  padding: 4px 8px;
+  align-items: center;
+  border-radius: 999px;
+  background: ${({ theme, active }) => (active ? theme.tabActive : 'transparent')};
+  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
 `
