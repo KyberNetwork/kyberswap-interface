@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/liquidity-widgets",
   "license": "MIT",
-  "version": "0.0.6",
+  "version": "0.0.8-rc",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,11 +16,13 @@
     "@reach/portal": "^0.18.0",
     "@uniswap/sdk-core": "^4.1.4",
     "@uniswap/v3-sdk": "^3.10.2",
+    "d3": "^7.9.0",
     "ethers": "^5.7.0",
+    "polished": "^4.3.1",
     "typescript": "^5.2.2"
   },
   "devDependencies": {
-    "sass": "^1.70.0",
+    "@types/d3": "^7.4.3",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
@@ -31,6 +33,7 @@
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "sass": "^1.70.0",
     "vite": "^5.0.8",
     "vite-plugin-checker": "^0.6.2",
     "vite-plugin-dts": "^3.7.0",

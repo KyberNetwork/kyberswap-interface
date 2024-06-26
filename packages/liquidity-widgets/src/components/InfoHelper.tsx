@@ -1,41 +1,15 @@
 import { Placement } from "@popperjs/core";
 import { CSSProperties, ReactNode, useCallback, useState } from "react";
-import styled from "styled-components";
 import Info from "../assets/info.svg?react";
 
 import Tooltip from "./Tooltip";
-
-const InfoWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: none;
-  outline: none;
-  cursor: default;
-  border-radius: 36px;
-  color: ${({ theme }) => theme.subText};
-
-  :hover,
-  :focus {
-    opacity: 0.7;
-  }
-`;
-
-const InfoHelperWrapper = styled.span`
-  display: inline-flex;
-  justify-content: center;
-  margin-left: 0.25rem;
-  align-items: center;
-  line-height: 100%;
-  vertical-align: middle;
-`;
+import { useWidgetInfo } from "../hooks/useWidgetInfo";
 
 export default function InfoHelper({
   text,
   size = 14,
   placement,
-  style,
+  style = {},
   color,
   width,
 }: {
@@ -51,9 +25,20 @@ export default function InfoHelper({
 
   const open = useCallback(() => setShow(true), [setShow]);
   const close = useCallback(() => setShow(false), [setShow]);
+  const { theme } = useWidgetInfo();
 
   return (
-    <InfoHelperWrapper style={style}>
+    <span
+      style={{
+        display: "inline-flex",
+        justifyContent: "center",
+        marginLeft: "0.25rem",
+        alignItems: "center",
+        lineHeight: "100%",
+        verticalAlign: "middle",
+        ...style,
+      }}
+    >
       <Tooltip
         text={text}
         show={show}
@@ -61,10 +46,25 @@ export default function InfoHelper({
         size={size}
         width={width}
       >
-        <InfoWrapper onClick={open} onMouseEnter={open} onMouseLeave={close}>
+        <div
+          onClick={open}
+          onMouseEnter={open}
+          onMouseLeave={close}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "none",
+            background: "none",
+            outline: "none",
+            cursor: "default",
+            borderRadius: "36px",
+            color: theme.subText,
+          }}
+        >
           <Info style={{ color, width: size, height: size }} />
-        </InfoWrapper>
+        </div>
       </Tooltip>
-    </InfoHelperWrapper>
+    </span>
   );
 }
