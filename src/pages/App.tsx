@@ -29,6 +29,7 @@ import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
 import { useHolidayMode } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
 
+import LiquidityWidget from './LiquidityWidget'
 import VerifyAuth from './Verify/VerifyAuth'
 
 const Login = lazy(() => import('./Oauth/Login'))
@@ -323,6 +324,7 @@ export default function App() {
               <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
 
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
+              <Route path="/liquidity-widget" element={<LiquidityWidget />} />
 
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>
