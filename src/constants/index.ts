@@ -163,6 +163,11 @@ export const APP_PATHS = {
 
   DEPRECATED_NOTI_CENTER: '/notification-center/overview',
   ELASTIC_SNAPSHOT: '/elastic-snapshot',
+
+  AGGREGATOR_CAMPAIGN: '/campaigns/aggregator',
+  LIMIT_ORDER_CAMPAIGN: '/campaigns/limit-order',
+  REFFERAL_CAMPAIGN: '/campaigns/referrals',
+  MY_DASHBOARD: '/campaigns/my-dashboard',
 } as const
 
 export const TERM_FILES_PATH = {

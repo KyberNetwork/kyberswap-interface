@@ -60,6 +60,8 @@ const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
+const AggregatorCampaign = lazy(() => import('pages/Campaign/Aggregator'))
+
 const AppWrapper = styled.div`
   display: flex;
   flex-flow: column;
@@ -323,6 +325,8 @@ export default function App() {
               <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
 
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
+
+              <Route path={APP_PATHS.AGGREGATOR_CAMPAIGN} element={<AggregatorCampaign />} />
 
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>
