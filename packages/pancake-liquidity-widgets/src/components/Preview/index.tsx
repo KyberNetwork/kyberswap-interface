@@ -9,6 +9,7 @@ import "./Preview.scss";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
+  PartnerFeeAction,
   PoolSwapAction,
   ProtocolFeeAction,
   RefundAction,
@@ -174,11 +175,16 @@ export default function Preview({
     </span>
   );
 
-  const feeInfo = zapInfo.zapDetails.actions.find(
+  const feeInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
   ) as ProtocolFeeAction | undefined;
 
-  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+  const partnerFeeInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_PARTNER_FEE"
+  ) as PartnerFeeAction | undefined;
+
+  const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+  const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
   const aggregatorSwapInfo = zapInfo.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
@@ -784,7 +790,24 @@ export default function Preview({
           >
             <div className="summary-title underline">Zap Fee</div>
           </MouseoverTooltip>
-          {parseFloat(zapFee.toFixed(3))}%
+
+          <MouseoverTooltip
+            text={
+              partnerFee
+                ? `${parseFloat(
+                    protocolFee.toFixed(3)
+                  )}% Protocol Fee + ${parseFloat(
+                    partnerFee.toFixed(3)
+                  )}% Fee for ${source}`
+                : ""
+            }
+          >
+            <div className="underline">
+              {feeInfo || partnerFee
+                ? parseFloat((protocolFee + partnerFee).toFixed(3)) + "%"
+                : "--"}
+            </div>{" "}
+          </MouseoverTooltip>
         </div>
       </div>
 

@@ -329,7 +329,7 @@ export default function EstLiqValue() {
             }
           >
             <div className="underline">
-              {feeInfo
+              {feeInfo || partnerFee
                 ? parseFloat((protocolFee + partnerFee).toFixed(3)) + "%"
                 : "--"}
             </div>
