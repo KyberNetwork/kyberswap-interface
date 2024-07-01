@@ -7,14 +7,15 @@ import {
   useMemo,
   useState,
 } from "react";
+import { parseUnits } from "viem";
 import { useWidgetInfo } from "./useWidgetInfo";
 import { useWeb3Provider } from "./useProvider";
-import { parseUnits } from "ethers/lib/utils";
 import useTokenBalance, { useNativeBalance } from "./useTokenBalance";
-import { Price, tickToPrice, Token } from "../entities/Pool";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
-import { BigNumber } from "ethers";
+import { Price, Token } from "@pancakeswap/sdk";
+import { tickToPrice } from "@pancakeswap/v3-sdk";
 import useDebounce from "./useDebounce";
+import { PancakeToken } from "../entities/Pool";
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";
 // export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
@@ -108,6 +109,7 @@ export interface ProtocolFeeAction {
 
 export interface ZapRouteDetail {
   poolDetails: {
+    // why uniswapV3?
     uniswapV3: {
       tick: number;
       newTick: number;
@@ -142,7 +144,7 @@ const ZapContext = createContext<{
   revertPrice: boolean;
   tickLower: number | null;
   tickUpper: number | null;
-  tokenIn: Token | null;
+  tokenIn: PancakeToken | null;
   amountIn: string;
   toggleTokenIn: () => void;
   balanceIn: string;
@@ -152,8 +154,8 @@ const ZapContext = createContext<{
   error: string;
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
-  priceLower: Price | null;
-  priceUpper: Price | null;
+  priceLower: Price<Token, Token> | null;
+  priceUpper: Price<Token, Token> | null;
   slippage: number;
   setSlippage: (val: number) => void;
   ttl: number;
@@ -231,15 +233,8 @@ export const ZapContextProvider = ({
   includedSources?: string;
   excludedSources?: string;
 }) => {
-  const {
-    pool,
-    poolType,
-    poolAddress,
-    position,
-    positionId,
-    feePcm,
-    feeAddress,
-  } = useWidgetInfo();
+  const { pool, poolAddress, position, positionId, feePcm, feeAddress } =
+    useWidgetInfo();
   const { chainId, account, networkChainId } = useWeb3Provider();
 
   // Setting
@@ -275,7 +270,7 @@ export const ZapContextProvider = ({
     }
   }, [position?.tickUpper, position?.tickLower]);
 
-  const [tokenIn, setTokenIn] = useState<Token | null>(null);
+  const [tokenIn, setTokenIn] = useState<PancakeToken | null>(null);
   const [amountIn, setAmountIn] = useState("");
   const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
   const [zapApiError, setZapApiError] = useState<string>("");
@@ -311,16 +306,17 @@ export const ZapContextProvider = ({
     nativeBalance,
   ]);
 
-  const nativeToken = useMemo(
-    () => ({
+  const nativeToken = useMemo(() => {
+    const symbol = NetworkInfo[chainId].wrappedToken.symbol.slice(1); // WETH => ETH
+    return new PancakeToken(
       chainId,
-      address: NATIVE_TOKEN_ADDRESS,
-      decimals: NetworkInfo[chainId].wrappedToken.decimals,
-      symbol: NetworkInfo[chainId].wrappedToken.symbol.slice(1),
-      logoURI: NetworkInfo[chainId].nativeLogo,
-    }),
-    [chainId]
-  );
+      NATIVE_TOKEN_ADDRESS,
+      NetworkInfo[chainId].wrappedToken.decimals,
+      symbol,
+      symbol,
+      NetworkInfo[chainId].nativeLogo
+    );
+  }, [chainId]);
 
   const isToken0Native =
     pool?.token0.address.toLowerCase() ===
@@ -355,7 +351,10 @@ export const ZapContextProvider = ({
 
   const setTick = useCallback(
     (type: Type, value: number) => {
-      if (position || (pool && (value > pool.maxTick || value < pool.minTick))) {
+      if (
+        position ||
+        (pool && (value > pool.maxTick || value < pool.minTick))
+      ) {
         return;
       }
 
@@ -372,13 +371,19 @@ export const ZapContextProvider = ({
 
   const priceLower = useMemo(() => {
     if (!pool || tickLower == null) return null;
-    return tickToPrice(poolType, pool.token0, pool.token1, tickLower) as Price;
-  }, [pool, tickLower, poolType]);
+    return tickToPrice(pool.token0, pool.token1, tickLower) as Price<
+      Token,
+      Token
+    >;
+  }, [pool, tickLower]);
 
   const priceUpper = useMemo(() => {
     if (!pool || tickUpper === null) return null;
-    return tickToPrice(poolType, pool.token0, pool.token1, tickUpper) as Price;
-  }, [pool, tickUpper, poolType]);
+    return tickToPrice(pool.token0, pool.token1, tickUpper) as Price<
+      Token,
+      Token
+    >;
+  }, [pool, tickUpper]);
 
   const error = useMemo(() => {
     if (!account) return "Please connect wallet";
@@ -393,8 +398,7 @@ export const ZapContextProvider = ({
     if (!amountIn || +amountIn === 0) return "Enter an amount";
     try {
       const amountInWei = parseUnits(amountIn, tokenIn.decimals);
-      if (amountInWei.gt(BigNumber.from(balanceIn)))
-        return "Insufficient balance";
+      if (amountInWei > BigInt(balanceIn)) return "Insufficient balance";
     } catch (e) {
       return "Invalid input amount";
     }
@@ -461,7 +465,7 @@ export const ZapContextProvider = ({
 
       setLoading(true);
       const params: { [key: string]: string | number | boolean } = {
-        dex: poolType,
+        dex: "DEX_PANCAKESWAPV3",
         "pool.id": poolAddress,
         "pool.token0": pool.token0.address,
         "pool.token1": pool.token1.address,
@@ -516,7 +520,6 @@ export const ZapContextProvider = ({
   }, [
     debounceAmountIn,
     chainId,
-    poolType,
     debounceTickLower,
     debounceTickUpper,
     feeAddress,

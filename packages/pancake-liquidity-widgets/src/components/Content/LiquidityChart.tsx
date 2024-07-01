@@ -1,11 +1,12 @@
-import { nearestUsableTick, tryParseTick } from "../../entities/Pool";
+import { nearestUsableTick } from "@pancakeswap/v3-sdk";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { Type, useZapState } from "../../hooks/useZapInState";
+import { tryParseTick } from "../../utils/pancakev3";
 import { LiquidityChartRangeInput } from "../LiquidityChartRangeInput";
 import { useDensityChartData } from "../LiquidityChartRangeInput/hooks";
 
 export default function LiquidityChart() {
-  const { pool, position, poolType } = useWidgetInfo();
+  const { pool, position } = useWidgetInfo();
   const { priceLower, priceUpper, revertPrice, tickLower, tickUpper, setTick } =
     useZapState();
 
@@ -36,14 +37,12 @@ export default function LiquidityChart() {
       onBothRangeInput={(l, r) => {
         if (!pool || position) return
         const tickLower = tryParseTick(
-          poolType,
           revertPrice ? pool?.token1 : pool?.token0,
           revertPrice ? pool?.token0 : pool?.token1,
           pool.fee,
           l
         );
         const tickUpper = tryParseTick(
-          poolType,
           revertPrice ? pool?.token1 : pool?.token0,
           revertPrice ? pool?.token0 : pool?.token1,
 
@@ -54,43 +53,35 @@ export default function LiquidityChart() {
         if (tickUpper)
           setTick(
             Type.PriceUpper,
-            nearestUsableTick(poolType, tickUpper, pool.tickSpacing)
+            nearestUsableTick(tickUpper, pool.tickSpacing)
           );
         if (tickLower)
           setTick(
             Type.PriceLower,
-            nearestUsableTick(poolType, tickLower, pool.tickSpacing)
+            nearestUsableTick(tickLower, pool.tickSpacing)
           );
       }}
       onLeftRangeInput={(value) => {
         if (!pool || position) return
         const tick = tryParseTick(
-          poolType,
           revertPrice ? pool.token1 : pool.token0,
           revertPrice ? pool.token0 : pool.token1,
           pool?.fee,
           value
         );
         if (tick)
-          setTick(
-            Type.PriceLower,
-            nearestUsableTick(poolType, tick, pool.tickSpacing)
-          );
+          setTick(Type.PriceLower, nearestUsableTick(tick, pool.tickSpacing));
       }}
       onRightRangeInput={(value) => {
         if (!pool || position) return
         const tick = tryParseTick(
-          poolType,
           revertPrice ? pool.token1 : pool.token0,
           revertPrice ? pool.token0 : pool.token1,
           pool?.fee,
           value
         );
         if (tick)
-          setTick(
-            Type.PriceUpper,
-            nearestUsableTick(poolType, tick, pool.tickSpacing)
-          );
+          setTick(Type.PriceUpper, nearestUsableTick(tick, pool.tickSpacing));
       }}
       formattedData={formattedData}
       isLoading={isChartDataLoading}
