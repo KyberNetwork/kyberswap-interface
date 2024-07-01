@@ -188,19 +188,21 @@ export default function Aggregator() {
         </Tabs>
 
         <StyledInternalLink to={APP_PATHS.MY_DASHBOARD}>[ My Dashboard ]</StyledInternalLink>
-        {tab === 'information' && (
-          <Information
-            type={
-              pathname === APP_PATHS.AGGREGATOR_CAMPAIGN
-                ? CampaignType.Aggregator
-                : pathname === APP_PATHS.LIMIT_ORDER_CAMPAIGN
-                ? CampaignType.LimitOrder
-                : CampaignType.Referrals
-            }
-          />
-        )}
-        {tab === 'leaderboard' && <Leaderboard />}
       </Flex>
+
+      {tab === 'information' && (
+        <Information
+          type={
+            pathname === APP_PATHS.AGGREGATOR_CAMPAIGN
+              ? CampaignType.Aggregator
+              : pathname === APP_PATHS.LIMIT_ORDER_CAMPAIGN
+              ? CampaignType.LimitOrder
+              : CampaignType.Referrals
+          }
+        />
+      )}
+
+      {tab === 'leaderboard' && <Leaderboard />}
     </Wrapper>
   )
 }
