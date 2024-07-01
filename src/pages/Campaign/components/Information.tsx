@@ -153,22 +153,6 @@ export default function Information({ type }: { type: CampaignType }) {
         is allocated for this campaign each week.
       </Text>
 
-      <Flex
-        flexDirection="column"
-        color={theme.subText}
-        lineHeight="28px"
-        marginLeft="12px"
-        sx={{
-          maxHeight: isShowTimeline ? '1000px' : 0,
-          opacity: isShowTimeline ? 1 : 0,
-          marginTop: isShowTimeline ? '1rem' : 0,
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
-        }}
-      >
-        {timelines[type]}
-      </Flex>
-
       <Divider style={{ marginTop: '20px' }} />
 
       <Flex justifyContent="space-between" marginTop="20px">
