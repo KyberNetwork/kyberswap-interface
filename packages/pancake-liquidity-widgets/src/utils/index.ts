@@ -263,3 +263,12 @@ export const getWarningThreshold = (zapFee: ProtocolFeeAction) => {
   if (zapFee.protocolFee.pcm <= feeConfig[PairType.Correlated]) return 0.25;
   return 1;
 };
+
+export function calculateGasMargin(value: bigint): bigint {
+  const defaultGasLimitMargin = BigInt(20_000);
+  const gasMargin = (value * BigInt(2000)) / BigInt(10000);
+
+  return gasMargin >= defaultGasLimitMargin
+    ? value + gasMargin
+    : value + defaultGasLimitMargin;
+}

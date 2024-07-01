@@ -21,6 +21,7 @@ import { BASE_BPS, NetworkInfo } from "../../constants";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import {
   PI_LEVEL,
+  calculateGasMargin,
   formatCurrency,
   formatNumber,
   formatWei,
@@ -56,15 +57,6 @@ export interface PreviewProps {
   zapState: ZapState;
   onDismiss: () => void;
   onTxSubmit?: (tx: string) => void;
-}
-
-function calculateGasMargin(value: bigint): bigint {
-  const defaultGasLimitMargin = BigInt(20_000);
-  const gasMargin = (value * BigInt(2000)) / BigInt(10000);
-
-  return gasMargin >= defaultGasLimitMargin
-    ? value + gasMargin
-    : value + defaultGasLimitMargin;
 }
 
 export default function Preview({

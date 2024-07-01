@@ -3,6 +3,7 @@ import { Address, erc20Abi } from "viem";
 
 import { NATIVE_TOKEN_ADDRESS } from "../constants";
 import { useWeb3Provider } from "./useProvider";
+import { calculateGasMargin } from "../utils";
 
 export enum APPROVAL_STATE {
   UNKNOWN = "unknown",
@@ -30,22 +31,42 @@ function useApproval(
       return;
     }
 
-    const { request } = await publicClient.simulateContract({
-      account,
-      address: token as Address,
-      abi: erc20Abi,
-      functionName: "approve",
-      args: [
-        spender as Address,
-        BigInt(
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-        ),
-      ],
-    });
-    const hash = await walletClient.writeContract(request);
+    try {
+      const estimatedGas = await publicClient.estimateContractGas({
+        account,
+        address: token as Address,
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [
+          spender as Address,
+          BigInt(
+            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          ),
+        ],
+      });
 
-    setApprovalState(APPROVAL_STATE.PENDING);
-    setPendingTx(hash);
+      const hash = await walletClient.writeContract({
+        account,
+        address: token as Address,
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [
+          spender as Address,
+          BigInt(
+            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          ),
+        ],
+        gas: calculateGasMargin(estimatedGas),
+        chain: undefined,
+      });
+
+      setApprovalState(APPROVAL_STATE.PENDING);
+      setPendingTx(hash);
+    } catch (e) {
+      console.log({
+        error: e,
+      });
+    }
   }, [account, publicClient, spender, token, walletClient]);
 
   useEffect(() => {
