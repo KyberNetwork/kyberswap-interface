@@ -96,7 +96,11 @@ export default function Widget({
     >
       <WidgetProvider
         poolAddress={poolAddress}
-        positionId={positionId}
+        positionId={
+          positionId === "" || !parseInt(positionId || "")
+            ? undefined
+            : positionId
+        }
         theme={theme || defaultTheme}
         feeAddress={feeAddress}
         feePcm={feePcm}

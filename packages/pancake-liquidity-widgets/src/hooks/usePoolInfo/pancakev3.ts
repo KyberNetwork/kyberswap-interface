@@ -191,18 +191,20 @@ export default function usePoolInfo(
           const [ownerResult, positionResult] = multiCallRes;
           const owner = ownerResult.result!;
           const [
-            _nonce,
-            _operator,
+            ,
+            ,
+            // _nonce,
+            // operator,
             token0,
             token1,
             fee,
             tickLower,
             tickUpper,
             liquidity,
-            _feeGrowthInside0LastX128,
-            _feeGrowthInside1LastX128,
-            _tokensOwed0,
-            _tokensOwed1,
+            // _feeGrowthInside0LastX128,
+            // _feeGrowthInside1LastX128,
+            // _tokensOwed0,
+            // _tokensOwed1,
           ] = positionResult.result!;
 
           if (

@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/pancake-liquidity-widgets",
   "license": "MIT",
-  "version": "0.0.1-rc",
+  "version": "0.0.1-rc4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,14 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@pancakeswap/sdk": "^5.8.2",
-    "@pancakeswap/v3-sdk": "^3.8.3",
     "@popperjs/core": "^2.11.8",
     "@reach/portal": "^0.18.0",
     "d3": "^7.9.0",
     "polished": "^4.3.1",
-    "typescript": "^5.2.2",
-    "viem": "2.13.3"
+    "@pancakeswap/sdk": "^5.8.2",
+    "@pancakeswap/v3-sdk": "^3.8.3"
   },
   "devDependencies": {
     "@rainbow-me/rainbowkit": "2.1.0",
@@ -36,7 +34,9 @@
     "vite-plugin-checker": "^0.6.2",
     "vite-plugin-dts": "^3.7.0",
     "vite-plugin-svgr": "^4.2.0",
-    "wagmi": "2.9.2"
+    "wagmi": "2.9.2",
+    "viem": "2.13.3",
+    "typescript": "^5.2.2"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
