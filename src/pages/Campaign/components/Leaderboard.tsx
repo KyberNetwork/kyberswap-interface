@@ -10,7 +10,6 @@ import Pagination from 'components/Pagination'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { CampaignType } from './Information'
@@ -94,7 +93,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
             </Text>
 
             <Text color={theme.subText} fontWeight="500" flex={1} marginLeft="1.25rem" overflow="hidden">
-              {upToSmall ? shortenAddress(1, item.wallet) : item.wallet}
+              {upToSmall ? `${item.wallet.substring(0, 4 + 2)}...${item.wallet.substring(42 - 4)}` : item.wallet}
             </Text>
 
             <Text width="100px" color={theme.subText} fontWeight="500" marginLeft="1.25rem" textAlign="right">

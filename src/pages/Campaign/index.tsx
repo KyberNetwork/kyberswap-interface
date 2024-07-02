@@ -173,7 +173,7 @@ export default function Aggregator() {
           display: 'grid',
           gridTemplateColumns: upToSmall ? '1fr 1fr' : '1fr 1fr 1fr 1fr',
           marginTop: '1rem',
-          gap: '24px',
+          gap: '12px',
         }}
       >
         <StatCard>
