@@ -2,6 +2,19 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { CAMPAIGN_URL } from 'constants/env'
 
+type WeeklyReward = {
+  year: number
+  week: number
+  point: number
+  reward: string
+  isClaimed: boolean
+  claimableReward: string
+  claimInfo: {
+    ref: string
+    clientCode: string
+  }
+}
+
 const campaignApi = createApi({
   reducerPath: 'campaignApi',
   baseQuery: fetchBaseQuery({
@@ -42,9 +55,25 @@ const campaignApi = createApi({
         url: `/v1/stip/rewards/${wallet}/weekly?campaign=${campaign}&year=${year}&week=${week}`,
       }),
     }),
+
+    getUserWeeklyReward: builder.query<
+      {
+        data: {
+          weeklyRewards: WeeklyReward[]
+          totalReward: string
+          totalClaimableReward: string
+          totalPoint: number
+        }
+      },
+      { campaign: string; wallet: string }
+    >({
+      query: ({ campaign, wallet }) => ({
+        url: `/v1/stip/rewards?campaign=${campaign}&wallet=${wallet}`,
+      }),
+    }),
   }),
 })
 
-export const { useGetLeaderboardQuery, useGetUserRewardQuery } = campaignApi
+export const { useGetLeaderboardQuery, useGetUserRewardQuery, useGetUserWeeklyRewardQuery } = campaignApi
 
 export default campaignApi

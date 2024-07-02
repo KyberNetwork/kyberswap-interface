@@ -5,7 +5,6 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useGetLeaderboardQuery, useGetUserRewardQuery } from 'services/campaign'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Select from 'components/Select'
@@ -20,35 +19,7 @@ import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
 import Information, { CampaignType } from './components/Information'
 import Leaderboard from './components/Leaderboard'
-
-const Wrapper = styled.div`
-  max-width: 960px;
-  margin-x: auto;
-  padding: 1rem;
-`
-
-const StatCard = styled.div`
-  border-radius: 20px;
-  background: ${({ theme }) => theme.background};
-  padding: 1rem 1.5rem;
-`
-
-const Tabs = styled.div`
-  display: flex;
-  gap: 1.5rem;
-  font-size: 20px;
-  font-weight: 500;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    gap: 0.5rem;
-    font-size: 18px;
-  `}
-`
-
-const Tab = styled.div<{ active: boolean }>`
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  cursor: pointer;
-`
+import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
 const weeks = [
   {
@@ -142,7 +113,10 @@ export default function Aggregator() {
   const tab = searchParams.get('tab') || 'leaderboard'
 
   const rewardNumber = userData?.data?.reward
-    ? CurrencyAmount.fromRawAmount(new Token(1, ZERO_ADDRESS, 18, 'mock'), userData.data.reward).toSignificant(6)
+    ? CurrencyAmount.fromRawAmount(
+        new Token(1, ZERO_ADDRESS, 18, 'mock'),
+        userData.data.reward.split('.')[0],
+      ).toSignificant(6)
     : '0'
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)

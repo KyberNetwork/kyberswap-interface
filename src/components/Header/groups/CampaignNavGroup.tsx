@@ -29,7 +29,13 @@ const CampaignNavGroup = () => {
               <Trans>Aggregator Trading</Trans>
             </StyledNavLink>
             <StyledNavLink to={APP_PATHS.LIMIT_ORDER_CAMPAIGN} style={{ gap: '12px' }}>
-              <Trans>LimitOrder</Trans>
+              <Trans>Limit Order</Trans>
+            </StyledNavLink>
+            <StyledNavLink to={APP_PATHS.REFFERAL_CAMPAIGN} style={{ gap: '12px' }}>
+              <Trans>Referral</Trans>
+            </StyledNavLink>
+            <StyledNavLink to={APP_PATHS.MY_DASHBOARD} style={{ gap: '12px' }}>
+              <Trans>My Dashboard</Trans>
             </StyledNavLink>
           </Column>
         }
