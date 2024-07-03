@@ -1,6 +1,8 @@
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from 'ethers'
-import { useState } from 'react'
+import { rgba } from 'polished'
+import { useCallback, useEffect, useState } from 'react'
+import { Share2 } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import { useGetUserWeeklyRewardQuery } from 'services/campaign'
@@ -13,6 +15,7 @@ import { REWARD_SERVICE_API } from 'constants/env'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -121,7 +124,78 @@ const MyDashboard = () => {
         My Dashboard
       </Text>
 
-      <Flex sx={{ gap: '1rem', marginTop: '24px' }}></Flex>
+      <Flex sx={{ gap: '1rem', marginY: '24px' }}>
+        <Box
+          sx={{
+            padding: '20px 30px',
+            borderRadius: '20px',
+            backgroundImage: 'linear-gradient(121deg, #7177e3bf, #2C3178 104.95%)',
+            flex: 1,
+          }}
+        >
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text>My total estimated rewards</Text>
+            <Flex
+              role="button"
+              alignItems="center"
+              color={theme.primary}
+              backgroundColor={rgba(theme.buttonBlack, 0.48)}
+              padding="8px 16px"
+              sx={{ borderRadius: '999px', gap: '4px', cursor: 'pointer' }}
+              fontSize={14}
+              fontWeight="500"
+            >
+              <Share2 size={14} /> Share
+            </Flex>
+          </Flex>
+          <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
+            <img
+              src="https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png"
+              alt="arb"
+              width="20px"
+              height="20px"
+              style={{ borderRadius: '50%' }}
+            />
+            <Text fontWeight="500">{totalRw} ARB</Text>
+            <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
+              {totalRwUsd}
+            </Text>
+          </Flex>
+
+          <Text marginTop="8px" fontStyle="italic" color="#FfFfFA99">
+            Total estimated rewards of all 3 campaigns (Aggregator, Limit Order, Referral)
+          </Text>
+        </Box>
+
+        <Box
+          sx={{
+            padding: '20px 30px',
+            borderRadius: '20px',
+            backgroundImage: 'linear-gradient(309.26deg, #0E3C34 -11.46%, #28CD95 207.8%)',
+            flex: 1,
+          }}
+        >
+          <Text>My claim-able rewards</Text>
+
+          <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
+            <img
+              src="https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png"
+              alt="arb"
+              width="20px"
+              height="20px"
+              style={{ borderRadius: '50%' }}
+            />
+            <Text fontWeight="500">{totalClaimableRw} ARB</Text>
+            <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
+              {totalClaimableRwUsd}
+            </Text>
+          </Flex>
+
+          <Text marginTop="8px" fontStyle="italic" color="#FfFfFA99">
+            Total final rewards that you can claim of all 3 campaigns (Aggregator, Limit Order, Referral)
+          </Text>
+        </Box>
+      </Flex>
 
       <Tabs>
         <Tab role="button" active={tab === 'trading'} onClick={() => changeTab('trading')}>
@@ -264,15 +338,22 @@ export default MyDashboard
 
 const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const [claiming, setIsClaiming] = useState(false)
   const notify = useNotify()
   const { library } = useWeb3React()
+  const { changeNetwork } = useChangeNetwork()
+  const [autoClaim, setAutoClaim] = useState(false)
 
   const addTransactionWithType = useTransactionAdder()
 
-  const handleClaim = () => {
+  const handleClaim = useCallback(() => {
     if (!account) return
+    if (chainId !== ChainId.ARBITRUM) {
+      changeNetwork(ChainId.ARBITRUM)
+      setAutoClaim(true)
+      return
+    }
     setIsClaiming(true)
     fetch(`${REWARD_SERVICE_API}/rewards/claim`, {
       method: 'POST',
@@ -286,6 +367,7 @@ const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
       .then(res => res.json())
       .then(res => {
         if (!res?.data?.EncodedData) {
+          setIsClaiming(false)
           notify(
             {
               title: 'Claim failed',
@@ -315,11 +397,29 @@ const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
               type: TRANSACTION_TYPE.CLAIM,
             })
           })
+          .catch(e => {
+            notify(
+              {
+                title: 'Claim failed',
+                summary: e?.message || 'Something went wrong',
+                type: NotificationType.ERROR,
+              },
+              5000,
+            )
+          })
+          .finally(() => {
+            setIsClaiming(false)
+          })
       })
-      .finally(() => {
-        setIsClaiming(false)
-      })
-  }
+  }, [chainId, library, changeNetwork, addTransactionWithType, info.ref, info.clientCode, notify, account])
+
+  useEffect(() => {
+    if (autoClaim && chainId === ChainId.ARBITRUM) {
+      handleClaim()
+      setAutoClaim(false)
+    }
+  }, [chainId, autoClaim, handleClaim])
+
   return (
     <ButtonOutlined color={theme.primary} width="88px" height="32px" onClick={handleClaim} disabled={claiming}>
       {claiming ? 'Claiming' : 'Claim'}
