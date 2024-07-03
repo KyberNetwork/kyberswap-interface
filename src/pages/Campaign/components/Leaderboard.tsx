@@ -97,7 +97,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
             </Text>
 
             <Text width="100px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
-              {formatDisplayNumber(item.point, { significantDigits: 6 })}
+              {formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}
             </Text>
           </Flex>
         ))

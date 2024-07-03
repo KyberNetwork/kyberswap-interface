@@ -238,7 +238,7 @@ const MyDashboard = () => {
             <div>
               <Text color={theme.subText}>Total point earned</Text>
               <Text marginTop="8px" fontSize={18} fontWeight="500">
-                {formatDisplayNumber(data?.data?.totalPoint || 0, { significantDigits: 6 })}
+                {formatDisplayNumber(data?.data?.totalPoint.toFixed(0) || 0, { significantDigits: 6 })}
               </Text>
             </div>
             <div>
@@ -335,7 +335,9 @@ const MyDashboard = () => {
                     <Text color={theme.subText} fontSize={12} fontWeight={500}>
                       POINTS EARNED
                     </Text>
-                    <Text textAlign="right">{formatDisplayNumber(item.point, { significantDigits: 6 })}</Text>
+                    <Text textAlign="right">
+                      {formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}
+                    </Text>
                   </Flex>
 
                   <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
@@ -371,7 +373,7 @@ const MyDashboard = () => {
                 <Text color={theme.subText}>
                   Week {item.week - BASE_WEEK}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
                 </Text>
-                <Text textAlign="right">{formatDisplayNumber(item.point, { significantDigits: 6 })}</Text>
+                <Text textAlign="right">{formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}</Text>
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                   <Text>{totalRw.toSignificant(6)} ARB</Text>
                   <Text color={theme.subText}>
