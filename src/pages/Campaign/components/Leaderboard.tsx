@@ -58,25 +58,25 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
 
   return (
     <Wrapper>
-      <Text fontSize={14} color={theme.subText} mb="1rem">
+      <Text fontSize={16} color={theme.subText} mb="1rem">
         Your rank{' '}
-        <Text color={theme.text} fontWeight="500" as="span">
+        <Text color={theme.text} fontWeight="500" as="span" fontSize={18}>
           {userData?.data?.rank || '--'}
         </Text>
       </Text>
 
       <Divider />
 
-      <Flex padding="1rem 1.25rem">
-        <Text width="50px" color={theme.subText} fontWeight="500" textAlign="center">
+      <Flex padding="1rem 1.25rem" fontSize={12} fontWeight="500" color={theme.subText}>
+        <Text width="50px" textAlign="center">
           RANK
         </Text>
 
-        <Text color={theme.subText} fontWeight="500" flex={1} marginLeft="1.25rem">
+        <Text flex={1} marginLeft="1.25rem">
           WALLET
         </Text>
 
-        <Text width="100px" color={theme.subText} fontWeight="500" marginLeft="1.25rem" textAlign="right">
+        <Text width="100px" marginLeft="1.25rem" textAlign="right">
           POINTS
         </Text>
       </Flex>
@@ -87,16 +87,16 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
         <LocalLoader />
       ) : (
         data?.data?.leaderBoards.map((item, index) => (
-          <Flex padding="1rem 1.25rem" key={item.wallet}>
-            <Text width="50px" color={theme.subText} fontWeight="500" textAlign="center">
+          <Flex padding="1rem 1.25rem" key={item.wallet} fontSize={14} color={theme.text}>
+            <Text width="50px" fontWeight="500" textAlign="center">
               {index + (page - 1) * 10 + 1}
             </Text>
 
-            <Text color={theme.subText} fontWeight="500" flex={1} marginLeft="1.25rem" overflow="hidden">
+            <Text fontWeight="500" flex={1} marginLeft="1.25rem" overflow="hidden">
               {upToSmall ? `${item.wallet.substring(0, 4 + 2)}...${item.wallet.substring(42 - 4)}` : item.wallet}
             </Text>
 
-            <Text width="100px" color={theme.subText} fontWeight="500" marginLeft="1.25rem" textAlign="right">
+            <Text width="100px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
               {formatDisplayNumber(item.point, { significantDigits: 6 })}
             </Text>
           </Flex>

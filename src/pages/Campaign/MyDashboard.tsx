@@ -1,9 +1,11 @@
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useGetUserWeeklyRewardQuery } from 'services/campaign'
 import styled from 'styled-components'
@@ -20,6 +22,7 @@ import { useNotify } from 'state/application/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { MEDIA_WIDTHS } from 'theme'
 import { calculateGasMargin } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -30,7 +33,7 @@ import { Tab, Tabs, Wrapper } from './styles'
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1.25fr 1fr 1fr 1.25fr 1fr;
+  grid-template-columns: 1.5fr 1fr 1fr 1.25fr 100px;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
   padding: 1rem;
@@ -46,6 +49,13 @@ const TableRow = styled(TableHeader)`
 `
 
 const mockToken = new Token(1, ZERO_ADDRESS, 18, 'mock')
+
+function getDateOfWeek(w: number, y: number) {
+  const d = 1 + (w - 1) * 7 // 1st of January + 7 days for each week
+  return new Date(y, 0, d)
+}
+
+const BASE_WEEK = 24
 
 const MyDashboard = () => {
   const { account } = useActiveWeb3React()
@@ -112,6 +122,8 @@ const MyDashboard = () => {
     data?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   return (
     <Wrapper>
       <img
@@ -124,7 +136,7 @@ const MyDashboard = () => {
         My Dashboard
       </Text>
 
-      <Flex sx={{ gap: '1rem', marginY: '24px' }}>
+      <Flex sx={{ gap: '1rem', marginY: '24px' }} flexDirection={upToSmall ? 'column' : 'row'}>
         <Box
           sx={{
             padding: '20px 30px',
@@ -219,7 +231,7 @@ const MyDashboard = () => {
             sx={{
               display: 'grid',
               gap: '1rem',
-              gridTemplateColumns: '1fr 1fr 1fr',
+              gridTemplateColumns: upToSmall ? '1fr' : '1fr 1fr 1fr',
               marginBottom: '28px',
             }}
           >
@@ -276,12 +288,14 @@ const MyDashboard = () => {
 
           <Divider />
 
-          <TableHeader>
-            <Text>WEEK</Text>
-            <Text textAlign="right">POINTS EARNED</Text>
-            <Text textAlign="right">ESTIMATED REWARDS</Text>
-            <Text textAlign="right">TOTAL CLAIMABLE REWARDS</Text>
-          </TableHeader>
+          {!upToSmall && (
+            <TableHeader>
+              <Text>WEEK</Text>
+              <Text textAlign="right">POINTS EARNED</Text>
+              <Text textAlign="right">ESTIMATED REWARDS</Text>
+              <Text textAlign="right">TOTAL CLAIMABLE REWARDS</Text>
+            </TableHeader>
+          )}
 
           <Divider />
 
@@ -298,9 +312,65 @@ const MyDashboard = () => {
             const claimableRw = CurrencyAmount.fromRawAmount(mockToken, claimable)
             const canClaim = claimable !== '0' && !item.isClaimed
 
+            const date = getDateOfWeek(item.week, item.year)
+            const end = getDateOfWeek(item.week + 1, item.year)
+
+            if (upToSmall)
+              return (
+                <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }}>
+                  <Flex justifyContent="space-between" alignItems="center">
+                    <Text color={theme.subText}>
+                      Week {item.week - BASE_WEEK}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                    </Text>
+                    {!canClaim ? (
+                      <ButtonOutlined width="88px" height="32px" disabled>
+                        Claimed
+                      </ButtonOutlined>
+                    ) : (
+                      <ClaimBtn info={item.claimInfo} />
+                    )}
+                  </Flex>
+
+                  <Flex justifyContent="space-between" alignItems="center" mt="1rem">
+                    <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                      POINTS EARNED
+                    </Text>
+                    <Text textAlign="right">{formatDisplayNumber(item.point, { significantDigits: 6 })}</Text>
+                  </Flex>
+
+                  <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
+                    <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                      ESTIMATED REWARDS
+                    </Text>
+                    <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
+                      <Text>{totalRw.toSignificant(6)} ARB</Text>
+                      <Text color={theme.subText}>
+                        {formatDisplayNumber(+totalRw.toExact() * price, { significantDigits: 4, style: 'currency' })}
+                      </Text>
+                    </Flex>
+                  </Flex>
+                  <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
+                    <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                      CLAIMABLE REWARDS
+                    </Text>
+                    <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
+                      <Text>{claimableRw.toSignificant(6)} ARB</Text>
+                      <Text color={theme.subText}>
+                        {formatDisplayNumber(+claimableRw.toExact() * price, {
+                          significantDigits: 4,
+                          style: 'currency',
+                        })}
+                      </Text>
+                    </Flex>
+                  </Flex>
+                </Box>
+              )
+
             return (
               <TableRow key={`${item.year}-${item.week}`}>
-                <Text color={theme.subText}>Week {item.week}</Text>
+                <Text color={theme.subText}>
+                  Week {item.week - BASE_WEEK}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                </Text>
                 <Text textAlign="right">{formatDisplayNumber(item.point, { significantDigits: 6 })}</Text>
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                   <Text>{totalRw.toSignificant(6)} ARB</Text>

@@ -1,7 +1,7 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useGetLeaderboardQuery, useGetUserRewardQuery } from 'services/campaign'
@@ -55,6 +55,7 @@ const getFormattedTime = (totalSeconds: number): string => {
 
 export default function Aggregator() {
   const theme = useTheme()
+  const navigate = useNavigate()
   const [selectedWeek, setSelectedWeek] = useState(27)
   const [searchParams, setSearchParams] = useSearchParams()
   const { pathname } = useLocation()
@@ -165,7 +166,14 @@ export default function Aggregator() {
           onChange={value => setSelectedWeek(value)}
           value={selectedWeek}
         ></Select>
-        <ButtonPrimary width={upToExtraSmall ? '100%' : '160px'}>Trade now</ButtonPrimary>
+        <ButtonPrimary
+          width={upToExtraSmall ? '100%' : '160px'}
+          onClick={() => {
+            navigate('/swap/arbitrum/eth-to-arb')
+          }}
+        >
+          Trade now
+        </ButtonPrimary>
       </Flex>
 
       <Box
