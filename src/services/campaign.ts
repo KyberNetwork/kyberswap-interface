@@ -35,7 +35,7 @@ const campaignApi = createApi({
         }
       },
       {
-        campaign: 'trading-incentive' | 'limit-order-farming' | 'referral'
+        campaign: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
         week: number
         year: number
         pageSize: number
@@ -71,9 +71,27 @@ const campaignApi = createApi({
         url: `/v1/stip/rewards?campaign=${campaign}&wallet=${wallet}`,
       }),
     }),
+
+    getUserReferralTotalReward: builder.query<
+      {
+        data: {
+          totalReward: string
+        }
+      },
+      { wallet: string }
+    >({
+      query: ({ wallet }) => ({
+        url: `/v1/stip/rewards/${wallet}/total?campaign=referral-program`,
+      }),
+    }),
   }),
 })
 
-export const { useGetLeaderboardQuery, useGetUserRewardQuery, useGetUserWeeklyRewardQuery } = campaignApi
+export const {
+  useGetLeaderboardQuery,
+  useGetUserRewardQuery,
+  useGetUserWeeklyRewardQuery,
+  useGetUserReferralTotalRewardQuery,
+} = campaignApi
 
 export default campaignApi

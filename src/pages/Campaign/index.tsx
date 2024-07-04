@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import { useGetLeaderboardQuery, useGetUserRewardQuery } from 'services/campaign'
+import { useGetLeaderboardQuery, useGetUserReferralTotalRewardQuery, useGetUserRewardQuery } from 'services/campaign'
 
 import { ButtonPrimary } from 'components/Button'
 import Select from 'components/Select'
@@ -18,6 +18,7 @@ import loBanner from './assets/limit_order.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
 import Information, { CampaignType } from './components/Information'
+import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
@@ -71,7 +72,7 @@ export default function Aggregator() {
       ? 'trading-incentive'
       : type === CampaignType.LimitOrder
       ? 'limit-order-farming'
-      : 'referral'
+      : 'referral-program'
   const { account } = useWeb3React()
   const { data: userData } = useGetUserRewardQuery(
     {
@@ -123,6 +124,19 @@ export default function Aggregator() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
+  const { data: referralData } = useGetUserReferralTotalRewardQuery(
+    { wallet: account || '' },
+    {
+      skip: !account || campaign !== 'referral-program',
+    },
+  )
+  const referralReward = userData?.data?.reward
+    ? CurrencyAmount.fromRawAmount(
+        new Token(1, ZERO_ADDRESS, 18, 'mock'),
+        referralData?.data?.totalReward.split('.')[0] || '0',
+      ).toSignificant(6)
+    : '0'
+
   return (
     <Wrapper>
       <img
@@ -137,61 +151,72 @@ export default function Aggregator() {
         alt="banner"
         style={{ borderRadius: '12px' }}
       />
-      <Text fontSize={24} fontWeight="500" marginTop="1.5rem">
-        {type === CampaignType.Aggregator
-          ? 'Aggregator Trading'
-          : type === CampaignType.LimitOrder
-          ? 'Limit Order'
-          : 'Referral'}{' '}
-        Campaign
-      </Text>
+      <Flex justifyContent="space-between" alignItems="center" marginTop="1.5rem">
+        <Text fontSize={24} fontWeight="500">
+          {type === CampaignType.Aggregator
+            ? 'Aggregator Trading'
+            : type === CampaignType.LimitOrder
+            ? 'Limit Order'
+            : 'Referral'}{' '}
+          Campaign
+        </Text>
 
-      <Flex
-        justifyContent="space-between"
-        marginTop="1.5rem"
-        alignItems="center"
-        flexDirection={upToExtraSmall ? 'column' : 'row'}
-        sx={{ gap: '1rem' }}
-      >
-        <Select
-          options={weeks}
-          style={{
-            fontSize: '16px',
-            border: `1px solid ${theme.border}`,
-            width: upToExtraSmall ? '100%' : undefined,
-          }}
-          optionStyle={{
-            fontSize: '16px',
-          }}
-          onChange={value => setSelectedWeek(value)}
-          value={selectedWeek}
-        ></Select>
-        <ButtonPrimary
-          width={upToExtraSmall ? '100%' : '160px'}
-          onClick={() => {
-            navigate('/swap/arbitrum/eth-to-arb')
-          }}
-        >
-          Trade now
-        </ButtonPrimary>
+        {campaign === 'referral-program' && <JoinReferral />}
       </Flex>
 
+      {campaign !== 'referral-program' && (
+        <Flex
+          justifyContent="space-between"
+          marginTop="1.5rem"
+          alignItems="center"
+          flexDirection={upToExtraSmall ? 'column' : 'row'}
+          sx={{ gap: '1rem' }}
+        >
+          <Select
+            options={weeks}
+            style={{
+              fontSize: '16px',
+              border: `1px solid ${theme.border}`,
+              width: upToExtraSmall ? '100%' : undefined,
+            }}
+            optionStyle={{
+              fontSize: '16px',
+            }}
+            onChange={value => setSelectedWeek(value)}
+            value={selectedWeek}
+          ></Select>
+          <ButtonPrimary
+            width={upToExtraSmall ? '100%' : '160px'}
+            onClick={() => {
+              navigate('/swap/arbitrum/eth-to-arb')
+            }}
+          >
+            Trade now
+          </ButtonPrimary>
+        </Flex>
+      )}
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: upToSmall ? '1fr 1fr' : '1fr 1fr 1fr 1fr',
+          gridTemplateColumns: upToSmall
+            ? '1fr 1fr'
+            : campaign !== 'referral-program'
+            ? '1fr 1fr 1fr 1fr'
+            : '1fr 1fr 1fr',
           marginTop: '1rem',
           gap: '12px',
         }}
       >
-        <StatCard>
-          <Text fontSize={14} color={theme.subText}>
-            Week {selectedWeek - 24} {isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}
-          </Text>
-          <Text marginTop="8px" fontSize={20} fontWeight="500">
-            {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : getFormattedTime(duration)}
-          </Text>
-        </StatCard>
+        {campaign !== 'referral-program' && (
+          <StatCard>
+            <Text fontSize={14} color={theme.subText}>
+              Week {selectedWeek - 24} {isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}
+            </Text>
+            <Text marginTop="8px" fontSize={20} fontWeight="500">
+              {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : getFormattedTime(duration)}
+            </Text>
+          </StatCard>
+        )}
 
         <StatCard>
           <Text fontSize={14} color={theme.subText}>
@@ -206,7 +231,7 @@ export default function Aggregator() {
 
         <StatCard>
           <Text fontSize={14} color={theme.subText}>
-            My Earned Points
+            {campaign === 'referral-program' ? 'My referrals' : 'My Earned Points'}
           </Text>
           <Text marginTop="8px" fontSize={20} fontWeight="500">
             {userData?.data?.point ? formatDisplayNumber(userData?.data.point, { significantDigits: 6 }) : '--'}
@@ -225,7 +250,7 @@ export default function Aggregator() {
               height="20px"
               style={{ borderRadius: '50%' }}
             />
-            <Text marginLeft="4px">{rewardNumber} ARB</Text>
+            <Text marginLeft="4px">{campaign === 'referral-program' ? referralReward : rewardNumber} ARB</Text>
           </Flex>
         </StatCard>
       </Box>

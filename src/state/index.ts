@@ -18,6 +18,7 @@ import ksSettingApi from 'services/ksSetting'
 import kyberDAO from 'services/kyberDAO'
 import limitOrderApi from 'services/limitOrder'
 import priceAlertApi from 'services/priceAlert'
+import referralApi from 'services/referral'
 import routeApi from 'services/route'
 import socialApi from 'services/social'
 import tokenApi from 'services/token'
@@ -120,6 +121,7 @@ const store = configureStore({
     [routeApi.reducerPath]: routeApi.reducer,
     [earningApi.reducerPath]: earningApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
+    [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     [blockServiceApi.reducerPath]: blockServiceApi.reducer,
@@ -147,6 +149,7 @@ const store = configureStore({
       .concat(earningApi.middleware)
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
+      .concat(referralApi.middleware)
       .concat(campaignApi.middleware)
       .concat(blockServiceApi.middleware)
       .concat(commonServiceApi.middleware)

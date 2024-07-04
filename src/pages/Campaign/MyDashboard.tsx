@@ -1,8 +1,6 @@
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
-import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -10,25 +8,19 @@ import { Box, Flex, Text } from 'rebass'
 import { useGetUserWeeklyRewardQuery } from 'services/campaign'
 import styled from 'styled-components'
 
-import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined } from 'components/Button'
 import Divider from 'components/Divider'
-import { REWARD_SERVICE_API } from 'constants/env'
 import { ZERO_ADDRESS } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { useNotify } from 'state/application/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
-import { calculateGasMargin } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import loBanner from './assets/limit_order.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
+import ClaimBtn from './components/ClaimBtn'
 import { Tab, Tabs, Wrapper } from './styles'
 
 const TableHeader = styled.div`
@@ -407,94 +399,3 @@ const MyDashboard = () => {
 }
 
 export default MyDashboard
-
-const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
-  const theme = useTheme()
-  const { account, chainId } = useActiveWeb3React()
-  const [claiming, setIsClaiming] = useState(false)
-  const notify = useNotify()
-  const { library } = useWeb3React()
-  const { changeNetwork } = useChangeNetwork()
-  const [autoClaim, setAutoClaim] = useState(false)
-
-  const addTransactionWithType = useTransactionAdder()
-
-  const handleClaim = useCallback(() => {
-    if (!account) return
-    if (chainId !== ChainId.ARBITRUM) {
-      changeNetwork(ChainId.ARBITRUM)
-      setAutoClaim(true)
-      return
-    }
-    setIsClaiming(true)
-    fetch(`${REWARD_SERVICE_API}/rewards/claim`, {
-      method: 'POST',
-      body: JSON.stringify({
-        wallet: account,
-        chainId: '42161',
-        clientCode: info.clientCode,
-        ref: info.ref,
-      }),
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (!res?.data?.EncodedData) {
-          setIsClaiming(false)
-          notify(
-            {
-              title: 'Claim failed',
-              summary: res?.message || 'Something went wrong',
-              type: NotificationType.ERROR,
-            },
-            5000,
-          )
-          return
-        }
-
-        library
-          ?.getSigner()
-          .estimateGas({
-            to: res.data.ContractAddress,
-            data: res.data.EncodedData,
-          })
-          .then(async (estimate: BigNumber) => {
-            const sendTxRes = await library.getSigner().sendTransaction({
-              to: res.data.ContractAddress,
-              data: res.data.EncodedData,
-              gasLimit: calculateGasMargin(estimate),
-            })
-
-            addTransactionWithType({
-              hash: sendTxRes.hash,
-              type: TRANSACTION_TYPE.CLAIM,
-            })
-          })
-          .catch(e => {
-            notify(
-              {
-                title: 'Claim failed',
-                summary: e?.message || 'Something went wrong',
-                type: NotificationType.ERROR,
-              },
-              5000,
-            )
-          })
-          .finally(() => {
-            setIsClaiming(false)
-          })
-      })
-  }, [chainId, library, changeNetwork, addTransactionWithType, info.ref, info.clientCode, notify, account])
-
-  useEffect(() => {
-    if (autoClaim && chainId === ChainId.ARBITRUM) {
-      handleClaim()
-      setAutoClaim(false)
-    }
-  }, [chainId, autoClaim, handleClaim])
-
-  return (
-    <ButtonOutlined color={theme.primary} width="88px" height="32px" onClick={handleClaim} disabled={claiming}>
-      {claiming ? 'Claiming' : 'Claim'}
-    </ButtonOutlined>
-  )
-}

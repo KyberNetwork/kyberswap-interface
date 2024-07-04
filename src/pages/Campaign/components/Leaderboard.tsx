@@ -31,7 +31,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
       ? 'trading-incentive'
       : type === CampaignType.LimitOrder
       ? 'limit-order-farming'
-      : 'referral'
+      : 'referral-program'
 
   const { isLoading, data } = useGetLeaderboardQuery({
     week,
@@ -101,6 +101,12 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
             </Text>
           </Flex>
         ))
+      )}
+
+      {!isLoading && !data?.data?.leaderBoards.length && (
+        <Text color={theme.subText} textAlign="center" padding="24px" marginTop="24px">
+          No data found
+        </Text>
       )}
 
       {!isLoading && (
