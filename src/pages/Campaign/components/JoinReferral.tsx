@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
@@ -7,7 +7,7 @@ import { useGetParticipantQuery, useJoinCampaignMutation, useLazyGetNonceQuery }
 import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Input from 'components/Input'
 import Modal from 'components/Modal'
@@ -27,6 +27,16 @@ export default function JoinReferal() {
   const [refCode, setRefCode] = useState(searchParams.get('code') || '')
 
   const { data, isLoading, error, refetch } = useGetParticipantQuery({ wallet: account || '' }, { skip: !account })
+
+  const code = searchParams.get('code')
+
+  const checked = useRef(false)
+  useEffect(() => {
+    if (code && !data?.data?.participant?.referralCode && !showRefModal && !checked.current) {
+      setShowRefModal(true)
+      checked.current = true
+    }
+  }, [code, data?.data?.participant?.referralCode, showRefModal])
 
   const [getNonce] = useLazyGetNonceQuery()
   const [joinCampaign] = useJoinCampaignMutation()
@@ -110,13 +120,6 @@ export default function JoinReferal() {
             />
 
             <Flex sx={{ gap: '1rem' }} marginTop="24px">
-              <ButtonOutlined
-                onClick={() => {
-                  handleJoin('')
-                }}
-              >
-                Skip
-              </ButtonOutlined>
               <ButtonPrimary
                 onClick={() => {
                   handleJoin(refCode)
