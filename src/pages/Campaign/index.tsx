@@ -344,11 +344,12 @@ export default function Aggregator() {
           ></Select>
           <ButtonPrimary
             width={upToExtraSmall ? '100%' : '160px'}
+            height="40px"
             onClick={() => {
-              navigate('/swap/arbitrum/eth-to-arb')
+              navigate(tab === 'trading-incentive' ? '/swap/arbitrum/eth-to-arb' : '/limit/arbitrum')
             }}
           >
-            Trade now
+            {tab === 'trading-incentive' ? 'Trade now' : 'Place order'}
           </ButtonPrimary>
         </Flex>
       )}

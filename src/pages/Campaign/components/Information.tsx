@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { Minus, Plus, Star } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 
@@ -317,7 +317,9 @@ export default function Information({ type }: { type: CampaignType }) {
           How to earn points
         </Flex>
 
-        <ButtonIcon onClick={() => setIsShowRule(prev => !prev)}>{!isShowRule ? <Plus /> : <Minus />}</ButtonIcon>
+        <ButtonIcon onClick={() => setIsShowRule(prev => !prev)}>
+          {!isShowRule ? <Plus size={14} /> : <Minus size={14} />}
+        </ButtonIcon>
       </Flex>
 
       <Flex
@@ -344,7 +346,7 @@ export default function Information({ type }: { type: CampaignType }) {
         </Flex>
 
         <ButtonIcon onClick={() => setIsShowTimeline(prev => !prev)}>
-          {!isShowTimeline ? <Plus /> : <Minus />}
+          {!isShowTimeline ? <Plus size={14} /> : <Minus size={14} />}
         </ButtonIcon>
       </Flex>
 
@@ -371,7 +373,9 @@ export default function Information({ type }: { type: CampaignType }) {
           🏆 Rewards
         </Flex>
 
-        <ButtonIcon onClick={() => setIsShowReward(prev => !prev)}>{!isShowReward ? <Plus /> : <Minus />}</ButtonIcon>
+        <ButtonIcon onClick={() => setIsShowReward(prev => !prev)}>
+          {!isShowReward ? <Plus size={14} /> : <Minus size={14} />}
+        </ButtonIcon>
       </Flex>
 
       <Text
@@ -396,7 +400,9 @@ export default function Information({ type }: { type: CampaignType }) {
           📄 Terms & Conditions
         </Flex>
 
-        <ButtonIcon onClick={() => setIsShowTc(prev => !prev)}>{!isShowTc ? <Plus /> : <Minus />}</ButtonIcon>
+        <ButtonIcon onClick={() => setIsShowTc(prev => !prev)}>
+          {!isShowTc ? <Plus size={14} /> : <Minus size={14} />}
+        </ButtonIcon>
       </Flex>
 
       <Text
@@ -448,7 +454,9 @@ export default function Information({ type }: { type: CampaignType }) {
           ❓ FAQ
         </Flex>
 
-        <ButtonIcon onClick={() => setIsShowFaq(prev => !prev)}>{!isShowFaq ? <Plus /> : <Minus />}</ButtonIcon>
+        <ButtonIcon onClick={() => setIsShowFaq(prev => !prev)}>
+          {!isShowFaq ? <Plus size={14} /> : <Minus size={14} />}
+        </ButtonIcon>
       </Flex>
 
       <Flex
@@ -479,7 +487,9 @@ const Faq = ({ q, a }: { q: string; a: string | ReactNode }) => {
     <>
       <Flex justifyContent="space-between" marginTop="1rem">
         <li style={{ flex: 1 }}>{q}</li>
-        <ButtonIcon onClick={() => setShow(prev => !prev)}>{show ? <Minus /> : <Plus />}</ButtonIcon>
+        <ButtonIcon onClick={() => setShow(prev => !prev)}>
+          {show ? <Minus size={14} /> : <Plus size={14} />}
+        </ButtonIcon>
       </Flex>
 
       <Text
