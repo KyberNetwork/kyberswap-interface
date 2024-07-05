@@ -33,9 +33,24 @@ const referralApi = createApi({
         },
       }),
     }),
+
+    getDashboard: builder.query<
+      {
+        data: {
+          referrals: { id: number; walletAddress: string; referralsNumber: number }[]
+          pagination: { totalItems: number }
+        }
+      },
+      { referralCode: string; page: number }
+    >({
+      query: ({ referralCode, page }) => ({
+        url: `/v3/referrals?referralProgramId=1&referrerCode=${referralCode}&page=${page}&pageSize=10`,
+      }),
+    }),
   }),
 })
 
-export const { useGetParticipantQuery, useLazyGetNonceQuery, useJoinCampaignMutation } = referralApi
+export const { useGetParticipantQuery, useLazyGetNonceQuery, useJoinCampaignMutation, useGetDashboardQuery } =
+  referralApi
 
 export default referralApi

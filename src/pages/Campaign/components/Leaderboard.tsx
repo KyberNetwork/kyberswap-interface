@@ -2,12 +2,13 @@ import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetLeaderboardQuery, useGetUserRewardQuery } from 'services/campaign'
+import { useGetDashboardQuery } from 'services/referral'
 import styled from 'styled-components'
 
 import Divider from 'components/Divider'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
-import { useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -33,15 +34,22 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
       ? 'limit-order-farming'
       : 'referral-program'
 
-  const { isLoading, data } = useGetLeaderboardQuery({
-    week,
-    year,
-    campaign,
-    pageSize: 10,
-    pageNumber: page,
-  })
+  const { isLoading, data } = useGetLeaderboardQuery(
+    {
+      week,
+      year,
+      campaign,
+      pageSize: 10,
+      pageNumber: page,
+    },
+    {
+      skip: campaign === 'referral-program',
+    },
+  )
 
-  const { account } = useWeb3React()
+  const { account } = useActiveWeb3React()
+  const { data: referralData } = useGetDashboardQuery({ referralCode: '', page })
+
   const { data: userData } = useGetUserRewardQuery(
     {
       week,
@@ -58,26 +66,32 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
 
   return (
     <Wrapper>
-      <Text fontSize={16} color={theme.subText} mb="1rem">
-        Your rank{' '}
-        <Text color={theme.text} fontWeight="500" as="span" fontSize={18}>
-          {userData?.data?.rank || '--'}
-        </Text>
-      </Text>
+      {campaign !== 'referral-program' && (
+        <>
+          <Text fontSize={16} color={theme.subText} mb="1rem">
+            Your rank{' '}
+            <Text color={theme.text} fontWeight="500" as="span" fontSize={18}>
+              {userData?.data?.rank || '--'}
+            </Text>
+          </Text>
 
-      <Divider />
+          <Divider />
+        </>
+      )}
 
       <Flex padding="1rem 1.25rem" fontSize={12} fontWeight="500" color={theme.subText}>
-        <Text width="50px" textAlign="center">
-          RANK
-        </Text>
+        {campaign !== 'referral-program' && (
+          <Text width="50px" textAlign="center">
+            RANK
+          </Text>
+        )}
 
-        <Text flex={1} marginLeft="1.25rem">
+        <Text flex={1} marginLeft={campaign === 'referral-program' ? 0 : '1.25rem'}>
           WALLET
         </Text>
 
-        <Text width="100px" marginLeft="1.25rem" textAlign="right">
-          POINTS
+        <Text width="150px" marginLeft="1.25rem" textAlign="right">
+          {campaign === 'referral-program' ? 'NUMBER OF REFERRALS' : 'POINTS'}
         </Text>
       </Flex>
 
@@ -85,7 +99,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
 
       {isLoading ? (
         <LocalLoader />
-      ) : (
+      ) : campaign !== 'referral-program' ? (
         data?.data?.leaderBoards.map((item, index) => (
           <Flex padding="1rem 1.25rem" key={item.wallet} fontSize={14} color={theme.text}>
             <Text width="50px" fontWeight="500" textAlign="center">
@@ -101,13 +115,30 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
             </Text>
           </Flex>
         ))
+      ) : (
+        referralData?.data.referrals.map(item => {
+          return (
+            <Flex padding="1.25rem" key={item.id} fontSize={14} color={theme.subText}>
+              <Text fontWeight="500" flex={1} overflow="hidden">
+                {upToSmall
+                  ? `${item.walletAddress.substring(0, 4 + 2)}...${item.walletAddress.substring(42 - 4)}`
+                  : item.walletAddress}
+              </Text>
+
+              <Text width="100px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
+                {formatDisplayNumber(item.referralsNumber, { significantDigits: 6 })}
+              </Text>
+            </Flex>
+          )
+        })
       )}
 
-      {!isLoading && !data?.data?.leaderBoards.length && (
-        <Text color={theme.subText} textAlign="center" padding="24px" marginTop="24px">
-          No data found
-        </Text>
-      )}
+      {!isLoading &&
+        (campaign === 'referral-program' ? !referralData?.data.referrals.length : !data?.data?.leaderBoards.length) && (
+          <Text color={theme.subText} textAlign="center" padding="24px" marginTop="24px">
+            No data found
+          </Text>
+        )}
 
       {!isLoading && (
         <Pagination
@@ -115,7 +146,11 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
             searchParams.set('page', p.toString())
             setSearchParams(searchParams)
           }}
-          totalCount={data?.data?.participantCount || 0}
+          totalCount={
+            (campaign === 'referral-program'
+              ? referralData?.data.pagination.totalItems
+              : data?.data?.participantCount) || 0
+          }
           currentPage={page}
           pageSize={10}
         />

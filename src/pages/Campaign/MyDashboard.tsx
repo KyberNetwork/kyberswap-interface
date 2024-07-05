@@ -21,6 +21,7 @@ import loBanner from './assets/limit_order.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
 import ClaimBtn from './components/ClaimBtn'
+import MyReferralDashboard from './components/MyReferralDashboard'
 import { Tab, Tabs, Wrapper } from './styles'
 
 const TableHeader = styled.div`
@@ -53,7 +54,7 @@ const MyDashboard = () => {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab = searchParams.get('tab') || 'trading'
+  const tab = searchParams.get('tab') || 'trading-incentive'
   const changeTab = (t: string) => {
     searchParams.set('tab', t)
     setSearchParams(searchParams)
@@ -82,7 +83,7 @@ const MyDashboard = () => {
     },
   )
 
-  const data = tab === 'trading' ? trading : loData
+  const data = tab === 'trading-incentive' ? trading : loData
 
   const tradingRw = CurrencyAmount.fromRawAmount(mockToken, trading?.data?.totalReward?.split('.')[0] || '0')
   const loRw = CurrencyAmount.fromRawAmount(mockToken, loData?.data?.totalReward?.split('.')[0] || '0')
@@ -119,7 +120,7 @@ const MyDashboard = () => {
   return (
     <Wrapper>
       <img
-        src={tab === 'trading' ? tradingBanner : tab === 'lo' ? loBanner : referralBanner}
+        src={tab === 'trading-incentive' ? tradingBanner : tab === 'limit-order-farming' ? loBanner : referralBanner}
         width="100%"
         alt="banner"
         style={{ borderRadius: '12px' }}
@@ -202,13 +203,13 @@ const MyDashboard = () => {
       </Flex>
 
       <Tabs>
-        <Tab role="button" active={tab === 'trading'} onClick={() => changeTab('trading')}>
+        <Tab role="button" active={tab === 'trading-incentive'} onClick={() => changeTab('trading-incentive')}>
           Trading
         </Tab>
-        <Tab role="button" active={tab === 'lo'} onClick={() => changeTab('lo')}>
+        <Tab role="button" active={tab === 'limit-order-farming'} onClick={() => changeTab('limit-order-farming')}>
           Limit Order
         </Tab>
-        <Tab role="button" active={tab === 'referral'} onClick={() => changeTab('referral')}>
+        <Tab role="button" active={tab === 'referral-program'} onClick={() => changeTab('referral-program')}>
           Referral
         </Tab>
       </Tabs>
@@ -217,6 +218,8 @@ const MyDashboard = () => {
         <Text marginTop="30px" textAlign="center" color={theme.subText}>
           Please connect wallet to view your Dashboard
         </Text>
+      ) : tab === 'referral-program' ? (
+        <MyReferralDashboard />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box

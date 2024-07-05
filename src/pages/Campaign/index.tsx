@@ -5,6 +5,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useGetLeaderboardQuery, useGetUserReferralTotalRewardQuery, useGetUserRewardQuery } from 'services/campaign'
+import { useGetDashboardQuery, useGetParticipantQuery } from 'services/referral'
 
 import { ButtonPrimary } from 'components/Button'
 import Select from 'components/Select'
@@ -87,13 +88,29 @@ export default function Aggregator() {
   )
   const page = +(searchParams.get('page') || '1')
 
-  const { data } = useGetLeaderboardQuery({
-    week: selectedWeek,
-    year: 2024,
-    campaign,
-    pageSize: 10,
-    pageNumber: page,
-  })
+  const { data } = useGetLeaderboardQuery(
+    {
+      week: selectedWeek,
+      year: 2024,
+      campaign,
+      pageSize: 10,
+      pageNumber: page,
+    },
+    {
+      skip: campaign === 'referral-program',
+    },
+  )
+
+  const { data: totalReferralData } = useGetDashboardQuery({ referralCode: '', page })
+  const totalParticipant = totalReferralData?.data.pagination.totalItems
+
+  const { data: userRefData } = useGetParticipantQuery({ wallet: account || '' }, { skip: !account })
+  const userRefCode = userRefData?.data?.participant?.referralCode
+  const { data: userReferralData } = useGetDashboardQuery(
+    { referralCode: userRefCode || '', page: 1 },
+    { skip: !userRefCode },
+  )
+  const myTotalRefer = userReferralData?.data?.pagination?.totalItems
 
   const week = weeks.find(w => w.value === selectedWeek) || weeks[0]
   const now = Math.floor(Date.now() / 1000)
@@ -130,7 +147,7 @@ export default function Aggregator() {
       skip: !account || campaign !== 'referral-program',
     },
   )
-  const referralReward = userData?.data?.reward
+  const referralReward = referralData?.data?.totalReward
     ? CurrencyAmount.fromRawAmount(
         new Token(1, ZERO_ADDRESS, 18, 'mock'),
         referralData?.data?.totalReward.split('.')[0] || '0',
@@ -223,7 +240,9 @@ export default function Aggregator() {
             Participants
           </Text>
           <Text marginTop="8px" fontSize={20} fontWeight="500">
-            {data?.data?.participantCount
+            {campaign === 'referral-program'
+              ? formatDisplayNumber(totalParticipant, { significantDigits: 6 })
+              : data?.data?.participantCount
               ? formatDisplayNumber(data?.data.participantCount, { significantDigits: 6 })
               : '--'}
           </Text>
@@ -234,7 +253,11 @@ export default function Aggregator() {
             {campaign === 'referral-program' ? 'My referrals' : 'My Earned Points'}
           </Text>
           <Text marginTop="8px" fontSize={20} fontWeight="500">
-            {userData?.data?.point ? formatDisplayNumber(userData?.data.point, { significantDigits: 6 }) : '--'}
+            {campaign === 'referral-program'
+              ? formatDisplayNumber(myTotalRefer || 0, { significantDigits: 6 })
+              : userData?.data?.point
+              ? formatDisplayNumber(userData?.data.point, { significantDigits: 6 })
+              : '--'}
           </Text>
         </StatCard>
 
@@ -279,7 +302,7 @@ export default function Aggregator() {
           </Tab>
         </Tabs>
 
-        <StyledInternalLink to={APP_PATHS.MY_DASHBOARD}>[ My Dashboard ]</StyledInternalLink>
+        <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${campaign}`}>[ My Dashboard ]</StyledInternalLink>
       </Flex>
 
       {tab === 'information' && <Information type={type} />}
