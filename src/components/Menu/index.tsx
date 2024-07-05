@@ -317,6 +317,22 @@ export default function Menu() {
               </MenuItem>
             )}
 
+            {showAnalytics && (
+              <MenuItem>
+                <NavDropDown
+                  icon={<Info />}
+                  title={t`Campaign`}
+                  link={'/campaigns'}
+                  options={[
+                    { link: '/campaigns/aggregator', label: 'Aggregator Trading' },
+                    { link: '/campaigns/limit-order', label: 'Limit Order' },
+                    { link: '/campaigns/referrals', label: 'Referral' },
+                    { link: '/campaigns/my-dashboard', label: 'My Dashboard' },
+                  ]}
+                />
+              </MenuItem>
+            )}
+
             {bridgeLink && (
               <MenuItem>
                 <ExternalLink href={bridgeLink}>

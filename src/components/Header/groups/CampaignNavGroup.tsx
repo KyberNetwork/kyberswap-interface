@@ -11,12 +11,14 @@ import NavGroup from './NavGroup'
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
   const isActive = pathname.includes('/campaigns')
-  const upTo600 = useMedia('(max-width: 600px)')
+  const upTo500 = useMedia('(max-width: 500px)')
+
+  if (upTo500) return null
 
   return (
     <>
       <NavGroup
-        dropdownAlign={upTo600 ? 'right' : 'left'}
+        dropdownAlign={'left'}
         isActive={isActive}
         anchor={
           <DropdownTextAnchor>

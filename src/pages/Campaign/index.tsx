@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -12,6 +12,7 @@ import Select from 'components/Select'
 import { APP_PATHS, ZERO_ADDRESS } from 'constants/index'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -23,27 +24,159 @@ import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
+function getCurrentWeek(): number {
+  const now: Date = new Date()
+  const startOfYear: Date = new Date(now.getFullYear(), 0, 1)
+  const pastDaysOfYear: number = (now.getTime() - startOfYear.getTime()) / 86400000 // 86400000 ms in a day
+
+  return Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7)
+}
+
 const weeks = [
   {
+    value: 37,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 10
+        </Text>{' '}
+        Sep 09 - Sep 15
+      </Text>
+    ),
+    start: 1724976000,
+    end: 1725494400,
+  },
+  {
+    value: 36,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 9
+        </Text>{' '}
+        Sep 02 - Sep 08
+      </Text>
+    ),
+    start: 1724457600,
+    end: 1724976000,
+  },
+  {
+    value: 35,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 8
+        </Text>{' '}
+        Aug 26 - Sep 01
+      </Text>
+    ),
+    start: 1723939200,
+    end: 1724457600,
+  },
+  {
+    value: 34,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 7
+        </Text>{' '}
+        Aug 19 - Aug 25
+      </Text>
+    ),
+    start: 1723420800,
+    end: 1723939200,
+  },
+  {
+    value: 33,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 6
+        </Text>{' '}
+        Aug 12 - Aug 18
+      </Text>
+    ),
+    start: 1722902400,
+    end: 1723420800,
+  },
+  {
+    value: 32,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 5
+        </Text>{' '}
+        Aug 05 - Aug 11
+      </Text>
+    ),
+    start: 1722384000,
+    end: 1722902400,
+  },
+  {
+    value: 31,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 4
+        </Text>{' '}
+        July 29 - Aug 04
+      </Text>
+    ),
+    start: 1721865600,
+    end: 1722384000,
+  },
+  {
+    value: 30,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 3
+        </Text>{' '}
+        July 22 - July 28
+      </Text>
+    ),
+    start: 1721347200,
+    end: 1721865600,
+  },
+  {
+    value: 29,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 2
+        </Text>{' '}
+        July 15 - July 21
+      </Text>
+    ),
+    start: 1720828800,
+    end: 1721347200,
+  },
+  {
+    value: 28,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 1
+        </Text>{' '}
+        July 08 - July 14
+      </Text>
+    ),
+    start: 1720310400,
+    end: 1720828800,
+  },
+  {
     value: 27,
-    label: 'Week 3: July 01 - July 07',
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 0
+        </Text>{' '}
+        July 01 - July 07
+      </Text>
+    ),
     start: 1719792000,
     end: 1720310400,
   },
-  {
-    value: 26,
-    label: 'Week 2: June 24 - June 30',
-    start: 1719187200,
-    end: 1719792000,
-  },
-  {
-    value: 25,
-    label: 'Week 1: June 17 - June 24',
-    start: 1718582400,
-    end: 1719187200,
-  },
 ]
-
 const getFormattedTime = (totalSeconds: number): string => {
   // const totalSeconds = Math.floor(milliseconds / 1000);
   const totalDays = Math.floor(totalSeconds / 86400)
@@ -58,7 +191,8 @@ const getFormattedTime = (totalSeconds: number): string => {
 export default function Aggregator() {
   const theme = useTheme()
   const navigate = useNavigate()
-  const [selectedWeek, setSelectedWeek] = useState(27)
+  const w = getCurrentWeek()
+  const [selectedWeek, setSelectedWeek] = useState(w <= 37 ? w : 37)
   const [searchParams, setSearchParams] = useSearchParams()
   const { pathname } = useLocation()
   const type =
@@ -131,12 +265,15 @@ export default function Aggregator() {
 
   const tab = searchParams.get('tab') || 'leaderboard'
 
-  const rewardNumber = userData?.data?.reward
-    ? CurrencyAmount.fromRawAmount(
-        new Token(1, ZERO_ADDRESS, 18, 'mock'),
-        userData.data.reward.split('.')[0],
-      ).toSignificant(6)
-    : '0'
+  const marketPriceMap = useTokenPrices(['0x912CE59144191C1204E64559FE8253a0e49E6548'], ChainId.ARBITRUM)
+  const price = marketPriceMap?.['0x912CE59144191C1204E64559FE8253a0e49E6548'] || 0
+
+  const rewardAmount = CurrencyAmount.fromRawAmount(
+    new Token(1, ZERO_ADDRESS, 18, 'mock'),
+    userData?.data?.reward?.split('.')[0] || '0',
+  )
+  const rewardNumber = rewardAmount ? rewardAmount.toSignificant(4) : '0'
+  const rewardUsd = price * +rewardAmount?.toExact() || 0
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
@@ -147,12 +284,15 @@ export default function Aggregator() {
       skip: !account || campaign !== 'referral-program',
     },
   )
-  const referralReward = referralData?.data?.totalReward
-    ? CurrencyAmount.fromRawAmount(
-        new Token(1, ZERO_ADDRESS, 18, 'mock'),
-        referralData?.data?.totalReward.split('.')[0] || '0',
-      ).toSignificant(6)
-    : '0'
+
+  const referralRewardAmount = CurrencyAmount.fromRawAmount(
+    new Token(1, ZERO_ADDRESS, 18, 'mock'),
+    referralData?.data?.totalReward.split('.')[0] || '0',
+  )
+  const referralReward = referralRewardAmount ? referralRewardAmount.toSignificant(4) : '0'
+  const referralRewardUsd = price * +referralRewardAmount?.toExact() || 0
+
+  const usd = campaign === 'referral-program' ? referralRewardUsd : rewardUsd
 
   return (
     <Wrapper>
@@ -215,7 +355,9 @@ export default function Aggregator() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: upToSmall
+          gridTemplateColumns: upToExtraSmall
+            ? '1fr'
+            : upToSmall
             ? '1fr 1fr'
             : campaign !== 'referral-program'
             ? '1fr 1fr 1fr 1fr'
@@ -254,9 +396,9 @@ export default function Aggregator() {
           </Text>
           <Text marginTop="8px" fontSize={20} fontWeight="500">
             {campaign === 'referral-program'
-              ? formatDisplayNumber(myTotalRefer || 0, { significantDigits: 6 })
+              ? formatDisplayNumber(myTotalRefer || 0, { significantDigits: 4 })
               : userData?.data?.point
-              ? formatDisplayNumber(userData?.data.point, { significantDigits: 6 })
+              ? formatDisplayNumber(Math.floor(userData?.data.point), { significantDigits: 6 })
               : '--'}
           </Text>
         </StatCard>
@@ -273,12 +415,17 @@ export default function Aggregator() {
               height="20px"
               style={{ borderRadius: '50%' }}
             />
-            <Text marginLeft="4px">{campaign === 'referral-program' ? referralReward : rewardNumber} ARB</Text>
+            <Text marginLeft="4px" fontSize={16}>
+              {campaign === 'referral-program' ? referralReward : rewardNumber} ARB
+            </Text>
+            <Text ml="4px" fontSize={14} color={theme.subText}>
+              {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
+            </Text>
           </Flex>
         </StatCard>
       </Box>
 
-      <Flex justifyContent="space-between" alignItems="center" marginTop="1.5rem">
+      <Flex justifyContent="space-between" alignItems="center" marginTop="1rem">
         <Tabs>
           <Tab
             role="button"

@@ -20,6 +20,9 @@ const Wrapper = styled.div`
   padding: 20px;
   background: ${({ theme }) => theme.background};
   margin-top: 20px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+  padding: 1rem;
+  `}
 `
 
 export default function Leaderboard({ type, week, year }: { type: CampaignType; week: number; year: number }) {
@@ -79,7 +82,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
         </>
       )}
 
-      <Flex padding="1rem 1.25rem" fontSize={12} fontWeight="500" color={theme.subText}>
+      <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} fontSize={12} fontWeight="500" color={theme.subText}>
         {campaign !== 'referral-program' && (
           <Text width="50px" textAlign="center">
             RANK
@@ -101,7 +104,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
         <LocalLoader />
       ) : campaign !== 'referral-program' ? (
         data?.data?.leaderBoards.map((item, index) => (
-          <Flex padding="1rem 1.25rem" key={item.wallet} fontSize={14} color={theme.text}>
+          <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} key={item.wallet} fontSize={14} color={theme.text}>
             <Text width="50px" fontWeight="500" textAlign="center">
               {index + (page - 1) * 10 + 1}
             </Text>
@@ -111,7 +114,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
             </Text>
 
             <Text width="100px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
-              {formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}
+              {formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}
             </Text>
           </Flex>
         ))

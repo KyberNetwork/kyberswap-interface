@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const Wrapper = styled.div`
-  max-width: 960px;
+  max-width: 992px;
   margin-x: auto;
   padding: 1rem;
 `
@@ -9,7 +9,7 @@ export const Wrapper = styled.div`
 export const StatCard = styled.div`
   border-radius: 20px;
   background: ${({ theme }) => theme.background};
-  padding: 1rem 1.5rem;
+  padding: 1rem 1rem;
 `
 
 export const Tabs = styled.div`
@@ -20,7 +20,7 @@ export const Tabs = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     gap: 0.5rem;
-    font-size: 18px;
+    font-size: 16px;
   `}
 `
 

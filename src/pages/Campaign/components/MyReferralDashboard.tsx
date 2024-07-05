@@ -1,5 +1,6 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useGetUserReferralTotalRewardQuery } from 'services/campaign'
 import { useGetDashboardQuery, useGetParticipantQuery } from 'services/referral'
@@ -8,6 +9,7 @@ import Divider from 'components/Divider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export default function MyReferralDashboard({ price }: { price: number }) {
@@ -36,6 +38,8 @@ export default function MyReferralDashboard({ price }: { price: number }) {
 
   const totalItem = userReferralData?.data.pagination.totalItems
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   return (
     <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
       <Flex mb="24px" sx={{ gap: '1rem' }}>
@@ -44,7 +48,7 @@ export default function MyReferralDashboard({ price }: { price: number }) {
             My total referrals
           </Text>
           <Text fontSize={18} fontWeight="500" color={theme.text} marginTop="8px">
-            {totalItem ? formatDisplayNumber(totalItem, { significantDigits: 6 }) : '--'}
+            {totalItem ? formatDisplayNumber(totalItem.toFixed(3), { significantDigits: 6 }) : '--'}
           </Text>
         </Box>
 
@@ -80,9 +84,9 @@ export default function MyReferralDashboard({ price }: { price: number }) {
 
       <Divider />
 
-      <Flex padding="1rem" color={theme.subText} fontSize="12px" fontWeight="500">
-        <Text flex={2}>TIME</Text>
-        <Text flex={3}>REFEREES WALLET ADDRESSES</Text>
+      <Flex padding="1rem 0" color={theme.subText} fontSize="12px" fontWeight="500">
+        <Text flex={1}>TIME</Text>
+        <Text flex={1}>REFEREES WALLET ADDRESSES</Text>
       </Flex>
 
       <Divider />
@@ -94,9 +98,13 @@ export default function MyReferralDashboard({ price }: { price: number }) {
       )}
 
       {userReferralData?.data.referrals.map(item => (
-        <Flex padding="1rem" color={theme.subText} fontWeight="500" key={item.walletAddress} fontSize={14}>
-          <Text flex={2}>{dayjs(item.createdAt * 1000).format('DD/MM/YYYY HH:mm')}</Text>
-          <Text flex={3}>{item.walletAddress}</Text>
+        <Flex padding="1rem 0" color={theme.subText} fontWeight="500" key={item.walletAddress} fontSize={14}>
+          <Text flex={1}>{dayjs(item.createdAt * 1000).format('HH:mm DD MMM YYYY')}</Text>
+          <Text flex={1}>
+            {upToSmall
+              ? `${item.walletAddress.substring(0, 4 + 2)}...${item.walletAddress.substring(42 - 4)}`
+              : item.walletAddress}
+          </Text>
         </Flex>
       ))}
     </Box>

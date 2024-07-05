@@ -48,7 +48,7 @@ function getDateOfWeek(w: number, y: number) {
   return new Date(y, 0, d)
 }
 
-const BASE_WEEK = 24
+const BASE_WEEK = 27
 
 const MyDashboard = () => {
   const { account } = useActiveWeb3React()
@@ -233,7 +233,7 @@ const MyDashboard = () => {
             <div>
               <Text color={theme.subText}>Total point earned</Text>
               <Text marginTop="8px" fontSize={18} fontWeight="500">
-                {formatDisplayNumber(data?.data?.totalPoint.toFixed(0) || 0, { significantDigits: 6 })}
+                {formatDisplayNumber(Math.floor(data?.data?.totalPoint || 0), { significantDigits: 4 })}
               </Text>
             </div>
             <div>
@@ -309,6 +309,7 @@ const MyDashboard = () => {
 
             const date = getDateOfWeek(item.week, item.year)
             const end = getDateOfWeek(item.week + 1, item.year)
+            end.setHours(end.getHours() - 1)
 
             if (upToSmall)
               return (
@@ -331,7 +332,7 @@ const MyDashboard = () => {
                       POINTS EARNED
                     </Text>
                     <Text textAlign="right">
-                      {formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}
+                      {formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}
                     </Text>
                   </Flex>
 
@@ -368,7 +369,7 @@ const MyDashboard = () => {
                 <Text color={theme.subText}>
                   Week {item.week - BASE_WEEK}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
                 </Text>
-                <Text textAlign="right">{formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}</Text>
+                <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}</Text>
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                   <Text>{totalRw.toSignificant(6)} ARB</Text>
                   <Text color={theme.subText}>
