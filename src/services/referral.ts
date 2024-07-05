@@ -37,7 +37,7 @@ const referralApi = createApi({
     getDashboard: builder.query<
       {
         data: {
-          referrals: { id: number; walletAddress: string; referralsNumber: number }[]
+          referrals: { id: number; walletAddress: string; referralsNumber: number; createdAt: number }[]
           pagination: { totalItems: number }
         }
       },

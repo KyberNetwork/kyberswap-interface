@@ -219,7 +219,7 @@ const MyDashboard = () => {
           Please connect wallet to view your Dashboard
         </Text>
       ) : tab === 'referral-program' ? (
-        <MyReferralDashboard />
+        <MyReferralDashboard price={price} />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
@@ -319,7 +319,7 @@ const MyDashboard = () => {
                     </Text>
                     {!canClaim ? (
                       <ButtonOutlined width="88px" height="32px" disabled>
-                        Claimed
+                        {item.isClaimed ? 'Claimed' : 'Claim'}
                       </ButtonOutlined>
                     ) : (
                       <ClaimBtn info={item.claimInfo} />
@@ -386,7 +386,7 @@ const MyDashboard = () => {
                 <Flex justifyContent="flex-end">
                   {!canClaim ? (
                     <ButtonOutlined width="88px" height="32px" disabled>
-                      Claimed
+                      {item.isClaimed ? 'Claimed' : 'Claim'}
                     </ButtonOutlined>
                   ) : (
                     <ClaimBtn info={item.claimInfo} />
