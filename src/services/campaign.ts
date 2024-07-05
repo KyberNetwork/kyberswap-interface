@@ -17,6 +17,7 @@ type WeeklyReward = {
 
 const campaignApi = createApi({
   reducerPath: 'campaignApi',
+  keepUnusedDataFor: 0,
   baseQuery: fetchBaseQuery({
     baseUrl: CAMPAIGN_URL,
   }),

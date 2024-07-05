@@ -1,11 +1,13 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useGetUserReferralTotalRewardQuery } from 'services/campaign'
 import { useGetDashboardQuery, useGetParticipantQuery } from 'services/referral'
 
 import Divider from 'components/Divider'
+import Pagination from 'components/Pagination'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -14,14 +16,16 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 export default function MyReferralDashboard({ price }: { price: number }) {
   const { account } = useWeb3React()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const page = +(searchParams.get('page') || '1')
   const theme = useTheme()
   const { data: userRefData } = useGetParticipantQuery({ wallet: account || '' }, { skip: !account })
   const userRefCode = userRefData?.data?.participant?.referralCode
   const { data: userReferralData } = useGetDashboardQuery(
-    { referralCode: userRefCode || '', page: 1 },
+    { referralCode: userRefCode || '', page, sort: 'createdAt:desc' },
     { skip: !userRefCode },
   )
-  const { data: referralData } = useGetUserReferralTotalRewardQuery(
+  const { data: referralData, isLoading } = useGetUserReferralTotalRewardQuery(
     { wallet: account || '' },
     {
       skip: !account,
@@ -31,7 +35,7 @@ export default function MyReferralDashboard({ price }: { price: number }) {
     ? CurrencyAmount.fromRawAmount(
         new Token(1, ZERO_ADDRESS, 18, 'mock'),
         referralData?.data?.totalReward.split('.')[0] || '0',
-      ).toSignificant(6)
+      ).toExact()
     : '0'
 
   const usd = +referralReward * price
@@ -43,7 +47,7 @@ export default function MyReferralDashboard({ price }: { price: number }) {
   return (
     <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
       <Flex mb="24px" sx={{ gap: '1rem' }}>
-        <Box>
+        <Box flex={1}>
           <Text color={theme.subText} fontSize={14}>
             My total referrals
           </Text>
@@ -52,7 +56,7 @@ export default function MyReferralDashboard({ price }: { price: number }) {
           </Text>
         </Box>
 
-        <Box>
+        <Box flex={upToSmall ? 1 : 2}>
           <Text color={theme.subText} fontSize={14}>
             My total estimated rewards
           </Text>
@@ -72,10 +76,10 @@ export default function MyReferralDashboard({ price }: { price: number }) {
               style={{ borderRadius: '50%' }}
             />
 
-            {formatDisplayNumber(referralReward, { significantDigits: 6 })}
+            {formatDisplayNumber((+referralReward).toFixed(3), { significantDigits: 6 })}
             {!!usd && (
               <Text as="span" color={theme.subText} fontSize={14}>
-                {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
+                {formatDisplayNumber(usd.toFixed(3), { style: 'currency', significantDigits: 4 })}
               </Text>
             )}
           </Flex>
@@ -107,6 +111,18 @@ export default function MyReferralDashboard({ price }: { price: number }) {
           </Text>
         </Flex>
       ))}
+
+      {!isLoading && (
+        <Pagination
+          onPageChange={p => {
+            searchParams.set('page', p.toString())
+            setSearchParams(searchParams)
+          }}
+          totalCount={userReferralData?.data?.pagination.totalItems || 0}
+          currentPage={page}
+          pageSize={10}
+        />
+      )}
     </Box>
   )
 }

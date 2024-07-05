@@ -1,7 +1,7 @@
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
-import { Share2 } from 'react-feather'
+// import { rgba } from 'polished'
+// import { Share2 } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -87,8 +87,8 @@ const MyDashboard = () => {
 
   const tradingRw = CurrencyAmount.fromRawAmount(mockToken, trading?.data?.totalReward?.split('.')[0] || '0')
   const loRw = CurrencyAmount.fromRawAmount(mockToken, loData?.data?.totalReward?.split('.')[0] || '0')
-  const totalRw = formatDisplayNumber(+tradingRw.toExact() + +loRw.toExact(), { significantDigits: 6 })
-  const totalRwUsd = formatDisplayNumber((+tradingRw.toExact() + +loRw.toExact()) * price, {
+  const totalRw = formatDisplayNumber((+tradingRw.toExact() + +loRw.toExact()).toFixed(3), { significantDigits: 6 })
+  const totalRwUsd = formatDisplayNumber(((+tradingRw.toExact() + +loRw.toExact()) * price).toFixed(3), {
     significantDigits: 6,
     style: 'currency',
   })
@@ -101,13 +101,16 @@ const MyDashboard = () => {
     mockToken,
     loData?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
-  const totalClaimableRw = formatDisplayNumber(+tradingClaimableRw.toExact() + +loClaimableRw.toExact(), {
+  const totalClaimableRw = formatDisplayNumber((+tradingClaimableRw.toExact() + +loClaimableRw.toExact()).toFixed(3), {
     significantDigits: 6,
   })
-  const totalClaimableRwUsd = formatDisplayNumber((+tradingClaimableRw.toExact() + +loClaimableRw.toExact()) * price, {
-    significantDigits: 6,
-    style: 'currency',
-  })
+  const totalClaimableRwUsd = formatDisplayNumber(
+    ((+tradingClaimableRw.toExact() + +loClaimableRw.toExact()) * price).toFixed(3),
+    {
+      significantDigits: 6,
+      style: 'currency',
+    },
+  )
 
   const totalRewardByCampaign = CurrencyAmount.fromRawAmount(mockToken, data?.data?.totalReward?.split('.')[0] || '0')
   const claimableRewardByCampaign = CurrencyAmount.fromRawAmount(
@@ -140,6 +143,7 @@ const MyDashboard = () => {
         >
           <Flex justifyContent="space-between" alignItems="center">
             <Text>My total estimated rewards</Text>
+            {/* TODO 
             <Flex
               role="button"
               alignItems="center"
@@ -152,6 +156,7 @@ const MyDashboard = () => {
             >
               <Share2 size={14} /> Share
             </Flex>
+            */}
           </Flex>
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
             <img
@@ -247,9 +252,9 @@ const MyDashboard = () => {
                   style={{ borderRadius: '50%' }}
                 />
                 <Text fontSize={18} fontWeight="500">
-                  {totalRewardByCampaign.toSignificant(6)} ARB{' '}
+                  {formatDisplayNumber(totalRewardByCampaign.toFixed(3), { significantDigits: 6 })} ARB{' '}
                   <Text color={theme.subText} as="span">
-                    {formatDisplayNumber(+totalRewardByCampaign.toExact() * price, {
+                    {formatDisplayNumber((+totalRewardByCampaign.toExact() * price).toFixed(3), {
                       significantDigits: 4,
                       style: 'currency',
                     })}
@@ -269,9 +274,9 @@ const MyDashboard = () => {
                 />
 
                 <Text fontSize={18} fontWeight="500">
-                  {claimableRewardByCampaign.toSignificant(6)} ARB{' '}
+                  {formatDisplayNumber(claimableRewardByCampaign.toFixed(3), { significantDigits: 6 })} ARB{' '}
                   <Text color={theme.subText} as="span">
-                    {formatDisplayNumber(+claimableRewardByCampaign.toExact() * price, {
+                    {formatDisplayNumber((+claimableRewardByCampaign.toExact() * price).toFixed(3), {
                       significantDigits: 4,
                       style: 'currency',
                     })}
@@ -341,9 +346,12 @@ const MyDashboard = () => {
                       ESTIMATED REWARDS
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                      <Text>{totalRw.toSignificant(6)} ARB</Text>
+                      <Text>{formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} ARB</Text>
                       <Text color={theme.subText}>
-                        {formatDisplayNumber(+totalRw.toExact() * price, { significantDigits: 4, style: 'currency' })}
+                        {formatDisplayNumber((+totalRw.toExact() * price).toFixed(3), {
+                          significantDigits: 4,
+                          style: 'currency',
+                        })}
                       </Text>
                     </Flex>
                   </Flex>
@@ -352,9 +360,9 @@ const MyDashboard = () => {
                       CLAIMABLE REWARDS
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                      <Text>{claimableRw.toSignificant(6)} ARB</Text>
+                      <Text>{formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} ARB</Text>
                       <Text color={theme.subText}>
-                        {formatDisplayNumber(+claimableRw.toExact() * price, {
+                        {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(3), {
                           significantDigits: 4,
                           style: 'currency',
                         })}
@@ -371,16 +379,22 @@ const MyDashboard = () => {
                 </Text>
                 <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}</Text>
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                  <Text>{totalRw.toSignificant(6)} ARB</Text>
+                  <Text>{formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} ARB</Text>
                   <Text color={theme.subText}>
-                    {formatDisplayNumber(+totalRw.toExact() * price, { significantDigits: 4, style: 'currency' })}
+                    {formatDisplayNumber((+totalRw.toExact() * price).toFixed(3), {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })}
                   </Text>
                 </Flex>
 
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                  <Text>{claimableRw.toSignificant(6)} ARB</Text>
+                  <Text>{formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} ARB</Text>
                   <Text color={theme.subText}>
-                    {formatDisplayNumber(+claimableRw.toExact() * price, { significantDigits: 4, style: 'currency' })}
+                    {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(3), {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })}
                   </Text>
                 </Flex>
 

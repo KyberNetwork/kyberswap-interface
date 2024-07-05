@@ -4,6 +4,7 @@ import { REFERRAL_URL } from 'constants/env'
 
 const referralApi = createApi({
   reducerPath: 'referralApi',
+  keepUnusedDataFor: 0,
   baseQuery: fetchBaseQuery({
     baseUrl: REFERRAL_URL,
   }),
@@ -41,10 +42,12 @@ const referralApi = createApi({
           pagination: { totalItems: number }
         }
       },
-      { referralCode: string; page: number }
+      { referralCode: string; page: number; sort?: string }
     >({
-      query: ({ referralCode, page }) => ({
-        url: `/v3/referrals?referralProgramId=1&referrerCode=${referralCode}&page=${page}&pageSize=10`,
+      query: ({ referralCode, page, sort }) => ({
+        url: `/v3/referrals?referralProgramId=1&referrerCode=${referralCode}&page=${page}&pageSize=10${
+          sort ? `&sort=${sort}` : ''
+        }`,
       }),
     }),
   }),
