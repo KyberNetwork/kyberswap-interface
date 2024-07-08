@@ -327,7 +327,7 @@ export default function Menu() {
                     { link: '/campaigns/aggregator', label: 'Aggregator Trading' },
                     { link: '/campaigns/limit-order', label: 'Limit Order' },
                     { link: '/campaigns/referrals', label: 'Referral' },
-                    { link: '/campaigns/my-dashboard', label: 'My Dashboard' },
+                    { link: '/campaigns/dashboard', label: 'My Dashboard' },
                   ]}
                 />
               </MenuItem>
