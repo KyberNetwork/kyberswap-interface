@@ -1,5 +1,7 @@
 import { ReactNode, useState } from 'react'
 import { Minus, Plus, Star } from 'react-feather'
+import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
 import Divider from 'components/Divider'
@@ -24,37 +26,56 @@ const howToEarnPoints = {
         </ExternalLink>
       </li>
       <li>
-        Category 1: ARB trading will give 10 Points per USD swapped. It can be paired with any eligible tokens from the
-        list, except plsARB that falls in Category 3.
+        <Text as="span" fontStyle="bold" color="#ffffff">
+          Category 1
+        </Text>
+        : ARB trading will give 10 Points per USD swapped. It can be paired with any eligible tokens from the list,
+        except plsARB that falls in Category 3.
         <ul style={{ margin: 0 }}>
           <li>{'Ex: ARB <> USDC; ETH <> ARB; PENDLE <> ARB'}</li>
         </ul>
       </li>
       <li>
-        Category 2: Uncorrelated tokens trading will give 5 Points per USD swapped. This section includes trading of any
-        eligible token to any eligible token that do not fall in category 1; 3 and 4.
+        <Text as="span" fontStyle="bold" color="#ffffff">
+          Category 2
+        </Text>
+        : Uncorrelated tokens trading will give 5 Points per USD swapped. This section includes trading of any eligible
+        token to any eligible token that do not fall in category 1; 3 and 4.
         <ul style={{ margin: 0 }}>
           <li>{'Ex: ETH <> USDT; WBTC <> WSTETH; PENDLE <>KNC'}</li>
         </ul>
       </li>
       <li>
-        Category 3: ETH Derivatives trading will give 1 Point per USD swapped.
+        <Text as="span" fontStyle="bold" color="#ffffff">
+          Category 3
+        </Text>
+        : ETH Derivatives trading will give 1 Point per USD swapped.
         <ul style={{ margin: 0 }}>
           <li>{'Ex: ETH <> WSTETH; EZETH <> RETH; WEETH <> ETH'}</li>
         </ul>
       </li>
       <li>
-        Category 4: Stablecoins to Stablecoins trading will give 0.5 Points per USD swapped.
+        <Text as="span" fontStyle="bold" color="#ffffff">
+          Category 4
+        </Text>
+        : Stablecoins to Stablecoins trading will give 0.5 Points per USD swapped.
         <ul style={{ margin: 0 }}>
           <li>{'Ex: USDC <> USDT; FRAX <> DAI; USDC.e <> MIM'}</li>
         </ul>
       </li>
       <li>
-        <Text as="span" fontWeight="500" fontStyle="bold">
+        <Text as="span" color="#ffffff" fontStyle="bold">
           Bonus:
         </Text>{' '}
-        Users that perform swaps with KyberSwap.com website directly will benefit of 25% more points on each eligible
-        trade.
+        Users that perform swaps with <Link to="/">KyberSwap.com</Link> website directly will benefit of 25% more points
+        on each eligible trade.
+      </li>
+      <li>
+        <Text as="span" color="#ffffff" fontStyle="bold">
+          Note:
+        </Text>{' '}
+        the transaction needs to be executed in the 10 minutes after clicking the “Swap” button in order to receive
+        points & rewards.
       </li>
     </>
   ),
@@ -68,27 +89,39 @@ const howToEarnPoints = {
         </ExternalLink>
       </li>
       <li>
-        Category 1: ARB filled orders will give 10 Points per USD. It can be paired with any eligible tokens from the
-        list, except plsARB that falls in Category 3.{' '}
+        <Text as="span" fontStyle="bold" color="#ffffff">
+          Category 1
+        </Text>
+        : ARB filled orders will give 10 Points per USD. It can be paired with any eligible tokens from the list, except
+        plsARB that falls in Category 3.{' '}
         <ul style={{ margin: 0 }}>
           <li>{'Ex: ARB <> USDC; ETH <> ARB; PENDLE <> ARB'}</li>
         </ul>
       </li>
       <li>
-        Category 2: Uncorrelated tokens filled orders will give 5 Points per USD. This section includes orders of any
-        eligible token to any eligible token that do not fall in category 1; 3 and 4.{' '}
+        <Text as="span" fontStyle="bold" color="#ffffff">
+          Category 2
+        </Text>
+        : Uncorrelated tokens filled orders will give 5 Points per USD. This section includes orders of any eligible
+        token to any eligible token that do not fall in category 1; 3 and 4.{' '}
         <ul style={{ margin: 0 }}>
           <li>{'Ex: ETH <> USDT; WBTC <> WSTETH; PENDLE <>KNC'}</li>
         </ul>
       </li>
       <li>
-        Category 3: ETH Derivatives filled orders will give 1 Point per USD.
+        <Text as="span" fontStyle="bold" color="#ffffff">
+          Category 3
+        </Text>
+        : ETH Derivatives filled orders will give 1 Point per USD.
         <ul style={{ margin: 0 }}>
           <li>{'Ex: ETH <> WSTETH; EZETH <> RETH; WEETH <> ETH'}</li>
         </ul>
       </li>
       <li>
-        Category 4: Stablecoins to Stablecoins filled orders will give 0.5 Points per USD.
+        <Text as="span" fontStyle="bold" color="#ffffff">
+          Category 4
+        </Text>
+        : Stablecoins to Stablecoins filled orders will give 0.5 Points per USD.
         <ul style={{ margin: 0 }}>
           <li>{'Ex: USDC <> USDT; FRAX <> DAI; USDC.e <> MIM'}</li>
         </ul>
@@ -96,19 +129,24 @@ const howToEarnPoints = {
     </>
   ),
   [CampaignType.Referrals]: (
-    <>
+    <span>
       In order to join the Referral Program, users can generate their own referral link and share it with other users to
       be eligible to the referrer reward. Referrers get 10% of their referee ARB allocation. Referees will get a 5%
-      bonus on their initial ARB allocation when they join the referral campaign through a referral link. Note than only
-      trades made on Kyberswap.com are eligible, trades on other platforms are not eligible for this Referral Program.
-      This Program is only available for the Trading Campaign.
-    </>
+      bonus based on their initial ARB allocation for the week once they have been referred by other users. Note than
+      only trades made on <Link to="/">KyberSwap.com</Link> are eligible, trades on other platforms are not eligible for
+      this Referral Program.
+      <br />
+      This Program is only available for the Trading Campaign. A referrer can not become a referee, unless he was a
+      referee before becoming a referrer.
+    </span>
   ),
 }
 
 const timelines = {
-  [CampaignType.Aggregator]: 'The Campaign will take place over 10 weeks, from 8th July to 16th September 2024.',
-  [CampaignType.LimitOrder]: 'The Campaign will take place over 10 weeks, from 8th July to 16th September 2024.',
+  [CampaignType.Aggregator]:
+    'The Campaign will take place over 10 weeks, from 8th July to 16th September 2024. Points and Rewards are reset to 0 each Monday at 0:00 UTC, after the end of each weekly event.',
+  [CampaignType.LimitOrder]:
+    'The Campaign will take place over 10 weeks, from 8th July to 16th September 2024. Points and Rewards are reset to 0 each Monday at 0:00 UTC, after the end of each weekly event.',
   [CampaignType.Referrals]: 'The Campaign will take place over 10 weeks, from 8th July to 16th September 2024.',
 }
 
@@ -165,7 +203,7 @@ const rewards = {
           <li>
             The Total Claimable Rewards is the real amount of ARB that a user will get after filtering sybils, cheaters
             and potential calculation issues. All ARB allocations from recognized sybils and cheaters will be
-            re-allocated proportionally to other eligible traders.
+            re-allocated proportionally to other eligible Limit-Order users.
           </li>
         </ul>
       </li>
@@ -186,30 +224,35 @@ const faq = {
   [CampaignType.Aggregator]: [
     {
       q: 'How can I be eligible to the trading campaign?',
-      a: 'In order to be eligible, you need to make a swap from KyberSwap Aggregator API and trade any of the eligible tokens.',
-    },
-    {
-      q: 'What are points and how do I convert it to ARB rewards?',
-      a: 'Points are calculated based on the tokens and the amount you swap. It will automatically be converted to ARB after a 7 days buffer period.',
-    },
-    {
-      q: 'Where can I trade to be eligible for the rewards?',
-      a: 'You can trade on any of the whitelisted platforms that support KyberSwap Aggregator API. This includes KyberSwap.com and other interfaces that support our Aggregator. To name a few: Defillama, Pendle, Ramses… Whitelisted platforms will communicate on their eligibility for the KyberSwap STIP ARB Rewards. If no communication has been made on social medias or on their website, consider the platform as not eligible.',
+      a: (
+        <span>
+          In order to be eligible, you need to make a swap from KyberSwap Aggregator API and trade any of the eligible
+          tokens. You can trade on any of the whitelisted platforms that support KyberSwap Aggregator API. This includes{' '}
+          <Link to="/">KyberSwap.com</Link> and other interfaces that support our Aggregator. To name a few: Defillama,
+          Pendle, Ramses… Whitelisted platforms will communicate on their eligibility for the KyberSwap STIP ARB
+          Rewards. If no communication has been made on social medias or on their website, consider the platform as not
+          eligible.
+        </span>
+      ),
     },
     {
       q: 'Which tokens can I trade to be eligible for the rewards?',
       a: (
-        <Text as="span">
+        <span>
           You can find the full list of eligible tokens{' '}
-          <ExternalLink href="https://docs.google.com/spreadsheets/d/1pFDIh-11SPrNGVp6i-U_mRA5ulQ47jDjRk1eTOQCtD8/edit?gid=0#gid=0">
+          <ExternalLink href="https://docs.google.com/spreadsheets/d/1pFDIh-11SPrNGVp6i-U_mRA5ulQ47jDjRk1eTOQCtD8/edit?usp=sharing">
             here
           </ExternalLink>
-        </Text>
+        </span>
       ),
     },
     {
       q: 'What are the different categories and how does it work?',
       a: 'There are 4 different categories that will reward each swap with a different amount of points. Refer to “How to earn Points” section for a detailed explanation.',
+    },
+    {
+      q: 'What are points and how do I convert it to ARB rewards?',
+      a: 'Points are calculated based on the tokens and the amount you swap. It will automatically be converted to ARB after a 7 days buffer period.',
     },
     {
       q: 'How do you calculate the rewards?',
@@ -222,12 +265,15 @@ const faq = {
       ),
     },
     {
-      q: 'How long do the campaigns last?',
-      a: 'The Aggregator Trading Campaign works on a weekly basis. The Campaign will last until 16th September with 10 weeks of activity. Points and Rewards are reset to 0 each Monday at 0:00 UTC, after the end of each weekly event.',
-    },
-    {
       q: 'When can I claim my rewards?',
-      a: 'After your first week of trading (from Monday 0:00 UTC to Sunday 23h59 UTC) points and rewards are locked 7 days. During this 7 days buffer period, the team will analyze the data and exclude potential cheaters. Once this buffer period ends, ARB will be claimable on Kyberswap.com/campaigns/dashboard.',
+      a: (
+        <span>
+          After your first week of trading (from Monday 0:00 UTC to Sunday 23h59 UTC) points and rewards are locked 7
+          days. During this 7 days buffer period, the team will analyze the data and exclude potential cheaters. Once
+          this buffer period ends, ARB will be claimable on{' '}
+          <Link to="/campaigns/dashboard">KyberSwap.com/campaigns/dashboard.</Link>
+        </span>
+      ),
     },
     {
       q: 'How often is the data updated?',
@@ -239,7 +285,7 @@ const faq = {
     },
     {
       q: 'Do I have to pay any fee to claim the rewards?',
-      a: 'Kyberswap doesn’t charge any fee on claiming rewards,  user only need to pay gas fee on Arbitrum for transaction execution',
+      a: 'KyberSwap doesn’t charge any fee on claiming rewards,  user only need to pay gas fee on Arbitrum for transaction execution',
     },
     {
       q: 'Are there any minimum or maximum value (USD) requirements for each trade?',
@@ -252,16 +298,14 @@ const faq = {
   ],
   [CampaignType.LimitOrder]: [
     {
-      q: 'How can I be eligible to the trading campaign?',
-      a: 'In order to be eligible, you need to create a Limit Order and get it filled on https://kyberswap.com/limit/arbitrum. Only filled orders will give you points.',
-    },
-    {
-      q: 'What are points and how do I convert it to ARB rewards?',
-      a: 'Points are calculated based on the tokens and the amount you swap. It will automatically be converted to ARB after a 7 days buffer period.',
-    },
-    {
-      q: 'Where can I trade to be eligible for the rewards?',
-      a: 'Only https://kyberswap.com/limit/arbitrum is eligible.',
+      q: 'How can I be eligible to the Limit Order campaign?',
+      a: (
+        <span>
+          In order to be eligible, you need to create a Limit Order with eligible tokens and get it filled on{' '}
+          <Link to="/limit/arbitrum">https://kyberswap.com/limit/arbitrum.</Link> Only filled orders will give you
+          points.
+        </span>
+      ),
     },
     {
       q: 'Which tokens can I trade to be eligible for the rewards?',
@@ -279,19 +323,129 @@ const faq = {
       a: 'There are 4 different categories that will reward each swap with a different amount of points. Refer to “How to earn Points” section for a detailed explanation.',
     },
     {
+      q: 'What are points and how do I convert it to ARB rewards?',
+      a: 'Points are calculated based on the tokens and the amount you swap. It will automatically be converted to ARB after a 7 days buffer period.',
+    },
+    {
       q: 'How do you calculate the rewards?',
       a: 'The distribution of ARB rewards are based on the points distributed to users. All users will grow a Points portfolio for each week. Here’s the formula for the conversion of Points to ARB: User earned Points for the week /  Total Users Point for the week) X Amount of ARB allocation for the week.',
     },
     {
-      q: 'How long do the campaigns last?',
-      a: 'The Limit-Order Campaign works on a weekly basis. The Campaign will last until 16th September with 10 weeks of activity. Points and Rewards are reset to 0 each Monday at 0:00 UTC, after the end of each weekly event.',
+      q: 'When can I claim my rewards?',
+      a: (
+        <span>
+          After your first week of Limit-Order activities (from Monday 0:00 UTC to Sunday 23h59 UTC) points and rewards
+          are locked 7 days. During this 7 days buffer period, the team will analyze the data and exclude potential
+          cheaters. Once this buffer period ends, ARB will be claimable on{' '}
+          <Link to="/campaigns/dashboard?tab=limit-order-farming">KyberSwap.com/campaigns/dashboard.</Link>
+        </span>
+      ),
+    },
+    {
+      q: 'How often is the data updated?',
+      a: 'My Earn Points and My Estimated Rewards data for Limit Order campaign are updated approximately hourly.',
+    },
+    {
+      q: 'When is the deadline to claim the rewards?',
+      a: 'There is no set deadline to claim your rewards; however, we recommend claiming them as soon as possible to make the most of your benefits.',
+    },
+    {
+      q: 'Do I have to pay any fee to claim the rewards?',
+      a: 'KyberSwap doesn’t charge any fee on claiming rewards, user only needs to pay gas fee on Arbitrum for transaction execution.',
+    },
+    {
+      q: 'Are there any minimum or maximum value (USD) requirements for each trade?',
+      a: 'There is no minimum nor maximum value requirement for an order to earn points.',
+    },
+    {
+      q: 'Is there a maximum allocation limit for each wallet address?',
+      a: 'There is no maximum allocation for each eligible wallet.',
+    },
+  ],
+  [CampaignType.Referrals]: [
+    {
+      q: 'How can I be eligible to the Referral Program?',
+      a: (
+        <>
+          <li>
+            <span style={{ fontStyle: 'bold', color: '#ffffff' }}>To be eligible for the Referee bonus</span>, users
+            must join the referral program by using a referrer&apos;s link or entering a referrer code, click on
+            &quot;Confirm to join,&quot; and sign the on-chain message to confirm to join.
+          </li>
+          <li>
+            <span style={{ fontStyle: 'bold', color: '#ffffff' }}>To become a Referrer</span>, users simply need to
+            click on &quot;Invite your friends,&quot; sign an on-chain message to confirm their participation (if you
+            were referred by a friend and have already signed the message as a referee, you won&apos;t need to sign
+            again), and then generate a link ready to share.
+          </li>
+        </>
+      ),
+    },
+    {
+      q: 'How are my referee/referrer rewards calculated?',
+      a: (
+        <>
+          <li>As a referee, you&apos;ll get a 5% bonus on your rewards from KyberSwap.com.</li>
+          <li>
+            As a referrer, when someone you referred earns ARB on a trade made on KyberSwap.com, you get 10% of their
+            rewards allocation.
+          </li>
+          <b>Example:</b>
+          <ul style={{ marginTop: '0' }}>
+            <li>1. John refers Vitalik.</li>
+            <li>2. At the end of the week, Vitalik earns 10 ARB from trading on KyberSwap.com.</li>
+            <li>3. Vitalik gets a 5% bonus for being a referee, so he gets 10.5 ARB.</li>
+            <li>4. John receives 10% bonus of Vitalik’s 10 ARB (excluding the 0.5 ARB bonus), so John gets 1 ARB.</li>
+            <li>5. The 10% Bonus come from the Referral Program budget, not from the referee allocation.</li>
+          </ul>
+          <li>
+            <span style={{ color: '#ffffff' }}>Note</span>: The referral bonus applies only on trades made on
+            KyberSwap.com within the Aggregator Trading Campaign.
+          </li>
+        </>
+      ),
+    },
+    {
+      q: 'Where can I trade to be eligible for the referral rewards?',
+      a: (
+        <span>
+          Trades made on <Link to="/swap/arbitrum">https://kyberswap.com/swap/arbitrum</Link> which created the rewards
+          from Trading campaign will be eligible for referrals bonus
+        </span>
+      ),
+    },
+    {
+      q: 'Which tokens can referees trade to be eligible for the rewards?',
+      a: (
+        <span>
+          You can find the full list of eligible tokens{' '}
+          <ExternalLink href="https://docs.google.com/spreadsheets/d/1pFDIh-11SPrNGVp6i-U_mRA5ulQ47jDjRk1eTOQCtD8/edit?usp=sharing">
+            here
+          </ExternalLink>
+        </span>
+      ),
     },
     {
       q: 'When can I claim my rewards?',
-      a: 'After your first week of Limit-Order activities (from Monday 0:00 UTC to Sunday 23h59 UTC) points and rewards are locked 7 days. During this 7 days buffer period, the team will analyze the data and exclude potential cheaters. Once this buffer period ends, ARB will be claimable on Kyberswap.com/campaigns/dashboard.',
+      a: 'The Referrers and Referees rewards will be claimable only at the end of the STIP Campaign, around 1 week after 16th of September.',
+    },
+    {
+      q: 'How often is referral data updated?',
+      a: "The referral data, including My Referrals, My Estimated Rewards, and Referees' Wallet Addresses, is updated approximately hourly.",
+    },
+    {
+      q: 'When is the deadline to claim the rewards?',
+      a: 'There is no deadline to claim the rewards. All the rewards if not claimed will be airdropped at a later time.',
+    },
+    {
+      q: 'Do I have to pay any fee to claim the rewards?',
+      a: 'KyberSwap doesn’t charge any fee on claiming rewards, user only needs to pay gas fee on Arbitrum for transaction execution',
+    },
+    {
+      q: 'Is there a maximum bonus limit for each wallet address?',
+      a: 'There is no maximum bonus limit for each eligible wallet.',
     },
   ],
-  [CampaignType.Referrals]: [],
 }
 
 export default function Information({ type }: { type: CampaignType }) {
@@ -301,6 +455,9 @@ export default function Information({ type }: { type: CampaignType }) {
   const [isShowReward, setIsShowReward] = useState(true)
   const [isShowFaq, setIsShowFaq] = useState(true)
   const [isShowTc, setIsShowTc] = useState(true)
+
+  const upTo450 = useMedia(`(max-width: 450px)`)
+  const upTo400 = useMedia(`(max-width: 400px)`)
 
   return (
     <Box
@@ -322,11 +479,11 @@ export default function Information({ type }: { type: CampaignType }) {
         </ButtonIcon>
       </Flex>
 
-      <Flex
-        flexDirection="column"
+      <Box
         color={theme.subText}
         lineHeight="28px"
-        marginLeft="12px"
+        paddingLeft="12px"
+        width="95%"
         sx={{
           maxHeight: isShowRule ? '1000px' : 0,
           opacity: isShowRule ? 1 : 0,
@@ -336,7 +493,7 @@ export default function Information({ type }: { type: CampaignType }) {
         }}
       >
         {howToEarnPoints[type]}
-      </Flex>
+      </Box>
 
       <Divider style={{ marginTop: '20px' }} />
 
@@ -350,8 +507,7 @@ export default function Information({ type }: { type: CampaignType }) {
         </ButtonIcon>
       </Flex>
 
-      <Flex
-        flexDirection="column"
+      <Box
         color={theme.subText}
         lineHeight="28px"
         marginLeft="12px"
@@ -364,7 +520,7 @@ export default function Information({ type }: { type: CampaignType }) {
         }}
       >
         {timelines[type]}
-      </Flex>
+      </Box>
 
       <Divider style={{ marginTop: '20px' }} />
 
@@ -459,13 +615,13 @@ export default function Information({ type }: { type: CampaignType }) {
         </ButtonIcon>
       </Flex>
 
-      <Flex
-        flexDirection="column"
+      <Box
         color={theme.subText}
         lineHeight="28px"
-        marginLeft="12px"
+        paddingLeft="12px"
+        maxWidth={upTo400 ? '300px' : upTo450 ? '350px' : undefined}
         sx={{
-          maxHeight: isShowFaq ? '1000px' : 0,
+          maxHeight: isShowFaq ? '5000px' : 0,
           opacity: isShowFaq ? 1 : 0,
           marginTop: isShowReward ? '1rem' : 0,
           transition: 'all 0.3s ease',
@@ -475,7 +631,7 @@ export default function Information({ type }: { type: CampaignType }) {
         {faq[type].map(item => (
           <Faq q={item.q} a={item.a} key={item.q} />
         ))}
-      </Flex>
+      </Box>
     </Box>
   )
 }
