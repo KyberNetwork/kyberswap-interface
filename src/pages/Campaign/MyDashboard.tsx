@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import { useGetUserWeeklyRewardQuery } from 'services/campaign'
+import { useGetUserReferralTotalRewardQuery, useGetUserWeeklyRewardQuery } from 'services/campaign'
 import styled from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
@@ -87,11 +87,32 @@ const MyDashboard = () => {
 
   const tradingRw = CurrencyAmount.fromRawAmount(mockToken, trading?.data?.totalReward?.split('.')[0] || '0')
   const loRw = CurrencyAmount.fromRawAmount(mockToken, loData?.data?.totalReward?.split('.')[0] || '0')
-  const totalRw = formatDisplayNumber((+tradingRw.toExact() + +loRw.toExact()).toFixed(3), { significantDigits: 6 })
-  const totalRwUsd = formatDisplayNumber(((+tradingRw.toExact() + +loRw.toExact()) * price).toFixed(3), {
+
+  const { data: referralData } = useGetUserReferralTotalRewardQuery(
+    { wallet: account || '' },
+    {
+      skip: !account,
+    },
+  )
+  const referralReward = referralData?.data?.totalReward
+    ? CurrencyAmount.fromRawAmount(
+        new Token(1, ZERO_ADDRESS, 18, 'mock'),
+        referralData?.data?.totalReward.split('.')[0] || '0',
+      ).toExact()
+    : '0'
+
+  const referralRewardUsd = +referralReward * price
+
+  const totalRw = formatDisplayNumber((+tradingRw.toExact() + +loRw.toExact() + +referralReward).toFixed(3), {
     significantDigits: 6,
-    style: 'currency',
   })
+  const totalRwUsd = formatDisplayNumber(
+    referralRewardUsd + ((+tradingRw.toExact() + +loRw.toExact()) * price).toFixed(3),
+    {
+      significantDigits: 6,
+      style: 'currency',
+    },
+  )
 
   const tradingClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
@@ -101,6 +122,7 @@ const MyDashboard = () => {
     mockToken,
     loData?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
+
   const totalClaimableRw = formatDisplayNumber((+tradingClaimableRw.toExact() + +loClaimableRw.toExact()).toFixed(3), {
     significantDigits: 6,
   })

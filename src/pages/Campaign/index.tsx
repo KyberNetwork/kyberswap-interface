@@ -294,6 +294,12 @@ export default function Aggregator() {
 
   const usd = campaign === 'referral-program' ? referralRewardUsd : rewardUsd
 
+  useEffect(() => {
+    searchParams.set('page', '1')
+    setSearchParams(searchParams)
+    // eslint-disable-next-line
+  }, [campaign])
+
   return (
     <Wrapper>
       <img
@@ -346,10 +352,10 @@ export default function Aggregator() {
             width={upToExtraSmall ? '100%' : '160px'}
             height="40px"
             onClick={() => {
-              navigate(tab === 'trading-incentive' ? '/swap/arbitrum/eth-to-arb' : '/limit/arbitrum')
+              navigate(campaign === 'trading-incentive' ? '/swap/arbitrum/eth-to-arb' : '/limit/arbitrum')
             }}
           >
-            {tab === 'trading-incentive' ? 'Trade now' : 'Place order'}
+            {campaign === 'trading-incentive' ? 'Trade now' : 'Place order'}
           </ButtonPrimary>
         </Flex>
       )}
