@@ -163,19 +163,6 @@ const weeks = [
     start: 1720310400,
     end: 1720828800,
   },
-  {
-    value: 27,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 0
-        </Text>{' '}
-        July 01 - July 07
-      </Text>
-    ),
-    start: 1719792000,
-    end: 1720310400,
-  },
 ]
 const getFormattedTime = (totalSeconds: number): string => {
   // const totalSeconds = Math.floor(milliseconds / 1000);
