@@ -51,7 +51,7 @@ export default function JoinReferal() {
     const message = new SiweMessage({
       domain: 'kyberswap.com',
       address: account,
-      statement: 'Arbitrum STIP referral program',
+      statement: `By signing this message, you confirm your participation in the KyberSwap Referral Program. This action does not trigger any transaction and does not incur any gas fees.`,
       uri: 'https://kyberswap.com',
       version: '1',
       chainId: ChainId.ARBITRUM,
@@ -112,7 +112,7 @@ export default function JoinReferal() {
 
             <Input
               style={{ marginTop: '24px' }}
-              placeholder="Referral Code Input"
+              placeholder="Referral Code Input (Optional)"
               value={refCode}
               onChange={e => {
                 setRefCode(e.target.value.trim())
