@@ -21,7 +21,7 @@ export default function MyReferralDashboard({ price }: { price: number }) {
   const theme = useTheme()
   const { data: userRefData } = useGetParticipantQuery({ wallet: account || '' }, { skip: !account })
   const userRefCode = userRefData?.data?.participant?.referralCode
-  const { data: userReferralData } = useGetDashboardQuery(
+  const { data: userReferralData, error } = useGetDashboardQuery(
     { referralCode: userRefCode || '', page, sort: 'createdAt:desc' },
     { skip: !userRefCode },
   )
@@ -95,22 +95,23 @@ export default function MyReferralDashboard({ price }: { price: number }) {
 
       <Divider />
 
-      {!userRefCode && (
+      {(!userRefCode || error || !userReferralData?.data.referrals.length) && (
         <Text color={theme.subText} padding="30px" textAlign="center">
           No data found
         </Text>
       )}
 
-      {userReferralData?.data.referrals.map(item => (
-        <Flex padding="1rem 0" color={theme.subText} fontWeight="500" key={item.walletAddress} fontSize={14}>
-          <Text flex={1}>{dayjs(item.createdAt * 1000).format('HH:mm DD MMM YYYY')}</Text>
-          <Text flex={1}>
-            {upToSmall
-              ? `${item.walletAddress.substring(0, 4 + 2)}...${item.walletAddress.substring(42 - 4)}`
-              : item.walletAddress}
-          </Text>
-        </Flex>
-      ))}
+      {!error &&
+        userReferralData?.data.referrals.map(item => (
+          <Flex padding="1rem 0" color={theme.subText} fontWeight="500" key={item.walletAddress} fontSize={14}>
+            <Text flex={1}>{dayjs(item.createdAt * 1000).format('HH:mm DD MMM YYYY')}</Text>
+            <Text flex={1}>
+              {upToSmall
+                ? `${item.walletAddress.substring(0, 4 + 2)}...${item.walletAddress.substring(42 - 4)}`
+                : item.walletAddress}
+            </Text>
+          </Flex>
+        ))}
 
       {!isLoading && (
         <Pagination
