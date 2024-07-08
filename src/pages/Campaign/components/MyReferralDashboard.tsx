@@ -43,7 +43,7 @@ export default function MyReferralDashboard({ price }: { price: number }) {
 
   const usd = +referralReward * price
 
-  const totalItem = userReferralData?.data.pagination.totalItems
+  const totalItem = error || participantError ? 0 : userReferralData?.data.pagination.totalItems
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
