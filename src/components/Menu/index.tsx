@@ -318,19 +318,26 @@ export default function Menu() {
             )}
 
             {showAnalytics && (
-              <MenuItem>
-                <NavDropDown
-                  icon={<Info />}
-                  title={t`Campaign`}
-                  link={'/campaigns'}
-                  options={[
-                    { link: '/campaigns/aggregator', label: 'Aggregator Trading' },
-                    { link: '/campaigns/limit-order', label: 'Limit Order' },
-                    { link: '/campaigns/referrals', label: 'Referral' },
-                    { link: '/campaigns/dashboard', label: 'My Dashboard' },
-                  ]}
-                />
-              </MenuItem>
+              <>
+                <MenuItem>
+                  <NavDropDown
+                    icon={<Info />}
+                    title={
+                      <Text sx={{ position: 'relative' }} width="max-content">
+                        Campaigns
+                        <NewLabel style={{ position: 'absolute', right: '-1.5rem' }}>New</NewLabel>
+                      </Text>
+                    }
+                    link={'/campaigns'}
+                    options={[
+                      { link: '/campaigns/aggregator', label: 'Aggregator Trading' },
+                      { link: '/campaigns/limit-order', label: 'Limit Order' },
+                      { link: '/campaigns/referrals', label: 'Referral' },
+                      { link: '/campaigns/dashboard', label: 'My Dashboard' },
+                    ]}
+                  />
+                </MenuItem>
+              </>
             )}
 
             {bridgeLink && (

@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import Column from 'components/Column'
+import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
@@ -21,8 +22,9 @@ const CampaignNavGroup = () => {
         dropdownAlign={'left'}
         isActive={isActive}
         anchor={
-          <DropdownTextAnchor>
-            <Trans>Campaign</Trans>
+          <DropdownTextAnchor style={{ position: 'relative', width: '115px' }}>
+            <Trans>Campaigns</Trans>
+            <NewLabel style={{ position: 'absolute', right: '0' }}>New</NewLabel>
           </DropdownTextAnchor>
         }
         dropdownContent={

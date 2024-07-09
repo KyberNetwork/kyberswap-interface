@@ -327,13 +327,30 @@ export default function Aggregator() {
             style={{
               fontSize: '16px',
               border: `1px solid ${theme.border}`,
-              width: upToExtraSmall ? '100%' : undefined,
+              width: upToExtraSmall ? '100%' : '260px',
             }}
             optionStyle={{
               fontSize: '16px',
+              width: upToExtraSmall ? 'calc(100vw - 48px)' : undefined,
             }}
             onChange={value => setSelectedWeek(value)}
             value={selectedWeek}
+            optionRender={value => (
+              <Text
+                color={value?.value === selectedWeek ? theme.primary : theme.subText}
+                display="flex"
+                alignItems="center"
+              >
+                {value?.label}{' '}
+                {value?.value === w ? (
+                  <Text as="span" color={theme.red1} fontSize={12} ml="4px">
+                    Active
+                  </Text>
+                ) : (
+                  ''
+                )}
+              </Text>
+            )}
           ></Select>
           <ButtonPrimary
             width={upToExtraSmall ? '100%' : '160px'}
