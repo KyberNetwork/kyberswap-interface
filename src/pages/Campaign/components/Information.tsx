@@ -74,7 +74,7 @@ const howToEarnPoints = {
         <Text as="span" color="#ffffff" fontStyle="bold">
           Note:
         </Text>{' '}
-        the transaction needs to be executed in the 10 minutes after clicking the “Swap” button in order to receive
+        the transaction needs to be executed in the 20 minutes after clicking the “Swap” button in order to receive
         points & rewards.
       </li>
     </>
