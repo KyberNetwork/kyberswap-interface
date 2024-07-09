@@ -127,6 +127,7 @@
     "recharts": "2.6.0",
     "recharts-legacy": "npm:recharts@2.0.9",
     "redux-localstorage-simple": "^2.5.1",
+    "siwe": "^2.3.2",
     "styled-components": "^5.3.6",
     "swiper": "^8.4.4",
     "ua-parser-js": "^1.0.33",
