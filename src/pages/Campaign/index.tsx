@@ -43,8 +43,8 @@ const weeks = [
         Sep 09 - Sep 15
       </Text>
     ),
-    start: 1724976000,
-    end: 1725494400,
+    start: 1725840000,
+    end: 1726444800,
   },
   {
     value: 36,
@@ -56,8 +56,8 @@ const weeks = [
         Sep 02 - Sep 08
       </Text>
     ),
-    start: 1724457600,
-    end: 1724976000,
+    start: 1725235200,
+    end: 1725840000,
   },
   {
     value: 35,
@@ -69,8 +69,8 @@ const weeks = [
         Aug 26 - Sep 01
       </Text>
     ),
-    start: 1723939200,
-    end: 1724457600,
+    start: 1724630400,
+    end: 1725235200,
   },
   {
     value: 34,
@@ -82,8 +82,8 @@ const weeks = [
         Aug 19 - Aug 25
       </Text>
     ),
-    start: 1723420800,
-    end: 1723939200,
+    start: 1724025600,
+    end: 1724630400,
   },
   {
     value: 33,
@@ -95,8 +95,8 @@ const weeks = [
         Aug 12 - Aug 18
       </Text>
     ),
-    start: 1722902400,
-    end: 1723420800,
+    start: 1723420800,
+    end: 1724025600,
   },
   {
     value: 32,
@@ -108,8 +108,8 @@ const weeks = [
         Aug 05 - Aug 11
       </Text>
     ),
-    start: 1722384000,
-    end: 1722902400,
+    start: 1722816000,
+    end: 1723420800,
   },
   {
     value: 31,
@@ -121,8 +121,8 @@ const weeks = [
         July 29 - Aug 04
       </Text>
     ),
-    start: 1721865600,
-    end: 1722384000,
+    start: 1722211200,
+    end: 1722816000,
   },
   {
     value: 30,
@@ -134,8 +134,8 @@ const weeks = [
         July 22 - July 28
       </Text>
     ),
-    start: 1721347200,
-    end: 1721865600,
+    start: 1721606400,
+    end: 1722211200,
   },
   {
     value: 29,
@@ -147,8 +147,8 @@ const weeks = [
         July 15 - July 21
       </Text>
     ),
-    start: 1720828800,
-    end: 1721347200,
+    start: 1721001600,
+    end: 1721606400,
   },
   {
     value: 28,
@@ -160,8 +160,8 @@ const weeks = [
         July 08 - July 14
       </Text>
     ),
-    start: 1720310400,
-    end: 1720828800,
+    start: 1720396800,
+    end: 1721001600,
   },
 ]
 const getFormattedTime = (totalSeconds: number): string => {
@@ -363,7 +363,7 @@ export default function Aggregator() {
         {campaign !== 'referral-program' && (
           <StatCard>
             <Text fontSize={14} color={theme.subText}>
-              Week {selectedWeek - 24} {isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}
+              Week {selectedWeek - 27} {isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}
             </Text>
             <Text marginTop="8px" fontSize={20} fontWeight="500">
               {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : getFormattedTime(duration)}
