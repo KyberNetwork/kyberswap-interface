@@ -1,5 +1,6 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
+import { ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -14,7 +15,7 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export default function MyReferralDashboard({ price }: { price: number }) {
+export default function MyReferralDashboard({ price, infor }: { price: number; infor: ReactNode }) {
   const { account } = useWeb3React()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')
@@ -61,7 +62,7 @@ export default function MyReferralDashboard({ price }: { price: number }) {
 
         <Box flex={upToSmall ? 1 : 2}>
           <Text color={theme.subText} fontSize={14}>
-            My total estimated rewards
+            My total estimated rewards {infor}
           </Text>
           <Flex
             fontSize={18}

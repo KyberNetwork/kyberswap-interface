@@ -10,16 +10,15 @@ import styled from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
 import Divider from 'components/Divider'
+import InfoHelper from 'components/InfoHelper'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { MEDIA_WIDTHS } from 'theme'
+import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import loBanner from './assets/limit_order.png'
-import referralBanner from './assets/referral.png'
-import tradingBanner from './assets/trading.png'
+import banner from './assets/banner.png'
 import ClaimBtn from './components/ClaimBtn'
 import MyReferralDashboard from './components/MyReferralDashboard'
 import { Tab, Tabs, Wrapper } from './styles'
@@ -107,7 +106,7 @@ const MyDashboard = () => {
     significantDigits: 6,
   })
   const totalRwUsd = formatDisplayNumber(
-    referralRewardUsd + ((+tradingRw.toExact() + +loRw.toExact()) * price).toFixed(3),
+    (referralRewardUsd + (+tradingRw.toExact() + +loRw.toExact()) * price).toFixed(3),
     {
       significantDigits: 6,
       style: 'currency',
@@ -141,15 +140,32 @@ const MyDashboard = () => {
   )
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const infor = (
+    <InfoHelper
+      text={
+        <Text>
+          The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
+          week. Check out how they are calculated in the{' '}
+          <StyledInternalLink
+            to={
+              tab === 'trading-incentive'
+                ? '/campaigns/aggregator?tab=information'
+                : tab === 'limit-order-farming'
+                ? '/campaigns/limit-order?tab=information'
+                : '/campaigns/referrals?tab=information'
+            }
+          >
+            Information
+          </StyledInternalLink>{' '}
+          tab.
+        </Text>
+      }
+    />
+  )
 
   return (
     <Wrapper>
-      <img
-        src={tab === 'trading-incentive' ? tradingBanner : tab === 'limit-order-farming' ? loBanner : referralBanner}
-        width="100%"
-        alt="banner"
-        style={{ borderRadius: '12px' }}
-      />
+      <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
       <Text fontSize={24} fontWeight="500" marginTop="1.5rem" mb="1.5rem">
         My Dashboard
       </Text>
@@ -164,7 +180,7 @@ const MyDashboard = () => {
           }}
         >
           <Flex justifyContent="space-between" alignItems="center">
-            <Text>My total estimated rewards</Text>
+            <Text>My total estimated rewards {infor}</Text>
             {/* TODO 
             <Flex
               role="button"
@@ -246,7 +262,7 @@ const MyDashboard = () => {
           Please connect wallet to view your Dashboard
         </Text>
       ) : tab === 'referral-program' ? (
-        <MyReferralDashboard price={price} />
+        <MyReferralDashboard price={price} infor={infor} />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
@@ -264,7 +280,7 @@ const MyDashboard = () => {
               </Text>
             </div>
             <div>
-              <Text color={theme.subText}>Total Estimated rewards</Text>
+              <Text color={theme.subText}>Total Estimated rewards {infor}</Text>
               <Flex sx={{ gap: '4px' }} marginTop="8px" alignItems="center">
                 <img
                   src="https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png"
@@ -314,7 +330,7 @@ const MyDashboard = () => {
             <TableHeader>
               <Text>WEEK</Text>
               <Text textAlign="right">POINTS EARNED</Text>
-              <Text textAlign="right">ESTIMATED REWARDS</Text>
+              <Text textAlign="right">ESTIMATED REWARDS {infor}</Text>
               <Text textAlign="right">TOTAL CLAIMABLE REWARDS</Text>
             </TableHeader>
           )}
@@ -365,7 +381,7 @@ const MyDashboard = () => {
 
                   <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
                     <Text color={theme.subText} fontSize={12} fontWeight={500}>
-                      ESTIMATED REWARDS
+                      ESTIMATED REWARDS {infor}
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                       <Text>{formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} ARB</Text>
