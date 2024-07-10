@@ -8,6 +8,7 @@ import { useGetLeaderboardQuery, useGetUserReferralTotalRewardQuery, useGetUserR
 import { useGetDashboardQuery, useGetParticipantQuery } from 'services/referral'
 
 import { ButtonPrimary } from 'components/Button'
+import InfoHelper from 'components/InfoHelper'
 import Select from 'components/Select'
 import { APP_PATHS, ZERO_ADDRESS } from 'constants/index'
 import { useWeb3React } from 'hooks'
@@ -163,7 +164,8 @@ const weeks = [
     start: 1720396800,
     end: 1721001600,
   },
-]
+].reverse()
+
 const getFormattedTime = (totalSeconds: number): string => {
   // const totalSeconds = Math.floor(milliseconds / 1000);
   const totalDays = Math.floor(totalSeconds / 86400)
@@ -286,6 +288,28 @@ export default function Aggregator() {
     setSearchParams(searchParams)
     // eslint-disable-next-line
   }, [campaign])
+  const info = (
+    <InfoHelper
+      text={
+        <Text>
+          The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
+          week. Check out how they are calculated in the{' '}
+          <StyledInternalLink
+            to={
+              campaign === 'trading-incentive'
+                ? '/campaigns/aggregator?tab=information'
+                : campaign === 'limit-order-farming'
+                ? '/campaigns/limit-order?tab=information'
+                : '/campaigns/referrals?tab=information'
+            }
+          >
+            Information
+          </StyledInternalLink>{' '}
+          tab.
+        </Text>
+      }
+    />
+  )
 
   return (
     <Wrapper>
@@ -416,7 +440,7 @@ export default function Aggregator() {
 
         <StatCard>
           <Text fontSize={14} color={theme.subText}>
-            My Estimated Rewards
+            My Estimated Rewards {info}
           </Text>
           <Flex marginTop="8px" fontSize={20} fontWeight="500" alignItems="center">
             <img

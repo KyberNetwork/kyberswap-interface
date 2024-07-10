@@ -575,7 +575,9 @@ export default function Information({ type }: { type: CampaignType }) {
       >
         <li>
           These Terms and Conditions{' '}
-          <ExternalLink href="https://kyberswap.com/files/15022022KyberSwapTermsofUse.pdf">({'"Terms"'})</ExternalLink>{' '}
+          <ExternalLink href="https://kyberswap.com/files/Kyber%20-%20Terms%20of%20Use%20-%2020%20November%202023.pdf">
+            ({'"Terms"'})
+          </ExternalLink>{' '}
           should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that
           apply to all KyberSwap promotional activities ({'"Campaign"'}).
         </li>
