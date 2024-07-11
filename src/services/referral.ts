@@ -50,10 +50,36 @@ const referralApi = createApi({
         }`,
       }),
     }),
+
+    getShare: builder.query({
+      query: code => ({
+        url: `/v3/shared-links/${code}`,
+      }),
+    }),
+
+    createShare: builder.mutation({
+      query: ({ code, account }) => ({
+        url: `/v3/shared-links`,
+        method: 'POST',
+        body: {
+          type: 'ARB_STIP',
+          redirectURL: `https://kyberswap.com/campaigns/referrals?code=${code}`,
+          metaImageURL: 'https://i.imgur.com/KRrAZWc.png',
+          referredByCode: code,
+          createdBy: account,
+        },
+      }),
+    }),
   }),
 })
 
-export const { useGetParticipantQuery, useLazyGetNonceQuery, useJoinCampaignMutation, useGetDashboardQuery } =
-  referralApi
+export const {
+  useGetParticipantQuery,
+  useLazyGetNonceQuery,
+  useJoinCampaignMutation,
+  useGetDashboardQuery,
+  useCreateShareMutation,
+  useGetShareQuery,
+} = referralApi
 
 export default referralApi

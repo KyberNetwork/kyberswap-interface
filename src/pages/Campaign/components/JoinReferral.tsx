@@ -3,7 +3,12 @@ import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
-import { useGetParticipantQuery, useJoinCampaignMutation, useLazyGetNonceQuery } from 'services/referral'
+import {
+  useCreateShareMutation,
+  useGetParticipantQuery,
+  useJoinCampaignMutation,
+  useLazyGetNonceQuery,
+} from 'services/referral'
 import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -27,6 +32,18 @@ export default function JoinReferal() {
   const [refCode, setRefCode] = useState(searchParams.get('code') || '')
 
   const { data, isLoading, error, refetch } = useGetParticipantQuery({ wallet: account || '' }, { skip: !account })
+  const userRefCode = data?.data?.participant?.referralCode
+  const [refLink, setRefLink] = useState('')
+
+  const [createShareLink] = useCreateShareMutation()
+
+  useEffect(() => {
+    if (account && userRefCode) {
+      createShareLink({ code: userRefCode, account }).then(res => {
+        if ((res as any)?.data?.data?.link) setRefLink((res as any).data.data.link)
+      })
+    }
+  }, [userRefCode, createShareLink, account])
 
   const code = searchParams.get('code')
 
@@ -155,10 +172,10 @@ export default function JoinReferal() {
           </Text>
 
           <Box sx={{ position: 'relative', marginTop: '24px' }}>
-            <Input style={{ paddingRight: '40px' }} value={domain} />
+            <Input style={{ paddingRight: '40px' }} value={refLink || domain} />
 
             <Box sx={{ position: 'absolute', right: '12px', top: '12px' }}>
-              <CopyHelper toCopy={domain} />
+              <CopyHelper toCopy={refLink || domain} />
             </Box>
           </Box>
 
