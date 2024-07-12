@@ -79,7 +79,7 @@ const howToEarnPoints = (week: number) => ({
         </Text>{' '}
         {week > 28 ? (
           <ul style={{ margin: 0 }}>
-            <li>{`The transaction needs to be executed in the 10 minutes after clicking the “Swap” button in order to receive points & rewards.`}</li>
+            <li>{`The transaction needs to be executed in the 20 minutes after clicking the “Swap” button in order to receive points & rewards.`}</li>
             <li>Please ensure you thoroughly read our Terms & Conditions before you begin earning points.</li>
           </ul>
         ) : (
