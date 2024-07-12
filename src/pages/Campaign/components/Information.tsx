@@ -15,7 +15,7 @@ export enum CampaignType {
   Referrals = 'Referrals',
 }
 
-const howToEarnPoints = {
+const howToEarnPoints = (week: number) => ({
   [CampaignType.Aggregator]: (
     <>
       <li>
@@ -58,9 +58,12 @@ const howToEarnPoints = {
         <Text as="span" fontStyle="bold" color="#ffffff">
           Category 4
         </Text>
-        : Stablecoins to Stablecoins trading will give 0.5 Points per USD swapped.
+        :{' '}
+        {week > 28
+          ? ' Stablecoins to Stablecoins trading will give 0.25 Points per USD swapped.'
+          : 'Stablecoins to Stablecoins trading will give 0.5 Points per USD swapped.'}
         <ul style={{ margin: 0 }}>
-          <li>{'Ex: USDC <> USDT; FRAX <> DAI; USDC.e <> MIM'}</li>
+          <li>{'Ex: USDC <> USDT; FRAX <> DAI; LUSD <> MIM'}</li>
         </ul>
       </li>
       <li>
@@ -74,8 +77,15 @@ const howToEarnPoints = {
         <Text as="span" color="#ffffff" fontStyle="bold">
           Note:
         </Text>{' '}
-        the transaction needs to be executed in the 20 minutes after clicking the “Swap” button in order to receive
-        points & rewards.
+        {week > 28 ? (
+          <ul style={{ margin: 0 }}>
+            <li>{`The transaction needs to be executed in the 10 minutes after clicking the “Swap” button in order to receive points & rewards.`}</li>
+            <li>Please ensure you thoroughly read our Terms & Conditions before you begin earning points.</li>
+          </ul>
+        ) : (
+          `the transaction needs to be executed in the 20 minutes after clicking the “Swap” button in order to receive
+        points & rewards.`
+        )}
       </li>
     </>
   ),
@@ -121,9 +131,12 @@ const howToEarnPoints = {
         <Text as="span" fontStyle="bold" color="#ffffff">
           Category 4
         </Text>
-        : Stablecoins to Stablecoins filled orders will give 0.5 Points per USD.
+        :{' '}
+        {week > 28
+          ? 'Stablecoins to Stablecoins filled orders will give 0.25 Points per USD.'
+          : 'Stablecoins to Stablecoins filled orders will give 0.5 Points per USD.'}
         <ul style={{ margin: 0 }}>
-          <li>{'Ex: USDC <> USDT; FRAX <> DAI; USDC.e <> MIM'}</li>
+          <li>{'Ex: USDC <> USDT; FRAX <> DAI; LUSD <> MIM'}</li>
         </ul>
       </li>
     </>
@@ -140,7 +153,7 @@ const howToEarnPoints = {
       referee before becoming a referrer.
     </span>
   ),
-}
+})
 
 const timelines = {
   [CampaignType.Aggregator]:
@@ -448,7 +461,7 @@ const faq = {
   ],
 }
 
-export default function Information({ type }: { type: CampaignType }) {
+export default function Information({ type, week }: { type: CampaignType; week: number }) {
   const theme = useTheme()
   const [isShowRule, setIsShowRule] = useState(true)
   const [isShowTimeline, setIsShowTimeline] = useState(true)
@@ -492,7 +505,7 @@ export default function Information({ type }: { type: CampaignType }) {
           overflow: 'hidden',
         }}
       >
-        {howToEarnPoints[type]}
+        {howToEarnPoints(week)[type]}
       </Box>
 
       <Divider style={{ marginTop: '20px' }} />
@@ -603,6 +616,23 @@ export default function Information({ type }: { type: CampaignType }) {
             Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
           </Text>
         </li>
+
+        {week > 28 && (
+          <>
+            <li>
+              Heavy wash trading, sybil-attack, flashloans attacks or other related activities are not allowed and will
+              forfeit points & rewards of the identified users. KyberSwap team will monitor and exclude such behaviour
+              from the STIP Campaign.
+            </li>
+            <li>
+              The rules against such activities will remain unrevealed to avoid abuse from a selected group of users.
+              KyberSwap team can exclude wallets from the campaign at its sole discretion.
+            </li>
+            {type === CampaignType.Aggregator && (
+              <li>Only trades made through whitelisted router contracts such as KyberSwap Router are eligible.</li>
+            )}
+          </>
+        )}
       </Text>
 
       <Divider style={{ marginTop: '20px' }} />

@@ -487,7 +487,7 @@ export default function Aggregator() {
         <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${campaign}`}>[ My Dashboard ]</StyledInternalLink>
       </Flex>
 
-      {tab === 'information' && <Information type={type} />}
+      {tab === 'information' && <Information type={type} week={selectedWeek} />}
 
       {tab === 'leaderboard' && <Leaderboard type={type} week={selectedWeek} year={2024} />}
     </Wrapper>
