@@ -50,6 +50,8 @@ export const PRICE_ALERT_TOPIC_ID = required('PRICE_ALERT_TOPIC_ID')
 export const ELASTIC_POOL_TOPIC_ID = required('ELASTIC_POOL_TOPIC_ID')
 export const BUCKET_NAME = required('BUCKET_NAME')
 export const WALLETCONNECT_PROJECT_ID = required('WALLETCONNECT_PROJECT_ID')
+export const CAMPAIGN_URL = required('CAMPAIGN_URL')
+export const REFERRAL_URL = required('REFERRAL_URL')
 
 type FirebaseConfig = {
   apiKey: string
