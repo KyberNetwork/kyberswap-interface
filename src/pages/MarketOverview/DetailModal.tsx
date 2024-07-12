@@ -34,14 +34,14 @@ export default function DetailModal({
   }
 }) {
   const theme = useTheme()
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { data: quoteData } = useGetQuoteByChainQuery()
   const [selectedPrice, setSelectedPrice] = useState<'buy' | 'sell'>('buy')
 
   return (
     <Modal isOpen={!!tokenToShow} onDismiss={onDismiss} width="100%" maxWidth="600px">
       {tokenToShow ? (
-        <Flex width="100%" flexDirection="column" padding={upToMedium ? '1rem' : '2rem'}>
+        <Flex width="100%" flexDirection="column" padding={upToSmall ? '1rem' : '2rem'}>
           <Flex justifyContent="space-between" sx={{ gap: '4px' }}>
             <Flex alignItems="center" sx={{ gap: '6px' }} flex="1">
               <img
@@ -85,8 +85,8 @@ export default function DetailModal({
               background: '#ffffff20',
               padding: '0.75rem 1rem',
               display: 'grid',
-              gridTemplateColumns: upToMedium ? '1fr 1fr' : '1fr 1fr 1fr 1fr',
-              gap: upToMedium ? '0.75rem' : '1.5rem',
+              gridTemplateColumns: upToSmall ? '1fr 1fr' : '1fr 1fr 1fr 1fr',
+              gap: upToSmall ? '0.75rem' : '1.5rem',
               height: 'fit-content',
               borderRadius: '1rem',
               marginTop: '1.25rem',
@@ -131,40 +131,51 @@ export default function DetailModal({
             </div>
           </Box>
           <Box
-            sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToMedium ? '100px 80px' : '0.75fr  0.75fr'}` }}
+            sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToSmall ? '100px 80px' : '0.75fr  0.75fr 0.75fr'}` }}
             marginTop="1.5rem"
             marginBottom="8px"
           >
             <div />
-            <Flex alignItems="flex-end" flexDirection="column">
-              <Text fontSize={12} color={theme.subText} textAlign="right">
-                On-chain Price
-              </Text>
-              <Flex
-                sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
-                padding="1px"
-                marginTop="8px"
-                width="fit-content"
-              >
-                <TabItem
-                  active={selectedPrice === 'buy'}
-                  onClick={() => {
-                    setSelectedPrice('buy')
-                  }}
+            {upToSmall ? (
+              <Flex alignItems="flex-end" flexDirection="column">
+                <Text fontSize={12} color={theme.subText} textAlign="right">
+                  On-chain Price
+                </Text>
+                <Flex
+                  sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
+                  padding="1px"
+                  marginTop="8px"
+                  width="fit-content"
                 >
-                  Buy
-                </TabItem>
+                  <TabItem
+                    active={selectedPrice === 'buy'}
+                    onClick={() => {
+                      setSelectedPrice('buy')
+                    }}
+                  >
+                    Buy
+                  </TabItem>
 
-                <TabItem
-                  active={selectedPrice === 'sell'}
-                  onClick={() => {
-                    setSelectedPrice('sell')
-                  }}
-                >
-                  Sell
-                </TabItem>
+                  <TabItem
+                    active={selectedPrice === 'sell'}
+                    onClick={() => {
+                      setSelectedPrice('sell')
+                    }}
+                  >
+                    Sell
+                  </TabItem>
+                </Flex>
               </Flex>
-            </Flex>
+            ) : (
+              <>
+                <Text fontSize={12} color={theme.subText} textAlign="right">
+                  Buy Price
+                </Text>
+                <Text fontSize={12} color={theme.subText} textAlign="right">
+                  Sell Price
+                </Text>
+              </>
+            )}
             <div />
           </Box>
 
@@ -187,7 +198,10 @@ export default function DetailModal({
               return (
                 <Box
                   key={token.chainId}
-                  sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToMedium ? '100px 80px' : '0.75fr 0.75fr'}` }}
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: `1fr ${upToSmall ? '100px 80px' : '0.75fr 0.75fr 0.75fr'}`,
+                  }}
                   marginBottom="1rem"
                   alignItems="center"
                 >
@@ -236,9 +250,21 @@ export default function DetailModal({
                     </div>
                   </Flex>
 
-                  <Text textAlign="right">
-                    <Price price={+price} />
-                  </Text>
+                  {upToSmall ? (
+                    <Text textAlign="right">
+                      <Price price={+price} />
+                    </Text>
+                  ) : (
+                    <>
+                      <Text textAlign="right">
+                        <Price price={+token.priceBuy} />
+                      </Text>
+
+                      <Text textAlign="right">
+                        <Price price={+token.priceSell} />
+                      </Text>
+                    </>
+                  )}
 
                   <Flex sx={{ gap: '12px' }} alignItems="center" justifyContent="flex-end">
                     <ButtonOutlined
