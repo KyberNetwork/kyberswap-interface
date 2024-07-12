@@ -61,6 +61,9 @@ const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
+const Campaign = lazy(() => import('pages/Campaign'))
+const CampaignMyDashboard = lazy(() => import('pages/Campaign/MyDashboard'))
+
 const AppWrapper = styled.div`
   display: flex;
   flex-flow: column;
@@ -325,6 +328,11 @@ export default function App() {
 
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
+
+              <Route path={APP_PATHS.AGGREGATOR_CAMPAIGN} element={<Campaign />} />
+              <Route path={APP_PATHS.LIMIT_ORDER_CAMPAIGN} element={<Campaign />} />
+              <Route path={APP_PATHS.REFFERAL_CAMPAIGN} element={<Campaign />} />
+              <Route path={APP_PATHS.MY_DASHBOARD} element={<CampaignMyDashboard />} />
 
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>
