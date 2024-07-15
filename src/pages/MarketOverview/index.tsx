@@ -175,7 +175,7 @@ export default function MarketOverview() {
                 </Flex>
               </Flex>
 
-              <Text textAlign="right" fontSize="14px" padding="8px 16px">
+              <Text textAlign="right" fontSize="14px" padding="8px 0px 8px 16px">
                 Market Overview <InfoHelper text="Market cap & 24h volume data sourced from Coingecko" />
               </Text>
             </TableHeader>
@@ -297,7 +297,7 @@ export default function MarketOverview() {
                   justifyContent="flex-end"
                   sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
                   role="button"
-                  padding="0.5rem 1.5rem"
+                  padding="0.5rem 1rem"
                 >
                   <MouseoverTooltip
                     text={

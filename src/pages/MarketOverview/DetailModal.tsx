@@ -130,21 +130,30 @@ export default function DetailModal({
               </Text>
             </div>
           </Box>
-          <Box
-            sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToSmall ? '100px 80px' : '0.75fr  0.75fr 0.75fr'}` }}
-            marginTop="1.5rem"
-            marginBottom="8px"
-          >
-            <div />
-            {upToSmall ? (
-              <Flex alignItems="flex-end" flexDirection="column">
+          {!upToSmall ? (
+            <Box
+              sx={{ display: 'grid', gridTemplateColumns: `1fr ${upToSmall ? '100px 80px' : '0.75fr  0.75fr 0.75fr'}` }}
+              marginTop="1.5rem"
+              marginBottom="8px"
+            >
+              <div />
+              <Text fontSize={12} color={theme.subText} textAlign="right">
+                Buy Price
+              </Text>
+              <Text fontSize={12} color={theme.subText} textAlign="right">
+                Sell Price
+              </Text>
+              <div />
+            </Box>
+          ) : (
+            <>
+              <Flex alignItems="center" marginY="8px" justifyContent="flex-end" sx={{ gap: '4px' }}>
                 <Text fontSize={12} color={theme.subText} textAlign="right">
                   On-chain Price
                 </Text>
                 <Flex
                   sx={{ border: `1px solid ${theme.border}`, background: theme.buttonBlack, borderRadius: '999px' }}
                   padding="1px"
-                  marginTop="8px"
                   width="fit-content"
                 >
                   <TabItem
@@ -166,18 +175,8 @@ export default function DetailModal({
                   </TabItem>
                 </Flex>
               </Flex>
-            ) : (
-              <>
-                <Text fontSize={12} color={theme.subText} textAlign="right">
-                  Buy Price
-                </Text>
-                <Text fontSize={12} color={theme.subText} textAlign="right">
-                  Sell Price
-                </Text>
-              </>
-            )}
-            <div />
-          </Box>
+            </>
+          )}
 
           {tokenToShow.tokens
             .filter(token => MAINNET_NETWORKS.includes(+token.chainId))
@@ -282,7 +281,7 @@ export default function DetailModal({
                         )
                       }}
                     >
-                      Buy
+                      Swap
                     </ButtonOutlined>
                   </Flex>
                 </Box>
