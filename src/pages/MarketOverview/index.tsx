@@ -213,7 +213,7 @@ export default function MarketOverview() {
                 </Flex>
                 <Flex
                   justifyContent="flex-end"
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer', padding: '8px 16px' }}
                   role="button"
                 >
                   <MouseoverTooltip

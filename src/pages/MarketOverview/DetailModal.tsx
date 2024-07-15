@@ -147,7 +147,7 @@ export default function DetailModal({
             </Box>
           ) : (
             <>
-              <Flex alignItems="center" marginY="8px" justifyContent="flex-end" sx={{ gap: '4px' }}>
+              <Flex alignItems="center" marginY="8px" justifyContent="flex-end" sx={{ gap: '12px' }}>
                 <Text fontSize={12} color={theme.subText} textAlign="right">
                   On-chain Price
                 </Text>
