@@ -26,11 +26,28 @@ import Leaderboard from './components/Leaderboard'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
 function getCurrentWeek(): number {
-  const now: Date = new Date()
-  const startOfYear: Date = new Date(now.getFullYear(), 0, 1)
-  const pastDaysOfYear: number = (now.getTime() - startOfYear.getTime()) / 86400000 // 86400000 ms in a day
+  const currentDate: Date = new Date()
+  const startOfYear: Date = new Date(currentDate.getFullYear(), 0, 1)
 
-  return Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7)
+  // Calculate the day of the week for the start of the year
+  const dayOfWeek: number = startOfYear.getDay()
+
+  // Adjust the start of the year to the nearest Monday
+  let firstMonday: Date
+  if (dayOfWeek <= 4) {
+    firstMonday = new Date(startOfYear.setDate(startOfYear.getDate() - dayOfWeek + 1))
+  } else {
+    firstMonday = new Date(startOfYear.setDate(startOfYear.getDate() + (8 - dayOfWeek)))
+  }
+
+  // Calculate the difference in days from the first Monday of the year
+  const diffInMs: number = currentDate.getTime() - firstMonday.getTime()
+  const diffInDays: number = Math.floor(diffInMs / (24 * 60 * 60 * 1000))
+
+  // Calculate the week number
+  const weekNumber: number = Math.ceil((diffInDays + 1) / 7)
+
+  return weekNumber
 }
 
 const weeks = [
@@ -487,7 +504,7 @@ export default function Aggregator() {
         <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${campaign}`}>[ My Dashboard ]</StyledInternalLink>
       </Flex>
 
-      {tab === 'information' && <Information type={type} />}
+      {tab === 'information' && <Information type={type} week={selectedWeek} />}
 
       {tab === 'leaderboard' && <Leaderboard type={type} week={selectedWeek} year={2024} />}
     </Wrapper>
