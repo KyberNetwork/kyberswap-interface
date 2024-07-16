@@ -286,7 +286,7 @@ export default function Menu() {
             <MenuItem onClick={toggle}>
               <NavLink to={APP_PATHS.ELASTIC_SNAPSHOT}>
                 <AlertOctagon size={14} />
-                <Trans>Snapshot</Trans>
+                <Trans>Treasury Grant 2023</Trans>
               </NavLink>
             </MenuItem>
 
