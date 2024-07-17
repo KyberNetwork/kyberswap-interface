@@ -271,7 +271,7 @@ export default function Content({
         <div className="left">
           <PriceInfo />
           <LiquidityChart />
-          <div className="label-row">
+          <div className="label-row" style={{ marginTop: "1rem" }}>
             {positionId === undefined
               ? "Price ranges"
               : "Your position price ranges"}

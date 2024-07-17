@@ -53,15 +53,15 @@ const getActiveTick = (
       TICK_SPACINGS[feeAmount]
     : undefined;
 
-export const chainIdToExplorerInfoChainName: { [id: number]: string } = {
-  56: "bsc",
-  1: "ethereum",
-  1101: "polygon-zkevm",
-  324: "zksync",
-  42161: "arbitrum",
-  59144: "linea",
-  8453: "base",
-  204: "opbnb",
+const chainIdToExplorerInfoChainName: { [id: number]: string } = {
+  1: "ETHEREUM",
+  42161: "ARBITRUM",
+  10: "OPTIMISM",
+  137: "POLYGON",
+  8453: "BASE",
+  56: "BNB",
+  43114: "AVALANCHE",
+  324: "ZKSYNC",
 };
 
 export function usePoolActiveLiquidity(): {
@@ -81,30 +81,70 @@ export function usePoolActiveLiquidity(): {
   const [ticks, setTicks] = useState<TickDataRaw[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // useEffect(() => {
+  //   const chainName = chainIdToExplorerInfoChainName[chainId];
+  //   if (!chainName) return;
+  //   (async () => {
+  //     setIsLoading(true);
+  //     let tickData: (TickDataRaw & { tickIdx: number })[] = [];
+  //     let after = "";
+  //     const a = 2;
+  //     while (1 + 1 == a) {
+  //       const res = await fetch(
+  //         `https://explorer-api.pancakeswap.com/cached/pools/ticks/v3/${chainName}/${poolAddress}?after=${after}`
+  //       ).then((res) => res.json());
+  //
+  //       tickData = [...tickData, ...(res.rows || [])];
+  //       if (res.hasNextPage) {
+  //         after = res.endCursor;
+  //       } else {
+  //         break;
+  //       }
+  //     }
+  //     setTicks(tickData.map((item) => ({ ...item, tick: item.tickIdx })));
+  //     setIsLoading(false);
+  //   })();
+  // }, [poolAddress, chainId]);
+
   useEffect(() => {
     const chainName = chainIdToExplorerInfoChainName[chainId];
     if (!chainName) return;
+
     (async () => {
       setIsLoading(true);
       let tickData: (TickDataRaw & { tickIdx: number })[] = [];
-      let after = "";
+      let skip = 0;
       const a = 2;
       while (1 + 1 == a) {
         const res = await fetch(
-          `https://explorer-api.pancakeswap.com/cached/pools/ticks/v3/${chainName}/${poolAddress}?after=${after}`
+          `https://interface.gateway.uniswap.org/v1/graphql`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              operationName: "AllV3Ticks",
+              query:
+                "query AllV3Ticks($chain: Chain!, $address: String!, $skip: Int, $first: Int) {\n  v3Pool(chain: $chain, address: $address) {\n    ticks(skip: $skip, first: $first) {\n      tick: tickIdx\n      liquidityNet\n      price0\n      price1\n      __typename\n    }\n    __typename\n  }\n}",
+              variables: {
+                address: poolAddress,
+                chain: chainName,
+                first: 1000,
+                skip,
+              },
+            }),
+          }
         ).then((res) => res.json());
-
-        tickData = [...tickData, ...(res.rows || [])];
-        if (res.hasNextPage) {
-          after = res.endCursor;
-        } else {
+        const data = res?.data?.v3Pool?.ticks || [];
+        tickData = [...tickData, ...data];
+        if (data.length === 0) {
           break;
+        } else {
+          skip += 1000;
         }
       }
-      setTicks(tickData.map((item) => ({ ...item, tick: item.tickIdx })));
+      setTicks(tickData);
       setIsLoading(false);
     })();
-  }, [poolAddress, chainId]);
+  }, [poolAddress,  chainId]);
 
   const token0: Token | null = useMemo(
     () =>

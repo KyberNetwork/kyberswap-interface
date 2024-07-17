@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/liquidity-widgets",
   "license": "MIT",
-  "version": "0.0.8-rc",
+  "version": "0.0.8-rc2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,8 +14,8 @@
     "@pancakeswap/v3-sdk": "^3.8.3",
     "@popperjs/core": "^2.11.8",
     "@reach/portal": "^0.18.0",
-    "@uniswap/sdk-core": "^4.1.4",
-    "@uniswap/v3-sdk": "^3.10.2",
+    "@uniswap/sdk-core": "4.0.7",
+    "@uniswap/v3-sdk": "3.10.2",
     "d3": "^7.9.0",
     "ethers": "^5.7.0",
     "polished": "^4.3.1",
@@ -42,6 +42,9 @@
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
+  },
+  "resolutions": {
+    "@uniswap/sdk-core": "4.1.4"
   },
   "files": [
     "dist"

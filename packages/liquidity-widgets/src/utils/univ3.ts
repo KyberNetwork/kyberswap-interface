@@ -58,7 +58,7 @@ export function tryParseTick(
     tick = TickMath.MIN_TICK
   } else {
     // this function is agnostic to the base, will always return the correct tick
-    tick = priceToClosestTick(price)
+    tick = priceToClosestTick(price as any)
   }
 
   return nearestUsableTick(tick, TICK_SPACINGS[feeAmount])

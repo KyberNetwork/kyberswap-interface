@@ -80,6 +80,7 @@ const UniV3Provider = ({
   ...rest
 }: Omit<Props, "poolType">) => {
   const { loading, pool, position, error } = useUniV3PoolInfo(poolAddress, positionId);
+  console.log(position)
 
   const poolAdapter = useMemo(
     () => (pool ? new PoolAdapter(pool) : null),
@@ -92,6 +93,7 @@ const UniV3Provider = ({
         loading,
         poolAddress,
         pool: poolAdapter,
+        positionId,
         position,
         poolType: PoolType.DEX_UNISWAPV3,
         error,
