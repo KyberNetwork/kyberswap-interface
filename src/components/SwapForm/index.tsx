@@ -255,8 +255,10 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <WarningIcon color={theme.warning} size={20} />
               <Text fontSize={14} flex={1}>
                 {honeypot.isHoneypot
-                  ? `Our simulation detects that ${currencyOut?.symbol} can not be sold immediately after bought, please check further before buying.`
-                  : `Our simulation detects that {currencyOut?.symbol} has ${honeypot.tax}% fee on transfer, please check further before buying.`}
+                  ? `Our simulation detects that ${currencyOut?.symbol} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!`
+                  : `Our simulation detects that ${currencyOut?.symbol} has ${
+                      honeypot.tax * 100
+                    }% fee on transfer, please check further before buying.`}
               </Text>
             </Flex>
           ) : null}
