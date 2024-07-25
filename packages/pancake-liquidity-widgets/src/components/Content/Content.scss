@@ -1,10 +1,10 @@
 .outline-btn {
   background: none;
-  border: 1px solid var(--ks-lw-accent);
-  border-radius: var(--ks-lw-buttonRadius);
-  color: var(--ks-lw-accent);
-  font-size: 14px;
-  font-weight: 500;
+  border: 2px solid var(--ks-lw-primary);
+  border-radius: 16px;
+  color: var(--ks-lw-primary);
+  font-size: 16px;
+  font-weight: 600;
   padding: 10px 12px;
   cursor: pointer;
   display: flex;
@@ -22,18 +22,19 @@
 }
 
 .primary-btn {
-  background: var(--ks-lw-accent);
-  border: 1px solid var(--ks-lw-accent);
-  border-radius: var(--ks-lw-buttonRadius);
-  color: var(--ks-lw-layer1);
-  font-size: 14px;
-  font-weight: 500;
+  background: var(--ks-lw-primary);
+  border: 1px solid var(--ks-lw-primary);
+  border-radius: 16px;
+  color: var(--ks-lw-textReverse);
+  font-size: 16px;
+  font-weight: 600;
   padding: 10px 12px;
   cursor: pointer;
   display: flex;
   justify-content: center;
   justify-self: flex-end;
   align-items: center;
+  border-bottom: 2px solid #00000033;
 
   &:hover {
     filter: brightness(110%);
@@ -45,20 +46,27 @@
 
   &:disabled {
     cursor: not-allowed;
-    color: var(--ks-lw-subText);
-    background: var(--ks-lw-layer2);
-    border-color: var(--ks-lw-layer2);
-    filter: brightness(108%);
+    color: var(--ks-lw-textSecondary);
+    background: var(--ks-lw-disabled);
+    border-color: var(--ks-lw-disabled);
+    /* filter: brightness(108%); */
   }
 }
 
 .ks-lw-content {
-  margin-top: 20px;
   display: flex;
   gap: 20px;
+  padding: 0 1.5rem;
 
   @media screen and (max-width: 666px) {
     flex-direction: column;
+  }
+
+  .label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ks-lw-secondary);
+    text-transform: uppercase;
   }
 
   .left {
@@ -70,13 +78,7 @@
     }
 
     .price-info {
-      border-radius: var(--ks-lw-borderRadius);
-      border: 1px solid var(--ks-lw-stroke);
-      padding: 12px 16px;
-
-      div:nth-child(2) {
-        margin-top: 6px;
-      }
+      color: var(--ks-lw-textSecondary);
 
       .row {
         display: flex;
@@ -87,95 +89,66 @@
 
         .price {
           font-weight: 500;
-          color: var(--ks-lw-text);
+          color: var(--ks-lw-textPrimary);
         }
       }
     }
 
-    .price-warning {
-      padding: 12px 16px;
-      color: var(--ks-lw-subText);
-      font-size: 14px;
-      border-radius: var(--ks-lw-borderRadius);
-      margin-top: 1rem;
-      font-weight: 400;
+    // .liquidity-chart {
+    //   margin-top: 1rem;
+    // }
 
-      .row {
-        display: flex;
-        gap: 4px;
-        align-items: center;
-      }
-
-      .text {
-        font-style: italic;
-        color: var(--ks-lw-text);
-      }
-    }
-
-    .liquidity-chart {
-      margin-top: 1rem;
-    }
-
-    .label-row {
+    .price-input-preset {
+      margin-top: 8px;
+      width: 100%;
       display: flex;
       justify-content: space-between;
-      font-size: 14px;
+      gap: 8px;
+      font-size: 12px;
 
       .outline-btn {
         font-size: 12px;
-        border-radius: 4px;
+        flex: 1;
+        border-radius: 8px;
         padding: 4px 6px;
       }
     }
 
+    .price-input-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
     .price-input {
-      margin-top: 0.5rem;
-      padding: 10px 12px 10px 8px;
+      margin-top: 12px;
+      padding: 12px;
       gap: 10px;
-      display: flex;
-      border: 1px solid var(--ks-lw-stroke);
-      border-radius: var(--ks-lw-borderRadius);
+      border: 1px solid var(--ks-lw-inputBorder);
+      text-align: center;
+      border-radius: 16px;
+      background: var(--ks-lw-inputBackground);
+      flex: 1;
+      color: var(--ks-lw-textSecondary);
 
       .input-wrapper {
         display: flex;
-        flex-direction: column;
-        gap: 8px;
+        margin: 4px 0;
+        gap: 4px;
         flex: 1;
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--ks-lw-subText);
-
-        input {
-          background: transparent;
-          color: var(--ks-lw-text);
-          font-size: 16px;
-          padding: 0;
-          border: none;
-          outline: none;
-
-          &:disabled {
-            cursor: not-allowed;
-            opacity: 0.6;
-          }
-        }
-      }
-
-      .action {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
+        font-size: 14px;
         justify-content: center;
 
         button {
           width: 24px;
           height: 24px;
-          border-radius: 4px;
-          border: 1px solid var(--ks-lw-stroke);
-          background: var(--ks-lw-layer2);
-          color: var(--ks-lw-subText);
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          border-radius: 50%;
+          border: 2px solid var(--ks-lw-primary);
+          padding: 0;
+          background: transparent;
+          color: var(--ks-lw-primary);
+          font-size: 20px;
+          line-height: 24px;
           cursor: pointer;
 
           &:hover:enabled {
@@ -191,51 +164,53 @@
             opacity: 0.6;
           }
         }
+
+        input {
+          background: transparent;
+          color: var(--ks-lw-textPrimary);
+          text-align: center;
+
+          font-size: 16px;
+          width: 100%;
+          max-width: 72px;
+          font-weight: 600;
+          padding: 0;
+          border: none;
+          outline: none;
+
+          &:disabled {
+            cursor: not-allowed;
+          }
+        }
       }
     }
 
     .liquidity-to-add {
-      margin-top: 1rem;
-
-      .note {
-        color: var(--ks-lw-subText);
-        font-style: italic;
-        font-size: 12px;
-        margin-top: 8px;
-      }
-
       .label {
-        font-size: 16px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ks-lw-secondary);
+        text-transform: uppercase;
       }
 
-      .input-token {
+      .balance-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-top: 8px;
-        border: 1px solid var(--ks-lw-stroke);
-        background: var(--ks-lw-layer2);
-        border-radius: var(--ks-lw-borderRadius);
-        padding: 12px;
 
-        .balance {
-          display: flex;
-          justify-content: space-between;
-          color: var(--ks-lw-subText);
-          font-size: 14px;
-          font-weight: 500;
-
-          .balance-flex {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-          }
+        .balance-text {
+          color: var(--ks-lw-textSecondary);
+          font-size: 12px;
         }
 
         button {
-          background: var(--ks-lw-layer2);
+          background: transparent;
           border: none;
           border-radius: 999px;
           outline: inherit;
           cursor: pointer;
-          padding: 6px 12px;
+          padding: 0;
           align-items: center;
           color: var(--ks-lw-text);
 
@@ -243,6 +218,8 @@
           display: flex;
           align-items: center;
           gap: 4px;
+          font-size: 16px;
+          font-weight: 600;
 
           img {
             filter: brightness(80%);
@@ -260,38 +237,54 @@
             transform: scale(0.96);
           }
         }
+      }
 
-        .small {
-          padding: 2px 6px;
-          font-size: 12px;
+      .input-token {
+        margin-top: 8px;
+        border: 1px solid var(--ks-lw-inputBorder);
+        background: var(--ks-lw-inputBackground);
+        border-radius: 16px;
+        padding: 8px 16px;
+        box-shadow: 0px 2px 0px -1px #0000000f inset;
+        display: flex;
+        align-items: flex-end;
+        flex-direction: column;
+
+        .balance-preset {
+          display: flex;
+          justify-content: flex-end;
+          gap: 4px;
+          color: var(--ks-lw-subText);
+          font-size: 14px;
+          font-weight: 500;
+          margin-top: 4px;
         }
 
-        .input-row {
+        .small {
+          border-radius: 8px;
+          height: 26px;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 0px 6px;
+          letter-spacing: 1%;
+        }
+
+        .est-usd {
+          color: var(--ks-lw-textSecondary);
+          font-size: 14px;
+          margin-top: 4px;
+        }
+
+        input {
+          background: transparent;
+          color: var(--ks-lw-textPrimary);
+          font-size: 16px;
+          font-weight: 500;
           width: 100%;
-          display: flex;
-          margin-top: 1rem;
-          align-items: center;
-          gap: 8px;
-
-          .est-usd {
-            color: var(--ks-lw-subText);
-            font-size: 12px;
-          }
-
-          .input {
-            flex: 1;
-
-            input {
-              background: transparent;
-              color: var(--ks-lw-text);
-              font-size: 20px;
-              font-weight: 500;
-              width: 100%;
-              padding: 0;
-              border: none;
-              outline: none;
-            }
-          }
+          padding: 0;
+          text-align: right;
+          border: none;
+          outline: none;
         }
       }
     }
@@ -305,56 +298,15 @@
       width: 100%;
     }
 
-    .price-warning {
-      padding: 12px 16px;
-      color: var(--ks-lw-subText);
-      font-size: 14px;
-      border-radius: var(--ks-lw-borderRadius);
-      margin-top: 1rem;
-      font-weight: 400;
-
-      .row {
-        display: flex;
-        gap: 4px;
-        align-items: center;
-      }
-
-      .text {
-        font-style: italic;
-        color: var(--ks-lw-text);
-      }
-    }
-
     .zap-route {
-      border: 1px solid var(--ks-lw-stroke);
-      border-radius: var(--ks-lw-borderRadius);
-      padding: 12px 16px;
-
-      .title {
-        font-size: 14px;
-        line-height: 20px;
-        margin-bottom: 4px;
-        display: flex;
-        justify-content: space-between;
-      }
-
-      .subTitle {
-        color: var(--ks-lw-subText);
-        font-style: italic;
-        font-size: 12px;
-      }
-
-      .divider {
-        width: 100%;
-        height: 1px;
-        background: var(--ks-lw-stroke);
-      }
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
 
       .row {
         display: flex;
         gap: 12px;
         align-items: center;
-        margin-top: 12px;
 
         .step {
           border-radius: 50%;
@@ -363,16 +315,17 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 12px;
+          font-size: 14px;
           font-weight: 500;
-          background: var(--ks-lw-layer2);
+          background: var(--ks-lw-inputBackground);
+          color: var(--ks-lw-textSecondary);
         }
 
         .text {
           flex: 1;
           font-size: 12px;
-          color: var(--ks-lw-subText);
-          line-height: 16px;
+          color: var(--ks-lw-textSecondary);
+          line-height: 18px;
         }
       }
     }
@@ -386,23 +339,27 @@
     }
 
     .est-liq-val {
-      margin-top: 1rem;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
 
       .detail-row {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-top: 12px;
-        font-size: 12px;
+        font-size: 14px;
 
         .label {
-          color: var(--ks-lw-subText);
-          margin-top: 2px;
+          color: var(--ks-lw-textSecondary);
           width: fit-content;
+          font-size: 14px;
+          font-weight: 400;
+          text-transform: none;
         }
 
         .underline {
-          border-bottom: 1px dotted var(--ks-lw-subText);
+          border-bottom: 1px dotted var(--ks-lw-textSecondary);
         }
 
         .token-amount {
@@ -419,7 +376,7 @@
 .ks-lw-action {
   display: flex;
   gap: 24px;
-  margin-top: 24px;
+  padding: 24px;
 
   button {
     flex: 1;
@@ -431,4 +388,21 @@
   justify-content: space-between;
   font-size: 20px;
   font-weight: 500;
+}
+
+.ks-lw-card {
+  margin-top: 8px;
+  padding: 1rem;
+  background: var(--ks-lw-background);
+  border: 1px solid var(--ks-lw-cardBorder);
+  border-radius: 16px;
+}
+
+.ks-lw-card-warning {
+  padding: 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: var(--ks-lw-textPrimary);
+  background: var(--ks-lw-warningBackground);
+  border: 1px solid var(--ks-lw-warningBorder);
 }

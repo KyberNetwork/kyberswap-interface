@@ -1,33 +1,31 @@
 :root {
-  --ks-lw-text: #212121;
-  --ks-lw-subText: #979797;
-  --ks-lw-icons: #a9a9a9;
-  --ks-lw-layer1: #0f0f0f;
-  --ks-lw-dialog: #1c1c1c;
-  --ks-lw-layer2: #313131;
-  --ks-lw-stroke: #313131;
-  --ks-lw-chart-range: #28e0b9;
-  --ks-lw-chart-area: #047855;
-  --ks-lw-accent: #31cb9e;
-  --ks-lw-warning: #ff9901;
-  --ks-lw-error: #ff537b;
-  --ks-lw-success: #189470;
-
-  --ks-lw-fontFamily: Work Sans;
-
-  --ks-lw-borderRadius: 20px;
-  --ks-lw-buttonRadius: 24px;
-
-  --ks-lw-boxShadow: 0px 4px 4px rgba(0, 0, 0, 0.04);
+  --ks-lw-cardBackground: #27262c;
+  --ks-lw-cardBorder: #383241;
+  --ks-lw-background: #08060b;
+  --ks-lw-inputBackground: #372f47;
+  --ks-lw-primary: #1fc7d4;
+  --ks-lw-secondary: #a881fc;
+  --ks-lw-tertiary: #353547;
+  --ks-lw-textSecondary: #b8add2;
+  --ks-lw-textPrimary: #f4eeff;
+  --ks-lw-textReverse: #000000;
+  --ks-lw-warningBackground: #3d2100;
+  --ks-lw-warningBorder: #5b3400;
+  --ks-lw-warning: #ff9d02;
+  --ks-lw-green-10: #02382e;
+  --ks-lw-green-20: #035345;
+  --ks-lw-green-50: #129e7d;
+  --ks-lw-disabled: #666171;
 }
 
 .ks-lw {
-  background: var(--ks-lw-layer1);
-  color: var(--ks-lw-text);
-  max-width: 680px;
-  border-radius: var(--ks-lw-borderRadius);
-  padding: 24px;
-  font-family: var(--ks-lw-fontFamily);
+  border-radius: 24px;
+  background: var(--ks-lw-cardBackground);
+  color: var(--ks-lw-textPrimary);
+  // max-width: 680px;
+  font-family: Kanit, Sans-serif;
   position: relative;
   transition: all 0.2s;
+  box-shadow: 0px 1px 2px 0px #00000014;
+  border: 1px solid var(--ks-lw-cardBorder);
 }

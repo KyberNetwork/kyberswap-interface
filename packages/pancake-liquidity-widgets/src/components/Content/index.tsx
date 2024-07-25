@@ -2,7 +2,7 @@ import "./Content.scss";
 import X from "../../assets/x.svg?react";
 import ErrorIcon from "../../assets/error.svg?react";
 import PriceInfo from "./PriceInfo";
-import LiquidityChart from "./LiquidityChart";
+// import LiquidityChart from "./LiquidityChart";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
 import {
@@ -20,11 +20,12 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import Modal from "../Modal";
-import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
+import { PI_LEVEL, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
-import { useWeb3Provider } from "../../hooks/useProvider";
-import { PancakeToken } from "../../entities/Pool";
 import { parseUnits } from "viem";
+import { tryParseTick } from "../../utils/pancakev3";
+import { nearestUsableTick } from "@pancakeswap/v3-sdk";
+import { useWeb3Provider } from "../../hooks/useProvider";
 
 export default function Content({
   onDismiss,
@@ -51,20 +52,15 @@ export default function Content({
     positionId,
     degenMode,
     revertPrice,
-    marketPrice,
   } = useZapState();
 
   const {
     pool,
     theme,
     error: loadPoolError,
-    position,
-    positionOwner,
+    onConnectWallet,
   } = useWidgetInfo();
   const { account } = useWeb3Provider();
-
-  const token0 = pool?.token0 as PancakeToken | undefined;
-  const token1 = pool?.token1 as PancakeToken | undefined;
 
   let amountInWei = "0";
   try {
@@ -172,8 +168,8 @@ export default function Content({
     (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
   ) as ProtocolFeeAction | undefined;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, theme, feeInfo);
+  const swapPiRes = getPriceImpact(swapPriceImpact, theme, feeInfo);
 
   const piVeryHigh =
     (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
@@ -192,40 +188,39 @@ export default function Content({
     approvalState === APPROVAL_STATE.PENDING ||
     (piVeryHigh && !degenMode);
 
-  const newPool =
-    zapInfo && pool
-      ? pool.newPool({
-          sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
-          tick: zapInfo.poolDetails.uniswapV3.newTick,
-          liquidity: (
-            pool.liquidity + BigInt(zapInfo.positionDetails.addedLiquidity)
-          ).toString(),
-        })
-      : null;
+  const correctPrice = (value: string, type: Type) => {
+    if (!pool) return;
+    if (revertPrice) {
+      const defaultTick =
+        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
+      const tick =
+        tryParseTick(pool?.token1, pool?.token0, pool?.fee, value) ??
+        defaultTick;
+      if (Number.isInteger(tick))
+        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
+    } else {
+      const defaultTick =
+        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
+      const tick =
+        tryParseTick(pool?.token0, pool?.token1, pool?.fee, value) ??
+        defaultTick;
+      if (Number.isInteger(tick))
+        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
+    }
+  };
+  const currentPoolPrice = pool
+    ? revertPrice
+      ? pool.priceOf(pool.token1)
+      : pool.priceOf(pool.token0)
+    : undefined;
 
-  const isDevated =
-    !!marketPrice &&
-    newPool &&
-    Math.abs(
-      marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1
-    ) > 0.02;
-
-  const isOutOfRangeAfterZap =
-    position && newPool
-      ? newPool.tickCurrent < position.tickLower ||
-        newPool.tickCurrent >= position.tickUpper
-      : false;
-
-  const marketRate = marketPrice
-    ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
-    : null;
-
-  const price = newPool
-    ? (revertPrice
-        ? newPool.priceOf(newPool.token1)
-        : newPool.priceOf(newPool.token0)
-      ).toSignificant(6)
-    : "--";
+  const selectPriceRange = (percent: number) => {
+    if (!currentPoolPrice) return;
+    const left = +currentPoolPrice.toSignificant(18) * (1 - percent);
+    const right = +currentPoolPrice.toSignificant(18) * (1 + percent);
+    correctPrice(left.toString(), Type.PriceLower);
+    correctPrice(right.toString(), Type.PriceUpper);
+  };
 
   return (
     <>
@@ -281,101 +276,64 @@ export default function Content({
       <Header onDismiss={onDismiss} />
       <div className="ks-lw-content">
         <div className="left">
-          <PriceInfo />
-          <LiquidityChart />
-          <div className="label-row">
-            {positionId === undefined
-              ? "Price ranges"
-              : "Your position price ranges"}
+          <LiquidityToAdd />
+
+          <div className="label" style={{ marginTop: "1.5rem" }}>
+            Set price ranges
+          </div>
+
+          <div className="ks-lw-card">
+            <PriceInfo />
+
+            <div className="price-input-group">
+              <PriceInput type={Type.PriceLower} />
+              <PriceInput type={Type.PriceUpper} />
+            </div>
+
             {positionId === undefined && (
-              <button
-                className="outline-btn"
-                onClick={() => {
-                  if (!pool) return;
-                  setTick(
-                    Type.PriceLower,
-                    revertPrice ? pool.maxTick : pool.minTick
-                  );
-                  setTick(
-                    Type.PriceUpper,
-                    revertPrice ? pool.minTick : pool.maxTick
-                  );
-                }}
-              >
-                Full range
-              </button>
+              <div className="price-input-preset">
+                <button
+                  className="outline-btn"
+                  onClick={() => selectPriceRange(0.1)}
+                >
+                  10%
+                </button>
+                <button
+                  className="outline-btn"
+                  onClick={() => selectPriceRange(0.2)}
+                >
+                  20%
+                </button>
+                <button
+                  className="outline-btn"
+                  onClick={() => selectPriceRange(0.75)}
+                >
+                  75%
+                </button>
+                <button
+                  className="outline-btn"
+                  onClick={() => {
+                    if (!pool) return;
+                    setTick(
+                      Type.PriceLower,
+                      revertPrice ? pool.maxTick : pool.minTick
+                    );
+                    setTick(
+                      Type.PriceUpper,
+                      revertPrice ? pool.minTick : pool.maxTick
+                    );
+                  }}
+                >
+                  Full range
+                </button>
+              </div>
             )}
           </div>
-          <PriceInput type={Type.PriceLower} />
-          <PriceInput type={Type.PriceUpper} />
-          <LiquidityToAdd />
         </div>
 
         <div className="right">
           <ZapRoute />
           <EstLiqValue />
-
-          {isOutOfRangeAfterZap && (
-            <div
-              className="price-warning"
-              style={{
-                backgroundColor: `${theme.warning}33`,
-                color: theme.warning,
-              }}
-            >
-              The position will be inactive after zapping and won’t earn any
-              fees until the pool price moves back to select price range
-            </div>
-          )}
-          {isDevated && (
-            <div
-              className="price-warning"
-              style={{ backgroundColor: `${theme.warning}33` }}
-            >
-              <div className="text">
-                The pool's estimated price after zapping of{" "}
-                <span
-                  style={{
-                    fontWeight: "500",
-                    color: theme.warning,
-                    fontStyle: "normal",
-                    marginLeft: "2px",
-                  }}
-                >
-                  1 {revertPrice ? token1?.symbol : token0?.symbol} = {price}{" "}
-                  {revertPrice ? token0?.symbol : token1?.symbol}
-                </span>{" "}
-                deviates from the market price{" "}
-                <span
-                  style={{
-                    fontWeight: "500",
-                    color: theme.warning,
-                    fontStyle: "normal",
-                  }}
-                >
-                  (1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
-                  {marketRate} {revertPrice ? token0?.symbol : token1?.symbol})
-                </span>
-                . You might have high impermanent loss after you add liquidity
-                to this pool
-              </div>
-            </div>
-          )}
-
-          {positionOwner &&
-            account &&
-            positionOwner.toLowerCase() !== account.toLowerCase() && (
-              <div
-                className="price-warning"
-                style={{
-                  backgroundColor: `${theme.warning}33`,
-                  color: theme.warning,
-                }}
-              >
-                You are not the current owner of the position #{positionId},
-                please double check before proceeding
-              </div>
-            )}
         </div>
       </div>
 
@@ -383,41 +341,49 @@ export default function Content({
         <button className="outline-btn" onClick={onDismiss}>
           Cancel
         </button>
-        <button
-          className="primary-btn"
-          disabled={disabled}
-          onClick={hanldeClick}
-          style={
-            !disabled && approvalState !== APPROVAL_STATE.NOT_APPROVED
-              ? {
-                  background:
-                    piVeryHigh && degenMode
-                      ? theme.error
-                      : piHigh
-                      ? theme.warning
-                      : undefined,
-                  border:
-                    piVeryHigh && degenMode
-                      ? `1px solid ${theme.error}`
-                      : piHigh
-                      ? theme.warning
-                      : undefined,
+
+        {!account ? (
+          <button className="primary-btn" onClick={onConnectWallet}>
+            Connect Wallet
+          </button>
+        ) : (
+          <button
+            className="primary-btn"
+            disabled={disabled}
+            onClick={hanldeClick}
+            style={
+              !disabled && approvalState !== APPROVAL_STATE.NOT_APPROVED
+                ? {
+                    background:
+                      piVeryHigh && degenMode
+                        ? theme.error
+                        : piHigh
+                        ? theme.warning
+                        : undefined,
+                    border:
+                      piVeryHigh && degenMode
+                        ? `1px solid ${theme.error}`
+                        : piHigh
+                        ? theme.warning
+                        : undefined,
+                  }
+                : {}
+            }
+          >
+            {btnText}
+            {piVeryHigh && (
+              <InfoHelper
+                width="300px"
+                color={theme.textReverse}
+                text={
+                  degenMode
+                    ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+                    : "To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
                 }
-              : {}
-          }
-        >
-          {btnText}
-          {piVeryHigh && (
-            <InfoHelper
-              width="300px"
-              text={
-                degenMode
-                  ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
-                  : "To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
-              }
-            />
-          )}
-        </button>
+              />
+            )}
+          </button>
+        )}
       </div>
     </>
   );

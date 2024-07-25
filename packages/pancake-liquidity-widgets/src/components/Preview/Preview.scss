@@ -1,73 +1,97 @@
 .ks-lw-preview {
-  .warning-msg {
-    border-radius: var(--ks-lw-borderRadius);
-    font-size: 12px;
-    padding: 12px 16px;
-    margin-top: 1rem;
-    font-weight: 400;
-  }
-
-  .est-usd {
-    color: var(--ks-lw-subText);
-    font-weight: 400;
-    font-size: 14px;
-  }
-
-  .title {
+  .pool-info {
     display: flex;
     align-items: center;
-    height: 36px;
-    gap: 1rem;
-    margin-top: 1rem;
-    font-size: 16px;
+    gap: 12px;
 
-    .logo {
+    .pool-tokens-logo {
       position: relative;
-      display: flex;
-      align-items: center;
+      width: 48px;
+      height: 48px;
+
+      img {
+        border-radius: 50%;
+      }
+
+      .token0 {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        top: 0;
+        left: 0;
+      }
+
+      .token1 {
+        position: absolute;
+        width: 36px;
+        height: 36px;
+        bottom: 0;
+        right: 0;
+      }
 
       .network-logo {
         position: absolute;
-        bottom: 0px;
-        right: -8px;
+        width: 16px;
+        height: 16px;
+        background: #1e1e1e;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        bottom: 0;
+        right: 0;
       }
     }
 
-    .pool-info {
+    .symbol {
+      font-size: 24px;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 4px;
 
+      span {
+        color: var(--ks-lw-textSecondary);
+      }
+
+      .pos-id {
+        font-size: 20px;
+      }
+    }
+
+    .pos-info {
+      display: flex;
+      gap: 8px;
+
       .tag {
         border-radius: 999px;
-        font-size: 12px;
-        line-height: 16px;
-        background: var(--ks-lw-layer2);
-        padding: 0 8px;
-        height: max-content;
+        padding: 0px 8px;
+        height: 24px;
+        background: var(--ks-lw-tertiary);
+        color: var(--ks-lw-textSecondary);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        box-sizing: border-box;
       }
 
       .tag-primary {
-        background: var(--ks-lw-success);
+        border: 1px solid var(--ks-lw-green-20);
+        color: var(--ks-lw-green-50);
+        background: var(--ks-lw-green-10);
+      }
+
+      .tag-warning {
+        background: var(--ks-lw-warnin);
       }
     }
   }
 
-  .card {
-    background: var(--ks-lw-layer2);
-    border-radius: var(--ks-lw-borderRadius);
-    padding: 12px 16px;
-
-    .card-title {
-      color: var(--ks-lw-subText);
-      font-size: 14px;
-    }
-  }
-
-  .card-outline {
-    border: 1px solid var(--ks-lw-stroke);
-    border-radius: var(--ks-lw-borderRadius);
-    background: transparent;
+  .est-usd {
+    color: var(--ks-lw-textSecondary);
+    font-weight: 400;
+    font-size: 14px;
   }
 
   .row {
@@ -75,6 +99,7 @@
     align-items: center;
     gap: 4px;
     font-size: 14px;
+    color: var(--ks-lw-textSecondary);
   }
 
   .row-between {
@@ -83,6 +108,18 @@
     align-items: center;
     gap: 1rem;
     width: 100%;
+  }
+
+  .price-info {
+    flex: 1;
+    width: 50%;
+    background: var(--ks-lw-inputBackground);
+    padding: 12px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
   }
 
   .flex-col {
@@ -95,11 +132,11 @@
   .summary-title {
     font-size: 14px;
     font-weight: 500;
-    color: var(--ks-lw-subText);
+    color: var(--ks-lw-textSecondary);
   }
 
   .underline {
-    border-bottom: 1px dotted var(--ks-lw-subText);
+    border-bottom: 1px dotted var(--ks-lw-textSecondary);
   }
 
   .summary-value {
@@ -129,7 +166,7 @@
   }
 
   .spinner {
-    color: var(--ks-lw-success);
+    color: var(--ks-lw-green-50);
     animation-name: spin;
     animation-duration: 2000ms;
     animation-iteration-count: infinite;
@@ -148,7 +185,7 @@
 
   .subText {
     font-size: 14px;
-    color: var(--ks-lw-subText);
+    color: var(--ks-lw-textSecondary);
   }
 
   .error-icon {
@@ -156,14 +193,14 @@
   }
 
   .success-icon {
-    color: var(--ks-lw-success);
+    color: var(--ks-lw-green-50);
   }
 
   .view-tx {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    color: var(--ks-lw-accent);
+    color: var(--ks-lw-secondary);
     font-size: 14px;
     gap: 4px;
   }
@@ -183,7 +220,7 @@
     transition: 0.2s ease-out;
 
     font-size: 12px;
-    color: var(--ks-lw-subText);
+    color: var(--ks-lw-textSecondary);
     overflow-wrap: break-word;
     overflow-y: scroll;
 
@@ -202,7 +239,7 @@
 
     /* Handle */
     ::-webkit-scrollbar-thumb {
-      background: var(--ks-lw-subText);
+      background: var(--ks-lw-textSecondary);
       border-radius: 999px;
     }
   }
@@ -215,6 +252,6 @@
   .divider {
     height: 1px;
     width: 100%;
-    background: var(--ks-lw-stroke);
+    background: var(--ks-lw-cardBorder);
   }
 }

@@ -1,15 +1,18 @@
 .ks-lw-setting {
   position: absolute;
+  width: 360px;
   right: 24px;
-  top: 116px;
-  background: var(--ks-lw-layer2);
-  padding: 20px;
-  border-radius: var(--ks-lw-borderRadius);
+  top: 136px;
+  background: var(--ks-lw-cardBackground);
+  padding: 1rem;
+  border: 1px solid var(--ks-lw-cardBorder);
+  border-radius: 24px;
+  box-shadow: 0px 4px 8px 0px #00000029;
 
   .title {
-    font-size: 1rem;
-    font-weight: 500;
-    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 1rem;
   }
 
   .setting-title {
@@ -18,7 +21,7 @@
   }
 
   .underline {
-    border-bottom: 1px dotted var(--ks-lw-subText);
+    border-bottom: 1px dotted var(--ks-lw-textSecondary);
   }
 
   .row-btw {
@@ -29,68 +32,58 @@
   }
 
   .slp-input-wrapper {
-    border-radius: 999px;
+    border-radius: 16px;
     margin-top: 8px;
-    background: var(--ks-lw-layer1);
-    padding: 4px;
+    background: var(--ks-lw-inputBackground);
+    border: 1px solid var(--ks-lw-inputBorder);
+    box-shadow: 0px 2px 0px -1px #0000000f inset;
     display: flex;
+
+    &[data-error="true"] {
+      border: 1px solid var(--ks-lw-error);
+    }
+
+    &[data-warning="true"] {
+      border: 1px solid var(--ks-lw-warning);
+    }
 
     .slp-item {
       position: relative;
-      border-radius: 999px;
+      border-radius: 16px;
       color: var(--ks-lw-subText);
-      font-size: 14px;
+      font-size: 16px;
       padding: 4px;
-      font-weight: 500;
-      flex: 2;
-      width: 48px;
+      font-weight: 600;
       display: flex;
+      flex: 1;
       border: 1px solid transparent;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
       justify-content: center;
       cursor: pointer;
-
-      &:hover {
-        border: 1px solid var(--ks-lw-accent);
-      }
+      box-sizing: border-box;
 
       &[data-active="true"] {
-        color: var(--ks-lw-text);
-        border: 1px solid var(--ks-lw-accent);
-      }
-
-      &[data-error="true"] {
-        border: 1px solid var(--ks-lw-error);
-      }
-
-      &[data-warning="true"] {
-        border: 1px solid var(--ks-lw-warning);
-      }
-
-      &[data-focus="true"] {
-        border: 1px solid var(--ks-lw-accent);
+        color: var(--ks-lw-textReverse);
+        background: var(--ks-lw-textSecondary);
       }
 
       input {
         width: 72px;
-        background: var(--ks-lw-layer1);
+        background: var(--ks-lw-inputBackground);
+        color: var(--ks-lw-text);
+        font-weight: 600;
         border: none;
         outline: none;
-        color: var(--ks-lw-text);
         text-align: right;
         width: 100%;
-        font-size: 12px;
+        font-size: 16px;
         padding: 0;
 
-        &:focus {
-          background: var(--ks-lw-layer1);
-        }
+        /* &:focus { */
+        /*   background: var(--ks-lw-layer1); */
+        /* } */
       }
-    }
-
-    .slp-item-input {
-      flex: 3;
     }
   }
 
@@ -99,7 +92,7 @@
     padding: 6px 8px;
     gap: 4px;
     border-radius: 999px;
-    background: var(--ks-lw-secondary);
+    background: var(--ks-lw-inputBackground);
     color: var(--ks-lw-text);
     font-size: 12px;
     font-weight: 500;
@@ -123,7 +116,7 @@
     justify-content: space-between;
     font-size: 20px;
     align-items: center;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .content {
@@ -135,13 +128,10 @@
   input {
     box-sizing: border-box;
     margin-top: 1.25rem;
-    background: var(--ks-lw-layer2);
-    border-radius: var(--ks-lw-buttonRadius);
     padding: 8px 16px;
     font-size: 14px;
-    line-height: 20px;
+    line-height: 21px;
     outline: none;
-    color: rgb(255, 255, 255);
     border: none;
     width: 100%;
   }
@@ -153,11 +143,6 @@
 
     button {
       flex: 1;
-    }
-
-    .warning {
-      background: var(--ks-lw-warning);
-      border: none;
     }
   }
 }

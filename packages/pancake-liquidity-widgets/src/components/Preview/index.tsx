@@ -215,8 +215,8 @@ export default function Preview({
   const totalSwapOut = (swapAmountOut || 0) + amountOutPoolSwap;
   const swapPriceImpact = ((totalSwapIn - totalSwapOut) / totalSwapIn) * 100;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, theme, feeInfo);
+  const swapPiRes = getPriceImpact(swapPriceImpact, theme, feeInfo);
 
   const piVeryHigh =
     (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
@@ -314,7 +314,7 @@ export default function Preview({
             const estimateGas = await publicClient.estimateGas(txData);
             const hash = await walletClient.sendTransaction({
               ...txData,
-              gas: calculateGasMargin(estimateGas),
+              gas: calculateGasMargin(estimateGas) + BigInt(300_000),
               chain: walletClient.chain,
             });
             setTxHash(hash);
@@ -444,53 +444,50 @@ export default function Preview({
     );
   }
 
+  const isOutOfRange = position
+    ? pool.tickCurrent < position.tickLower ||
+      pool.tickCurrent >= position.tickUpper
+    : false;
+  const logo = getDexLogo();
+  const name = getDexName();
+  const fee = pool.fee;
+
   return (
     <div className="ks-lw-preview">
-      <div className="title">
-        <div className="logo">
-          <img
-            src={token0.logoURI}
-            alt=""
-            width="36px"
-            height="36px"
-            style={{ borderRadius: "50%" }}
-          />
-          <img
-            src={token1.logoURI}
-            alt=""
-            width="36px"
-            height="36px"
-            style={{ borderRadius: "50%" }}
-          />
-
-          <img
-            className="network-logo"
-            src={NetworkInfo[chainId].logo}
-            width="18px"
-            height="18px"
-          />
+      <div className="pool-info">
+        <div className="pool-tokens-logo">
+          <img className="token0" src={token0.logoURI} alt="" />
+          <img className="token1" src={token1.logoURI} alt="" />
+          <div className="network-logo">
+            <img src={NetworkInfo[chainId].logo} width="12px" height="12px" />
+          </div>
         </div>
 
         <div>
-          <div>
-            {pool.token0.symbol}/{pool.token1.symbol}{" "}
-            {positionId !== undefined && (
-              <span style={{ color: "var(--ks-lw-accent)" }}>
-                #{positionId}
-              </span>
-            )}
-          </div>
-          <div className="pool-info">
-            <div className="tag tag-primary">Fee {pool.fee / BASE_BPS}%</div>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <img src={getDexLogo()} width={16} height={16} alt="" />
-              <div>{getDexName()}</div>
+          <span className="symbol">
+            {token0.symbol} <span>/</span> {token1.symbol}
+            {positionId && <span className="pos-id">#{positionId}</span>}
+          </span>
+
+          <div className="pos-info">
+            {positionId &&
+              (!isOutOfRange ? (
+                <div className="tag tag-primary">Active</div>
+              ) : (
+                <div className="tag tag-warning">Inactive</div>
+              ))}
+            <div className="tag">
+              <img src={logo} width={16} height={16} alt="" />
+              <span>{name}</span>
+              <span>|</span>
+              Fee {fee / BASE_BPS}%
             </div>
+            <div className="dex-type"></div>
           </div>
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: "1rem" }}>
+      <div className="ks-lw-card" style={{ marginTop: "1rem" }}>
         <div className="card-title">Zap-in Amount</div>
         <div className="row" style={{ marginTop: "8px" }}>
           <img
@@ -500,7 +497,7 @@ export default function Preview({
             style={{ borderRadius: "50%" }}
           />
 
-          <div>
+          <div style={{ color: theme.textPrimary, fontSize: "16px" }}>
             {formatNumber(+amountIn)} {tokenIn.symbol}{" "}
             <span className="est-usd">
               ~{formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
@@ -510,25 +507,31 @@ export default function Preview({
       </div>
 
       <div
-        className="card card-outline"
+        className="ks-lw-card"
         style={{ marginTop: "1rem", fontSize: "14px" }}
       >
-        <div className="row-between">
-          <div className="card-title">Current pool price</div>
-          <div className="row">
-            <span>{price}</span>
-            {quote}
-            <SwitchIcon
-              style={{ cursor: "pointer" }}
-              onClick={() => toggleRevertPrice()}
-              role="button"
-            />
-          </div>
+        <div className="row">
+          <div>Current pool price</div>
+          <span style={{ color: theme.textPrimary }}>{price}</span>
+          {quote}
+          <SwitchIcon
+            style={{ cursor: "pointer" }}
+            onClick={() => toggleRevertPrice()}
+            role="button"
+          />
         </div>
 
         <div className="row-between" style={{ marginTop: "8px" }}>
-          <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
-            <div className="card-title">Min Price</div>
+          <div className="price-info">
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: "12px",
+                color: theme.secondary,
+              }}
+            >
+              MIN PRICE
+            </div>
             <div
               style={{
                 overflow: "hidden",
@@ -536,6 +539,8 @@ export default function Preview({
                 whiteSpace: "nowrap",
                 width: "100%",
                 textAlign: "center",
+                fontSize: "16px",
+                fontWeight: 600,
               }}
             >
               {(
@@ -544,10 +549,18 @@ export default function Preview({
                 ? "0"
                 : leftPrice?.toSignificant(6)}
             </div>
-            <div className="card-title">{quote}</div>
+            <div style={{ color: theme.textSecondary }}>{quote}</div>
           </div>
-          <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
-            <div className="card-title">Max Price</div>
+          <div className="price-info">
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: "12px",
+                color: theme.secondary,
+              }}
+            >
+              MAX PRICE
+            </div>
             <div
               style={{
                 textAlign: "center",
@@ -555,6 +568,8 @@ export default function Preview({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
+                fontSize: "16px",
+                fontWeight: 600,
               }}
             >
               {(
@@ -565,12 +580,15 @@ export default function Preview({
                 ? "∞"
                 : rightPrice?.toSignificant(6)}
             </div>
-            <div className="card-title">{quote}</div>
+            <div style={{ color: theme.textSecondary }}>{quote}</div>
           </div>
         </div>
       </div>
 
-      <div className="flex-col" style={{ gap: "12px", marginTop: "1rem" }}>
+      <div
+        className="ks-lw-card flex-col"
+        style={{ gap: "12px", marginTop: "1rem" }}
+      >
         <div className="row-between" style={{ alignItems: "flex-start" }}>
           <div className="summary-title">Est. Pooled {pool.token0.symbol}</div>
           <div>
@@ -606,7 +624,7 @@ export default function Preview({
               style={{
                 marginLeft: "auto",
                 width: "fit-content",
-                color: theme.subText,
+                color: theme.textSecondary,
               }}
             >
               ~
@@ -655,7 +673,7 @@ export default function Preview({
               style={{
                 marginLeft: "auto",
                 width: "fit-content",
-                color: theme.subText,
+                color: theme.textSecondary,
               }}
             >
               ~
@@ -701,7 +719,8 @@ export default function Preview({
           <span
             className="summary-value"
             style={{
-              color: slippage > warningThreshold ? theme.warning : theme.text,
+              color:
+                slippage > warningThreshold ? theme.warning : theme.textPrimary,
             }}
           >
             {((slippage * 100) / 10_000).toFixed(2)}%
@@ -724,7 +743,7 @@ export default function Preview({
                     ? theme.error
                     : swapPiRes.level === PI_LEVEL.HIGH
                     ? theme.warning
-                    : theme.text,
+                    : theme.textPrimary,
               }}
             >
               {swapPiRes.display}
@@ -750,7 +769,7 @@ export default function Preview({
                     ? theme.error
                     : piRes.level === PI_LEVEL.HIGH
                     ? theme.warning
-                    : theme.text,
+                    : theme.textPrimary,
               }}
             >
               {piRes.display}
@@ -777,7 +796,7 @@ export default function Preview({
                 Fees charged for automatically zapping into a liquidity pool.
                 You still have to pay the standard gas fees.{" "}
                 <a
-                  style={{ color: theme.accent }}
+                  style={{ color: theme.primary }}
                   href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
                   target="_blank"
                   rel="noopener norefferer"
@@ -813,10 +832,9 @@ export default function Preview({
 
       {slippage > warningThreshold && (
         <div
-          className="warning-msg"
+          className="ks-lw-card-warning"
           style={{
-            backgroundColor: theme.warning + "33",
-            color: theme.warning,
+            marginTop: "12px",
           }}
         >
           Slippage is high, your transaction might be front-run!
@@ -824,32 +842,13 @@ export default function Preview({
       )}
 
       {aggregatorSwapInfo && swapPiRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className="warning-msg"
-          style={{
-            backgroundColor:
-              swapPiRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-            color:
-              swapPiRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
-          }}
-        >
+        <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
           Swap {swapPiRes.msg}
         </div>
       )}
 
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className="warning-msg"
-          style={{
-            backgroundColor:
-              piRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-            color: piRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
-          }}
-        >
+        <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
           {piRes.msg}
         </div>
       )}

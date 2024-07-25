@@ -235,7 +235,7 @@ export const ZapContextProvider = ({
 }) => {
   const { pool, poolAddress, position, positionId, feePcm, feeAddress } =
     useWidgetInfo();
-  const { chainId, account, networkChainId } = useWeb3Provider();
+  const { chainId, networkChainId } = useWeb3Provider();
 
   // Setting
   const [showSetting, setShowSeting] = useState(false);
@@ -386,7 +386,7 @@ export const ZapContextProvider = ({
   }, [pool, tickUpper]);
 
   const error = useMemo(() => {
-    if (!account) return "Please connect wallet";
+    // if (!account) return "Connect Wallet";
     if (chainId !== networkChainId) return "Wrong network";
 
     if (!tokenIn) return "Select token in";
@@ -410,7 +410,6 @@ export const ZapContextProvider = ({
     tickLower,
     tickUpper,
     amountIn,
-    account,
     zapApiError,
     balanceIn,
     networkChainId,

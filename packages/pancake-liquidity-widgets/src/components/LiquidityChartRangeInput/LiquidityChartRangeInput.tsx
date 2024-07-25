@@ -176,7 +176,7 @@ export function LiquidityChartRangeInput({
           icon={<div></div>}
         />
       ) : isLoading ? (
-        <InfoBox icon={<Loader size="40px" stroke={theme.text} />} />
+        <InfoBox icon={<Loader size="40px" stroke={theme.textPrimary} />} />
       ) : error ? (
         <InfoBox message={"Liquidity data not available."} icon={<div></div>} />
       ) : !formattedData || formattedData.length === 0 || !price ? (
@@ -196,12 +196,12 @@ export function LiquidityChartRangeInput({
             margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
             styles={{
               area: {
-                selection: theme.text,
+                selection: theme.textPrimary,
               },
               brush: {
                 handle: {
-                  west: saturate(0.1, tokenAColor) ?? theme.text,
-                  east: saturate(0.1, tokenBColor) ?? theme.text,
+                  west: saturate(0.1, tokenAColor) ?? theme.textPrimary,
+                  east: saturate(0.1, tokenBColor) ?? theme.textPrimary,
                 },
               },
             }}

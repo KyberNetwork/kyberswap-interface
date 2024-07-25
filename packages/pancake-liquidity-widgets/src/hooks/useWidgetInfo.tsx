@@ -16,6 +16,7 @@ type ContextState = {
   feeAddress?: string;
   feePcm?: number;
   error?: string;
+  onConnectWallet: () => void;
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -25,6 +26,7 @@ const WidgetContext = createContext<ContextState>({
   position: null,
   positionOwner: null,
   theme: defaultTheme,
+  onConnectWallet: () => {},
 });
 
 type Props = {
@@ -37,6 +39,7 @@ type Props = {
   feeAddress?: string;
   feePcm?: number;
   error?: string;
+  onConnectWallet: () => void;
 };
 
 export const WidgetProvider = ({

@@ -22,10 +22,10 @@ export const Line = ({
         style={{
           opacity: 0.5,
           strokeWidth: 2,
-          stroke: theme.accent,
+          stroke: theme.secondary,
         }}
       />
     ),
-    [value, xScale, innerHeight, theme.accent]
+    [value, xScale, innerHeight, theme.secondary]
   );
 };

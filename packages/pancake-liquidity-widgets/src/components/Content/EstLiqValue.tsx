@@ -19,10 +19,12 @@ import InfoHelper from "../InfoHelper";
 import { formatUnits } from "viem";
 import { MouseoverTooltip } from "../Tooltip";
 import { PancakeToken } from "../../entities/Pool";
+import { useWeb3Provider } from "../../hooks/useProvider";
 
 export default function EstLiqValue() {
-  const { zapInfo, source } = useZapState();
-  const { pool, theme, position } = useWidgetInfo();
+  const { zapInfo, source, marketPrice, revertPrice } = useZapState();
+  const { pool, theme, position, positionOwner, positionId } = useWidgetInfo();
+  const { account } = useWeb3Provider();
 
   const token0 = pool?.token0 as PancakeToken | undefined;
   const token1 = pool?.token1 as PancakeToken | undefined;
@@ -109,8 +111,8 @@ export default function EstLiqValue() {
   const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, theme, feeInfo);
+  const swapPiRes = getPriceImpact(swapPriceImpact, theme, feeInfo);
 
   const positionAmount0Usd =
     (+(position?.amount0.toExact() || 0) *
@@ -127,14 +129,55 @@ export default function EstLiqValue() {
       positionAmount0Usd +
       positionAmount1Usd || 0;
 
+  const newPool =
+    zapInfo && pool
+      ? pool.newPool({
+          sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
+          tick: zapInfo.poolDetails.uniswapV3.newTick,
+          liquidity: (
+            pool.liquidity + BigInt(zapInfo.positionDetails.addedLiquidity)
+          ).toString(),
+        })
+      : null;
+
+  const isDevated =
+    !!marketPrice &&
+    newPool &&
+    Math.abs(
+      marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1
+    ) > 0.02;
+
+  const isOutOfRangeAfterZap =
+    position && newPool
+      ? newPool.tickCurrent < position.tickLower ||
+        newPool.tickCurrent >= position.tickUpper
+      : false;
+
+  const price = newPool
+    ? (revertPrice
+        ? newPool.priceOf(newPool.token1)
+        : newPool.priceOf(newPool.token0)
+      ).toSignificant(6)
+    : "--";
+
+  const marketRate = marketPrice
+    ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
+    : null;
+
   return (
     <>
-      <div className="zap-route est-liq-val">
-        <div className="title">
+      <div className="label" style={{ marginTop: "24px" }}>
+        Summary
+      </div>
+      <div className="ks-lw-card est-liq-val">
+        <div className="detail-row">
           Est. Liquidity Value
-          {!!addedAmountUsd && <span>{formatCurrency(addedAmountUsd)}</span>}
+          {!!addedAmountUsd && (
+            <span style={{ fontSize: "16px", fontWeight: "600" }}>
+              {formatCurrency(addedAmountUsd)}
+            </span>
+          )}
         </div>
-        <div className="divider"></div>
 
         <div className="detail-row">
           <div className="label">Est. Pooled {token0?.symbol}</div>
@@ -260,7 +303,7 @@ export default function EstLiqValue() {
                     ? theme.error
                     : swapPiRes.level === PI_LEVEL.HIGH
                     ? theme.warning
-                    : theme.text,
+                    : theme.textPrimary,
               }}
             >
               {swapPiRes.display}
@@ -286,7 +329,7 @@ export default function EstLiqValue() {
                     ? theme.error
                     : piRes.level === PI_LEVEL.HIGH
                     ? theme.warning
-                    : theme.text,
+                    : theme.textPrimary,
               }}
             >
               {piRes.display}
@@ -298,12 +341,13 @@ export default function EstLiqValue() {
 
         <div className="detail-row">
           <MouseoverTooltip
+            placement="bottom"
             text={
               <div>
                 Fees charged for automatically zapping into a liquidity pool.
                 You still have to pay the standard gas fees.{" "}
                 <a
-                  style={{ color: theme.accent }}
+                  style={{ color: theme.primary }}
                   href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
                   target="_blank"
                   rel="noopener norefferer"
@@ -335,38 +379,76 @@ export default function EstLiqValue() {
             </div>
           </MouseoverTooltip>
         </div>
+
+        {aggregatorSwapInfo && swapPiRes.level !== PI_LEVEL.NORMAL && (
+          <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
+            Swap {swapPiRes.msg}
+          </div>
+        )}
+
+        {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
+          <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
+            {piRes.msg}
+          </div>
+        )}
+
+        {isOutOfRangeAfterZap && (
+          <div
+            className="ks-lw-card-warning"
+            style={{
+              marginTop: "12px",
+            }}
+          >
+            The position will be{" "}
+            <span style={{ color: theme.warning }}>inactive</span> after zapping
+            and{" "}
+            <span style={{ color: theme.warning }}>won’t earn any fees</span>{" "}
+            until the pool price moves back to select price range
+          </div>
+        )}
+        {isDevated && (
+          <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
+            <div className="text">
+              The pool's estimated price after zapping:{" "}
+              <span
+                style={{
+                  fontWeight: "500",
+                  color: theme.warning,
+                  fontStyle: "normal",
+                  marginLeft: "2px",
+                }}
+              >
+                {price}{" "}
+              </span>{" "}
+              {revertPrice ? token0?.symbol : token1?.symbol} per{" "}
+              {revertPrice ? token1?.symbol : token0?.symbol} deviates from the
+              market price:{" "}
+              <span
+                style={{
+                  fontWeight: "500",
+                  color: theme.warning,
+                  fontStyle: "normal",
+                }}
+              >
+                {marketRate}{" "}
+              </span>
+              {revertPrice ? token0?.symbol : token1?.symbol} per{" "}
+              {revertPrice ? token1?.symbol : token0?.symbol}. You might have
+              high impermanent loss after you add liquidity to this pool
+            </div>
+          </div>
+        )}
+
+        {positionOwner &&
+          account &&
+          positionOwner.toLowerCase() !== account.toLowerCase() && (
+            <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
+              You are not the current owner of the position{" "}
+              <span style={{ color: theme.warning }}>#{positionId}</span>,
+              please double check before proceeding
+            </div>
+          )}
       </div>
-
-      {aggregatorSwapInfo && swapPiRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className="warning-msg"
-          style={{
-            backgroundColor:
-              swapPiRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-            color:
-              swapPiRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
-          }}
-        >
-          Swap {swapPiRes.msg}
-        </div>
-      )}
-
-      {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className="warning-msg"
-          style={{
-            backgroundColor:
-              piRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-            color: piRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
-          }}
-        >
-          {piRes.msg}
-        </div>
-      )}
     </>
   );
 }

@@ -59,7 +59,7 @@ export default function InfoHelper({
             outline: "none",
             cursor: "default",
             borderRadius: "36px",
-            color: theme.subText,
+            color: theme.textSecondary,
           }}
         >
           <Info style={{ color, width: size, height: size }} />

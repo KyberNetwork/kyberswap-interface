@@ -46,21 +46,13 @@ export default function PriceInfo() {
       </div>
 
       {marketPrice === null && (
-        <div
-          className="price-warning"
-          style={{ backgroundColor: `${theme.warning}33` }}
-        >
-          <span className="text">
-            Unable to get the market price. Please be cautious!
-          </span>
+        <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
+          Unable to get the market price. Please be cautious!
         </div>
       )}
 
       {isDevated && (
-        <div
-          className="price-warning"
-          style={{ backgroundColor: `${theme.warning}33` }}
-        >
+        <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
           {/*
           <div className="row">
             <span>Market Price</span>
@@ -77,8 +69,9 @@ export default function PriceInfo() {
             />
           </div>
           */}
+          <div style={{ color: theme.warning }}>Pool price discrepancy:</div>
           <div className="text">
-            The pool's current price of{" "}
+            Market price{" "}
             <span
               style={{
                 fontWeight: "500",
@@ -86,23 +79,11 @@ export default function PriceInfo() {
                 fontStyle: "normal",
               }}
             >
-              1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
-              {price} {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
-            </span>{" "}
-            deviates from the market price{" "}
-            <span
-              style={{
-                fontWeight: "500",
-                color: theme.warning,
-                fontStyle: "normal",
-              }}
-            >
-              (1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
               {marketRate}{" "}
-              {revertPrice ? pool?.token0.symbol : pool?.token1.symbol})
             </span>
-            . You might have high impermanent loss after you add liquidity to
-            this pool
+            {revertPrice ? pool?.token0.symbol : pool?.token1.symbol} per{" "}
+            {revertPrice ? pool?.token1.symbol : pool?.token0.symbol}. Please
+            consider the risks of impermanent loss before adding liquidity.
           </div>
         </div>
       )}

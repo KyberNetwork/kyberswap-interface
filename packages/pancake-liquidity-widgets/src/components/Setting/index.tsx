@@ -8,6 +8,7 @@ import SlippageInput from "./SlippageInput";
 import { MouseoverTooltip } from "../Tooltip";
 import Modal from "../Modal";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import Input from "../Input";
 
 export default function Setting() {
   const {
@@ -57,7 +58,7 @@ export default function Setting() {
             enable Degen Mode
           </div>
 
-          <input
+          <Input
             placeholder="Confirm"
             value={confirm}
             onChange={(e) => {
@@ -76,7 +77,7 @@ export default function Setting() {
               No, Go back
             </button>
             <button
-              className="primary-btn warning"
+              className="primary-btn"
               onClick={() => {
                 if (confirm.toLowerCase() === "confirm") {
                   setDegenMode(true);

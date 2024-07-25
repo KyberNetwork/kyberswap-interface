@@ -223,8 +223,8 @@ export const Brush = ({
                     cursor="ew-resize"
                     strokeWidth={3}
                     pointerEvents={"none"}
-                    stroke={theme.subText}
-                    fill={theme.subText}
+                    stroke={theme.textSecondary}
+                    fill={theme.textSecondary}
                   />
 
                   <path
@@ -232,7 +232,7 @@ export const Brush = ({
                     cursor="ew-resize"
                     pointerEvents="none"
                     strokeWidth={1.5}
-                    stroke={theme.layer1}
+                    stroke={theme.cardBackground}
                     opacity={1}
                   />
                 </g>
@@ -252,7 +252,7 @@ export const Brush = ({
                     height="30"
                     width="60"
                     rx="8"
-                    fill={theme.subText}
+                    fill={theme.textSecondary}
                   />
 
                   <text
@@ -261,7 +261,7 @@ export const Brush = ({
                     dominantBaseline="middle"
                     textAnchor="middle"
                     fontSize="13px"
-                    fill={theme.layer1}
+                    fill={theme.cardBackground}
                   >
                     {brushLabelValue("w", localBrushExtent[0])}
                   </text>
@@ -283,8 +283,8 @@ export const Brush = ({
                     cursor="ew-resize"
                     strokeWidth={3}
                     pointerEvents={"none"}
-                    stroke={theme.subText}
-                    fill={theme.subText}
+                    stroke={theme.textSecondary}
+                    fill={theme.textSecondary}
                   />
 
                   <path
@@ -292,7 +292,7 @@ export const Brush = ({
                     cursor="ew-resize"
                     pointerEvents="none"
                     strokeWidth={1.5}
-                    stroke={theme.layer1}
+                    stroke={theme.cardBackground}
                     opacity={1}
                   />
                 </g>
@@ -312,7 +312,7 @@ export const Brush = ({
                     height="30"
                     width="60"
                     rx="8"
-                    fill={theme.subText}
+                    fill={theme.textSecondary}
                   />
 
                   <text
@@ -320,7 +320,7 @@ export const Brush = ({
                     dominantBaseline="middle"
                     fontSize="13px"
                     textAnchor="middle"
-                    fill={theme.layer1}
+                    fill={theme.cardBackground}
                   >
                     {brushLabelValue("e", localBrushExtent[1])}
                   </text>

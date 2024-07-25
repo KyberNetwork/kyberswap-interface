@@ -3,7 +3,7 @@ import { WalletClient, Address, http, createPublicClient } from "viem";
 import * as chains from "viem/chains";
 
 import { Web3Provider } from "../../hooks/useProvider";
-import { Theme, defaultTheme } from "../../theme";
+import { Theme, defaultTheme, lightTheme } from "../../theme";
 import { WidgetProvider } from "../../hooks/useWidgetInfo";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
@@ -16,7 +16,7 @@ const getChainById = (chainId: number) => {
 };
 
 export interface WidgetProps {
-  theme?: Theme;
+  theme?: Theme | "dark" | "light";
 
   walletClient: WalletClient | undefined;
   account: Address | undefined;
@@ -32,10 +32,11 @@ export interface WidgetProps {
   source: string;
   includedSources?: string;
   excludedSources?: string;
+  onConnectWallet: () => void;
 }
 
 export default function Widget({
-  theme,
+  theme: themeProps,
 
   walletClient,
   account,
@@ -51,6 +52,7 @@ export default function Widget({
   includedSources,
   excludedSources,
   source,
+  onConnectWallet,
 }: WidgetProps) {
   const publicClient = useMemo(() => {
     const chain = getChainById(chainId);
@@ -63,6 +65,11 @@ export default function Widget({
       transport: http(),
     });
   }, [chainId]);
+
+  const theme: Theme = useMemo(() => {
+    if (themeProps === "light") return lightTheme;
+    return defaultTheme;
+  }, [themeProps]);
 
   useEffect(() => {
     if (!theme) return;
@@ -104,6 +111,7 @@ export default function Widget({
         theme={theme || defaultTheme}
         feeAddress={feeAddress}
         feePcm={feePcm}
+        onConnectWallet={onConnectWallet}
       >
         <ZapContextProvider
           includedSources={includedSources}

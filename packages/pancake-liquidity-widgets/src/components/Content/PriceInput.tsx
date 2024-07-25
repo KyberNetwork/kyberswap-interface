@@ -14,7 +14,7 @@ export default function PriceInput({ type }: { type: Type }) {
     priceUpper,
     positionId,
   } = useZapState();
-  const { pool } = useWidgetInfo();
+  const { pool, theme } = useWidgetInfo();
   const [localValue, setLocalValue] = useState("");
 
   const price = useMemo(() => {
@@ -107,8 +107,27 @@ export default function PriceInput({ type }: { type: Type }) {
 
   return (
     <div className="price-input">
+      <span
+        style={{
+          color: theme.secondary,
+          fontSize: "12px",
+          fontWeight: "600",
+        }}
+      >
+        {type === Type.PriceLower ? "MIN" : "MAX"} PRICE
+      </span>
+
       <div className="input-wrapper">
-        <span>{type === Type.PriceLower ? "Min" : "Max"} price</span>
+        {positionId === undefined && (
+          <button
+            role="button"
+            onClick={decreaseTick}
+            disabled={isFullRange || positionId !== undefined}
+          >
+            <div style={{ marginTop: "-2px" }}>-</div>
+          </button>
+        )}
+
         <input
           value={localValue}
           onChange={(e) => {
@@ -132,31 +151,23 @@ export default function PriceInput({ type }: { type: Type }) {
           minLength={1}
           maxLength={79}
           spellCheck="false"
+          style={{ maxWidth: positionId ? "120px" : undefined }}
         />
-        <span>
-          {revertPrice
-            ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-            : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
-        </span>
-      </div>
-
-      {positionId === undefined && (
-        <div className="action">
+        {positionId === undefined && (
           <button
             onClick={increaseTick}
             disabled={isFullRange || positionId !== undefined}
           >
             +
           </button>
-          <button
-            role="button"
-            onClick={decreaseTick}
-            disabled={isFullRange || positionId !== undefined}
-          >
-            -
-          </button>
-        </div>
-      )}
+        )}
+      </div>
+
+      <div>
+        {revertPrice
+          ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+          : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
+      </div>
     </div>
   );
 }

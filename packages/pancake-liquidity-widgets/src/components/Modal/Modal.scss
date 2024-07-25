@@ -13,13 +13,13 @@
 }
 
 .ks-lw-modal-content {
-  background: var(--ks-lw-layer1);
-  color: var(--ks-lw-text);
+  background: var(--ks-lw-cardBackground);
+  color: var(--ks-lw-textPrimary);
   width: 100%;
   max-width: 450px;
-  border-radius: var(--ks-lw-borderRadius);
+  border-radius: 16px;
   padding: 24px;
-  font-family: var(--ks-lw-fontFamily);
+  font-family: Kanit, Sans-serif;
   position: relative;
   transition: all 0.2s;
   max-height: 96vh;

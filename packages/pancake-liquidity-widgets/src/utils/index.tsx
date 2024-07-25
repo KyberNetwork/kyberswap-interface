@@ -2,6 +2,7 @@ import { isAddress as _isAddress, getAddress } from "viem";
 import { formatUnits } from "viem";
 import pancakeLogo from "../assets/pancake.png";
 import { ProtocolFeeAction } from "../hooks/useZapInState";
+import { Theme } from "../theme";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -206,6 +207,7 @@ export enum PI_LEVEL {
 
 export const getPriceImpact = (
   pi: number | null | undefined,
+  theme: Theme,
   zapFeeInfo?: ProtocolFeeAction
 ) => {
   if (pi === null || pi === undefined || isNaN(pi))
@@ -221,7 +223,12 @@ export const getPriceImpact = (
 
   if (pi > 10 * warningThreshold) {
     return {
-      msg: "Price impact is very high. You will lose funds!",
+      msg: (
+        <div>
+          Price impact is <span style={{ color: theme.error }}>very high</span>.
+          You will lose funds!
+        </div>
+      ),
       level: PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
@@ -229,7 +236,11 @@ export const getPriceImpact = (
 
   if (pi > warningThreshold) {
     return {
-      msg: "Price impact is high",
+      msg: (
+        <>
+          Price impact is <span style={{ color: theme.warning }}>high</span>
+        </>
+      ),
       level: PI_LEVEL.HIGH,
       display: piDisplay,
     };
@@ -269,6 +280,6 @@ export function calculateGasMargin(value: bigint): bigint {
   const gasMargin = (value * BigInt(2000)) / BigInt(10000);
 
   return gasMargin >= defaultGasLimitMargin
-    ? value + gasMargin
+    ? value + gasMargin 
     : value + defaultGasLimitMargin;
 }

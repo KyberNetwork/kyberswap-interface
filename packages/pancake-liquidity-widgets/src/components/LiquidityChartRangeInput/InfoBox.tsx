@@ -19,7 +19,7 @@ export function InfoBox({
             fontSize: "20px",
             textAlign: "center",
             paddingTop: "4px",
-            color: theme.subText,
+            color: theme.textSecondary,
           }}
         >
           {message}
