@@ -2,7 +2,6 @@ import { JSBI, Pair } from '@kyberswap/ks-sdk-classic'
 import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
@@ -14,7 +13,6 @@ import { ButtonPrimary } from 'components/Button'
 import Card from 'components/Card'
 import ClassicElasticTab from 'components/ClassicElasticTab'
 import { AutoColumn } from 'components/Column'
-import Wallet from 'components/Icons/Wallet'
 import Withdraw from 'components/Icons/Withdraw'
 import LocalLoader from 'components/LocalLoader'
 import FullPositionCard from 'components/PositionCard'
@@ -22,7 +20,7 @@ import { AutoRow } from 'components/Row'
 import Search from 'components/Search'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { APP_PATHS, DMM_ANALYTICS_URL } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { usePairByAddress, usePairsByAddress } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
@@ -39,7 +37,7 @@ import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
 import { useLiquidityPositionTokenPairs, useToV2LiquidityTokens } from 'state/user/hooks'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
-import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
+import { StyledInternalLink, TYPE } from 'theme'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -188,7 +186,7 @@ export default function PoolCombination() {
 
 function MyPoolClassic() {
   const theme = useTheme()
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
 
   const under768 = useMedia('(max-width:768px)')
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
@@ -321,16 +319,6 @@ function MyPoolClassic() {
             <AutoRow>
               <InstructionText>
                 <Trans>Here you can view all your liquidity and staked balances in the Classic Pools.</Trans>
-                {!upToSmall && (
-                  <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                    <Flex alignItems="center">
-                      <Wallet size={16} />
-                      <Text fontSize="14px" marginLeft="4px">
-                        <Trans>Analyze Wallet</Trans> ↗
-                      </Text>
-                    </Flex>
-                  </ExternalLink>
-                )}
               </InstructionText>
             </AutoRow>
             <TitleRow>
@@ -364,19 +352,6 @@ function MyPoolClassic() {
 
                 {upToSmall && (
                   <Flex sx={{ gap: '12px' }}>
-                    <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                      <Flex
-                        sx={{ borderRadius: '50%' }}
-                        width="36px"
-                        backgroundColor={rgba(theme.subText, 0.2)}
-                        height="36px"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        <Wallet size={16} color={theme.subText} />
-                      </Flex>
-                    </ExternalLink>
-
                     <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />
                   </Flex>
                 )}
