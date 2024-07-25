@@ -222,7 +222,7 @@ export const NetworkInfo: {
   },
 
   1101: {
-    name: "Polgyon ZkEVM",
+    name: "Polygyon ZkEVM",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png",
     nativeLogo:
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",

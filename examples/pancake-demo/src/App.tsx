@@ -58,6 +58,8 @@ export default function App() {
           display: "flex",
           flexDirection: "column",
           gap: "16px",
+          maxWidth: "960px",
+          margin: 'auto',
         }}
       >
         <ConnectButton />
@@ -67,15 +69,15 @@ export default function App() {
   );
 }
 
-function CurrentWallet() {
-  const account = useAccount();
-
-  if (!account.address) {
-    return <span>not connected</span>;
-  }
-
-  return <span>Wallet: {account.address}</span>;
-}
+// function CurrentWallet() {
+//   const account = useAccount();
+//
+//   if (!account.address) {
+//     return <span>not connected</span>;
+//   }
+//
+//   return <span>Wallet: {account.address}</span>;
+// }
 
 function LiquidityWidgetWrapper() {
   const [key, setKey] = useState(Date.now());
@@ -99,35 +101,36 @@ function LiquidityWidgetWrapper() {
   const { openConnectModal } = useConnectModal();
 
   return (
-    <>
+    <div style={{ margin: "auto", width: "100%", maxWidth: "960px" }}>
       <div
         style={{
           display: "flex",
           gap: "16px",
+          marginTop: "1rem",
         }}
       >
         <Params params={params} setParams={handleUpdateParams} />
-        <CurrentWallet />
       </div>
-      <div style={{ maxWidth: "960px" }}>
-        <LiquidityWidget
-          key={key}
-          onConnectWallet={() => {
-            openConnectModal?.();
-          }}
-          walletClient={walletClient}
-          account={account}
-          networkChainId={chainId}
-          {...params}
-          feeAddress="0x7E59Be2D29C5482256f555D9BD4b37851F1f3411"
-          feePcm={50}
-          onDismiss={() => {
-            window.location.reload();
-          }}
-          source="zap-widget-demo"
-        />
-      </div>
-    </>
+      <LiquidityWidget
+        key={key}
+        onConnectWallet={() => {
+          openConnectModal?.();
+        }}
+        walletClient={walletClient}
+        account={account}
+        networkChainId={chainId}
+        chainId={params.chainId}
+        positionId={params.positionId}
+        poolAddress={params.poolAddress}
+        theme={params.theme}
+        feeAddress="0x7E59Be2D29C5482256f555D9BD4b37851F1f3411"
+        feePcm={50}
+        onDismiss={() => {
+          window.location.reload();
+        }}
+        source="zap-widget-demo"
+      />
+    </div>
   );
 }
 
@@ -138,7 +141,7 @@ function Params({
   params: WidgetParams;
   setParams: (p: WidgetParams) => void;
 }) {
-  const [showParams, setShowParams] = useState(false);
+  // const [showParams, setShowParams] = useState(false);
   const [localParams, setLocalParams] = useState(params);
 
   useEffect(() => {
@@ -147,109 +150,99 @@ function Params({
 
   return (
     <>
-      <button
+      <div
         style={{
-          width: "120px",
-          height: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          marginBottom: "1rem",
         }}
-        onClick={() => setShowParams((e) => !e)}
       >
-        Params
-      </button>
-      {showParams && (
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
+            display: "grid",
+            gridTemplateColumns: "100px 400px",
             gap: "8px",
           }}
         >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "100px 400px",
-              gap: "8px",
+          <span>chainId</span>
+          <input
+            value={String(localParams.chainId)}
+            onChange={(e) => {
+              setLocalParams((params) => ({
+                ...params,
+                chainId: Number(e.target.value),
+              }));
             }}
-          >
-            <span>chainId</span>
-            <input
-              value={String(localParams.chainId)}
-              onChange={(e) => {
-                setLocalParams((params) => ({
-                  ...params,
-                  chainId: Number(e.target.value),
-                }));
-              }}
-            />
+          />
 
-            <span>positionId</span>
-            <input
-              value={localParams.positionId}
-              onChange={(e) => {
-                setLocalParams((params) => ({
-                  ...params,
-                  positionId: e.target.value,
-                }));
-              }}
-            />
-
-            <span>poolAddress</span>
-            <input
-              value={localParams.poolAddress}
-              onChange={(e) => {
-                setLocalParams((params) => ({
-                  ...params,
-                  poolAddress: e.target.value,
-                }));
-              }}
-            />
-          </div>
-
-          <div style={{ display: "flex", gap: "60px" }}>
-            <span>Theme</span>
-            <div>
-              <input
-                type="radio"
-                id="dark"
-                name="Dark"
-                value="dark"
-                checked={params.theme === "dark"}
-                onChange={(e) =>
-                  setParams({
-                    ...params,
-                    theme: e.currentTarget.value as "light" | "dark",
-                  })
-                }
-              />
-              <label htmlFor="dark">Dark</label>
-
-              <input
-                type="radio"
-                id="light"
-                name="Light"
-                value="light"
-                checked={params.theme === "light"}
-                onChange={(e) =>
-                  setParams({
-                    ...params,
-                    theme: e.currentTarget.value as "light" | "dark",
-                  })
-                }
-              />
-              <label htmlFor="light">light</label>
-            </div>
-          </div>
-
-          <button
-            style={{
-              width: "120px",
+          <span>positionId</span>
+          <input
+            value={localParams.positionId}
+            onChange={(e) => {
+              setLocalParams((params) => ({
+                ...params,
+                positionId: e.target.value,
+              }));
             }}
-            onClick={() => setParams(localParams)}
-          >
-            Save and Reload
-          </button>
+          />
+
+          <span>poolAddress</span>
+          <input
+            value={localParams.poolAddress}
+            onChange={(e) => {
+              setLocalParams((params) => ({
+                ...params,
+                poolAddress: e.target.value,
+              }));
+            }}
+          />
         </div>
-      )}
+
+        <div style={{ display: "flex", gap: "60px" }}>
+          <span>Theme</span>
+          <div>
+            <input
+              type="radio"
+              id="dark"
+              name="Dark"
+              value="dark"
+              checked={localParams.theme === "dark"}
+              onChange={(e) =>
+                setLocalParams({
+                  ...localParams,
+                  theme: e.currentTarget.value as "light" | "dark",
+                })
+              }
+            />
+            <label htmlFor="dark">Dark</label>
+
+            <input
+              type="radio"
+              id="light"
+              name="Light"
+              value="light"
+              checked={localParams.theme === "light"}
+              onChange={(e) =>
+                setLocalParams({
+                  ...localParams,
+                  theme: e.currentTarget.value as "light" | "dark",
+                })
+              }
+            />
+            <label htmlFor="light">light</label>
+          </div>
+        </div>
+
+        <button
+          style={{
+            width: "120px",
+          }}
+          onClick={() => setParams(localParams)}
+        >
+          Save and Reload
+        </button>
+      </div>
     </>
   );
 }
