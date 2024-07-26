@@ -18,6 +18,7 @@ import ArrowRight from 'components/Icons/ArrowRight'
 import Faucet from 'components/Icons/Faucet'
 import Icon from 'components/Icons/Icon'
 import MailIcon from 'components/Icons/MailIcon'
+import VoteIcon from 'components/Icons/Vote'
 import LanguageSelector from 'components/LanguageSelector'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
@@ -321,19 +322,18 @@ export default function Menu() {
               <>
                 <MenuItem>
                   <NavDropDown
-                    icon={<Info />}
+                    icon={<VoteIcon />}
                     title={
                       <Text sx={{ position: 'relative' }} width="max-content">
-                        Campaigns
-                        <NewLabel style={{ position: 'absolute', right: '-1.5rem' }}>New</NewLabel>
+                        KyberDAO
                       </Text>
                     }
                     link={'/campaigns'}
                     options={[
-                      { link: '/campaigns/aggregator', label: 'Aggregator Trading' },
-                      { link: '/campaigns/limit-order', label: 'Limit Order' },
-                      { link: '/campaigns/referrals', label: 'Referral' },
-                      { link: '/campaigns/dashboard', label: 'My Dashboard' },
+                      { link: APP_PATHS.KYBERDAO_STAKE, label: 'Stake KNC' },
+                      { link: APP_PATHS.KYBERDAO_VOTE, label: 'Vote' },
+                      { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: 'KNC Utility' },
+                      { link: 'https://kyberswap.canny.io/feature-request', label: 'Feature Request', external: true },
                     ]}
                   />
                 </MenuItem>
