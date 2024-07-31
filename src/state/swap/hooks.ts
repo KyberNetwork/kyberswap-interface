@@ -1,38 +1,21 @@
-import { Trade } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { ParsedUrlQuery } from 'querystring'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
-import { APP_PATHS, BAD_RECIPIENT_ADDRESSES } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { CORRELATED_COINS_ADDRESS, DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2, useStableCoins } from 'hooks/Tokens'
-import { useTradeExactIn } from 'hooks/Trades'
-import useENS from 'hooks/useENS'
-import useParsedQueryString from 'hooks/useParsedQueryString'
-import { getUrlMatchParams } from 'hooks/useSyncTokenSymbolToUrl'
+import { useAllTokens, useCurrencyV2, useStableCoins } from 'hooks/Tokens'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { AppDispatch, AppState } from 'state/index'
-import {
-  Field,
-  replaceSwapState,
-  resetSelectCurrency,
-  selectCurrency,
-  setRecipient,
-  setTrade,
-  switchCurrencies,
-  switchCurrenciesV2,
-  typeInput,
-} from 'state/swap/actions'
+import { Field, resetSelectCurrency, setRecipient, setTrade, typeInput } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
-import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
-import { useCurrencyBalances } from 'state/wallet/hooks'
+import { useDegenModeManager } from 'state/user/hooks'
 import { isAddress, isAddressString } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
-import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -50,16 +33,41 @@ export function useSwapActionHandlers(): {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
 
+  const navigate = useNavigate()
+  const { fromCurrency, toCurrency } = useCurrencyFromUrl()
+
+  const allTokens = useAllTokens()
+
   const onCurrencySelection = useCallback(
     (field: Field, currency: Currency) => {
-      dispatch(
-        selectCurrency({
-          field,
-          currencyId: currency.isNative ? (NativeCurrencies[chainId].symbol as string) : currency.address,
-        }),
+      let f = fromCurrency,
+        to = toCurrency
+
+      const isWhitelisted = allTokens[currency?.wrapped.address || '']?.isWhitelisted
+
+      if (field === Field.INPUT) {
+        const newFrom =
+          isWhitelisted || currency.isNative ? currency.symbol?.toLowerCase() || '' : currency.address.toLowerCase()
+        f = newFrom
+        if (newFrom === toCurrency || currency.symbol?.toLowerCase() === toCurrency) {
+          to = fromCurrency
+        }
+      } else {
+        const newTo =
+          isWhitelisted || currency.isNative ? currency.symbol?.toLowerCase() || '' : currency.address.toLowerCase()
+        to = newTo
+        if (newTo === f || currency?.symbol?.toLowerCase() === fromCurrency) {
+          f = toCurrency
+        }
+      }
+
+      navigate(
+        `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
+          NETWORKS_INFO[chainId].route
+        }/${f}-to-${to}`,
       )
     },
-    [dispatch, chainId],
+    [fromCurrency, chainId, toCurrency, navigate, allTokens],
   )
 
   const [isDegenMode] = useDegenModeManager()
@@ -80,12 +88,20 @@ export function useSwapActionHandlers(): {
   )
 
   const onSwitchTokens = useCallback(() => {
-    dispatch(switchCurrencies())
-  }, [dispatch])
+    navigate(
+      `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
+        NETWORKS_INFO[chainId].route
+      }/${toCurrency}-to-${fromCurrency}`,
+    )
+  }, [fromCurrency, toCurrency, navigate, chainId])
 
   const onSwitchTokensV2 = useCallback(() => {
-    dispatch(switchCurrenciesV2())
-  }, [dispatch])
+    navigate(
+      `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
+        NETWORKS_INFO[chainId].route
+      }/${toCurrency}-to-${fromCurrency}`,
+    )
+  }, [fromCurrency, toCurrency, navigate, chainId])
 
   const onUserInput = useCallback(
     (field: Field, typedValue: string) => {
@@ -144,119 +160,6 @@ export function tryParseAmount<T extends Currency>(
   return undefined
 }
 
-/**
- * Returns true if any of the pairs or tokens in a trade have the given checksummed address
- * @param trade to check for the given address
- * @param checksummedAddress address to check in the pairs and tokens
- */
-function involvesAddress(trade: Trade<Currency, Currency, TradeType>, checksummedAddress: string): boolean {
-  return (
-    trade.route.path.some(token => token.address === checksummedAddress) ||
-    trade.route.pairs.some(pair => pair.liquidityToken.address === checksummedAddress)
-  )
-}
-
-// from the current swap inputs, compute the best trade and return it.
-function useDerivedSwapInfo(): {
-  currencies: { [field in Field]?: Currency }
-  currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
-  parsedAmount: CurrencyAmount<Currency> | undefined
-  v2Trade: Trade<Currency, Currency, TradeType> | undefined
-  inputError?: string
-} {
-  const { account, chainId } = useActiveWeb3React()
-
-  const {
-    independentField,
-    typedValue,
-    [Field.INPUT]: { currencyId: inputCurrencyId },
-    [Field.OUTPUT]: { currencyId: outputCurrencyId },
-    recipient,
-  } = useSwapState()
-
-  const inputCurrency = useCurrencyV2(inputCurrencyId)
-  const outputCurrency = useCurrencyV2(outputCurrencyId)
-  const recipientLookup = useENS(recipient ?? undefined)
-  const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
-
-  const relevantTokenBalances = useCurrencyBalances(
-    useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency]),
-  )
-
-  const isExactIn = useMemo(() => independentField === Field.INPUT, [independentField])
-  const parsedAmount = useMemo(
-    () => tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
-    [inputCurrency, isExactIn, outputCurrency, typedValue],
-  )
-
-  const currencyAmountIn = useMemo(() => (isExactIn ? parsedAmount : undefined), [isExactIn, parsedAmount])
-  const currencyOut = useMemo(() => outputCurrency ?? undefined, [outputCurrency])
-  const bestTradeExactIn = useTradeExactIn(currencyAmountIn, currencyOut)
-
-  const v2Trade = bestTradeExactIn
-
-  const currencyBalances = {
-    [Field.INPUT]: relevantTokenBalances[0],
-    [Field.OUTPUT]: relevantTokenBalances[1],
-  }
-
-  const currencies: { [field in Field]?: Currency } = useMemo(() => {
-    return {
-      [Field.INPUT]: inputCurrency ?? undefined,
-      [Field.OUTPUT]: outputCurrency ?? undefined,
-    }
-  }, [inputCurrency, outputCurrency])
-
-  let inputError: string | undefined
-  if (!account) {
-    inputError = t`Connect wallet`
-  }
-
-  if (!parsedAmount) {
-    if (typedValue) inputError = inputError ?? t`Invalid amount`
-    else inputError = inputError ?? t`Enter an amount`
-  }
-
-  if (!currencies[Field.INPUT] || !currencies[Field.OUTPUT]) {
-    inputError = inputError ?? t`Select a token`
-  }
-
-  const formattedTo = isAddress(chainId, to)
-  if (!to || !formattedTo) {
-    inputError = inputError ?? t`Enter a recipient`
-  } else {
-    if (
-      BAD_RECIPIENT_ADDRESSES.has(formattedTo) ||
-      (bestTradeExactIn && involvesAddress(bestTradeExactIn, formattedTo))
-    ) {
-      inputError = inputError ?? t`Invalid recipient`
-    }
-  }
-
-  const [allowedSlippage] = useUserSlippageTolerance()
-
-  const slippageAdjustedAmounts = v2Trade && allowedSlippage && computeSlippageAdjustedAmounts(v2Trade, allowedSlippage)
-
-  // compare input balance to max input based on version
-  const [balanceIn, amountIn] = [
-    currencyBalances[Field.INPUT],
-    slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null,
-  ]
-
-  if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
-    const symbol = amountIn.currency.symbol
-    inputError = t`Insufficient ${symbol} balance.`
-  }
-
-  return {
-    currencies,
-    currencyBalances,
-    parsedAmount,
-    v2Trade: v2Trade ?? undefined,
-    inputError,
-  }
-}
-
 function parseCurrencyFromURLParameter(urlParam: any, chainId: ChainId): string {
   if (typeof urlParam === 'string') {
     const valid = isAddress(chainId, urlParam)
@@ -285,7 +188,14 @@ export function queryParametersToSwapState(
   parsedQs: ParsedUrlQuery,
   chainId: ChainId,
   isMatchPath: boolean,
-): SwapState {
+): SwapState & {
+  [Field.INPUT]: {
+    currencyId: string
+  }
+  [Field.OUTPUT]: {
+    currencyId: string
+  }
+} {
   let inputCurrency = parseCurrencyFromURLParameter(isMatchPath ? parsedQs.inputCurrency : null, chainId)
   let outputCurrency = parseCurrencyFromURLParameter(isMatchPath ? parsedQs.outputCurrency : null, chainId)
   if (inputCurrency === outputCurrency) {
@@ -317,121 +227,77 @@ export function queryParametersToSwapState(
   }
 }
 
-const getCurrencySymbolOrAddress = (currency: Currency | undefined): string | undefined => {
-  if (!currency) return ''
-  return currency.isNative ? currency.symbol : currency.address
-}
-
-// updates the swap state to use the defaults for a given network
-export const useDefaultsFromURLSearch = ():
-  | {
-      inputCurrencyId?: string
-      outputCurrencyId?: string
-    }
-  | undefined => {
-  // TODO: this hook is called more than 100 times just on startup, need to check
-
-  const dispatch = useDispatch()
-  const params = useParams()
-  const { fromCurrency, toCurrency } = getUrlMatchParams(params)
+export const useCurrencyFromUrl = () => {
   const { chainId } = useActiveWeb3React()
+  const { currency: currencyParam } = useParams()
 
-  // this is already memo-ed
-  const parsedQs = useParsedQueryString()
+  return useMemo(() => {
+    const matches = currencyParam?.split('-to-')
+    const fromCurrency = matches?.[0]?.toLowerCase() || ''
+    let toCurrency = matches?.[1]?.toLowerCase() || ''
+    const nativeSymbol = NativeCurrencies[chainId].symbol?.toLowerCase() || 'eth'
+    const defaultOutput = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]?.symbol?.toLowerCase() || ''
 
-  const [result, setResult] = useState<{
-    inputCurrencyId?: string
-    outputCurrencyId?: string
-  }>()
+    if (!fromCurrency && !toCurrency)
+      return {
+        fromCurrency: nativeSymbol,
+        toCurrency: defaultOutput,
+      }
 
-  const { currencies } = useDerivedSwapInfo()
-
-  const currenciesRef = useRef(currencies)
-  currenciesRef.current = currencies
-  const { pathname } = useLocation()
-  const refPathname = useRef(pathname)
-  refPathname.current = pathname
-
-  useEffect(() => {
-    if (!chainId) {
-      return
+    if (fromCurrency === toCurrency) {
+      toCurrency = ''
     }
 
-    const parsed = queryParametersToSwapState(
-      parsedQs,
-      chainId,
-      refPathname.current.startsWith(APP_PATHS.SWAP) || refPathname.current.startsWith(APP_PATHS.PARTNER_SWAP),
-    )
-
-    const outputCurrencyAddress = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]?.address || ''
-
-    // symbol or address of the input
-    const storedInputValue = getCurrencySymbolOrAddress(currenciesRef.current[Field.INPUT])
-    const storedOutputValue = getCurrencySymbolOrAddress(currenciesRef.current[Field.OUTPUT])
-
-    const native = NativeCurrencies[chainId].symbol
-
-    const parsedInputValue = parsed[Field.INPUT].currencyId // default inputCurrency is the native token
-    const parsedOutputValue = parsed[Field.OUTPUT].currencyId || outputCurrencyAddress
-
-    // priority order
-    // 1. address on url (inputCurrency, outputCurrency)
-    // 2. previous currency (to not reset default pair when back to swap page)
-    // 3. default pair
-    const inputCurrencyId = parsedQs.inputCurrency ? parsedInputValue : storedInputValue || parsedInputValue
-    let outputCurrencyId = parsedQs.outputCurrency ? parsedOutputValue : storedOutputValue || parsedOutputValue
-
-    if (outputCurrencyId === native && inputCurrencyId === native) {
-      outputCurrencyId = outputCurrencyAddress
+    return {
+      fromCurrency: fromCurrency || (toCurrency === nativeSymbol ? defaultOutput : nativeSymbol),
+      toCurrency: toCurrency || defaultOutput,
     }
-
-    if (fromCurrency || toCurrency) return
-    dispatch(
-      replaceSwapState({
-        field: parsed.independentField,
-        inputCurrencyId,
-        outputCurrencyId,
-        recipient: parsed.recipient,
-        typedValue: parsed.typedValue,
-      }),
-    )
-
-    setResult({
-      inputCurrencyId,
-      outputCurrencyId,
-    })
-    // can not add `currencies` && pathname as dependency here because it will retrigger replaceSwapState => got some issue when we have in/outputCurrency on URL
-  }, [dispatch, chainId, parsedQs, fromCurrency, toCurrency])
-
-  return result
+  }, [currencyParam, chainId])
 }
 
 export const useInputCurrency = () => {
-  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
-  const inputCurrency = useCurrencyV2(inputCurrencyId)
+  const { fromCurrency } = useCurrencyFromUrl()
+  const allTokens = useAllTokens()
+
+  const token = useMemo(() => {
+    return Object.values(allTokens).find(item => item?.symbol?.toLowerCase() === fromCurrency.toLowerCase())
+  }, [allTokens, fromCurrency])
+
+  const inputCurrency = useCurrencyV2(token ? token.address : fromCurrency)
   return inputCurrency || undefined
 }
 export const useOutputCurrency = () => {
-  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
-  const outputCurrency = useCurrencyV2(outputCurrencyId)
+  const { toCurrency } = useCurrencyFromUrl()
+  const allTokens = useAllTokens()
+
+  const token = useMemo(() => {
+    return Object.values(allTokens).find(item => item?.symbol?.toLowerCase() === toCurrency.toLowerCase())
+  }, [allTokens, toCurrency])
+
+  const outputCurrency = useCurrencyV2(token ? token.address : toCurrency)
   return outputCurrency || undefined
 }
 
 export const useCheckStablePairSwap = () => {
   const { chainId } = useActiveWeb3React()
   const { isStableCoin } = useStableCoins(chainId)
-  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
-  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const inputCurrency = useInputCurrency()
+  const outputCurrency = useOutputCurrency()
 
-  const isStablePairSwap = isStableCoin(inputCurrencyId) && isStableCoin(outputCurrencyId)
+  const isStablePairSwap = isStableCoin(inputCurrency?.wrapped.address) && isStableCoin(outputCurrency?.wrapped.address)
 
   return isStablePairSwap
 }
 
 export const useCheckCorrelatedPair = (customIn?: string, customOut?: string) => {
   const { chainId } = useActiveWeb3React()
-  const inputCurrencyId = useSelector((state: AppState) => customIn || state.swap[Field.INPUT].currencyId)
-  const outputCurrencyId = useSelector((state: AppState) => customOut || state.swap[Field.OUTPUT].currencyId)
+
+  const inputCurrency = useInputCurrency()
+  const outputCurrency = useOutputCurrency()
+
+  const inputCurrencyId = customIn || inputCurrency?.wrapped.address
+  const outputCurrencyId = customOut || outputCurrency?.wrapped.address
+
   const inputAddress =
     NativeCurrencies[chainId].symbol === inputCurrencyId
       ? NativeCurrencies[chainId].wrapped.address
@@ -447,8 +313,10 @@ export const useCheckCorrelatedPair = (customIn?: string, customOut?: string) =>
 
 export const useSwitchPairToLimitOrder = () => {
   const navigate = useNavigate()
-  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
-  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+
+  const inputCurrencyId = useInputCurrency()?.wrapped.address
+  const outputCurrencyId = useOutputCurrency()?.wrapped.address
+
   const { networkInfo } = useActiveWeb3React()
 
   return useCallback(
