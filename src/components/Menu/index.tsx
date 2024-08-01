@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart } from 'react-feather'
+import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart, X } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -126,6 +126,7 @@ const StyledMenu = styled.div`
 const ListWrapper = styled.div`
   max-height: calc(100vh - 150px);
   overflow-y: scroll;
+  position: relative;
 `
 
 const MenuFlyoutBrowserStyle = css`
@@ -280,6 +281,15 @@ export default function Menu() {
           </AutoColumn>
         ) : (
           <ListWrapper ref={wrapperNode => setWrapperNode(wrapperNode)}>
+            {isMobile && (
+              <ButtonEmpty
+                onClick={toggle}
+                style={{ position: 'absolute', width: 'fit-content', top: '-16px', right: '-16px' }}
+              >
+                <X color={theme.subText} />
+              </ButtonEmpty>
+            )}
+
             <Title style={{ paddingTop: 0 }}>
               <Trans>Legacy</Trans>
             </Title>
