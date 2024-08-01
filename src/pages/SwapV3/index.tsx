@@ -1,8 +1,7 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -29,6 +28,7 @@ import {
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
@@ -37,9 +37,6 @@ import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import Header from 'pages/SwapV3/Header'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import { useLimitActionHandlers } from 'state/limit/hooks'
-import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
@@ -105,6 +102,17 @@ export default function Swap() {
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
 
   const { pathname } = useLocation()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  useEffect(() => {
+    const inputCurrency = searchParams.get('inputCurrency')
+    const outputCurrency = searchParams.get('outputCurrency')
+    console.log(inputCurrency, outputCurrency)
+
+    if (inputCurrency || outputCurrency) {
+      navigate(`/swap/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
+    }
+  }, [searchParams, chainId, navigate])
 
   const shouldHighlightSwapBox = qs.highlightBox === 'true'
 
@@ -119,41 +127,13 @@ export default function Swap() {
 
   const [activeTab, setActiveTab] = useState<TAB>(getDefaultTab())
 
-  const { onSelectPair: onSelectPairLimit } = useLimitActionHandlers()
-
   useEffect(() => {
     setActiveTab(getDefaultTab())
   }, [getDefaultTab])
 
-  useDefaultsFromURLSearch()
-
-  const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
-
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
-
-  const handleTypeInput = useCallback(
-    (value: string) => {
-      onUserInput(Field.INPUT, value)
-    },
-    [onUserInput],
-  )
-
-  const onSelectSuggestedPair = useCallback(
-    (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
-      if (isLimitPage) {
-        onSelectPairLimit(fromToken, toToken, amount)
-        setIsSelectCurrencyManually(true)
-        return
-      }
-
-      if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
-      if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
-      if (amount) handleTypeInput(amount)
-    },
-    [handleTypeInput, onCurrencySelection, onSelectPairLimit, isLimitPage],
-  )
 
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())
 
@@ -173,7 +153,6 @@ export default function Swap() {
             >
               {isSwapPage && (
                 <PopulatedSwapForm
-                  onSelectSuggestedPair={onSelectSuggestedPair}
                   routeSummary={routeSummary}
                   setRouteSummary={setRouteSummary}
                   hidden={activeTab !== TAB.SWAP}

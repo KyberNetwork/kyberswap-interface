@@ -1,14 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useRef } from 'react'
-import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import { usePrevious } from 'react-use'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_CORRELATED_PAIR, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import { useStableCoins } from 'hooks/Tokens'
-import { AppState } from 'state'
-import { Field } from 'state/swap/actions'
-import { useCheckCorrelatedPair } from 'state/swap/hooks'
+import { useCheckCorrelatedPair, useCurrencyFromUrl } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
 const useUpdateSlippageInStableCoinSwap = (chainId: ChainId) => {
@@ -20,8 +17,10 @@ const useUpdateSlippageInStableCoinSwap = (chainId: ChainId) => {
   const inputTokenFromParam = searchParams.get('inputCurrency') ?? ''
   const outputTokenFromParam = searchParams.get('outputCurrency') ?? ''
 
-  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId) || inputTokenFromParam
-  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId) || outputTokenFromParam
+  const { fromCurrency, toCurrency } = useCurrencyFromUrl()
+
+  const inputCurrencyId = fromCurrency || inputTokenFromParam
+  const outputCurrencyId = toCurrency || outputTokenFromParam
   const isCorrelatedPair = useCheckCorrelatedPair()
 
   const previousInputCurrencyId = usePrevious(inputCurrencyId)
