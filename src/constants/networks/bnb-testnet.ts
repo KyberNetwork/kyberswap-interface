@@ -69,7 +69,6 @@ const bnbTestnetInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 3,
   coingeckoNetworkId: 'binance-smart-chain',
   coingeckoNativeTokenId: 'binancecoin',
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }

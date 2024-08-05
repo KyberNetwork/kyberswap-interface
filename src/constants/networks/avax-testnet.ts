@@ -63,7 +63,6 @@ const avaxTestnetInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 1.85,
   coingeckoNetworkId: 'avalanche',
   coingeckoNativeTokenId: 'avalanche-2',
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }

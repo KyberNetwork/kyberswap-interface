@@ -3,7 +3,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { NetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -65,7 +64,6 @@ const zkEvm: NetworkInfo = {
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: 'polygon-zkevm',
   coingeckoNativeTokenId: 'ethereum',
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }

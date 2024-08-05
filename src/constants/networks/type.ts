@@ -78,7 +78,6 @@ export interface NetworkInfo {
     readonly 'farmV2.1S'?: string[]
   }
   readonly averageBlockTimeInSeconds: number
-  readonly deBankSlug: string
   readonly kyberDAO?: {
     readonly staking: string
     readonly dao: string

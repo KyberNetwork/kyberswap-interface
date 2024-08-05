@@ -72,7 +72,6 @@ const ethereumInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 13.13,
   coingeckoNetworkId: 'ethereum',
   coingeckoNativeTokenId: 'ethereum',
-  deBankSlug: 'eth',
   dexToCompare: 'uniswapv3',
   kyberDAO: {
     staking: '0xeadb96F1623176144EBa2B24e35325220972b3bD',

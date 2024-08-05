@@ -63,7 +63,6 @@ const fantomInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 1,
   coingeckoNetworkId: 'fantom',
   coingeckoNativeTokenId: 'fantom',
-  deBankSlug: 'ftm',
   dexToCompare: 'spookyswap',
   geckoTermialId: 'fantom',
 }

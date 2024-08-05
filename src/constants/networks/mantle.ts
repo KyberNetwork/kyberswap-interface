@@ -1,6 +1,5 @@
 import { NetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -67,7 +66,6 @@ const mantle: NetworkInfo = {
   averageBlockTimeInSeconds: 2.0, // dont use for base
   coingeckoNetworkId: 'mantle',
   coingeckoNativeTokenId: 'mnt',
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }
