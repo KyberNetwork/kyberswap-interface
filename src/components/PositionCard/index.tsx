@@ -24,7 +24,6 @@ import { APP_PATHS, DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
 import { useTotalSupply } from 'data/TotalSupply'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { TokenWrapper } from 'pages/AddLiquidity/styled'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useBlockNumber, useETHPrice } from 'state/application/hooks'
 import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
@@ -36,6 +35,12 @@ import { formattedNum, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { getTradingFeeAPR, useCurrencyConvertedToNative } from 'utils/dmm'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+const TokenWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`
 
 const FixedHeightRow = styled(RowBetween)`
   height: 24px;
