@@ -162,19 +162,7 @@ const RoutesWithNetworkPrefix = () => {
       )}
 
       {!ELASTIC_NOT_SUPPORTED()[chainId] && (
-        <>
-          {/*
-          <Route
-            path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?/:feeAmount?`}
-            element={<RedirectElasticCreatePool />}
-          />
-          <Route
-            path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?`}
-            element={<ElasticIncreaseLiquidity />}
-          />
-          */}
-          <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
-        </>
+        <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
       )}
 
       <Route path="*" element={<Navigate to="/" />} />
