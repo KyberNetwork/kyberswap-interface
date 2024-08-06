@@ -1,13 +1,15 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Box, Flex } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
 import FeeControlGroup from 'components/FeeControlGroup'
+import WarningIcon from 'components/Icons/WarningIcon'
 import { NetworkSelector } from 'components/NetworkSelector'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
@@ -21,7 +23,9 @@ import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { Wrapper } from 'components/swapv2/styleds'
+import { TOKEN_API_URL } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { Field } from 'state/swap/actions'
@@ -153,6 +157,21 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
+  const theme = useTheme()
+
+  const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
+
+  useEffect(() => {
+    if (!currencyOut) return
+    fetch(
+      `${TOKEN_API_URL}/v1/public/tokens/honeypot-fot-info?address=${currencyOut.wrapped.address.toLowerCase()}&chainId=${chainId}`,
+    )
+      .then(res => res.json())
+      .then(res => {
+        setHoneypot(res.data)
+      })
+  }, [currencyOut, chainId])
+
   return (
     <SwapFormContextProvider
       slippage={slippage}
@@ -223,6 +242,26 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               refreshCallback={getRoute}
             />
           )}
+
+          {honeypot?.isFOT || honeypot?.isHoneypot ? (
+            <Flex
+              sx={{
+                borderRadius: '1rem',
+                background: rgba(theme.warning, 0.3),
+                padding: '10px 12px',
+                gap: '8px',
+              }}
+            >
+              <WarningIcon color={theme.warning} size={20} />
+              <Text fontSize={14} flex={1}>
+                {honeypot.isHoneypot
+                  ? `Our simulation detects that ${currencyOut?.symbol} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!`
+                  : `Our simulation detects that ${currencyOut?.symbol} has ${
+                      honeypot.tax * 100
+                    }% fee on transfer, please check further before buying.`}
+              </Text>
+            </Flex>
+          ) : null}
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}

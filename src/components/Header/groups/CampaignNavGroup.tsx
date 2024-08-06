@@ -14,12 +14,12 @@ const CampaignNavGroup = () => {
   const isActive = pathname.includes('/campaigns')
   const upTo500 = useMedia('(max-width: 500px)')
 
-  if (upTo500) return null
+  // if (upTo500) return null
 
   return (
     <>
       <NavGroup
-        dropdownAlign={'left'}
+        dropdownAlign={upTo500 ? 'right' : 'left'}
         isActive={isActive}
         anchor={
           <DropdownTextAnchor style={{ position: 'relative', width: '115px' }}>

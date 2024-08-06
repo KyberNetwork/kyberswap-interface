@@ -23,12 +23,13 @@ const KyberDAONavGroup = () => {
   const { pathname } = useLocation()
   const isActive = pathname.includes(APP_PATHS.KYBERDAO_STAKE)
   const { mixpanelHandler } = useMixpanel()
-  const upTo600 = useMedia('(max-width: 600px)')
+  const upTo500 = useMedia('(max-width: 500px)')
+  if (upTo500) return null
 
   return (
     <KyberDaoWrapper id={TutorialIds.KYBER_DAO_LINK}>
       <NavGroup
-        dropdownAlign={upTo600 ? 'right' : 'left'}
+        dropdownAlign={upTo500 ? 'right' : 'left'}
         isActive={isActive}
         anchor={
           <DropdownTextAnchor>

@@ -579,7 +579,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
         lineHeight="28px"
         marginLeft="12px"
         sx={{
-          maxHeight: isShowTc ? '1000px' : 0,
+          maxHeight: isShowTc ? '2000px' : 0,
           opacity: isShowTc ? 1 : 0,
           marginTop: isShowTc ? '1rem' : 0,
           transition: 'all 0.3s ease',

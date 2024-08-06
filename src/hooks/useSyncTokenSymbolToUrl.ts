@@ -129,7 +129,7 @@ export default function useSyncTokenSymbolToUrl(
       !disabled
     ) {
       // call once
-      setTimeout(() => findTokenPairFromUrl(chainId))
+      // setTimeout(() => findTokenPairFromUrl(chainId))
       checkedTokenFromUrlWhenInit.current = true
     }
   }, [isLoadedTokenDefault, firstTokenChainId, chainId, network, disabled, findTokenPairFromUrl])

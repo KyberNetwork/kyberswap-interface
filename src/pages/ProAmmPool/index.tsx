@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { rgba } from 'polished'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
@@ -11,12 +10,11 @@ import styled from 'styled-components'
 
 import Card from 'components/Card'
 import { AutoColumn } from 'components/Column'
-import Wallet from 'components/Icons/Wallet'
 import Search from 'components/Search'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -28,7 +26,7 @@ import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from '
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
-import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
+import { StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
 
 import ContentLoader from './ContentLoader'
@@ -83,7 +81,7 @@ const renderNotificationButton = (iconOnly: boolean) => {
 }
 
 export default function ProAmmPool() {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
@@ -227,16 +225,6 @@ export default function ProAmmPool() {
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools.</Trans>
-            {!upToSmall && (
-              <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                <Flex alignItems="center">
-                  <Wallet size={16} />
-                  <Text fontSize="14px" marginLeft="4px">
-                    <Trans>Analyze Wallet</Trans> ↗
-                  </Text>
-                </Flex>
-              </ExternalLink>
-            )}
           </InstructionText>
           <TabRow>
             <Flex justifyContent="space-between" flex={1} alignItems="center" width="100%">
@@ -264,18 +252,6 @@ export default function ProAmmPool() {
 
               {upToSmall && (
                 <Flex sx={{ gap: '8px' }}>
-                  <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                    <Flex
-                      sx={{ borderRadius: '50%' }}
-                      width="36px"
-                      backgroundColor={rgba(theme.subText, 0.2)}
-                      height="36px"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Wallet size={16} color={theme.subText} />
-                    </Flex>
-                  </ExternalLink>
                   <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />
                   {renderNotificationButton(true)}
                 </Flex>
