@@ -8,7 +8,6 @@ import styled from 'styled-components'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasTokenSetting from 'components/swapv2/GasTokenSetting'
 import LimitOrder from 'components/swapv2/LimitOrder'
@@ -136,7 +135,6 @@ export default function Swap() {
 
   return (
     <>
-      {isSwapPage && <TutorialSwap />}
       <PageWrapper>
         <Banner />
         <Container>
