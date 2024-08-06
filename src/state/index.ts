@@ -3,13 +3,11 @@ import { load, save } from 'redux-localstorage-simple'
 import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
-import blockServiceApi from 'services/blockService'
 import campaignApi from 'services/campaign'
 import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
-import earningApi from 'services/earning'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
@@ -41,7 +39,6 @@ import lists from './lists/reducer'
 import mintV2 from './mint/proamm/reducer'
 import mint from './mint/reducer'
 import multicall from './multicall/reducer'
-import myEarnings from './myEarnings/reducer'
 import pair from './pair/reducer'
 import pools from './pools/reducer'
 import profile from './profile/reducer'
@@ -111,7 +108,6 @@ const store = configureStore({
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     tutorial,
-    myEarnings,
     crossChain,
     customizeDexes,
     elasticFarm,
@@ -119,12 +115,10 @@ const store = configureStore({
     tokenPrices,
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
-    [earningApi.reducerPath]: earningApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
-    [blockServiceApi.reducerPath]: blockServiceApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
     [knProtocolApi.reducerPath]: knProtocolApi.reducer,
@@ -146,12 +140,10 @@ const store = configureStore({
       .concat(crosschainApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
-      .concat(earningApi.middleware)
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)
-      .concat(blockServiceApi.middleware)
       .concat(commonServiceApi.middleware)
       .concat(blackjackApi.middleware)
       .concat(knProtocolApi.middleware),

@@ -23,26 +23,6 @@ export const ETH_PRICE = (block?: number) => {
   return gql(queryString)
 }
 
-export const PROMM_ETH_PRICE = (block?: number) => {
-  const queryString = block
-    ? `
-    query ethPriceElasticByBlock {
-      bundles(where: { id: ${BUNDLE_ID} }, block: {number: ${block}}, subgraphError: allow) {
-        id
-        ethPriceUSD
-      }
-    }
-  `
-    : ` query ethPriceElastic {
-      bundles(where: { id: ${BUNDLE_ID} }, subgraphError: allow) {
-        id
-        ethPriceUSD
-      }
-    }
-  `
-  return gql(queryString)
-}
-
 export const TOKEN_DERIVED_ETH = (tokenAddress: string) => {
   const queryString = `
     query tokenDerivedETH {
