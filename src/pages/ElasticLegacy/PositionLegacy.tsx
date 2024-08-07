@@ -7,7 +7,6 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { Position as SubgraphPosition, usePositionFees, useRemoveLiquidityLegacy } from 'hooks/useElasticLegacy'
@@ -15,6 +14,22 @@ import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+export const FeeTag = styled.div`
+  min-width: max-content;
+  width: max-content;
+  border-radius: 999px;
+  background: ${({ theme }) => theme.darkBlue + '33'};
+  color: ${({ theme }) => theme.darkBlue};
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 6px;
+  margin-left: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+`
 
 const Wrapper = styled.div`
   border-radius: 1rem;

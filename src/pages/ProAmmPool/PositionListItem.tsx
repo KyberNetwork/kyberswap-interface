@@ -24,9 +24,6 @@ import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms } from 'state/farms/elastic/hooks'
-import { UserPositionFarm } from 'state/farms/elastic/types'
-import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -107,7 +104,7 @@ enum TAB {
 }
 
 interface PositionListItemProps {
-  positionDetails: PositionDetails | UserPositionFarm
+  positionDetails: PositionDetails
   rawFeeRewards: [string, string]
   liquidityTime?: number
   farmingTime?: number
@@ -157,53 +154,13 @@ function PositionListItem({
     tickUpper,
   } = positionDetails
 
-  const { farms } = useElasticFarms()
-  const { farms: farmV2s, userInfo } = useElasticFarmsV2()
-
-  let farmAddress = ''
   // let pid = ''
-  let rewardTokens: Currency[] = []
+  const rewardTokens: Currency[] = []
 
-  let hasActiveFarm = false
-  farms?.forEach(farm => {
-    farm.pools.forEach(pool => {
-      if (pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
-        farmAddress = farm.id
-        rewardTokens = pool.rewardTokens
-        if (pool.endTime > Date.now() / 1000) {
-          // pid = pool.pid
-          hasActiveFarm = true
-        }
-      }
-    })
-  })
-
-  const hasActiveFarmV2 = !!farmV2s?.filter(
-    f =>
-      f.endTime > Date.now() / 1000 &&
-      f.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase() &&
-      f.ranges.some(r => positionDetails.tickLower <= r.tickLower && positionDetails.tickUpper >= r.tickUpper),
-  ).length
-
-  // const farmContract = useProMMFarmReadingContract(farmAddress)
-
-  const tokenId = positionDetails.tokenId.toString()
+  const hasActiveFarm = false
+  const hasActiveFarmV2 = false
 
   const [farmReward, _setFarmReward] = useState<BigNumber[] | null>(null)
-
-  // const res = useSingleCallResult(
-  //   pid !== '' ? farmContract : undefined,
-  //   'getUserInfo',
-  //   pid !== '' ? [tokenId, pid] : undefined,
-  //   NEVER_RELOAD,
-  // )
-  // useEffect(() => {
-  //   if (res?.result?.rewardPending) {
-  //     setFarmReward(res.result.rewardPending)
-  //   } else {
-  //     setFarmReward(null)
-  //   }
-  // }, [res])
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
@@ -234,23 +191,11 @@ function PositionListItem({
   const feeValue0 = currency0 && CurrencyAmount.fromRawAmount(currency0, rawFeeRewards[0])
   const feeValue1 = currency1 && CurrencyAmount.fromRawAmount(currency1, rawFeeRewards[1])
 
-  const stakedPosition =
-    pool && hasUserDepositedInFarm
-      ? new Position({
-          pool,
-          liquidity: (positionDetails as UserPositionFarm).stakedLiquidity.toString(),
-          tickLower,
-          tickUpper,
-        })
-      : undefined
-
   const usd =
     parseFloat(position?.amount0.toExact() || '0') * prices[token0?.wrapped.address || ''] +
     parseFloat(position?.amount1.toExact() || '0') * prices[token1?.wrapped.address || '']
 
-  const stakedUsd =
-    parseFloat(stakedPosition?.amount0.toExact() || '0') * prices[token0?.wrapped.address || ''] +
-    parseFloat(stakedPosition?.amount1.toExact() || '0') * prices[token1?.wrapped.address || '']
+  const stakedUsd = 0
 
   const currentFeeValue =
     Number(feeValue0?.toExact() || '0') * prices[token0?.wrapped.address || ''] +
@@ -258,10 +203,6 @@ function PositionListItem({
 
   const estimatedOneYearFee = liquidityTime && (currentFeeValue * 365 * 24 * 60 * 60) / liquidityTime
   const positionAPR = liquidityTime && usd ? (((estimatedOneYearFee || 0) * 100) / usd).toFixed(2) : '--'
-
-  const farmRewardAmount = rewardTokens.map((currency, index) => {
-    return CurrencyAmount.fromRawAmount(currency, farmReward?.[index]?.toString() || 0)
-  })
 
   const farmRewardValue = rewardTokens.reduce((usdValue, currency, index) => {
     const temp = farmReward?.[index]
@@ -277,11 +218,7 @@ function PositionListItem({
 
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 
-  const v2Reward = userInfo?.find(item => item.nftId.toString() === tokenId.toString())
-  const estimatedOneYearFarmV2Reward =
-    farmingTime && ((v2Reward?.unclaimedRewardsUsd || 0) * 365 * 24 * 60 * 60) / farmingTime
-  const farmV2APR =
-    v2Reward?.unclaimedRewardsUsd && farmingTime && usd ? ((estimatedOneYearFarmV2Reward || 0) * 100) / usd : 0
+  const farmV2APR = 0
 
   // prices
   const { priceLower, priceUpper } = getPriceOrderingFromPositionForUI(position)
@@ -327,7 +264,6 @@ function PositionListItem({
                 positionAPR={positionAPR}
                 createdAt={createdAt}
                 farmAPR={farmAPR || farmV2APR}
-                farmRewardAmount={v2Reward?.unclaimedRewards || farmRewardAmount}
                 valueUSD={usd}
                 stakedUsd={stakedUsd}
                 liquidityValue0={CurrencyAmount.fromRawAmount(
@@ -353,14 +289,14 @@ function PositionListItem({
                   <Text color={theme.subText}>
                     <Trans>My Staked {position.amount0.currency.symbol}</Trans>
                   </Text>
-                  <Text>{stakedPosition?.amount0.toSignificant(6)}</Text>
+                  <Text>{0}</Text>
                 </StakedRow>
 
                 <StakedRow>
                   <Text color={theme.subText}>
                     <Trans>My Staked {position.amount1.currency.symbol}</Trans>
                   </Text>
-                  <Text>{stakedPosition?.amount1.toSignificant(6)}</Text>
+                  <Text>0</Text>
                 </StakedRow>
 
                 <StakedRow>
@@ -373,14 +309,12 @@ function PositionListItem({
             )}
             {!stakedLayout && (
               <ProAmmFee
-                farmAddress={farmAddress}
                 totalFeeRewardUSD={currentFeeValue}
                 feeValue0={feeValue0}
                 feeValue1={feeValue1}
                 position={position}
                 tokenId={positionDetails.tokenId}
                 layout={1}
-                hasUserDepositedInFarm={hasUserDepositedInFarm}
               />
             )}
           </>

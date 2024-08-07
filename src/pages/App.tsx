@@ -44,8 +44,6 @@ const PartnerSwap = lazy(() => import('./PartnerSwap'))
 // const Bridge = lazy(() => import('./Bridge'))
 const MyPool = lazy(() => import('./MyPool'))
 
-const Farm = lazy(() => import('./Farm'))
-
 const PoolFinder = lazy(() => import('./PoolFinder'))
 const ElasticRemoveLiquidity = lazy(() => import('pages/RemoveLiquidityProAmm'))
 
@@ -248,12 +246,6 @@ export default function App() {
               )}
 
               <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
-              <>
-                {/* Farms Routes */}
-                <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
-                <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
-              </>
-
               <>
                 {/* My Pools Routes */}
                 <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />

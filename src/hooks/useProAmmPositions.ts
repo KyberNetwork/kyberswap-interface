@@ -2,11 +2,9 @@ import { defaultAbiCoder } from '@ethersproject/abi'
 import { getCreate2Address } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { keccak256 } from '@ethersproject/solidity'
-import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
-import { useDepositedNfts, useElasticFarms, useJoinedPositions } from 'state/farms/elastic/hooks'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
 
@@ -141,68 +139,4 @@ export function useProAmmPositions(
       positions,
     }
   }, [someTokenIdsLoading, balanceLoading, positionsLoading, positions])
-}
-
-export const useFarmPositions = () => {
-  const { networkInfo } = useActiveWeb3React()
-
-  const { farms, loading } = useElasticFarms()
-  const userFarmInfo = useJoinedPositions()
-  const depositedPositions = useDepositedNfts()
-
-  const farmingPools = useMemo(() => farms?.map(farm => farm.pools).flat() || [], [farms])
-
-  const farmPositions: PositionDetails[] = useMemo(() => {
-    return Object.values(depositedPositions)
-      .flat()
-      .map(pos => {
-        const poolAddress = computePoolAddress({
-          factoryAddress: networkInfo.elastic.coreFactory,
-          tokenA: pos.pool.token0,
-          tokenB: pos.pool.token1,
-          fee: pos.pool.fee,
-          initCodeHashManualOverride: networkInfo.elastic.initCodeHash,
-        })
-        const pool = farmingPools.filter(pool => pool.poolAddress.toLowerCase() === poolAddress.toLowerCase())
-
-        const joinedLiquidity = Object.values(userFarmInfo)
-          .map(item => Object.values(item.joinedPositions).flat())
-          .flat()
-          .filter(joinedPos => joinedPos.nftId.toString() === pos.nftId.toString())
-          .reduce(
-            (acc, cur) =>
-              acc.gt(BigNumber.from(cur.liquidity.toString())) ? acc : BigNumber.from(cur.liquidity.toString()),
-            BigNumber.from(0),
-          )
-
-        return {
-          nonce: BigNumber.from('1'),
-          tokenId: pos.nftId,
-          operator: '0x0000000000000000000000000000000000000000',
-          poolId: poolAddress,
-          tickLower: pos.tickLower,
-          tickUpper: pos.tickUpper,
-          liquidity: BigNumber.from(pos.liquidity.toString()),
-          // not used
-          feeGrowthInsideLast: BigNumber.from(0),
-          stakedLiquidity: joinedLiquidity,
-          // not used
-          rTokenOwed: BigNumber.from(0),
-          token0: pos.pool.token0.address,
-          token1: pos.pool.token1.address,
-          fee: pos.pool.fee,
-          endTime: pool?.[0]?.endTime,
-          rewardPendings: [],
-        }
-      })
-  }, [farmingPools, networkInfo, userFarmInfo, depositedPositions])
-
-  return useMemo(() => {
-    return {
-      farms,
-      userFarmInfo,
-      farmPositions,
-      loading: loading,
-    }
-  }, [loading, farmPositions, farms, userFarmInfo])
 }

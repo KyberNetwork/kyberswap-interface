@@ -1,8 +1,7 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useMemo } from 'react'
 import { BarChart2, Share2 } from 'react-feather'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { Cell, Pie, PieChart, Tooltip } from 'recharts'
@@ -15,7 +14,6 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import CircleInfoIcon from 'components/LiveChart/CircleInfoIcon'
 import { Circle } from 'components/Rating'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -23,7 +21,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import usePoolTransactionsStat from 'hooks/usePoolTransactionsStat'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
+import { FeeTag } from 'pages/ElasticLegacy/PositionLegacy'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
@@ -74,11 +72,6 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
   const theme = useTheme()
 
   const allTokens = useAllTokens()
-  const { farms: farmsV2 } = useElasticFarmsV2()
-  const activeFarmV2s = useMemo(
-    () => farmsV2?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled),
-    [farmsV2],
-  )
 
   const token0 =
     allTokens[isAddressString(pool.token0.address)] ||
@@ -100,22 +93,10 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
 
   const myLiquidity = userPositions[pool.address]
 
-  const farmV2 = useMemo(
-    () => activeFarmV2s?.find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase()),
-    [activeFarmV2s, pool.address],
-  )
-  const isFarmV2 = !!farmV2
-
   const poolTransactionsStat = usePoolTransactionsStat(pool.address)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const [searchParams] = useSearchParams()
-
-  const activeRangeIndex = Number(searchParams.get('farmRange') || '0')
-
-  const range = farmV2?.ranges.find(item => item.index === activeRangeIndex)
-  const farmAPR = isFarmV2 ? range?.apr : pool.farmAPR
-
+  const farmAPR = 0
   const APR = (
     <div>
       <Text
@@ -129,7 +110,7 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
         <MouseoverTooltip
           width="fit-content"
           placement="right"
-          text={<APRTooltipContent farmV2APR={range?.apr} farmAPR={pool.farmAPR || 0} poolAPR={pool.apr} />}
+          text={<APRTooltipContent farmV2APR={0} farmAPR={0} poolAPR={pool.apr} />}
         >
           <Trans>Avg APR</Trans>
         </MouseoverTooltip>

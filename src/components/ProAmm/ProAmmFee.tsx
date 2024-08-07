@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
+import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -15,23 +15,15 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import QuestionHelper from 'components/QuestionHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
-import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import {
-  useProAmmNFTPositionManagerReadingContract,
-  useProMMFarmSigningContract,
-  useSigningContract,
-} from 'hooks/useContract'
+import { useProAmmNFTPositionManagerReadingContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, buildFlagsForFarmV21, calculateGasMargin, formattedNumLong } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
 
 export default function ProAmmFee({
   tokenId,
@@ -39,23 +31,19 @@ export default function ProAmmFee({
   // legacy props... layout means not collect fee
   layout = 0,
   text = '',
-  hasUserDepositedInFarm,
   feeValue0,
   feeValue1,
   totalFeeRewardUSD,
-  farmAddress,
 }: {
   totalFeeRewardUSD: number
   tokenId: BigNumber
   position: Position
   layout?: number
   text?: string
-  hasUserDepositedInFarm?: boolean
-  farmAddress?: string
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
-  const { account, networkInfo } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const token0Shown = feeValue0?.currency || position.pool.token0
@@ -108,77 +96,6 @@ export default function ProAmmFee({
     setTxnHash(response.hash)
   }
 
-  const farmContract = useProMMFarmSigningContract(farmAddress || '')
-  const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
-  const { userInfo } = useElasticFarmsV2()
-  const info = userInfo?.find(item => item.nftId.toString() === tokenId.toString())
-  const address = info?.farmAddress
-
-  const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(address?.toLowerCase())
-
-  const farmV2Contract = useSigningContract(address, FarmV2ABI)
-  const farmV21Contract = useSigningContract(address, FarmV21ABI)
-
-  const collectFeeFromFarmContract = async () => {
-    const isInFarmV2 = !!info
-
-    const contract = isInFarmV2 ? (isFarmV21 ? farmV21Contract : farmV2Contract) : farmContract
-
-    if (!contract || !feeValue0 || !feeValue1) {
-      setAttemptingTxn(false)
-      setCollectFeeError('Something went wrong!')
-      return
-    }
-
-    const amount0Min = feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage)))
-    const amount1Min = feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
-    try {
-      const params = isInFarmV2
-        ? isFarmV21
-          ? [
-              info.fId,
-              [tokenId.toString()],
-              amount0Min.quotient.toString(),
-              amount1Min.quotient.toString(),
-              deadline?.toString(),
-              buildFlagsForFarmV21({
-                isClaimFee: false, // !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-                isSyncFee: false, // !!feeValue0?.greaterThan('0') && !!feeValue1?.greaterThan('0'),
-                isClaimReward: false,
-                isReceiveNative: true,
-              }),
-            ]
-          : [
-              info.fId,
-              [tokenId.toString()],
-              amount0Min.quotient.toString(),
-              amount1Min.quotient.toString(),
-              deadline?.toString(),
-              true,
-            ]
-        : [
-            [tokenId.toString()],
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            poolAddress,
-            true,
-            deadline?.toString(),
-          ]
-
-      const gasEstimation = await contract.estimateGas.claimFee(...params)
-
-      const tx = await contract.claimFee(...params, {
-        gasLimit: calculateGasMargin(gasEstimation),
-      })
-
-      handleBroadcastClaimSuccess(tx)
-    } catch (e) {
-      setShowPendingModal(true)
-      setAttemptingTxn(false)
-      setCollectFeeError(e?.message || JSON.stringify(e))
-    }
-  }
-
   const collect = async () => {
     setShowPendingModal(true)
     setAttemptingTxn(true)
@@ -193,11 +110,6 @@ export default function ProAmmFee({
       token_1: token0Shown?.symbol,
       token_2: token1Shown?.symbol,
     })
-
-    if (hasUserDepositedInFarm) {
-      collectFeeFromFarmContract()
-      return
-    }
 
     const { calldata, value } = NonfungiblePositionManager.collectCallParameters({
       tokenId: tokenId.toString(),

@@ -11,7 +11,6 @@ import crosschainApi from 'services/crossChain'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
-import knProtocolApi from 'services/knprotocol'
 import ksSettingApi from 'services/ksSetting'
 import kyberDAO from 'services/kyberDAO'
 import limitOrderApi from 'services/limitOrder'
@@ -30,9 +29,6 @@ import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
 import crossChain from './crossChain/reducer'
 import customizeDexes from './customizeDexes'
-import farms from './farms/classic/reducer'
-import elasticFarm from './farms/elastic'
-import elasticFarmV2 from './farms/elasticv2'
 import { updateVersion } from './global/actions'
 import limit from './limit/reducer'
 import lists from './lists/reducer'
@@ -48,7 +44,6 @@ import topTokens from './topTokens'
 import transactions from './transactions/reducer'
 import tutorial from './tutorial/reducer'
 import user, { UserState } from './user/reducer'
-import vesting from './vesting/reducer'
 
 const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile']
 ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
@@ -90,8 +85,6 @@ const store = configureStore({
     lists,
     pair,
     pools,
-    farms,
-    vesting,
     [aggregatorStatsApi.reducerPath]: aggregatorStatsApi.reducer,
     [announcementApi.reducerPath]: announcementApi.reducer,
     [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
@@ -110,8 +103,6 @@ const store = configureStore({
     tutorial,
     crossChain,
     customizeDexes,
-    elasticFarm,
-    elasticFarmV2,
     tokenPrices,
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
@@ -121,7 +112,6 @@ const store = configureStore({
     [socialApi.reducerPath]: socialApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
-    [knProtocolApi.reducerPath]: knProtocolApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -145,8 +135,7 @@ const store = configureStore({
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)
-      .concat(blackjackApi.middleware)
-      .concat(knProtocolApi.middleware),
+      .concat(blackjackApi.middleware),
   preloadedState,
 })
 
