@@ -126,7 +126,6 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
         </Flex>
         {rightComponent}
       </Flex>
-
       <Flex
         sx={{
           transition: 'all 100ms linear',
@@ -143,6 +142,11 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
           isWarning={isWarningSlippage}
           defaultRawSlippage={defaultRawSlippage}
         />
+        {isDegenMode && expanded && (
+          <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px" marginTop="-12px">
+            Maximum Slippage allow for Degen mode is 50%
+          </Text>
+        )}
 
         <SlippageWarningNote
           rawSlippage={rawSlippage}
@@ -150,11 +154,6 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
           isCorrelatedPair={isCorrelatedPair}
         />
       </Flex>
-      {isDegenMode && expanded && (
-        <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px">
-          Maximum Slippage allow for Degen mode is 50%
-        </Text>
-      )}
     </Flex>
   )
 }

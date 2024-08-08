@@ -11,7 +11,6 @@ import Banner from 'components/Banner'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
-import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LimitOrderForm from 'components/swapv2/LimitOrder/LimitOrderForm'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
 import Tutorial from 'components/swapv2/LimitOrder/Tutorial'
@@ -200,11 +199,7 @@ export default function PartnerSwap() {
                   isSwapPage={isSwapPage}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
-                  onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
                 />
-              )}
-              {activeTab === TAB.GAS_PRICE_TRACKER && (
-                <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
               {activeTab === TAB.LIQUIDITY_SOURCES && (
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={expectedChainId} />

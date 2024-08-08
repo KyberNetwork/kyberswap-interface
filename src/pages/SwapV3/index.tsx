@@ -9,7 +9,6 @@ import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import GasTokenSetting from 'components/swapv2/GasTokenSetting'
 import LimitOrder from 'components/swapv2/LimitOrder'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
@@ -53,15 +52,13 @@ export enum TAB {
   SWAP = 'swap',
   INFO = 'info',
   SETTINGS = 'settings',
-  GAS_PRICE_TRACKER = 'gas_price_tracker',
   LIQUIDITY_SOURCES = 'liquidity_sources',
   LIMIT = 'limit',
   CROSS_CHAIN = 'cross_chain',
   GAS_TOKEN = 'gas_token',
 }
 
-export const isSettingTab = (tab: TAB) =>
-  [TAB.INFO, TAB.SETTINGS, TAB.GAS_PRICE_TRACKER, TAB.LIQUIDITY_SOURCES].includes(tab)
+export const isSettingTab = (tab: TAB) => [TAB.INFO, TAB.SETTINGS, TAB.LIQUIDITY_SOURCES].includes(tab)
 
 export const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
@@ -164,11 +161,7 @@ export default function Swap() {
                   isSwapPage={isSwapPage}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
-                  onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
                 />
-              )}
-              {activeTab === TAB.GAS_PRICE_TRACKER && (
-                <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
               {activeTab === TAB.LIQUIDITY_SOURCES && (
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />

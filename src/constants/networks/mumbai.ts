@@ -63,7 +63,6 @@ const mumbaiInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 2.6,
   coingeckoNetworkId: 'polygon-pos',
   coingeckoNativeTokenId: 'matic-network',
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }

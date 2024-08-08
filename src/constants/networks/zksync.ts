@@ -62,7 +62,6 @@ const zkSyncInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 15,
   coingeckoNetworkId: 'zksync-ethereum',
   coingeckoNativeTokenId: 'ethereum',
-  deBankSlug: '',
   dexToCompare: '',
   geckoTermialId: 'zksync',
 }

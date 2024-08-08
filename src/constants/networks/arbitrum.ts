@@ -76,7 +76,6 @@ const arbitrumInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 1, // TODO: check these info
   coingeckoNetworkId: 'arbitrum-one',
   coingeckoNativeTokenId: 'ethereum',
-  deBankSlug: 'arb',
   dexToCompare: 'uniswapv3',
   geckoTermialId: 'arbitrum',
 }

@@ -14,12 +14,7 @@ import ENS_PUBLIC_RESOLVER_ABI from 'constants/abis/ens-public-resolver.json'
 import ENS_ABI from 'constants/abis/ens-registrar.json'
 import { ERC20_BYTES32_ABI } from 'constants/abis/erc20'
 import ERC20_ABI from 'constants/abis/erc20.json'
-import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
-import FAIRLAUNCH_V3_ABI from 'constants/abis/fairlaunch-v3.json'
-import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import KS_STATIC_FEE_FACTORY_ABI from 'constants/abis/ks-factory.json'
-import REWARD_LOCKER_V2_ABI from 'constants/abis/reward-locker-v2.json'
-import REWARD_LOCKER_ABI from 'constants/abis/reward-locker.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
 import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
@@ -30,8 +25,6 @@ import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
-import { FairLaunchVersion, RewardLockerVersion } from 'state/farms/classic/types'
-import { useRewardLockerAddressesWithVersion } from 'state/vesting/hooks'
 import { getReadingContract, getSigningContract } from 'utils/getContract'
 
 import { useActiveWeb3React } from './index'
@@ -209,144 +202,6 @@ export function useProMMFarmSigningContract(address: string): Contract | null {
 
 export function useProMMFarmReadingContract(address: string): Contract | null {
   return useReadingContract(address, PROMM_FARM_ABI)
-}
-
-function useFairLaunchV1Contracts(): {
-  [key: string]: Contract
-} | null {
-  const { networkInfo } = useActiveWeb3React()
-
-  return useMultipleContracts(networkInfo.classic.fairlaunch, FAIRLAUNCH_ABI, false)
-}
-
-function useFairLaunchV2Contracts(): {
-  [key: string]: Contract
-} | null {
-  const { networkInfo } = useActiveWeb3React()
-
-  return useMultipleContracts(networkInfo.classic.fairlaunchV2, FAIRLAUNCH_V2_ABI, false)
-}
-
-function useFairLaunchV3Contracts(): {
-  [key: string]: Contract
-} | null {
-  const { networkInfo } = useActiveWeb3React()
-
-  return useMultipleContracts(
-    networkInfo.classic.fairlaunchV3?.length ? networkInfo.classic.fairlaunchV3 : undefined,
-    FAIRLAUNCH_V3_ABI,
-    false,
-  )
-}
-
-export function useFairLaunchContracts(): {
-  [key: string]: Contract
-} | null {
-  const fairLaunchV1Contracts = useFairLaunchV1Contracts()
-  const fairLaunchV2Contracts = useFairLaunchV2Contracts()
-  const fairLaunchV3Contracts = useFairLaunchV3Contracts()
-
-  const fairLaunchContracts = useMemo(() => {
-    return { ...fairLaunchV1Contracts, ...fairLaunchV2Contracts, ...fairLaunchV3Contracts }
-  }, [fairLaunchV1Contracts, fairLaunchV2Contracts, fairLaunchV3Contracts])
-
-  return fairLaunchContracts
-}
-
-export const useFairLaunchVersion = (address: string): FairLaunchVersion => {
-  const { networkInfo } = useActiveWeb3React()
-  let version = FairLaunchVersion.V1
-
-  // Use .find to search with case insensitive
-  const isV2 = networkInfo.classic.fairlaunchV2.find(a => {
-    return a.toLowerCase() === address.toLowerCase()
-  })
-
-  // Use .find to search with case insensitive
-  const isV3 = networkInfo.classic.fairlaunchV3?.find(a => {
-    return a.toLowerCase() === address.toLowerCase()
-  })
-
-  // Even if we have V3 in the future, we can update it here
-
-  if (isV2) {
-    version = FairLaunchVersion.V2
-  }
-
-  if (isV3) version = FairLaunchVersion.V3
-
-  return version
-}
-
-function useFairLaunchABI(address: string) {
-  const version = useFairLaunchVersion(address)
-  let abi
-
-  switch (version) {
-    case FairLaunchVersion.V1:
-      abi = FAIRLAUNCH_ABI
-      break
-    case FairLaunchVersion.V2:
-      abi = FAIRLAUNCH_V2_ABI
-      break
-    case FairLaunchVersion.V3:
-      abi = FAIRLAUNCH_V3_ABI
-      break
-    default:
-      abi = FAIRLAUNCH_ABI
-      break
-  }
-  return abi
-}
-export function useFairLaunchSigningContract(address: string): Contract | null {
-  const abi = useFairLaunchABI(address)
-
-  return useSigningContract(address, abi)
-}
-
-export function useFairLaunchRadingContract(address: string): Contract | null {
-  const abi = useFairLaunchABI(address)
-
-  return useReadingContract(address, abi)
-}
-
-export function useRewardLockerContracts(withSignerIfPossible?: boolean): {
-  [key: string]: Contract
-} | null {
-  const rewardLockerAddressesWithVersion = useRewardLockerAddressesWithVersion()
-  const rewardLockerV1Addresses = useMemo(
-    () =>
-      Object.keys(rewardLockerAddressesWithVersion).filter(
-        address => rewardLockerAddressesWithVersion[address] === RewardLockerVersion.V1,
-      ),
-    [rewardLockerAddressesWithVersion],
-  )
-  const rewardLockerV2Addresses = useMemo(
-    () =>
-      Object.keys(rewardLockerAddressesWithVersion).filter(
-        address => rewardLockerAddressesWithVersion[address] === RewardLockerVersion.V2,
-      ),
-    [rewardLockerAddressesWithVersion],
-  )
-  const rewardLockerV1Contracts = useMultipleContracts(rewardLockerV1Addresses, REWARD_LOCKER_ABI, withSignerIfPossible)
-  const rewardLockerV2Contracts = useMultipleContracts(
-    rewardLockerV2Addresses,
-    REWARD_LOCKER_V2_ABI,
-    withSignerIfPossible,
-  )
-  return useMemo(
-    () => ({ ...rewardLockerV1Contracts, ...rewardLockerV2Contracts }),
-    [rewardLockerV1Contracts, rewardLockerV2Contracts],
-  )
-}
-
-export function useRewardLockerContract(address: string): Contract | null {
-  return useSigningContract(address, REWARD_LOCKER_ABI)
-}
-
-export function useProAmmNFTPositionManagerSigningContract(): Contract | null {
-  const { networkInfo } = useActiveWeb3React()
-  return useSigningContract(networkInfo.elastic.nonfungiblePositionManager, NFTPositionManagerABI.abi)
 }
 
 export function useProAmmNFTPositionManagerReadingContract(customContract?: string): Contract | null {

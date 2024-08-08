@@ -14,7 +14,6 @@ import useTheme from 'hooks/useTheme'
 import { useShowTradeRoutes, useToggleTradeRoutes } from 'state/user/hooks'
 
 import DegenModeSetting from './DegenModeSetting'
-import GasPriceTrackerSetting from './GasPriceTrackerSetting'
 import LiquiditySourcesSetting from './LiquiditySourcesSetting'
 import SlippageSetting from './SlippageSetting'
 import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
@@ -22,7 +21,6 @@ import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
 type Props = {
   className?: string
   onBack: () => void
-  onClickGasPriceTracker: () => void
   onClickLiquiditySources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
@@ -40,7 +38,6 @@ const SettingsPanel: React.FC<Props> = ({
   className,
   onBack,
   onClickLiquiditySources,
-  onClickGasPriceTracker,
 }) => {
   const theme = useTheme()
 
@@ -73,12 +70,7 @@ const SettingsPanel: React.FC<Props> = ({
               <SlippageSetting />
               {isSwapPage && <TransactionTimeLimitSetting />}
               <DegenModeSetting showConfirmation={showConfirmation} setShowConfirmation={setShowConfirmation} />
-              {isSwapPage && (
-                <>
-                  <GasPriceTrackerSetting onClick={onClickGasPriceTracker} />
-                  <LiquiditySourcesSetting onClick={onClickLiquiditySources} />
-                </>
-              )}
+              {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
             </>
           )}
 

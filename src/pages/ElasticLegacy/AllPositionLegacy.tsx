@@ -14,7 +14,6 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import {
@@ -34,6 +33,8 @@ import { shortenAddress } from 'utils'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+import { FeeTag } from './PositionLegacy'
 
 const Item = styled.div`
   border-radius: 20px;

@@ -3,17 +3,14 @@ import { load, save } from 'redux-localstorage-simple'
 import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
-import blockServiceApi from 'services/blockService'
 import campaignApi from 'services/campaign'
 import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
-import earningApi from 'services/earning'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
-import knProtocolApi from 'services/knprotocol'
 import ksSettingApi from 'services/ksSetting'
 import kyberDAO from 'services/kyberDAO'
 import limitOrderApi from 'services/limitOrder'
@@ -32,16 +29,12 @@ import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
 import crossChain from './crossChain/reducer'
 import customizeDexes from './customizeDexes'
-import farms from './farms/classic/reducer'
-import elasticFarm from './farms/elastic'
-import elasticFarmV2 from './farms/elasticv2'
 import { updateVersion } from './global/actions'
 import limit from './limit/reducer'
 import lists from './lists/reducer'
 import mintV2 from './mint/proamm/reducer'
 import mint from './mint/reducer'
 import multicall from './multicall/reducer'
-import myEarnings from './myEarnings/reducer'
 import pair from './pair/reducer'
 import pools from './pools/reducer'
 import profile from './profile/reducer'
@@ -51,7 +44,6 @@ import topTokens from './topTokens'
 import transactions from './transactions/reducer'
 import tutorial from './tutorial/reducer'
 import user, { UserState } from './user/reducer'
-import vesting from './vesting/reducer'
 
 const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile']
 ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
@@ -93,8 +85,6 @@ const store = configureStore({
     lists,
     pair,
     pools,
-    farms,
-    vesting,
     [aggregatorStatsApi.reducerPath]: aggregatorStatsApi.reducer,
     [announcementApi.reducerPath]: announcementApi.reducer,
     [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
@@ -111,23 +101,17 @@ const store = configureStore({
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     tutorial,
-    myEarnings,
     crossChain,
     customizeDexes,
-    elasticFarm,
-    elasticFarmV2,
     tokenPrices,
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
-    [earningApi.reducerPath]: earningApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
-    [blockServiceApi.reducerPath]: blockServiceApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
-    [knProtocolApi.reducerPath]: knProtocolApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -146,15 +130,12 @@ const store = configureStore({
       .concat(crosschainApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
-      .concat(earningApi.middleware)
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)
-      .concat(blockServiceApi.middleware)
       .concat(commonServiceApi.middleware)
-      .concat(blackjackApi.middleware)
-      .concat(knProtocolApi.middleware),
+      .concat(blackjackApi.middleware),
   preloadedState,
 })
 

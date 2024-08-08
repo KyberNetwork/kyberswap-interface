@@ -5,7 +5,6 @@ import JSBI from 'jsbi'
 import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -16,7 +15,6 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { FarmingIcon } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -24,18 +22,22 @@ import { APP_PATHS, DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
 import { useTotalSupply } from 'data/TotalSupply'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { TokenWrapper } from 'pages/AddLiquidity/styled'
 import { IconWrapper } from 'pages/Pools/styleds'
-import { useBlockNumber, useETHPrice } from 'state/application/hooks'
-import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
+import { useETHPrice } from 'state/application/hooks'
 import { UserLiquidityPosition, useSinglePoolData } from 'state/pools/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
-import { ExternalLink, MEDIA_WIDTHS, UppercaseText } from 'theme'
+import { ExternalLink, UppercaseText } from 'theme'
 import { formattedNum, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { getTradingFeeAPR, useCurrencyConvertedToNative } from 'utils/dmm'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+const TokenWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`
 
 const FixedHeightRow = styled(RowBetween)`
   height: 24px;
@@ -118,8 +120,6 @@ interface PositionCardProps {
   stakedBalance?: TokenAmount // optional balance to indicate that liquidity is deposited in mining pool
   myLiquidity?: UserLiquidityPosition
   tab?: 'ALL' | 'STAKED'
-  farm?: Farm
-  farmAPR?: number
 }
 
 export function NarrowPositionCard({ pair, showUnwrapped = false, border }: PositionCardProps) {
@@ -366,28 +366,9 @@ const Row = styled(Flex)`
   line-height: 2;
 `
 
-export default function FullPositionCard({
-  pair,
-  border,
-  stakedBalance,
-  myLiquidity,
-  tab,
-  farm,
-  farmAPR = 0,
-}: PositionCardProps) {
+export default function FullPositionCard({ pair, border, stakedBalance, myLiquidity, tab }: PositionCardProps) {
   const { chainId, networkInfo } = useActiveWeb3React()
 
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
-  const blockNumber = useBlockNumber()
-  const currentTimestamp = Math.round(Date.now() / 1000)
-  const isEnded =
-    farm &&
-    (farm.version === FairLaunchVersion.V1
-      ? farm.endBlock <= (blockNumber || Number.MAX_SAFE_INTEGER)
-      : farm.endTime <= currentTimestamp)
-
-  const farmStatus = !farm ? 'NO_FARM' : isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'
   const ethPrice = useETHPrice()
 
   const { data: poolData } = useSinglePoolData(pair.address.toLowerCase(), ethPrice.currentPrice)
@@ -396,7 +377,7 @@ export default function FullPositionCard({
   const fee = poolData?.oneDayFeeUSD || poolData?.oneDayFeeUntracked
   const tradingFeeAPR = getTradingFeeAPR(poolData?.reserveUSD, fee)
 
-  const apr = tradingFeeAPR + (tab && tab === 'STAKED' ? farmAPR : 0)
+  const apr = tradingFeeAPR
 
   const currency0 = unwrappedToken(pair.token0)
   const currency1 = unwrappedToken(pair.token1)
@@ -473,47 +454,7 @@ export default function FullPositionCard({
 
   const theme = useTheme()
 
-  const goToFarmPath =
-    farmStatus !== 'NO_FARM'
-      ? `${APP_PATHS.FARMS}/${networkInfo.route}?tab=classic&type=${
-          farmStatus === 'FARM_ACTIVE' ? 'active' : 'ended'
-        }&search=${pair.address}`
-      : ''
-
-  const renderFarmIcon = () => {
-    if (farmStatus !== 'FARM_ACTIVE') {
-      return null
-    }
-
-    if (upToSmall) {
-      return (
-        <MouseoverTooltip
-          placement="top"
-          noArrow
-          text={
-            <Text>
-              <Trans>
-                Available for yield farming. Click <Link to={goToFarmPath}>here</Link> to go to the farm.
-              </Trans>
-            </Text>
-          }
-        >
-          <FarmingIcon />
-        </MouseoverTooltip>
-      )
-    }
-
-    return (
-      <MouseoverTooltip width="fit-content" placement="top" text={<Trans>Available for yield farming.</Trans>}>
-        <Link to={goToFarmPath}>
-          <FarmingIcon />
-        </Link>
-      </MouseoverTooltip>
-    )
-  }
-
   const feeApr = tradingFeeAPR.toFixed(2)
-  const farmApr = farmAPR.toFixed(2)
 
   return (
     <StyledPositionCard border={border}>
@@ -542,7 +483,6 @@ export default function FullPositionCard({
             gap: '4px',
           }}
         >
-          {renderFarmIcon()}
           {isWarning && (
             <MouseoverTooltip
               text={
@@ -560,7 +500,6 @@ export default function FullPositionCard({
                   width: '24px',
                   height: '24px',
                   background: theme.warning,
-                  marginLeft: farmStatus === 'FARM_ACTIVE' ? '8px' : 0,
                 }}
               >
                 <AlertTriangle color={theme.textReverse} size={16} />
@@ -578,7 +517,7 @@ export default function FullPositionCard({
         </Text>
         <Flex fontSize={12} color={theme.subText} marginTop="2px" alignItems="baseline" sx={{ gap: '4px' }}>
           <Flex alignItems="center" flexDirection="row">
-            APR {tab === 'STAKED' && <InfoHelper text={t`${feeApr}% LP Fee + ${farmApr}% Rewards`} size={14} />}
+            APR {tab === 'STAKED' && <InfoHelper text={t`${feeApr}% LP Fee`} size={14} />}
           </Flex>
           <Text as="span" color={theme.apr} fontSize="20px" fontWeight={500}>
             {apr ? `${apr.toFixed(2)}%` : '--'}
@@ -712,7 +651,7 @@ export default function FullPositionCard({
         )}
       </Flex>
 
-      {tab === 'ALL' ? (
+      {tab === 'ALL' && (
         <Flex marginTop="20px" sx={{ gap: '1rem' }}>
           {userDefaultPoolBalance?.greaterThan(JSBI.BigInt(0)) ? (
             <ButtonOutlined
@@ -744,12 +683,6 @@ export default function FullPositionCard({
             </ButtonPrimary>
           )}
         </Flex>
-      ) : (
-        <ButtonPrimary padding="10px" style={{ fontSize: '14px' }} as={Link} to={goToFarmPath}>
-          <Text width="max-content">
-            <Trans>Go to farm</Trans>
-          </Text>
-        </ButtonPrimary>
       )}
 
       <Divider sx={{ marginTop: '20px' }} />
@@ -763,12 +696,6 @@ export default function FullPositionCard({
             <Trans>Analytics ↗</Trans>
           </ExternalLink>
         </ButtonEmpty>
-
-        {!!farm && (
-          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to={goToFarmPath}>
-            <Trans>Go to farm ↗</Trans>
-          </ButtonEmpty>
-        )}
       </Flex>
     </StyledPositionCard>
   )
