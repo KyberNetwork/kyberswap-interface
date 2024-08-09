@@ -6,7 +6,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
@@ -18,7 +18,6 @@ import Pagination from 'components/Pagination'
 import Row from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
-import SubscribeNotificationButton from 'components/SubscribeButton'
 import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import { APP_PATHS, EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -49,15 +48,18 @@ import TableHeader from './TableHeader'
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
   gap: 1rem;
-  border: 1px solid ${({ theme }) => theme.border};
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin-left: -16px;
     width: 100vw;
-    border-left: none;
-    border-right: none;
   `};
+`
+
+const TabSelectorWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid ${({ theme }) => theme.background};
+  border-top: 1px solid ${({ theme }) => theme.background};
 `
 
 const ButtonCancelAll = styled(ButtonLight)`
@@ -71,7 +73,7 @@ const ButtonCancelAll = styled(ButtonLight)`
 `
 
 const PAGE_SIZE = 10
-const NoResultWrapper = styled.div`
+export const NoResultWrapper = styled.div`
   min-height: 140px;
   display: flex;
   flex-direction: column;
@@ -131,7 +133,7 @@ const SearchInputWrapped = styled(SearchInput)`
   `};
 `
 
-export default function ListLimitOrder({ customChainId }: { customChainId?: ChainId }) {
+export default function ListMyOrder({ customChainId }: { customChainId?: ChainId }) {
   const { account, chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
   const [curPage, setCurPage] = useState(1)
@@ -172,6 +174,7 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
   }, [orders])
 
   const { refetch, data: tokenPrices } = useTokenPricesWithLoading(tokenAddresses, chainId)
+
   useEffect(() => {
     // Refresh token prices each 10 seconds
     const interval = setInterval(refetch, 10_000)
@@ -298,14 +301,6 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
   }, [totalOrderNotCancelling, orders, ordersUpdating])
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const subscribeBtn = !isPartnerSwap && (
-    <SubscribeNotificationButton
-      iconOnly={false}
-      style={{ margin: upToSmall ? 0 : '12px 12px 0px 12px' }}
-      subscribeTooltip={t`Subscribe to receive notifications on your limit orders.`}
-      trackingEvent={MIXPANEL_TYPE.LO_CLICK_SUBSCRIBE_BTN}
-    />
-  )
 
   const theme = useTheme()
 
@@ -315,17 +310,15 @@ export default function ListLimitOrder({ customChainId }: { customChainId?: Chai
 
   return (
     <Wrapper>
-      <Flex justifyContent={'space-between'} alignItems="flex-start">
+      <TabSelectorWrapper>
         <TabSelector
           setActiveTab={onSelectTab}
           activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
         />
-        {!upToSmall && subscribeBtn}
-      </Flex>
+      </TabSelectorWrapper>
 
       <SearchFilter>
         <Row width={upToSmall ? '100%' : 'fit-content'} alignItems="center" gap="8px" justify={'space-between'}>
-          {upToSmall && subscribeBtn}
           <SelectFilter
             key={orderType}
             options={isTabActive ? ACTIVE_ORDER_OPTIONS() : CLOSE_ORDER_OPTIONS()}
