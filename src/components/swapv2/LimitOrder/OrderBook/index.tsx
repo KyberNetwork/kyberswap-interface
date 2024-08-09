@@ -117,7 +117,7 @@ const formatOrders = (
 
   // Merge orders with the same rate
   const mergedOrders: LimitOrderFromTokenPairFormatted[] = []
-  const groupOrders = Object.groupBy(ordersFormatted, ({ rate }) => rate)
+  const groupOrders = Object.groupBy(ordersFormatted, ({ rate }: LimitOrderFromTokenPairFormatted) => rate)
 
   Object.keys(groupOrders).map((key: string) => {
     const mergedOrder = groupOrders[key]?.reduce(
