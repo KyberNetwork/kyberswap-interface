@@ -227,11 +227,15 @@ export const ZapContextProvider = ({
   source,
   excludedSources,
   includedSources,
+  initTickLower,
+  initTickUpper,
 }: {
   children: ReactNode;
   source: string;
   includedSources?: string;
   excludedSources?: string;
+  initTickLower?: number;
+  initTickUpper?: number;
 }) => {
   const { pool, poolAddress, position, positionId, feePcm, feeAddress } =
     useWidgetInfo();
@@ -269,6 +273,25 @@ export const ZapContextProvider = ({
       setTickUpper(position.tickUpper);
     }
   }, [position?.tickUpper, position?.tickLower]);
+
+  useEffect(() => {
+    if (!pool) return;
+    if (
+      initTickLower !== undefined &&
+      initTickLower % pool.tickSpacing === 0 &&
+      !tickLower
+    ) {
+      setTickLower(initTickLower);
+    }
+
+    if (
+      initTickUpper !== undefined &&
+      initTickUpper % pool.tickSpacing === 0 &&
+      !tickUpper
+    ) {
+      setTickUpper(initTickUpper);
+    }
+  }, [pool, initTickUpper, initTickLower, tickLower, tickUpper]);
 
   const [tokenIn, setTokenIn] = useState<PancakeToken | null>(null);
   const [amountIn, setAmountIn] = useState("");

@@ -23,9 +23,11 @@ import { useCallback, useEffect, useState } from "react";
 
 type WidgetParams = {
   chainId: number;
-  positionId: string;
+  positionId?: string;
   poolAddress: string;
   theme: "light" | "dark";
+  initTickUpper?: string;
+  initTickLower?: string;
 };
 
 const { wallets } = getDefaultWallets();
@@ -59,7 +61,7 @@ export default function App() {
           flexDirection: "column",
           gap: "16px",
           maxWidth: "960px",
-          margin: 'auto',
+          margin: "auto",
         }}
       >
         <ConnectButton />
@@ -83,7 +85,7 @@ function LiquidityWidgetWrapper() {
   const [key, setKey] = useState(Date.now());
   const [params, setParams] = useState<WidgetParams>({
     chainId: 56,
-    positionId: "1288027",
+    // positionId: "1288027",
     poolAddress: "0x92b7807bf19b7dddf89b706143896d05228f3121",
     theme: "light",
   });
@@ -121,6 +123,8 @@ function LiquidityWidgetWrapper() {
         networkChainId={chainId}
         chainId={params.chainId}
         positionId={params.positionId}
+        initTickLower={params.initTickLower ? +params.initTickLower : undefined}
+        initTickUpper={params.initTickUpper ? +params.initTickUpper : undefined}
         poolAddress={params.poolAddress}
         theme={params.theme}
         feeAddress="0x7E59Be2D29C5482256f555D9BD4b37851F1f3411"
@@ -183,6 +187,28 @@ function Params({
               setLocalParams((params) => ({
                 ...params,
                 positionId: e.target.value,
+              }));
+            }}
+          />
+
+          <span>initTickLower</span>
+          <input
+            value={localParams.initTickLower}
+            onChange={(e) => {
+              setLocalParams((params) => ({
+                ...params,
+                initTickLower: e.target.value,
+              }));
+            }}
+          />
+
+          <span>initTickUpper</span>
+          <input
+            value={localParams.initTickUpper}
+            onChange={(e) => {
+              setLocalParams((params) => ({
+                ...params,
+                initTickUpper: e.target.value,
               }));
             }}
           />

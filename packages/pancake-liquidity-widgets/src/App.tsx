@@ -79,7 +79,7 @@ function LiquidityWidgetWrapper() {
   const [key, setKey] = useState(Date.now());
   const [params, setParams] = useState<WidgetParams>({
     chainId: 56,
-    positionId: "1314637",
+    // positionId: "1314637",
     poolAddress: "0x36696169c63e42cd08ce11f5deebbcebae652050",
   });
 
@@ -111,8 +111,10 @@ function LiquidityWidgetWrapper() {
           onConnectWallet={() => {
             openConnectModal?.();
           }}
+          initTickLower={-65960}
+          initTickUpper={-61900}
           key={key}
-          theme={"light"}
+          theme={"dark"}
           walletClient={walletClient}
           account={account}
           networkChainId={chainId}

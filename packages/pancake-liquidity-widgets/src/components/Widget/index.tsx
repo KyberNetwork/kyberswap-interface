@@ -22,6 +22,8 @@ export interface WidgetProps {
   account: Address | undefined;
   chainId: number;
   networkChainId: number;
+  initTickLower?: number;
+  initTickUpper?: number;
 
   poolAddress: string;
   positionId?: string;
@@ -43,6 +45,8 @@ export default function Widget({
   chainId,
   networkChainId,
 
+  initTickLower,
+  initTickUpper,
   poolAddress,
   positionId,
   onDismiss,
@@ -116,6 +120,8 @@ export default function Widget({
         <ZapContextProvider
           includedSources={includedSources}
           excludedSources={excludedSources}
+          initTickUpper={initTickUpper}
+          initTickLower={initTickLower}
           source={source}
         >
           <div className="ks-lw">
