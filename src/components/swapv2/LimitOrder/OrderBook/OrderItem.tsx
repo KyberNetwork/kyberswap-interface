@@ -19,7 +19,7 @@ export const ItemWrapper = styled.div`
   padding: 12px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1.5fr 2fr 2fr 1fr;
+    grid-template-columns: 1.6fr 2fr 2fr 1fr;
   `}
 `
 
