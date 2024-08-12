@@ -26,7 +26,7 @@ const ITEMS_DISPLAY = 10
 const ITEM_HEIGHT = 44
 const DESKTOP_SIGNIFICANT_DIGITS = 6
 const MOBILE_SIGNIFICANT_DIGITS = 5
-const INTERVAL_REFETCH_TIME = 10 // seconds
+export const INTERVAL_REFETCH_TIME = 10 // seconds
 
 const OrderBookWrapper = styled.div`
   display: flex;
@@ -141,32 +141,47 @@ const formatOrders = (
   return reverse ? mergedOrders : mergedOrders.reverse()
 }
 
-export default function OrderBook() {
+let intervalRefetch: NodeJS.Timeout
+
+export default function OrderBook({
+  intervalTime,
+  setIntervalTime,
+}: {
+  intervalTime: number
+  setIntervalTime: React.Dispatch<React.SetStateAction<number>>
+}) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { chainId } = useActiveWeb3React()
   const { currencyIn, currencyOut } = useLimitState()
-  const { loading: tradeInfoLoading, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
+  const {
+    loading: loadingMarketRate,
+    tradeInfo: { marketRate = '' } = {},
+    refetch: refetchMarketRate,
+  } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
 
   const ordersWrapperRef = useRef<HTMLDivElement>(null)
 
-  const { data: { orders = [] } = {}, isLoading: isLoadingOrders } = useGetOrdersByTokenPairQuery(
-    {
-      chainId,
-      makerAsset: currencyIn?.wrapped?.address,
-      takerAsset: currencyOut?.wrapped?.address,
-    },
-    { pollingInterval: INTERVAL_REFETCH_TIME * 1000 },
-  )
-  const { data: { orders: reversedOrders = [] } = {}, isLoading: isLoadingReversedOrder } =
-    useGetOrdersByTokenPairQuery(
-      {
-        chainId,
-        makerAsset: currencyOut?.wrapped?.address,
-        takerAsset: currencyIn?.wrapped?.address,
-      },
-      { pollingInterval: INTERVAL_REFETCH_TIME * 1000 },
-    )
+  const {
+    data: { orders = [] } = {},
+    isLoading: isLoadingOrders,
+    refetch: refetchOrders,
+    isFetching: isFetchingOrders,
+  } = useGetOrdersByTokenPairQuery({
+    chainId,
+    makerAsset: currencyIn?.wrapped?.address,
+    takerAsset: currencyOut?.wrapped?.address,
+  })
+  const {
+    data: { orders: reversedOrders = [] } = {},
+    isLoading: isLoadingReversedOrder,
+    refetch: refetchReversedOrder,
+    isFetching: isFetchingReversedOrder,
+  } = useGetOrdersByTokenPairQuery({
+    chainId,
+    makerAsset: currencyOut?.wrapped?.address,
+    takerAsset: currencyIn?.wrapped?.address,
+  })
 
   const loadingOrders = useShowLoadingAtLeastTime(isLoadingOrders)
   const loadingReversedOrders = useShowLoadingAtLeastTime(isLoadingReversedOrder)
@@ -194,15 +209,42 @@ export default function OrderBook() {
     [reversedOrders, currencyIn, currencyOut, upToSmall],
   )
 
+  // Scroll to bottom when new orders are fetched
   useEffect(() => {
     if (orders.length && ordersWrapperRef.current) {
       ordersWrapperRef.current.scrollTop = ordersWrapperRef.current.scrollHeight
     }
-  }, [orders, loadingOrders, tradeInfoLoading, loadingReversedOrders])
+  }, [orders, loadingOrders, loadingReversedOrders])
+
+  useEffect(() => {
+    setIntervalTime(INTERVAL_REFETCH_TIME)
+  }, [setIntervalTime])
+
+  useEffect(() => {
+    intervalRefetch = setInterval(() => {
+      setIntervalTime((prev: number) => (prev === 0 ? 0 : prev - 1))
+    }, 1000)
+
+    return () => {
+      clearInterval(intervalRefetch)
+    }
+  }, [setIntervalTime])
+
+  useEffect(() => {
+    if (!intervalTime) {
+      refetchMarketRate()
+      refetchOrders()
+      refetchReversedOrder()
+    }
+  }, [intervalTime, refetchMarketRate, refetchOrders, refetchReversedOrder])
+
+  useEffect(() => {
+    if (!loadingMarketRate && !isFetchingOrders && !isFetchingReversedOrder) setIntervalTime(INTERVAL_REFETCH_TIME)
+  }, [loadingMarketRate, isFetchingOrders, isFetchingReversedOrder, setIntervalTime])
 
   return (
     <OrderBookWrapper>
-      {tradeInfoLoading || loadingOrders || loadingReversedOrders ? (
+      {loadingOrders || loadingReversedOrders ? (
         <LocalLoader />
       ) : (
         <>
@@ -219,8 +261,8 @@ export default function OrderBook() {
           )}
 
           <MarketPrice>
-            {tradeInfo?.marketRate
-              ? formatDisplayNumber(tradeInfo.marketRate, {
+            {marketRate
+              ? formatDisplayNumber(marketRate, {
                   significantDigits: upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
                 })
               : NOT_APPLICABLE}
