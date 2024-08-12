@@ -16,7 +16,7 @@ const Header = styled(ItemWrapper)`
   line-height: 16px;
   font-weight: 500;
   padding: 16px 12px;
-  cursor: pointer;
+  cursor: default;
   :hover {
     background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
   }

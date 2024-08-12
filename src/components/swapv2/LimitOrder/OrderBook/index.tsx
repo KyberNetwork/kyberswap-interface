@@ -21,7 +21,6 @@ import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from '../ty
 import OrderItem from './OrderItem'
 import TableHeader from './TableHeader'
 
-const NOT_APPLICABLE = 'N/A'
 const ITEMS_DISPLAY = 10
 const ITEM_HEIGHT = 44
 const DESKTOP_SIGNIFICANT_DIGITS = 6
@@ -260,13 +259,13 @@ export default function OrderBook({
             <NoDataPanel />
           )}
 
-          <MarketPrice>
-            {marketRate
-              ? formatDisplayNumber(marketRate, {
-                  significantDigits: upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
-                })
-              : NOT_APPLICABLE}
-          </MarketPrice>
+          {marketRate && (
+            <MarketPrice>
+              {formatDisplayNumber(marketRate, {
+                significantDigits: upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
+              })}
+            </MarketPrice>
+          )}
 
           {reversedOrders.length > 0 ? (
             <OrderItemWrapper>
