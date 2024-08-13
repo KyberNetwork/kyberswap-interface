@@ -109,6 +109,13 @@ export default function ConfirmSwapModalContent({
         </Text>
       )
     }
+    if (
+      errorWhileBuildRoute.includes(
+        'Please use a different wallet to fill an order that you created via the KyberSwap Limit Order',
+      )
+    )
+      return <Text>{errorWhileBuildRoute}</Text>
+
     return (
       <Text>
         <Trans>There was an issue while trying to confirm your price. Please try to swap again.</Trans>

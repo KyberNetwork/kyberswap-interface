@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart } from 'react-feather'
+import { AlertOctagon, BookOpen, ChevronDown, FileText, Info, MessageCircle, PieChart, X } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -18,6 +18,7 @@ import ArrowRight from 'components/Icons/ArrowRight'
 import Faucet from 'components/Icons/Faucet'
 import Icon from 'components/Icons/Icon'
 import MailIcon from 'components/Icons/MailIcon'
+import VoteIcon from 'components/Icons/Vote'
 import LanguageSelector from 'components/LanguageSelector'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
@@ -125,6 +126,7 @@ const StyledMenu = styled.div`
 const ListWrapper = styled.div`
   max-height: calc(100vh - 150px);
   overflow-y: scroll;
+  position: relative;
 `
 
 const MenuFlyoutBrowserStyle = css`
@@ -279,6 +281,15 @@ export default function Menu() {
           </AutoColumn>
         ) : (
           <ListWrapper ref={wrapperNode => setWrapperNode(wrapperNode)}>
+            {isMobile && (
+              <ButtonEmpty
+                onClick={toggle}
+                style={{ position: 'absolute', width: 'fit-content', top: '-16px', right: '-16px' }}
+              >
+                <X color={theme.subText} />
+              </ButtonEmpty>
+            )}
+
             <Title style={{ paddingTop: 0 }}>
               <Trans>Legacy</Trans>
             </Title>
@@ -286,7 +297,7 @@ export default function Menu() {
             <MenuItem onClick={toggle}>
               <NavLink to={APP_PATHS.ELASTIC_SNAPSHOT}>
                 <AlertOctagon size={14} />
-                <Trans>Snapshot</Trans>
+                <Trans>Treasury Grant 2023</Trans>
               </NavLink>
             </MenuItem>
 
@@ -315,6 +326,28 @@ export default function Menu() {
                   <Trans>Faucet</Trans>
                 </Text>
               </MenuItem>
+            )}
+
+            {showAnalytics && (
+              <>
+                <MenuItem>
+                  <NavDropDown
+                    icon={<VoteIcon />}
+                    title={
+                      <Text sx={{ position: 'relative' }} width="max-content">
+                        KyberDAO
+                      </Text>
+                    }
+                    link={'/campaigns'}
+                    options={[
+                      { link: APP_PATHS.KYBERDAO_STAKE, label: 'Stake KNC' },
+                      { link: APP_PATHS.KYBERDAO_VOTE, label: 'Vote' },
+                      { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: 'KNC Utility' },
+                      { link: 'https://kyberswap.canny.io/feature-request', label: 'Feature Request', external: true },
+                    ]}
+                  />
+                </MenuItem>
+              </>
             )}
 
             {bridgeLink && (

@@ -1,10 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { CreateOrderParam } from 'components/swapv2/LimitOrder/type'
-import { APP_PATHS } from 'constants/index'
-import useDefaultsTokenFromURLSearch from 'hooks/useDefaultsTokenFromURLSearch'
 import { AppDispatch, AppState } from 'state/index'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
@@ -32,10 +30,7 @@ export function useLimitState(): LimitState & {
 
 export function useLimitActionHandlers() {
   const dispatch = useDispatch<AppDispatch>()
-  const { currencyIn, currencyOut } = useLimitState()
   const { onSwitchTokensV2, onCurrencySelection, onUserInput } = useSwapActionHandlers()
-
-  const { inputCurrency, outputCurrency } = useDefaultsTokenFromURLSearch(currencyIn, currencyOut, APP_PATHS.LIMIT)
 
   const setInputValue = useCallback(
     (inputAmount: string) => {
@@ -68,15 +63,6 @@ export function useLimitActionHandlers() {
     },
     [setInputValue, setCurrencyIn, setCurrencyOut],
   )
-
-  useEffect(() => {
-    if (
-      (inputCurrency && !currencyIn?.equals(inputCurrency)) ||
-      (outputCurrency && !currencyOut?.equals(outputCurrency))
-    ) {
-      onSelectPair(inputCurrency ?? undefined, outputCurrency ?? undefined)
-    }
-  }, [onSelectPair, inputCurrency, outputCurrency, currencyIn, currencyOut])
 
   const pushOrderNeedCreated = useCallback(
     (order: CreateOrderParam) => {

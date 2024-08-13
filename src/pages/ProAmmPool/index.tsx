@@ -1,6 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
-import { rgba } from 'polished'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
@@ -11,24 +9,20 @@ import styled from 'styled-components'
 
 import Card from 'components/Card'
 import { AutoColumn } from 'components/Column'
-import Wallet from 'components/Icons/Wallet'
 import Search from 'components/Search'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/MyPool'
-import { FarmUpdater } from 'state/farms/elastic/hooks'
-import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
-import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
-import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
+import { StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
 
 import ContentLoader from './ContentLoader'
@@ -83,36 +77,10 @@ const renderNotificationButton = (iconOnly: boolean) => {
 }
 
 export default function ProAmmPool() {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { userInfo } = useElasticFarmsV2()
-
-  const farmV2Positions = useMemo(
-    () =>
-      userInfo?.map(item => ({
-        nonce: BigNumber.from('1'),
-        tokenId: item.nftId,
-        operator: '0x0000000000000000000000000000000000000000',
-        poolId: item.poolAddress,
-        tickLower: item.position.tickLower,
-        tickUpper: item.position.tickUpper,
-        liquidity: BigNumber.from(item.position.liquidity.toString()),
-        // not used
-        feeGrowthInsideLast: BigNumber.from(0),
-        stakedLiquidity: item.stakedLiquidity,
-        // not used
-        rTokenOwed: BigNumber.from(0),
-        token0: item.position.pool.token0.wrapped.address,
-        token1: item.position.pool.token1.wrapped.address,
-        fee: item.position.pool.fee,
-        // endTime: pool?.[0]?.endTime,
-        // rewardPendings: [],
-      })) || [],
-    [userInfo],
-  )
-  const { farmPositions, loading, userFarmInfo } = useFarmPositions()
   const [openPositions, closedPositions] = useMemo(
     () =>
       positions?.reduce<[PositionDetails[], PositionDetails[]]>(
@@ -163,25 +131,17 @@ export default function ProAmmPool() {
   )
 
   const filteredFarmPositions = useMemo(() => {
-    return [...farmPositions, ...farmV2Positions].filter(filter)
-  }, [filter, farmPositions, farmV2Positions])
+    return [].filter(filter)
+  }, [filter])
 
   const sortFn = useCallback(
     (a: PositionDetails, b: PositionDetails) => +a.tokenId.toString() - +b.tokenId.toString(),
     [],
   )
 
-  const openFarmPositions = useMemo(() => {
-    return filteredFarmPositions.filter(pos => pos.liquidity.gt('0')).sort(sortFn)
-  }, [filteredFarmPositions, sortFn])
-
-  const closedFarmPositions = useMemo(() => {
-    return filteredFarmPositions.filter(pos => pos.liquidity.eq('0')).sort(sortFn)
-  }, [filteredFarmPositions, sortFn])
-
   const filteredPositions = useMemo(() => {
-    const opens = [...openPositions, ...openFarmPositions].sort(sortFn)
-    const closeds = [...closedPositions, ...closedFarmPositions].sort(sortFn)
+    const opens = [...openPositions].sort(sortFn)
+    const closeds = [...closedPositions].sort(sortFn)
 
     return (!showClosed ? opens : [...opens, ...closeds])
       .filter(position => {
@@ -197,27 +157,10 @@ export default function ProAmmPool() {
         )
       })
       .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
-  }, [
-    showClosed,
-    openPositions,
-    closedPositions,
-    debouncedSearchText,
-    nftId,
-    openFarmPositions,
-    closedFarmPositions,
-    sortFn,
-  ])
+  }, [showClosed, openPositions, closedPositions, debouncedSearchText, nftId, sortFn])
 
   const [showStaked, setShowStaked] = useState(false)
-  const positionList = useMemo(
-    () =>
-      showStaked
-        ? showClosed
-          ? [...openFarmPositions, ...closedFarmPositions]
-          : openFarmPositions
-        : filteredPositions,
-    [showStaked, filteredPositions, openFarmPositions, closedFarmPositions, showClosed],
-  )
+  const positionList = useMemo(() => (showStaked ? [] : filteredPositions), [showStaked, filteredPositions])
 
   const upToSmall = useMedia('(max-width: 768px)')
 
@@ -227,16 +170,6 @@ export default function ProAmmPool() {
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools.</Trans>
-            {!upToSmall && (
-              <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                <Flex alignItems="center">
-                  <Wallet size={16} />
-                  <Text fontSize="14px" marginLeft="4px">
-                    <Trans>Analyze Wallet</Trans> ↗
-                  </Text>
-                </Flex>
-              </ExternalLink>
-            )}
           </InstructionText>
           <TabRow>
             <Flex justifyContent="space-between" flex={1} alignItems="center" width="100%">
@@ -264,18 +197,6 @@ export default function ProAmmPool() {
 
               {upToSmall && (
                 <Flex sx={{ gap: '8px' }}>
-                  <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                    <Flex
-                      sx={{ borderRadius: '50%' }}
-                      width="36px"
-                      backgroundColor={rgba(theme.subText, 0.2)}
-                      height="36px"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Wallet size={16} color={theme.subText} />
-                    </Flex>
-                  </ExternalLink>
                   <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />
                   {renderNotificationButton(true)}
                 </Flex>
@@ -309,7 +230,7 @@ export default function ProAmmPool() {
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
-          ) : (positionsLoading && !positions) || (loading && !userFarmInfo && !positions?.length) ? (
+          ) : positionsLoading && !positions ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />
@@ -334,8 +255,6 @@ export default function ProAmmPool() {
           )}
         </AutoColumn>
       </PageWrapper>
-      <FarmUpdater />
-      <ElasticFarmV2Updater />
     </>
   )
 }

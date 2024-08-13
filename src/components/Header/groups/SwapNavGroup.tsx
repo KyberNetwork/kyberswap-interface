@@ -57,7 +57,7 @@ const SwapNavGroup = () => {
   const { mixpanelHandler } = useMixpanel()
 
   const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.BRIDGE, APP_PATHS.LIMIT].some(path =>
-    pathname.includes(path),
+    pathname.startsWith(path),
   )
 
   return (

@@ -345,13 +345,7 @@ function AboutKyberSwap() {
               <OptimismLogoFull />
               <ZkSyncFull color={theme.text} />
               <LineaFull />
-              <img
-                src={
-                  'https://polygontechnology.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fdd9f65de-0698-41f4-9a0e-4120b50b8176%2FPolygon_zkEVM_logo_light.svg?table=block&id=5d157d90-9ed4-48e4-be5d-4405bb02a2aa&spaceId=51562dc1-1dc5-4484-bf96-2aeac848ae2f&userId=&cache=v2'
-                }
-                alt="zkevm"
-                width="100%"
-              />
+              <img src={'https://i.imgur.com/QP6x5aC.png'} alt="zkevm" width="100%" />
               <img
                 src="https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/wordmark/Base_Wordmark_Blue.svg"
                 alt="Base"

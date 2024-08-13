@@ -3,9 +3,54 @@ import ScrollContainer from 'react-indiana-drag-scroll'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import { ScrollContainerWithGradient } from 'components/RewardTokenPrices'
 import useTheme from 'hooks/useTheme'
 import useThrottle from 'hooks/useThrottle'
+
+const ScrollContainerWithGradient = styled.div<{ backgroundColor?: string }>`
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: fit-content;
+  width: 100%;
+  max-width: calc(100vw - 32px);
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    justify-content: flex-start;
+  `}
+
+  &.left-visible:after,
+  &.right-visible:before {
+    content: '';
+    display: block;
+    z-index: 2;
+    pointer-events: none;
+    position: absolute;
+    inset: 0 0 auto auto;
+    width: 40px;
+    height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &.left-visible:after {
+    background: linear-gradient(
+      to right,
+      ${({ theme, backgroundColor }) => backgroundColor ?? theme.buttonBlack},
+      transparent
+    );
+    left: 0;
+  }
+
+  &.right-visible:before {
+    background: linear-gradient(
+      to left,
+      ${({ theme, backgroundColor }) => backgroundColor ?? theme.buttonBlack},
+      transparent
+    );
+    right: 0;
+  }
+`
 
 const HorizontalScroll = ({
   items,

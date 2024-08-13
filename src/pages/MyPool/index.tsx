@@ -1,8 +1,6 @@
-import { JSBI, Pair } from '@kyberswap/ks-sdk-classic'
-import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Pair } from '@kyberswap/ks-sdk-classic'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
-import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
@@ -14,17 +12,15 @@ import { ButtonPrimary } from 'components/Button'
 import Card from 'components/Card'
 import ClassicElasticTab from 'components/ClassicElasticTab'
 import { AutoColumn } from 'components/Column'
-import Wallet from 'components/Icons/Wallet'
 import Withdraw from 'components/Icons/Withdraw'
-import LocalLoader from 'components/LocalLoader'
 import FullPositionCard from 'components/PositionCard'
 import { AutoRow } from 'components/Row'
 import Search from 'components/Search'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { APP_PATHS, DMM_ANALYTICS_URL } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { VERSION } from 'constants/v2'
-import { usePairByAddress, usePairsByAddress } from 'data/Reserves'
+import { usePairsByAddress } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -33,13 +29,10 @@ import useTheme from 'hooks/useTheme'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import ElasticLegacy from 'pages/ElasticLegacy'
 import ProAmmPool from 'pages/ProAmmPool'
-import { useFarmsData, useTotalApr } from 'state/farms/classic/hooks'
-import { Farm } from 'state/farms/classic/types'
-import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
 import { useLiquidityPositionTokenPairs, useToV2LiquidityTokens } from 'state/user/hooks'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
-import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
+import { StyledInternalLink, TYPE } from 'theme'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -188,13 +181,12 @@ export default function PoolCombination() {
 
 function MyPoolClassic() {
   const theme = useTheme()
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
 
   const under768 = useMedia('(max-width:768px)')
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
   const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions()
 
-  const { data: farms, loading: farmLoading } = useFarmsData()
   const [searchParams, setSearchParams] = useSearchParams()
   const searchValue = searchParams.get('search') || ''
   const debouncedSearchText = useDebounce(searchValue.trim().toLowerCase(), 300)
@@ -203,43 +195,6 @@ function MyPoolClassic() {
     searchParams.set('search', search)
     setSearchParams(searchParams)
   }
-
-  const allUserFarms = useMemo(
-    () =>
-      Object.values(farms)
-        .flat()
-        .filter(farm => JSBI.greaterThan(JSBI.BigInt(farm.userData?.stakedBalance || 0), JSBI.BigInt(0))),
-    [farms],
-  )
-
-  // Group by stakeToken
-  const userFarmByStakeToken = useMemo(
-    () =>
-      allUserFarms.reduce((acc, cur) => {
-        if (!acc[cur.stakeToken]) {
-          acc[cur.stakeToken] = cur
-        } else {
-          const totalStake = acc[cur.stakeToken].totalStake.add(cur.totalStake)
-          const currentStakedBalance = cur.userData?.stakedBalance || BigNumber.from('0')
-          const totalStakedBalance = BigNumber.from(acc[cur.stakeToken].userData?.stakedBalance?.toString() || '0').add(
-            currentStakedBalance,
-          )
-
-          acc[cur.stakeToken] = {
-            ...acc[cur.stakeToken],
-            totalStake,
-            userData: {
-              ...(acc[cur.stakeToken].userData || {}),
-              stakedBalance: totalStakedBalance.toString(),
-            },
-          }
-        }
-
-        return acc
-      }, {} as { [stakeToken: string]: Farm }),
-    [allUserFarms],
-  )
-  const userFarms = useMemo(() => Object.values(userFarmByStakeToken), [userFarmByStakeToken])
 
   const tokenPairsWithLiquidityTokens = useToV2LiquidityTokens(liquidityPositionTokenPairs)
 
@@ -284,16 +239,14 @@ function MyPoolClassic() {
   // remove any pairs that also are included in pairs with stake in mining pool
   const v2PairsWithoutStakedAmount = useMemo(
     () =>
-      allV2PairsWithLiquidity
-        .filter(v2Pair => {
-          return debouncedSearchText
-            ? v2Pair.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
-                v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
-                v2Pair.address.toLowerCase() === debouncedSearchText
-            : true
-        })
-        .filter(v2Pair => !userFarms.map(farm => farm.id.toLowerCase()).includes(v2Pair.address.toLowerCase())),
-    [allV2PairsWithLiquidity, debouncedSearchText, userFarms],
+      allV2PairsWithLiquidity.filter(v2Pair => {
+        return debouncedSearchText
+          ? v2Pair.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
+              v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
+              v2Pair.address.toLowerCase() === debouncedSearchText
+          : true
+      }),
+    [allV2PairsWithLiquidity, debouncedSearchText],
   )
 
   const transformedUserLiquidityPositions: {
@@ -306,7 +259,7 @@ function MyPoolClassic() {
 
   const [showStaked, setShowStaked] = useState(false)
 
-  const loading = v2IsLoading || loadingUserLiquidityPositions || farmLoading
+  const loading = v2IsLoading || loadingUserLiquidityPositions
 
   const { mixpanelHandler } = useMixpanel()
 
@@ -314,23 +267,12 @@ function MyPoolClassic() {
 
   return (
     <>
-      <ClassicFarmUpdater isInterval={false} />
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" justify="center">
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <AutoRow>
               <InstructionText>
                 <Trans>Here you can view all your liquidity and staked balances in the Classic Pools.</Trans>
-                {!upToSmall && (
-                  <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                    <Flex alignItems="center">
-                      <Wallet size={16} />
-                      <Text fontSize="14px" marginLeft="4px">
-                        <Trans>Analyze Wallet</Trans> ↗
-                      </Text>
-                    </Flex>
-                  </ExternalLink>
-                )}
               </InstructionText>
             </AutoRow>
             <TitleRow>
@@ -364,19 +306,6 @@ function MyPoolClassic() {
 
                 {upToSmall && (
                   <Flex sx={{ gap: '12px' }}>
-                    <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                      <Flex
-                        sx={{ borderRadius: '50%' }}
-                        width="36px"
-                        backgroundColor={rgba(theme.subText, 0.2)}
-                        height="36px"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        <Wallet size={16} color={theme.subText} />
-                      </Flex>
-                    </ExternalLink>
-
                     <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />
                   </Flex>
                 )}
@@ -426,46 +355,25 @@ function MyPoolClassic() {
                 </TYPE.body>
               </Card>
             ) : !showStaked ? (
-              loading && !v2PairsWithoutStakedAmount.length && !userFarms.length ? (
+              loading && !v2PairsWithoutStakedAmount.length ? (
                 <PositionCardGrid>
                   <PreloadCard></PreloadCard>
                   <PreloadCard></PreloadCard>
                   <PreloadCard></PreloadCard>
                 </PositionCardGrid>
-              ) : v2PairsWithoutStakedAmount?.length > 0 || !!userFarms.length ? (
+              ) : v2PairsWithoutStakedAmount?.length > 0 ? (
                 <>
                   <PositionCardGrid>
                     {v2PairsWithoutStakedAmount.map(v2Pair => {
-                      const farm = Object.values(farms)
-                        .flat()
-                        .find(farm => farm.id.toLowerCase() === v2Pair.address.toLowerCase())
-
                       return (
                         <FullPositionCard
                           key={v2Pair.liquidityToken.address}
                           pair={v2Pair}
                           myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
-                          farm={farm}
                           tab="ALL"
                         />
                       )
                     })}
-
-                    {userFarms
-                      .filter(
-                        farm =>
-                          farm.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
-                          farm.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
-                          farm.id.toLowerCase() === debouncedSearchText,
-                      )
-                      .map(farm => (
-                        <StakedPool
-                          farm={farm}
-                          key={farm.id}
-                          userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
-                          tab={'ALL'}
-                        />
-                      ))}
                   </PositionCardGrid>
                   <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
                     {t`Don't see a pool you joined?`}{' '}
@@ -492,34 +400,6 @@ function MyPoolClassic() {
                   </Text>
                 </Flex>
               )
-            ) : loading && !userFarms.length ? (
-              <LocalLoader />
-            ) : !!userFarms.length ? (
-              <>
-                <PositionCardGrid>
-                  {userFarms
-                    .filter(
-                      farm =>
-                        farm.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
-                        farm.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
-                        farm.id.toLowerCase() === debouncedSearchText,
-                    )
-                    .map(farm => (
-                      <StakedPool
-                        farm={farm}
-                        key={farm.id}
-                        userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
-                        tab="STAKED"
-                      />
-                    ))}
-                </PositionCardGrid>
-                <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
-                  {t`Don't see a pool you joined?`}{' '}
-                  <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
-                    <Trans>Import it.</Trans>
-                  </StyledInternalLink>
-                </Text>
-              </>
             ) : (
               <Flex flexDirection="column" alignItems="center" marginTop="60px">
                 <Info size={48} color={theme.subText} />
@@ -536,32 +416,5 @@ function MyPoolClassic() {
       </PageWrapper>
       <SwitchLocaleLink />
     </>
-  )
-}
-
-const StakedPool = ({
-  farm,
-  userLiquidityPositions,
-  tab,
-}: {
-  farm: Farm
-  tab: 'ALL' | 'STAKED'
-  userLiquidityPositions?: UserLiquidityPosition[]
-}) => {
-  const { farmAPR } = useTotalApr(farm)
-
-  const pair = usePairByAddress(farm.token0?.wrapped, farm.token1?.wrapped, farm.id)[1]
-
-  if (!pair) return <PreloadCard />
-
-  return (
-    <FullPositionCard
-      pair={pair}
-      stakedBalance={TokenAmount.fromRawAmount(pair.liquidityToken, farm.userData?.stakedBalance || '0')}
-      myLiquidity={userLiquidityPositions?.find(position => position.pool.id === pair.address)}
-      farm={farm}
-      farmAPR={farmAPR}
-      tab={tab}
-    />
   )
 }
