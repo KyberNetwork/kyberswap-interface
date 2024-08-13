@@ -77,8 +77,8 @@ export default function LiquidityWidget() {
     [],
   )
 
-  const [dexType, setType] = useState(PoolType.DEX_PANCAKESWAPV3)
-  const [selectedTheme, setSelectedTheme] = useState('pc')
+  const [dexType, setType] = useState(PoolType.DEX_UNISWAPV3)
+  const [selectedTheme, setSelectedTheme] = useState('ks')
   const [feeAddress, setFeeAddress] = useState('')
   const [feePcm, setFeePcm] = useState(0)
 

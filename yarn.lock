@@ -3750,7 +3750,7 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/liquidity-widgets@^0.0.8-rc2":
+"@kyberswap/liquidity-widgets@^0.0.8-multi-token-poc-1":
   version "0.0.8-rc2"
   resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-0.0.8-rc2.tgz#b9e1f8ee311bb7ed13fe90a785a32c5d5c13291a"
   integrity sha512-2m18kNpwf9QVWPlR5/7h6E4smRemDWxOvTHf8QUR+aV122K5rumUquXUewo4pbmuKLBZrF5Y/DA137HYGOp7Vg==
