@@ -1,20 +1,16 @@
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
-import { NavLink, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
-import { ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
-import { APP_PATHS, BIPS_BASE } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
-import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { BIPS_BASE } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
@@ -148,9 +144,7 @@ type Props = {
   refreshCallback: () => void
 }
 const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback }) => {
-  const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
-  const { gasRefundPercentage } = useGasRefundTier()
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact } = routeSummary || {}
   const hasTrade = !!routeSummary?.route
@@ -175,15 +169,12 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh,
       ''
     )
 
-  const { mixpanelHandler } = useMixpanel()
-
   useEffect(() => {
     if (hasTrade) {
       setAlreadyVisible(true)
     }
   }, [hasTrade])
 
-  const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
   return (
     <Wrapper $visible={alreadyVisible} $disabled={!hasTrade}>
       <AutoColumn gap="0.75rem">
@@ -251,37 +242,6 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh,
           </TYPE.black>
         </RowBetween>
 
-        {!isPartnerSwap && isSupportKyberDao(chainId) && (
-          <RowBetween>
-            <RowFixed>
-              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip
-                  text={
-                    <Trans>
-                      Stake KNC in KyberDAO to get gas refund. Read more{' '}
-                      <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
-                        here ↗
-                      </ExternalLink>
-                    </Trans>
-                  }
-                  placement="right"
-                >
-                  <Trans>Gas Refund</Trans>
-                </MouseoverTooltip>
-              </TextDashed>
-            </RowFixed>
-            <NavLink
-              to={APP_PATHS.KYBERDAO_KNC_UTILITY}
-              onClick={() => {
-                mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'Swap_page_more_info' })
-              }}
-            >
-              <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-                <Trans>{account ? gasRefundPercentage * 100 : '--'}% Refund</Trans>
-              </ButtonLight>
-            </NavLink>
-          </RowBetween>
-        )}
         <SwapFee />
       </AutoColumn>
     </Wrapper>
