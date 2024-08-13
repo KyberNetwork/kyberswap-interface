@@ -1,21 +1,24 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useMedia } from 'react-use'
+import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
 import LocalLoader from 'components/LocalLoader'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
+import useTheme from 'hooks/useTheme'
 import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import RefreshLoading from '../ListLimitOrder/RefreshLoading'
 import { NoResultWrapper } from '../ListOrder'
 import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from '../type'
 import OrderItem from './OrderItem'
@@ -31,6 +34,21 @@ const OrderBookWrapper = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 1rem;
+  position: relative;
+`
+
+const RefreshText = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 16px;
+  top: -2.5rem;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    position: static;
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+  `}
 `
 
 const MarketPrice = styled.div`
@@ -40,12 +58,7 @@ const MarketPrice = styled.div`
   background: ${({ theme }) => rgba(theme.white, 0.04)};
 `
 
-const OrderItemWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-height: ${ITEMS_DISPLAY * ITEM_HEIGHT}px;
-  overflow-y: auto;
-
+const OrderItemWrapper = styled(FixedSizeList)`
   ::-webkit-scrollbar {
     display: unset;
     width: 4px;
@@ -140,15 +153,8 @@ const formatOrders = (
   return reverse ? mergedOrders : mergedOrders.reverse()
 }
 
-let intervalRefetch: NodeJS.Timeout
-
-export default function OrderBook({
-  intervalTime,
-  setIntervalTime,
-}: {
-  intervalTime: number
-  setIntervalTime: React.Dispatch<React.SetStateAction<number>>
-}) {
+export default function OrderBook() {
+  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { chainId } = useActiveWeb3React()
@@ -159,7 +165,7 @@ export default function OrderBook({
     refetch: refetchMarketRate,
   } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
 
-  const ordersWrapperRef = useRef<HTMLDivElement>(null)
+  const ordersWrapperRef = useRef<FixedSizeList<any>>(null)
 
   const {
     data: { orders = [] } = {},
@@ -208,38 +214,23 @@ export default function OrderBook({
     [reversedOrders, currencyIn, currencyOut, upToSmall],
   )
 
+  const refetchLoading = useMemo(
+    () => loadingMarketRate || isFetchingOrders || isFetchingReversedOrder,
+    [loadingMarketRate, isFetchingOrders, isFetchingReversedOrder],
+  )
+
+  const onRefreshOrders = useCallback(() => {
+    refetchMarketRate()
+    refetchOrders()
+    refetchReversedOrder()
+  }, [refetchMarketRate, refetchOrders, refetchReversedOrder])
+
   // Scroll to bottom when new orders are fetched
   useEffect(() => {
-    if (orders.length && ordersWrapperRef.current) {
-      ordersWrapperRef.current.scrollTop = ordersWrapperRef.current.scrollHeight
+    if (formattedOrders.length && ordersWrapperRef.current) {
+      ordersWrapperRef.current.scrollToItem(formattedOrders.length - 1)
     }
-  }, [orders, loadingOrders, loadingReversedOrders])
-
-  useEffect(() => {
-    setIntervalTime(INTERVAL_REFETCH_TIME)
-  }, [setIntervalTime])
-
-  useEffect(() => {
-    intervalRefetch = setInterval(() => {
-      setIntervalTime((prev: number) => (prev === 0 ? 0 : prev - 1))
-    }, 1000)
-
-    return () => {
-      clearInterval(intervalRefetch)
-    }
-  }, [setIntervalTime])
-
-  useEffect(() => {
-    if (!intervalTime) {
-      refetchMarketRate()
-      refetchOrders()
-      refetchReversedOrder()
-    }
-  }, [intervalTime, refetchMarketRate, refetchOrders, refetchReversedOrder])
-
-  useEffect(() => {
-    if (!loadingMarketRate && !isFetchingOrders && !isFetchingReversedOrder) setIntervalTime(INTERVAL_REFETCH_TIME)
-  }, [loadingMarketRate, isFetchingOrders, isFetchingReversedOrder, setIntervalTime])
+  }, [formattedOrders, loadingOrders, loadingReversedOrders])
 
   return (
     <OrderBookWrapper>
@@ -247,13 +238,27 @@ export default function OrderBook({
         <LocalLoader />
       ) : (
         <>
+          <RefreshText>
+            <Text fontSize={'14px'} color={theme.subText} marginRight={'4px'}>
+              <Trans>Orders refresh in</Trans>
+            </Text>{' '}
+            <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
+          </RefreshText>
+
           <TableHeader />
 
           {formattedOrders.length > 0 ? (
-            <OrderItemWrapper ref={ordersWrapperRef}>
-              {formattedOrders.map(order => (
-                <OrderItem key={order.id} order={order} />
-              ))}
+            <OrderItemWrapper
+              ref={ordersWrapperRef}
+              height={(formattedOrders.length < ITEMS_DISPLAY ? formattedOrders.length : ITEMS_DISPLAY) * ITEM_HEIGHT}
+              itemCount={formattedOrders.length}
+              itemSize={ITEM_HEIGHT}
+              width={'100%'}
+            >
+              {({ index, style }: { index: number; style: CSSProperties }) => {
+                const order = formattedOrders[index]
+                return <OrderItem key={order.id} style={style} order={order} />
+              }}
             </OrderItemWrapper>
           ) : (
             <NoDataPanel />
@@ -267,11 +272,20 @@ export default function OrderBook({
             </MarketPrice>
           )}
 
-          {reversedOrders.length > 0 ? (
-            <OrderItemWrapper>
-              {formattedReversedOrders.map(order => (
-                <OrderItem key={order.id} reverse order={order} />
-              ))}
+          {formattedReversedOrders.length > 0 ? (
+            <OrderItemWrapper
+              height={
+                (formattedReversedOrders.length < ITEMS_DISPLAY ? formattedReversedOrders.length : ITEMS_DISPLAY) *
+                ITEM_HEIGHT
+              }
+              itemCount={formattedReversedOrders.length}
+              itemSize={ITEM_HEIGHT}
+              width={'100%'}
+            >
+              {({ index, style }: { index: number; style: CSSProperties }) => {
+                const order = formattedReversedOrders[index]
+                return <OrderItem key={order.id} style={style} reverse order={order} />
+              }}
             </OrderItemWrapper>
           ) : (
             <NoDataPanel />

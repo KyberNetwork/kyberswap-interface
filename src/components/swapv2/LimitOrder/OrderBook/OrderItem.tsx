@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
@@ -47,13 +47,21 @@ const AmountInfo = ({
   </Text>
 )
 
-export default function OrderItem({ reverse, order }: { reverse?: boolean; order: LimitOrderFromTokenPairFormatted }) {
+export default function OrderItem({
+  reverse,
+  order,
+  style,
+}: {
+  reverse?: boolean
+  order: LimitOrderFromTokenPairFormatted
+  style: CSSProperties
+}) {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { currencyIn, currencyOut } = useLimitState()
 
   return (
-    <ItemWrapper>
+    <ItemWrapper style={style}>
       <Rate reverse={reverse}>{order.rate}</Rate>
       <AmountInfo plus={reverse} amount={order.firstAmount} currency={currencyIn} upToSmall={upToSmall} />
       <AmountInfo plus={!reverse} amount={order.secondAmount} currency={currencyOut} upToSmall={upToSmall} />

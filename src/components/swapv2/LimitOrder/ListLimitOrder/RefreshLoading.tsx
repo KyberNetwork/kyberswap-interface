@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 
 const spin = keyframes`
@@ -28,21 +29,6 @@ let interval: NodeJS.Timeout
 
 const Spin = ({ countdown, maxCount }: { countdown: number; maxCount: number }) => {
   const theme = useTheme()
-  const [splitCountdown, setSplitCountdown] = useState<number>(maxCount * 1000)
-
-  useEffect(() => {
-    interval = setInterval(() => {
-      setSplitCountdown((prev: number) => (prev === 0 ? 0 : prev - 10))
-    }, 10)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [maxCount])
-
-  useEffect(() => {
-    if (countdown === maxCount) setSplitCountdown(maxCount * 1000)
-  }, [maxCount, countdown])
 
   return (
     <WrappedSvg
@@ -80,7 +66,7 @@ const Spin = ({ countdown, maxCount }: { countdown: number; maxCount: number }) 
           stroke="currentColor"
           strokeWidth="16"
           strokeDasharray="30"
-          strokeDashoffset={!countdown ? 0 : -30 + (splitCountdown / (maxCount * 1000)) * 30}
+          strokeDashoffset={!countdown ? 0 : -30 + (countdown / maxCount) * 30}
         />
       </g>
     </WrappedSvg>
@@ -106,12 +92,45 @@ const CountDown = styled.div`
   color: ${({ theme }) => theme.primary};
 `
 
-export default function RefreshLoading({ countdown, maxCount }: { countdown: number; maxCount: number }) {
+export default function RefreshLoading({
+  refetchLoading,
+  onRefresh,
+  maxCount = 10,
+}: {
+  refetchLoading: boolean
+  onRefresh: () => void
+  maxCount?: number
+}) {
+  const [countdown, setCountdown] = useState(0)
+
+  const debouncedRefetchLoading = useDebounce(refetchLoading, 100)
+
+  useEffect(() => {
+    if (!debouncedRefetchLoading) setCountdown(maxCount * 1_000)
+    else setCountdown(0)
+  }, [debouncedRefetchLoading, maxCount])
+
+  useEffect(() => {
+    if (countdown > 0) {
+      interval = setInterval(() => {
+        const newCountdown = countdown - 10
+        setCountdown(newCountdown)
+        if (newCountdown === 10) {
+          onRefresh()
+        }
+      }, 10)
+    }
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [countdown, onRefresh])
+
   return (
     <SpinWrapper role="button">
-      <Spin countdown={countdown} maxCount={maxCount} />
+      <Spin countdown={countdown} maxCount={maxCount * 1_000} />
 
-      {countdown > 0 && <CountDown>{countdown}</CountDown>}
+      {countdown > 0 && <CountDown>{(countdown / 1_000).toFixed()}</CountDown>}
     </SpinWrapper>
   )
 }
