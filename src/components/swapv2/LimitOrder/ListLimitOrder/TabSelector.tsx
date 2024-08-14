@@ -1,12 +1,24 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
+import styled from 'styled-components'
 
 import TabButton from 'components/TabButton'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { LimitOrderTab } from '../type'
+
+const TabSelectorWrapper = styled.div`
+  display: flex;
+  overflow: hidden;
+  border-top-left-radius: 19px;
+  width: fit-content;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    border-top-left-radius: 0;
+    width: 100%;
+  `};
+`
 
 export default function TabSelector({
   activeTab,
@@ -22,13 +34,7 @@ export default function TabSelector({
   )
 
   return (
-    <Flex
-      sx={{
-        borderTopLeftRadius: upToSmall ? 0 : '19px',
-        overflow: 'hidden',
-        width: upToSmall ? '100%' : 'fit-content',
-      }}
-    >
+    <TabSelectorWrapper>
       <TabButton
         style={style}
         active={activeTab === LimitOrderTab.ORDER_BOOK}
@@ -41,6 +47,6 @@ export default function TabSelector({
         text={t`My Order(s)`}
         onClick={() => setActiveTab(LimitOrderTab.MY_ORDER)}
       />
-    </Flex>
+    </TabSelectorWrapper>
   )
 }

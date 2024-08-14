@@ -30,7 +30,7 @@ export default function TableHeader() {
     <Header>
       <Text>
         <span>{currencyIn?.symbol || ''}/</span>
-        {upToSmall ? <br /> : ' '}
+        {upToSmall ? <br /> : ''}
         <span>{currencyOut?.symbol || ''}</span>
       </Text>
       <Text>

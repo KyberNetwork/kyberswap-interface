@@ -1,5 +1,4 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { rgba } from 'polished'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
@@ -38,13 +37,11 @@ const AmountInfo = ({
   currency?: Currency
   upToSmall?: boolean
 }) => (
-  <Text>
-    <Flex alignItems={'center'}>
-      <CurrencyLogo currency={currency} size="17px" style={{ marginRight: upToSmall ? 4 : 8 }} />
-      <span>{plus ? '+' : '-'}</span>
-      <span>{amount}</span>
-    </Flex>
-  </Text>
+  <Flex alignItems={'center'}>
+    <CurrencyLogo currency={currency} size="17px" style={{ marginRight: upToSmall ? 4 : 8 }} />
+    <span>{plus ? '+' : '-'}</span>
+    <span>{amount}</span>
+  </Flex>
 )
 
 export default function OrderItem({
@@ -65,7 +62,7 @@ export default function OrderItem({
       <Rate reverse={reverse}>{order.rate}</Rate>
       <AmountInfo plus={reverse} amount={order.firstAmount} currency={currencyIn} upToSmall={upToSmall} />
       <AmountInfo plus={!reverse} amount={order.secondAmount} currency={currencyOut} upToSmall={upToSmall} />
-      <Text style={{ color: rgba(theme.white, 0.6) }}>
+      <Text color={theme.subText}>
         {!upToSmall && 'Filled '}
         {order.filled}%
       </Text>
