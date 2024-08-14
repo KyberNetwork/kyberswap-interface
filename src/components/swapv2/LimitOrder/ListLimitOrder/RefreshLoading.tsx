@@ -4,6 +4,8 @@ import styled, { css, keyframes } from 'styled-components'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 
+const INTERVAL_REFETCH_TIME = 10 // seconds
+
 const spin = keyframes`
     from {
         transform:rotate(0deg);
@@ -27,7 +29,7 @@ const WrappedSvg = styled.svg<{ spinning: boolean }>`
 
 let interval: NodeJS.Timeout
 
-const Spin = ({ countdown, maxCount }: { countdown: number; maxCount: number }) => {
+const Spin = ({ countdown }: { countdown: number }) => {
   const theme = useTheme()
 
   return (
@@ -66,7 +68,7 @@ const Spin = ({ countdown, maxCount }: { countdown: number; maxCount: number }) 
           stroke="currentColor"
           strokeWidth="16"
           strokeDasharray="30"
-          strokeDashoffset={!countdown ? 0 : -30 + (countdown / maxCount) * 30}
+          strokeDashoffset={!countdown ? 0 : -30 + (countdown / (INTERVAL_REFETCH_TIME * 1_000)) * 30}
         />
       </g>
     </WrappedSvg>
@@ -95,20 +97,18 @@ const CountDown = styled.div`
 export default function RefreshLoading({
   refetchLoading,
   onRefresh,
-  maxCount = 10,
 }: {
   refetchLoading: boolean
   onRefresh: () => void
-  maxCount?: number
 }) {
   const [countdown, setCountdown] = useState(0)
 
   const debouncedRefetchLoading = useDebounce(refetchLoading, 100)
 
   useEffect(() => {
-    if (!refetchLoading && !debouncedRefetchLoading) setCountdown(maxCount * 1_000)
+    if (!refetchLoading && !debouncedRefetchLoading) setCountdown(INTERVAL_REFETCH_TIME * 1_000)
     else if (refetchLoading && debouncedRefetchLoading) setCountdown(0)
-  }, [refetchLoading, debouncedRefetchLoading, maxCount])
+  }, [refetchLoading, debouncedRefetchLoading])
 
   useEffect(() => {
     if (countdown > 0) {
@@ -128,7 +128,7 @@ export default function RefreshLoading({
 
   return (
     <SpinWrapper role="button">
-      <Spin countdown={countdown} maxCount={maxCount * 1_000} />
+      <Spin countdown={countdown} />
 
       {countdown > 0 && <CountDown>{(countdown / 1_000).toFixed()}</CountDown>}
     </SpinWrapper>

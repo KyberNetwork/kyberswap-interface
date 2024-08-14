@@ -28,7 +28,6 @@ const ITEMS_DISPLAY = 10
 const ITEM_HEIGHT = 44
 const DESKTOP_SIGNIFICANT_DIGITS = 6
 const MOBILE_SIGNIFICANT_DIGITS = 5
-export const INTERVAL_REFETCH_TIME = 10 // seconds
 
 const OrderBookWrapper = styled.div`
   display: flex;
@@ -92,6 +91,7 @@ const formatOrders = (
   reverse: boolean,
   currencyIn: Currency | undefined,
   currencyOut: Currency | undefined,
+  marketRate: number,
   significantDigits: number,
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!currencyIn || !currencyOut) return []
@@ -152,7 +152,7 @@ const formatOrders = (
     }
   })
 
-  return reverse ? mergedOrders : mergedOrders.reverse()
+  return marketRate < 1 ? mergedOrders.reverse() : mergedOrders
 }
 
 export default function OrderBook() {
@@ -163,7 +163,7 @@ export default function OrderBook() {
   const { currencyIn, currencyOut } = useLimitState()
   const {
     loading: loadingMarketRate,
-    tradeInfo: { marketRate = '' } = {},
+    tradeInfo: { marketRate = 0 } = {},
     refetch: refetchMarketRate,
   } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
 
@@ -200,9 +200,10 @@ export default function OrderBook() {
         false,
         currencyIn,
         currencyOut,
+        marketRate,
         upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
       ),
-    [orders, currencyIn, currencyOut, upToSmall],
+    [orders, currencyIn, currencyOut, marketRate, upToSmall],
   )
   const formattedReversedOrders = useMemo(
     () =>
@@ -211,9 +212,10 @@ export default function OrderBook() {
         true,
         currencyIn,
         currencyOut,
+        marketRate,
         upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
       ),
-    [reversedOrders, currencyIn, currencyOut, upToSmall],
+    [reversedOrders, currencyIn, currencyOut, marketRate, upToSmall],
   )
 
   const refetchLoading = useMemo(
