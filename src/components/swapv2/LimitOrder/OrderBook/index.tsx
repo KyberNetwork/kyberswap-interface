@@ -116,6 +116,7 @@ const formatOrders = (
 
       return {
         id: order.id,
+        chainId: order.chainId,
         rate,
         firstAmount,
         secondAmount,

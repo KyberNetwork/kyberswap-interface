@@ -1,9 +1,11 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -14,12 +16,20 @@ export const ItemWrapper = styled.div`
   font-size: 14px;
   line-height: 20px;
   display: grid;
-  grid-template-columns: 2fr 2fr 2fr 1fr;
+  grid-template-columns: 1fr 2fr 2fr 2fr 1fr;
   padding: 12px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-template-columns: 1.6fr 2fr 2fr 1fr;
   `}
+`
+
+const ChainImage = styled.img`
+  height: 16px;
+  width: 16px;
+  position: relative;
+  top: 2px;
+  left: 10px;
 `
 
 const Rate = styled.div<{ reverse?: boolean }>`
@@ -56,9 +66,16 @@ export default function OrderItem({
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { currencyIn, currencyOut } = useLimitState()
+  const { supportedChains } = useChainsConfig()
+
+  const chain = useMemo(
+    () => supportedChains.find(chain => chain.chainId === order.chainId),
+    [order.chainId, supportedChains],
+  )
 
   return (
     <ItemWrapper style={style}>
+      {!upToSmall && <ChainImage src={chain?.icon} alt="Network" />}
       <Rate reverse={reverse}>{order.rate}</Rate>
       <AmountInfo plus={reverse} amount={order.firstAmount} currency={currencyIn} upToSmall={upToSmall} />
       <AmountInfo plus={!reverse} amount={order.secondAmount} currency={currencyOut} upToSmall={upToSmall} />

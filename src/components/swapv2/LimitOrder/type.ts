@@ -86,6 +86,7 @@ export type LimitOrderFromTokenPair = {
 
 export type LimitOrderFromTokenPairFormatted = {
   id: number
+  chainId: ChainId
   rate: string
   firstAmount: string
   secondAmount: string

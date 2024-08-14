@@ -28,6 +28,7 @@ export default function TableHeader() {
 
   return (
     <Header>
+      {!upToSmall && <Text>CHAIN</Text>}
       <Text>
         <Trans>RATE</Trans>
         {upToSmall ? <br /> : ' '}(<span>{currencyIn?.symbol || ''}/</span>
