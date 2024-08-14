@@ -29,9 +29,9 @@ export default function TableHeader() {
   return (
     <Header>
       <Text>
-        <span>{currencyIn?.symbol || ''}/</span>
-        {upToSmall ? <br /> : ''}
-        <span>{currencyOut?.symbol || ''}</span>
+        <Trans>RATE</Trans>
+        {upToSmall ? <br /> : ' '}(<span>{currencyIn?.symbol || ''}/</span>
+        <span>{currencyOut?.symbol || ''}</span>)
       </Text>
       <Text>
         <Trans>AMOUNT</Trans>
