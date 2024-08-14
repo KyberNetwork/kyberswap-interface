@@ -106,9 +106,9 @@ export default function RefreshLoading({
   const debouncedRefetchLoading = useDebounce(refetchLoading, 100)
 
   useEffect(() => {
-    if (!debouncedRefetchLoading) setCountdown(maxCount * 1_000)
-    else setCountdown(0)
-  }, [debouncedRefetchLoading, maxCount])
+    if (!refetchLoading && !debouncedRefetchLoading) setCountdown(maxCount * 1_000)
+    else if (refetchLoading && debouncedRefetchLoading) setCountdown(0)
+  }, [refetchLoading, debouncedRefetchLoading, maxCount])
 
   useEffect(() => {
     if (countdown > 0) {
