@@ -91,7 +91,6 @@ const formatOrders = (
   reverse: boolean,
   currencyIn: Currency | undefined,
   currencyOut: Currency | undefined,
-  marketRate: number,
   significantDigits: number,
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!currencyIn || !currencyOut) return []
@@ -202,10 +201,9 @@ export default function OrderBook() {
         false,
         currencyIn,
         currencyOut,
-        marketRate,
         upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
       ),
-    [orders, currencyIn, currencyOut, marketRate, upToSmall],
+    [orders, currencyIn, currencyOut, upToSmall],
   )
   const formattedReversedOrders = useMemo(
     () =>
@@ -214,10 +212,9 @@ export default function OrderBook() {
         true,
         currencyIn,
         currencyOut,
-        marketRate,
         upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
       ),
-    [reversedOrders, currencyIn, currencyOut, marketRate, upToSmall],
+    [reversedOrders, currencyIn, currencyOut, upToSmall],
   )
 
   const refetchLoading = useMemo(
