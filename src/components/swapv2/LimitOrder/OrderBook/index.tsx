@@ -129,18 +129,20 @@ const formatOrders = (
 
   // Merge orders with the same rate
   const mergedOrders: LimitOrderFromTokenPairFormatted[] = []
-  const groupOrders = Object.groupBy(ordersFormatted, ({ rate }: LimitOrderFromTokenPairFormatted) => rate)
+  const groupOrders = Map.groupBy(ordersFormatted, ({ rate }: LimitOrderFromTokenPairFormatted) => rate)
 
-  Object.keys(groupOrders).map((key: string) => {
-    const mergedOrder = groupOrders[key]?.reduce(
-      (accumulatorOrder: LimitOrderFromTokenPairFormatted | null, order: LimitOrderFromTokenPairFormatted) =>
+  groupOrders.forEach((group: LimitOrderFromTokenPairFormatted[]) => {
+    const mergedOrder = group?.reduce(
+      (accumulatorOrder: LimitOrderFromTokenPairFormatted | null, currentOrder: LimitOrderFromTokenPairFormatted) =>
         accumulatorOrder
           ? {
-              ...order,
-              firstAmount: (parseFloat(order.firstAmount) + parseFloat(accumulatorOrder.firstAmount)).toString(),
-              secondAmount: (parseFloat(order.secondAmount) + parseFloat(accumulatorOrder.secondAmount)).toString(),
+              ...currentOrder,
+              firstAmount: (parseFloat(currentOrder.firstAmount) + parseFloat(accumulatorOrder.firstAmount)).toString(),
+              secondAmount: (
+                parseFloat(currentOrder.secondAmount) + parseFloat(accumulatorOrder.secondAmount)
+              ).toString(),
             }
-          : order,
+          : currentOrder,
       null,
     )
     if (mergedOrder) {
