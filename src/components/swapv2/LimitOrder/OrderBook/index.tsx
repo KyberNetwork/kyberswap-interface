@@ -96,17 +96,14 @@ const formatOrders = (
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!currencyIn || !currencyOut) return []
 
-  // Format orders and remove orders that are above 99% filled
+  // Format orders, remove orders that are above 99% filled and sort descending by rate
   const ordersFormatted = orders
     .map(order => {
       const currencyInAmount = CurrencyAmount.fromRawAmount(!reverse ? currencyIn : currencyOut, order.makingAmount)
       const currencyOutAmount = CurrencyAmount.fromRawAmount(!reverse ? currencyOut : currencyIn, order.takingAmount)
-      const rate = formatDisplayNumber(
-        !reverse
-          ? parseFloat(currencyOutAmount.toExact()) / parseFloat(currencyInAmount.toExact())
-          : parseFloat(currencyInAmount.toExact()) / parseFloat(currencyOutAmount.toExact()),
-        { significantDigits },
-      )
+      const rate = !reverse
+        ? parseFloat(currencyOutAmount.toExact()) / parseFloat(currencyInAmount.toExact())
+        : parseFloat(currencyInAmount.toExact()) / parseFloat(currencyOutAmount.toExact())
 
       const firstAmount = (!reverse ? currencyInAmount : currencyOutAmount).toExact()
       const secondAmount = (!reverse ? currencyOutAmount : currencyInAmount).toExact()
@@ -126,6 +123,11 @@ const formatOrders = (
       }
     })
     .filter(order => order.filled !== '100')
+    .sort((a, b) => b.rate - a.rate)
+    .map(order => ({
+      ...order,
+      rate: formatDisplayNumber(order.rate, { significantDigits }),
+    }))
 
   // Merge orders with the same rate
   const mergedOrders: LimitOrderFromTokenPairFormatted[] = []
@@ -152,7 +154,7 @@ const formatOrders = (
     }
   })
 
-  return marketRate < 1 ? mergedOrders.reverse() : mergedOrders
+  return mergedOrders
 }
 
 export default function OrderBook() {
