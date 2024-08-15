@@ -8,6 +8,7 @@ import styled from 'styled-components'
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { StyledInternalLink } from 'theme'
 import { checkPriceImpact } from 'utils/prices'
@@ -36,6 +37,7 @@ type Props = {
 }
 
 const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLink = false }) => {
+  const theme = useTheme()
   const priceImpactResult = checkPriceImpact(priceImpact)
   const switchToLimitOrder = useSwitchPairToLimitOrder()
   const { mixpanelHandler } = useMixpanel()
@@ -43,44 +45,9 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
   if (typeof priceImpact !== 'number') {
     return null
   }
-
-  // invalid
-  if (priceImpactResult.isInvalid) {
-    return (
-      <WarningNote
-        level="serious"
-        shortText={
-          <Row alignItems="center" style={{ gap: '0.5ch' }}>
-            <Trans>
-              <TextUnderlineTransparent>Unable to calculate</TextUnderlineTransparent>
-              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
-                Price Impact
-              </TextUnderlineColor>
-            </Trans>
-          </Row>
-        }
-        longText={
-          <Text>
-            {isDegenMode ? (
-              <Trans>
-                You have turned on <b>Degen Mode</b> from settings. Trades can still be executed when price impact
-                cannot be calculated.
-              </Trans>
-            ) : (
-              <Trans>
-                You can turn on Degen Mode from Settings to execute trades when price impact cannot be calculated. This
-                can result in bad rates and loss of funds!
-              </Trans>
-            )}
-          </Text>
-        }
-      />
-    )
-  }
-
   const limitOrderLink = (
     <Text
-      sx={{ cursor: 'pointer' }}
+      sx={{ cursor: 'pointer', color: theme.primary }}
       as={'u'}
       onClick={() => {
         mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_WARNING_IN_SWAP)
@@ -90,6 +57,51 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
       Limit Order
     </Text>
   )
+
+  // invalid
+  if (priceImpactResult.isInvalid) {
+    return (
+      <WarningNote
+        level="serious"
+        shortText={
+          <Text as="span">
+            <Trans>
+              Unable to calculate{' '}
+              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
+                Price Impact.
+              </TextUnderlineColor>
+              {!isDegenMode ? (
+                <span>
+                  {' '}
+                  Consider requesting a {limitOrderLink} instead, or click &apos;Swap Anyway&apos; if you wish to
+                  continue by enabling Degen Mode.
+                </span>
+              ) : (
+                ''
+              )}
+            </Trans>
+          </Text>
+        }
+        longText={
+          isDegenMode ? (
+            <Text>
+              {isDegenMode ? (
+                <Trans>
+                  You have turned on <b>Degen Mode</b> from settings. Trades can still be executed when price impact
+                  cannot be calculated.
+                </Trans>
+              ) : (
+                <Trans>
+                  Consider requesting a {limitOrderLink} instead, or click &apos;Swap Anyway&apos; if you wish to
+                  continue by enabling Degen Mode.
+                </Trans>
+              )}
+            </Text>
+          ) : undefined
+        }
+      />
+    )
+  }
 
   // VERY high
   if (priceImpactResult.isVeryHigh) {
