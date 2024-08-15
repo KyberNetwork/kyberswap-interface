@@ -20,6 +20,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import RefreshLoading from '../ListLimitOrder/RefreshLoading'
 import { NoResultWrapper } from '../ListOrder'
+import { groupToMap } from '../helpers'
 import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from '../type'
 import OrderItem from './OrderItem'
 import TableHeader from './TableHeader'
@@ -130,7 +131,7 @@ const formatOrders = (
 
   // Merge orders with the same rate
   const mergedOrders: LimitOrderFromTokenPairFormatted[] = []
-  const groupOrders = Map.groupBy(ordersFormatted, ({ rate }: LimitOrderFromTokenPairFormatted) => rate)
+  const groupOrders = groupToMap(ordersFormatted, ({ rate }: LimitOrderFromTokenPairFormatted) => rate)
 
   groupOrders.forEach((group: LimitOrderFromTokenPairFormatted[]) => {
     const mergedOrder = group?.reduce(
