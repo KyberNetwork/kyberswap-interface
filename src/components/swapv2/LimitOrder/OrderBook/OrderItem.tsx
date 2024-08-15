@@ -20,11 +20,11 @@ export const ItemWrapper = styled.div`
   padding: 12px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1.6fr 2fr 2fr 1fr;
+    grid-template-columns: 1.2fr 1.8fr 2fr 1fr;
   `}
 `
 
-const ChainImage = styled.img`
+export const ChainImage = styled.img`
   height: 16px;
   width: 16px;
   position: relative;
@@ -58,10 +58,12 @@ export default function OrderItem({
   reverse,
   order,
   style,
+  showAmountOut,
 }: {
   reverse?: boolean
   order: LimitOrderFromTokenPairFormatted
   style: CSSProperties
+  showAmountOut: boolean
 }) {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -75,10 +77,14 @@ export default function OrderItem({
 
   return (
     <ItemWrapper style={style}>
-      {!upToSmall && <ChainImage src={chain?.icon} alt="Network" />}
+      <ChainImage src={chain?.icon} alt="Network" />
       <Rate reverse={reverse}>{order.rate}</Rate>
-      <AmountInfo plus={reverse} amount={order.firstAmount} currency={currencyIn} upToSmall={upToSmall} />
-      <AmountInfo plus={!reverse} amount={order.secondAmount} currency={currencyOut} upToSmall={upToSmall} />
+      {(!upToSmall || !showAmountOut) && (
+        <AmountInfo plus={reverse} amount={order.firstAmount} currency={currencyIn} upToSmall={upToSmall} />
+      )}
+      {(!upToSmall || showAmountOut) && (
+        <AmountInfo plus={!reverse} amount={order.secondAmount} currency={currencyOut} upToSmall={upToSmall} />
+      )}
       <Text color={theme.subText}>
         {!upToSmall && 'Filled '}
         {order.filled}%

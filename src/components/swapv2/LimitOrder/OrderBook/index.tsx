@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
@@ -22,7 +22,7 @@ import RefreshLoading from '../ListLimitOrder/RefreshLoading'
 import { NoResultWrapper } from '../ListOrder'
 import { groupToMap } from '../helpers'
 import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from '../type'
-import OrderItem from './OrderItem'
+import OrderItem, { ChainImage } from './OrderItem'
 import TableHeader from './TableHeader'
 
 const ITEMS_DISPLAY = 10
@@ -56,6 +56,12 @@ const MarketPrice = styled.div`
   font-size: 20px;
   line-height: 24px;
   background: ${({ theme }) => rgba(theme.white, 0.04)};
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 2fr 1fr;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 1.2fr 1.8fr 2fr 1fr;
+  `}
 `
 
 const OrderItemWrapper = styled(FixedSizeList)`
@@ -162,13 +168,15 @@ export default function OrderBook() {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const { currencyIn, currencyOut } = useLimitState()
   const {
     loading: loadingMarketRate,
     tradeInfo: { marketRate = 0 } = {},
     refetch: refetchMarketRate,
   } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
+
+  const [showAmountOut, setShowAmountOut] = useState<boolean>(true)
 
   const ordersWrapperRef = useRef<FixedSizeList<any>>(null)
 
@@ -250,7 +258,7 @@ export default function OrderBook() {
             <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
           </RefreshText>
 
-          <TableHeader />
+          <TableHeader showAmountOut={showAmountOut} setShowAmountOut={setShowAmountOut} />
 
           {formattedOrders.length > 0 ? (
             <OrderItemWrapper
@@ -262,7 +270,7 @@ export default function OrderBook() {
             >
               {({ index, style }: { index: number; style: CSSProperties }) => {
                 const order = formattedOrders[index]
-                return <OrderItem key={order.id} style={style} order={order} />
+                return <OrderItem key={order.id} style={style} order={order} showAmountOut={showAmountOut} />
               }}
             </OrderItemWrapper>
           ) : (
@@ -271,6 +279,7 @@ export default function OrderBook() {
 
           {marketRate && (
             <MarketPrice>
+              <ChainImage src={networkInfo?.icon} alt="Network" />
               {formatDisplayNumber(marketRate, {
                 significantDigits: upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
               })}
@@ -289,7 +298,7 @@ export default function OrderBook() {
             >
               {({ index, style }: { index: number; style: CSSProperties }) => {
                 const order = formattedReversedOrders[index]
-                return <OrderItem key={order.id} style={style} reverse order={order} />
+                return <OrderItem key={order.id} style={style} reverse order={order} showAmountOut={showAmountOut} />
               }}
             </OrderItemWrapper>
           ) : (
