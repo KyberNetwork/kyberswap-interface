@@ -11,7 +11,7 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasTokenSetting from 'components/swapv2/GasTokenSetting'
 import LimitOrder from 'components/swapv2/LimitOrder'
-import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
+import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
@@ -100,6 +100,7 @@ export default function Swap() {
   const { pathname } = useLocation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+
   useEffect(() => {
     const inputCurrency = searchParams.get('inputCurrency')
     const outputCurrency = searchParams.get('outputCurrency')
