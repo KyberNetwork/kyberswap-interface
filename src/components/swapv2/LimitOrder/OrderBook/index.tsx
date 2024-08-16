@@ -277,7 +277,7 @@ export default function OrderBook() {
             <NoDataPanel />
           )}
 
-          {marketRate && (
+          {!!marketRate && (
             <MarketPrice>
               <ChainImage src={networkInfo?.icon} alt="Network" />
               {formatDisplayNumber(marketRate, {
