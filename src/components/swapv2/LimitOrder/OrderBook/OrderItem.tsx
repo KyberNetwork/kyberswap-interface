@@ -79,11 +79,18 @@ export default function OrderItem({
     <ItemWrapper style={style}>
       <ChainImage src={chain?.icon} alt="Network" />
       <Rate reverse={reverse}>{order.rate}</Rate>
-      {(!upToSmall || !showAmountOut) && (
-        <AmountInfo plus={reverse} amount={order.firstAmount} currency={currencyIn} upToSmall={upToSmall} />
-      )}
-      {(!upToSmall || showAmountOut) && (
-        <AmountInfo plus={!reverse} amount={order.secondAmount} currency={currencyOut} upToSmall={upToSmall} />
+      {!upToSmall ? (
+        <>
+          <AmountInfo plus={reverse} amount={order.firstAmount} currency={currencyIn} upToSmall={upToSmall} />
+          <AmountInfo plus={!reverse} amount={order.secondAmount} currency={currencyOut} upToSmall={upToSmall} />
+        </>
+      ) : (
+        <AmountInfo
+          plus={showAmountOut ? !reverse : reverse}
+          amount={showAmountOut ? order.secondAmount : order.firstAmount}
+          currency={showAmountOut ? currencyOut : currencyIn}
+          upToSmall={upToSmall}
+        />
       )}
       <Text color={theme.subText}>
         {!upToSmall && 'Filled '}

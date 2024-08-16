@@ -76,14 +76,14 @@ export default function TableHeader({
       <Text>CHAIN</Text>
       <Text>
         <Trans>RATE</Trans>
-        {upToSmall ? <br /> : ' '}(<span>{currencyIn?.symbol || ''}/</span>
-        <span>{currencyOut?.symbol || ''}</span>)
+        {upToSmall ? <br /> : ' '}(<span>{currencyIn?.symbol}/</span>
+        <span>{currencyOut?.symbol}</span>)
       </Text>
       {!upToSmall && (
         <Text>
           <Trans>AMOUNT</Trans>
           {upToSmall ? <br /> : ' '}
-          <Trans>({currencyIn?.symbol})</Trans>
+          <span>({currencyIn?.symbol})</span>
         </Text>
       )}
       <div>
@@ -91,7 +91,7 @@ export default function TableHeader({
           <Text>
             <Trans>AMOUNT</Trans>
             {upToSmall ? <br /> : ' '}
-            <Trans>({!upToSmall || showAmountOut ? currencyOut?.symbol : currencyIn?.symbol})</Trans>
+            <span>({!upToSmall || showAmountOut ? currencyOut?.symbol : currencyIn?.symbol})</span>
           </Text>
           {upToSmall && <DropdownIcon open={openDropdown} onClick={onClickDropdown} />}
         </Flex>
