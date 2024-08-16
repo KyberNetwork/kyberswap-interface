@@ -70,7 +70,7 @@ const limitOrderApi = createApi({
       }
     >({
       query: params => ({
-        url: `${LIMIT_ORDER_API_READ_PARTNER}/v1/orders`,
+        url: `${LIMIT_ORDER_API_READ_PARTNER}/v1/orders/allchains`,
         params,
       }),
       transformResponse: ({ data }: any) => {
