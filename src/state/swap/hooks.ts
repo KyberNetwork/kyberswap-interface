@@ -320,10 +320,7 @@ export const useSwitchPairToLimitOrder = () => {
   const { networkInfo } = useActiveWeb3React()
 
   return useCallback(
-    () =>
-      navigate(
-        `${APP_PATHS.LIMIT}/${networkInfo.route}?inputCurrency=${inputCurrencyId}&outputCurrency=${outputCurrencyId}`,
-      ),
+    () => navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}/${inputCurrencyId}-to-${outputCurrencyId}`),
     [networkInfo, inputCurrencyId, outputCurrencyId, navigate],
   )
 }

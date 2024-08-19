@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { Dispatch, FC, SetStateAction } from 'react'
+import { Dispatch, FC, SetStateAction } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
@@ -10,6 +11,19 @@ import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDegenModeManager } from 'state/user/hooks'
+
+import { highlight } from '../styleds'
+
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  margin: -8px;
+  border-radius: 8px;
+  &[data-highlight='true'] {
+    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
+  }
+`
 
 type Props = {
   className?: string
@@ -36,9 +50,12 @@ const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfi
 
   const theme = useTheme()
 
+  const [searchParams] = useSearchParams()
+  const enableDegenMode = searchParams.get('enableDegenMode') === 'true'
+
   return (
     <>
-      <Flex justifyContent="space-between" className={className}>
+      <Wrapper className={className} data-highlight={enableDegenMode}>
         <Flex width="fit-content" alignItems="center">
           <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
             <MouseoverTooltip
@@ -55,7 +72,7 @@ const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfi
           </TextDashed>
         </Flex>
         <Toggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleDegenMode} />
-      </Flex>
+      </Wrapper>
 
       <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
     </>
