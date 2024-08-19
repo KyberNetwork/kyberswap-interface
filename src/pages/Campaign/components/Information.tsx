@@ -620,9 +620,9 @@ export default function Information({ type, week }: { type: CampaignType; week: 
         {week > 28 && (
           <>
             <li>
-              Heavy wash trading, sybil-attack, flashloans attacks or other related activities are not allowed and will
-              forfeit points & rewards of the identified users. KyberSwap team will monitor and exclude such behaviour
-              from the STIP Campaign.
+              Heavy wash trading, sybil-attack, Just-in-time liquidity attack, flashloans attacks or other related
+              activities are not allowed and will forfeit points & rewards of the identified users. KyberSwap team will
+              monitor and exclude such behaviour from the STIP Campaign.
             </li>
             <li>
               The rules against such activities will remain unrevealed to avoid abuse from a selected group of users.
