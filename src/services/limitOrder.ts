@@ -79,6 +79,13 @@ const limitOrderApi = createApi({
         })
         return { orders: data?.orders || [] }
       },
+      async onQueryStarted(agr, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch {
+          dispatch(limitOrderApi.util.upsertQueryData('getOrdersByTokenPair', agr, { orders: [] }))
+        }
+      },
       providesTags: [RTK_QUERY_TAGS.GET_ORDERS_BY_TOKEN_PAIR],
     }),
     getNumberOfInsufficientFundOrders: builder.query<number, { chainId: ChainId; maker: string }>({
