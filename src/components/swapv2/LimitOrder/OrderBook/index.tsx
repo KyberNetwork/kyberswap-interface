@@ -108,8 +108,8 @@ const formatOrders = (
       const currencyInAmount = CurrencyAmount.fromRawAmount(!reverse ? currencyIn : currencyOut, order.makingAmount)
       const currencyOutAmount = CurrencyAmount.fromRawAmount(!reverse ? currencyOut : currencyIn, order.takingAmount)
       const rate = !reverse
-        ? currencyOutAmount.asFraction.divide(currencyInAmount.asFraction).toSignificant(100)
-        : currencyInAmount.asFraction.divide(currencyOutAmount.asFraction).toSignificant(100)
+        ? currencyOutAmount.divide(currencyInAmount).multiply(currencyInAmount.decimalScale).toSignificant(100)
+        : currencyInAmount.divide(currencyOutAmount).multiply(currencyOutAmount.decimalScale).toSignificant(100)
 
       const firstAmount = (!reverse ? currencyInAmount : currencyOutAmount).toExact()
       const secondAmount = (!reverse ? currencyOutAmount : currencyInAmount).toExact()
