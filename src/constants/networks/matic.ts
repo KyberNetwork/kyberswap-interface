@@ -81,7 +81,6 @@ const maticInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 2.6,
   coingeckoNetworkId: 'polygon-pos',
   coingeckoNativeTokenId: 'matic-network',
-  deBankSlug: 'matic',
   dexToCompare: 'quickswap',
   geckoTermialId: 'polygon_pos',
 }

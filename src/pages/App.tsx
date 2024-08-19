@@ -45,8 +45,6 @@ const PartnerSwap = lazy(() => import('./PartnerSwap'))
 // const Bridge = lazy(() => import('./Bridge'))
 const MyPool = lazy(() => import('./MyPool'))
 
-const Farm = lazy(() => import('./Farm'))
-
 const PoolFinder = lazy(() => import('./PoolFinder'))
 const ElasticRemoveLiquidity = lazy(() => import('pages/RemoveLiquidityProAmm'))
 
@@ -163,19 +161,7 @@ const RoutesWithNetworkPrefix = () => {
       )}
 
       {!ELASTIC_NOT_SUPPORTED()[chainId] && (
-        <>
-          {/*
-          <Route
-            path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?/:feeAmount?`}
-            element={<RedirectElasticCreatePool />}
-          />
-          <Route
-            path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?`}
-            element={<ElasticIncreaseLiquidity />}
-          />
-          */}
-          <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
-        </>
+        <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
       )}
 
       <Route path="*" element={<Navigate to="/" />} />
@@ -261,12 +247,6 @@ export default function App() {
               )}
 
               <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
-              <>
-                {/* Farms Routes */}
-                <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
-                <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
-              </>
-
               <>
                 {/* My Pools Routes */}
                 <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />

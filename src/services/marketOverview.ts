@@ -62,7 +62,7 @@ interface AddRemoveFavoriteParams {
 const marketOverviewServiceApi = createApi({
   reducerPath: 'marketOverviewApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_TOKEN_API,
+    baseUrl: import.meta.env.VITE_TOKEN_API_URL,
   }),
   keepUnusedDataFor: 1,
   endpoints: builder => ({

@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
@@ -20,12 +19,9 @@ import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/MyPool'
-import { FarmUpdater } from 'state/farms/elastic/hooks'
-import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
-import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import { StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
 
@@ -85,32 +81,6 @@ export default function ProAmmPool() {
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { userInfo } = useElasticFarmsV2()
-
-  const farmV2Positions = useMemo(
-    () =>
-      userInfo?.map(item => ({
-        nonce: BigNumber.from('1'),
-        tokenId: item.nftId,
-        operator: '0x0000000000000000000000000000000000000000',
-        poolId: item.poolAddress,
-        tickLower: item.position.tickLower,
-        tickUpper: item.position.tickUpper,
-        liquidity: BigNumber.from(item.position.liquidity.toString()),
-        // not used
-        feeGrowthInsideLast: BigNumber.from(0),
-        stakedLiquidity: item.stakedLiquidity,
-        // not used
-        rTokenOwed: BigNumber.from(0),
-        token0: item.position.pool.token0.wrapped.address,
-        token1: item.position.pool.token1.wrapped.address,
-        fee: item.position.pool.fee,
-        // endTime: pool?.[0]?.endTime,
-        // rewardPendings: [],
-      })) || [],
-    [userInfo],
-  )
-  const { farmPositions, loading, userFarmInfo } = useFarmPositions()
   const [openPositions, closedPositions] = useMemo(
     () =>
       positions?.reduce<[PositionDetails[], PositionDetails[]]>(
@@ -161,25 +131,17 @@ export default function ProAmmPool() {
   )
 
   const filteredFarmPositions = useMemo(() => {
-    return [...farmPositions, ...farmV2Positions].filter(filter)
-  }, [filter, farmPositions, farmV2Positions])
+    return [].filter(filter)
+  }, [filter])
 
   const sortFn = useCallback(
     (a: PositionDetails, b: PositionDetails) => +a.tokenId.toString() - +b.tokenId.toString(),
     [],
   )
 
-  const openFarmPositions = useMemo(() => {
-    return filteredFarmPositions.filter(pos => pos.liquidity.gt('0')).sort(sortFn)
-  }, [filteredFarmPositions, sortFn])
-
-  const closedFarmPositions = useMemo(() => {
-    return filteredFarmPositions.filter(pos => pos.liquidity.eq('0')).sort(sortFn)
-  }, [filteredFarmPositions, sortFn])
-
   const filteredPositions = useMemo(() => {
-    const opens = [...openPositions, ...openFarmPositions].sort(sortFn)
-    const closeds = [...closedPositions, ...closedFarmPositions].sort(sortFn)
+    const opens = [...openPositions].sort(sortFn)
+    const closeds = [...closedPositions].sort(sortFn)
 
     return (!showClosed ? opens : [...opens, ...closeds])
       .filter(position => {
@@ -195,27 +157,10 @@ export default function ProAmmPool() {
         )
       })
       .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
-  }, [
-    showClosed,
-    openPositions,
-    closedPositions,
-    debouncedSearchText,
-    nftId,
-    openFarmPositions,
-    closedFarmPositions,
-    sortFn,
-  ])
+  }, [showClosed, openPositions, closedPositions, debouncedSearchText, nftId, sortFn])
 
   const [showStaked, setShowStaked] = useState(false)
-  const positionList = useMemo(
-    () =>
-      showStaked
-        ? showClosed
-          ? [...openFarmPositions, ...closedFarmPositions]
-          : openFarmPositions
-        : filteredPositions,
-    [showStaked, filteredPositions, openFarmPositions, closedFarmPositions, showClosed],
-  )
+  const positionList = useMemo(() => (showStaked ? [] : filteredPositions), [showStaked, filteredPositions])
 
   const upToSmall = useMedia('(max-width: 768px)')
 
@@ -285,7 +230,7 @@ export default function ProAmmPool() {
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
-          ) : (positionsLoading && !positions) || (loading && !userFarmInfo && !positions?.length) ? (
+          ) : positionsLoading && !positions ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />
@@ -310,8 +255,6 @@ export default function ProAmmPool() {
           )}
         </AutoColumn>
       </PageWrapper>
-      <FarmUpdater />
-      <ElasticFarmV2Updater />
     </>
   )
 }

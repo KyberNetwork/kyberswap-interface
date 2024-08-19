@@ -166,3 +166,13 @@ export const getPayloadTracking = (order: LimitOrder, networkName: string, paylo
     order_id: id,
   }
 }
+
+export const groupToMap = <K, T>(items: Iterable<T>, keySelector: (item: T, index?: number) => K): Map<K, T[]> => {
+  return [...items].reduce((accumulator: Map<K, T[]>, currentValue: T) => {
+    const newValue = accumulator.get(keySelector(currentValue)) || []
+    newValue.push(currentValue)
+    accumulator.set(keySelector(currentValue), newValue)
+
+    return accumulator
+  }, new Map())
+}

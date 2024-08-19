@@ -1,20 +1,11 @@
-import { Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Placement } from '@popperjs/core'
-import { parseUnits } from 'ethers/lib/utils'
-import JSBI from 'jsbi'
-import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
 import { MoneyBag } from 'components/Icons'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { Farm } from 'state/farms/classic/types'
-import { useElasticFarms } from 'state/farms/elastic/hooks'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { useFarmApr } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const APRTooltipContent = ({
@@ -109,78 +100,9 @@ export const APRTooltipContent = ({
   )
 }
 
-type Props = {
-  poolAPR: number
-  farmV1APR?: number
-  farmV2APR?: number
-  fairlaunchAddress: string
-  pid: number
-  tooltipPlacement?: Placement
-}
-
-const FarmingPoolAPRCell: React.FC<Props> = ({
-  poolAPR,
-  farmV1APR,
-  farmV2APR = 0,
-  fairlaunchAddress,
-  pid,
-  tooltipPlacement = 'right',
-}) => {
-  const { farms } = useElasticFarms()
-
-  const pool = farms
-    ?.find(farm => farm.id.toLowerCase() === fairlaunchAddress.toLowerCase())
-    ?.pools.find(pool => Number(pool.pid) === Number(pid))
-
-  const tokenPrices = useTokenPrices(
-    [
-      pool?.token0.wrapped.address,
-      pool?.token1.wrapped.address,
-      ...(pool?.rewardTokens.map(rw => rw.wrapped.address) || []),
-    ].filter(address => !!address) as string[],
-  )
-
-  let farmAPR = farmV1APR || 0
-  if (pool && !farmV1APR) {
-    const totalRewardValue = pool.totalRewards.reduce(
-      (total, rw) => total + Number(rw.toExact()) * tokenPrices[rw.currency.wrapped.address],
-      0,
-    )
-
-    const farmDuration = (pool.endTime - pool.startTime) / 86400
-    farmAPR = (365 * 100 * (totalRewardValue || 0)) / farmDuration / pool.poolTvl
-  }
-
-  const maxFarmAPR = farmAPR > farmV2APR ? farmAPR : farmV2APR
-
-  return (
-    <Flex
-      alignItems={'center'}
-      sx={{
-        gap: '4px',
-      }}
-    >
-      <MouseoverTooltip
-        width="fit-content"
-        placement={tooltipPlacement}
-        text={<APRTooltipContent farmAPR={maxFarmAPR} poolAPR={poolAPR} />}
-      >
-        <Text as="span" marginRight="4px">
-          {formatDisplayNumber((poolAPR + maxFarmAPR) / 100, { style: 'percent', fractionDigits: 2 })}
-        </Text>
-        <Info size={14} />
-      </MouseoverTooltip>
-    </Flex>
-  )
-}
-
-export const ClassicFarmingPoolAPRCell = ({ poolAPR, farm }: { poolAPR: number; farm: Farm }) => {
+export const ClassicFarmingPoolAPRCell = ({ poolAPR }: { poolAPR: number }) => {
   const theme = useTheme()
-  const lpTokenRatio = farm.totalStake.divide(
-    new Fraction(parseUnits(farm.totalSupply, 18).toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18))),
-  )
-  const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
-  const farmAPR = useFarmApr(farm, liquidity.toString())
+  const farmAPR = 0
 
   return (
     <Flex
@@ -196,5 +118,3 @@ export const ClassicFarmingPoolAPRCell = ({ poolAPR, farm }: { poolAPR: number; 
     </Flex>
   )
 }
-
-export default FarmingPoolAPRCell

@@ -43,13 +43,27 @@ const ButtonWrapper = styled.div<{ active?: boolean; separator?: boolean }>`
   }
 `
 
-type Props = { text?: string; active?: boolean; onClick?: () => void; style?: CSSProperties; separator?: boolean }
+type Props = {
+  text?: string
+  active?: boolean
+  onClick?: () => void
+  style?: CSSProperties
+  separator?: boolean
+  className?: string
+}
 const TabButton = forwardRef<HTMLDivElement, Props>(function TabButton(
-  { text, active, onClick, style, separator },
+  { text, active, onClick, style, separator, className },
   ref,
 ) {
   return (
-    <ButtonWrapper active={active} onClick={onClick} style={style} separator={separator} ref={ref}>
+    <ButtonWrapper
+      active={active}
+      onClick={onClick}
+      style={style}
+      separator={separator}
+      ref={ref}
+      className={className}
+    >
       {text}
     </ButtonWrapper>
   )
