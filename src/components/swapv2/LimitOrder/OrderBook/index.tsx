@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -95,37 +95,45 @@ const NoDataPanel = () => (
 
 const formatOrders = (
   orders: LimitOrderFromTokenPair[],
-  reverse: boolean,
-  currencyIn: Currency | undefined,
-  currencyOut: Currency | undefined,
+  makerCurrency: Currency | undefined,
+  takerCurrency: Currency | undefined,
   significantDigits: number,
 ): LimitOrderFromTokenPairFormatted[] => {
-  if (!currencyIn || !currencyOut) return []
+  if (!makerCurrency || !takerCurrency) return []
 
   // Format orders, remove orders that are above 99% filled and sort descending by rate
   const ordersFormatted = orders
     .map(order => {
-      const currencyInAmount = CurrencyAmount.fromRawAmount(!reverse ? currencyIn : currencyOut, order.makingAmount)
-      const currencyOutAmount = CurrencyAmount.fromRawAmount(!reverse ? currencyOut : currencyIn, order.takingAmount)
-      const rate = !reverse
-        ? currencyOutAmount.divide(currencyInAmount).multiply(currencyInAmount.decimalScale).toSignificant(100)
-        : currencyInAmount.divide(currencyOutAmount).multiply(currencyOutAmount.decimalScale).toSignificant(100)
-
-      const firstAmount = (!reverse ? currencyInAmount : currencyOutAmount).toExact()
-      const secondAmount = (!reverse ? currencyOutAmount : currencyInAmount).toExact()
-
-      const filledMakingAmount = CurrencyAmount.fromRawAmount(
-        !reverse ? currencyIn : currencyOut,
-        order.filledMakingAmount,
+      const newMakerCurrency = new Token(
+        makerCurrency.chainId,
+        makerCurrency.wrapped.address,
+        order.makerAssetDecimals,
+        makerCurrency.symbol,
       )
-      const filled = (parseFloat(filledMakingAmount.toExact()) / parseFloat(currencyInAmount.toExact())) * 100
+      const newTakerCurrency = new Token(
+        takerCurrency.chainId,
+        takerCurrency.wrapped.address,
+        order.takerAssetDecimals,
+        takerCurrency.symbol,
+      )
+
+      const makerCurrencyAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.makingAmount)
+      const takerCurrencyAmount = CurrencyAmount.fromRawAmount(newTakerCurrency, order.takingAmount)
+
+      const rate = takerCurrencyAmount
+        .divide(makerCurrencyAmount)
+        .multiply(makerCurrencyAmount.decimalScale)
+        .toSignificant(100)
+
+      const filledMakingAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.filledMakingAmount)
+      const filled = (parseFloat(filledMakingAmount.toExact()) / parseFloat(makerCurrencyAmount.toExact())) * 100
 
       return {
         id: order.id,
         chainId: order.chainId,
         rate,
-        firstAmount,
-        secondAmount,
+        makerAmount: makerCurrencyAmount.toExact(),
+        takerAmount: takerCurrencyAmount.toExact(),
         filled: filled > 99 ? '100' : filled.toFixed(),
       }
     })
@@ -146,17 +154,15 @@ const formatOrders = (
         accumulatorOrder
           ? {
               ...currentOrder,
-              firstAmount: (parseFloat(currentOrder.firstAmount) + parseFloat(accumulatorOrder.firstAmount)).toString(),
-              secondAmount: (
-                parseFloat(currentOrder.secondAmount) + parseFloat(accumulatorOrder.secondAmount)
-              ).toString(),
+              makerAmount: (parseFloat(currentOrder.makerAmount) + parseFloat(accumulatorOrder.makerAmount)).toString(),
+              takerAmount: (parseFloat(currentOrder.takerAmount) + parseFloat(accumulatorOrder.takerAmount)).toString(),
             }
           : currentOrder,
       null,
     )
     if (mergedOrder) {
-      mergedOrder.firstAmount = formatDisplayNumber(mergedOrder.firstAmount, { significantDigits })
-      mergedOrder.secondAmount = formatDisplayNumber(mergedOrder.secondAmount, { significantDigits })
+      mergedOrder.makerAmount = formatDisplayNumber(mergedOrder.makerAmount, { significantDigits })
+      mergedOrder.takerAmount = formatDisplayNumber(mergedOrder.takerAmount, { significantDigits })
       mergedOrders.push(mergedOrder)
     }
   })
@@ -169,12 +175,12 @@ export default function OrderBook() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { chainId, networkInfo } = useActiveWeb3React()
-  const { currencyIn, currencyOut } = useLimitState()
+  const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const {
     loading: loadingMarketRate,
     tradeInfo: { marketRate = 0 } = {},
     refetch: refetchMarketRate,
-  } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
+  } = useBaseTradeInfoLimitOrder(makerCurrency, takerCurrency, chainId)
 
   const [showAmountOut, setShowAmountOut] = useState<boolean>(true)
 
@@ -187,8 +193,8 @@ export default function OrderBook() {
     isFetching: isFetchingOrders,
   } = useGetOrdersByTokenPairQuery({
     chainId,
-    makerAsset: currencyIn?.wrapped?.address,
-    takerAsset: currencyOut?.wrapped?.address,
+    makerAsset: makerCurrency?.wrapped?.address,
+    takerAsset: takerCurrency?.wrapped?.address,
   })
   const {
     data: { orders: reversedOrders = [] } = {},
@@ -197,8 +203,8 @@ export default function OrderBook() {
     isFetching: isFetchingReversedOrder,
   } = useGetOrdersByTokenPairQuery({
     chainId,
-    makerAsset: currencyOut?.wrapped?.address,
-    takerAsset: currencyIn?.wrapped?.address,
+    makerAsset: takerCurrency?.wrapped?.address,
+    takerAsset: makerCurrency?.wrapped?.address,
   })
 
   const loadingOrders = useShowLoadingAtLeastTime(isLoadingOrders)
@@ -208,23 +214,21 @@ export default function OrderBook() {
     () =>
       formatOrders(
         orders,
-        false,
-        currencyIn,
-        currencyOut,
+        makerCurrency,
+        takerCurrency,
         upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
       ),
-    [orders, currencyIn, currencyOut, upToSmall],
+    [orders, makerCurrency, takerCurrency, upToSmall],
   )
   const formattedReversedOrders = useMemo(
     () =>
       formatOrders(
         reversedOrders,
-        true,
-        currencyIn,
-        currencyOut,
+        takerCurrency,
+        makerCurrency,
         upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
       ),
-    [reversedOrders, currencyIn, currencyOut, upToSmall],
+    [reversedOrders, takerCurrency, makerCurrency, upToSmall],
   )
 
   const refetchLoading = useMemo(

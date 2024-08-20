@@ -67,7 +67,7 @@ export default function OrderItem({
 }) {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { currencyIn, currencyOut } = useLimitState()
+  const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const { supportedChains } = useChainsConfig()
 
   const chain = useMemo(
@@ -81,14 +81,24 @@ export default function OrderItem({
       <Rate reverse={reverse}>{order.rate}</Rate>
       {!upToSmall ? (
         <>
-          <AmountInfo plus={reverse} amount={order.firstAmount} currency={currencyIn} upToSmall={upToSmall} />
-          <AmountInfo plus={!reverse} amount={order.secondAmount} currency={currencyOut} upToSmall={upToSmall} />
+          <AmountInfo
+            plus={reverse}
+            amount={order[!reverse ? 'makerAmount' : 'takerAmount']}
+            currency={makerCurrency}
+            upToSmall={upToSmall}
+          />
+          <AmountInfo
+            plus={!reverse}
+            amount={order[!reverse ? 'takerAmount' : 'makerAmount']}
+            currency={takerCurrency}
+            upToSmall={upToSmall}
+          />
         </>
       ) : (
         <AmountInfo
           plus={showAmountOut ? !reverse : reverse}
-          amount={showAmountOut ? order.secondAmount : order.firstAmount}
-          currency={showAmountOut ? currencyOut : currencyIn}
+          amount={(showAmountOut && !reverse) || (!showAmountOut && reverse) ? order.takerAmount : order.makerAmount}
+          currency={showAmountOut ? takerCurrency : makerCurrency}
           upToSmall={upToSmall}
         />
       )}
