@@ -98,6 +98,7 @@ const formatOrders = (
   makerCurrency: Currency | undefined,
   takerCurrency: Currency | undefined,
   significantDigits: number,
+  reverse = false,
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!makerCurrency || !takerCurrency) return []
 
@@ -120,10 +121,11 @@ const formatOrders = (
       const makerCurrencyAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.makingAmount)
       const takerCurrencyAmount = CurrencyAmount.fromRawAmount(newTakerCurrency, order.takingAmount)
 
-      const rate = takerCurrencyAmount
-        .divide(makerCurrencyAmount)
-        .multiply(makerCurrencyAmount.decimalScale)
-        .toSignificant(100)
+      const rate = (
+        !reverse
+          ? takerCurrencyAmount.divide(makerCurrencyAmount).multiply(makerCurrencyAmount.decimalScale)
+          : makerCurrencyAmount.divide(takerCurrencyAmount).multiply(takerCurrencyAmount.decimalScale)
+      ).toSignificant(100)
 
       const filledMakingAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.filledMakingAmount)
       const filled = (parseFloat(filledMakingAmount.toExact()) / parseFloat(makerCurrencyAmount.toExact())) * 100
@@ -227,6 +229,7 @@ export default function OrderBook() {
         takerCurrency,
         makerCurrency,
         upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
+        true,
       ),
     [reversedOrders, takerCurrency, makerCurrency, upToSmall],
   )
