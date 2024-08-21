@@ -98,13 +98,12 @@ export default function Swap() {
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
 
   const { pathname } = useLocation()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
 
   useEffect(() => {
     const inputCurrency = searchParams.get('inputCurrency')
     const outputCurrency = searchParams.get('outputCurrency')
-    console.log(inputCurrency, outputCurrency)
 
     if (inputCurrency || outputCurrency) {
       navigate(`/swap/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
@@ -117,12 +116,24 @@ export default function Swap() {
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
 
+  const enableDegenMode = searchParams.get('enableDegenMode') === 'true'
+
   const getDefaultTab = useCallback(
     () => (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : TAB.CROSS_CHAIN),
     [isSwapPage, isLimitPage],
   )
 
   const [activeTab, setActiveTab] = useState<TAB>(getDefaultTab())
+
+  useEffect(() => {
+    if (enableDegenMode && activeTab !== TAB.SETTINGS) {
+      setActiveTab(TAB.SETTINGS)
+      setTimeout(() => {
+        searchParams.delete('enableDegenMode')
+        setSearchParams(searchParams)
+      }, 4000)
+    }
+  }, [enableDegenMode, activeTab, searchParams, setSearchParams])
 
   useEffect(() => {
     setActiveTab(getDefaultTab())

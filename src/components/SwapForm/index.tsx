@@ -231,7 +231,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
-          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
           {!isWrapOrUnwrap && (
@@ -262,6 +261,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               </Text>
             </Flex>
           ) : null}
+
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
