@@ -223,7 +223,7 @@ export default function TableContent({
               color={theme.subText}
               onClick={() => updateSort('market_cap', false)}
             >
-              Market cap
+              Market Cap
               <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
             </Flex>
           </>

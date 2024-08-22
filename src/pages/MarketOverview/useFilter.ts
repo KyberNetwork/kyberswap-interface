@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { QueryParams } from 'services/marketOverview'
@@ -6,12 +7,12 @@ import { useActiveWeb3React } from 'hooks'
 
 export default function useFilter() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   const filters: QueryParams = useMemo(() => {
     const isFavorite = searchParams.get('isFavorite') === 'true'
     return {
-      chainId: +(searchParams.get('chainId') || (chainId as number)),
+      chainId: +(searchParams.get('chainId') || ChainId.MAINNET),
       search: searchParams.get('search') || '',
       user: account,
       isFavorite,
@@ -20,7 +21,7 @@ export default function useFilter() {
       page: +(searchParams.get('page') || '1'),
       pageSize: +(searchParams.get('pageSize') || 20),
     }
-  }, [searchParams, account, chainId])
+  }, [searchParams, account])
 
   const updateFilters = useCallback(
     (key: keyof QueryParams, value: string) => {

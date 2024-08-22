@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
@@ -12,7 +13,6 @@ import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { MAINNET_NETWORKS } from 'constants/networks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
@@ -23,6 +23,21 @@ import SortIcon, { Direction } from './SortIcon'
 import TableContent from './TableContent'
 import { ContentWrapper, PriceSelectionField, SubHeaderRow, Tab, TableHeader, TableWrapper, Tabs, Tag } from './styles'
 import useFilter from './useFilter'
+
+export const SUPPORTED_CHAINS: ChainId[] = [
+  ChainId.MAINNET,
+  ChainId.ARBITRUM,
+  ChainId.OPTIMISM,
+  ChainId.BASE,
+  ChainId.MATIC,
+  ChainId.AVAXMAINNET,
+  ChainId.ZKEVM,
+  ChainId.ZKSYNC,
+  ChainId.LINEA,
+  ChainId.SCROLL,
+  ChainId.BLAST,
+  ChainId.FANTOM,
+]
 
 const filterTags = [
   { label: 'Defi', value: 'defi' },
@@ -69,26 +84,27 @@ export default function MarketOverview() {
 
   const chainSelector = (
     <>
-      {MAINNET_NETWORKS.map(item => (
-        <Flex
-          key={item}
-          alignItems="center"
-          padding="4px"
-          role="button"
-          onClick={() => {
-            updateFilters('chainId', item.toString())
-            if (sortCol.startsWith('price')) {
-              updateFilters('sort', sortCol.split('-')[0] + '-' + item + ' ' + sortDirection)
-            }
-          }}
-          sx={{
-            background: filters.chainId === item ? rgba(theme.primary, 0.2) : undefined,
-            border: filters.chainId === item ? `1px solid ${theme.primary}` : 'none',
-            borderRadius: '4px',
-          }}
-        >
-          <img src={NETWORKS_INFO[item].icon} width="16px" height="16px" alt="" />
-        </Flex>
+      {SUPPORTED_CHAINS.map(item => (
+        <MouseoverTooltip text={NETWORKS_INFO[item].name} key={item} placement="top" width="fit-content">
+          <Flex
+            alignItems="center"
+            padding="4px"
+            role="button"
+            onClick={() => {
+              updateFilters('chainId', item.toString())
+              if (sortCol.startsWith('price')) {
+                updateFilters('sort', sortCol.split('-')[0] + '-' + item + ' ' + sortDirection)
+              }
+            }}
+            sx={{
+              background: filters.chainId === item ? rgba(theme.primary, 0.2) : undefined,
+              border: filters.chainId === item ? `1px solid ${theme.primary}` : 'none',
+              borderRadius: '4px',
+            }}
+          >
+            <img src={NETWORKS_INFO[item].icon} width="16px" height="16px" alt="" />
+          </Flex>
+        </MouseoverTooltip>
       ))}
     </>
   )
