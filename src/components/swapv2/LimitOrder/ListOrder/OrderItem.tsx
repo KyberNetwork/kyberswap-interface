@@ -152,7 +152,7 @@ const TradeRateOrder = ({ order, style = {} }: { order: LimitOrder; style?: CSSP
   }
 
   return (
-    <Colum style={style}>
+    <Colum style={style} onClick={event => event.stopPropagation()}>
       <Flex style={{ gap: 6, cursor: 'pointer', alignItems: 'center' }} onClick={onInvert}>
         <Text color={theme.text}>{!invert ? `${symbolOut}/${symbolIn}` : `${symbolIn}/${symbolOut}`}</Text>
         <Repeat color={theme.text} size={12} />
