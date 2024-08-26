@@ -145,9 +145,15 @@ const TradeRateOrder = ({ order, style = {} }: { order: LimitOrder; style?: CSSP
   const theme = useTheme()
   const symbolIn = order.makerAssetSymbol || '???'
   const symbolOut = order.takerAssetSymbol || '???'
+
+  const onInvert = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation()
+    setInvert(!invert)
+  }
+
   return (
     <Colum style={style}>
-      <Flex style={{ gap: 6, cursor: 'pointer', alignItems: 'center' }} onClick={() => setInvert(!invert)}>
+      <Flex style={{ gap: 6, cursor: 'pointer', alignItems: 'center' }} onClick={onInvert}>
         <Text color={theme.text}>{!invert ? `${symbolOut}/${symbolIn}` : `${symbolIn}/${symbolOut}`}</Text>
         <Repeat color={theme.text} size={12} />
       </Flex>
