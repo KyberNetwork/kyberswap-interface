@@ -234,6 +234,8 @@ export default function OrderBook() {
     [reversedOrders, takerCurrency, makerCurrency, upToSmall],
   )
 
+  const refetchActive = useMemo(() => !!makerCurrency && !!takerCurrency, [makerCurrency, takerCurrency])
+
   const refetchLoading = useMemo(
     () => loadingMarketRate || isFetchingOrders || isFetchingReversedOrder,
     [loadingMarketRate, isFetchingOrders, isFetchingReversedOrder],
@@ -258,12 +260,14 @@ export default function OrderBook() {
         <LocalLoader />
       ) : (
         <>
-          <RefreshText>
-            <Text fontSize={'14px'} color={theme.subText} marginRight={'4px'}>
-              <Trans>Orders refresh in</Trans>
-            </Text>{' '}
-            <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
-          </RefreshText>
+          {refetchActive && (
+            <RefreshText>
+              <Text fontSize={'14px'} color={theme.subText} marginRight={'4px'}>
+                <Trans>Orders refresh in</Trans>
+              </Text>{' '}
+              <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
+            </RefreshText>
+          )}
 
           <TableHeader showAmountOut={showAmountOut} setShowAmountOut={setShowAmountOut} />
 

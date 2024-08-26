@@ -76,22 +76,34 @@ export default function TableHeader({
       <Text>CHAIN</Text>
       <Text>
         <Trans>RATE</Trans>
-        {upToSmall ? <br /> : ' '}(<span>{currencyIn?.symbol}/</span>
-        <span>{currencyOut?.symbol}</span>)
+        {!!currencyIn && !!currencyOut && (
+          <>
+            {upToSmall ? <br /> : ' '}(<span>{currencyIn?.symbol}/</span>
+            <span>{currencyOut?.symbol}</span>)
+          </>
+        )}
       </Text>
       {!upToSmall && (
         <Text>
           <Trans>AMOUNT</Trans>
-          {upToSmall ? <br /> : ' '}
-          <span>({currencyIn?.symbol})</span>
+          {!!currencyIn && (
+            <>
+              {upToSmall ? <br /> : ' '}
+              <span>({currencyIn?.symbol})</span>
+            </>
+          )}
         </Text>
       )}
       <div>
         <Flex>
           <Text>
             <Trans>AMOUNT</Trans>
-            {upToSmall ? <br /> : ' '}
-            <span>({!upToSmall || showAmountOut ? currencyOut?.symbol : currencyIn?.symbol})</span>
+            {!!currencyIn && !!currencyOut && (
+              <>
+                {upToSmall ? <br /> : ' '}
+                <span>({!upToSmall || showAmountOut ? currencyOut?.symbol : currencyIn?.symbol})</span>
+              </>
+            )}
           </Text>
           {upToSmall && <DropdownIcon open={openDropdown} onClick={onClickDropdown} />}
         </Flex>
