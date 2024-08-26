@@ -352,7 +352,7 @@ export default function OrderItem({
         </Flex>
         <Flex justifyContent={'space-between'}>
           {renderProgressComponent()}
-          <TradeRateOrder order={order} style={{ textAlign: 'right' }} />
+          <TradeRateOrder order={order} style={{ textAlign: 'right', cursor: 'default' }} />
         </Flex>
         {expand && (
           <div>
@@ -405,7 +405,7 @@ export default function OrderItem({
           <AmountInfo order={order} />
         </Flex>
         <Colum className="rate">
-          <TradeRateOrder order={order} />
+          <TradeRateOrder order={order} style={{ cursor: 'default' }} />
         </Colum>
         <Colum>
           <TimeText time={createdAt} />
