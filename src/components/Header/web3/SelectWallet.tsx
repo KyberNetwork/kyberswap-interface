@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { getConnection } from 'connection'
 import { darken, lighten } from 'polished'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Activity } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
@@ -20,11 +19,9 @@ import useLogin from 'hooks/useLogin'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
-import { useAppDispatch } from 'state/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
-import { updateRecentConnectionMeta } from 'state/user/actions'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
@@ -106,14 +103,12 @@ const AccountElement = styled.div`
 
 function Web3StatusInner() {
   const { chainId, account, walletKey, isWrongNetwork } = useActiveWeb3React()
+  const { connector } = useWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { signIn } = useLogin()
   const { ENSName } = useENSName(account ?? undefined)
   const theme = useTheme()
-  const { connector } = useWeb3React()
-  const connection = getConnection(connector)
-  const dispatch = useAppDispatch()
 
   const allTransactions = useAllTransactions()
 
@@ -125,15 +120,6 @@ function Web3StatusInner() {
   }, [allTransactions])
 
   const pendingLength = sortedRecentTransactions.filter(tx => !tx.receipt).length
-
-  useEffect(() => {
-    if (account || ENSName) {
-      const { rdns } = connection.getProviderInfo()
-      dispatch(
-        updateRecentConnectionMeta({ type: connection.type, address: account, ENSName: ENSName ?? undefined, rdns }),
-      )
-    }
-  }, [ENSName, account, connection, dispatch])
 
   const hasPendingTransactions = !!pendingLength
   const toggleWalletModal = useWalletModalToggle()
@@ -196,7 +182,7 @@ function Web3StatusInner() {
             ) : (
               walletKey && (
                 <IconWrapper size={16}>
-                  <img src={connection.getProviderInfo().icon} alt="" />
+                  <img src={connector?.icon} alt="" />
                 </IconWrapper>
               )
             )}

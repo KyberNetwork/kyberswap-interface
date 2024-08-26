@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { getConnection } from 'connection'
 import { rgba } from 'polished'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, FileText, LogOut, StopCircle, X } from 'react-feather'
@@ -133,7 +132,7 @@ export default function WalletView({
   const [isMinimal, setMinimal] = useState(false)
   const { chainId, account = '', walletKey } = useActiveWeb3React()
   const { connector } = useWeb3React()
-  const connection = getConnection(connector)
+
   const disconnectWallet = useDisconnectWallet()
 
   const {
@@ -329,7 +328,7 @@ export default function WalletView({
               <Flex alignItems={'center'} style={{ gap: 8 }} color={theme.subText}>
                 {walletKey && (
                   <IconWrapper>
-                    <img height={18} src={connection.getProviderInfo().icon} alt="" />
+                    <img height={18} src={connector?.icon} alt="" />
                   </IconWrapper>
                 )}
                 <Text as="span" fontWeight="500">

@@ -1,12 +1,11 @@
 import { Trans } from '@lingui/macro'
-import { ActivationStatus, useActivationState } from 'connection/activate'
-import { ConnectionType } from 'connection/types'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
+import { useConnect } from 'wagmi'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import Modal from 'components/Modal'
@@ -24,13 +23,11 @@ import {
   useOpenNetworkModal,
   useWalletModalToggle,
 } from 'state/application/hooks'
-import { useAppDispatch } from 'state/hooks'
-import { clearRecentConnectionMeta } from 'state/user/actions'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 
-import PendingView from './PendingView'
-import { useConnections } from './useConnections'
+import Option from './Option'
+import { useOrderedConnections } from './useConnections'
 
 const CloseIcon = styled.div`
   height: 24px;
@@ -108,10 +105,7 @@ const HoverText = styled.div`
 export default function WalletModal() {
   const { isWrongNetwork, account } = useActiveWeb3React()
 
-  const { activationState, cancelActivation } = useActivationState()
-
   const theme = useTheme()
-  const dispatch = useAppDispatch()
 
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
@@ -119,8 +113,9 @@ export default function WalletModal() {
   const openWalletModal = useOpenModal(ApplicationModal.WALLET)
   const openNetworkModal = useOpenNetworkModal()
 
+  const { isPending: isSomeOptionPending, isIdle, isError, reset } = useConnect()
   const onDismiss = () => {
-    cancelActivation()
+    reset()
     closeWalletModal()
   }
 
@@ -134,20 +129,18 @@ export default function WalletModal() {
     }
   }, [isWrongNetwork, openNetworkModal])
 
-  const { orderedConnections } = useConnections()
+  const connectors = useOrderedConnections()
 
   const [isPinnedPopupWallet, setPinnedPopupWallet] = useState(false)
-
-  const isSomeOptionPending = activationState.status === ActivationStatus.PENDING
 
   function getModalContent() {
     return (
       <UpperSection>
         <RowBetween marginBottom="26px" gap="20px">
-          {(isSomeOptionPending || activationState.status === ActivationStatus.ERROR) && (
+          {(isSomeOptionPending || isError) && (
             <HoverText
               onClick={() => {
-                cancelActivation()
+                reset()
               }}
               style={{ marginRight: '1rem', flex: 1 }}
             >
@@ -159,20 +152,18 @@ export default function WalletModal() {
           </HoverText>
           <CloseIcon
             onClick={() => {
-              cancelActivation()
+              reset()
               toggleWalletModal()
             }}
           >
             <Close />
           </CloseIcon>
         </RowBetween>
-        {activationState.status === ActivationStatus.IDLE && (
+        {isIdle && (
           <TermAndCondition
             onClick={() => {
               if (!isAcceptedTerm) {
                 mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
-              } else {
-                dispatch(clearRecentConnectionMeta())
               }
               setIsAcceptedTerm(!isAcceptedTerm)
             }}
@@ -200,11 +191,11 @@ export default function WalletModal() {
           </TermAndCondition>
         )}
         <ContentWrapper>
-          {activationState.status !== ActivationStatus.IDLE ? (
-            <PendingView />
-          ) : (
-            <OptionGrid>{orderedConnections}</OptionGrid>
-          )}
+          <OptionGrid>
+            {connectors.map(c => (
+              <Option connector={c} key={c.uid} />
+            ))}
+          </OptionGrid>
         </ContentWrapper>
       </UpperSection>
     )
@@ -229,9 +220,13 @@ export default function WalletModal() {
       minHeight={false}
       maxHeight={90}
       maxWidth={600}
-      bypassScrollLock={isSomeOptionPending && activationState.connection.type === ConnectionType.WALLET_CONNECT_V2}
+      bypassScrollLock={
+        isSomeOptionPending
+        //&& activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
+      }
       bypassFocusLock={
-        isSomeOptionPending && activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
+        isSomeOptionPending
+        //&& activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
         // walletView === WALLET_VIEWS.PENDING && ['WALLET_CONNECT', 'KRYSTAL_WC', 'BLOCTO'].includes(pendingWalletKey)
       }
     >

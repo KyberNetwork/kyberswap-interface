@@ -57,6 +57,8 @@ export default defineConfig({
         __dirname,
         'node_modules/@walletconnect/ethereum-provider/dist/index.umd.js',
       ),
+
+      //'@web3-react/core': path.resolve(__dirname, 'src/connection/web3reactShim.ts'),
     },
   },
   server: {

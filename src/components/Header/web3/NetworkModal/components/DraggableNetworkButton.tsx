@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { getConnection } from 'connection'
 import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -136,7 +135,6 @@ const DraggableNetworkButton = ({
   const { isWrongNetwork, walletKey: walletName, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const { connector, account } = useWeb3React()
-  const connection = getConnection(connector)
   const [dragging, setDragging] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const dragControls = useDragControls()
@@ -290,9 +288,9 @@ const DraggableNetworkButton = ({
               </MaintainLabel>
             )}
             {selected && !walletKey && <CircleGreen />}
-            {account && walletKey && connection.getProviderInfo().icon && (
+            {account && walletKey && connector?.icon && (
               <WalletWrapper>
-                <img src={connection.getProviderInfo().icon} alt="" />
+                <img src={connector.icon} alt="" />
               </WalletWrapper>
             )}
           </Row>

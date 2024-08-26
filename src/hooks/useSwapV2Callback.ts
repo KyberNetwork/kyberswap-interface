@@ -1,6 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { getConnection } from 'connection'
 import { useCallback, useMemo } from 'react'
 
 import { ZERO_ADDRESS } from 'constants/index'
@@ -29,7 +28,6 @@ export function useSwapV2Callback(
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId } = useActiveWeb3React()
   const { library, connector } = useWeb3React()
-  const { name: walletKey } = getConnection(connector).getProviderInfo()
 
   const { recipient: recipientAddressOrName } = useSwapState()
 
@@ -118,7 +116,7 @@ export function useSwapV2Callback(
         contractAddress: trade.routerAddress,
         encodedData: trade.encodedSwapData,
         value,
-        sentryInfo: { name: ErrorName.SwapError, wallet: walletKey },
+        sentryInfo: { name: ErrorName.SwapError, wallet: connector?.name },
         chainId,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
@@ -140,6 +138,6 @@ export function useSwapV2Callback(
     library,
     addTransactionWithType,
     extractSwapData,
-    walletKey,
+    connector?.name,
   ])
 }

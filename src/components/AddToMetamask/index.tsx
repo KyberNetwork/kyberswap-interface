@@ -1,5 +1,4 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import { getConnection } from 'connection'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
@@ -15,7 +14,6 @@ const StyledLogo = styled.img`
 export default function AddTokenToMetaMask({ token }: { token: Token }) {
   const { chainId, walletKey } = useActiveWeb3React()
   const { connector } = useWeb3React()
-  const connection = getConnection(connector)
 
   async function addToMetaMask() {
     const tokenAddress = token.address
@@ -40,14 +38,14 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
       console.error(error)
     }
   }
-  const { icon } = connection.getProviderInfo()
+  const { icon } = connector || {}
   if (!walletKey || !icon) return null
-  if (walletKey === 'WALLET_CONNECT') return null
+  if (walletKey === 'WalletConnect') return null
   if (walletKey === 'COINBASE') return null // Coinbase wallet no need to add since it automatically track token
   return (
     <ButtonEmpty mt="12px" padding="0" width="fit-content" onClick={addToMetaMask}>
       <RowFixed>
-        <StyledLogo src={connection.getProviderInfo().icon} />
+        <StyledLogo src={icon} />
       </RowFixed>
     </ButtonEmpty>
   )
