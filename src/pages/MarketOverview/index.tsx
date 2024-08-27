@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
@@ -13,6 +12,7 @@ import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { MAINNET_NETWORKS } from 'constants/networks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
@@ -23,21 +23,6 @@ import SortIcon, { Direction } from './SortIcon'
 import TableContent from './TableContent'
 import { ContentWrapper, PriceSelectionField, SubHeaderRow, Tab, TableHeader, TableWrapper, Tabs, Tag } from './styles'
 import useFilter from './useFilter'
-
-export const SUPPORTED_CHAINS: ChainId[] = [
-  ChainId.MAINNET,
-  ChainId.ARBITRUM,
-  ChainId.OPTIMISM,
-  ChainId.BASE,
-  ChainId.MATIC,
-  ChainId.AVAXMAINNET,
-  ChainId.ZKEVM,
-  ChainId.ZKSYNC,
-  ChainId.LINEA,
-  ChainId.SCROLL,
-  ChainId.BLAST,
-  ChainId.FANTOM,
-]
 
 const filterTags = [
   { label: 'Defi', value: 'defi' },
@@ -84,7 +69,7 @@ export default function MarketOverview() {
 
   const chainSelector = (
     <>
-      {SUPPORTED_CHAINS.map(item => (
+      {MAINNET_NETWORKS.map(item => (
         <MouseoverTooltip text={NETWORKS_INFO[item].name} key={item} placement="top" width="fit-content">
           <Flex
             alignItems="center"
