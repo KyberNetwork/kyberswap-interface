@@ -99,9 +99,15 @@ export default function MarketOverview() {
 
   return (
     <PoolsPageWrapper>
-      <Text as="h1" fontSize={24} fontWeight="500">
-        <Trans>Market Overview</Trans>
-      </Text>
+      <div>
+        <Text as="h1" fontSize={24} fontWeight="500">
+          <Trans>Market Overview</Trans>
+        </Text>
+        <Text color={theme.subText} marginTop="8px">
+          The first-ever aggregated on-chain price platform, offering the most real-time, trade-able, and reliable price
+          data.
+        </Text>
+      </div>
 
       <Flex justifyContent="space-between" flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
@@ -405,6 +411,11 @@ export default function MarketOverview() {
           pageSize={filters.pageSize || 20}
         />
       </TableWrapper>
+
+      <Text color={theme.subText} textAlign="center" fontStyle="italic" fontSize={14}>
+        Data and information on Kyberswap.com is for informational purposes only, neither recommendation nor investment
+        advice is provided.
+      </Text>
     </PoolsPageWrapper>
   )
 }
