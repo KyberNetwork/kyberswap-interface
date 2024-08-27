@@ -117,7 +117,7 @@ export const gnosisSafeConnection: Connection = {
   connector: web3GnosisSafe,
   hooks: web3GnosisSafeHooks,
   type: ConnectionType.GNOSIS_SAFE,
-  shouldDisplay: () => false,
+  shouldDisplay: () => true,
 }
 
 const [krystalWalletConnectV2, krystalWalletConnectV2Hooks] = initializeConnector<KrystalWalletConnect>(
