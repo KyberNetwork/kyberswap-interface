@@ -14,6 +14,7 @@ import identifyApi from 'services/identity'
 import ksSettingApi from 'services/ksSetting'
 import kyberDAO from 'services/kyberDAO'
 import limitOrderApi from 'services/limitOrder'
+import marketOverviewApi from 'services/marketOverview'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
 import routeApi from 'services/route'
@@ -112,6 +113,7 @@ const store = configureStore({
     [socialApi.reducerPath]: socialApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
+    [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -135,7 +137,8 @@ const store = configureStore({
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)
-      .concat(blackjackApi.middleware),
+      .concat(blackjackApi.middleware)
+      .concat(marketOverviewApi.middleware),
   preloadedState,
 })
 

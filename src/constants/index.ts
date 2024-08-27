@@ -163,6 +163,7 @@ export const APP_PATHS = {
 
   DEPRECATED_NOTI_CENTER: '/notification-center/overview',
   ELASTIC_SNAPSHOT: '/elastic-snapshot',
+  MARKET_OVERVIEW: '/market-overview',
 
   AGGREGATOR_CAMPAIGN: '/campaigns/aggregator',
   LIMIT_ORDER_CAMPAIGN: '/campaigns/limit-order',
