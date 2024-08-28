@@ -117,7 +117,7 @@ export const ContentChangable = styled.div<{ animate: boolean; up: boolean }>`
   ${({ animate, up }) =>
     animate &&
     css`
-      animation: ${up ? pulse : pulseRed} 1.2s;
+      animation: ${up ? pulse : pulseRed} 0.6s;
     `}
 `
 

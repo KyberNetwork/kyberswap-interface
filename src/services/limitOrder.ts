@@ -110,6 +110,9 @@ const limitOrderApi = createApi({
         url: `${LIMIT_ORDER_API_WRITE}/v1/orders`,
         body,
         method: 'POST',
+        headers: {
+          'x-client-id': 'kyberswap',
+        },
       }),
       transformResponse,
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
