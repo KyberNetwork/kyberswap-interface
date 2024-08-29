@@ -108,6 +108,8 @@ function LiquidityWidgetWrapper() {
       </div>
       <div style={{ maxWidth: "960px" }}>
         <LiquidityWidget
+          initDepositToken="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+          initAmount={1000}
           onConnectWallet={() => {
             openConnectModal?.();
           }}

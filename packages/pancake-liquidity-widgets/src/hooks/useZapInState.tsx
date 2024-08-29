@@ -229,6 +229,8 @@ export const ZapContextProvider = ({
   includedSources,
   initTickLower,
   initTickUpper,
+  initDepositToken,
+  initAmount,
 }: {
   children: ReactNode;
   source: string;
@@ -236,6 +238,8 @@ export const ZapContextProvider = ({
   excludedSources?: string;
   initTickLower?: number;
   initTickUpper?: number;
+  initDepositToken?: string;
+  initAmount?: number | string;
 }) => {
   const { pool, poolAddress, position, positionId, feePcm, feeAddress } =
     useWidgetInfo();
@@ -258,14 +262,6 @@ export const ZapContextProvider = ({
   const [tickUpper, setTickUpper] = useState<number | null>(
     position?.tickUpper ?? null
   );
-
-  useEffect(() => {
-    console.log("Tick:", {
-      tickLower,
-      tickUpper,
-      tickCurrent: pool?.tickCurrent,
-    });
-  }, [tickLower, tickUpper, pool?.tickCurrent]);
 
   useEffect(() => {
     if (position?.tickUpper !== undefined && position.tickLower !== undefined) {
@@ -294,7 +290,7 @@ export const ZapContextProvider = ({
   }, [pool, initTickUpper, initTickLower, tickLower, tickUpper]);
 
   const [tokenIn, setTokenIn] = useState<PancakeToken | null>(null);
-  const [amountIn, setAmountIn] = useState("");
+  const [amountIn, setAmountIn] = useState(initAmount?.toString() || "");
   const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
   const [zapApiError, setZapApiError] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -368,9 +364,33 @@ export const ZapContextProvider = ({
   };
 
   useEffect(() => {
-    if (pool && !tokenIn)
-      setTokenIn(isToken0Native ? nativeToken : pool.token0);
-  }, [pool, tokenIn, nativeToken, isToken0Native]);
+    if (pool && !tokenIn) {
+      let token = isToken0Native ? nativeToken : pool.token0;
+      if (
+        initDepositToken?.toLowerCase() ===
+          NATIVE_TOKEN_ADDRESS.toLowerCase() &&
+        (isToken0Native || isToken1Native)
+      ) {
+        token = nativeToken;
+      } else if (
+        initDepositToken?.toLowerCase() === pool.token1.address.toLowerCase()
+      ) {
+        token = pool.token1;
+      } else if (
+        initDepositToken?.toLowerCase() === pool.token0.address.toLowerCase()
+      ) {
+        token = pool.token0;
+      }
+      setTokenIn(token);
+    }
+  }, [
+    pool,
+    tokenIn,
+    nativeToken,
+    isToken0Native,
+    initDepositToken,
+    isToken1Native,
+  ]);
 
   const setTick = useCallback(
     (type: Type, value: number) => {

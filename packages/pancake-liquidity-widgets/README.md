@@ -29,6 +29,8 @@ poolAddress | address of pool to zap | string | Required
 positionId | Optional, in case “Increasing Liquidity into an existing position”, pass the position id. The position should belong to the poolAddress. Otherwise, it considers as “Adding Liquidity into a new position” | number | undefined 
 initTickLower | init tick lower in case add liquidity into a new position | number | undefined 
 initTickUpper | init tick upper in case add liquidity into a new position | number | undefined 
+initDepositToken | init deposit token in. Use `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` in case it's native token | string | undefined 
+initAmount | init amount in | number | undefined 
 theme | matching with pancake theme. accept 'dark' or 'light' | string | dark
 feeAddress | Wallet Address if you want to charge zap fee | string | undefined 
 feePcm | fee percentage in per cent mille (0.001% or 1 in 100,000). Ignored if feeAddress is empty. From 0 to 100,000 inclusively. Example: 1 for 0.001%. | number | undefined 

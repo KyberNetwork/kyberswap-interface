@@ -24,6 +24,8 @@ export interface WidgetProps {
   networkChainId: number;
   initTickLower?: number;
   initTickUpper?: number;
+  initDepositToken?: string;
+  initAmount?: number | string;
 
   poolAddress: string;
   positionId?: string;
@@ -47,6 +49,8 @@ export default function Widget({
 
   initTickLower,
   initTickUpper,
+  initDepositToken,
+  initAmount,
   poolAddress,
   positionId,
   onDismiss,
@@ -122,6 +126,8 @@ export default function Widget({
           excludedSources={excludedSources}
           initTickUpper={initTickUpper}
           initTickLower={initTickLower}
+          initDepositToken={initDepositToken}
+          initAmount={initAmount}
           source={source}
         >
           <div className="ks-lw">
