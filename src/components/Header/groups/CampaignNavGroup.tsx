@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
+import styled from 'styled-components'
 
 import Column from 'components/Column'
 import { NewLabel } from 'components/Menu'
@@ -8,6 +9,12 @@ import { APP_PATHS } from 'constants/index'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
+
+const StyledNavGroup = styled(NavGroup)`
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+      display: none;
+  `}
+`
 
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
@@ -18,7 +25,7 @@ const CampaignNavGroup = () => {
 
   return (
     <>
-      <NavGroup
+      <StyledNavGroup
         dropdownAlign={upTo500 ? 'right' : 'left'}
         isActive={isActive}
         anchor={
