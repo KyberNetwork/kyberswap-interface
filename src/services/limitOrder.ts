@@ -70,7 +70,7 @@ const limitOrderApi = createApi({
       }
     >({
       query: params => ({
-        url: `${LIMIT_ORDER_API_READ_PARTNER}/v1/orders`,
+        url: `${LIMIT_ORDER_API_READ_PARTNER}/v1/orders/allchains`,
         params,
       }),
       transformResponse: ({ data }: any) => {
@@ -78,6 +78,13 @@ const limitOrderApi = createApi({
           order.chainId = Number(order.chainId) as ChainId
         })
         return { orders: data?.orders || [] }
+      },
+      async onQueryStarted(agr, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch {
+          dispatch(limitOrderApi.util.upsertQueryData('getOrdersByTokenPair', agr, { orders: [] }))
+        }
       },
       providesTags: [RTK_QUERY_TAGS.GET_ORDERS_BY_TOKEN_PAIR],
     }),

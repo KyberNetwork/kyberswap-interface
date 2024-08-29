@@ -106,8 +106,11 @@ export default function Swap() {
     const outputCurrency = searchParams.get('outputCurrency')
 
     if (inputCurrency || outputCurrency) {
-      navigate(`/swap/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
+      if (pathname.includes(APP_PATHS.LIMIT))
+        navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
+      else navigate(`/swap/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, chainId, navigate])
 
   const shouldHighlightSwapBox = qs.highlightBox === 'true'

@@ -82,13 +82,16 @@ export type LimitOrderFromTokenPair = {
   orderHash: string
   availableMakingAmount: string
   makerBalanceAllowance: string
+  makerAssetDecimals: number
+  takerAssetDecimals: number
 }
 
 export type LimitOrderFromTokenPairFormatted = {
   id: number
+  chainId: ChainId
   rate: string
-  firstAmount: string
-  secondAmount: string
+  makerAmount: string
+  takerAmount: string
   filled: string
 }
 
