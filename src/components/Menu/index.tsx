@@ -15,6 +15,7 @@ import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import ArrowRight from 'components/Icons/ArrowRight'
+import CampaignIcon from 'components/Icons/CampaignIcon'
 import Faucet from 'components/Icons/Faucet'
 import Icon from 'components/Icons/Icon'
 import MailIcon from 'components/Icons/MailIcon'
@@ -222,6 +223,7 @@ export default function Menu() {
   const showAbout = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const showBlog = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const showAnalytics = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const showCampaigns = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -348,6 +350,28 @@ export default function Menu() {
                   />
                 </MenuItem>
               </>
+            )}
+
+            {showCampaigns && (
+              <MenuItem>
+                <NavDropDown
+                  icon={<CampaignIcon />}
+                  // title={t`Campaigns`}
+                  title={
+                    <Text sx={{ position: 'relative' }} width="max-content">
+                      <Trans>Campaigns</Trans>
+                      <NewLabel style={{ position: 'absolute', right: -22 }}>New</NewLabel>
+                    </Text>
+                  }
+                  link="#"
+                  options={[
+                    { link: APP_PATHS.AGGREGATOR_CAMPAIGN, label: t`Aggregator Trading` },
+                    { link: APP_PATHS.LIMIT_ORDER_CAMPAIGN, label: t`Limit Order` },
+                    { link: APP_PATHS.REFFERAL_CAMPAIGN, label: t`Referral` },
+                    { link: APP_PATHS.MY_DASHBOARD, label: t`My Dashboard`, external: true },
+                  ]}
+                />
+              </MenuItem>
             )}
 
             {bridgeLink && (
