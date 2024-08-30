@@ -356,7 +356,6 @@ export default function Menu() {
               <MenuItem>
                 <NavDropDown
                   icon={<CampaignIcon />}
-                  // title={t`Campaigns`}
                   title={
                     <Text sx={{ position: 'relative' }} width="max-content">
                       <Trans>Campaigns</Trans>
