@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useMedia } from 'react-use'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
@@ -59,8 +59,8 @@ const MarketPrice = styled.div`
   display: grid;
   grid-template-columns: 1fr 2fr 2fr 2fr 1fr;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1.2fr 1.8fr 2fr 1fr;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1.2fr 1.8fr 2fr 1.8fr;
   `}
 `
 
@@ -184,8 +184,6 @@ export default function OrderBook() {
     refetch: refetchMarketRate,
   } = useBaseTradeInfoLimitOrder(makerCurrency, takerCurrency, chainId)
 
-  const [showAmountOut, setShowAmountOut] = useState<boolean>(true)
-
   const ordersWrapperRef = useRef<FixedSizeList<any>>(null)
 
   const {
@@ -269,7 +267,7 @@ export default function OrderBook() {
             </RefreshText>
           )}
 
-          <TableHeader showAmountOut={showAmountOut} setShowAmountOut={setShowAmountOut} />
+          <TableHeader />
 
           {formattedOrders.length > 0 ? (
             <OrderItemWrapper
@@ -281,7 +279,7 @@ export default function OrderBook() {
             >
               {({ index, style }: { index: number; style: CSSProperties }) => {
                 const order = formattedOrders[index]
-                return <OrderItem key={order.id} style={style} order={order} showAmountOut={showAmountOut} />
+                return <OrderItem key={order.id} style={style} order={order} />
               }}
             </OrderItemWrapper>
           ) : (
@@ -309,7 +307,7 @@ export default function OrderBook() {
             >
               {({ index, style }: { index: number; style: CSSProperties }) => {
                 const order = formattedReversedOrders[index]
-                return <OrderItem key={order.id} style={style} reverse order={order} showAmountOut={showAmountOut} />
+                return <OrderItem key={order.id} style={style} reverse order={order} />
               }}
             </OrderItemWrapper>
           ) : (

@@ -19,8 +19,8 @@ export const ItemWrapper = styled.div`
   grid-template-columns: 1fr 2fr 2fr 2fr 1fr;
   padding: 12px;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1.2fr 1.8fr 2fr 1fr;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1.2fr 1.8fr 2fr 1.8fr;
   `}
 `
 
@@ -40,15 +40,15 @@ const AmountInfo = ({
   plus,
   amount,
   currency,
-  upToSmall,
+  upToExtraSmall,
 }: {
   plus?: boolean
   amount: string
   currency?: Currency
-  upToSmall?: boolean
+  upToExtraSmall?: boolean
 }) => (
   <Flex alignItems={'center'}>
-    <CurrencyLogo currency={currency} size="17px" style={{ marginRight: upToSmall ? 4 : 8 }} />
+    <CurrencyLogo currency={currency} size="17px" style={{ marginRight: upToExtraSmall ? 4 : 8 }} />
     <span>{plus ? '+' : '-'}</span>
     <span>{amount}</span>
   </Flex>
@@ -58,15 +58,13 @@ export default function OrderItem({
   reverse,
   order,
   style,
-  showAmountOut,
 }: {
   reverse?: boolean
   order: LimitOrderFromTokenPairFormatted
   style: CSSProperties
-  showAmountOut: boolean
 }) {
   const theme = useTheme()
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const { supportedChains } = useChainsConfig()
 
@@ -79,33 +77,19 @@ export default function OrderItem({
     <ItemWrapper style={style}>
       <ChainImage src={chain?.icon} alt="Network" />
       <Rate reverse={reverse}>{order.rate}</Rate>
-      {!upToSmall ? (
-        <>
-          <AmountInfo
-            plus={reverse}
-            amount={order[!reverse ? 'makerAmount' : 'takerAmount']}
-            currency={makerCurrency}
-            upToSmall={upToSmall}
-          />
-          <AmountInfo
-            plus={!reverse}
-            amount={order[!reverse ? 'takerAmount' : 'makerAmount']}
-            currency={takerCurrency}
-            upToSmall={upToSmall}
-          />
-        </>
-      ) : (
-        <AmountInfo
-          plus={showAmountOut ? !reverse : reverse}
-          amount={(showAmountOut && !reverse) || (!showAmountOut && reverse) ? order.takerAmount : order.makerAmount}
-          currency={showAmountOut ? takerCurrency : makerCurrency}
-          upToSmall={upToSmall}
-        />
-      )}
-      <Text color={theme.subText}>
-        {!upToSmall && 'Filled '}
-        {order.filled}%
-      </Text>
+      <AmountInfo
+        plus={reverse}
+        amount={order[!reverse ? 'makerAmount' : 'takerAmount']}
+        currency={makerCurrency}
+        upToExtraSmall={upToExtraSmall}
+      />
+      <AmountInfo
+        plus={!reverse}
+        amount={order[!reverse ? 'takerAmount' : 'makerAmount']}
+        currency={takerCurrency}
+        upToExtraSmall={upToExtraSmall}
+      />
+      {!upToExtraSmall && <Text color={theme.subText}>Filled {order.filled}%</Text>}
     </ItemWrapper>
   )
 }
