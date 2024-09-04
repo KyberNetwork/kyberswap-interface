@@ -17,7 +17,7 @@ import Wallet from 'components/Icons/Wallet'
 import { Input as NumericalInput } from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { DelayMouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -374,14 +374,14 @@ export default function CurrencyInputPanel({
                     </StyledTokenName>
                   </RowFixed>
                   {!!nativeCurrency && !isMobile && !upToMedium && (
-                    <DelayMouseoverTooltip
+                    <MouseoverTooltip
                       text={nativeCurrency?.wrapped.address}
                       delay={200}
                       placement="top"
                       width="fit-content"
                     >
                       <Info color={theme.subText} size={18} style={{ margin: '0 8px' }} />
-                    </DelayMouseoverTooltip>
+                    </MouseoverTooltip>
                   )}
                   {!disableCurrencySelect && !isSwitchMode && (
                     <DropdownSVG style={{ marginLeft: tight ? '-8px' : undefined }} />
