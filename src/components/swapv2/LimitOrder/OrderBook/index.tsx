@@ -28,7 +28,7 @@ import TableHeader from './TableHeader'
 const ITEMS_DISPLAY = 10
 const ITEM_HEIGHT = 44
 const DESKTOP_SIGNIFICANT_DIGITS = 6
-const MOBILE_SIGNIFICANT_DIGITS = 5
+const MOBILE_SIGNIFICANT_DIGITS = 4
 
 const OrderBookWrapper = styled.div`
   display: flex;
