@@ -2,6 +2,9 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken, lighten, rgba } from 'polished'
 import { ReactNode, useCallback, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Info } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled, { CSSProperties, css } from 'styled-components'
 
@@ -14,9 +17,11 @@ import Wallet from 'components/Icons/Wallet'
 import { Input as NumericalInput } from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { shortString } from 'utils/string'
 
@@ -253,6 +258,7 @@ export default function CurrencyInputPanel({
   const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined, customChainId)
 
   const theme = useTheme()
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const handleDismissSearch = useCallback(() => {
     setModalOpen(false)
@@ -367,6 +373,16 @@ export default function CurrencyInputPanel({
                         loadingText || <Trans>Select a token</Trans>}
                     </StyledTokenName>
                   </RowFixed>
+                  {!!nativeCurrency && !isMobile && !upToMedium && (
+                    <MouseoverTooltip
+                      text={nativeCurrency?.wrapped.address}
+                      delay={200}
+                      placement="top"
+                      width="fit-content"
+                    >
+                      <Info color={theme.subText} size={18} style={{ margin: '0 8px' }} />
+                    </MouseoverTooltip>
+                  )}
                   {!disableCurrencySelect && !isSwitchMode && (
                     <DropdownSVG style={{ marginLeft: tight ? '-8px' : undefined }} />
                   )}
