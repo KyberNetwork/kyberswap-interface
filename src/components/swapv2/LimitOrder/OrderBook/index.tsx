@@ -28,7 +28,8 @@ import TableHeader from './TableHeader'
 const ITEMS_DISPLAY = 10
 const ITEM_HEIGHT = 44
 const DESKTOP_SIGNIFICANT_DIGITS = 6
-const MOBILE_SIGNIFICANT_DIGITS = 4
+const MOBILE_SIGNIFICANT_DIGITS = 5
+const MOBILE_SIGNIFICANT_DIGITS_FOR_LESS_THAN_ONE = 4
 
 const OrderBookWrapper = styled.div`
   display: flex;
@@ -93,11 +94,18 @@ const NoDataPanel = () => (
   </NoResultWrapper>
 )
 
+const getSignificantDigits = (value: string, upToSmall: boolean) =>
+  upToSmall
+    ? parseFloat(value) < 1
+      ? MOBILE_SIGNIFICANT_DIGITS_FOR_LESS_THAN_ONE
+      : MOBILE_SIGNIFICANT_DIGITS
+    : DESKTOP_SIGNIFICANT_DIGITS
+
 const formatOrders = (
   orders: LimitOrderFromTokenPair[],
   makerCurrency: Currency | undefined,
   takerCurrency: Currency | undefined,
-  significantDigits: number,
+  upToSmall: boolean,
   reverse = false,
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!makerCurrency || !takerCurrency) return []
@@ -143,7 +151,9 @@ const formatOrders = (
     .sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate))
     .map(order => ({
       ...order,
-      rate: formatDisplayNumber(order.rate, { significantDigits }),
+      rate: formatDisplayNumber(order.rate, {
+        significantDigits: getSignificantDigits(order.rate, upToSmall),
+      }),
     }))
 
   // Merge orders with the same rate
@@ -163,8 +173,12 @@ const formatOrders = (
       null,
     )
     if (mergedOrder) {
-      mergedOrder.makerAmount = formatDisplayNumber(mergedOrder.makerAmount, { significantDigits })
-      mergedOrder.takerAmount = formatDisplayNumber(mergedOrder.takerAmount, { significantDigits })
+      mergedOrder.makerAmount = formatDisplayNumber(mergedOrder.makerAmount, {
+        significantDigits: getSignificantDigits(mergedOrder.makerAmount, upToSmall),
+      })
+      mergedOrder.takerAmount = formatDisplayNumber(mergedOrder.takerAmount, {
+        significantDigits: getSignificantDigits(mergedOrder.takerAmount, upToSmall),
+      })
       mergedOrders.push(mergedOrder)
     }
   })
@@ -211,24 +225,11 @@ export default function OrderBook() {
   const loadingReversedOrders = useShowLoadingAtLeastTime(isLoadingReversedOrder)
 
   const formattedOrders = useMemo(
-    () =>
-      formatOrders(
-        orders,
-        makerCurrency,
-        takerCurrency,
-        upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
-      ),
+    () => formatOrders(orders, makerCurrency, takerCurrency, upToSmall),
     [orders, makerCurrency, takerCurrency, upToSmall],
   )
   const formattedReversedOrders = useMemo(
-    () =>
-      formatOrders(
-        reversedOrders,
-        takerCurrency,
-        makerCurrency,
-        upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
-        true,
-      ),
+    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, upToSmall, true),
     [reversedOrders, takerCurrency, makerCurrency, upToSmall],
   )
 
@@ -290,7 +291,7 @@ export default function OrderBook() {
             <MarketPrice>
               <ChainImage src={networkInfo?.icon} alt="Network" />
               {formatDisplayNumber(marketRate, {
-                significantDigits: upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
+                significantDigits: getSignificantDigits(marketRate.toString(), upToSmall),
               })}
             </MarketPrice>
           )}
