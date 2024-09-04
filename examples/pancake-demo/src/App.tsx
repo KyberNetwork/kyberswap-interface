@@ -127,8 +127,8 @@ function LiquidityWidgetWrapper() {
         initTickUpper={params.initTickUpper ? +params.initTickUpper : undefined}
         poolAddress={params.poolAddress}
         theme={params.theme}
-        feeAddress="0x7E59Be2D29C5482256f555D9BD4b37851F1f3411"
-        feePcm={50}
+        feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
+        feePcm={0}
         onDismiss={() => {
           window.location.reload();
         }}
