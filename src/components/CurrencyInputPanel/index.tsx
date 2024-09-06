@@ -375,7 +375,7 @@ export default function CurrencyInputPanel({
                   </RowFixed>
                   {!!nativeCurrency && !isMobile && !upToMedium && (
                     <MouseoverTooltip
-                      text={nativeCurrency?.wrapped.address}
+                      text={nativeCurrency?.isNative ? 'Native token' : nativeCurrency?.wrapped.address}
                       delay={200}
                       placement="top"
                       width="fit-content"
