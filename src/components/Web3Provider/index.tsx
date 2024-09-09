@@ -25,11 +25,33 @@ import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
 
 import WC_BG from 'assets/images/wc-bg.png'
 import Kyber from 'assets/svg/kyber/logo_kyberswap_with_padding.svg'
+import COINBASE_ICON from 'assets/wallets-connect/coinbase.svg'
 import METAMASK_ICON from 'assets/wallets-connect/metamask.svg'
+import SAFE_ICON from 'assets/wallets-connect/safe.svg'
+import WALLET_CONNECT_ICON from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 
 export const queryClient = new QueryClient()
+
+export const CONNECTION = {
+  WALLET_CONNECT_CONNECTOR_ID: 'walletConnect',
+  UNISWAP_WALLET_CONNECT_CONNECTOR_ID: 'uniswapWalletConnect',
+  INJECTED_CONNECTOR_ID: 'injected',
+  INJECTED_CONNECTOR_TYPE: 'injected',
+  COINBASE_SDK_CONNECTOR_ID: 'coinbaseWalletSDK',
+  COINBASE_RDNS: 'com.coinbase.wallet',
+  METAMASK_RDNS: 'io.metamask',
+  UNISWAP_EXTENSION_RDNS: 'org.uniswap.app',
+  SAFE_CONNECTOR_ID: 'safe',
+} as const
+
+export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
+  [CONNECTION.METAMASK_RDNS]: METAMASK_ICON,
+  [CONNECTION.COINBASE_SDK_CONNECTOR_ID]: COINBASE_ICON,
+  [CONNECTION.WALLET_CONNECT_CONNECTOR_ID]: WALLET_CONNECT_ICON,
+  [CONNECTION.SAFE_CONNECTOR_ID]: SAFE_ICON,
+}
 
 declare module 'wagmi' {
   interface Register {

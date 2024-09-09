@@ -12,6 +12,7 @@ import { AutoColumn, ColumnCenter } from 'components/Column'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { RowBetween, RowFixed } from 'components/Row'
+import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -113,7 +114,8 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
   }
 
   if (!connector || connector?.name === 'WalletConnect') return null
-  const { name, icon } = connector
+  const { name } = connector
+  const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector.id] ?? connector.icon
 
   return (
     <ButtonLight mt="12px" padding="6px 12px" width="fit-content" onClick={handleClick}>

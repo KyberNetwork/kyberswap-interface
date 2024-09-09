@@ -34,7 +34,7 @@ export function useActiveWeb3React(): {
   const mockAccountParam = searchParams.get('account')
   const account = mockAccountParam || MOCK_ACCOUNT_EVM || address
 
-  const walletKey = connector?.name ?? ''
+  const walletKey = connector?.id ?? ''
 
   return {
     chainId: chainIdState,

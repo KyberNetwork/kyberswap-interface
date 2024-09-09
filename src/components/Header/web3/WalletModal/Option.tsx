@@ -3,6 +3,7 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 import { Connector, useConnect } from 'wagmi'
 
+import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React } from 'hooks'
 import { useCloseModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
@@ -102,7 +103,8 @@ const Option = ({ connector }: { connector: Connector }) => {
 
   const { chainId } = useActiveWeb3React()
 
-  const { name, icon } = connector
+  const { name } = connector
+  const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector.id] ?? connector.icon
 
   const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
   const { variables, isPending: isSomeOptionPending } = useConnect({

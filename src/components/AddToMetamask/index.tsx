@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import { RowFixed } from 'components/Row'
+import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { getTokenLogoURL } from 'utils'
 
@@ -38,7 +39,8 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
       console.error(error)
     }
   }
-  const { icon } = connector || {}
+  const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector?.id || ''] ?? connector?.icon
+
   if (!walletKey || !icon) return null
   if (walletKey === 'WalletConnect') return null
   if (walletKey === 'COINBASE') return null // Coinbase wallet no need to add since it automatically track token

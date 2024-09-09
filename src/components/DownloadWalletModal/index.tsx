@@ -4,10 +4,19 @@ import { X } from 'react-feather'
 import { Image, Text } from 'rebass'
 import styled from 'styled-components'
 
+import bloctoIcon from 'assets/wallets-connect/bocto.svg'
+import braveIcon from 'assets/wallets-connect/brave.svg'
+import coin98Icon from 'assets/wallets-connect/coin98.svg'
+import coinbaseIcon from 'assets/wallets-connect/coinbase.svg'
+import krystalIcon from 'assets/wallets-connect/krystal.svg'
+import metaMaskIcon from 'assets/wallets-connect/metamask.svg'
+import rabbyIcon from 'assets/wallets-connect/rabby.svg'
+import safeIcon from 'assets/wallets-connect/safe.svg'
+import trustWalletIcon from 'assets/wallets-connect/trust-wallet.svg'
+import zerionIcon from 'assets/wallets-connect/zerion.svg'
 import Column from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
-import { connections } from 'constants/wallets'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useCloseModal, useModalOpen } from 'state/application/hooks'
@@ -37,6 +46,49 @@ const DownloadWalletRow = styled.a`
   }
 `
 
+const wallets = [
+  {
+    name: 'Krystal',
+    icon: krystalIcon,
+    installLink: 'https://wallet.krystal.app',
+  },
+
+  {
+    name: 'Rabby',
+    icon: rabbyIcon,
+    installLink: 'https://rabby.io',
+  },
+
+  {
+    name: 'Zerion',
+    icon: zerionIcon,
+    installLink: 'https://zerion.io',
+  },
+
+  {
+    name: 'Trust Wallet',
+    icon: trustWalletIcon,
+    installLink: 'https://trustwallet.com/vi/deeplink',
+  },
+
+  {
+    name: 'Brave Wallet',
+    icon: braveIcon,
+    installLink: 'https://brave.com/download',
+  },
+
+  { name: 'Safe Wallet', icon: safeIcon, installLink: 'https://safe.global/wallet' },
+
+  { name: 'Coinbase', icon: coinbaseIcon, installLink: 'https://www.coinbase.com/wallet' },
+  { name: 'Coin98', icon: coin98Icon, installLink: 'https://wallet.coin98.com/' },
+  { name: 'Blocto', icon: bloctoIcon, installLink: 'https://blocto.io/download' },
+  {
+    name: 'MetaMask',
+    icon: metaMaskIcon,
+    installLink: 'https://metamask.io/download',
+  },
+]
+
 export default function DownloadWalletModal() {
   const theme = useTheme()
   const isOpen = useModalOpen(ApplicationModal.DOWNLOAD_WALLET)
@@ -55,7 +107,7 @@ export default function DownloadWalletModal() {
         </RowBetween>
 
         <Row gap="20px" marginTop="24px" flexWrap="wrap">
-          {Object.values(connections)
+          {wallets
             .filter(e => e.installLink)
             .map(item => (
               <DownloadWalletRow
