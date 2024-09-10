@@ -1796,6 +1796,22 @@
     eip1193-provider "^1.0.1"
     js-sha3 "^0.8.0"
 
+"@blocto/sdk@^0.10.3":
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/@blocto/sdk/-/sdk-0.10.3.tgz#b651a0e39425557f5cbf27530e48c5621162c9cf"
+  integrity sha512-9Ot5R3YULaX8IIRGyVYXhoGC01H+kaXCqwfLWzUSKciNYT2GxiF547LEAnT1a7e5HMrJdqjQ+94OsS32fHmq9A==
+  dependencies:
+    buffer "^6.0.3"
+    eip1193-provider "^1.0.1"
+    js-sha3 "^0.8.0"
+
+"@blocto/wagmi-connector@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@blocto/wagmi-connector/-/wagmi-connector-2.0.4.tgz#6d70b546509500e8e921be9fb73601f946e3b480"
+  integrity sha512-7WxHiPoOtS93Cp1VUegW3T8H3fc13e2LrJ0+eoVwdeuGLuj1fBxY/pd3XMCY70XT++Dvi8JB7T2Y/DXNRoFu3Q==
+  dependencies:
+    "@blocto/sdk" "^0.10.3"
+
 "@blocto/web3-react-connector@^1.0.7":
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/@blocto/web3-react-connector/-/web3-react-connector-1.0.7.tgz#eef9cf081b75cb17b7a59a7bd28f0f99f22a6313"

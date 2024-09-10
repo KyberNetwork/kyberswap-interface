@@ -44,6 +44,7 @@
   "dependencies": {
     "@0xsquid/sdk": "^2.8.1",
     "@apollo/client": "^3.7.1",
+    "@blocto/wagmi-connector": "^2.0.4",
     "@blocto/web3-react-connector": "^1.0.7",
     "@coinbase/wallet-sdk": "^3.0.4",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",

@@ -107,7 +107,11 @@ const Option = ({ connector }: { connector: Connector }) => {
   const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector.id] ?? connector.icon
 
   const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
-  const { variables, isPending: isSomeOptionPending } = useConnect({
+  const {
+    variables,
+    isPending: isSomeOptionPending,
+    connect,
+  } = useConnect({
     mutation: {
       onSuccess: () => {
         closeWalletModal()
@@ -121,7 +125,7 @@ const Option = ({ connector }: { connector: Connector }) => {
     <OptionCardClickable
       role="button"
       id={`connect-${name}`}
-      onClick={() => isAcceptedTerm && connector.connect({ chainId })}
+      onClick={() => isAcceptedTerm && connect({ connector, chainId: chainId as any })}
       connected={isCurrentOptionPending}
       isDisabled={!isAcceptedTerm}
     >

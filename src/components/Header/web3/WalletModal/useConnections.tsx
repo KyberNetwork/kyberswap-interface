@@ -1,7 +1,8 @@
-import { CONNECTION, getConnectorWithId } from 'connection'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Connector, useConnect } from 'wagmi'
+
+import { CONNECTION, getConnectorWithId } from 'components/Web3Provider'
 
 function getInjectedConnectors(connectors: readonly Connector[]) {
   let isCoinbaseWalletBrowser = false
@@ -36,6 +37,7 @@ export function useOrderedConnections(): InjectableConnector[] {
 
     const coinbaseSdkConnector = getConnectorWithId(connectors, CONNECTION.COINBASE_SDK_CONNECTOR_ID)
     const walletConnectConnector = getConnectorWithId(connectors, CONNECTION.WALLET_CONNECT_CONNECTOR_ID)
+    const bloctoConnector = getConnectorWithId(connectors, CONNECTION.BLOCTO_ID)
 
     if (!coinbaseSdkConnector || !walletConnectConnector) {
       throw new Error('Expected connector(s) missing from wagmi context.')
@@ -59,6 +61,8 @@ export function useOrderedConnections(): InjectableConnector[] {
     // WalletConnect and Coinbase are added last in the list.
     orderedConnectors.push(walletConnectConnector)
     orderedConnectors.push(coinbaseSdkConnector)
+
+    if (bloctoConnector) orderedConnectors.push(bloctoConnector)
 
     // Place the most recent connector at the top of the list.
     orderedConnectors
