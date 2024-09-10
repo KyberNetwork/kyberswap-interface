@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import blackjackApi from 'services/blackjack'
-import { useSwitchChain } from 'wagmi'
 
 import { MOCK_ACCOUNT_EVM } from 'constants/env'
 import { isSupportedChainId } from 'constants/networks'
@@ -49,7 +48,6 @@ export function useWeb3React() {
   const account = useAccount()
   const kyberChainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const provider = useEthersProvider({ chainId: account.chainId })
-  const { switchChain } = useSwitchChain()
 
   const latestChainIdRef = useRef(account.chainId)
 
@@ -71,25 +69,6 @@ export function useWeb3React() {
                   }
 
                   if (kyberChainId !== account.chainId) {
-                    // Wrap switchChain in a Promise
-                    await new Promise<void>(resolve => {
-                      switchChain(
-                        { chainId: kyberChainId as any },
-                        {
-                          onSuccess: () => {
-                            resolve()
-                          },
-                          onSettled: () => {
-                            resolve()
-                          },
-                        },
-                      )
-                    })
-                    // gracefully handle the error
-                    throw new Error('')
-                  }
-
-                  if (kyberChainId !== latestChainIdRef.current) {
                     throw new Error(
                       'Your chain is mismatched, please make sure your wallet is switch to the expected chain.',
                     )
@@ -109,7 +88,7 @@ export function useWeb3React() {
             },
           })
         : provider,
-    [account.chainId, account.address, kyberChainId, switchChain, provider],
+    [account.chainId, account.address, kyberChainId, provider],
   )
 
   return useMemo(

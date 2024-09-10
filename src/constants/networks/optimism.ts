@@ -27,7 +27,7 @@ const optimismInfo: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 10 ** 14,
   },
   defaultRpcUrl: 'https://optimism.kyberengineering.io',
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',

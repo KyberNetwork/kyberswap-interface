@@ -144,46 +144,30 @@ export function useChangeNetwork() {
         return
       }
 
-      try {
-        console.info('[Switch network] start:', { desiredChainId })
-        switchChain({ chainId: desiredChainId as any })
-        console.info('[Switch network] success:', { desiredChainId })
-        changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
-      } catch (error) {
-        if (kyberChainId !== chainId && chainId) dispatch(updateChainId(chainId))
-        console.error(
-          '[Switch network] error:',
-          JSON.stringify({ desiredChainId, error, didUserReject: didUserReject(error) }, null, 2),
-        )
-
-        // walletconnect v2 not support add network, so halt execution here
-        if (
-          didUserReject(error)
-          //|| connector === walletConnectV2 || connector === krystalWalletConnectV2
-        ) {
-          failureCallback(desiredChainId, error, customFailureCallback)
-          return
-        }
-        //if (isAddNetworkIfPossible) {
-        //  addNewNetwork(
-        //    desiredChainId,
-        //    undefined,
-        //    undefined,
-        //    () =>
-        //      changeNetwork(
-        //        desiredChainId,
-        //        customSuccessCallback,
-        //        customFailureCallback,
-        //        waitUtilUpdatedChainId,
-        //        false,
-        //      ),
-        //    customFailureCallback,
-        //    waitUtilUpdatedChainId,
-        //  )
-        //} else {
-        failureCallback(desiredChainId, error, customFailureCallback)
-        //}
-      }
+      console.info('[Switch network] start:', { desiredChainId })
+      switchChain(
+        { chainId: desiredChainId as any },
+        {
+          onSuccess: () => {
+            console.info('[Switch network] success:', { desiredChainId })
+            changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
+          },
+          onError: error => {
+            if (kyberChainId !== chainId && chainId) dispatch(updateChainId(chainId))
+            console.error(
+              '[Switch network] error:',
+              JSON.stringify({ desiredChainId, error, didUserReject: didUserReject(error) }, null, 2),
+            )
+            if (
+              didUserReject(error)
+              //|| connector === walletConnectV2 || connector === krystalWalletConnectV2
+            ) {
+              failureCallback(desiredChainId, error, customFailureCallback)
+              return
+            }
+          },
+        },
+      )
     },
     [
       chainId,
