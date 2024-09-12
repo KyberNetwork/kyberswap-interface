@@ -18,6 +18,7 @@ import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { ContentChangable, TabItem } from './styles'
+import useFilter from './useFilter'
 
 // () => setShowTokenId(null)
 export default function DetailModal({
@@ -37,6 +38,8 @@ export default function DetailModal({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { data: quoteData } = useGetQuoteByChainQuery()
   const [selectedPrice, setSelectedPrice] = useState<'buy' | 'sell'>('buy')
+  const { filters } = useFilter()
+  const selectedChainId = filters.chainId
 
   return (
     <Modal isOpen={!!tokenToShow} onDismiss={onDismiss} width="100%" maxWidth="600px">
@@ -180,7 +183,13 @@ export default function DetailModal({
 
           {tokenToShow.tokens
             .filter(token => MAINNET_NETWORKS.includes(+token.chainId))
-            .sort((a, b) => b.priceBuy - a.priceBuy)
+            .sort((a, b) => {
+              if (selectedChainId) {
+                if (+a.chainId === +selectedChainId) return -1
+                if (+b.chainId === +selectedChainId) return 1
+              }
+              return b.priceBuy - a.priceBuy
+            })
             .map(token => {
               const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[token.chainId]?.symbol
               const address =
@@ -323,7 +332,7 @@ export const PriceChange = ({ priceChange }: { priceChange: number | undefined }
       animate={!!lastPriceChange && animate}
       up={!!lastPriceChange && !!priceChange && priceChange - lastPriceChange >= 0}
     >
-      {!priceChange ? '--' : priceChange.toFixed(2) + '%'}
+      {!priceChange ? '--' : formatDisplayNumber(priceChange, { style: 'decimal', fractionDigits: 2 }) + '%'}
     </ContentChangable>
   )
 }

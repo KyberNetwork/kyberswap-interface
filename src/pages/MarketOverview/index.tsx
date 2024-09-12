@@ -10,7 +10,7 @@ import { ButtonEmpty } from 'components/Button'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
-import SearchInput from 'components/SearchInput'
+import Search from 'components/Search'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -152,10 +152,11 @@ export default function MarketOverview() {
             </Tag>
           ))}
         </Flex>
-        <SearchInput
+        <Search
           placeholder="Search by token name, symbol or address"
-          value={input}
-          onChange={val => setInput(val)}
+          searchValue={input}
+          allowClear
+          onSearch={val => setInput(val)}
           style={{ height: '36px' }}
         />
       </Flex>
