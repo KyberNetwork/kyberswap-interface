@@ -116,6 +116,9 @@ const Option = ({ connector }: { connector: Connector }) => {
       onSuccess: () => {
         closeWalletModal()
       },
+      onError: e => {
+        console.log(e)
+      },
     },
   })
 
@@ -125,7 +128,11 @@ const Option = ({ connector }: { connector: Connector }) => {
     <OptionCardClickable
       role="button"
       id={`connect-${name}`}
-      onClick={() => isAcceptedTerm && connect({ connector, chainId: chainId as any })}
+      onClick={() => {
+        if (isAcceptedTerm) {
+          connect({ connector, chainId: chainId as any })
+        }
+      }}
       connected={isCurrentOptionPending}
       isDisabled={!isAcceptedTerm}
     >

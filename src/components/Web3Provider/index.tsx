@@ -121,6 +121,7 @@ function injectedWithFallback() {
 }
 
 const WC_PARAMS = {
+  showQrModal: true,
   projectId: WALLETCONNECT_PROJECT_ID,
   metadata: {
     name: 'KyberSwap',
