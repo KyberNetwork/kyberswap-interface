@@ -121,6 +121,8 @@ function injectedWithFallback() {
 }
 
 const WC_PARAMS = {
+  methods: ['eth_sendTransaction', 'personal_sign', 'eth_signTypedData_v4'],
+  optionalMethods: ['eth_signTypedData', 'eth_sign'],
   showQrModal: true,
   projectId: WALLETCONNECT_PROJECT_ID,
   metadata: {
@@ -133,12 +135,13 @@ const WC_PARAMS = {
     chainImages: undefined,
     themeMode: 'dark' as const,
     themeVariables: {
-      '--w3m-z-index': '1000',
-      '--w3m-logo-image-url': Kyber,
-      '--w3m-background-image-url': WC_BG,
-      '--w3m-accent-color': '#31CB9E',
-      '--w3m-accent-fill-color': '#222222',
-      '--w3m-color-bg-1': '#0F0F0F',
+      '--wcm-z-index': '1000',
+      '--wcm-logo-image-url': Kyber,
+      '--wcm-background-image-url': WC_BG,
+      '--wcm-accent-color': '#31CB9E',
+      '--wcm-accent-fill-color': '#222222',
+      '--wcm-color-bg-1': '#0F0F0F',
+      '--wcm-background-color': '#31CB9E',
     } as any,
   },
 }
