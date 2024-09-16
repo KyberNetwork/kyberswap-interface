@@ -36,6 +36,7 @@ const Logout = lazy(() => import('./Oauth/Logout'))
 const Consent = lazy(() => import('./Oauth/Consent'))
 
 const ElasticSnapshot = lazy(() => import('./ElasticSnapshot'))
+const MarketOverview = lazy(() => import('./MarketOverview'))
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
@@ -306,6 +307,7 @@ export default function App() {
               <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
 
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
+              <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
 
               <Route path={APP_PATHS.AGGREGATOR_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.LIMIT_ORDER_CAMPAIGN} element={<Campaign />} />

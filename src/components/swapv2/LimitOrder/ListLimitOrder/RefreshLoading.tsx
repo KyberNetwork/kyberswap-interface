@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 
 import useDebounce from 'hooks/useDebounce'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 
 const INTERVAL_REFETCH_TIME = 10 // seconds
@@ -104,11 +105,12 @@ export default function RefreshLoading({
   const [countdown, setCountdown] = useState(0)
 
   const debouncedRefetchLoading = useDebounce(refetchLoading, 100)
+  const showLoadingAtLeastTime = useShowLoadingAtLeastTime(debouncedRefetchLoading, 200)
 
   useEffect(() => {
-    if (!refetchLoading && !debouncedRefetchLoading) setCountdown(INTERVAL_REFETCH_TIME * 1_000)
-    else if (refetchLoading && debouncedRefetchLoading) setCountdown(0)
-  }, [refetchLoading, debouncedRefetchLoading])
+    if (!refetchLoading && !showLoadingAtLeastTime) setCountdown(INTERVAL_REFETCH_TIME * 1_000)
+    else if (refetchLoading && showLoadingAtLeastTime) setCountdown(0)
+  }, [refetchLoading, showLoadingAtLeastTime])
 
   useEffect(() => {
     if (countdown > 0) {

@@ -17,35 +17,47 @@ const Header = styled(ItemWrapper)`
   font-weight: 500;
   padding: 16px 12px;
   cursor: default;
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
-  }
 `
 
 export default function TableHeader() {
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn, currencyOut } = useLimitState()
 
   return (
     <Header>
+      <Text>CHAIN</Text>
       <Text>
         <Trans>RATE</Trans>
-        {upToSmall ? <br /> : ' '}(<span>{currencyIn?.symbol || ''}/</span>
-        <span>{currencyOut?.symbol || ''}</span>)
+        {!!currencyIn && !!currencyOut && (
+          <>
+            {upToExtraSmall ? <br /> : ' '}(<span>{currencyIn?.symbol}/</span>
+            <span>{currencyOut?.symbol}</span>)
+          </>
+        )}
       </Text>
       <Text>
         <Trans>AMOUNT</Trans>
-        {upToSmall ? <br /> : ' '}
-        <Trans>({currencyIn?.symbol})</Trans>
+        {!!currencyIn && (
+          <>
+            {upToExtraSmall ? <br /> : ' '}
+            <span>({currencyIn?.symbol})</span>
+          </>
+        )}
       </Text>
       <Text>
         <Trans>AMOUNT</Trans>
-        {upToSmall ? <br /> : ' '}
-        <Trans>({currencyOut?.symbol})</Trans>
+        {!!currencyOut && (
+          <>
+            {upToExtraSmall ? <br /> : ' '}
+            <span>({currencyOut?.symbol})</span>
+          </>
+        )}
       </Text>
-      <Text>
-        <Trans>ORDER STATUS</Trans>
-      </Text>
+      {!upToExtraSmall && (
+        <Text>
+          <Trans>ORDER STATUS</Trans>
+        </Text>
+      )}
     </Header>
   )
 }

@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -22,13 +22,14 @@ import RefreshLoading from '../ListLimitOrder/RefreshLoading'
 import { NoResultWrapper } from '../ListOrder'
 import { groupToMap } from '../helpers'
 import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from '../type'
-import OrderItem from './OrderItem'
+import OrderItem, { ChainImage } from './OrderItem'
 import TableHeader from './TableHeader'
 
 const ITEMS_DISPLAY = 10
 const ITEM_HEIGHT = 44
 const DESKTOP_SIGNIFICANT_DIGITS = 6
 const MOBILE_SIGNIFICANT_DIGITS = 5
+const MOBILE_SIGNIFICANT_DIGITS_FOR_LESS_THAN_ONE = 4
 
 const OrderBookWrapper = styled.div`
   display: flex;
@@ -56,6 +57,12 @@ const MarketPrice = styled.div`
   font-size: 20px;
   line-height: 24px;
   background: ${({ theme }) => rgba(theme.white, 0.04)};
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 2fr 1fr;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1.2fr 1.8fr 2fr 1.8fr;
+  `}
 `
 
 const OrderItemWrapper = styled(FixedSizeList)`
@@ -87,46 +94,66 @@ const NoDataPanel = () => (
   </NoResultWrapper>
 )
 
+const getSignificantDigits = (value: string, upToSmall: boolean) =>
+  upToSmall
+    ? parseFloat(value) < 1
+      ? MOBILE_SIGNIFICANT_DIGITS_FOR_LESS_THAN_ONE
+      : MOBILE_SIGNIFICANT_DIGITS
+    : DESKTOP_SIGNIFICANT_DIGITS
+
 const formatOrders = (
   orders: LimitOrderFromTokenPair[],
-  reverse: boolean,
-  currencyIn: Currency | undefined,
-  currencyOut: Currency | undefined,
-  significantDigits: number,
+  makerCurrency: Currency | undefined,
+  takerCurrency: Currency | undefined,
+  upToSmall: boolean,
+  reverse = false,
 ): LimitOrderFromTokenPairFormatted[] => {
-  if (!currencyIn || !currencyOut) return []
+  if (!makerCurrency || !takerCurrency) return []
 
   // Format orders, remove orders that are above 99% filled and sort descending by rate
   const ordersFormatted = orders
     .map(order => {
-      const currencyInAmount = CurrencyAmount.fromRawAmount(!reverse ? currencyIn : currencyOut, order.makingAmount)
-      const currencyOutAmount = CurrencyAmount.fromRawAmount(!reverse ? currencyOut : currencyIn, order.takingAmount)
-      const rate = !reverse
-        ? parseFloat(currencyOutAmount.toExact()) / parseFloat(currencyInAmount.toExact())
-        : parseFloat(currencyInAmount.toExact()) / parseFloat(currencyOutAmount.toExact())
-
-      const firstAmount = (!reverse ? currencyInAmount : currencyOutAmount).toExact()
-      const secondAmount = (!reverse ? currencyOutAmount : currencyInAmount).toExact()
-
-      const filledMakingAmount = CurrencyAmount.fromRawAmount(
-        !reverse ? currencyIn : currencyOut,
-        order.filledMakingAmount,
+      const newMakerCurrency = new Token(
+        makerCurrency.chainId,
+        makerCurrency.wrapped.address,
+        order.makerAssetDecimals,
+        makerCurrency.symbol,
       )
-      const filled = (parseFloat(filledMakingAmount.toExact()) / parseFloat(currencyInAmount.toExact())) * 100
+      const newTakerCurrency = new Token(
+        takerCurrency.chainId,
+        takerCurrency.wrapped.address,
+        order.takerAssetDecimals,
+        takerCurrency.symbol,
+      )
+
+      const makerCurrencyAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.makingAmount)
+      const takerCurrencyAmount = CurrencyAmount.fromRawAmount(newTakerCurrency, order.takingAmount)
+
+      const rate = (
+        !reverse
+          ? takerCurrencyAmount.divide(makerCurrencyAmount).multiply(makerCurrencyAmount.decimalScale)
+          : makerCurrencyAmount.divide(takerCurrencyAmount).multiply(takerCurrencyAmount.decimalScale)
+      ).toSignificant(100)
+
+      const filledMakingAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.filledMakingAmount)
+      const filled = (parseFloat(filledMakingAmount.toExact()) / parseFloat(makerCurrencyAmount.toExact())) * 100
 
       return {
         id: order.id,
+        chainId: order.chainId,
         rate,
-        firstAmount,
-        secondAmount,
+        makerAmount: makerCurrencyAmount.toExact(),
+        takerAmount: takerCurrencyAmount.toExact(),
         filled: filled > 99 ? '100' : filled.toFixed(),
       }
     })
     .filter(order => order.filled !== '100')
-    .sort((a, b) => b.rate - a.rate)
+    .sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate))
     .map(order => ({
       ...order,
-      rate: formatDisplayNumber(order.rate, { significantDigits }),
+      rate: formatDisplayNumber(order.rate, {
+        significantDigits: getSignificantDigits(order.rate, upToSmall),
+      }),
     }))
 
   // Merge orders with the same rate
@@ -139,17 +166,19 @@ const formatOrders = (
         accumulatorOrder
           ? {
               ...currentOrder,
-              firstAmount: (parseFloat(currentOrder.firstAmount) + parseFloat(accumulatorOrder.firstAmount)).toString(),
-              secondAmount: (
-                parseFloat(currentOrder.secondAmount) + parseFloat(accumulatorOrder.secondAmount)
-              ).toString(),
+              makerAmount: (parseFloat(currentOrder.makerAmount) + parseFloat(accumulatorOrder.makerAmount)).toString(),
+              takerAmount: (parseFloat(currentOrder.takerAmount) + parseFloat(accumulatorOrder.takerAmount)).toString(),
             }
           : currentOrder,
       null,
     )
     if (mergedOrder) {
-      mergedOrder.firstAmount = formatDisplayNumber(mergedOrder.firstAmount, { significantDigits })
-      mergedOrder.secondAmount = formatDisplayNumber(mergedOrder.secondAmount, { significantDigits })
+      mergedOrder.makerAmount = formatDisplayNumber(mergedOrder.makerAmount, {
+        significantDigits: getSignificantDigits(mergedOrder.makerAmount, upToSmall),
+      })
+      mergedOrder.takerAmount = formatDisplayNumber(mergedOrder.takerAmount, {
+        significantDigits: getSignificantDigits(mergedOrder.takerAmount, upToSmall),
+      })
       mergedOrders.push(mergedOrder)
     }
   })
@@ -161,13 +190,13 @@ export default function OrderBook() {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { chainId } = useActiveWeb3React()
-  const { currencyIn, currencyOut } = useLimitState()
+  const { chainId, networkInfo } = useActiveWeb3React()
+  const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const {
     loading: loadingMarketRate,
     tradeInfo: { marketRate = 0 } = {},
     refetch: refetchMarketRate,
-  } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
+  } = useBaseTradeInfoLimitOrder(makerCurrency, takerCurrency, chainId)
 
   const ordersWrapperRef = useRef<FixedSizeList<any>>(null)
 
@@ -178,8 +207,8 @@ export default function OrderBook() {
     isFetching: isFetchingOrders,
   } = useGetOrdersByTokenPairQuery({
     chainId,
-    makerAsset: currencyIn?.wrapped?.address,
-    takerAsset: currencyOut?.wrapped?.address,
+    makerAsset: makerCurrency?.wrapped?.address,
+    takerAsset: takerCurrency?.wrapped?.address,
   })
   const {
     data: { orders: reversedOrders = [] } = {},
@@ -188,35 +217,23 @@ export default function OrderBook() {
     isFetching: isFetchingReversedOrder,
   } = useGetOrdersByTokenPairQuery({
     chainId,
-    makerAsset: currencyOut?.wrapped?.address,
-    takerAsset: currencyIn?.wrapped?.address,
+    makerAsset: takerCurrency?.wrapped?.address,
+    takerAsset: makerCurrency?.wrapped?.address,
   })
 
   const loadingOrders = useShowLoadingAtLeastTime(isLoadingOrders)
   const loadingReversedOrders = useShowLoadingAtLeastTime(isLoadingReversedOrder)
 
   const formattedOrders = useMemo(
-    () =>
-      formatOrders(
-        orders,
-        false,
-        currencyIn,
-        currencyOut,
-        upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
-      ),
-    [orders, currencyIn, currencyOut, upToSmall],
+    () => formatOrders(orders, makerCurrency, takerCurrency, upToSmall),
+    [orders, makerCurrency, takerCurrency, upToSmall],
   )
   const formattedReversedOrders = useMemo(
-    () =>
-      formatOrders(
-        reversedOrders,
-        true,
-        currencyIn,
-        currencyOut,
-        upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
-      ),
-    [reversedOrders, currencyIn, currencyOut, upToSmall],
+    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, upToSmall, true),
+    [reversedOrders, takerCurrency, makerCurrency, upToSmall],
   )
+
+  const refetchActive = useMemo(() => !!makerCurrency && !!takerCurrency, [makerCurrency, takerCurrency])
 
   const refetchLoading = useMemo(
     () => loadingMarketRate || isFetchingOrders || isFetchingReversedOrder,
@@ -242,12 +259,14 @@ export default function OrderBook() {
         <LocalLoader />
       ) : (
         <>
-          <RefreshText>
-            <Text fontSize={'14px'} color={theme.subText} marginRight={'4px'}>
-              <Trans>Orders refresh in</Trans>
-            </Text>{' '}
-            <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
-          </RefreshText>
+          {refetchActive && (
+            <RefreshText>
+              <Text fontSize={'14px'} color={theme.subText} marginRight={'4px'}>
+                <Trans>Orders refresh in</Trans>
+              </Text>{' '}
+              <RefreshLoading refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
+            </RefreshText>
+          )}
 
           <TableHeader />
 
@@ -268,10 +287,11 @@ export default function OrderBook() {
             <NoDataPanel />
           )}
 
-          {marketRate && (
+          {!!marketRate && (
             <MarketPrice>
+              <ChainImage src={networkInfo?.icon} alt="Network" />
               {formatDisplayNumber(marketRate, {
-                significantDigits: upToSmall ? MOBILE_SIGNIFICANT_DIGITS : DESKTOP_SIGNIFICANT_DIGITS,
+                significantDigits: getSignificantDigits(marketRate.toString(), upToSmall),
               })}
             </MarketPrice>
           )}
