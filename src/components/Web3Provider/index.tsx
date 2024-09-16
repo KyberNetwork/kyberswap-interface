@@ -121,8 +121,6 @@ function injectedWithFallback() {
 }
 
 const WC_PARAMS = {
-  methods: ['eth_sendTransaction', 'personal_sign', 'eth_signTypedData_v4'],
-  optionalMethods: ['eth_signTypedData', 'eth_sign'],
   showQrModal: true,
   projectId: WALLETCONNECT_PROJECT_ID,
   metadata: {
