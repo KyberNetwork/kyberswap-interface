@@ -142,7 +142,7 @@ const WC_PARAMS = {
       '--wcm-accent-fill-color': '#222222',
       '--wcm-color-bg-1': '#0F0F0F',
       '--wcm-background-color': '#31CB9E',
-    } as any,
+    },
   },
 }
 

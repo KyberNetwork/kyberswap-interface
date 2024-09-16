@@ -221,11 +221,13 @@ export default function WalletModal() {
       maxHeight={90}
       maxWidth={600}
       bypassScrollLock={
-        isSomeOptionPending
+        true
+        //isSomeOptionPending
         //&& activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
       }
       bypassFocusLock={
-        isSomeOptionPending
+        true
+        //isSomeOptionPending
         //&& activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
         // walletView === WALLET_VIEWS.PENDING && ['WALLET_CONNECT', 'KRYSTAL_WC', 'BLOCTO'].includes(pendingWalletKey)
       }
