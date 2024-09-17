@@ -4,6 +4,7 @@ import { Star, X } from 'react-feather'
 import { useMedia, usePreviousDistinct } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { AssetToken, useGetQuoteByChainQuery } from 'services/marketOverview'
+import styled from 'styled-components'
 
 import { ButtonEmpty, ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'
@@ -19,6 +20,12 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { ContentChangable, TabItem } from './styles'
 import useFilter from './useFilter'
+
+const Disclaimer = styled.div`
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 1rem;
+`
 
 // () => setShowTokenId(null)
 export default function DetailModal({
@@ -296,6 +303,7 @@ export default function DetailModal({
                 </Box>
               )
             })}
+          <Disclaimer>Grouping selection across chains is sourced from Coingecko and CoinMarketCap</Disclaimer>
         </Flex>
       ) : null}
     </Modal>
@@ -332,7 +340,12 @@ export const PriceChange = ({ priceChange }: { priceChange: number | undefined }
       animate={!!lastPriceChange && animate}
       up={!!lastPriceChange && !!priceChange && priceChange - lastPriceChange >= 0}
     >
-      {!priceChange ? '--' : formatDisplayNumber(priceChange, { style: 'decimal', fractionDigits: 2 }) + '%'}
+      {!priceChange
+        ? '--'
+        : `${priceChange < 0 ? '-' : ''}${formatDisplayNumber(Math.abs(priceChange), {
+            style: 'decimal',
+            fractionDigits: 2,
+          })}%`}
     </ContentChangable>
   )
 }
