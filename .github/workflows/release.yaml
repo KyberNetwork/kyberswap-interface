@@ -67,7 +67,7 @@ jobs:
         run: yarn build-prod
 
       - name: Save build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: build-production
           path: build
@@ -87,7 +87,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Restore build
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: build-production
           path: build
