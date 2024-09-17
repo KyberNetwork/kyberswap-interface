@@ -169,7 +169,7 @@ export const wagmiConfig = createConfig({
     walletConnect(WC_PARAMS),
     coinbaseWallet({
       appName: 'KyberSwap',
-      appLogoUrl: Kyber,
+      appLogoUrl: 'https://kyberswap.com/favicon.png',
       reloadOnDisconnect: false,
       enableMobileWalletLink: true,
     }),
