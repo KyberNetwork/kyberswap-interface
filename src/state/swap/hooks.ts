@@ -64,7 +64,7 @@ export function useSwapActionHandlers(): {
       navigate(
         `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
           NETWORKS_INFO[chainId].route
-        }/${f}-to-${to}`,
+        }/${encodeURIComponent(f)}-to-${encodeURIComponent(to)}`,
       )
     },
     [fromCurrency, chainId, toCurrency, navigate, allTokens],
@@ -275,6 +275,7 @@ export const useOutputCurrency = () => {
   }, [allTokens, toCurrency])
 
   const outputCurrency = useCurrencyV2(token ? token.address : toCurrency)
+
   return outputCurrency || undefined
 }
 
