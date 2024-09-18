@@ -27,7 +27,7 @@ const scroll: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 10 ** 15,
   },
   defaultRpcUrl: 'https://rpc.scroll.io',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

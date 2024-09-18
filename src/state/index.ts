@@ -110,7 +110,6 @@ const store = configureStore({
     [tokenApi.reducerPath]: tokenApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
-    [socialApi.reducerPath]: socialApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
     [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,

@@ -27,7 +27,7 @@ const base: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 10 ** 14,
   },
   defaultRpcUrl: 'https://mainnet.base.org',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

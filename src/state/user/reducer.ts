@@ -1,7 +1,5 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
-import { getRecentConnectionMeta, setRecentConnectionMeta } from 'connection/meta'
-import { RecentConnectionMeta } from 'connection/types'
 
 import {
   DEFAULT_DEADLINE_FROM_NOW,
@@ -19,7 +17,6 @@ import {
   addSerializedPair,
   addSerializedToken,
   changeViewMode,
-  clearRecentConnectionMeta,
   permitError,
   permitUpdate,
   pinSlippageControl,
@@ -28,7 +25,6 @@ import {
   revokePermit,
   setCrossChainSetting,
   setPaymentToken,
-  setRecentConnectionDisconnected,
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleMyEarningChart,
@@ -38,7 +34,6 @@ import {
   updateChainId,
   updatePoolDegenMode,
   updatePoolSlippageTolerance,
-  updateRecentConnectionMeta,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
@@ -60,8 +55,6 @@ export type CrossChainSetting = {
 }
 
 export interface UserState {
-  recentConnectionMeta?: RecentConnectionMeta
-
   // the timestamp of the last updateVersion action
   lastUpdateVersionTimestamp?: number
 
@@ -146,7 +139,6 @@ export const CROSS_CHAIN_SETTING_DEFAULT = {
 }
 
 const initialState: UserState = {
-  recentConnectionMeta: getRecentConnectionMeta(),
   userDegenMode: false, // For SWAP page
   userDegenModeAutoDisableTimestamp: 0,
   poolDegenMode: false, // For POOL and other pages
@@ -354,21 +346,6 @@ export default createReducer(initialState, builder =>
     })
     .addCase(setPaymentToken, (state, { payload }) => {
       state.paymentToken = payload
-    })
-    .addCase(updateRecentConnectionMeta, (state, { payload: meta }: { payload: RecentConnectionMeta }) => {
-      setRecentConnectionMeta(meta)
-      state.recentConnectionMeta = meta
-    })
-    .addCase(setRecentConnectionDisconnected, state => {
-      if (!state.recentConnectionMeta) return
-
-      const disconnectedMeta = { ...state.recentConnectionMeta, disconnected: true }
-      setRecentConnectionMeta(disconnectedMeta)
-      state.recentConnectionMeta = disconnectedMeta
-    })
-    .addCase(clearRecentConnectionMeta, state => {
-      setRecentConnectionMeta(undefined)
-      state.recentConnectionMeta = undefined
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes

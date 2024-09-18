@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react'
+import { CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'react-feather'
 import { useMedia } from 'react-use'
 
@@ -55,7 +55,7 @@ export default function Pagination({
   }
 
   const onNext = () => {
-    if (currentPage < paginationRange[paginationRange.length - 1]) {
+    if (currentPage < +paginationRange[paginationRange.length - 1]) {
       onPageChange(currentPage + 1)
     }
   }

@@ -1,6 +1,5 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
-import { RecentConnectionMeta } from 'connection/types'
 
 import { SupportedLocale } from 'constants/locales'
 
@@ -71,6 +70,3 @@ export const toggleMyEarningChart = createAction<void>('user/toggleMyEarningChar
 
 export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')
 export const setPaymentToken = createAction<Token | null>('user/setPaymentToken')
-export const updateRecentConnectionMeta = createAction<RecentConnectionMeta>('user/updateRecentConnectionMeta')
-export const setRecentConnectionDisconnected = createAction<void>('user/setRecentConnectionDisconnected')
-export const clearRecentConnectionMeta = createAction<void>('user/clearRecentConnectionMeta')
