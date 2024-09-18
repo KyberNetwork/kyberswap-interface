@@ -18,7 +18,7 @@ export function convertToSlug(text: string) {
 }
 
 export const getSymbolSlug = (token: Currency | Token | undefined) =>
-  token ? convertToSlug(token?.symbol || token?.wrapped?.symbol || '') : ''
+  token ? (token?.symbol || token?.wrapped?.symbol || '').toLowerCase() : ''
 
 export const queryStringToObject = (queryString: string) => {
   return parse(queryString.startsWith('?') ? queryString.substring(1) : queryString)
