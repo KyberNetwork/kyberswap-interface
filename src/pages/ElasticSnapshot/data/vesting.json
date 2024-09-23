@@ -11733,5 +11733,40 @@
     "receiver": "0xff9c6e3acc07792649644e97e358ec60ad22b018",
     "vestingAmount": 73527830000,
     "value": 73527.83
+  },
+  {
+    "receiver": "0x3872afe887ced05d353252a88a2acebdacda5071",
+    "vestingAmount": 1999510000,
+    "value": 1999.51
+  },
+  {
+    "receiver": "0x87b1594e6e8b8fee7b14cd77a5c2324e31a7bcd4",
+    "vestingAmount": 1020780000,
+    "value": 1020.78
+  },
+  {
+    "receiver": "0x2244cfdb499a05c8f08a548f75a13c7485fe9433",
+    "vestingAmount": 27325420000,
+    "value": 27325.42
+  },
+  {
+    "receiver": "0xee2147fcf090ce08095e65a3c9e193c459364d5b",
+    "vestingAmount": 585721920000,
+    "value": 585721.92
+  },
+  {
+    "receiver": "0x00e6bc5f73ef330c5f553554dcec8a863db84a23",
+    "vestingAmount": 197918498300,
+    "value": 197918.5
+  },
+  {
+    "receiver": "0xcab9760e56bfd28803b41cac1e6616704aa5ecce",
+    "vestingAmount": 2375410000,
+    "value": 2375.41
+  },
+  {
+    "receiver": "0xd5c6519a51a840398c4444c2fbd9d34820baa10c",
+    "vestingAmount": 82820000,
+    "value": 82.82
   }
 ]
