@@ -143,7 +143,9 @@ export default function ElasticSnapshot() {
 
   const vestingA = vestingOptionA.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase())
   const vestingB = vestingOptionB.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase())
-  const phase3Info = phase3.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
+  const phase3Info = phase3.find(
+    item => item.receiver.toLowerCase() === account?.toLowerCase() || item.oldAddress === account?.toLowerCase(),
+  )
 
   const vestingAPhase2 = vestingOptionAPhase2.find(
     item => item.claimData.receiver.toLowerCase() === account?.toLowerCase(),

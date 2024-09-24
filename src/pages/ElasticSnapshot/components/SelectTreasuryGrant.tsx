@@ -66,7 +66,11 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
   const theme = useTheme()
 
   const { account, chainId } = useActiveWeb3React()
-  const phase3Info = phase3.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
+  const phase3Info = phase3.find(
+    item =>
+      item.receiver.toLowerCase() === account?.toLowerCase() ||
+      item.oldAddress.toLowerCase() === account?.toLowerCase(),
+  )
   const [showOptionModal, setShowOptionsModal] = useState(false)
 
   const addressesOptionA = vestingOptionA.map(item => item.claimData.receiver.toLowerCase())
@@ -275,7 +279,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               <Trans>Phase 2</Trans>
             </Text>
             <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {isNull ? 'N/A' : format(totalPhase2Value || 0)}
+              {phase3Info ? 0 : isNull ? 'N/A' : format(totalPhase2Value || 0)}
             </Text>
           </Flex>
           {phase3Info && (
