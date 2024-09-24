@@ -238,9 +238,9 @@ export default function App() {
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
               <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
-              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+              {/* {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
                 <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
-              )}
+              )} */}
 
               {isSupportLimitOrder(chainId) && (
                 <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />

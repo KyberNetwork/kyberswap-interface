@@ -102,7 +102,7 @@ const SwapNavGroup = () => {
             </StyledNavLink>
           )}
 
-          {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+          {/* {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
             <StyledNavLink
               id="cross-chain-nav-link"
               to={APP_PATHS.CROSS_CHAIN}
@@ -118,7 +118,7 @@ const SwapNavGroup = () => {
                 </Flex>
               </Flex>
             </StyledNavLink>
-          )}
+          )} */}
 
           {/*
           !(chainId === ChainId.LINEA_TESTNET) && (
