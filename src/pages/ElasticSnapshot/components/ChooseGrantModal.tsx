@@ -52,6 +52,16 @@ export default function ChooseGrantModal({
     // C: t`Opt out.`,
   }
 
+  const accountOnlyOptionB = [
+    '0x3872afe887ced05d353252a88a2acebdacda5071',
+    '0x87b1594e6e8b8fee7b14cd77a5c2324e31a7bcd4',
+    '0x2244cfdb499a05c8f08a548f75a13c7485fe9433',
+    '0xee2147fcf090ce08095e65a3c9e193c459364d5b',
+    '0x00e6bc5f73ef330c5f553554dcec8a863db84a23',
+    '0xcab9760e56bfd28803b41cac1e6616704aa5ecce',
+    '0xd5c6519a51a840398c4444c2fbd9d34820baa10c',
+  ]
+
   const [loading, setLoading] = useState(false)
   const [selectedOption, setSelectedOption] = useState(userSelectedOption || '')
   useEffect(() => {
@@ -131,12 +141,13 @@ export default function ChooseGrantModal({
 
         <Flex flexDirection="column" sx={{ gap: '12px' }} marginTop="24px">
           {Object.keys(options).map(opt => {
+            const disabled = opt === 'A' && accountOnlyOptionB.includes(account?.toLowerCase())
             return (
               <Option
                 key={opt}
-                onClick={() => !loading && !userSelectedOption && setSelectedOption(opt)}
+                onClick={() => !disabled && !loading && !userSelectedOption && setSelectedOption(opt)}
                 active={selectedOption === opt}
-                disabled={!!userSelectedOption}
+                disabled={!!userSelectedOption || disabled}
                 role="button"
               >
                 <Opt active={selectedOption === opt}>{opt}</Opt>
