@@ -17,7 +17,8 @@ import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import SupportButton from 'components/SupportButton'
-import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
+// import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
@@ -238,9 +239,9 @@ export default function App() {
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
               <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
-              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+              {/* {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
                 <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
-              )}
+              )} */}
 
               {isSupportLimitOrder(chainId) && (
                 <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
