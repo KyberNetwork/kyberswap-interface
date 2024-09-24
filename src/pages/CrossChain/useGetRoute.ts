@@ -38,42 +38,6 @@ export default function useGetRouteCrossChain(params: RouteRequest | undefined) 
     }
   }, [squidInstance, debounceParams, setPriceUsd])
 
-  // const getRoute = useCallback(
-  //   async (isRefresh = true) => {
-  //     if (!squidInstance || !debounceParams) {
-  //       setTradeRoute(undefined)
-  //       return
-  //     }
-  //     let signal: AbortSignal | undefined
-  //     let route: RouteResponse | undefined
-  //     try {
-  //       controller.current?.abort?.()
-  //       controller.current = new AbortController()
-  //       signal = controller.current.signal
-  //       setLoading(true)
-  //       setError(false)
-  //       isRefresh && setTradeRoute(undefined)
-  //       route = await squidInstance.getRoute({ ...debounceParams, prefer: [DexName.KYBERSWAP_AGGREGATOR] })
-
-  //       if (signal?.aborted) return
-  //     } catch (error) {}
-  //     try {
-  //       if (!route) {
-  //         route = await squidInstance.getRoute(debounceParams)
-  //       }
-  //       if (signal?.aborted) return
-  //       setTradeRoute(route)
-  //       setError(false)
-  //       setLoading(false)
-  //     } catch (error) {
-  //       setError(true)
-  //       setTradeRoute(undefined)
-  //       setLoading(false)
-  //     }
-  //   },
-  //   [squidInstance, debounceParams, setTradeRoute],
-  // )
-
   const getRoute = useCallback(
     async (isRefresh = true) => {
       if (!squidInstance || !debounceParams) {
