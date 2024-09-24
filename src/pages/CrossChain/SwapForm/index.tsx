@@ -94,7 +94,11 @@ export default function SwapForm() {
       toToken: getTokenAddress(currencyOut),
       fromAmount: parseAmount?.quotient.toString() ?? '',
       toAddress: account ?? '',
-      slippage: slippageTolerance / 100,
+      slippageConfig: {
+        slippage: slippageTolerance / 100,
+        autoMode: 1,
+      },
+      // slippage: slippageTolerance / 100,
       enableBoost: enableExpressExecution,
       quoteOnly: !account,
     }
