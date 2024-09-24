@@ -87581,54 +87581,5 @@
         }
       }
     ]
-  },
-  {
-    "user_address": "0x3872afe887ced05d353252a88a2acebdacda5071",
-    "total_usd": 1999.51,
-    "total_liquidity_usd": 1999.51,
-    "total_fee_usd": 0,
-    "positions": []
-  },
-  {
-    "user_address": "0x87b1594e6e8b8fee7b14cd77a5c2324e31a7bcd4",
-    "total_usd": 1020.78,
-    "total_liquidity_usd": 1020.78,
-    "total_fee_usd": 0,
-    "positions": []
-  },
-  {
-    "user_address": "0x2244cfdb499a05c8f08a548f75a13c7485fe9433",
-    "total_usd": 27325.42,
-    "total_liquidity_usd": 27325.42,
-    "total_fee_usd": 0,
-    "positions": []
-  },
-  {
-    "user_address": "0xee2147fcf090ce08095e65a3c9e193c459364d5b",
-    "total_usd": 585721.92,
-    "total_liquidity_usd": 585721.92,
-    "total_fee_usd": 0,
-    "positions": []
-  },
-  {
-    "user_address": "0x00e6bc5f73ef330c5f553554dcec8a863db84a23",
-    "total_usd": 197918.5,
-    "total_liquidity_usd": 197918.5,
-    "total_fee_usd": 0,
-    "positions": []
-  },
-  {
-    "user_address": "0xcab9760e56bfd28803b41cac1e6616704aa5ecce",
-    "total_usd": 2375.41,
-    "total_liquidity_usd": 2375.41,
-    "total_fee_usd": 0,
-    "positions": []
-  },
-  {
-    "user_address": "0xd5c6519a51a840398c4444c2fbd9d34820baa10c",
-    "total_usd": 82.82,
-    "total_liquidity_usd": 82.82,
-    "total_fee_usd": 0,
-    "positions": []
   }
 ]

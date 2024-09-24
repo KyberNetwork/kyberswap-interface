@@ -27,6 +27,7 @@ import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import vesting3rdData from '../data/pendle_dappos_vesting.json'
+import phase3 from '../data/phase3.json'
 import vestingData from '../data/vesting.json'
 import vestingOptionA from '../data/vesting/optionA.json'
 import vestingOptionB from '../data/vesting/optionB.json'
@@ -63,7 +64,9 @@ const MANUAL_KYCS = [
 
 export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveVestingData: boolean }) {
   const theme = useTheme()
+
   const { account, chainId } = useActiveWeb3React()
+  const phase3Info = phase3.find(item => item.receiver.toLowerCase() === account?.toLowerCase())
   const [showOptionModal, setShowOptionsModal] = useState(false)
 
   const addressesOptionA = vestingOptionA.map(item => item.claimData.receiver.toLowerCase())
@@ -244,7 +247,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               <Trans>TOTAL AMOUNT (USD)</Trans>
             </Text>
             <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {isTotalNull ? 'N/A' : format(totalValue)}
+              {phase3Info ? format(phase3Info.value) : isTotalNull ? 'N/A' : format(totalValue)}
             </Text>
           </Flex>
           <VerticalDivider style={{ height: '100%' }} />
@@ -258,7 +261,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               <Trans>Phase 1</Trans>
             </Text>
             <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
-              {format(userData?.value || 0)}
+              {phase3Info ? format(phase3Info.vestedAmount || 0) : format(userData?.value || 0)}
             </Text>
           </Flex>
           <VerticalDivider style={{ height: '80%' }} />
@@ -275,6 +278,24 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               {isNull ? 'N/A' : format(totalPhase2Value || 0)}
             </Text>
           </Flex>
+          {phase3Info && (
+            <>
+              <VerticalDivider style={{ height: '80%' }} />
+              <Flex
+                flexDirection="column"
+                justifyContent="space-between"
+                sx={{ gap: '16px' }}
+                marginX={upToMedium ? '12px' : '24px'}
+              >
+                <Text fontSize="14px" color={theme.subText} lineHeight="20px">
+                  <Trans>Phase 3</Trans>
+                </Text>
+                <Text fontWeight="500" fontSize={upToMedium ? 16 : 20}>
+                  {format(phase3Info.value - (phase3Info.vestedAmount || 0))}
+                </Text>
+              </Flex>
+            </>
+          )}
         </Flex>
 
         <Text fontSize={14} color={theme.subText} lineHeight={1.5}>
