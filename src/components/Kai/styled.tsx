@@ -1,9 +1,52 @@
+import { motion } from 'framer-motion'
 import { rgba } from 'polished'
 import styled, { css, keyframes } from 'styled-components'
 
 import { ReactComponent as Send } from 'assets/svg/ic_send.svg'
+import { ReactComponent as KaiAvatarSvg } from 'assets/svg/kai_avatar.svg'
 
-import { Space } from './actions'
+export const Wrapper = styled(motion.div)`
+  position: fixed;
+  bottom: 1rem;
+  right: 8rem;
+  z-index: 1;
+  height: 36px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    bottom: 120px;
+    right: 1rem;
+  `};
+`
+
+export const KaiAvatar = styled(KaiAvatarSvg)`
+  cursor: pointer;
+`
+
+export const Modal = styled(motion.div)`
+  position: fixed;
+  bottom: 5.2rem;
+  right: 1rem;
+  z-index: 1;
+  font-size: 14px;
+  width: fit-content;
+  height: fit-content;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    bottom: 174px;
+  `}
+`
+
+export const ModalContent = styled.div`
+  background: ${({ theme }) => theme.tableHeader};
+  padding: 20px 24px 26px;
+  border-radius: 12px;
+  width: 320px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: calc(100vw - 2rem);
+  `}
+`
 
 export const KaiHeaderWrapper = styled.div`
   display: flex;
@@ -21,10 +64,6 @@ export const Divider = styled.div`
   height: 1px;
   width: 100%;
   margin: 10px 0 14px;
-`
-
-export const WelcomeText = styled.div`
-  margin-bottom: 16px;
 `
 
 export const ChatWrapper = styled.div<{ disabled: boolean }>`
@@ -52,8 +91,8 @@ export const ChatInput = styled.input`
   border-radius: 8px;
   color: ${({ theme }) => theme.text};
   border-style: solid;
-  border: 1px solid ${({ theme }) => theme.buttonBlack};
-  background: ${({ theme }) => theme.buttonBlack};
+  border: 1px solid ${({ theme }) => theme.background};
+  background: ${({ theme }) => theme.background};
   transition: border 100ms;
   appearance: none;
   -webkit-appearance: none;
@@ -91,6 +130,7 @@ export const LoadingWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-top: 12px;
 `
 
 const loadingKeyFrame = keyframes`
@@ -118,14 +158,20 @@ export const Loader = styled.div`
   }
 `
 
+export const ChatPanel = styled.div`
+  max-height: 400px;
+  overflow: scroll;
+`
+
 export const ActionPanel = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   width: 100%;
+  margin-top: 16px;
 `
 
-export const ActionButton = styled.div<{ width: number }>`
+export const ActionButton = styled.div<{ width: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,6 +188,37 @@ export const ActionButton = styled.div<{ width: number }>`
 
   ${({ width }) =>
     css`
-      width: ${width === Space.FULL_WIDTH ? width + '%' : `calc(${width}% - 6px)`};
+      width: ${width};
+    `}
+`
+
+export const ActionText = styled.div`
+  margin-top: 16px;
+`
+
+export const UserMessageWrapper = styled.div<{ havePrevious: boolean }>`
+  margin-top: 16px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+
+  ${({ havePrevious }) =>
+    havePrevious &&
+    css`
+      margin-top: 4px;
+    `}
+`
+
+export const UserMessage = styled.p<{ havePrevious: boolean; haveFollowing: boolean }>`
+  margin: 0;
+  background-color: ${({ theme }) => theme.darkerGreen};
+  width: fit-content;
+  border-radius: 16px;
+  padding: 8px 12px;
+
+  ${({ havePrevious, haveFollowing }) =>
+    css`
+      border-top-right-radius: ${havePrevious ? 4 : 16}px;
+      border-bottom-right-radius: ${haveFollowing ? 4 : 16}px;
     `}
 `
