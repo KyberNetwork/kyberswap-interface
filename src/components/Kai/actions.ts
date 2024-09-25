@@ -16,7 +16,8 @@ export interface KaiAction {
   data?: KaiOption[]
   placeholder?: string
   loadingText?: string
-  response?: (answer: string) => KaiAction[]
+  // response?: (answer: string) => KaiAction[]
+  response?: any
 }
 
 export interface KaiOption {
@@ -88,7 +89,7 @@ export const KAI_ACTIONS: ListActions = {
     title: 'Great! Which token are you interested in? Just type the name or address.',
     type: ActionType.TEXT,
     response: async (answer: string) => {
-      const filter = {
+      const filter: any = {
         chainId: 8453, // Base
         search: answer,
         page: '1',
