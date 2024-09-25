@@ -111,7 +111,7 @@ export const ChatInput = styled.input`
   }
 `
 
-export const SendIcon = styled(Send)`
+export const SendIcon = styled(Send)<{ disabled: boolean }>`
   position: absolute;
   right: 12px;
   top: 12px;
@@ -121,8 +121,14 @@ export const SendIcon = styled(Send)`
 
   :hover {
     color: ${({ theme }) => theme.primary};
-    border-color: transparent;
   }
+
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      cursor: default;
+      color: transparent !important;
+    `}
 `
 
 export const LoadingWrapper = styled.div`
@@ -159,7 +165,7 @@ export const Loader = styled.div`
 `
 
 export const ChatPanel = styled.div`
-  max-height: 400px;
+  max-height: 380px;
   overflow: scroll;
 `
 
