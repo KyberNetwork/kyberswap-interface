@@ -132,7 +132,11 @@ const KaiPanel = () => {
       </ChatPanel>
 
       {loading && <KaiLoading loadingText={loadingText} />}
-      <KaiChat disabled={loading} chatPlaceHolderText={chatPlaceHolderText} onSubmitChat={onSubmitChat} />
+      <KaiChat
+        disabled={loading || lastAction?.type === ActionType.OPTION}
+        chatPlaceHolderText={chatPlaceHolderText}
+        onSubmitChat={onSubmitChat}
+      />
     </>
   )
 }
