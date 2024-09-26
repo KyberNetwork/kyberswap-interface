@@ -107,6 +107,7 @@ export const KAI_ACTIONS: ListActions = {
         )
         const { data } = await res.json()
         console.log(data.assets)
+        console.log(123)
 
         if (data.assets.length === 1) {
           const token = data.assets[0]
