@@ -165,7 +165,7 @@ export const Loader = styled.div`
 `
 
 export const ChatPanel = styled.div`
-  max-height: 380px;
+  max-height: 360px;
   overflow: scroll;
 `
 
@@ -184,12 +184,12 @@ export const ActionButton = styled.div<{ width: string }>`
   border-radius: 8px;
   color: #fafafa;
   height: 36px;
-  background-color: ${({ theme }) => rgba(theme.white, 0.04)};
+  background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
   transition: 0.1s ease-in-out;
   cursor: pointer;
 
   :hover {
-    background-color: ${({ theme }) => rgba(theme.white, 0.08)};
+    background-color: ${({ theme }) => rgba(theme.primary, 0.18)};
   }
 
   ${({ width }) =>

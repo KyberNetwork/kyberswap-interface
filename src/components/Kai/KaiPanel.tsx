@@ -1,6 +1,13 @@
+import { rgba } from 'polished'
 import { ChangeEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { Flex } from 'rebass'
 
-import { ReactComponent as KaiAvatar } from 'assets/svg/kai_avatar2.svg'
+import { ReactComponent as KaiAvatar } from 'assets/svg/kai_avatar.svg'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { MAINNET_NETWORKS } from 'constants/networks'
+import { useAllTokens } from 'hooks/Tokens'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import useTheme from 'hooks/useTheme'
 
 import { ActionType, KAI_ACTIONS, KaiAction, KaiOption } from './actions'
 import {
@@ -22,6 +29,7 @@ import {
 
 const DEFAULT_LOADING_TEXT = 'KAI is checking the data ...'
 const DEFAULT_CHAT_PLACEHOLDER_TEXT = 'Write a message...'
+const DEFAULT_CHAIN_ID = 8453
 
 const KaiPanel = () => {
   const chatPanelRef = useRef<HTMLDivElement>(null)
@@ -30,23 +38,10 @@ const KaiPanel = () => {
   const [loading, setLoading] = useState(false)
   const [loadingText, setLoadingText] = useState(DEFAULT_LOADING_TEXT)
   const [listActions, setListActions] = useState<KaiAction[]>([KAI_ACTIONS.MAIN_MENU])
-  // const [listActions, setListActions] = useState<KaiAction[]>([
-  //   KAI_ACTIONS.MAIN_MENU,
-  //   KAI_ACTIONS.COMING_SOON,
-  //   {
-  //     title: 'Add liquidity',
-  //     type: ActionType.USER_MESSAGE,
-  //   },
-  //   {
-  //     title: 'Add liquidity',
-  //     type: ActionType.USER_MESSAGE,
-  //   },
-  //   {
-  //     title: 'Add liquidity',
-  //     type: ActionType.USER_MESSAGE,
-  //   },
-  //   KAI_ACTIONS.MAIN_MENU,
-  // ])
+  const [chainId, setChainId] = useState(DEFAULT_CHAIN_ID)
+
+  const whitelistTokens = useAllTokens(true, chainId)
+  const whitelistTokenAddress = useMemo(() => Object.keys(whitelistTokens), [whitelistTokens])
 
   const lastAction = useMemo(() => {
     const cloneListActions = [...listActions]
@@ -77,7 +72,8 @@ const KaiPanel = () => {
   const getActionResponse = async () => {
     const lastUserAction = listActions[listActions.length - 1]
     if (lastUserAction?.type === ActionType.USER_MESSAGE) {
-      const newActions: KaiAction[] = (await lastAction?.response?.(lastUserAction?.title?.toLowerCase() || '')) || []
+      const newActions: KaiAction[] =
+        (await lastAction?.response?.(lastUserAction?.title?.toLowerCase() || '', chainId, whitelistTokenAddress)) || []
       if (newActions.length) onChangeListActions(newActions)
       setLoading(false)
       setLoadingText(DEFAULT_LOADING_TEXT)
@@ -101,7 +97,7 @@ const KaiPanel = () => {
 
   return (
     <>
-      <KaiHeader />
+      <KaiHeader chainId={chainId} setChainId={setChainId} />
 
       <ChatPanel ref={chatPanelRef}>
         <div>GM! What can I do for you today? 👋</div>
@@ -116,6 +112,8 @@ const KaiPanel = () => {
             </ActionPanel>
           ) : action.type === ActionType.TEXT || action.type === ActionType.INVALID ? (
             <ActionText key={index}>{action.title}</ActionText>
+          ) : action.type === ActionType.HTML && action.title ? (
+            <ActionText key={index} dangerouslySetInnerHTML={{ __html: action.title }} />
           ) : action.type === ActionType.USER_MESSAGE ? (
             <UserMessageWrapper key={index} havePrevious={listActions[index - 1].type === ActionType.USER_MESSAGE}>
               <UserMessage
@@ -141,14 +139,36 @@ const KaiPanel = () => {
   )
 }
 
-const KaiHeader = () => {
+const KaiHeader = ({ chainId, setChainId }: { chainId: number; setChainId: (value: number) => void }) => {
+  const theme = useTheme()
+
   return (
     <>
       <KaiHeaderWrapper>
-        <KaiAvatar />
+        <KaiAvatar width={24} height={24} />
         <span>I&apos;m KAI</span>
         <SubTextSpan>Kyber Assistant Interface</SubTextSpan>
       </KaiHeaderWrapper>
+      <Flex flexWrap="wrap" alignItems="center" style={{ marginTop: 6 }}>
+        {MAINNET_NETWORKS.map(item => (
+          <MouseoverTooltip text={NETWORKS_INFO[item].name} key={item} placement="top" width="fit-content">
+            <Flex
+              alignItems="center"
+              padding="4px"
+              role="button"
+              onClick={() => setChainId(item)}
+              sx={{
+                background: chainId === item ? rgba(theme.primary, 0.2) : undefined,
+                border: chainId === item ? `1px solid ${theme.primary}` : 'none',
+                borderRadius: '4px',
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              <img src={NETWORKS_INFO[item].icon} width="16px" height="16px" alt="" />
+            </Flex>
+          </MouseoverTooltip>
+        ))}
+      </Flex>
       <Divider />
     </>
   )

@@ -1,3 +1,5 @@
+import { formatDisplayNumber } from 'utils/numbers'
+
 export enum Space {
   HALF_WIDTH = 'calc(50% - 6px)',
   FULL_WIDTH = '100%',
@@ -8,6 +10,7 @@ export enum ActionType {
   OPTION,
   USER_MESSAGE,
   INVALID,
+  HTML,
 }
 
 export interface KaiAction {
@@ -16,8 +19,7 @@ export interface KaiAction {
   data?: KaiOption[]
   placeholder?: string
   loadingText?: string
-  // response?: (answer: string) => KaiAction[]
-  response?: any
+  response?: (...args: any[]) => KaiAction[] | Promise<KaiAction[]>
 }
 
 export interface KaiOption {
@@ -88,14 +90,14 @@ export const KAI_ACTIONS: ListActions = {
   TYPE_TOKEN_TO_CHECK_PRICE: {
     title: 'Great! Which token are you interested in? Just type the name or address.',
     type: ActionType.TEXT,
-    response: async (answer: string) => {
+    response: async (answer: string, chainId: number, whitelistTokenAddress: string[]) => {
       const filter: any = {
-        chainId: 8453, // Base
+        chainId: chainId,
         search: answer,
-        page: '1',
-        // pageSize: 80,
-        pageSize: 5,
-        chainIds: 8453, // Base
+        page: 1,
+        pageSize: 100,
+        chainIds: chainId,
+        sort: '',
       }
 
       try {
@@ -106,11 +108,21 @@ export const KAI_ACTIONS: ListActions = {
           },
         )
         const { data } = await res.json()
-        console.log(data.assets)
-        console.log(123)
+        const result = data.assets
+          .filter(
+            (token: any) =>
+              token.marketCap && token.tokens.find((item: any) => whitelistTokenAddress.includes(item.address)),
+          )
+          .map((token: any) => ({
+            ...token,
+            token: token.tokens.find(
+              (item: any) => item.chainId === chainId.toString() && whitelistTokenAddress.includes(item.address),
+            ),
+          }))
+          .filter((token: any) => token.token)
 
-        if (data.assets.length === 1) {
-          const token = data.assets[0]
+        if (result.length === 1) {
+          const token = result[0]
 
           return [
             {
@@ -118,45 +130,118 @@ export const KAI_ACTIONS: ListActions = {
               type: ActionType.TEXT,
             },
             {
-              type: ActionType.TEXT,
+              type: ActionType.HTML,
               title: `
-                - 📈 Price: ${token.tokens[0]?.priceBuy || ''}
-                - 🔄 24h Price Change: ${-token.tokens[0]?.priceBuyChange24h}
-                - 💸 24h Volume: ${token.volume24h}
-                - 🏦 Market Cap: ${token.marketCap}
+                <div>📈 Buy Price: ${
+                  token.token.priceBuy
+                    ? formatDisplayNumber(token.token.priceBuy, { fractionDigits: 2, significantDigits: 7 })
+                    : '--'
+                }</div>
+                <div>📈 Sell Price: ${
+                  token.token.priceSell
+                    ? formatDisplayNumber(token.token.priceSell, { fractionDigits: 2, significantDigits: 7 })
+                    : '--'
+                }</div>
+                <div>🔄 24h Buy Price Change: ${
+                  token.token.priceBuyChange24h
+                    ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
+                        Math.abs(token.token.priceBuyChange24h),
+                        {
+                          style: 'decimal',
+                          fractionDigits: 2,
+                        },
+                      )}%`
+                    : '--'
+                }</div>
+                <div>🔄 24h Sell Price Change: ${
+                  token.token.priceSellChange24h
+                    ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
+                        Math.abs(token.token.priceSellChange24h),
+                        {
+                          style: 'decimal',
+                          fractionDigits: 2,
+                        },
+                      )}%`
+                    : '--'
+                }</div>
+                <div>💸 24h Volume: ${
+                  token.volume24h
+                    ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
+                    : '--'
+                }</div>
+                <div>🏦 Market Cap: ${
+                  token.marketCap
+                    ? formatDisplayNumber(token.marketCap, { style: 'currency', fractionDigits: 2 })
+                    : '--'
+                }</div>
               `,
             },
             KAI_ACTIONS.WOULD_LIKE_TO_DO_SOMETHING_ELSE,
             KAI_ACTIONS.DO_SOMETHING_AFTER_CHECK_PRICE,
           ]
-        } else if (data.assets.length > 1) {
+        } else if (result.length > 1) {
           return [
-            {
-              title: `Here are the tokens I found. Which one do you mean?`,
-              type: ActionType.TEXT,
-            },
+            KAI_ACTIONS.TOKEN_FOUND,
             {
               type: ActionType.OPTION,
-              data: data.assets.map((item: any) => ({
+              data: result.map((item: any) => ({
                 title: item.name,
-                space: Space.HALF_WIDTH,
+                space: item.name.length <= 10 ? Space.HALF_WIDTH : Space.FULL_WIDTH,
               })),
-              response: (innerAnswer: string) => {
-                const token = data.assets.find((item: any) => item.name.toLowerCase() === innerAnswer)
+              response: (tokenNameSelected: string) => {
+                const token = result.find((item: any) => item.name.toLowerCase() === tokenNameSelected)
                 if (token)
                   return [
                     {
-                      title: `Here’s what I’ve got for ${innerAnswer}`,
+                      title: `Here’s what I’ve got for ${tokenNameSelected}`,
                       type: ActionType.TEXT,
                     },
                     {
-                      type: ActionType.TEXT,
+                      type: ActionType.HTML,
                       title: `
-                      - 📈 Price: ${token.tokens[0]?.priceBuy || ''}
-                      - 🔄 24h Price Change: ${-token.tokens[0]?.priceBuyChange24h}
-                      - 💸 24h Volume: ${token.volume24h}
-                      - 🏦 Market Cap: ${token.marketCap}
-                    `,
+                        <div>📈 Buy Price: ${
+                          token.token.priceBuy
+                            ? formatDisplayNumber(token.token.priceBuy, { fractionDigits: 2, significantDigits: 7 })
+                            : '--'
+                        }</div>
+                        <div>📈 Sell Price: ${
+                          token.token.priceSell
+                            ? formatDisplayNumber(token.token.priceSell, { fractionDigits: 2, significantDigits: 7 })
+                            : '--'
+                        }</div>
+                        <div>🔄 24h Buy Price Change: ${
+                          token.token.priceBuyChange24h
+                            ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
+                                Math.abs(token.token.priceBuyChange24h),
+                                {
+                                  style: 'decimal',
+                                  fractionDigits: 2,
+                                },
+                              )}%`
+                            : '--'
+                        }</div>
+                        <div>🔄 24h Sell Price Change: ${
+                          token.token.priceSellChange24h
+                            ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
+                                Math.abs(token.token.priceSellChange24h),
+                                {
+                                  style: 'decimal',
+                                  fractionDigits: 2,
+                                },
+                              )}%`
+                            : '--'
+                        }</div>
+                        <div>💸 24h Volume: ${
+                          token.volume24h
+                            ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
+                            : '--'
+                        }</div>
+                        <div>🏦 Market Cap: ${
+                          token.marketCap
+                            ? formatDisplayNumber(token.marketCap, { style: 'currency', fractionDigits: 2 })
+                            : '--'
+                        }</div>
+                      `,
                     },
                     KAI_ACTIONS.WOULD_LIKE_TO_DO_SOMETHING_ELSE,
                     KAI_ACTIONS.DO_SOMETHING_AFTER_CHECK_PRICE,
@@ -201,19 +286,23 @@ export const KAI_ACTIONS: ListActions = {
     type: ActionType.TEXT,
   },
   COMING_SOON: {
-    title: 'Coming soon, do you want to go back to the main menu?',
+    title: '🏃🏻 Coming soon, do you want to go back to the main menu?',
     type: ActionType.TEXT,
   },
   INVALID: {
-    title: 'Invalid input, please follow the instruction!',
+    title: '❌ Invalid input, please follow the instruction!',
     type: ActionType.INVALID,
   },
   ERROR: {
-    title: 'Something went wrong, please try again!',
+    title: '❌ Something went wrong, please try again!',
     type: ActionType.INVALID,
   },
   TOKEN_NOT_FOUND: {
-    title: 'I can not find your token, please enter others!',
+    title: '🔭 I can not find your token, please enter others!',
     type: ActionType.INVALID,
+  },
+  TOKEN_FOUND: {
+    title: '👀 Here are the tokens I found. Which one do you mean?',
+    type: ActionType.TEXT,
   },
 }
