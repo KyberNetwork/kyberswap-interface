@@ -198,7 +198,7 @@ export const KAI_ACTIONS: ListActions = {
 
           return [
             {
-              title: `Here’s what I’ve got for ${answer}`,
+              title: `Here’s what I’ve got for ${token.symbol}`,
               type: ActionType.TEXT,
             },
             {

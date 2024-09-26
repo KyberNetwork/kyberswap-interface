@@ -290,6 +290,8 @@ export const UserMessage = styled.p<{ havePrevious: boolean; haveFollowing: bool
   width: fit-content;
   border-radius: 16px;
   padding: 8px 12px;
+  max-width: 100%;
+  word-wrap: break-word;
 
   ${({ havePrevious, haveFollowing }) =>
     css`
