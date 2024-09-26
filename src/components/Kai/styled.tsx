@@ -167,6 +167,10 @@ export const Loader = styled.div`
 export const ChatPanel = styled.div`
   max-height: 360px;
   overflow: scroll;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    max-height: 50vh;
+  `}
 `
 
 export const ActionPanel = styled.div`

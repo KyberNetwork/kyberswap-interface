@@ -96,7 +96,7 @@ export const KAI_ACTIONS: ListActions = {
       if (answer === KAI_OPTIONS.SEE_MARKET_TRENDS.title.toLowerCase())
         return [KAI_ACTIONS.SEE_MARKET_TRENDS_WELCOME, KAI_ACTIONS.SEE_MARKET_TRENDS]
       if (MAIN_MENU.find((option: KaiOption) => answer.trim().toLowerCase() === option.title.toLowerCase()))
-        return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
+        return [KAI_ACTIONS.COMING_SOON]
       return [KAI_ACTIONS.INVALID]
     },
   },
@@ -117,7 +117,7 @@ export const KAI_ACTIONS: ListActions = {
     data: [KAI_OPTIONS.SWAP_TOKEN, KAI_OPTIONS.BACK_TO_MENU],
     response: ({ answer }: { answer: string }) => {
       if (answer === KAI_OPTIONS.SWAP_TOKEN.title.toLowerCase())
-        return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
+        return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.INVALID_BACK_TO_MENU]
       if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
       return [KAI_ACTIONS.INVALID]
     },
@@ -127,8 +127,8 @@ export const KAI_ACTIONS: ListActions = {
     type: ActionType.TEXT,
   },
   COMING_SOON: {
-    title: '🏃🏻 Coming soon, do you want to go back to the main menu?',
-    type: ActionType.TEXT,
+    title: '🏃🏻 Coming soon ...',
+    type: ActionType.INVALID,
   },
   INVALID: {
     title: '❌ Invalid input, please follow the instruction!',
@@ -353,11 +353,11 @@ export const KAI_ACTIONS: ListActions = {
   },
   SEE_MARKET_TRENDS: {
     type: ActionType.OPTION,
-    data: [KAI_OPTIONS.TOP_BIG_SPREAD, KAI_OPTIONS.TOP_GAINERS, KAI_OPTIONS.TOP_VOLUME, KAI_OPTIONS.BACK_TO_MENU],
+    data: [KAI_OPTIONS.TOP_GAINERS, KAI_OPTIONS.TOP_VOLUME, KAI_OPTIONS.TOP_BIG_SPREAD, KAI_OPTIONS.BACK_TO_MENU],
     response: ({ answer }: { answer: string }) => {
       if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
       if (answer === KAI_OPTIONS.TOP_BIG_SPREAD.title.toLowerCase())
-        return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
+        return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.INVALID_BACK_TO_MENU]
       if (
         answer === KAI_OPTIONS.TOP_GAINERS.title.toLowerCase() ||
         answer === KAI_OPTIONS.TOP_VOLUME.title.toLowerCase()
@@ -369,7 +369,7 @@ export const KAI_ACTIONS: ListActions = {
   },
   SEE_MARKET_TRENDS_CHOOSE_AMOUNT: {
     type: ActionType.OPTION,
-    data: [10, 15, 20].map((item: number) => ({ title: item.toString(), space: Space.ONE_THIRD_WIDTH })),
+    data: [5, 10, 15].map((item: number) => ({ title: item.toString(), space: Space.ONE_THIRD_WIDTH })),
     response: async ({
       answer,
       chainId,
@@ -455,7 +455,7 @@ export const KAI_ACTIONS: ListActions = {
             response: ({ answer, quoteSymbol }: { answer: string; quoteSymbol: string }) => {
               if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
               if (answer === KAI_OPTIONS.SWAP_TOKEN.title.toLowerCase())
-                return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
+                return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.INVALID_BACK_TO_MENU]
 
               const index = resultToActionData.findIndex((item: KaiOption) => item.title.toLowerCase() === answer)
 
