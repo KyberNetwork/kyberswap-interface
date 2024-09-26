@@ -21,6 +21,7 @@ import {
   KaiHeaderWrapper,
   Loader,
   LoadingWrapper,
+  MainActionButton,
   SendIcon,
   SubTextSpan,
   UserMessage,
@@ -29,7 +30,7 @@ import {
 
 const DEFAULT_LOADING_TEXT = 'KAI is checking the data ...'
 const DEFAULT_CHAT_PLACEHOLDER_TEXT = 'Write a message...'
-const DEFAULT_CHAIN_ID = 8453
+const DEFAULT_CHAIN_ID = 1
 
 const KaiPanel = () => {
   const chatPanelRef = useRef<HTMLDivElement>(null)
@@ -48,7 +49,10 @@ const KaiPanel = () => {
     cloneListActions.reverse()
 
     return cloneListActions.find(
-      (action: KaiAction) => action.type !== ActionType.INVALID && action.type !== ActionType.USER_MESSAGE,
+      (action: KaiAction) =>
+        action.type !== ActionType.INVALID &&
+        action.type !== ActionType.INVALID_AND_BACK &&
+        action.type !== ActionType.USER_MESSAGE,
     )
   }, [listActions])
 
@@ -94,6 +98,7 @@ const KaiPanel = () => {
     getActionResponse()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listActions])
+  console.log('lastAction', lastAction)
 
   return (
     <>
@@ -102,7 +107,15 @@ const KaiPanel = () => {
       <ChatPanel ref={chatPanelRef}>
         <div>GM! What can I do for you today? 👋</div>
         {listActions.map((action: KaiAction, index: number) =>
-          action.type === ActionType.OPTION ? (
+          action.type === ActionType.MAIN_OPTION ? (
+            <ActionPanel key={index}>
+              {action.data?.map((option: KaiOption, optionIndex: number) => (
+                <MainActionButton key={optionIndex} width={option.space} onClick={() => onSubmitChat(option.title)}>
+                  {option.title}
+                </MainActionButton>
+              ))}
+            </ActionPanel>
+          ) : action.type === ActionType.OPTION || action.type === ActionType.INVALID_AND_BACK ? (
             <ActionPanel key={index}>
               {action.data?.map((option: KaiOption, optionIndex: number) => (
                 <ActionButton key={optionIndex} width={option.space} onClick={() => onSubmitChat(option.title)}>
@@ -131,7 +144,7 @@ const KaiPanel = () => {
 
       {loading && <KaiLoading loadingText={loadingText} />}
       <KaiChat
-        disabled={loading || lastAction?.type === ActionType.OPTION}
+        disabled={loading || lastAction?.type === ActionType.OPTION || lastAction?.type === ActionType.MAIN_OPTION}
         chatPlaceHolderText={chatPlaceHolderText}
         onSubmitChat={onSubmitChat}
       />
@@ -149,7 +162,7 @@ const KaiHeader = ({ chainId, setChainId }: { chainId: number; setChainId: (valu
         <span>I&apos;m KAI</span>
         <SubTextSpan>Kyber Assistant Interface</SubTextSpan>
       </KaiHeaderWrapper>
-      <Flex flexWrap="wrap" alignItems="center" style={{ marginTop: 6 }}>
+      <Flex flexWrap="wrap" alignItems="center" style={{ marginTop: 8 }}>
         {MAINNET_NETWORKS.map(item => (
           <MouseoverTooltip text={NETWORKS_INFO[item].name} key={item} placement="top" width="fit-content">
             <Flex

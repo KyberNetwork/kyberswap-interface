@@ -8,9 +8,11 @@ export enum Space {
 export enum ActionType {
   TEXT,
   OPTION,
+  MAIN_OPTION,
   USER_MESSAGE,
   INVALID,
   HTML,
+  INVALID_AND_BACK,
 }
 
 export interface KaiAction {
@@ -77,7 +79,7 @@ export const MAIN_MENU: KaiOption[] = [
 
 export const KAI_ACTIONS: ListActions = {
   MAIN_MENU: {
-    type: ActionType.OPTION,
+    type: ActionType.MAIN_OPTION,
     data: MAIN_MENU,
     placeholder: 'Ask me anything or select...',
     response: (answer: string) => {
@@ -88,9 +90,11 @@ export const KAI_ACTIONS: ListActions = {
     },
   },
   TYPE_TOKEN_TO_CHECK_PRICE: {
-    title: 'Great! Which token are you interested in? Just type the name or address.',
+    title: '🫡 Great! Which token are you interested in? Just type the name or address.',
     type: ActionType.TEXT,
     response: async (answer: string, chainId: number, whitelistTokenAddress: string[]) => {
+      if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
+
       const filter: any = {
         chainId: chainId,
         search: answer,
@@ -120,6 +124,7 @@ export const KAI_ACTIONS: ListActions = {
             ),
           }))
           .filter((token: any) => token.token)
+          .sort((a: any, b: any) => b.marketCap - a.marketCap)
 
         if (result.length === 1) {
           const token = result[0]
@@ -184,16 +189,20 @@ export const KAI_ACTIONS: ListActions = {
             KAI_ACTIONS.TOKEN_FOUND,
             {
               type: ActionType.OPTION,
-              data: result.map((item: any) => ({
-                title: item.name,
-                space: item.name.length <= 10 ? Space.HALF_WIDTH : Space.FULL_WIDTH,
-              })),
-              response: (tokenNameSelected: string) => {
-                const token = result.find((item: any) => item.name.toLowerCase() === tokenNameSelected)
+              data: result
+                .map((item: any) => ({
+                  title: item.symbol,
+                  space: item.symbol.length <= 10 ? Space.HALF_WIDTH : Space.FULL_WIDTH,
+                }))
+                .concat(KAI_ACTIONS.INVALID_BACK_TO_MENU.data),
+              response: (tokenSymbolSelected: string) => {
+                if (tokenSymbolSelected === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
+
+                const token = result.find((item: any) => item.symbol.toLowerCase() === tokenSymbolSelected)
                 if (token)
                   return [
                     {
-                      title: `Here’s what I’ve got for ${tokenNameSelected}`,
+                      title: `Here’s what I’ve got for ${tokenSymbolSelected}`,
                       type: ActionType.TEXT,
                     },
                     {
@@ -247,15 +256,15 @@ export const KAI_ACTIONS: ListActions = {
                     KAI_ACTIONS.DO_SOMETHING_AFTER_CHECK_PRICE,
                   ]
 
-                return [KAI_ACTIONS.TOKEN_NOT_FOUND]
+                return [KAI_ACTIONS.TOKEN_NOT_FOUND, KAI_ACTIONS.INVALID_BACK_TO_MENU]
               },
             },
           ]
         }
 
-        return [KAI_ACTIONS.TOKEN_NOT_FOUND]
+        return [KAI_ACTIONS.TOKEN_NOT_FOUND, KAI_ACTIONS.INVALID_BACK_TO_MENU]
       } catch (error) {
-        return [KAI_ACTIONS.ERROR]
+        return [KAI_ACTIONS.ERROR, KAI_ACTIONS.INVALID_BACK_TO_MENU]
       }
     },
   },
@@ -266,6 +275,10 @@ export const KAI_ACTIONS: ListActions = {
       if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
       return [KAI_ACTIONS.INVALID]
     },
+  },
+  INVALID_BACK_TO_MENU: {
+    type: ActionType.INVALID_AND_BACK,
+    data: [KAI_OPTIONS.BACK_TO_MENU],
   },
   DO_SOMETHING_AFTER_CHECK_PRICE: {
     type: ActionType.OPTION,

@@ -184,18 +184,26 @@ export const ActionButton = styled.div<{ width: string }>`
   border-radius: 8px;
   color: #fafafa;
   height: 36px;
-  background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
+  background-color: ${({ theme }) => rgba(theme.white, 0.04)};
   transition: 0.1s ease-in-out;
   cursor: pointer;
 
   :hover {
-    background-color: ${({ theme }) => rgba(theme.primary, 0.18)};
+    background-color: ${({ theme }) => rgba(theme.white, 0.08)};
   }
 
   ${({ width }) =>
     css`
       width: ${width};
     `}
+`
+
+export const MainActionButton = styled(ActionButton)`
+  background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
+
+  :hover {
+    background-color: ${({ theme }) => rgba(theme.primary, 0.18)};
+  }
 `
 
 export const ActionText = styled.div`
