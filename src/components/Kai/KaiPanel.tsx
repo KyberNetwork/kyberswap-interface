@@ -1,6 +1,7 @@
 import { rgba } from 'polished'
 import { ChangeEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Flex } from 'rebass'
+import { useGetQuoteByChainQuery } from 'services/marketOverview'
 
 import { ReactComponent as KaiAvatar } from 'assets/svg/kai_avatar.svg'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -44,6 +45,12 @@ const KaiPanel = () => {
   const whitelistTokens = useAllTokens(true, chainId)
   const whitelistTokenAddress = useMemo(() => Object.keys(whitelistTokens), [whitelistTokens])
 
+  const { data: quoteData } = useGetQuoteByChainQuery()
+  const quoteSymbol = useMemo(
+    () => quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[chainId || 1]?.symbol,
+    [chainId, quoteData],
+  )
+
   const lastAction = useMemo(() => {
     const cloneListActions = [...listActions]
     cloneListActions.reverse()
@@ -82,6 +89,7 @@ const KaiPanel = () => {
           chainId,
           whitelistTokenAddress,
           arg: lastAction.arg,
+          quoteSymbol,
         })) || []
       if (newActions.length) onChangeListActions(newActions)
       setLoading(false)

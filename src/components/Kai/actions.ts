@@ -153,10 +153,12 @@ export const KAI_ACTIONS: ListActions = {
       answer,
       chainId,
       whitelistTokenAddress,
+      quoteSymbol,
     }: {
       answer: string
       chainId: number
       whitelistTokenAddress: string[]
+      quoteSymbol: string
     }) => {
       if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
 
@@ -164,7 +166,7 @@ export const KAI_ACTIONS: ListActions = {
         chainId: chainId,
         search: answer,
         page: 1,
-        pageSize: 100,
+        pageSize: 50,
         chainIds: chainId,
         sort: '',
       }
@@ -204,18 +206,18 @@ export const KAI_ACTIONS: ListActions = {
               title: `
                 <div>📈 Buy Price: ${
                   token.token.priceBuy
-                    ? formatDisplayNumber(token.token.priceBuy, {
+                    ? `${formatDisplayNumber(token.token.priceBuy, {
                         fractionDigits: 2,
                         significantDigits: 7,
-                      })
+                      })} ${quoteSymbol}`
                     : '--'
                 }</div>
                 <div>📈 Sell Price: ${
                   token.token.priceSell
-                    ? formatDisplayNumber(token.token.priceSell, {
+                    ? `${formatDisplayNumber(token.token.priceSell, {
                         fractionDigits: 2,
                         significantDigits: 7,
-                      })
+                      })} ${quoteSymbol}`
                     : '--'
                 }</div>
                 <div>🔄 24h Buy Price Change: ${
@@ -281,18 +283,18 @@ export const KAI_ACTIONS: ListActions = {
                       title: `
                         <div>📈 Buy Price: ${
                           token.token.priceBuy
-                            ? formatDisplayNumber(token.token.priceBuy, {
+                            ? `${formatDisplayNumber(token.token.priceBuy, {
                                 fractionDigits: 2,
                                 significantDigits: 7,
-                              })
+                              })} ${quoteSymbol}`
                             : '--'
                         }</div>
                         <div>📈 Sell Price: ${
                           token.token.priceSell
-                            ? formatDisplayNumber(token.token.priceSell, {
+                            ? `${formatDisplayNumber(token.token.priceSell, {
                                 fractionDigits: 2,
                                 significantDigits: 7,
-                              })
+                              })} ${quoteSymbol}`
                             : '--'
                         }</div>
                         <div>🔄 24h Buy Price Change: ${
@@ -368,7 +370,17 @@ export const KAI_ACTIONS: ListActions = {
   SEE_MARKET_TRENDS_CHOOSE_AMOUNT: {
     type: ActionType.OPTION,
     data: [10, 15, 20].map((item: number) => ({ title: item.toString(), space: Space.ONE_THIRD_WIDTH })),
-    response: async ({ answer, chainId, arg }: { answer: string; chainId: number; arg: any }) => {
+    response: async ({
+      answer,
+      chainId,
+      arg,
+      quoteSymbol,
+    }: {
+      answer: string
+      chainId: number
+      arg: any
+      quoteSymbol: string
+    }) => {
       const filter: any = {
         chainId: chainId,
         search: '',
@@ -420,10 +432,10 @@ export const KAI_ACTIONS: ListActions = {
           return {
             title: `💸 ${item.symbol} - ${metricValue} - ${
               price
-                ? formatDisplayNumber(price, {
+                ? `${formatDisplayNumber(price, {
                     fractionDigits: 2,
                     significantDigits: 7,
-                  })
+                  })} ${quoteSymbol}`
                 : '--'
             }`,
             space: Space.FULL_WIDTH,
@@ -440,7 +452,7 @@ export const KAI_ACTIONS: ListActions = {
           {
             type: ActionType.OPTION,
             data: resultToActionData.concat([KAI_OPTIONS.SWAP_TOKEN, KAI_OPTIONS.BACK_TO_MENU]),
-            response: ({ answer }: { answer: string }) => {
+            response: ({ answer, quoteSymbol }: { answer: string; quoteSymbol: string }) => {
               if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
               if (answer === KAI_OPTIONS.SWAP_TOKEN.title.toLowerCase())
                 return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
@@ -456,10 +468,10 @@ export const KAI_ACTIONS: ListActions = {
                     title: `
                       <div>📈 Buy Price: ${
                         token.token.priceBuy
-                          ? formatDisplayNumber(token.token.priceBuy, {
+                          ? `${formatDisplayNumber(token.token.priceBuy, {
                               fractionDigits: 2,
                               significantDigits: 7,
-                            })
+                            })} ${quoteSymbol}`
                           : '--'
                       }</div>
                       <div>📈 Sell Price: ${
