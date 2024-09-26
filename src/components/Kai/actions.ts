@@ -89,6 +89,56 @@ export const KAI_ACTIONS: ListActions = {
       return [KAI_ACTIONS.INVALID]
     },
   },
+  BACK_TO_MENU: {
+    type: ActionType.OPTION,
+    data: [KAI_OPTIONS.BACK_TO_MENU],
+    response: (answer: string) => {
+      if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
+      return [KAI_ACTIONS.INVALID]
+    },
+  },
+  INVALID_BACK_TO_MENU: {
+    type: ActionType.INVALID_AND_BACK,
+    data: [KAI_OPTIONS.BACK_TO_MENU],
+  },
+  DO_SOMETHING_AFTER_CHECK_PRICE: {
+    type: ActionType.OPTION,
+    data: [KAI_OPTIONS.BUY_TOKENS, KAI_OPTIONS.SELL_TOKENS, KAI_OPTIONS.BACK_TO_MENU],
+    response: (answer: string) => {
+      if (
+        answer === KAI_OPTIONS.BUY_TOKENS.title.toLowerCase() ||
+        answer === KAI_OPTIONS.SELL_TOKENS.title.toLowerCase()
+      )
+        return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
+
+      if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
+      return [KAI_ACTIONS.INVALID]
+    },
+  },
+  WOULD_LIKE_TO_DO_SOMETHING_ELSE: {
+    title: 'Would you like to do something else with this token?',
+    type: ActionType.TEXT,
+  },
+  COMING_SOON: {
+    title: '🏃🏻 Coming soon, do you want to go back to the main menu?',
+    type: ActionType.TEXT,
+  },
+  INVALID: {
+    title: '❌ Invalid input, please follow the instruction!',
+    type: ActionType.INVALID,
+  },
+  ERROR: {
+    title: '❌ Something went wrong, please try again!',
+    type: ActionType.INVALID,
+  },
+  TOKEN_NOT_FOUND: {
+    title: '🔭 I can not find your token, please enter others!',
+    type: ActionType.INVALID,
+  },
+  TOKEN_FOUND: {
+    title: '👀 Here are the tokens I found. Which one do you mean?',
+    type: ActionType.TEXT,
+  },
   TYPE_TOKEN_TO_CHECK_PRICE: {
     title: '🫡 Great! Which token are you interested in? Just type the name or address.',
     type: ActionType.TEXT,
@@ -267,55 +317,5 @@ export const KAI_ACTIONS: ListActions = {
         return [KAI_ACTIONS.ERROR, KAI_ACTIONS.INVALID_BACK_TO_MENU]
       }
     },
-  },
-  BACK_TO_MENU: {
-    type: ActionType.OPTION,
-    data: [KAI_OPTIONS.BACK_TO_MENU],
-    response: (answer: string) => {
-      if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
-      return [KAI_ACTIONS.INVALID]
-    },
-  },
-  INVALID_BACK_TO_MENU: {
-    type: ActionType.INVALID_AND_BACK,
-    data: [KAI_OPTIONS.BACK_TO_MENU],
-  },
-  DO_SOMETHING_AFTER_CHECK_PRICE: {
-    type: ActionType.OPTION,
-    data: [KAI_OPTIONS.BUY_TOKENS, KAI_OPTIONS.SELL_TOKENS, KAI_OPTIONS.BACK_TO_MENU],
-    response: (answer: string) => {
-      if (
-        answer === KAI_OPTIONS.BUY_TOKENS.title.toLowerCase() ||
-        answer === KAI_OPTIONS.SELL_TOKENS.title.toLowerCase()
-      )
-        return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
-
-      if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
-      return [KAI_ACTIONS.INVALID]
-    },
-  },
-  WOULD_LIKE_TO_DO_SOMETHING_ELSE: {
-    title: 'Would you like to do something else with this token?',
-    type: ActionType.TEXT,
-  },
-  COMING_SOON: {
-    title: '🏃🏻 Coming soon, do you want to go back to the main menu?',
-    type: ActionType.TEXT,
-  },
-  INVALID: {
-    title: '❌ Invalid input, please follow the instruction!',
-    type: ActionType.INVALID,
-  },
-  ERROR: {
-    title: '❌ Something went wrong, please try again!',
-    type: ActionType.INVALID,
-  },
-  TOKEN_NOT_FOUND: {
-    title: '🔭 I can not find your token, please enter others!',
-    type: ActionType.INVALID,
-  },
-  TOKEN_FOUND: {
-    title: '👀 Here are the tokens I found. Which one do you mean?',
-    type: ActionType.TEXT,
   },
 }

@@ -41,7 +41,7 @@ export const ModalContent = styled.div`
   background: ${({ theme }) => theme.tableHeader};
   padding: 20px 24px 26px;
   border-radius: 12px;
-  width: 320px;
+  width: 348px;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: calc(100vw - 2rem);

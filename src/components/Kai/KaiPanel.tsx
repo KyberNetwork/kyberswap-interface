@@ -98,7 +98,6 @@ const KaiPanel = () => {
     getActionResponse()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listActions])
-  console.log('lastAction', lastAction)
 
   return (
     <>
