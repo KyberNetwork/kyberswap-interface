@@ -457,9 +457,11 @@ export const KAI_ACTIONS: ListActions = {
               if (answer === KAI_OPTIONS.SWAP_TOKEN.title.toLowerCase())
                 return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.INVALID_BACK_TO_MENU]
 
-              const index = resultToActionData.findIndex((item: KaiOption) => item.title.toLowerCase() === answer)
+              const index = result.findIndex(
+                (item: any) => item.symbol.toLowerCase() === answer.split(' ')?.[1].toLowerCase(),
+              )
 
-              if (index > 1) {
+              if (index > -1) {
                 const token = result[index]
 
                 return [
