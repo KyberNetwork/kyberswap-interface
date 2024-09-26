@@ -1,30 +1,37 @@
-import { rgba } from 'polished'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ChangeEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Flex } from 'rebass'
 import { useGetQuoteByChainQuery } from 'services/marketOverview'
 
 import { ReactComponent as KaiAvatar } from 'assets/svg/kai_avatar.svg'
-import { MouseoverTooltip } from 'components/Tooltip'
+import NavGroup from 'components/Header/groups/NavGroup'
+import { DropdownTextAnchor } from 'components/Header/styleds'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
 
 import { ActionType, KAI_ACTIONS, KaiAction, KaiOption } from './actions'
 import {
   ActionButton,
   ActionPanel,
   ActionText,
+  ChainAnchorBackground,
+  ChainAnchorWrapper,
+  ChainItem,
+  ChainSelectorWrapper,
   ChatInput,
   ChatPanel,
   ChatWrapper,
   Divider,
+  HeaderSubText,
+  HeaderTextName,
+  KaiHeaderLeft,
   KaiHeaderWrapper,
   Loader,
   LoadingWrapper,
   MainActionButton,
+  SelectedChainImg,
   SendIcon,
-  SubTextSpan,
   UserMessage,
   UserMessageWrapper,
 } from './styled'
@@ -164,36 +171,39 @@ const KaiPanel = () => {
   )
 }
 
-const KaiHeader = ({ chainId, setChainId }: { chainId: number; setChainId: (value: number) => void }) => {
-  const theme = useTheme()
-
+const KaiHeader = ({ chainId, setChainId }: { chainId: ChainId; setChainId: (value: number) => void }) => {
   return (
     <>
       <KaiHeaderWrapper>
-        <KaiAvatar width={24} height={24} />
-        <span>I&apos;m KAI</span>
-        <SubTextSpan>Kyber Assistant Interface</SubTextSpan>
+        <KaiHeaderLeft>
+          <KaiAvatar />
+          <Flex sx={{ gap: '2px' }} flexDirection={'column'}>
+            <HeaderTextName>I&apos;m KAI</HeaderTextName>
+            <HeaderSubText>Kyber Assistant Interface</HeaderSubText>
+          </Flex>
+        </KaiHeaderLeft>
+        <NavGroup
+          dropdownAlign={'right'}
+          anchor={
+            <DropdownTextAnchor>
+              <ChainAnchorWrapper>
+                <SelectedChainImg src={NETWORKS_INFO[chainId].icon} alt="" />
+                <ChainAnchorBackground />
+              </ChainAnchorWrapper>
+            </DropdownTextAnchor>
+          }
+          dropdownContent={
+            <ChainSelectorWrapper>
+              {MAINNET_NETWORKS.map(item => (
+                <ChainItem key={item} onClick={() => setChainId(item)} active={item === chainId}>
+                  <img src={NETWORKS_INFO[item].icon} width="18px" height="18px" alt="" />
+                  <span>{NETWORKS_INFO[item].displayName}</span>
+                </ChainItem>
+              ))}
+            </ChainSelectorWrapper>
+          }
+        />
       </KaiHeaderWrapper>
-      <Flex flexWrap="wrap" alignItems="center" style={{ marginTop: 8 }}>
-        {MAINNET_NETWORKS.map(item => (
-          <MouseoverTooltip text={NETWORKS_INFO[item].name} key={item} placement="top" width="fit-content">
-            <Flex
-              alignItems="center"
-              padding="4px"
-              role="button"
-              onClick={() => setChainId(item)}
-              sx={{
-                background: chainId === item ? rgba(theme.primary, 0.2) : undefined,
-                border: chainId === item ? `1px solid ${theme.primary}` : 'none',
-                borderRadius: '4px',
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              <img src={NETWORKS_INFO[item].icon} width="16px" height="16px" alt="" />
-            </Flex>
-          </MouseoverTooltip>
-        ))}
-      </Flex>
       <Divider />
     </>
   )

@@ -381,6 +381,9 @@ export const KAI_ACTIONS: ListActions = {
       arg: any
       quoteSymbol: string
     }) => {
+      if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
+      if (!['5', '10', '15'].includes(answer.toString())) return [KAI_ACTIONS.INVALID, KAI_ACTIONS.INVALID_BACK_TO_MENU]
+
       const filter: any = {
         chainId: chainId,
         search: '',

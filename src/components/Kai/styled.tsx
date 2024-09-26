@@ -50,12 +50,69 @@ export const ModalContent = styled.div`
 
 export const KaiHeaderWrapper = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+`
+
+export const KaiHeaderLeft = styled.div`
+  display: flex;
   gap: 6px;
   align-items: center;
 `
 
-export const SubTextSpan = styled.span`
+export const ChainAnchorWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+`
+
+export const ChainItem = styled.div<{ active: boolean }>`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: ${({ theme }) => theme.white};
+
+  ${({ theme, active }) =>
+    active &&
+    css`
+      color: ${theme.subText};
+    `}
+`
+
+export const SelectedChainImg = styled.img`
+  width: 18px;
+  height: 18px;
+  position: relative;
+  left: 6px;
+`
+
+export const ChainAnchorBackground = styled.div`
+  position: absolute;
+  background-color: ${({ theme }) => rgba(theme.white, 0.1)};
+  border-radius: 16px;
+  top: 0;
+  left: 4px;
+  width: 180%;
+  height: 100%;
+`
+
+export const ChainSelectorWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  max-height: 155px;
+  overflow: auto;
+  padding: 6px;
+`
+
+export const HeaderTextName = styled.p`
+  margin: 0;
+`
+
+export const HeaderSubText = styled.p`
+  margin: 0;
   color: ${({ theme }) => theme.subText};
 `
 
