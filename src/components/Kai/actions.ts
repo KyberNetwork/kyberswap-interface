@@ -3,6 +3,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 export enum Space {
   HALF_WIDTH = 'calc(50% - 6px)',
   FULL_WIDTH = '100%',
+  ONE_THIRD_WIDTH = 'calc((100% - 24px) / 3)',
 }
 
 export enum ActionType {
@@ -19,6 +20,7 @@ export interface KaiAction {
   title?: string
   type: ActionType
   data?: KaiOption[]
+  arg?: any
   placeholder?: string
   loadingText?: string
   response?: (...args: any[]) => KaiAction[] | Promise<KaiAction[]>
@@ -50,20 +52,28 @@ const KAI_OPTIONS: ListOptions = {
     title: 'Find high APY pools',
     space: Space.FULL_WIDTH,
   },
-  BUY_TOKENS: {
-    title: 'Buy tokens',
-    space: Space.HALF_WIDTH,
-  },
-  SELL_TOKENS: {
-    title: 'Sell tokens',
-    space: Space.HALF_WIDTH,
+  SWAP_TOKEN: {
+    title: 'Buy/Sell tokens',
+    space: Space.FULL_WIDTH,
   },
   ADD_LIQUIDITY: {
     title: 'Add liquidity',
     space: Space.FULL_WIDTH,
   },
+  TOP_BIG_SPREAD: {
+    title: 'Top 24h Big Spread',
+    space: Space.FULL_WIDTH,
+  },
+  TOP_GAINERS: {
+    title: 'Top 24h Gainers',
+    space: Space.HALF_WIDTH,
+  },
+  TOP_VOLUME: {
+    title: 'Top 24h Volume',
+    space: Space.HALF_WIDTH,
+  },
   BACK_TO_MENU: {
-    title: 'Back to the main menu',
+    title: '↩ Back to the main menu',
     space: Space.FULL_WIDTH,
   },
 }
@@ -72,8 +82,7 @@ export const MAIN_MENU: KaiOption[] = [
   KAI_OPTIONS.CHECK_TOKEN_PRICE,
   KAI_OPTIONS.SEE_MARKET_TRENDS,
   KAI_OPTIONS.FIND_HIGH_APY_POOLS,
-  KAI_OPTIONS.BUY_TOKENS,
-  KAI_OPTIONS.SELL_TOKENS,
+  KAI_OPTIONS.SWAP_TOKEN,
   KAI_OPTIONS.ADD_LIQUIDITY,
 ]
 
@@ -82,8 +91,10 @@ export const KAI_ACTIONS: ListActions = {
     type: ActionType.MAIN_OPTION,
     data: MAIN_MENU,
     placeholder: 'Ask me anything or select...',
-    response: (answer: string) => {
+    response: ({ answer }: { answer: string }) => {
       if (answer === KAI_OPTIONS.CHECK_TOKEN_PRICE.title.toLowerCase()) return [KAI_ACTIONS.TYPE_TOKEN_TO_CHECK_PRICE]
+      if (answer === KAI_OPTIONS.SEE_MARKET_TRENDS.title.toLowerCase())
+        return [KAI_ACTIONS.SEE_MARKET_TRENDS_WELCOME, KAI_ACTIONS.SEE_MARKET_TRENDS]
       if (MAIN_MENU.find((option: KaiOption) => answer.trim().toLowerCase() === option.title.toLowerCase()))
         return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
       return [KAI_ACTIONS.INVALID]
@@ -92,7 +103,7 @@ export const KAI_ACTIONS: ListActions = {
   BACK_TO_MENU: {
     type: ActionType.OPTION,
     data: [KAI_OPTIONS.BACK_TO_MENU],
-    response: (answer: string) => {
+    response: ({ answer }: { answer: string }) => {
       if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
       return [KAI_ACTIONS.INVALID]
     },
@@ -103,14 +114,10 @@ export const KAI_ACTIONS: ListActions = {
   },
   DO_SOMETHING_AFTER_CHECK_PRICE: {
     type: ActionType.OPTION,
-    data: [KAI_OPTIONS.BUY_TOKENS, KAI_OPTIONS.SELL_TOKENS, KAI_OPTIONS.BACK_TO_MENU],
-    response: (answer: string) => {
-      if (
-        answer === KAI_OPTIONS.BUY_TOKENS.title.toLowerCase() ||
-        answer === KAI_OPTIONS.SELL_TOKENS.title.toLowerCase()
-      )
+    data: [KAI_OPTIONS.SWAP_TOKEN, KAI_OPTIONS.BACK_TO_MENU],
+    response: ({ answer }: { answer: string }) => {
+      if (answer === KAI_OPTIONS.SWAP_TOKEN.title.toLowerCase())
         return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
-
       if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
       return [KAI_ACTIONS.INVALID]
     },
@@ -142,7 +149,15 @@ export const KAI_ACTIONS: ListActions = {
   TYPE_TOKEN_TO_CHECK_PRICE: {
     title: '🫡 Great! Which token are you interested in? Just type the name or address.',
     type: ActionType.TEXT,
-    response: async (answer: string, chainId: number, whitelistTokenAddress: string[]) => {
+    response: async ({
+      answer,
+      chainId,
+      whitelistTokenAddress,
+    }: {
+      answer: string
+      chainId: number
+      whitelistTokenAddress: string[]
+    }) => {
       if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
 
       const filter: any = {
@@ -189,12 +204,18 @@ export const KAI_ACTIONS: ListActions = {
               title: `
                 <div>📈 Buy Price: ${
                   token.token.priceBuy
-                    ? formatDisplayNumber(token.token.priceBuy, { fractionDigits: 2, significantDigits: 7 })
+                    ? formatDisplayNumber(token.token.priceBuy, {
+                        fractionDigits: 2,
+                        significantDigits: 7,
+                      })
                     : '--'
                 }</div>
                 <div>📈 Sell Price: ${
                   token.token.priceSell
-                    ? formatDisplayNumber(token.token.priceSell, { fractionDigits: 2, significantDigits: 7 })
+                    ? formatDisplayNumber(token.token.priceSell, {
+                        fractionDigits: 2,
+                        significantDigits: 7,
+                      })
                     : '--'
                 }</div>
                 <div>🔄 24h Buy Price Change: ${
@@ -245,7 +266,7 @@ export const KAI_ACTIONS: ListActions = {
                   space: item.symbol.length <= 10 ? Space.HALF_WIDTH : Space.FULL_WIDTH,
                 }))
                 .concat(KAI_ACTIONS.INVALID_BACK_TO_MENU.data),
-              response: (tokenSymbolSelected: string) => {
+              response: ({ answer: tokenSymbolSelected }: { answer: string }) => {
                 if (tokenSymbolSelected === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
 
                 const token = result.find((item: any) => item.symbol.toLowerCase() === tokenSymbolSelected)
@@ -260,12 +281,18 @@ export const KAI_ACTIONS: ListActions = {
                       title: `
                         <div>📈 Buy Price: ${
                           token.token.priceBuy
-                            ? formatDisplayNumber(token.token.priceBuy, { fractionDigits: 2, significantDigits: 7 })
+                            ? formatDisplayNumber(token.token.priceBuy, {
+                                fractionDigits: 2,
+                                significantDigits: 7,
+                              })
                             : '--'
                         }</div>
                         <div>📈 Sell Price: ${
                           token.token.priceSell
-                            ? formatDisplayNumber(token.token.priceSell, { fractionDigits: 2, significantDigits: 7 })
+                            ? formatDisplayNumber(token.token.priceSell, {
+                                fractionDigits: 2,
+                                significantDigits: 7,
+                              })
                             : '--'
                         }</div>
                         <div>🔄 24h Buy Price Change: ${
@@ -313,6 +340,179 @@ export const KAI_ACTIONS: ListActions = {
         }
 
         return [KAI_ACTIONS.TOKEN_NOT_FOUND, KAI_ACTIONS.INVALID_BACK_TO_MENU]
+      } catch (error) {
+        return [KAI_ACTIONS.ERROR, KAI_ACTIONS.INVALID_BACK_TO_MENU]
+      }
+    },
+  },
+  SEE_MARKET_TRENDS_WELCOME: {
+    title: '🫡 Got it! What would you like to see the trend in 24 hours?',
+    type: ActionType.TEXT,
+  },
+  SEE_MARKET_TRENDS: {
+    type: ActionType.OPTION,
+    data: [KAI_OPTIONS.TOP_BIG_SPREAD, KAI_OPTIONS.TOP_GAINERS, KAI_OPTIONS.TOP_VOLUME, KAI_OPTIONS.BACK_TO_MENU],
+    response: ({ answer }: { answer: string }) => {
+      if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
+      if (answer === KAI_OPTIONS.TOP_BIG_SPREAD.title.toLowerCase())
+        return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
+      if (
+        answer === KAI_OPTIONS.TOP_GAINERS.title.toLowerCase() ||
+        answer === KAI_OPTIONS.TOP_VOLUME.title.toLowerCase()
+      )
+        return [{ ...KAI_ACTIONS.SEE_MARKET_TRENDS_CHOOSE_AMOUNT, arg: answer }]
+
+      return [KAI_ACTIONS.INVALID]
+    },
+  },
+  SEE_MARKET_TRENDS_CHOOSE_AMOUNT: {
+    type: ActionType.OPTION,
+    data: [10, 15, 20].map((item: number) => ({ title: item.toString(), space: Space.ONE_THIRD_WIDTH })),
+    response: async ({ answer, chainId, arg }: { answer: string; chainId: number; arg: any }) => {
+      const filter: any = {
+        chainId: chainId,
+        search: '',
+        page: 1,
+        pageSize: answer,
+        chainIds: chainId,
+        sort:
+          arg === KAI_OPTIONS.TOP_GAINERS.title.toLowerCase()
+            ? 'price_sell_change_24h-1 desc'
+            : arg === KAI_OPTIONS.TOP_VOLUME.title.toLowerCase()
+            ? 'volume_24h desc'
+            : '',
+      }
+
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_TOKEN_API_URL}/v1/public/assets?` + new URLSearchParams(filter).toString(),
+          {
+            method: 'GET',
+          },
+        )
+        const { data } = await res.json()
+        const result = data.assets.map((token: any) => ({
+          ...token,
+          token: token.tokens.find((item: any) => item.chainId === chainId.toString()),
+        }))
+
+        const resultToActionData = result.map((item: any) => {
+          const price = item.token.priceSell
+
+          const priceSellChange24h = item.token.priceSellChange24h
+            ? `${item.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
+                Math.abs(item.token.priceSellChange24h),
+                {
+                  style: 'decimal',
+                  fractionDigits: 2,
+                },
+              )}%`
+            : '--'
+          const volume24h = item.volume24h
+            ? formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 })
+            : '--'
+          const metricValue =
+            arg === KAI_OPTIONS.TOP_GAINERS.title.toLowerCase()
+              ? priceSellChange24h
+              : arg === KAI_OPTIONS.TOP_VOLUME.title.toLowerCase()
+              ? volume24h
+              : ''
+          return {
+            title: `💸 ${item.symbol} - ${metricValue} - ${
+              price
+                ? formatDisplayNumber(price, {
+                    fractionDigits: 2,
+                    significantDigits: 7,
+                  })
+                : '--'
+            }`,
+            space: Space.FULL_WIDTH,
+          }
+        })
+
+        return [
+          {
+            title: `Here’s the list of ${arg
+              .replace('24h', '')
+              .trim()} for the last 24h,  click on a token to see more details!`,
+            type: ActionType.TEXT,
+          },
+          {
+            type: ActionType.OPTION,
+            data: resultToActionData.concat([KAI_OPTIONS.SWAP_TOKEN, KAI_OPTIONS.BACK_TO_MENU]),
+            response: ({ answer }: { answer: string }) => {
+              if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
+              if (answer === KAI_OPTIONS.SWAP_TOKEN.title.toLowerCase())
+                return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.BACK_TO_MENU]
+
+              const index = resultToActionData.findIndex((item: KaiOption) => item.title.toLowerCase() === answer)
+
+              if (index > 1) {
+                const token = result[index]
+
+                return [
+                  {
+                    type: ActionType.HTML,
+                    title: `
+                      <div>📈 Buy Price: ${
+                        token.token.priceBuy
+                          ? formatDisplayNumber(token.token.priceBuy, {
+                              fractionDigits: 2,
+                              significantDigits: 7,
+                            })
+                          : '--'
+                      }</div>
+                      <div>📈 Sell Price: ${
+                        token.token.priceSell
+                          ? formatDisplayNumber(token.token.priceSell, {
+                              fractionDigits: 2,
+                              significantDigits: 7,
+                            })
+                          : '--'
+                      }</div>
+                      <div>🔄 24h Buy Price Change: ${
+                        token.token.priceBuyChange24h
+                          ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
+                              Math.abs(token.token.priceBuyChange24h),
+                              {
+                                style: 'decimal',
+                                fractionDigits: 2,
+                              },
+                            )}%`
+                          : '--'
+                      }</div>
+                      <div>🔄 24h Sell Price Change: ${
+                        token.token.priceSellChange24h
+                          ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
+                              Math.abs(token.token.priceSellChange24h),
+                              {
+                                style: 'decimal',
+                                fractionDigits: 2,
+                              },
+                            )}%`
+                          : '--'
+                      }</div>
+                      <div>💸 24h Volume: ${
+                        token.volume24h
+                          ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
+                          : '--'
+                      }</div>
+                      <div>🏦 Market Cap: ${
+                        token.marketCap
+                          ? formatDisplayNumber(token.marketCap, { style: 'currency', fractionDigits: 2 })
+                          : '--'
+                      }</div>
+                    `,
+                  },
+                  KAI_ACTIONS.WOULD_LIKE_TO_DO_SOMETHING_ELSE,
+                  KAI_ACTIONS.DO_SOMETHING_AFTER_CHECK_PRICE,
+                ]
+              }
+
+              return [KAI_ACTIONS.INVALID, KAI_ACTIONS.INVALID_BACK_TO_MENU]
+            },
+          },
+        ]
       } catch (error) {
         return [KAI_ACTIONS.ERROR, KAI_ACTIONS.INVALID_BACK_TO_MENU]
       }

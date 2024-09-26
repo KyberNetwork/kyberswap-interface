@@ -77,7 +77,12 @@ const KaiPanel = () => {
     const lastUserAction = listActions[listActions.length - 1]
     if (lastUserAction?.type === ActionType.USER_MESSAGE) {
       const newActions: KaiAction[] =
-        (await lastAction?.response?.(lastUserAction?.title?.toLowerCase() || '', chainId, whitelistTokenAddress)) || []
+        (await lastAction?.response?.({
+          answer: lastUserAction?.title?.toLowerCase() || '',
+          chainId,
+          whitelistTokenAddress,
+          arg: lastAction.arg,
+        })) || []
       if (newActions.length) onChangeListActions(newActions)
       setLoading(false)
       setLoadingText(DEFAULT_LOADING_TEXT)
