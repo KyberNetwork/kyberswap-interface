@@ -72,6 +72,10 @@ const KAI_OPTIONS: ListOptions = {
     title: 'Top 24h Volume',
     space: Space.HALF_WIDTH,
   },
+  SEARCH_ANOTHER_TOKEN: {
+    title: 'Search another token',
+    space: Space.FULL_WIDTH,
+  },
   BACK_TO_MENU: {
     title: '↩ Back to the main menu',
     space: Space.FULL_WIDTH,
@@ -114,11 +118,19 @@ export const KAI_ACTIONS: ListActions = {
   },
   DO_SOMETHING_AFTER_CHECK_PRICE: {
     type: ActionType.OPTION,
-    data: [KAI_OPTIONS.SWAP_TOKEN, KAI_OPTIONS.BACK_TO_MENU],
+    data: [KAI_OPTIONS.SWAP_TOKEN, KAI_OPTIONS.SEARCH_ANOTHER_TOKEN, KAI_OPTIONS.BACK_TO_MENU],
     response: ({ answer }: { answer: string }) => {
       if (answer === KAI_OPTIONS.SWAP_TOKEN.title.toLowerCase())
         return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.INVALID_BACK_TO_MENU]
       if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
+      if (answer === KAI_OPTIONS.SEARCH_ANOTHER_TOKEN.title.toLowerCase())
+        return [
+          {
+            title: '💪🏼 Okay! Which token are you interested in? Just type the name or address.',
+            type: ActionType.TEXT,
+            response: KAI_ACTIONS.TYPE_TOKEN_TO_CHECK_PRICE.response,
+          },
+        ]
       return [KAI_ACTIONS.INVALID]
     },
   },
