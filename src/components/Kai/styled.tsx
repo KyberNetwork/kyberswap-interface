@@ -64,7 +64,7 @@ export const ChainAnchorWrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;
-  padding: 4px;
+  padding: 5px;
 `
 
 export const ChainItem = styled.div<{ active: boolean }>`
@@ -81,8 +81,8 @@ export const ChainItem = styled.div<{ active: boolean }>`
 `
 
 export const SelectedChainImg = styled.img`
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   position: relative;
   left: 6px;
 `
@@ -92,8 +92,8 @@ export const ChainAnchorBackground = styled.div`
   background-color: ${({ theme }) => rgba(theme.white, 0.1)};
   border-radius: 16px;
   top: 0;
-  left: 4px;
-  width: 180%;
+  left: 3px;
+  width: 190%;
   height: 100%;
 `
 

@@ -461,7 +461,7 @@ export const KAI_ACTIONS: ListActions = {
                 return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.INVALID_BACK_TO_MENU]
 
               const index = result.findIndex(
-                (item: any) => item.symbol.toLowerCase() === answer.split(' ')?.[1].toLowerCase(),
+                (item: any) => item.symbol.toLowerCase() === answer.split(' ')?.[1]?.toLowerCase(),
               )
 
               if (index > -1) {
