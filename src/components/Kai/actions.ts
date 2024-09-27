@@ -599,7 +599,7 @@ export const KAI_ACTIONS: ListActions = {
     type: ActionType.TEXT,
   },
   SWAP_INPUT_TOKEN_IN: {
-    title: '👉 Input the token you want to sell',
+    title: '👉 Input the token you want to sell (Token in)',
     type: ActionType.TEXT,
     placeholder: 'Enter the token in',
     response: async ({
@@ -749,7 +749,7 @@ export const KAI_ACTIONS: ListActions = {
     },
   },
   SWAP_INPUT_TOKEN_OUT: {
-    title: '👉 Input the token you want to buy',
+    title: '👉 Input the token you want to buy (Token out)',
     type: ActionType.TEXT,
     placeholder: 'Enter the token out',
     response: async ({
