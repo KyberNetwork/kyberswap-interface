@@ -19,6 +19,7 @@ export enum ActionType {
 }
 
 export interface KaiAction {
+  uuid?: string
   title?: string
   type: ActionType
   data?: KaiOption[]
@@ -587,6 +588,7 @@ export const KAI_ACTIONS: ListActions = {
       whitelistTokenAddress: string[]
       quoteSymbol: string
     }) => {
+      if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
       const filter: any = {
         chainId: chainId,
         search: answer,
@@ -808,6 +810,7 @@ export const KAI_ACTIONS: ListActions = {
       arg: any
       quoteSymbol: string
     }) => {
+      if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
       const filter: any = {
         chainId: chainId,
         search: answer,

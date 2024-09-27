@@ -238,7 +238,7 @@ export const ActionPanel = styled.div`
   margin-top: 16px;
 `
 
-export const ActionButton = styled.div<{ width: string }>`
+export const ActionButton = styled.div<{ width: string; disabled: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -253,18 +253,32 @@ export const ActionButton = styled.div<{ width: string }>`
     background-color: ${({ theme }) => rgba(theme.white, 0.08)};
   }
 
-  ${({ width }) =>
+  ${({ width, disabled, theme }) =>
     css`
       width: ${width};
+      ${disabled &&
+      `
+        background-color: ${rgba(theme.disableText, 0.4)} !important;
+        cursor: not-allowed;
+      `}
     `}
 `
 
-export const MainActionButton = styled(ActionButton)`
+export const MainActionButton = styled(ActionButton)<{ disabled: boolean }>`
   background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
 
   :hover {
     background-color: ${({ theme }) => rgba(theme.primary, 0.18)};
   }
+
+  ${({ disabled, theme }) =>
+    css`
+      ${disabled &&
+      `
+        background-color: ${rgba(theme.disableText, 0.4)} !important;
+        cursor: not-allowed;
+      `}
+    `}
 `
 
 export const ActionText = styled.div`

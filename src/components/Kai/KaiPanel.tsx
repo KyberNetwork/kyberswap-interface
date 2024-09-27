@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ChangeEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Flex } from 'rebass'
 import { useGetQuoteByChainQuery } from 'services/marketOverview'
+import { v4 as uuidv4 } from 'uuid'
 
 import { ReactComponent as KaiAvatar } from 'assets/svg/kai_avatar.svg'
 import NavGroup from 'components/Header/groups/NavGroup'
@@ -46,7 +47,9 @@ const KaiPanel = () => {
   const [chatPlaceHolderText, setChatPlaceHolderText] = useState(DEFAULT_CHAT_PLACEHOLDER_TEXT)
   const [loading, setLoading] = useState(false)
   const [loadingText, setLoadingText] = useState(DEFAULT_LOADING_TEXT)
-  const [listActions, setListActions] = useState<KaiAction[]>([KAI_ACTIONS.MAIN_MENU])
+  const [listActions, setListActions] = useState<KaiAction[]>(
+    [KAI_ACTIONS.MAIN_MENU].map(item => ({ ...item, uuid: uuidv4() })),
+  )
   const [chainId, setChainId] = useState(DEFAULT_CHAIN_ID)
 
   const whitelistTokens = useAllTokens(true, chainId)
@@ -84,7 +87,8 @@ const KaiPanel = () => {
 
   const onChangeListActions = (newActions: KaiAction[]) => {
     const cloneListActions = [...listActions]
-    setListActions(cloneListActions.concat(newActions))
+    const newActionsWithUuid = newActions.map(item => ({ ...item, uuid: uuidv4() }))
+    setListActions(cloneListActions.concat(newActionsWithUuid))
   }
 
   const getActionResponse = async () => {
@@ -125,11 +129,18 @@ const KaiPanel = () => {
 
       <ChatPanel ref={chatPanelRef}>
         <div>GM! What can I do for you today? 👋</div>
-        {listActions.map((action: KaiAction, index: number) =>
-          action.type === ActionType.MAIN_OPTION ? (
+        {listActions.map((action: KaiAction, index: number) => {
+          const disabled = !action.uuid || !lastAction?.uuid || action.uuid !== lastAction.uuid
+
+          return action.type === ActionType.MAIN_OPTION ? (
             <ActionPanel key={index}>
               {action.data?.map((option: KaiOption, optionIndex: number) => (
-                <MainActionButton key={optionIndex} width={option.space} onClick={() => onSubmitChat(option.title)}>
+                <MainActionButton
+                  disabled={disabled}
+                  key={optionIndex}
+                  width={option.space}
+                  onClick={() => !disabled && onSubmitChat(option.title)}
+                >
                   {option.title}
                 </MainActionButton>
               ))}
@@ -137,7 +148,12 @@ const KaiPanel = () => {
           ) : action.type === ActionType.OPTION || action.type === ActionType.INVALID_AND_BACK ? (
             <ActionPanel key={index}>
               {action.data?.map((option: KaiOption, optionIndex: number) => (
-                <ActionButton key={optionIndex} width={option.space} onClick={() => onSubmitChat(option.title)}>
+                <ActionButton
+                  disabled={disabled}
+                  key={optionIndex}
+                  width={option.space}
+                  onClick={() => !disabled && onSubmitChat(option.title)}
+                >
                   {option.title}
                 </ActionButton>
               ))}
@@ -157,8 +173,8 @@ const KaiPanel = () => {
                 {action.title}
               </UserMessage>
             </UserMessageWrapper>
-          ) : null,
-        )}
+          ) : null
+        })}
       </ChatPanel>
 
       {loading && <KaiLoading loadingText={loadingText} />}
