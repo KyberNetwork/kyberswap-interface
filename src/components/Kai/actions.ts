@@ -445,7 +445,7 @@ export const KAI_ACTIONS: ListActions = {
         chainIds: chainId,
         sort:
           arg === KAI_OPTIONS.TOP_GAINERS.title.toLowerCase()
-            ? 'price_sell_change_24h-1 desc'
+            ? `price_sell_change_24h-${chainId} desc`
             : arg === KAI_OPTIONS.TOP_VOLUME.title.toLowerCase()
             ? 'volume_24h desc'
             : '',
