@@ -120,7 +120,6 @@
     "swiper": "^8.4.4",
     "ua-parser-js": "^1.0.33",
     "util": "^0.12.5",
-    "uuid": "^10.0.0",
     "viem": "^2.20.0",
     "vite-plugin-env-compatible": "^1.1.1",
     "wagmi": "^2.12.7",

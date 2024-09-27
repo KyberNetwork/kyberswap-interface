@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ChangeEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Flex } from 'rebass'
 import { useGetQuoteByChainQuery } from 'services/marketOverview'
-import { v4 as uuidv4 } from 'uuid'
 
 import { ReactComponent as KaiAvatar } from 'assets/svg/kai_avatar.svg'
 import NavGroup from 'components/Header/groups/NavGroup'
@@ -11,6 +10,7 @@ import { MAINNET_NETWORKS } from 'constants/networks'
 import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 
+// import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ActionType, KAI_ACTIONS, KaiAction, KaiOption } from './actions'
 import {
   ActionButton,
@@ -47,10 +47,17 @@ const KaiPanel = () => {
   const [chatPlaceHolderText, setChatPlaceHolderText] = useState(DEFAULT_CHAT_PLACEHOLDER_TEXT)
   const [loading, setLoading] = useState(false)
   const [loadingText, setLoadingText] = useState(DEFAULT_LOADING_TEXT)
-  const [listActions, setListActions] = useState<KaiAction[]>(
-    [KAI_ACTIONS.MAIN_MENU].map(item => ({ ...item, uuid: uuidv4() })),
-  )
+  const [listActions, setListActions] = useState<KaiAction[]>([KAI_ACTIONS.MAIN_MENU])
   const [chainId, setChainId] = useState(DEFAULT_CHAIN_ID)
+
+  // const [swapData, setSwapData] = useState({
+  //   currencyIn: null,
+  //   currencyOut: null,
+  //   parsedAmount: null,
+  //   isProcessingSwap: false,
+  //   customChain: chainId,
+  //   clientId: undefined,
+  // })
 
   const whitelistTokens = useAllTokens(true, chainId)
   const whitelistTokenAddress = useMemo(() => Object.keys(whitelistTokens), [whitelistTokens])
@@ -73,6 +80,19 @@ const KaiPanel = () => {
     )
   }, [listActions])
 
+  const lastActiveActionIndex = useMemo(() => {
+    const clonelistActions = [...listActions]
+    let index = clonelistActions.length - 1
+    for (let i = clonelistActions.length - 1; i >= 0; i--) {
+      if (clonelistActions[i].type !== ActionType.INVALID || clonelistActions[i].type !== ActionType.USER_MESSAGE) {
+        index = i
+        break
+      }
+    }
+
+    return index
+  }, [listActions])
+
   const onSubmitChat = (text: string) => {
     if (loading || !lastAction) return
     if (lastAction.loadingText) setLoadingText(lastAction.loadingText)
@@ -87,8 +107,7 @@ const KaiPanel = () => {
 
   const onChangeListActions = (newActions: KaiAction[]) => {
     const cloneListActions = [...listActions]
-    const newActionsWithUuid = newActions.map(item => ({ ...item, uuid: uuidv4() }))
-    setListActions(cloneListActions.concat(newActionsWithUuid))
+    setListActions(cloneListActions.concat(newActions))
   }
 
   const getActionResponse = async () => {
@@ -103,10 +122,25 @@ const KaiPanel = () => {
           quoteSymbol,
         })) || []
       if (newActions.length) onChangeListActions(newActions)
+
+      // if (newActions.length) {
+      //   const firstAction = newActions[0]
+      //   if (firstAction.callHook && firstAction.callHook === CallHook.SWAP) {
+      //     console.log(firstAction.arg)
+      //     console.log(new WrappedTokenInfo(firstAction.arg.tokenIn))
+      //     return
+      //   }
+      //   onChangeListActions(newActions)
+      // }
+
       setLoading(false)
       setLoadingText(DEFAULT_LOADING_TEXT)
     }
   }
+
+  // useEffect(() => {
+  //   console.log('swapData', swapData)
+  // }, [swapData])
 
   useEffect(() => {
     if (lastAction?.placeholder) setChatPlaceHolderText(lastAction.placeholder)
@@ -130,7 +164,7 @@ const KaiPanel = () => {
       <ChatPanel ref={chatPanelRef}>
         <div>GM! What can I do for you today? 👋</div>
         {listActions.map((action: KaiAction, index: number) => {
-          const disabled = !action.uuid || !lastAction?.uuid || action.uuid !== lastAction.uuid
+          const disabled = index !== lastActiveActionIndex
 
           return action.type === ActionType.MAIN_OPTION ? (
             <ActionPanel key={index}>
