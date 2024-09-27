@@ -74,7 +74,7 @@ const KaiPanel = () => {
     const clonelistActions = [...listActions]
     let index = clonelistActions.length - 1
     for (let i = clonelistActions.length - 1; i >= 0; i--) {
-      if (clonelistActions[i].type !== ActionType.INVALID || clonelistActions[i].type !== ActionType.USER_MESSAGE) {
+      if (clonelistActions[i].type !== ActionType.INVALID && clonelistActions[i].type !== ActionType.USER_MESSAGE) {
         index = i
         break
       }

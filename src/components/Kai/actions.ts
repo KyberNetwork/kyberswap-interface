@@ -57,7 +57,11 @@ const KAI_OPTIONS: ListOptions = {
   },
   SWAP_TOKEN: {
     title: 'Buy/Sell tokens',
-    space: Space.FULL_WIDTH,
+    space: Space.HALF_WIDTH,
+  },
+  LIMIT_ORDER: {
+    title: 'Limit Order',
+    space: Space.HALF_WIDTH,
   },
   ADD_LIQUIDITY: {
     title: 'Add liquidity',
@@ -97,6 +101,7 @@ export const MAIN_MENU: KaiOption[] = [
   KAI_OPTIONS.CHECK_TOKEN_PRICE,
   KAI_OPTIONS.SEE_MARKET_TRENDS,
   KAI_OPTIONS.SWAP_TOKEN,
+  KAI_OPTIONS.LIMIT_ORDER,
   KAI_OPTIONS.FIND_HIGH_APY_POOLS,
   KAI_OPTIONS.ADD_LIQUIDITY,
 ]
@@ -131,7 +136,11 @@ export const KAI_ACTIONS: ListActions = {
   },
   DO_SOMETHING_AFTER_CHECK_PRICE: {
     type: ActionType.OPTION,
-    data: [KAI_OPTIONS.SWAP_TOKEN, KAI_OPTIONS.SEARCH_ANOTHER_TOKEN, KAI_OPTIONS.BACK_TO_MENU],
+    data: [
+      { ...KAI_OPTIONS.SWAP_TOKEN, space: Space.FULL_WIDTH },
+      KAI_OPTIONS.SEARCH_ANOTHER_TOKEN,
+      KAI_OPTIONS.BACK_TO_MENU,
+    ],
     response: ({ answer }: { answer: string }) => {
       if (answer === KAI_OPTIONS.SWAP_TOKEN.title.toLowerCase())
         return [KAI_ACTIONS.COMING_SOON, KAI_ACTIONS.INVALID_BACK_TO_MENU]
@@ -498,7 +507,10 @@ export const KAI_ACTIONS: ListActions = {
           },
           {
             type: ActionType.OPTION,
-            data: resultToActionData.concat([KAI_OPTIONS.SWAP_TOKEN, KAI_OPTIONS.BACK_TO_MENU]),
+            data: resultToActionData.concat([
+              { ...KAI_OPTIONS.SWAP_TOKEN, space: Space.FULL_WIDTH },
+              KAI_OPTIONS.BACK_TO_MENU,
+            ]),
             response: ({ answer, quoteSymbol }: { answer: string; quoteSymbol: string }) => {
               if (answer === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
               if (answer === KAI_OPTIONS.SWAP_TOKEN.title.toLowerCase())
@@ -587,7 +599,7 @@ export const KAI_ACTIONS: ListActions = {
     type: ActionType.TEXT,
   },
   SWAP_INPUT_TOKEN_IN: {
-    title: '👉 Enter the token in you want to swap',
+    title: '👉 Input the token you want to sell',
     type: ActionType.TEXT,
     placeholder: 'Enter the token in',
     response: async ({
@@ -718,7 +730,7 @@ export const KAI_ACTIONS: ListActions = {
     },
   },
   SWAP_INPUT_AMOUNT_IN: {
-    title: '👉 Enter the amount in you want to swap',
+    title: '👉 Input amount of token you want to sell',
     type: ActionType.TEXT,
     placeholder: 'Enter the amount in',
     response: ({ answer, arg }: { answer: string; arg: any }) => {
@@ -737,7 +749,7 @@ export const KAI_ACTIONS: ListActions = {
     },
   },
   SWAP_INPUT_TOKEN_OUT: {
-    title: '👉 Enter the token out you want to swap',
+    title: '👉 Input the token you want to buy',
     type: ActionType.TEXT,
     placeholder: 'Enter the token out',
     response: async ({
@@ -875,7 +887,7 @@ export const KAI_ACTIONS: ListActions = {
     },
   },
   SWAP_INPUT_SLIPPAGE_TEXT: {
-    title: '👉 Choose the max slippage you can accept',
+    title: '👉 Choose max slippage you want to set',
     type: ActionType.TEXT,
   },
   SWAP_INPUT_SLIPPAGE: {
@@ -916,7 +928,7 @@ export const KAI_ACTIONS: ListActions = {
     },
   },
   CUSTOM_MAX_SLIPPAGE: {
-    title: '👉 Enter the max slippage you can accept (in percent)',
+    title: '👉 Input max slippage you can to set (in percent)',
     type: ActionType.TEXT,
     placeholder: 'Enter the max slippage',
     response: ({ answer, arg, quoteSymbol }: { answer: string; arg: any; quoteSymbol: string }) => {
