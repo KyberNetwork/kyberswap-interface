@@ -96,8 +96,8 @@ const KAI_OPTIONS: ListOptions = {
 export const MAIN_MENU: KaiOption[] = [
   KAI_OPTIONS.CHECK_TOKEN_PRICE,
   KAI_OPTIONS.SEE_MARKET_TRENDS,
-  KAI_OPTIONS.FIND_HIGH_APY_POOLS,
   KAI_OPTIONS.SWAP_TOKEN,
+  KAI_OPTIONS.FIND_HIGH_APY_POOLS,
   KAI_OPTIONS.ADD_LIQUIDITY,
 ]
 
@@ -238,7 +238,7 @@ export const KAI_ACTIONS: ListActions = {
             {
               type: ActionType.HTML,
               title: `
-                <div>📈 Buy Price: ${
+                <div style="margin-bottom: 4px">📈 Buy Price: ${
                   token.token.priceBuy
                     ? `${formatDisplayNumber(token.token.priceBuy, {
                         fractionDigits: 2,
@@ -246,7 +246,7 @@ export const KAI_ACTIONS: ListActions = {
                       })} ${quoteSymbol}`
                     : '--'
                 }</div>
-                <div>📈 Sell Price: ${
+                <div style="margin-bottom: 4px">📈 Sell Price: ${
                   token.token.priceSell
                     ? `${formatDisplayNumber(token.token.priceSell, {
                         fractionDigits: 2,
@@ -254,7 +254,7 @@ export const KAI_ACTIONS: ListActions = {
                       })} ${quoteSymbol}`
                     : '--'
                 }</div>
-                <div>🔄 24h Buy Price Change: ${
+                <div style="margin-bottom: 4px">🔄 24h Buy Price Change: ${
                   token.token.priceBuyChange24h
                     ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
                         Math.abs(token.token.priceBuyChange24h),
@@ -265,7 +265,7 @@ export const KAI_ACTIONS: ListActions = {
                       )}%`
                     : '--'
                 }</div>
-                <div>🔄 24h Sell Price Change: ${
+                <div style="margin-bottom: 4px">🔄 24h Sell Price Change: ${
                   token.token.priceSellChange24h
                     ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
                         Math.abs(token.token.priceSellChange24h),
@@ -276,7 +276,7 @@ export const KAI_ACTIONS: ListActions = {
                       )}%`
                     : '--'
                 }</div>
-                <div>💸 24h Volume: ${
+                <div style="margin-bottom: 4px">💸 24h Volume: ${
                   token.volume24h
                     ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
                     : '--'
@@ -315,7 +315,7 @@ export const KAI_ACTIONS: ListActions = {
                     {
                       type: ActionType.HTML,
                       title: `
-                        <div>📈 Buy Price: ${
+                        <div style="margin-bottom: 4px">📈 Buy Price: ${
                           token.token.priceBuy
                             ? `${formatDisplayNumber(token.token.priceBuy, {
                                 fractionDigits: 2,
@@ -323,7 +323,7 @@ export const KAI_ACTIONS: ListActions = {
                               })} ${quoteSymbol}`
                             : '--'
                         }</div>
-                        <div>📈 Sell Price: ${
+                        <div style="margin-bottom: 4px">📈 Sell Price: ${
                           token.token.priceSell
                             ? `${formatDisplayNumber(token.token.priceSell, {
                                 fractionDigits: 2,
@@ -331,7 +331,7 @@ export const KAI_ACTIONS: ListActions = {
                               })} ${quoteSymbol}`
                             : '--'
                         }</div>
-                        <div>🔄 24h Buy Price Change: ${
+                        <div style="margin-bottom: 4px">🔄 24h Buy Price Change: ${
                           token.token.priceBuyChange24h
                             ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
                                 Math.abs(token.token.priceBuyChange24h),
@@ -342,7 +342,7 @@ export const KAI_ACTIONS: ListActions = {
                               )}%`
                             : '--'
                         }</div>
-                        <div>🔄 24h Sell Price Change: ${
+                        <div style="margin-bottom: 4px">🔄 24h Sell Price Change: ${
                           token.token.priceSellChange24h
                             ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
                                 Math.abs(token.token.priceSellChange24h),
@@ -353,7 +353,7 @@ export const KAI_ACTIONS: ListActions = {
                               )}%`
                             : '--'
                         }</div>
-                        <div>💸 24h Volume: ${
+                        <div style="margin-bottom: 4px">💸 24h Volume: ${
                           token.volume24h
                             ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
                             : '--'
@@ -505,7 +505,7 @@ export const KAI_ACTIONS: ListActions = {
                   {
                     type: ActionType.HTML,
                     title: `
-                      <div>📈 Buy Price: ${
+                      <div style="margin-bottom: 4px">📈 Buy Price: ${
                         token.token.priceBuy
                           ? `${formatDisplayNumber(token.token.priceBuy, {
                               fractionDigits: 2,
@@ -513,7 +513,7 @@ export const KAI_ACTIONS: ListActions = {
                             })} ${quoteSymbol}`
                           : '--'
                       }</div>
-                      <div>📈 Sell Price: ${
+                      <div style="margin-bottom: 4px">📈 Sell Price: ${
                         token.token.priceSell
                           ? formatDisplayNumber(token.token.priceSell, {
                               fractionDigits: 2,
@@ -521,7 +521,7 @@ export const KAI_ACTIONS: ListActions = {
                             })
                           : '--'
                       }</div>
-                      <div>🔄 24h Buy Price Change: ${
+                      <div style="margin-bottom: 4px">🔄 24h Buy Price Change: ${
                         token.token.priceBuyChange24h
                           ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
                               Math.abs(token.token.priceBuyChange24h),
@@ -532,7 +532,7 @@ export const KAI_ACTIONS: ListActions = {
                             )}%`
                           : '--'
                       }</div>
-                      <div>🔄 24h Sell Price Change: ${
+                      <div style="margin-bottom: 4px">🔄 24h Sell Price Change: ${
                         token.token.priceSellChange24h
                           ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
                               Math.abs(token.token.priceSellChange24h),
@@ -543,7 +543,7 @@ export const KAI_ACTIONS: ListActions = {
                             )}%`
                           : '--'
                       }</div>
-                      <div>💸 24h Volume: ${
+                      <div style="margin-bottom: 4px">💸 24h Volume: ${
                         token.volume24h
                           ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
                           : '--'
@@ -627,13 +627,8 @@ export const KAI_ACTIONS: ListActions = {
             {
               type: ActionType.HTML,
               title: `
-                <div>📈 Buy Price: ${
-                  token.token.priceBuy
-                    ? `${formatDisplayNumber(token.token.priceBuy, {
-                        fractionDigits: 2,
-                        significantDigits: 7,
-                      })} ${quoteSymbol}`
-                    : '--'
+                <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 Token contract: ${
+                  token.token.address
                 }</div>
                 <div>📈 Sell Price: ${
                   token.token.priceSell
@@ -641,38 +636,6 @@ export const KAI_ACTIONS: ListActions = {
                         fractionDigits: 2,
                         significantDigits: 7,
                       })} ${quoteSymbol}`
-                    : '--'
-                }</div>
-                <div>🔄 24h Buy Price Change: ${
-                  token.token.priceBuyChange24h
-                    ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
-                        Math.abs(token.token.priceBuyChange24h),
-                        {
-                          style: 'decimal',
-                          fractionDigits: 2,
-                        },
-                      )}%`
-                    : '--'
-                }</div>
-                <div>🔄 24h Sell Price Change: ${
-                  token.token.priceSellChange24h
-                    ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
-                        Math.abs(token.token.priceSellChange24h),
-                        {
-                          style: 'decimal',
-                          fractionDigits: 2,
-                        },
-                      )}%`
-                    : '--'
-                }</div>
-                <div>💸 24h Volume: ${
-                  token.volume24h
-                    ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
-                    : '--'
-                }</div>
-                <div>🏦 Market Cap: ${
-                  token.marketCap
-                    ? formatDisplayNumber(token.marketCap, { style: 'currency', fractionDigits: 2 })
                     : '--'
                 }</div>
               `,
@@ -704,13 +667,8 @@ export const KAI_ACTIONS: ListActions = {
                     {
                       type: ActionType.HTML,
                       title: `
-                        <div>📈 Buy Price: ${
-                          token.token.priceBuy
-                            ? `${formatDisplayNumber(token.token.priceBuy, {
-                                fractionDigits: 2,
-                                significantDigits: 7,
-                              })} ${quoteSymbol}`
-                            : '--'
+                        <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 Token contract: ${
+                          token.token.address
                         }</div>
                         <div>📈 Sell Price: ${
                           token.token.priceSell
@@ -718,38 +676,6 @@ export const KAI_ACTIONS: ListActions = {
                                 fractionDigits: 2,
                                 significantDigits: 7,
                               })} ${quoteSymbol}`
-                            : '--'
-                        }</div>
-                        <div>🔄 24h Buy Price Change: ${
-                          token.token.priceBuyChange24h
-                            ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
-                                Math.abs(token.token.priceBuyChange24h),
-                                {
-                                  style: 'decimal',
-                                  fractionDigits: 2,
-                                },
-                              )}%`
-                            : '--'
-                        }</div>
-                        <div>🔄 24h Sell Price Change: ${
-                          token.token.priceSellChange24h
-                            ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
-                                Math.abs(token.token.priceSellChange24h),
-                                {
-                                  style: 'decimal',
-                                  fractionDigits: 2,
-                                },
-                              )}%`
-                            : '--'
-                        }</div>
-                        <div>💸 24h Volume: ${
-                          token.volume24h
-                            ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
-                            : '--'
-                        }</div>
-                        <div>🏦 Market Cap: ${
-                          token.marketCap
-                            ? formatDisplayNumber(token.marketCap, { style: 'currency', fractionDigits: 2 })
                             : '--'
                         }</div>
                       `,
@@ -849,52 +775,15 @@ export const KAI_ACTIONS: ListActions = {
             {
               type: ActionType.HTML,
               title: `
+                <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 Token contract: ${
+                  token.token.address
+                }</div>
                 <div>📈 Buy Price: ${
                   token.token.priceBuy
                     ? `${formatDisplayNumber(token.token.priceBuy, {
                         fractionDigits: 2,
                         significantDigits: 7,
                       })} ${quoteSymbol}`
-                    : '--'
-                }</div>
-                <div>📈 Sell Price: ${
-                  token.token.priceSell
-                    ? `${formatDisplayNumber(token.token.priceSell, {
-                        fractionDigits: 2,
-                        significantDigits: 7,
-                      })} ${quoteSymbol}`
-                    : '--'
-                }</div>
-                <div>🔄 24h Buy Price Change: ${
-                  token.token.priceBuyChange24h
-                    ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
-                        Math.abs(token.token.priceBuyChange24h),
-                        {
-                          style: 'decimal',
-                          fractionDigits: 2,
-                        },
-                      )}%`
-                    : '--'
-                }</div>
-                <div>🔄 24h Sell Price Change: ${
-                  token.token.priceSellChange24h
-                    ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
-                        Math.abs(token.token.priceSellChange24h),
-                        {
-                          style: 'decimal',
-                          fractionDigits: 2,
-                        },
-                      )}%`
-                    : '--'
-                }</div>
-                <div>💸 24h Volume: ${
-                  token.volume24h
-                    ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
-                    : '--'
-                }</div>
-                <div>🏦 Market Cap: ${
-                  token.marketCap
-                    ? formatDisplayNumber(token.marketCap, { style: 'currency', fractionDigits: 2 })
                     : '--'
                 }</div>
               `,
@@ -928,52 +817,15 @@ export const KAI_ACTIONS: ListActions = {
                     {
                       type: ActionType.HTML,
                       title: `
+                        <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 Token contract: ${
+                          token.token.address
+                        }</div>
                         <div>📈 Buy Price: ${
                           token.token.priceBuy
                             ? `${formatDisplayNumber(token.token.priceBuy, {
                                 fractionDigits: 2,
                                 significantDigits: 7,
                               })} ${quoteSymbol}`
-                            : '--'
-                        }</div>
-                        <div>📈 Sell Price: ${
-                          token.token.priceSell
-                            ? `${formatDisplayNumber(token.token.priceSell, {
-                                fractionDigits: 2,
-                                significantDigits: 7,
-                              })} ${quoteSymbol}`
-                            : '--'
-                        }</div>
-                        <div>🔄 24h Buy Price Change: ${
-                          token.token.priceBuyChange24h
-                            ? `${token.token.priceBuyChange24h < 0 ? '-' : ''}${formatDisplayNumber(
-                                Math.abs(token.token.priceBuyChange24h),
-                                {
-                                  style: 'decimal',
-                                  fractionDigits: 2,
-                                },
-                              )}%`
-                            : '--'
-                        }</div>
-                        <div>🔄 24h Sell Price Change: ${
-                          token.token.priceSellChange24h
-                            ? `${token.token.priceSellChange24h < 0 ? '-' : ''}${formatDisplayNumber(
-                                Math.abs(token.token.priceSellChange24h),
-                                {
-                                  style: 'decimal',
-                                  fractionDigits: 2,
-                                },
-                              )}%`
-                            : '--'
-                        }</div>
-                        <div>💸 24h Volume: ${
-                          token.volume24h
-                            ? formatDisplayNumber(token.volume24h, { style: 'currency', fractionDigits: 2 })
-                            : '--'
-                        }</div>
-                        <div>🏦 Market Cap: ${
-                          token.marketCap
-                            ? formatDisplayNumber(token.marketCap, { style: 'currency', fractionDigits: 2 })
                             : '--'
                         }</div>
                       `,
@@ -1019,14 +871,14 @@ export const KAI_ACTIONS: ListActions = {
           {
             type: ActionType.HTML,
             title: `
-              <div>🔄 You're swapping: ${arg.amountIn} of ${arg.tokenIn.symbol}, est. ${quoteSymbol} value ${
-              arg.tokenIn.token.priceSell * arg.amountIn
-            }</div>
-              <div>💰 For: ${(arg.amountIn * arg.tokenIn.token.priceSell) / arg.tokenIn.token.priceBuy} of ${
-              arg.tokenOut.symbol
-            }, est. ${quoteSymbol} value ${arg.amountIn * arg.tokenIn.token.priceSell}</div>
-              <div>⚖️ Slippage tolerance: ${slippage}%</div>
-              <div>📝 Min receive: [MinAmountout]</div>
+              <div style="margin-bottom: 4px">🔄 You're swapping: ${arg.amountIn} of ${
+              arg.tokenIn.symbol
+            }, est. ${quoteSymbol} value ${arg.tokenIn.token.priceSell * arg.amountIn}</div>
+              <div style="margin-bottom: 4px">💰 For: ${
+                (arg.amountIn * arg.tokenIn.token.priceSell) / arg.tokenIn.token.priceBuy
+              } of ${arg.tokenOut.symbol}, est. ${quoteSymbol} value ${arg.amountIn * arg.tokenIn.token.priceSell}</div>
+              <div style="margin-bottom: 4px">⚖️ Slippage tolerance: ${slippage}%</div>
+              <div style="margin-bottom: 4px">📝 Min receive: [MinAmountout]</div>
               <div>📉 Price Impact: [Price Impact]</div>
             `,
           },
@@ -1053,14 +905,14 @@ export const KAI_ACTIONS: ListActions = {
         {
           type: ActionType.HTML,
           title: `
-            <div>🔄 You're awapping: ${arg.amountIn} of ${arg.tokenIn.symbol}, est. ${quoteSymbol} value ${
-            arg.tokenIn.token.priceSell * arg.amountIn
-          }</div>
-            <div>💰 For: ${(arg.amountIn * arg.tokenIn.token.priceSell) / arg.tokenOut.token.priceBuy} of ${
-            arg.tokenOut.symbol
-          }, est. ${quoteSymbol} value ${arg.amountIn * arg.tokenIn.token.priceSell}</div>
-            <div>⚖️ Slippage tolerance: ${answer}%</div>
-            <div>📝 Min receive: [MinAmountout]</div>
+            <div style="margin-bottom: 4px">🔄 You're awapping: ${arg.amountIn} of ${
+            arg.tokenIn.symbol
+          }, est. ${quoteSymbol} value ${arg.tokenIn.token.priceSell * arg.amountIn}</div>
+            <div style="margin-bottom: 4px">💰 For: ${
+              (arg.amountIn * arg.tokenIn.token.priceSell) / arg.tokenOut.token.priceBuy
+            } of ${arg.tokenOut.symbol}, est. ${quoteSymbol} value ${arg.amountIn * arg.tokenIn.token.priceSell}</div>
+            <div style="margin-bottom: 4px">⚖️ Slippage tolerance: ${answer}%</div>
+            <div style="margin-bottom: 4px">📝 Min receive: [MinAmountout]</div>
             <div>📉 Price Impact: [Price Impact]</div>
           `,
         },
