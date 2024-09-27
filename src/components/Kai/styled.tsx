@@ -41,7 +41,7 @@ export const ModalContent = styled.div`
   background: ${({ theme }) => theme.tableHeader};
   padding: 20px 24px 26px;
   border-radius: 12px;
-  width: 348px;
+  width: 380px;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: calc(100vw - 2rem);
@@ -222,7 +222,7 @@ export const Loader = styled.div`
 `
 
 export const ChatPanel = styled.div`
-  max-height: 360px;
+  max-height: 415px;
   overflow: scroll;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`

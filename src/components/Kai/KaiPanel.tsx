@@ -10,7 +10,6 @@ import { MAINNET_NETWORKS } from 'constants/networks'
 import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 
-// import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ActionType, KAI_ACTIONS, KaiAction, KaiOption } from './actions'
 import {
   ActionButton,
@@ -49,15 +48,6 @@ const KaiPanel = () => {
   const [loadingText, setLoadingText] = useState(DEFAULT_LOADING_TEXT)
   const [listActions, setListActions] = useState<KaiAction[]>([KAI_ACTIONS.MAIN_MENU])
   const [chainId, setChainId] = useState(DEFAULT_CHAIN_ID)
-
-  // const [swapData, setSwapData] = useState({
-  //   currencyIn: null,
-  //   currencyOut: null,
-  //   parsedAmount: null,
-  //   isProcessingSwap: false,
-  //   customChain: chainId,
-  //   clientId: undefined,
-  // })
 
   const whitelistTokens = useAllTokens(true, chainId)
   const whitelistTokenAddress = useMemo(() => Object.keys(whitelistTokens), [whitelistTokens])
@@ -123,24 +113,10 @@ const KaiPanel = () => {
         })) || []
       if (newActions.length) onChangeListActions(newActions)
 
-      // if (newActions.length) {
-      //   const firstAction = newActions[0]
-      //   if (firstAction.callHook && firstAction.callHook === CallHook.SWAP) {
-      //     console.log(firstAction.arg)
-      //     console.log(new WrappedTokenInfo(firstAction.arg.tokenIn))
-      //     return
-      //   }
-      //   onChangeListActions(newActions)
-      // }
-
       setLoading(false)
       setLoadingText(DEFAULT_LOADING_TEXT)
     }
   }
-
-  // useEffect(() => {
-  //   console.log('swapData', swapData)
-  // }, [swapData])
 
   useEffect(() => {
     if (lastAction?.placeholder) setChatPlaceHolderText(lastAction.placeholder)

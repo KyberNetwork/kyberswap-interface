@@ -229,6 +229,7 @@ export const KAI_ACTIONS: ListActions = {
 
         if (result.length === 1) {
           const token = result[0]
+          const showAddress = answer !== token.token.address.toLowerCase()
 
           return [
             {
@@ -238,6 +239,9 @@ export const KAI_ACTIONS: ListActions = {
             {
               type: ActionType.HTML,
               title: `
+                <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">${
+                  showAddress ? '📌 Token contract: ' + token.token.address : ''
+                }</div>
                 <div style="margin-bottom: 4px">📈 Buy Price: ${
                   token.token.priceBuy
                     ? `${formatDisplayNumber(token.token.priceBuy, {
@@ -306,7 +310,9 @@ export const KAI_ACTIONS: ListActions = {
                 if (tokenSymbolSelected === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
 
                 const token = result.find((item: any) => item.symbol.toLowerCase() === tokenSymbolSelected)
-                if (token)
+                if (token) {
+                  const showAddress = answer !== token.token.address.toLowerCase()
+
                   return [
                     {
                       title: `Here’s what I’ve got for ${tokenSymbolSelected}`,
@@ -315,6 +321,9 @@ export const KAI_ACTIONS: ListActions = {
                     {
                       type: ActionType.HTML,
                       title: `
+                        <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">${
+                          showAddress ? '📌 Token contract: ' + token.token.address : ''
+                        }</div>
                         <div style="margin-bottom: 4px">📈 Buy Price: ${
                           token.token.priceBuy
                             ? `${formatDisplayNumber(token.token.priceBuy, {
@@ -368,6 +377,7 @@ export const KAI_ACTIONS: ListActions = {
                     KAI_ACTIONS.WOULD_LIKE_TO_DO_SOMETHING_ELSE,
                     KAI_ACTIONS.DO_SOMETHING_AFTER_CHECK_PRICE,
                   ]
+                }
 
                 return [KAI_ACTIONS.TOKEN_NOT_FOUND, KAI_ACTIONS.INVALID_BACK_TO_MENU]
               },
@@ -505,6 +515,9 @@ export const KAI_ACTIONS: ListActions = {
                   {
                     type: ActionType.HTML,
                     title: `
+                    <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">${
+                      '📌 Token contract: ' + token.token.address
+                    }</div>
                       <div style="margin-bottom: 4px">📈 Buy Price: ${
                         token.token.priceBuy
                           ? `${formatDisplayNumber(token.token.priceBuy, {
@@ -622,13 +635,14 @@ export const KAI_ACTIONS: ListActions = {
 
         if (result.length === 1) {
           const token = result[0]
+          const showAddress = answer !== token.token.address.toLowerCase()
 
           return [
             {
               type: ActionType.HTML,
               title: `
-                <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 Token contract: ${
-                  token.token.address
+                <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 ${
+                  showAddress ? `Token contract: ${token.token.address}` : token.symbol
                 }</div>
                 <div>📈 Sell Price: ${
                   token.token.priceSell
@@ -662,13 +676,15 @@ export const KAI_ACTIONS: ListActions = {
                 if (tokenSymbolSelected === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
 
                 const token = result.find((item: any) => item.symbol.toLowerCase() === tokenSymbolSelected)
-                if (token)
+                if (token) {
+                  const showAddress = answer !== token.token.address.toLowerCase()
+
                   return [
                     {
                       type: ActionType.HTML,
                       title: `
-                        <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 Token contract: ${
-                          token.token.address
+                        <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 ${
+                          showAddress ? `Token contract: ${token.token.address}` : token.symbol
                         }</div>
                         <div>📈 Sell Price: ${
                           token.token.priceSell
@@ -687,6 +703,7 @@ export const KAI_ACTIONS: ListActions = {
                       },
                     },
                   ]
+                }
 
                 return [KAI_ACTIONS.TOKEN_NOT_FOUND, KAI_ACTIONS.INVALID_BACK_TO_MENU]
               },
@@ -770,13 +787,14 @@ export const KAI_ACTIONS: ListActions = {
 
         if (result.length === 1) {
           const token = result[0]
+          const showAddress = answer !== token.token.address.toLowerCase()
 
           return [
             {
               type: ActionType.HTML,
               title: `
-                <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 Token contract: ${
-                  token.token.address
+                <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 ${
+                  showAddress ? `Token contract: ${token.token.address}` : token.symbol
                 }</div>
                 <div>📈 Buy Price: ${
                   token.token.priceBuy
@@ -812,13 +830,16 @@ export const KAI_ACTIONS: ListActions = {
                 if (tokenSymbolSelected === KAI_OPTIONS.BACK_TO_MENU.title.toLowerCase()) return [KAI_ACTIONS.MAIN_MENU]
 
                 const token = result.find((item: any) => item.symbol.toLowerCase() === tokenSymbolSelected)
-                if (token)
+
+                if (token) {
+                  const showAddress = answer !== token.token.address.toLowerCase()
+
                   return [
                     {
                       type: ActionType.HTML,
                       title: `
-                        <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 Token contract: ${
-                          token.token.address
+                        <div style="width: 100%; word-wrap: break-word; margin-bottom: 4px">📌 ${
+                          showAddress ? `Token contract: ${token.token.address}` : token.symbol
                         }</div>
                         <div>📈 Buy Price: ${
                           token.token.priceBuy
@@ -839,6 +860,7 @@ export const KAI_ACTIONS: ListActions = {
                       },
                     },
                   ]
+                }
 
                 return [KAI_ACTIONS.TOKEN_NOT_FOUND, KAI_ACTIONS.INVALID_BACK_TO_MENU]
               },
@@ -878,8 +900,8 @@ export const KAI_ACTIONS: ListActions = {
                 (arg.amountIn * arg.tokenIn.token.priceSell) / arg.tokenIn.token.priceBuy
               } of ${arg.tokenOut.symbol}, est. ${quoteSymbol} value ${arg.amountIn * arg.tokenIn.token.priceSell}</div>
               <div style="margin-bottom: 4px">⚖️ Slippage tolerance: ${slippage}%</div>
-              <div style="margin-bottom: 4px">📝 Min receive: [MinAmountout]</div>
-              <div>📉 Price Impact: [Price Impact]</div>
+              <div style="margin-bottom: 4px">📝 Min receive: --</div>
+              <div>📉 Price Impact: --</div>
             `,
           },
           KAI_ACTIONS.CONFIRM_SWAP_TOKEN_TEXT,
@@ -912,8 +934,8 @@ export const KAI_ACTIONS: ListActions = {
               (arg.amountIn * arg.tokenIn.token.priceSell) / arg.tokenOut.token.priceBuy
             } of ${arg.tokenOut.symbol}, est. ${quoteSymbol} value ${arg.amountIn * arg.tokenIn.token.priceSell}</div>
             <div style="margin-bottom: 4px">⚖️ Slippage tolerance: ${answer}%</div>
-            <div style="margin-bottom: 4px">📝 Min receive: [MinAmountout]</div>
-            <div>📉 Price Impact: [Price Impact]</div>
+            <div style="margin-bottom: 4px">📝 Min receive: --</div>
+            <div>📉 Price Impact: --</div>
           `,
         },
         KAI_ACTIONS.CONFIRM_SWAP_TOKEN_TEXT,
