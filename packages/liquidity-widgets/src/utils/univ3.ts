@@ -1,4 +1,4 @@
-import { Price, Token } from '@uniswap/sdk-core'
+import { Price, Token } from "@uniswap/sdk-core";
 import {
   FeeAmount,
   TICK_SPACINGS,
@@ -6,29 +6,32 @@ import {
   encodeSqrtRatioX96,
   nearestUsableTick,
   priceToClosestTick,
-} from '@uniswap/v3-sdk'
-import JSBI from 'jsbi'
+} from "@uniswap/v3-sdk";
 
-export function tryParsePrice(baseToken?: Token, quoteToken?: Token, value?: string) {
+export function tryParsePrice(
+  baseToken?: Token,
+  quoteToken?: Token,
+  value?: string
+) {
   if (!baseToken || !quoteToken || !value) {
-    return undefined
+    return undefined;
   }
 
   if (!value.match(/^\d*\.?\d+$/)) {
-    return undefined
+    return undefined;
   }
 
-  const [whole, fraction] = value.split('.')
+  const [whole, fraction] = value.split(".");
 
-  const decimals = fraction?.length ?? 0
-  const withoutDecimals = JSBI.BigInt((whole ?? '') + (fraction ?? ''))
+  const decimals = fraction?.length ?? 0;
+  const withoutDecimals = BigInt((whole ?? "") + (fraction ?? ""));
 
   return new Price(
     baseToken,
     quoteToken,
-    JSBI.multiply(JSBI.BigInt(10 ** decimals), JSBI.BigInt(10 ** baseToken.decimals)),
-    JSBI.multiply(withoutDecimals, JSBI.BigInt(10 ** quoteToken.decimals))
-  )
+    (BigInt(10 ** decimals) * BigInt(10 ** baseToken.decimals)).toString(),
+    (withoutDecimals * BigInt(10 ** quoteToken.decimals)).toString()
+  );
 }
 
 export function tryParseTick(
@@ -38,28 +41,34 @@ export function tryParseTick(
   value?: string
 ): number | null {
   if (!baseToken || !quoteToken || !feeAmount || !value) {
-    return null
+    return null;
   }
 
-  const price = tryParsePrice(baseToken, quoteToken, value)
+  const price = tryParsePrice(baseToken, quoteToken, value);
 
   if (!price) {
-    return null
+    return null;
   }
 
-  let tick: number
+  let tick: number;
 
   // check price is within min/max bounds, if outside return min/max
-  const sqrtRatioX96 = encodeSqrtRatioX96(price.numerator, price.denominator)
+  const sqrtRatioX96 = encodeSqrtRatioX96(price.numerator, price.denominator);
 
-  if (JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MAX_SQRT_RATIO)) {
-    tick = TickMath.MAX_TICK
-  } else if (JSBI.lessThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO)) {
-    tick = TickMath.MIN_TICK
+  if (
+    BigInt(sqrtRatioX96.toString()) >=
+    BigInt(TickMath.MAX_SQRT_RATIO.toString())
+  ) {
+    tick = TickMath.MAX_TICK;
+  } else if (
+    BigInt(sqrtRatioX96.toString()) <=
+    BigInt(TickMath.MIN_SQRT_RATIO.toString())
+  ) {
+    tick = TickMath.MIN_TICK;
   } else {
     // this function is agnostic to the base, will always return the correct tick
-    tick = priceToClosestTick(price as any)
+    tick = priceToClosestTick(price as any);
   }
 
-  return nearestUsableTick(tick, TICK_SPACINGS[feeAmount])
+  return nearestUsableTick(tick, TICK_SPACINGS[feeAmount]);
 }

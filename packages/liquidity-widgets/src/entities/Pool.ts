@@ -8,7 +8,6 @@ import {
 } from "@pancakeswap/v3-sdk";
 import { tryParseTick as tryParseTickUniV3 } from "../utils/univ3";
 import { tryParseTick as tryParseTickPancakeV3 } from "../utils/pancakev3";
-import JSBI from "jsbi";
 import { Token as UniToken, Price as UniswapPrice } from "@uniswap/sdk-core";
 import { Token as PancakeToken } from "@pancakeswap/sdk";
 import {
@@ -193,16 +192,13 @@ export function tryParsePrice(
   const [whole, fraction] = value.split(".");
 
   const decimals = fraction?.length ?? 0;
-  const withoutDecimals = JSBI.BigInt((whole ?? "") + (fraction ?? ""));
+  const withoutDecimals = BigInt((whole ?? "") + (fraction ?? ""));
 
   const price = new UniswapPrice(
     new UniToken(base.chainId, base.address, base.decimals, base.symbol),
     new UniToken(quote.chainId, quote.address, quote.decimals, quote.symbol),
-    JSBI.multiply(
-      JSBI.BigInt(10 ** decimals),
-      JSBI.BigInt(10 ** base.decimals)
-    ),
-    JSBI.multiply(withoutDecimals, JSBI.BigInt(10 ** quote.decimals))
+    (BigInt(10 ** decimals) * BigInt(10 ** base.decimals)).toString(),
+    (withoutDecimals * BigInt(10 ** quote.decimals)).toString()
   );
 
   return price;

@@ -1,0 +1,16 @@
+{
+  "extends": "@kyber/typescript-config/react-library.json",
+  "compilerOptions": {
+    "useDefineForClassFields": true,
+    "allowJs": false,
+    "resolveJsonModule": true,
+  },
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}

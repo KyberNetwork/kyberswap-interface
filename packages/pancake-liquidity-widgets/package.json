@@ -1,62 +1,54 @@
 {
   "name": "@kyberswap/pancake-liquidity-widgets",
   "license": "MIT",
-  "version": "0.0.1-rc10",
+  "version": "0.0.1-tsup1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "build": "tsup",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "prepublishOnly": "tsc && tsup"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.8",
-    "@reach/portal": "^0.18.0",
-    "d3": "^7.9.0",
-    "polished": "^4.3.1",
     "@pancakeswap/sdk": "^5.8.2",
-    "@pancakeswap/v3-sdk": "^3.8.3"
+    "@pancakeswap/swap-sdk-core": "^1.2.0",
+    "@pancakeswap/v3-sdk": "^3.8.3",
+    "@popperjs/core": "^2.11.8",
+    "react-popper": "^2.3.0"
   },
   "devDependencies": {
-    "@rainbow-me/rainbowkit": "2.1.0",
-    "@tanstack/react-query": "5.22.2",
-    "@types/d3": "^7.4.3",
+    "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
-    "@vitejs/plugin-react-swc": "^3.5.0",
+    "esbuild-sass-plugin": "^3.3.1",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "sass": "^1.70.0",
-    "vite": "^5.0.8",
-    "vite-plugin-checker": "^0.6.2",
-    "vite-plugin-dts": "^3.7.0",
-    "vite-plugin-svgr": "^4.2.0",
-    "wagmi": "2.9.2",
-    "viem": "2.13.3",
-    "typescript": "^5.2.2"
+    "tsup": "^8.3.0",
+    "typescript": "5.3.2"
   },
   "peerDependencies": {
+    "@kyber/ui": "workspace:*",
+    "@kyber/hooks": "workspace:*",
     "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "react-dom": ">=16.8.0",
+    "viem": ">=2.13.3"
   },
   "files": [
     "dist"
   ],
-  "main": "./dist/liquidity-widget.umd.js",
-  "module": "./dist/liquidity-widget.es.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/liquidity-widget.cjs",
+  "module": "./dist/liquidity-widget.js",
+  "types": "./dist/liquidity-widget.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/liquidity-widget.es.js",
-      "require": "./dist/liquidity-widget.umd.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/liquidity-widget.js",
+      "require": "./dist/liquidity-widget.cjs"
     },
-    "./dist/style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css"
-    }
+    "./dist/style.css": "./dist/liquidity-widget.css"
   }
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AlertIcon from "../../assets/alert.svg?react";
+import AlertIcon from "../../assets/alert.svg";
 import { useZapState } from "../../hooks/useZapInState";
 
 export const parseSlippageInput = (str: string): number =>

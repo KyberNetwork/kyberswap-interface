@@ -1,6 +1,6 @@
 import "./Content.scss";
-import X from "../../assets/x.svg?react";
-import ErrorIcon from "../../assets/error.svg?react";
+import X from "../../assets/x.svg";
+import ErrorIcon from "../../assets/error.svg";
 import PriceInfo from "./PriceInfo";
 import LiquidityChart from "./LiquidityChart";
 import PriceInput from "./PriceInput";

@@ -14,7 +14,7 @@ import useTokenBalance, { useNativeBalance } from "./useTokenBalance";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
 import { Price, Token } from "@pancakeswap/sdk";
 import { tickToPrice } from "@pancakeswap/v3-sdk";
-import useDebounce from "./useDebounce";
+import { useDebounce } from "@kyber/hooks/use-debounce";
 import { PancakeToken } from "../entities/Pool";
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";

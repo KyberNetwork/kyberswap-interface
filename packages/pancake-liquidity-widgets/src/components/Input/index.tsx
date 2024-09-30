@@ -1,4 +1,4 @@
-import "./input.scss";
+import "./Input.scss";
 
 export default function Input(
   props: React.InputHTMLAttributes<HTMLInputElement>

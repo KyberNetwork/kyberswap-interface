@@ -1,6 +1,6 @@
 import { Placement } from "@popperjs/core";
 import { CSSProperties, ReactNode, useCallback, useState } from "react";
-import Info from "../assets/info.svg?react";
+import Info from "../assets/info.svg";
 
 import Tooltip from "./Tooltip";
 import { useWidgetInfo } from "../hooks/useWidgetInfo";

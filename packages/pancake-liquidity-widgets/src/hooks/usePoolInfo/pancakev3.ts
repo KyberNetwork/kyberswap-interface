@@ -121,14 +121,12 @@ export default function usePoolInfo(
           }
         )
           .then((res) => res.json())
-          .then((res) =>
-            res?.data?.tokens.map(
-              (item: { data: TokenInfo }) =>
-                ({
-                  ...item.data,
-                  chainId: +item.data.chainId,
-                } || [])
-            )
+          .then(
+            (res) =>
+              res?.data?.tokens.map((item: { data: TokenInfo }) => ({
+                ...item.data,
+                chainId: +item.data.chainId,
+              })) || []
           );
 
         if (!token0Info)
@@ -240,7 +238,7 @@ export default function usePoolInfo(
   ]);
 
   useEffect(() => {
-    let i: NodeJS.Timeout | undefined;
+    let i: number | undefined;
     if (!!pool && publicClient) {
       const getSlot0 = async () => {
         const multiCallRes = await publicClient.multicall({

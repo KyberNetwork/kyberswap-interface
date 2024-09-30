@@ -1,7 +1,7 @@
 import "./Header.scss";
 import { useWeb3Provider } from "../../hooks/useProvider";
-import SettingIcon from "../../assets/setting.svg?react";
-import X from "../../assets/x.svg?react";
+import SettingIcon from "../../assets/setting.svg";
+import X from "../../assets/x.svg";
 
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { NetworkInfo, BASE_BPS } from "../../constants";

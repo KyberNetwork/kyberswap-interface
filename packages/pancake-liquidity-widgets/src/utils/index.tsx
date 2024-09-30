@@ -280,6 +280,6 @@ export function calculateGasMargin(value: bigint): bigint {
   const gasMargin = (value * BigInt(2000)) / BigInt(10000);
 
   return gasMargin >= defaultGasLimitMargin
-    ? value + gasMargin 
+    ? value + gasMargin
     : value + defaultGasLimitMargin;
 }

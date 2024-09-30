@@ -19,7 +19,7 @@ export function useOnClickOutside<T extends HTMLElement>(
         return;
       }
       if (
-        [...document.getElementsByTagName("reach-portal")].some((el: Element) =>
+        [...document.getElementsByTagName("kyber-portal")].some((el: Element) =>
           el.contains(e.target as Node)
         )
       ) {

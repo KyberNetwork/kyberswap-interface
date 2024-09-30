@@ -14,7 +14,14 @@ interface TooltipProps extends Omit<PopoverProps, "content"> {
   dataTestId?: string;
 }
 
-export default function Tooltip({ text, width, size, onMouseEnter, onMouseLeave, ...rest }: TooltipProps) {
+export default function Tooltip({
+  text,
+  width,
+  size,
+  onMouseEnter,
+  onMouseLeave,
+  ...rest
+}: TooltipProps) {
   return (
     <Popover
       content={
@@ -46,7 +53,7 @@ export function MouseoverTooltip({
   ...rest
 }: Omit<TooltipProps, "show">) {
   const [show, setShow] = useState(false);
-  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [closeTimeout, setCloseTimeout] = useState<number | null>(null);
   const hovering = useRef(false);
   const open = useCallback(() => {
     if (rest.text) {

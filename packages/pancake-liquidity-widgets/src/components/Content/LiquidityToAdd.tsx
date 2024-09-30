@@ -1,6 +1,6 @@
 import { formatUnits } from "viem";
 
-import SwitchIcon from "../../assets/switch.svg?react";
+import SwitchIcon from "../../assets/switch.svg";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatCurrency, formatWei } from "../../utils";
 import InfoHelper from "../InfoHelper";

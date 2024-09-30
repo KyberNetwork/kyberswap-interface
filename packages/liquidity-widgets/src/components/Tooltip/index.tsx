@@ -14,7 +14,14 @@ interface TooltipProps extends Omit<PopoverProps, "content"> {
   dataTestId?: string;
 }
 
-export default function Tooltip({ text, width, size, onMouseEnter, onMouseLeave, ...rest }: TooltipProps) {
+export default function Tooltip({
+  text,
+  width,
+  size,
+  onMouseEnter,
+  onMouseLeave,
+  ...rest
+}: TooltipProps) {
   return (
     <Popover
       content={

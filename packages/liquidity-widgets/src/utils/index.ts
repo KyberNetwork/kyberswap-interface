@@ -165,7 +165,6 @@ const patterns: {
 ];
 function parseKnownRegexPattern(text: string): string | undefined {
   const pattern = patterns.find((pattern) => pattern.pattern.exec(text));
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   if (pattern)
     return capitalizeFirstLetter(
       pattern.getMessage(pattern.pattern.exec(text)!)

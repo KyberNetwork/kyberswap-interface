@@ -9,7 +9,6 @@ import { useMemo } from "react";
 
 const Axis = ({ axisGenerator }: { axisGenerator: d3Axis<NumberValue> }) => {
   const axisRef = (axis: SVGGElement) => {
-    // eslint-disable-next-line no-unused-expressions
     axis &&
       select(axis)
         .call(axisGenerator)

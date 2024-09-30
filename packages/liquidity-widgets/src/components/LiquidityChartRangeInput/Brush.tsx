@@ -113,7 +113,6 @@ export const Brush = ({
     ) {
       select(brushRef.current)
         .transition()
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
         .call(brushBehavior.current.move as any, brushExtent.map(xScale));
     }
 

@@ -1,9 +1,9 @@
-import Info from "../../assets/info.svg?react";
-import DropdownIcon from "../../assets/dropdown.svg?react";
-import Spinner from "../../assets/loader.svg?react";
-import SwitchIcon from "../../assets/switch.svg?react";
-import SuccessIcon from "../../assets/success.svg?react";
-import ErrorIcon from "../../assets/error.svg?react";
+import Info from "../../assets/info.svg";
+import DropdownIcon from "../../assets/dropdown.svg";
+import Spinner from "../../assets/loader.svg";
+import SwitchIcon from "../../assets/switch.svg";
+import SuccessIcon from "../../assets/success.svg";
+import ErrorIcon from "../../assets/error.svg";
 import "./Preview.scss";
 
 import {
@@ -361,7 +361,7 @@ export default function Preview({
                 ? `Position #${positionId}`
                 : `${getDexName()} ${pool.token0.symbol}/${
                     pool.token1.symbol
-                  } ${(pool.fee / 10_000) * 100}`}
+                  } ${pool.fee / 10_000}%`}
             </div>
           )}
           {txHash && txStatus === "" && (

@@ -137,14 +137,12 @@ export default function usePoolInfo(
           }
         )
           .then((res) => res.json())
-          .then((res) =>
-            res?.data?.tokens.map(
-              (item: { data: TokenInfo }) =>
-                ({
-                  ...item.data,
-                  chainId: +item.data.chainId,
-                } || [])
-            )
+          .then(
+            (res) =>
+              res?.data?.tokens.map((item: { data: TokenInfo }) => ({
+                ...item.data,
+                chainId: +item.data.chainId,
+              })) || []
           );
 
         if (!token0Info)

@@ -1,5 +1,5 @@
-import WalletIcon from "../../assets/wallet.svg?react";
-import SwitchIcon from "../../assets/switch.svg?react";
+import WalletIcon from "../../assets/wallet.svg";
+import SwitchIcon from "../../assets/switch.svg";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatCurrency, formatWei } from "../../utils";
 import { BigNumber } from "ethers";

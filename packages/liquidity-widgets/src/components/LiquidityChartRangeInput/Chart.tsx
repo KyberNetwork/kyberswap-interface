@@ -1,6 +1,6 @@
 import { max, scaleLinear, ZoomTransform } from "d3";
 import { useEffect, useMemo, useRef, useState } from "react";
-import partition from "lodash/partition";
+import partition from "lodash.partition";
 
 import { Area } from "./Area";
 import { AxisBottom } from "./AxisBottom";
@@ -33,14 +33,20 @@ export function Chart({
   const [zoom, setZoom] = useState<ZoomTransform | null>(null);
 
   const [innerHeight, innerWidth] = useMemo(
-    () => [height - margins.top - margins.bottom, width - margins.left - margins.right],
+    () => [
+      height - margins.top - margins.bottom,
+      width - margins.left - margins.right,
+    ],
     [width, height, margins]
   );
 
   const { xScale, yScale } = useMemo(() => {
     const scales = {
       xScale: scaleLinear()
-        .domain([current * zoomLevels.initialMin, current * zoomLevels.initialMax] as number[])
+        .domain([
+          current * zoomLevels.initialMin,
+          current * zoomLevels.initialMax,
+        ] as number[])
         .range([0, innerWidth]),
       yScale: scaleLinear()
         .domain([0, max(series, yAccessor)] as number[])
@@ -53,7 +59,15 @@ export function Chart({
     }
 
     return scales;
-  }, [current, zoomLevels.initialMin, zoomLevels.initialMax, innerWidth, series, innerHeight, zoom]);
+  }, [
+    current,
+    zoomLevels.initialMin,
+    zoomLevels.initialMax,
+    innerWidth,
+    series,
+    innerHeight,
+    zoom,
+  ]);
 
   useEffect(() => {
     // reset zoom as necessary
@@ -68,13 +82,27 @@ export function Chart({
 
   const [leftSeries, rightSeries] = useMemo(() => {
     const isHighToLow = series[0]?.price0 > series[series.length - 1]?.price0;
-    let [left, right] = partition(series, (d) => (isHighToLow ? +xAccessor(d) < current : +xAccessor(d) > current));
+    let [left, right] = partition(series, (d) =>
+      isHighToLow ? +xAccessor(d) < current : +xAccessor(d) > current
+    );
 
     if (right.length && right[right.length - 1]) {
       if (right[right.length - 1].price0 !== current) {
-        right = [...right, { activeLiquidity: right[right.length - 1].activeLiquidity, price0: current }];
+        right = [
+          ...right,
+          {
+            activeLiquidity: right[right.length - 1].activeLiquidity,
+            price0: current,
+          },
+        ];
       }
-      left = [{ activeLiquidity: right[right.length - 1].activeLiquidity, price0: current }, ...left];
+      left = [
+        {
+          activeLiquidity: right[right.length - 1].activeLiquidity,
+          price0: current,
+        },
+        ...left,
+      ];
     }
 
     return [left, right];
@@ -94,15 +122,25 @@ export function Chart({
           }
           resetBrush={() => {
             onBrushDomainChange(
-              [current * zoomLevels.initialMin, current * zoomLevels.initialMax] as [number, number],
+              [
+                current * zoomLevels.initialMin,
+                current * zoomLevels.initialMax,
+              ] as [number, number],
               "reset"
             );
           }}
-          showResetButton={Boolean(ticksAtLimit[Bound.LOWER] || ticksAtLimit[Bound.UPPER])}
+          showResetButton={Boolean(
+            ticksAtLimit[Bound.LOWER] || ticksAtLimit[Bound.UPPER]
+          )}
           zoomLevels={zoomLevels}
         />
       )}
-      <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} style={{ overflow: "visible" }}>
+      <svg
+        width="100%"
+        height="100%"
+        viewBox={`0 0 ${width} ${height}`}
+        style={{ overflow: "visible" }}
+      >
         <defs>
           <linearGradient id="green-gradient" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor={theme.success} stopOpacity={1} />
@@ -173,7 +211,13 @@ export function Chart({
             <AxisBottom xScale={xScale} innerHeight={innerHeight} />
           </g>
 
-          <rect fill="transparent" cursor="grab" width={innerWidth} height={height} ref={zoomRef} />
+          <rect
+            fill="transparent"
+            cursor="grab"
+            width={innerWidth}
+            height={height}
+            ref={zoomRef}
+          />
 
           <Brush
             id={id}
