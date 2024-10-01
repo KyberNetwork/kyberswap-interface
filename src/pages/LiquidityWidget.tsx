@@ -82,8 +82,6 @@ export default function LiquidityWidget() {
   const [feeAddress, setFeeAddress] = useState('')
   const [feePcm, setFeePcm] = useState(0)
 
-  console.log(feeAddress, feePcm)
-
   return (
     <>
       {openModal ? (

@@ -19171,10 +19171,10 @@ thunky@^1.0.2:
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
   integrity sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==
 
-tien-liquidity-widgets@0.0.8-multi-token-poc-4:
-  version "0.0.8-multi-token-poc-4"
-  resolved "https://registry.yarnpkg.com/tien-liquidity-widgets/-/tien-liquidity-widgets-0.0.8-multi-token-poc-4.tgz#2c41d645dda42491673092b65152a7df29ab6c98"
-  integrity sha512-WWSjCO6xAY3HvgT9Q9TU5snK+FlNzy5ZDBkQy0xE/F1JUgmZJ1vsqM/9L204HZH4LzuAU7M6ZaoT5rDy2TeZaw==
+tien-liquidity-widgets@0.0.8-multi-token-poc-5:
+  version "0.0.8-multi-token-poc-5"
+  resolved "https://registry.yarnpkg.com/tien-liquidity-widgets/-/tien-liquidity-widgets-0.0.8-multi-token-poc-5.tgz#c1d2456a3d2d75a6b9e20e83d6386bd560b8386f"
+  integrity sha512-dO/F6qF5Fnzg5MdhZGgGlbAzAEKE/OgUDqVBtXgwzy/6gNLi4UV35zc1jdgBZc2MafCn3ft8FQtKLrYyALHdwQ==
   dependencies:
     "@ethersproject/providers" "^5.7.2"
     "@kyberswap/ks-sdk-core" "^1.1.5"
