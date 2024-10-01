@@ -1,8 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { LiquidityWidget as KsLiquidityWidget, PoolType } from '@kyberswap/liquidity-widgets'
-import '@kyberswap/liquidity-widgets/dist/style.css'
 import { useEffect, useMemo, useState } from 'react'
 import { Box } from 'rebass'
+import { LiquidityWidget as KsLiquidityWidget, PoolType } from 'tien-liquidity-widgets'
+import 'tien-liquidity-widgets/dist/style.css'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
