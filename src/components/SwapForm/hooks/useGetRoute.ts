@@ -146,10 +146,13 @@ const useGetRoute = (args: ArgsGetRoute) => {
     const params: GetRouteParams = {
       tokenIn: tokenInAddress,
       tokenOut: tokenOutAddress,
+      tokenInDecimals: currencyIn.decimals,
+      tokenOutDecimals: currencyOut.decimals,
       amountIn,
       includedSources: dexes,
       gasInclude: 'true', // default
       gasPrice: '', // default
+      chainId,
       ...feeConfigParams,
     }
 
