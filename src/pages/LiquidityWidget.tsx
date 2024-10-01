@@ -112,7 +112,16 @@ export default function LiquidityWidget() {
           source={'kyberswap-demo-zap'}
         />
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', gap: '1rem', width: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            maxWidth: '500px',
+            gap: '1rem',
+            width: '100%',
+            color: '#fff',
+          }}
+        >
           <NetworkSelector chainId={selectedChainId} customOnSelectNetwork={chain => setSelectedChainId(chain)} />
           <div>
             <input
