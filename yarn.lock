@@ -4297,6 +4297,17 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
+"@pancakeswap/swap-sdk-core@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@pancakeswap/swap-sdk-core/-/swap-sdk-core-1.2.0.tgz#8bf8bdf97dbb9209e1961a659843e86b440f907b"
+  integrity sha512-GYgfG6O3229D7M2tcDtbo1Az7BQRmyQPRApWQrScRfoAQEjNV6X9LNO3dqWDFwq+APmgi9YBbzuECE3MZJgK9w==
+  dependencies:
+    big.js "^5.2.2"
+    decimal.js-light "^2.5.0"
+    tiny-invariant "^1.3.0"
+    tiny-warning "^1.0.3"
+    toformat "^2.0.0"
+
 "@pancakeswap/swap-sdk-evm@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@pancakeswap/swap-sdk-evm/-/swap-sdk-evm-1.0.2.tgz#4188190b21f32c3cbb5441043fcafa63dedce46f"
@@ -4957,13 +4968,6 @@
     tiny-warning "^1.0.3"
     tslib "^2.3.0"
 
-"@reach/portal@^0.18.0":
-  version "0.18.0"
-  resolved "https://registry.yarnpkg.com/@reach/portal/-/portal-0.18.0.tgz#dd466f5110689d14a0e7491b3aa8a449e8cefb40"
-  integrity sha512-TImozRapd576ofRk30Le2L3lRTFXF1p47B182wnp5eMTdZa74JX138BtNGEPJFOyrMaVmguVF8SSwZ6a0fon1Q==
-  dependencies:
-    "@reach/utils" "0.18.0"
-
 "@reach/utils@0.17.0":
   version "0.17.0"
   resolved "https://registry.yarnpkg.com/@reach/utils/-/utils-0.17.0.tgz#3d1d2ec56d857f04fe092710d8faee2b2b121303"
@@ -4971,11 +4975,6 @@
   dependencies:
     tiny-warning "^1.0.3"
     tslib "^2.3.0"
-
-"@reach/utils@0.18.0":
-  version "0.18.0"
-  resolved "https://registry.yarnpkg.com/@reach/utils/-/utils-0.18.0.tgz#4f3cebe093dd436eeaff633809bf0f68f4f9d2ee"
-  integrity sha512-KdVMdpTgDyK8FzdKO9SCpiibuy/kbv3pwgfXshTI6tEcQT1OOwj7BAksnzGC0rPz0UholwC+AgkqEl3EJX3M1A==
 
 "@reduxjs/toolkit@1.9.3":
   version "1.9.3"
@@ -14821,6 +14820,11 @@ lodash.once@^4.1.1:
   resolved "https://registry.yarnpkg.com/lodash.once/-/lodash.once-4.1.1.tgz#0dd3971213c7c56df880977d504c88fb471a97ac"
   integrity sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==
 
+lodash.partition@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/lodash.partition/-/lodash.partition-4.6.0.tgz#a38e46b73469e0420b0da1212e66d414be364ba4"
+  integrity sha512-35L3dSF3Q6V1w5j6V3NhNlQjzsRDC/pYKCTdYTmwqSib+Q8ponkAmt/PwEOq3EmI38DSCl+SkIVwLd+uSlVdrg==
+
 lodash.pick@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.pick/-/lodash.pick-4.4.0.tgz#52f05610fff9ded422611441ed1fc123a03001b3"
@@ -14943,11 +14947,6 @@ lru-cache@^6.0.0:
   version "10.1.0"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-10.1.0.tgz#2098d41c2dc56500e6c88584aa656c84de7d0484"
   integrity sha512-/1clY/ui8CzjKFyjdvwPWJUYKiFVXG2I2cY0ssG7h4+hwk+XOIX7ZSG9Q7TW8TW3Kp3BUSqgFWBLgL4PJ+Blag==
-
-lucide-react@^0.441.0:
-  version "0.441.0"
-  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-0.441.0.tgz#afc0d76c5ffb5bdac7adf0c9626217a5451b1af1"
-  integrity sha512-0vfExYtvSDhkC2lqg0zYVW1Uu9GsI4knuV9GP9by5z0Xhc4Zi5RejTxfz9LsjRmCyWVzHCJvxGKZWcRyvQCWVg==
 
 lz-string@^1.4.4, lz-string@^1.5.0:
   version "1.5.0"
@@ -17377,7 +17376,7 @@ react-native-webview@^11.26.0:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
 
-react-popper@^2.2.3:
+react-popper@^2.2.3, react-popper@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-2.3.0.tgz#17891c620e1320dce318bad9fede46a5f71c70ba"
   integrity sha512-e1hj8lL3uM+sgSR4Lxzn5h1GxBlpa4CQz0XLF8kx4MDrDRWY0Ena4c97PUeSX9i5W3UAfDP0z0FXCTQkoXUl3Q==
@@ -19171,31 +19170,32 @@ thunky@^1.0.2:
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
   integrity sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==
 
-tien-liquidity-widgets@0.0.8-multi-token-poc-6:
-  version "0.0.8-multi-token-poc-6"
-  resolved "https://registry.yarnpkg.com/tien-liquidity-widgets/-/tien-liquidity-widgets-0.0.8-multi-token-poc-6.tgz#8c42ece8786ac218be43bc56406e07944443df89"
-  integrity sha512-iDOswI850phPLy/ksbLY8pAZ3N9S5jVkV6S4g3Tb3rVvo7uaSjh2hcqWEz59imBvPZEnwQoIbiesrHXmvSxdDA==
+tien-liquidity-widgets-2@0.0.8-multi-token-1:
+  version "0.0.8-multi-token-1"
+  resolved "https://registry.yarnpkg.com/tien-liquidity-widgets-2/-/tien-liquidity-widgets-2-0.0.8-multi-token-1.tgz#bc527590cf68c069c81dd4e7a53589b4dc17966e"
+  integrity sha512-Ii83RqRAHi5Q3PQ+huGoqSFcuXBROEWHEsojcK5oFTE9IIVYhjQiZuptzi5VWTIXExVkIr+Cf5/3IdGUYZIpdA==
   dependencies:
     "@ethersproject/providers" "^5.7.2"
     "@kyberswap/ks-sdk-core" "^1.1.5"
     "@pancakeswap/sdk" "^5.8.2"
+    "@pancakeswap/swap-sdk-core" "^1.2.0"
     "@pancakeswap/v3-sdk" "^3.8.3"
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-icons" "^1.3.0"
     "@radix-ui/react-scroll-area" "^1.1.0"
     "@radix-ui/react-slot" "^1.1.0"
-    "@reach/portal" "^0.18.0"
     "@uniswap/sdk-core" "4.0.7"
     "@uniswap/v3-sdk" "3.10.2"
     class-variance-authority "^0.7.0"
     clsx "^2.1.1"
     d3 "^7.9.0"
     ethers "^5.7.0"
-    lucide-react "^0.441.0"
+    lodash.partition "^4.6.0"
     polished "^4.3.1"
+    react-popper "^2.3.0"
     tailwind-merge "^2.5.2"
     tailwindcss-animate "^1.0.7"
-    typescript "^5.2.2"
+    typescript "5.3.2"
 
 timed-out@^4.0.1:
   version "4.0.1"
@@ -19530,6 +19530,11 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
 
+typescript@5.3.2:
+  version "5.3.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.3.2.tgz#00d1c7c1c46928c5845c1ee8d0cc2791031d4c43"
+  integrity sha512-6l+RyNy7oAHDfxC4FzSJcz9vnjTKxrLpDG5M2Vu4SHRVNg6xzqZp6LYSR9zjqQTu8DU/f5xwxUdADOkbrIX2gQ==
+
 typescript@5.3.3:
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.3.3.tgz#b3ce6ba258e72e6305ba66f5c9b452aaee3ffe37"
@@ -19539,11 +19544,6 @@ typescript@^4.7.4:
   version "4.9.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
   integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
-
-typescript@^5.2.2:
-  version "5.4.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.4.5.tgz#42ccef2c571fdbd0f6718b1d1f5e6e5ef006f611"
-  integrity sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==
 
 ua-parser-js@^0.7.24:
   version "0.7.35"
