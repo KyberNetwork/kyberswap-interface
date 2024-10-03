@@ -23,7 +23,7 @@ const mumbaiInfo: NetworkInfo = {
   etherscanName: 'Polygonscan',
   bridgeURL: EMPTY,
   nativeToken: {
-    symbol: 'MATIC',
+    symbol: 'POL',
     name: 'Polygon',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/8a936cf9-3e8f-4518-9fb2-8579c14fb8cd1699420035633.png',
     decimal: 18,
