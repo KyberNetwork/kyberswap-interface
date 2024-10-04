@@ -14629,6 +14629,35 @@ kleur@^4.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.5.tgz#95106101795f7050c6c650f350c683febddb1780"
   integrity sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==
 
+kyberswap-liquidity-widgets@0.0.8-multi-token-1:
+  version "0.0.8-multi-token-1"
+  resolved "https://registry.yarnpkg.com/kyberswap-liquidity-widgets/-/kyberswap-liquidity-widgets-0.0.8-multi-token-1.tgz#1171bf4ef7fc685d6e64d158484c235d1bb52adc"
+  integrity sha512-Er3pfjRV9hrpws9BUg6KxrZKTCcIigFl/KOmROyBIF52j7w2nVec0ism5MctzC0J97YQGEBkdM0aYr93rmStuA==
+  dependencies:
+    "@ethersproject/providers" "^5.7.2"
+    "@kyberswap/ks-sdk-core" "^1.1.5"
+    "@pancakeswap/sdk" "^5.8.2"
+    "@pancakeswap/swap-sdk-core" "^1.2.0"
+    "@pancakeswap/v3-sdk" "^3.8.3"
+    "@popperjs/core" "^2.11.8"
+    "@radix-ui/react-accordion" "^1.2.1"
+    "@radix-ui/react-icons" "^1.3.0"
+    "@radix-ui/react-scroll-area" "^1.1.0"
+    "@radix-ui/react-slot" "^1.1.0"
+    "@uniswap/sdk-core" "4.0.7"
+    "@uniswap/v3-sdk" "3.10.2"
+    class-variance-authority "^0.7.0"
+    clsx "^2.1.1"
+    d3 "^7.9.0"
+    ethers "^5.7.0"
+    jsbi "^3.2.5"
+    lodash.partition "^4.6.0"
+    polished "^4.3.1"
+    react-popper "^2.3.0"
+    tailwind-merge "^2.5.2"
+    tailwindcss-animate "^1.0.7"
+    typescript "5.3.2"
+
 language-subtag-registry@~0.3.2:
   version "0.3.22"
   resolved "https://registry.yarnpkg.com/language-subtag-registry/-/language-subtag-registry-0.3.22.tgz#2e1500861b2e457eba7e7ae86877cbd08fa1fd1d"
@@ -19235,35 +19264,6 @@ thunky@^1.0.2:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
   integrity sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==
-
-tien-liquidity-widgets-2@0.0.8-multi-token-14:
-  version "0.0.8-multi-token-14"
-  resolved "https://registry.yarnpkg.com/tien-liquidity-widgets-2/-/tien-liquidity-widgets-2-0.0.8-multi-token-14.tgz#7a8f7d9a5e3f6db5f4abecfc8afefcbb2c74714e"
-  integrity sha512-ZLpuAlaU7DVlzSt196aZM26rKwqYluK343LXiDyuCOUHKWDgnTBpGI75ypnNgeJsge7E1IzbiuuwLY4aE/czzw==
-  dependencies:
-    "@ethersproject/providers" "^5.7.2"
-    "@kyberswap/ks-sdk-core" "^1.1.5"
-    "@pancakeswap/sdk" "^5.8.2"
-    "@pancakeswap/swap-sdk-core" "^1.2.0"
-    "@pancakeswap/v3-sdk" "^3.8.3"
-    "@popperjs/core" "^2.11.8"
-    "@radix-ui/react-accordion" "^1.2.1"
-    "@radix-ui/react-icons" "^1.3.0"
-    "@radix-ui/react-scroll-area" "^1.1.0"
-    "@radix-ui/react-slot" "^1.1.0"
-    "@uniswap/sdk-core" "4.0.7"
-    "@uniswap/v3-sdk" "3.10.2"
-    class-variance-authority "^0.7.0"
-    clsx "^2.1.1"
-    d3 "^7.9.0"
-    ethers "^5.7.0"
-    jsbi "^3.2.5"
-    lodash.partition "^4.6.0"
-    polished "^4.3.1"
-    react-popper "^2.3.0"
-    tailwind-merge "^2.5.2"
-    tailwindcss-animate "^1.0.7"
-    typescript "5.3.2"
 
 timed-out@^4.0.1:
   version "4.0.1"
