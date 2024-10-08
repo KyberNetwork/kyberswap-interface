@@ -10,6 +10,7 @@ import { ZapContextProvider } from "../../hooks/useZapInState";
 import Setting from "../Setting";
 
 import "./Widget.scss";
+import { NetworkInfo } from "../../constants";
 
 const getChainById = (chainId: number) => {
   return Object.values(chains).find((chain) => chain.id === chainId);
@@ -70,7 +71,7 @@ export default function Widget({
 
     return createPublicClient({
       chain,
-      transport: http(),
+      transport: http(NetworkInfo[chainId].defaultRpc),
     });
   }, [chainId]);
 

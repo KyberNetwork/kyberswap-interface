@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/pancake-liquidity-widgets",
   "license": "MIT",
-  "version": "0.0.1-tsup1",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
