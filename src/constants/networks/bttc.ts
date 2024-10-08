@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { NetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -67,7 +66,6 @@ const bttcInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: 'tron',
   coingeckoNativeTokenId: 'bittorrent',
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: 'bttc',
 }

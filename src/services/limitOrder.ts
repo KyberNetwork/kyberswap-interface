@@ -1,12 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrder, LimitOrderFromTokenPair, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { LIMIT_ORDER_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 
 const LIMIT_ORDER_API_READ = `${LIMIT_ORDER_API}/read-ks/api`
 const LIMIT_ORDER_API_WRITE = `${LIMIT_ORDER_API}/write/api`
+const LIMIT_ORDER_API_READ_PARTNER = `${LIMIT_ORDER_API}/read-partner/api`
 
 const mapPath: Partial<Record<LimitOrderStatus, string>> = {
   [LimitOrderStatus.CANCELLED]: 'cancelled',
@@ -19,7 +20,7 @@ const transformResponse = (data: any) => data?.data
 const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   baseQuery: fetchBaseQuery({ baseUrl: '' }),
-  tagTypes: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
+  tagTypes: [RTK_QUERY_TAGS.GET_LIST_ORDERS, RTK_QUERY_TAGS.GET_ORDERS_BY_TOKEN_PAIR],
   endpoints: builder => ({
     getLOConfig: builder.query<
       { contract: string; features: { [address: string]: { supportDoubleSignature: boolean } } },
@@ -60,6 +61,33 @@ const limitOrderApi = createApi({
       },
       providesTags: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
     }),
+    getOrdersByTokenPair: builder.query<
+      { orders: LimitOrderFromTokenPair[] },
+      {
+        chainId: ChainId
+        makerAsset?: string
+        takerAsset?: string
+      }
+    >({
+      query: params => ({
+        url: `${LIMIT_ORDER_API_READ_PARTNER}/v1/orders/allchains`,
+        params,
+      }),
+      transformResponse: ({ data }: any) => {
+        data.orders.forEach((order: any) => {
+          order.chainId = Number(order.chainId) as ChainId
+        })
+        return { orders: data?.orders || [] }
+      },
+      async onQueryStarted(agr, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch {
+          dispatch(limitOrderApi.util.upsertQueryData('getOrdersByTokenPair', agr, { orders: [] }))
+        }
+      },
+      providesTags: [RTK_QUERY_TAGS.GET_ORDERS_BY_TOKEN_PAIR],
+    }),
     getNumberOfInsufficientFundOrders: builder.query<number, { chainId: ChainId; maker: string }>({
       query: params => ({
         url: `${LIMIT_ORDER_API_READ}/v1/orders/insufficient-funds`,
@@ -89,6 +117,9 @@ const limitOrderApi = createApi({
         url: `${LIMIT_ORDER_API_WRITE}/v1/orders`,
         body,
         method: 'POST',
+        headers: {
+          'x-client-id': 'kyberswap',
+        },
       }),
       transformResponse,
       invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
@@ -156,6 +187,7 @@ const limitOrderApi = createApi({
 export const {
   useGetLOConfigQuery,
   useGetListOrdersQuery,
+  useGetOrdersByTokenPairQuery,
   useLazyGetListOrdersQuery,
   useInsertCancellingOrderMutation,
   useGetNumberOfInsufficientFundOrdersQuery,

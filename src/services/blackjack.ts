@@ -21,6 +21,7 @@ const blackjackApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${BLACKJACK_API}/v1`,
   }),
+  keepUnusedDataFor: 1,
   endpoints: builder => ({
     checkBlackjack: builder.query({
       query: (address: string) => ({

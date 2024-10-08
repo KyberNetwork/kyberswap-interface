@@ -53,9 +53,9 @@ export function useBaseTradeInfoLimitOrder(
   currencyOut: Currency | undefined,
   chainId?: ChainId,
 ) {
-  const { loading, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut, chainId)
+  const { loading, tradeInfo, refetch } = useBaseTradeInfo(currencyIn, currencyOut, chainId)
   const debouncedLoading = useDebounce(loading, 100) // prevent flip flop UI when loading from true to false
-  return { loading: loading || debouncedLoading, tradeInfo }
+  return { loading: loading || debouncedLoading, tradeInfo, refetch }
 }
 
 export const useBaseTradeInfoWithAggregator = (args: ArgsGetRoute) => {

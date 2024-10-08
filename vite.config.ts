@@ -1,7 +1,7 @@
 import GlobalPolyFill from '@esbuild-plugins/node-globals-polyfill'
 import lingui from '@lingui/vite-plugin'
 import react from '@vitejs/plugin-react-swc'
-import path from 'path'
+import path, { resolve } from 'path'
 import { defineConfig } from 'vite'
 import checker from 'vite-plugin-checker'
 import svgrPlugin from 'vite-plugin-svgr'
@@ -53,6 +53,12 @@ export default defineConfig({
       'react-redux': 'react-redux/dist/react-redux.js',
       '@': path.resolve(__dirname, './src/'),
       'react-dom/client': 'react-dom/profiling',
+      '@walletconnect/ethereum-provider': resolve(
+        __dirname,
+        'node_modules/@walletconnect/ethereum-provider/dist/index.umd.js',
+      ),
+
+      //'@web3-react/core': path.resolve(__dirname, 'src/connection/web3reactShim.ts'),
     },
   },
   server: {

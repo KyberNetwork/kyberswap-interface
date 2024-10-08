@@ -1,18 +1,15 @@
 import { useCallback } from 'react'
+import { useDisconnect as useDisconnectWagmi } from 'wagmi'
 
-import { useWeb3React } from 'hooks'
-import { useAppDispatch } from 'state/hooks'
-import { setRecentConnectionDisconnected } from 'state/user/actions'
+function useDisconnectWallet() {
+  const { connectors, disconnect } = useDisconnectWagmi()
+  const disconnectAll = useCallback(() => {
+    connectors.forEach(connector => {
+      disconnect({ connector })
+    })
+  }, [connectors, disconnect])
 
-const useDisconnectWallet = () => {
-  const dispatch = useAppDispatch()
-  const { connector } = useWeb3React()
-  const disconnect = useCallback(() => {
-    connector.deactivate?.()
-    connector.resetState()
-    dispatch(setRecentConnectionDisconnected())
-  }, [connector, dispatch])
-
-  return disconnect
+  return disconnectAll
 }
+
 export default useDisconnectWallet

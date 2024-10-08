@@ -16,7 +16,6 @@ import SwapSettingBtn from 'assets/images/tutorial_swap/swap_setting_btn.png'
 import WelcomeImage from 'assets/images/tutorial_swap/welcome.png'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { ToggleItemType } from 'components/Collapse'
-import { connections } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
@@ -71,17 +70,17 @@ const ArrowWrapper = styled.div`
   }
 `
 
-const NetworkItemWrapper = styled.div`
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 42px;
-  display: flex;
-  padding: 10px 15px;
-  gap: 10px;
-  cursor: pointer;
-  flex-basis: calc((100% - 10px) / 2); // 10px gap
-  min-width: 160px;
-  box-sizing: border-box;
-`
+//const NetworkItemWrapper = styled.div`
+//  background: ${({ theme }) => theme.buttonBlack};
+//  border-radius: 42px;
+//  display: flex;
+//  padding: 10px 15px;
+//  gap: 10px;
+//  cursor: pointer;
+//  flex-basis: calc((100% - 10px) / 2); // 10px gap
+//  min-width: 160px;
+//  box-sizing: border-box;
+//`
 
 const NetworkWrapper = styled.div`
   background: ${({ theme }) => theme.background};
@@ -162,14 +161,15 @@ function ConnectWallet() {
         </Heading>
         {isExpanded && (
           <NetworkWrapper>
-            {Object.values(connections)
+            {/* TODO: Tutorial is currently off, then Just leave this here (integrating wagmi), need to fix this if we bring tutorial back
+            Object.values(connections)
               .filter(e => e.installLink)
               .map(item => (
                 <NetworkItemWrapper key={item.name} onClick={() => window.open(item.installLink)}>
                   <img src={item.icon} alt={item.name} style={{ width: '20px', maxHeight: '20px' }} />
                   <span>{item.name}</span>
                 </NetworkItemWrapper>
-              ))}
+              )) */}
           </NetworkWrapper>
         )}
       </BrowserView>

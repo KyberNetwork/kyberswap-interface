@@ -128,7 +128,6 @@ export function useApproveCallback(
           }
         }
 
-        const gasLimit = calculateGasMargin(estimatedGas)
         const response = await (paymentToken?.address
           ? paymasterExecute(
               paymentToken.address,
@@ -137,7 +136,9 @@ export function useApproveCallback(
                 to: token.address,
                 data: ERC20Interface.encodeFunctionData('approve', [spender, approvedAmount]),
               },
-              gasLimit.toNumber(),
+              // increase x2 for approval only due to failed tx bcs of gasLimit
+              // for more detail: https://team-kyber.slack.com/archives/C048KKJ4TPW/p1718600494715929?thread_ts=1718267233.557269&cid=C048KKJ4TPW
+              estimatedGas.toNumber() * 2,
             )
           : tokenContract.approve(spender, approvedAmount, {
               gasLimit: calculateGasMargin(estimatedGas),

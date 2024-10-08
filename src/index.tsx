@@ -1,30 +1,26 @@
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
-import 'inter-ui'
-import 'react-loading-skeleton/dist/skeleton.css'
-import 'swiper/swiper-bundle.min.css'
-import 'swiper/swiper.min.css'
-import 'aos/dist/aos.css'
-import 'connection/eagerlyConnect'
-
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
-import { Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
-import { Connector } from '@web3-react/types'
 import '@zkmelabs/widget/dist/style.css'
 import AOS from 'aos'
-import { connections } from 'connection'
+import 'aos/dist/aos.css'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
+import 'inter-ui'
 import mixpanel from 'mixpanel-browser'
-import { StrictMode, useEffect, useMemo } from 'react'
+import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import TagManager from 'react-gtm-module'
+import 'react-loading-skeleton/dist/skeleton.css'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
+import 'swiper/swiper-bundle.min.css'
+import 'swiper/swiper.min.css'
 
+import Web3Provider from 'components/Web3Provider'
 import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 
@@ -106,24 +102,19 @@ window.recaptchaOptions = {
 
 const ReactApp = () => {
   useEffect(hideLoader, [])
-  const connectors: [Connector, Web3ReactHooks][] = useMemo(
-    () => connections.map(({ hooks, connector }) => [connector, hooks]),
-    [],
-  )
-
   return (
     <StrictMode>
       <FixedGlobalStyle />
       <Provider store={store}>
         <BrowserRouter>
           <LanguageProvider>
-            <Web3ReactProvider connectors={connectors}>
+            <Web3Provider>
               <Updaters />
               <ThemeProvider>
                 <ThemedGlobalStyle />
                 <App />
               </ThemeProvider>
-            </Web3ReactProvider>
+            </Web3Provider>
           </LanguageProvider>
         </BrowserRouter>
       </Provider>

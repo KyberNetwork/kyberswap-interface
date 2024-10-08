@@ -51,18 +51,18 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 const SwapNavGroup = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
-  const upTo420 = useMedia('(max-width: 600px)')
+  const upToXXSmall = useMedia('(max-width: 420px)')
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
   const { mixpanelHandler } = useMixpanel()
 
   const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.BRIDGE, APP_PATHS.LIMIT].some(path =>
-    pathname.includes(path),
+    pathname.startsWith(path),
   )
 
   return (
     <NavGroup
-      dropdownAlign={upTo420 ? 'right' : 'left'}
+      dropdownAlign={upToXXSmall ? 'right' : 'left'}
       isActive={isActive}
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={

@@ -21,7 +21,7 @@ const maticInfo: NetworkInfo = {
   etherscanName: 'Polygonscan',
   bridgeURL: 'https://wallet.polygon.technology/',
   nativeToken: {
-    symbol: 'MATIC',
+    symbol: 'POL',
     name: 'Polygon',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/10d6d017-945d-470d-87eb-6a6f89ce8b7e.png',
     decimal: 18,
@@ -81,7 +81,6 @@ const maticInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 2.6,
   coingeckoNetworkId: 'polygon-pos',
   coingeckoNativeTokenId: 'matic-network',
-  deBankSlug: 'matic',
   dexToCompare: 'quickswap',
   geckoTermialId: 'polygon_pos',
 }

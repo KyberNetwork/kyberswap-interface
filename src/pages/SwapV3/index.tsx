@@ -1,20 +1,17 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import GasTokenSetting from 'components/swapv2/GasTokenSetting'
 import LimitOrder from 'components/swapv2/LimitOrder'
-import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
+import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
@@ -29,6 +26,7 @@ import {
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
@@ -37,9 +35,6 @@ import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import Header from 'pages/SwapV3/Header'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import { useLimitActionHandlers } from 'state/limit/hooks'
-import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
@@ -57,15 +52,13 @@ export enum TAB {
   SWAP = 'swap',
   INFO = 'info',
   SETTINGS = 'settings',
-  GAS_PRICE_TRACKER = 'gas_price_tracker',
   LIQUIDITY_SOURCES = 'liquidity_sources',
   LIMIT = 'limit',
   CROSS_CHAIN = 'cross_chain',
   GAS_TOKEN = 'gas_token',
 }
 
-export const isSettingTab = (tab: TAB) =>
-  [TAB.INFO, TAB.SETTINGS, TAB.GAS_PRICE_TRACKER, TAB.LIQUIDITY_SOURCES].includes(tab)
+export const isSettingTab = (tab: TAB) => [TAB.INFO, TAB.SETTINGS, TAB.LIQUIDITY_SOURCES].includes(tab)
 
 export const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
@@ -105,12 +98,28 @@ export default function Swap() {
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
 
   const { pathname } = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const inputCurrency = searchParams.get('inputCurrency')
+    const outputCurrency = searchParams.get('outputCurrency')
+
+    if (inputCurrency || outputCurrency) {
+      if (pathname.includes(APP_PATHS.LIMIT))
+        navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
+      else navigate(`/swap/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, chainId, navigate])
 
   const shouldHighlightSwapBox = qs.highlightBox === 'true'
 
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
+
+  const enableDegenMode = searchParams.get('enableDegenMode') === 'true'
 
   const getDefaultTab = useCallback(
     () => (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : TAB.CROSS_CHAIN),
@@ -119,47 +128,28 @@ export default function Swap() {
 
   const [activeTab, setActiveTab] = useState<TAB>(getDefaultTab())
 
-  const { onSelectPair: onSelectPairLimit } = useLimitActionHandlers()
+  useEffect(() => {
+    if (enableDegenMode && activeTab !== TAB.SETTINGS) {
+      setActiveTab(TAB.SETTINGS)
+      setTimeout(() => {
+        searchParams.delete('enableDegenMode')
+        setSearchParams(searchParams)
+      }, 4000)
+    }
+  }, [enableDegenMode, activeTab, searchParams, setSearchParams])
 
   useEffect(() => {
     setActiveTab(getDefaultTab())
   }, [getDefaultTab])
 
-  useDefaultsFromURLSearch()
-
-  const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
-
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
-
-  const handleTypeInput = useCallback(
-    (value: string) => {
-      onUserInput(Field.INPUT, value)
-    },
-    [onUserInput],
-  )
-
-  const onSelectSuggestedPair = useCallback(
-    (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
-      if (isLimitPage) {
-        onSelectPairLimit(fromToken, toToken, amount)
-        setIsSelectCurrencyManually(true)
-        return
-      }
-
-      if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
-      if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
-      if (amount) handleTypeInput(amount)
-    },
-    [handleTypeInput, onCurrencySelection, onSelectPairLimit, isLimitPage],
-  )
 
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())
 
   return (
     <>
-      {isSwapPage && <TutorialSwap />}
       <PageWrapper>
         <Banner />
         <Container>
@@ -173,7 +163,6 @@ export default function Swap() {
             >
               {isSwapPage && (
                 <PopulatedSwapForm
-                  onSelectSuggestedPair={onSelectSuggestedPair}
                   routeSummary={routeSummary}
                   setRouteSummary={setRouteSummary}
                   hidden={activeTab !== TAB.SWAP}
@@ -187,11 +176,7 @@ export default function Swap() {
                   isSwapPage={isSwapPage}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
-                  onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
                 />
-              )}
-              {activeTab === TAB.GAS_PRICE_TRACKER && (
-                <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
               {activeTab === TAB.LIQUIDITY_SOURCES && (
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />

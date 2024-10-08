@@ -7,7 +7,7 @@ const SearchContainer = styled.div`
   background: ${({ theme }) => theme.background};
   border-radius: 999px;
   width: 320px;
-  font-size: 12px;
+  font-size: 14px;
   padding: 8px 12px;
   display: flex;
   align-items: center;

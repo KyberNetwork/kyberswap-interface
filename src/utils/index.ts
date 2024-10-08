@@ -4,7 +4,6 @@ import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
-import blockServiceApi from 'services/blockService'
 
 import { GET_BLOCKS } from 'apollo/queries'
 import { ENV_KEY } from 'constants/env'
@@ -13,7 +12,6 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
-import { chunk } from 'utils/array'
 
 import { isAddress, isAddressString } from './address'
 
@@ -302,36 +300,13 @@ async function getBlocksFromTimestampsSubgraph(
   return blocks
 }
 
-async function getBlocksFromTimestampsBlockService(
-  timestamps: number[],
-  chainId: ChainId,
-): Promise<{ timestamp: number; number: number }[]> {
-  if (timestamps?.length === 0) {
-    return []
-  }
-
-  const allChunkResult = (
-    await Promise.all(
-      chunk(timestamps, 50).map(
-        async timestampsChunk =>
-          await store.dispatch(blockServiceApi.endpoints.getBlocks.initiate({ chainId, timestamps: timestampsChunk })),
-      ),
-    )
-  )
-    .map(chunk => chunk.data?.data || [])
-    .flat()
-    .sort((a, b) => a.number - b.number)
-
-  return allChunkResult
-}
-
+// TODO: Remove
 export async function getBlocksFromTimestamps(
-  isEnableBlockService: boolean,
+  _isEnableBlockService: boolean,
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
-  chainId: ChainId,
+  _chainId: ChainId,
 ): Promise<{ timestamp: number; number: number }[]> {
-  if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId)
   return getBlocksFromTimestampsSubgraph(blockClient, timestamps)
 }
 

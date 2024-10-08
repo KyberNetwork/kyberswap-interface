@@ -21,7 +21,6 @@ import {
   setSubscribedNotificationTopic,
   updateBlockNumber,
   updateETHPrice,
-  updatePrommETHPrice,
   updateServiceWorker,
 } from './actions'
 import { ModalParams } from './types'
@@ -48,7 +47,6 @@ interface ApplicationState {
   readonly openModal: ApplicationModal | null
   readonly openModalParams: { [key in ApplicationModal]?: ModalParams[key] }
   readonly ethPrice: ETHPrice
-  readonly prommEthPrice: ETHPrice
   readonly serviceWorkerRegistration: ServiceWorkerRegistration | null
 
   readonly notification: {
@@ -96,7 +94,6 @@ const initialState: ApplicationState = {
   openModal: null,
   openModalParams: {},
   ethPrice: {},
-  prommEthPrice: {},
   serviceWorkerRegistration: null,
   notification: initialStateNotification,
   config: {},
@@ -142,12 +139,6 @@ export default createReducer(initialState, builder =>
     .addCase(removePopup, (state, { payload: { key } }) => {
       state.popupList = state.popupList.filter(p => p.key !== key)
     })
-    .addCase(updatePrommETHPrice, (state, { payload: { currentPrice, oneDayBackPrice, pricePercentChange } }) => {
-      state.prommEthPrice.currentPrice = currentPrice
-      state.prommEthPrice.oneDayBackPrice = oneDayBackPrice
-      state.prommEthPrice.pricePercentChange = pricePercentChange
-    })
-
     .addCase(updateETHPrice, (state, { payload: { currentPrice, oneDayBackPrice, pricePercentChange } }) => {
       state.ethPrice.currentPrice = currentPrice
       state.ethPrice.oneDayBackPrice = oneDayBackPrice

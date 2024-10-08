@@ -1,9 +1,9 @@
-import { ActivationStatus, useActivationState } from 'connection/activate'
-import { Connection } from 'connection/types'
 import { darken } from 'polished'
 import React from 'react'
 import styled, { css } from 'styled-components'
+import { Connector, useConnect } from 'wagmi'
 
+import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React } from 'hooks'
 import { useCloseModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
@@ -98,33 +98,41 @@ const OptionCardLeft = styled.div`
 //   }
 // `
 
-const Option = ({ connection }: { connection: Connection }) => {
-  const { activationState, tryActivation } = useActivationState()
+const Option = ({ connector }: { connector: Connector }) => {
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
   const { chainId } = useActiveWeb3React()
 
-  const { name, icon } = connection.getProviderInfo()
-
-  const isSomeOptionPending = activationState.status === ActivationStatus.PENDING
-  const isCurrentOptionPending = isSomeOptionPending && activationState.connection === connection
+  const { name } = connector
+  const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector.id] ?? connector.icon
 
   const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
+  const {
+    variables,
+    isPending: isSomeOptionPending,
+    connect,
+  } = useConnect({
+    mutation: {
+      onSuccess: () => {
+        closeWalletModal()
+      },
+      onError: e => {
+        console.log(e)
+      },
+    },
+  })
+
+  const isCurrentOptionPending = isSomeOptionPending && variables.connector === connector
 
   const content = (
     <OptionCardClickable
       role="button"
-      id={`connect-${connection.getProviderInfo().name}`}
-      onClick={() =>
-        isAcceptedTerm &&
-        tryActivation(
-          connection,
-          () => {
-            closeWalletModal()
-          },
-          chainId,
-        )
-      }
+      id={`connect-${name}`}
+      onClick={() => {
+        if (isAcceptedTerm) {
+          connect({ connector, chainId: chainId as any })
+        }
+      }}
       connected={isCurrentOptionPending}
       isDisabled={!isAcceptedTerm}
     >

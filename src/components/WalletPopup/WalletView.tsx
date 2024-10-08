@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { getConnection } from 'connection'
 import { rgba } from 'polished'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, FileText, LogOut, StopCircle, X } from 'react-feather'
@@ -16,6 +15,7 @@ import AccountInfo from 'components/WalletPopup/AccountInfo'
 import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
 import SendToken from 'components/WalletPopup/SendToken'
+import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -133,7 +133,7 @@ export default function WalletView({
   const [isMinimal, setMinimal] = useState(false)
   const { chainId, account = '', walletKey } = useActiveWeb3React()
   const { connector } = useWeb3React()
-  const connection = getConnection(connector)
+
   const disconnectWallet = useDisconnectWallet()
 
   const {
@@ -268,6 +268,8 @@ export default function WalletView({
   const classNameForHandle = isPinned ? HANDLE_CLASS_NAME : ''
   const cursorForHandle = isPinned ? 'move' : undefined
 
+  const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector?.id || ''] ?? connector?.icon
+
   return (
     <Wrapper ref={nodeRef} $pinned={isPinned} $blur={blurBackground}>
       <Flex
@@ -329,7 +331,7 @@ export default function WalletView({
               <Flex alignItems={'center'} style={{ gap: 8 }} color={theme.subText}>
                 {walletKey && (
                   <IconWrapper>
-                    <img height={18} src={connection.getProviderInfo().icon} alt="" />
+                    <img height={18} src={icon} alt="" />
                   </IconWrapper>
                 )}
                 <Text as="span" fontWeight="500">

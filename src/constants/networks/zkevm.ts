@@ -3,7 +3,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { NetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -29,7 +28,7 @@ const zkEvm: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 10 ** 15,
   },
   defaultRpcUrl: 'https://zkevm-rpc.com',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
@@ -65,7 +64,6 @@ const zkEvm: NetworkInfo = {
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: 'polygon-zkevm',
   coingeckoNativeTokenId: 'ethereum',
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }

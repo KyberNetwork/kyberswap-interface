@@ -26,6 +26,7 @@ import TreasuryGrantAndInstantClaim from './components/TreasuryGrantAndInstantCl
 import Vesting, { VestingInterface } from './components/Vesting'
 import poolsByCategoriesRaw from './data/category.json'
 import data from './data/data.json'
+import phase3 from './data/phase3.json'
 import vestingOptionA from './data/vesting/optionA.json'
 import vestingOptionAPhase2 from './data/vesting/optionA_phase2.json'
 import vestingOptionB from './data/vesting/optionB.json'
@@ -142,6 +143,9 @@ export default function ElasticSnapshot() {
 
   const vestingA = vestingOptionA.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase())
   const vestingB = vestingOptionB.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase())
+  const phase3Info = phase3.find(
+    item => item.receiver.toLowerCase() === account?.toLowerCase() || item.oldAddress === account?.toLowerCase(),
+  )
 
   const vestingAPhase2 = vestingOptionAPhase2.find(
     item => item.claimData.receiver.toLowerCase() === account?.toLowerCase(),
@@ -149,7 +153,7 @@ export default function ElasticSnapshot() {
   const vestingBPhase2 = vestingOptionBPhase2.find(
     item => item.claimData.receiver.toLowerCase() === account?.toLowerCase(),
   )
-  const userHaveVestingData = !!(vestingA || vestingB || vestingAPhase2 || vestingBPhase2)
+  const userHaveVestingData = !!(vestingA || vestingB || vestingAPhase2 || vestingBPhase2 || phase3Info)
 
   const categories = ['category 1', 'category 2', 'category 3', 'category 4', 'category 5']
 
@@ -285,7 +289,7 @@ export default function ElasticSnapshot() {
                     <Trans>Total Amount (USD)</Trans>
                   </Text>
                   <Text fontWeight="500" fontSize={20}>
-                    {userInfo ? format(userInfo.total_usd) : '--'}
+                    {phase3Info ? format(phase3Info.value) : userInfo ? format(userInfo.total_usd) : '--'}
                   </Text>
                 </Flex>
 
@@ -306,7 +310,7 @@ export default function ElasticSnapshot() {
                     </Trans>
                   </Text>
                   <Text fontWeight="500" fontSize={20}>
-                    {userInfo ? format(userInfo.total_liquidity_usd) : '--'}
+                    {phase3Info ? format(phase3Info.value) : userInfo ? format(userInfo.total_liquidity_usd) : '--'}
                   </Text>
                 </Flex>
 
@@ -339,7 +343,7 @@ export default function ElasticSnapshot() {
 
       {tab === 'snapshot' ? (
         <>
-          {userInfo && <TreasuryGrantAndInstantClaim userHaveVestingData={userHaveVestingData} />}
+          {(userInfo || phase3Info) && <TreasuryGrantAndInstantClaim userHaveVestingData={userHaveVestingData} />}
 
           <Flex flexDirection="column" marginTop="1.5rem" marginX={upToSmall ? '-1rem' : 0}>
             <Wrapper>

@@ -27,7 +27,7 @@ const arbitrumInfo: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 10 ** 14,
   },
   defaultRpcUrl: 'https://arbitrum.kyberengineering.io',
   multicall: '0x80C7DD17B01855a6D2347444a0FCC36136a314de', // must use this for arbitrum to get exactly block number instead of L1 block number
@@ -76,7 +76,6 @@ const arbitrumInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 1, // TODO: check these info
   coingeckoNetworkId: 'arbitrum-one',
   coingeckoNativeTokenId: 'ethereum',
-  deBankSlug: 'arb',
   dexToCompare: 'uniswapv3',
   geckoTermialId: 'arbitrum',
 }

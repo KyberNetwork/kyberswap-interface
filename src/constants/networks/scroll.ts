@@ -3,7 +3,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { NetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -28,7 +27,7 @@ const scroll: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 10 ** 15,
   },
   defaultRpcUrl: 'https://rpc.scroll.io',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
@@ -66,11 +65,10 @@ const scroll: NetworkInfo = {
       helper: '0x214061F0e250A27a49f609d9caf2987a7bC8fA6B',
     },
   },
-  limitOrder: NOT_SUPPORT,
+  limitOrder: '*',
   averageBlockTimeInSeconds: 8.4, // dont use for base
   coingeckoNetworkId: 'scroll',
   coingeckoNativeTokenId: 'ethereum',
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }

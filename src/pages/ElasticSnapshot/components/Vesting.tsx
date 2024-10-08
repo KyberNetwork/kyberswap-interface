@@ -90,6 +90,14 @@ export interface VestingInterface {
   proof: string[]
 }
 
+// wallets that request to change address due to compromise or loss
+//   https://team-kyber.atlassian.net/browse/EX-2157
+const disableWallets = [
+  '0xd1bbca0dfde1f51ccd17e33de1a7ead48faa1d68',
+  '0x194eda5c8302bc8550e3e918b36520d138fba8ae',
+  '0x12a2455cca45d8f6d9149f0e996260ae49eda8b4',
+]
+
 export default function Vesting({
   userSelectedOption,
   userVestingData,
@@ -162,6 +170,8 @@ export default function Vesting({
 
   const claimablePercent = unlockedPercent - claimedPercent
 
+  const isRemoved = disableWallets.includes(account?.toLowerCase() || '')
+
   return (
     <>
       {show && proof && (
@@ -185,6 +195,11 @@ export default function Vesting({
             <Text as="span" fontWeight="500" color={theme.text}>
               {upToSmall && account ? shortenAddress(1, account) : account}
             </Text>
+            {isRemoved && (
+              <Text color={theme.subText} marginTop="8px">
+                This wallet has been removed from Treasury Grant
+              </Text>
+            )}
           </Text>
         </Box>
 
@@ -225,7 +240,7 @@ export default function Vesting({
                 <ButtonPrimary
                   width="64px"
                   height="24px"
-                  disabled={claimableAmount === 0}
+                  disabled={claimableAmount === 0 || isRemoved}
                   onClick={() => setShow(true)}
                 >
                   Claim

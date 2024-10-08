@@ -1,5 +1,10 @@
 import { ChainId, Currency, Fraction } from '@kyberswap/ks-sdk-core'
 
+export enum LimitOrderTab {
+  ORDER_BOOK = 'order_book',
+  MY_ORDER = 'my_order',
+}
+
 export enum LimitOrderStatus {
   // status from BE
   ACTIVE = 'active',
@@ -46,6 +51,48 @@ export type LimitOrder = {
   isSuccessful: boolean
   uuid: string
   txHash: string
+}
+
+export type LimitOrderFromTokenPair = {
+  id: number
+  chainId: ChainId
+  signature: string
+  salt: string
+  makerAsset: string
+  takerAsset: string
+  maker: string
+  contractAddress: string
+  receiver: string
+  allowedSenders: string
+  makingAmount: string
+  takingAmount: string
+  filledMakingAmount: string
+  filledTakingAmount: string
+  feeConfig: string
+  feeRecipient: string
+  makerTokenFeePercent: string
+  makerAssetData: string
+  takerAssetData: string
+  getMakerAmount: string
+  getTakerAmount: string
+  predicate: string
+  permit: string
+  interaction: string
+  expiredAt: number
+  orderHash: string
+  availableMakingAmount: string
+  makerBalanceAllowance: string
+  makerAssetDecimals: number
+  takerAssetDecimals: number
+}
+
+export type LimitOrderFromTokenPairFormatted = {
+  id: number
+  chainId: ChainId
+  rate: string
+  makerAmount: string
+  takerAmount: string
+  filled: string
 }
 
 export enum CancelOrderType {

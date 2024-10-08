@@ -14,6 +14,10 @@ export type GetRouteParams = {
   isInBps?: string
   feeReceiver?: string
   debug?: string
+  // for calculating price impact only
+  chainId?: number
+  tokenInDecimals?: number
+  tokenOutDecimals?: number
 }
 
 export type RouteSummary = {

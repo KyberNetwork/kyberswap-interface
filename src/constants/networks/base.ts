@@ -3,7 +3,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { NetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -28,7 +27,7 @@ const base: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 10 ** 14,
   },
   defaultRpcUrl: 'https://mainnet.base.org',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
@@ -68,7 +67,6 @@ const base: NetworkInfo = {
   averageBlockTimeInSeconds: 2, // dont use for base
   coingeckoNetworkId: 'base',
   coingeckoNativeTokenId: 'ethereum',
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }

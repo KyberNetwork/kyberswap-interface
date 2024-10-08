@@ -50,6 +50,9 @@ export const PRICE_ALERT_TOPIC_ID = required('PRICE_ALERT_TOPIC_ID')
 export const ELASTIC_POOL_TOPIC_ID = required('ELASTIC_POOL_TOPIC_ID')
 export const BUCKET_NAME = required('BUCKET_NAME')
 export const WALLETCONNECT_PROJECT_ID = required('WALLETCONNECT_PROJECT_ID')
+export const CAMPAIGN_URL = required('CAMPAIGN_URL')
+export const REFERRAL_URL = required('REFERRAL_URL')
+export const TOKEN_API_URL = required('TOKEN_API_URL')
 
 type FirebaseConfig = {
   apiKey: string
@@ -160,7 +163,7 @@ export const MOCK_ACCOUNT_EVM = isAddressString(mock[0]?.trim())
 const isSupportTestNet = ENV_LEVEL < ENV_TYPE.PROD && new URLSearchParams(window.location.search).get('test')
 export const CROSS_CHAIN_CONFIG = {
   AXELAR_SCAN_URL: isSupportTestNet ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/',
-  API_DOMAIN: isSupportTestNet ? 'https://testnet.api.0xsquid.com' : 'https://v2.api.squidrouter.com',
+  API_DOMAIN: isSupportTestNet ? 'https://testnet.api.0xsquid.com' : 'https://apiplus.squidrouter.com',
   INTEGRATOR_ID: 'kyberswap-api',
   GAS_REFUND: 25, // %
 }

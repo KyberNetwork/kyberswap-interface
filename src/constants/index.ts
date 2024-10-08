@@ -163,6 +163,12 @@ export const APP_PATHS = {
 
   DEPRECATED_NOTI_CENTER: '/notification-center/overview',
   ELASTIC_SNAPSHOT: '/elastic-snapshot',
+  MARKET_OVERVIEW: '/market-overview',
+
+  AGGREGATOR_CAMPAIGN: '/campaigns/aggregator',
+  LIMIT_ORDER_CAMPAIGN: '/campaigns/limit-order',
+  REFFERAL_CAMPAIGN: '/campaigns/referrals',
+  MY_DASHBOARD: '/campaigns/dashboard',
 } as const
 
 export const TERM_FILES_PATH = {
@@ -220,6 +226,7 @@ export const RTK_QUERY_TAGS = {
 
   // limit order
   GET_LIST_ORDERS: 'GET_LIST_ORDERS',
+  GET_ORDERS_BY_TOKEN_PAIR: 'GET_ORDERS_BY_TOKEN_PAIR',
 
   GET_FARM_V2: 'GET_FARM_V2',
 }

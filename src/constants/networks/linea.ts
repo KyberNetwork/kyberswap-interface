@@ -3,7 +3,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { NetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -28,7 +27,7 @@ const lineaInfo: NetworkInfo = {
     name: 'LineaETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 10 ** 15,
   },
   defaultRpcUrl: 'https://rpc.linea.build',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
@@ -62,7 +61,6 @@ const lineaInfo: NetworkInfo = {
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: NOT_SUPPORT,
   coingeckoNativeTokenId: NOT_SUPPORT,
-  deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }
