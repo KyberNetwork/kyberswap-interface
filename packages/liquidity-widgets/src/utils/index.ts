@@ -1,7 +1,8 @@
 import { formatUnits, getAddress } from "ethers/lib/utils";
 import { PoolType } from "../constants";
-import uniswapLogo from "../assets/uniswap.png";
-import pancakeLogo from "../assets/pancake.png";
+import uniswapLogo from "../assets/dexes/uniswap.png";
+import pancakeLogo from "../assets/dexes/pancake.png";
+import metavaultLogo from "../assets/dexes/metavault.svg?url";
 import { ProtocolFeeAction } from "../hooks/useZapInState";
 
 // returns the checksummed address if the address is valid, otherwise returns false
@@ -185,21 +186,30 @@ export function friendlyError(error: Error | string): string {
   return `An error occurred`;
 }
 
-export const getDexName = (poolType: PoolType) => {
+export const getDexName = (poolType: PoolType): string => {
   switch (poolType) {
     case PoolType.DEX_UNISWAPV3:
       return "Uniswap V3";
     case PoolType.DEX_PANCAKESWAPV3:
       return "PancakeSwap V3";
+    case PoolType.DEX_METAVAULTV3:
+      return "Metavault V3";
+
+    default:
+      return assertUnreachable(poolType, "Unknown pool type");
   }
 };
 
-export const getDexLogo = (poolType: PoolType) => {
+export const getDexLogo = (poolType: PoolType): string => {
   switch (poolType) {
     case PoolType.DEX_UNISWAPV3:
       return uniswapLogo;
     case PoolType.DEX_PANCAKESWAPV3:
       return pancakeLogo;
+    case PoolType.DEX_METAVAULTV3:
+      return metavaultLogo;
+    default:
+      return assertUnreachable(poolType, "Unknown pool type");
   }
 };
 
@@ -268,4 +278,20 @@ export const getWarningThreshold = (zapFee: ProtocolFeeAction) => {
   if (zapFee.protocolFee.pcm <= feeConfig[PairType.Stable]) return 0.1;
   if (zapFee.protocolFee.pcm <= feeConfig[PairType.Correlated]) return 0.25;
   return 1;
+};
+
+/**
+ * perform static type check if some cases are not handled, e.g.
+ * type fruit = "orange" | "apple" | "banana"
+ * if only "orange" and "apple" are handled, then it will throw typescript
+ * static type check error error
+ * if somehow error is not checked, it will throw runtime error
+ * @param x case that should not exists
+ * @param errorMsg custom error message to throw
+ */
+export const assertUnreachable = (x: never, errorMsg?: string) => {
+  if (errorMsg) {
+    throw new Error(errorMsg);
+  }
+  throw new Error("Unhandled case: " + x);
 };

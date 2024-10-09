@@ -37,20 +37,24 @@
       display: flex;
       align-items: center;
       gap: 4px;
-
-      .tag {
-        border-radius: 999px;
-        font-size: 12px;
-        line-height: 16px;
-        background: var(--ks-lw-layer2);
-        padding: 0 8px;
-        height: max-content;
-      }
-
-      .tag-primary {
-        background: var(--ks-lw-success);
-      }
     }
+  }
+
+  .tag {
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 16px;
+    background: var(--ks-lw-layer2);
+    padding: 0 8px;
+    height: max-content;
+  }
+
+  .tag-primary {
+    background: var(--ks-lw-success);
+  }
+
+  .tag-warning {
+    background: var(--ks-lw-warning);
   }
 
   .card {

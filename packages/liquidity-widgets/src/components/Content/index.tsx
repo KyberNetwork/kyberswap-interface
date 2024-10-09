@@ -2,7 +2,7 @@ import "./Content.scss";
 import X from "../../assets/x.svg";
 import ErrorIcon from "../../assets/error.svg";
 import PriceInfo from "./PriceInfo";
-import LiquidityChart from "./LiquidityChart";
+//import LiquidityChart from "./LiquidityChart";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
 import {
@@ -270,7 +270,9 @@ export default function Content({
       <div className="ks-lw-content">
         <div className="left">
           <PriceInfo />
+          {/*
           <LiquidityChart />
+          */}
           <div className="label-row" style={{ marginTop: "1rem" }}>
             {positionId === undefined
               ? "Price ranges"

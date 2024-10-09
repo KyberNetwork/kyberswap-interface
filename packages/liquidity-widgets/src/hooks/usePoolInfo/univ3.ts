@@ -51,7 +51,8 @@ const Univ3PoolInterface = new Interface(Univ3PoolABI);
 
 export default function usePoolInfo(
   poolAddress: string,
-  positionId: string | undefined
+  positionId: string | undefined,
+  poolType: PoolType
 ) {
   const [loading, setLoading] = useState(true);
   const [pool, setPool] = useState<Pool | null>(null);
@@ -62,7 +63,7 @@ export default function usePoolInfo(
   const [position, setPosition] = useState<PositionAdaper | null>(null);
 
   const posManagerContract = useContract(
-    NFT_MANAGER_CONTRACT[PoolType.DEX_UNISWAPV3][chainId],
+    NFT_MANAGER_CONTRACT[poolType][chainId],
     Univ3PosManagerABI,
     true
   );

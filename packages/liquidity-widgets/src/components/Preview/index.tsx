@@ -93,6 +93,9 @@ export default function Preview({
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
 
+  const isOutOfRange =
+    tickLower > pool.tickCurrent || pool.tickCurrent >= tickUpper;
+
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
@@ -357,7 +360,7 @@ export default function Preview({
                 ? `Position #${positionId}`
                 : `${getDexName(poolType)} ${pool.token0.symbol}/${
                     pool.token1.symbol
-                  } ${(pool.fee / 10_000) * 100}`}
+                  } ${pool.fee / 10_000}%`}
             </div>
           )}
           {txHash && txStatus === "" && (
@@ -484,11 +487,32 @@ export default function Preview({
             </div>
           </div>
         </div>
+
+        {isOutOfRange && (
+          <div
+            className="tag tag-warning"
+            style={{
+              marginLeft: "auto",
+              padding: "2px 8px",
+            }}
+          >
+            Inactive{" "}
+            <InfoHelper
+              width="300px"
+              color={"#ffffff"}
+              text="The position is inactive and not earning trading fees due to the current price being out of the set price range."
+              size={16}
+            />
+          </div>
+        )}
       </div>
 
       <div className="card" style={{ marginTop: "1rem" }}>
         <div className="card-title">Zap-in Amount</div>
-        <div className="row" style={{ marginTop: "8px" }}>
+        <div
+          className="row"
+          style={{ marginTop: "8px", justifyContent: "flex-start" }}
+        >
           <img
             src={tokenIn.logoURI}
             alt=""

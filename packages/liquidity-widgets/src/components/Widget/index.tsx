@@ -5,12 +5,12 @@ import { Web3Provider } from "../../hooks/useProvider";
 import { Theme, defaultTheme } from "../../theme";
 import { WidgetProvider } from "../../hooks/useWidgetInfo";
 import { providers } from "ethers";
-import { NetworkInfo, PoolType } from "../../constants";
+import { NetworkInfo, PoolType, ChainId } from "../../constants";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
 import Setting from "../Setting";
 
-export { PoolType };
+export { PoolType, ChainId };
 
 // createModalRoot.js
 const createModalRoot = () => {

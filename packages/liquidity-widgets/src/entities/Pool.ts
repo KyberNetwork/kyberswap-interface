@@ -19,6 +19,7 @@ import {
   FeeAmount as FeeAmountUni,
 } from "@uniswap/v3-sdk";
 import { PoolType } from "../constants";
+import { assertUnreachable } from "../utils";
 
 export interface Token {
   chainId: number;
@@ -113,6 +114,7 @@ export class PoolAdapter implements IPool {
   get minTick(): number {
     switch (this.poolType) {
       case PoolType.DEX_UNISWAPV3:
+      case PoolType.DEX_METAVAULTV3:
         return nearestUsableTickUni(
           TickMathUni.MIN_TICK,
           TICK_SPACINGS_UNI[this.fee as FeeAmountUni]
@@ -123,12 +125,16 @@ export class PoolAdapter implements IPool {
           TickMathPancake.MIN_TICK,
           TICK_SPACINGS_PANCAKE[this.fee as FeeAmountPanckake]
         );
+
+      default:
+        throw new Error("pool type is not handled");
     }
   }
 
   get maxTick(): number {
     switch (this.poolType) {
       case PoolType.DEX_UNISWAPV3:
+      case PoolType.DEX_METAVAULTV3:
         return nearestUsableTickUni(
           TickMathUni.MAX_TICK,
           TICK_SPACINGS_UNI[this.fee as FeeAmountUni]
@@ -139,6 +145,8 @@ export class PoolAdapter implements IPool {
           TickMathPancake.MAX_TICK,
           TICK_SPACINGS_PANCAKE[this.fee as FeeAmountPanckake]
         );
+      default:
+        throw new Error("pool type is not handled");
     }
   }
 
@@ -213,6 +221,7 @@ export function tryParseTick(
 ) {
   switch (poolType) {
     case PoolType.DEX_UNISWAPV3:
+    case PoolType.DEX_METAVAULTV3:
       return tryParseTickUniV3(
         baseToken &&
           new UniToken(
@@ -250,6 +259,8 @@ export function tryParseTick(
         feeAmount,
         value
       );
+    default:
+      return assertUnreachable(poolType, "pool type is not handled");
   }
 }
 
@@ -258,12 +269,15 @@ export function nearestUsableTick(
   tick: number,
   tickSpacing: number
 ): number {
-  if (poolType === PoolType.DEX_UNISWAPV3)
+  if (
+    poolType === PoolType.DEX_UNISWAPV3 ||
+    poolType === PoolType.DEX_METAVAULTV3
+  )
     return nearestUsableTickUni(tick, tickSpacing);
   if (poolType === PoolType.DEX_PANCAKESWAPV3)
     return nearestUsableTickPancake(tick, tickSpacing);
 
-  throw new Error("pool type is not handled");
+  return assertUnreachable(poolType, "pool type is not handled");
 }
 
 export function tickToPrice(
@@ -272,39 +286,44 @@ export function tickToPrice(
   token1: Token,
   tick: number
 ): Price {
-  if (poolType === PoolType.DEX_UNISWAPV3)
-    return tickToPriceUni(
-      new UniToken(
-        token0.chainId,
-        token0.address,
-        token0.decimals,
-        token0.symbol
-      ),
-      new UniToken(
-        token1.chainId,
-        token1.address,
-        token1.decimals,
-        token1.symbol
-      ),
-      tick
-    );
-  if (poolType === PoolType.DEX_PANCAKESWAPV3)
-    return tickToPricePancake(
-      new PancakeToken(
-        token0.chainId,
-        token0.address as `0x${string}`,
-        token0.decimals,
-        token0.symbol || ""
-      ),
-      new PancakeToken(
-        token1.chainId,
-        token1.address as `0x${string}`,
-        token1.decimals,
-        token1.symbol || ""
-      ),
+  switch (poolType) {
+    case PoolType.DEX_UNISWAPV3:
+    case PoolType.DEX_METAVAULTV3:
+      return tickToPriceUni(
+        new UniToken(
+          token0.chainId,
+          token0.address,
+          token0.decimals,
+          token0.symbol
+        ),
+        new UniToken(
+          token1.chainId,
+          token1.address,
+          token1.decimals,
+          token1.symbol
+        ),
+        tick
+      );
 
-      tick
-    );
+    case PoolType.DEX_PANCAKESWAPV3:
+      return tickToPricePancake(
+        new PancakeToken(
+          token0.chainId,
+          token0.address as `0x${string}`,
+          token0.decimals,
+          token0.symbol || ""
+        ),
+        new PancakeToken(
+          token1.chainId,
+          token1.address as `0x${string}`,
+          token1.decimals,
+          token1.symbol || ""
+        ),
 
-  throw new Error("pool type is not handled");
+        tick
+      );
+
+    default:
+      return assertUnreachable(poolType, "pool type is not handled");
+  }
 }
