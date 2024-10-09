@@ -133,7 +133,7 @@ export function useChangeNetwork() {
       const wrappedSuccessCallback = () =>
         successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
       // if connected, nothing todo, success return
-      if (desiredChainId === chainId && !isWrongNetwork) {
+      if (desiredChainId === chainId && kyberChainId === chainId && !isWrongNetwork) {
         customSuccessCallback?.()
         return
       }
