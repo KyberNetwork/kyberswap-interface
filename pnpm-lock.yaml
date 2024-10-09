@@ -21,7 +21,7 @@ importers:
   apps/liquidity-widgets-demo:
     dependencies:
       '@kyberswap/liquidity-widgets':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/liquidity-widgets
       '@web3-onboard/injected-wallets':
         specifier: ^2.11.2
@@ -357,12 +357,6 @@ importers:
 
   packages/pancake-liquidity-widgets:
     dependencies:
-      '@kyber/hooks':
-        specifier: workspace:*
-        version: link:../hooks
-      '@kyber/ui':
-        specifier: workspace:*
-        version: link:../ui
       '@pancakeswap/sdk':
         specifier: ^5.8.2
         version: 5.8.8(typescript@5.3.2)
@@ -388,9 +382,15 @@ importers:
         specifier: '>=2.13.3'
         version: 2.21.15(typescript@5.3.2)
     devDependencies:
+      '@kyber/hooks':
+        specifier: workspace:*
+        version: link:../hooks
       '@kyber/svgr-esbuild-plugin':
         specifier: workspace:^
         version: link:../svgr-esbuild-plugin
+      '@kyber/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@types/react':
         specifier: ^18.0.17
         version: 18.3.9

@@ -296,7 +296,7 @@ export default function Preview({
         recipient: account,
         route: zapInfo.route,
         deadline,
-        source: "zap-widget",
+        source,
       }),
     })
       .then((res) => res.json())
