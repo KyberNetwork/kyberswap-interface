@@ -1,8 +1,10 @@
-import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { ExternalLink as ExternalLinkIcon, Repeat } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
@@ -10,24 +12,30 @@ import { TruncatedText } from 'components'
 import { AutoColumn } from 'components/Column'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
+import { Shield } from 'components/Icons'
+import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
+import AddMEVProtectionModal from 'components/SwapForm/AddMEVProtectionModal'
+import { PriceAlertButton } from 'components/SwapForm/SlippageSettingGroup'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import { TooltipTextOfSwapFee } from 'components/SwapForm/TradeSummary'
 import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
-import { useActiveWeb3React } from 'hooks'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useCheckCorrelatedPair } from 'state/swap/hooks'
-import { usePaymentToken } from 'state/user/hooks'
-import { ExternalLink, TYPE } from 'theme'
+import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
+import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, shortenAddress } from 'utils'
 import { calculateFeeFromBuildData } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
-import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
+import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
 interface ExecutionPriceProps {
   executionPrice?: Price<Currency, Currency>
@@ -73,7 +81,9 @@ export default function SwapDetails({
   buildData,
 }: Props) {
   const { chainId, networkInfo, account } = useActiveWeb3React()
+  const { active } = useWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
+  const [showMevModal, setShowMevModal] = useState(false)
   const theme = useTheme()
   const { slippage, routeSummary } = useSwapFormContext()
 
@@ -116,8 +126,41 @@ export default function SwapDetails({
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
 
+  const { mixpanelHandler } = useMixpanel()
+
+  const addMevProtectionHandler = useCallback(() => {
+    setShowMevModal(true)
+    mixpanelHandler(MIXPANEL_TYPE.MEV_CLICK_ADD_MEV)
+  }, [mixpanelHandler])
+
+  const onClose = useCallback(() => {
+    setShowMevModal(false)
+  }, [])
+
+  const { rawSlippage } = useSlippageSettingByPage()
+  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePair, isCorrelated)
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+  const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const addMevButton =
+    chainId === ChainId.MAINNET &&
+    active &&
+    !isPartnerSwap &&
+    slippageStatus === SLIPPAGE_STATUS.HIGH &&
+    !isMobile &&
+    !isTablet ? (
+      <PriceAlertButton onClick={addMevProtectionHandler}>
+        <Shield size={14} color={theme.subText} />
+        <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+          {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
+          <InfoHelper size={14} text="Add MEV Protection to safeguard you from front-running attacks." />
+        </Text>
+      </PriceAlertButton>
+    ) : null
+
   return (
     <>
+      <AddMEVProtectionModal isOpen={showMevModal} onClose={onClose} />
+
       <AutoColumn
         gap="0.5rem"
         style={{ padding: '12px 16px', border: `1px solid ${theme.border}`, borderRadius: '16px' }}
@@ -345,7 +388,7 @@ export default function SwapDetails({
           </RowBetween>
         )}
 
-        <RowBetween height="20px" style={{ gap: '16px' }}>
+        <RowBetween height={addMevButton !== null ? '45px' : '20px'} style={{ gap: '16px' }} align="flex-start">
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip
@@ -366,12 +409,15 @@ export default function SwapDetails({
             </TextDashed>
           </RowFixed>
 
-          <TYPE.black
-            fontSize={12}
-            color={checkWarningSlippage(slippage, isStablePair, isCorrelated) ? theme.warning : undefined}
-          >
-            {formatSlippage(slippage)}
-          </TYPE.black>
+          <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: '6px' }}>
+            <TYPE.black
+              fontSize={12}
+              color={checkWarningSlippage(slippage, isStablePair, isCorrelated) ? theme.warning : undefined}
+            >
+              {formatSlippage(slippage)}
+            </TYPE.black>
+            {addMevButton}
+          </Flex>
         </RowBetween>
 
         <Divider />
