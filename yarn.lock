@@ -14629,10 +14629,10 @@ kleur@^4.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.5.tgz#95106101795f7050c6c650f350c683febddb1780"
   integrity sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==
 
-kyberswap-liquidity-widgets@1.0.17:
-  version "1.0.17"
-  resolved "https://registry.yarnpkg.com/kyberswap-liquidity-widgets/-/kyberswap-liquidity-widgets-1.0.17.tgz#991be3f4a5c5e09e53e03d12a7785fc1734d7e07"
-  integrity sha512-ziUqs3gqK6uJt4c4cMPWEdW92dyDP4h/bbDQphHrrOQtKkT0DzuqCkcASieH5KohPyGPP+jcSK+7tSRdVVgTzQ==
+kyberswap-liquidity-widgets@1.0.18:
+  version "1.0.18"
+  resolved "https://registry.yarnpkg.com/kyberswap-liquidity-widgets/-/kyberswap-liquidity-widgets-1.0.18.tgz#4e466abe3385db26f8540fd129b5e7de80e67370"
+  integrity sha512-5tv8fFo5N3rjgKIItpdhfdgoQxiBS1Z7wM7oTH0kQDaESaa6TXtnAukQ1erVqf5ewo02mCtjvjjCJsUMP1PfwQ==
   dependencies:
     "@ethersproject/providers" "^5.7.2"
     "@kyberswap/ks-sdk-core" "^1.1.5"
