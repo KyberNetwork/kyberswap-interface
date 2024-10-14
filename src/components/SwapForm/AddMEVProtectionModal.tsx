@@ -14,6 +14,7 @@ import { CONNECTION } from 'components/Web3Provider'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -29,6 +30,8 @@ const Wrapper = styled.div`
   justify-content: center;
   gap: 24px;
   width: 100%;
+  color: ${({ theme }) => theme.subText};
+
   .time-frame-legend {
     display: none;
   }
@@ -42,6 +45,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
   const { mixpanelHandler } = useMixpanel()
   const { walletKey } = useActiveWeb3React()
   const notify = useNotify()
+  const theme = useTheme()
 
   const onAdd = useCallback(() => {
     if (!walletKey || walletKey !== CONNECTION.METAMASK_RDNS) {
@@ -80,17 +84,17 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
     <Modal
       isOpen={isOpen}
       width="fit-content"
-      maxWidth="600px"
+      maxWidth="500px"
       maxHeight="80vh"
       onDismiss={onClose}
       zindex={Z_INDEXS.POPOVER_CONTAINER + 1}
     >
       <Wrapper>
         <RowBetween align="start">
-          <Text fontSize={24} fontWeight={500}>
+          <Text fontSize={24} fontWeight={500} color={theme.text}>
             <Trans>Add Custom RPC Endpoint</Trans>
           </Text>
-          <X style={{ cursor: 'pointer' }} onClick={onClose} />
+          <X color={theme.text} style={{ cursor: 'pointer' }} onClick={onClose} />
         </RowBetween>
         <Row gap="12px">
           <Text fontSize={12} lineHeight="16px">
