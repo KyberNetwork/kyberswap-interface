@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -47,8 +47,10 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
   const notify = useNotify()
   const theme = useTheme()
 
+  const isUsingMetamask = useMemo(() => walletKey === CONNECTION.METAMASK_RDNS, [walletKey])
+
   const onAdd = useCallback(() => {
-    if (!walletKey || walletKey !== CONNECTION.METAMASK_RDNS) {
+    if (!isUsingMetamask) {
       onClose?.()
       return
     }
@@ -78,7 +80,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
         onClose?.()
       },
     )
-  }, [walletKey, onClose, mixpanelHandler, addNewNetwork, notify])
+  }, [isUsingMetamask, onClose, mixpanelHandler, addNewNetwork, notify])
 
   return (
     <Modal
@@ -120,12 +122,12 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           </Text>
         </Row>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
-          <ButtonOutlined onClick={onClose}>
-            <Trans>No, go back</Trans>
-          </ButtonOutlined>
-          <ButtonPrimary onClick={onAdd}>
-            <Trans>Yes</Trans>
-          </ButtonPrimary>
+          <ButtonOutlined onClick={onClose}>{isUsingMetamask ? t`No, go back` : t`Dismiss`}</ButtonOutlined>
+          {isUsingMetamask && (
+            <ButtonPrimary onClick={onAdd}>
+              <Trans>Yes</Trans>
+            </ButtonPrimary>
+          )}
         </Row>
       </Wrapper>
     </Modal>
