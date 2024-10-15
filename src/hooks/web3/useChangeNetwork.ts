@@ -19,7 +19,7 @@ import { wait } from 'utils/retry'
 let latestChainId: number | undefined
 export function useChangeNetwork() {
   const { isWrongNetwork, chainId: kyberChainId } = useActiveWeb3React()
-  const { chainId, connector, active } = useWeb3React()
+  const { chainId, connector, active, library } = useWeb3React()
   //const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
@@ -104,22 +104,55 @@ export function useChangeNetwork() {
   )
 
   const addNewNetwork = useCallback(
-    (
-      _desiredChainId: ChainId,
-      _customRpc?: string,
-      _customTexts?: {
+    async (
+      desiredChainId: ChainId,
+      customRpc: string,
+      customTexts?: {
         name?: string
         title?: string
         rejected?: string
         default?: string
       },
-      _customSuccessCallback?: () => void,
-      _customFailureCallback?: (error: Error) => void,
-      _waitUtilUpdatedChainId = false,
+      customSuccessCallback?: () => void,
+      customFailureCallback?: (error: Error) => void,
+      waitUtilUpdatedChainId = false,
     ) => {
-      //
+      if (!library?.provider?.request) return
+      const wrappedSuccessCallback = () => {
+        successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
+      }
+
+      const addChainParameter = {
+        chainId: '0x' + desiredChainId.toString(16),
+        rpcUrls: [customRpc],
+        chainName: customTexts?.name || NETWORKS_INFO[desiredChainId].name,
+        nativeCurrency: {
+          name: NETWORKS_INFO[desiredChainId].nativeToken.name,
+          symbol: NETWORKS_INFO[desiredChainId].nativeToken.symbol,
+          decimals: 18 as const,
+        },
+        blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
+      }
+
+      const errors: Error[] = []
+      try {
+        await library?.provider?.request({
+          method: 'wallet_addEthereumChain',
+          params: [addChainParameter],
+        })
+        wrappedSuccessCallback()
+        return
+      } catch (error) {
+        if (didUserReject(error)) {
+          failureCallback(desiredChainId, error, customFailureCallback, customTexts)
+          return
+        }
+        errors.push(error)
+      }
+
+      failureCallback(desiredChainId, errors.at(-1), customFailureCallback, customTexts)
     },
-    [],
+    [failureCallback, library?.provider, successCallback],
   )
 
   const changeNetwork = useCallback(
