@@ -4,7 +4,6 @@ import { isMobile } from 'react-device-detect'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
 import styled from 'styled-components'
-import { useConnect } from 'wagmi'
 
 import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
@@ -170,8 +169,6 @@ const RoutesWithNetworkPrefix = () => {
   )
 }
 
-const AUTOCONNECTED_CONNECTOR_IDS = ['safe']
-
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { pathname } = useLocation()
@@ -179,18 +176,6 @@ export default function App() {
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
   useSessionExpiredGlobal()
-
-  const { connect, connectors } = useConnect()
-
-  useEffect(() => {
-    AUTOCONNECTED_CONNECTOR_IDS.forEach(connector => {
-      const connectorInstance = connectors.find(c => c.id === connector)
-
-      if (connectorInstance) {
-        connect({ connector: connectorInstance })
-      }
-    })
-  }, [connect, connectors])
 
   useEffect(() => {
     if (prevOnline === false && online && account) {
