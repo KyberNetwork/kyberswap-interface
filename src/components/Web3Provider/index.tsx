@@ -175,7 +175,7 @@ export const wagmiConfig = createConfig({
     }),
     blocto({ appId: 'fbd356ae-8f39-4650-ab42-4ef8cb9e15c9' }),
     safe({
-      allowedDomains: [/^app\.safe\.global$/],
+      allowedDomains: [/app.safe.global$/],
       debug: false,
     }),
   ],
