@@ -1,13 +1,7 @@
 {
   "short_name": "KyberSwap",
   "name": "KyberSwap",
-  "icons": [
-    {
-      "src": "./favicon.svg?version=1",
-      "sizes": "any",
-      "purpose": "any maskable"
-    }
-  ],
+  "iconPath": "/favicon.svg",
   "orientation": "portrait",
   "display": "standalone",
   "background_color": "#fff",
@@ -18,6 +12,5 @@
   },
   "start_url": ".",
   "theme_color": "#31cb9e",
-  "description": "KyberSwap is a multi-chain aggregator and DeFi hub that empowers users with the insights and tools to achieve financial autonomy. All the above while being fast, secure, and easy-to-use.",
-  "iconPath": "/favicon.svg"
+  "description": "KyberSwap is a multi-chain aggregator and DeFi hub that empowers users with the insights and tools to achieve financial autonomy. All the above while being fast, secure, and easy-to-use."
 }

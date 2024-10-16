@@ -174,9 +174,7 @@ export const wagmiConfig = createConfig({
       enableMobileWalletLink: true,
     }),
     blocto({ appId: 'fbd356ae-8f39-4650-ab42-4ef8cb9e15c9' }),
-    safe({
-      allowedDomains: [/app.safe.global$/],
-    }),
+    safe(),
   ],
   client({ chain }) {
     return createClient({
