@@ -37,7 +37,7 @@ const Wrapper = styled.div`
   }
 `
 
-const KYBER_SWAP_RPC = 'https://ethereum.kyberengineering.io/'
+const KYBER_SWAP_RPC = 'https://ethereum-mev-protection.kyberengineering.io/'
 
 export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
