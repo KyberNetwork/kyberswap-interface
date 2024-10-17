@@ -296,6 +296,7 @@ export enum PoolType {
   DEX_UNISWAPV3 = "DEX_UNISWAPV3",
   DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
   DEX_METAVAULTV3 = "DEX_METAVAULTV3",
+  DEX_LINEHUBV3 = "DEX_LINEHUBV3",
 }
 
 export const NFT_MANAGER_CONTRACT: {
@@ -335,6 +336,9 @@ export const NFT_MANAGER_CONTRACT: {
     [ChainId.Linea]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
     [ChainId.Scroll]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
   },
+  [PoolType.DEX_LINEHUBV3] : {
+    [ChainId.Linea]: "0xD27166FA3E2c1a2C1813d0fe6226b8EB21783184",
+  }
 };
 
 export const MULTICALL2_ADDRESS: { [chainId: number]: string } = {

@@ -10,7 +10,6 @@ import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
 import { TokenListProvider } from "../../hooks/useTokenList";
 import Setting from "../Setting";
-import { ChainId as KSChainId } from "@kyberswap/ks-sdk-core";
 
 import "../../globals.css";
 
@@ -35,7 +34,7 @@ export interface WidgetProps {
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
-  chainId: KSChainId;
+  chainId: ChainId;
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;

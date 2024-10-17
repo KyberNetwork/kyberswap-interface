@@ -214,59 +214,30 @@ function Params({
 
         <span>PoolType</span>
         <div className="ks-demo-pool-type-container">
-          <div className="ks-demo-pool-type-item">
-            <input
-              className="ks-demo-input"
-              type="radio"
-              id="1"
-              name={PoolType.DEX_METAVAULTV3}
-              value={PoolType.DEX_METAVAULTV3}
-              checked={localParams.poolType === PoolType.DEX_METAVAULTV3}
-              onChange={(e) =>
-                setLocalParams({
-                  ...localParams,
-                  poolType: e.currentTarget.value as PoolType,
-                })
-              }
-            />
-            <label htmlFor="1">{PoolType.DEX_METAVAULTV3}</label>
-          </div>
-
-          <div className="ks-demo-pool-type-item">
-            <input
-              className="ks-demo-input"
-              type="radio"
-              id="2"
-              name={PoolType.DEX_UNISWAPV3}
-              value={PoolType.DEX_UNISWAPV3}
-              checked={localParams.poolType === PoolType.DEX_UNISWAPV3}
-              onChange={(e) =>
-                setLocalParams({
-                  ...localParams,
-                  poolType: e.currentTarget.value as PoolType,
-                })
-              }
-            />
-            <label htmlFor="2">{PoolType.DEX_UNISWAPV3}</label>
-          </div>
-
-          <div className="ks-demo-pool-type-item">
-            <input
-              className="ks-demo-input"
-              type="radio"
-              id="3"
-              name={PoolType.DEX_PANCAKESWAPV3}
-              value={PoolType.DEX_PANCAKESWAPV3}
-              checked={localParams.poolType === PoolType.DEX_PANCAKESWAPV3}
-              onChange={(e) =>
-                setLocalParams({
-                  ...localParams,
-                  poolType: e.currentTarget.value as PoolType,
-                })
-              }
-            />
-            <label htmlFor="3">{PoolType.DEX_PANCAKESWAPV3}</label>
-          </div>
+          {Object.keys(PoolType).map((key, index) => (
+            <div className="ks-demo-pool-type-item" key={key}>
+              <input
+                className="ks-demo-input"
+                type="radio"
+                id={`${index + 1}`}
+                name={PoolType[key as keyof typeof PoolType]}
+                value={PoolType[key as keyof typeof PoolType]}
+                checked={
+                  localParams.poolType ===
+                  PoolType[key as keyof typeof PoolType]
+                }
+                onChange={(e) =>
+                  setLocalParams({
+                    ...localParams,
+                    poolType: e.currentTarget.value as PoolType,
+                  })
+                }
+              />
+              <label htmlFor={`${index + 1}`}>
+                {PoolType[key as keyof typeof PoolType]}
+              </label>
+            </div>
+          ))}
         </div>
       </div>
 

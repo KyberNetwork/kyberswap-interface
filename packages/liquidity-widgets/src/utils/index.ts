@@ -6,6 +6,7 @@ import { ChainId } from "@kyberswap/ks-sdk-core";
 import uniswapLogo from "@/assets/dexes/uniswap.png";
 import pancakeLogo from "@/assets/dexes/pancake.png";
 import metavaultLogo from "@/assets/dexes/metavault.svg?url";
+import linehubLogo from "@/assets/dexes/linehub.svg?url";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -196,6 +197,8 @@ export const getDexName = (poolType: PoolType): string => {
       return "PancakeSwap V3";
     case PoolType.DEX_METAVAULTV3:
       return "Metavault V3";
+    case PoolType.DEX_LINEHUBV3:
+      return "LineHub V3";
 
     default:
       return assertUnreachable(poolType, "Unknown pool type");
@@ -210,6 +213,9 @@ export const getDexLogo = (poolType: PoolType): string => {
       return pancakeLogo;
     case PoolType.DEX_METAVAULTV3:
       return metavaultLogo;
+    case PoolType.DEX_LINEHUBV3:
+      return linehubLogo;
+
     default:
       return assertUnreachable(poolType, "Unknown pool type");
   }

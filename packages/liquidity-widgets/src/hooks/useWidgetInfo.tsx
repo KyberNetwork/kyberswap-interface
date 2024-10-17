@@ -116,7 +116,8 @@ export const WidgetProvider = (props: Props) => {
   }
   if (
     props.poolType === PoolType.DEX_UNISWAPV3 ||
-    props.poolType === PoolType.DEX_METAVAULTV3
+    props.poolType === PoolType.DEX_METAVAULTV3 ||
+    props.poolType === PoolType.DEX_LINEHUBV3
   ) {
     return <UniV3Provider {...props} />;
   }
