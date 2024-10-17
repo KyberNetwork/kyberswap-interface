@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { NetworkInfo } from "../constants";
@@ -14,7 +15,7 @@ const Web3Context = createContext<
       provider: providers.Web3Provider | providers.JsonRpcProvider;
       readProvider: providers.JsonRpcProvider;
       chainId: number;
-      account: string | undefined;
+      account: any;
       networkChainId: number | undefined;
     }
   | undefined
@@ -36,10 +37,15 @@ export const Web3Provider = ({
 
   const [account, setAccount] = useState<string | undefined>();
   const [networkChainId, setNetWorkChainId] = useState<number | undefined>();
+  const getAccountRunning = useRef(false);
 
   useEffect(() => {
+    getAccountRunning.current = true;
     provider.listAccounts().then((res) => {
-      setAccount(res[0]);
+      if (getAccountRunning.current) {
+        setAccount(res[0]);
+        getAccountRunning.current = false;
+      }
     });
     provider.getNetwork().then(({ chainId }) => setNetWorkChainId(chainId));
   }, [provider]);

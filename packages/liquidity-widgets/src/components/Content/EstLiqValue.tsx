@@ -1,14 +1,15 @@
 import { BigNumber } from "ethers";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useZapState } from "../../hooks/useZapInState";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
-  PartnerFeeAction,
   PoolSwapAction,
-  ProtocolFeeAction,
   RefundAction,
-  useZapState,
-} from "../../hooks/useZapInState";
+  PartnerFeeAction,
+  ProtocolFeeAction,
+  ZapAction,
+} from "../../hooks/types/zapInTypes";
 import {
   PI_LEVEL,
   formatCurrency,
@@ -19,13 +20,26 @@ import {
 import InfoHelper from "../InfoHelper";
 import { formatUnits } from "ethers/lib/utils";
 import { MouseoverTooltip } from "../Tooltip";
+import { PATHS } from "@/constants";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { useMemo } from "react";
+import { useTokenList } from "@/hooks/useTokenList";
+import { Token } from "@/entities/Pool";
+import { formatDisplayNumber } from "@/utils/number";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
 export default function EstLiqValue() {
-  const { zapInfo, source } = useZapState();
+  const { zapInfo, source, slippage } = useZapState();
   const { pool, theme, position } = useWidgetInfo();
+  const { allTokens } = useTokenList();
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
+    (item) => item.type === ZapAction.ADD_LIQUIDITY
   ) as AddLiquidityAction | undefined;
   const addedAmount0 = formatUnits(
     addLiquidityInfo?.addLiquidity.token0.amount || "0",
@@ -37,7 +51,7 @@ export default function EstLiqValue() {
   );
 
   const refundInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_REFUND"
+    (item) => item.type === ZapAction.REFUND
   ) as RefundAction | null;
   const refundToken0 =
     refundInfo?.refund.tokens.filter(
@@ -74,48 +88,105 @@ export default function EstLiqValue() {
     refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
     0;
 
-  const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
-  ) as AggregatorSwapAction | undefined;
-  const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenIn.amountUsd,
-    0
-  );
-  const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenOut.amountUsd,
-    0
-  );
-
-  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
-  ) as PoolSwapAction | null;
-  const amountInPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenIn.amountUsd,
-      0
-    ) || 0;
-  const amountOutPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenOut.amount,
-      0
-    ) || 0;
-  const totalSwapIn = (swapAmountIn || 0) + amountInPoolSwap;
-  const totalSwapOut = (swapAmountOut || 0) + amountOutPoolSwap;
-  const swapPriceImpact = ((totalSwapIn - totalSwapOut) / totalSwapIn) * 100;
-
   const feeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+    (item) => item.type === ZapAction.PROTOCOL_FEE
   ) as ProtocolFeeAction | undefined;
 
   const partnerFeeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PARTNER_FEE"
+    (item) => item.type === ZapAction.PARTNET_FEE
   ) as PartnerFeeAction | undefined;
 
   const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
   const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+
+  const swapPi = useMemo(() => {
+    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+    ) as AggregatorSwapAction | null;
+
+    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.POOL_SWAP
+    ) as PoolSwapAction | null;
+
+    const parsedAggregatorSwapInfo =
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        const piRes = getPriceImpact(pi, feeInfo);
+
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn,
+          amountOut,
+          piRes,
+        };
+      }) || [];
+
+    const parsedPoolSwapInfo =
+      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        const piRes = getPriceImpact(pi, feeInfo);
+
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn,
+          amountOut,
+          piRes,
+        };
+      }) || [];
+
+    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
+  }, [feeInfo, allTokens, zapInfo]);
+
+  const swapPiRes = useMemo(() => {
+    const invalidRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.INVALID
+    );
+    if (invalidRes) return invalidRes;
+
+    const highRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH);
+    if (highRes) return highRes;
+
+    const veryHighRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.HIGH
+    );
+    if (veryHighRes) return veryHighRes;
+
+    return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
+  }, [swapPi]);
 
   const positionAmount0Usd =
     (+(position?.amount0 || 0) *
@@ -151,20 +222,19 @@ export default function EstLiqValue() {
                     src={pool.token0.logoURI}
                     width="14px"
                     style={{ marginTop: "2px", borderRadius: "50%" }}
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
                   />
                 )}
-                {position ? (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+position.amount0)} {pool?.token0.symbol}
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+addedAmount0)} {pool?.token0.symbol}
-                  </div>
-                )}
+                <div className="text-end">
+                  {formatNumber(position ? +position.amount0 : +addedAmount0)}{" "}
+                  {pool?.token0.symbol}
+                </div>
               </div>
               {position && (
-                <div style={{ textAlign: "end" }}>
+                <div className="text-end">
                   + {formatNumber(+addedAmount0)} {pool?.token0.symbol}
                 </div>
               )}
@@ -192,21 +262,19 @@ export default function EstLiqValue() {
                     src={pool?.token1?.logoURI}
                     width="14px"
                     style={{ marginTop: "2px", borderRadius: "50%" }}
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
                   />
                 )}
-
-                {position ? (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+position.amount1)} {pool?.token1.symbol}
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+addedAmount1)} {pool?.token1.symbol}
-                  </div>
-                )}
+                <div className="text-end">
+                  {formatNumber(position ? +position.amount1 : +addedAmount1)}{" "}
+                  {pool?.token1.symbol}
+                </div>
               </div>
               {position && (
-                <div style={{ textAlign: "end" }}>
+                <div className="text-end">
                   + {formatNumber(+addedAmount1)} {pool?.token1.symbol}
                 </div>
               )}
@@ -229,7 +297,7 @@ export default function EstLiqValue() {
             text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
             width="220px"
           >
-            <div className="label underline">Est. Remaining Value</div>
+            <div className="label text-underline">Est. Remaining Value</div>
           </MouseoverTooltip>
 
           <div>
@@ -250,29 +318,73 @@ export default function EstLiqValue() {
         </div>
 
         <div className="detail-row">
-          <MouseoverTooltip
-            text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
-            width="220px"
-          >
-            <div className="label underline">Swap Price Impact</div>
-          </MouseoverTooltip>
-          {aggregatorSwapInfo || poolSwapInfo ? (
-            <div
-              style={{
-                color:
-                  swapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                  swapPiRes.level === PI_LEVEL.INVALID
-                    ? theme.error
-                    : swapPiRes.level === PI_LEVEL.HIGH
-                    ? theme.warning
-                    : theme.text,
-              }}
-            >
-              {swapPiRes.display}
-            </div>
+          {swapPi.length ? (
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>
+                  <MouseoverTooltip
+                    text="View all the detailed estimated price impact of each swap"
+                    width="220px"
+                  >
+                    <div
+                      className={`label text-underline text-xs ${
+                        swapPiRes.piRes.level === PI_LEVEL.NORMAL
+                          ? ""
+                          : swapPiRes.piRes.level === PI_LEVEL.HIGH
+                          ? "!text-warning !border-warning"
+                          : "!text-error !border-error"
+                      }`}
+                    >
+                      Swap Impact
+                    </div>
+                  </MouseoverTooltip>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {swapPi.map((item, index: number) => (
+                    <div
+                      className={`text-xs flex justify-between align-middle ${
+                        item.piRes.level === PI_LEVEL.NORMAL
+                          ? "text-subText brightness-125"
+                          : item.piRes.level === PI_LEVEL.HIGH
+                          ? "text-warning"
+                          : "text-error"
+                      }`}
+                      key={index}
+                    >
+                      <div className="ml-3">
+                        {formatDisplayNumber(item.amountIn, {
+                          significantDigits: 4,
+                        })}{" "}
+                        {item.tokenInSymbol} {"→ "}
+                        {formatDisplayNumber(item.amountOut, {
+                          significantDigits: 4,
+                        })}{" "}
+                        {item.tokenOutSymbol}
+                      </div>
+                      <div>{item.piRes.display}</div>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           ) : (
-            "--"
+            <>
+              <MouseoverTooltip
+                text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
+                width="220px"
+              >
+                <div className="label text-underline">Swap Impact</div>
+              </MouseoverTooltip>
+              <span>--</span>
+            </>
           )}
+        </div>
+
+        <div className="detail-row">
+          <MouseoverTooltip text="Swap Max Slippage" width="220px">
+            <div className="label text-underline">Swap Max Slippage</div>
+          </MouseoverTooltip>
+          <div>{((slippage * 100) / 10_000).toString() + "%"}</div>
         </div>
 
         <div className="detail-row">
@@ -280,7 +392,7 @@ export default function EstLiqValue() {
             text="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
             width="220px"
           >
-            <div className="label underline">Zap Impact</div>
+            <div className="label text-underline">Zap Impact</div>
           </MouseoverTooltip>
           {zapInfo ? (
             <div
@@ -309,7 +421,7 @@ export default function EstLiqValue() {
                 You still have to pay the standard gas fees.{" "}
                 <a
                   style={{ color: theme.accent }}
-                  href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                  href={`${PATHS.KYBERSWAP_DOCS}/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model`}
                   target="_blank"
                   rel="noopener norefferer"
                 >
@@ -319,7 +431,7 @@ export default function EstLiqValue() {
             }
             width="220px"
           >
-            <div className="label underline">Zap Fee</div>
+            <div className="label text-underline">Zap Fee</div>
           </MouseoverTooltip>
 
           <MouseoverTooltip
@@ -333,7 +445,7 @@ export default function EstLiqValue() {
                 : ""
             }
           >
-            <div className="underline">
+            <div>
               {feeInfo
                 ? parseFloat((protocolFee + partnerFee).toFixed(3)) + "%"
                 : "--"}
@@ -341,22 +453,6 @@ export default function EstLiqValue() {
           </MouseoverTooltip>
         </div>
       </div>
-
-      {aggregatorSwapInfo && swapPiRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className="warning-msg"
-          style={{
-            backgroundColor:
-              swapPiRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-            color:
-              swapPiRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
-          }}
-        >
-          Swap {swapPiRes.msg}
-        </div>
-      )}
 
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
         <div
@@ -372,6 +468,26 @@ export default function EstLiqValue() {
           {piRes.msg}
         </div>
       )}
+
+      {zapInfo &&
+        piRes.level === PI_LEVEL.NORMAL &&
+        swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+          <div
+            className="warning-msg"
+            style={{
+              backgroundColor:
+                swapPiRes.piRes.level === PI_LEVEL.HIGH
+                  ? `${theme.warning}33`
+                  : `${theme.error}33`,
+              color:
+                swapPiRes.piRes.level === PI_LEVEL.HIGH
+                  ? theme.warning
+                  : theme.error,
+            }}
+          >
+            {swapPiRes.piRes.msg}
+          </div>
+        )}
     </>
   );
 }

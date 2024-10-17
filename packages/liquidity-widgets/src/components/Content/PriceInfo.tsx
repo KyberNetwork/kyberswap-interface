@@ -1,30 +1,42 @@
+import { useMemo } from "react";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import SwitchIcon from "../../assets/switch.svg";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatNumber } from "../../utils";
+import SwitchIcon from "@/assets/svg/switch.svg";
 
 export default function PriceInfo() {
   const { loading, pool, theme } = useWidgetInfo();
   const { marketPrice, revertPrice, toggleRevertPrice } = useZapState();
 
+  const price = useMemo(
+    () =>
+      pool
+        ? (revertPrice
+            ? pool.priceOf(pool.token1)
+            : pool.priceOf(pool.token0)
+          ).toSignificant(6)
+        : "--",
+    [pool, revertPrice]
+  );
+
+  const isDeviated = useMemo(
+    () =>
+      !!marketPrice &&
+      pool &&
+      Math.abs(marketPrice / +pool?.priceOf(pool.token0).toSignificant() - 1) >
+        0.02,
+    [marketPrice, pool]
+  );
+
+  const marketRate = useMemo(
+    () =>
+      marketPrice
+        ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
+        : null,
+    [marketPrice, revertPrice]
+  );
+
   if (loading) return <div className="price-info">Loading...</div>;
-
-  const price = pool
-    ? (revertPrice
-        ? pool.priceOf(pool.token1)
-        : pool.priceOf(pool.token0)
-      ).toSignificant(6)
-    : "--";
-
-  const isDevated =
-    !!marketPrice &&
-    pool &&
-    Math.abs(marketPrice / +pool?.priceOf(pool.token0).toSignificant() - 1) >
-      0.02;
-
-  const marketRate = marketPrice
-    ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
-    : null;
 
   return (
     <>
@@ -56,27 +68,11 @@ export default function PriceInfo() {
         </div>
       )}
 
-      {isDevated && (
+      {isDeviated && (
         <div
           className="price-warning"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          {/*
-          <div className="row">
-            <span>Market Price</span>
-            <span className="price">{marketRate}</span>
-            <span>
-              {revertPrice
-                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
-            </span>
-            <SwitchIcon
-              style={{ cursor: "pointer" }}
-              onClick={() => toggleRevertPrice()}
-              role="button"
-            />
-          </div>
-          */}
           <div className="text">
             The pool's current price of{" "}
             <span

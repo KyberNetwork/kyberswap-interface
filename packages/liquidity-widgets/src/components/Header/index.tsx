@@ -1,10 +1,11 @@
 import "./Header.scss";
 import { useWeb3Provider } from "../../hooks/useProvider";
-import SettingIcon from "../../assets/setting.svg";
-import X from "../../assets/x.svg";
+import SettingIcon from "@/assets/svg/setting.svg";
+import X from "@/assets/svg/x.svg";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { NetworkInfo, UNI_V3_BPS } from "../../constants";
+import { NetworkInfo } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
 import { getDexLogo, getDexName } from "../../utils";
 import { MouseoverTooltip } from "../Tooltip";
@@ -31,19 +32,23 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   return (
     <>
       <div className="ks-lw-title">
-        <div style={{ display: "flex", alignItems: "center" }}>
-          Zap in {pool.token0.symbol}/{pool.token1.symbol}{" "}
+        <div className="flex items-center gap-[6px]">
+          {positionId !== undefined ? "Increase Liquidity" : "Zap in"}{" "}
+          {pool.token0.symbol}/{pool.token1.symbol}{" "}
           {positionId !== undefined && (
             <>
-              <div style={{ marginLeft: "4px", color: "var(--ks-lw-accent)" }}>
-                #{positionId}
-              </div>
+              <div className="text-accent">#{positionId}</div>
               <div
-                className={`tag ${
-                  !isOutOfRange ? "tag-primary" : "tag-warning"
+                className={`rounded-full text-xs px-2 py-1 font-normal text-${
+                  isOutOfRange ? "warning" : "accent"
                 }`}
+                style={{
+                  background: `${
+                    isOutOfRange ? theme.warning : theme.accent
+                  }33`,
+                }}
               >
-                {isOutOfRange ? "Inactive" : "Active"}
+                {isOutOfRange ? "● Out of range" : "Active"}
               </div>
             </>
           )}
@@ -55,13 +60,29 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
       <div className="ks-lw-header">
         <div className="pool-info">
           <div className="pool-tokens-logo">
-            <img src={token0.logoURI} alt="" width="24px" height="24px" />
-            <img src={token1.logoURI} alt="" width="24px" height="24px" />
+            <img
+              src={token0.logoURI}
+              alt="token0 logo"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
+            />
+            <img
+              src={token1.logoURI}
+              alt="token1 logo"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
+            />
             <img
               className="network-logo"
               src={NetworkInfo[chainId].logo}
-              width="12px"
-              height="12px"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
             />
           </div>
 
@@ -69,13 +90,22 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             {token0.symbol}/{token1.symbol}
           </span>
 
-          <div style={{ display: "flex", gap: "4px" }}>
-            <div className="tag">Fee {fee / UNI_V3_BPS}%</div>
-            <div className="dex-type">
-              <span>|</span>
-              <img src={logo} width={16} height={16} alt="" />
-              <span>{name}</span>
+          <div className="dex-type">
+            <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px]">
+              Fee {fee / 10_000}%
             </div>
+            <span className="divide">|</span>
+            <img
+              src={logo}
+              width={16}
+              height={16}
+              alt=""
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
+            />
+            <span>{name}</span>
           </div>
         </div>
 

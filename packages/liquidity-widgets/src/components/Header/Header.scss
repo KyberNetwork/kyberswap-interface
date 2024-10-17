@@ -17,6 +17,9 @@
 
       img {
         border-radius: 50%;
+        border: 2px solid var(--ks-lw-layer1);
+        width: 26px;
+        height: 26px;
       }
 
       img:nth-child(2) {
@@ -25,6 +28,8 @@
 
       .network-logo {
         margin-left: -4px;
+        width: 14px;
+        height: 14px;
       }
     }
 
@@ -48,10 +53,15 @@
     }
 
     .dex-type {
-      gap: 4px;
+      margin-left: 2px;
+      gap: 6px;
       display: flex;
       color: var(--ks-lw-subText);
       align-items: center;
+
+      .divide {
+        color: #505050;
+      }
     }
   }
 
@@ -83,6 +93,7 @@
   align-items: center;
 
   .close-btn {
+    color: var(--ks-lw-subText);
     cursor: pointer;
   }
 

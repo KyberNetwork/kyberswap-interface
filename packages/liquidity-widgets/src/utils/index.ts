@@ -1,9 +1,11 @@
 import { formatUnits, getAddress } from "ethers/lib/utils";
-import { PoolType } from "../constants";
-import uniswapLogo from "../assets/dexes/uniswap.png";
-import pancakeLogo from "../assets/dexes/pancake.png";
-import metavaultLogo from "../assets/dexes/metavault.svg?url";
-import { ProtocolFeeAction } from "../hooks/useZapInState";
+import { NetworkInfo, PoolType } from "../constants";
+import { ProtocolFeeAction, Type } from "@/hooks/types/zapInTypes";
+import { nearestUsableTick, PoolAdapter, tryParseTick } from "@/entities/Pool";
+import { ChainId } from "@kyberswap/ks-sdk-core";
+import uniswapLogo from "@/assets/dexes/uniswap.png";
+import pancakeLogo from "@/assets/dexes/pancake.png";
+import metavaultLogo from "@/assets/dexes/metavault.svg?url";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -237,7 +239,7 @@ export const getPriceImpact = (
 
   if (pi > 10 * warningThreshold) {
     return {
-      msg: "Price impact is very high. You will lose funds!",
+      msg: "Warning: The price impact seems high, and you may lose funds in this swap. Click ‘Zap Anyway’ if you wish to continue to Zap in by enabling Degen Mode.",
       level: PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
@@ -280,6 +282,59 @@ export const getWarningThreshold = (zapFee: ProtocolFeeAction) => {
   return 1;
 };
 
+export const correctPrice = (
+  value: string,
+  type: Type,
+  pool: PoolAdapter,
+  tickLower: number | null,
+  tickUpper: number | null,
+  poolType: PoolType,
+  revertPrice: boolean,
+  setTick: (type: Type, value: number) => void
+) => {
+  if (!pool) return;
+  const defaultTick =
+    (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
+
+  if (revertPrice) {
+    const tick =
+      tryParseTick(poolType, pool?.token1, pool?.token0, pool?.fee, value) ??
+      defaultTick;
+    if (Number.isInteger(tick))
+      setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
+  } else {
+    const tick =
+      tryParseTick(poolType, pool?.token0, pool?.token1, pool?.fee, value) ??
+      defaultTick;
+    if (Number.isInteger(tick))
+      setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
+  }
+};
+
+export function getEtherscanLink(
+  chainId: ChainId,
+  data: string,
+  type: "transaction" | "token" | "address" | "block"
+): string {
+  const prefix = NetworkInfo[chainId].scanLink;
+
+  switch (type) {
+    case "transaction": {
+      return `${prefix}/tx/${data}`;
+    }
+    case "token": {
+      if (chainId === ChainId.ZKSYNC) return `${prefix}/address/${data}`;
+      return `${prefix}/token/${data}`;
+    }
+    case "block": {
+      return `${prefix}/block/${data}`;
+    }
+    case "address":
+    default: {
+      return `${prefix}/address/${data}`;
+    }
+  }
+}
 /**
  * perform static type check if some cases are not handled, e.g.
  * type fruit = "orange" | "apple" | "banana"

@@ -1,8 +1,8 @@
 export const defaultTheme = {
-  text: "#212121",
+  text: "#ffffff",
   subText: "#979797",
   icons: "#a9a9a9",
-  layer1: "#0F0F0F",
+  layer1: "#1c1c1c",
   dialog: "#1c1c1c",
   layer2: "#313131",
   stroke: "#313131",

@@ -3,6 +3,12 @@ import { Token } from "../entities/Pool";
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 
+export const MAX_ZAP_IN_TOKENS = 5;
+
+export const NO_DATA = "--";
+
+const NOT_SUPPORT = null;
+
 export enum ChainId {
   Ethereum = 1,
   BSC = 56,
@@ -30,6 +36,8 @@ export const NetworkInfo: {
       symbol: string;
     };
     nativeLogo: string;
+    coingeckoNetworkId: string | null;
+    coingeckoNativeTokenId: string | null;
   };
 } = {
   [ChainId.Ethereum]: {
@@ -40,6 +48,8 @@ export const NetworkInfo: {
     scanLink: "https://etherscan.io",
     multiCall: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
     defaultRpc: "https://ethereum.kyberengineering.io",
+    coingeckoNetworkId: "ethereum",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: ChainId.Ethereum,
       name: "WETH",
@@ -48,7 +58,6 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
-
   [ChainId.BSC]: {
     name: "BSC",
     nativeLogo:
@@ -57,6 +66,8 @@ export const NetworkInfo: {
     scanLink: "https://bscscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://bsc.kyberengineering.io",
+    coingeckoNetworkId: "binance-smart-chain",
+    coingeckoNativeTokenId: "binancecoin",
     wrappedToken: {
       chainId: ChainId.BSC,
       name: "WBNB",
@@ -73,15 +84,16 @@ export const NetworkInfo: {
     scanLink: "https://polygonscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://polygon.kyberengineering.io",
+    coingeckoNetworkId: "polygon-pos",
+    coingeckoNativeTokenId: "matic-network",
     wrappedToken: {
       chainId: ChainId.PolygonPos,
-      name: "WMATIC",
+      name: "WPOL",
       address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
-      symbol: "WMATIC",
+      symbol: "WPOL",
       decimals: 18,
     },
   },
-
   [ChainId.Arbitrum]: {
     name: "Arbitrum",
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
@@ -90,6 +102,8 @@ export const NetworkInfo: {
     scanLink: "https://arbiscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://arbitrum.kyberengineering.io",
+    coingeckoNetworkId: "arbitrum-one",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: ChainId.Arbitrum,
       name: "WETH",
@@ -98,7 +112,6 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
-
   [ChainId.Avalanche]: {
     name: "Avalanche",
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/avalanche.svg",
@@ -107,6 +120,8 @@ export const NetworkInfo: {
     scanLink: "https://snowscan.xyz",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://avalanche.kyberengineering.io",
+    coingeckoNetworkId: "avalanche",
+    coingeckoNativeTokenId: "avalanche-2",
     wrappedToken: {
       chainId: ChainId.Avalanche,
       name: "WAVAX",
@@ -123,6 +138,8 @@ export const NetworkInfo: {
     scanLink: "https://basescan.org",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://mainnet.base.org",
+    coingeckoNetworkId: "base",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: ChainId.Base,
       name: "ETH",
@@ -139,6 +156,8 @@ export const NetworkInfo: {
     scanLink: "https://blastscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.blast.io",
+    coingeckoNetworkId: "blast",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: ChainId.Blast,
       name: "ETH",
@@ -155,6 +174,8 @@ export const NetworkInfo: {
     scanLink: "https://ftmscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.fantom.network	",
+    coingeckoNetworkId: "fantom",
+    coingeckoNativeTokenId: "fantom",
     wrappedToken: {
       chainId: ChainId.Fantom,
       name: "WFTM",
@@ -171,6 +192,8 @@ export const NetworkInfo: {
     scanLink: "https://lineascan.build",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.linea.build",
+    coingeckoNetworkId: NOT_SUPPORT,
+    coingeckoNativeTokenId: NOT_SUPPORT,
     wrappedToken: {
       chainId: ChainId.Linea,
       name: "WETH",
@@ -187,6 +210,8 @@ export const NetworkInfo: {
     scanLink: "https://mantlescan.info",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.mantle.xyz",
+    coingeckoNetworkId: "mantle",
+    coingeckoNativeTokenId: "mnt",
     wrappedToken: {
       chainId: ChainId.Mantle,
       name: "WMNT",
@@ -203,6 +228,8 @@ export const NetworkInfo: {
     scanLink: "https://optimistic.etherscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://optimism.kyberengineering.io",
+    coingeckoNetworkId: "optimistic-ethereum",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: ChainId.Optimism,
       name: "WETH",
@@ -219,6 +246,8 @@ export const NetworkInfo: {
     scanLink: "https://scrollscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.scroll.io",
+    coingeckoNetworkId: "scroll",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: ChainId.Scroll,
       name: "WETH",
@@ -227,7 +256,6 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
-
   [ChainId.PolygonZkEVM]: {
     name: "Polgyon ZkEVM",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png",
@@ -236,6 +264,8 @@ export const NetworkInfo: {
     scanLink: "https://zkevm.polygonscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://zkevm-rpc.com",
+    coingeckoNetworkId: "polygon-zkevm",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: ChainId.PolygonZkEVM,
       name: "WETH",
@@ -246,7 +276,21 @@ export const NetworkInfo: {
   },
 };
 
-export const UNI_V3_BPS = 10_000;
+export const chainIdToChain: { [chainId: number]: string } = {
+  1: "ethereum",
+  137: "polygon",
+  56: "bsc",
+  42161: "arbitrum",
+  43114: "avalanche",
+  8453: "base",
+  81457: "blast",
+  250: "fantom",
+  5000: "mantle",
+  10: "optimism",
+  534352: "scroll",
+  59144: "linea",
+  1101: "polygon-zkevm",
+};
 
 export enum PoolType {
   DEX_UNISWAPV3 = "DEX_UNISWAPV3",
@@ -291,4 +335,46 @@ export const NFT_MANAGER_CONTRACT: {
     [ChainId.Linea]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
     [ChainId.Scroll]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
   },
+};
+
+export const MULTICALL2_ADDRESS: { [chainId: number]: string } = {
+  1: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
+  137: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
+  56: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
+  43114: "0xF2FD8219609E28C61A998cc534681f95D2740f61",
+  250: "0x878dFE971d44e9122048308301F540910Bbd934c",
+  25: "0x63Abb9973506189dC3741f61d25d4ed508151E6d",
+  42161: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
+  199: "0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54",
+  10: "0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974",
+  59144: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  1101: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  324: "0xF9cda624FBC7e059355ce98a31693d299FACd963",
+  8453: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  81457: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  5000: "0xcA11bde05977b3631167028862bE2a173976CA11",
+};
+
+export const PATHS = {
+  KYBERSWAP_DOCS: "https://docs.kyberswap.com",
+  INTERFACE_GATEWAY_UNISWAP: "https://interface.gateway.uniswap.org/v1/graphql",
+  KYBERSWAP_PRICE_API: "https://price.kyberswap.com",
+  KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
+  ZAP_API: "https://zap-api.kyberswap.com",
+  COINGECKO_API_URL: "https://api.coingecko.com/api/v3",
+  GO_PLUS_API: "https://api.gopluslabs.io/api/v1/token_security",
+};
+
+export const DEFAULT_PRICE_RANGE = {
+  LOW_POOL_FEE: 0.01,
+  MEDIUM_POOL_FEE: 0.1,
+  HIGH_POOL_FEE: 0.5,
+};
+
+export const FULL_PRICE_RANGE = "Full Range";
+
+export const PRICE_RANGE = {
+  LOW_POOL_FEE: [FULL_PRICE_RANGE, 0.01, 0.005, 0.001],
+  MEDIUM_POOL_FEE: [FULL_PRICE_RANGE, 0.2, 0.1, 0.05],
+  HIGH_POOL_FEE: [FULL_PRICE_RANGE, 0.5, 0.2, 0.1],
 };

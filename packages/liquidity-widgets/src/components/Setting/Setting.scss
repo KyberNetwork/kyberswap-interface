@@ -1,4 +1,4 @@
-.ks-lw-setting {
+.ks-lw-style .ks-lw-setting {
   position: absolute;
   right: 24px;
   top: 116px;
@@ -17,7 +17,7 @@
     line-height: 20px;
   }
 
-  .underline {
+  .text-underline {
     border-bottom: 1px dotted var(--ks-lw-subText);
   }
 
@@ -34,6 +34,7 @@
     background: var(--ks-lw-layer1);
     padding: 4px;
     display: flex;
+    gap: 2px;
 
     .slp-item {
       position: relative;
@@ -99,8 +100,8 @@
     padding: 6px 8px;
     gap: 4px;
     border-radius: 999px;
-    background: var(--ks-lw-secondary);
-    color: var(--ks-lw-text);
+    background: transparent;
+    color: var(--ks-lw-subText);
     font-size: 12px;
     font-weight: 500;
     text-align: right;
@@ -112,12 +113,16 @@
       padding: 0;
       background: transparent;
       text-align: right;
-      color: var(--ks-lw-text);
+      color: var(--ks-lw-subText);
+
+      &:focus {
+        color: var(--ks-lw-text);
+      }
     }
   }
 }
 
-.ks-lw-degen-confirm {
+.ks-lw-style .ks-lw-degen-confirm {
   .title {
     display: flex;
     justify-content: space-between;

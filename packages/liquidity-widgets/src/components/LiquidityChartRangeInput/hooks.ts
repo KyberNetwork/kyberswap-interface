@@ -7,6 +7,7 @@ import { computeSurroundingTicks } from "./utils";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import { useZapState } from "../../hooks/useZapInState";
+import { PATHS } from "@/constants";
 
 const PRICE_FIXED_DIGITS = 8;
 
@@ -116,23 +117,20 @@ export function usePoolActiveLiquidity(): {
       let skip = 0;
       const a = 2;
       while (1 + 1 == a) {
-        const res = await fetch(
-          `https://interface.gateway.uniswap.org/v1/graphql`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              operationName: "AllV3Ticks",
-              query:
-                "query AllV3Ticks($chain: Chain!, $address: String!, $skip: Int, $first: Int) {\n  v3Pool(chain: $chain, address: $address) {\n    ticks(skip: $skip, first: $first) {\n      tick: tickIdx\n      liquidityNet\n      price0\n      price1\n      __typename\n    }\n    __typename\n  }\n}",
-              variables: {
-                address: poolAddress,
-                chain: chainName,
-                first: 1000,
-                skip,
-              },
-            }),
-          }
-        ).then((res) => res.json());
+        const res = await fetch(PATHS.INTERFACE_GATEWAY_UNISWAP, {
+          method: "POST",
+          body: JSON.stringify({
+            operationName: "AllV3Ticks",
+            query:
+              "query AllV3Ticks($chain: Chain!, $address: String!, $skip: Int, $first: Int) {\n  v3Pool(chain: $chain, address: $address) {\n    ticks(skip: $skip, first: $first) {\n      tick: tickIdx\n      liquidityNet\n      price0\n      price1\n      __typename\n    }\n    __typename\n  }\n}",
+            variables: {
+              address: poolAddress,
+              chain: chainName,
+              first: 1000,
+              skip,
+            },
+          }),
+        }).then((res) => res.json());
         const data = res?.data?.v3Pool?.ticks || [];
         tickData = [...tickData, ...data];
         if (data.length === 0) {
@@ -144,7 +142,7 @@ export function usePoolActiveLiquidity(): {
       setTicks(tickData);
       setIsLoading(false);
     })();
-  }, [poolAddress,  chainId]);
+  }, [poolAddress, chainId]);
 
   const token0: Token | null = useMemo(
     () =>

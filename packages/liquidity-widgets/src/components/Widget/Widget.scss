@@ -1,8 +1,8 @@
 :root {
-  --ks-lw-text: #212121;
+  --ks-lw-text: #ffffff;
   --ks-lw-subText: #979797;
   --ks-lw-icons: #a9a9a9;
-  --ks-lw-layer1: #0f0f0f;
+  --ks-lw-layer1: #1c1c1c;
   --ks-lw-dialog: #1c1c1c;
   --ks-lw-layer2: #313131;
   --ks-lw-stroke: #313131;
@@ -24,9 +24,66 @@
 .ks-lw {
   background: var(--ks-lw-layer1);
   color: var(--ks-lw-text);
+  max-width: 760px;
   border-radius: var(--ks-lw-borderRadius);
   padding: 24px;
-  font-family: var(--ks-lw-fontFamily);
+  font-family: var(--ks-lw-fontFamily), sans-serif;
   position: relative;
   transition: all 0.2s;
+}
+
+.ks-lw-style {
+  .outline-btn {
+    background: none;
+    border: 1px solid var(--ks-lw-accent);
+    border-radius: var(--ks-lw-buttonRadius);
+    color: var(--ks-lw-accent);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    justify-self: flex-end;
+    align-items: center;
+
+    &:hover {
+      filter: brightness(120%);
+    }
+
+    &:active {
+      transform: scale(0.99);
+    }
+  }
+
+  .primary-btn {
+    background: var(--ks-lw-accent);
+    border: 1px solid var(--ks-lw-accent);
+    border-radius: var(--ks-lw-buttonRadius);
+    color: var(--ks-lw-layer1);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    justify-self: flex-end;
+    align-items: center;
+
+    &:hover {
+      filter: brightness(110%);
+    }
+
+    &:enabled:active {
+      transform: scale(0.99);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      color: var(--ks-lw-subText);
+      background: var(--ks-lw-layer2);
+      border-color: var(--ks-lw-layer2);
+      filter: brightness(108%);
+    }
+  }
 }

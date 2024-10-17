@@ -1,8 +1,9 @@
 import { nearestUsableTick, tryParseTick } from "../../entities/Pool";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { Type, useZapState } from "../../hooks/useZapInState";
+import { useZapState } from "../../hooks/useZapInState";
 import { LiquidityChartRangeInput } from "../LiquidityChartRangeInput";
 import { useDensityChartData } from "../LiquidityChartRangeInput/hooks";
+import { Type } from "../../hooks/types/zapInTypes";
 
 export default function LiquidityChart() {
   const { pool, position, poolType } = useWidgetInfo();
@@ -34,7 +35,7 @@ export default function LiquidityChart() {
       priceLower={priceLower || undefined}
       priceUpper={priceUpper || undefined}
       onBothRangeInput={(l, r) => {
-        if (!pool || position) return
+        if (!pool || position) return;
         const tickLower = tryParseTick(
           poolType,
           revertPrice ? pool?.token1 : pool?.token0,
@@ -63,7 +64,7 @@ export default function LiquidityChart() {
           );
       }}
       onLeftRangeInput={(value) => {
-        if (!pool || position) return
+        if (!pool || position) return;
         const tick = tryParseTick(
           poolType,
           revertPrice ? pool.token1 : pool.token0,
@@ -78,7 +79,7 @@ export default function LiquidityChart() {
           );
       }}
       onRightRangeInput={(value) => {
-        if (!pool || position) return
+        if (!pool || position) return;
         const tick = tryParseTick(
           poolType,
           revertPrice ? pool.token1 : pool.token0,

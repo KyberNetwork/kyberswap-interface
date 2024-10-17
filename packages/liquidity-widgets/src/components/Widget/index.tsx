@@ -8,7 +8,11 @@ import { providers } from "ethers";
 import { NetworkInfo, PoolType, ChainId } from "../../constants";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
+import { TokenListProvider } from "../../hooks/useTokenList";
 import Setting from "../Setting";
+import { ChainId as KSChainId } from "@kyberswap/ks-sdk-core";
+
+import "../../globals.css";
 
 export { PoolType, ChainId };
 
@@ -18,6 +22,7 @@ const createModalRoot = () => {
   if (!modalRoot) {
     modalRoot = document.createElement("div");
     modalRoot.id = "ks-lw-modal-root";
+    modalRoot.className = "ks-lw-style";
     document.body.appendChild(modalRoot);
   }
 };
@@ -30,7 +35,7 @@ export interface WidgetProps {
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
-  chainId: number;
+  chainId: KSChainId;
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;
@@ -38,6 +43,8 @@ export interface WidgetProps {
   source: string;
   includedSources?: string;
   excludedSources?: string;
+  initDepositTokens?: string;
+  initAmounts?: string;
 }
 
 export default function Widget({
@@ -54,6 +61,8 @@ export default function Widget({
   includedSources,
   excludedSources,
   source,
+  initDepositTokens,
+  initAmounts,
 }: WidgetProps) {
   const defaultProvider = useMemo(
     () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
@@ -70,25 +79,29 @@ export default function Widget({
 
   return (
     <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
-      <WidgetProvider
-        poolAddress={poolAddress}
-        poolType={poolType}
-        positionId={positionId}
-        theme={theme || defaultTheme}
-        feeAddress={feeAddress}
-        feePcm={feePcm}
-      >
-        <ZapContextProvider
-          includedSources={includedSources}
-          excludedSources={excludedSources}
-          source={source}
+      <TokenListProvider>
+        <WidgetProvider
+          poolAddress={poolAddress}
+          poolType={poolType}
+          positionId={positionId}
+          theme={theme || defaultTheme}
+          feeAddress={feeAddress}
+          feePcm={feePcm}
         >
-          <div className="ks-lw">
-            <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
-            <Setting />
-          </div>
-        </ZapContextProvider>
-      </WidgetProvider>
+          <ZapContextProvider
+            includedSources={includedSources}
+            excludedSources={excludedSources}
+            source={source}
+            initDepositTokens={initDepositTokens}
+            initAmounts={initAmounts}
+          >
+            <div className="ks-lw ks-lw-style">
+              <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
+              <Setting />
+            </div>
+          </ZapContextProvider>
+        </WidgetProvider>
+      </TokenListProvider>
     </Web3Provider>
   );
 }

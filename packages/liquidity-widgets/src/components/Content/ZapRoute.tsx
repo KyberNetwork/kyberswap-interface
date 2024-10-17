@@ -1,149 +1,117 @@
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useZapState } from "../../hooks/useZapInState";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
   PoolSwapAction,
-  useZapState,
-} from "../../hooks/useZapInState";
+  ZapAction,
+} from "../../hooks/types/zapInTypes";
 import { formatWei, getDexName } from "../../utils";
-import { BigNumber } from "ethers";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../../constants";
-import { useWeb3Provider } from "../../hooks/useProvider";
+import { useMemo } from "react";
+import { useTokenList } from "../../hooks/useTokenList";
+import { Token } from "@/entities/Pool";
 
 export default function ZapRoute() {
-  const { zapInfo, tokenIn } = useZapState();
-  const { pool, poolType, theme } = useWidgetInfo();
-  const { chainId } = useWeb3Provider();
+  const { zapInfo } = useZapState();
+  const { pool, poolType } = useWidgetInfo();
+  const { allTokens } = useTokenList();
 
-  const address =
-    tokenIn?.address === NATIVE_TOKEN_ADDRESS
-      ? NetworkInfo[chainId].wrappedToken.address
-      : tokenIn?.address;
-  const tokenInIsToken0 =
-    address?.toLowerCase() === pool?.token0.address.toLowerCase();
-  const tokenOut = tokenInIsToken0 ? pool?.token1 : pool?.token0;
+  const swapInfo = useMemo(() => {
+    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+    ) as AggregatorSwapAction | null;
 
-  const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
-  ) as AggregatorSwapAction | null;
+    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.POOL_SWAP
+    ) as PoolSwapAction | null;
 
-  const swappedAmount = formatWei(
-    aggregatorSwapInfo?.aggregatorSwap.swaps
-      .reduce(
-        (acc, item) => acc.add(BigNumber.from(item.tokenIn.amount)),
-        BigNumber.from("0")
-      )
-      .toString(),
-    tokenIn?.decimals
-  );
+    const parsedAggregatorSwapInfo =
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
+          amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
+          pool: "KyberSwap",
+        };
+      }) || [];
 
-  const swappedAmountOut = formatWei(
-    aggregatorSwapInfo?.aggregatorSwap.swaps
-      .reduce(
-        (acc, item) => acc.add(BigNumber.from(item.tokenOut.amount)),
-        BigNumber.from("0")
-      )
-      .toString(),
-    tokenOut?.decimals
-  );
+    const parsedPoolSwapInfo =
+      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
+          amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
+          pool: `${getDexName(poolType)} Pool`,
+        };
+      }) || [];
 
-  const addedLiqInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
-  ) as AddLiquidityAction | null;
+    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
+  }, [poolType, allTokens, zapInfo?.zapDetails.actions]);
 
-  const addedAmount0 = formatWei(
-    addedLiqInfo?.addLiquidity.token0.amount,
-    pool?.token0.decimals
-  );
-  const addedAmount1 = formatWei(
-    addedLiqInfo?.addLiquidity.token1.amount,
-    pool?.token1.decimals
-  );
+  const addedLiquidityInfo = useMemo(() => {
+    const data = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.ADD_LIQUIDITY
+    ) as AddLiquidityAction | null;
 
-  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
-  ) as PoolSwapAction | null;
-  const amountInPoolSwap = poolSwapInfo?.poolSwap.swaps.reduce(
-    (acc, item) => acc.add(item.tokenIn.amount),
-    BigNumber.from("0")
-  );
-  const amountOutPoolSwap = poolSwapInfo?.poolSwap.swaps.reduce(
-    (acc, item) => acc.add(item.tokenOut.amount),
-    BigNumber.from("0")
-  );
+    const addedAmount0 = formatWei(
+      data?.addLiquidity.token0.amount,
+      pool?.token0.decimals
+    );
+    const addedAmount1 = formatWei(
+      data?.addLiquidity.token1.amount,
+      pool?.token1.decimals
+    );
 
-  const poolSwapTokenInAddress =
-    poolSwapInfo?.poolSwap.swaps[0]?.tokenIn.address;
-  const poolSwapTokenIn =
-    poolSwapTokenInAddress?.toLowerCase() === pool?.token0.address.toLowerCase()
-      ? pool?.token0
-      : pool?.token1;
-  const poolSwapTokenOut =
-    poolSwapTokenInAddress?.toLowerCase() === pool?.token0.address.toLowerCase()
-      ? pool?.token1
-      : pool?.token0;
-
-  // amount in = amount swap via pool + amount swap via aggregator + remain amount + added amount
-  const swappedAmountInViaPool = formatWei(
-    amountInPoolSwap && poolSwapTokenInAddress
-      ? amountInPoolSwap.toString()
-      : undefined,
-    poolSwapTokenIn?.decimals
-  );
-
-  const swappedAmountOutViaPool = formatWei(
-    amountOutPoolSwap && poolSwapTokenIn
-      ? amountOutPoolSwap.toString()
-      : undefined,
-    poolSwapTokenOut?.decimals
-  );
+    return { addedAmount0, addedAmount1 };
+  }, [
+    pool?.token0.decimals,
+    pool?.token1.decimals,
+    zapInfo?.zapDetails.actions,
+  ]);
 
   return (
-    <div className="zap-route">
-      <div className="title">Zap Route</div>
-      <div className="subTitle">The actual Zap Route could be adjusted with on-chain states</div>
-      <div className="divider" />
+    <div className="zap-route mb-4">
+      <div className="title">Zap Summary</div>
+      <div className="subTitle">
+        The actual Zap Routes could be adjusted with on-chain states
+      </div>
+      <div className="divider mt-1" />
 
-      {aggregatorSwapInfo && (
-        <div className="row">
-          <div className="step">1</div>
+      {swapInfo.map((item, index) => (
+        <div className="row" key={index}>
+          <div className="step">{index + 1}</div>
           <div className="text">
-            Swap {swappedAmount} {tokenIn?.symbol} for {swappedAmountOut}{" "}
-            {tokenOut?.symbol} via{" "}
-            <span style={{ color: theme.text, fontWeight: 500 }}>
-              KyberSwap
-            </span>
+            Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{" "}
+            {item.tokenOutSymbol} via{" "}
+            <span className="font-medium text-text">{item.pool}</span>
           </div>
         </div>
-      )}
-
-      {poolSwapInfo && (
-        <div className="row">
-          <div className="step">{aggregatorSwapInfo ? 2 : 1}</div>
-          <div className="text">
-            Swap {swappedAmountInViaPool} {poolSwapTokenIn?.symbol} for{" "}
-            {swappedAmountOutViaPool} {poolSwapTokenOut?.symbol} via{" "}
-            <span style={{ color: theme.text, fontWeight: 500 }}>
-              {getDexName(poolType)} Pool
-            </span>
-          </div>
-        </div>
-      )}
+      ))}
 
       <div className="row">
-        <div className="step">
-          {aggregatorSwapInfo && poolSwapInfo
-            ? 3
-            : aggregatorSwapInfo || poolSwapInfo
-            ? 2
-            : 1}
-        </div>
+        <div className="step">{swapInfo.length + 1}</div>
         <div className="text">
-          Build LP using {addedAmount0} {pool?.token0.symbol} and {addedAmount1}{" "}
-          {pool?.token1.symbol} on{" "}
-          <span style={{ color: theme.text, fontWeight: 500 }}>
-            {getDexName(poolType)}
-          </span>
+          Build LP using {addedLiquidityInfo.addedAmount0} {pool?.token0.symbol}{" "}
+          and {addedLiquidityInfo.addedAmount1} {pool?.token1.symbol} on{" "}
+          <span className="font-medium text-text">{getDexName(poolType)}</span>
         </div>
       </div>
     </div>

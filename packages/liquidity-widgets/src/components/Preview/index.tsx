@@ -1,48 +1,56 @@
-import Info from "../../assets/info.svg";
-import DropdownIcon from "../../assets/dropdown.svg";
-import Spinner from "../../assets/loader.svg";
-import SwitchIcon from "../../assets/switch.svg";
-import SuccessIcon from "../../assets/success.svg";
-import ErrorIcon from "../../assets/error.svg";
+import Info from "@/assets/svg/info.svg";
+import DropdownIcon from "@/assets/svg/dropdown.svg";
+import Spinner from "@/assets/svg/loader.svg";
+import SwitchIcon from "@/assets/svg/switch.svg";
+import SuccessIcon from "@/assets/svg/success.svg";
+import ErrorIcon from "@/assets/svg/error.svg";
 import "./Preview.scss";
 
+import { useZapState } from "@/hooks/useZapInState";
 import {
   AddLiquidityAction,
+  RefundAction,
+  ProtocolFeeAction,
+  ZapRouteDetail,
+  ZapAction,
   AggregatorSwapAction,
   PoolSwapAction,
-  ProtocolFeeAction,
-  RefundAction,
-  ZAP_URL,
-  ZapRouteDetail,
-  chainIdToChain,
-  useZapState,
-} from "../../hooks/useZapInState";
-import { NetworkInfo, UNI_V3_BPS } from "../../constants";
-import { useWeb3Provider } from "../../hooks/useProvider";
+} from "@/hooks/types/zapInTypes";
+import { NetworkInfo, PATHS, chainIdToChain } from "@/constants";
+import { useWeb3Provider } from "@/hooks/useProvider";
 import {
   PI_LEVEL,
   formatCurrency,
-  formatNumber,
   formatWei,
   friendlyError,
-  getDexLogo,
   getDexName,
   getPriceImpact,
   getWarningThreshold,
-} from "../../utils";
-import { useEffect, useState } from "react";
+} from "@/utils";
+import { useEffect, useMemo, useState } from "react";
 import { BigNumber } from "ethers";
-import { PoolAdapter, Token, Price } from "../../entities/Pool";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { PoolAdapter, Token, Price } from "@/entities/Pool";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import InfoHelper from "../InfoHelper";
-import { MouseoverTooltip } from "../Tooltip";
+import { MouseoverTooltip } from "@/components/Tooltip";
 import { formatUnits } from "ethers/lib/utils";
+import { formatDisplayNumber } from "@/utils/number";
+import { CircleCheckBig } from "lucide-react";
+import IconCopy from "@/assets/svg/copy.svg";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import { useTokenList } from "@/hooks/useTokenList";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export interface ZapState {
   pool: PoolAdapter;
   zapInfo: ZapRouteDetail;
-  tokenIn: Token;
-  amountIn: string;
+  tokensIn: Token[];
+  amountsIn: string;
   priceLower: Price;
   priceUpper: Price;
   deadline: number;
@@ -58,6 +66,9 @@ export interface PreviewProps {
   onTxSubmit?: (tx: string) => void;
 }
 
+const COPY_TIMEOUT = 2000;
+let hideCopied: NodeJS.Timeout;
+
 function calculateGasMargin(value: BigNumber): BigNumber {
   const defaultGasLimitMargin = BigNumber.from(20_000);
   const gasMargin = value.mul(BigNumber.from(2000)).div(BigNumber.from(10000));
@@ -71,8 +82,6 @@ export default function Preview({
   zapState: {
     pool,
     zapInfo,
-    tokenIn,
-    amountIn,
     priceLower,
     priceUpper,
     deadline,
@@ -84,14 +93,27 @@ export default function Preview({
   onTxSubmit,
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
-  const { poolType, positionId, theme, position } = useWidgetInfo();
-  const { source, revertPrice: revert, toggleRevertPrice } = useZapState();
+  const { poolType, positionId, theme, position, poolAddress } =
+    useWidgetInfo();
+  const {
+    source,
+    revertPrice: revert,
+    toggleRevertPrice,
+    tokensIn,
+    amountsIn,
+    tokensInUsdPrice,
+  } = useZapState();
+  const { allTokens } = useTokenList();
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [gasUsd, setGasUsd] = useState<number | null>(null);
+
+  const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
 
   const isOutOfRange =
     tickLower > pool.tickCurrent || pool.tickCurrent >= tickUpper;
@@ -114,31 +136,60 @@ export default function Preview({
     }
   }, [txHash, provider]);
 
-  const addedLiqInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
+  const addedLiqInfo = useMemo(
+    () =>
+      zapInfo.zapDetails.actions.find(
+        (item) => item.type === ZapAction.ADD_LIQUIDITY
+      ),
+    [zapInfo.zapDetails.actions]
   ) as AddLiquidityAction;
-  const addedAmount0 = formatUnits(
-    addedLiqInfo?.addLiquidity.token0.amount,
-    pool.token0.decimals
-  );
-  const addedAmount1 = formatUnits(
-    addedLiqInfo?.addLiquidity.token1.amount,
-    pool.token1.decimals
+
+  const addedAmount0 = useMemo(
+    () =>
+      formatUnits(
+        addedLiqInfo?.addLiquidity.token0.amount,
+        pool.token0.decimals
+      ),
+    [addedLiqInfo?.addLiquidity.token0.amount, pool.token0.decimals]
   );
 
-  const positionAmount0Usd =
-    (+(position?.amount0 || 0) *
-      +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
-      +addedAmount0 || 0;
+  const addedAmount1 = useMemo(
+    () =>
+      formatUnits(
+        addedLiqInfo?.addLiquidity.token1.amount,
+        pool.token1.decimals
+      ),
+    [addedLiqInfo?.addLiquidity.token1.amount, pool.token1.decimals]
+  );
 
-  const positionAmount1Usd =
-    (+(position?.amount1 || 0) *
-      +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
-      +addedAmount1 || 0;
+  const positionAmount0Usd = useMemo(
+    () =>
+      (+(position?.amount0 || 0) *
+        +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
+        +addedAmount0 || 0,
+    [
+      addedAmount0,
+      addedLiqInfo?.addLiquidity.token0.amountUsd,
+      position?.amount0,
+    ]
+  );
+
+  const positionAmount1Usd = useMemo(
+    () =>
+      (+(position?.amount1 || 0) *
+        +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
+        +addedAmount1 || 0,
+    [
+      addedAmount1,
+      addedLiqInfo?.addLiquidity.token1.amountUsd,
+      position?.amount1,
+    ]
+  );
 
   const refundInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_REFUND"
+    (item) => item.type === ZapAction.REFUND
   ) as RefundAction | null;
+
   const refundToken0 =
     refundInfo?.refund.tokens.filter(
       (item) => item.address.toLowerCase() === pool.token0.address.toLowerCase()
@@ -185,62 +236,119 @@ export default function Preview({
   const quote = (
     <span>
       {revert
-        ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-        : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
+        ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
+        : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
     </span>
   );
 
   const feeInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+    (item) => item.type === ZapAction.PROTOCOL_FEE
   ) as ProtocolFeeAction | undefined;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-
-  const aggregatorSwapInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
-  ) as AggregatorSwapAction | undefined;
-  const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenIn.amountUsd,
-    0
-  );
-  const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenOut.amountUsd,
-    0
-  );
-
-  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
-  ) as PoolSwapAction | null;
-  const amountInPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenIn.amountUsd,
-      0
-    ) || 0;
-  const amountOutPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenOut.amount,
-      0
-    ) || 0;
-  const totalSwapIn = (swapAmountIn || 0) + amountInPoolSwap;
-  const totalSwapOut = (swapAmountOut || 0) + amountOutPoolSwap;
-  const swapPriceImpact = ((totalSwapIn - totalSwapOut) / totalSwapIn) * 100;
-
   const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
 
   const piVeryHigh =
-    (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
-    (!!aggregatorSwapInfo &&
-      [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(swapPiRes.level));
+    zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);
 
-  const piHigh =
-    (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
-    (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
+  const piHigh = zapInfo && piRes.level === PI_LEVEL.HIGH;
 
-  const [gasUsd, setGasUsd] = useState<number | null>(null);
+  const swapPi = useMemo(() => {
+    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+    ) as AggregatorSwapAction | null;
+
+    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.POOL_SWAP
+    ) as PoolSwapAction | null;
+
+    const parsedAggregatorSwapInfo =
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        const piRes = getPriceImpact(pi, feeInfo);
+
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn,
+          amountOut,
+          piRes,
+        };
+      }) || [];
+
+    const parsedPoolSwapInfo =
+      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        const piRes = getPriceImpact(pi, feeInfo);
+
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn,
+          amountOut,
+          piRes,
+        };
+      }) || [];
+
+    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
+  }, [feeInfo, allTokens, zapInfo]);
+
+  const swapPiRes = useMemo(() => {
+    const invalidRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.INVALID
+    );
+    if (invalidRes) return invalidRes;
+
+    const highRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH);
+    if (highRes) return highRes;
+
+    const veryHighRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.HIGH
+    );
+    if (veryHighRes) return veryHighRes;
+
+    return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
+  }, [swapPi]);
+
+  const handleCopy = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(poolAddress);
+      setCopied(true);
+    }
+  };
 
   useEffect(() => {
-    fetch(`${ZAP_URL}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
+    fetch(`${PATHS.ZAP_API}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
       method: "POST",
       body: JSON.stringify({
         sender: account,
@@ -265,7 +373,7 @@ export default function Preview({
             const [estimateGas, priceRes, gasPrice] = await Promise.all([
               provider.getSigner().estimateGas(txData),
               fetch(
-                `https://price.kyberswap.com/${chainIdToChain[chainId]}/api/v1/prices?ids=${NetworkInfo[chainId].wrappedToken.address}`
+                `${PATHS.KYBERSWAP_PRICE_API}/${chainIdToChain[chainId]}/api/v1/prices?ids=${NetworkInfo[chainId].wrappedToken.address}`
               )
                 .then((res) => res.json())
                 .then((res) => res.data.prices[0]),
@@ -284,12 +392,22 @@ export default function Preview({
       });
   }, [account, chainId, deadline, provider, source, zapInfo.route]);
 
+  useEffect(() => {
+    if (copied) {
+      hideCopied = setTimeout(() => setCopied(false), COPY_TIMEOUT);
+    }
+
+    return () => {
+      clearTimeout(hideCopied);
+    };
+  }, [copied]);
+
   const handleClick = async () => {
     setAttempTx(true);
     setTxHash("");
     setTxError(null);
 
-    fetch(`${ZAP_URL}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
+    fetch(`${PATHS.ZAP_API}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
       method: "POST",
       body: JSON.stringify({
         sender: account,
@@ -353,9 +471,8 @@ export default function Preview({
           <div>{txStatusText}</div>
 
           {!txHash && (
-            <div className="subText" style={{ textAlign: "center" }}>
+            <div className="subText text-center">
               Confirm this transaction in your wallet - Zapping{" "}
-              {formatNumber(+amountIn)} {tokenIn.symbol} into{" "}
               {positionId
                 ? `Position #${positionId}`
                 : `${getDexName(poolType)} ${pool.token0.symbol}/${
@@ -453,6 +570,10 @@ export default function Preview({
             width="36px"
             height="36px"
             style={{ borderRadius: "50%" }}
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
           <img
             src={(pool.token1 as Token).logoURI}
@@ -460,6 +581,10 @@ export default function Preview({
             width="36px"
             height="36px"
             style={{ borderRadius: "50%" }}
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
 
           <img
@@ -467,65 +592,84 @@ export default function Preview({
             src={NetworkInfo[chainId].logo}
             width="18px"
             height="18px"
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
         </div>
 
         <div>
-          <div>
+          <div className="flex items-center gap-2">
             {pool.token0.symbol}/{pool.token1.symbol}{" "}
-            {positionId !== undefined && (
-              <span style={{ color: "var(--ks-lw-accent)" }}>
-                #{positionId}
-              </span>
+            {!copied ? (
+              <IconCopy
+                className="w-3 h-3 text-subText cursor-pointer"
+                onClick={handleCopy}
+              />
+            ) : (
+              <CircleCheckBig className="w-3 h-3 text-accent" />
             )}
           </div>
-          <div className="pool-info">
-            <div className="tag tag-primary">Fee {pool.fee / UNI_V3_BPS}%</div>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <img src={getDexLogo(poolType)} width={16} height={16} alt="" />
-              <div>{getDexName(poolType)}</div>
-            </div>
+          <div className="pool-info mt-[2px]">
+            <div className="tag tag-default">Fee {pool.fee / 10_000}%</div>
+            {positionId !== undefined && (
+              <div className="tag tag-primary">
+                <Info width={12} /> ID {positionId}
+              </div>
+            )}
           </div>
         </div>
 
         {isOutOfRange && (
           <div
-            className="tag tag-warning"
+            className="rounded-full text-xs px-2 py-1 font-normal text-warning"
             style={{
               marginLeft: "auto",
-              padding: "2px 8px",
+              background: `${theme.warning}33`,
             }}
           >
             Inactive{" "}
             <InfoHelper
               width="300px"
-              color={"#ffffff"}
+              color={theme.warning}
               text="The position is inactive and not earning trading fees due to the current price being out of the set price range."
               size={16}
+              style={{ position: "relative", top: "-1px", margin: 0 }}
             />
           </div>
         )}
       </div>
 
       <div className="card" style={{ marginTop: "1rem" }}>
-        <div className="card-title">Zap-in Amount</div>
-        <div
-          className="row"
-          style={{ marginTop: "8px", justifyContent: "flex-start" }}
-        >
-          <img
-            src={tokenIn.logoURI}
-            alt=""
-            width="20px"
-            style={{ borderRadius: "50%" }}
-          />
-
-          <div>
-            {formatNumber(+amountIn)} {tokenIn.symbol}{" "}
-            <span className="est-usd">
-              ~{formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
-            </span>
-          </div>
+        <div className="card-title">
+          <p>Zap-in Amount</p>
+          <p className="est-usd">
+            {formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
+          </p>
+        </div>
+        <div className="mt-2">
+          {tokensIn.map((token: Token, index: number) => (
+            <div className="flex items-center gap-2 mt-1" key={token.address}>
+              <img
+                src={token.logoURI}
+                className="w-[18px] h-[18px]"
+                onError={({ currentTarget }) => {
+                  currentTarget.onerror = null;
+                  currentTarget.src = defaultTokenLogo;
+                }}
+              />
+              <span>
+                {listAmountsIn[index]} {token.symbol}
+              </span>
+              <span className="ml-1 text-subText">
+                ~
+                {formatCurrency(
+                  tokensInUsdPrice[index] * parseFloat(listAmountsIn[index])
+                )}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -592,95 +736,82 @@ export default function Preview({
 
       <div className="flex-col" style={{ gap: "12px", marginTop: "1rem" }}>
         <div className="row-between" style={{ alignItems: "flex-start" }}>
-          <div className="summary-title">Est. Pooled {pool.token0.symbol}</div>
-          <div>
-            <div style={{ display: "flex", gap: "4px" }}>
-              {pool?.token0?.logoURI && (
-                <img
-                  src={pool.token0.logoURI}
-                  width="16px"
-                  height="16px"
-                  style={{ marginTop: "4px", borderRadius: "50%" }}
-                />
+          <div className="summary-title">Est. Pooled Amount</div>
+          <div className="text-[14px] flex gap-4">
+            <div>
+              <div className="flex gap-[4px]">
+                {pool?.token0?.logoURI && (
+                  <img
+                    src={pool.token0.logoURI}
+                    className={`w-4 h-4 rounded-full relative ${
+                      positionId ? "" : "mt-1 top-[-4px]"
+                    }`}
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
+                  />
+                )}
+                <div className="text-end">
+                  {formatDisplayNumber(
+                    position ? +position.amount0 : +addedAmount0,
+                    { significantDigits: 5 }
+                  )}{" "}
+                  {pool?.token0.symbol}
+                </div>
+              </div>
+
+              {position && (
+                <div className="text-end">
+                  +{" "}
+                  {formatDisplayNumber(+addedAmount0, { significantDigits: 5 })}{" "}
+                  {pool?.token0.symbol}
+                </div>
               )}
-              <div>
-                {position ? (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+position.amount0)} {pool?.token0.symbol}
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+addedAmount0)} {pool?.token0.symbol}
-                  </div>
+              <div className="ml-auto w-fit text-subText">
+                ~
+                {formatCurrency(
+                  +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) +
+                    positionAmount0Usd
                 )}
               </div>
             </div>
-
-            {position && (
-              <div style={{ textAlign: "end" }}>
-                + {formatNumber(+addedAmount0)} {pool?.token0.symbol}
-              </div>
-            )}
-            <div
-              style={{
-                marginLeft: "auto",
-                width: "fit-content",
-                color: theme.subText,
-              }}
-            >
-              ~
-              {formatCurrency(
-                +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) +
-                  positionAmount0Usd
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="row-between" style={{ alignItems: "flex-start" }}>
-          <div className="summary-title">Est. Pooled {pool.token1.symbol}</div>
-          <div>
-            <div
-              style={{
-                display: "flex",
-                gap: "4px",
-                justifyContent: "flex-end",
-              }}
-            >
-              {pool?.token1?.logoURI && (
-                <img
-                  src={pool.token1.logoURI}
-                  width="16px"
-                  height="16px"
-                  style={{ marginTop: "4px", borderRadius: "50%" }}
-                />
-              )}
-              {position ? (
-                <div style={{ textAlign: "end" }}>
-                  {formatNumber(+position.amount1)} {pool?.token1.symbol}
+            <div>
+              <div className="flex gap-1">
+                {pool?.token1?.logoURI && (
+                  <img
+                    src={pool.token1.logoURI}
+                    className={`w-4 h-4 rounded-full relative ${
+                      positionId ? "" : "mt-1 top-[-4px]"
+                    }`}
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
+                  />
+                )}
+                <div className="text-end">
+                  {formatDisplayNumber(
+                    position ? +position.amount1 : +addedAmount1,
+                    { significantDigits: 5 }
+                  )}{" "}
+                  {pool?.token1.symbol}
                 </div>
-              ) : (
-                <div style={{ textAlign: "end" }}>
-                  {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+              </div>
+              {position && (
+                <div className="text-end">
+                  +{" "}
+                  {formatDisplayNumber(+addedAmount1, { significantDigits: 5 })}{" "}
+                  {pool?.token1.symbol}
                 </div>
               )}
-            </div>
-            {position && (
-              <div style={{ textAlign: "end" }}>
-                + {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+              <div className="ml-auto w-fit text-subText">
+                ~
+                {formatCurrency(
+                  +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) +
+                    positionAmount1Usd
+                )}
               </div>
-            )}
-            <div
-              style={{
-                marginLeft: "auto",
-                width: "fit-content",
-                color: theme.subText,
-              }}
-            >
-              ~
-              {formatCurrency(
-                +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) +
-                  positionAmount1Usd
-              )}
             </div>
           </div>
         </div>
@@ -690,7 +821,7 @@ export default function Preview({
             text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
             width="220px"
           >
-            <div className="summary-title underline">Est. Remaining Value</div>
+            <div className="summary-title text-underline">Remaining Amount</div>
           </MouseoverTooltip>
           <span className="summary-value">
             {formatCurrency(refundUsd)}
@@ -714,7 +845,7 @@ export default function Preview({
             text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
             width="220px"
           >
-            <div className="summary-title underline">Max Slippage</div>
+            <div className="summary-title text-underline">Max Slippage</div>
           </MouseoverTooltip>
           <span
             className="summary-value"
@@ -727,40 +858,78 @@ export default function Preview({
         </div>
 
         <div className="row-between">
-          <MouseoverTooltip
-            text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
-            width="220px"
-          >
-            <div className="summary-title underline">Swap price impact</div>
-          </MouseoverTooltip>
-          {aggregatorSwapInfo || poolSwapInfo ? (
-            <div
-              style={{
-                color:
-                  swapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                  swapPiRes.level === PI_LEVEL.INVALID
-                    ? theme.error
-                    : swapPiRes.level === PI_LEVEL.HIGH
-                    ? theme.warning
-                    : theme.text,
-              }}
-            >
-              {swapPiRes.display}
-            </div>
+          {swapPi.length ? (
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>
+                  <MouseoverTooltip
+                    text="View all the detailed estimated price impact of each swap"
+                    width="220px"
+                  >
+                    <div
+                      className={`label text-underline text-xs ${
+                        swapPiRes.piRes.level === PI_LEVEL.NORMAL
+                          ? ""
+                          : swapPiRes.piRes.level === PI_LEVEL.HIGH
+                          ? "!text-warning !border-warning"
+                          : "!text-error !border-error"
+                      }`}
+                    >
+                      Swap Impact
+                    </div>
+                  </MouseoverTooltip>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {swapPi.map((item, index: number) => (
+                    <div
+                      className={`text-xs flex justify-between align-middle ${
+                        item.piRes.level === PI_LEVEL.NORMAL
+                          ? "text-subText brightness-125"
+                          : item.piRes.level === PI_LEVEL.HIGH
+                          ? "text-warning"
+                          : "text-error"
+                      }`}
+                      key={index}
+                    >
+                      <div className="ml-3">
+                        {formatDisplayNumber(item.amountIn, {
+                          significantDigits: 4,
+                        })}{" "}
+                        {item.tokenInSymbol} {"→ "}
+                        {formatDisplayNumber(item.amountOut, {
+                          significantDigits: 4,
+                        })}{" "}
+                        {item.tokenOutSymbol}
+                      </div>
+                      <div>{item.piRes.display}</div>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           ) : (
-            "--"
+            <>
+              <MouseoverTooltip
+                text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
+                width="220px"
+              >
+                <div className="label text-underline">Swap Impact</div>
+              </MouseoverTooltip>
+              <span>--</span>
+            </>
           )}
         </div>
 
         <div className="row-between">
           <MouseoverTooltip
-            text="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+            text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
             width="220px"
           >
-            <div className="summary-title underline">Zap impact</div>
+            <div className="summary-title text-underline">Zap impact</div>
           </MouseoverTooltip>
           {zapInfo ? (
             <div
+              className="summary-value"
               style={{
                 color:
                   piRes.level === PI_LEVEL.VERY_HIGH ||
@@ -783,9 +952,11 @@ export default function Preview({
             text="Estimated network fee for your transaction."
             width="220px"
           >
-            <div className="summary-title underline">Est. Gas Fee</div>
+            <div className="summary-title text-underline">Est. Gas Fee</div>
           </MouseoverTooltip>
-          {gasUsd ? formatCurrency(gasUsd) : "--"}
+          <div className="summary-value">
+            {gasUsd ? formatCurrency(gasUsd) : "--"}
+          </div>
         </div>
 
         <div className="row-between">
@@ -806,9 +977,9 @@ export default function Preview({
             }
             width="220px"
           >
-            <div className="summary-title underline">Zap Fee</div>
+            <div className="summary-title text-underline">Zap Fee</div>
           </MouseoverTooltip>
-          {parseFloat(zapFee.toFixed(3))}%
+          <div className="summary-value">{parseFloat(zapFee.toFixed(3))}%</div>
         </div>
       </div>
 
@@ -824,36 +995,37 @@ export default function Preview({
         </div>
       )}
 
-      {aggregatorSwapInfo && swapPiRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className="warning-msg"
-          style={{
-            backgroundColor:
-              swapPiRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-            color:
-              swapPiRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
-          }}
-        >
-          Swap {swapPiRes.msg}
-        </div>
-      )}
-
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
         <div
           className="warning-msg"
           style={{
-            backgroundColor:
-              piRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-            color: piRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
+            backgroundColor: piHigh ? `${theme.warning}33` : `${theme.error}33`,
+            color: piHigh ? theme.warning : theme.error,
           }}
         >
           {piRes.msg}
         </div>
       )}
+
+      {zapInfo &&
+        piRes.level === PI_LEVEL.NORMAL &&
+        swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+          <div
+            className="warning-msg"
+            style={{
+              backgroundColor:
+                swapPiRes.piRes.level === PI_LEVEL.HIGH
+                  ? `${theme.warning}33`
+                  : `${theme.error}33`,
+              color:
+                swapPiRes.piRes.level === PI_LEVEL.HIGH
+                  ? theme.warning
+                  : theme.error,
+            }}
+          >
+            {swapPiRes.piRes.msg}
+          </div>
+        )}
 
       <button
         className="primary-btn"

@@ -6,16 +6,21 @@ const Modal = ({
   isOpen,
   children,
   onClick,
+  modalContentClass,
 }: {
   isOpen: boolean;
   children: React.ReactNode;
   onClick?: () => void;
+  modalContentClass?: string;
 }) => {
   if (!isOpen) return <></>;
 
   return ReactDOM.createPortal(
     <div className="ks-lw-modal-overlay" onClick={onClick}>
-      <div className="ks-lw-modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`ks-lw-modal-content ${modalContentClass || ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {children}
       </div>
     </div>,

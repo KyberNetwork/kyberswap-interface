@@ -1,6 +1,6 @@
 import { useState } from "react";
-import AlertIcon from "../../assets/alert.svg";
 import { useZapState } from "../../hooks/useZapInState";
+import AlertIcon from "@/assets/svg/alert.svg";
 
 export const parseSlippageInput = (str: string): number =>
   Math.round(Number.parseFloat(str) * 100);
@@ -76,6 +76,7 @@ const SlippageInput = () => {
             data-active={item === slippage}
             role="button"
             onClick={() => setSlippage(item)}
+            key={item}
           >
             {(item * 100) / 10_000}%
           </div>
