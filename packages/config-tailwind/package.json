@@ -1,0 +1,13 @@
+{
+  "name": "@kyber/tailwind-config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./tailwind.config.ts"
+  },
+  "devDependencies": {
+    "@kyber/typescript-config": "workspace:*",
+    "tailwindcss": "^3.4.13",
+    "tailwindcss-animate": "^1.0.7"
+  }
+}

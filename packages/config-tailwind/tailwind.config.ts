@@ -1,14 +1,7 @@
-/** @type {import('tailwindcss').Config} */
-// eslint-disable-next-line no-undef
-module.exports = {
-  darkMode: ["class"],
-  content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-  ],
-  prefix: "",
+import type { Config } from "tailwindcss";
+
+// We want each package to be responsible for its own content.
+const config: Omit<Config, "content"> = {
   theme: {
     container: {
       center: true,
@@ -76,6 +69,6 @@ module.exports = {
       },
     },
   },
-  // eslint-disable-next-line no-undef
   plugins: [require("tailwindcss-animate")],
 };
+export default config;

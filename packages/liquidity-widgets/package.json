@@ -25,6 +25,8 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
+    "@kyber/utils": "workspace:^",
+    "@kyber/tailwind-config": "workspace:^",
     "@kyberswap/ks-sdk-core": "^1.1.5",
     "@pancakeswap/sdk": "^5.8.2",
     "@pancakeswap/swap-sdk-core": "^1.2.0",
@@ -42,11 +44,10 @@
     "ethers": "^5.7.0",
     "jsbi": "^3.2.5",
     "lodash.partition": "^4.6.0",
+    "lucide-react": "^0.453.0",
     "numeral": "^2.0.6",
     "polished": "^4.3.1",
     "react-popper": "^2.3.0",
-    "tailwind-merge": "^2.5.2",
-    "tailwindcss-animate": "^1.0.7",
     "typescript": "5.3.2"
   },
   "devDependencies": {

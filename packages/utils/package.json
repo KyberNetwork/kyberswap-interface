@@ -1,0 +1,29 @@
+{
+  "name": "@kyber/utils",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@kyber/eslint-config": "workspace:*",
+    "@kyber/typescript-config": "workspace:*",
+    "@types/eslint": "^8.56.5",
+    "@types/node": "^20.11.24",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "eslint": "^8.57.0",
+    "typescript": "5.3.2"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "exports": {
+    "./tailwind-helpers": "./src/tailwind-helpers.ts"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.2"
+  }
+}
