@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
 import * as Sentry from '@sentry/react'
-import { BrowserTracing } from '@sentry/tracing'
 import '@zkmelabs/widget/dist/style.css'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -50,14 +49,14 @@ if (ENV_LEVEL > ENV_TYPE.LOCAL) {
     dsn: SENTRY_DNS,
     environment: 'production',
     ignoreErrors: ['AbortError'],
-    integrations: [new BrowserTracing()],
+    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
     tracesSampleRate: 0.1,
     normalizeDepth: 5,
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
   })
-  Sentry.configureScope(scope => {
-    scope.setTag('request_id', sentryRequestId)
-    scope.setTag('version', TAG)
-  })
+  Sentry.setTag('request_id', sentryRequestId)
+  Sentry.setTag('version', TAG)
 
   if (GTM_ID) {
     TagManager.initialize({
