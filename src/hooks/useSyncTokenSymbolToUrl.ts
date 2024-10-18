@@ -1,17 +1,14 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { stringify } from 'querystring'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Params, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useCallback, useEffect } from 'react'
+import { Params, useLocation, useNavigate } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { convertToSlug, getSymbolSlug } from 'utils/string'
-import { convertSymbol } from 'utils/tokenInfo'
 
-import { useAllTokens, useIsLoadedTokenDefault } from './Tokens'
+import { useIsLoadedTokenDefault } from './Tokens'
 import useParsedQueryString from './useParsedQueryString'
 
 type TokenSymbolParams = {
@@ -43,16 +40,11 @@ export default function useSyncTokenSymbolToUrl(
   isSelectCurrencyManual: boolean,
   disabled = false,
 ) {
-  const params = useParams<TokenSymbolParams>()
-  const { fromCurrency, toCurrency, network } = getUrlMatchParams(params)
-
   const { chainId } = useActiveWeb3React()
   const navigate = useNavigate()
   const qs = useParsedQueryString()
   const { pathname } = useLocation()
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
-  const allTokens = useAllTokens()
-  const firstTokenChainId = useMemo(() => Object.values(allTokens)[0]?.chainId, [allTokens])
 
   const currentPath = [APP_PATHS.SWAP, APP_PATHS.LIMIT].find(path => pathname.startsWith(path)) || APP_PATHS.SWAP
 
@@ -62,17 +54,6 @@ export default function useSyncTokenSymbolToUrl(
       navigate(`${currentPath}${url ? `/${url}` : ''}?${stringify(newQs)}`, { replace: true }) // keep query params
     },
     [navigate, qs, currentPath],
-  )
-
-  const findTokenBySymbol = useCallback(
-    (keyword: string, chainId: ChainId) => {
-      const nativeToken = NativeCurrencies[chainId]
-      if (keyword === getSymbolSlug(nativeToken)) {
-        return nativeToken
-      }
-      return filterTokensWithExactKeyword(chainId, Object.values(allTokens), keyword)[0]
-    },
-    [allTokens],
   )
 
   const syncTokenSymbolToUrl = useCallback(
@@ -85,54 +66,6 @@ export default function useSyncTokenSymbolToUrl(
     },
     [redirect, chainId],
   )
-
-  const findTokenPairFromUrl = useCallback(
-    (chainId: ChainId) => {
-      if (!fromCurrency || !network) return
-      // net/symbol
-      const isSame = fromCurrency && fromCurrency === toCurrency
-      if (!toCurrency || isSame) {
-        const fromToken = findTokenBySymbol(fromCurrency, chainId)
-        if (fromToken) {
-          onCurrencySelection(fromToken)
-          if (isSame) redirect(`${network}/${fromCurrency}`)
-        } else {
-          redirect(network)
-        }
-        return
-      }
-
-      // net/sym-to-sym
-      const fromToken = findTokenBySymbol(convertSymbol(network, fromCurrency), chainId)
-      const toToken = findTokenBySymbol(convertSymbol(network, toCurrency), chainId)
-
-      if (!toToken || !fromToken) {
-        redirect(network)
-        return
-      }
-      onCurrencySelection(fromToken, toToken)
-    },
-    [findTokenBySymbol, redirect, onCurrencySelection, fromCurrency, network, toCurrency],
-  )
-
-  const checkedTokenFromUrlWhenInit = useRef(false)
-  useEffect(() => {
-    checkedTokenFromUrlWhenInit.current = false
-  }, [chainId])
-
-  useEffect(() => {
-    if (
-      !checkedTokenFromUrlWhenInit.current &&
-      isLoadedTokenDefault &&
-      chainId === firstTokenChainId &&
-      network === NETWORKS_INFO[chainId].route &&
-      !disabled
-    ) {
-      // call once
-      // setTimeout(() => findTokenPairFromUrl(chainId))
-      checkedTokenFromUrlWhenInit.current = true
-    }
-  }, [isLoadedTokenDefault, firstTokenChainId, chainId, network, disabled, findTokenPairFromUrl])
 
   // when token change, sync symbol to url
   useEffect(() => {
