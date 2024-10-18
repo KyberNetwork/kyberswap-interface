@@ -4,8 +4,9 @@ import { memo, useState } from 'react'
 import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
 import Tutorial from 'components/swapv2/LimitOrder/Tutorial'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
-import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
-import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
+// import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
+// import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
+import { useLimitState } from 'state/limit/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm from './LimitOrderForm'
@@ -15,12 +16,12 @@ type Props = {
   isSelectCurrencyManual: boolean
 }
 
-function LimitOrderComp({ setIsSelectCurrencyManual, isSelectCurrencyManual }: Props) {
-  const { onSelectPair } = useLimitActionHandlers()
+function LimitOrderComp({ setIsSelectCurrencyManual }: Props) {
+  // const { onSelectPair } = useLimitActionHandlers()
 
   const { currencyIn, currencyOut } = useLimitState()
 
-  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectPair, isSelectCurrencyManual)
+  // useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectPair, isSelectCurrencyManual)
 
   const [showTutorial, setShowTutorial] = useState(!localStorage.getItem(TutorialKeys.SHOWED_LO_GUIDE))
 
