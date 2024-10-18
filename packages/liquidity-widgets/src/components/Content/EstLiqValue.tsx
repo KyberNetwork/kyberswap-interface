@@ -181,7 +181,7 @@ export default function EstLiqValue() {
     if (highRes) return highRes;
 
     const veryHighRes = swapPi.find(
-      (item) => item.piRes.level === PI_LEVEL.HIGH
+      (item) => item.piRes.level === PI_LEVEL.VERY_HIGH
     );
     if (veryHighRes) return veryHighRes;
 
