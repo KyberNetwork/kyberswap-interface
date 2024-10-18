@@ -96,7 +96,6 @@ type Props = {
   defaultOutputAmount?: string
   defaultActiveMakingAmount?: string
   defaultExpire?: Date
-  setIsSelectCurrencyManual?: (val: boolean) => void
   note?: string
   orderInfo?: LimitOrder
   flowState: TransactionFlowState
@@ -146,7 +145,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     defaultActiveMakingAmount = '',
     defaultExpire,
     defaultRate = { rate: '', invertRate: '', invert: false },
-    setIsSelectCurrencyManual,
     note = '',
     orderInfo,
     flowState,
@@ -341,10 +339,9 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         return
       }
       setCurrencyIn(currency)
-      setIsSelectCurrencyManual?.(true)
       resetRate && setRateInfo(rateInfo => ({ ...rateInfo, invertRate: '', rate: '', rateFraction: undefined }))
     },
-    [currencyOut, setCurrencyIn, setIsSelectCurrencyManual, switchCurrency],
+    [currencyOut, setCurrencyIn, switchCurrency],
   )
 
   const switchToWeth = useCallback(() => {
@@ -359,7 +356,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       return
     }
     setCurrencyOut(currency)
-    setIsSelectCurrencyManual?.(true)
     setRateInfo({ ...rateInfo, invertRate: '', rate: '', rateFraction: undefined })
   }
 
@@ -368,7 +364,6 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     if (isEdit) return
     setRotate(prev => !prev)
     switchCurrency()
-    setIsSelectCurrencyManual?.(true)
   }
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
