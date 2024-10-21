@@ -55,7 +55,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
       return
     }
 
-    const name = 'KyberSwap'
+    const name = 'Ethereum Mainnet (Kyberswap RPC)'
     mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_CLICK_MODAL, { type: name })
     addNewNetwork(
       ChainId.MAINNET,
