@@ -213,7 +213,6 @@ function AboutKNC() {
               ChainId.MATIC,
               ChainId.BSCMAINNET,
               ChainId.AVAXMAINNET,
-              ChainId.BTTC,
               ChainId.ARBITRUM,
               ChainId.OPTIMISM,
               ChainId.LINEA,

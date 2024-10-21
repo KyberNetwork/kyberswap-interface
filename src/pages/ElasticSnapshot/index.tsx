@@ -575,7 +575,6 @@ const chainToChainId: { [key: string]: ChainId } = {
   arbitrum: 42161,
   avalanche: 43114,
   base: 8453,
-  cronos: 25,
   polygon: 137,
 }
 const Logo = ({ chainId, address0, address1 }: { chainId: ChainId; address0: string; address1: string }) => {

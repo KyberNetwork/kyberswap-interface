@@ -9,8 +9,6 @@ import {
   blast,
   bnb,
   bnbTestnet,
-  bttc,
-  cronos,
   ethereum,
   fantom,
   görli,
@@ -38,9 +36,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.AVAXMAINNET]: avax,
   [ChainId.AVAXTESTNET]: avaxTestnet,
   [ChainId.FANTOM]: fantom,
-  [ChainId.CRONOS]: cronos,
   [ChainId.ARBITRUM]: arbitrum,
-  [ChainId.BTTC]: bttc,
   [ChainId.OPTIMISM]: optimism,
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA]: linea,
@@ -76,8 +72,6 @@ export const MAINNET_NETWORKS = [
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
-  ChainId.BTTC,
-  ChainId.CRONOS,
   ChainId.BLAST,
   ChainId.MANTLE,
   ChainId.XLAYER,
@@ -105,7 +99,7 @@ export function isSupportedChainId(chainId?: number): chainId is ChainId {
   return !!(NETWORKS_INFO_CONFIG as any)[chainId]
 }
 
-export const FAUCET_NETWORKS = [ChainId.BTTC]
+export const FAUCET_NETWORKS = []
 
 // Fee options instead of dynamic fee
 export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
@@ -115,8 +109,6 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.AVAXMAINNET]: [8, 10, 50, 300, 500, 1000],
   [ChainId.FANTOM]: [8, 10, 50, 300, 500, 1000],
   [ChainId.BSCMAINNET]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.CRONOS]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.BTTC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
   [ChainId.GÖRLI]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
@@ -145,8 +137,6 @@ export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
     'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
   [ChainId.MATIC]:
     'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/latest_merkle_data.json',
-  [ChainId.BTTC]:
-    'https://raw.githubusercontent.com/KyberNetwork/trading-contest-reward-distribution/main/bttc/results/reward_proof.json',
 }
 
 export const DEFAULT_REWARDS: { [key: string]: string[] } = {
@@ -165,12 +155,10 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
-  ChainId.CRONOS,
-  ChainId.BTTC,
 ]
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = []
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [ChainId.CRONOS]
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = []
 export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.ARBITRUM,

@@ -1,23 +1,7 @@
 import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 
 import { ETHER_ADDRESS } from 'constants/index'
-import { MAP_TOKEN_HAS_MULTI_BY_NETWORK } from 'constants/tokenLists/token-info'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-
-/**
- * hard code: ex: usdt => usdt_e, ... if network has multi symbol same name base on network
- * @param network ex: poylgon, ...
- * @param value symbol name, ex: usdt, ...
- * @returns
- */
-export const convertSymbol = (network: string, value: string) => {
-  const mapData = MAP_TOKEN_HAS_MULTI_BY_NETWORK[network]
-  if (mapData) {
-    const newValue = mapData[value]
-    if (newValue) return newValue
-  }
-  return value
-}
 
 export const getFormattedAddress = (chainId: ChainId, address?: string, fallback?: string): string => {
   try {
