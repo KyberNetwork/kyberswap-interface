@@ -142,7 +142,6 @@ const SwapNavGroup = () => {
               </Flex>
             </StyledNavLink>
           )
-          */}
 
           <StyledNavLink
             id="buy-crypto-nav-link"
@@ -165,6 +164,8 @@ const SwapNavGroup = () => {
               </Flex>
             </Flex>
           </StyledNavLink>
+
+          */}
         </Flex>
       }
     />
