@@ -31,6 +31,7 @@ import vestingOptionA from './data/vesting/optionA.json'
 import vestingOptionAPhase2 from './data/vesting/optionA_phase2.json'
 import vestingOptionB from './data/vesting/optionB.json'
 import vestingOptionBPhase2 from './data/vesting/optionB_phase2.json'
+import vestingPhase3 from './data/vesting/phase3.json'
 
 const format = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 7 })
 
@@ -134,6 +135,8 @@ const phase2AddressVestingContract = {
   B: '0xbA04Fa014fF307a3E731b3898bC0633f9B559995',
 }
 
+const vestingPhase3ContractAddress = '0x70c19c5ed535207596401cd8105a0a22750cbf1e'
+
 export default function ElasticSnapshot() {
   const { account } = useActiveWeb3React()
 
@@ -141,6 +144,7 @@ export default function ElasticSnapshot() {
 
   const userInfo = data.find(item => item.user_address.toLowerCase() === account?.toLowerCase())
 
+  const vestingP3 = vestingPhase3.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase())
   const vestingA = vestingOptionA.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase())
   const vestingB = vestingOptionB.find(item => item.claimData.receiver.toLowerCase() === account?.toLowerCase())
   const phase3Info = phase3.find(
@@ -559,6 +563,15 @@ export default function ElasticSnapshot() {
                 userSelectedOption={vestingAPhase2 ? 'A' : 'B'}
                 userVestingData={(vestingAPhase2 || vestingBPhase2) as VestingInterface}
                 contractAddress={phase2AddressVestingContract[vestingAPhase2 ? 'A' : 'B']}
+                tcLink="https://bafkreieg7lvkcjcx3gczdqta2izunwovrn7rcjg6j24ixjftniiyopp5w4.ipfs.w3s.link"
+              />
+            )}
+
+            {vestingP3 && (
+              <Vesting
+                userSelectedOption={'B'}
+                userVestingData={vestingP3 as VestingInterface}
+                contractAddress={vestingPhase3ContractAddress}
                 tcLink="https://bafkreieg7lvkcjcx3gczdqta2izunwovrn7rcjg6j24ixjftniiyopp5w4.ipfs.w3s.link"
               />
             )}
