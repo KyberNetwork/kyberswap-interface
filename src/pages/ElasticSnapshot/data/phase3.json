@@ -20,14 +20,14 @@
   {
     "receiver": "0xee2147fcf090ce08095e65a3c9e193c459364d5b",
     "oldAddress": "0xcc98cfdc5f5480d8dd0a0d0a7f80506eb30d5159",
-    "vestingAmount": 585721920000,
-    "value": 585721.92
+    "vestingAmount": 585805040000,
+    "value": 585805.04
   },
   {
     "receiver": "0x00e6bc5f73ef330c5f553554dcec8a863db84a23",
     "oldAddress": "0xd1bbca0dfde1f51ccd17e33de1a7ead48faa1d68",
-    "vestingAmount": 197918498300,
-    "value": 197918.5,
+    "vestingAmount": 185848210000,
+    "value": 185848.21,
     "vestedAmount": 19657.410552
   },
   {
