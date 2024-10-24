@@ -50,10 +50,25 @@ if (ENV_LEVEL > ENV_TYPE.LOCAL) {
     environment: 'production',
     ignoreErrors: ['AbortError'],
     integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
-    tracesSampleRate: 0.1,
+    tracesSampleRate: 1.0,
     normalizeDepth: 5,
-    replaysSessionSampleRate: 0.1,
+    replaysSessionSampleRate: 1.0,
     replaysOnErrorSampleRate: 1.0,
+    beforeSend(event, hint) {
+      const error = hint?.originalException as Error
+      const { name, message } = error
+      if (
+        (name === 'TypeError' && message === 'Load failed') || // Almost come from mobile safari fetch API issues
+        (name === 'ChunkLoadError' && message.includes('Failed to fetch')) ||
+        (name === 'Error' && message === 'Java object is gone') ||
+        (name === 'UnhandledRejection' && message === 'Non-Error promise rejection captured with value: null') ||
+        (name === '<unknown>' && message.includes('Non-Error promise rejection captured with value')) || // this always happens when a some external library throws an error
+        (name === '<unknown>' && message.includes('Object captured as promise rejection with keys')) // this always happens when a some external library throws an error
+      )
+        return null
+
+      return event
+    },
   })
   Sentry.setTag('request_id', sentryRequestId)
   Sentry.setTag('version', TAG)

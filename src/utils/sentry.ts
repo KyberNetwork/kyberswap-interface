@@ -35,7 +35,7 @@ export function captureSwapError(error: TransactionError) {
     : 'other'
 
   captureException(e, {
-    level: 'fatal',
+    level: 'warning',
     extra: { rawData: error.rawData },
     tags: {
       type: tag,
