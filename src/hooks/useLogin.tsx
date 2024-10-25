@@ -71,7 +71,7 @@ const useLogin = (autoLogin = false) => {
       } catch (error) {
         const e = new Error('createProfile Error', { cause: error })
         e.name = 'createProfile Error'
-        captureException(e, { extra: { walletAddress, account } })
+        captureException(e, { extra: { walletAddress, account }, level: 'warning' })
         setProfile({ profile: undefined, isAnonymous, account })
       }
     },

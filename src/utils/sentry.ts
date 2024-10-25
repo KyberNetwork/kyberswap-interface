@@ -4,7 +4,7 @@ import { Deferrable } from 'ethers/lib/utils'
 
 import { didUserReject } from 'constants/connectors/utils'
 
-import { friendlyError } from './errorMessage'
+import { friendlyError, knownPatterns } from './errorMessage'
 
 export enum ErrorName {
   LimitOrderError = 'LimitOrderError',
@@ -34,8 +34,14 @@ export function captureSwapError(error: TransactionError) {
     ? 'returnAmountIsNotEnough'
     : 'other'
 
+  const level = Object.keys(knownPatterns)
+    .map(key => knownPatterns[key])
+    .includes(friendlyErrorResult)
+    ? 'warning'
+    : 'error'
+
   captureException(e, {
-    level: 'fatal',
+    level,
     extra: { rawData: error.rawData },
     tags: {
       type: tag,
