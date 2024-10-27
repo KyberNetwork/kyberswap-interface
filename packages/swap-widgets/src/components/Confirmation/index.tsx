@@ -303,6 +303,9 @@ function Confirmation({
         `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/api/v1/route/build`,
         {
           method: 'POST',
+          headers: {
+            'x-client-id': client,
+          },
           body: JSON.stringify({
             routeSummary: trade.routeSummary,
             deadline: Math.floor(date.getTime() / 1000),

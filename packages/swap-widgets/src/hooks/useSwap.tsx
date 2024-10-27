@@ -131,6 +131,7 @@ const useSwap = ({
   defaultSlippage,
   feeSetting,
   enableDexes,
+  client,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
@@ -143,6 +144,7 @@ const useSwap = ({
     isInBps: boolean
   }
   enableDexes?: string
+  client: string
 }) => {
   const { provider, chainId } = useActiveWeb3()
   const [tokenIn, setTokenIn] = useState(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
@@ -280,6 +282,9 @@ const useSwap = ({
       `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/api/v1/routes?${search.slice(1)}`,
       {
         signal: controllerRef.current?.signal,
+        headers: {
+          'x-client-id': client,
+        },
       },
     ).then(r => r.json())
 

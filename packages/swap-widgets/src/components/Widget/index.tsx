@@ -251,6 +251,7 @@ const Widget = ({
     defaultSlippage,
     feeSetting,
     enableDexes,
+    client,
   })
 
   const trade = isUnsupported ? null : routeTrade
