@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
+import { useAccount } from 'hooks/useAccount'
 import { getChainIdFromSlug } from 'utils/string'
 
 import { useChangeNetwork } from './useChangeNetwork'
@@ -18,7 +19,7 @@ export function useSyncNetworkParamWithStore() {
   const triedSync = useRef(false)
   const chainIdKeeper = useRef<number>(0)
   const networkParamKeeper = useRef<string>('')
-  const { connector } = useWeb3React()
+  const { connector, isConnected } = useAccount()
 
   useEffect(() => {
     if (!networkParam || !paramChainId || isWrongNetwork) {
@@ -35,7 +36,7 @@ export function useSyncNetworkParamWithStore() {
        * @param triedEager: only run after tried to connect injected wallet
        */
     ;(async () => {
-      if (triedSync.current || !connector?.switchChain) return
+      if (triedSync.current || (isConnected && !connector?.switchChain)) return
       setRequestingNetwork(networkParamKeeper.current)
       await changeNetwork(chainIdKeeper.current, undefined, () => {
         navigate(
@@ -54,6 +55,7 @@ export function useSyncNetworkParamWithStore() {
     paramChainId,
     isWrongNetwork,
     connector?.switchChain,
+    isConnected,
   ])
 
   useEffect(() => {
