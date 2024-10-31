@@ -135,7 +135,7 @@ const phase2AddressVestingContract = {
   B: '0xbA04Fa014fF307a3E731b3898bC0633f9B559995',
 }
 
-const vestingPhase3ContractAddress = '0x70c19c5ed535207596401cd8105a0a22750cbf1e'
+const vestingPhase3ContractAddress = '0xBA06228A869b7B7833B18b3B43541f366b0B3E4e'
 
 export default function ElasticSnapshot() {
   const { account } = useActiveWeb3React()

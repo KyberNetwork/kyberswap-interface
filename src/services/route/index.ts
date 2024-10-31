@@ -21,14 +21,17 @@ const routeApi = createApi({
         clientId?: string
       }
     >({
-      query: ({ params, url, authentication, clientId }) => ({
-        url,
-        params,
-        authentication,
-        headers: {
-          'x-client-id': clientId || 'kyberswap',
-        },
-      }),
+      query: ({ params, url, authentication, clientId }) => {
+        const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
+        return {
+          url,
+          params: rest,
+          authentication,
+          headers: {
+            'x-client-id': clientId || 'kyberswap',
+          },
+        }
+      },
       async transformResponse(baseResponse: GetRouteResponse, _meta, { params }): Promise<GetRouteResponse> {
         const { routeSummary } = baseResponse?.data || {}
         const { chainId, tokenInDecimals, tokenOutDecimals, tokenIn, tokenOut } = params || {}
