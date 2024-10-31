@@ -50,10 +50,29 @@ if (ENV_LEVEL > ENV_TYPE.LOCAL) {
     environment: 'production',
     ignoreErrors: ['AbortError'],
     integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
-    tracesSampleRate: 0.1,
+    tracesSampleRate: 1.0,
     normalizeDepth: 5,
-    replaysSessionSampleRate: 0.1,
+    replaysSessionSampleRate: 1.0,
     replaysOnErrorSampleRate: 1.0,
+    beforeSend(event, hint) {
+      const error = hint?.originalException as Error
+      const { name, message } = error
+      if (
+        (name === 'TypeError' && message === 'Load failed') || // Almost come from mobile safari fetch API issues
+        (name === 'ChunkLoadError' && message.includes('Failed to fetch')) || // https://sentry.io/answers/chunk-load-errors-javascript/
+        (name === 'Error' && message.includes('Java object is gone')) || // coming from the WebView to Java bridge in Chrome, something went wrong with Chrome Mobile WebView from some Android devices
+        (name === 'UnhandledRejection' && message.includes('Non-Error promise rejection captured with value')) ||
+        (name === '<unknown>' && message.includes('Non-Error promise rejection captured with value')) || // this always happens when a some external library throws an error, checked with all issues in Sentry logs
+        (name === '<unknown>' && message.includes('Object captured as promise rejection with keys')) // this always happens when a some external library throws an error, checked with all issues in Sentry logs
+      )
+        return null
+
+      if (name === 'TypeError' && message.includes('Failed to fetch')) {
+        event.level = 'warning'
+      }
+
+      return event
+    },
   })
   Sentry.setTag('request_id', sentryRequestId)
   Sentry.setTag('version', TAG)
