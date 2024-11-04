@@ -67,9 +67,9 @@ function App() {
   }
 
   const [params, setParams] = useState<WidgetParams>({
-    chainId: ChainId.Arbitrum,
-    poolAddress: "0x641C00A822e8b671738d32a431a4Fb6074E5c79d",
-    poolType: PoolType.DEX_UNISWAPV3,
+    chainId: ChainId.Base,
+    poolAddress: "0xf9a72fd5c30112af583b86b190b2d776b6c3c056",
+    poolType: PoolType.DEX_SWAPMODEV3,
   });
   const [key, setKey] = useState(Date.now());
 

@@ -297,6 +297,7 @@ export enum PoolType {
   DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
   DEX_METAVAULTV3 = "DEX_METAVAULTV3",
   DEX_LINEHUBV3 = "DEX_LINEHUBV3",
+  DEX_SWAPMODEV3 = "DEX_SWAPMODEV3",
 }
 
 export const NFT_MANAGER_CONTRACT: {
@@ -309,7 +310,7 @@ export const NFT_MANAGER_CONTRACT: {
     [ChainId.Arbitrum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
     [ChainId.Avalanche]: "0x655C406EBFa14EE2006250925e54ec43AD184f8B",
     [ChainId.Base]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-    [ChainId.Blast]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+    [ChainId.Blast]: "0xB218e4f7cF0533d4696fDfC419A0023D33345F28",
     [ChainId.Fantom]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
     [ChainId.Linea]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
     [ChainId.Mantle]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
@@ -336,9 +337,14 @@ export const NFT_MANAGER_CONTRACT: {
     [ChainId.Linea]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
     [ChainId.Scroll]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
   },
-  [PoolType.DEX_LINEHUBV3] : {
+  [PoolType.DEX_LINEHUBV3]: {
     [ChainId.Linea]: "0xD27166FA3E2c1a2C1813d0fe6226b8EB21783184",
-  }
+  },
+  [PoolType.DEX_SWAPMODEV3]: {
+    [ChainId.Arbitrum]: "0x81F2c375AEDbdF02f11c1Ae125e2f51Efa777cEa",
+    [ChainId.Base]: "0xDe151D5c92BfAA288Db4B67c21CD55d5826bCc93",
+    [ChainId.Optimism]: "0x74a52eb08d699CD8BE1d42dA4B241d526B8a8285",
+  },
 };
 
 export const MULTICALL2_ADDRESS: { [chainId: number]: string } = {

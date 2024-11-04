@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@uniswap/v3-sdk@3.18.1':
+    hash: lyj7ufw6an443agg527em5knqe
+    path: patches/@uniswap__v3-sdk@3.18.1.patch
+
 importers:
 
   .:
@@ -321,11 +326,11 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(@types/react@18.3.9)(react@18.3.1)
       '@uniswap/sdk-core':
-        specifier: 4.0.7
-        version: 4.0.7
+        specifier: 5.8.1
+        version: 5.8.1
       '@uniswap/v3-sdk':
-        specifier: 3.10.2
-        version: 3.10.2(hardhat@2.22.12)
+        specifier: 3.18.1
+        version: 3.18.1(patch_hash=lyj7ufw6an443agg527em5knqe)(hardhat@2.22.12)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -7231,11 +7236,14 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /@uniswap/sdk-core@4.0.7:
-    resolution: {integrity: sha512-jscx7KUIWzQatcL5PHY6xy0gEL9IGQcL5h/obxzX9foP2KoNk9cq66Ia8I2Kvpa7zBcPOeW1hU0hJNBq6CzcIQ==}
+  /@uniswap/sdk-core@5.8.1:
+    resolution: {integrity: sha512-Woi4IOGPEIz9Jsmc4sUIRoX7Iwz90p/u3NjdUYxwucb3nf3fnsZTvrDzbYdvi11nsTeQVIJnIW1C4T0Ae+bLwA==}
     engines: {node: '>=10'}
     dependencies:
       '@ethersproject/address': 5.7.0
+      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/strings': 5.7.0
       big.js: 5.2.2
       decimal.js-light: 2.5.1
       jsbi: 3.2.5
@@ -7283,13 +7291,13 @@ packages:
       base64-sol: 1.0.1
     dev: false
 
-  /@uniswap/v3-sdk@3.10.2(hardhat@2.22.12):
-    resolution: {integrity: sha512-5sfYSvRB9ityrB0c/MFaYUsTBQvrwgCuXSyBPsqU8fh6v2dzFgOD3SLx/tHFg8R0RRyN4XPTrw6nqDYXRFtu+g==}
+  /@uniswap/v3-sdk@3.18.1(patch_hash=lyj7ufw6an443agg527em5knqe)(hardhat@2.22.12):
+    resolution: {integrity: sha512-TGrKLToSWwfx6VV2d7fh4kwQMlgspXTLE49ep5zfYODVVqV6WhrRdbteHb3e0bjdjxGSj0gzoLmhsjmoJTE1/g==}
     engines: {node: '>=10'}
     dependencies:
       '@ethersproject/abi': 5.7.0
       '@ethersproject/solidity': 5.7.0
-      '@uniswap/sdk-core': 4.0.7
+      '@uniswap/sdk-core': 5.8.1
       '@uniswap/swap-router-contracts': 1.3.1(hardhat@2.22.12)
       '@uniswap/v3-periphery': 1.4.4
       '@uniswap/v3-staker': 1.0.0
@@ -7298,6 +7306,7 @@ packages:
     transitivePeerDependencies:
       - hardhat
     dev: false
+    patched: true
 
   /@uniswap/v3-staker@1.0.0:
     resolution: {integrity: sha512-JV0Qc46Px5alvg6YWd+UIaGH9lDuYG/Js7ngxPit1SPaIP30AlVer1UYB7BRYeUVVxE+byUyIeN5jeQ7LLDjIw==}
@@ -11871,6 +11880,7 @@ packages:
 
   /ethereumjs-abi@0.6.8:
     resolution: {integrity: sha512-Tx0r/iXI6r+lRsdvkFDlut0N08jWMnKRZ6Gkq+Nmw75lZe4e6o3EkSnkaBP5NF6+m5PTGAr9JP43N3LyeoglsA==}
+    deprecated: This library has been deprecated and usage is discouraged.
     dependencies:
       bn.js: 4.12.0
       ethereumjs-util: 6.2.1

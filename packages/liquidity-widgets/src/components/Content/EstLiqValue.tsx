@@ -20,7 +20,7 @@ import {
 import InfoHelper from "../InfoHelper";
 import { formatUnits } from "ethers/lib/utils";
 import { MouseoverTooltip } from "../Tooltip";
-import { PATHS } from "@/constants";
+import { NetworkInfo, PATHS } from "@/constants";
 import {
   Accordion,
   AccordionContent,
@@ -28,15 +28,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useMemo } from "react";
-import { useTokenList } from "@/hooks/useTokenList";
 import { Token } from "@/entities/Pool";
 import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import { useWeb3Provider } from "@/hooks/useProvider";
 
 export default function EstLiqValue() {
-  const { zapInfo, source, slippage } = useZapState();
+  const { zapInfo, source, slippage, tokensIn } = useZapState();
   const { pool, theme, position } = useWidgetInfo();
-  const { allTokens } = useTokenList();
+  const { chainId } = useWeb3Provider();
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.ADD_LIQUIDITY
@@ -110,13 +110,22 @@ export default function EstLiqValue() {
       (item) => item.type === ZapAction.POOL_SWAP
     ) as PoolSwapAction | null;
 
+    if (!pool) return [];
+
+    const tokens = [
+      ...tokensIn,
+      pool.token0,
+      pool.token1,
+      NetworkInfo[chainId].wrappedToken,
+    ];
+
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
+        const tokenOut = tokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -141,14 +150,16 @@ export default function EstLiqValue() {
 
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
+
+        const tokenOut = tokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
+
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
         const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
 
@@ -169,7 +180,7 @@ export default function EstLiqValue() {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [feeInfo, allTokens, zapInfo]);
+  }, [feeInfo, zapInfo, chainId]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
