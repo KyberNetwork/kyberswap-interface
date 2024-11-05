@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { LiquidityWidget as KsLiquidityWidget } from 'kyberswap-pancake-liquidity-widgets'
 import 'kyberswap-pancake-liquidity-widgets/dist/style.css'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Box } from 'rebass'
 import { useAccount, useWalletClient } from 'wagmi'
 
@@ -20,15 +20,20 @@ enum Theme {
 
 export default function LiquidityWidget() {
   const [selectedChainId, setSelectedChainId] = useState(ChainId.ARBITRUM)
+  const [theme, setTheme] = useState<Theme>(Theme.DARK)
   const [poolAddress, setPoolAddress] = useState('0x389938cf14be379217570d8e4619e51fbdafaa21')
   const [positionId, setPositionId] = useState('')
+  const [feeAddress, setFeeAddress] = useState('')
+  const [feePcm, setFeePcm] = useState(0)
+  const [openModal, setOpenModal] = useState(false)
+  const [autoAfterChange, setAutoAfterChange] = useState(false)
+
   const [initDepositTokens, setInitDepositTokens] = useState<string>(
     '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9,0x912CE59144191C1204E64559FE8253a0e49E6548',
   )
   const [initAmounts, setInitAmounts] = useState<string>(',')
-  const [openModal, setOpenModal] = useState(false)
-  const [autoAfterChange, setAutoAfterChange] = useState(false)
-  const [theme, setTheme] = useState<Theme>(Theme.DARK)
+  const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false)
+
   const { chainId } = useActiveWeb3React()
   const { data: walletClient } = useWalletClient()
   const { address: account } = useAccount()
@@ -42,36 +47,90 @@ export default function LiquidityWidget() {
     }
   }, [autoAfterChange, chainId, selectedChainId])
 
-  const [feeAddress, setFeeAddress] = useState('')
-  const [feePcm, setFeePcm] = useState(0)
+  const handleDismiss = () => setOpenTokenSelectModal(false)
 
-  const tokenSelectModal = <CurrencySearchModal isOpen={true} onDismiss={() => {}} onCurrencySelect={() => {}} />
+  const handleSelectToken = (token: any) => {
+    const selectedToken = token.wrapped ? { ...token, ...token.wrapped } : token
+    const tokens = initDepositTokens.split(',')
+    const indexOfToken = tokens.findIndex(t => t.toLowerCase() === selectedToken.address?.toLowerCase())
+    if (indexOfToken > -1) {
+      tokens.splice(indexOfToken, 1)
+      setInitDepositTokens(tokens.join(','))
+      const amounts = initAmounts.split(',')
+      amounts.splice(indexOfToken, 1)
+      setInitAmounts(amounts.join(','))
+    } else {
+      setInitDepositTokens(`${initDepositTokens},${selectedToken.address}`)
+      setInitAmounts(`${initAmounts},`)
+    }
+    handleDismiss()
+  }
+
+  const handleRemoveToken = useCallback(
+    (tokenAddress: string) => {
+      const tokens = initDepositTokens.split(',')
+      const indexOfToken = tokens.findIndex(t => t.toLowerCase() === tokenAddress.toLowerCase())
+      if (indexOfToken === -1) return
+
+      tokens.splice(indexOfToken, 1)
+      const amounts = initAmounts.split(',')
+      amounts.splice(indexOfToken, 1)
+      setInitDepositTokens(tokens.join(','))
+      setInitAmounts(amounts.join(','))
+    },
+    [initAmounts, initDepositTokens],
+  )
+
+  const handleAmountChange = useCallback(
+    (tokenAddress: string, amount: string) => {
+      const tokens = initDepositTokens.split(',')
+      const indexOfToken = tokens.findIndex(t => t.toLowerCase() === tokenAddress.toLowerCase())
+      if (indexOfToken === -1) return
+
+      const amounts = initAmounts.split(',')
+      amounts[indexOfToken] = amount
+      setInitAmounts(amounts.join(','))
+    },
+    [initAmounts, initDepositTokens],
+  )
+
+  const handleOpenTokenSelectModal = useCallback(() => setOpenTokenSelectModal(true), [])
 
   return (
     <>
       {openModal ? (
-        <KsLiquidityWidget
-          onConnectWallet={toggleWalletModal}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          walletClient={walletClient as any}
-          account={account}
-          networkChainId={chainId}
-          chainId={selectedChainId}
-          positionId={positionId}
-          initTickLower={undefined}
-          initTickUpper={undefined}
-          poolAddress={poolAddress}
-          theme={theme}
-          feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
-          feePcm={0}
-          onDismiss={() => {
-            window.location.reload()
-          }}
-          initDepositTokens={initDepositTokens}
-          initAmounts={initAmounts}
-          source="zap-widget-demo"
-          tokenSelectModal={tokenSelectModal}
-        />
+        <>
+          <KsLiquidityWidget
+            theme={theme}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            walletClient={walletClient as any}
+            account={account}
+            chainId={selectedChainId}
+            networkChainId={chainId}
+            initTickLower={undefined}
+            initTickUpper={undefined}
+            poolAddress={poolAddress}
+            positionId={positionId}
+            feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
+            feePcm={0}
+            source="zap-widget-demo"
+            includedSources={undefined}
+            excludedSources={undefined}
+            initDepositTokens={initDepositTokens}
+            initAmounts={initAmounts}
+            onConnectWallet={toggleWalletModal}
+            onDismiss={() => window.location.reload()}
+            onTxSubmit={undefined}
+            onRemoveToken={handleRemoveToken}
+            onAmountChange={handleAmountChange}
+            onOpenTokenSelectModal={handleOpenTokenSelectModal}
+          />
+          <CurrencySearchModal
+            isOpen={openTokenSelectModal}
+            onDismiss={handleDismiss}
+            onCurrencySelect={handleSelectToken}
+          />
+        </>
       ) : (
         <Box
           sx={{
