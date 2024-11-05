@@ -1,28 +1,32 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { LiquidityWidget as KsLiquidityWidget, PoolType } from 'kyberswap-liquidity-widgets'
-import 'kyberswap-liquidity-widgets/dist/style.css'
-import { useEffect, useMemo, useState } from 'react'
+import { LiquidityWidget as KsLiquidityWidget } from 'kyberswap-pancake-liquidity-widgets'
+import 'kyberswap-pancake-liquidity-widgets/dist/style.css'
+import { useEffect, useState } from 'react'
 import { Box } from 'rebass'
+import { useAccount, useWalletClient } from 'wagmi'
 
-import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import Input from 'components/Input'
 import { NetworkSelector } from 'components/NetworkSelector'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { useNotify } from 'state/application/hooks'
 
 export default function LiquidityWidget() {
   const [selectedChainId, setSelectedChainId] = useState(ChainId.ARBITRUM)
   const [poolAddress, setPoolAddress] = useState('0x641C00A822e8b671738d32a431a4Fb6074E5c79d')
   const [positionId, setPositionId] = useState('') //24654
+  const [initDepositTokens, setInitDepositTokens] = useState<string>(
+    '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9,0x912CE59144191C1204E64559FE8253a0e49E6548',
+  )
+  const [initAmounts, setInitAmounts] = useState<string>(',')
   const [openModal, setOpenModal] = useState(false)
   const { changeNetwork } = useChangeNetwork()
   const [autoAfterChange, setAutoAfterChange] = useState(false)
 
   const { chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
-  const notify = useNotify()
+  const { data: walletClient } = useWalletClient()
+  const { address: account } = useAccount()
 
   useEffect(() => {
     if (autoAfterChange && chainId === selectedChainId) {
@@ -31,83 +35,55 @@ export default function LiquidityWidget() {
     }
   }, [autoAfterChange, chainId, selectedChainId])
 
-  const pancakeTheme = useMemo(
-    () => ({
-      text: '#FFFFFF',
-      subText: '#B6AECF',
-      icons: '#a9a9a9',
-      layer1: '#27262C',
-      dialog: '#27262C',
-      layer2: '#363046',
-      stroke: '#363046',
-      chartRange: '#5DC5D2',
-      chartArea: '#457F89',
-      accent: '#5DC5D2',
-      warning: '#F4B452',
-      error: '#FF5353',
-      success: '#189470',
-      fontFamily: 'Kanit, Sans-serif',
-      borderRadius: '20px',
-      buttonRadius: '16px',
-      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.04)',
-    }),
-    [],
-  )
-
-  const ksTheme = useMemo(
-    () => ({
-      text: '#ffffff',
-      subText: '#979797',
-      icons: '#a9a9a9',
-      layer1: '#1C1C1C',
-      dialog: '#1c1c1c',
-      layer2: '#313131',
-      stroke: '#313131',
-      chartRange: '#28e0b9',
-      chartArea: '#047855',
-      accent: '#31cb9e',
-      warning: '#ff9901',
-      error: '#ff537b',
-      success: '#189470',
-      fontFamily: 'Work Sans',
-      borderRadius: '20px',
-      buttonRadius: '24px',
-      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.04)',
-    }),
-    [],
-  )
-
-  const [dexType, setType] = useState(PoolType.DEX_UNISWAPV3)
-  const [selectedTheme, setSelectedTheme] = useState('ks')
   const [feeAddress, setFeeAddress] = useState('')
   const [feePcm, setFeePcm] = useState(0)
+
+  const tokenSelectModal = <CurrencySearchModal isOpen={true} onDismiss={() => {}} onCurrencySelect={() => {}} />
 
   return (
     <>
       {openModal ? (
         <KsLiquidityWidget
-          provider={library}
-          theme={selectedTheme === 'pc' ? pancakeTheme : ksTheme}
-          poolAddress={poolAddress}
-          positionId={positionId || undefined}
-          feeAddress={feeAddress}
-          feePcm={feePcm}
-          poolType={dexType}
+          onConnectWallet={() => {}}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          walletClient={walletClient as any}
+          account={account}
+          networkChainId={chainId}
           chainId={selectedChainId}
-          onTxSubmit={tx => {
-            notify(
-              {
-                title: 'Send Zap tx success',
-                type: NotificationType.SUCCESS,
-                summary: `Tx: ${tx}`,
-                // icon?: ReactNode
-                // link: getEtherscanLink(ChainId.ARBITRUM, tx, 'transaction'),
-              },
-              10_000,
-            )
+          positionId={positionId}
+          initTickLower={undefined}
+          initTickUpper={undefined}
+          poolAddress={poolAddress}
+          theme={'dark'}
+          feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
+          feePcm={0}
+          onDismiss={() => {
+            window.location.reload()
           }}
-          onDismiss={() => setOpenModal(false)}
-          source={'kyberswap-demo-zap'}
+          initDepositTokens={initDepositTokens}
+          initAmounts={initAmounts}
+          source="zap-widget-demo"
+          tokenSelectModal={tokenSelectModal}
+          // walletClient={walletClient as any}
+          // poolAddress={poolAddress}
+          // positionId={positionId || undefined}
+          // feeAddress={feeAddress}
+          // feePcm={feePcm}
+          // chainId={selectedChainId}
+          // onTxSubmit={tx => {
+          //   notify(
+          //     {
+          //       title: 'Send Zap tx success',
+          //       type: NotificationType.SUCCESS,
+          //       summary: `Tx: ${tx}`,
+          //       // icon?: ReactNode
+          //       // link: getEtherscanLink(ChainId.ARBITRUM, tx, 'transaction'),
+          //     },
+          //     10_000,
+          //   )
+          // }}
+          // onDismiss={() => setOpenModal(false)}
+          // source={'kyberswap-demo-zap'}
         />
       ) : (
         <Box
@@ -121,49 +97,16 @@ export default function LiquidityWidget() {
           }}
         >
           <NetworkSelector chainId={selectedChainId} customOnSelectNetwork={chain => setSelectedChainId(chain)} />
-          <div>
-            <input
-              type="radio"
-              id="kstheme"
-              value="ks"
-              checked={selectedTheme === 'ks'}
-              onChange={e => setSelectedTheme(e.currentTarget.value)}
-            />
-              <label htmlFor="kstheme">KyberSwap Theme</label>
-            <br />
-            <input
-              type="radio"
-              id="pctheme"
-              value="pc"
-              checked={selectedTheme === 'pc'}
-              onChange={e => setSelectedTheme(e.currentTarget.value)}
-            />
-              <label htmlFor="pctheme">Pancake Theme</label>
-            <br />
-          </div>
 
-          <div>
-            <input
-              type="radio"
-              id="html"
-              value={PoolType.DEX_PANCAKESWAPV3}
-              checked={dexType === PoolType.DEX_PANCAKESWAPV3}
-              onChange={e => setType(e.currentTarget.value as PoolType)}
-            />
-              <label htmlFor="html">Pancake</label>
-            <br />
-            <input
-              type="radio"
-              id="css"
-              value={PoolType.DEX_UNISWAPV3}
-              checked={dexType === PoolType.DEX_UNISWAPV3}
-              onChange={e => setType(e.currentTarget.value as PoolType)}
-            />
-              <label htmlFor="css">Uniswap</label>
-            <br />
-          </div>
           <Input placeholder="Pool address..." value={poolAddress} onChange={e => setPoolAddress(e.target.value)} />
           <Input placeholder="Position id..." value={positionId} onChange={e => setPositionId(e.target.value)} />
+
+          <Input
+            placeholder="initDepositTokens..."
+            value={initDepositTokens}
+            onChange={e => setInitDepositTokens(e.target.value)}
+          />
+          <Input placeholder="initAmounts..." value={initAmounts} onChange={e => setInitAmounts(e.target.value)} />
 
           <Input placeholder="Fee address..." value={feeAddress} onChange={e => setFeeAddress(e.target.value)} />
           <Input placeholder="Fee pcm..." value={feePcm} onChange={e => setFeePcm(+e.target.value)} />
