@@ -11,6 +11,7 @@ import { NetworkSelector } from 'components/NetworkSelector'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 export default function LiquidityWidget() {
   const [selectedChainId, setSelectedChainId] = useState(ChainId.ARBITRUM)
@@ -27,6 +28,9 @@ export default function LiquidityWidget() {
   const { chainId } = useActiveWeb3React()
   const { data: walletClient } = useWalletClient()
   const { address: account } = useAccount()
+  const toggleWalletModal = useWalletModalToggle()
+
+  console.log('account', account)
 
   useEffect(() => {
     if (autoAfterChange && chainId === selectedChainId) {
@@ -44,7 +48,7 @@ export default function LiquidityWidget() {
     <>
       {openModal ? (
         <KsLiquidityWidget
-          onConnectWallet={() => {}}
+          onConnectWallet={toggleWalletModal}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           walletClient={walletClient as any}
           account={account}
