@@ -13,24 +13,27 @@ import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useWalletModalToggle } from 'state/application/hooks'
 
+enum Theme {
+  DARK = 'dark',
+  LIGHT = 'light',
+}
+
 export default function LiquidityWidget() {
   const [selectedChainId, setSelectedChainId] = useState(ChainId.ARBITRUM)
-  const [poolAddress, setPoolAddress] = useState('0x641C00A822e8b671738d32a431a4Fb6074E5c79d')
-  const [positionId, setPositionId] = useState('') //24654
+  const [poolAddress, setPoolAddress] = useState('0x389938cf14be379217570d8e4619e51fbdafaa21')
+  const [positionId, setPositionId] = useState('')
   const [initDepositTokens, setInitDepositTokens] = useState<string>(
     '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9,0x912CE59144191C1204E64559FE8253a0e49E6548',
   )
   const [initAmounts, setInitAmounts] = useState<string>(',')
   const [openModal, setOpenModal] = useState(false)
-  const { changeNetwork } = useChangeNetwork()
   const [autoAfterChange, setAutoAfterChange] = useState(false)
-
+  const [theme, setTheme] = useState<Theme>(Theme.DARK)
   const { chainId } = useActiveWeb3React()
   const { data: walletClient } = useWalletClient()
   const { address: account } = useAccount()
   const toggleWalletModal = useWalletModalToggle()
-
-  console.log('account', account)
+  const { changeNetwork } = useChangeNetwork()
 
   useEffect(() => {
     if (autoAfterChange && chainId === selectedChainId) {
@@ -58,7 +61,7 @@ export default function LiquidityWidget() {
           initTickLower={undefined}
           initTickUpper={undefined}
           poolAddress={poolAddress}
-          theme={'dark'}
+          theme={theme}
           feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
           feePcm={0}
           onDismiss={() => {
@@ -68,26 +71,6 @@ export default function LiquidityWidget() {
           initAmounts={initAmounts}
           source="zap-widget-demo"
           tokenSelectModal={tokenSelectModal}
-          // walletClient={walletClient as any}
-          // poolAddress={poolAddress}
-          // positionId={positionId || undefined}
-          // feeAddress={feeAddress}
-          // feePcm={feePcm}
-          // chainId={selectedChainId}
-          // onTxSubmit={tx => {
-          //   notify(
-          //     {
-          //       title: 'Send Zap tx success',
-          //       type: NotificationType.SUCCESS,
-          //       summary: `Tx: ${tx}`,
-          //       // icon?: ReactNode
-          //       // link: getEtherscanLink(ChainId.ARBITRUM, tx, 'transaction'),
-          //     },
-          //     10_000,
-          //   )
-          // }}
-          // onDismiss={() => setOpenModal(false)}
-          // source={'kyberswap-demo-zap'}
         />
       ) : (
         <Box
@@ -102,6 +85,29 @@ export default function LiquidityWidget() {
         >
           <NetworkSelector chainId={selectedChainId} customOnSelectNetwork={chain => setSelectedChainId(chain)} />
 
+          <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+            <div>
+              <input
+                type="radio"
+                id="darktheme"
+                value={Theme.DARK}
+                checked={theme === Theme.DARK}
+                onChange={e => setTheme(e.currentTarget.value as Theme)}
+              />
+                <label htmlFor="darktheme">Dark Theme</label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                id="lighttheme"
+                value={Theme.LIGHT}
+                checked={theme === Theme.LIGHT}
+                onChange={e => setTheme(e.currentTarget.value as Theme)}
+              />
+                <label htmlFor="lighttheme">Light Theme</label>
+            </div>
+          </div>
+
           <Input placeholder="Pool address..." value={poolAddress} onChange={e => setPoolAddress(e.target.value)} />
           <Input placeholder="Position id..." value={positionId} onChange={e => setPositionId(e.target.value)} />
 
@@ -114,6 +120,7 @@ export default function LiquidityWidget() {
 
           <Input placeholder="Fee address..." value={feeAddress} onChange={e => setFeeAddress(e.target.value)} />
           <Input placeholder="Fee pcm..." value={feePcm} onChange={e => setFeePcm(+e.target.value)} />
+
           <ButtonPrimary
             onClick={() => {
               if (selectedChainId !== chainId) {
