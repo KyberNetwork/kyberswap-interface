@@ -62,6 +62,8 @@ const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 const Campaign = lazy(() => import('pages/Campaign'))
 const CampaignMyDashboard = lazy(() => import('pages/Campaign/MyDashboard'))
 
+const Earns = lazy(() => import('pages/Earns'))
+
 const AppWrapper = styled.div`
   display: flex;
   flex-flow: column;
@@ -313,6 +315,8 @@ export default function App() {
               <Route path={APP_PATHS.LIMIT_ORDER_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.REFFERAL_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.MY_DASHBOARD} element={<CampaignMyDashboard />} />
+
+              <Route path={APP_PATHS.EARN} element={<Earns />} />
 
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>
