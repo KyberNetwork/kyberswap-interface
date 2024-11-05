@@ -60,8 +60,10 @@ export default function LiquidityWidget() {
       amounts.splice(indexOfToken, 1)
       setInitAmounts(amounts.join(','))
     } else {
-      setInitDepositTokens(`${initDepositTokens},${selectedToken.address}`)
-      setInitAmounts(`${initAmounts},`)
+      setInitDepositTokens(
+        initDepositTokens ? `${initDepositTokens},${selectedToken.address}` : `${selectedToken.address}`,
+      )
+      setInitAmounts(initAmounts ? `${initAmounts},` : '')
     }
     handleDismiss()
   }
