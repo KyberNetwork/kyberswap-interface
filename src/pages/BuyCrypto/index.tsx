@@ -185,12 +185,10 @@ function BuyCrypto() {
     [ChainId.FANTOM]: 'fantom',
 
     [ChainId.ZKSYNC]: null,
-    [ChainId.CRONOS]: null,
     [ChainId.GÖRLI]: null,
     [ChainId.MUMBAI]: null,
     [ChainId.BSCTESTNET]: null,
     [ChainId.AVAXTESTNET]: null,
-    [ChainId.BTTC]: null,
   }
   const supportedCurrencies = [
     'AVAX',

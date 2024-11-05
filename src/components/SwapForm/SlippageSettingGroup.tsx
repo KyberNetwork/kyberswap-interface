@@ -2,12 +2,14 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { Shield } from 'components/Icons'
+import InfoHelper from 'components/InfoHelper'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
@@ -19,13 +21,14 @@ import { MEDIA_WIDTHS } from 'theme'
 
 import AddMEVProtectionModal from './AddMEVProtectionModal'
 
-const PriceAlertButton = styled.div`
+export const PriceAlertButton = styled.div`
   background: ${({ theme }) => rgba(theme.subText, 0.2)};
   border-radius: 24px;
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 4px 6px;
+  font-size: 12px;
   cursor: pointer;
   user-select: none;
   font-weight: 500;
@@ -62,11 +65,12 @@ export default function SlippageSettingGroup({
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   let rightButton =
-    chainId === ChainId.MAINNET && active && !isPartnerSwap ? (
+    chainId === ChainId.MAINNET && active && !isPartnerSwap && !isMobile && !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
         <Shield size={14} color={theme.subText} />
         <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
+          <InfoHelper size={14} text="Add MEV Protection to safeguard you from front-running attacks." />
         </Text>
       </PriceAlertButton>
     ) : null

@@ -38,9 +38,6 @@ export const PERMITTABLE_TOKENS: {
     '0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE': { type: PermitType.AMOUNT, version: '1' }, // ELK
     '0x8497842420cFdbc97896C2353D75d89Fc8D5Be5D': { type: PermitType.AMOUNT, version: '1' }, // VERSA
   },
-  [ChainId.CRONOS]: {
-    '0xe6801928061CDbE32AC5AD0634427E140EFd05F9': { type: PermitType.AMOUNT, version: '1' }, //BIFI
-  },
   [ChainId.ARBITRUM]: {
     // '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': { type: PermitType.SALT, version: '1' },
     // '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8': { type: PermitType.SALT, version: '1' }, //USDC

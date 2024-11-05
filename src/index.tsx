@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
 import * as Sentry from '@sentry/react'
-import { BrowserTracing } from '@sentry/tracing'
 import '@zkmelabs/widget/dist/style.css'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -50,14 +49,33 @@ if (ENV_LEVEL > ENV_TYPE.LOCAL) {
     dsn: SENTRY_DNS,
     environment: 'production',
     ignoreErrors: ['AbortError'],
-    integrations: [new BrowserTracing()],
-    tracesSampleRate: 0.1,
+    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+    tracesSampleRate: 1.0,
     normalizeDepth: 5,
+    replaysSessionSampleRate: 1.0,
+    replaysOnErrorSampleRate: 1.0,
+    beforeSend(event, hint) {
+      const error = hint?.originalException as Error
+      const { name, message } = error
+      if (
+        (name === 'TypeError' && message === 'Load failed') || // Almost come from mobile safari fetch API issues
+        (name === 'ChunkLoadError' && message.includes('Failed to fetch')) || // https://sentry.io/answers/chunk-load-errors-javascript/
+        (name === 'Error' && message.includes('Java object is gone')) || // coming from the WebView to Java bridge in Chrome, something went wrong with Chrome Mobile WebView from some Android devices
+        (name === 'UnhandledRejection' && message.includes('Non-Error promise rejection captured with value')) ||
+        (name === '<unknown>' && message.includes('Non-Error promise rejection captured with value')) || // this always happens when a some external library throws an error, checked with all issues in Sentry logs
+        (name === '<unknown>' && message.includes('Object captured as promise rejection with keys')) // this always happens when a some external library throws an error, checked with all issues in Sentry logs
+      )
+        return null
+
+      if (name === 'TypeError' && message.includes('Failed to fetch')) {
+        event.level = 'warning'
+      }
+
+      return event
+    },
   })
-  Sentry.configureScope(scope => {
-    scope.setTag('request_id', sentryRequestId)
-    scope.setTag('version', TAG)
-  })
+  Sentry.setTag('request_id', sentryRequestId)
+  Sentry.setTag('version', TAG)
 
   if (GTM_ID) {
     TagManager.initialize({

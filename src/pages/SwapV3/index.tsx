@@ -95,7 +95,6 @@ export default function Swap() {
   const qs = useParsedQueryString<{ highlightBox: string }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
-  const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
 
   const { pathname } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -181,12 +180,7 @@ export default function Swap() {
               {activeTab === TAB.LIQUIDITY_SOURCES && (
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
-              {activeTab === TAB.LIMIT && (
-                <LimitOrder
-                  isSelectCurrencyManual={isSelectCurrencyManually}
-                  setIsSelectCurrencyManual={setIsSelectCurrencyManually}
-                />
-              )}
+              {activeTab === TAB.LIMIT && <LimitOrder />}
               {isCrossChainPage && <CrossChain visible={activeTab === TAB.CROSS_CHAIN} />}
               {activeTab === TAB.GAS_TOKEN && <GasTokenSetting onBack={() => setActiveTab(TAB.SWAP)} />}
             </AppBodyWrapped>

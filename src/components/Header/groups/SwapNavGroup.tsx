@@ -5,18 +5,18 @@ import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
-import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
+//import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
+//import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
 // import MultichainLogoLight from 'assets/images/multichain_white.png'
 import SquidLogoLight from 'assets/images/squid_light.png'
 // import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
-import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
+//import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+//import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { isSupportLimitOrder } from 'utils'
 
@@ -31,22 +31,22 @@ const IconWrapper = styled.div`
   align-items: center;
 `
 
-const VisaSVG = styled(Visa)`
-  path {
-    fill: ${({ theme }) => theme.text};
-  }
-`
+//const VisaSVG = styled(Visa)`
+//  path {
+//    fill: ${({ theme }) => theme.text};
+//  }
+//`
 
 // const StyledBridgeIcon = styled(BridgeIcon)`
 //   path {
 //     fill: currentColor;
 //   }
 // `
-const StyledBuyCrypto = styled(BuyCrypto)`
-  path {
-    fill: currentColor;
-  }
-`
+//const StyledBuyCrypto = styled(BuyCrypto)`
+//  path {
+//    fill: currentColor;
+//  }
+//`
 
 const SwapNavGroup = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
@@ -54,7 +54,6 @@ const SwapNavGroup = () => {
   const upToXXSmall = useMedia('(max-width: 420px)')
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
-  const { mixpanelHandler } = useMixpanel()
 
   const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.BRIDGE, APP_PATHS.LIMIT].some(path =>
     pathname.startsWith(path),
@@ -142,7 +141,6 @@ const SwapNavGroup = () => {
               </Flex>
             </StyledNavLink>
           )
-          */}
 
           <StyledNavLink
             id="buy-crypto-nav-link"
@@ -165,6 +163,8 @@ const SwapNavGroup = () => {
               </Flex>
             </Flex>
           </StyledNavLink>
+
+          */}
         </Flex>
       }
     />

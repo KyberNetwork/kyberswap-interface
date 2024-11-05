@@ -16,8 +16,6 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.AVAXTESTNET]: [WETH[ChainId.AVAXTESTNET]],
   [ChainId.AVAXMAINNET]: [WETH[ChainId.AVAXMAINNET]],
   [ChainId.FANTOM]: [WETH[ChainId.FANTOM]],
-  [ChainId.CRONOS]: [WETH[ChainId.CRONOS]],
-  [ChainId.BTTC]: [WETH[ChainId.BTTC]],
   [ChainId.ARBITRUM]: [WETH[ChainId.ARBITRUM]],
   [ChainId.OPTIMISM]: [WETH[ChainId.OPTIMISM]],
   [ChainId.ZKSYNC]: [WETH[ChainId.ZKSYNC]],

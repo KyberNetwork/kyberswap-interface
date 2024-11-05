@@ -56,7 +56,7 @@ const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
 const KNCUtility = lazy(() => import('pages/KyberDAO/KNCUtility'))
 const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
-const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
+//const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
@@ -271,7 +271,7 @@ export default function App() {
               <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
               <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
               <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-              <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
+              {/*<Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />*/}
               {/* <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} /> */}
               <Route
                 path={`${APP_PATHS.PROFILE_MANAGE}`}

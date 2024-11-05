@@ -94,7 +94,7 @@ export function useWeb3React() {
   return useMemo(
     () => ({
       account: account.address,
-      chainId: account.chainId ?? ChainId.MAINNET,
+      chainId: account.chainId,
       provider: wrappedProvider,
       library: wrappedProvider,
       connector: account.connector,
