@@ -9,6 +9,7 @@ import { ButtonPrimary } from 'components/Button'
 import Input from 'components/Input'
 import { NetworkSelector } from 'components/NetworkSelector'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -50,21 +51,17 @@ export default function LiquidityWidget() {
   const handleDismiss = () => setOpenTokenSelectModal(false)
 
   const handleSelectToken = (token: any) => {
-    const selectedToken = token.wrapped ? { ...token, ...token.wrapped } : token
+    const selectedToken =
+      token.wrapped && !token.isNative ? { ...token, ...token.wrapped } : { ...token, address: ETHER_ADDRESS }
     const tokens = initDepositTokens.split(',')
     const indexOfToken = tokens.findIndex(t => t.toLowerCase() === selectedToken.address?.toLowerCase())
-    if (indexOfToken > -1) {
-      tokens.splice(indexOfToken, 1)
-      setInitDepositTokens(tokens.join(','))
-      const amounts = initAmounts.split(',')
-      amounts.splice(indexOfToken, 1)
-      setInitAmounts(amounts.join(','))
-    } else {
-      setInitDepositTokens(
-        initDepositTokens ? `${initDepositTokens},${selectedToken.address}` : `${selectedToken.address}`,
-      )
-      setInitAmounts(initAmounts ? `${initAmounts},` : '')
-    }
+
+    if (indexOfToken > -1) return
+    setInitDepositTokens(
+      initDepositTokens ? `${initDepositTokens},${selectedToken.address}` : `${selectedToken.address}`,
+    )
+    setInitAmounts(initAmounts ? `${initAmounts},` : '')
+
     handleDismiss()
   }
 
