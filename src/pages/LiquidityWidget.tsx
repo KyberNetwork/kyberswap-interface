@@ -65,6 +65,20 @@ export default function LiquidityWidget() {
     handleDismiss()
   }
 
+  // required
+  const handleAddTokens = useCallback(
+    (tokenAddresses: string) => {
+      setInitDepositTokens(initDepositTokens ? `${initDepositTokens},${tokenAddresses}` : tokenAddresses)
+      const amountsToAdd = tokenAddresses
+        .split('')
+        .filter(item => item === ',')
+        .join('')
+      setInitAmounts(initAmounts ? `${initAmounts},${amountsToAdd}` : amountsToAdd)
+    },
+    [initAmounts, initDepositTokens],
+  )
+
+  // required
   const handleRemoveToken = useCallback(
     (tokenAddress: string) => {
       const tokens = initDepositTokens.split(',')
@@ -80,6 +94,7 @@ export default function LiquidityWidget() {
     [initAmounts, initDepositTokens],
   )
 
+  // required
   const handleAmountChange = useCallback(
     (tokenAddress: string, amount: string) => {
       const tokens = initDepositTokens.split(',')
@@ -93,6 +108,7 @@ export default function LiquidityWidget() {
     [initAmounts, initDepositTokens],
   )
 
+  // required
   const handleOpenTokenSelectModal = useCallback(() => setOpenTokenSelectModal(true), [])
 
   return (
@@ -120,6 +136,7 @@ export default function LiquidityWidget() {
             onConnectWallet={toggleWalletModal}
             onDismiss={() => window.location.reload()}
             onTxSubmit={undefined}
+            onAddTokens={handleAddTokens}
             onRemoveToken={handleRemoveToken}
             onAmountChange={handleAmountChange}
             onOpenTokenSelectModal={handleOpenTokenSelectModal}
