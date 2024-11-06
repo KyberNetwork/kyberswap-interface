@@ -14377,10 +14377,10 @@ kleur@^4.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.5.tgz#95106101795f7050c6c650f350c683febddb1780"
   integrity sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==
 
-kyberswap-pancake-liquidity-widgets@0.1.36:
-  version "0.1.36"
-  resolved "https://registry.yarnpkg.com/kyberswap-pancake-liquidity-widgets/-/kyberswap-pancake-liquidity-widgets-0.1.36.tgz#304f206f8cd1418b3444dffa7987bb71f1cc0c1f"
-  integrity sha512-GIdKBMm1agHjIC2fJUjTbJc35nI9GUgiODqgfo7/ruZxvkGQRH2/feuvEvT5aEi9A0dRmc1CNCmRPtgA412bgg==
+kyberswap-pancake-liquidity-widgets@0.1.37:
+  version "0.1.37"
+  resolved "https://registry.yarnpkg.com/kyberswap-pancake-liquidity-widgets/-/kyberswap-pancake-liquidity-widgets-0.1.37.tgz#08badfd7887b6854c8c072456ad622f16e2f90f2"
+  integrity sha512-p99rpTsGXwIcESDd/QhBydEP/ZcWs3rFsWIloXPxtVKbVr5hgpG/O3HAyx3vFNsjYTVvULPMDaFNey+6B6legw==
   dependencies:
     "@pancakeswap/sdk" "^5.8.2"
     "@pancakeswap/swap-sdk-core" "^1.2.0"
