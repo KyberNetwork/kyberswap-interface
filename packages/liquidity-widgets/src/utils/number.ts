@@ -1,9 +1,4 @@
-import {
-  CurrencyAmount,
-  Fraction,
-  Percent,
-  Price,
-} from "@kyberswap/ks-sdk-core";
+import { CurrencyAmount, Fraction, Percent, Price } from "@uniswap/sdk-core";
 import { BigNumber } from "ethers";
 import JSBI from "jsbi";
 

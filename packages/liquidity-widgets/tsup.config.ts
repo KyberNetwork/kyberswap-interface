@@ -13,7 +13,7 @@ export default defineConfig({
   sourcemap: true,
   onSuccess: "tsc --noEmit",
   external: ["react", "react-dom"], // Externals
-  noExternal: ["@kyber/ui"],
+  noExternal: ["@kyber/ui", "@kyber/utils"],
   loader: {
     ".png": "dataurl",
   },

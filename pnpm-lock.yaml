@@ -289,15 +289,9 @@ importers:
       '@ethersproject/providers':
         specifier: ^5.7.2
         version: 5.7.2
-      '@kyber/tailwind-config':
-        specifier: workspace:^
-        version: link:../config-tailwind
       '@kyber/ui':
         specifier: workspace:^
         version: link:../ui
-      '@kyber/utils':
-        specifier: workspace:^
-        version: link:../utils
       '@kyberswap/ks-sdk-core':
         specifier: ^1.1.5
         version: 1.1.5
@@ -367,13 +361,16 @@ importers:
       react-popper:
         specifier: ^2.3.0
         version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1)(react@18.3.1)
-      typescript:
-        specifier: 5.3.2
-        version: 5.3.2
     devDependencies:
       '@kyber/svgr-esbuild-plugin':
         specifier: workspace:^
         version: link:../svgr-esbuild-plugin
+      '@kyber/tailwind-config':
+        specifier: workspace:^
+        version: link:../config-tailwind
+      '@kyber/utils':
+        specifier: workspace:^
+        version: link:../utils
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
@@ -425,6 +422,9 @@ importers:
       tsup:
         specifier: ^8.3.0
         version: 8.3.0(postcss@8.4.47)(typescript@5.3.2)
+      typescript:
+        specifier: 5.3.2
+        version: 5.3.2
 
   packages/pancake-liquidity-widgets:
     dependencies:

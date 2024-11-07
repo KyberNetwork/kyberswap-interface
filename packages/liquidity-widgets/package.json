@@ -1,6 +1,6 @@
 {
   "name": "@kyberswap/liquidity-widgets",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -25,8 +25,6 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
-    "@kyber/utils": "workspace:^",
-    "@kyber/tailwind-config": "workspace:^",
     "@kyberswap/ks-sdk-core": "^1.1.5",
     "@pancakeswap/sdk": "^5.8.2",
     "@pancakeswap/swap-sdk-core": "^1.2.0",
@@ -47,10 +45,11 @@
     "lucide-react": "^0.453.0",
     "numeral": "^2.0.6",
     "polished": "^4.3.1",
-    "react-popper": "^2.3.0",
-    "typescript": "5.3.2"
+    "react-popper": "^2.3.0"
   },
   "devDependencies": {
+    "@kyber/tailwind-config": "workspace:^",
+    "@kyber/utils": "workspace:^",
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@types/d3": "^7.4.3",
     "@types/lodash": "^4.14.196",
@@ -68,7 +67,8 @@
     "postcss-prefix-selector": "^2.1.0",
     "sass": "^1.70.0",
     "tailwindcss": "^3.4.13",
-    "tsup": "^8.3.0"
+    "tsup": "^8.3.0",
+    "typescript": "5.3.2"
   },
   "peerDependencies": {
     "@kyber/ui": "workspace:^",
