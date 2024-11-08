@@ -1,6 +1,6 @@
 {
   "name": "@kyberswap/liquidity-widgets",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -46,6 +46,9 @@
     "numeral": "^2.0.6",
     "polished": "^4.3.1",
     "react-popper": "^2.3.0"
+  },
+  "patchedDependencies": {
+    "@uniswap/v3-sdk": "patches/@uniswap__v3-sdk@3.18.1.patch"
   },
   "devDependencies": {
     "@kyber/tailwind-config": "workspace:^",
