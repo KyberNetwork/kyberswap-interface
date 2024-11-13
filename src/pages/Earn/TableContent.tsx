@@ -3,7 +3,7 @@ import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetDexListQuery } from 'services/ksSetting'
-import { usePoolsExplorerQuery } from 'services/zapEarn'
+import { PoolData, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { Image } from 'components/Image'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -25,7 +25,7 @@ import {
 } from './styles'
 import useFilter from './useFilter'
 
-const TableContent = () => {
+const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: PoolData) => void }) => {
   const theme = useTheme()
   const { filters } = useFilter()
   const dexList = useGetDexListQuery({
@@ -67,7 +67,7 @@ const TableContent = () => {
     return (
       <TableBody>
         {tablePoolData.map((pool, index) => (
-          <MobileTableRow key={pool.address}>
+          <MobileTableRow key={pool.address} onClick={() => onOpenZapInWidget(pool)}>
             <Flex alignItems="flex-start" justifyContent="space-between">
               <Flex sx={{ gap: 1 }}>
                 <Flex sx={{ position: 'relative', top: -1 }}>
@@ -118,7 +118,7 @@ const TableContent = () => {
   return (
     <TableBody>
       {tablePoolData.map(pool => (
-        <TableRow key={pool.address}>
+        <TableRow key={pool.address} onClick={() => onOpenZapInWidget(pool)}>
           <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
             <Image src={pool.dexLogo} width="20px" height="20px" alt="" />
             <Text color={theme.subText}>{pool.dexName}</Text>

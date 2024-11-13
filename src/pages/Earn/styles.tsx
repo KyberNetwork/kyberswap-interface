@@ -17,6 +17,12 @@ export const PoolsExplorerWrapper = styled.div`
   gap: 16px;
 `
 
+export const LiquidityWidgetWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`
+
 export const TagContainer = styled.div`
   display: flex;
   gap: 1rem;

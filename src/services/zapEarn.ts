@@ -15,25 +15,27 @@ interface SupportedChainsResponse {
   requestId: string
 }
 
+export interface PoolData {
+  address: string
+  earnFee: number
+  exchange: string
+  type: string
+  feeTier: number
+  volume: number
+  apr: number
+  liquidity: number
+  tokens: Array<{
+    address: string
+    logoURI: string
+    symbol: string
+  }>
+}
+
 interface PoolsExplorerResponse {
   code: number
   message: string
   data: {
-    pools: Array<{
-      address: string
-      earnFee: number
-      exchange: string
-      type: string
-      feeTier: number
-      volume: number
-      apr: number
-      liquidity: number
-      tokens: Array<{
-        address: string
-        logoURI: string
-        symbol: string
-      }>
-    }>
+    pools: Array<PoolData>
     pagination: {
       totalItems: number
     }
