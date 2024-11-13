@@ -63,6 +63,13 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
     // toggleFavorite(item)
   }
 
+  if (!tablePoolData?.length)
+    return (
+      <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
+        No data found
+      </Text>
+    )
+
   if (upToMedium)
     return (
       <TableBody>
