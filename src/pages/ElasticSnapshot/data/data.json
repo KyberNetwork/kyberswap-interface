@@ -87392,23 +87392,6 @@
           "fee_token0": 8297830000000000,
           "fee_token1": 161903000000000000000
         }
-      },
-      {
-        "position_id": 9,
-        "position_usd": 3829.88,
-        "liquidity_usd": 3827.07,
-        "fee_usd": 2.82,
-        "info": {
-          "pool": "0x4cd62dfe871e06fd8e08614d07ddc06af87cee90",
-          "chain": "cronos",
-          "pair": "WCRO-ELK",
-          "token0": "0x5c7f8a570d578ed84e63fdfa7b1ee72deae1ae23",
-          "token1": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee",
-          "liquidity_token0": 19406000000000000524288,
-          "liquidity_token1": 18142499999999999344640,
-          "fee_token0": 14275900000000000000,
-          "fee_token1": 13346400000000000000
-        }
       }
     ]
   },

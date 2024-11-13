@@ -5,7 +5,7 @@ import { usePrevious } from 'react-use'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_CORRELATED_PAIR, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import { useStableCoins } from 'hooks/Tokens'
-import { useCheckCorrelatedPair, useCurrencyFromUrl } from 'state/swap/hooks'
+import { useCheckCorrelatedPair, useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
 const useUpdateSlippageInStableCoinSwap = (chainId: ChainId) => {
@@ -17,10 +17,12 @@ const useUpdateSlippageInStableCoinSwap = (chainId: ChainId) => {
   const inputTokenFromParam = searchParams.get('inputCurrency') ?? ''
   const outputTokenFromParam = searchParams.get('outputCurrency') ?? ''
 
-  const { fromCurrency, toCurrency } = useCurrencyFromUrl()
+  const inputCurrency = useInputCurrency()
+  const outputCurrencty = useOutputCurrency()
 
-  const inputCurrencyId = fromCurrency || inputTokenFromParam
-  const outputCurrencyId = toCurrency || outputTokenFromParam
+  const inputCurrencyId = inputCurrency?.wrapped.address || inputTokenFromParam
+  const outputCurrencyId = outputCurrencty?.wrapped.address || outputTokenFromParam
+
   const isCorrelatedPair = useCheckCorrelatedPair()
 
   const previousInputCurrencyId = usePrevious(inputCurrencyId)
@@ -30,6 +32,13 @@ const useUpdateSlippageInStableCoinSwap = (chainId: ChainId) => {
   rawSlippageRef.current = slippage
 
   useEffect(() => {
+    if (
+      !previousInputCurrencyId ||
+      !previousOutputCurrencyId ||
+      (inputCurrencyId === previousInputCurrencyId && outputCurrencyId === previousOutputCurrencyId)
+    )
+      return
+
     const isStableCoinPreviousSwap = isStableCoin(previousInputCurrencyId) && isStableCoin(previousOutputCurrencyId)
     const isStableCoinSwap = isStableCoin(inputCurrencyId) && isStableCoin(outputCurrencyId)
 

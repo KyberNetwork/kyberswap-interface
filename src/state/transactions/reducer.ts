@@ -24,7 +24,7 @@ const initialState: TransactionState = {}
 const clearOldTransactions = (transactions: GroupedTxsByHash | undefined): GroupedTxsByHash | undefined => {
   if (!transactions) return undefined
   const chainTxs = Object.values(transactions ?? {}).filter(Boolean) as TransactionDetails[][]
-  chainTxs.sort((a, b) => a[0].addedTime - b[0].addedTime)
+  chainTxs.sort((a, b) => (a[0]?.addedTime || 0) - (b[0]?.addedTime || 0))
   const slicedChainTxs = chainTxs.slice(-10).filter(tx => tx[0].addedTime > Date.now() - 7 * 24 * 60 * 60 * 1000)
   const result = slicedChainTxs.reduce((acc, cur) => ({ ...acc, [cur[0].hash]: cur }), {}) as GroupedTxsByHash
   return result

@@ -341,6 +341,40 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
           </ul>
         </Text>
 
+        <Text fontSize={14} color={theme.subText} lineHeight={1.5}>
+          <Info size={12} color="#58B5EE" />
+          <Text as="span" marginLeft="6px" color="#58B5EE">
+            Phase 3:
+          </Text>{' '}
+          The <b>Third Batch of Special Affected Users (total 11 wallets) including</b> who encountered specific issues
+          listed below and reported them through the{' '}
+          <b>Kyber Customer Support channel prior to the Phase 2 deadline.</b>
+          To be eligible for Phase 3 of the KyberSwap Grant Program, users must have strictly followed specific
+          processes and completed their reports before the Phase 2 deadline. This phase is exclusively available to
+          those who fulfilled all requirements within the given timeframe, and <b>
+            is not open for new applications
+          </b>{' '}
+          after the Phase 2 cutoff. Eligible cases include:
+          <ul>
+            <li>
+              Users whose KYC verification failed due to technical issues with the ZkMe system and passed the manual KYC
+              process
+            </li>
+
+            <li style={{ marginTop: '4px' }}>
+              Users who were unable to apply within Phase 2 due to ZkMe-related delays or errors.
+            </li>
+            <li style={{ marginTop: '4px' }}>
+              Users who experienced wallet security issues and requested to update to a new wallet for grant application
+              purposes.
+            </li>
+          </ul>
+          <Text>
+            All users eligible for Phase 3 have been notified of their eligibility directly through the KyberSwap
+            Customer Support channel.
+          </Text>
+        </Text>
+
         <Text marginTop="1rem" fontSize={14} color={theme.subText} lineHeight="20px">
           <Trans>
             Total Amount includes all affected funds under Category 1, 2 & 4 and unrecovered funds under Category 3 & 5

@@ -28,15 +28,7 @@ export const NativeCurrencies = new Proxy(NativeCurrenciesLocal, {
 // This list is intentionally different from the list above
 // Was requested from product team, to implement Swap fee config
 export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
-  [ChainId.CRONOS]: [
-    '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', // usdc
-    '0xF2001B145b43032AAF5Ee2884e456CCd805F677D', // dai
-    '0x66e428c3f67a68878562e79A0234c1F83c208770', // usdt
-    '0xC74D59A548ecf7fc1754bb7810D716E9Ac3e3AE5', // busd
-    '0x2Ae35c8E3D4bD57e8898FF7cd2bBff87166EF8cb', // MAI
-  ],
   [ChainId.ZKSYNC]: [],
-  [ChainId.BTTC]: [],
   [ChainId.MATIC]: [],
   [ChainId.OPTIMISM]: [],
   [ChainId.GÖRLI]: [],
@@ -60,8 +52,8 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
 // but with native token address and wrapped native token address
 export const TOKENS_WITH_FEE_TIER_1: Record<ChainId, string[]> = CHAINS_SUPPORT_FEE_CONFIGS.reduce((acc, chainId) => {
-  if (STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId].length) {
-    acc[chainId] = [...STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId], ETHER_ADDRESS, WETH[chainId].address]
+  if ((STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId] as string[]).length) {
+    acc[chainId] = [...STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId], ETHER_ADDRESS, (WETH[chainId] as Token).address]
   } else {
     acc[chainId] = []
   }
@@ -97,26 +89,10 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75', // usdc
     '0x049d68029688eAbF473097a2fC38ef61633A3C7A', // fusdt
   ],
-  [ChainId.CRONOS]: [
-    '0xF2001B145b43032AAF5Ee2884e456CCd805F677D', // dai
-    '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', // usdc
-    '0x66e428c3f67a68878562e79A0234c1F83c208770', // usdt
-    '0xC74D59A548ecf7fc1754bb7810D716E9Ac3e3AE5', // busd
-  ],
   [ChainId.ARBITRUM]: [
     '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', // dai
     '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', // usdc
     '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', // usdt
-  ],
-  [ChainId.BTTC]: [
-    '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', // usdt_b
-    '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', // usdc_b
-    '0x17F235FD5974318E4E2a5e37919a209f7c37A6d1', // usdd_t
-    '0x935faA2FCec6Ab81265B301a30467Bbc804b43d3', // usdc_t
-
-    '0xdB28719F7f938507dBfe4f0eAe55668903D34a15', // usdt_t
-    '0xE887512ab8BC60BcC9224e1c3b5Be68E26048B8B', // usdt_e
-    '0xAE17940943BA9440540940DB0F1877f101D39e8b', // usdc_e
   ],
   [ChainId.OPTIMISM]: [
     '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', // Dai
@@ -291,7 +267,6 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
     ],
   ],
   [ChainId.FANTOM]: [],
-  [ChainId.CRONOS]: [],
   [ChainId.ARBITRUM]: [
     [
       // Eth/wstEth:
@@ -339,7 +314,6 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
       '0x35751007a407ca6feffe80b3cb397736d2cf4dbe',
     ],
   ],
-  [ChainId.BTTC]: [],
   [ChainId.OPTIMISM]: [
     [
       // wBtc/sBtc:
@@ -429,7 +403,6 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.BSCTESTNET]: new Token(ChainId.BSCTESTNET, '0x51E8D106C646cA58Caf32A47812e95887C071a62', 18, 'KNC', 'KNC'),
   [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0xfe56d5892BDffC7BF58f2E84BE1b2C32D21C308b', 18, 'KNC', 'KNC'),
   [ChainId.AVAXMAINNET]: new Token(ChainId.AVAXMAINNET, '0x39fC9e94Caeacb435842FADeDeCB783589F50f5f', 18, 'KNC', 'KNC'),
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x18fA72e0EE4C580a129b0CE5bD0694d716C7443E', 18, 'KNC_b', 'KNC v2 - BSC'),
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xe4DDDfe67E7164b0FE14E218d80dC4C08eDC01cB', 18, 'KNC', 'KNC'),
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0xa00e3a3511aac35ca78530c85007afcd31753819', 18, 'KNC', 'KNC'),
   [ChainId.LINEA]: new Token(ChainId.LINEA, '0x3b2F62d42DB19B30588648bf1c184865D4C3B1D6', 18, 'KNC', 'KNC'),
@@ -437,7 +410,6 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.BASE]: new Token(ChainId.BASE, '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1', 18, 'KNC', 'KNC'),
 
   // TODO(viet-nv): KNC does not exist on the below chain
-  [ChainId.CRONOS]: new Token(ChainId.CRONOS, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.FANTOM]: new Token(ChainId.FANTOM, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.SCROLL]: new Token(ChainId.SCROLL, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, KNC_ADDRESS, 18, 'KNC', 'KNC'),
@@ -461,10 +433,8 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
     'USDC.e',
   ),
   [ChainId.FANTOM]: new Token(ChainId.FANTOM, '0x28a92dde19D9989F39A49905d7C9C2FAc7799bDf', 6, 'USDC', 'USD Coin'),
-  [ChainId.CRONOS]: new Token(ChainId.CRONOS, '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', 6, 'USDC', 'USD Coin'),
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0x912CE59144191C1204E64559FE8253a0e49E6548', 18, 'ARB', 'Arbitrum'),
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 6, 'USDC', 'USD Coin'),
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 18, 'USDT_b', 'Tether USD_BSC'),
   [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x2bf64acf7ead856209749d0d125e9ade2d908e7f', 18, 'USDT', 'Tether USD'),
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', 6, 'USDC', 'USD Coin'),
   [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0x1E4a5963aBFD975d8c9021ce480b42188849D41d', 6, 'USDT', 'Tether USD'),

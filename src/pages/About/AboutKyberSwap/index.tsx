@@ -7,7 +7,6 @@ import aggregatorStatsApi from 'services/aggregatorStats'
 import styled from 'styled-components'
 
 import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
-import BTTCDark from 'assets/images/btt-logo-dark.svg'
 import KNCGraphic from 'assets/images/knc-graphic.png'
 import AboutAvalanche from 'assets/svg/about_icon_avalanche.svg'
 import BSC from 'assets/svg/about_icon_bsc.svg'
@@ -19,7 +18,6 @@ import { FooterSocialLink } from 'components/Footer/Footer'
 import {
   BestPrice,
   Clock,
-  CronosLogoFull,
   FantomLogoFull,
   LineaFull,
   LowestSlippage,
@@ -339,9 +337,7 @@ function AboutKyberSwap() {
               <PolygonLogoFull />
               <img src={AboutAvalanche} alt="avalanche_icon" width="100%" />
               <FantomLogoFull color={'#fff'} width="100%" height="unset" />
-              <CronosLogoFull color={undefined} />
               <img src={ArbitrumDark} alt="" width="100%" />
-              <img src={BTTCDark} alt="btt" width="100%" />
               <OptimismLogoFull />
               <ZkSyncFull color={theme.text} />
               <LineaFull />

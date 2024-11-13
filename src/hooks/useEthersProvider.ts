@@ -13,7 +13,7 @@ function clientToProvider(client?: Client<Transport, Chain>, chainId?: number) {
   }
   const { chain, transport } = client
 
-  const ensAddress = chain.contracts?.ensRegistry?.address
+  const ensAddress = chain?.contracts?.ensRegistry?.address
   const network = chain
     ? {
         chainId: chain.id,

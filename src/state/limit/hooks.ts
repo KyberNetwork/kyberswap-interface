@@ -53,17 +53,6 @@ export function useLimitActionHandlers() {
     [onCurrencySelection],
   )
 
-  const onSelectPair = useCallback(
-    (currencyIn: Currency | undefined, currencyOut: Currency | undefined, inputAmount?: string) => {
-      setCurrencyIn(currencyIn)
-      setCurrencyOut(currencyOut)
-      if (inputAmount !== undefined) {
-        setInputValue(inputAmount)
-      }
-    },
-    [setInputValue, setCurrencyIn, setCurrencyOut],
-  )
-
   const pushOrderNeedCreated = useCallback(
     (order: CreateOrderParam) => {
       dispatch(pushOrderNeedCreatedAction(order))
@@ -89,7 +78,6 @@ export function useLimitActionHandlers() {
     switchCurrency: onSwitchTokensV2,
     setCurrencyIn,
     setCurrencyOut,
-    onSelectPair,
     pushOrderNeedCreated,
     removeOrderNeedCreated,
     setOrderEditing,

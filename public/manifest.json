@@ -3,7 +3,7 @@
   "name": "KyberSwap",
   "icons": [
     {
-      "src": "./favicon.svg?version=1",
+      "src": "https://kyberswap.com/favicon.svg?version=1",
       "sizes": "any",
       "purpose": "any maskable"
     }

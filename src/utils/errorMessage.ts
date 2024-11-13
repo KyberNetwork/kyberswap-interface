@@ -6,14 +6,32 @@ import { capitalizeFirstLetter } from 'utils/string'
 const matchPatterns = (patterns: string[], error: string) =>
   patterns.some(pattern => error.toLowerCase().includes(pattern.toLowerCase()))
 
+export const knownPatterns = {
+  insufficient_erc20_balance: 'Insufficient ERC20 balance to pay gas fee',
+  router_expired: 'An error occurred. Refresh the page and try again.',
+  already_pending: 'Pending request(s), please approve it in your wallet.',
+  mintotalamountout: 'An error occurred. Try refreshing the price rate or increase max slippage.',
+  from_address_mismatch: 'The requested account and/or method has not been authorized by the user.',
+  insufficient_funds: 'Your current balance falls short of covering the required gas fee.',
+  swap_failed:
+    'An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.',
+  underlying_network_changed: 'Your chain is mismatched, please make sure your wallet is switch to the expected chain.',
+  user_rejected: 'User rejected the transaction.',
+  insufficient: 'An error occurred. Please try increasing max slippage.',
+  permit: 'An error occurred. Invalid Permit Signature.',
+  burn_amount_exceeds_balance:
+    'Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later.',
+  object_object: 'Something went wrong. Please try again.',
+}
+
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''
 
-  if (matchPatterns(['insufficient erc20 balance'], error)) return t`Insufficient ERC20 balance to pay gas fee`
+  if (matchPatterns(['insufficient erc20 balance'], error)) return knownPatterns.insufficient_erc20_balance
 
-  if (!error || error.includes('router: expired')) return t`An error occurred. Refresh the page and try again.`
+  if (!error || error.includes('router: expired')) return knownPatterns.router_expired
 
-  if (matchPatterns(['already pending'], error)) return t`Pending request(s), please approve it in your wallet.`
+  if (matchPatterns(['already pending'], error)) return knownPatterns.already_pending
 
   if (
     matchPatterns(
@@ -28,7 +46,7 @@ function parseKnownPattern(text: string): string | undefined {
       error,
     )
   )
-    return t`An error occurred. Try refreshing the price rate or increase max slippage.`
+    return knownPatterns.mintotalamountout
 
   if (
     matchPatterns(
@@ -36,7 +54,7 @@ function parseKnownPattern(text: string): string | undefined {
       error,
     )
   )
-    return t`The requested account and/or method has not been authorized by the user.`
+    return knownPatterns.from_address_mismatch
 
   if (
     matchPatterns(
@@ -44,25 +62,22 @@ function parseKnownPattern(text: string): string | undefined {
       error,
     )
   )
-    return t`Your current balance falls short of covering the required gas fee.`
+    return knownPatterns.insufficient_funds
 
-  if (matchPatterns(['header not found', 'swap failed'], error))
-    return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
+  if (matchPatterns(['header not found', 'swap failed'], error)) return knownPatterns.swap_failed
 
-  if (matchPatterns(['underlying network changed'], error))
-    return t`Your chain is mismatched, please make sure your wallet is switch to the expected chain.`
+  if (matchPatterns(['underlying network changed'], error)) return knownPatterns.underlying_network_changed
 
-  if (didUserReject(error)) return t`User rejected the transaction.`
+  if (didUserReject(error)) return knownPatterns.user_rejected
 
   // classic/elastic remove liquidity error
-  if (matchPatterns(['insufficient'], error)) return t`An error occurred. Please try increasing max slippage.`
+  if (matchPatterns(['insufficient'], error)) return knownPatterns.insufficient
 
-  if (matchPatterns(['permit'], error)) return t`An error occurred. Invalid Permit Signature.`
+  if (matchPatterns(['permit'], error)) return knownPatterns.permit
 
-  if (matchPatterns(['burn amount exceeds balance'], error))
-    return t`Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later.`
+  if (matchPatterns(['burn amount exceeds balance'], error)) return knownPatterns.burn_amount_exceeds_balance
 
-  if (error === '[object Object]') return t`Something went wrong. Please try again.`
+  if (error === '[object Object]') return knownPatterns.object_object
 
   return undefined
 }

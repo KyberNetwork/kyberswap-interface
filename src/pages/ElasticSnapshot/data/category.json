@@ -483,14 +483,6 @@
         "token0": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
         "token1": "0x7678e162f38ec9ef2bfd1d0aaf9fd93355e5fa0b"
       }
-    ],
-    "cronos": [
-      {
-        "pool": "0x4cd62dfe871e06fd8e08614d07ddc06af87cee90",
-        "pair": "WCRO-ELK",
-        "token0": "0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23",
-        "token1": "0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE"
-      }
     ]
   },
   "category 3": {
