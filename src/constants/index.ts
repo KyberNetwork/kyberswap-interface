@@ -165,6 +165,8 @@ export const APP_PATHS = {
   ELASTIC_SNAPSHOT: '/elastic-snapshot',
   MARKET_OVERVIEW: '/market-overview',
 
+  EARN_POOLS: '/earn/pools',
+
   AGGREGATOR_CAMPAIGN: '/campaigns/aggregator',
   LIMIT_ORDER_CAMPAIGN: '/campaigns/limit-order',
   REFFERAL_CAMPAIGN: '/campaigns/referrals',
