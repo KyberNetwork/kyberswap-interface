@@ -6,7 +6,7 @@ import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetDexListQuery } from 'services/ksSetting'
-import { PoolData, usePoolsExplorerQuery, useSupportedProtocolsQuery } from 'services/zapEarn'
+import { EarnPool, usePoolsExplorerQuery, useSupportedProtocolsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconHighAprPool } from 'assets/svg/ic_pool_high_apr.svg'
 import { ReactComponent as IconHighlightedPool } from 'assets/svg/ic_pool_highlighted.svg'
@@ -138,7 +138,7 @@ const Earn = () => {
   }
 
   const handleCloseZapInWidget = () => setZapinParams(null)
-  const handleOpenZapInWidget = (pool: PoolData) => {
+  const handleOpenZapInWidget = (pool: EarnPool) => {
     if (!Object.keys(PoolType).includes(`DEX_${pool.exchange.toUpperCase()}`)) return
     setZapinParams({
       provider: library,

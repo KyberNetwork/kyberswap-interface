@@ -15,7 +15,7 @@ interface SupportedChainsResponse {
   requestId: string
 }
 
-export interface PoolData {
+export interface EarnPool {
   address: string
   earnFee: number
   exchange: string
@@ -35,7 +35,7 @@ interface PoolsExplorerResponse {
   code: number
   message: string
   data: {
-    pools: Array<PoolData>
+    pools: Array<EarnPool>
     pagination: {
       totalItems: number
     }
@@ -56,13 +56,27 @@ export interface QueryParams {
   q?: string
 }
 
+interface ExplorerLandingResponse {
+  data: {
+    highlightedPools: Array<EarnPool>
+    solidEarning: Array<EarnPool>
+    highAPR: Array<EarnPool>
+    lowVolatility: Array<EarnPool>
+  }
+}
+
 const zapEarnServiceApi = createApi({
-  reducerPath: 'zapEarnServiceApi',
+  reducerPath: 'zapEarnServiceApi ',
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_ZAP_EARN_URL,
   }),
   keepUnusedDataFor: 1,
   endpoints: builder => ({
+    explorerLanding: builder.query<ExplorerLandingResponse, void>({
+      query: () => ({
+        url: `/v1/explorer/landing-page`,
+      }),
+    }),
     supportedProtocols: builder.query<SupportedChainsResponse, void>({
       query: () => ({
         url: `/v1/protocol`,
@@ -80,6 +94,6 @@ const zapEarnServiceApi = createApi({
   }),
 })
 
-export const { useSupportedProtocolsQuery, usePoolsExplorerQuery } = zapEarnServiceApi
+export const { useExplorerLandingQuery, useSupportedProtocolsQuery, usePoolsExplorerQuery } = zapEarnServiceApi
 
 export default zapEarnServiceApi

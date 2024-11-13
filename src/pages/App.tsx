@@ -38,8 +38,6 @@ const Consent = lazy(() => import('./Oauth/Consent'))
 const ElasticSnapshot = lazy(() => import('./ElasticSnapshot'))
 const MarketOverview = lazy(() => import('./MarketOverview'))
 
-const Earn = lazy(() => import('./Earn'))
-
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV3 = lazy(() => import('./SwapV3'))
@@ -63,6 +61,9 @@ const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
 const Campaign = lazy(() => import('pages/Campaign'))
 const CampaignMyDashboard = lazy(() => import('pages/Campaign/MyDashboard'))
+
+const Earns = lazy(() => import('pages/Earns'))
+const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -311,12 +312,13 @@ export default function App() {
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
 
-              <Route path={APP_PATHS.EARN_POOLS} element={<Earn />} />
-
               <Route path={APP_PATHS.AGGREGATOR_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.LIMIT_ORDER_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.REFFERAL_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.MY_DASHBOARD} element={<CampaignMyDashboard />} />
+
+              <Route path={APP_PATHS.EARN} element={<Earns />} />
+              <Route path={APP_PATHS.EARN_POOLS} element={<EarnPoolExplorer />} />
 
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>

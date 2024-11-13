@@ -3,7 +3,7 @@ import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetDexListQuery } from 'services/ksSetting'
-import { PoolData, usePoolsExplorerQuery } from 'services/zapEarn'
+import { EarnPool, usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { Image } from 'components/Image'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -25,7 +25,7 @@ import {
 } from './styles'
 import useFilter from './useFilter'
 
-const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: PoolData) => void }) => {
+const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPool) => void }) => {
   const theme = useTheme()
   const { filters } = useFilter()
   const dexList = useGetDexListQuery({
