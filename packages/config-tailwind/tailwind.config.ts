@@ -15,8 +15,10 @@ const config: Omit<Config, "content"> = {
         border: "var(--ks-lw-stroke)",
         input: "var(--ks-lw-layer2)",
         background: "var(--ks-lw-layer1)",
+        interactive: "var(--ks-lw-interactive)",
         subText: "var(--ks-lw-subText)",
         text: "var(--ks-lw-text)",
+        textRevert: "var(--ks-lw-textRevert)",
         warning: {
           DEFAULT: "var(--ks-lw-warning)",
           200: "#ff990133",
@@ -28,7 +30,8 @@ const config: Omit<Config, "content"> = {
         dialog: "var(--ks-lw-dialog)",
         chartRange: "var(--ks-lw-chart-range)",
         chartArea: "var(--ks-lw-chart-area)",
-        succuss: "var(--ks-lw-success)",
+        success: "var(--ks-lw-success)",
+        "primary-20": "var(--ks-lw-accent-20)",
         primary: {
           DEFAULT: "var(--ks-lw-accent)",
         },

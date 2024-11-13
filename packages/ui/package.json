@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",
-    "@radix-ui/react-slider": "^1.2.1"
+    "@radix-ui/react-slider": "^1.2.1",
+    "@radix-ui/react-tooltip": "^1.1.3"
   }
 }

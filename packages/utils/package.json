@@ -20,10 +20,14 @@
     "react": ">=16.8.0"
   },
   "exports": {
-    "./tailwind-helpers": "./src/tailwind-helpers.ts"
+    "./tailwind-helpers": "./src/tailwind-helpers.ts",
+    "./uniswapv3": "./src/uniswapv3.ts",
+    "./crypto": "./src/crypto.ts",
+    "./number": "./src/number.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "js-sha3": "^0.9.3",
     "tailwind-merge": "^2.5.2"
   }
 }

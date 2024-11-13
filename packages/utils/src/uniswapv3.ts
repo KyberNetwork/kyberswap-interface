@@ -6,9 +6,11 @@ const MaxUint256 = BigInt(
 );
 
 // The minimum tick that can be used on any pool.
-const MIN_TICK: number = -887272;
+export const MIN_TICK: number = -887272;
 // The maximum tick that can be used on any pool.
-const MAX_TICK: number = -MIN_TICK;
+export const MAX_TICK: number = -MIN_TICK;
+const MIN_SQRT_RATIO = 4295128739n;
+const MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342n;
 
 const Q96: bigint = 2n ** 96n; // 2^96 as BigInt
 const Q32: bigint = 2n ** 32n;
@@ -21,7 +23,9 @@ function mulShift(val: bigint, mulBy: string): bigint {
 // Function to convert tick to sqrt(price) Q96
 export function getSqrtRatioAtTick(tick: number): bigint {
   if (tick < MIN_TICK || tick > MAX_TICK || !Number.isInteger(tick)) {
-    throw new Error("TICK must be within bounds MIN_TICK and MAX_TICK");
+    throw new Error(
+      `TICK ${tick}: must be within bounds MIN_TICK and MAX_TICK`
+    );
   }
   const absTick: number = tick < 0 ? tick * -1 : tick;
 
@@ -72,6 +76,69 @@ export function getSqrtRatioAtTick(tick: number): bigint {
 
   // back to Q96
   return ratio % Q32 > 0n ? ratio / Q32 + 1n : ratio / Q32;
+}
+
+const TWO = 2n;
+const POWERS_OF_2 = [128, 64, 32, 16, 8, 4, 2, 1].map(
+  (pow: number): [number, bigint] => [pow, TWO ** BigInt(pow)]
+);
+
+export function mostSignificantBit(x: bigint): number {
+  if (x <= 0) throw new Error("x must be greater than 0");
+  if (x > MaxUint256) throw new Error("x must be less than MaxUint256");
+
+  let msb = 0;
+  for (const [power, min] of POWERS_OF_2) {
+    if (x >= min) {
+      // eslint-disable-next-line operator-assignment
+      x = x >> BigInt(power);
+      msb += power;
+    }
+  }
+  return msb;
+}
+
+function getTickAtSqrtRatio(sqrtRatioX96: bigint): number {
+  if (sqrtRatioX96 < MIN_SQRT_RATIO || sqrtRatioX96 > MAX_SQRT_RATIO) {
+    throw new Error("SQRT_RATIO");
+  }
+
+  const sqrtRatioX128 = sqrtRatioX96 << 32n;
+
+  const msb = mostSignificantBit(sqrtRatioX128);
+
+  let r: bigint;
+  if (BigInt(msb) >= 128n) {
+    r = sqrtRatioX128 >> BigInt(msb - 127);
+  } else {
+    r = sqrtRatioX128 << BigInt(127 - msb);
+  }
+
+  let log_2: bigint = (BigInt(msb) - 128n) << 64n;
+
+  for (let i = 0; i < 14; i++) {
+    r = (r * r) >> 127n;
+    const f = r >> 128n;
+    // eslint-disable-next-line operator-assignment
+    log_2 = log_2 | (f << BigInt(63 - i));
+    // eslint-disable-next-line operator-assignment
+    r = r >> f;
+  }
+
+  const log_sqrt10001 = log_2 * 255738958999603826347141n;
+
+  const tickLow = Number(
+    (log_sqrt10001 - 3402992956809132418596140100660247210n) >> 128n
+  );
+  const tickHigh = Number(
+    (log_sqrt10001 + 291339464771989622907027621153398088495n) >> 128n
+  );
+
+  return tickLow === tickHigh
+    ? tickLow
+    : getSqrtRatioAtTick(tickHigh) <= sqrtRatioX96
+    ? tickHigh
+    : tickLow;
 }
 
 function mulDivRoundingUp(a: bigint, b: bigint, denominator: bigint): bigint {
@@ -261,4 +328,84 @@ export function tickToPrice(
   return revert
     ? divideBigIntToString(denominator, numerator, 18)
     : divideBigIntToString(numerator, denominator, 18);
+}
+
+function sqrt(y: bigint): bigint {
+  if (y < 0n) {
+    throw new Error("sqrt: negative value");
+  }
+  let z: bigint = 0n;
+  let x: bigint;
+  if (y > 3n) {
+    z = y;
+    x = y / 2n + 1n;
+    while (x < z) {
+      z = x;
+      x = (y / x + x) / 2n;
+    }
+  } else if (y !== 0n) {
+    z = 1n;
+  }
+  return z;
+}
+
+function encodeSqrtRatioX96(amount1: bigint, amount0: bigint): bigint {
+  const numerator = BigInt(amount1) << 192n;
+  const denominator = BigInt(amount0);
+  const ratioX192 = numerator / denominator;
+  return sqrt(ratioX192);
+}
+
+export function priceToClosestTick(
+  value: string,
+  token0Decimal: number,
+  token1Decimal: number,
+  revert = false
+): number | undefined {
+  if (!value.match(/^\d*\.?\d+$/)) {
+    return undefined;
+  }
+  const [whole, fraction] = value.split(".");
+
+  const decimals = fraction?.length ?? 0;
+  const withoutDecimals = BigInt((whole ?? "") + (fraction ?? ""));
+
+  const denominator =
+    BigInt(10 ** decimals) *
+    10n ** BigInt(revert ? token1Decimal : token0Decimal);
+  const numerator =
+    withoutDecimals * 10n ** BigInt(revert ? token0Decimal : token1Decimal);
+
+  //const sqrtRatioX96 = encodeSqrtRatioX96(numerator, denominator);
+  const sqrtRatioX96 = !revert
+    ? encodeSqrtRatioX96(numerator, denominator)
+    : encodeSqrtRatioX96(denominator, numerator);
+
+  let tick = getTickAtSqrtRatio(sqrtRatioX96);
+  const nextTickPrice = tickToPrice(
+    tick + 1,
+    token0Decimal,
+    token1Decimal,
+    revert
+  );
+
+  if (!revert) {
+    if (+value >= +nextTickPrice) {
+      tick++;
+    }
+  } else if (+value <= +nextTickPrice) {
+    tick++;
+  }
+  return tick;
+}
+
+export function nearestUsableTick(tick: number, tickSpacing: number) {
+  if (!Number.isInteger(tick) || !Number.isInteger(tickSpacing))
+    throw new Error("INTEGERS");
+  if (tickSpacing <= 0) throw new Error("TICK_SPACING");
+  if (tick < MIN_TICK || tick > MAX_TICK) throw new Error("TICK_BOUND");
+  const rounded = Math.round(tick / tickSpacing) * tickSpacing;
+  if (rounded < MIN_TICK) return rounded + tickSpacing;
+  if (rounded > MAX_TICK) return rounded - tickSpacing;
+  return rounded;
 }

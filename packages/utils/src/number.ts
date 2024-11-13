@@ -93,7 +93,7 @@ const subscriptMap: { [key: string]: string } = {
 };
 
 export const formatDisplayNumber = (
-  value: string | bigint | number,
+  value: string | bigint | number | undefined | null,
   options?: {
     style?: "decimal" | "currency" | "percent";
     significantDigits?: number;
@@ -104,15 +104,19 @@ export const formatDisplayNumber = (
   const { style = "decimal", fallback = "--" } = options || {};
 
   const significantDigits =
-    style === "decimal" ? options?.significantDigits || 8 : undefined;
+    style === "decimal"
+      ? options?.significantDigits || 8
+      : options?.significantDigits;
   const fractionDigits =
-    style === "currency" ? options?.fractionDigits || 2 : undefined;
+    style === "currency"
+      ? options?.fractionDigits || 2
+      : options?.fractionDigits;
 
   const currency = style === "currency" ? "$" : "";
   const percent = style === "percent" ? "%" : "";
   const fallbackResult = `${currency}${fallback}${percent}`;
 
-  const v = Number(value.toString());
+  const v = Number(value?.toString());
   if (value === undefined || value === null || Number.isNaN(value))
     return fallbackResult;
 

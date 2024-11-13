@@ -22,8 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.vercel
-
-.turbo
-
-.pnpm-store
