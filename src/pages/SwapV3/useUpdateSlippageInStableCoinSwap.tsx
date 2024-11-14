@@ -32,6 +32,13 @@ const useUpdateSlippageInStableCoinSwap = (chainId: ChainId) => {
   rawSlippageRef.current = slippage
 
   useEffect(() => {
+    if (
+      !previousInputCurrencyId ||
+      !previousOutputCurrencyId ||
+      (inputCurrencyId === previousInputCurrencyId && outputCurrencyId === previousOutputCurrencyId)
+    )
+      return
+
     const isStableCoinPreviousSwap = isStableCoin(previousInputCurrencyId) && isStableCoin(previousOutputCurrencyId)
     const isStableCoinSwap = isStableCoin(inputCurrencyId) && isStableCoin(outputCurrencyId)
 
