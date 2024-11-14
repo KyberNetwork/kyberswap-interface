@@ -24,6 +24,7 @@ export interface EarnPool {
   volume: number
   apr: number
   liquidity: number
+  chainId?: number
   tokens: Array<{
     address: string
     logoURI: string
