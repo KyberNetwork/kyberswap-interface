@@ -142,8 +142,10 @@ const Earn = () => {
     if (!Object.keys(PoolType).includes(`DEX_${pool.exchange.toUpperCase()}`)) return
     setZapinParams({
       provider: library,
-      poolAddress: pool.address,
-      chainId: filters.chainId as unknown as ChainId,
+      // poolAddress: pool.address,
+      // chainId: filters.chainId as unknown as ChainId,
+      poolAddress: '0x641C00A822e8b671738d32a431a4Fb6074E5c79d',
+      chainId: ChainId.Arbitrum,
       onDismiss: handleCloseZapInWidget,
       source: 'kyberswap-demo-zap',
       poolType: PoolType[`DEX_${pool.exchange.toUpperCase()}` as keyof typeof PoolType],
