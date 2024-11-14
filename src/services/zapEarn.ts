@@ -25,6 +25,10 @@ export interface EarnPool {
   apr: number
   liquidity: number
   chainId?: number
+  favorite?: {
+    chainId: number
+    isFavorite: boolean
+  }
   tokens: Array<{
     address: string
     logoURI: string
@@ -66,6 +70,14 @@ interface ExplorerLandingResponse {
   }
 }
 
+interface AddRemoveFavoriteParams {
+  chainId: ChainId
+  message: string
+  signature: string
+  poolAddress: string
+  userAddress: string
+}
+
 const zapEarnServiceApi = createApi({
   reducerPath: 'zapEarnServiceApi ',
   baseQuery: fetchBaseQuery({
@@ -92,9 +104,29 @@ const zapEarnServiceApi = createApi({
         },
       }),
     }),
+    addFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
+      query: body => ({
+        method: 'POST',
+        body,
+        url: `/v1/favorite`,
+      }),
+    }),
+    removeFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
+      query: body => ({
+        method: 'DELETE',
+        body,
+        url: `/v1/favorite`,
+      }),
+    }),
   }),
 })
 
-export const { useExplorerLandingQuery, useSupportedProtocolsQuery, usePoolsExplorerQuery } = zapEarnServiceApi
+export const {
+  useExplorerLandingQuery,
+  useSupportedProtocolsQuery,
+  usePoolsExplorerQuery,
+  useAddFavoriteMutation,
+  useRemoveFavoriteMutation,
+} = zapEarnServiceApi
 
 export default zapEarnServiceApi

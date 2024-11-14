@@ -3,12 +3,15 @@ import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetDexListQuery } from 'services/ksSetting'
-import { EarnPool, usePoolsExplorerQuery } from 'services/zapEarn'
+import { EarnPool, useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
 
+import { NotificationType } from 'components/Announcement/type'
 import { Image } from 'components/Image'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { Direction } from 'pages/MarketOverview/SortIcon'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -27,11 +30,18 @@ import useFilter from './useFilter'
 
 const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPool) => void }) => {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const { filters } = useFilter()
+  const notify = useNotify()
+  const toggleWalletModal = useWalletModalToggle()
+
   const dexList = useGetDexListQuery({
     chainId: NETWORKS_INFO[filters.chainId].ksSettingRoute,
   })
-  const { data: poolData } = usePoolsExplorerQuery(filters)
+  const { data: poolData, refetch } = usePoolsExplorerQuery(filters)
+  const [addFavorite] = useAddFavoriteMutation()
+  const [removeFavorite] = useRemoveFavoriteMutation()
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -58,9 +68,78 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
     return parsedPoolData
   }, [poolData, filters, dexList])
 
-  const handleFavorite = (e: React.MouseEvent<SVGElement, MouseEvent>) => {
+  const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: EarnPool) => {
     e.stopPropagation()
-    // toggleFavorite(item)
+
+    if (!account) {
+      toggleWalletModal()
+      return
+    }
+
+    let signature = ''
+    let msg = ''
+
+    const key = `poolExplorer_${account}`
+    try {
+      const data = JSON.parse(localStorage.getItem(key) || '')
+      if (data.issuedAt) {
+        const expire = new Date(data.issuedAt)
+        expire.setDate(expire.getDate() + 7)
+        const now = new Date()
+        if (expire > now) {
+          signature = data.signature
+          msg = data.msg
+        }
+      }
+    } catch {
+      //
+    }
+    if (!signature) {
+      const issuedAt = new Date().toISOString()
+      msg = `Click sign to add favorite pools at Kyberswap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in 7 days. \n\nIssued at: ${issuedAt}`
+      signature = await library?.send('personal_sign', [`0x${Buffer.from(msg, 'utf8').toString('hex')}`, account])
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          signature,
+          msg,
+          issuedAt,
+        }),
+      )
+    }
+
+    const isPoolFavorite = !!pool.favorite?.isFavorite
+    await (isPoolFavorite ? removeFavorite : addFavorite)({
+      chainId: filters.chainId,
+      userAddress: account,
+      poolAddress: pool.address,
+      message: msg,
+      signature,
+    })
+      .then(res => {
+        if ((res as any).error) {
+          notify(
+            {
+              title: `${!isPoolFavorite ? 'Add' : 'Remove'} failed`,
+              summary: (res as any).error.data.message || 'Some thing went wrong',
+              type: NotificationType.ERROR,
+            },
+            8000,
+          )
+        } else refetch()
+      })
+      .catch(err => {
+        // localStorage.removeItem(key)
+        console.log(err)
+        notify(
+          {
+            title: `${!isPoolFavorite ? 'Add' : 'Remove'} failed`,
+            summary: err.message || 'Some thing went wrong',
+            type: NotificationType.ERROR,
+          },
+          8000,
+        )
+      })
   }
 
   if (!tablePoolData?.length)
@@ -93,13 +172,11 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                 <Apr positive={pool.apr > 0}>{pool.apr}%</Apr>
                 <Star
                   size={16}
-                  color={theme.subText}
-                  // color={item.isFavorite ? theme.yellow1 : theme.subText}
+                  color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
+                  fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
                   role="button"
                   cursor="pointer"
-                  fill={'none'}
-                  // fill={item.isFavorite ? theme.yellow1 : 'none'}
-                  onClick={handleFavorite}
+                  onClick={e => handleFavorite(e, pool)}
                 />
               </Flex>
             </Flex>
@@ -154,13 +231,11 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
           <Flex justifyContent="center">
             <Star
               size={16}
-              color={theme.subText}
-              // color={item.isFavorite ? theme.yellow1 : theme.subText}
+              color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
+              fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
               role="button"
               cursor="pointer"
-              fill={'none'}
-              // fill={item.isFavorite ? theme.yellow1 : 'none'}
-              onClick={handleFavorite}
+              onClick={e => handleFavorite(e, pool)}
             />
           </Flex>
         </TableRow>
