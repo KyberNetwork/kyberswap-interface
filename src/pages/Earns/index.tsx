@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
+import { useNavigate } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import { EarnPool, useExplorerLandingQuery } from 'services/zapEarn'
 import styled, { keyframes } from 'styled-components'
@@ -15,8 +16,12 @@ import RocketIcon from 'assets/svg/rocket.svg'
 import SolidEarningIcon from 'assets/svg/solid-earning.svg'
 import StakingIcon from 'assets/svg/staking.svg'
 import { ButtonPrimary } from 'components/Button'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+
+import { FilterTag } from './PoolExplorer'
+import useLiquidityWidget from './useLiquidityWidget'
 
 const WrapperBg = styled.div`
   background-image: url(${bg});
@@ -59,6 +64,7 @@ const BorderWrapper = styled.div`
     padding: 1px; /* Border width */
     background: linear-gradient(306.9deg, #262525 38.35%, rgba(49, 203, 158, 0.06) 104.02%),
       radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(49, 203, 158, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); /* Mask to avoid background bleed */
     -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); /* Mask to avoid background bleed */
     z-index: -1;
   }
@@ -103,6 +109,7 @@ const PoolWrapper = styled.div`
 
     background: linear-gradient(215.58deg, #262525 -9.03%, rgba(148, 115, 221, 0.2) 59.21%),
       radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(130, 71, 229, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+    mask-composite: destination-out;
     -webkit-mask-composite: destination-out;
     z-index: -1; /* Position behind the content */
   }
@@ -201,7 +208,11 @@ const Card = ({
         <Text color={theme.subText} marginTop="12px">
           {desc}
         </Text>
-        <ButtonPrimary disabled={action.disabled} style={{ marginTop: 'auto', width: '132px', height: '36px' }}>
+        <ButtonPrimary
+          disabled={action.disabled}
+          style={{ marginTop: 'auto', width: '132px', height: '36px' }}
+          onClick={() => !action.disabled && action.onClick()}
+        >
           {action.text}
         </ButtonPrimary>
       </CardWrapper>
@@ -210,9 +221,9 @@ const Card = ({
 }
 
 export default function Earns() {
+  const navigate = useNavigate()
   const theme = useTheme()
   const { data } = useExplorerLandingQuery()
-  console.log(data)
 
   const title = (_title: string, icon: string) => (
     <>
@@ -256,7 +267,9 @@ export default function Earns() {
             desc="Explore and instantly add liquidity to high-APY pools the easy way with Zap Technology."
             action={{
               text: 'View Pools',
-              onClick: () => {},
+              onClick: () => {
+                navigate({ pathname: APP_PATHS.EARN_POOLS })
+              },
             }}
           />
           <Card
@@ -264,8 +277,10 @@ export default function Earns() {
             icon={LiquidityPosIcon}
             desc="Track, adjust, and optimize your positions to stay in control of your DeFi journey."
             action={{
-              text: 'Your Pools',
+              // text: 'Your Pools',
+              text: 'Coming Soon',
               onClick: () => {},
+              disabled: true,
             }}
           />
           <Card
@@ -284,7 +299,10 @@ export default function Earns() {
           <ListPoolWrapper
             role="button"
             onClick={() => {
-              // TODO:: go to explorer page
+              navigate({
+                pathname: APP_PATHS.EARN_POOLS,
+                search: `tag=${FilterTag.HIGHLIGHTED_POOL}`,
+              })
             }}
           >
             {title('Highlighted Pools', FireIcon)}
@@ -307,7 +325,10 @@ export default function Earns() {
             <ListPoolWrapper
               role="button"
               onClick={() => {
-                // TODO:: go to explorer page
+                navigate({
+                  pathname: APP_PATHS.EARN_POOLS,
+                  search: `tag=${FilterTag.HIGH_APR}`,
+                })
               }}
             >
               {title('High APR', RocketIcon)}
@@ -329,7 +350,10 @@ export default function Earns() {
             <ListPoolWrapper
               role="button"
               onClick={() => {
-                // TODO:: go to explorer page
+                navigate({
+                  pathname: APP_PATHS.EARN_POOLS,
+                  search: `tag=${FilterTag.LOW_VOLATILITY}`,
+                })
               }}
             >
               {title('Low Volatility', LowVolatilityIcon)}
@@ -351,7 +375,10 @@ export default function Earns() {
             <ListPoolWrapper
               role="button"
               onClick={() => {
-                // TODO:: go to explorer page
+                navigate({
+                  pathname: APP_PATHS.EARN_POOLS,
+                  search: `tag=${FilterTag.SOLID_EARNING}`,
+                })
               }}
             >
               {title('Solid Earning', SolidEarningIcon)}
@@ -373,7 +400,9 @@ export default function Earns() {
         <Flex
           role="button"
           onClick={() => {
-            // TODO: go to explorer page
+            navigate({
+              pathname: APP_PATHS.EARN_POOLS,
+            })
           }}
           sx={{
             cursor: 'pointer',
@@ -401,6 +430,8 @@ export default function Earns() {
 
 const PoolItem = ({ pool }: { pool: EarnPool }) => {
   const theme = useTheme()
+  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
+
   return (
     <PoolRow
       justifyContent="space-between"
@@ -408,9 +439,10 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
       role="button"
       onClick={e => {
         e.stopPropagation()
-        // TODO: open zap in widget
+        handleOpenZapInWidget(pool)
       }}
     >
+      {liquidityWidget}
       <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
         <img src={pool.tokens[0].logoURI} width={24} height={24} alt="" />
         <img src={pool.tokens[1].logoURI} width={24} height={24} alt="" style={{ marginLeft: '-8px' }} />

@@ -90,7 +90,7 @@ export const TableRow = styled.div`
   cursor: pointer;
 
   :hover {
-    background: ${({ theme }) => rgba(theme.primary, 0.2)};
+    background: #31cb9e1a;
   }
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
@@ -108,7 +108,7 @@ export const FeeTier = styled.div`
 `
 
 export const CurrencyRoundedImage = styled(Image)`
-  border-radius: 50%;
+  /* border-radius: 50%; */
 `
 
 export const CurrencySecondImage = styled(CurrencyRoundedImage)`
