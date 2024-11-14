@@ -1,5 +1,5 @@
-import '@kyberswap/liquidity-widgets/dist/style.css'
 import { t } from '@lingui/macro'
+import 'kyberswap-liquidity-widgets/dist/style.css'
 import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'

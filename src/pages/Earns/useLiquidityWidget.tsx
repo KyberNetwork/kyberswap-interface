@@ -1,4 +1,4 @@
-import { ChainId, LiquidityWidget, PoolType } from '@kyberswap/liquidity-widgets'
+import { ChainId, LiquidityWidget, PoolType } from 'kyberswap-liquidity-widgets'
 import { useState } from 'react'
 import { EarnPool } from 'services/zapEarn'
 
