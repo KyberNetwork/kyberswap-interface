@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@kyber/ui/dialog";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import { useZapStateStore } from "../../stores/useZapStateStore";
 import {
   formatDisplayNumber,
@@ -58,6 +59,8 @@ export function Preview({
   } | null>(null);
   const [error, setError] = useState<string>("");
 
+  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
+
   useEffect(() => {
     if (!route?.route || !showPreview) return;
     fetch(
@@ -91,6 +94,8 @@ export function Preview({
   useEffect(() => {
     if (!buildData) return;
     (async () => {
+      const wethAddress =
+        NetworkInfo[chainId].wrappedToken.address.toLowerCase();
       const [gasEstimation, gasPrice, nativeTokenPrice] = await Promise.all([
         estimateGas(rpcUrl, {
           from: "0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9",
@@ -101,12 +106,11 @@ export function Preview({
           return "0";
         }),
         getCurrentGasPrice(rpcUrl).catch(() => 0),
-        fetch(
-          `https://price.kyberswap.com/${NetworkInfo[chainId].pricePath}/api/v1/prices?ids=${NetworkInfo[chainId].wrappedToken.address}`
-        )
-          .then((res) => res.json())
-          .then((res) => res?.data?.prices[0])
-          .then((res) => res?.marketPrice || res?.price || 0),
+        fetchPrices([wethAddress])
+          .then((prices) => {
+            return prices[wethAddress]?.PriceBuy || 0;
+          })
+          .catch(() => 0),
       ]);
       const gasUsd =
         (parseInt(gasEstimation, 16) / 10 ** 18) * gasPrice * nativeTokenPrice;

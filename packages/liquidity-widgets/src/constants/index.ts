@@ -368,7 +368,6 @@ export const MULTICALL2_ADDRESS: { [chainId: number]: string } = {
 export const PATHS = {
   KYBERSWAP_DOCS: "https://docs.kyberswap.com",
   INTERFACE_GATEWAY_UNISWAP: "https://interface.gateway.uniswap.org/v1/graphql",
-  KYBERSWAP_PRICE_API: "https://price.kyberswap.com",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
   ZAP_API: "https://zap-api.kyberswap.com",
   COINGECKO_API_URL: "https://api.coingecko.com/api/v3",

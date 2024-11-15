@@ -1,6 +1,6 @@
 {
   "name": "@kyberswap/pancake-liquidity-widgets",
-  "version": "0.1.1",
+  "version": "1.0.1",
   "license": "MIT",
   "type": "module",
   "exports": {

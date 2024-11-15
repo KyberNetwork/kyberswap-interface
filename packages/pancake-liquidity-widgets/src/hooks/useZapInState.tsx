@@ -18,6 +18,7 @@ import { tickToPrice } from "@pancakeswap/v3-sdk";
 import { useDebounce } from "@kyber/hooks/use-debounce";
 import { chainIdToChain } from "@/constants";
 import { ZapRouteDetail, Type, PancakeTokenAdvanced } from "@/types/zapInTypes";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";
 // export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
@@ -315,28 +316,20 @@ export const ZapContextProvider = ({
     setAmountsIn(initAmounts);
   }, [initAmounts]);
 
+  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
   // get pair market price
   useEffect(() => {
     if (!pool) return;
-    const priceUrl = "https://price.kyberswap.com";
-    fetch(
-      `${priceUrl}/${chainIdToChain[chainId]}/api/v1/prices?ids=${pool.token0.address},${pool.token1.address}`
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        const token0Price = res.data.prices.find(
-          (item: { address: string; price: number; marketPrice: number }) =>
-            item.address.toLowerCase() === pool.token0.address.toLowerCase()
-        );
-        const token1Price = res.data.prices.find(
-          (item: { address: string; price: number; marketPrice: number }) =>
-            item.address.toLowerCase() === pool.token1.address.toLowerCase()
-        );
-        const price0 = token0Price?.marketPrice || token0Price?.price || 0;
-        const price1 = token1Price?.marketPrice || token1Price?.price || 0;
-        if (price0 && price1) setMarketPrice(price0 / price1);
-        else setMarketPrice(null);
-      });
+
+    fetchPrices([
+      pool.token0.address.toLowerCase(),
+      pool.token1.address.toLowerCase(),
+    ]).then((prices) => {
+      const price0 = prices?.[pool.token0.address.toLowerCase()].PriceBuy || 0;
+      const price1 = prices?.[pool.token1.address.toLowerCase()].PriceBuy || 0;
+      if (price0 && price1) setMarketPrice(price0 / price1);
+      else setMarketPrice(null);
+    });
   }, [chainId, pool]);
 
   // get zap route

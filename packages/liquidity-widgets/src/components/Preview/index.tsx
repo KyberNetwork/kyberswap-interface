@@ -5,6 +5,7 @@ import SwitchIcon from "@/assets/svg/switch.svg";
 import SuccessIcon from "@/assets/svg/success.svg";
 import ErrorIcon from "@/assets/svg/error.svg";
 import "./Preview.scss";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 import { useZapState } from "@/hooks/useZapInState";
 import {
@@ -102,6 +103,8 @@ export default function Preview({
     amountsIn,
     tokensInUsdPrice,
   } = useZapState();
+
+  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
@@ -376,19 +379,24 @@ export default function Preview({
           };
 
           try {
-            const [estimateGas, priceRes, gasPrice] = await Promise.all([
-              provider.getSigner().estimateGas(txData),
-              fetch(
-                `${PATHS.KYBERSWAP_PRICE_API}/${chainIdToChain[chainId]}/api/v1/prices?ids=${NetworkInfo[chainId].wrappedToken.address}`
-              )
-                .then((res) => res.json())
-                .then((res) => res.data.prices[0]),
-              provider.getGasPrice(),
-            ]);
-            const price = priceRes?.marketPrice || priceRes?.price || 0;
+            const wethAddress =
+              NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+            const [estimateGas, nativeTokenPrice, gasPrice] = await Promise.all(
+              [
+                provider.getSigner().estimateGas(txData),
+                fetchPrices([wethAddress])
+                  .then((prices) => {
+                    return prices[wethAddress]?.PriceBuy || 0;
+                  })
+                  .catch(() => 0),
+                provider.getGasPrice(),
+              ]
+            );
 
             const gasUsd =
-              +formatUnits(gasPrice) * +estimateGas.toString() * price;
+              +formatUnits(gasPrice) *
+              +estimateGas.toString() *
+              nativeTokenPrice;
 
             setGasUsd(gasUsd);
           } catch (e) {

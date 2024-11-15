@@ -53,6 +53,8 @@
   "devDependencies": {
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/utils": "workspace:^",
+    "@kyber/ui": "workspace:^",
+    "@kyber/hooks": "workspace:^",
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@types/d3": "^7.4.3",
     "@types/lodash": "^4.14.196",
@@ -74,7 +76,6 @@
     "typescript": "5.3.2"
   },
   "peerDependencies": {
-    "@kyber/ui": "workspace:^",
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
   }

@@ -4,6 +4,7 @@ import { MouseoverTooltip } from "@/components/Tooltip";
 import { ZAP_URL, useZapState } from "@/hooks/useZapInState";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   ZapAction,
   AddLiquidityAction,
@@ -91,6 +92,8 @@ export default function Preview({
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
+
+  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   const token0 = pool.token0 as PancakeToken;
   const token1 = pool.token1 as PancakeToken;
@@ -243,16 +246,14 @@ export default function Preview({
           };
 
           try {
+            const wethAddress =
+              NetworkInfo[chainId].wrappedToken.address.toLowerCase();
             const [estimateGas, priceRes, gasPrice] = await Promise.all([
               publicClient.estimateGas(txData),
-              fetch(
-                `https://price.kyberswap.com/${chainIdToChain[chainId]}/api/v1/prices?ids=${NetworkInfo[chainId].wrappedToken.address}`
-              )
-                .then((res) => res.json())
-                .then((res) => res.data.prices[0]),
+              fetchPrices([wethAddress]),
               publicClient.getGasPrice(),
             ]);
-            const price = priceRes?.marketPrice || priceRes?.price || 0;
+            const price = priceRes?.[wethAddress]?.PriceBuy || 0;
 
             const gasUsd =
               +formatUnits(gasPrice, 18) * +estimateGas.toString() * price;

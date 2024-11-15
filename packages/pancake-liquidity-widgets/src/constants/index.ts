@@ -277,7 +277,6 @@ export const BASE_BPS = 10_000;
 
 export const PATHS = {
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
-  KYBERSWAP_PRICE_API: "https://price.kyberswap.com",
 };
 
 export const chainIdToChain: { [chainId: number]: string } = {

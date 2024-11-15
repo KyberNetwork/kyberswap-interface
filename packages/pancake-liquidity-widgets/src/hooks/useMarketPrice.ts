@@ -1,12 +1,8 @@
 import { useEffect, useMemo } from "react";
-import {
-  chainIdToChain,
-  NATIVE_TOKEN_ADDRESS,
-  NetworkInfo,
-  PATHS,
-} from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { PancakeTokenAdvanced } from "@/types/zapInTypes";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 export default function useMarketPrice({
   tokensIn,
@@ -16,6 +12,7 @@ export default function useMarketPrice({
   setTokensIn: (value: PancakeTokenAdvanced[]) => void;
 }) {
   const { chainId } = useWeb3Provider();
+  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   const tokensAddress = useMemo(
     () =>
@@ -32,28 +29,17 @@ export default function useMarketPrice({
   useEffect(() => {
     const getPrices = () => {
       if (!tokensAddress) return;
-      fetch(
-        `${PATHS.KYBERSWAP_PRICE_API}/${chainIdToChain[chainId]}/api/v1/prices?ids=${tokensAddress}`
-      )
-        .then((res) => res.json())
-        .then((res) => {
-          const prices = res.data?.prices || [];
-          const tokensInClone = [...tokensIn];
-          prices.forEach(
-            async (
-              item: {
-                address: string;
-                marketPrice: number;
-                preferPriceSource: string;
-                price: number;
-              },
-              index: number
-            ) => {
-              tokensInClone[index].price = item.marketPrice || item.price || 0;
-            }
-          );
-          setTokensIn(tokensInClone);
-        });
+
+      fetchPrices(
+        tokensAddress.split(",").map((item) => item.toLowerCase())
+      ).then((prices) => {
+        const tokensInClone = tokensIn.map((item) => ({
+          ...item,
+          price: prices[item.address.toLowerCase()]?.PriceBuy || 0,
+        }));
+
+        setTokensIn(tokensInClone as PancakeTokenAdvanced[]);
+      });
     };
 
     getPrices();

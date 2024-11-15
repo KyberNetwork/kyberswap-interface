@@ -5,7 +5,8 @@
   "exports": {
     "./use-debounce": "./src/use-debounce.ts",
     "./use-interval": "./src/use-interval.ts",
-    "./use-window-size": "./src/use-window-size.ts"
+    "./use-window-size": "./src/use-window-size.ts",
+    "./use-token-prices": "./src/use-token-prices.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
