@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { LiquidityWidget as KsLiquidityWidget } from 'kyberswap-pancake-liquidity-widgets'
-import 'kyberswap-pancake-liquidity-widgets/dist/style.css'
+import { LiquidityWidget as KsLiquidityWidget } from '@kyberswap/pancake-liquidity-widgets'
+import '@kyberswap/pancake-liquidity-widgets/dist/style.css'
 import { useCallback, useEffect, useState } from 'react'
 import { Box } from 'rebass'
 import { useAccount, useWalletClient } from 'wagmi'

@@ -3778,6 +3778,17 @@
     axios "1.2.1"
     client-oauth2 "^4.3.3"
 
+"@kyberswap/pancake-liquidity-widgets@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@kyberswap/pancake-liquidity-widgets/-/pancake-liquidity-widgets-1.0.1.tgz#bcfc99975f066d40455a81b3aa3b3820015fb12e"
+  integrity sha512-ME19VBjjHYg06lPSP43J0+i2LnjTzJzK2lnAMcrwceHiWjyaKK8RJVuleRa74+CS7hOBqgQ6ymJE71BQ33qOsA==
+  dependencies:
+    "@pancakeswap/sdk" "^5.8.2"
+    "@pancakeswap/swap-sdk-core" "^1.2.0"
+    "@pancakeswap/v3-sdk" "^3.8.3"
+    "@popperjs/core" "^2.11.8"
+    react-popper "^2.3.0"
+
 "@leichtgewicht/ip-codec@^2.0.1":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
@@ -14376,17 +14387,6 @@ kleur@^4.0.3:
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.5.tgz#95106101795f7050c6c650f350c683febddb1780"
   integrity sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==
-
-kyberswap-pancake-liquidity-widgets@0.1.39:
-  version "0.1.39"
-  resolved "https://registry.yarnpkg.com/kyberswap-pancake-liquidity-widgets/-/kyberswap-pancake-liquidity-widgets-0.1.39.tgz#34911f0bc985f0555c3ba93bc4edf8c48545785c"
-  integrity sha512-x/lrHM1FleuOeEmPGcmi0sZSU8p/roi6oSBDMOsiydXw5pOldRQAiSRgt6t9IBAAo9mv1HZ1TA/g5c07ZCzAag==
-  dependencies:
-    "@pancakeswap/sdk" "^5.8.2"
-    "@pancakeswap/swap-sdk-core" "^1.2.0"
-    "@pancakeswap/v3-sdk" "^3.8.3"
-    "@popperjs/core" "^2.11.8"
-    react-popper "^2.3.0"
 
 language-subtag-registry@~0.3.2:
   version "0.3.22"
