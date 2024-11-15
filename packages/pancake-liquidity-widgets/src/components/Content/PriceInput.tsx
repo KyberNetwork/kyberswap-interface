@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Type, useZapState } from "../../hooks/useZapInState";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useZapState } from "@/hooks/useZapInState";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { nearestUsableTick } from "@pancakeswap/v3-sdk";
-import { tryParseTick } from "../../utils/pancakev3";
+import { tryParseTick } from "@/utils/pancakev3";
+import { Type } from "@/types/zapInTypes";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -14,7 +16,7 @@ export default function PriceInput({ type }: { type: Type }) {
     priceUpper,
     positionId,
   } = useZapState();
-  const { pool, theme } = useWidgetInfo();
+  const { pool } = useWidgetInfo();
   const [localValue, setLocalValue] = useState("");
 
   const price = useMemo(() => {
@@ -91,6 +93,17 @@ export default function PriceInput({ type }: { type: Type }) {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ".");
+    const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
+    if (
+      value === "" ||
+      inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    ) {
+      setLocalValue(value);
+    }
+  };
+
   useEffect(() => {
     if (
       type === Type.PriceLower &&
@@ -106,40 +119,26 @@ export default function PriceInput({ type }: { type: Type }) {
   }, [isFullRange, pool, type, tickLower, tickUpper, price, revertPrice]);
 
   return (
-    <div className="price-input">
-      <span
-        style={{
-          color: theme.secondary,
-          fontSize: "12px",
-          fontWeight: "600",
-        }}
-      >
+    <div className="mt-3 p-3 border border-inputBorder text-center rounded-md bg-inputBackground text-textSecondary">
+      <span className="text-secondary text-xs font-semibold">
         {type === Type.PriceLower ? "MIN" : "MAX"} PRICE
       </span>
 
-      <div className="input-wrapper">
+      <div className="flex my-2 mx-0 gap-1 flex-1 text-sm justify-center">
         {positionId === undefined && (
           <button
+            className="w-6 h-6 rounded-[50%] border-2 border-primary p-0 bg-transparent text-primary text-xl leading-6 cursor-pointer hover:enabled:brightness-150 active:enabled:scale-96 disabled:cursor-not-allowed disabled:opacity-60"
             role="button"
             onClick={decreaseTick}
             disabled={isFullRange || positionId !== undefined}
           >
-            <div style={{ marginTop: "-2px" }}>-</div>
+            <span className="relative top-[-3px]">-</span>
           </button>
         )}
 
         <input
           value={localValue}
-          onChange={(e) => {
-            const value = e.target.value.replace(/,/g, ".");
-            const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
-            if (
-              value === "" ||
-              inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-            ) {
-              setLocalValue(value);
-            }
-          }}
+          onChange={handleInputChange}
           onBlur={(e) => correctPrice(e.target.value)}
           inputMode="decimal"
           autoComplete="off"
@@ -151,14 +150,18 @@ export default function PriceInput({ type }: { type: Type }) {
           minLength={1}
           maxLength={79}
           spellCheck="false"
-          style={{ maxWidth: positionId ? "120px" : undefined }}
+          className={cn(
+            "bg-transparent text-textPrimary text-center text-base w-full max-w-[72px] font-semibold p-0 border-none outline-none disabled:cursor-not-allowed",
+            positionId ? "max-w-[120px]" : ""
+          )}
         />
         {positionId === undefined && (
           <button
+            className="w-6 h-6 rounded-[50%] border-2 border-primary p-0 bg-transparent text-primary text-xl leading-6 cursor-pointer hover:enabled:brightness-150 active:enabled:scale-96 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={increaseTick}
             disabled={isFullRange || positionId !== undefined}
           >
-            +
+            <span className="relative top-[-3px]">+</span>
           </button>
         )}
       </div>

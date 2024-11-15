@@ -5,10 +5,10 @@
   },
   "include": [
     "src",
-    "turbo"
+    "turbo",
+    "tailwind.config.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "exclude": ["node_modules", "dist"]
 }

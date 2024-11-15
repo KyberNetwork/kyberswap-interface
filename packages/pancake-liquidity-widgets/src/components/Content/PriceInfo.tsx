@@ -1,13 +1,13 @@
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import SwitchIcon from "../../assets/switch.svg";
-import { useZapState } from "../../hooks/useZapInState";
-import { formatNumber } from "../../utils";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
+import { useZapState } from "@/hooks/useZapInState";
+import { formatNumber } from "@/utils";
+import SwitchIcon from "@/assets/switch.svg";
 
 export default function PriceInfo() {
-  const { loading, pool, theme } = useWidgetInfo();
+  const { loading, pool } = useWidgetInfo();
   const { marketPrice, revertPrice, toggleRevertPrice } = useZapState();
 
-  if (loading) return <div className="price-info">Loading...</div>;
+  if (loading) return <div className="text-textSecondary">Loading...</div>;
 
   const price = pool
     ? (revertPrice
@@ -16,7 +16,7 @@ export default function PriceInfo() {
       ).toSignificant(6)
     : "--";
 
-  const isDevated =
+  const isDevatied =
     !!marketPrice &&
     pool &&
     Math.abs(marketPrice / +pool?.priceOf(pool.token0).toSignificant() - 1) >
@@ -28,17 +28,17 @@ export default function PriceInfo() {
 
   return (
     <>
-      <div className="price-info">
-        <div className="row">
+      <div className="text-textSecondary">
+        <div className="flex items-center gap-1 text-subText text-sm">
           <span>Pool price</span>
-          <span className="price">{price}</span>
+          <span className="font-medium text-textPrimary">{price}</span>
           <span>
             {revertPrice
               ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
               : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
           </span>
           <SwitchIcon
-            style={{ cursor: "pointer" }}
+            className="cursor-pointer"
             onClick={() => toggleRevertPrice()}
             role="button"
           />
@@ -46,39 +46,19 @@ export default function PriceInfo() {
       </div>
 
       {marketPrice === null && (
-        <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
+        <div className="ks-lw-card-warning mt-4">
           Unable to get the market price. Please be cautious!
         </div>
       )}
 
-      {isDevated && (
-        <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
-          {/*
-          <div className="row">
-            <span>Market Price</span>
-            <span className="price">{marketRate}</span>
-            <span>
-              {revertPrice
-                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
-            </span>
-            <SwitchIcon
-              style={{ cursor: "pointer" }}
-              onClick={() => toggleRevertPrice()}
-              role="button"
-            />
+      {isDevatied && (
+        <div className="ks-lw-card-warning mt-4">
+          <div className="text-warning font-semibold">
+            Pool price discrepancy:
           </div>
-          */}
-          <div style={{ color: theme.warning }}>Pool price discrepancy:</div>
-          <div className="text">
+          <div className="text mt-1 leading-5">
             Market price{" "}
-            <span
-              style={{
-                fontWeight: "500",
-                color: theme.warning,
-                fontStyle: "normal",
-              }}
-            >
+            <span className="text-warning font-semibold not-italic">
               {marketRate}{" "}
             </span>
             {revertPrice ? pool?.token0.symbol : pool?.token1.symbol} per{" "}

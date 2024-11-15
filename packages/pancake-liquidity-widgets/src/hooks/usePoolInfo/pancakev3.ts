@@ -1,12 +1,11 @@
 import { Position as PancakePosition, Position } from "@pancakeswap/v3-sdk";
 import { Address } from "viem";
 import { useEffect, useState } from "react";
-
-import { Pancakev3PoolABI } from "../../abis/pancakev3_pool";
-import { Pancakev3PosManagerABI } from "../../abis/pancakev3_pos_manager";
-import { useWeb3Provider } from "../useProvider";
-import { PANCAKE_NFT_MANAGER_CONTRACT, NetworkInfo } from "../../constants";
-import { PancakeToken, PancakeV3Pool } from "../../entities/Pool";
+import { Pancakev3PoolABI } from "@/abis/pancakev3_pool";
+import { Pancakev3PosManagerABI } from "@/abis/pancakev3_pos_manager";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { PANCAKE_NFT_MANAGER_CONTRACT, NetworkInfo } from "@/constants";
+import { PancakeToken, PancakeV3Pool } from "@/entities/Pool";
 
 interface TokenInfo {
   chainId: number;
@@ -39,7 +38,10 @@ export default function usePoolInfo(
 
   useEffect(() => {
     const getPoolInfo = async () => {
-      if (!publicClient || !!pool) return;
+      if (!publicClient || !!pool) {
+        setLoading(false);
+        return;
+      }
       const multiCallRes = await publicClient.multicall({
         contracts: [
           {
@@ -238,7 +240,7 @@ export default function usePoolInfo(
   ]);
 
   useEffect(() => {
-    let i: number | undefined;
+    let i: ReturnType<typeof setInterval> | undefined;
     if (!!pool && publicClient) {
       const getSlot0 = async () => {
         const multiCallRes = await publicClient.multicall({

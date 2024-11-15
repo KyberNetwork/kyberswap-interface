@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* button */
+  .ks-primary-btn {
+    @apply flex justify-center items-center justify-self-end;
+    @apply border border-primary border-b-2 border-b-[#00000033] rounded-md;
+    @apply text-base font-semibold bg-primary text-textReverse;
+    @apply px-3 py-[10px] cursor-pointer;
+
+    @apply hover:enabled:brightness-110;
+    @apply active:enabled:scale-99;
+    @apply disabled:cursor-not-allowed disabled:text-textSecondary disabled:bg-disabled disabled:border-disabled;
+  }
+
+  .ks-outline-btn {
+    @apply flex justify-center items-center justify-self-end;
+    @apply border-2 border-primary rounded-md;
+    @apply text-base font-semibold bg-transparent text-primary;
+    @apply px-3 py-[10px] cursor-pointer;
+
+    @apply hover:brightness-120;
+    @apply active:scale-99;
+  }
+
+  .ks-outline-btn.medium {
+    @apply text-xs flex-1 rounded-[8px] py-1 px-[6px];
+  }
+
+  .ks-outline-btn.small {
+    @apply text-xs flex-1 rounded-[8px] py-0 px-[6px] h-[26px] tracking-[1%];
+  }
+
+  /* modal */
+  .ks-lw-modal-overlay {
+    @apply fixed top-0 left-0 right-0 bottom-0;
+    @apply flex justify-center items-center;
+    @apply bg-[#00000090] z-[9999];
+  }
+
+  .ks-lw-modal-content {
+    @apply relative overflow-y-scroll;
+    @apply w-full max-w-[450px] max-h-[96vh] p-6 rounded-md;
+    @apply bg-cardBackground text-textPrimary;
+    @apply transition-all duration-200;
+    font-family: Kanit, Sans-serif;
+  }
+
+  .ks-lw-modal-content::-webkit-scrollbar {
+    @apply hidden;
+  }
+
+  .ks-lw-modal-close {
+    @apply absolute top-5 right-5 cursor-pointer;
+  }
+
+  /* popover */
+  .ks-lw-popover {
+    @apply text-black bg-white;
+    @apply border border-transparent rounded-md;
+    @apply transition-all duration-150 ease-linear z-[9999];
+    @apply invisible opacity-0;
+    box-shadow: 0px 4px 8px 0px #00000029;
+    font-family: Kanit, Sans-serif;
+
+    @apply data-[visibility='true']:visible data-[visibility='true']:opacity-100;
+  }
+
+  .ks-lw-popover .arrow {
+    @apply w-[10px] h-[10px] z-[9998];
+    @apply before:absolute before:w-[10px] before:h-[10px] before:z-[9998];
+    @apply before:content-[''] before:border before:border-transparent before:rotate-45 before:bg-white;
+  }
+
+  .ks-lw-popover .arrow-top {
+    @apply -bottom-[5px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+
+  .ks-lw-popover .arrow-bottom {
+    @apply -top-[6px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+
+  .ks-lw-popover .arrow-left {
+    @apply -right-[3px];
+    @apply before:border-t-0 before:border-l-0 before:top-1;
+  }
+
+  .ks-lw-popover .arrow-right {
+    @apply -left-[6px];
+    @apply before:border-t-0 before:border-l-0 before:top-1;
+  }
+
+  /* card */
+  .ks-lw-card {
+    @apply mt-2 p-4 border border-cardBorder rounded-md bg-background;
+  }
+
+  .ks-lw-card-warning {
+    @apply py-3 px-4 rounded-[20px] text-sm;
+    @apply text-textPrimary bg-warningBackground border border-warningBorder;
+  }
+
+  /* error */
+  .ks-error-msg {
+    @apply mt-0 max-h-0 transition-all duration-200 ease-out;
+    @apply text-xs text-textSecondary;
+    @apply break-words overflow-y-scroll;
+  }
+
+  /* width */
+  .ks-error-msg::-webkit-scrollbar {
+    display: unset;
+    width: 6px;
+    border-radius: 999px;
+  }
+
+  /* Track */
+  .ks-error-msg::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  /* Handle */
+  .ks-error-msg::-webkit-scrollbar-thumb {
+    background: var(--ks-lw-textSecondary);
+    border-radius: 999px;
+  }
+}

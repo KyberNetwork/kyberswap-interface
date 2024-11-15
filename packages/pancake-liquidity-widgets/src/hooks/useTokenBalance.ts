@@ -1,61 +1,79 @@
-import { Address, erc20Abi } from "viem";
-import { useEffect, useState } from "react";
+import { useEffect, useCallback, useMemo } from "react";
+import { erc20Abi } from "viem";
+import { PancakeTokenAdvanced } from "@/types/zapInTypes";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 
-import { useWeb3Provider } from "./useProvider";
+export default function useTokenBalance({
+  tokensIn,
+  setTokensIn,
+}: {
+  tokensIn: PancakeTokenAdvanced[];
+  setTokensIn: (value: PancakeTokenAdvanced[]) => void;
+}) {
+  const { account, publicClient, chainId } = useWeb3Provider();
 
-export default function useTokenBalance(address: string) {
-  const { account, publicClient } = useWeb3Provider();
+  const tokensAddress = useMemo(
+    () =>
+      tokensIn
+        .map((token) =>
+          token.address?.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
+            ? token.address
+            : NetworkInfo[chainId].wrappedToken.address
+        )
+        ?.join(","),
+    [chainId, tokensIn]
+  );
 
-  const [loading, setLoading] = useState(false);
-  const [balance, setBalance] = useState("0");
-
-  useEffect(() => {
-    const getBalance = () => {
-      if (address && account && publicClient) {
-        setLoading(true);
-        publicClient
-          .readContract({
-            address: address as Address,
-            abi: erc20Abi,
-            functionName: "balanceOf",
-            args: [account],
-          })
-          .then((data) => {
-            setBalance(String(data));
-          })
-          .finally(() => setLoading(false));
-      } else setBalance("0");
-    };
-    getBalance();
-    const i = setInterval(() => getBalance(), 10_000);
-    return () => clearInterval(i);
-  }, [account, address, publicClient]);
-
-  return {
-    loading,
-    balance,
-  };
-}
-
-export function useNativeBalance() {
-  const { account, publicClient } = useWeb3Provider();
-  const [balance, setBalance] = useState("0");
+  const getNativeTokenBalance = useCallback(async () => {
+    if (!account || !publicClient) return;
+    const balance = await publicClient.getBalance({
+      address: account,
+    });
+    return balance;
+  }, [account, publicClient]);
 
   useEffect(() => {
-    const getBalance = () => {
-      if (account && publicClient) {
-        publicClient
-          .getBalance({
-            address: account,
-          })
-          .then((result) => setBalance(String(result)));
-      } else setBalance("0");
+    const getBalances = () => {
+      if (!account || !publicClient || !tokensIn.length) return;
+      const contractCalls = tokensIn.map((token: PancakeTokenAdvanced) => ({
+        address: token.address,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [account],
+      }));
+      publicClient
+        .multicall({
+          contracts: contractCalls,
+        })
+        .then((res) => {
+          const tokensInClone = [...tokensIn];
+          res.forEach(async (item, index) => {
+            if (item.status === "success")
+              tokensInClone[index].balance = item.result;
+            else if (
+              tokensIn[index].address?.toLowerCase() ===
+              NATIVE_TOKEN_ADDRESS.toLowerCase()
+            ) {
+              const balance = await getNativeTokenBalance();
+              if (balance) tokensInClone[index].balance = balance;
+            }
+          });
+          setTokensIn(tokensInClone);
+        });
     };
 
-    getBalance();
-    const i = setInterval(() => getBalance(), 10_000);
-    return () => clearInterval(i);
-  }, [publicClient, account]);
+    getBalances();
+    const i = setInterval(() => getBalances(), 10_000);
 
-  return balance;
+    return () => clearInterval(i);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    account,
+    getNativeTokenBalance,
+    publicClient,
+    setTokensIn,
+    tokensAddress,
+  ]);
 }

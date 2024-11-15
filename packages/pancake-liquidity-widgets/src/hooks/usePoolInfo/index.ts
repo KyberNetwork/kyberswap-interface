@@ -1,2 +1,2 @@
-export { default } from "./pancakev3";
-export * from "./pancakev3";
+export { default } from "@/hooks/usePoolInfo/pancakev3";
+export * from "@/hooks/usePoolInfo/pancakev3";

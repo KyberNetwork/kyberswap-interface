@@ -1,5 +1,4 @@
 import ReactDOM from "react-dom";
-import "./Modal.scss";
 import { ReactElement } from "react";
 
 const Modal = ({

@@ -2,6 +2,11 @@
   "name": "@kyber/hooks",
   "version": "0.0.0",
   "private": true,
+  "exports": {
+    "./use-debounce": "./src/use-debounce.ts",
+    "./use-interval": "./src/use-interval.ts",
+    "./use-window-size": "./src/use-window-size.ts"
+  },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "type-check": "tsc --noEmit"
@@ -18,9 +23,5 @@
   },
   "peerDependencies": {
     "react": ">=16.8.0"
-  },
-  "exports": {
-    "./use-debounce": "./src/use-debounce.ts",
-    "./use-interval": "./src/use-interval.ts"
   }
 }

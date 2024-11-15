@@ -7,148 +7,41 @@ import {
   useMemo,
   useState,
 } from "react";
-import { parseUnits } from "viem";
-import { useWidgetInfo } from "./useWidgetInfo";
-import { useWeb3Provider } from "./useProvider";
-import useTokenBalance, { useNativeBalance } from "./useTokenBalance";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
+import { formatUnits, parseUnits } from "viem";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { useTokens } from "@/hooks/useTokens";
+import useMarketPrice from "@/hooks/useMarketPrice";
+import useTokenBalance from "@/hooks/useTokenBalance";
 import { Price, Token } from "@pancakeswap/sdk";
 import { tickToPrice } from "@pancakeswap/v3-sdk";
 import { useDebounce } from "@kyber/hooks/use-debounce";
-import { PancakeToken } from "../entities/Pool";
+import { chainIdToChain } from "@/constants";
+import { ZapRouteDetail, Type, PancakeTokenAdvanced } from "@/types/zapInTypes";
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";
 // export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
 
-export interface AddLiquidityAction {
-  type: "ACTION_TYPE_ADD_LIQUIDITY";
-  addLiquidity: {
-    token0: {
-      address: string;
-      amount: string;
-      amountUsd: string;
-    };
-    token1: {
-      address: string;
-      amount: string;
-      amountUsd: string;
-    };
-  };
-}
-
-export interface AggregatorSwapAction {
-  type: "ACTION_TYPE_AGGREGATOR_SWAP";
-  aggregatorSwap: {
-    swaps: Array<{
-      tokenIn: {
-        address: string;
-        amount: string;
-        amountUsd: string;
-      };
-      tokenOut: {
-        address: string;
-        amount: string;
-        amountUsd: string;
-      };
-    }>;
-  };
-}
-
-export interface PoolSwapAction {
-  type: "ACTION_TYPE_POOL_SWAP";
-  poolSwap: {
-    swaps: Array<{
-      tokenIn: {
-        address: string;
-        amount: string;
-        amountUsd: string;
-      };
-      tokenOut: {
-        address: string;
-        amount: string;
-        amountUsd: string;
-      };
-    }>;
-  };
-}
-
-export interface RefundAction {
-  type: "ACTION_TYPE_REFUND";
-  refund: {
-    tokens: Array<{
-      address: string;
-      amount: string;
-      amountUsd: string;
-    }>;
-  };
-}
-
-export interface PartnerFeeAction {
-  type: "ACTION_TYPE_PARTNER_FEE";
-  partnerFee: {
-    pcm: number;
-    tokens: Array<{
-      address: string;
-      amount: string;
-      amountUsd: string;
-    }>;
-  };
-}
-
-export interface ProtocolFeeAction {
-  type: "ACTION_TYPE_PROTOCOL_FEE";
-  protocolFee: {
-    pcm: number;
-    tokens: Array<{
-      address: string;
-      amount: string;
-      amountUsd: string;
-    }>;
-  };
-}
-
-export interface ZapRouteDetail {
-  poolDetails: {
-    // why uniswapV3?
-    uniswapV3: {
-      tick: number;
-      newTick: number;
-      sqrtP: string;
-      newSqrtP: string;
-    };
-  };
-  positionDetails: {
-    addedLiquidity: string;
-    addedAmountUsd: string;
-  };
-  zapDetails: {
-    initialAmountUsd: string;
-    actions: Array<
-      | ProtocolFeeAction
-      | AggregatorSwapAction
-      | PoolSwapAction
-      | AddLiquidityAction
-      | RefundAction
-      | PartnerFeeAction
-    >;
-    finalAmountUsd: string;
-    priceImpact: number;
-  };
-  route: string;
-  routerAddress: string;
-  gas: string;
-  gasUsd: string;
-}
+const ERROR_MESSAGE = {
+  WRONG_NETWORK: "Wrong network",
+  SELECT_TOKEN_IN: "Select token in",
+  INVALID_TOKENS_AND_AMOUNTS:
+    "Number of init tokens and amounts must be the same",
+  ENTER_MIN_PRICE: "Enter min price",
+  ENTER_MAX_PRICE: "Enter max price",
+  INVALID_PRICE_RANGE: "Invalid price range",
+  ENTER_AMOUNT: "Enter amount for",
+  INSUFFICIENT_BALANCE: "Insufficient balance",
+  INVALID_INPUT_AMOUNTT: "Invalid input amount",
+};
 
 const ZapContext = createContext<{
   revertPrice: boolean;
   tickLower: number | null;
   tickUpper: number | null;
-  tokenIn: PancakeToken | null;
-  amountIn: string;
-  toggleTokenIn: () => void;
-  balanceIn: string;
-  setAmountIn: (value: string) => void;
+  tokensIn: PancakeTokenAdvanced[];
+  amountsIn: string;
+  setAmountsIn: (value: string) => void;
   toggleRevertPrice: () => void;
   setTick: (type: Type, value: number) => void;
   error: string;
@@ -163,8 +56,6 @@ const ZapContext = createContext<{
   toggleSetting: () => void;
   setShowSeting: (val: boolean) => void;
   showSetting: boolean;
-  setEnableAggregator: (val: boolean) => void;
-  enableAggregator: boolean;
   degenMode: boolean;
   setDegenMode: (val: boolean) => void;
   positionId?: string;
@@ -174,11 +65,9 @@ const ZapContext = createContext<{
   revertPrice: false,
   tickLower: null,
   tickUpper: null,
-  tokenIn: null,
-  balanceIn: "0",
-  amountIn: "",
-  toggleTokenIn: () => {},
-  setAmountIn: () => {},
+  tokensIn: [],
+  amountsIn: "",
+  setAmountsIn: () => {},
   toggleRevertPrice: () => {},
   setTick: () => {},
   error: "",
@@ -193,34 +82,11 @@ const ZapContext = createContext<{
   toggleSetting: () => {},
   setShowSeting: () => {},
   showSetting: false,
-  enableAggregator: true,
-  setEnableAggregator: () => {},
   degenMode: false,
   setDegenMode: () => {},
   marketPrice: undefined,
   source: "",
 });
-
-export const chainIdToChain: { [chainId: number]: string } = {
-  1: "ethereum",
-  137: "polygon",
-  56: "bsc",
-  42161: "arbitrum",
-  43114: "avalanche",
-  8453: "base",
-  81457: "blast",
-  250: "fantom",
-  5000: "mantle",
-  10: "optimism",
-  534352: "scroll",
-  59144: "linea",
-  1101: "polygon-zkevm",
-};
-
-export enum Type {
-  PriceLower = "PriceLower",
-  PriceUpper = "PriceUpper",
-}
 
 export const ZapContextProvider = ({
   children,
@@ -229,8 +95,8 @@ export const ZapContextProvider = ({
   includedSources,
   initTickLower,
   initTickUpper,
-  initDepositToken,
-  initAmount,
+  initDepositTokens,
+  initAmounts,
 }: {
   children: ReactNode;
   source: string;
@@ -238,23 +104,25 @@ export const ZapContextProvider = ({
   excludedSources?: string;
   initTickLower?: number;
   initTickUpper?: number;
-  initDepositToken?: string;
-  initAmount?: number | string;
+  initDepositTokens: string;
+  initAmounts: string;
 }) => {
-  const { pool, poolAddress, position, positionId, feePcm, feeAddress } =
-    useWidgetInfo();
+  const {
+    pool,
+    poolAddress,
+    position,
+    positionId,
+    feePcm,
+    feeAddress,
+    onAddTokens,
+  } = useWidgetInfo();
   const { chainId, networkChainId } = useWeb3Provider();
+  const { getToken } = useTokens();
 
   // Setting
   const [showSetting, setShowSeting] = useState(false);
   const [slippage, setSlippage] = useState(10);
   const [ttl, setTtl] = useState(20);
-  const [enableAggregator, setEnableAggregator] = useState(true);
-
-  const toggleSetting = () => {
-    setShowSeting((prev) => !prev);
-  };
-
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(
     position?.tickLower ?? null
@@ -262,6 +130,123 @@ export const ZapContextProvider = ({
   const [tickUpper, setTickUpper] = useState<number | null>(
     position?.tickUpper ?? null
   );
+  const [tokensIn, setTokensIn] = useState<PancakeTokenAdvanced[]>([]);
+  const [amountsIn, setAmountsIn] = useState(initAmounts);
+  const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
+  const [zapApiError, setZapApiError] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [degenMode, setDegenMode] = useState(false);
+  const [marketPrice, setMarketPrice] = useState<number | null | undefined>(
+    undefined
+  );
+
+  const debounceTickLower = useDebounce(tickLower, 300);
+  const debounceTickUpper = useDebounce(tickUpper, 300);
+  const debounceAmountsIn = useDebounce(amountsIn, 300);
+
+  useMarketPrice({ tokensIn, setTokensIn });
+  useTokenBalance({ tokensIn, setTokensIn });
+
+  const toggleSetting = () => setShowSeting((prev) => !prev);
+
+  const toggleRevertPrice = useCallback(
+    () => setRevertPrice((prev) => !prev),
+    []
+  );
+
+  const setTick = useCallback(
+    (type: Type, value: number) => {
+      if (
+        position ||
+        (pool && (value > pool.maxTick || value < pool.minTick))
+      ) {
+        return;
+      }
+
+      if (type === Type.PriceLower) {
+        if (revertPrice) setTickUpper(value);
+        else setTickLower(value);
+      } else {
+        if (revertPrice) setTickLower(value);
+        else setTickUpper(value);
+      }
+    },
+    [position, pool, revertPrice]
+  );
+
+  const tokensInAddress = useMemo(
+    () => tokensIn.map((token) => token.address?.toLowerCase()).join(","),
+    [tokensIn]
+  );
+
+  const priceLower = useMemo(() => {
+    if (!pool || tickLower == null) return null;
+    return tickToPrice(pool.token0, pool.token1, tickLower) as Price<
+      Token,
+      Token
+    >;
+  }, [pool, tickLower]);
+
+  const priceUpper = useMemo(() => {
+    if (!pool || tickUpper === null) return null;
+    return tickToPrice(pool.token0, pool.token1, tickUpper) as Price<
+      Token,
+      Token
+    >;
+  }, [pool, tickUpper]);
+
+  const error = useMemo(() => {
+    const initDepositTokenAddresses = initDepositTokens?.split(",") || [];
+    const listInitAmounts = initAmounts?.split(",") || [];
+    if (initDepositTokenAddresses.length !== listInitAmounts.length)
+      return ERROR_MESSAGE.INVALID_TOKENS_AND_AMOUNTS;
+    if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
+    if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
+    if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
+    if (tickUpper === null) return ERROR_MESSAGE.ENTER_MAX_PRICE;
+    if (tickLower >= tickUpper) return ERROR_MESSAGE.INVALID_PRICE_RANGE;
+
+    const listAmountsIn = debounceAmountsIn.split(",");
+    const listTokenEmptyAmount = tokensIn.filter(
+      (_, index) =>
+        !listAmountsIn[index] ||
+        listAmountsIn[index] === "0" ||
+        !parseFloat(listAmountsIn[index])
+    );
+    if (listTokenEmptyAmount.length)
+      return (
+        ERROR_MESSAGE.ENTER_AMOUNT +
+        " " +
+        listTokenEmptyAmount.map((token: Token) => token.symbol).join(", ")
+      );
+
+    try {
+      for (let i = 0; i < tokensIn.length; i++) {
+        const balance = formatUnits(
+          BigInt(tokensIn[i].balance?.toString() || "0"),
+          tokensIn[i].decimals
+        );
+
+        if (parseFloat(listAmountsIn[i]) > parseFloat(balance))
+          return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
+      }
+    } catch (e) {
+      return ERROR_MESSAGE.INVALID_INPUT_AMOUNTT;
+    }
+
+    if (zapApiError) return zapApiError;
+    return "";
+  }, [
+    initDepositTokens,
+    initAmounts,
+    chainId,
+    networkChainId,
+    tokensIn,
+    tickLower,
+    tickUpper,
+    debounceAmountsIn,
+    zapApiError,
+  ]);
 
   useEffect(() => {
     if (position?.tickUpper !== undefined && position.tickLower !== undefined) {
@@ -289,180 +274,48 @@ export const ZapContextProvider = ({
     }
   }, [pool, initTickUpper, initTickLower, tickLower, tickUpper]);
 
-  const [tokenIn, setTokenIn] = useState<PancakeToken | null>(null);
-  const [amountIn, setAmountIn] = useState(initAmount?.toString() || "");
-  const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
-  const [zapApiError, setZapApiError] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [degenMode, setDegenMode] = useState(false);
-
-  const debounceTickLower = useDebounce(tickLower, 300);
-  const debounceTickUpper = useDebounce(tickUpper, 300);
-  const debounceAmountIn = useDebounce(amountIn, 300);
-
-  const toggleRevertPrice = useCallback(() => {
-    setRevertPrice((prev) => !prev);
-  }, []);
-
-  const { balance: balanceToken0 } = useTokenBalance(
-    pool?.token0?.address || ""
-  );
-  const { balance: balanceToken1 } = useTokenBalance(
-    pool?.token1?.address || ""
-  );
-
-  const nativeBalance = useNativeBalance();
-
-  const balanceIn = useMemo(() => {
-    if (tokenIn?.address === NATIVE_TOKEN_ADDRESS) return nativeBalance;
-    if (pool?.token0.address === tokenIn?.address) return balanceToken0;
-    return balanceToken1;
-  }, [
-    balanceToken0,
-    balanceToken1,
-    pool?.token0.address,
-    tokenIn?.address,
-    nativeBalance,
-  ]);
-
-  const nativeToken = useMemo(() => {
-    const symbol = NetworkInfo[chainId].wrappedToken.symbol.slice(1); // WETH => ETH
-    return new PancakeToken(
-      chainId,
-      NATIVE_TOKEN_ADDRESS,
-      NetworkInfo[chainId].wrappedToken.decimals,
-      symbol,
-      symbol,
-      NetworkInfo[chainId].nativeLogo
-    );
-  }, [chainId]);
-
-  const isToken0Native =
-    pool?.token0.address.toLowerCase() ===
-    NetworkInfo[chainId].wrappedToken.address.toLowerCase();
-  const isToken1Native =
-    pool?.token1.address.toLowerCase() ===
-    NetworkInfo[chainId].wrappedToken.address.toLowerCase();
-
-  //native => wrapped => other
-  const toggleTokenIn = () => {
-    if (!pool) return;
-    // tokenIn is native
-    if (tokenIn?.address === NATIVE_TOKEN_ADDRESS) {
-      setTokenIn(isToken0Native ? pool.token0 : pool.token1);
-    } else if (tokenIn?.address === pool.token0.address) {
-      // token1: native
-      // selected: token0
-      if (isToken1Native) setTokenIn(nativeToken);
-      else setTokenIn(pool.token1);
-    } else {
-      // selected: token1
-      // token0: native
-      if (isToken0Native) setTokenIn(nativeToken);
-      else setTokenIn(pool.token0);
-    }
-  };
-
+  // set tokens in
   useEffect(() => {
-    if (pool && !tokenIn) {
-      let token = isToken0Native ? nativeToken : pool.token0;
-      if (
-        initDepositToken?.toLowerCase() ===
-          NATIVE_TOKEN_ADDRESS.toLowerCase() &&
-        (isToken0Native || isToken1Native)
-      ) {
-        token = nativeToken;
-      } else if (
-        initDepositToken?.toLowerCase() === pool.token1.address.toLowerCase()
-      ) {
-        token = pool.token1;
-      } else if (
-        initDepositToken?.toLowerCase() === pool.token0.address.toLowerCase()
-      ) {
-        token = pool.token0;
-      }
-      setTokenIn(token);
+    if (!pool) return;
+
+    if (tokensInAddress.toLowerCase() === initDepositTokens.toLowerCase()) {
+      if (!initDepositTokens)
+        onAddTokens(`${pool.token0.address},${pool.token1.address}`);
+      return;
     }
+
+    const initDepositTokenAddresses = initDepositTokens?.split(",") || [];
+
+    (async () => {
+      if (initDepositTokens) {
+        const listInitTokens = await Promise.all(
+          initDepositTokenAddresses.map(async (address: string) => {
+            const token = await getToken(address);
+            return token;
+          })
+        ).then(
+          (tokens) => tokens.filter((item) => !!item) as PancakeTokenAdvanced[]
+        );
+
+        console.log("set tokens in");
+        setTokensIn(listInitTokens);
+      }
+    })();
   }, [
+    getToken,
+    initAmounts,
+    initDepositTokens,
+    onAddTokens,
     pool,
-    tokenIn,
-    nativeToken,
-    isToken0Native,
-    initDepositToken,
-    isToken1Native,
+    tokensInAddress,
   ]);
 
-  const setTick = useCallback(
-    (type: Type, value: number) => {
-      if (
-        position ||
-        (pool && (value > pool.maxTick || value < pool.minTick))
-      ) {
-        return;
-      }
+  // set amounts in
+  useEffect(() => {
+    setAmountsIn(initAmounts);
+  }, [initAmounts]);
 
-      if (type === Type.PriceLower) {
-        if (revertPrice) setTickUpper(value);
-        else setTickLower(value);
-      } else {
-        if (revertPrice) setTickLower(value);
-        else setTickUpper(value);
-      }
-    },
-    [position, pool, revertPrice]
-  );
-
-  const priceLower = useMemo(() => {
-    if (!pool || tickLower == null) return null;
-    return tickToPrice(pool.token0, pool.token1, tickLower) as Price<
-      Token,
-      Token
-    >;
-  }, [pool, tickLower]);
-
-  const priceUpper = useMemo(() => {
-    if (!pool || tickUpper === null) return null;
-    return tickToPrice(pool.token0, pool.token1, tickUpper) as Price<
-      Token,
-      Token
-    >;
-  }, [pool, tickUpper]);
-
-  const error = useMemo(() => {
-    // if (!account) return "Connect Wallet";
-    if (chainId !== networkChainId) return "Wrong network";
-
-    if (!tokenIn) return "Select token in";
-    if (tickLower === null) return "Enter min price";
-    if (tickUpper === null) return "Enter max price";
-
-    if (tickLower >= tickUpper) return "Invalid price range";
-
-    if (!amountIn || +amountIn === 0) return "Enter an amount";
-    try {
-      const amountInWei = parseUnits(amountIn, tokenIn.decimals);
-      if (amountInWei > BigInt(balanceIn)) return "Insufficient balance";
-    } catch (e) {
-      return "Invalid input amount";
-    }
-
-    if (zapApiError) return zapApiError;
-    return "";
-  }, [
-    tokenIn,
-    tickLower,
-    tickUpper,
-    amountIn,
-    zapApiError,
-    balanceIn,
-    networkChainId,
-    chainId,
-  ]);
-
-  const [marketPrice, setMarketPrice] = useState<number | null | undefined>(
-    undefined
-  );
-
+  // get pair market price
   useEffect(() => {
     if (!pool) return;
     const priceUrl = "https://price.kyberswap.com";
@@ -486,22 +339,37 @@ export const ZapContextProvider = ({
       });
   }, [chainId, pool]);
 
+  // get zap route
   useEffect(() => {
     if (
       debounceTickLower !== null &&
       debounceTickUpper !== null &&
-      debounceAmountIn &&
       pool &&
-      tokenIn?.address &&
-      +debounceAmountIn !== 0
+      (!error ||
+        error === zapApiError ||
+        error === ERROR_MESSAGE.INSUFFICIENT_BALANCE)
     ) {
-      let amountInWei = "";
+      let formattedAmountsInWeis = "";
+      const listAmountsIn = amountsIn.split(",");
+
       try {
-        amountInWei = parseUnits(debounceAmountIn, tokenIn.decimals).toString();
+        formattedAmountsInWeis = tokensIn
+          .map((token: Token, index: number) =>
+            parseUnits(listAmountsIn[index] || "0", token.decimals).toString()
+          )
+          .join(",");
       } catch (error) {
         console.log(error);
       }
-      if (!amountInWei) {
+
+      if (
+        !tokensInAddress ||
+        !formattedAmountsInWeis ||
+        !formattedAmountsInWeis.length ||
+        !formattedAmountsInWeis[0] ||
+        formattedAmountsInWeis[0] === "0"
+      ) {
+        setZapInfo(null);
         return;
       }
 
@@ -514,10 +382,9 @@ export const ZapContextProvider = ({
         "pool.fee": pool.fee,
         "position.tickUpper": debounceTickUpper,
         "position.tickLower": debounceTickLower,
-        tokenIn: tokenIn.address,
-        amountIn: amountInWei,
+        tokensIn: tokensInAddress,
+        amountsIn: formattedAmountsInWeis,
         slippage,
-        "aggregatorOptions.disable": !enableAggregator,
         ...(positionId ? { "position.id": positionId } : {}),
         ...(feeAddress ? { feeAddress, feePcm } : {}),
         ...(includedSources
@@ -559,23 +426,24 @@ export const ZapContextProvider = ({
           setLoading(false);
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    debounceAmountIn,
     chainId,
     debounceTickLower,
     debounceTickUpper,
     feeAddress,
     feePcm,
-    tokenIn?.address,
     poolAddress,
     pool,
-    tokenIn?.decimals,
-    enableAggregator,
     slippage,
     positionId,
     includedSources,
     excludedSources,
     source,
+    tokensInAddress,
+    debounceAmountsIn,
+    error,
+    zapApiError,
   ]);
 
   return (
@@ -584,11 +452,9 @@ export const ZapContextProvider = ({
         revertPrice,
         tickLower,
         tickUpper,
-        tokenIn,
-        balanceIn,
-        amountIn,
-        toggleTokenIn,
-        setAmountIn,
+        tokensIn,
+        amountsIn,
+        setAmountsIn,
         toggleRevertPrice,
         setTick,
         error,
@@ -603,8 +469,6 @@ export const ZapContextProvider = ({
         toggleSetting,
         setShowSeting,
         showSetting,
-        enableAggregator,
-        setEnableAggregator,
         positionId,
         degenMode,
         setDegenMode,

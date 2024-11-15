@@ -1,9 +1,7 @@
 import { Placement } from "@popperjs/core";
 import { CSSProperties, ReactNode, useCallback, useState } from "react";
-import Info from "../assets/info.svg";
-
-import Tooltip from "./Tooltip";
-import { useWidgetInfo } from "../hooks/useWidgetInfo";
+import Info from "@/assets/info.svg";
+import Tooltip from "@/components/Tooltip";
 
 export default function InfoHelper({
   text,
@@ -25,7 +23,6 @@ export default function InfoHelper({
 
   const open = useCallback(() => setShow(true), [setShow]);
   const close = useCallback(() => setShow(false), [setShow]);
-  const { theme } = useWidgetInfo();
 
   return (
     <span
@@ -50,17 +47,7 @@ export default function InfoHelper({
           onClick={open}
           onMouseEnter={open}
           onMouseLeave={close}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: "none",
-            background: "none",
-            outline: "none",
-            cursor: "default",
-            borderRadius: "36px",
-            color: theme.textSecondary,
-          }}
+          className="flex items-center justify-center border-none bg-transparent outline-none cursor-default rounded-[36px] text-textSecondary"
         >
           <Info style={{ color, width: size, height: size }} />
         </div>

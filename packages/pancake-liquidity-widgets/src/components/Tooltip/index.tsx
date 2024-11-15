@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useRef, useState } from "react";
 
-import Popover, { PopoverProps } from "../Popover";
+import Popover, { PopoverProps } from "@/components/Popover";
 
 interface TooltipProps extends Omit<PopoverProps, "content"> {
   text: string | ReactNode;
@@ -29,11 +29,10 @@ export default function Tooltip({
           <div
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
+            className="py-[10px] px-4 font-normal"
             style={{
               width: width || "max-content",
-              padding: "10px 16px",
               lineHeight: 1.5,
-              fontWeight: "400",
               fontSize: `${size || 14}px`,
             }}
           >
@@ -53,7 +52,7 @@ export function MouseoverTooltip({
   ...rest
 }: Omit<TooltipProps, "show">) {
   const [show, setShow] = useState(false);
-  const [closeTimeout, setCloseTimeout] = useState<number | null>(null);
+  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
   const hovering = useRef(false);
   const open = useCallback(() => {
     if (rest.text) {
@@ -84,7 +83,7 @@ export function MouseoverTooltip({
       <div
         onMouseOver={open}
         onMouseLeave={close}
-        style={{ display: "flex", alignItems: "center" }}
+        className="flex items-center"
       >
         {children}
       </div>

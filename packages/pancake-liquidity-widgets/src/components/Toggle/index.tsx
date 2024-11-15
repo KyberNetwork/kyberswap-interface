@@ -1,5 +1,4 @@
 import React, { CSSProperties, ReactNode } from "react";
-import "./Toggle.scss";
 
 export interface ToggleProps {
   id?: string;
@@ -20,11 +19,16 @@ const Toggle: React.FC<ToggleProps> = ({
     <div
       id={id}
       onClick={toggle}
-      style={style}
       data-active={isActive}
-      className="ks-lw-toggle"
+      className="relative w-14 h-7 bg-disabled rounded-full transition-all duration-200 ease-in-out cursor-pointer data-[active='true']:bg-[#31d0aa]"
+      style={{ boxShadow: "0px 2px 0px -1px #0000000f inset", ...style }}
     >
-      <div className="dot">{isActive && icon}</div>
+      <div
+        data-active={isActive}
+        className="absolute top-1/2 left-[2px] w-6 h-6 bg-cardBackground rounded-[50%] -translate-y-1/2 transition-all duration-200 ease-in-out flex items-center justify-center data-[active='true']:bg-cardBackground data-[active='true']:left-[30px] data-[active='true']:opacity-100"
+      >
+        {isActive && icon}
+      </div>
     </div>
   );
 };

@@ -1,31 +1,32 @@
-import "./Content.scss";
-import X from "../../assets/x.svg";
-import ErrorIcon from "../../assets/error.svg";
-import PriceInfo from "./PriceInfo";
-// import LiquidityChart from "./LiquidityChart";
-import PriceInput from "./PriceInput";
-import LiquidityToAdd from "./LiquidityToAdd";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { parseUnits } from "viem";
+import { useZapState } from "@/hooks/useZapInState";
+import useApprovals, { APPROVAL_STATE } from "@/hooks/useApprovals";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
+import PriceInfo from "@/components/Content/PriceInfo";
+import PriceInput from "@/components/Content/PriceInput";
+import LiquidityToAdd from "@/components/Content/LiquidityToAdd";
+import ZapRoute from "@/components/Content/ZapRoute";
+import EstLiqValue from "@/components/Content/EstLiqValue";
+import Header from "@/components/Header";
+import Preview, { ZapState } from "@/components/Preview";
+import Modal from "@/components/Modal";
+import InfoHelper from "@/components/InfoHelper";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { ImpactType, PI_LEVEL, getPriceImpact } from "@/utils";
+import { tryParseTick } from "@/utils/pancakev3";
+import { nearestUsableTick } from "@pancakeswap/v3-sdk";
 import {
+  ZapAction,
   AggregatorSwapAction,
   PoolSwapAction,
   ProtocolFeeAction,
   Type,
-  useZapState,
-} from "../../hooks/useZapInState";
-import ZapRoute from "./ZapRoute";
-import EstLiqValue from "./EstLiqValue";
-import useApproval, { APPROVAL_STATE } from "../../hooks/useApproval";
-import { useEffect, useState } from "react";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import Header from "../Header";
-import Preview, { ZapState } from "../Preview";
-import Modal from "../Modal";
-import { PI_LEVEL, getPriceImpact } from "../../utils";
-import InfoHelper from "../InfoHelper";
-import { parseUnits } from "viem";
-import { tryParseTick } from "../../utils/pancakev3";
-import { nearestUsableTick } from "@pancakeswap/v3-sdk";
-import { useWeb3Provider } from "../../hooks/useProvider";
+} from "@/types/zapInTypes";
+import X from "@/assets/x.svg";
+import ErrorIcon from "@/assets/error.svg";
+import { MAX_ZAP_IN_TOKENS } from "@/constants";
+// import LiquidityChart from "./LiquidityChart";
 
 export default function Content({
   onDismiss,
@@ -37,9 +38,9 @@ export default function Content({
   onTxSubmit?: (tx: string) => void;
 }) {
   const {
-    tokenIn,
+    tokensIn,
+    amountsIn,
     zapInfo,
-    amountIn,
     error,
     priceLower,
     priceUpper,
@@ -53,41 +54,141 @@ export default function Content({
     degenMode,
     revertPrice,
   } = useZapState();
-
   const {
     pool,
     theme,
     error: loadPoolError,
     onConnectWallet,
+    onOpenTokenSelectModal,
   } = useWidgetInfo();
   const { account } = useWeb3Provider();
 
-  let amountInWei = "0";
-  try {
-    amountInWei = parseUnits(
-      amountIn || "0",
-      tokenIn?.decimals || 0
-    ).toString();
-  } catch {
-    //
-  }
+  const [clickedApprove, setClickedLoading] = useState(false);
+  const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
 
-  const { loading, approvalState, approve } = useApproval(
-    amountInWei,
-    tokenIn?.address || "",
+  const amountsInWei: string[] = useMemo(
+    () =>
+      !amountsIn
+        ? []
+        : amountsIn
+            .split(",")
+            .map((amount, index) =>
+              parseUnits(amount || "0", tokensIn[index]?.decimals).toString()
+            ),
+    [tokensIn, amountsIn]
+  );
+
+  const { loading, approvalStates, addressToApprove, approve } = useApprovals(
+    amountsInWei,
+    tokensIn.map((token) => token?.address || ""),
     zapInfo?.routerAddress || ""
   );
 
-  const [clickedApprove, setClickedLoading] = useState(false);
-  const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
+  const notApprove = useMemo(
+    () =>
+      tokensIn.find(
+        (item) =>
+          approvalStates[item?.address || ""] === APPROVAL_STATE.NOT_APPROVED
+      ),
+    [approvalStates, tokensIn]
+  );
+
+  const pi = useMemo(() => {
+    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+    ) as AggregatorSwapAction | undefined;
+
+    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.POOL_SWAP
+    ) as PoolSwapAction | null;
+
+    const feeInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.PROTOCOL_FEE
+    ) as ProtocolFeeAction | undefined;
+
+    const piRes = getPriceImpact(
+      zapInfo?.zapDetails.priceImpact,
+      ImpactType.ZAP,
+      feeInfo
+    );
+
+    const aggregatorSwapPi =
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        return getPriceImpact(pi, ImpactType.SWAP, feeInfo);
+      }) || [];
+    const poolSwapPi =
+      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        return getPriceImpact(pi, ImpactType.SWAP, feeInfo);
+      }) || [];
+
+    const swapPiHigh = !!aggregatorSwapPi
+      .concat(poolSwapPi)
+      .find((item) => item.level === PI_LEVEL.HIGH);
+
+    const swapPiVeryHigh = !!aggregatorSwapPi
+      .concat(poolSwapPi)
+      .find((item) => item.level === PI_LEVEL.VERY_HIGH);
+
+    const piVeryHigh =
+      (zapInfo &&
+        [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
+      swapPiVeryHigh;
+
+    const piHigh = (zapInfo && piRes.level === PI_LEVEL.HIGH) || swapPiHigh;
+
+    return { piVeryHigh, piHigh };
+  }, [zapInfo]);
+
+  const btnText = useMemo(() => {
+    if (error) return error;
+    if (zapLoading) return "Loading...";
+    if (loading) return "Checking Allowance";
+    if (addressToApprove) return "Approving";
+    if (notApprove) return `Approve ${notApprove.symbol}`;
+    if (pi.piVeryHigh) return "Zap anyway";
+
+    return "Preview";
+  }, [addressToApprove, error, loading, notApprove, pi, zapLoading]);
+
+  const disabled = useMemo(
+    () =>
+      clickedApprove ||
+      loading ||
+      zapLoading ||
+      !!error ||
+      Object.values(approvalStates).some(
+        (item) => item === APPROVAL_STATE.PENDING
+      ) ||
+      (pi.piVeryHigh && !degenMode),
+    [
+      approvalStates,
+      clickedApprove,
+      degenMode,
+      error,
+      loading,
+      pi.piVeryHigh,
+      zapLoading,
+    ]
+  );
+
   const hanldeClick = () => {
-    if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
+    if (notApprove) {
       setClickedLoading(true);
-      approve().finally(() => setClickedLoading(false));
+      approve(notApprove.address).finally(() => setClickedLoading(false));
     } else if (
       pool &&
-      amountIn &&
-      tokenIn &&
+      amountsIn &&
+      tokensIn.every(Boolean) &&
       zapInfo &&
       priceLower &&
       priceUpper &&
@@ -98,8 +199,8 @@ export default function Content({
       date.setMinutes(date.getMinutes() + (ttl || 20));
 
       setSnapshotState({
-        tokenIn,
-        amountIn,
+        tokensIn: tokensIn,
+        amountsIn,
         pool,
         zapInfo,
         priceLower,
@@ -120,131 +221,63 @@ export default function Content({
     }
   }, [snapshotState, onTogglePreview]);
 
-  const btnText = (() => {
-    if (error) return error;
-    if (zapLoading) return "Loading...";
-    if (loading) return "Checking Allowance";
-    if (approvalState === APPROVAL_STATE.NOT_APPROVED) return "Approve";
-    if (approvalState === APPROVAL_STATE.PENDING) return "Approving";
-    return "Preview";
-  })();
-
-  const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
-  ) as AggregatorSwapAction | undefined;
-  const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenIn.amountUsd,
-    0
+  const correctPrice = useCallback(
+    (value: string, type: Type) => {
+      if (!pool) return;
+      if (revertPrice) {
+        const defaultTick =
+          (type === Type.PriceLower ? tickLower : tickUpper) ||
+          pool?.tickCurrent;
+        const tick =
+          tryParseTick(pool?.token1, pool?.token0, pool?.fee, value) ??
+          defaultTick;
+        if (Number.isInteger(tick))
+          setTick(type, nearestUsableTick(tick, pool.tickSpacing));
+      } else {
+        const defaultTick =
+          (type === Type.PriceLower ? tickLower : tickUpper) ||
+          pool?.tickCurrent;
+        const tick =
+          tryParseTick(pool?.token0, pool?.token1, pool?.fee, value) ??
+          defaultTick;
+        if (Number.isInteger(tick))
+          setTick(type, nearestUsableTick(tick, pool.tickSpacing));
+      }
+    },
+    [pool, revertPrice, tickLower, tickUpper, setTick]
   );
-  const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenOut.amountUsd,
-    0
-  );
 
-  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
-  ) as PoolSwapAction | null;
-  const amountInPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenIn.amountUsd,
-      0
-    ) || 0;
-  const amountOutPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenOut.amount,
-      0
-    ) || 0;
-
-  const swapPriceImpact =
-    swapAmountIn && swapAmountOut
-      ? ((swapAmountIn +
-          amountInPoolSwap -
-          (swapAmountOut + amountOutPoolSwap)) *
-          100) /
-        swapAmountIn
-      : null;
-
-  const feeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
-  ) as ProtocolFeeAction | undefined;
-
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, theme, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, theme, feeInfo);
-
-  const piVeryHigh =
-    (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
-    (!!aggregatorSwapInfo &&
-      [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(swapPiRes.level));
-
-  const piHigh =
-    (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
-    (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
-
-  const disabled =
-    clickedApprove ||
-    loading ||
-    zapLoading ||
-    !!error ||
-    approvalState === APPROVAL_STATE.PENDING ||
-    (piVeryHigh && !degenMode);
-
-  const correctPrice = (value: string, type: Type) => {
-    if (!pool) return;
-    if (revertPrice) {
-      const defaultTick =
-        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-      const tick =
-        tryParseTick(pool?.token1, pool?.token0, pool?.fee, value) ??
-        defaultTick;
-      if (Number.isInteger(tick))
-        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-    } else {
-      const defaultTick =
-        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-      const tick =
-        tryParseTick(pool?.token0, pool?.token1, pool?.fee, value) ??
-        defaultTick;
-      if (Number.isInteger(tick))
-        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-    }
-  };
   const currentPoolPrice = pool
     ? revertPrice
       ? pool.priceOf(pool.token1)
       : pool.priceOf(pool.token0)
     : undefined;
 
-  const selectPriceRange = (percent: number) => {
-    if (!currentPoolPrice) return;
-    const left = +currentPoolPrice.toSignificant(18) * (1 - percent);
-    const right = +currentPoolPrice.toSignificant(18) * (1 + percent);
-    correctPrice(left.toString(), Type.PriceLower);
-    correctPrice(right.toString(), Type.PriceUpper);
-  };
+  const selectPriceRange = useCallback(
+    (percent: number) => {
+      if (!currentPoolPrice) return;
+      const left = +currentPoolPrice.toSignificant(18) * (1 - percent);
+      const right = +currentPoolPrice.toSignificant(18) * (1 + percent);
+      correctPrice(left.toString(), Type.PriceLower);
+      correctPrice(right.toString(), Type.PriceUpper);
+    },
+    [correctPrice, currentPoolPrice]
+  );
+
+  useEffect(() => {
+    if (!tickLower && !tickUpper && pool) selectPriceRange(0.2);
+  }, [pool, selectPriceRange, tickLower, tickUpper]);
 
   return (
     <>
       {loadPoolError && (
         <Modal isOpen onClick={() => onDismiss()}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "2rem",
-              color: theme.error,
-            }}
-          >
-            <ErrorIcon className="error-icon" />
-            <div style={{ textAlign: "center" }}>{loadPoolError}</div>
+          <div className="flex flex-col items-center gap-8 text-error">
+            <ErrorIcon />
+            <div className="text-center">{loadPoolError}</div>
             <button
-              className="primary-btn"
+              className="ks-primary-btn w-[95%] bg-error border border-error"
               onClick={onDismiss}
-              style={{
-                width: "95%",
-                background: theme.error,
-                border: `1px solid ${theme.error}`,
-              }}
             >
               Close
             </button>
@@ -253,12 +286,12 @@ export default function Content({
       )}
       {snapshotState && (
         <Modal isOpen onClick={() => setSnapshotState(null)}>
-          <div className="ks-lw-modal-headline">
+          <div className="flex justify-between text-xl font-medium">
             <div>{positionId ? "Increase" : "Add"} Liquidity via Zap</div>
             <div
+              className="cursor-pointer"
               role="button"
               onClick={() => setSnapshotState(null)}
-              style={{ cursor: "pointer" }}
             >
               <X />
             </div>
@@ -274,44 +307,70 @@ export default function Content({
         </Modal>
       )}
       <Header onDismiss={onDismiss} />
-      <div className="ks-lw-content">
-        <div className="left">
-          <LiquidityToAdd />
+      <div className="flex gap-5 py-0 px-6 max-sm:flex-col">
+        <div className="flex-1 w-1/2 max-sm:w-full">
+          <div className="text-xs font-medium text-secondary uppercase mb-4">
+            Deposit Amount
+          </div>
+          {tokensIn.map((_, tokenIndex: number) => (
+            <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
+          ))}
 
-          <div className="label" style={{ marginTop: "1.5rem" }}>
+          <div
+            className={`mt-4 text-primary cursor-pointer w-fit text-sm ${
+              tokensIn.length >= MAX_ZAP_IN_TOKENS ? "opacity-50" : ""
+            }`}
+            onClick={() =>
+              tokensIn.length < MAX_ZAP_IN_TOKENS && onOpenTokenSelectModal()
+            }
+          >
+            + Add more token
+            <InfoHelper
+              text={`Can zap in with up to ${MAX_ZAP_IN_TOKENS} tokens`}
+              color={theme.primary}
+              style={{
+                verticalAlign: "baseline",
+                position: "relative",
+                top: 2,
+                left: 2,
+              }}
+            />
+          </div>
+
+          <div className="text-xs font-medium text-secondary uppercase mt-6">
             Set price ranges
           </div>
 
           <div className="ks-lw-card">
             <PriceInfo />
 
-            <div className="price-input-group">
+            <div className="grid grid-cols-2 gap-2">
               <PriceInput type={Type.PriceLower} />
               <PriceInput type={Type.PriceUpper} />
             </div>
 
             {positionId === undefined && (
-              <div className="price-input-preset">
+              <div className="mt-[10px] w-full flex justify-between gap-2 text-xs">
                 <button
-                  className="outline-btn"
+                  className="ks-outline-btn medium"
                   onClick={() => selectPriceRange(0.1)}
                 >
                   10%
                 </button>
                 <button
-                  className="outline-btn"
+                  className="ks-outline-btn medium"
                   onClick={() => selectPriceRange(0.2)}
                 >
                   20%
                 </button>
                 <button
-                  className="outline-btn"
+                  className="ks-outline-btn medium"
                   onClick={() => selectPriceRange(0.75)}
                 >
                   75%
                 </button>
                 <button
-                  className="outline-btn"
+                  className="ks-outline-btn medium"
                   onClick={() => {
                     if (!pool) return;
                     setTick(
@@ -331,47 +390,51 @@ export default function Content({
           </div>
         </div>
 
-        <div className="right">
+        <div className="flex-1 w-1/2 max-sm:w-full">
           <ZapRoute />
           <EstLiqValue />
         </div>
       </div>
 
-      <div className="ks-lw-action">
-        <button className="outline-btn" onClick={onDismiss}>
+      <div className="flex gap-6 p-6">
+        <button className="ks-outline-btn flex-1" onClick={onDismiss}>
           Cancel
         </button>
 
         {!account ? (
-          <button className="primary-btn" onClick={onConnectWallet}>
+          <button className="ks-primary-btn flex-1" onClick={onConnectWallet}>
             Connect Wallet
           </button>
         ) : (
           <button
-            className="primary-btn"
+            className="ks-primary-btn flex-1"
             disabled={disabled}
             onClick={hanldeClick}
             style={
-              !disabled && approvalState !== APPROVAL_STATE.NOT_APPROVED
+              !disabled &&
+              Object.values(approvalStates).some(
+                (item) => item !== APPROVAL_STATE.NOT_APPROVED
+              )
                 ? {
                     background:
-                      piVeryHigh && degenMode
+                      pi.piVeryHigh && degenMode
                         ? theme.error
-                        : piHigh
+                        : pi.piHigh
                         ? theme.warning
                         : undefined,
                     border:
-                      piVeryHigh && degenMode
+                      pi.piVeryHigh && degenMode
                         ? `1px solid ${theme.error}`
-                        : piHigh
+                        : pi.piHigh
                         ? theme.warning
                         : undefined,
+                    color: pi.piVeryHigh && degenMode ? "fff" : undefined,
                   }
                 : {}
             }
           >
             {btnText}
-            {piVeryHigh && (
+            {pi.piVeryHigh && !error && (
               <InfoHelper
                 width="300px"
                 color={theme.textReverse}

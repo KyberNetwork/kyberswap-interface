@@ -1,16 +1,16 @@
 import { useEffect, useMemo } from "react";
 import { WalletClient, Address, http, createPublicClient } from "viem";
 import * as chains from "viem/chains";
-
-import { Web3Provider } from "../../hooks/useProvider";
-import { Theme, defaultTheme, lightTheme } from "../../theme";
-import { WidgetProvider } from "../../hooks/useWidgetInfo";
-import WidgetContent from "../Content";
-import { ZapContextProvider } from "../../hooks/useZapInState";
-import Setting from "../Setting";
-
+import { Theme, defaultTheme, lightTheme } from "@/theme";
+import Setting from "@/components/Setting";
+import WidgetContent from "@/components/Content";
+import { Web3Provider } from "@/hooks/useProvider";
+import { TokenProvider } from "@/hooks/useTokens";
+import { WidgetProvider } from "@/hooks/useWidgetInfo";
+import { ZapContextProvider } from "@/hooks/useZapInState";
+import { NetworkInfo } from "@/constants";
 import "./Widget.scss";
-import { NetworkInfo } from "../../constants";
+import "../../globals.css";
 
 const getChainById = (chainId: number) => {
   return Object.values(chains).find((chain) => chain.id === chainId);
@@ -18,50 +18,54 @@ const getChainById = (chainId: number) => {
 
 export interface WidgetProps {
   theme?: Theme | "dark" | "light";
-
   walletClient: WalletClient | undefined;
   account: Address | undefined;
   chainId: number;
   networkChainId: number;
   initTickLower?: number;
   initTickUpper?: number;
-  initDepositToken?: string;
-  initAmount?: number | string;
-
   poolAddress: string;
   positionId?: string;
-  onDismiss: () => void;
-  onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;
   feePcm?: number;
   source: string;
   includedSources?: string;
   excludedSources?: string;
+  initDepositTokens: string;
+  initAmounts: string;
+  onDismiss: () => void;
+  onTxSubmit?: (txHash: string) => void;
   onConnectWallet: () => void;
+  onAddTokens: (tokenAddresses: string) => void;
+  onRemoveToken: (tokenAddress: string) => void;
+  onAmountChange: (tokenAddress: string, amount: string) => void;
+  onOpenTokenSelectModal: () => void;
 }
 
 export default function Widget({
   theme: themeProps,
-
   walletClient,
   account,
   chainId,
   networkChainId,
-
   initTickLower,
   initTickUpper,
-  initDepositToken,
-  initAmount,
   poolAddress,
   positionId,
-  onDismiss,
-  onTxSubmit,
   feeAddress,
   feePcm,
   includedSources,
   excludedSources,
   source,
+  initDepositTokens,
+  initAmounts,
+  onDismiss,
+  onTxSubmit,
   onConnectWallet,
+  onAddTokens,
+  onRemoveToken,
+  onAmountChange,
+  onOpenTokenSelectModal,
 }: WidgetProps) {
   const publicClient = useMemo(() => {
     const chain = getChainById(chainId);
@@ -94,6 +98,7 @@ export default function Widget({
       if (!modalRoot) {
         modalRoot = document.createElement("div");
         modalRoot.id = "ks-lw-modal-root";
+        modalRoot.className = "ks-lw-style";
         document.body.appendChild(modalRoot);
       }
     };
@@ -110,33 +115,39 @@ export default function Widget({
       account={account}
       networkChainId={networkChainId}
     >
-      <WidgetProvider
-        poolAddress={poolAddress}
-        positionId={
-          positionId === "" || !parseInt(positionId || "")
-            ? undefined
-            : positionId
-        }
-        theme={theme || defaultTheme}
-        feeAddress={feeAddress}
-        feePcm={feePcm}
-        onConnectWallet={onConnectWallet}
-      >
-        <ZapContextProvider
-          includedSources={includedSources}
-          excludedSources={excludedSources}
-          initTickUpper={initTickUpper}
-          initTickLower={initTickLower}
-          initDepositToken={initDepositToken}
-          initAmount={initAmount}
-          source={source}
+      <TokenProvider>
+        <WidgetProvider
+          poolAddress={poolAddress}
+          positionId={
+            positionId === "" || !parseInt(positionId || "")
+              ? undefined
+              : positionId
+          }
+          theme={theme || defaultTheme}
+          feeAddress={feeAddress}
+          feePcm={feePcm}
+          onConnectWallet={onConnectWallet}
+          onAddTokens={onAddTokens}
+          onRemoveToken={onRemoveToken}
+          onAmountChange={onAmountChange}
+          onOpenTokenSelectModal={onOpenTokenSelectModal}
         >
-          <div className="ks-lw">
-            <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
-            <Setting />
-          </div>
-        </ZapContextProvider>
-      </WidgetProvider>
+          <ZapContextProvider
+            includedSources={includedSources}
+            excludedSources={excludedSources}
+            initTickUpper={initTickUpper}
+            initTickLower={initTickLower}
+            source={source}
+            initDepositTokens={initDepositTokens}
+            initAmounts={initAmounts}
+          >
+            <div className="ks-lw ks-lw-style">
+              <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
+              <Setting />
+            </div>
+          </ZapContextProvider>
+        </WidgetProvider>
+      </TokenProvider>
     </Web3Provider>
   );
 }

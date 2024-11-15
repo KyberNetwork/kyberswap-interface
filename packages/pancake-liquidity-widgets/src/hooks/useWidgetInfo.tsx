@@ -1,9 +1,9 @@
 import { createContext, ReactNode, useContext } from "react";
-import usePoolInfo from "./usePoolInfo";
-import { defaultTheme, Theme } from "../theme";
-import { PancakeV3Pool } from "../entities/Pool";
-import { Position } from "@pancakeswap/v3-sdk";
 import { Address } from "viem";
+import usePoolInfo from "@/hooks/usePoolInfo";
+import { defaultTheme, Theme } from "@/theme";
+import { PancakeV3Pool } from "@/entities/Pool";
+import { Position } from "@pancakeswap/v3-sdk";
 
 type ContextState = {
   loading: boolean;
@@ -17,6 +17,10 @@ type ContextState = {
   feePcm?: number;
   error?: string;
   onConnectWallet: () => void;
+  onAddTokens: (tokenAddresses: string) => void;
+  onRemoveToken: (tokenAddress: string) => void;
+  onAmountChange: (tokenAddress: string, amount: string) => void;
+  onOpenTokenSelectModal: () => void;
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -27,6 +31,10 @@ const WidgetContext = createContext<ContextState>({
   positionOwner: null,
   theme: defaultTheme,
   onConnectWallet: () => {},
+  onAddTokens: () => {},
+  onRemoveToken: () => {},
+  onAmountChange: () => {},
+  onOpenTokenSelectModal: () => {},
 });
 
 type Props = {
@@ -40,6 +48,10 @@ type Props = {
   feePcm?: number;
   error?: string;
   onConnectWallet: () => void;
+  onAddTokens: (tokenAddresses: string) => void;
+  onRemoveToken: (tokenAddress: string) => void;
+  onAmountChange: (tokenAddress: string, amount: string) => void;
+  onOpenTokenSelectModal: () => void;
 };
 
 export const WidgetProvider = ({

@@ -255,4 +255,45 @@ export const PANCAKE_NFT_MANAGER_CONTRACT: { [chainId: number]: Address } = {
   1101: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
 };
 
+export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
+  1: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
+  137: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
+  56: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
+  43114: "0xF2FD8219609E28C61A998cc534681f95D2740f61",
+  250: "0x878dFE971d44e9122048308301F540910Bbd934c",
+  25: "0x63Abb9973506189dC3741f61d25d4ed508151E6d",
+  42161: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
+  199: "0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54",
+  10: "0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974",
+  59144: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  1101: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  324: "0xF9cda624FBC7e059355ce98a31693d299FACd963",
+  8453: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  81457: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  5000: "0xcA11bde05977b3631167028862bE2a173976CA11",
+};
+
 export const BASE_BPS = 10_000;
+
+export const PATHS = {
+  KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
+  KYBERSWAP_PRICE_API: "https://price.kyberswap.com",
+};
+
+export const chainIdToChain: { [chainId: number]: string } = {
+  1: "ethereum",
+  137: "polygon",
+  56: "bsc",
+  42161: "arbitrum",
+  43114: "avalanche",
+  8453: "base",
+  81457: "blast",
+  250: "fantom",
+  5000: "mantle",
+  10: "optimism",
+  534352: "scroll",
+  59144: "linea",
+  1101: "polygon-zkevm",
+};
+
+export const MAX_ZAP_IN_TOKENS = 5;

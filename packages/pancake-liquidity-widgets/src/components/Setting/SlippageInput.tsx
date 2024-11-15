@@ -1,9 +1,11 @@
 import { useState } from "react";
-import AlertIcon from "../../assets/alert.svg";
-import { useZapState } from "../../hooks/useZapInState";
+import { useZapState } from "@/hooks/useZapInState";
+import { cn } from "@kyber/utils/tailwind-helpers";
+import AlertIcon from "@/assets/alert.svg";
 
 export const parseSlippageInput = (str: string): number =>
   Math.round(Number.parseFloat(str) * 100);
+
 export const validateSlippageInput = (
   str: string
 ): { isValid: boolean; message?: string } => {
@@ -64,19 +66,50 @@ const SlippageInput = () => {
     return ((slippage * 100) / 10_000).toString();
   });
 
-  // const [isFocus, setIsFocus] = useState(false);
   const { isValid, message } = validateSlippageInput(v);
+
+  const handleCustomSlippageChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    if (value === "") {
+      setV(value);
+      setSlippage(10);
+      return;
+    }
+
+    const numberRegex = /^(\d+)\.?(\d{1,2})?$/;
+    if (!value.match(numberRegex)) {
+      e.preventDefault();
+      return;
+    }
+    const res = validateSlippageInput(value);
+
+    if (res.isValid) {
+      const parsedValue = parseSlippageInput(value);
+      setSlippage(parsedValue);
+    } else setSlippage(10);
+    setV(value);
+  };
+  const onCustomSlippageBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (!e.currentTarget.value) setSlippage(10);
+    else if (isValid) setSlippage(parseSlippageInput(e.currentTarget.value));
+  };
 
   return (
     <>
-      <div style={{ display: "flex", gap: "8px", width: "100%" }}>
-        <div className="slp-input-wrapper" style={{ flex: 1 }}>
+      <div className="flex gap-2 w-full">
+        <div
+          className="rounded-md mt-[10px] bg-inputBackground border border-inputBackground flex flex-1 h-10"
+          style={{ boxShadow: "0 2px 0 -1px #0000000f inset" }}
+        >
           {[5, 10, 50, 100].map((item) => (
             <div
-              className="slp-item"
+              className="rounded-[15px] text-subText text-sm px-[6px] font-semibold flex flex-1 border border-transparent items-center gap-2 justify-center cursor-pointer box-border data-[active='true']:text-textReverse data-[active='true']:bg-textSecondary"
               data-active={item === slippage}
               role="button"
               onClick={() => setSlippage(item)}
+              key={item}
             >
               {(item * 100) / 10_000}%
             </div>
@@ -84,68 +117,27 @@ const SlippageInput = () => {
         </div>
 
         <div
-          className="slp-input-wrapper"
-          style={{ width: "100px" }}
+          className="rounded-md mt-[10px] bg-inputBackground border border-inputBackground h-10 flex flex-1 w-[100px] data-[error='true']:border-[var(--ks-lw-error)] data-[warning='true']:border-warning"
+          style={{ boxShadow: "0 2px 0 -1px #0000000f inset" }}
           data-error={!!message && !isValid}
           data-warning={!!message && isValid}
         >
-          <div
-            className="slp-item"
-            // data-active={![5, 10, 50, 100].includes(slippage)}
-            // data-focus={isFocus}
-            style={{
-              width: "72px",
-            }}
-          >
+          <div className="relative rounded-[15px] text-subText text-sm px-[6px] font-semibold flex flex-1 border border-transparent items-center gap-2 justify-center cursor-pointer box-border w-[72px]">
             {message && (
               <AlertIcon
-                style={{
-                  position: "absolute",
-                  top: 8,
-                  left: 4,
-                  width: 16,
-                  height: 16,
-                  color: isValid
-                    ? "var(--ks-lw-warning)"
-                    : "var(--ks-lw-error)",
-                }}
+                className={cn(
+                  "absolute top-2 left-1 w-4 h-3",
+                  isValid ? "text-warning" : "text-[var(--ks-lw-error)]"
+                )}
               />
             )}
             <input
-              // data-active={![5, 10, 50, 100].includes(slippage)}
+              className="bg-inputBackground text-[var(--ks-lw-text)] font-semibold border-none outline-none text-right w-full text-base p-0"
               placeholder="Custom"
-              onBlur={(e) => {
-                if (!e.currentTarget.value) setSlippage(10);
-                else if (isValid)
-                  setSlippage(parseSlippageInput(e.currentTarget.value));
-              }}
-              value={v}
-              onChange={(e) => {
-                const value = e.target.value;
-
-                if (value === "") {
-                  setV(value);
-                  setSlippage(10);
-                  return;
-                }
-
-                const numberRegex = /^(\d+)\.?(\d{1,2})?$/;
-                if (!value.match(numberRegex)) {
-                  e.preventDefault();
-                  return;
-                }
-
-                const res = validateSlippageInput(value);
-
-                if (res.isValid) {
-                  const parsedValue = parseSlippageInput(value);
-                  setSlippage(parsedValue);
-                } else {
-                  setSlippage(10);
-                }
-                setV(value);
-              }}
+              onBlur={onCustomSlippageBlur}
+              onChange={handleCustomSlippageChange}
               pattern="/^(\d+)\.?(\d{1,2})?$/"
+              value={v}
             />
             <span>%</span>
           </div>
@@ -154,12 +146,10 @@ const SlippageInput = () => {
 
       {message && (
         <div
-          style={{
-            fontSize: "12px",
-            color: isValid ? "var(--ks-lw-warning)" : "var(--ks-lw-error)",
-            textAlign: "left",
-            marginTop: "4px",
-          }}
+          className={cn(
+            "text-xs text-left mt-1",
+            isValid ? "text-warning" : "text-[var(--ks-lw-error)]"
+          )}
         >
           {message}
         </div>
