@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -7,6 +7,7 @@ import { EarnPool, useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavor
 
 import { NotificationType } from 'components/Announcement/type'
 import { Image } from 'components/Image'
+import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -43,6 +44,8 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
 
+  const [favoriteLoading, setFavoriteLoading] = useState<string[]>([])
+
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const tablePoolData = useMemo(() => {
@@ -70,9 +73,12 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
 
   const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: EarnPool) => {
     e.stopPropagation()
+    if (favoriteLoading.includes(pool.address)) return
+    handleAddFavoriteLoading(pool.address)
 
     if (!account) {
       toggleWalletModal()
+      handleRemoveFavoriteLoading(pool.address)
       return
     }
 
@@ -92,7 +98,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
         }
       }
     } catch {
-      //
+      handleRemoveFavoriteLoading(pool.address)
     }
     if (!signature) {
       const issuedAt = new Date().toISOString()
@@ -140,7 +146,13 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
           8000,
         )
       })
+      .finally(() => handleRemoveFavoriteLoading(pool.address))
   }
+  const handleAddFavoriteLoading = (poolAddress: string) => {
+    if (!favoriteLoading.includes(poolAddress)) setFavoriteLoading([...favoriteLoading, poolAddress])
+  }
+  const handleRemoveFavoriteLoading = (poolAddress: string) =>
+    setFavoriteLoading(favoriteLoading.filter(address => address !== poolAddress))
 
   if (!tablePoolData?.length)
     return (
@@ -229,14 +241,18 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
             {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
           </Flex>
           <Flex justifyContent="center">
-            <Star
-              size={16}
-              color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
-              fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
-              role="button"
-              cursor="pointer"
-              onClick={e => handleFavorite(e, pool)}
-            />
+            {favoriteLoading.includes(pool.address) ? (
+              <Loader />
+            ) : (
+              <Star
+                size={16}
+                color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
+                fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
+                role="button"
+                cursor="pointer"
+                onClick={e => handleFavorite(e, pool)}
+              />
+            )}
           </Flex>
         </TableRow>
       ))}
