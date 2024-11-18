@@ -67,7 +67,7 @@ const Earn = () => {
     chainId: NETWORKS_INFO[filters.chainId].ksSettingRoute,
   })
   const { data: supportedProtocolsData } = useSupportedProtocolsQuery()
-  const { data: poolData } = usePoolsExplorerQuery(filters)
+  const { data: poolData } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
 
   const supportedProtocols = useMemo(() => {
     if (!supportedProtocolsData?.data?.chains) return []

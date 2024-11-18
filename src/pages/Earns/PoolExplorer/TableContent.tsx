@@ -40,7 +40,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const dexList = useGetDexListQuery({
     chainId: NETWORKS_INFO[filters.chainId].ksSettingRoute,
   })
-  const { data: poolData, refetch } = usePoolsExplorerQuery(filters)
+  const { data: poolData, refetch } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
 
