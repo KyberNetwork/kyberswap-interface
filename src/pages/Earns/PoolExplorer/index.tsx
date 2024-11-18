@@ -95,6 +95,13 @@ const Earn = () => {
   const [search, setSearch] = useState('')
   const deboundedSearch = useDebounce(search, 300)
 
+  const totalPools = useMemo(() => {
+    const totalItems = poolData?.data?.pagination?.totalItems || 0
+    if (!filters.tag || !Object.keys(FilterTag).includes(filters.tag)) return totalItems
+
+    return totalItems <= 100 ? totalItems : 100
+  }, [poolData, filters.tag])
+
   const onChainChange = (newChainId: string | number) => {
     updateFilters('chainId', newChainId.toString())
   }
@@ -222,16 +229,12 @@ const Earn = () => {
           )}
           <TableContent onOpenZapInWidget={handleOpenZapInWidget} />
         </ContentWrapper>
-        {(!filters.tag || !Object.keys(FilterTag).includes(filters.tag)) && (
-          <Pagination
-            onPageChange={(newPage: number) => {
-              updateFilters('page', newPage.toString())
-            }}
-            totalCount={poolData?.data?.pagination?.totalItems || 0}
-            currentPage={(filters.page || 0) + 1}
-            pageSize={filters.limit || 10}
-          />
-        )}
+        <Pagination
+          onPageChange={(newPage: number) => updateFilters('page', newPage.toString())}
+          totalCount={totalPools}
+          currentPage={(filters.page || 0) + 1}
+          pageSize={filters.limit || 10}
+        />
       </TableWrapper>
     </PoolsExplorerWrapper>
   )

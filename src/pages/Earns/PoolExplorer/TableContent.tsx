@@ -49,7 +49,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const tablePoolData = useMemo(() => {
-    const parsedPoolData = (poolData?.data?.pools || []).map(pool => ({
+    let parsedPoolData = (poolData?.data?.pools || []).map(pool => ({
       ...pool,
       dexLogo: dexList.data?.find(dex => dex.dexId === pool.exchange)?.logoURL || '',
       dexName: dexList.data?.find(dex => dex.dexId === pool.exchange)?.name || '',
@@ -66,6 +66,11 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
           return filters.orderBy === Direction.DESC ? b.volume - a.volume : a.volume - b.volume
         return 0
       })
+
+      const page = filters.page || 0
+      const limit = filters.limit || 0
+
+      parsedPoolData = page > 9 ? [] : parsedPoolData.slice(page * limit, limit)
     }
 
     return parsedPoolData
