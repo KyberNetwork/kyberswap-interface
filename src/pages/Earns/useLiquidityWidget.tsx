@@ -4,6 +4,7 @@ import { EarnPool } from 'services/zapEarn'
 
 import Modal from 'components/Modal'
 import { useWeb3React } from 'hooks'
+import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
 
 // import useFilter from './PoolExplorer/useFilter'
 
@@ -11,13 +12,17 @@ interface LiquidityParams {
   provider: any
   poolAddress: string
   chainId: ChainId
-  onDismiss: () => void
   source: string
   poolType: PoolType
+  onDismiss: () => void
+  onConnectWallet: () => void
+  onChangeNetwork: () => void
 }
 
 const useLiquidityWidget = () => {
   const { library } = useWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
+  const toggleNetworkModal = useNetworkModalToggle()
   //   const { filters } = useFilter()
 
   const [liquidityParams, setLiquidityParams] = useState<LiquidityParams | null>(null)
@@ -35,6 +40,8 @@ const useLiquidityWidget = () => {
       source: 'kyberswap-demo-zap',
       //   poolType: PoolType[`DEX_${pool.exchange.toUpperCase()}` as keyof typeof PoolType],
       poolType: PoolType.DEX_PANCAKESWAPV3,
+      onConnectWallet: toggleWalletModal,
+      onChangeNetwork: toggleNetworkModal,
     })
   }
 
