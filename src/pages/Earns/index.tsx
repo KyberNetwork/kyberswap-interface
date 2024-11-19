@@ -135,6 +135,7 @@ const CardWrapper = styled.div`
 const ListPoolWrapper = styled.div`
   padding: 20px;
   border-radius: 20px;
+  height: 100%;
   background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
   cursor: url(${CursorIcon}), auto;
 `
