@@ -116,6 +116,13 @@ export const CurrencySecondImage = styled(CurrencyRoundedImage)`
   left: -6px;
 `
 
+export const SymbolText = styled.div`
+  max-width: 115px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
+
 export const Apr = styled.div<{ positive: boolean }>`
   display: flex;
   justify-content: flex-end;

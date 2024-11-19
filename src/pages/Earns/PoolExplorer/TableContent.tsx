@@ -24,6 +24,7 @@ import {
   FeeTier,
   MobileTableBottomRow,
   MobileTableRow,
+  SymbolText,
   TableBody,
   TableRow,
 } from './styles'
@@ -178,7 +179,9 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                   <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} width="24px" height="24px" alt="" />
                 </Flex>
                 <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-                  <Text>{/* {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol} */}USDT/ARB</Text>
+                  <SymbolText>
+                    {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+                  </SymbolText>
                   <Flex sx={{ gap: 2 }}>
                     <Image src={pool.dexLogo} width="20px" height="20px" alt="" />
                     <FeeTier>{pool.feeTier * 100}%</FeeTier>
@@ -229,10 +232,9 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
               <CurrencyRoundedImage src={pool.tokens?.[0]?.logoURI} width="24px" height="24px" alt="" />
               <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} width="24px" height="24px" alt="" />
             </Flex>
-            <Text>
-              {/* {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol} */}
-              USDT/ARB
-            </Text>
+            <SymbolText>
+              {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+            </SymbolText>
             <FeeTier>{pool.feeTier * 100}%</FeeTier>
           </Flex>
           <Apr positive={pool.apr > 0}>{pool.apr}%</Apr>

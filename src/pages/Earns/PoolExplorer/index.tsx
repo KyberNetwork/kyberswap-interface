@@ -230,7 +230,7 @@ const Earn = () => {
           <TableContent onOpenZapInWidget={handleOpenZapInWidget} />
         </ContentWrapper>
         <Pagination
-          onPageChange={(newPage: number) => updateFilters('page', newPage.toString())}
+          onPageChange={(newPage: number) => updateFilters('page', (newPage - 1).toString())}
           totalCount={totalPools}
           currentPage={(filters.page || 0) + 1}
           pageSize={filters.limit || 10}

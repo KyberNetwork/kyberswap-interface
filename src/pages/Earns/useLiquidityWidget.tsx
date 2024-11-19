@@ -6,7 +6,7 @@ import Modal from 'components/Modal'
 import { useWeb3React } from 'hooks'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
 
-// import useFilter from './PoolExplorer/useFilter'
+import useFilter from './PoolExplorer/useFilter'
 
 interface LiquidityParams {
   provider: any
@@ -23,23 +23,22 @@ const useLiquidityWidget = () => {
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
-  //   const { filters } = useFilter()
+  const { filters } = useFilter()
 
   const [liquidityParams, setLiquidityParams] = useState<LiquidityParams | null>(null)
 
   const handleCloseZapInWidget = () => setLiquidityParams(null)
-  const handleOpenZapInWidget = (_pool: EarnPool) => {
-    // if (!Object.keys(PoolType).includes(`DEX_${pool.exchange.toUpperCase()}`)) return
+  const handleOpenZapInWidget = (pool: EarnPool) => {
+    const supportedDexs = Object.keys(PoolType).map(item => item.replace('DEX_', '').replace('V3', '').toLowerCase())
+    const dex = supportedDexs.find(item => pool.exchange.toLowerCase().includes(item))
+    if (!dex) return
     setLiquidityParams({
       provider: library,
-      // poolAddress: pool.address,
-      // chainId: (pool.chainId || filters.chainId) as ChainId,
-      poolAddress: '0x641C00A822e8b671738d32a431a4Fb6074E5c79d',
-      chainId: ChainId.Arbitrum,
-      onDismiss: handleCloseZapInWidget,
+      poolAddress: pool.address,
+      chainId: (pool.chainId || filters.chainId) as ChainId,
       source: 'kyberswap-demo-zap',
-      //   poolType: PoolType[`DEX_${pool.exchange.toUpperCase()}` as keyof typeof PoolType],
-      poolType: PoolType.DEX_PANCAKESWAPV3,
+      poolType: PoolType[`DEX_${dex.toUpperCase()}V3` as keyof typeof PoolType],
+      onDismiss: handleCloseZapInWidget,
       onConnectWallet: toggleWalletModal,
       onChangeNetwork: toggleNetworkModal,
     })
