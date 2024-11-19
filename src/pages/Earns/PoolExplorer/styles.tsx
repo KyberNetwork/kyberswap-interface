@@ -105,6 +105,10 @@ export const FeeTier = styled.div`
   background: ${({ theme }) => rgba(theme.white, 0.04)};
   color: ${({ theme }) => theme.subText};
   width: fit-content;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    font-size: 14px;
+  `}
 `
 
 export const CurrencyRoundedImage = styled(Image)`
@@ -138,9 +142,8 @@ export const MobileTableRow = styled.div`
   }
 `
 export const MobileTableBottomRow = styled.div<{ withoutBorder: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 0 24px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  padding: 16px 0;
   border-bottom: ${({ withoutBorder, theme }) => (withoutBorder ? 'none' : `1px solid ${theme.tableHeader}`)};
 `

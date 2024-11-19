@@ -473,7 +473,7 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
             {pool.tokens[1].symbol}
           </Text>
         </Text>
-        <Tag>{pool.feeTier * 100}%</Tag>
+        <Tag>{pool.feeTier}%</Tag>
       </Flex>
       <Text color={theme.primary}>{pool.apr}%</Text>
     </PoolRow>

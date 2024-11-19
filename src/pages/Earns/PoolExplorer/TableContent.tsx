@@ -183,12 +183,12 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                     {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
                   </SymbolText>
                   <Flex sx={{ gap: 2 }}>
-                    <Image src={pool.dexLogo} width="20px" height="20px" alt="" />
-                    <FeeTier>{pool.feeTier * 100}%</FeeTier>
+                    <Image src={pool.dexLogo} width="22px" height="22px" alt="" />
+                    <FeeTier>{pool.feeTier}%</FeeTier>
                   </Flex>
                 </Flex>
               </Flex>
-              <Flex alignItems="center" sx={{ gap: 4 }}>
+              <Flex alignItems="center" sx={{ gap: 3 }}>
                 <Apr positive={pool.apr > 0}>{pool.apr}%</Apr>
                 <Star
                   size={16}
@@ -209,7 +209,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                 <Text color={theme.subText}>TVL</Text>
                 <Text>{formatDisplayNumber(pool.liquidity, { style: 'currency', significantDigits: 6 })}</Text>
               </Flex>
-              <Flex flexDirection="column" sx={{ gap: 1 }}>
+              <Flex flexDirection="column" alignItems={'flex-end'} sx={{ gap: 1 }}>
                 <Text color={theme.subText}>Volume</Text>
                 <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
               </Flex>
@@ -235,7 +235,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
             <SymbolText>
               {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
             </SymbolText>
-            <FeeTier>{pool.feeTier * 100}%</FeeTier>
+            <FeeTier>{pool.feeTier}%</FeeTier>
           </Flex>
           <Apr positive={pool.apr > 0}>{pool.apr}%</Apr>
           <Flex justifyContent="flex-end">
