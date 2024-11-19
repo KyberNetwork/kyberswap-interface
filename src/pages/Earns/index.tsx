@@ -445,8 +445,14 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
     >
       {liquidityWidget}
       <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
-        <img src={pool.tokens[0].logoURI} width={24} height={24} alt="" />
-        <img src={pool.tokens[1].logoURI} width={24} height={24} alt="" style={{ marginLeft: '-8px' }} />
+        <img src={pool.tokens[0].logoURI} width={24} height={24} alt="" style={{ borderRadius: '50%' }} />
+        <img
+          src={pool.tokens[1].logoURI}
+          width={24}
+          height={24}
+          alt=""
+          style={{ marginLeft: '-8px', borderRadius: '50%' }}
+        />
         <img
           src={NETWORKS_INFO[pool.chainId as ChainId].icon}
           width={12}

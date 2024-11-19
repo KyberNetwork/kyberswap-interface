@@ -108,7 +108,7 @@ export const FeeTier = styled.div`
 `
 
 export const CurrencyRoundedImage = styled(Image)`
-  /* border-radius: 50%; */
+  border-radius: 50%;
 `
 
 export const CurrencySecondImage = styled(CurrencyRoundedImage)`
