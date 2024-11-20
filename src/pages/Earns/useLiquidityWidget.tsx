@@ -2,9 +2,11 @@ import { ChainId, LiquidityWidget, PoolType } from 'kyberswap-liquidity-widgets'
 import { useState } from 'react'
 import { EarnPool } from 'services/zapEarn'
 
+import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useWeb3React } from 'hooks'
-import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { useNetworkModalToggle, useNotify, useWalletModalToggle } from 'state/application/hooks'
 
 import useFilter from './PoolExplorer/useFilter'
 
@@ -23,6 +25,7 @@ const useLiquidityWidget = () => {
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
+  const notify = useNotify()
   const { filters } = useFilter()
 
   const [liquidityParams, setLiquidityParams] = useState<LiquidityParams | null>(null)
@@ -31,7 +34,20 @@ const useLiquidityWidget = () => {
   const handleOpenZapInWidget = (pool: EarnPool) => {
     const supportedDexs = Object.keys(PoolType).map(item => item.replace('DEX_', '').replace('V3', '').toLowerCase())
     const dex = supportedDexs.find(item => pool.exchange.toLowerCase().includes(item))
-    if (!dex) return
+    if (!dex) {
+      notify(
+        {
+          title: `Open pool detail failed`,
+          summary: `Protocol ${pool.exchange} on ${
+            NETWORKS_INFO[String(pool?.chainId || filters.chainId) as unknown as keyof typeof NETWORKS_INFO]?.name ||
+            'this network'
+          } is not supported`,
+          type: NotificationType.ERROR,
+        },
+        8000,
+      )
+      return
+    }
     setLiquidityParams({
       provider: library,
       poolAddress: pool.address,
