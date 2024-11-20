@@ -6,6 +6,7 @@ import { useGetDexListQuery } from 'services/ksSetting'
 import { EarnPool, useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
+import CopyHelper from 'components/Copy'
 import { Image } from 'components/Image'
 import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -179,9 +180,12 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                   <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} width="24px" height="24px" alt="" />
                 </Flex>
                 <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-                  <SymbolText>
-                    {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
-                  </SymbolText>
+                  <Flex sx={{ gap: 1 }}>
+                    <SymbolText>
+                      {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+                    </SymbolText>
+                    <CopyHelper size={16} toCopy={pool.address} />
+                  </Flex>
                   <Flex sx={{ gap: 2 }}>
                     <Image src={pool.dexLogo} width="22px" height="22px" alt="" />
                     <FeeTier>{pool.feeTier}%</FeeTier>
