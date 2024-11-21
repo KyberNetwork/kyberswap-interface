@@ -196,7 +196,7 @@ const Card = ({
 }) => {
   const theme = useTheme()
   return (
-    <BorderWrapper>
+    <BorderWrapper onClick={() => !action.disabled && action.onClick()}>
       <CardWrapper>
         <Flex flexDirection="column" width="80px" alignItems="center">
           <Box width="1px" height="36px" backgroundColor="#258166" />
@@ -209,11 +209,7 @@ const Card = ({
         <Text color={theme.subText} marginTop="12px">
           {desc}
         </Text>
-        <ButtonPrimary
-          disabled={action.disabled}
-          style={{ marginTop: 'auto', width: '132px', height: '36px' }}
-          onClick={() => !action.disabled && action.onClick()}
-        >
+        <ButtonPrimary disabled={action.disabled} style={{ marginTop: 'auto', width: '132px', height: '36px' }}>
           {action.text}
         </ButtonPrimary>
       </CardWrapper>
