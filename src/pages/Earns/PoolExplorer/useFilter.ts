@@ -9,11 +9,11 @@ import { timings } from '.'
 
 export default function useFilter() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const filters: QueryParams = useMemo(() => {
     return {
-      chainId: +(searchParams.get('chainId') || ChainId.MAINNET),
+      chainId: +(searchParams.get('chainId') || chainId || ChainId.MAINNET),
       page: +(searchParams.get('page') || 0),
       limit: 10,
       interval: searchParams.get('interval') || (timings[1].value as string),
@@ -24,7 +24,7 @@ export default function useFilter() {
       orderBy: searchParams.get('orderBy') || '',
       q: searchParams.get('q')?.trim() || '',
     }
-  }, [searchParams, account])
+  }, [searchParams, account, chainId])
 
   const updateFilters = useCallback(
     (key: keyof QueryParams, value: string) => {
