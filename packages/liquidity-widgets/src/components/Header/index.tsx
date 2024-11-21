@@ -22,7 +22,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { token0, token1, fee } = pool;
 
   const logo = getDexLogo(poolType);
-  const name = getDexName(poolType);
+  const name = getDexName(poolType, chainId);
 
   const isOutOfRange = position
     ? pool.tickCurrent < position.tickLower ||
