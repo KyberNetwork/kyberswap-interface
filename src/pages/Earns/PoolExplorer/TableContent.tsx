@@ -184,7 +184,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                     <SymbolText>
                       {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
                     </SymbolText>
-                    <CopyHelper size={16} toCopy={pool.address} />
+                    <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
                   </Flex>
                   <Flex sx={{ gap: 2 }}>
                     <Image src={pool.dexLogo} width="22px" height="22px" alt="" />
