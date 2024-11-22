@@ -69,8 +69,8 @@ export default createReducer(initialState, builder =>
     .addCase(clearAllPendingTransactions, (transactions, { payload: { chainId } }) => {
       if (!transactions[chainId]) return
       const pendingTxHash: string[] = []
-      Object.keys(transactions[chainId]).forEach(txHash => {
-        if (!transactions[chainId]?.[txHash]?.find(tx => tx.receipt) && txHash) pendingTxHash.push(txHash)
+      Object.keys(transactions[chainId] || {}).forEach(txHash => {
+        if (!transactions[chainId]?.[txHash]?.find(tx => tx.receipt)) pendingTxHash.push(txHash)
       })
       pendingTxHash.forEach(txHash => delete transactions[chainId]?.[txHash])
     })
