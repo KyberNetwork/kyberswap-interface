@@ -1,14 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, X } from 'react-feather'
-import { useDispatch } from 'react-redux'
 import { useMedia } from 'react-use'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
-import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
@@ -20,8 +18,7 @@ import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import { isSupportKyberDao } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
-import { AppDispatch } from 'state'
-import { useNotify } from 'state/application/hooks'
+import { useAppDispatch } from 'state/hooks'
 import { clearAllPendingTransactions } from 'state/transactions/actions'
 import { useSortRecentTransactions } from 'state/transactions/hooks'
 import {
@@ -143,8 +140,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const transactions = useSortRecentTransactions(false)
   const theme = useTheme()
   const cancellingOrderInfo = useCancellingOrders()
-  const notify = useNotify()
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
 
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>(storedActiveTab)
@@ -179,6 +175,8 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
 
     return result
   }, [transactions, activeTab])
+
+  const pendingTransactions = formatTransactions.filter(tx => !tx.receipt)
 
   const listTab = useMemo(
     () => [
@@ -215,19 +213,10 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
     return rowHeights.current[index] || 100
   }
 
-  const onOpenClearTxModal = () => setOpenClearTxModal(true)
-  const onCloseClearTxModal = () => setOpenClearTxModal(false)
-  const onClearAllTransactions = () => {
+  const toggleClearTxModal = () => setOpenClearTxModal(prev => !prev)
+  const onClearAllPendingTransactions = () => {
     dispatch(clearAllPendingTransactions({ chainId }))
-    notify(
-      {
-        title: t`Success`,
-        summary: t`Clear all pending transactions successfully`,
-        type: NotificationType.SUCCESS,
-      },
-      8000,
-    )
-    onCloseClearTxModal()
+    toggleClearTxModal()
   }
 
   useEffect(() => {
@@ -242,13 +231,13 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
 
   return (
     <>
-      <Modal isOpen={openClearTxModal} onDismiss={onCloseClearTxModal}>
+      <Modal isOpen={openClearTxModal} onDismiss={toggleClearTxModal}>
         <ClearTxWrapper>
           <RowBetween align="start">
             <Text fontSize={20} fontWeight={500} color={theme.text}>
               {t`Clear All Pending Transactions`}
             </Text>
-            <X color={theme.text} style={{ cursor: 'pointer' }} onClick={onCloseClearTxModal} />
+            <X color={theme.text} style={{ cursor: 'pointer' }} onClick={toggleClearTxModal} />
           </RowBetween>
           <Row gap="12px">
             <Text fontSize={14} color={theme.text} lineHeight="16px">
@@ -256,8 +245,8 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
             </Text>
           </Row>
           <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
-            <ButtonOutlined onClick={onCloseClearTxModal}>{t`Cancel`}</ButtonOutlined>
-            <ButtonPrimary onClick={onClearAllTransactions}>{t`Clear All`}</ButtonPrimary>
+            <ButtonOutlined onClick={toggleClearTxModal}>{t`Cancel`}</ButtonOutlined>
+            <ButtonPrimary onClick={onClearAllPendingTransactions}>{t`Clear All`}</ButtonPrimary>
           </Row>
         </ClearTxWrapper>
       </Modal>
@@ -299,9 +288,9 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
             </AutoSizer>
           )}
         </ContentWrapper>
-        {formatTransactions.length !== 0 && (
+        {pendingTransactions.length !== 0 && (
           <ClearTxButton>
-            <Text fontSize={14} onClick={onOpenClearTxModal}>{t`Clear Pending Transactions`}</Text>
+            <Text fontSize={14} onClick={toggleClearTxModal}>{t`Clear Pending Transactions`}</Text>
             <InfoHelper
               color={theme.primary}
               text={t`Manually clear this transaction from the pending list. This will not affect its on-chain status.`}
