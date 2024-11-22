@@ -205,7 +205,6 @@ export default function Menu() {
   const [holidayMode, toggleHolidayMode] = useHolidayMode()
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
 
-  // const userLocale = useUserLocale()
   const location = useLocation()
 
   const { mixpanelHandler } = useMixpanel()
@@ -521,22 +520,6 @@ export default function Menu() {
               <Trans>Notification Center</Trans>
               <MailIcon size={17} color={theme.text} />
             </NavLinkBetween>
-            {/* <NavLinkBetween
-              onClick={() => {
-                setIsSelectingLanguage(true)
-                handlePreferenceClickMixpanel('Language')
-              }}
-            >
-              <Trans>Language</Trans>
-              <ButtonEmpty
-                padding="0"
-                width="fit-content"
-                style={{ color: theme.text, textDecoration: 'none', fontSize: '14px' }}
-              >
-                {getLocaleLabel(userLocale, true)}&nbsp;&nbsp;
-                <ArrowRight fill={theme.text} />
-              </ButtonEmpty>
-            </NavLinkBetween> */}
 
             <Divider />
 
