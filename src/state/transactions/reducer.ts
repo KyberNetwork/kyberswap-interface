@@ -7,6 +7,7 @@ import { getTransactionGroupByType } from 'utils/transaction'
 import {
   addTransaction,
   checkedTransaction,
+  clearAllPendingTransactions,
   clearAllTransactions,
   finalizeTransaction,
   modifyTransaction,
@@ -64,6 +65,14 @@ export default createReducer(initialState, builder =>
     .addCase(clearAllTransactions, (transactions, { payload: { chainId } }) => {
       if (!transactions[chainId]) return
       transactions[chainId] = {}
+    })
+    .addCase(clearAllPendingTransactions, (transactions, { payload: { chainId } }) => {
+      if (!transactions[chainId]) return
+      const pendingTxHash: string[] = []
+      Object.keys(transactions[chainId]).forEach(txHash => {
+        if (!transactions[chainId]?.[txHash]?.find(tx => tx.receipt)) pendingTxHash.push(txHash)
+      })
+      pendingTxHash.forEach(txHash => delete transactions[chainId]?.[txHash])
     })
     .addCase(checkedTransaction, (transactions, { payload: { chainId, hash, blockNumber } }) => {
       const tx = findTx(transactions[chainId], hash)

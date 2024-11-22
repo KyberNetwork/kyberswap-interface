@@ -8,6 +8,7 @@ import { VariableSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
@@ -20,7 +21,8 @@ import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } fr
 import { isSupportKyberDao } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
-import { clearAllTransactions } from 'state/transactions/actions'
+import { useNotify } from 'state/application/hooks'
+import { clearAllPendingTransactions } from 'state/transactions/actions'
 import { useSortRecentTransactions } from 'state/transactions/hooks'
 import {
   TRANSACTION_GROUP,
@@ -141,6 +143,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const transactions = useSortRecentTransactions(false)
   const theme = useTheme()
   const cancellingOrderInfo = useCancellingOrders()
+  const notify = useNotify()
   const dispatch = useDispatch<AppDispatch>()
   const { chainId } = useActiveWeb3React()
 
@@ -215,7 +218,15 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const onOpenClearTxModal = () => setOpenClearTxModal(true)
   const onCloseClearTxModal = () => setOpenClearTxModal(false)
   const onClearAllTransactions = () => {
-    dispatch(clearAllTransactions({ chainId }))
+    dispatch(clearAllPendingTransactions({ chainId }))
+    notify(
+      {
+        title: t`Success`,
+        summary: t`Clear all pending transactions successfully`,
+        type: NotificationType.SUCCESS,
+      },
+      8000,
+    )
     onCloseClearTxModal()
   }
 
