@@ -1,11 +1,16 @@
 import { Trans, t } from '@lingui/macro'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Info } from 'react-feather'
+import { Info, X } from 'react-feather'
+import { useMedia } from 'react-use'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import InfoHelper from 'components/InfoHelper'
+import Modal from 'components/Modal'
+import Row, { RowBetween } from 'components/Row'
 import Tab from 'components/WalletPopup/Transactions/Tab'
 import { NUMBERS } from 'components/WalletPopup/Transactions/helper'
 import useCancellingOrders, { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
@@ -13,6 +18,8 @@ import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import { isSupportKyberDao } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
+import { useAppDispatch } from 'state/hooks'
+import { clearAllPendingTransactions } from 'state/transactions/actions'
 import { useSortRecentTransactions } from 'state/transactions/hooks'
 import {
   TRANSACTION_GROUP,
@@ -20,6 +27,7 @@ import {
   TransactionExtraInfo1Token,
   TransactionExtraInfo2Token,
 } from 'state/transactions/type'
+import { MEDIA_WIDTHS } from 'theme'
 
 import TransactionItem from './TransactionItem'
 
@@ -48,6 +56,28 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+`
+
+const ClearTxButton = styled.div`
+  cursor: pointer;
+  color: ${({ theme }) => theme.primary};
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`
+
+const ClearTxWrapper = styled.div`
+  padding: 20px;
+  border-radius: 20px;
+  background-color: ${({ theme }) => theme.tableHeader};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  color: ${({ theme }) => theme.subText};
 `
 
 function RowItem({
@@ -107,24 +137,23 @@ function RowItem({
 // This is intentional, we don't need to persist in localStorage
 let storedActiveTab = ''
 function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
-  const listTab = useMemo(
-    () => [
-      { title: t`All`, value: '' },
-      { title: t`Swaps`, value: TRANSACTION_GROUP.SWAP },
-      { title: t`Liquidity`, value: TRANSACTION_GROUP.LIQUIDITY },
-      { title: t`KyberDAO`, value: TRANSACTION_GROUP.KYBERDAO },
-      { title: t`Others`, value: TRANSACTION_GROUP.OTHER },
-    ],
-    [],
-  )
-
   const transactions = useSortRecentTransactions(false)
-  const { chainId } = useActiveWeb3React()
-  const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>(storedActiveTab)
   const theme = useTheme()
   const cancellingOrderInfo = useCancellingOrders()
+  const dispatch = useAppDispatch()
+  const { chainId } = useActiveWeb3React()
+
+  const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>(storedActiveTab)
+  const [openClearTxModal, setOpenClearTxModal] = useState(false)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const listTokenAddress = useRef<string[]>([])
+  const rowHeights = useRef<{ [key: string]: number }>({})
+  const listRef = useRef<any>(null)
+
+  const total = listTokenAddress.current
+  const isLoadedTokenDefault = useIsLoadedTokenDefault()
+
   const pushAddress = (address: string) => {
     if (address && !listTokenAddress.current.includes(address)) listTokenAddress.current.push(address)
   }
@@ -147,34 +176,18 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
     return result
   }, [transactions, activeTab])
 
-  const total = listTokenAddress.current
-  const isLoadedTokenDefault = useIsLoadedTokenDefault()
-  useEffect(() => {
-    if (!isLoadedTokenDefault) return
-    const list: string[] = listTokenAddress.current.filter(address => !findCacheToken(address))
-    if (list.length) fetchListTokenByAddresses(list, chainId).catch(console.error)
-  }, [total, isLoadedTokenDefault, chainId])
+  const pendingTransactions = formatTransactions.filter(tx => !tx.receipt)
 
-  const onRefChange = useCallback((node: HTMLDivElement) => {
-    if (!node?.classList.contains('scrollbar')) {
-      node?.classList.add('scrollbar')
-    }
-  }, [])
-
-  const rowHeights = useRef<{ [key: string]: number }>({})
-  const listRef = useRef<any>(null)
-  const setRowHeight = useCallback((index: number, size: number) => {
-    listRef.current?.resetAfterIndex(0)
-    rowHeights.current = { ...rowHeights.current, [index]: size }
-  }, [])
-
-  function getRowHeight(index: number) {
-    return rowHeights.current[index] || 100
-  }
-
-  useEffect(() => {
-    storedActiveTab = activeTab
-  }, [activeTab])
+  const listTab = useMemo(
+    () => [
+      { title: t`All`, value: '' },
+      { title: t`Swaps`, value: TRANSACTION_GROUP.SWAP },
+      { title: t`Liquidity`, value: TRANSACTION_GROUP.LIQUIDITY },
+      { title: t`KyberDAO`, value: TRANSACTION_GROUP.KYBERDAO },
+      { title: t`Others`, value: TRANSACTION_GROUP.OTHER },
+    ],
+    [],
+  )
 
   const filterTab = useMemo(() => {
     return listTab.filter(tab => {
@@ -185,46 +198,107 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
     })
   }, [chainId, listTab])
 
+  const onRefChange = useCallback((node: HTMLDivElement) => {
+    if (!node?.classList.contains('scrollbar')) {
+      node?.classList.add('scrollbar')
+    }
+  }, [])
+
+  const setRowHeight = useCallback((index: number, size: number) => {
+    listRef.current?.resetAfterIndex(0)
+    rowHeights.current = { ...rowHeights.current, [index]: size }
+  }, [])
+
+  function getRowHeight(index: number) {
+    return rowHeights.current[index] || 100
+  }
+
+  const toggleClearTxModal = () => setOpenClearTxModal(prev => !prev)
+  const onClearAllPendingTransactions = () => {
+    dispatch(clearAllPendingTransactions({ chainId }))
+    toggleClearTxModal()
+  }
+
+  useEffect(() => {
+    if (!isLoadedTokenDefault) return
+    const list: string[] = listTokenAddress.current.filter(address => !findCacheToken(address))
+    if (list.length) fetchListTokenByAddresses(list, chainId).catch(console.error)
+  }, [total, isLoadedTokenDefault, chainId])
+
+  useEffect(() => {
+    storedActiveTab = activeTab
+  }, [activeTab])
+
   return (
-    <Wrapper>
-      <Tab<TRANSACTION_GROUP | string> activeTab={activeTab} setActiveTab={setActiveTab} tabs={filterTab} />
-      <ContentWrapper>
-        {formatTransactions.length === 0 ? (
-          <Flex flexDirection="column" alignItems="center" color={theme.subText} sx={{ gap: 10, marginTop: '20px' }}>
-            <Info size={32} />
-            <Text fontSize={'14px'}>
-              <Trans>You have no Transaction History.</Trans>
+    <>
+      <Modal isOpen={openClearTxModal} onDismiss={toggleClearTxModal}>
+        <ClearTxWrapper>
+          <RowBetween align="start">
+            <Text fontSize={20} fontWeight={500} color={theme.text}>
+              {t`Clear All Pending Transactions`}
             </Text>
-          </Flex>
-        ) : (
-          <AutoSizer>
-            {({ height, width }) => (
-              <VariableSizeList
-                height={height}
-                width={width}
-                itemSize={getRowHeight}
-                ref={listRef}
-                outerRef={onRefChange}
-                itemCount={formatTransactions.length}
-                itemData={formatTransactions}
-              >
-                {({ data, index, style }) => (
-                  <RowItem
-                    isMinimal={isMinimal}
-                    style={style}
-                    transaction={data[index]}
-                    index={index}
-                    key={data[index].hash}
-                    setRowHeight={setRowHeight}
-                    cancellingOrderInfo={cancellingOrderInfo}
-                  />
-                )}
-              </VariableSizeList>
-            )}
-          </AutoSizer>
+            <X color={theme.text} style={{ cursor: 'pointer' }} onClick={toggleClearTxModal} />
+          </RowBetween>
+          <Row gap="12px">
+            <Text fontSize={14} color={theme.text} lineHeight="16px">
+              {t`Are you sure you want to clear all pending transactions? This will remove them from your list but will not affect their status on-chain.`}
+            </Text>
+          </Row>
+          <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
+            <ButtonOutlined onClick={toggleClearTxModal}>{t`Cancel`}</ButtonOutlined>
+            <ButtonPrimary onClick={onClearAllPendingTransactions}>{t`Clear All`}</ButtonPrimary>
+          </Row>
+        </ClearTxWrapper>
+      </Modal>
+      <Wrapper>
+        <Tab<TRANSACTION_GROUP | string> activeTab={activeTab} setActiveTab={setActiveTab} tabs={filterTab} />
+        <ContentWrapper>
+          {formatTransactions.length === 0 ? (
+            <Flex flexDirection="column" alignItems="center" color={theme.subText} sx={{ gap: 10, marginTop: '20px' }}>
+              <Info size={32} />
+              <Text fontSize={'14px'}>
+                <Trans>You have no Transaction History.</Trans>
+              </Text>
+            </Flex>
+          ) : (
+            <AutoSizer>
+              {({ height, width }) => (
+                <VariableSizeList
+                  height={height}
+                  width={width}
+                  itemSize={getRowHeight}
+                  ref={listRef}
+                  outerRef={onRefChange}
+                  itemCount={formatTransactions.length}
+                  itemData={formatTransactions}
+                >
+                  {({ data, index, style }) => (
+                    <RowItem
+                      isMinimal={isMinimal}
+                      style={style}
+                      transaction={data[index]}
+                      index={index}
+                      key={data[index].hash}
+                      setRowHeight={setRowHeight}
+                      cancellingOrderInfo={cancellingOrderInfo}
+                    />
+                  )}
+                </VariableSizeList>
+              )}
+            </AutoSizer>
+          )}
+        </ContentWrapper>
+        {pendingTransactions.length !== 0 && (
+          <ClearTxButton>
+            <Text fontSize={14} onClick={toggleClearTxModal}>{t`Clear Pending Transactions`}</Text>
+            <InfoHelper
+              color={theme.primary}
+              text={t`Manually clear this transaction from the pending list. This will not affect its on-chain status.`}
+            />
+          </ClearTxButton>
         )}
-      </ContentWrapper>
-    </Wrapper>
+      </Wrapper>
+    </>
   )
 }
 

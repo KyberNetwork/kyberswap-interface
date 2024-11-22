@@ -55,7 +55,8 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   'data-blur': props.$blur,
 }))<WrapperProps>`
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
+  height: unset;
   padding-top: 0px;
 
   display: flex;
@@ -77,7 +78,6 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding-bottom: 0;
-    height: unset;
   `};
 `
 
