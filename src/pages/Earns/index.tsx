@@ -239,6 +239,11 @@ export default function Earns() {
     </>
   )
 
+  const highlightedPools = (data?.data?.highlightedPools || []).slice(0, 9)
+  const highAprPool = (data?.data?.highAPR || []).slice(0, 5)
+  const lowVolatilityPool = (data?.data?.lowVolatility || []).slice(0, 5)
+  const solidEarningPool = (data?.data?.solidEarning || []).slice(0, 5)
+
   return (
     <WrapperBg>
       <Container>
@@ -310,7 +315,7 @@ export default function Earns() {
                 gap: '1rem',
               }}
             >
-              {data?.data?.highlightedPools.map(pool => (
+              {highlightedPools.map(pool => (
                 <PoolItem pool={pool} key={pool.address} />
               ))}
             </Box>
@@ -336,7 +341,7 @@ export default function Earns() {
                   gap: '1rem',
                 }}
               >
-                {data?.data?.highAPR.map(pool => (
+                {highAprPool.map(pool => (
                   <PoolItem pool={pool} key={pool.address} />
                 ))}
               </Box>
@@ -361,7 +366,7 @@ export default function Earns() {
                   gap: '1rem',
                 }}
               >
-                {data?.data?.lowVolatility.map(pool => (
+                {lowVolatilityPool.map(pool => (
                   <PoolItem pool={pool} key={pool.address} />
                 ))}
               </Box>
@@ -386,7 +391,7 @@ export default function Earns() {
                   gap: '1rem',
                 }}
               >
-                {data?.data?.solidEarning.map(pool => (
+                {solidEarningPool.map(pool => (
                   <PoolItem pool={pool} key={pool.address} />
                 ))}
               </Box>
