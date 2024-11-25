@@ -128,11 +128,18 @@ export default function Updater(): null {
           })
           .catch(console.warn)
 
+        console.log('connector?.id', connector?.id)
+        console.log(CONNECTION.SAFE_CONNECTOR_ID)
+
+        console.log(connector?.id === CONNECTION.SAFE_CONNECTOR_ID)
+
         if (connector?.id === CONNECTION.SAFE_CONNECTOR_ID) {
+          console.log(1)
           appsSdk.txs.getBySafeTxHash(hash).then(tx => {
             console.log('tx', tx)
           })
         } else {
+          console.log(2)
           readProvider
             .getTransactionReceipt(hash)
             .then(receipt => {
