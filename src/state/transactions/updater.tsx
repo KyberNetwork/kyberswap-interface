@@ -58,7 +58,7 @@ export default function Updater(): null {
 
   useEffect(() => {
     if (!readProvider || !lastBlockNumber) return
-    localStorage.setItem('connector', JSON.stringify(connector))
+    console.log('connector', connector)
     const uniqueTransactions = [
       ...new Set(
         Object.values(transactions)
@@ -73,7 +73,7 @@ export default function Updater(): null {
     uniqueTransactions
       .filter(hash => shouldCheck(lastBlockNumber, findTx(transactions, hash)))
       .forEach((hash, index) => {
-        localStorage.setItem(`index${index}`, hash)
+        console.log(`index${index}`, hash)
         // Check if tx was replaced
         readProvider
           .getTransaction(hash)
@@ -117,7 +117,7 @@ export default function Updater(): null {
         readProvider
           .getTransactionReceipt(hash)
           .then(receipt => {
-            localStorage.setItem('receipt', JSON.stringify(receipt))
+            console.log('receipt', receipt)
             if (!receipt) {
               dispatch(checkedTransaction({ chainId, hash, blockNumber: lastBlockNumber }))
               return
