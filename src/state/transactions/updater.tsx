@@ -6,7 +6,7 @@ import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { NotificationType } from 'components/Announcement/type'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
 import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
@@ -40,6 +40,7 @@ function shouldCheck(
 
 export default function Updater(): null {
   const { chainId, account } = useActiveWeb3React()
+  const { connector } = useWeb3React()
   const { readProvider } = useKyberSwapConfig(chainId)
 
   const lastBlockNumber = useBlockNumber()
@@ -57,6 +58,7 @@ export default function Updater(): null {
 
   useEffect(() => {
     if (!readProvider || !lastBlockNumber) return
+    console.debug('connector', connector)
     const uniqueTransactions = [
       ...new Set(
         Object.values(transactions)
@@ -111,10 +113,11 @@ export default function Updater(): null {
             }
           })
           .catch(console.warn)
-        console.log('log log log')
+        console.debug('log log log')
         readProvider
           .getTransactionReceipt(hash)
           .then(receipt => {
+            console.debug('receipt', receipt)
             if (!receipt) {
               dispatch(checkedTransaction({ chainId, hash, blockNumber: lastBlockNumber }))
               return
