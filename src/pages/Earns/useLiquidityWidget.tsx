@@ -61,7 +61,7 @@ const useLiquidityWidget = () => {
   }
 
   const liquidityWidget = liquidityParams ? (
-    <Modal isOpen mobileFullWidth maxWidth={760} width="fit-content" onDismiss={handleCloseZapInWidget}>
+    <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapInWidget}>
       <LiquidityWidget {...liquidityParams} />
     </Modal>
   ) : null
