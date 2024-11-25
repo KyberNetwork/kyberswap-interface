@@ -89,7 +89,6 @@ export async function sendEVMTransaction({
       ? paymasterExecute(paymentToken, sendTransactionOption, gasLimit.toNumber())
       : library.getSigner().sendTransaction(sendTransactionOption))
 
-    console.debug('response hash', response.hash)
     return response
   } catch (error) {
     throw new TransactionError(
