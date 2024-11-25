@@ -111,6 +111,7 @@ export default function Updater(): null {
             }
           })
           .catch(console.warn)
+        console.log('log log log')
         readProvider
           .getTransactionReceipt(hash)
           .then(receipt => {
