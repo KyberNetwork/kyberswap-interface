@@ -73,7 +73,7 @@ const Earn = () => {
     if (!supportedProtocolsData?.data?.chains) return []
     const parsedProtocols =
       supportedProtocolsData.data.chains[filters.chainId]?.protocols?.map(item => ({
-        label: dexList?.data?.find(dex => dex.dexId === item.id)?.name || item.name,
+        label: (dexList?.data?.find(dex => dex.dexId === item.id)?.name || item.name).replaceAll('-', ' '),
         value: item.id,
       })) || []
     return [{ label: 'All Protocols', value: '' }].concat(parsedProtocols)

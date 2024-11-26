@@ -48,7 +48,7 @@ const ItemIcon = styled.img`
 
 const DropdownContent = styled.div<{ alignLeft: boolean }>`
   position: absolute;
-  top: 48px;
+  top: 42px;
   left: 0;
   background: ${({ theme }) => theme.background};
   border-radius: 24px;
@@ -63,6 +63,7 @@ const DropdownContent = styled.div<{ alignLeft: boolean }>`
   max-height: 218px;
   overflow-y: auto;
   z-index: 100;
+  filter: brightness(1.2);
 `
 
 const DropdownContentItem = styled.div`
