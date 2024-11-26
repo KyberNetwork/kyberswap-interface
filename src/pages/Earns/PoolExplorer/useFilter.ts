@@ -29,7 +29,10 @@ export default function useFilter() {
   const updateFilters = useCallback(
     (key: keyof QueryParams, value: string) => {
       if (!value) searchParams.delete(key)
-      else searchParams.set(key, value)
+      else {
+        searchParams.set(key, value)
+        if (key === 'chainId') searchParams.delete('protocol')
+      }
       if (key !== 'sortBy' && key !== 'orderBy' && key !== 'page') searchParams.delete('page')
       setSearchParams(searchParams)
     },
