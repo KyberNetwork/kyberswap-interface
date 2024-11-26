@@ -16,6 +16,7 @@ import RocketIcon from 'assets/svg/rocket.svg'
 import SolidEarningIcon from 'assets/svg/solid-earning.svg'
 import StakingIcon from 'assets/svg/staking.svg'
 import { ButtonPrimary } from 'components/Button'
+import LocalLoader from 'components/LocalLoader'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
@@ -220,7 +221,7 @@ const Card = ({
 export default function Earns() {
   const navigate = useNavigate()
   const theme = useTheme()
-  const { data } = useExplorerLandingQuery()
+  const { isLoading, data } = useExplorerLandingQuery()
 
   const title = (_title: string, icon: string) => (
     <>
@@ -308,17 +309,21 @@ export default function Earns() {
             }}
           >
             {title('Highlighted Pools', FireIcon)}
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '1rem',
-              }}
-            >
-              {highlightedPools.map(pool => (
-                <PoolItem pool={pool} key={pool.address} />
-              ))}
-            </Box>
+            {isLoading ? (
+              <LocalLoader />
+            ) : (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '1rem',
+                }}
+              >
+                {highlightedPools.map(pool => (
+                  <PoolItem pool={pool} key={pool.address} />
+                ))}
+              </Box>
+            )}
           </ListPoolWrapper>
         </PoolWrapper>
 
@@ -334,17 +339,21 @@ export default function Earns() {
               }}
             >
               {title('High APR', RocketIcon)}
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem',
-                }}
-              >
-                {highAprPool.map(pool => (
-                  <PoolItem pool={pool} key={pool.address} />
-                ))}
-              </Box>
+              {isLoading ? (
+                <LocalLoader />
+              ) : (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem',
+                  }}
+                >
+                  {highAprPool.map(pool => (
+                    <PoolItem pool={pool} key={pool.address} />
+                  ))}
+                </Box>
+              )}
             </ListPoolWrapper>
           </PoolWrapper>
 
@@ -359,17 +368,21 @@ export default function Earns() {
               }}
             >
               {title('Low Volatility', LowVolatilityIcon)}
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem',
-                }}
-              >
-                {lowVolatilityPool.map(pool => (
-                  <PoolItem pool={pool} key={pool.address} />
-                ))}
-              </Box>
+              {isLoading ? (
+                <LocalLoader />
+              ) : (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem',
+                  }}
+                >
+                  {lowVolatilityPool.map(pool => (
+                    <PoolItem pool={pool} key={pool.address} />
+                  ))}
+                </Box>
+              )}
             </ListPoolWrapper>
           </PoolWrapper>
 
@@ -384,17 +397,21 @@ export default function Earns() {
               }}
             >
               {title('Solid Earning', SolidEarningIcon)}
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem',
-                }}
-              >
-                {solidEarningPool.map(pool => (
-                  <PoolItem pool={pool} key={pool.address} />
-                ))}
-              </Box>
+              {isLoading ? (
+                <LocalLoader />
+              ) : (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem',
+                  }}
+                >
+                  {solidEarningPool.map(pool => (
+                    <PoolItem pool={pool} key={pool.address} />
+                  ))}
+                </Box>
+              )}
             </ListPoolWrapper>
           </PoolWrapper>
         </Box>
