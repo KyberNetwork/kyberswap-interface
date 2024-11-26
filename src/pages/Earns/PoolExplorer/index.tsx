@@ -168,7 +168,7 @@ const Earn = () => {
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
           <DropdownMenu options={chains} value={filters.chainId} alignLeft onChange={onChainChange} />
           <DropdownMenu
-            width={90}
+            width={100}
             options={supportedProtocols}
             value={filters.protocol}
             alignLeft
