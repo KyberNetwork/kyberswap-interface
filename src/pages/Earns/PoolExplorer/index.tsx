@@ -81,12 +81,14 @@ const Earn = () => {
 
   const chains = useMemo(
     () =>
-      supportedChains.map(chain => ({
-        label: chain.name,
-        value: chain.chainId,
-        icon: chain.icon,
-      })),
-    [supportedChains],
+      supportedChains
+        .map(chain => ({
+          label: chain.name,
+          value: chain.chainId,
+          icon: chain.icon,
+        }))
+        .filter(chain => supportedProtocolsData?.data?.chains?.[chain.value]),
+    [supportedChains, supportedProtocolsData],
   )
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
