@@ -13,6 +13,7 @@ import { ReactComponent as IconLowVolatility } from 'assets/svg/ic_pool_low_vola
 import { ReactComponent as IconSolidEarningPool } from 'assets/svg/ic_pool_solid_earning.svg'
 import Pagination from 'components/Pagination'
 import Search from 'components/Search'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
@@ -45,10 +46,26 @@ const filterTags = [
     label: 'Highlighted Pools',
     value: FilterTag.HIGHLIGHTED_POOL,
     icon: <IconHighlightedPool width={20} color="#FF007A" />,
+    tooltip: '',
   },
-  { label: 'High APR', value: FilterTag.HIGH_APR, icon: <IconHighAprPool width={20} color="#31CB9E" /> },
-  { label: 'Solid Earning', value: FilterTag.SOLID_EARNING, icon: <IconSolidEarningPool width={20} color="#FBB324" /> },
-  { label: 'Low Volatility', value: FilterTag.LOW_VOLATILITY, icon: <IconLowVolatility width={20} color="#2C9CE4" /> },
+  {
+    label: 'High APR',
+    value: FilterTag.HIGH_APR,
+    icon: <IconHighAprPool width={20} color="#31CB9E" />,
+    tooltip: 'Top 100 Pools with assets that offer exceptionally high APYs',
+  },
+  {
+    label: 'Solid Earning',
+    value: FilterTag.SOLID_EARNING,
+    icon: <IconSolidEarningPool width={20} color="#FBB324" />,
+    tooltip: 'Top 100 pools that have the high total earned fee in the last 7 days',
+  },
+  {
+    label: 'Low Volatility',
+    value: FilterTag.LOW_VOLATILITY,
+    icon: <IconLowVolatility width={20} color="#2C9CE4" />,
+    tooltip: 'Top 100 highest TVL Pools consisting of stable coins or correlated pairs',
+  },
 ]
 
 export const timings: MenuOption[] = [
@@ -149,20 +166,36 @@ const Earn = () => {
         <Tag active={!filters.tag} role="button" onClick={() => updateFilters('tag', '')}>
           {t`All pools`}
         </Tag>
-        <Tag active={filters.tag === 'favorite'} role="button" onClick={() => updateFilters('tag', 'favorite')}>
-          <Star size={16} />
-        </Tag>
-        {filterTags.map(item => (
-          <Tag
-            active={filters.tag === item.value}
-            key={item.value}
-            role="button"
-            onClick={() => updateFilters('tag', item.value)}
-          >
-            {!upToExtraSmall && item.icon}
-            {item.label}
+        <MouseoverTooltip text="List of pools added as favorite" placement="bottom">
+          <Tag active={filters.tag === 'favorite'} role="button" onClick={() => updateFilters('tag', 'favorite')}>
+            <Star size={16} />
           </Tag>
-        ))}
+        </MouseoverTooltip>
+        {filterTags.map((item, index) =>
+          item.tooltip ? (
+            <MouseoverTooltip text={item.tooltip} placement="bottom" key={index}>
+              <Tag
+                active={filters.tag === item.value}
+                key={item.value}
+                role="button"
+                onClick={() => updateFilters('tag', item.value)}
+              >
+                {!upToExtraSmall && item.icon}
+                {item.label}
+              </Tag>
+            </MouseoverTooltip>
+          ) : (
+            <Tag
+              active={filters.tag === item.value}
+              key={item.value}
+              role="button"
+              onClick={() => updateFilters('tag', item.value)}
+            >
+              {!upToExtraSmall && item.icon}
+              {item.label}
+            </Tag>
+          ),
+        )}
       </TagContainer>
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
@@ -238,6 +271,13 @@ const Earn = () => {
           pageSize={filters.limit || 10}
         />
       </TableWrapper>
+
+      <Text
+        fontSize={14}
+        color={'#737373'}
+        textAlign={'center'}
+        fontStyle={'italic'}
+      >{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Text>
     </PoolsExplorerWrapper>
   )
 }

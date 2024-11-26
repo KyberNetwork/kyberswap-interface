@@ -48,6 +48,11 @@ export const Tag = styled.div<{ active: boolean }>`
   gap: 8px;
   flex: 0 0 auto;
   line-height: 28px;
+  height: 42px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    height: 38px;
+  `}
 `
 
 export const TableWrapper = styled.div`
