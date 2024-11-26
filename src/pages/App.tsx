@@ -180,6 +180,9 @@ export default function App() {
   const prevOnline = usePrevious(online)
   useSessionExpiredGlobal()
 
+  const ancestorOrigins = window.location.ancestorOrigins
+  const isSafeAppOrigin = !!ancestorOrigins?.[ancestorOrigins.length - 1]?.includes('app.safe.global')
+
   useEffect(() => {
     if (prevOnline === false && online && account) {
       // refresh page when network back to normal to prevent some issues: ex: stale data, ...
@@ -241,7 +244,7 @@ export default function App() {
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
               <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
-              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isSafeAppOrigin && (
                 <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
               )}
 
