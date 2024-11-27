@@ -8,9 +8,10 @@ import { usePrevious } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
 import EIP_2612 from 'constants/abis/eip2612.json'
-import { EIP712_DOMAIN_TYPE, EIP712_DOMAIN_TYPE_SALT, PERMITTABLE_TOKENS, PermitType } from 'constants/permit'
+import { EIP712_DOMAIN_TYPE, EIP712_DOMAIN_TYPE_SALT, PermitType } from 'constants/permit'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { permitUpdate } from 'state/user/actions'
 import { usePermitData } from 'state/user/hooks'
@@ -40,7 +41,19 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const permitData = usePermitData(currency?.address)
 
   const { mixpanelHandler } = useMixpanel()
-  const overwritedPermitData = currency && PERMITTABLE_TOKENS[chainId]?.[currency.address]
+  const overwritedPermitData = useMemo(
+    () =>
+      currency instanceof WrappedTokenInfo
+        ? {
+            type: currency.permitType,
+            version: currency.permitVersion,
+          }
+        : {
+            type: undefined,
+            version: undefined,
+          },
+    [currency],
+  )
 
   const permitState = useMemo(() => {
     if (!overwritedPermitData) {
