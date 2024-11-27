@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import 'kyberswap-liquidity-widgets/dist/style.css'
 import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetDexListQuery } from 'services/ksSetting'
@@ -75,6 +76,7 @@ export const timings: MenuOption[] = [
 ]
 
 const Earn = () => {
+  const [searchParams] = useSearchParams()
   const theme = useTheme()
   const { supportedChains } = useChainsConfig()
   const { filters, updateFilters } = useFilter()
@@ -143,6 +145,13 @@ const Earn = () => {
     updateFilters('sortBy', '')
     updateFilters('orderBy', '')
   }
+
+  useEffect(() => {
+    if (searchParams.get('q') && !search) {
+      setSearch(searchParams.get('q') || '')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (filters.q !== deboundedSearch) {
