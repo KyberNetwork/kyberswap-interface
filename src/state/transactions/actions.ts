@@ -7,6 +7,10 @@ export const addTransaction = createAction<TransactionPayload>('transactions/add
 
 export const clearAllTransactions = createAction<{ chainId: ChainId }>('transactions/clearAllTransactions')
 
+export const clearAllPendingTransactions = createAction<{ chainId: ChainId }>(
+  'transactions/clearAllPendingTransactions',
+)
+
 export const finalizeTransaction = createAction<{
   chainId: ChainId
   hash: string
