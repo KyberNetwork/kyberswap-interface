@@ -219,7 +219,7 @@ const Earn = () => {
           <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
         </Flex>
         <Search
-          placeholder="Search by token name, symbol or address"
+          placeholder="Search by token symbol or address"
           searchValue={search}
           allowClear
           onSearch={val => setSearch(val)}
