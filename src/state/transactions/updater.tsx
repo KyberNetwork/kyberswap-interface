@@ -131,6 +131,8 @@ export default function Updater(): null {
             console.log('receipt', receipt)
             const transaction = findTx(transactions, receipt.txHash || '')
             console.log('transaction', transaction)
+            const transaction2 = findTx(transactions, hash || '')
+            console.log('transaction2', transaction2)
             console.log(SafeTransactionStatus)
           })
         } else {
