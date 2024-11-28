@@ -70,17 +70,20 @@ export default function Updater(): null {
   const { mixpanelHandler, subgraphMixpanelHandler } = useMixpanel()
   const transactionNotify = useTransactionNotify()
 
-  const a = async (hash: string): Promise<void> => {
-    const tx = await appsSdk.txs.getBySafeTxHash(hash)
-    console.log('tx', tx)
-  }
+  // const a = async (hash: string): Promise<void> => {
+  //   console.log('a')
+  //   const tx = await appsSdk.txs.getBySafeTxHash(hash)
+  //   console.log('tx', tx)
+  // }
 
   const b = async (hash: string): Promise<void> => {
+    console.log('b')
     const txInfo = await appsSdk.eth.getTransactionByHash([hash])
     console.log('txInfo', txInfo)
   }
 
   const c = async (hash: string): Promise<void> => {
+    console.log('c')
     const txReceipt = await appsSdk.eth.getTransactionReceipt([hash])
     console.log('txReceipt', txReceipt)
   }
@@ -144,7 +147,7 @@ export default function Updater(): null {
 
         if (connector?.id === CONNECTION.SAFE_CONNECTOR_ID) {
           console.log(1)
-          a(hash)
+          // a(hash)
           b(hash)
           c(hash)
         } else {
