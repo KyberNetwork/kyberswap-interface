@@ -25,7 +25,7 @@ type Opts = {
 
 const opts: Opts = {
   allowedDomains: [/^app\.safe\.global$/],
-  debug: false,
+  debug: true,
 }
 
 const appsSdk = new SafeAppsSDK(opts)
@@ -77,7 +77,6 @@ export default function Updater(): null {
 
   useEffect(() => {
     if (!readProvider || !lastBlockNumber) return
-    console.log('connector', connector)
     const uniqueTransactions = [
       ...new Set(
         Object.values(transactions)
