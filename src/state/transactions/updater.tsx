@@ -24,7 +24,6 @@ type Opts = {
 }
 
 const opts: Opts = {
-  allowedDomains: [/^app\.safe\.global$/],
   debug: true,
 }
 
@@ -70,17 +69,17 @@ export default function Updater(): null {
   const { mixpanelHandler, subgraphMixpanelHandler } = useMixpanel()
   const transactionNotify = useTransactionNotify()
 
-  const a = async (hash: string): Promise<void> => {
-    console.log('a')
-    const tx = await appsSdk.txs.getBySafeTxHash(hash)
-    console.log('tx', tx)
-  }
+  // const a = async (hash: string): Promise<void> => {
+  //   console.log('a')
+  //   const tx = await appsSdk.txs.getBySafeTxHash(hash)
+  //   console.log('tx', tx)
+  // }
 
-  const b = async (hash: string): Promise<void> => {
-    console.log('b')
-    const txInfo = await appsSdk.eth.getTransactionByHash([hash])
-    console.log('txInfo', txInfo)
-  }
+  // const b = async (hash: string): Promise<void> => {
+  //   console.log('b')
+  //   const txInfo = await appsSdk.eth.getTransactionByHash([hash])
+  //   console.log('txInfo', txInfo)
+  // }
 
   const c = async (hash: string): Promise<void> => {
     console.log('c')
@@ -148,8 +147,8 @@ export default function Updater(): null {
         if (connector?.id === CONNECTION.SAFE_CONNECTOR_ID) {
           console.log(1)
           console.log('hash', hash)
-          a(hash)
-          b(hash)
+          // a(hash)
+          // b(hash)
           c(hash)
         } else {
           console.log(2)
