@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -47,6 +47,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const [removeFavorite] = useRemoveFavoriteMutation()
 
   const [favoriteLoading, setFavoriteLoading] = useState<string[]>([])
+  const [delayFavorite, setDelayFavorite] = useState(false)
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -80,7 +81,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
 
   const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: EarnPool) => {
     e.stopPropagation()
-    if (favoriteLoading.includes(pool.address)) return
+    if (favoriteLoading.includes(pool.address) || delayFavorite) return
     handleAddFavoriteLoading(pool.address)
 
     if (!account) {
@@ -122,6 +123,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
     }
 
     const isPoolFavorite = !!pool.favorite?.isFavorite
+    setDelayFavorite(true)
     await (isPoolFavorite ? removeFavorite : addFavorite)({
       chainId: filters.chainId,
       userAddress: account,
@@ -160,6 +162,13 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   }
   const handleRemoveFavoriteLoading = (poolAddress: string) =>
     setFavoriteLoading(favoriteLoading.filter(address => address !== poolAddress))
+
+  useEffect(() => {
+    if (delayFavorite)
+      setTimeout(() => {
+        setDelayFavorite(false)
+      }, 500)
+  }, [delayFavorite])
 
   if (!tablePoolData?.length)
     return (
