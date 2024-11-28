@@ -70,9 +70,19 @@ export default function Updater(): null {
   const { mixpanelHandler, subgraphMixpanelHandler } = useMixpanel()
   const transactionNotify = useTransactionNotify()
 
-  const abc = async (hash: string): Promise<void> => {
+  const a = async (hash: string): Promise<void> => {
     const tx = await appsSdk.txs.getBySafeTxHash(hash)
     console.log('tx', tx)
+  }
+
+  const b = async (hash: string): Promise<void> => {
+    const txInfo = await appsSdk.eth.getTransactionByHash([hash])
+    console.log('txInfo', txInfo)
+  }
+
+  const c = async (hash: string): Promise<void> => {
+    const txReceipt = await appsSdk.eth.getTransactionReceipt([hash])
+    console.log('txReceipt', txReceipt)
   }
 
   useEffect(() => {
@@ -134,7 +144,9 @@ export default function Updater(): null {
 
         if (connector?.id === CONNECTION.SAFE_CONNECTOR_ID) {
           console.log(1)
-          abc(hash)
+          a(hash)
+          b(hash)
+          c(hash)
         } else {
           console.log(2)
           readProvider
