@@ -75,17 +75,17 @@ export default function Updater(): null {
   //   console.log('tx', tx)
   // }
 
-  // const b = async (hash: string): Promise<void> => {
-  //   console.log('b')
-  //   const txInfo = await appsSdk.eth.getTransactionByHash([hash])
-  //   console.log('txInfo', txInfo)
-  // }
-
-  const c = async (hash: string): Promise<void> => {
-    console.log('c')
-    const txReceipt = await appsSdk.eth.getTransactionReceipt([hash])
-    console.log('txReceipt', txReceipt)
+  const b = async (hash: string): Promise<void> => {
+    console.log('b')
+    const txInfo = await appsSdk.eth.getTransactionByHash([hash])
+    console.log('txInfo', txInfo)
   }
+
+  // const c = async (hash: string): Promise<void> => {
+  //   console.log('c')
+  //   const txReceipt = await appsSdk.eth.getTransactionReceipt([hash])
+  //   console.log('txReceipt', txReceipt)
+  // }
 
   useEffect(() => {
     if (!readProvider || !lastBlockNumber) return
@@ -148,8 +148,8 @@ export default function Updater(): null {
           console.log(1)
           console.log('hash', hash)
           // a(hash)
-          // b(hash)
-          c(hash)
+          b(hash)
+          // c(hash)
         } else {
           console.log(2)
           readProvider
