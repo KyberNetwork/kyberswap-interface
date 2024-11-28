@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import SafeAppsSDK from '@safe-global/safe-apps-sdk'
+import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
 import { ethers } from 'ethers'
 import { findReplacementTx } from 'find-replacement-tx'
 import { useEffect, useMemo } from 'react'
@@ -69,24 +69,6 @@ export default function Updater(): null {
   const { mixpanelHandler, subgraphMixpanelHandler } = useMixpanel()
   const transactionNotify = useTransactionNotify()
 
-  const a = async (hash: string): Promise<void> => {
-    console.log('a')
-    const tx = await appsSdk.txs.getBySafeTxHash(hash)
-    console.log('tx', tx)
-  }
-
-  // const b = async (hash: string): Promise<void> => {
-  //   console.log('b')
-  //   const txInfo = await appsSdk.eth.getTransactionByHash([hash])
-  //   console.log('txInfo', txInfo)
-  // }
-
-  // const c = async (hash: string): Promise<void> => {
-  //   console.log('c')
-  //   const txReceipt = await appsSdk.eth.getTransactionReceipt([hash])
-  //   console.log('txReceipt', txReceipt)
-  // }
-
   useEffect(() => {
     if (!readProvider || !lastBlockNumber) return
     const uniqueTransactions = [
@@ -145,13 +127,13 @@ export default function Updater(): null {
           .catch(console.warn)
 
         if (connector?.id === CONNECTION.SAFE_CONNECTOR_ID) {
-          console.log(1)
-          console.log('hash', hash)
-          a(hash)
-          // b(hash)
-          // c(hash)
+          appsSdk.txs.getBySafeTxHash(hash).then(receipt => {
+            console.log('receipt', receipt)
+            const transaction = findTx(transactions, receipt.txHash || '')
+            console.log('transaction', transaction)
+            console.log(SafeTransactionStatus)
+          })
         } else {
-          console.log(2)
           readProvider
             .getTransactionReceipt(hash)
             .then(receipt => {
