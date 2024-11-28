@@ -18,16 +18,7 @@ import { findTx } from 'utils'
 import { checkedTransaction, finalizeTransaction, modifyTransaction, removeTx, replaceTx } from './actions'
 import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
 
-type Opts = {
-  allowedDomains?: RegExp[]
-  debug?: boolean
-}
-
-const opts: Opts = {
-  debug: true,
-}
-
-const appsSdk = new SafeAppsSDK(opts)
+const appsSdk = new SafeAppsSDK()
 
 function shouldCheck(
   lastBlockNumber: number,
@@ -81,7 +72,6 @@ export default function Updater(): null {
     }
 
     const transaction = findTx(transactions, receipt.transactionHash)
-    console.log('transaction', transaction)
     if (!transaction) return
     dispatch(
       finalizeTransaction({
@@ -247,10 +237,6 @@ export default function Updater(): null {
           appsSdk.txs
             .getBySafeTxHash(hash)
             .then(receipt => {
-              console.log('receipt', receipt)
-              // const transaction = findTx(transactions, hash || '')
-              // console.log('transaction', transaction)
-              // console.log(SafeTransactionStatus)
               handleTransactionReceipt(
                 hash,
                 receipt
