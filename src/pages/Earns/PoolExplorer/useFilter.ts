@@ -33,7 +33,10 @@ export default function useFilter() {
         searchParams.set(key, value)
         if (key === 'chainId') searchParams.delete('protocol')
       }
-      if (key !== 'sortBy' && key !== 'orderBy' && key !== 'page') searchParams.delete('page')
+      if (key !== 'sortBy' && key !== 'orderBy' && key !== 'page') {
+        searchParams.delete('page')
+        searchParams.delete('q')
+      }
       setSearchParams(searchParams)
     },
     [setSearchParams, searchParams],
