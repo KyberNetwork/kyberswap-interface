@@ -24,7 +24,7 @@ const DropdownTitleWrapper = styled.div`
 
 const DropdownTitle = styled.div<{ width?: number }>`
   width: ${({ width }) => (width ? `${width}px` : '')};
-  min-width: ${({ width }) => (!width ? '100px' : '')};
+  min-width: ${({ width }) => (!width ? '100px' : 'max-content')};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,7 +32,7 @@ const DropdownTitle = styled.div<{ width?: number }>`
   text-transform: capitalize;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    min-width: unset;
+    min-width: max-content;
   `}
 `
 
@@ -55,7 +55,7 @@ const DropdownContent = styled.div<{ alignLeft: boolean }>`
   padding: 8px 12px;
   font-size: 14px;
   color: ${({ theme }) => theme.text};
-  width: fit-content;
+  width: max-content;
   display: flex;
   flex-direction: column;
   align-items: ${({ alignLeft }) => (alignLeft ? 'flex-start' : 'center')};
