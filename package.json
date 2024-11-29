@@ -60,6 +60,7 @@
     "@reach/dialog": "^0.17.0",
     "@reach/portal": "^0.17.0",
     "@reduxjs/toolkit": "1.9.3",
+    "@safe-global/safe-apps-sdk": "^9.1.0",
     "@sentry/react": "^8.34.0",
     "@tanstack/react-query": "^5.52.1",
     "@use-gesture/react": "^10.2.27",
