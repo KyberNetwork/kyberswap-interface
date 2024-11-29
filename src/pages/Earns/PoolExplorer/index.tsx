@@ -76,10 +76,12 @@ export const timings: MenuOption[] = [
 ]
 
 const Earn = () => {
+  const [search, setSearch] = useState('')
+  const deboundedSearch = useDebounce(search, 300)
   const [searchParams] = useSearchParams()
   const theme = useTheme()
   const { supportedChains } = useChainsConfig()
-  const { filters, updateFilters } = useFilter()
+  const { filters, updateFilters } = useFilter(setSearch)
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
 
   const dexList = useGetDexListQuery({
@@ -112,9 +114,6 @@ const Earn = () => {
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-
-  const [search, setSearch] = useState('')
-  const deboundedSearch = useDebounce(search, 300)
 
   const totalPools = useMemo(() => {
     const totalItems = poolData?.data?.pagination?.totalItems || 0

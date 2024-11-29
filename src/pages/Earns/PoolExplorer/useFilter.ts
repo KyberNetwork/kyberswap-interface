@@ -7,7 +7,7 @@ import { useActiveWeb3React } from 'hooks'
 
 import { timings } from '.'
 
-export default function useFilter() {
+export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { account, chainId } = useActiveWeb3React()
 
@@ -35,11 +35,11 @@ export default function useFilter() {
       }
       if (key !== 'sortBy' && key !== 'orderBy' && key !== 'page') {
         searchParams.delete('page')
-        searchParams.delete('q')
+        if (key !== 'q' && setSearch) setSearch('')
       }
       setSearchParams(searchParams)
     },
-    [setSearchParams, searchParams],
+    [setSearchParams, searchParams, setSearch],
   )
 
   return {
