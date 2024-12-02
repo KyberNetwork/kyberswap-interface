@@ -113,11 +113,6 @@ const hideLoader = () => {
   }, 100)
 }
 
-// Google ReCaptcha use it, don't remove.
-window.recaptchaOptions = {
-  useRecaptchaNet: true,
-}
-
 const ReactApp = () => {
   useEffect(hideLoader, [])
   return (
