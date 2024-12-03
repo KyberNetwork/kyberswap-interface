@@ -43,7 +43,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const { mixpanelHandler } = useMixpanel()
   const overwritedPermitData = useMemo(
     () =>
-      currency instanceof WrappedTokenInfo
+      currency instanceof WrappedTokenInfo && ['AMOUNT', 'SALT'].includes(currency.permitType)
         ? {
             type: currency.permitType,
             version: currency.permitVersion,
