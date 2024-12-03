@@ -463,9 +463,9 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
     >
       {liquidityWidget}
       <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
-        <img src={pool.tokens[0].logoURI} width={24} height={24} alt="" style={{ borderRadius: '50%' }} />
+        <img src={pool.tokens?.[0].logoURI} width={24} height={24} alt="" style={{ borderRadius: '50%' }} />
         <img
-          src={pool.tokens[1].logoURI}
+          src={pool.tokens?.[1].logoURI}
           width={24}
           height={24}
           alt=""
@@ -486,9 +486,9 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
             textOverflow: 'ellipsis',
           }}
         >
-          {pool.tokens[0].symbol} /{' '}
+          {pool.tokens?.[0].symbol} /{' '}
           <Text as="span" color={theme.subText}>
-            {pool.tokens[1].symbol}
+            {pool.tokens?.[1].symbol}
           </Text>
         </Text>
         <Tag>{pool.feeTier}%</Tag>
