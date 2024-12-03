@@ -6,7 +6,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useWeb3React } from 'hooks'
-import { useNetworkModalToggle, useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 
 import useFilter from './PoolExplorer/useFilter'
 
@@ -18,13 +18,11 @@ interface LiquidityParams {
   poolType: PoolType
   onDismiss: () => void
   onConnectWallet: () => void
-  onChangeNetwork: () => void
 }
 
 const useLiquidityWidget = () => {
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const toggleNetworkModal = useNetworkModalToggle()
   const notify = useNotify()
   const { filters } = useFilter()
 
@@ -56,7 +54,6 @@ const useLiquidityWidget = () => {
       poolType: PoolType[`DEX_${dex.toUpperCase()}V3` as keyof typeof PoolType],
       onDismiss: handleCloseZapInWidget,
       onConnectWallet: toggleWalletModal,
-      onChangeNetwork: toggleNetworkModal,
     })
   }
 
