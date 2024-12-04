@@ -139,17 +139,18 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
               name: currency.name,
               verifyingContract: currency.address,
               salt: hexZeroPad(hexlify(chainId), 32),
-              version: '1',
+              version: overwritedPermitData.version,
             }
           : {
               name: currency.name,
               verifyingContract: currency.address,
-              version: '1',
+              version: overwritedPermitData.version,
               chainId,
             },
       primaryType: 'Permit',
       message: message,
     })
+
     try {
       const signature = await library
         .send('eth_signTypedData_v4', [account.toLowerCase(), data])
