@@ -270,9 +270,7 @@ export default function Earns() {
             desc="Explore and instantly add liquidity to high-APY pools the easy way with Zap Technology."
             action={{
               text: 'View Pools',
-              onClick: () => {
-                navigate({ pathname: APP_PATHS.EARN_POOLS })
-              },
+              onClick: () => navigate({ pathname: APP_PATHS.EARN_POOLS }),
             }}
           />
           <Card
@@ -280,10 +278,8 @@ export default function Earns() {
             icon={LiquidityPosIcon}
             desc="Track, adjust, and optimize your positions to stay in control of your DeFi journey."
             action={{
-              // text: 'Your Pools',
-              text: 'Coming Soon',
-              onClick: () => {},
-              disabled: true,
+              text: 'Your Pools',
+              onClick: () => navigate({ pathname: APP_PATHS.EARN_MY_POSITIONS }),
             }}
           />
           <Card

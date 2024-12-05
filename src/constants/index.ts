@@ -171,7 +171,8 @@ export const APP_PATHS = {
   MY_DASHBOARD: '/campaigns/dashboard',
 
   EARN: '/earns',
-  EARN_POOLS: '/earn/pools',
+  EARN_POOLS: '/earns/pools',
+  EARN_MY_POSITIONS: '/earns/my-positions',
 } as const
 
 export const TERM_FILES_PATH = {

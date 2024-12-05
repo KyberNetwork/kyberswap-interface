@@ -3,18 +3,17 @@ import styled from 'styled-components'
 
 import { Image } from 'components/Image'
 
-export const PoolsExplorerWrapper = styled.div`
+export const PoolPageWrapper = styled.div`
   padding: 32px 24px 50px;
   width: 100%;
   max-width: 1500px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 24px 16px 100px;
   `}
-
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 `
 
 export const LiquidityWidgetWrapper = styled.div`
@@ -118,6 +117,8 @@ export const FeeTier = styled.div`
 
 export const CurrencyRoundedImage = styled(Image)`
   border-radius: 50%;
+  width: 24px;
+  height: 24px;
 `
 
 export const CurrencySecondImage = styled(CurrencyRoundedImage)`

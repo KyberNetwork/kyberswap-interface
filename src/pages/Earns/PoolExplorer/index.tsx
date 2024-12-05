@@ -25,7 +25,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import useLiquidityWidget from '../useLiquidityWidget'
 import DropdownMenu, { MenuOption } from './DropdownMenu'
 import TableContent from './TableContent'
-import { ContentWrapper, PoolsExplorerWrapper, TableHeader, TableWrapper, Tag, TagContainer } from './styles'
+import { ContentWrapper, PoolPageWrapper, TableHeader, TableWrapper, Tag, TagContainer } from './styles'
 import useFilter from './useFilter'
 
 export enum FilterTag {
@@ -159,7 +159,7 @@ const Earn = () => {
   }, [deboundedSearch, filters.q, updateFilters])
 
   return (
-    <PoolsExplorerWrapper>
+    <PoolPageWrapper>
       {liquidityWidget}
 
       <div>
@@ -286,7 +286,7 @@ const Earn = () => {
         textAlign={'center'}
         fontStyle={'italic'}
       >{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Text>
-    </PoolsExplorerWrapper>
+    </PoolPageWrapper>
   )
 }
 
