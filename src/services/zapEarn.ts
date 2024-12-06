@@ -24,6 +24,7 @@ export interface EarnPool {
   volume: number
   apr: number
   liquidity: number
+  tvl: number
   chainId?: number
   favorite?: {
     chainId: number

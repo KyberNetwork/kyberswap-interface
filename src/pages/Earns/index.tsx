@@ -20,6 +20,7 @@ import LocalLoader from 'components/LocalLoader'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import { FilterTag } from './PoolExplorer'
 import useLiquidityWidget from './useLiquidityWidget'
@@ -489,7 +490,9 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
         </Text>
         <Tag>{pool.feeTier}%</Tag>
       </Flex>
-      <Text color={theme.primary}>{pool.apr}%</Text>
+      <Text color={theme.primary}>
+        {formatDisplayNumber(pool.apr, { significantDigits: pool.apr < 1 ? 2 : pool.apr < 10 ? 3 : 4 })}%
+      </Text>
     </PoolRow>
   )
 }

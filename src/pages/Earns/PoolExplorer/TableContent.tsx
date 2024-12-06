@@ -63,8 +63,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
         if (filters.sortBy === SortBy.APR) return filters.orderBy === Direction.DESC ? b.apr - a.apr : a.apr - b.apr
         if (filters.sortBy === SortBy.EARN_FEE)
           return filters.orderBy === Direction.DESC ? b.earnFee - a.earnFee : a.earnFee - b.earnFee
-        if (filters.sortBy === SortBy.TVL)
-          return filters.orderBy === Direction.DESC ? b.liquidity - a.liquidity : a.liquidity - b.liquidity
+        if (filters.sortBy === SortBy.TVL) return filters.orderBy === Direction.DESC ? b.tvl - a.tvl : a.tvl - b.tvl
         if (filters.sortBy === SortBy.VOLUME)
           return filters.orderBy === Direction.DESC ? b.volume - a.volume : a.volume - b.volume
         return 0
@@ -220,7 +219,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
               </Flex>
               <Flex flexDirection="column" sx={{ gap: 1 }}>
                 <Text color={theme.subText}>TVL</Text>
-                <Text>{formatDisplayNumber(pool.liquidity, { style: 'currency', significantDigits: 6 })}</Text>
+                <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
               </Flex>
               <Flex flexDirection="column" alignItems={'flex-end'} sx={{ gap: 1 }}>
                 <Text color={theme.subText}>Volume</Text>
@@ -250,12 +249,14 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
             </SymbolText>
             <FeeTier>{pool.feeTier}%</FeeTier>
           </Flex>
-          <Apr positive={pool.apr > 0}>{pool.apr}%</Apr>
+          <Apr positive={pool.apr > 0}>
+            {formatDisplayNumber(pool.apr, { significantDigits: pool.apr < 1 ? 2 : pool.apr < 10 ? 3 : 4 })}%
+          </Apr>
           <Flex justifyContent="flex-end">
             {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
           </Flex>
           <Flex justifyContent="flex-end">
-            {formatDisplayNumber(pool.liquidity, { style: 'currency', significantDigits: 6 })}
+            {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
           </Flex>
           <Flex justifyContent="flex-end">
             {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
