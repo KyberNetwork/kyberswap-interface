@@ -20,6 +20,7 @@ import referralApi from 'services/referral'
 import routeApi from 'services/route'
 import socialApi from 'services/social'
 import tokenApi from 'services/token'
+import zapEarnServiceApi from 'services/zapEarn'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
@@ -108,6 +109,7 @@ const store = configureStore({
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
+    [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
@@ -133,6 +135,7 @@ const store = configureStore({
       .concat(routeApi.middleware)
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
+      .concat(zapEarnServiceApi.middleware)
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)

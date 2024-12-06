@@ -24,9 +24,20 @@ const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zindex: string | num
 const AnimatedDialogContent = motion(DialogContent)
 // destructure to not pass custom props to Dialog DOM element
 const StyledDialogContent = styled(
-  ({ borderRadius, minHeight, maxHeight, maxWidth, width, height, bgColor, mobile, isOpen, margin, ...rest }) => (
-    <AnimatedDialogContent {...rest} />
-  ),
+  ({
+    borderRadius,
+    minHeight,
+    maxHeight,
+    maxWidth,
+    width,
+    height,
+    bgColor,
+    mobile,
+    isOpen,
+    margin,
+    mobileFullWidth,
+    ...rest
+  }) => <AnimatedDialogContent {...rest} />,
 ).attrs({
   'aria-label': 'dialog',
 })`
@@ -61,8 +72,13 @@ const StyledDialogContent = styled(
       width:  ${width || '65vw'};
       margin: 0;
     `}
-    ${({ theme, mobile, borderRadius }) => theme.mediaWidth.upToSmall`
-      width:  85vw;
+    ${({ theme, mobile, borderRadius, mobileFullWidth }) => theme.mediaWidth.upToSmall`
+      ${
+        !mobileFullWidth &&
+        `
+          width:  85vw;
+        `
+      }
       ${
         mobile &&
         `
@@ -95,6 +111,7 @@ export interface ModalProps {
   enableSwipeGesture?: boolean
   bypassScrollLock?: boolean
   bypassFocusLock?: boolean
+  mobileFullWidth?: boolean
 }
 
 export default function Modal({
@@ -118,6 +135,7 @@ export default function Modal({
   enableSwipeGesture = false,
   bypassScrollLock = false,
   bypassFocusLock = false,
+  mobileFullWidth = false,
 }: ModalProps) {
   const animateValues = {
     initial: { opacity: 0 },
@@ -160,6 +178,7 @@ export default function Modal({
             bgColor={bgColor}
             borderRadius={borderRadius}
             mobile={isMobile}
+            mobileFullWidth={mobileFullWidth}
             className={className}
             {...animateValues}
           >
