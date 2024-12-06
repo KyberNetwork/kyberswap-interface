@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+import { TOKEN_API_URL } from 'constants/env'
+
 export interface QueryParams {
   // name?: string
   // symbol?: string
@@ -62,7 +64,7 @@ interface AddRemoveFavoriteParams {
 const marketOverviewServiceApi = createApi({
   reducerPath: 'marketOverviewApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_TOKEN_API_URL,
+    baseUrl: TOKEN_API_URL,
   }),
   keepUnusedDataFor: 1,
   endpoints: builder => ({
