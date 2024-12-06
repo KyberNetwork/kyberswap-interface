@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
 import { useNavigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { EarnPool, useExplorerLandingQuery } from 'services/zapEarn'
 import styled, { keyframes } from 'styled-components'
@@ -20,6 +21,7 @@ import LocalLoader from 'components/LocalLoader'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { FilterTag } from './PoolExplorer'
@@ -37,6 +39,10 @@ const Container = styled.div`
   padding: 60px 16px;
   margin: auto;
   text-align: center;
+
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+    padding: 36px 12px;
+  `}
 `
 
 /* Spin animation */
@@ -83,6 +89,27 @@ const BorderWrapper = styled.div`
     animation: ${spin} 2s linear infinite; /* Spin animation */
   }
 `
+
+const OverviewWrapper = styled.div`
+  box-sizing: border-box;
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 64px;
+  gap: 20px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    display: flex;
+    flex-direction: column;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+    margin-top: 40px;
+    gap: 16px;
+  `}
+`
+
 const PoolWrapper = styled.div`
   border-radius: 20px;
   position: relative;
@@ -127,11 +154,37 @@ const CardWrapper = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 100%;
 
   cursor: url(${CursorIcon}), auto;
   button {
     cursor: url(${CursorIcon}), auto;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 0 36px 40px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 0 36px 28px;
+    min-height: 285px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+    padding: 0 30px 24px;
+    min-height: unset;
+    height: fit-content;
+  `}
+`
+
+const ButtonPrimaryStyled = styled(ButtonPrimary)`
+  margin-top: auto;
+  width: 132px;
+  height: 36px;
+
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+    margin-top: 18px;
+  `}
 `
 
 const ListPoolWrapper = styled.div`
@@ -140,6 +193,14 @@ const ListPoolWrapper = styled.div`
   height: 100%;
   background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
   cursor: url(${CursorIcon}), auto;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 12px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 18px;
+  `}
 `
 
 const PoolRow = styled(Flex)`
@@ -197,6 +258,9 @@ const Card = ({
   action: { text: string; disabled?: boolean; onClick: () => void }
 }) => {
   const theme = useTheme()
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   return (
     <BorderWrapper onClick={() => !action.disabled && action.onClick()}>
       <CardWrapper>
@@ -205,15 +269,13 @@ const Card = ({
           <Icon icon={icon} size="medium" />
         </Flex>
 
-        <Text fontSize={18} fontWeight={500} marginTop="28px">
+        <Text fontSize={18} fontWeight={500} marginTop={upToSmall ? 22 : 28}>
           {title}
         </Text>
-        <Text color={theme.subText} marginTop="12px">
+        <Text fontSize={upToMedium ? 14 : 16} color={theme.subText} marginTop="12px">
           {desc}
         </Text>
-        <ButtonPrimary disabled={action.disabled} style={{ marginTop: 'auto', width: '132px', height: '36px' }}>
-          {action.text}
-        </ButtonPrimary>
+        <ButtonPrimaryStyled disabled={action.disabled}>{action.text}</ButtonPrimaryStyled>
       </CardWrapper>
     </BorderWrapper>
   )
@@ -246,6 +308,9 @@ export default function Earns() {
   const lowVolatilityPool = (data?.data?.lowVolatility || []).slice(0, 5)
   const solidEarningPool = (data?.data?.solidEarning || []).slice(0, 5)
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+
   return (
     <WrapperBg>
       <Container>
@@ -257,14 +322,7 @@ export default function Earns() {
           technology—to help you maximize earnings from your liquidity across various DeFi protocols.
         </Text>
 
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            marginTop: '64px',
-            gap: '20px',
-          }}
-        >
+        <OverviewWrapper>
           <Card
             title="Liquidity Pools"
             icon={LiquidityPoolIcon}
@@ -293,7 +351,7 @@ export default function Earns() {
               disabled: true,
             }}
           />
-        </Box>
+        </OverviewWrapper>
 
         <PoolWrapper style={{ marginTop: '64px' }}>
           <ListPoolWrapper
@@ -312,7 +370,7 @@ export default function Earns() {
               <Box
                 sx={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)',
                   gap: '1rem',
                 }}
               >
@@ -324,7 +382,14 @@ export default function Earns() {
           </ListPoolWrapper>
         </PoolWrapper>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', marginTop: '40px', gap: '20px' }}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)',
+            marginTop: upToXXSmall ? 16 : 40,
+            gap: upToXXSmall ? 16 : 20,
+          }}
+        >
           <PoolWrapper>
             <ListPoolWrapper
               role="button"
