@@ -7,17 +7,13 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useWidgetInfo } from "@/hooks/useWidgetInfo";
-import { useWeb3Provider } from "@/hooks/useProvider";
 import { useTokenList } from "@/hooks/useTokenList";
-import { ZapRouteDetail, Type } from "@/hooks/types/zapInTypes";
+import { ZapRouteDetail } from "@/hooks/types/zapInTypes";
 import useMarketPrice from "@/hooks/useMarketPrice";
 import useDebounce from "@/hooks/useDebounce";
 import useTokenBalances from "@/hooks/useTokenBalances";
 
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import { BigNumber } from "ethers";
-import { Price, tickToPrice, Token } from "@/entities/Pool";
 import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
@@ -25,10 +21,14 @@ import {
   chainIdToChain,
 } from "@/constants";
 import { formatWei } from "@/utils";
+import { Token } from "@/schema";
+import { useWidgetContext } from "@/stores/widget";
+import { formatDisplayNumber } from "@kyber/utils/number";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
 
-const ERROR_MESSAGE = {
-  CONNECT_WALLET: "Please connect wallet",
-  WRONG_NETWORK: "Wrong network",
+export const ERROR_MESSAGE = {
+  CONNECT_WALLET: "Connect wallet",
+  WRONG_NETWORK: "Switch network",
   SELECT_TOKEN_IN: "Select token in",
   ENTER_MIN_PRICE: "Enter min price",
   ENTER_MAX_PRICE: "Enter max price",
@@ -47,13 +47,14 @@ const ZapContext = createContext<{
   setTokensIn: (value: Token[]) => void;
   setAmountsIn: (value: string) => void;
   toggleRevertPrice: () => void;
-  setTick: (type: Type, value: number) => void;
+  setTickLower: (value: number) => void;
+  setTickUpper: (value: number) => void;
   error: string;
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
-  priceLower: Price | null;
-  priceUpper: Price | null;
   slippage: number;
+  priceLower: string | null;
+  priceUpper: string | null;
   setSlippage: (val: number) => void;
   ttl: number;
   setTtl: (val: number) => void;
@@ -66,7 +67,7 @@ const ZapContext = createContext<{
   marketPrice: number | undefined | null;
   source: string;
   balanceTokens: {
-    [key: string]: BigNumber;
+    [key: string]: bigint;
   };
   tokensInUsdPrice: number[];
   token0Price: number;
@@ -75,17 +76,18 @@ const ZapContext = createContext<{
   revertPrice: false,
   tickLower: null,
   tickUpper: null,
+  priceLower: null,
+  priceUpper: null,
   tokensIn: [],
   setTokensIn: () => {},
   amountsIn: "",
   setAmountsIn: () => {},
   toggleRevertPrice: () => {},
-  setTick: () => {},
+  setTickLower: () => {},
+  setTickUpper: () => {},
   error: "",
   zapInfo: null,
   loading: false,
-  priceLower: null,
-  priceUpper: null,
   slippage: 10,
   setSlippage: () => {},
   ttl: 20, // 20min
@@ -124,10 +126,14 @@ export const ZapContextProvider = ({
     poolAddress,
     position,
     positionId,
-    feePcm,
-    feeAddress,
-  } = useWidgetInfo();
-  const { chainId, account, networkChainId } = useWeb3Provider();
+    feeConfig,
+    chainId,
+    connectedAccount,
+  } = useWidgetContext((s) => s);
+  const { feePcm, feeAddress } = feeConfig || {};
+  const account = connectedAccount?.address;
+
+  const networkChainId = connectedAccount?.chainId;
   const { allTokens } = useTokenList();
   const { balances } = useTokenBalances(allTokens.map((item) => item.address));
 
@@ -136,10 +142,10 @@ export const ZapContextProvider = ({
   const [ttl, setTtl] = useState(20);
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(
-    position?.tickLower ?? null
+    position !== "loading" ? position.tickLower : null
   );
   const [tickUpper, setTickUpper] = useState<number | null>(
-    position?.tickUpper ?? null
+    position !== "loading" ? position.tickUpper : null
   );
   const [tokensIn, setTokensIn] = useState<Token[]>([]);
   const [amountsIn, setAmountsIn] = useState<string>("");
@@ -161,33 +167,48 @@ export const ZapContextProvider = ({
       )
       ?.join(",")
   );
-  const token0Price = useMarketPrice(pool?.token0.address || "")?.[0];
-  const token1Price = useMarketPrice(pool?.token1.address || "")?.[0];
 
   const marketPrice = useMemo(() => {
-    return token0Price && token1Price ? token0Price / token1Price : undefined;
-  }, [token0Price, token1Price]);
+    return pool !== "loading" && pool.token0.price && pool.token1.price
+      ? pool.token0.price / pool.token1.price
+      : undefined;
+  }, [pool]);
 
   const nativeToken = useMemo(
     () => ({
-      chainId,
       address: NATIVE_TOKEN_ADDRESS,
       decimals: NetworkInfo[chainId].wrappedToken.decimals,
-      symbol: NetworkInfo[chainId].wrappedToken.symbol.slice(1),
-      logoURI: NetworkInfo[chainId].nativeLogo,
+      symbol: NetworkInfo[chainId].wrappedToken.symbol.slice(1) || "",
+      logo: NetworkInfo[chainId].nativeLogo,
     }),
     [chainId]
   );
 
   const priceLower = useMemo(() => {
-    if (!pool || tickLower == null) return null;
-    return tickToPrice(poolType, pool.token0, pool.token1, tickLower) as Price;
-  }, [pool, tickLower, poolType]);
+    if (pool === "loading" || tickLower == null) return null;
+    return formatDisplayNumber(
+      +tickToPrice(
+        tickLower,
+        pool.token0.decimals,
+        pool.token1.decimals,
+        false
+      ),
+      { significantDigits: 8 }
+    );
+  }, [pool, tickUpper]);
 
   const priceUpper = useMemo(() => {
-    if (!pool || tickUpper === null) return null;
-    return tickToPrice(poolType, pool.token0, pool.token1, tickUpper) as Price;
-  }, [pool, tickUpper, poolType]);
+    if (pool === "loading" || tickUpper === null) return null;
+    return formatDisplayNumber(
+      +tickToPrice(
+        tickUpper,
+        pool.token0.decimals,
+        pool.token1.decimals,
+        false
+      ),
+      { significantDigits: 8 }
+    );
+  }, [pool, tickUpper]);
 
   const error = useMemo(() => {
     if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
@@ -246,26 +267,6 @@ export const ZapContextProvider = ({
     balances,
   ]);
 
-  const setTick = useCallback(
-    (type: Type, value: number) => {
-      if (
-        position ||
-        (pool && (value > pool.maxTick || value < pool.minTick))
-      ) {
-        return;
-      }
-
-      if (type === Type.PriceLower) {
-        if (revertPrice) setTickUpper(value);
-        else setTickLower(value);
-      } else {
-        if (revertPrice) setTickLower(value);
-        else setTickUpper(value);
-      }
-    },
-    [position, pool, revertPrice]
-  );
-
   const toggleRevertPrice = useCallback(() => {
     setRevertPrice((prev) => !prev);
   }, []);
@@ -275,12 +276,18 @@ export const ZapContextProvider = ({
   };
 
   useEffect(() => {
-    if (position?.tickUpper !== undefined && position.tickLower !== undefined) {
+    if (
+      position !== "loading" &&
+      position?.tickUpper !== undefined &&
+      position.tickLower !== undefined
+    ) {
       setTickLower(position.tickLower);
       setTickUpper(position.tickUpper);
     }
-  }, [position?.tickUpper, position?.tickLower]);
+  }, [position]);
 
+  const token0Price = pool !== "loading" ? pool.token0.price || 0 : 0;
+  const token1Price = pool !== "loading" ? pool.token1.price || 0 : 0;
   // set init tokens in
   useEffect(() => {
     if (!pool || tokensIn.length) return;
@@ -291,8 +298,7 @@ export const ZapContextProvider = ({
         .split(",")
         .map((address: string) =>
           allTokens.find(
-            (token: Token) =>
-              token.address.toLowerCase() === address.toLowerCase()
+            (token) => token.address.toLowerCase() === address.toLowerCase()
           )
         )
         .filter((item) => !!item);
@@ -300,7 +306,7 @@ export const ZapContextProvider = ({
       const parseListAmountsIn: string[] = [];
 
       if (listInitTokens.length) {
-        listInitTokens.forEach((_: Token | undefined, index: number) => {
+        listInitTokens.forEach((_, index: number) => {
           parseListAmountsIn.push(listInitAmounts[index] || "");
         });
         setTokensIn(listInitTokens as Token[]);
@@ -311,21 +317,22 @@ export const ZapContextProvider = ({
     }
 
     // without wallet connect
-    if (!account) {
+    if (!account && pool !== "loading") {
       const isToken0Native =
-        pool?.token0.address.toLowerCase() ===
+        pool.token0.address.toLowerCase() ===
         NetworkInfo[chainId].wrappedToken.address.toLowerCase();
 
       const token0 = isToken0Native ? nativeToken : pool.token0;
 
-      setTokensIn([token0]);
+      setTokensIn([token0] as Token[]);
     }
 
     // with balance compare
     if (
       !initDepositTokens &&
-      token0Price &&
-      token1Price &&
+      pool !== "loading" &&
+      pool.token0.price &&
+      pool.token1.price &&
       Object.keys(balances).length
     ) {
       const isToken0Native =
@@ -360,7 +367,7 @@ export const ZapContextProvider = ({
         token1Price * parseFloat(token1Balance)
           ? token0
           : token1,
-      ]);
+      ] as Token[]);
     }
   }, [
     pool,
@@ -381,11 +388,12 @@ export const ZapContextProvider = ({
     if (
       debounceTickLower !== null &&
       debounceTickUpper !== null &&
-      pool &&
+      pool !== "loading" &&
       (!error ||
         error === zapApiError ||
         error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
-        error === ERROR_MESSAGE.CONNECT_WALLET)
+        error === ERROR_MESSAGE.CONNECT_WALLET ||
+        error === ERROR_MESSAGE.WRONG_NETWORK)
     ) {
       let formattedTokensIn = "";
       let formattedAmountsInWeis = "";
@@ -422,7 +430,7 @@ export const ZapContextProvider = ({
         "pool.id": poolAddress,
         "pool.token0": pool.token0.address,
         "pool.token1": pool.token1.address,
-        "pool.fee": pool.fee,
+        "pool.fee": pool.fee * 10_000,
         "position.tickUpper": debounceTickUpper,
         "position.tickLower": debounceTickLower,
         tokensIn: formattedTokensIn,
@@ -504,7 +512,8 @@ export const ZapContextProvider = ({
         amountsIn,
         setAmountsIn,
         toggleRevertPrice,
-        setTick,
+        setTickLower,
+        setTickUpper,
         error,
         zapInfo,
         loading,

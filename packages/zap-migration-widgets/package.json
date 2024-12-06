@@ -1,7 +1,7 @@
 {
-  "name": "@kyber/zap-migration-widgets",
+  "name": "@kyberswap/zap-migration-widgets",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.1-rc",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
@@ -48,5 +48,20 @@
       "require": "./dist/zap-migration-widget.cjs"
     },
     "./dist/style.css": "./dist/zap-migration-widget.css"
-  }
+  },
+  "description": "Kyber Zap Migration Widgets",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KyberNetwork/kyberswap-widgets.git"
+  },
+  "keywords": [
+    "zap",
+    "web3",
+    "liquidity"
+  ],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/KyberNetwork/kyberswap-widgets/issues"
+  },
+  "homepage": "https://github.com/KyberNetwork/kyberswap-widgets#readme"
 }

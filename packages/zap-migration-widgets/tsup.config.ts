@@ -11,8 +11,8 @@ export default defineConfig({
   minify: false, // Set to true if you want to minify the output
   sourcemap: true,
   onSuccess: "tsc --noEmit",
-  external: ["react", "react-dom", "viem"], // Externals
-  noExternal: ["@kyber/ui", "@kyber/hooks"],
+  external: ["react", "react-dom"], // Externals
+  noExternal: ["@kyber/ui", "@kyber/hooks", "@kyber/utils"],
   loader: {
     ".png": "dataurl",
   },

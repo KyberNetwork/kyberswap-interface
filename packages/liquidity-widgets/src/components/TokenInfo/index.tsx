@@ -1,7 +1,7 @@
-import { Token } from "@/entities/Pool";
 import ChevronLeft from "@/assets/svg/chevron-left.svg";
 import MarketInfo from "@/components/TokenInfo/MarketInfo";
 import SecurityInfo from "@/components/TokenInfo/SecurityInfo";
+import { Token } from "@/schema";
 
 const TokenInfo = ({
   token,
@@ -18,9 +18,7 @@ const TokenInfo = ({
           onClick={onGoBack}
         />
         <span className="ml-1">{token.symbol || ""}</span>
-        <span className="text-xs text-subText mt-1">
-          {token.name || ""}
-        </span>
+        <span className="text-xs text-subText mt-1">{token.name || ""}</span>
       </div>
       <MarketInfo token={token} />
       <SecurityInfo token={token} />

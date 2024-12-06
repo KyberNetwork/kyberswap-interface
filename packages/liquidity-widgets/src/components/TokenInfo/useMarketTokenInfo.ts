@@ -1,13 +1,13 @@
-import { useWeb3Provider } from "@/hooks/useProvider";
 import { PATHS, NetworkInfo } from "@/constants";
 import { useEffect, useMemo, useState } from "react";
 import { TokenInfo, parseMarketTokenInfo } from "@/components/TokenInfo/utils";
+import { useWidgetContext } from "@/stores/widget";
 
 const FETCH_INTERVAL = 60_000;
 let fetchInterval: NodeJS.Timeout;
 
 export default function useMarketTokenInfo(tokenAddress: string) {
-  const { chainId } = useWeb3Provider();
+  const chainId = useWidgetContext((s) => s.chainId);
   const [marketTokenInfo, setMarketTokenInfo] = useState<TokenInfo | null>(
     null
   );

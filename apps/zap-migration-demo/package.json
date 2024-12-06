@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@kyber/tailwind-config": "workspace:^",
-    "@kyber/zap-migration-widgets": "workspace:^",
+    "@kyberswap/zap-migration-widgets": "workspace:^",
     "@rainbow-me/rainbowkit": "2.1.0",
     "@tanstack/react-query": "5.22.2",
     "autoprefixer": "^10.4.20",

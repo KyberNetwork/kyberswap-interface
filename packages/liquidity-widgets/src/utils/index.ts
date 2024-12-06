@@ -1,21 +1,6 @@
-import { formatUnits, getAddress } from "ethers/lib/utils";
-import { ChainId, NetworkInfo, PoolType } from "../constants";
-import { ProtocolFeeAction, Type } from "@/hooks/types/zapInTypes";
-import { nearestUsableTick, PoolAdapter, tryParseTick } from "@/entities/Pool";
-import uniswapLogo from "@/assets/dexes/uniswap.png";
-import pancakeLogo from "@/assets/dexes/pancake.png";
-import metavaultLogo from "@/assets/dexes/metavault.svg?url";
-import linehubLogo from "@/assets/dexes/linehub.svg?url";
-import swapmodeLogo from "@/assets/dexes/swapmode.png";
-
-// returns the checksummed address if the address is valid, otherwise returns false
-export function isAddress(value: string): string | false {
-  try {
-    return getAddress(value);
-  } catch {
-    return false;
-  }
-}
+import { ChainId, NetworkInfo } from "../constants";
+import { ProtocolFeeAction } from "@/hooks/types/zapInTypes";
+import { formatUnits } from "@kyber/utils/number";
 
 export function copyToClipboard(textToCopy: string) {
   // navigator clipboard api needs a secure context (https)
@@ -189,45 +174,6 @@ export function friendlyError(error: Error | string): string {
   return `An error occurred`;
 }
 
-export const getDexName = (poolType: PoolType, chainId: ChainId): string => {
-  switch (poolType) {
-    case PoolType.DEX_UNISWAPV3:
-      return "Uniswap V3";
-    case PoolType.DEX_PANCAKESWAPV3:
-      return "PancakeSwap V3";
-    case PoolType.DEX_METAVAULTV3:
-      return "Metavault V3";
-    case PoolType.DEX_LINEHUBV3:
-      return "LineHub V3";
-    case PoolType.DEX_SWAPMODEV3:
-      if (chainId === ChainId.Base) return "Baseswap";
-      if (chainId === ChainId.Arbitrum) return "Arbidex";
-      if (chainId === ChainId.Optimism) return "Superswap";
-      return "SwapMode";
-
-    default:
-      return assertUnreachable(poolType, "Unknown pool type");
-  }
-};
-
-export const getDexLogo = (poolType: PoolType): string => {
-  switch (poolType) {
-    case PoolType.DEX_UNISWAPV3:
-      return uniswapLogo;
-    case PoolType.DEX_PANCAKESWAPV3:
-      return pancakeLogo;
-    case PoolType.DEX_METAVAULTV3:
-      return metavaultLogo;
-    case PoolType.DEX_LINEHUBV3:
-      return linehubLogo;
-    case PoolType.DEX_SWAPMODEV3:
-      return swapmodeLogo;
-
-    default:
-      return assertUnreachable(poolType, "Unknown pool type");
-  }
-};
-
 export enum PI_LEVEL {
   HIGH = "HIGH",
   VERY_HIGH = "VERY_HIGH",
@@ -295,37 +241,8 @@ export const getWarningThreshold = (zapFee: ProtocolFeeAction) => {
   return 1;
 };
 
-export const correctPrice = (
-  value: string,
-  type: Type,
-  pool: PoolAdapter,
-  tickLower: number | null,
-  tickUpper: number | null,
-  poolType: PoolType,
-  revertPrice: boolean,
-  setTick: (type: Type, value: number) => void
-) => {
-  if (!pool) return;
-  const defaultTick =
-    (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-
-  if (revertPrice) {
-    const tick =
-      tryParseTick(poolType, pool?.token1, pool?.token0, pool?.fee, value) ??
-      defaultTick;
-    if (Number.isInteger(tick))
-      setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
-  } else {
-    const tick =
-      tryParseTick(poolType, pool?.token0, pool?.token1, pool?.fee, value) ??
-      defaultTick;
-    if (Number.isInteger(tick))
-      setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
-  }
-};
-
 export function getEtherscanLink(
-  chainId: number,
+  chainId: ChainId,
   data: string,
   type: "transaction" | "token" | "address" | "block"
 ): string {
@@ -336,7 +253,7 @@ export function getEtherscanLink(
       return `${prefix}/tx/${data}`;
     }
     case "token": {
-      if (chainId === 324) return `${prefix}/address/${data}`;
+      if (chainId === ChainId.ZkSync) return `${prefix}/address/${data}`;
       return `${prefix}/token/${data}`;
     }
     case "block": {

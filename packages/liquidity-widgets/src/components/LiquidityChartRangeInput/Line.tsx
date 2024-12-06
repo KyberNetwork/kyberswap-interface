@@ -1,6 +1,6 @@
 import { ScaleLinear } from "d3";
 import { useMemo } from "react";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useWidgetContext } from "@/stores/widget";
 
 export const Line = ({
   value,
@@ -11,7 +11,7 @@ export const Line = ({
   xScale: ScaleLinear<number, number>;
   innerHeight: number;
 }) => {
-  const { theme } = useWidgetInfo();
+  const theme = useWidgetContext((s) => s.theme);
   return useMemo(
     () => (
       <line

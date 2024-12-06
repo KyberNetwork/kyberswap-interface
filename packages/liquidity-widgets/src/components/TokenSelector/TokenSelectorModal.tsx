@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Token } from "@/entities/Pool";
 import { useZapState } from "@/hooks/useZapInState";
 import TokenImportConfirm from "./TokenImportConfirm";
 import TokenInfo from "../TokenInfo";
 import TokenSelector, { TOKEN_SELECT_MODE } from ".";
 import Modal from "../Modal";
+import { Token } from "@/schema";
 
 const TokenSelectorModal = ({
   selectedTokenAddress,

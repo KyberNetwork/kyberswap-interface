@@ -1,8 +1,8 @@
-import { useWeb3Provider } from "./useProvider";
+import { useWidgetContext } from "@/stores/widget";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 export default function useMarketPrice(tokensAddress: string) {
-  const { chainId } = useWeb3Provider();
+  const chainId = useWidgetContext((s) => s.chainId);
 
   const { prices } = useTokenPrices({
     addresses: tokensAddress

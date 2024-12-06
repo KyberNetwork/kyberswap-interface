@@ -157,3 +157,25 @@ export const formatDisplayNumber = (
 
   return formatter.format(v);
 };
+
+export function formatUnits(value: string, decimals = 18) {
+  const factor = BigInt(10) ** BigInt(decimals);
+  const wholePart = BigInt(value) / factor;
+  const fractionalPart = BigInt(value) % factor;
+
+  // Convert fractional part to string and pad with leading zeros
+  const fractionalStr = fractionalPart
+    .toString()
+    .padStart(Number(decimals), "0");
+
+  // Remove trailing zeros in the fractional part
+  const formattedFractionalStr = fractionalStr.replace(/0+$/, "");
+
+  // If no fractional part, return only the whole part
+  if (formattedFractionalStr === "") {
+    return wholePart.toString();
+  }
+
+  // Otherwise, combine whole and fractional parts
+  return `${wholePart.toString()}.${formattedFractionalStr}`;
+}

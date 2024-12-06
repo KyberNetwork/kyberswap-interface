@@ -12,7 +12,7 @@
   "dependencies": {
     "@kyberswap/liquidity-widgets": "workspace:^",
     "@web3-onboard/injected-wallets": "^2.11.2",
-    "@web3-onboard/react": "^2.9.3",
+    "@web3-onboard/react": "2.10.0",
     "ethers": "5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

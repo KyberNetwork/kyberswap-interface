@@ -21,7 +21,6 @@ export const NetworkInfo: Record<ChainId, Chain> = {
       symbol: "WETH",
       decimals: 18,
     },
-    pricePath: "ethereum",
     zapPath: "ethereum",
   },
   [ChainId.Bsc]: {
@@ -39,7 +38,6 @@ export const NetworkInfo: Record<ChainId, Chain> = {
       symbol: "WBNB",
       decimals: 18,
     },
-    pricePath: "bsc",
     zapPath: "bsc",
   },
   //137: {

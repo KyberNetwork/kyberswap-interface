@@ -8,7 +8,7 @@ import { Brush } from "./Brush";
 import { Line } from "./Line";
 import { Bound, ChartEntry, LiquidityChartRangeInputProps } from "./types";
 import Zoom from "./Zoom";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useWidgetContext } from "@/stores/widget";
 
 const xAccessor = (d: ChartEntry) => d.price0;
 const yAccessor = (d: ChartEntry) => d.activeLiquidity;
@@ -28,7 +28,7 @@ export function Chart({
   showZoomButtons = true,
 }: LiquidityChartRangeInputProps) {
   const zoomRef = useRef<SVGRectElement | null>(null);
-  const { theme } = useWidgetInfo();
+  const theme = useWidgetContext((s) => s.theme);
 
   const [zoom, setZoom] = useState<ZoomTransform | null>(null);
 

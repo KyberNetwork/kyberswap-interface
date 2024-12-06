@@ -2,18 +2,19 @@ import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from "react";
 import { X, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Token } from "@/entities/Pool";
 import { useZapState } from "@/hooks/useZapInState";
 import { useTokenList } from "../../hooks/useTokenList";
-import { formatWei, isAddress } from "@/utils";
+import { formatWei } from "@/utils";
 import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { Button } from "../ui/button";
-import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { formatUnits } from "ethers/lib/utils";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TrashIcon from "@/assets/svg/trash.svg";
 import IconSearch from "@/assets/svg/search.svg";
 import Info from "@/assets/svg/info.svg";
+import { useWidgetContext } from "@/stores/widget";
+import { Token } from "@/schema";
+import { isAddress } from "@kyber/utils/crypto";
 
 export enum TOKEN_SELECT_MODE {
   SELECT = "SELECT",
@@ -53,7 +54,7 @@ export default function TokenSelector({
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
 }) {
-  const { pool } = useWidgetInfo();
+  const pool = useWidgetContext((s) => s.pool);
   const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } =
     useZapState();
   const {
@@ -72,6 +73,7 @@ export default function TokenSelector({
   const [modalTokensIn, setModalTokensIn] = useState<Token[]>([...tokensIn]);
   const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
 
+  if (pool === "loading") return null;
   const modalTokensInAddress = useMemo(
     () => modalTokensIn.map((token: Token) => token.address?.toLowerCase()),
     [modalTokensIn]
@@ -114,11 +116,10 @@ export default function TokenSelector({
                 ? 1
                 : 0,
             inPair:
-              token.address.toLowerCase() ===
-              pool?.token0?.address.toLowerCase()
+              token.address.toLowerCase() === pool.token0.address.toLowerCase()
                 ? 2
                 : token.address.toLowerCase() ===
-                  pool?.token1?.address.toLowerCase()
+                  pool.token1.address.toLowerCase()
                 ? 1
                 : 0,
           };
@@ -464,14 +465,14 @@ export default function TokenSelector({
           {tabSelected === TOKEN_TAB.ALL &&
             unImportedTokens.map((token: Token) => (
               <div
-                key={token.symbol}
+                key={token.address}
                 className="flex items-center justify-between py-2 px-6"
                 style={{ color: "red" }}
               >
                 <div className="flex items-center gap-2">
                   <img
                     className="h-6 w-6"
-                    src={token.logoURI}
+                    src={token.logo}
                     alt=""
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
@@ -493,7 +494,7 @@ export default function TokenSelector({
           {filteredTokens?.length > 0 && !unImportedTokens.length ? (
             filteredTokens.map((token: CustomizeToken) => (
               <div
-                key={token.symbol}
+                key={token.address}
                 className={`flex items-center justify-between py-2 px-6 cursor-pointer hover:bg-[#0f0f0f] ${
                   mode === TOKEN_SELECT_MODE.SELECT &&
                   token.address?.toLowerCase() ===
@@ -525,7 +526,7 @@ export default function TokenSelector({
                   )}
                   <img
                     className="h-6 w-6"
-                    src={token.logoURI}
+                    src={token.logo}
                     alt=""
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;

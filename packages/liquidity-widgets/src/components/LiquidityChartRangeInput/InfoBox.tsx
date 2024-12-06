@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useWidgetContext } from "@/stores/widget";
 
 export function InfoBox({
   message,
@@ -8,7 +8,7 @@ export function InfoBox({
   message?: ReactNode;
   icon: ReactNode;
 }) {
-  const { theme } = useWidgetInfo();
+  const theme = useWidgetContext((s) => s.theme);
   return (
     <div style={{ height: "100%", justifyContent: "center" }}>
       {icon}

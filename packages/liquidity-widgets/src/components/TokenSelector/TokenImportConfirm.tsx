@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { CircleCheckBig, X } from "lucide-react";
-import { Token } from "@/entities/Pool";
 import { Button } from "@/components/ui/button";
 import { shortenAddress } from "@/components/TokenInfo/utils";
-import { useWeb3Provider } from "@/hooks/useProvider";
 import { getEtherscanLink } from "@/utils";
 import { useTokenList } from "@/hooks/useTokenList";
 import { TOKEN_SELECT_MODE } from ".";
@@ -14,6 +12,8 @@ import IconExternalLink from "@/assets/svg/external-link.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useZapState } from "@/hooks/useZapInState";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
+import { Token } from "@/schema";
+import { useWidgetContext } from "@/stores/widget";
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: NodeJS.Timeout;
@@ -35,8 +35,8 @@ const TokenImportConfirm = ({
   onGoBack: () => void;
   onClose: () => void;
 }) => {
-  const { chainId } = useWeb3Provider();
   const [copied, setCopied] = useState(false);
+  const chainId = useWidgetContext((s) => s.chainId);
 
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
   const { addToken } = useTokenList();
@@ -110,7 +110,7 @@ const TokenImportConfirm = ({
         <div className="bg-[#0f0f0f] rounded-md p-8 flex gap-[10px] items-start">
           <img
             className="w-[44px] h-[44px]"
-            src={token.logoURI}
+            src={token.logo}
             alt="token logo"
             onError={({ currentTarget }) => {
               currentTarget.onerror = null;

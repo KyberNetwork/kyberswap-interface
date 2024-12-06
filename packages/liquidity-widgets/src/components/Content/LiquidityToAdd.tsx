@@ -146,7 +146,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           )}
           <button onClick={onOpenTokenSelectModal}>
             <img
-              src={token.logoURI}
+              src={token.logo}
               alt="TokenLogo"
               width="20px"
               style={{ borderRadius: "50%" }}

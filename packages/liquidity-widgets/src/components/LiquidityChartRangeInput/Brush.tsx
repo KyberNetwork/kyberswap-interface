@@ -2,8 +2,8 @@ import { BrushBehavior, brushX, D3BrushEvent, ScaleLinear, select } from "d3";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { brushHandleAccentPath, brushHandlePath, OffScreenHandle } from "./svg";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import usePreviousValue from "../../hooks/usePreviousValue";
+import { useWidgetContext } from "@/stores/widget";
 
 // flips the handles draggers when close to the container edges
 const FLIP_HANDLE_THRESHOLD_PX = 20;
@@ -49,7 +49,7 @@ export const Brush = ({
   westHandleColor: string;
   eastHandleColor: string;
 }) => {
-  const { theme } = useWidgetInfo();
+  const theme = useWidgetContext((s) => s.theme);
   const brushRef = useRef<SVGGElement | null>(null);
   const brushBehavior = useRef<BrushBehavior<SVGGElement> | null>(null);
 

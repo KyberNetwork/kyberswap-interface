@@ -3,7 +3,7 @@ import { CSSProperties, ReactNode, useCallback, useState } from "react";
 import Info from "@/assets/svg/info.svg";
 
 import Tooltip from "./Tooltip";
-import { useWidgetInfo } from "../hooks/useWidgetInfo";
+import { useWidgetContext } from "@/stores/widget";
 
 export default function InfoHelper({
   text,
@@ -25,7 +25,7 @@ export default function InfoHelper({
 
   const open = useCallback(() => setShow(true), [setShow]);
   const close = useCallback(() => setShow(false), [setShow]);
-  const { theme } = useWidgetInfo();
+  const theme = useWidgetContext((s) => s.theme);
 
   return (
     <span

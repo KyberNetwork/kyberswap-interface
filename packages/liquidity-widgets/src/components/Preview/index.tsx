@@ -17,25 +17,19 @@ import {
   AggregatorSwapAction,
   PoolSwapAction,
 } from "@/hooks/types/zapInTypes";
-import { NetworkInfo, PATHS, chainIdToChain } from "@/constants";
-import { useWeb3Provider } from "@/hooks/useProvider";
+import { DexInfos, NetworkInfo, PATHS, chainIdToChain } from "@/constants";
 import {
   PI_LEVEL,
   formatCurrency,
   formatWei,
   friendlyError,
-  getDexName,
   getPriceImpact,
   getWarningThreshold,
 } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
-import { BigNumber } from "ethers";
-import { PoolAdapter, Token, Price } from "@/entities/Pool";
-import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { formatUnits } from "ethers/lib/utils";
-import { formatDisplayNumber } from "@/utils/number";
 import { CircleCheckBig } from "lucide-react";
 import IconCopy from "@/assets/svg/copy.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
@@ -45,14 +39,24 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { formatDisplayNumber, toRawString } from "@kyber/utils/number";
+import { useWidgetContext } from "@/stores/widget";
+import { Pool, Token } from "@/schema";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
+import {
+  calculateGasMargin,
+  estimateGas,
+  getCurrentGasPrice,
+  isTransactionSuccessful,
+} from "@kyber/utils/crypto";
 
 export interface ZapState {
-  pool: PoolAdapter;
+  pool: Pool;
   zapInfo: ZapRouteDetail;
   tokensIn: Token[];
   amountsIn: string;
-  priceLower: Price;
-  priceUpper: Price;
+  priceLower: string;
+  priceUpper: string;
   deadline: number;
   isFullRange: boolean;
   slippage: number;
@@ -63,20 +67,10 @@ export interface ZapState {
 export interface PreviewProps {
   zapState: ZapState;
   onDismiss: () => void;
-  onTxSubmit?: (tx: string) => void;
 }
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: NodeJS.Timeout;
-
-function calculateGasMargin(value: BigNumber): BigNumber {
-  const defaultGasLimitMargin = BigNumber.from(20_000);
-  const gasMargin = value.mul(BigNumber.from(2000)).div(BigNumber.from(10000));
-
-  return gasMargin.gte(defaultGasLimitMargin)
-    ? value.add(gasMargin)
-    : value.add(defaultGasLimitMargin);
-}
 
 export default function Preview({
   zapState: {
@@ -90,11 +84,20 @@ export default function Preview({
     tickUpper,
   },
   onDismiss,
-  onTxSubmit,
 }: PreviewProps) {
-  const { chainId, account, provider } = useWeb3Provider();
-  const { poolType, positionId, theme, position, poolAddress } =
-    useWidgetInfo();
+  const {
+    poolType,
+    positionId,
+    chainId,
+    connectedAccount,
+    theme,
+    position,
+    poolAddress,
+    onSubmitTx,
+  } = useWidgetContext((s) => s);
+
+  const { address: account } = connectedAccount;
+
   const {
     source,
     revertPrice: revert,
@@ -116,26 +119,27 @@ export default function Preview({
 
   const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
 
-  const isOutOfRange =
-    tickLower > pool.tickCurrent || pool.tickCurrent >= tickUpper;
+  const isOutOfRange = tickLower > pool.tick || pool.tick >= tickUpper;
 
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        provider?.getTransactionReceipt(txHash).then((res) => {
-          if (!res) return;
+        isTransactionSuccessful(NetworkInfo[chainId].defaultRpc, txHash).then(
+          (res) => {
+            if (!res) return;
 
-          if (res.status) {
-            setTxStatus("success");
-          } else setTxStatus("failed");
-        });
+            if (res) {
+              setTxStatus("success");
+            } else setTxStatus("failed");
+          }
+        );
       }, 10_000);
 
       return () => {
         clearInterval(i);
       };
     }
-  }, [txHash, provider]);
+  }, [txHash]);
 
   const addedLiqInfo = useMemo(
     () =>
@@ -163,28 +167,27 @@ export default function Preview({
     [addedLiqInfo?.addLiquidity.token1.amount, pool.token1.decimals]
   );
 
+  const amount0 =
+    position === "loading"
+      ? 0
+      : +toRawString(position.amount0, pool.token0.decimals);
+  const amount1 =
+    position === "loading"
+      ? 0
+      : +toRawString(position.amount1, pool.token1.decimals);
+
   const positionAmount0Usd = useMemo(
     () =>
-      (+(position?.amount0 || 0) *
-        +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
+      (amount0 * +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
         +addedAmount0 || 0,
-    [
-      addedAmount0,
-      addedLiqInfo?.addLiquidity.token0.amountUsd,
-      position?.amount0,
-    ]
+    [addedAmount0, addedLiqInfo?.addLiquidity.token0.amountUsd, amount0]
   );
 
   const positionAmount1Usd = useMemo(
     () =>
-      (+(position?.amount1 || 0) *
-        +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
+      (amount1 * +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
         +addedAmount1 || 0,
-    [
-      addedAmount1,
-      addedLiqInfo?.addLiquidity.token1.amountUsd,
-      position?.amount1,
-    ]
+    [addedAmount1, addedLiqInfo?.addLiquidity.token1.amountUsd, amount1]
   );
 
   const refundInfo = zapInfo.zapDetails.actions.find(
@@ -201,22 +204,12 @@ export default function Preview({
     ) || [];
 
   const refundAmount0 = formatWei(
-    refundToken0
-      .reduce(
-        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
-        BigNumber.from("0")
-      )
-      .toString(),
+    refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
     pool.token0.decimals
   );
 
   const refundAmount1 = formatWei(
-    refundToken1
-      .reduce(
-        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
-        BigNumber.from("0")
-      )
-      .toString(),
+    refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
     pool.token1.decimals
   );
 
@@ -225,14 +218,19 @@ export default function Preview({
     0;
 
   const price = pool
-    ? (revert
-        ? pool.priceOf(pool.token1)
-        : pool.priceOf(pool.token0)
-      ).toSignificant(6)
+    ? formatDisplayNumber(
+        tickToPrice(
+          pool.tick,
+          pool.token0.decimals,
+          pool.token1.decimals,
+          revert
+        ),
+        { significantDigits: 6 }
+      )
     : "--";
 
-  const leftPrice = !revert ? priceLower : priceUpper?.invert();
-  const rightPrice = !revert ? priceUpper : priceLower?.invert();
+  const leftPrice = !revert ? priceLower : priceUpper;
+  const rightPrice = !revert ? priceUpper : priceLower;
 
   const quote = (
     <span>
@@ -274,11 +272,11 @@ export default function Preview({
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
@@ -303,11 +301,11 @@ export default function Preview({
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
@@ -356,6 +354,8 @@ export default function Preview({
     }
   };
 
+  const rpcUrl = NetworkInfo[chainId].defaultRpc;
+
   useEffect(() => {
     fetch(`${PATHS.ZAP_API}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
       method: "POST",
@@ -370,7 +370,7 @@ export default function Preview({
       .then((res) => res.json())
       .then(async (res) => {
         const { data } = res || {};
-        if (data.callData) {
+        if (data.callData && account) {
           const txData = {
             from: account,
             to: data.routerAddress,
@@ -381,21 +381,20 @@ export default function Preview({
           try {
             const wethAddress =
               NetworkInfo[chainId].wrappedToken.address.toLowerCase();
-            const [estimateGas, nativeTokenPrice, gasPrice] = await Promise.all(
-              [
-                provider.getSigner().estimateGas(txData),
+            const [gasEstimation, nativeTokenPrice, gasPrice] =
+              await Promise.all([
+                estimateGas(rpcUrl, txData),
                 fetchPrices([wethAddress])
                   .then((prices) => {
                     return prices[wethAddress]?.PriceBuy || 0;
                   })
                   .catch(() => 0),
-                provider.getGasPrice(),
-              ]
-            );
+                getCurrentGasPrice(rpcUrl),
+              ]);
 
             const gasUsd =
               +formatUnits(gasPrice) *
-              +estimateGas.toString() *
+              +gasEstimation.toString() *
               nativeTokenPrice;
 
             setGasUsd(gasUsd);
@@ -404,7 +403,7 @@ export default function Preview({
           }
         }
       });
-  }, [account, chainId, deadline, provider, source, zapInfo.route]);
+  }, [account, chainId, deadline, source, zapInfo.route]);
 
   useEffect(() => {
     if (copied) {
@@ -415,6 +414,11 @@ export default function Preview({
       clearTimeout(hideCopied);
     };
   }, [copied]);
+
+  const dexName =
+    typeof DexInfos[poolType].name === "string"
+      ? DexInfos[poolType].name
+      : DexInfos[poolType].name[chainId];
 
   const handleClick = async () => {
     setAttempTx(true);
@@ -434,22 +438,21 @@ export default function Preview({
       .then((res) => res.json())
       .then(async (res) => {
         const { data } = res || {};
-        if (data.callData) {
+        if (data.callData && account) {
           const txData = {
             from: account,
             to: data.routerAddress,
             data: data.callData,
-            value: data.value,
+            value: `0x${BigInt(data.value).toString(16)}`,
           };
 
           try {
-            const estimateGas = await provider.getSigner().estimateGas(txData);
-            const txReceipt = await provider.getSigner().sendTransaction({
+            const gasEstimation = await estimateGas(rpcUrl, txData);
+            const txHash = await onSubmitTx({
               ...txData,
-              gasLimit: calculateGasMargin(estimateGas),
+              gasLimit: calculateGasMargin(gasEstimation),
             });
-            setTxHash(txReceipt.hash);
-            onTxSubmit?.(txReceipt.hash);
+            setTxHash(txHash);
           } catch (e) {
             setAttempTx(false);
             setTxError(e as Error);
@@ -489,9 +492,7 @@ export default function Preview({
               Confirm this transaction in your wallet - Zapping{" "}
               {positionId
                 ? `Position #${positionId}`
-                : `${getDexName(poolType, chainId)} ${pool.token0.symbol}/${
-                    pool.token1.symbol
-                  } ${pool.fee / 10_000}%`}
+                : `${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`}
             </div>
           )}
           {txHash && txStatus === "" && (
@@ -579,7 +580,7 @@ export default function Preview({
       <div className="title">
         <div className="logo">
           <img
-            src={(pool.token0 as Token).logoURI}
+            src={pool.token0.logo}
             alt=""
             width="36px"
             height="36px"
@@ -590,7 +591,7 @@ export default function Preview({
             }}
           />
           <img
-            src={(pool.token1 as Token).logoURI}
+            src={pool.token1.logo}
             alt=""
             width="36px"
             height="36px"
@@ -626,7 +627,7 @@ export default function Preview({
             )}
           </div>
           <div className="pool-info mt-[2px]">
-            <div className="tag tag-default">Fee {pool.fee / 10_000}%</div>
+            <div className="tag tag-default">Fee {pool.fee}%</div>
             {positionId !== undefined && (
               <div className="tag tag-primary">
                 <Info width={12} /> ID {positionId}
@@ -663,10 +664,10 @@ export default function Preview({
           </p>
         </div>
         <div className="mt-2">
-          {tokensIn.map((token: Token, index: number) => (
+          {tokensIn.map((token, index: number) => (
             <div className="flex items-center gap-2 mt-1" key={token.address}>
               <img
-                src={token.logoURI}
+                src={token.logo}
                 className="w-[18px] h-[18px]"
                 onError={({ currentTarget }) => {
                   currentTarget.onerror = null;
@@ -720,7 +721,7 @@ export default function Preview({
                 revert ? tickUpper === pool.maxTick : tickLower === pool.minTick
               )
                 ? "0"
-                : leftPrice?.toSignificant(6)}
+                : leftPrice}
             </div>
             <div className="card-title">{quote}</div>
           </div>
@@ -741,7 +742,7 @@ export default function Preview({
                   : tickLower === pool.minTick
               )
                 ? "∞"
-                : rightPrice?.toSignificant(6)}
+                : rightPrice}
             </div>
             <div className="card-title">{quote}</div>
           </div>
@@ -754,9 +755,9 @@ export default function Preview({
           <div className="text-[14px] flex gap-4">
             <div>
               <div className="flex gap-[4px]">
-                {pool?.token0?.logoURI && (
+                {pool?.token0?.logo && (
                   <img
-                    src={pool.token0.logoURI}
+                    src={pool.token0.logo}
                     className={`w-4 h-4 rounded-full relative ${
                       positionId ? "" : "mt-1 top-[-4px]"
                     }`}
@@ -768,7 +769,7 @@ export default function Preview({
                 )}
                 <div className="text-end">
                   {formatDisplayNumber(
-                    position ? +position.amount0 : +addedAmount0,
+                    positionId !== undefined ? amount0 : +addedAmount0,
                     { significantDigits: 5 }
                   )}{" "}
                   {pool?.token0.symbol}
@@ -792,9 +793,9 @@ export default function Preview({
             </div>
             <div>
               <div className="flex gap-1">
-                {pool?.token1?.logoURI && (
+                {pool?.token1?.logo && (
                   <img
-                    src={pool.token1.logoURI}
+                    src={pool.token1.logo}
                     className={`w-4 h-4 rounded-full relative ${
                       positionId ? "" : "mt-1 top-[-4px]"
                     }`}
@@ -806,7 +807,7 @@ export default function Preview({
                 )}
                 <div className="text-end">
                   {formatDisplayNumber(
-                    position ? +position.amount1 : +addedAmount1,
+                    positionId !== undefined ? amount1 : +addedAmount1,
                     { significantDigits: 5 }
                   )}{" "}
                   {pool?.token1.symbol}

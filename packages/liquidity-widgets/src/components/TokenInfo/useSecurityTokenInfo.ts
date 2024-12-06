@@ -1,13 +1,13 @@
-import { useWeb3Provider } from "@/hooks/useProvider";
 import { useEffect, useMemo, useState } from "react";
 import { PATHS } from "@/constants";
 import {
   getSecurityTokenInfo,
   SecurityInfo,
 } from "@/components/TokenInfo/utils";
+import { useWidgetContext } from "@/stores/widget";
 
 export default function useSecurityTokenInfo(tokenAddress: string) {
-  const { chainId } = useWeb3Provider();
+  const chainId = useWidgetContext((s) => s.chainId);
   const [securityRawInfo, setSecurityRawInfo] = useState<SecurityInfo | null>(
     null
   );

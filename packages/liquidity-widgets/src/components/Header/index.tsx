@@ -1,33 +1,33 @@
 import "./Header.scss";
-import { useWeb3Provider } from "../../hooks/useProvider";
 import SettingIcon from "@/assets/svg/setting.svg";
 import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { NetworkInfo } from "../../constants";
+import { DexInfos, NetworkInfo } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
-import { getDexLogo, getDexName } from "../../utils";
 import { MouseoverTooltip } from "../Tooltip";
+import { useWidgetContext } from "@/stores/widget";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
-  const { chainId } = useWeb3Provider();
-  const { loading, pool, poolType, positionId, position, theme } =
-    useWidgetInfo();
+  const { chainId, pool, poolType, positionId, position, theme } =
+    useWidgetContext((s) => s);
 
   const { toggleSetting, degenMode } = useZapState();
+
+  const loading = pool === "loading";
+
   if (loading) return <span>loading...</span>;
 
   if (!pool) return <span>can't get pool info</span>;
   const { token0, token1, fee } = pool;
 
-  const logo = getDexLogo(poolType);
-  const name = getDexName(poolType, chainId);
+  const { icon: logo, name: rawName } = DexInfos[poolType];
+  const name = typeof rawName === "string" ? rawName : rawName[chainId];
 
-  const isOutOfRange = position
-    ? pool.tickCurrent < position.tickLower ||
-      pool.tickCurrent >= position.tickUpper
-    : false;
+  const isOutOfRange =
+    positionId !== undefined && position !== "loading"
+      ? pool.tick < position.tickLower || pool.tick >= position.tickUpper
+      : false;
 
   return (
     <>
@@ -61,7 +61,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
         <div className="pool-info">
           <div className="pool-tokens-logo">
             <img
-              src={token0.logoURI}
+              src={token0.logo}
               alt="token0 logo"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -69,7 +69,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               }}
             />
             <img
-              src={token1.logoURI}
+              src={token1.logo}
               alt="token1 logo"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -92,7 +92,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
           <div className="dex-type">
             <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px]">
-              Fee {fee / 10_000}%
+              Fee {fee}%
             </div>
             <span className="divide">|</span>
             <img

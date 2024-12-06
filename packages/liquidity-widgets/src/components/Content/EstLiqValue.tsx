@@ -1,5 +1,4 @@
 import { BigNumber } from "ethers";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useZapState } from "../../hooks/useZapInState";
 import {
   AddLiquidityAction,
@@ -28,26 +27,47 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useMemo } from "react";
-import { Token } from "@/entities/Pool";
 import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { useWeb3Provider } from "@/hooks/useProvider";
+import { useWidgetContext } from "@/stores/widget";
+import { toRawString } from "@kyber/utils/number";
 
 export default function EstLiqValue() {
   const { zapInfo, source, slippage, tokensIn } = useZapState();
-  const { pool, theme, position } = useWidgetInfo();
-  const { chainId } = useWeb3Provider();
+  const { pool, chainId, theme, position, positionId } = useWidgetContext(
+    (s) => s
+  );
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.ADD_LIQUIDITY
   ) as AddLiquidityAction | undefined;
+
+  const defaultToken = {
+    decimals: undefined,
+    address: "",
+    logo: "",
+    symbol: "",
+  };
+  const {
+    decimals: token0Decimals,
+    address: token0Address,
+    logo: logo0,
+    symbol: symbol0,
+  } = pool === "loading" ? defaultToken : pool.token0;
+  const {
+    decimals: token1Decimals,
+    address: token1Address,
+    logo: logo1,
+    symbol: symbol1,
+  } = pool === "loading" ? defaultToken : pool.token1;
+
   const addedAmount0 = formatUnits(
     addLiquidityInfo?.addLiquidity.token0.amount || "0",
-    pool?.token0.decimals
+    token0Decimals
   );
   const addedAmount1 = formatUnits(
     addLiquidityInfo?.addLiquidity.token1.amount || "0",
-    pool?.token1.decimals
+    token1Decimals
   );
 
   const refundInfo = zapInfo?.zapDetails.actions.find(
@@ -55,13 +75,11 @@ export default function EstLiqValue() {
   ) as RefundAction | null;
   const refundToken0 =
     refundInfo?.refund.tokens.filter(
-      (item) =>
-        item.address.toLowerCase() === pool?.token0.address.toLowerCase()
+      (item) => item.address.toLowerCase() === token0Address?.toLowerCase()
     ) || [];
   const refundToken1 =
     refundInfo?.refund.tokens.filter(
-      (item) =>
-        item.address.toLowerCase() === pool?.token1.address.toLowerCase()
+      (item) => item.address.toLowerCase() === token1Address?.toLowerCase()
     ) || [];
 
   const refundAmount0 = formatWei(
@@ -71,7 +89,7 @@ export default function EstLiqValue() {
         BigNumber.from("0")
       )
       .toString(),
-    pool?.token0.decimals
+    token0Decimals
   );
 
   const refundAmount1 = formatWei(
@@ -81,7 +99,7 @@ export default function EstLiqValue() {
         BigNumber.from("0")
       )
       .toString(),
-    pool?.token1.decimals
+    token1Decimals
   );
 
   const refundUsd =
@@ -110,7 +128,7 @@ export default function EstLiqValue() {
       (item) => item.type === ZapAction.POOL_SWAP
     ) as PoolSwapAction | null;
 
-    if (!pool) return [];
+    if (pool === "loading") return [];
 
     const tokens = [
       ...tokensIn,
@@ -122,11 +140,11 @@ export default function EstLiqValue() {
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
@@ -151,12 +169,12 @@ export default function EstLiqValue() {
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
 
         const tokenOut = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
 
@@ -199,14 +217,21 @@ export default function EstLiqValue() {
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
 
+  const amount0 =
+    position === "loading" || pool === "loading"
+      ? 0
+      : +toRawString(position.amount0, pool.token0.decimals);
+  const amount1 =
+    position === "loading" || pool === "loading"
+      ? 0
+      : +toRawString(position.amount1, pool.token1.decimals);
+
   const positionAmount0Usd =
-    (+(position?.amount0 || 0) *
-      +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)) /
+    (amount0 * +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)) /
       +addedAmount0 || 0;
 
   const positionAmount1Usd =
-    (+(position?.amount1 || 0) *
-      +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)) /
+    (amount1 * +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)) /
       +addedAmount1 || 0;
 
   const addedAmountUsd =
@@ -224,13 +249,13 @@ export default function EstLiqValue() {
         <div className="divider"></div>
 
         <div className="detail-row">
-          <div className="label">Est. Pooled {pool?.token0.symbol}</div>
+          <div className="label">Est. Pooled {symbol0}</div>
           {zapInfo ? (
             <div>
               <div className="token-amount">
-                {pool?.token0?.logoURI && (
+                {logo0 && (
                   <img
-                    src={pool.token0.logoURI}
+                    src={logo0}
                     width="14px"
                     style={{ marginTop: "2px", borderRadius: "50%" }}
                     onError={({ currentTarget }) => {
@@ -240,13 +265,15 @@ export default function EstLiqValue() {
                   />
                 )}
                 <div className="text-end">
-                  {formatNumber(position ? +position.amount0 : +addedAmount0)}{" "}
-                  {pool?.token0.symbol}
+                  {formatNumber(
+                    positionId !== undefined ? amount0 : +addedAmount0
+                  )}{" "}
+                  {symbol0}
                 </div>
               </div>
-              {position && (
+              {positionId !== undefined && (
                 <div className="text-end">
-                  + {formatNumber(+addedAmount0)} {pool?.token0.symbol}
+                  + {formatNumber(+addedAmount0)} {symbol0}
                 </div>
               )}
 
@@ -264,13 +291,13 @@ export default function EstLiqValue() {
         </div>
 
         <div className="detail-row">
-          <div className="label">Est. Pooled {pool?.token1.symbol}</div>
+          <div className="label">Est. Pooled {symbol1}</div>
           {zapInfo ? (
             <div>
               <div className="token-amount">
-                {pool?.token1?.logoURI && (
+                {logo1 && (
                   <img
-                    src={pool?.token1?.logoURI}
+                    src={logo1}
                     width="14px"
                     style={{ marginTop: "2px", borderRadius: "50%" }}
                     onError={({ currentTarget }) => {
@@ -280,13 +307,15 @@ export default function EstLiqValue() {
                   />
                 )}
                 <div className="text-end">
-                  {formatNumber(position ? +position.amount1 : +addedAmount1)}{" "}
-                  {pool?.token1.symbol}
+                  {formatNumber(
+                    positionId !== undefined ? amount1 : +addedAmount1
+                  )}{" "}
+                  {symbol1}
                 </div>
               </div>
               {position && (
                 <div className="text-end">
-                  + {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+                  + {formatNumber(+addedAmount1)} {symbol1}
                 </div>
               )}
 
@@ -317,10 +346,10 @@ export default function EstLiqValue() {
               text={
                 <div>
                   <div>
-                    {refundAmount0} {pool?.token0.symbol}{" "}
+                    {refundAmount0} {symbol0}{" "}
                   </div>
                   <div>
-                    {refundAmount1} {pool?.token1.symbol}
+                    {refundAmount1} {symbol1}
                   </div>
                 </div>
               }

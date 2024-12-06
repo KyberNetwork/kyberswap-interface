@@ -4,7 +4,7 @@ import ErrorIcon from "@/assets/svg/error.svg";
 import PriceInfo from "./PriceInfo";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
-import { useZapState } from "../../hooks/useZapInState";
+import { ERROR_MESSAGE, useZapState } from "../../hooks/useZapInState";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
@@ -15,8 +15,7 @@ import {
 import ZapRoute from "./ZapRoute";
 import EstLiqValue from "./EstLiqValue";
 import { APPROVAL_STATE, useApprovals } from "../../hooks/useApproval";
-import { useEffect, useMemo, useState } from "react";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useMemo, useState } from "react";
 import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import { parseUnits } from "ethers/lib/utils";
@@ -24,23 +23,22 @@ import Modal from "../Modal";
 import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { BigNumber } from "ethers";
-import { useWeb3Provider } from "../../hooks/useProvider";
 import { TOKEN_SELECT_MODE } from "../TokenSelector";
-import { Token } from "@/entities/Pool";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
 import PriceRange from "../PriceRange";
 import PositionLiquidity from "../PositionLiquidity";
 import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
+import { useWidgetContext } from "@/stores/widget";
+import { Pool } from "@/schema";
+import {
+  MAX_TICK,
+  MIN_TICK,
+  nearestUsableTick,
+  tickToPrice,
+} from "@kyber/utils/uniswapv3";
+import { formatDisplayNumber } from "@kyber/utils/number";
 
-export default function Content({
-  onDismiss,
-  onTogglePreview,
-  onTxSubmit,
-}: {
-  onDismiss: () => void;
-  onTogglePreview?: (val: boolean) => void;
-  onTxSubmit?: (tx: string) => void;
-}) {
+export default function Content() {
   const {
     zapInfo,
     error,
@@ -59,8 +57,14 @@ export default function Content({
     amountsIn,
   } = useZapState();
 
-  const { pool, theme, error: loadPoolError, position } = useWidgetInfo();
-  const { account } = useWeb3Provider();
+  const {
+    pool,
+    theme,
+    errorMsg: loadPoolError,
+    position,
+    onConnectWallet,
+    onSwitchChain,
+  } = useWidgetContext((s) => s);
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -74,7 +78,7 @@ export default function Content({
     [tokensIn, amountsIn]
   );
 
-  const { loading, approvalStates, addressToApprove, approve } = useApprovals(
+  const { loading, approvalStates, approve, addressToApprove } = useApprovals(
     amountsInWei,
     tokensIn.map((token) => token?.address || ""),
     zapInfo?.routerAddress || ""
@@ -156,12 +160,15 @@ export default function Content({
     return "Preview";
   }, [addressToApprove, error, loading, notApprove, pi, zapLoading]);
 
+  const isWrongNetwork = error === ERROR_MESSAGE.WRONG_NETWORK;
+  const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
+
   const disabled = useMemo(
     () =>
       clickedApprove ||
       loading ||
       zapLoading ||
-      !!error ||
+      (!!error && !isWrongNetwork && !isNotConnected) ||
       Object.values(approvalStates).some(
         (item) => item === APPROVAL_STATE.PENDING
       ) ||
@@ -171,41 +178,51 @@ export default function Content({
       clickedApprove,
       degenMode,
       error,
+      isWrongNetwork,
+      isNotConnected,
       loading,
       pi.piVeryHigh,
       zapLoading,
     ]
   );
 
-  const newPool = useMemo(
+  const newPool: Pool | null = useMemo(
     () =>
-      zapInfo && pool
-        ? pool.newPool({
+      zapInfo && pool !== "loading"
+        ? {
+            ...pool,
             sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
             tick: zapInfo.poolDetails.uniswapV3.newTick,
             liquidity: BigNumber.from(pool.liquidity)
               .add(BigNumber.from(zapInfo.positionDetails.addedLiquidity))
               .toString(),
-          })
+          }
         : null,
     [pool, zapInfo]
   );
 
+  const newPoolPrice =
+    newPool &&
+    tickToPrice(
+      newPool.tick,
+      newPool.token0.decimals,
+      newPool.token1.decimals,
+      false
+    );
+
   const isDeviated = useMemo(
     () =>
       !!marketPrice &&
-      newPool &&
-      Math.abs(
-        marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1
-      ) > 0.02,
+      newPoolPrice &&
+      Math.abs(marketPrice / +newPoolPrice - 1) > 0.02,
     [marketPrice, newPool]
   );
 
   const isOutOfRangeAfterZap = useMemo(
     () =>
-      position && newPool
-        ? newPool.tickCurrent < position.tickLower ||
-          newPool.tickCurrent >= position.tickUpper
+      position !== "loading" && newPool
+        ? newPool.tick < position.tickLower ||
+          newPool.tick >= position.tickUpper
         : false,
     [newPool, position]
   );
@@ -221,20 +238,33 @@ export default function Content({
   const price = useMemo(
     () =>
       newPool
-        ? (revertPrice
-            ? newPool.priceOf(newPool.token1)
-            : newPool.priceOf(newPool.token0)
-          ).toSignificant(6)
+        ? formatDisplayNumber(
+            tickToPrice(
+              newPool.tick,
+              newPool.token0.decimals,
+              newPool.token1.decimals,
+              revertPrice
+            ),
+            { significantDigits: 6 }
+          )
         : "--",
     [newPool, revertPrice]
   );
 
   const hanldeClick = () => {
+    if (isNotConnected) {
+      onConnectWallet();
+      return;
+    }
+    if (isWrongNetwork) {
+      onSwitchChain();
+      return;
+    }
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
     } else if (
-      pool &&
+      pool !== "loading" &&
       amountsIn &&
       tokensIn.every(Boolean) &&
       zapInfo &&
@@ -247,35 +277,35 @@ export default function Content({
       date.setMinutes(date.getMinutes() + (ttl || 20));
 
       setSnapshotState({
-        tokensIn: tokensIn as Token[],
+        tokensIn: tokensIn,
         amountsIn,
         pool,
         zapInfo,
         priceLower,
         priceUpper,
         deadline: Math.floor(date.getTime() / 1000),
-        isFullRange: pool.maxTick === tickUpper && pool.minTick === tickLower,
+        isFullRange:
+          nearestUsableTick(MAX_TICK, pool.tickSpacing) === tickUpper &&
+          nearestUsableTick(MIN_TICK, pool.tickSpacing) === tickLower,
         slippage,
         tickUpper,
         tickLower,
       });
-      onTogglePreview?.(true);
     }
   };
 
   const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
   const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
 
-  useEffect(() => {
-    if (snapshotState === null) {
-      onTogglePreview?.(false);
-    }
-  }, [snapshotState, onTogglePreview]);
+  const token0 = pool === "loading" ? null : pool.token0;
+  const token1 = pool === "loading" ? null : pool.token1;
+
+  const { onClose } = useWidgetContext((s) => s);
 
   return (
     <>
       {loadPoolError && (
-        <Modal isOpen onClick={() => onDismiss()}>
+        <Modal isOpen onClick={() => onClose()}>
           <div
             style={{
               display: "flex",
@@ -289,7 +319,7 @@ export default function Content({
             <div style={{ textAlign: "center" }}>{loadPoolError}</div>
             <button
               className="primary-btn"
-              onClick={onDismiss}
+              onClick={onClose}
               style={{
                 width: "95%",
                 background: theme.error,
@@ -319,7 +349,6 @@ export default function Content({
           </div>
 
           <Preview
-            onTxSubmit={onTxSubmit}
             zapState={snapshotState}
             onDismiss={() => setSnapshotState(null)}
           />
@@ -331,7 +360,7 @@ export default function Content({
           onClose={onCloseTokenSelectModal}
         />
       )}
-      <Header onDismiss={onDismiss} />
+      <Header onDismiss={onClose} />
       <div className="ks-lw-content">
         <div className="left">
           <PriceInfo />
@@ -403,9 +432,8 @@ export default function Content({
                     marginLeft: "2px",
                   }}
                 >
-                  1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
-                  {price}{" "}
-                  {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
+                  1 {revertPrice ? token1?.symbol : token0?.symbol} = {price}{" "}
+                  {revertPrice ? token0?.symbol : token1?.symbol}
                 </span>{" "}
                 deviates from the market price{" "}
                 <span
@@ -415,9 +443,8 @@ export default function Content({
                     fontStyle: "normal",
                   }}
                 >
-                  (1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
-                  {marketRate}{" "}
-                  {revertPrice ? pool?.token0.symbol : pool?.token1.symbol})
+                  (1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
+                  {marketRate} {revertPrice ? token0?.symbol : token1?.symbol})
                 </span>
                 . You might have high impermanent loss after you add liquidity
                 to this pool
@@ -425,6 +452,7 @@ export default function Content({
             </div>
           )}
 
+          {/* TODO: implement owner check 
           {position?.owner &&
             account &&
             position.owner.toLowerCase() !== account.toLowerCase() && (
@@ -438,11 +466,12 @@ export default function Content({
                 please double check before proceeding
               </div>
             )}
+          */}
         </div>
       </div>
 
       <div className="ks-lw-action">
-        <button className="outline-btn" onClick={onDismiss}>
+        <button className="outline-btn" onClick={onClose}>
           Cancel
         </button>
         <button

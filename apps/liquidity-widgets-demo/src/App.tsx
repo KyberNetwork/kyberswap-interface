@@ -4,7 +4,12 @@ import {
   ChainId,
 } from "@kyberswap/liquidity-widgets";
 import { useCallback, useEffect, useState } from "react";
-import { init, useWallets, useConnectWallet } from "@web3-onboard/react";
+import {
+  init,
+  useWallets,
+  useConnectWallet,
+  useSetChain,
+} from "@web3-onboard/react";
 import { ethers, providers } from "ethers";
 import injectedModule from "@web3-onboard/injected-wallets";
 import "@kyberswap/liquidity-widgets/dist/style.css";
@@ -58,6 +63,7 @@ init({
 function App() {
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const connectedWallets = useWallets();
+  const [{}, setChain] = useSetChain();
 
   // create an ethers provider
   let ethersProvider: providers.Web3Provider | undefined;
@@ -70,6 +76,17 @@ function App() {
     chainId: ChainId.Base,
     poolAddress: "0xf9a72fd5c30112af583b86b190b2d776b6c3c056",
     poolType: PoolType.DEX_SWAPMODEV3,
+
+    // UNI
+    //chainId: ChainId.PolygonPos,
+    //positionId: "1708279",
+    //poolAddress: "0x45dDa9cb7c25131DF268515131f647d726f50608",
+    //poolType: PoolType.DEX_UNISWAPV3,
+
+    //chainId: ChainId.Bsc,
+    //positionId: "1404415",
+    //poolAddress: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
+    //poolType: PoolType.DEX_PANCAKESWAPV3,
   });
   const [key, setKey] = useState(Date.now());
 
@@ -118,6 +135,42 @@ function App() {
     }
   }, [connect]);
 
+  const props = {
+    onClose: () => {
+      window.location.reload();
+    },
+    source: "zap-widget-demo",
+    chainId: params.chainId,
+    poolAddress: params.poolAddress,
+    positionId: params.positionId,
+    poolType: params.poolType,
+    connectedAccount: {
+      address: wallet?.accounts?.[0].address,
+      chainId: +(wallet?.chains[0].id || params.chainId),
+    },
+    onSwitchChain: () => {
+      setChain({
+        chainId: params.chainId.toString(),
+      });
+    },
+    onConnectWallet: () => {
+      handleConnectWallet();
+    },
+    onSubmitTx: async (txData: {
+      from: string;
+      to: string;
+      data: string;
+      value: string;
+      gasLimit: string;
+    }) => {
+      const res = await ethersProvider?.getSigner().sendTransaction(txData);
+      if (!res) throw new Error("Transaction failed");
+      return res.hash;
+    },
+    //initDepositTokens: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    //initAmounts: "1",
+  };
+
   return (
     <div className="ks-demo-app">
       <div className="ks-demo-header">
@@ -132,17 +185,7 @@ function App() {
           <Params params={params} setParams={handleUpdateParams} />
         </div>
 
-        <LiquidityWidget
-          key={key}
-          provider={ethersProvider}
-          onDismiss={() => {
-            window.location.reload();
-          }}
-          source="zap-widget-demo"
-          {...params}
-          // initDepositTokens="0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
-          // initAmounts="1"
-        />
+        <LiquidityWidget key={key + JSON.stringify(props)} {...props} />
       </div>
     </div>
   );

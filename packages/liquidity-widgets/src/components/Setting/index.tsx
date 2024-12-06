@@ -7,12 +7,12 @@ import "./Setting.scss";
 import SlippageInput from "./SlippageInput";
 import { MouseoverTooltip } from "../Tooltip";
 import Modal from "../Modal";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useWidgetContext } from "@/stores/widget";
 
 export default function Setting() {
   const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode } =
     useZapState();
-  const { theme } = useWidgetInfo();
+  const theme = useWidgetContext((s) => s.theme);
   const ref = useRef(null);
   useOnClickOutside(ref, () => {
     if (showSetting) toggleSetting();

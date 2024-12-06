@@ -1,9 +1,6 @@
-import { Token } from "@/entities/Pool";
-import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { shortenAddress } from "./utils";
 import { useEffect, useMemo, useState } from "react";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
-import { useWeb3Provider } from "@/hooks/useProvider";
 import { CircleCheckBig } from "lucide-react";
 import useMarketTokenInfo from "@/components/TokenInfo/useMarketTokenInfo";
 import IconZiczac from "@/assets/svg/ziczac.svg";
@@ -12,13 +9,15 @@ import IconDown from "@/assets/svg/down.svg";
 import IconCopy from "@/assets/svg/copy.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import Loader from "@/components/LiquidityChartRangeInput/Loader";
+import { useWidgetContext } from "@/stores/widget";
+import { Token } from "@/schema";
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: NodeJS.Timeout;
 
 const MarketInfo = ({ token }: { token: Token }) => {
-  const { theme } = useWidgetInfo();
-  const { chainId } = useWeb3Provider();
+  const theme = useWidgetContext((s) => s.theme);
+  const chainId = useWidgetContext((s) => s.chainId);
 
   const tokenAddress = useMemo(
     () =>
@@ -99,7 +98,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
               <>
                 <img
                   className="w-4 h-4"
-                  src={token.logoURI}
+                  src={token.logo}
                   alt="token-logo"
                   onError={({ currentTarget }) => {
                     currentTarget.onerror = null;

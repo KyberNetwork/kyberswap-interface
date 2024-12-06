@@ -1,5 +1,7 @@
 import { keccak256 } from "js-sha3";
 
+export * from "./address";
+
 // Function to encode a uint256 parameter to hex (minimal ABI encoding)
 export function encodeUint256(value: bigint): string {
   return value.toString(16).padStart(64, "0"); // Encode bigint as hex, pad to 32 bytes
@@ -59,7 +61,7 @@ export async function estimateGas(
     value = "0x0",
     data = "0x",
   }: { from: string; to: string; value: string; data: string }
-) {
+): Promise<bigint> {
   const response = await fetch(rpcUrl, {
     method: "POST",
     headers: {
@@ -83,7 +85,7 @@ export async function estimateGas(
   if (result.error) {
     throw new Error(result.error.message);
   }
-  return result.result; // Gas estimate as a hex string
+  return BigInt(result.result); // Gas estimate as a hex string
 }
 
 export async function isTransactionSuccessful(
@@ -113,4 +115,62 @@ export async function isTransactionSuccessful(
 
   // `status` is "0x1" for success, "0x0" for failure
   return result.result.status === "0x1";
+}
+
+export async function checkApproval({
+  rpcUrl,
+  token,
+  owner,
+  spender,
+}: {
+  rpcUrl: string;
+  token: string;
+  owner: string;
+  spender: string;
+}): Promise<bigint> {
+  const allowanceFunctionSig = getFunctionSelector(
+    "allowance(address,address)"
+  );
+  const paddedOwner = owner.replace("0x", "").padStart(64, "0");
+  const paddedSpender = spender.replace("0x", "").padStart(64, "0");
+  const data = `0x${allowanceFunctionSig}${paddedOwner}${paddedSpender}`;
+
+  try {
+    const response = await fetch(rpcUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "eth_call",
+        params: [
+          {
+            to: token,
+            data,
+          },
+          "latest",
+        ],
+        id: 1,
+      }),
+    });
+    const result = await response.json();
+    const allowance = BigInt(result.result);
+    return allowance;
+  } catch (e) {
+    throw e;
+  }
+}
+
+export function calculateGasMargin(value: bigint): string {
+  const defaultGasLimitMargin = 20_000n;
+  const gasMargin = (value * 2000n) / 10_000n;
+
+  return (
+    "0x" +
+    (gasMargin < defaultGasLimitMargin
+      ? value + gasMargin
+      : value + defaultGasLimitMargin
+    ).toString(16)
+  );
 }

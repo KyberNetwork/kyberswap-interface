@@ -28,7 +28,6 @@ export const chain = z.object({
   nativeLogo: z.string(),
   wrappedToken: token,
   defaultRpc: z.string(),
-  pricePath: z.string(),
   zapPath: z.string(),
 });
 

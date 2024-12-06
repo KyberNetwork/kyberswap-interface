@@ -1,15 +1,16 @@
-import { Token } from "@pancakeswap/sdk";
-import { FeeAmount, TICK_SPACINGS, tickToPrice } from "@pancakeswap/v3-sdk";
 import { useEffect, useMemo, useState } from "react";
 
 import { ChartEntry, TickDataRaw, TickProcessed } from "./types";
 import { computeSurroundingTicks } from "./utils";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { useWeb3Provider } from "../../hooks/useProvider";
 import { useZapState } from "../../hooks/useZapInState";
 import { PATHS } from "@/constants";
+import { useWidgetContext } from "@/stores/widget";
+import { Token } from "@/schema";
 
-const PRICE_FIXED_DIGITS = 8;
+// TODO: Implement this
+const TICK_SPACINGS: { [feeAmount: number]: number } = {};
+
+//const PRICE_FIXED_DIGITS = 8;
 
 export function useDensityChartData() {
   const { data: ticks = [], isLoading } = usePoolActiveLiquidity();
@@ -47,7 +48,7 @@ export function useDensityChartData() {
 
 const getActiveTick = (
   tickCurrent: number | undefined,
-  feeAmount: FeeAmount | undefined
+  feeAmount: number | undefined
 ) =>
   typeof tickCurrent !== "undefined" && feeAmount
     ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) *
@@ -70,13 +71,16 @@ export function usePoolActiveLiquidity(): {
   data?: TickProcessed[];
   isLoading: boolean;
 } {
-  const { chainId } = useWeb3Provider();
-  const { pool, poolAddress } = useWidgetInfo();
+  const chainId = useWidgetContext((s) => s.chainId);
+  const { pool, poolAddress } = useWidgetContext((s) => s);
   const { revertPrice } = useZapState();
+
+  const tickCurrent = pool === "loading" ? undefined : pool.tick;
+  const fee = pool === "loading" ? undefined : pool.fee * 10_000;
   // Find nearest valid tick for pool in case tick is not initialized.
   const activeTick = useMemo(
-    () => getActiveTick(pool?.tickCurrent, pool?.fee),
-    [pool?.tickCurrent, pool?.fee]
+    () => getActiveTick(tickCurrent, fee),
+    [tickCurrent, fee]
   );
 
   const [ticks, setTicks] = useState<TickDataRaw[]>([]);
@@ -145,29 +149,13 @@ export function usePoolActiveLiquidity(): {
   }, [poolAddress, chainId]);
 
   const token0: Token | null = useMemo(
-    () =>
-      pool?.token0
-        ? new Token(
-            pool.token0.chainId,
-            pool.token0.address as `0x${string}`,
-            pool.token0.decimals,
-            pool.token0.symbol || ""
-          )
-        : null,
+    () => (pool !== "loading" ? pool.token0 : null),
 
-    [pool?.token0]
+    [pool, chainId]
   );
   const token1: Token | null = useMemo(
-    () =>
-      pool?.token1
-        ? new Token(
-            pool.token1.chainId,
-            pool.token1.address as `0x${string}`,
-            pool.token1.decimals,
-            pool.token1.symbol || ""
-          )
-        : null,
-    [pool?.token1]
+    () => (pool !== "loading" ? pool.token1 : null),
+    [chainId, pool]
   );
 
   return useMemo(() => {
@@ -201,20 +189,21 @@ export function usePoolActiveLiquidity(): {
     }
 
     const activeTickProcessed: TickProcessed = {
-      liquidityActive: BigInt(pool?.liquidity ?? 0),
+      liquidityActive: BigInt(pool === "loading" ? 0 : pool.liquidity),
       tick: activeTick,
       liquidityNet:
         Number(ticks[pivot].tick) === activeTick
           ? BigInt(ticks[pivot].liquidityNet)
           : 0n,
-      price0:
-        token0 && token1
-          ? tickToPrice(
-              revertPrice ? token1 : token0,
-              revertPrice ? token0 : token1,
-              activeTick
-            ).toFixed(PRICE_FIXED_DIGITS)
-          : "0",
+      price0: "0",
+      // TODO: Fix this
+      //token0 && token1
+      //  ? tickToPrice(
+      //      revertPrice ? token1 : token0,
+      //      revertPrice ? token0 : token1,
+      //      activeTick
+      //    ).toFixed(PRICE_FIXED_DIGITS)
+      //  : "0",
     };
 
     const subsequentTicks = computeSurroundingTicks(

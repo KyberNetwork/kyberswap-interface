@@ -1,4 +1,4 @@
-import { isAddress } from "@/utils";
+import { isAddress } from "@kyber/utils/crypto";
 import Numeral from "numeral";
 
 export interface TokenInfo {
@@ -152,17 +152,17 @@ export const parseMarketTokenInfo = (tokenInfo: TokenInfo | null) => {
 export const shortenAddress = (
   chainId: number,
   address: string,
-  chars = 4,
-  checksum = true
+  chars = 4
 ): string => {
   const parsed = isAddress(address);
-  if (!parsed && checksum) {
+  if (!parsed) {
     throw Error(
       `Invalid 'address' parameter '${address}' on chain ${chainId}.`
     );
   }
-  const value = (checksum && parsed ? parsed : address) ?? "";
-  return `${value.substring(0, chars + 2)}...${value.substring(42 - chars)}`;
+  return `${address.substring(0, chars + 2)}...${address.substring(
+    42 - chars
+  )}`;
 };
 
 export enum WarningType {

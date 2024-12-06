@@ -1,20 +1,28 @@
 import { useMemo } from "react";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatNumber } from "../../utils";
 import SwitchIcon from "@/assets/svg/switch.svg";
+import { useWidgetContext } from "@/stores/widget";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { formatDisplayNumber } from "@kyber/utils/number";
 
 export default function PriceInfo() {
-  const { loading, pool, theme } = useWidgetInfo();
+  const { pool, theme } = useWidgetContext((s) => s);
+  const loading = pool === "loading";
   const { marketPrice, revertPrice, toggleRevertPrice } = useZapState();
 
   const price = useMemo(
     () =>
-      pool
-        ? (revertPrice
-            ? pool.priceOf(pool.token1)
-            : pool.priceOf(pool.token0)
-          ).toSignificant(6)
+      pool !== "loading"
+        ? formatDisplayNumber(
+            tickToPrice(
+              pool.tick,
+              pool.token0.decimals,
+              pool.token1.decimals,
+              revertPrice
+            ),
+            { significantDigits: 6 }
+          )
         : "--",
     [pool, revertPrice]
   );
@@ -22,9 +30,17 @@ export default function PriceInfo() {
   const isDeviated = useMemo(
     () =>
       !!marketPrice &&
-      pool &&
-      Math.abs(marketPrice / +pool?.priceOf(pool.token0).toSignificant() - 1) >
-        0.02,
+      pool !== "loading" &&
+      Math.abs(
+        marketPrice /
+          +tickToPrice(
+            pool.tick,
+            pool.token0.decimals,
+            pool.token1.decimals,
+            revertPrice
+          ) -
+          1
+      ) > 0.02,
     [marketPrice, pool]
   );
 
