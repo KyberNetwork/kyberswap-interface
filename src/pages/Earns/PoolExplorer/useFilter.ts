@@ -14,7 +14,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
   const filters: QueryParams = useMemo(() => {
     return {
       chainId: +(searchParams.get('chainId') || chainId || ChainId.MAINNET),
-      page: +(searchParams.get('page') || 0),
+      page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[1].value as string),
       protocol: searchParams.get('protocol') || '',
