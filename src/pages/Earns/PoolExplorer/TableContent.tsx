@@ -58,7 +58,13 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
       dexName: dexList.data?.find(dex => dex.dexId === pool.exchange)?.name || '',
     }))
 
-    if (filters.tag && Object.keys(FilterTag).includes(filters.tag) && filters.sortBy) {
+    if (
+      filters.tag &&
+      Object.keys(FilterTag)
+        .map(tagKey => FilterTag[tagKey])
+        .includes(filters.tag) &&
+      filters.sortBy
+    ) {
       parsedPoolData.sort((a, b) => {
         if (filters.sortBy === SortBy.APR) return filters.orderBy === Direction.DESC ? b.apr - a.apr : a.apr - b.apr
         if (filters.sortBy === SortBy.EARN_FEE)
