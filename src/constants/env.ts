@@ -12,8 +12,6 @@ const required = (envKey: string): string => {
   return envValue
 }
 
-export const GOOGLE_RECAPTCHA_KEY = required('GOOGLE_RECAPTCHA_KEY')
-export const PRICE_API = required('PRICE_API')
 export const AGGREGATOR_API = required('AGGREGATOR_API')
 export const SENTRY_DNS = required('SENTRY_DNS')
 export const REWARD_SERVICE_API = required('REWARD_SERVICE_API')
@@ -21,13 +19,10 @@ export const KS_SETTING_API = required('KS_SETTING_API')
 export const COMMON_SERVICE_API = required('COMMON_SERVICE_API')
 export const BLACKJACK_API = required('BLACKJACK_API')
 export const BLOCK_SERVICE_API = required('BLOCK_SERVICE_API')
-export const PRICE_CHART_API = required('PRICE_CHART_API')
 export const AGGREGATOR_STATS_API = required('AGGREGATOR_STATS_API')
 export const NOTIFICATION_API = required('NOTIFICATION_API')
 export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
-export const TYPE_AND_SWAP_URL = required('TYPE_AND_SWAP_URL')
-export const POOL_FARM_BASE_URL = required('POOL_FARM_BASE_URL')
 export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
 export const GTM_ID = import.meta.env.VITE_GTM_ID
 export const TAG = import.meta.env.VITE_TAG || 'localhost'

@@ -2,13 +2,16 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { PRICE_API } from 'constants/env'
-import { NETWORKS_INFO } from 'constants/networks'
+import { TOKEN_API_URL } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { isAddressString } from 'utils'
 
 import { updatePrices } from '.'
+
+interface PriceResponse {
+  data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } }
+}
 
 export const useTokenPricesWithLoading = (
   addresses: Array<string>,
@@ -46,47 +49,43 @@ export const useTokenPricesWithLoading = (
 
       try {
         setLoading(true)
-        const payload = {
-          ids: list.join(','),
-        }
-        const promise = fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
+        const r: PriceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
           method: 'POST',
-          body: JSON.stringify(payload),
-        })
+          body: JSON.stringify({
+            [chainId]: list,
+          }),
+        }).then(res => res.json())
 
-        const res = await promise.then(res => res.json())
-        let prices = res?.data?.prices || res
+        let prices: { address: string; price: number }[] = Object.keys(r?.data?.[chainId] || {}).map(address => ({
+          address,
+          price: r.data[chainId][address].PriceBuy,
+        }))
+
         if (chainId === ChainId.GÖRLI) {
           prices = prices.concat([
             {
               address: '0x325697956767826a1ddf0ee8d5eb0f8ae3a2c171',
               price: 1.012345,
-              preferPriceSource: 'kyberswap',
             },
             {
               address: '0xeac23a03f26df44fe3bb67bde1ecaecbee0daaa9',
               price: 0.98765,
-              preferPriceSource: 'kyberswap',
             },
             {
               address: '0x543c9d27ee4ef9b405d7b41f264fa777f445ae88',
               price: 13,
-              preferPriceSource: 'kyberswap',
             },
             {
               address: '0x1bbeeedcf32dc2c1ebc2f138e3fc7f3decd44d6a',
               price: 1,
-              preferPriceSource: 'kyberswap',
             },
             {
               address: '0x2bf64acf7ead856209749d0d125e9ade2d908e7f',
               price: 1,
-              preferPriceSource: 'kyberswap',
             },
             {
               address: '0x48f6d7dae56623dde5a0d56b283165cae1753d70',
               price: 1740,
-              preferPriceSource: 'kyberswap',
             },
             {
               address: '0x3e0e7dbb7dd24934ffe06e16fbcad11bed2c65e2',
@@ -110,17 +109,13 @@ export const useTokenPricesWithLoading = (
         if (prices?.length) {
           const formattedPrices = list.map(address => {
             const price = prices.find(
-              (p: { address: string; marketPrice: number; price: number; preferPriceSource: string }) =>
-                p.address.toLowerCase() === address.toLowerCase(),
+              (p: { address: string; price: number }) => p.address.toLowerCase() === address.toLowerCase(),
             )
 
             return {
               address,
               chainId: chainId,
-              price:
-                price?.preferPriceSource === 'kyberswap'
-                  ? price?.price || price?.marketPrice || 0
-                  : price?.marketPrice || price?.price || 0,
+              price: price?.price || 0,
             }
           })
 
