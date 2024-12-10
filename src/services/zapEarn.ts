@@ -1,6 +1,15 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+interface ExplorerLandingResponse {
+  data: {
+    highlightedPools: Array<EarnPool>
+    solidEarning: Array<EarnPool>
+    highAPR: Array<EarnPool>
+    lowVolatility: Array<EarnPool>
+  }
+}
+
 interface SupportedChainsResponse {
   code: number
   message: string
@@ -13,6 +22,19 @@ interface SupportedChainsResponse {
     }
   }
   requestId: string
+}
+
+export interface QueryParams {
+  chainId: ChainId
+  page?: number
+  limit?: number
+  interval: string
+  protocol: string
+  userAddress?: string
+  tag?: string
+  sortBy?: string
+  orderBy?: string
+  q?: string
 }
 
 export interface EarnPool {
@@ -49,28 +71,6 @@ interface PoolsExplorerResponse {
   requestId: string
 }
 
-export interface QueryParams {
-  chainId: ChainId
-  page?: number
-  limit?: number
-  interval: string
-  protocol: string
-  userAddress?: string
-  tag?: string
-  sortBy?: string
-  orderBy?: string
-  q?: string
-}
-
-interface ExplorerLandingResponse {
-  data: {
-    highlightedPools: Array<EarnPool>
-    solidEarning: Array<EarnPool>
-    highAPR: Array<EarnPool>
-    lowVolatility: Array<EarnPool>
-  }
-}
-
 interface AddRemoveFavoriteParams {
   chainId: ChainId
   message: string
@@ -80,7 +80,7 @@ interface AddRemoveFavoriteParams {
 }
 
 const zapEarnServiceApi = createApi({
-  reducerPath: 'zapEarnServiceApi ',
+  reducerPath: 'zapEarnServiceApi',
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_ZAP_EARN_URL,
   }),

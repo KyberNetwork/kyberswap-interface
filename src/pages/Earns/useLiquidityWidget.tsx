@@ -1,6 +1,5 @@
 import { ChainId, LiquidityWidget, PoolType } from 'kyberswap-liquidity-widgets'
 import { useState } from 'react'
-import { EarnPool } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -16,6 +15,7 @@ interface LiquidityParams {
   chainId: ChainId
   source: string
   poolType: PoolType
+  positionId?: string
   onDismiss: () => void
   onConnectWallet: () => void
 }
@@ -29,7 +29,10 @@ const useLiquidityWidget = () => {
   const [liquidityParams, setLiquidityParams] = useState<LiquidityParams | null>(null)
 
   const handleCloseZapInWidget = () => setLiquidityParams(null)
-  const handleOpenZapInWidget = (pool: EarnPool) => {
+  const handleOpenZapInWidget = (
+    pool: { exchange: string; chainId?: number; address: string },
+    positionId?: string,
+  ) => {
     const supportedDexs = Object.keys(PoolType).map(item => item.replace('DEX_', '').replace('V3', '').toLowerCase())
     const dex = supportedDexs.find(item => pool.exchange.toLowerCase().includes(item))
     if (!dex) {
@@ -52,6 +55,7 @@ const useLiquidityWidget = () => {
       chainId: (pool.chainId || filters.chainId) as ChainId,
       source: 'kyberswap-demo-zap',
       poolType: PoolType[`DEX_${dex.toUpperCase()}V3` as keyof typeof PoolType],
+      positionId,
       onDismiss: handleCloseZapInWidget,
       onConnectWallet: toggleWalletModal,
     })

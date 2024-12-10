@@ -65,6 +65,7 @@ const CampaignMyDashboard = lazy(() => import('pages/Campaign/MyDashboard'))
 const Earns = lazy(() => import('pages/Earns'))
 const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnMyPositions = lazy(() => import('pages/Earns/MyPositions'))
+const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -323,7 +324,8 @@ export default function App() {
 
               <Route path={APP_PATHS.EARN} element={<Earns />} />
               <Route path={APP_PATHS.EARN_POOLS} element={<EarnPoolExplorer />} />
-              <Route path={APP_PATHS.EARN_MY_POSITIONS} element={<EarnMyPositions />} />
+              <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnMyPositions />} />
+              <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
 
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>

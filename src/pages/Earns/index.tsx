@@ -338,7 +338,7 @@ export default function Earns() {
             desc="Track, adjust, and optimize your positions to stay in control of your DeFi journey."
             action={{
               text: 'Your Pools',
-              onClick: () => navigate({ pathname: APP_PATHS.EARN_MY_POSITIONS }),
+              onClick: () => navigate({ pathname: APP_PATHS.EARN_POSITIONS }),
             }}
           />
           <Card
@@ -520,7 +520,11 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
       role="button"
       onClick={e => {
         e.stopPropagation()
-        handleOpenZapInWidget(pool)
+        handleOpenZapInWidget({
+          exchange: pool.exchange,
+          chainId: pool.chainId,
+          address: pool.address,
+        })
       }}
     >
       {liquidityWidget}
