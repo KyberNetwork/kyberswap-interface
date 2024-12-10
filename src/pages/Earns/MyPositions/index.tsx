@@ -47,7 +47,7 @@ const MyPositions = () => {
 
   const { data: userPosition, isLoading } = useUserPositionQuery(
     { addresses: account || '' },
-    { skip: !account, pollingInterval: 1_000 },
+    { skip: !account, pollingInterval: 15_000 },
   )
 
   useEffect(() => {
