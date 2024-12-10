@@ -182,3 +182,14 @@ export const Divider = styled.div`
   position: relative;
   top: 1px;
 `
+
+export const EmptyPositionText = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({ theme }) => rgba(theme.background, 0.4)};
+  color: ${({ theme }) => theme.subText};
+  border-radius: 20px;
+  height: 160px;
+  margin: 20px 0;
+`
