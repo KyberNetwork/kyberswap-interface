@@ -43,7 +43,7 @@ const MyPositions = () => {
 
   const { account } = useActiveWeb3React()
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
-  const firstLoad = useRef(false)
+  const firstLoading = useRef(false)
 
   const { data: userPosition, isLoading } = useUserPositionQuery(
     { addresses: account || '' },
@@ -51,8 +51,8 @@ const MyPositions = () => {
   )
 
   useEffect(() => {
-    if (!firstLoad.current && isLoading) {
-      firstLoad.current = true
+    if (!firstLoading.current && !isLoading) {
+      firstLoading.current = true
     }
   }, [isLoading])
 
@@ -70,7 +70,7 @@ const MyPositions = () => {
         </div>
 
         <MyLiquidityWrapper>
-          {isLoading && !firstLoad.current ? (
+          {isLoading && !firstLoading.current ? (
             <LocalLoader />
           ) : userPosition && userPosition.length > 0 ? (
             userPosition.map(position => (
