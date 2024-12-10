@@ -8,7 +8,7 @@ import { PositionStatus, useUserPositionQuery } from 'services/krystalEarn'
 
 import CopyHelper from 'components/Copy'
 import LocalLoader from 'components/LocalLoader'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -122,7 +122,7 @@ const MyPositions = () => {
                 )}
                 <PositionValueWrapper>
                   <PositionValueLabel>Value</PositionValueLabel>
-                  <MouseoverTooltip
+                  <MouseoverTooltipDesktopOnly
                     text={
                       <>
                         <Text>
@@ -147,11 +147,11 @@ const MyPositions = () => {
                     <Text>
                       {formatDisplayNumber(position.currentPositionValue, { style: 'currency', significantDigits: 4 })}
                     </Text>
-                  </MouseoverTooltip>
+                  </MouseoverTooltipDesktopOnly>
                 </PositionValueWrapper>
                 <PositionValueWrapper align={upToLarge ? 'center' : ''}>
                   <PositionValueLabel>Earned Fee</PositionValueLabel>
-                  <MouseoverTooltip
+                  <MouseoverTooltipDesktopOnly
                     text={
                       <>
                         <Text>
@@ -179,7 +179,7 @@ const MyPositions = () => {
                         { style: 'currency', significantDigits: 4 },
                       )}
                     </Text>
-                  </MouseoverTooltip>
+                  </MouseoverTooltipDesktopOnly>
                 </PositionValueWrapper>
                 <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
                   <PositionValueLabel>Bal</PositionValueLabel>
@@ -203,15 +203,15 @@ const MyPositions = () => {
                 </PositionValueWrapper>
                 {(upToSmall || !upToLarge) && (
                   <Flex alignItems={'center'} justifyContent={'flex-end'} sx={{ gap: '16px' }}>
-                    <MouseoverTooltip
+                    <MouseoverTooltipDesktopOnly
                       text="Remove liquidity from this position by zapping out to any token(s) or migrating to another position."
                       placement="top"
                     >
                       <PositionAction>
                         <Minus size={16} />
                       </PositionAction>
-                    </MouseoverTooltip>
-                    <MouseoverTooltip
+                    </MouseoverTooltipDesktopOnly>
+                    <MouseoverTooltipDesktopOnly
                       text="Add more liquidity to this position using any token(s) or migrate liquidity from your existing positions."
                       placement="top"
                     >
@@ -231,7 +231,7 @@ const MyPositions = () => {
                       >
                         <Plus size={16} />
                       </PositionAction>
-                    </MouseoverTooltip>
+                    </MouseoverTooltipDesktopOnly>
                   </Flex>
                 )}
               </PositionRow>
