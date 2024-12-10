@@ -65,7 +65,7 @@ const MyPositions = () => {
             {t`My Liquidity`}
           </Text>
           <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-            {t`Kyberswap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
+            {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
           </Text>
         </div>
 
