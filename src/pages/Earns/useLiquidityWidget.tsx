@@ -34,7 +34,8 @@ const useLiquidityWidget = () => {
     positionId?: string,
   ) => {
     const supportedDexs = Object.keys(PoolType).map(item => item.replace('DEX_', '').replace('V3', '').toLowerCase())
-    const dex = supportedDexs.find(item => pool.exchange.toLowerCase().includes(item))
+    const formattedExchange = pool.exchange.toLowerCase().replaceAll('_', '').replaceAll('-', '').replaceAll('v3', '')
+    const dex = supportedDexs.find(item => formattedExchange.includes(item) || item.includes(formattedExchange))
     if (!dex) {
       notify(
         {
