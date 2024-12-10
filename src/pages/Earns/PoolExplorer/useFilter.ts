@@ -35,7 +35,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
       }
       if (key !== 'sortBy' && key !== 'orderBy' && key !== 'page') {
         searchParams.delete('page')
-        if (key !== 'q' && setSearch) setSearch('')
+        if (key === 'tag' && setSearch) setSearch('')
       }
       setSearchParams(searchParams)
     },
