@@ -12,12 +12,10 @@ import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { FilterTag, SortBy } from '.'
 import {
   Apr,
   CurrencyRoundedImage,
@@ -52,37 +50,12 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const tablePoolData = useMemo(() => {
-    let parsedPoolData = (poolData?.data?.pools || []).map(pool => ({
+    return (poolData?.data?.pools || []).map(pool => ({
       ...pool,
       dexLogo: dexList.data?.find(dex => dex.dexId === pool.exchange)?.logoURL || '',
       dexName: dexList.data?.find(dex => dex.dexId === pool.exchange)?.name || '',
     }))
-
-    if (
-      filters.tag &&
-      Object.keys(FilterTag)
-        .map(tagKey => FilterTag[tagKey])
-        .includes(filters.tag) &&
-      filters.sortBy
-    ) {
-      parsedPoolData.sort((a, b) => {
-        if (filters.sortBy === SortBy.APR) return filters.orderBy === Direction.DESC ? b.apr - a.apr : a.apr - b.apr
-        if (filters.sortBy === SortBy.EARN_FEE)
-          return filters.orderBy === Direction.DESC ? b.earnFee - a.earnFee : a.earnFee - b.earnFee
-        if (filters.sortBy === SortBy.TVL) return filters.orderBy === Direction.DESC ? b.tvl - a.tvl : a.tvl - b.tvl
-        if (filters.sortBy === SortBy.VOLUME)
-          return filters.orderBy === Direction.DESC ? b.volume - a.volume : a.volume - b.volume
-        return 0
-      })
-
-      const page = filters.page || 1
-      const limit = filters.limit || 10
-
-      parsedPoolData = Number(page) > 9 ? [] : parsedPoolData.slice((page - 1) * limit, limit)
-    }
-
-    return parsedPoolData
-  }, [poolData, filters, dexList])
+  }, [poolData, dexList])
 
   const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: EarnPool) => {
     e.stopPropagation()

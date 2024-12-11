@@ -128,13 +128,6 @@ const Earn = () => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const totalPools = useMemo(() => {
-    const totalItems = poolData?.data?.pagination?.totalItems || 0
-    if (!filters.tag || !Object.keys(FilterTag).includes(filters.tag.toUpperCase())) return totalItems
-
-    return totalItems <= 100 ? totalItems : 100
-  }, [poolData, filters.tag])
-
   const onChainChange = (newChainId: string | number) => {
     updateFilters('chainId', newChainId.toString())
   }
@@ -295,7 +288,7 @@ const Earn = () => {
         </ContentWrapper>
         <Pagination
           onPageChange={(newPage: number) => updateFilters('page', newPage.toString())}
-          totalCount={totalPools}
+          totalCount={poolData?.data?.pagination?.totalItems || 0}
           currentPage={filters.page || 1}
           pageSize={filters.limit || 10}
         />
