@@ -130,7 +130,7 @@ const Earn = () => {
 
   const totalPools = useMemo(() => {
     const totalItems = poolData?.data?.pagination?.totalItems || 0
-    if (!filters.tag || !Object.keys(FilterTag).includes(filters.tag)) return totalItems
+    if (!filters.tag || !Object.keys(FilterTag).includes(filters.tag.toUpperCase())) return totalItems
 
     return totalItems <= 100 ? totalItems : 100
   }, [poolData, filters.tag])

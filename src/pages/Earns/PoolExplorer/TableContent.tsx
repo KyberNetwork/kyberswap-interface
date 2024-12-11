@@ -76,9 +76,9 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
       })
 
       const page = filters.page || 1
-      const limit = filters.limit || 0
+      const limit = filters.limit || 10
 
-      parsedPoolData = page > 9 ? [] : parsedPoolData.slice(page * limit, limit)
+      parsedPoolData = Number(page) > 9 ? [] : parsedPoolData.slice((page - 1) * limit, limit)
     }
 
     return parsedPoolData
