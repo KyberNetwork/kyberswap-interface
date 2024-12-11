@@ -207,7 +207,9 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                 </Flex>
               </Flex>
               <Flex alignItems="center" sx={{ gap: 3 }}>
-                <Apr positive={pool.apr > 0}>{pool.apr}%</Apr>
+                <Apr positive={pool.apr > 0}>
+                  {formatDisplayNumber(pool.apr, { significantDigits: pool.apr < 1 ? 2 : pool.apr < 10 ? 3 : 4 })}%
+                </Apr>
                 <Star
                   size={16}
                   color={pool.favorite?.isFavorite ? theme.primary : theme.subText}

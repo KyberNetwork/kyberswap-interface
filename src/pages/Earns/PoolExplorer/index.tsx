@@ -70,9 +70,9 @@ const filterTags = [
 ]
 
 export const timings: MenuOption[] = [
-  { label: '1h', value: '1h' },
   { label: '24h', value: '24h' },
   { label: '7d', value: '7d' },
+  { label: '30d', value: '30d' },
 ]
 
 const Earn = () => {
@@ -167,20 +167,20 @@ const Earn = () => {
           {t`Earning with Smart Liquidity Providing`}
         </Text>
         <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-          {t`Kyberswap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
+          {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
         </Text>
       </div>
       <TagContainer>
         <Tag active={!filters.tag} role="button" onClick={() => updateFilters('tag', '')}>
           {t`All pools`}
         </Tag>
-        <MouseoverTooltip text="List of pools added as favorite" placement="bottom">
+        <MouseoverTooltip text="List of pools added as favorite" placement="bottom" width="fit-content">
           <Tag active={filters.tag === 'favorite'} role="button" onClick={() => updateFilters('tag', 'favorite')}>
             <Star size={16} />
           </Tag>
         </MouseoverTooltip>
         {filterTags.map((item, index) =>
-          item.tooltip ? (
+          !upToMedium ? (
             <MouseoverTooltip text={item.tooltip} placement="bottom" key={index}>
               <Tag
                 active={filters.tag === item.value}

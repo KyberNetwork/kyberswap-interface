@@ -16,7 +16,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
       chainId: +(searchParams.get('chainId') || chainId || ChainId.MAINNET),
       page: +(searchParams.get('page') || 1),
       limit: 10,
-      interval: searchParams.get('interval') || (timings[1].value as string),
+      interval: searchParams.get('interval') || (timings[0].value as string),
       protocol: searchParams.get('protocol') || '',
       userAddress: account,
       tag: searchParams.get('tag') || '',
