@@ -145,8 +145,35 @@ export const ZapContextProvider = ({
   const debounceTickUpper = useDebounce(tickUpper, 300);
   const debounceAmountsIn = useDebounce(amountsIn, 300);
 
-  useMarketPrice({ tokensIn, setTokensIn });
-  useTokenBalance({ tokensIn, setTokensIn });
+  const prices = useMarketPrice({ tokens: tokensIn });
+
+  useEffect(() => {
+    if (prices.length) {
+      const tokensInClone = [...tokensIn];
+      tokensInClone.forEach((token) => {
+        const price = prices.find(
+          (price) => price.address.toLowerCase() === token.address.toLowerCase()
+        );
+        token.price = price?.price;
+      });
+      setTokensIn(tokensInClone);
+    }
+  }, [prices]);
+
+  const balances = useTokenBalance({ tokens: tokensIn });
+
+  useEffect(() => {
+    if (balances.length) {
+      const tokensInClone = [...tokensIn];
+      tokensInClone.forEach((token) => {
+        const balance = balances.find(
+          (balance) => balance.address === token.address
+        );
+        token.balance = balance?.balance;
+      });
+      setTokensIn(tokensInClone);
+    }
+  }, [balances]);
 
   const toggleSetting = () => setShowSeting((prev) => !prev);
 

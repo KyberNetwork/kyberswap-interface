@@ -1,28 +1,32 @@
-import { useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo, useState } from "react";
 import { erc20Abi } from "viem";
 import { PancakeTokenAdvanced } from "@/types/zapInTypes";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 
+export interface Balance {
+  address: string;
+  balance: string | number | bigint;
+}
+
 export default function useTokenBalance({
-  tokensIn,
-  setTokensIn,
+  tokens,
 }: {
-  tokensIn: PancakeTokenAdvanced[];
-  setTokensIn: (value: PancakeTokenAdvanced[]) => void;
+  tokens: PancakeTokenAdvanced[];
 }) {
   const { account, publicClient, chainId } = useWeb3Provider();
+  const [balances, setBalances] = useState<Array<Balance>>([]);
 
   const tokensAddress = useMemo(
     () =>
-      tokensIn
+      tokens
         .map((token) =>
           token.address?.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
             ? token.address
             : NetworkInfo[chainId].wrappedToken.address
         )
         ?.join(","),
-    [chainId, tokensIn]
+    [chainId, tokens]
   );
 
   const getNativeTokenBalance = useCallback(async () => {
@@ -35,8 +39,8 @@ export default function useTokenBalance({
 
   useEffect(() => {
     const getBalances = () => {
-      if (!account || !publicClient || !tokensIn.length) return;
-      const contractCalls = tokensIn.map((token: PancakeTokenAdvanced) => ({
+      if (!account || !publicClient || !tokens.length) return;
+      const contractCalls = tokens.map((token: PancakeTokenAdvanced) => ({
         address: token.address,
         abi: erc20Abi,
         functionName: "balanceOf",
@@ -47,19 +51,26 @@ export default function useTokenBalance({
           contracts: contractCalls,
         })
         .then((res) => {
-          const tokensInClone = [...tokensIn];
+          const newBalances: Array<Balance> = [];
           res.forEach(async (item, index) => {
             if (item.status === "success")
-              tokensInClone[index].balance = item.result;
+              newBalances.push({
+                address: tokens[index].address,
+                balance: item.result,
+              });
             else if (
-              tokensIn[index].address?.toLowerCase() ===
+              tokens[index].address?.toLowerCase() ===
               NATIVE_TOKEN_ADDRESS.toLowerCase()
             ) {
               const balance = await getNativeTokenBalance();
-              if (balance) tokensInClone[index].balance = balance;
+              if (balance)
+                newBalances.push({
+                  address: tokens[index].address,
+                  balance,
+                });
             }
           });
-          setTokensIn(tokensInClone);
+          setBalances(newBalances);
         });
     };
 
@@ -69,11 +80,7 @@ export default function useTokenBalance({
     return () => clearInterval(i);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    account,
-    getNativeTokenBalance,
-    publicClient,
-    setTokensIn,
-    tokensAddress,
-  ]);
+  }, [account, getNativeTokenBalance, publicClient, tokensAddress]);
+
+  return balances;
 }
