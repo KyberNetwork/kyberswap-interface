@@ -4,8 +4,9 @@ import { useSearchParams } from 'react-router-dom'
 import { QueryParams } from 'services/zapEarn'
 
 import { useActiveWeb3React } from 'hooks'
+import { Direction } from 'pages/MarketOverview/SortIcon'
 
-import { timings } from '.'
+import { FilterTag, SortBy, timings } from '.'
 
 export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -32,6 +33,10 @@ export default function useFilter(setSearch?: (search: string) => void) {
       else {
         searchParams.set(key, value)
         if (key === 'chainId') searchParams.delete('protocol')
+        if (key === 'tag' && value === FilterTag.LOW_VOLATILITY) {
+          searchParams.set('sortBy', SortBy.APR)
+          searchParams.set('orderBy', Direction.DESC)
+        }
       }
       if (key !== 'sortBy' && key !== 'orderBy' && key !== 'page') {
         searchParams.delete('page')

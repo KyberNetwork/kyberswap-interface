@@ -305,7 +305,7 @@ export default function Earns() {
 
   const highlightedPools = (data?.data?.highlightedPools || []).slice(0, 9)
   const highAprPool = (data?.data?.highAPR || []).slice(0, 5)
-  const lowVolatilityPool = (data?.data?.lowVolatility || []).slice(0, 5)
+  const lowVolatilityPool = [...(data?.data?.lowVolatility || [])].sort((a, b) => b.apr - a.apr).slice(0, 5)
   const solidEarningPool = (data?.data?.solidEarning || []).slice(0, 5)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
