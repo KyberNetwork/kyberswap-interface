@@ -7,6 +7,7 @@ import CopyHelper from 'components/Copy'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
+import { CurrencyRoundedImage, CurrencySecondImage } from '../PoolExplorer/styles'
 import {
   Badge,
   BadgeType,
@@ -15,8 +16,7 @@ import {
   ImageContainer,
   PositionOverview,
   PositionPageWrapper,
-} from '../MyPositions/styles'
-import { CurrencyRoundedImage, CurrencySecondImage } from '../PoolExplorer/styles'
+} from '../UserPositions/styles'
 
 const PositionDetail = () => {
   const theme = useTheme()

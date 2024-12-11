@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import 'kyberswap-liquidity-widgets/dist/style.css'
 import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetDexListQuery } from 'services/ksSetting'
@@ -12,9 +12,11 @@ import { ReactComponent as IconHighAprPool } from 'assets/svg/ic_pool_high_apr.s
 import { ReactComponent as IconHighlightedPool } from 'assets/svg/ic_pool_highlighted.svg'
 import { ReactComponent as IconLowVolatility } from 'assets/svg/ic_pool_low_volatility.svg'
 import { ReactComponent as IconSolidEarningPool } from 'assets/svg/ic_pool_solid_earning.svg'
+import { ReactComponent as IconUserEarnPosition } from 'assets/svg/ic_user_earn_position.svg'
 import Pagination from 'components/Pagination'
 import Search from 'components/Search'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
@@ -25,7 +27,16 @@ import { MEDIA_WIDTHS } from 'theme'
 import useLiquidityWidget from '../useLiquidityWidget'
 import DropdownMenu, { MenuOption } from './DropdownMenu'
 import TableContent from './TableContent'
-import { ContentWrapper, PoolPageWrapper, TableHeader, TableWrapper, Tag, TagContainer } from './styles'
+import {
+  ContentWrapper,
+  HeadSection,
+  PoolPageWrapper,
+  TableHeader,
+  TableWrapper,
+  Tag,
+  TagContainer,
+  UserPositionButton,
+} from './styles'
 import useFilter from './useFilter'
 
 export enum FilterTag {
@@ -76,6 +87,7 @@ export const timings: MenuOption[] = [
 ]
 
 const Earn = () => {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const deboundedSearch = useDebounce(search, 300)
   const [searchParams] = useSearchParams()
@@ -114,6 +126,7 @@ const Earn = () => {
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const totalPools = useMemo(() => {
     const totalItems = poolData?.data?.pagination?.totalItems || 0
@@ -170,18 +183,30 @@ const Earn = () => {
           {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
         </Text>
       </div>
-      <TagContainer>
-        <Tag active={!filters.tag} role="button" onClick={() => updateFilters('tag', '')}>
-          {t`All pools`}
-        </Tag>
-        <MouseoverTooltip text="List of pools added as favorite" placement="bottom" width="fit-content">
-          <Tag active={filters.tag === 'favorite'} role="button" onClick={() => updateFilters('tag', 'favorite')}>
-            <Star size={16} />
+      <HeadSection>
+        <TagContainer>
+          <Tag active={!filters.tag} role="button" onClick={() => updateFilters('tag', '')}>
+            {t`All pools`}
           </Tag>
-        </MouseoverTooltip>
-        {filterTags.map((item, index) =>
-          !upToMedium ? (
-            <MouseoverTooltip text={item.tooltip} placement="bottom" key={index}>
+          <MouseoverTooltip text="List of pools added as favorite" placement="bottom" width="fit-content">
+            <Tag active={filters.tag === 'favorite'} role="button" onClick={() => updateFilters('tag', 'favorite')}>
+              <Star size={16} />
+            </Tag>
+          </MouseoverTooltip>
+          {filterTags.map((item, index) =>
+            !upToMedium ? (
+              <MouseoverTooltip text={item.tooltip} placement="bottom" key={index}>
+                <Tag
+                  active={filters.tag === item.value}
+                  key={item.value}
+                  role="button"
+                  onClick={() => updateFilters('tag', item.value)}
+                >
+                  {!upToExtraSmall && item.icon}
+                  {item.label}
+                </Tag>
+              </MouseoverTooltip>
+            ) : (
               <Tag
                 active={filters.tag === item.value}
                 key={item.value}
@@ -191,20 +216,16 @@ const Earn = () => {
                 {!upToExtraSmall && item.icon}
                 {item.label}
               </Tag>
-            </MouseoverTooltip>
-          ) : (
-            <Tag
-              active={filters.tag === item.value}
-              key={item.value}
-              role="button"
-              onClick={() => updateFilters('tag', item.value)}
-            >
-              {!upToExtraSmall && item.icon}
-              {item.label}
-            </Tag>
-          ),
+            ),
+          )}
+        </TagContainer>
+        {!upToLarge && (
+          <UserPositionButton onClick={() => navigate({ pathname: APP_PATHS.EARN_POSITIONS })}>
+            <IconUserEarnPosition />
+            <Text width={'max-content'}>{t`My Positions`}</Text>
+          </UserPositionButton>
         )}
-      </TagContainer>
+      </HeadSection>
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
           <DropdownMenu options={chains} value={filters.chainId} alignLeft onChange={onChainChange} />

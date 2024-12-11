@@ -22,6 +22,13 @@ export const LiquidityWidgetWrapper = styled.div`
   justify-content: center;
 `
 
+export const HeadSection = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+`
+
 export const TagContainer = styled.div`
   display: flex;
   gap: 1rem;
@@ -52,6 +59,23 @@ export const Tag = styled.div<{ active: boolean }>`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     height: 38px;
   `}
+`
+
+export const UserPositionButton = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
+  color: ${({ theme }) => theme.subText};
+  border-radius: 12px;
+  padding: 8px 16px;
+  width: max-content;
+  font-size: 14px;
+  cursor: pointer;
+
+  :hover {
+    filter: brightness(1.1);
+  }
 `
 
 export const TableWrapper = styled.div`
