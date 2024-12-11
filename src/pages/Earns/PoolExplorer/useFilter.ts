@@ -33,15 +33,18 @@ export default function useFilter(setSearch?: (search: string) => void) {
       else {
         searchParams.set(key, value)
         if (key === 'chainId') searchParams.delete('protocol')
-        if (key === 'tag' && value === FilterTag.LOW_VOLATILITY) {
-          searchParams.set('sortBy', SortBy.APR)
-          searchParams.set('orderBy', Direction.DESC)
+        if (key === 'tag') {
+          searchParams.delete('sortBy')
+          searchParams.delete('orderBy')
+          if (setSearch) setSearch('')
+          if (value === FilterTag.LOW_VOLATILITY) {
+            searchParams.set('sortBy', SortBy.APR)
+            searchParams.set('orderBy', Direction.DESC)
+          }
         }
       }
-      if (key !== 'sortBy' && key !== 'orderBy' && key !== 'page') {
-        searchParams.delete('page')
-        if (key === 'tag' && setSearch) setSearch('')
-      }
+      if (key !== 'sortBy' && key !== 'orderBy' && key !== 'page') searchParams.delete('page')
+
       setSearchParams(searchParams)
     },
     [setSearchParams, searchParams, setSearch],
