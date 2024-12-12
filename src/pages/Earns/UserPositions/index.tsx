@@ -76,7 +76,7 @@ const MyPositions = () => {
             userPosition.map(position => (
               <PositionRow
                 key={position.tokenId}
-                onClick={() => navigate({ pathname: APP_PATHS.EARN_POSITION_DETAIL })}
+                onClick={() => navigate({ pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':id', position.id) })}
               >
                 <PositionOverview>
                   <Flex alignItems={'center'} sx={{ gap: 2 }}>
@@ -115,7 +115,20 @@ const MyPositions = () => {
                     <PositionAction>
                       <Minus size={16} />
                     </PositionAction>
-                    <PositionAction primary>
+                    <PositionAction
+                      primary
+                      onClick={e => {
+                        e.stopPropagation()
+                        handleOpenZapInWidget(
+                          {
+                            exchange: position.pool.project || '',
+                            chainId: position.chainId,
+                            address: position.pool.poolAddress,
+                          },
+                          position.tokenId,
+                        )
+                      }}
+                    >
                       <Plus size={16} />
                     </PositionAction>
                   </Flex>
