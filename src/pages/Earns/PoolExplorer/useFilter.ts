@@ -25,16 +25,21 @@ export default function useFilter(setSearch?: (search: string) => void) {
       protocol: searchParams.get('protocol') || '',
       userAddress: account,
       tag: searchParams.get('tag') || '',
-      sortBy: searchParams.get('sortBy') || '',
-      orderBy: searchParams.get('orderBy') || '',
+      sortBy: searchParams.get('sortBy') || (!searchParams.get('tag') ? SortBy.TVL : ''),
+      orderBy: searchParams.get('orderBy') || (!searchParams.get('tag') ? Direction.DESC : ''),
       q: searchParams.get('q')?.trim() || '',
     }
   }, [searchParams, account, chainId])
 
   const updateFilters = useCallback(
     (key: keyof QueryParams, value: string) => {
-      if (!value) searchParams.delete(key)
-      else {
+      if (!value) {
+        searchParams.delete(key)
+        if (key === 'tag') {
+          searchParams.set('sortBy', SortBy.TVL)
+          searchParams.set('orderBy', Direction.DESC)
+        }
+      } else {
         searchParams.set(key, value)
         if (key === 'chainId') searchParams.delete('protocol')
         if (key === 'tag') {
