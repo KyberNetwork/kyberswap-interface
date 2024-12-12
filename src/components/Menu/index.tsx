@@ -220,7 +220,6 @@ export default function Menu() {
   const showAbout = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const showBlog = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const showAnalytics = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const showCampaigns = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -349,26 +348,23 @@ export default function Menu() {
               </>
             )}
 
-            {showCampaigns && (
-              <MenuItem>
-                <NavDropDown
-                  icon={<CampaignIcon />}
-                  title={
-                    <Text sx={{ position: 'relative' }} width="max-content">
-                      <Trans>Campaigns</Trans>
-                      <NewLabel style={{ position: 'absolute', right: -22 }}>New</NewLabel>
-                    </Text>
-                  }
-                  link="#"
-                  options={[
-                    { link: APP_PATHS.AGGREGATOR_CAMPAIGN, label: t`Aggregator Trading` },
-                    { link: APP_PATHS.LIMIT_ORDER_CAMPAIGN, label: t`Limit Order` },
-                    { link: APP_PATHS.REFFERAL_CAMPAIGN, label: t`Referral` },
-                    { link: APP_PATHS.MY_DASHBOARD, label: t`My Dashboard`, external: true },
-                  ]}
-                />
-              </MenuItem>
-            )}
+            <MenuItem>
+              <NavDropDown
+                icon={<CampaignIcon />}
+                title={
+                  <Text sx={{ position: 'relative' }} width="max-content">
+                    <Trans>Campaigns</Trans>
+                  </Text>
+                }
+                link="#"
+                options={[
+                  { link: APP_PATHS.AGGREGATOR_CAMPAIGN, label: t`Aggregator Trading` },
+                  { link: APP_PATHS.LIMIT_ORDER_CAMPAIGN, label: t`Limit Order` },
+                  { link: APP_PATHS.REFFERAL_CAMPAIGN, label: t`Referral` },
+                  { link: APP_PATHS.MY_DASHBOARD, label: t`My Dashboard`, external: true },
+                ]}
+              />
+            </MenuItem>
 
             {bridgeLink && (
               <MenuItem>

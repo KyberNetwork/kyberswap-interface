@@ -71,8 +71,8 @@ export default function CoinbaseSubscribeBtn({ onlyShowIfNotSubscribe = false }:
           size={13}
           text={
             !isSubscribed
-              ? "Subscribe to receive Kyberswap's updates directly on your Coinbase Wallet."
-              : "Unsubscribe to stop receiving Kyberswap's updates directly on your Coinbase Wallet."
+              ? "Subscribe to receive KyberSwap's updates directly on your Coinbase Wallet."
+              : "Unsubscribe to stop receiving KyberSwap's updates directly on your Coinbase Wallet."
           }
         />
       )}
