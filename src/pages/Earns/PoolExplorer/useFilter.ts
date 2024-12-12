@@ -8,13 +8,17 @@ import { Direction } from 'pages/MarketOverview/SortIcon'
 
 import { FilterTag, SortBy, timings } from '.'
 
+const supportedChains = [ChainId.MAINNET, ChainId.BASE]
+
 export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { account, chainId } = useActiveWeb3React()
 
   const filters: QueryParams = useMemo(() => {
     return {
-      chainId: +(searchParams.get('chainId') || chainId || ChainId.MAINNET),
+      chainId: +(
+        searchParams.get('chainId') || (chainId && supportedChains.includes(chainId) ? chainId : ChainId.MAINNET)
+      ),
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[0].value as string),
