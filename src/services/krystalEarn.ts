@@ -109,6 +109,8 @@ const krystalEarnServiceApi = createApi({
         url: `/v1/lp/userPositions`,
         params: {
           ...params,
+          chainIds: [1, 8453], // ETH & Base
+          protocols: 'Uniswap V3,PancakeSwap V3,SushiSwap V3',
           quoteSymbol: 'usd',
           offset: 0,
           orderBy: 'liquidity',
