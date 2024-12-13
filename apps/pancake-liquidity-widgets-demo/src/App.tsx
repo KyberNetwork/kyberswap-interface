@@ -72,12 +72,12 @@ export default function App() {
 function LiquidityWidgetWrapper() {
   const [key, setKey] = useState(Date.now());
   const [params, setParams] = useState<WidgetParams>({
-    chainId: 42161,
-    poolAddress: "0x389938cf14be379217570d8e4619e51fbdafaa21",
+    chainId: 56,
+    poolAddress: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
     theme: "dark",
-    initDepositTokens:
-      "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9,0x912CE59144191C1204E64559FE8253a0e49E6548",
-    initAmounts: ",",
+    initDepositTokens: "",
+    initAmounts: "",
+    positionId: "1404415",
   });
 
   const { data: walletClient } = useWalletClient();
@@ -153,6 +153,7 @@ function LiquidityWidgetWrapper() {
         <Params params={params} setParams={handleUpdateParams} />
       </div>
       <LiquidityWidget
+        farmContractAddresses={["0x556B9306565093C855AEA9AE92A594704c2Cd59e"]}
         key={key}
         onConnectWallet={() => openConnectModal?.()}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -21,6 +21,7 @@ type ContextState = {
   onRemoveToken: (tokenAddress: string) => void;
   onAmountChange: (tokenAddress: string, amount: string) => void;
   onOpenTokenSelectModal: () => void;
+  farmContractAddresses: string[];
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -35,6 +36,7 @@ const WidgetContext = createContext<ContextState>({
   onRemoveToken: () => {},
   onAmountChange: () => {},
   onOpenTokenSelectModal: () => {},
+  farmContractAddresses: [],
 });
 
 type Props = {
@@ -52,6 +54,7 @@ type Props = {
   onRemoveToken: (tokenAddress: string) => void;
   onAmountChange: (tokenAddress: string, amount: string) => void;
   onOpenTokenSelectModal: () => void;
+  farmContractAddresses: string[];
 };
 
 export const WidgetProvider = ({

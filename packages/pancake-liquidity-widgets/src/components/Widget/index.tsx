@@ -40,6 +40,7 @@ export interface WidgetProps {
   onRemoveToken: (tokenAddress: string) => void;
   onAmountChange: (tokenAddress: string, amount: string) => void;
   onOpenTokenSelectModal: () => void;
+  farmContractAddresses?: string[];
 }
 
 export default function Widget({
@@ -66,6 +67,7 @@ export default function Widget({
   onRemoveToken,
   onAmountChange,
   onOpenTokenSelectModal,
+  farmContractAddresses = [],
 }: WidgetProps) {
   const publicClient = useMemo(() => {
     const chain = getChainById(chainId);
@@ -131,6 +133,7 @@ export default function Widget({
           onRemoveToken={onRemoveToken}
           onAmountChange={onAmountChange}
           onOpenTokenSelectModal={onOpenTokenSelectModal}
+          farmContractAddresses={farmContractAddresses}
         >
           <ZapContextProvider
             includedSources={includedSources}

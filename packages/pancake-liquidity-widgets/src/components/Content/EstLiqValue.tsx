@@ -34,8 +34,20 @@ import defaultTokenLogo from "@/assets/question.svg?url";
 
 export default function EstLiqValue() {
   const { zapInfo, source, marketPrice, revertPrice, tokensIn } = useZapState();
-  const { pool, position, positionOwner, positionId } = useWidgetInfo();
+  const { pool, position, positionOwner, farmContractAddresses, positionId } =
+    useWidgetInfo();
   const { account, chainId } = useWeb3Provider();
+
+  const isOwnByFarmContract =
+    positionOwner &&
+    farmContractAddresses.some(
+      (address) => address.toLowerCase() === positionOwner.toLowerCase()
+    );
+
+  const isNotOwnByUser =
+    positionOwner &&
+    account &&
+    positionOwner.toLowerCase() !== account.toLowerCase();
 
   const token0 = pool?.token0 as PancakeToken | undefined;
   const token1 = pool?.token1 as PancakeToken | undefined;
@@ -558,15 +570,13 @@ export default function EstLiqValue() {
           </div>
         )}
 
-        {positionOwner &&
-          account &&
-          positionOwner.toLowerCase() !== account.toLowerCase() && (
-            <div className="ks-lw-card-warning mt-3">
-              You are not the current owner of the position{" "}
-              <span className="text-warning">#{positionId}</span>, please double
-              check before proceeding
-            </div>
-          )}
+        {isNotOwnByUser && !isOwnByFarmContract && (
+          <div className="ks-lw-card-warning mt-3">
+            You are not the current owner of the position{" "}
+            <span className="text-warning">#{positionId}</span>, please double
+            check before proceeding
+          </div>
+        )}
       </div>
     </>
   );
