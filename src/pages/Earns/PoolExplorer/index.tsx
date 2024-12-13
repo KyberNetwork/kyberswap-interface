@@ -1,12 +1,11 @@
 import { t } from '@lingui/macro'
 import 'kyberswap-liquidity-widgets/dist/style.css'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useGetDexListQuery } from 'services/ksSetting'
-import { usePoolsExplorerQuery, useSupportedProtocolsQuery } from 'services/zapEarn'
+import { usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconHighAprPool } from 'assets/svg/ic_pool_high_apr.svg'
 import { ReactComponent as IconHighlightedPool } from 'assets/svg/ic_pool_highlighted.svg'
@@ -17,10 +16,9 @@ import Pagination from 'components/Pagination'
 import Search from 'components/Search'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
+import useSupportedDexesAndChains from 'pages/Earns/PoolExplorer/useSupportedDexesAndChains'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -92,37 +90,10 @@ const Earn = () => {
   const deboundedSearch = useDebounce(search, 300)
   const [searchParams] = useSearchParams()
   const theme = useTheme()
-  const { supportedChains } = useChainsConfig()
   const { filters, updateFilters } = useFilter(setSearch)
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
-
-  const dexList = useGetDexListQuery({
-    chainId: NETWORKS_INFO[filters.chainId].ksSettingRoute,
-  })
-  const { data: supportedProtocolsData } = useSupportedProtocolsQuery()
   const { data: poolData } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
-
-  const supportedProtocols = useMemo(() => {
-    if (!supportedProtocolsData?.data?.chains) return []
-    const parsedProtocols =
-      supportedProtocolsData.data.chains[filters.chainId]?.protocols?.map(item => ({
-        label: (dexList?.data?.find(dex => dex.dexId === item.id)?.name || item.name).replaceAll('-', ' '),
-        value: item.id,
-      })) || []
-    return [{ label: 'All Protocols', value: '' }].concat(parsedProtocols)
-  }, [filters.chainId, supportedProtocolsData, dexList])
-
-  const chains = useMemo(
-    () =>
-      supportedChains
-        .map(chain => ({
-          label: chain.name,
-          value: chain.chainId,
-          icon: chain.icon,
-        }))
-        .filter(chain => supportedProtocolsData?.data?.chains?.[chain.value]),
-    [supportedChains, supportedProtocolsData],
-  )
+  const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -221,10 +192,10 @@ const Earn = () => {
       </HeadSection>
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
-          <DropdownMenu options={chains} value={filters.chainId} alignLeft onChange={onChainChange} />
+          <DropdownMenu options={supportedChains} value={filters.chainId} alignLeft onChange={onChainChange} />
           <DropdownMenu
             width={100}
-            options={supportedProtocols}
+            options={supportedDexes}
             value={filters.protocol}
             alignLeft
             onChange={onProtocolChange}

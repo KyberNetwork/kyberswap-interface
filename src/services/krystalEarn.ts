@@ -1,4 +1,17 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+
+export enum EarnSupportedProtocols {
+  UNISWAP_V3 = 'Uniswap V3',
+  PANCAKESWAP_V3 = 'PancakeSwap V3',
+  SUSHISWAP_V3 = 'SushiSwap V3',
+}
+export const earnSupportedChains = [ChainId.MAINNET, ChainId.BASE, ChainId.ARBITRUM]
+export const earnSupportedProtocols = [
+  EarnSupportedProtocols.UNISWAP_V3,
+  EarnSupportedProtocols.PANCAKESWAP_V3,
+  EarnSupportedProtocols.SUSHISWAP_V3,
+]
 
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',
@@ -97,6 +110,15 @@ export interface EarnPosition {
   }
 }
 
+export interface PositionEarning {
+  date: string
+  timestamp: number
+  totalFeeEarning: number
+  totalFarmEarning: number
+  totalEarning: number
+  earningByDay: number
+}
+
 const krystalEarnServiceApi = createApi({
   reducerPath: 'krystalEarnServiceApi',
   baseQuery: fetchBaseQuery({
@@ -104,13 +126,13 @@ const krystalEarnServiceApi = createApi({
   }),
   keepUnusedDataFor: 1,
   endpoints: builder => ({
-    userPosition: builder.query<Array<EarnPosition>, { addresses: string }>({
+    userPosition: builder.query<Array<EarnPosition>, { addresses: string; positionId?: string }>({
       query: params => ({
         url: `/v1/lp/userPositions`,
         params: {
           ...params,
-          chainIds: [1, 8453], // ETH & Base
-          protocols: 'Uniswap V3,PancakeSwap V3,SushiSwap V3',
+          chainIds: earnSupportedChains,
+          protocols: earnSupportedProtocols,
           quoteSymbol: 'usd',
           offset: 0,
           orderBy: 'liquidity',
@@ -120,9 +142,19 @@ const krystalEarnServiceApi = createApi({
       }),
       transformResponse: (response: { positions: Array<EarnPosition> }) => response.positions,
     }),
+    positionEarningStatistics: builder.query<
+      Array<PositionEarning>,
+      { tokenAddress: string; tokenId: string; chainId: string | number }
+    >({
+      query: params => ({
+        url: `/v1/balance/positionEarningStatistic`,
+        params,
+      }),
+      transformResponse: (response: { data: Array<PositionEarning> }) => response.data,
+    }),
   }),
 })
 
-export const { useUserPositionQuery } = krystalEarnServiceApi
+export const { useUserPositionQuery, usePositionEarningStatisticsQuery } = krystalEarnServiceApi
 
 export default krystalEarnServiceApi

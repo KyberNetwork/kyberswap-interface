@@ -1,14 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { earnSupportedChains } from 'services/krystalEarn'
 import { QueryParams } from 'services/zapEarn'
 
 import { useActiveWeb3React } from 'hooks'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 import { FilterTag, SortBy, timings } from '.'
-
-const supportedChains = [ChainId.MAINNET, ChainId.BASE]
 
 export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -17,7 +16,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
   const filters: QueryParams = useMemo(() => {
     return {
       chainId: +(
-        searchParams.get('chainId') || (chainId && supportedChains.includes(chainId) ? chainId : ChainId.MAINNET)
+        searchParams.get('chainId') || (chainId && earnSupportedChains.includes(chainId) ? chainId : ChainId.MAINNET)
       ),
       page: +(searchParams.get('page') || 1),
       limit: 10,

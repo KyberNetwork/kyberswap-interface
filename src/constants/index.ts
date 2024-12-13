@@ -173,7 +173,7 @@ export const APP_PATHS = {
   EARN: '/earns',
   EARN_POOLS: '/earns/pools',
   EARN_POSITIONS: '/earns/positions',
-  EARN_POSITION_DETAIL: '/earns/position',
+  EARN_POSITION_DETAIL: '/earns/position/:id',
 } as const
 
 export const TERM_FILES_PATH = {
