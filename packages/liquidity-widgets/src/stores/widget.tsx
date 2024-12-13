@@ -14,9 +14,10 @@ import {
   Pool,
   Position,
   poolResponse,
-  //Token,
-  //tick,
-  //token,
+  univ3Pool,
+  univ2Pool,
+  univ3PoolType,
+  univ2PoolType,
 } from "@/schema";
 import { createStore, useStore } from "zustand";
 import { DexInfos, NetworkInfo, PATHS } from "@/constants";
@@ -91,7 +92,10 @@ const createWidgetStore = (initProps: WidgetProps) => {
       const res = await fetch(
         `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}`
       ).then((res) => res.json());
-      const { success, data, error } = poolResponse.safeParse(res);
+      const { success, data, error } = poolResponse.safeParse({
+        poolType,
+        ...res,
+      });
 
       const firstLoad = get().pool === "loading";
       if (!success) {
@@ -143,99 +147,141 @@ const createWidgetStore = (initProps: WidgetProps) => {
         return;
       }
 
-      const p: Pool = {
-        address: pool.address,
-        token0: {
-          ...token0,
-          logo: token0.logoURI,
-          price: token0Price,
-        },
-        token1: {
-          ...token1,
-          logo: token1.logoURI,
-          price: token1Price,
-        },
-        fee: pool.swapFee,
-        liquidity: pool.positionInfo.liquidity,
-        sqrtPriceX96: pool.positionInfo.sqrtPriceX96,
-        tick: pool.positionInfo.tick,
-        tickSpacing: pool.positionInfo.tickSpacing,
-        ticks: pool.positionInfo.ticks,
-        poolType,
-        minTick: nearestUsableTick(MIN_TICK, pool.positionInfo.tickSpacing),
-        maxTick: nearestUsableTick(MAX_TICK, pool.positionInfo.tickSpacing),
-      };
+      const { success: isUniV3, data: poolUniv3 } = univ3Pool.safeParse(pool);
+      const { success: isUniV2, data: poolUniv2 } = univ2Pool.safeParse(pool);
 
-      set({ pool: p });
+      let p: Pool;
 
-      if (positionId !== undefined) {
-        const contract = DexInfos[poolType].nftManagerContract;
-        const contractAddress =
-          typeof contract === "string" ? contract : contract[chainId];
-        if (!contractAddress) {
-          set({
-            errorMsg: `Pool type ${poolType} is not supported in chainId: ${chainId}`,
-          });
-          return;
+      if (isUniV3) {
+        const { success: isUniV3PoolType, data: pt } =
+          univ3PoolType.safeParse(poolType);
+        if (!isUniV3PoolType) {
+          throw new Error("Invalid pool univ3 type");
         }
-        // Function signature and encoded token ID
-        const functionSignature = "positions(uint256)";
-        const selector = getFunctionSelector(functionSignature);
-        const encodedTokenId = encodeUint256(BigInt(positionId));
+        p = {
+          poolType: pt,
+          address: poolUniv3.address,
+          token0: {
+            ...token0,
+            logo: token0.logoURI,
+            price: token0Price,
+          },
+          token1: {
+            ...token1,
+            logo: token1.logoURI,
+            price: token1Price,
+          },
+          fee: pool.swapFee,
+          liquidity: poolUniv3.positionInfo.liquidity,
+          sqrtPriceX96: poolUniv3.positionInfo.sqrtPriceX96,
+          tick: poolUniv3.positionInfo.tick,
+          tickSpacing: poolUniv3.positionInfo.tickSpacing,
+          ticks: poolUniv3.positionInfo.ticks,
+          minTick: nearestUsableTick(
+            MIN_TICK,
+            poolUniv3.positionInfo.tickSpacing
+          ),
+          maxTick: nearestUsableTick(
+            MAX_TICK,
+            poolUniv3.positionInfo.tickSpacing
+          ),
+        };
+        set({ pool: p });
 
-        const data = `0x${selector}${encodedTokenId}`;
+        if (positionId !== undefined) {
+          const contract = DexInfos[poolType].nftManagerContract;
+          const contractAddress =
+            typeof contract === "string" ? contract : contract[chainId];
+          if (!contractAddress) {
+            set({
+              errorMsg: `Pool type ${poolType} is not supported in chainId: ${chainId}`,
+            });
+            return;
+          }
+          // Function signature and encoded token ID
+          const functionSignature = "positions(uint256)";
+          const selector = getFunctionSelector(functionSignature);
+          const encodedTokenId = encodeUint256(BigInt(positionId));
 
-        // JSON-RPC payload
-        const payload = {
-          jsonrpc: "2.0",
-          method: "eth_call",
-          params: [
-            {
-              to: contractAddress,
-              data: data,
+          const data = `0x${selector}${encodedTokenId}`;
+
+          // JSON-RPC payload
+          const payload = {
+            jsonrpc: "2.0",
+            method: "eth_call",
+            params: [
+              {
+                to: contractAddress,
+                data: data,
+              },
+              "latest",
+            ],
+            id: 1,
+          };
+
+          // Send JSON-RPC request via fetch
+          const response = await fetch(NetworkInfo[chainId].defaultRpc, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
             },
-            "latest",
-          ],
-          id: 1,
+            body: JSON.stringify(payload),
+          });
+
+          const { result, error } = await response.json();
+
+          if (result && result !== "0x") {
+            const data = decodePosition(result);
+
+            const { amount0, amount1 } = getPositionAmounts(
+              p.tick,
+              data.tickLower,
+              data.tickUpper,
+              BigInt(p.sqrtPriceX96),
+              data.liquidity
+            );
+
+            set({
+              position: {
+                id: +positionId,
+                poolType: pt,
+                liquidity: data.liquidity,
+                tickLower: data.tickLower,
+                tickUpper: data.tickUpper,
+                amount0,
+                amount1,
+              },
+            });
+            return;
+          }
+
+          set({ errorMsg: error.message || "Position not found" });
+        }
+      } else if (isUniV2) {
+        const { success: isUniV2PoolType, data: pt } =
+          univ2PoolType.safeParse(poolType);
+        if (!isUniV2PoolType) {
+          throw new Error("Invalid pool univ2 type");
+        }
+        p = {
+          poolType: pt,
+          token0: {
+            ...token0,
+            logo: token0.logoURI,
+            price: token0Price,
+          },
+          token1: {
+            ...token1,
+            logo: token1.logoURI,
+            price: token1Price,
+          },
+          fee: pool.swapFee,
+          reserves: poolUniv2.reserves,
         };
 
-        // Send JSON-RPC request via fetch
-        const response = await fetch(NetworkInfo[chainId].defaultRpc, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
-        const { result, error } = await response.json();
-
-        if (result && result !== "0x") {
-          const data = decodePosition(result);
-
-          const { amount0, amount1 } = getPositionAmounts(
-            p.tick,
-            data.tickLower,
-            data.tickUpper,
-            BigInt(p.sqrtPriceX96),
-            data.liquidity
-          );
-
-          set({
-            position: {
-              id: +positionId,
-              poolType,
-              liquidity: data.liquidity,
-              tickLower: data.tickLower,
-              tickUpper: data.tickUpper,
-              amount0,
-              amount1,
-            },
-          });
-          return;
-        }
-
-        set({ errorMsg: error.message || "Position not found" });
+        set({ pool: p });
+      } else {
+        throw new Error("Invalid pool type");
       }
     },
   }));

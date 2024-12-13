@@ -28,8 +28,41 @@ export enum PoolType {
   DEX_THRUSTERV3 = "DEX_THRUSTERV3",
   DEX_SUSHISWAPV3 = "DEX_SUSHISWAPV3",
   DEX_QUICKSWAPV3UNI = "DEX_QUICKSWAPV3UNI",
+
+  DEX_PANCAKESWAPV2 = "DEX_PANCAKESWAPV2",
+  DEX_UNISWAPV2 = "DEX_UNISWAPV2",
+  DEX_PANGOLINSTANDARD = "DEX_PANGOLINSTANDARD ",
+  DEX_SUSHISWAPV2 = "DEX_SUSHISWAPV2",
+  DEX_QUICKSWAPV2 = "DEX_QUICKSWAPV2",
+  DEX_THRUSTERV2 = "DEX_THRUSTERV2",
+  DEX_SWAPMODEV2 = "DEX_SWAPMODEV2",
 }
-export const poolType = z.nativeEnum(PoolType);
+
+export const univ3Types = [
+  PoolType.DEX_UNISWAPV3,
+  PoolType.DEX_PANCAKESWAPV3,
+  PoolType.DEX_METAVAULTV3,
+  PoolType.DEX_LINEHUBV3,
+  PoolType.DEX_SWAPMODEV3,
+  PoolType.DEX_KOLCL,
+  PoolType.DEX_THRUSTERV3,
+  PoolType.DEX_SUSHISWAPV3,
+  PoolType.DEX_QUICKSWAPV3UNI,
+] as const;
+export const univ3PoolType = z.enum(univ3Types);
+
+export const univ2Types = [
+  PoolType.DEX_PANCAKESWAPV2,
+  PoolType.DEX_UNISWAPV2,
+  PoolType.DEX_PANGOLINSTANDARD,
+  PoolType.DEX_SUSHISWAPV2,
+  PoolType.DEX_QUICKSWAPV2,
+  PoolType.DEX_THRUSTERV2,
+  PoolType.DEX_SWAPMODEV2,
+] as const;
+export const univ2PoolType = z.enum(univ2Types);
+
+export const poolType = univ3PoolType.or(univ2PoolType);
 
 export const token = z.object({
   address: z.string(),
@@ -69,7 +102,7 @@ export const tick = z.object({
 });
 export type Tick = z.infer<typeof tick>;
 
-const univ3PoolCommonField = z.object({
+export const univ3PoolNormalize = z.object({
   address: z.string(),
   token0: token,
   token1: token,
@@ -83,39 +116,25 @@ const univ3PoolCommonField = z.object({
   maxTick: z.number(),
 });
 
+export const univ2PoolNormalize = z.object({
+  token0: token,
+  token1: token,
+  fee: z.number(),
+  reserves: z.tuple([z.string(), z.string()]),
+});
+
 export const pool = z.discriminatedUnion("poolType", [
-  univ3PoolCommonField.extend({
-    poolType: z.literal(PoolType.DEX_UNISWAPV3),
+  univ3PoolNormalize.extend({
+    poolType: univ3PoolType,
   }),
-  univ3PoolCommonField.extend({
-    poolType: z.literal(PoolType.DEX_PANCAKESWAPV3),
-  }),
-  univ3PoolCommonField.extend({
-    poolType: z.literal(PoolType.DEX_METAVAULTV3),
-  }),
-  univ3PoolCommonField.extend({
-    poolType: z.literal(PoolType.DEX_LINEHUBV3),
-  }),
-  univ3PoolCommonField.extend({
-    poolType: z.literal(PoolType.DEX_SWAPMODEV3),
-  }),
-  univ3PoolCommonField.extend({
-    poolType: z.literal(PoolType.DEX_KOLCL),
-  }),
-  univ3PoolCommonField.extend({
-    poolType: z.literal(PoolType.DEX_THRUSTERV3),
-  }),
-  univ3PoolCommonField.extend({
-    poolType: z.literal(PoolType.DEX_SUSHISWAPV3),
-  }),
-  univ3PoolCommonField.extend({
-    poolType: z.literal(PoolType.DEX_QUICKSWAPV3UNI),
+  univ2PoolNormalize.extend({
+    poolType: univ2PoolType,
   }),
 ]);
 
 export type Pool = z.infer<typeof pool>;
 
-const univ3Position = z.object({
+export const univ3Position = z.object({
   id: z.number(),
   liquidity: z.bigint(),
   tickLower: z.number(),
@@ -124,33 +143,18 @@ const univ3Position = z.object({
   amount1: z.bigint(),
 });
 
+export const univ2Position = z.object({
+  liquidity: z.string(),
+  amount0: z.bigint(),
+  amount1: z.bigint(),
+});
+
 export const position = z.discriminatedUnion("poolType", [
   univ3Position.extend({
-    poolType: z.literal(PoolType.DEX_UNISWAPV3),
+    poolType: univ3PoolType,
   }),
-  univ3Position.extend({
-    poolType: z.literal(PoolType.DEX_PANCAKESWAPV3),
-  }),
-  univ3Position.extend({
-    poolType: z.literal(PoolType.DEX_METAVAULTV3),
-  }),
-  univ3Position.extend({
-    poolType: z.literal(PoolType.DEX_LINEHUBV3),
-  }),
-  univ3Position.extend({
-    poolType: z.literal(PoolType.DEX_SWAPMODEV3),
-  }),
-  univ3Position.extend({
-    poolType: z.literal(PoolType.DEX_KOLCL),
-  }),
-  univ3Position.extend({
-    poolType: z.literal(PoolType.DEX_THRUSTERV3),
-  }),
-  univ3Position.extend({
-    poolType: z.literal(PoolType.DEX_SUSHISWAPV3),
-  }),
-  univ3Position.extend({
-    poolType: z.literal(PoolType.DEX_QUICKSWAPV3UNI),
+  univ2Position.extend({
+    poolType: univ2PoolType,
   }),
 ]);
 
@@ -158,6 +162,7 @@ export type Position = z.infer<typeof position>;
 
 // Create a mapping object for string to Dex enum
 const dexMapping: Record<PoolType, string[]> = {
+  // uni v3 forks
   [PoolType.DEX_UNISWAPV3]: ["uniswapv3"],
   [PoolType.DEX_PANCAKESWAPV3]: ["pancake-v3"],
   [PoolType.DEX_METAVAULTV3]: ["metavault-v3"],
@@ -168,43 +173,82 @@ const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_SUSHISWAPV3]: ["sushiswap-v3"],
   [PoolType.DEX_QUICKSWAPV3UNI]: ["quickswap-uni-v3"],
 
-  // Add new DEX mappings here when needed
+  // uni v2 forks
+  [PoolType.DEX_PANCAKESWAPV2]: ["pancake"],
+  [PoolType.DEX_UNISWAPV2]: ["uniswap"],
+  [PoolType.DEX_PANGOLINSTANDARD]: ["pangolin"],
+  [PoolType.DEX_SUSHISWAPV2]: ["sushiswap"],
+  [PoolType.DEX_QUICKSWAPV2]: ["quickswap"],
+  [PoolType.DEX_THRUSTERV2]: ["thruster-v2"],
+  [PoolType.DEX_SWAPMODEV2]: ["baseswap, arbidex, superswap"],
 } as const;
 
 const dexValues = Object.values(dexMapping).flat();
 
-export const poolResponse = z.object({
-  data: z.object({
-    pools: z.array(
-      z.object({
-        address: z.string(),
-        swapFee: z.number(),
-        exchange: z
-          .enum(dexValues as [string, ...string[]])
-          .transform((val) => {
-            // Reverse lookup in the enum
-            const dexEnumKey = Object.keys(dexMapping).find((key) =>
-              dexMapping[key as PoolType].includes(val)
-            );
-            if (!dexEnumKey) {
-              throw new Error(`No enum value for exchange: ${val}`);
-            }
-            return dexEnumKey as PoolType;
-          }),
-        tokens: z.tuple([
-          token.pick({ address: true }),
-          token.pick({ address: true }),
-        ]),
-        positionInfo: z.object({
-          liquidity: z.string(),
-          sqrtPriceX96: z.string(),
-          tickSpacing: z.number(),
-          tick: z.number(),
-          ticks: z.array(tick),
-        }),
-      })
-    ),
+export const univ3Pool = z.object({
+  address: z.string(),
+  swapFee: z.number(),
+  exchange: z.enum(dexValues as [string, ...string[]]).transform((val) => {
+    // Reverse lookup in the enum
+    const dexEnumKey = Object.keys(dexMapping).find((key) =>
+      dexMapping[key as PoolType].includes(val)
+    );
+    if (!dexEnumKey) {
+      throw new Error(`No enum value for exchange: ${val}`);
+    }
+    return val;
+  }),
+  tokens: z.tuple([
+    token.pick({ address: true }),
+    token.pick({ address: true }),
+  ]),
+  positionInfo: z.object({
+    liquidity: z.string(),
+    sqrtPriceX96: z.string(),
+    tickSpacing: z.number(),
+    tick: z.number(),
+    ticks: z.array(tick),
   }),
 });
+
+export const univ2Pool = z.object({
+  address: z.string(),
+  reserveUsd: z.string(),
+  amplifiedTvl: z.string(),
+  swapFee: z.number(),
+  exchange: z.string(),
+  type: z.string(),
+  timestamp: z.number(),
+  reserves: z.tuple([z.string(), z.string()]),
+  tokens: z.array(
+    z.object({
+      address: z.string(),
+      swappable: z.boolean(),
+    })
+  ),
+  extraFields: z.object({
+    fee: z.number(),
+    feePrecision: z.number(),
+  }),
+});
+
+export const univ3PoolResponse = z.object({
+  poolType: univ3PoolType,
+  data: z.object({
+    pools: z.array(univ3Pool),
+  }),
+});
+
+export const univ2PoolResponse = z.object({
+  poolType: univ2PoolType,
+  data: z.object({
+    pools: z.array(univ2Pool),
+  }),
+});
+
+export const poolResponse = z.discriminatedUnion("poolType", [
+  univ3PoolResponse,
+  univ2PoolResponse,
+]);
 
 export type PoolResponse = z.infer<typeof poolResponse>;

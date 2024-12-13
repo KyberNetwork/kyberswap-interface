@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useZapState } from "../../hooks/useZapInState";
 import { Type } from "../../hooks/types/zapInTypes";
 import { NO_DATA } from "@/constants";
@@ -11,6 +11,7 @@ import {
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
 import { formatDisplayNumber } from "@kyber/utils/number";
+import { univ3PoolNormalize } from "@/schema";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -21,8 +22,16 @@ export default function PriceInput({ type }: { type: Type }) {
     setTickUpper,
     positionId,
   } = useZapState();
-  const { pool } = useWidgetContext((s) => s);
+  const { pool: rawPool } = useWidgetContext((s) => s);
   const [localValue, setLocalValue] = useState("");
+
+  const pool = useMemo(() => {
+    if (rawPool === "loading") return rawPool;
+    const { success, data } = univ3PoolNormalize.safeParse(rawPool);
+    if (success) return data;
+    // TODO: check if return loading here ok?
+    return "loading";
+  }, [rawPool]);
 
   const isFullRange =
     pool !== "loading" &&

@@ -75,7 +75,7 @@ export function usePoolActiveLiquidity(): {
   const { pool, poolAddress } = useWidgetContext((s) => s);
   const { revertPrice } = useZapState();
 
-  const tickCurrent = pool === "loading" ? undefined : pool.tick;
+  const tickCurrent = undefined; // TODO: pool === "loading" ? undefined : pool.tick;
   const fee = pool === "loading" ? undefined : pool.fee * 10_000;
   // Find nearest valid tick for pool in case tick is not initialized.
   const activeTick = useMemo(
@@ -189,7 +189,7 @@ export function usePoolActiveLiquidity(): {
     }
 
     const activeTickProcessed: TickProcessed = {
-      liquidityActive: BigInt(pool === "loading" ? 0 : pool.liquidity),
+      liquidityActive: 0n, // TODO: BigInt(pool === "loading" ? 0 : pool.liquidity),
       tick: activeTick,
       liquidityNet:
         Number(ticks[pivot].tick) === activeTick

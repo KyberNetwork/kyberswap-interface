@@ -8,11 +8,13 @@ import koiclLogo from "@/assets/dexes/koicl.png";
 import thrusterLogo from "@/assets/dexes/thruster.png";
 import sushiLogo from "@/assets/dexes/sushi.png";
 import quickswapLogo from "@/assets/dexes/quickswap.png";
+import pangolinLogo from "@/assets/dexes/pangolin.png";
 
 export { PoolType, ChainId };
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const MAX_ZAP_IN_TOKENS = 5;
 
@@ -406,6 +408,41 @@ export const DexInfos: Record<PoolType, DexInfo> = {
     nftManagerContract: {
       [ChainId.PolygonZkEVM]: "0x331F3a300b7115A45ba31E3428AC002267BB6D77",
     },
+  },
+  [PoolType.DEX_PANCAKESWAPV2]: {
+    icon: pancakeLogo,
+    name: "Pancake V2",
+    nftManagerContract: {},
+  },
+  [PoolType.DEX_UNISWAPV2]: {
+    icon: uniLogo,
+    name: "Uniswap V2",
+    nftManagerContract: {},
+  },
+  [PoolType.DEX_PANGOLINSTANDARD]: {
+    icon: pangolinLogo,
+    name: "Pangolin Standard",
+    nftManagerContract: {},
+  },
+  [PoolType.DEX_SUSHISWAPV2]: {
+    icon: sushiLogo,
+    name: "SushiSwap V2",
+    nftManagerContract: {},
+  },
+  [PoolType.DEX_QUICKSWAPV2]: {
+    icon: quickswapLogo,
+    name: "QuickSwap V2",
+    nftManagerContract: {},
+  },
+  [PoolType.DEX_THRUSTERV2]: {
+    icon: thrusterLogo,
+    name: "Thruster V2",
+    nftManagerContract: {},
+  },
+  [PoolType.DEX_SWAPMODEV2]: {
+    icon: swapmodeLogo,
+    name: "SwapMode V2",
+    nftManagerContract: {},
   },
 };
 

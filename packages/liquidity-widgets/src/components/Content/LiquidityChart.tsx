@@ -2,17 +2,15 @@ import { useZapState } from "../../hooks/useZapInState";
 import { LiquidityChartRangeInput } from "../LiquidityChartRangeInput";
 import { useDensityChartData } from "../LiquidityChartRangeInput/hooks";
 import { useWidgetContext } from "@/stores/widget";
-import {
-  MAX_TICK,
-  MIN_TICK,
-  nearestUsableTick,
-  tickToPrice,
-} from "@kyber/utils/uniswapv3";
 
 export default function LiquidityChart() {
   const { pool, position, positionId } = useWidgetContext((s) => s);
-  const { priceLower, priceUpper, revertPrice, tickLower, tickUpper } =
-    useZapState();
+  const {
+    priceLower,
+    priceUpper,
+    revertPrice,
+    //tickLower, tickUpper
+  } = useZapState();
 
   const {
     isLoading: isChartDataLoading,
@@ -20,14 +18,15 @@ export default function LiquidityChart() {
     formattedData,
   } = useDensityChartData();
 
-  const price =
-    pool !== "loading" &&
-    tickToPrice(
-      pool.tick,
-      pool.token0.decimals,
-      pool.token1.decimals,
-      revertPrice
-    );
+  // TODO: Implement this
+  const price = undefined;
+  //pool !== "loading" &&
+  //tickToPrice(
+  //  pool.tick,
+  //  pool.token0.decimals,
+  //  pool.token1.decimals,
+  //  revertPrice
+  //);
 
   const token0 = pool === "loading" ? null : pool.token0;
   const token1 = pool === "loading" ? null : pool.token1;
@@ -40,12 +39,11 @@ export default function LiquidityChart() {
       currencyB={revertPrice ? token0 : token1 ?? undefined}
       feeAmount={pool === "loading" ? 2500 : pool.fee * 10_000}
       ticksAtLimit={{
-        LOWER:
-          pool !== "loading" &&
-          nearestUsableTick(MIN_TICK, pool.tickSpacing) === tickLower,
-        UPPER:
-          pool !== "loading" &&
-          nearestUsableTick(MAX_TICK, pool.tickSpacing) === tickUpper,
+        // TODO: Implement this
+        LOWER: pool !== "loading",
+        //nearestUsableTick(MIN_TICK, pool.tickSpacing) === tickLower,
+        UPPER: pool !== "loading",
+        //nearestUsableTick(MAX_TICK, pool.tickSpacing) === tickUpper,
       }}
       price={price ? parseFloat(price) : undefined}
       priceLower={priceLower || undefined}

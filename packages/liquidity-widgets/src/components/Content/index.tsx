@@ -29,14 +29,16 @@ import PriceRange from "../PriceRange";
 import PositionLiquidity from "../PositionLiquidity";
 import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
 import { useWidgetContext } from "@/stores/widget";
-import { Pool } from "@/schema";
 import {
-  MAX_TICK,
-  MIN_TICK,
-  nearestUsableTick,
-  tickToPrice,
-} from "@kyber/utils/uniswapv3";
-import { formatDisplayNumber } from "@kyber/utils/number";
+  Pool,
+  univ2PoolNormalize,
+  univ2PoolType,
+  univ3PoolNormalize,
+  univ3PoolType,
+  univ3Position,
+} from "@/schema";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 
 export default function Content() {
   const {
@@ -59,6 +61,7 @@ export default function Content() {
 
   const {
     pool,
+    poolType,
     theme,
     errorMsg: loadPoolError,
     position,
@@ -186,29 +189,64 @@ export default function Content() {
     ]
   );
 
-  const newPool: Pool | null = useMemo(
-    () =>
-      zapInfo && pool !== "loading"
-        ? {
-            ...pool,
-            sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
-            tick: zapInfo.poolDetails.uniswapV3.newTick,
-            liquidity: BigNumber.from(pool.liquidity)
-              .add(BigNumber.from(zapInfo.positionDetails.addedLiquidity))
-              .toString(),
-          }
-        : null,
-    [pool, zapInfo]
-  );
+  const { success: isUniV3PoolType } = univ3PoolType.safeParse(poolType);
 
-  const newPoolPrice =
-    newPool &&
-    tickToPrice(
-      newPool.tick,
-      newPool.token0.decimals,
-      newPool.token1.decimals,
-      false
-    );
+  const newPool: Pool | null = useMemo(() => {
+    const { success, data } = univ3PoolNormalize.safeParse(pool);
+    const { success: isUniV3PoolType, data: pt } =
+      univ3PoolType.safeParse(poolType);
+
+    const { success: isUniV2, data: poolUniv2 } =
+      univ2PoolNormalize.safeParse(pool);
+
+    const { success: isUniV2PoolType, data: univ2pt } =
+      univ2PoolType.safeParse(poolType);
+
+    if (zapInfo) {
+      if (success && isUniV3PoolType)
+        return {
+          ...data,
+          poolType: pt,
+          sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
+          tick: zapInfo.poolDetails.uniswapV3.newTick,
+          liquidity: BigNumber.from(data.liquidity)
+            .add(BigNumber.from(zapInfo.positionDetails.addedLiquidity))
+            .toString(),
+        };
+      if (isUniV2 && isUniV2PoolType)
+        return {
+          ...poolUniv2,
+          poolType: univ2pt,
+          reverses: [
+            zapInfo.poolDetails.uniswapV2.newReserve0,
+            zapInfo.poolDetails.uniswapV2.newReserve1,
+          ],
+        };
+    }
+    return null;
+  }, [pool, zapInfo]);
+
+  const newPoolPrice = useMemo(() => {
+    const { success, data } = univ3PoolNormalize.safeParse(newPool);
+    if (success)
+      return +tickToPrice(
+        data.tick,
+        data.token0.decimals,
+        data.token1.decimals,
+        false
+      );
+
+    const { success: isUniV2, data: uniV2Pool } =
+      univ2PoolNormalize.safeParse(newPool);
+
+    if (isUniV2) {
+      return +divideBigIntToString(
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        18
+      );
+    }
+  }, [newPool]);
 
   const isDeviated = useMemo(
     () =>
@@ -218,14 +256,16 @@ export default function Content() {
     [marketPrice, newPool]
   );
 
-  const isOutOfRangeAfterZap = useMemo(
-    () =>
-      position !== "loading" && newPool
-        ? newPool.tick < position.tickLower ||
-          newPool.tick >= position.tickUpper
-        : false,
-    [newPool, position]
-  );
+  const isOutOfRangeAfterZap = useMemo(() => {
+    const { success, data } = univ3Position.safeParse(position);
+    const { success: isUniV3Pool, data: newPoolUniv3 } =
+      univ3PoolNormalize.safeParse(newPool);
+
+    return newPool && success && isUniV3Pool
+      ? newPoolUniv3.tick < data.tickLower ||
+          newPoolUniv3.tick >= data.tickUpper
+      : false;
+  }, [newPool, position]);
 
   const marketRate = useMemo(
     () =>
@@ -237,21 +277,17 @@ export default function Content() {
 
   const price = useMemo(
     () =>
-      newPool
-        ? formatDisplayNumber(
-            tickToPrice(
-              newPool.tick,
-              newPool.token0.decimals,
-              newPool.token1.decimals,
-              revertPrice
-            ),
-            { significantDigits: 6 }
-          )
+      newPoolPrice
+        ? formatDisplayNumber(revertPrice ? 1 / newPoolPrice : newPoolPrice, {
+            significantDigits: 6,
+          })
         : "--",
     [newPool, revertPrice]
   );
 
   const hanldeClick = () => {
+    const { success: isUniV3Pool, data: univ3Pool } =
+      univ3PoolNormalize.safeParse(pool);
     if (isNotConnected) {
       onConnectWallet();
       return;
@@ -268,10 +304,9 @@ export default function Content() {
       amountsIn &&
       tokensIn.every(Boolean) &&
       zapInfo &&
-      priceLower &&
-      priceUpper &&
-      tickLower !== null &&
-      tickUpper !== null
+      (isUniV3Pool
+        ? tickLower !== null && tickUpper !== null && priceLower && priceUpper
+        : true)
     ) {
       const date = new Date();
       date.setMinutes(date.getMinutes() + (ttl || 20));
@@ -281,15 +316,16 @@ export default function Content() {
         amountsIn,
         pool,
         zapInfo,
-        priceLower,
-        priceUpper,
         deadline: Math.floor(date.getTime() / 1000),
-        isFullRange:
-          nearestUsableTick(MAX_TICK, pool.tickSpacing) === tickUpper &&
-          nearestUsableTick(MIN_TICK, pool.tickSpacing) === tickLower,
+        isFullRange: isUniV3Pool
+          ? univ3Pool.minTick === tickUpper && univ3Pool.maxTick === tickLower
+          : true,
         slippage,
-        tickUpper,
-        tickLower,
+        // incase univ2, it's not important
+        priceLower: priceLower || "",
+        priceUpper: priceUpper || "",
+        tickUpper: tickUpper !== null ? tickUpper : 0,
+        tickLower: tickLower !== null ? tickLower : 0,
       });
     }
   };
@@ -367,10 +403,12 @@ export default function Content() {
           {/* <LiquidityChart /> */}
           <PriceRange />
           {positionId === undefined ? (
-            <>
-              <PriceInput type={Type.PriceLower} />
-              <PriceInput type={Type.PriceUpper} />
-            </>
+            isUniV3PoolType && (
+              <>
+                <PriceInput type={Type.PriceLower} />
+                <PriceInput type={Type.PriceUpper} />
+              </>
+            )
           ) : (
             <PositionLiquidity />
           )}

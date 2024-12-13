@@ -18,12 +18,19 @@ import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
   PATHS,
+  ZERO_ADDRESS,
   chainIdToChain,
 } from "@/constants";
-import { formatWei } from "@/utils";
-import { Token } from "@/schema";
+import { assertUnreachable, formatWei } from "@/utils";
+import {
+  Token,
+  univ2PoolNormalize,
+  univ3PoolNormalize,
+  univ3PoolType,
+  univ3Position,
+} from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
-import { formatDisplayNumber } from "@kyber/utils/number";
+import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export const ERROR_MESSAGE = {
@@ -39,6 +46,7 @@ export const ERROR_MESSAGE = {
 };
 
 const ZapContext = createContext<{
+  price: number | null;
   revertPrice: boolean;
   tickLower: number | null;
   tickUpper: number | null;
@@ -73,6 +81,7 @@ const ZapContext = createContext<{
   token0Price: number;
   token1Price: number;
 }>({
+  price: null,
   revertPrice: false,
   tickLower: null,
   tickUpper: null,
@@ -141,12 +150,8 @@ export const ZapContextProvider = ({
   const [slippage, setSlippage] = useState(10);
   const [ttl, setTtl] = useState(20);
   const [revertPrice, setRevertPrice] = useState(false);
-  const [tickLower, setTickLower] = useState<number | null>(
-    position !== "loading" ? position.tickLower : null
-  );
-  const [tickUpper, setTickUpper] = useState<number | null>(
-    position !== "loading" ? position.tickUpper : null
-  );
+  const [tickLower, setTickLower] = useState<number | null>(null);
+  const [tickUpper, setTickUpper] = useState<number | null>(null);
   const [tokensIn, setTokensIn] = useState<Token[]>([]);
   const [amountsIn, setAmountsIn] = useState<string>("");
   const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
@@ -210,15 +215,22 @@ export const ZapContextProvider = ({
     );
   }, [pool, tickUpper]);
 
+  const isUniv3Pool = useMemo(
+    () => univ3PoolType.safeParse(poolType).success,
+    [poolType]
+  );
+
   const error = useMemo(() => {
     if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
     if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
 
     if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
-    if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
-    if (tickUpper === null) return ERROR_MESSAGE.ENTER_MAX_PRICE;
+    if (isUniv3Pool) {
+      if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
+      if (tickUpper === null) return ERROR_MESSAGE.ENTER_MAX_PRICE;
 
-    if (tickLower >= tickUpper) return ERROR_MESSAGE.INVALID_PRICE_RANGE;
+      if (tickLower >= tickUpper) return ERROR_MESSAGE.INVALID_PRICE_RANGE;
+    }
 
     const listAmountsIn = debounceAmountsIn.split(",");
     const listTokenEmptyAmount = tokensIn.filter(
@@ -265,6 +277,7 @@ export const ZapContextProvider = ({
     tickUpper,
     zapApiError,
     balances,
+    isUniv3Pool,
   ]);
 
   const toggleRevertPrice = useCallback(() => {
@@ -276,13 +289,17 @@ export const ZapContextProvider = ({
   };
 
   useEffect(() => {
-    if (
-      position !== "loading" &&
-      position?.tickUpper !== undefined &&
-      position.tickLower !== undefined
-    ) {
-      setTickLower(position.tickLower);
-      setTickUpper(position.tickUpper);
+    if (position !== "loading") {
+      const { success, data } = univ3Position.safeParse(position);
+
+      if (
+        success &&
+        data?.tickUpper !== undefined &&
+        data.tickLower !== undefined
+      ) {
+        setTickLower(data.tickLower);
+        setTickUpper(data.tickUpper);
+      }
     }
   }, [position]);
 
@@ -386,8 +403,9 @@ export const ZapContextProvider = ({
   // Get zap route
   useEffect(() => {
     if (
-      debounceTickLower !== null &&
-      debounceTickUpper !== null &&
+      (isUniv3Pool
+        ? debounceTickLower !== null && debounceTickUpper !== null
+        : true) &&
       pool !== "loading" &&
       (!error ||
         error === zapApiError ||
@@ -431,8 +449,14 @@ export const ZapContextProvider = ({
         "pool.token0": pool.token0.address,
         "pool.token1": pool.token1.address,
         "pool.fee": pool.fee * 10_000,
-        "position.tickUpper": debounceTickUpper,
-        "position.tickLower": debounceTickLower,
+        ...(isUniv3Pool &&
+        debounceTickUpper !== null &&
+        debounceTickLower !== null
+          ? {
+              "position.tickUpper": debounceTickUpper,
+              "position.tickLower": debounceTickLower,
+            }
+          : { "position.id": account || ZERO_ADDRESS }),
         tokensIn: formattedTokensIn,
         amountsIn: formattedAmountsInWeis,
         slippage,
@@ -501,9 +525,37 @@ export const ZapContextProvider = ({
     zapApiError,
   ]);
 
+  const price = useMemo(() => {
+    if (pool === "loading") return null;
+    const { success, data } = univ3PoolNormalize.safeParse(pool);
+    if (success) {
+      return +tickToPrice(
+        data.tick,
+        data.token0.decimals,
+        data.token1.decimals,
+        revertPrice
+      );
+    }
+
+    const { success: isUniV2, data: uniV2Pool } =
+      univ2PoolNormalize.safeParse(pool);
+
+    if (isUniV2) {
+      const p = +divideBigIntToString(
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        18
+      );
+      return revertPrice ? 1 / p : p;
+    }
+
+    return assertUnreachable(poolType as never, "poolType is not handled");
+  }, [pool, revertPrice]);
+
   return (
     <ZapContext.Provider
       value={{
+        price,
         revertPrice,
         tickLower,
         tickUpper,

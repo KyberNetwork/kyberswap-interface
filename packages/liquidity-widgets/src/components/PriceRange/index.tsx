@@ -12,6 +12,7 @@ import {
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
+import { univ3PoolNormalize, univ3PoolType } from "@/schema";
 
 interface SelectedRange {
   range: typeof FULL_PRICE_RANGE | number;
@@ -52,39 +53,46 @@ const PriceRange = () => {
   );
 
   const minPrice = useMemo(() => {
-    if (
-      pool !== "loading" &&
-      ((!revertPrice && pool.minTick === tickLower) ||
-        (revertPrice && pool.maxTick === tickUpper))
-    )
-      return "0";
+    if (pool !== "loading") {
+      const { success, data } = univ3PoolNormalize.safeParse(pool);
+      if (
+        success &&
+        ((!revertPrice && data.minTick === tickLower) ||
+          (revertPrice && data.maxTick === tickUpper))
+      )
+        return "0";
 
-    return !revertPrice ? priceLower : priceUpper;
+      return !revertPrice ? priceLower : priceUpper;
+    }
   }, [revertPrice, pool, tickLower, tickUpper, priceLower, priceUpper]);
 
   const maxPrice = useMemo(() => {
-    if (
-      pool !== "loading" &&
-      ((!revertPrice && pool.maxTick === tickUpper) ||
-        (revertPrice && pool.minTick === tickLower))
-    )
-      return "∞";
-
-    return !revertPrice ? priceUpper : priceLower;
+    if (pool !== "loading") {
+      const { success, data } = univ3PoolNormalize.safeParse(pool);
+      if (
+        success &&
+        ((!revertPrice && data.maxTick === tickUpper) ||
+          (revertPrice && data.minTick === tickLower))
+      )
+        return "∞";
+      return !revertPrice ? priceUpper : priceLower;
+    }
   }, [revertPrice, pool, tickUpper, tickLower, priceUpper, priceLower]);
 
   const handleSelectPriceRange = (range: typeof FULL_PRICE_RANGE | number) => {
     if (pool === "loading") return;
+    const { success, data } = univ3PoolNormalize.safeParse(pool);
+    if (!success) return;
 
     if (range === FULL_PRICE_RANGE) {
-      setTickLower(pool.minTick);
-      setTickUpper(pool.maxTick);
+      setTickLower(data.minTick);
+      setTickUpper(data.maxTick);
       setSelectedRange({ range, priceLower: null, priceUpper: null });
       return;
     }
 
     const currentPoolPrice = tickToPrice(
-      pool.tick,
+      data.tick,
       pool.token0.decimals,
       pool.token1.decimals,
       false
@@ -108,8 +116,8 @@ const PriceRange = () => {
       false
     );
 
-    if (lower) setTickLower(nearestUsableTick(lower, pool.tickSpacing));
-    if (upper) setTickUpper(nearestUsableTick(upper, pool.tickSpacing));
+    if (lower) setTickLower(nearestUsableTick(lower, data.tickSpacing));
+    if (upper) setTickUpper(nearestUsableTick(upper, data.tickSpacing));
     setSelectedRange({ range, priceLower: null, priceUpper: null });
   };
 
@@ -144,6 +152,11 @@ const PriceRange = () => {
       );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fee]);
+
+  const isUniv3 =
+    pool !== "loading" && univ3PoolType.safeParse(pool.poolType).success;
+
+  if (!isUniv3) return null;
 
   return !positionId ? (
     <div className="flex gap-[6px] my-[10px]">

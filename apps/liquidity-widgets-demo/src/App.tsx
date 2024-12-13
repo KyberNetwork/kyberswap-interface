@@ -73,9 +73,9 @@ function App() {
   }
 
   const [params, setParams] = useState<WidgetParams>({
-    chainId: ChainId.Base,
-    poolAddress: "0xf9a72fd5c30112af583b86b190b2d776b6c3c056",
-    poolType: PoolType.DEX_SWAPMODEV3,
+    //chainId: ChainId.Base,
+    //poolAddress: "0xf9a72fd5c30112af583b86b190b2d776b6c3c056",
+    //poolType: PoolType.DEX_SWAPMODEV3,
 
     // UNI
     //chainId: ChainId.PolygonPos,
@@ -87,6 +87,10 @@ function App() {
     //positionId: "1404415",
     //poolAddress: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
     //poolType: PoolType.DEX_PANCAKESWAPV3,
+
+    chainId: ChainId.Bsc,
+    poolAddress: "0x16b9a82891338f9ba80e2d6970fdda79d1eb0dae",
+    poolType: PoolType.DEX_PANCAKESWAPV2,
   });
   const [key, setKey] = useState(Date.now());
 

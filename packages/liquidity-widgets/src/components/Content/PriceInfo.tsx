@@ -1,47 +1,54 @@
 import { useMemo } from "react";
 import { useZapState } from "../../hooks/useZapInState";
-import { formatNumber } from "../../utils";
+import { assertUnreachable, formatNumber } from "../../utils";
 import SwitchIcon from "@/assets/svg/switch.svg";
 import { useWidgetContext } from "@/stores/widget";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
-import { formatDisplayNumber } from "@kyber/utils/number";
+import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
+import { univ2PoolNormalize, univ3PoolNormalize } from "@/schema";
 
 export default function PriceInfo() {
-  const { pool, theme } = useWidgetContext((s) => s);
-  const loading = pool === "loading";
+  const { pool, theme, poolType } = useWidgetContext((s) => s);
   const { marketPrice, revertPrice, toggleRevertPrice } = useZapState();
 
-  const price = useMemo(
-    () =>
-      pool !== "loading"
-        ? formatDisplayNumber(
-            tickToPrice(
-              pool.tick,
-              pool.token0.decimals,
-              pool.token1.decimals,
-              revertPrice
-            ),
-            { significantDigits: 6 }
-          )
-        : "--",
-    [pool, revertPrice]
-  );
+  const loading = pool === "loading";
+
+  const price = useMemo(() => {
+    if (pool === "loading") return "--";
+    const { success, data } = univ3PoolNormalize.safeParse(pool);
+    if (success) {
+      return formatDisplayNumber(
+        tickToPrice(
+          data.tick,
+          data.token0.decimals,
+          data.token1.decimals,
+          revertPrice
+        ),
+        { significantDigits: 6 }
+      );
+    }
+
+    const { success: isUniV2, data: uniV2Pool } =
+      univ2PoolNormalize.safeParse(pool);
+
+    if (isUniV2) {
+      const p = divideBigIntToString(
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        18
+      );
+      return formatDisplayNumber(revertPrice ? 1 / +p : p, {
+        significantDigits: 8,
+      });
+    }
+    return assertUnreachable(poolType as never, "poolType is not handled");
+  }, [pool, revertPrice]);
 
   const isDeviated = useMemo(
     () =>
       !!marketPrice &&
-      pool !== "loading" &&
-      Math.abs(
-        marketPrice /
-          +tickToPrice(
-            pool.tick,
-            pool.token0.decimals,
-            pool.token1.decimals,
-            revertPrice
-          ) -
-          1
-      ) > 0.02,
-    [marketPrice, pool]
+      Math.abs(marketPrice / (revertPrice ? 1 / +price : +price) - 1) > 0.02,
+    [marketPrice, price, revertPrice]
   );
 
   const marketRate = useMemo(

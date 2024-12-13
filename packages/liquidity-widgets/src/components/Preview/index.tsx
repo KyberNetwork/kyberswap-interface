@@ -39,9 +39,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { formatDisplayNumber, toRawString } from "@kyber/utils/number";
+import {
+  divideBigIntToString,
+  formatDisplayNumber,
+  toRawString,
+} from "@kyber/utils/number";
 import { useWidgetContext } from "@/stores/widget";
-import { Pool, Token } from "@/schema";
+import { Pool, Token, univ2PoolNormalize, univ3PoolNormalize } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import {
   calculateGasMargin,
@@ -119,7 +123,11 @@ export default function Preview({
 
   const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
 
-  const isOutOfRange = tickLower > pool.tick || pool.tick >= tickUpper;
+  const { success: isUniV3, data: univ3Pool } =
+    univ3PoolNormalize.safeParse(pool);
+  const isOutOfRange = isUniV3
+    ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper
+    : false;
 
   useEffect(() => {
     if (txHash) {
@@ -217,16 +225,30 @@ export default function Preview({
     refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
     0;
 
-  const price = pool
+  const { success: isUniV2, data: uniV2Pool } =
+    univ2PoolNormalize.safeParse(pool);
+  const univ2Price = isUniV2
+    ? +divideBigIntToString(
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        18
+      )
+    : 0;
+
+  const price = isUniV3
     ? formatDisplayNumber(
         tickToPrice(
-          pool.tick,
+          univ3Pool.tick,
           pool.token0.decimals,
           pool.token1.decimals,
           revert
         ),
         { significantDigits: 6 }
       )
+    : isUniV2
+    ? formatDisplayNumber(revert ? 1 / univ2Price : univ2Price, {
+        significantDigits: 6,
+      })
     : "--";
 
   const leftPrice = !revert ? priceLower : priceUpper;
@@ -705,48 +727,52 @@ export default function Preview({
           </div>
         </div>
 
-        <div className="row-between" style={{ marginTop: "8px" }}>
-          <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
-            <div className="card-title">Min Price</div>
-            <div
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                width: "100%",
-                textAlign: "center",
-              }}
-            >
-              {(
-                revert ? tickUpper === pool.maxTick : tickLower === pool.minTick
-              )
-                ? "0"
-                : leftPrice}
+        {isUniV3 && (
+          <div className="row-between" style={{ marginTop: "8px" }}>
+            <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
+              <div className="card-title">Min Price</div>
+              <div
+                style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  width: "100%",
+                  textAlign: "center",
+                }}
+              >
+                {(
+                  revert
+                    ? tickUpper === univ3Pool.maxTick
+                    : tickLower === univ3Pool.minTick
+                )
+                  ? "0"
+                  : leftPrice}
+              </div>
+              <div className="card-title">{quote}</div>
             </div>
-            <div className="card-title">{quote}</div>
-          </div>
-          <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
-            <div className="card-title">Max Price</div>
-            <div
-              style={{
-                textAlign: "center",
-                width: "100%",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {(
-                !revert
-                  ? tickUpper === pool.maxTick
-                  : tickLower === pool.minTick
-              )
-                ? "∞"
-                : rightPrice}
+            <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
+              <div className="card-title">Max Price</div>
+              <div
+                style={{
+                  textAlign: "center",
+                  width: "100%",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {(
+                  !revert
+                    ? tickUpper === univ3Pool.maxTick
+                    : tickLower === univ3Pool.minTick
+                )
+                  ? "∞"
+                  : rightPrice}
+              </div>
+              <div className="card-title">{quote}</div>
             </div>
-            <div className="card-title">{quote}</div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="flex-col" style={{ gap: "12px", marginTop: "1rem" }}>
