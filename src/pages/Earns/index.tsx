@@ -18,6 +18,7 @@ import SolidEarningIcon from 'assets/svg/solid-earning.svg'
 import StakingIcon from 'assets/svg/staking.svg'
 import { ButtonPrimary } from 'components/Button'
 import LocalLoader from 'components/LocalLoader'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
@@ -286,11 +287,13 @@ export default function Earns() {
   const theme = useTheme()
   const { isLoading, data } = useExplorerLandingQuery()
 
-  const title = (_title: string, icon: string) => (
+  const title = (title: string, tooltip: string, icon: string) => (
     <>
       <Flex alignItems="center" sx={{ gap: '12px' }}>
         <Icon icon={icon} size="small" />
-        <Text fontSize={20}>{_title}</Text>
+        <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
+          <Text fontSize={20}>{title}</Text>
+        </MouseoverTooltipDesktopOnly>
       </Flex>
       <Box
         sx={{
@@ -363,7 +366,11 @@ export default function Earns() {
               })
             }}
           >
-            {title('Highlighted Pools', FireIcon)}
+            {title(
+              'Highlighted Pools',
+              'Pools matching your wallet tokens or top 24h volume pools if no wallet is connected',
+              FireIcon,
+            )}
             {isLoading ? (
               <LocalLoader />
             ) : (
@@ -400,7 +407,7 @@ export default function Earns() {
                 })
               }}
             >
-              {title('High APR', RocketIcon)}
+              {title('High APR', 'Top 100 Pools with assets that offer exceptionally high APYs', RocketIcon)}
               {isLoading ? (
                 <LocalLoader />
               ) : (
@@ -429,7 +436,11 @@ export default function Earns() {
                 })
               }}
             >
-              {title('Low Volatility', LowVolatilityIcon)}
+              {title(
+                'Low Volatility',
+                'Top 100 highest TVL Pools consisting of stable coins or correlated pairs',
+                LowVolatilityIcon,
+              )}
               {isLoading ? (
                 <LocalLoader />
               ) : (
@@ -458,7 +469,11 @@ export default function Earns() {
                 })
               }}
             >
-              {title('Solid Earning', SolidEarningIcon)}
+              {title(
+                'Solid Earning',
+                'Top 100 pools that have the high total earned fee in the last 7 days',
+                SolidEarningIcon,
+              )}
               {isLoading ? (
                 <LocalLoader />
               ) : (

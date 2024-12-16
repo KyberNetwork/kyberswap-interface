@@ -16,7 +16,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { CurrencyRoundedImage, CurrencySecondImage } from '../PoolExplorer/styles'
+import { CurrencyRoundedImage, CurrencySecondImage, Disclaimer } from '../PoolExplorer/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
 import {
   Badge,
@@ -241,12 +241,7 @@ const MyPositions = () => {
           )}
         </MyLiquidityWrapper>
 
-        <Text
-          fontSize={14}
-          color={'#737373'}
-          textAlign={'center'}
-          fontStyle={'italic'}
-        >{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Text>
+        <Disclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Disclaimer>
       </PositionPageWrapper>
     </>
   )

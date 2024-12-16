@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Image } from 'components/Image'
 
 export const PoolPageWrapper = styled.div`
-  padding: 32px 24px 50px;
+  padding: 32px 24px 68px;
   width: 100%;
   max-width: 1500px;
   display: flex;
@@ -176,4 +176,21 @@ export const MobileTableBottomRow = styled.div<{ withoutBorder: boolean }>`
   grid-template-columns: 1.5fr 1fr 1fr;
   padding: 16px 0;
   border-bottom: ${({ withoutBorder, theme }) => (withoutBorder ? 'none' : `1px solid ${theme.tableHeader}`)};
+`
+
+export const Disclaimer = styled.div`
+  font-size: 14px;
+  font-style: italic;
+  color: #737373;
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 16px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    bottom: 20px;
+  `}
 `

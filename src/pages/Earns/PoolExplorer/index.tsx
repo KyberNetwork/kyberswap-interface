@@ -27,6 +27,7 @@ import DropdownMenu, { MenuOption } from './DropdownMenu'
 import TableContent from './TableContent'
 import {
   ContentWrapper,
+  Disclaimer,
   HeadSection,
   PoolPageWrapper,
   TableHeader,
@@ -56,7 +57,7 @@ const filterTags = [
     label: 'Highlighted Pools',
     value: FilterTag.HIGHLIGHTED_POOL,
     icon: <IconHighlightedPool width={20} color="#FF007A" />,
-    tooltip: '',
+    tooltip: 'Pools matching your wallet tokens or top 24h volume pools if no wallet is connected',
   },
   {
     label: 'High APR',
@@ -265,12 +266,7 @@ const Earn = () => {
         />
       </TableWrapper>
 
-      <Text
-        fontSize={14}
-        color={'#737373'}
-        textAlign={'center'}
-        fontStyle={'italic'}
-      >{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Text>
+      <Disclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Disclaimer>
     </PoolPageWrapper>
   )
 }
