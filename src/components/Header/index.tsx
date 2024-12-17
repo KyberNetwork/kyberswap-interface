@@ -131,7 +131,7 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
 
   ${({ theme, isChristmas }) => theme.mediaWidth.upToSmall`
     width: 114px;
-    margin-top: ${isChristmas ? '-3px' : '1px'};
+    margin-top: ${isChristmas ? '-2px' : '1px'};
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
