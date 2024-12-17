@@ -223,6 +223,20 @@ const zapEarnServiceApi = createApi({
           orderBy: params.orderBy?.toUpperCase() || '',
         },
       }),
+      async onQueryStarted(agr, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch {
+          dispatch(
+            zapEarnServiceApi.util.upsertQueryData('poolsExplorer', agr, {
+              data: { pools: [], pagination: { totalItems: 0 } },
+              code: 0,
+              message: '',
+              requestId: '',
+            }),
+          )
+        }
+      },
     }),
     userPositions: builder.query<Array<EarnPosition>, { addresses: string; positionId?: string }>({
       query: params => ({
