@@ -93,7 +93,7 @@ const Earn = () => {
   const theme = useTheme()
   const { filters, updateFilters } = useFilter(setSearch)
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
-  const { data: poolData } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
+  const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
@@ -258,12 +258,14 @@ const Earn = () => {
           )}
           <TableContent onOpenZapInWidget={handleOpenZapInWidget} />
         </ContentWrapper>
-        <Pagination
-          onPageChange={(newPage: number) => updateFilters('page', newPage.toString())}
-          totalCount={poolData?.data?.pagination?.totalItems || 0}
-          currentPage={filters.page || 1}
-          pageSize={filters.limit || 10}
-        />
+        {!isError && (
+          <Pagination
+            onPageChange={(newPage: number) => updateFilters('page', newPage.toString())}
+            totalCount={poolData?.data?.pagination?.totalItems || 0}
+            currentPage={filters.page || 1}
+            pageSize={filters.limit || 10}
+          />
+        )}
       </TableWrapper>
 
       <Disclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Disclaimer>

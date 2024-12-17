@@ -40,7 +40,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const dexList = useGetDexListQuery({
     chainId: NETWORKS_INFO[filters.chainId].ksSettingRoute,
   })
-  const { data: poolData, refetch } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
+  const { data: poolData, refetch, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
 
@@ -148,7 +148,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
       }, 500)
   }, [delayFavorite])
 
-  if (!tablePoolData?.length)
+  if (!tablePoolData?.length || isError)
     return (
       <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
         No data found
