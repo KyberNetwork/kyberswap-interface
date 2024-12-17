@@ -196,7 +196,7 @@ export default function Header() {
           <Title to={`${APP_PATHS.SWAP}/${networkInfo.route}`}>
             {holidayMode ? (
               <LogoIcon>
-                <IconImage isChristmas src={'/christmas-logo-dark.svg'} alt="logo" />
+                <IconImage isChristmas src={'/christmas-logo-dark.svg?'} alt="logo" />
               </LogoIcon>
             ) : (
               <LogoIcon>
