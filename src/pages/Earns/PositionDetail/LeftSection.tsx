@@ -9,6 +9,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { ParsedPosition } from '.'
 import { DexImage } from '../UserPositions/styles'
+import { formatAprNumber } from '../utils'
 import { InfoLeftColumn, InfoRight, InfoSection, InfoSectionFirstFormat, VerticalDivider } from './styles'
 
 const LeftSection = ({ position }: { position: ParsedPosition }) => {
@@ -69,10 +70,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           <InfoHelper text={t`Estimated 7 days APR`} placement="top" />
         </Flex>
         <Text fontSize={20} color={position.apr > 0 ? theme.primary : theme.text}>
-          {formatDisplayNumber(position.apr * 100, {
-            significantDigits: position.apr < 0.01 ? 2 : position.apr < 0.1 ? 3 : 4,
-          })}
-          %
+          {formatAprNumber(position.apr * 100)}%
         </Text>
       </InfoSectionFirstFormat>
       <InfoSection>

@@ -16,6 +16,7 @@ import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import { formatAprNumber } from '../utils'
 import {
   Apr,
   CurrencyRoundedImage,
@@ -180,9 +181,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                 </Flex>
               </Flex>
               <Flex alignItems="center" sx={{ gap: 3 }}>
-                <Apr positive={pool.apr > 0}>
-                  {formatDisplayNumber(pool.apr, { significantDigits: pool.apr < 1 ? 2 : pool.apr < 10 ? 3 : 4 })}%
-                </Apr>
+                <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
                 <Star
                   size={16}
                   color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
@@ -230,9 +229,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
             </SymbolText>
             <FeeTier>{pool.feeTier}%</FeeTier>
           </Flex>
-          <Apr positive={pool.apr > 0}>
-            {formatDisplayNumber(pool.apr, { significantDigits: pool.apr < 1 ? 2 : pool.apr < 10 ? 3 : 4 })}%
-          </Apr>
+          <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
           <Flex justifyContent="flex-end">
             {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
           </Flex>

@@ -24,10 +24,10 @@ import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
-import { formatDisplayNumber } from 'utils/numbers'
 
 import { FilterTag } from './PoolExplorer'
 import useLiquidityWidget from './useLiquidityWidget'
+import { formatAprNumber } from './utils'
 
 const WrapperBg = styled.div`
   background-image: url(${bg});
@@ -576,9 +576,8 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
         </Text>
         <Tag>{pool.feeTier}%</Tag>
       </Flex>
-      <Text color={theme.primary}>
-        {formatDisplayNumber(pool.apr, { significantDigits: pool.apr < 1 ? 2 : pool.apr < 10 ? 3 : 4 })}%
-      </Text>
+
+      <Text color={theme.primary}>{formatAprNumber(pool.apr)}%</Text>
     </PoolRow>
   )
 }
