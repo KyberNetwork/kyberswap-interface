@@ -127,11 +127,11 @@ const HeaderLinks = styled(Row)`
 
 const IconImage = styled.img<{ isChristmas?: boolean }>`
   width: 140px;
-  margin-top: ${({ isChristmas }) => (isChristmas ? '-18px' : '1px')};
+  margin-top: ${({ isChristmas }) => (isChristmas ? '-9px' : '1px')};
 
   ${({ theme, isChristmas }) => theme.mediaWidth.upToSmall`
     width: 114px;
-    margin-top: ${isChristmas ? '-10px' : '1px'};
+    margin-top: ${isChristmas ? '-3px' : '1px'};
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
