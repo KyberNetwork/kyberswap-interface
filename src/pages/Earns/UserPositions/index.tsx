@@ -4,8 +4,9 @@ import { Minus, Plus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { EarnPosition, PositionStatus, useUserPositionQuery } from 'services/krystalEarn'
+import { EarnPosition, PositionStatus, useUserPositionsQuery } from 'services/zapEarn'
 
+import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
 import CopyHelper from 'components/Copy'
 import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -45,7 +46,7 @@ const MyPositions = () => {
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
   const firstLoading = useRef(false)
 
-  const { data: userPosition, isLoading } = useUserPositionQuery(
+  const { data: userPosition, isLoading } = useUserPositionsQuery(
     { addresses: account || '' },
     { skip: !account, pollingInterval: 15_000 },
   )
@@ -237,7 +238,10 @@ const MyPositions = () => {
               )
             })
           ) : (
-            <EmptyPositionText>You haven&apos;t had any positions yet!</EmptyPositionText>
+            <EmptyPositionText>
+              <IconEarnNotFound />
+              {t`No positions found`}!
+            </EmptyPositionText>
           )}
         </MyLiquidityWrapper>
 

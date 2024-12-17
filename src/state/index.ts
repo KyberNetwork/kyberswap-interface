@@ -11,7 +11,6 @@ import crosschainApi from 'services/crossChain'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
-import krystalEarnServiceApi from 'services/krystalEarn'
 import ksSettingApi from 'services/ksSetting'
 import kyberDAO from 'services/kyberDAO'
 import limitOrderApi from 'services/limitOrder'
@@ -111,7 +110,6 @@ const store = configureStore({
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
     [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
-    [krystalEarnServiceApi.reducerPath]: krystalEarnServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
@@ -138,7 +136,6 @@ const store = configureStore({
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
       .concat(zapEarnServiceApi.middleware)
-      .concat(krystalEarnServiceApi.middleware)
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)

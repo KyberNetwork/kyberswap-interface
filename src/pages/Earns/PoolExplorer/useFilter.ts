@@ -1,8 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { earnSupportedChains } from 'services/krystalEarn'
-import { QueryParams } from 'services/zapEarn'
+import { QueryParams, earnSupportedChains } from 'services/zapEarn'
 
 import { useActiveWeb3React } from 'hooks'
 import { Direction } from 'pages/MarketOverview/SortIcon'

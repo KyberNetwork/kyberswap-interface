@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
-import { usePositionEarningStatisticsQuery } from 'services/krystalEarn'
+import { usePositionEarningStatisticsQuery } from 'services/zapEarn'
 
 import InfoHelper from 'components/InfoHelper'
 import useTheme from 'hooks/useTheme'
@@ -84,14 +84,22 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <Text fontSize={14} color={theme.subText}>
               1 {t`day`}
             </Text>
-            <Text>{formatDisplayNumber(earning.earning24h, { significantDigits: 4, style: 'currency' })}</Text>
+            <Text>
+              {earning.earning24h
+                ? formatDisplayNumber(earning.earning24h, { significantDigits: 4, style: 'currency' })
+                : '--'}
+            </Text>
           </Flex>
           <VerticalDivider />
           <Flex flexDirection={'column'} sx={{ gap: 2 }}>
             <Text fontSize={14} color={theme.subText}>
               7 {t`days`}
             </Text>
-            <Text>{formatDisplayNumber(earning.earning7d, { significantDigits: 4, style: 'currency' })}</Text>
+            <Text>
+              {earning.earning7d
+                ? formatDisplayNumber(earning.earning7d, { significantDigits: 4, style: 'currency' })
+                : '--'}
+            </Text>
           </Flex>
           <VerticalDivider />
           <Flex flexDirection={'column'} sx={{ gap: 2 }}>
@@ -99,7 +107,9 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               {t`All`}
             </Text>
             <Text fontSize={18} color={position.totalEarnedFee ? theme.primary : theme.text}>
-              {formatDisplayNumber(position.totalEarnedFee, { style: 'currency', significantDigits: 4 })}
+              {position.totalEarnedFee
+                ? formatDisplayNumber(position.totalEarnedFee, { style: 'currency', significantDigits: 4 })
+                : '--'}
             </Text>
           </Flex>
         </Flex>

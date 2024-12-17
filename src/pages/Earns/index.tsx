@@ -20,6 +20,7 @@ import { ButtonPrimary } from 'components/Button'
 import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
@@ -285,7 +286,8 @@ const Card = ({
 export default function Earns() {
   const navigate = useNavigate()
   const theme = useTheme()
-  const { isLoading, data } = useExplorerLandingQuery()
+  const { account } = useActiveWeb3React()
+  const { isLoading, data } = useExplorerLandingQuery({ userAddress: account })
 
   const title = (title: string, tooltip: string, icon: string) => (
     <>

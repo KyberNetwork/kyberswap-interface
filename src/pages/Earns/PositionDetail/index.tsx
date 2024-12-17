@@ -1,8 +1,9 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { useUserPositionQuery } from 'services/krystalEarn'
+import { useUserPositionsQuery } from 'services/zapEarn'
 
+import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
 import LocalLoader from 'components/LocalLoader'
 import { useActiveWeb3React } from 'hooks'
 
@@ -49,7 +50,7 @@ const PositionDetail = () => {
   const { account } = useActiveWeb3React()
   const { id } = useParams()
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
-  const { data: userPosition, isLoading } = useUserPositionQuery(
+  const { data: userPosition, isLoading } = useUserPositionsQuery(
     { addresses: account || '', positionId: id },
     { skip: !account, pollingInterval: 15_000 },
   )
@@ -135,7 +136,10 @@ const PositionDetail = () => {
             </PositionDetailWrapper>
           </>
         ) : (
-          <EmptyPositionText>{t`No position found`}</EmptyPositionText>
+          <EmptyPositionText>
+            <IconEarnNotFound />
+            {t`No position found!`}
+          </EmptyPositionText>
         )}
       </PositionPageWrapper>
     </>

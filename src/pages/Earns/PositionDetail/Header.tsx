@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { EarnSupportedProtocols, PositionStatus, earnSupportedProtocols } from 'services/krystalEarn'
+import { EarnSupportedProtocols, PositionStatus, earnSupportedProtocols } from 'services/zapEarn'
 
 import CopyHelper from 'components/Copy'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'

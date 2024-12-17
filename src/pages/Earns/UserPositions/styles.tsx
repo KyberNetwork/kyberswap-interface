@@ -6,6 +6,10 @@ import { PoolPageWrapper } from '../PoolExplorer/styles'
 export const PositionPageWrapper = styled(PoolPageWrapper)`
   padding: 24px 6rem 50px;
 
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    padding: 24px 6rem 60px;
+  `}
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 24px 16px 100px;
   `}
@@ -188,9 +192,10 @@ export const EmptyPositionText = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: ${({ theme }) => rgba(theme.background, 0.4)};
+  flex-direction: column;
+  gap: 8px;
   color: ${({ theme }) => theme.subText};
   border-radius: 20px;
-  height: 160px;
+  height: 400px;
   margin: 20px 0;
 `
