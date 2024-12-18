@@ -13,7 +13,6 @@ import useMarketPrice from "@/hooks/useMarketPrice";
 import useDebounce from "@/hooks/useDebounce";
 import useTokenBalances from "@/hooks/useTokenBalances";
 
-import { formatUnits, parseUnits } from "ethers/lib/utils";
 import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
@@ -32,6 +31,7 @@ import {
 import { useWidgetContext } from "@/stores/widget";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { formatUnits, parseUnits } from "@kyber/utils/crypto";
 
 export const ERROR_MESSAGE = {
   CONNECT_WALLET: "Connect wallet",

@@ -29,7 +29,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
-import { formatUnits } from "ethers/lib/utils";
 import { CircleCheckBig } from "lucide-react";
 import IconCopy from "@/assets/svg/copy.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
@@ -50,6 +49,7 @@ import { tickToPrice } from "@kyber/utils/uniswapv3";
 import {
   calculateGasMargin,
   estimateGas,
+  formatUnits,
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
@@ -74,7 +74,7 @@ export interface PreviewProps {
 }
 
 const COPY_TIMEOUT = 2000;
-let hideCopied: NodeJS.Timeout;
+let hideCopied: ReturnType<typeof setTimeout>;
 
 export default function Preview({
   zapState: {
@@ -415,7 +415,7 @@ export default function Preview({
               ]);
 
             const gasUsd =
-              +formatUnits(gasPrice) *
+              +formatUnits(gasPrice, 18) *
               +gasEstimation.toString() *
               nativeTokenPrice;
 

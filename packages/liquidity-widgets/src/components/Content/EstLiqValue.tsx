@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { useZapState } from "../../hooks/useZapInState";
 import {
   AddLiquidityAction,
@@ -17,7 +16,6 @@ import {
   getPriceImpact,
 } from "../../utils";
 import InfoHelper from "../InfoHelper";
-import { formatUnits } from "ethers/lib/utils";
 import { MouseoverTooltip } from "../Tooltip";
 import { NetworkInfo, PATHS } from "@/constants";
 import {
@@ -31,6 +29,7 @@ import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useWidgetContext } from "@/stores/widget";
 import { toRawString } from "@kyber/utils/number";
+import { formatUnits } from "@kyber/utils/crypto";
 
 export default function EstLiqValue() {
   const { zapInfo, source, slippage, tokensIn } = useZapState();
@@ -83,22 +82,12 @@ export default function EstLiqValue() {
     ) || [];
 
   const refundAmount0 = formatWei(
-    refundToken0
-      .reduce(
-        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
-        BigNumber.from("0")
-      )
-      .toString(),
+    refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
     token0Decimals
   );
 
   const refundAmount1 = formatWei(
-    refundToken1
-      .reduce(
-        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
-        BigNumber.from("0")
-      )
-      .toString(),
+    refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
     token1Decimals
   );
 

@@ -375,9 +375,6 @@ importers:
       d3:
         specifier: ^7.9.0
         version: 7.9.0
-      ethers:
-        specifier: ^5.7.0
-        version: 5.7.2
       jsbi:
         specifier: ^3.2.5
         version: 3.2.5

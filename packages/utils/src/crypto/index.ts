@@ -174,3 +174,63 @@ export function calculateGasMargin(value: bigint): string {
     ).toString(16)
   );
 }
+
+export function parseUnits(value: string | number, decimals: number): string {
+  if (typeof value !== "string" && typeof value !== "number") {
+    throw new Error("Value must be a string or number");
+  }
+  if (!Number.isInteger(decimals) || decimals < 0) {
+    throw new Error("Decimals must be a non-negative integer");
+  }
+
+  // Convert the value to a string if it is a number
+  value = value.toString();
+
+  // Split the value into integer and fractional parts
+  const parts = value.split(".");
+  const integerPart = parts[0];
+  let fractionalPart = parts[1] || "";
+
+  // Truncate the fractional part to the specified decimals
+  fractionalPart = fractionalPart.slice(0, decimals);
+
+  // Normalize the fractional part to match the decimals
+  const normalizedFractional = fractionalPart.padEnd(decimals, "0");
+
+  // Construct the full value as an integer
+  const fullValue = integerPart + normalizedFractional;
+
+  // Remove leading zeros and handle edge cases
+  return fullValue.replace(/^0+(?=\d)|^$/, "0");
+}
+
+export function formatUnits(value: string | number, decimals = 18): string {
+  if (typeof value !== "string" && typeof value !== "number") {
+    throw new Error("Value must be a string or number");
+  }
+  if (!Number.isInteger(decimals) || decimals < 0) {
+    throw new Error("Decimals must be a non-negative integer");
+  }
+
+  // Convert the value to a string to handle it consistently
+  value = value.toString();
+
+  // Handle the case where value is shorter than the decimals
+  if (value.length <= decimals) {
+    const paddedValue = value.padStart(decimals + 1, "0"); // Ensure there is at least one integer digit
+    const integerPart = "0";
+    const fractionalPart = paddedValue.slice(-decimals);
+    return integerPart + "." + fractionalPart;
+  }
+
+  // Split the value into integer and fractional parts
+  const integerPart = value.slice(0, -decimals);
+  const fractionalPart = value.slice(-decimals);
+
+  // Remove trailing zeros from fractional part
+  const cleanedFractional = fractionalPart.replace(/0+$/, "");
+
+  return cleanedFractional
+    ? `${integerPart}.${cleanedFractional}`
+    : integerPart;
+}
