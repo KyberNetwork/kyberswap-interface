@@ -261,7 +261,11 @@ export const useInputCurrency = () => {
   const allTokens = useAllTokens()
 
   const token = useMemo(() => {
-    return Object.values(allTokens).find(item => item?.symbol?.toLowerCase() === fromCurrency.toLowerCase())
+    return Object.values(allTokens).find(
+      item =>
+        item?.symbol?.toLowerCase() === fromCurrency.toLowerCase() ||
+        item.address.toLowerCase() === fromCurrency.toLowerCase(),
+    )
   }, [allTokens, fromCurrency])
 
   const inputCurrency = useCurrencyV2(token ? token.address : fromCurrency)
@@ -272,7 +276,11 @@ export const useOutputCurrency = () => {
   const allTokens = useAllTokens()
 
   const token = useMemo(() => {
-    return Object.values(allTokens).find(item => item?.symbol?.toLowerCase() === toCurrency.toLowerCase())
+    return Object.values(allTokens).find(
+      item =>
+        item?.symbol?.toLowerCase() === toCurrency.toLowerCase() ||
+        item.address.toLowerCase() === toCurrency.toLowerCase(),
+    )
   }, [allTokens, toCurrency])
 
   const outputCurrency = useCurrencyV2(token ? token.address : toCurrency)

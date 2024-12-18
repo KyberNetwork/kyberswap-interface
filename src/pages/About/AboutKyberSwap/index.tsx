@@ -357,10 +357,7 @@ function AboutKyberSwap() {
 
               <img src="https://www.mantle.xyz/logo-lockup.svg" alt="mantle" width="100%" />
 
-              <Flex alignItems="center" sx={{ minWidth: '190px', gap: '6px' }}>
-                <img src="https://static.okx.com/cdn/assets/imgs/243/230501A8E74482AB.png" alt="X Layer" width="50px" />
-                <Text>X Layer</Text>
-              </Flex>
+              <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
             </Powered>
           </Text>
         </Wrapper>

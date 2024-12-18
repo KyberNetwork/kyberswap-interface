@@ -18,7 +18,7 @@ import {
   mumbai,
   optimism,
   scroll,
-  xlayer,
+  sonic,
   zkEvm,
   zksync,
 } from './networks/index'
@@ -45,7 +45,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.SCROLL]: scroll,
   [ChainId.BLAST]: blast,
   [ChainId.MANTLE]: mantle,
-  [ChainId.XLAYER]: xlayer,
+  [ChainId.SONIC]: sonic,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -74,7 +74,7 @@ export const MAINNET_NETWORKS = [
   ChainId.FANTOM,
   ChainId.BLAST,
   ChainId.MANTLE,
-  ChainId.XLAYER,
+  ChainId.SONIC,
 ] as const
 
 // These option of walletconnect is not support by wallets properly

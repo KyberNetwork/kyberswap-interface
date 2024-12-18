@@ -5,30 +5,30 @@ import { NetworkInfo } from 'constants/networks/type'
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const x1: NetworkInfo = {
-  chainId: ChainId.XLAYER,
-  route: 'xlayer',
-  ksSettingRoute: 'xlayer',
-  priceRoute: 'xlayer',
-  poolFarmRoute: 'xlayer',
-  aggregatorRoute: 'xlayer',
-  name: 'X Layer',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/bafc6027-7c84-4517-8fbd-f18fda18c5b91709787884512.png',
+const sonic: NetworkInfo = {
+  chainId: ChainId.SONIC,
+  route: 'sonic',
+  ksSettingRoute: 'sonic',
+  priceRoute: 'sonic',
+  poolFarmRoute: 'sonic',
+  aggregatorRoute: 'sonic',
+  name: 'Sonic',
+  icon: 'https://www.soniclabs.com/favicon.ico',
 
   iconSelected: NOT_SUPPORT,
 
   defaultBlockSubgraph: '',
-  etherscanUrl: 'https://www.okx.com/explorer/xlayer',
-  etherscanName: 'X Layer Explorer',
-  bridgeURL: 'https://www.okx.com/xlayer/bridge',
+  etherscanUrl: 'https://sonicscan.org',
+  etherscanName: 'Sonic scan',
+  bridgeURL: 'https://gw.fantom.network',
   nativeToken: {
-    symbol: 'OKB',
-    name: 'OKB',
-    logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3897.png',
+    symbol: 'S',
+    name: 'S',
+    logo: 'https://www.soniclabs.com/favicon.ico',
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 2 * 10 ** 17,
   },
-  defaultRpcUrl: 'https://rpc.xlayer.tech',
+  defaultRpcUrl: 'https://rpc.soniclabs.com',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
@@ -66,10 +66,10 @@ const x1: NetworkInfo = {
   },
   limitOrder: '*',
   averageBlockTimeInSeconds: 2.0, // dont use for base
-  coingeckoNetworkId: 'xlayer',
-  coingeckoNativeTokenId: 'okb',
+  coingeckoNetworkId: 'sonic',
+  coingeckoNativeTokenId: 's',
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }
 
-export default x1
+export default sonic
