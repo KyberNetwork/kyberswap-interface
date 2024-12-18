@@ -50,7 +50,7 @@
     "@kyberswap/ks-sdk-classic": "^1.0.3",
     "@kyberswap/ks-sdk-core": "1.1.6",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
-    "kyberswap-liquidity-widgets": "^1.2.11",
+    "kyberswap-liquidity-widgets": "^1.2.13",
     "@kyberswap/oauth2": "1.0.2",
     "@lingui/macro": "^4.6.0",
     "@lingui/react": "^4.6.0",
