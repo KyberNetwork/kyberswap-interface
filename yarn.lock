@@ -14047,10 +14047,10 @@ kleur@^4.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.5.tgz#95106101795f7050c6c650f350c683febddb1780"
   integrity sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==
 
-kyberswap-liquidity-widgets@^1.2.14:
-  version "1.2.14"
-  resolved "https://registry.yarnpkg.com/kyberswap-liquidity-widgets/-/kyberswap-liquidity-widgets-1.2.14.tgz#543d29da00e300ba13c86e647c78dd319289bd52"
-  integrity sha512-R7lZ/m1rUo3igATHrb9FnkzsTf/XIsPjMI4GpKUlPmS/JEz9FQtscr9FnWxGhRFyDgyAgXJQjbHp9CTBVY8ifg==
+kyberswap-liquidity-widgets@^1.2.15:
+  version "1.2.15"
+  resolved "https://registry.yarnpkg.com/kyberswap-liquidity-widgets/-/kyberswap-liquidity-widgets-1.2.15.tgz#5074815555a0df3563e772a61e437fc8297e7879"
+  integrity sha512-nrd3wLKgUis4s9PPe+7hyX3L+m9HCDll1yNEEZ2C7F2VZAzsAgsrnn3OsIMaQMDPKwN71Mfnyh3iDNbzUaxZuQ==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
