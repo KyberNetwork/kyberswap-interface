@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import 'kyberswap-liquidity-widgets/dist/style.css'
 import { useEffect, useState } from 'react'
-import { Star } from 'react-feather'
+import { Info, Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -14,7 +14,7 @@ import { ReactComponent as IconSolidEarningPool } from 'assets/svg/ic_pool_solid
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/ic_user_earn_position.svg'
 import Pagination from 'components/Pagination'
 import Search from 'components/Search'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
@@ -242,6 +242,14 @@ const Earn = () => {
                 onClick={() => onSortChange(SortBy.TVL)}
               >
                 TVL
+                <MouseoverTooltipDesktopOnly
+                  text={t`Only pools with a Total Value Locked of $10,000 or more are displayed on this page`}
+                  placement="bottom"
+                >
+                  <Text marginRight={1} marginLeft={1} sx={{ position: 'relative', top: '2.5px' }}>
+                    <Info color={theme.subText} size={16} />
+                  </Text>
+                </MouseoverTooltipDesktopOnly>
                 <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <Flex
