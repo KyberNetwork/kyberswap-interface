@@ -13,7 +13,7 @@ import { useWidgetContext } from "@/stores/widget";
 import { Token } from "@/schema";
 
 const COPY_TIMEOUT = 2000;
-let hideCopied: NodeJS.Timeout;
+let hideCopied: ReturnType<typeof setTimeout>;
 
 const MarketInfo = ({ token }: { token: Token }) => {
   const theme = useWidgetContext((s) => s.theme);

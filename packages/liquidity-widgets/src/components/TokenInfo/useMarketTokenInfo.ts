@@ -4,7 +4,7 @@ import { TokenInfo, parseMarketTokenInfo } from "@/components/TokenInfo/utils";
 import { useWidgetContext } from "@/stores/widget";
 
 const FETCH_INTERVAL = 60_000;
-let fetchInterval: NodeJS.Timeout;
+let fetchInterval: ReturnType<typeof setInterval>;
 
 export default function useMarketTokenInfo(tokenAddress: string) {
   const chainId = useWidgetContext((s) => s.chainId);

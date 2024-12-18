@@ -4,12 +4,11 @@ import { formatCurrency, formatWei } from "@/utils";
 import { TOKEN_SELECT_MODE } from "../TokenSelector/index";
 import WalletIcon from "@/assets/svg/wallet.svg";
 import DropdownIcon from "@/assets/svg/dropdown.svg";
-import { formatUnits } from "ethers/lib/utils";
-import { BigNumber } from "ethers";
 import { NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { X } from "lucide-react";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
+import { formatUnits } from "@kyber/utils/crypto";
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const {
@@ -94,10 +93,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               onClick={() => {
                 if (balanceInWei)
                   onChangeTokenAmount(
-                    formatUnits(
-                      BigNumber.from(balanceInWei).toString(),
-                      token.decimals
-                    )
+                    formatUnits(BigInt(balanceInWei).toString(), token.decimals)
                   );
               }}
             >
@@ -109,7 +105,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
                 if (balanceInWei)
                   onChangeTokenAmount(
                     formatUnits(
-                      BigNumber.from(balanceInWei).div(2).toString(),
+                      (BigInt(balanceInWei) / 2n).toString(),
                       token.decimals
                     )
                   );

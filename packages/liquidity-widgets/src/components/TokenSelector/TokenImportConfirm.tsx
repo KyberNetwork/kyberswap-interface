@@ -16,7 +16,7 @@ import { Token } from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
 
 const COPY_TIMEOUT = 2000;
-let hideCopied: NodeJS.Timeout;
+let hideCopied: ReturnType<typeof setTimeout>;
 
 const TokenImportConfirm = ({
   token,

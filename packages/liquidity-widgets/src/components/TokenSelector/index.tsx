@@ -7,14 +7,13 @@ import { useTokenList } from "../../hooks/useTokenList";
 import { formatWei } from "@/utils";
 import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { Button } from "../ui/button";
-import { formatUnits } from "ethers/lib/utils";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TrashIcon from "@/assets/svg/trash.svg";
 import IconSearch from "@/assets/svg/search.svg";
 import Info from "@/assets/svg/info.svg";
 import { useWidgetContext } from "@/stores/widget";
 import { Token } from "@/schema";
-import { isAddress } from "@kyber/utils/crypto";
+import { formatUnits, isAddress } from "@kyber/utils/crypto";
 
 export enum TOKEN_SELECT_MODE {
   SELECT = "SELECT",
@@ -35,7 +34,7 @@ interface CustomizeToken extends Token {
 }
 
 const MESSAGE_TIMEOUT = 4_000;
-let messageTimeout: NodeJS.Timeout;
+let messageTimeout: ReturnType<typeof setTimeout>;
 
 export default function TokenSelector({
   selectedTokenAddress,
