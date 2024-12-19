@@ -106,7 +106,7 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
   )
 
   return (
-    <Wrapper ref={ref} onMouseDown={onCopy} margin={margin} style={style}>
+    <Wrapper ref={ref} onMouseDown={onCopy} onClick={e => e.stopPropagation()} margin={margin} style={style}>
       {text ? (
         <RowFit>
           {copyIcon}&nbsp;{text}
