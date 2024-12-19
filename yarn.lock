@@ -14047,10 +14047,10 @@ kleur@^4.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.5.tgz#95106101795f7050c6c650f350c683febddb1780"
   integrity sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==
 
-kyberswap-liquidity-widgets@^1.2.16:
-  version "1.2.16"
-  resolved "https://registry.yarnpkg.com/kyberswap-liquidity-widgets/-/kyberswap-liquidity-widgets-1.2.16.tgz#cc2372e5afb8a50e4d64c3778cdaff25c82e358a"
-  integrity sha512-oz5DrnfItnjtJxWpslySSgzVLj0glyIWpwjW2aoYZiN1ALzclusADh4m+UDkZOAN1JLqeDssIiBWoZLHVbEO9Q==
+kyberswap-liquidity-widgets@^1.2.18:
+  version "1.2.18"
+  resolved "https://registry.yarnpkg.com/kyberswap-liquidity-widgets/-/kyberswap-liquidity-widgets-1.2.18.tgz#7f092476020ba6da9a15167f94f7f7cf55beb248"
+  integrity sha512-fyrJLTD7xBPe3wH/2eY2ivSFLZkAsPFn7mQZ5epSxvujB+yC67Ncy4Z1HlSkMWqnwGmZn1Xf2P6VKXRxk9qE0w==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
@@ -14064,6 +14064,16 @@ kyberswap-liquidity-widgets@^1.2.16:
     lodash.partition "^4.6.0"
     numeral "^2.0.6"
     polished "^4.3.1"
+    react-popper "^2.3.0"
+    zod "^3.23.8"
+    zustand "^5.0.0"
+
+kyberswap-zap-migration-widgets@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/kyberswap-zap-migration-widgets/-/kyberswap-zap-migration-widgets-1.0.3.tgz#b9f09b7c388e5337a95d06974e850348c41aa6ae"
+  integrity sha512-XWu5GkQqNxHNmGQhcwMXWkoi1OfOFnseIFQnOMpe29x9fg5nfM97GLNnVoNI6AbocMu0P5Pu/RbhsfbhqeVs0g==
+  dependencies:
+    "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"
     zod "^3.23.8"
     zustand "^5.0.0"
