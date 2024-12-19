@@ -107,7 +107,7 @@ export const TableHeader = styled.div`
 `
 
 export const TableBody = styled.div`
-  max-height: 720px;
+  max-height: 740px;
   overflow-y: auto;
 `
 
