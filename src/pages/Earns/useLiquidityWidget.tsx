@@ -1,4 +1,5 @@
 import { ChainId, LiquidityWidget, PoolType } from 'kyberswap-liquidity-widgets'
+import 'kyberswap-liquidity-widgets/dist/style.css'
 import { Dex, ChainId as MigrateChainId, ZapMigration } from 'kyberswap-zap-migration-widgets'
 import 'kyberswap-zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'

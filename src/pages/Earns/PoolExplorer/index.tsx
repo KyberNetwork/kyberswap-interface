@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import 'kyberswap-liquidity-widgets/dist/style.css'
 import { useEffect, useState } from 'react'
 import { Info, Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
