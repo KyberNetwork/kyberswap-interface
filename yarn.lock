@@ -14068,10 +14068,10 @@ kyberswap-liquidity-widgets@^1.2.19:
     zod "^3.23.8"
     zustand "^5.0.0"
 
-kyberswap-zap-migration-widgets@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/kyberswap-zap-migration-widgets/-/kyberswap-zap-migration-widgets-1.0.4.tgz#f3a7f25294ab0f26322db628d23332f24ab547dd"
-  integrity sha512-/Z5SmnejszmioecWme06aRFkVJZiRF/liFMuy/5vNfulRbkh6pJ7uC0JY2twE02mxfEl2XyBi/7BEg9Cf27dQA==
+kyberswap-zap-migration-widgets@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/kyberswap-zap-migration-widgets/-/kyberswap-zap-migration-widgets-1.0.8.tgz#ef0d079f17c0e44d806e7d036f9a13fb86a885dc"
+  integrity sha512-hxEFJR79SEhqrvsWM17tOjKZ7eNxzaJxqtvrapJ4myMGjj9tAo+B0RAIgyF76XV/zgPg3BDtekH4CS58ZWpUsA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"
