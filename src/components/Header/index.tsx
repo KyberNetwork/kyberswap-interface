@@ -126,11 +126,11 @@ const HeaderLinks = styled(Row)`
 
 const IconImage = styled.img<{ isChristmas?: boolean }>`
   width: 140px;
-  margin-top: ${({ isChristmas }) => (isChristmas ? '-18px' : '1px')};
+  margin-top: ${({ isChristmas }) => (isChristmas ? '-9px' : '1px')};
 
   ${({ theme, isChristmas }) => theme.mediaWidth.upToSmall`
     width: 114px;
-    margin-top: ${isChristmas ? '-10px' : '1px'};
+    margin-top: ${isChristmas ? '-2px' : '1px'};
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -195,7 +195,7 @@ export default function Header() {
           <Title to={`${APP_PATHS.SWAP}/${networkInfo.route}`}>
             {holidayMode ? (
               <LogoIcon>
-                <IconImage isChristmas src={'/christmas-logo-dark.svg'} alt="logo" />
+                <IconImage isChristmas src={'/christmas-logo-dark.svg?'} alt="logo" />
               </LogoIcon>
             ) : (
               <LogoIcon>
