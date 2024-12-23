@@ -78,7 +78,7 @@ const dexFormatter = {
   [PoolType.DEX_METAVAULTV3]: null,
   [PoolType.DEX_LINEHUBV3]: null,
   [PoolType.DEX_SWAPMODEV3]: null,
-  [PoolType.DEX_KOLCL]: null,
+  [PoolType.DEX_KOICL]: null,
   [PoolType.DEX_THRUSTERV3]: null,
   [PoolType.DEX_QUICKSWAPV3UNI]: null,
   [SupporttedExchange.UniswapV3]: Dex.Uniswapv3,
