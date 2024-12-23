@@ -1,8 +1,8 @@
-import { ChainId, LiquidityWidget, PoolType } from 'kyberswap-liquidity-widgets'
-import 'kyberswap-liquidity-widgets/dist/style.css'
-import { Dex, ChainId as MigrateChainId, ZapMigration } from 'kyberswap-zap-migration-widgets'
-import 'kyberswap-zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ChainId, LiquidityWidget, PoolType } from 'viet-nv-liquidity-widgets'
+import 'viet-nv-liquidity-widgets/dist/style.css'
+import { Dex, ChainId as MigrateChainId, ZapMigration } from 'viet-nv-zap-migration-widgets'
+import 'viet-nv-zap-migration-widgets/dist/style.css'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
