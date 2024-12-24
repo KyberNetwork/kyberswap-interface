@@ -49,7 +49,7 @@ const PositionDetailHeader = ({ position }: { position: ParsedPosition }) => {
         </Flex>
         <Flex alignItems={'center'} sx={{ gap: '10px' }} flexWrap={'wrap'}>
           <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-            #24654
+            #{position.id}
           </Text>
           <Badge type={position.status === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
             ● {position.status === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}

@@ -1,6 +1,5 @@
 import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
-import { isMobile } from 'react-device-detect'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
 import styled from 'styled-components'
@@ -15,7 +14,6 @@ import Header from 'components/Header'
 import Loader from 'components/LocalLoader'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
-import Snowfall from 'components/Snowflake/Snowfall'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -26,7 +24,6 @@ import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
-import { useHolidayMode } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
 
 import VerifyAuth from './Verify/VerifyAuth'
@@ -214,7 +211,7 @@ export default function App() {
   useGlobalMixpanelEvents()
   const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
-  const [holidayMode] = useHolidayMode()
+  //const [holidayMode] = useHolidayMode()
 
   const snowflake = new Image()
   snowflake.src = snow
@@ -230,7 +227,8 @@ export default function App() {
           <Header />
         </HeaderWrapper>
         <Suspense fallback={<Loader />}>
-          {holidayMode && (
+          {/*
+            holidayMode && (
             <Snowfall
               speed={[0.5, 1]}
               wind={[-0.5, 0.25]}
@@ -238,7 +236,8 @@ export default function App() {
               images={[snowflake]}
               radius={[5, 15]}
             />
-          )}
+          )
+          */}
 
           <BodyWrapper>
             <Popups />

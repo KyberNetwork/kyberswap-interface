@@ -4,8 +4,11 @@ import { Aggregator } from 'utils/aggregator'
 
 import {
   Field,
+  permitError,
+  permitUpdate,
   replaceSwapState,
   resetSelectCurrency,
+  revokePermit,
   setRecipient,
   setTrade,
   setTrendingSoonShowed,
@@ -35,6 +38,19 @@ export interface SwapState {
   readonly txHash: string | undefined
 
   readonly isSelectTokenManually: boolean
+
+  permitData?: {
+    [account: string]: {
+      [chainId: number]: {
+        [address: string]: {
+          rawSignature?: string
+          deadline?: number
+          value?: string
+          errorCount?: number
+        } | null
+      }
+    }
+  }
 }
 
 // const { search, pathname } = window.location
@@ -44,6 +60,7 @@ export interface SwapState {
 
 const initialState: SwapState = {
   independentField: Field.INPUT,
+  permitData: {},
   typedValue: '1',
   // [Field.INPUT]: {
   //   currencyId: inputCurrency?.toString() || '',
@@ -137,5 +154,38 @@ export default createReducer<SwapState>(initialState, builder =>
     })
     .addCase(setTrade, (state, { payload: { trade } }) => {
       state.trade = trade
+    })
+    .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline, value, account } }) => {
+      if (!state.permitData) state.permitData = {}
+      if (!state.permitData[account]) state.permitData[account] = {}
+      if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
+
+      state.permitData[account][chainId][address] = {
+        rawSignature,
+        deadline,
+        value,
+        errorCount: state.permitData[account][chainId][address]?.errorCount || 0,
+      }
+    })
+    .addCase(revokePermit, (state, { payload: { chainId, address, account } }) => {
+      if (
+        !state.permitData ||
+        !state.permitData[account] ||
+        !state.permitData[account][chainId] ||
+        !state.permitData[account][chainId][address]
+      )
+        return
+
+      state.permitData[account][chainId][address] = null
+    })
+    .addCase(permitError, (state, { payload: { chainId, address, account } }) => {
+      if (!state.permitData?.[account]?.[chainId]?.[address]) return
+      const { errorCount } = state.permitData[account][chainId][address] || {}
+      state.permitData[account][chainId][address] = {
+        rawSignature: undefined,
+        deadline: undefined,
+        value: undefined,
+        errorCount: (errorCount || 0) + 1,
+      }
     }),
 )

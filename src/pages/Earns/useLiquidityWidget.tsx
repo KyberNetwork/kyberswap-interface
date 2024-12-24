@@ -1,8 +1,8 @@
-import { ChainId, LiquidityWidget, PoolType } from 'kyberswap-liquidity-widgets'
-import 'kyberswap-liquidity-widgets/dist/style.css'
-import { Dex, ChainId as MigrateChainId, ZapMigration } from 'kyberswap-zap-migration-widgets'
-import 'kyberswap-zap-migration-widgets/dist/style.css'
+import { ChainId, LiquidityWidget, PoolType } from 'kane-liquidity-widgets'
+import 'kane-liquidity-widgets/dist/style.css'
 import { useCallback, useMemo, useState } from 'react'
+import { Dex, ChainId as MigrateChainId, ZapMigration } from 'viet-nv-zap-migration-widgets'
+import 'viet-nv-zap-migration-widgets/dist/style.css'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -78,7 +78,7 @@ const dexFormatter = {
   [PoolType.DEX_METAVAULTV3]: null,
   [PoolType.DEX_LINEHUBV3]: null,
   [PoolType.DEX_SWAPMODEV3]: null,
-  [PoolType.DEX_KOLCL]: null,
+  [PoolType.DEX_KOICL]: null,
   [PoolType.DEX_THRUSTERV3]: null,
   [PoolType.DEX_QUICKSWAPV3UNI]: null,
   [SupporttedExchange.UniswapV3]: Dex.Uniswapv3,

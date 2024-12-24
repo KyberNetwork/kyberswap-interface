@@ -46,7 +46,7 @@ import {
   updateUserSlippageTolerance,
 } from 'state/user/actions'
 import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
-import { isAddress } from 'utils'
+import { isAddress, isChristmasTime } from 'utils'
 
 const MAX_FAVORITE_LIMIT = 12
 
@@ -439,14 +439,13 @@ export const usePaymentToken: () => [Token | null, (paymentToken: Token | null) 
 
 export const useHolidayMode: () => [boolean, () => void] = () => {
   const dispatch = useAppDispatch()
-  // const holidayMode = useAppSelector(state => (state.user.holidayMode === undefined ? true : state.user.holidayMode))
+  const holidayMode = useAppSelector(state => (state.user.holidayMode === undefined ? true : state.user.holidayMode))
 
   const toggle = useCallback(() => {
     dispatch(toggleHolidayMode())
   }, [dispatch])
 
-  // return [isChristmasTime() ? holidayMode : false, toggle]
-  return [false, toggle]
+  return [isChristmasTime() ? holidayMode : false, toggle]
 }
 
 export const useCrossChainSetting = () => {
@@ -506,15 +505,6 @@ export const useSlippageSettingByPage = () => {
     isSlippageControlPinned,
     togglePinSlippage,
   }
-}
-
-export const usePermitData: (
-  address?: string,
-) => { rawSignature?: string; deadline?: number; value?: string; errorCount?: number } | null = address => {
-  const { chainId, account } = useActiveWeb3React()
-  const permitData = useAppSelector(state => state.user.permitData)
-
-  return address && account && permitData ? permitData[account]?.[chainId]?.[address] : null
 }
 
 export const useShowMyEarningChart: () => [boolean, () => void] = () => {

@@ -9,6 +9,7 @@ import { CORRELATED_COINS_ADDRESS, DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrenci
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrencyV2, useStableCoins } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { Field, resetSelectCurrency, setRecipient, setTrade, typeInput } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
@@ -324,4 +325,13 @@ export const useSwitchPairToLimitOrder = () => {
     () => navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}/${inputCurrencyId}-to-${outputCurrencyId}`),
     [networkInfo, inputCurrencyId, outputCurrencyId, navigate],
   )
+}
+
+export const usePermitData: (
+  address?: string,
+) => { rawSignature?: string; deadline?: number; value?: string; errorCount?: number } | null = address => {
+  const { chainId, account } = useActiveWeb3React()
+  const permitData = useAppSelector(state => state.swap.permitData)
+
+  return address && account && permitData ? permitData[account]?.[chainId]?.[address] : null
 }
