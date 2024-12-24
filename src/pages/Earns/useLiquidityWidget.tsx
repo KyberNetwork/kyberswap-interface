@@ -2,7 +2,7 @@ import { ChainId, LiquidityWidget, PoolType } from 'kyberswap-liquidity-widgets'
 import 'kyberswap-liquidity-widgets/dist/style.css'
 import { Dex, ChainId as MigrateChainId, ZapMigration } from 'kyberswap-zap-migration-widgets'
 import 'kyberswap-zap-migration-widgets/dist/style.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -240,14 +240,6 @@ const useLiquidityWidget = () => {
         : null,
     [account, chainId, library, migrateLiquidityPureParams, toggleNetworkModal, toggleWalletModal],
   )
-
-  useEffect(() => {
-    console.log('addLiquidityParams', addLiquidityParams)
-  }, [addLiquidityParams])
-
-  useEffect(() => {
-    console.log('migrateLiquidityParams', migrateLiquidityParams)
-  }, [migrateLiquidityParams])
 
   const liquidityWidget = addLiquidityParams ? (
     <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapInWidget}>
