@@ -17,7 +17,7 @@ import {
   polygon,
   polygonZkEvm,
   scroll,
-  xLayer,
+  sonic,
   zksync,
 } from 'viem/chains'
 import { Connector, WagmiProvider, createConfig, createConnector, useConnect } from 'wagmi'
@@ -158,7 +158,7 @@ export const wagmiConfig = createConfig({
     avalanche,
     fantom,
     blast,
-    xLayer,
+    sonic,
   ],
   connectors: [
     injectedWithFallback(),
