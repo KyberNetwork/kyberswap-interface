@@ -14004,6 +14004,27 @@ jsprim@^2.0.2:
     array-includes "^3.1.5"
     object.assign "^4.1.3"
 
+kane-liquidity-widgets@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/kane-liquidity-widgets/-/kane-liquidity-widgets-1.2.3.tgz#790e9f89a9f85628e00e16763ba1662b48feb618"
+  integrity sha512-WRQ1+CaSfyi+uqgIhp9GpA4gtXL24h+/YMtVhBPfwVrrRI3eb1bDyeKe3DUIkm87wszEC6Q2ISU4cyRFyBpw/Q==
+  dependencies:
+    "@popperjs/core" "^2.11.8"
+    "@radix-ui/react-accordion" "^1.2.1"
+    "@radix-ui/react-icons" "^1.3.0"
+    "@radix-ui/react-scroll-area" "^1.1.0"
+    "@radix-ui/react-slot" "^1.1.0"
+    class-variance-authority "^0.7.0"
+    clsx "^2.1.1"
+    d3 "^7.9.0"
+    jsbi "^3.2.5"
+    lodash.partition "^4.6.0"
+    numeral "^2.0.6"
+    polished "^4.3.1"
+    react-popper "^2.3.0"
+    zod "^3.23.8"
+    zustand "^5.0.0"
+
 keccak@^3.0.3:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/keccak/-/keccak-3.0.4.tgz#edc09b89e633c0549da444432ecf062ffadee86d"
@@ -19395,27 +19416,6 @@ viem@^2.1.1, viem@^2.20.0:
     isows "1.0.4"
     webauthn-p256 "0.0.5"
     ws "8.17.1"
-
-viet-nv-liquidity-widgets@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/viet-nv-liquidity-widgets/-/viet-nv-liquidity-widgets-1.2.2.tgz#a090ec2e8dd1cc732adfc7a4d835838b39320cf6"
-  integrity sha512-E6OJKTWqXDw6WDtpKBvFjc5ue4e05GfSXCdh45AoT91sO2D6sEwBxFnKZ/CtyhgdqyKw1PDGzN9QBFQmvOWZTg==
-  dependencies:
-    "@popperjs/core" "^2.11.8"
-    "@radix-ui/react-accordion" "^1.2.1"
-    "@radix-ui/react-icons" "^1.3.0"
-    "@radix-ui/react-scroll-area" "^1.1.0"
-    "@radix-ui/react-slot" "^1.1.0"
-    class-variance-authority "^0.7.0"
-    clsx "^2.1.1"
-    d3 "^7.9.0"
-    jsbi "^3.2.5"
-    lodash.partition "^4.6.0"
-    numeral "^2.0.6"
-    polished "^4.3.1"
-    react-popper "^2.3.0"
-    zod "^3.23.8"
-    zustand "^5.0.0"
 
 viet-nv-zap-migration-widgets@^1.0.0:
   version "1.0.0"
