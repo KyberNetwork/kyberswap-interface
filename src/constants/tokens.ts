@@ -443,7 +443,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.SCROLL]: new Token(ChainId.SCROLL, '0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df', 6, 'USDT', 'Tether USD'),
   [ChainId.BLAST]: new Token(ChainId.BLAST, '0x4300000000000000000000000000000000000003', 18, 'USDB', 'USDB'),
   [ChainId.MANTLE]: new Token(ChainId.MANTLE, '0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE', 6, 'USDT', 'USDT'),
-  [ChainId.SONIC]: new Token(ChainId.SONIC, '0x391071Fe567d609E4af9d32de726d4C33679C7e2', 6, 'USDC', 'USDC'),
+  [ChainId.SONIC]: new Token(ChainId.SONIC, '0x29219dd400f2Bf60E5a23d13Be72B486D4038894', 6, 'USDC.e', 'USDC.e'),
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
