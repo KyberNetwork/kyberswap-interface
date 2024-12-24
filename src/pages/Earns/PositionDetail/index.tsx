@@ -130,7 +130,7 @@ const PositionDetail = () => {
     switch (position?.dex) {
       case 'Uniswap V3':
         return PoolType.DEX_UNISWAPV3
-      case 'Sushiswap V3':
+      case 'SushiSwap V3':
         return PoolType.DEX_SUSHISWAPV3
       case 'PancakeSwap V3':
         return PoolType.DEX_PANCAKESWAPV3
