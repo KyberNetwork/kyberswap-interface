@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { Swap as SwapIcon } from 'components/Icons'
@@ -7,11 +7,14 @@ import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { ParsedPosition } from '.'
+import LiquidityChart from './LiquidityChart'
 import { InfoRightColumn, InfoSection, InfoSectionSecondFormat, RevertIconWrapper } from './styles'
 
 const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
   const [revert, setRevert] = useState(false)
+
+  const price = useMemo(() => (!revert ? position.pairRate : 1 / position.pairRate), [position.pairRate, revert])
 
   return (
     <InfoRightColumn>
@@ -21,7 +24,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
             {t`Current Price`}
           </Text>
           <Text fontSize={14}>
-            {formatDisplayNumber(!revert ? position.pairRate : 1 / position.pairRate, {
+            {formatDisplayNumber(price, {
               significantDigits: 6,
             })}
           </Text>
@@ -34,6 +37,16 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
           </RevertIconWrapper>
         </Flex>
       </InfoSection>
+
+      <LiquidityChart
+        chainId={position.chainId}
+        poolAddress={position.poolAddress}
+        price={price}
+        minPrice={position.minPrice}
+        maxPrice={position.maxPrice}
+        revertPrice={revert}
+      />
+
       <Flex sx={{ gap: '16px' }}>
         <InfoSectionSecondFormat>
           <Text fontSize={14} color={theme.subText}>
