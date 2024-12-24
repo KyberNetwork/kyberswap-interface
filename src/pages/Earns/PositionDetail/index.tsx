@@ -1,11 +1,15 @@
 import { t } from '@lingui/macro'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useUserPositionsQuery } from 'services/zapEarn'
+import { ChainId, PoolType, ZapOut } from 'viet-nv-liquidity-widgets'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
 import LocalLoader from 'components/LocalLoader'
-import { useActiveWeb3React } from 'hooks'
+import Modal from 'components/Modal'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 import { EmptyPositionText, PositionPageWrapper } from '../UserPositions/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
@@ -47,7 +51,8 @@ export interface ParsedPosition {
 const PositionDetail = () => {
   const firstLoading = useRef(false)
 
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const { id } = useParams()
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
   const { data: userPosition, isLoading } = useUserPositionsQuery(
@@ -115,6 +120,23 @@ const PositionDetail = () => {
     }
   }, [isLoading])
 
+  const [showZapOut, setShowZapOut] = useState(false)
+  const { changeNetwork } = useChangeNetwork()
+  const toggleWalletModal = useWalletModalToggle()
+
+  const poolType = (() => {
+    switch (position?.dex) {
+      case 'Uniswap V3':
+        return PoolType.DEX_UNISWAPV3
+      case 'Sushiswap V3':
+        return PoolType.DEX_SUSHISWAPV3
+      case 'Pancakeswap V3':
+        return PoolType.DEX_PANCAKESWAPV3
+      default:
+        throw new Error('Unsupported pool type')
+    }
+  })()
+
   return (
     <>
       {liquidityWidget}
@@ -123,6 +145,43 @@ const PositionDetail = () => {
           <LocalLoader />
         ) : !!position ? (
           <>
+            <Modal
+              isOpen={showZapOut}
+              mobileFullWidth
+              maxWidth={760}
+              width={'760px'}
+              onDismiss={() => {
+                setShowZapOut(false)
+              }}
+            >
+              <ZapOut
+                source="kyberswap-earn"
+                poolType={poolType}
+                poolAddress={position.poolAddress}
+                chainId={position.chainId}
+                positionId={position.id}
+                connectedAccount={{
+                  address: account,
+                  chainId: chainId as unknown as ChainId,
+                }}
+                onClose={() => setShowZapOut(false)}
+                onConnectWallet={toggleWalletModal}
+                onSwitchChain={() => {
+                  changeNetwork(position.chainId)
+                }}
+                onSubmitTx={async (txData: { from: string; to: string; value: string; data: string }) => {
+                  try {
+                    if (!library) throw new Error('Library is not ready!')
+                    const res = await library?.getSigner().sendTransaction(txData)
+                    if (!res) throw new Error('Transaction failed')
+                    return res.hash
+                  } catch (e) {
+                    console.log(e)
+                    throw e
+                  }
+                }}
+              />
+            </Modal>
             <PositionDetailHeader position={position} />
             <PositionDetailWrapper>
               <MainSection>
@@ -130,7 +189,7 @@ const PositionDetail = () => {
                 <RightSection position={position} />
               </MainSection>
               <PositionActionWrapper>
-                <PositionAction outline>{t`Remove Liquidity`}</PositionAction>
+                <PositionAction outline onClick={() => setShowZapOut(true)}>{t`Remove Liquidity`}</PositionAction>
                 <PositionAction onClick={onOpenIncreaseLiquidityWidget}>{t`Add Liquidity`}</PositionAction>
               </PositionActionWrapper>
             </PositionDetailWrapper>
