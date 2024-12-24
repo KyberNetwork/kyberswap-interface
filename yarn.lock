@@ -19396,10 +19396,10 @@ viem@^2.1.1, viem@^2.20.0:
     webauthn-p256 "0.0.5"
     ws "8.17.1"
 
-viet-nv-liquidity-widgets@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/viet-nv-liquidity-widgets/-/viet-nv-liquidity-widgets-1.2.1.tgz#de44d87a65cdfd94ca92240828699ebcadb5d3e0"
-  integrity sha512-03VX0eoPr72paCNrb76U0LCtuI8INpbs90/2R8stYtfObVkmVhPykRzmdho3x/iYmdO3fb6UadlcffzirnMbJg==
+viet-nv-liquidity-widgets@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/viet-nv-liquidity-widgets/-/viet-nv-liquidity-widgets-1.2.2.tgz#a090ec2e8dd1cc732adfc7a4d835838b39320cf6"
+  integrity sha512-E6OJKTWqXDw6WDtpKBvFjc5ue4e05GfSXCdh45AoT91sO2D6sEwBxFnKZ/CtyhgdqyKw1PDGzN9QBFQmvOWZTg==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
