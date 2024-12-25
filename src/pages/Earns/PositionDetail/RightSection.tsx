@@ -29,8 +29,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
             })}
           </Text>
           <Text fontSize={14} color={theme.subText}>
-            {!revert ? position.token0Symbol : position.token1Symbol} per{' '}
-            {!revert ? position.token1Symbol : position.token0Symbol}
+            {!revert ? position.token1Symbol : position.token0Symbol} per{' '}
+            {!revert ? position.token0Symbol : position.token1Symbol}
           </Text>
           <RevertIconWrapper onClick={() => setRevert(!revert)}>
             <SwapIcon rotate={90} size={18} />
@@ -58,8 +58,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
             })}
           </Text>
           <Text fontSize={14} color={theme.subText}>
-            {!revert ? position.token0Symbol : position.token1Symbol}/
-            {!revert ? position.token1Symbol : position.token0Symbol}
+            {!revert ? position.token1Symbol : position.token0Symbol}/
+            {!revert ? position.token0Symbol : position.token1Symbol}
           </Text>
         </InfoSectionSecondFormat>
         <InfoSectionSecondFormat>
@@ -72,8 +72,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
             })}
           </Text>
           <Text fontSize={14} color={theme.subText}>
-            {!revert ? position.token0Symbol : position.token1Symbol}/
-            {!revert ? position.token1Symbol : position.token0Symbol}
+            {!revert ? position.token1Symbol : position.token0Symbol}/
+            {!revert ? position.token0Symbol : position.token1Symbol}
           </Text>
         </InfoSectionSecondFormat>
       </Flex>
