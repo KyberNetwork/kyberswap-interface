@@ -18,7 +18,6 @@ export function Chart({
   id = 'liquidityChartRangeInput',
   data: { series, current },
   ticksAtLimit,
-  styles,
   dimensions: { width, height },
   margins,
   brushDomain,
@@ -188,8 +187,6 @@ export function Chart({
             innerWidth={innerWidth}
             innerHeight={innerHeight}
             setBrushExtent={onBrushDomainChange}
-            westHandleColor={styles.brush.handle.west}
-            eastHandleColor={styles.brush.handle.east}
           />
         </g>
       </svg>

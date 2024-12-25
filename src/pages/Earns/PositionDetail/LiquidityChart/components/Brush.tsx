@@ -40,8 +40,6 @@ export const Brush = ({
   setBrushExtent,
   innerWidth,
   innerHeight,
-  westHandleColor,
-  eastHandleColor,
 }: {
   id: string
   xScale: ScaleLinear<number, number>
@@ -51,8 +49,6 @@ export const Brush = ({
   setBrushExtent: (extent: [number, number], mode: string | undefined) => void
   innerWidth: number
   innerHeight: number
-  westHandleColor: string
-  eastHandleColor: string
 }) => {
   const theme = useTheme()
   const brushRef = useRef<SVGGElement | null>(null)
@@ -119,6 +115,10 @@ export const Brush = ({
       .attr('stroke', 'none')
       .attr('fill-opacity', '0.1')
       .attr('fill', `url(#${id}-gradient-selection)`)
+      .attr('cursor', 'default')
+
+    select(brushRef.current).selectAll('.overlay').attr('cursor', 'default')
+    select(brushRef.current).selectAll('.handle').attr('cursor', 'default')
   }, [brushExtent, brushed, id, innerHeight, innerWidth, interactive, previousBrushExtent, xScale])
 
   // respond to xScale changes only
@@ -151,19 +151,6 @@ export const Brush = ({
   return useMemo(
     () => (
       <>
-        <defs>
-          <linearGradient id={`${id}-gradient-selection`} x1="0%" y1="100%" x2="100%" y2="100%">
-            <stop stopColor={westHandleColor} />
-            <stop stopColor={eastHandleColor} offset="1" />
-          </linearGradient>
-
-          {/* clips at exactly the svg area */}
-          <clipPath id={`${id}-brush-clip`}>
-            <rect x="0" y="0" width={innerWidth} height={innerHeight} />
-          </clipPath>
-        </defs>
-
-        {/* will host the d3 brush */}
         <g
           ref={brushRef}
           clipPath={`url(#${id}-brush-clip)`}
@@ -171,10 +158,8 @@ export const Brush = ({
           onMouseLeave={() => setHovering(false)}
         />
 
-        {/* custom brush handles */}
         {localBrushExtent && (
           <>
-            {/* west handle */}
             {westHandleInView ? (
               <g
                 transform={`translate(${Math.max(0, xScale(localBrushExtent[0]))}, 0), scale(${
@@ -249,8 +234,6 @@ export const Brush = ({
     ),
     [
       id,
-      westHandleColor,
-      eastHandleColor,
       innerWidth,
       innerHeight,
       localBrushExtent,

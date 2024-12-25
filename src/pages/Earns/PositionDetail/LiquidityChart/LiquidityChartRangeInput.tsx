@@ -141,17 +141,6 @@ export default function LiquidityChartRangeInput({
             data={{ series: formattedData, current: price }}
             dimensions={{ width: 400, height: 200 }}
             margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
-            styles={{
-              area: {
-                selection: theme.text,
-              },
-              brush: {
-                handle: {
-                  west: 'transparent',
-                  east: 'transparent',
-                },
-              },
-            }}
             brushLabels={brushLabelValue}
             brushDomain={brushDomain}
             onBrushDomainChange={onBrushDomainChangeEnded}
