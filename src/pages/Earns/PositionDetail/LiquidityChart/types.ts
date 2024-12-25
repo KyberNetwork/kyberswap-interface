@@ -3,6 +3,7 @@ type BigintIsh = bigint | number | string
 export enum FeeAmount {
   LOWEST = 100,
   LOW = 500,
+  MIDDLE = 2500, // For Pancake temporary
   MEDIUM = 3000,
   HIGH = 10000,
 }
@@ -106,19 +107,25 @@ export const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
     max: 1.5,
   },
   [FeeAmount.LOW]: {
-    initialMin: 0.999,
-    initialMax: 1.001,
+    initialMin: 0.8,
+    initialMax: 1.2,
     min: 0.00001,
-    max: 1.5,
+    max: 20,
+  },
+  [FeeAmount.MIDDLE]: {
+    initialMin: 0.3,
+    initialMax: 1.8,
+    min: 0.00001,
+    max: 20,
   },
   [FeeAmount.MEDIUM]: {
-    initialMin: 0.5,
-    initialMax: 2,
+    initialMin: 0.3,
+    initialMax: 1.8,
     min: 0.00001,
     max: 20,
   },
   [FeeAmount.HIGH]: {
-    initialMin: 0.5,
+    initialMin: 0.1,
     initialMax: 2,
     min: 0.00001,
     max: 20,
