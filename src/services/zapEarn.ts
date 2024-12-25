@@ -243,8 +243,6 @@ const zapEarnServiceApi = createApi({
         url: `/v1/userPositions`,
         params: {
           ...params,
-          chainIds: earnSupportedChains,
-          protocols: earnSupportedProtocols,
           quoteSymbol: 'usd',
           offset: 0,
           orderBy: 'liquidity',

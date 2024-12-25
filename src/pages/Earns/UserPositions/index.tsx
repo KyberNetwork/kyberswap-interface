@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useEffect, useRef } from 'react'
 import { Minus, Plus } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { EarnPosition, PositionStatus, useUserPositionsQuery } from 'services/zapEarn'
@@ -11,7 +11,6 @@ import CopyHelper from 'components/Copy'
 import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
@@ -19,6 +18,8 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { CurrencyRoundedImage, CurrencySecondImage, Disclaimer } from '../PoolExplorer/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
+import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
+import Filter from './Filter'
 import {
   Badge,
   BadgeType,
@@ -35,21 +36,26 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from './styles'
+import useFilter from './useFilter'
 
 const MyPositions = () => {
   const theme = useTheme()
   const navigate = useNavigate()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const { supportedDexes, supportedChains } = useSupportedDexesAndChains()
+  const { filters, onFilterChange } = useFilter({
+    supportedDexes,
+    supportedChains,
+  })
 
-  const { account } = useActiveWeb3React()
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
   const firstLoading = useRef(false)
 
-  const { data: userPosition, isLoading } = useUserPositionsQuery(
-    { addresses: account || '' },
-    { skip: !account, pollingInterval: 15_000 },
-  )
+  const { data: userPosition, isLoading } = useUserPositionsQuery(filters, {
+    skip: !filters.addresses,
+    pollingInterval: 15_000,
+  })
 
   const onOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
@@ -81,6 +87,13 @@ const MyPositions = () => {
             {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
           </Text>
         </div>
+
+        <Filter
+          supportedChains={supportedChains}
+          supportedDexes={supportedDexes}
+          filters={filters}
+          onFilterChange={onFilterChange}
+        />
 
         <MyLiquidityWrapper>
           {isLoading && !firstLoading.current ? (
@@ -240,7 +253,10 @@ const MyPositions = () => {
           ) : (
             <EmptyPositionText>
               <IconEarnNotFound />
-              {t`No positions found`}!
+              <Flex sx={{ gap: 1 }}>
+                <Text color={theme.subText}>{t`You don’t have any liquidity positions yet`}.</Text>
+                <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
+              </Flex>
             </EmptyPositionText>
           )}
         </MyLiquidityWrapper>

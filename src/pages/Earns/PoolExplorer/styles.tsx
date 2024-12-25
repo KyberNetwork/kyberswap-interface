@@ -1,4 +1,6 @@
 import { rgba } from 'polished'
+import { useNavigate } from 'react-router-dom'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { Image } from 'components/Image'
@@ -61,7 +63,7 @@ export const Tag = styled.div<{ active: boolean }>`
   `}
 `
 
-export const UserPositionButton = styled.div`
+export const StyledNavigateButton = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
@@ -76,7 +78,29 @@ export const UserPositionButton = styled.div`
   :hover {
     filter: brightness(1.1);
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 8px;
+    gap: 4px;
+  `}
 `
+
+interface NavigateButtonProps {
+  icon: React.ReactNode
+  text: string
+  to: string
+}
+
+export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to }) => {
+  const navigate = useNavigate()
+
+  return (
+    <StyledNavigateButton onClick={() => navigate({ pathname: to })}>
+      {icon}
+      <Text width={'max-content'}>{text}</Text>
+    </StyledNavigateButton>
+  )
+}
 
 export const TableWrapper = styled.div`
   background: ${({ theme }) => rgba(theme.background, 0.8)};

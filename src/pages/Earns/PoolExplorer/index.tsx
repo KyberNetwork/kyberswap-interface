@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Info, Star } from 'react-feather'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolsExplorerQuery } from 'services/zapEarn'
@@ -17,23 +17,23 @@ import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Toolti
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import useSupportedDexesAndChains from 'pages/Earns/PoolExplorer/useSupportedDexesAndChains'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
 import useLiquidityWidget from '../useLiquidityWidget'
+import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
 import DropdownMenu, { MenuOption } from './DropdownMenu'
 import TableContent from './TableContent'
 import {
   ContentWrapper,
   Disclaimer,
   HeadSection,
+  NavigateButton,
   PoolPageWrapper,
   TableHeader,
   TableWrapper,
   Tag,
   TagContainer,
-  UserPositionButton,
 } from './styles'
 import useFilter from './useFilter'
 
@@ -85,7 +85,6 @@ export const timings: MenuOption[] = [
 ]
 
 const Earn = () => {
-  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const deboundedSearch = useDebounce(search, 300)
   const [searchParams] = useSearchParams()
@@ -184,10 +183,7 @@ const Earn = () => {
           )}
         </TagContainer>
         {!upToLarge && (
-          <UserPositionButton onClick={() => navigate({ pathname: APP_PATHS.EARN_POSITIONS })}>
-            <IconUserEarnPosition />
-            <Text width={'max-content'}>{t`My Positions`}</Text>
-          </UserPositionButton>
+          <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
         )}
       </HeadSection>
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
