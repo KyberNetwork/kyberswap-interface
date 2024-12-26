@@ -101,7 +101,7 @@ const MyPositions = () => {
         />
 
         <MyLiquidityWrapper>
-          {loading ? (
+          {isFetching && loading ? (
             <LocalLoader />
           ) : userPosition && userPosition.length > 0 ? (
             userPosition.map(position => {
