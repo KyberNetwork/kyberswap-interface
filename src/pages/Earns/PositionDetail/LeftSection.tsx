@@ -29,8 +29,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
     if (!positionEarningStatistics || !positionEarningStatistics.length) return {}
 
     const reversedPositionEarningStatistics = [...positionEarningStatistics].reverse()
-    const earning24h = reversedPositionEarningStatistics[0].totalEarning
-    const earning7d = reversedPositionEarningStatistics.slice(0, 7).reduce((a, b) => a + b.totalEarning, 0)
+    const earning24h = reversedPositionEarningStatistics[0].earningByDay
+    const earning7d = reversedPositionEarningStatistics.slice(0, 7).reduce((a, b) => a + b.earningByDay, 0)
 
     return {
       earning24h,
@@ -96,7 +96,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               1 {t`day`}
             </Text>
             <Text>
-              {earning.earning24h
+              {earning.earning24h || earning.earning24h === 0
                 ? formatDisplayNumber(earning.earning24h, { significantDigits: 4, style: 'currency' })
                 : '--'}
             </Text>
@@ -107,7 +107,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               7 {t`days`}
             </Text>
             <Text>
-              {earning.earning7d
+              {earning.earning7d || earning.earning7d === 0
                 ? formatDisplayNumber(earning.earning7d, { significantDigits: 4, style: 'currency' })
                 : '--'}
             </Text>
