@@ -1,8 +1,8 @@
 import { t } from '@lingui/macro'
-import { ChainId, PoolType, ZapOut } from 'kane-liquidity-widgets'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useUserPositionsQuery } from 'services/zapEarn'
+import { ChainId, PoolType, ZapOut } from 'viet-nv-liquidity-widgets'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
 import { NotificationType } from 'components/Announcement/type'
