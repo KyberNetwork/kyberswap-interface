@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { ChainId, LiquidityWidget, PoolType } from 'viet-nv-liquidity-widgets'
+import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'viet-nv-liquidity-widgets'
 import 'viet-nv-liquidity-widgets/dist/style.css'
 import { Dex, ChainId as MigrateChainId, ZapMigration } from 'viet-nv-zap-migration-widgets'
 import 'viet-nv-zap-migration-widgets/dist/style.css'
@@ -235,6 +235,73 @@ const useLiquidityWidget = () => {
     [account, chainId, library, migrateLiquidityPureParams, changeNetwork, toggleWalletModal],
   )
 
+  const [zapOutPureParams, setZapOutPureParams] = useState<{
+    positionId: string
+    poolType: PoolType
+    poolAddress: string
+    chainId: ChainId
+  } | null>(null)
+  const zapOutParams = useMemo(
+    () =>
+      zapOutPureParams
+        ? {
+            ...zapOutPureParams,
+            source: 'kyberswap-earn',
+            connectedAccount: {
+              address: account,
+              chainId: chainId as unknown as MigrateChainId,
+            },
+            onClose: () => setZapOutPureParams(null),
+            onConnectWallet: toggleWalletModal,
+            onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
+            onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
+              try {
+                if (!library) throw new Error('Library is not ready!')
+                const res = await library?.getSigner().sendTransaction(txData)
+                if (!res) throw new Error('Transaction failed')
+                return res.hash
+              } catch (e) {
+                console.log(e)
+                throw e
+              }
+            },
+          }
+        : null,
+    [account, chainId, changeNetwork, library, toggleWalletModal, zapOutPureParams],
+  )
+
+  const handleOpenZapOut = (position: { dex: string; chainId: number; poolAddress: string; id: string }) => {
+    const poolType = (() => {
+      switch (position?.dex) {
+        case 'Uniswap V3':
+          return PoolType.DEX_UNISWAPV3
+        case 'SushiSwap V3':
+          return PoolType.DEX_SUSHISWAPV3
+        case 'PancakeSwap V3':
+          return PoolType.DEX_PANCAKESWAPV3
+        default:
+          return null
+      }
+    })()
+    if (!poolType) {
+      notify(
+        {
+          type: NotificationType.ERROR,
+          title: 'Pool Type is supported',
+        },
+        5_000,
+      )
+      return
+    }
+
+    setZapOutPureParams({
+      poolType,
+      chainId: position.chainId as ChainId,
+      poolAddress: position.poolAddress,
+      positionId: position.id,
+    })
+  }
+
   const liquidityWidget = addLiquidityParams ? (
     <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapInWidget}>
       <LiquidityWidget {...addLiquidityParams} />
@@ -243,9 +310,13 @@ const useLiquidityWidget = () => {
     <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapMigrationWidget}>
       <ZapMigration {...migrateLiquidityParams} />
     </Modal>
+  ) : zapOutParams ? (
+    <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={() => setZapOutPureParams(null)}>
+      <ZapOut {...zapOutParams} />
+    </Modal>
   ) : null
 
-  return { liquidityWidget, handleOpenZapInWidget }
+  return { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut }
 }
 
 export default useLiquidityWidget

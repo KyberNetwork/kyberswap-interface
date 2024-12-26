@@ -46,7 +46,7 @@ const MyPositions = () => {
   const { filters, onFilterChange } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
-  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
+  const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const firstLoading = useRef(false)
   const [loading, setLoading] = useState(false)
 
@@ -169,7 +169,17 @@ const MyPositions = () => {
                   </PositionOverview>
                   {upToLarge && !upToSmall && (
                     <Flex alignItems={'center'} justifyContent={'flex-end'} sx={{ gap: '16px' }}>
-                      <PositionAction>
+                      <PositionAction
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleOpenZapOut({
+                            dex: position.pool.project || '',
+                            chainId: position.chainId,
+                            id: position.tokenId,
+                            poolAddress: position.pool.poolAddress,
+                          })
+                        }}
+                      >
                         <Minus size={16} />
                       </PositionAction>
                       <PositionAction primary onClick={e => onOpenIncreaseLiquidityWidget(e, position)}>
@@ -238,7 +248,17 @@ const MyPositions = () => {
                         text={t`Remove liquidity from this position by zapping out to any token(s) or migrating to another position.`}
                         placement="top"
                       >
-                        <PositionAction>
+                        <PositionAction
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleOpenZapOut({
+                              dex: position.pool.project || '',
+                              chainId: position.chainId,
+                              id: position.tokenId,
+                              poolAddress: position.pool.poolAddress,
+                            })
+                          }}
+                        >
                           <Minus size={16} />
                         </PositionAction>
                       </MouseoverTooltipDesktopOnly>
