@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { QueryParams, earnSupportedChains } from 'services/zapEarn'
+import { PoolQueryParams, earnSupportedChains } from 'services/zapEarn'
 
 import { useActiveWeb3React } from 'hooks'
 import { Direction } from 'pages/MarketOverview/SortIcon'
@@ -12,7 +12,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { account, chainId } = useActiveWeb3React()
 
-  const filters: QueryParams = useMemo(() => {
+  const filters: PoolQueryParams = useMemo(() => {
     return {
       chainId: +(
         searchParams.get('chainId') || (chainId && earnSupportedChains.includes(chainId) ? chainId : ChainId.MAINNET)
@@ -30,7 +30,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
   }, [searchParams, account, chainId])
 
   const updateFilters = useCallback(
-    (key: keyof QueryParams, value: string) => {
+    (key: keyof PoolQueryParams, value: string) => {
       if (!value) {
         searchParams.delete(key)
         if (key === 'tag') {

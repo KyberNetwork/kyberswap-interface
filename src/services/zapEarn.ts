@@ -24,7 +24,7 @@ interface SupportedChainsResponse {
   requestId: string
 }
 
-export interface QueryParams {
+export interface PoolQueryParams {
   chainId: ChainId
   page?: number
   limit?: number
@@ -99,6 +99,13 @@ export interface PositionAmount {
       timestamp: number
     }
   }
+}
+
+export interface PositionQueryParams {
+  chainIds?: string
+  addresses: string
+  positionId?: string
+  protocols?: string
 }
 
 export interface EarnPosition {
@@ -215,7 +222,7 @@ const zapEarnServiceApi = createApi({
         url: `/v1/protocol`,
       }),
     }),
-    poolsExplorer: builder.query<PoolsExplorerResponse, QueryParams>({
+    poolsExplorer: builder.query<PoolsExplorerResponse, PoolQueryParams>({
       query: params => ({
         url: `/v1/explorer/pools`,
         params: {
@@ -238,11 +245,13 @@ const zapEarnServiceApi = createApi({
         }
       },
     }),
-    userPositions: builder.query<Array<EarnPosition>, { addresses: string; positionId?: string }>({
+    userPositions: builder.query<Array<EarnPosition>, PositionQueryParams>({
       query: params => ({
         url: `/v1/userPositions`,
         params: {
           ...params,
+          chainIds: params.chainIds || earnSupportedChains,
+          protocols: params.protocols || earnSupportedProtocols,
           quoteSymbol: 'usd',
           offset: 0,
           orderBy: 'liquidity',

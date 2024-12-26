@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Minus, Plus } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -43,16 +43,14 @@ const MyPositions = () => {
   const navigate = useNavigate()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { supportedDexes, supportedChains } = useSupportedDexesAndChains()
-  const { filters, onFilterChange } = useFilter({
-    supportedDexes,
-    supportedChains,
-  })
+  const { filters, onFilterChange } = useFilter()
+  const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
   const firstLoading = useRef(false)
+  const [loading, setLoading] = useState(false)
 
-  const { data: userPosition, isLoading } = useUserPositionsQuery(filters, {
+  const { data: userPosition, isFetching } = useUserPositionsQuery(filters, {
     skip: !filters.addresses,
     pollingInterval: 15_000,
   })
@@ -70,10 +68,14 @@ const MyPositions = () => {
   }
 
   useEffect(() => {
-    if (!firstLoading.current && !isLoading) {
-      firstLoading.current = true
+    if (!isFetching) setLoading(false)
+    else {
+      if (!firstLoading.current) {
+        setLoading(true)
+        firstLoading.current = true
+      }
     }
-  }, [isLoading])
+  }, [isFetching])
 
   return (
     <>
@@ -92,11 +94,14 @@ const MyPositions = () => {
           supportedChains={supportedChains}
           supportedDexes={supportedDexes}
           filters={filters}
-          onFilterChange={onFilterChange}
+          onFilterChange={(...args) => {
+            onFilterChange(...args)
+            setLoading(true)
+          }}
         />
 
         <MyLiquidityWrapper>
-          {isLoading && !firstLoading.current ? (
+          {loading ? (
             <LocalLoader />
           ) : userPosition && userPosition.length > 0 ? (
             userPosition.map(position => {

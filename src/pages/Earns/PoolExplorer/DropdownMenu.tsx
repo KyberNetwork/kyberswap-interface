@@ -83,7 +83,7 @@ const DropdownContentItem = styled.div`
 
 export interface MenuOption {
   label: string
-  value: string | number
+  value: string
   icon?: string
 }
 
