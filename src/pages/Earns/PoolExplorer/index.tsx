@@ -188,7 +188,12 @@ const Earn = () => {
       </HeadSection>
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
-          <DropdownMenu options={supportedChains} value={filters.chainId} alignLeft onChange={onChainChange} />
+          <DropdownMenu
+            options={supportedChains}
+            value={filters.chainId.toString()}
+            alignLeft
+            onChange={onChainChange}
+          />
           <DropdownMenu
             width={100}
             options={supportedDexes}
