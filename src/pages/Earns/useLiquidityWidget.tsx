@@ -8,7 +8,8 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useNetworkModalToggle, useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 
 import useFilter from './PoolExplorer/useFilter'
 
@@ -88,7 +89,6 @@ const dexFormatter = {
 
 const useLiquidityWidget = () => {
   const toggleWalletModal = useWalletModalToggle()
-  const toggleNetworkModal = useNetworkModalToggle()
   const notify = useNotify()
   const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
@@ -174,6 +174,8 @@ const useLiquidityWidget = () => {
     })
   }
 
+  const { changeNetwork } = useChangeNetwork()
+
   const addLiquidityParams: AddLiquidityParams | null = useMemo(
     () =>
       addLiquidityPureParams
@@ -186,7 +188,7 @@ const useLiquidityWidget = () => {
             },
             onClose: handleCloseZapInWidget,
             onConnectWallet: toggleWalletModal,
-            onSwitchChain: toggleNetworkModal,
+            onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
             onOpenZapMigration: handleOpenZapMigrationWidget,
             onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
               try {
@@ -201,15 +203,7 @@ const useLiquidityWidget = () => {
             },
           }
         : null,
-    [
-      addLiquidityPureParams,
-      account,
-      chainId,
-      toggleWalletModal,
-      toggleNetworkModal,
-      handleOpenZapMigrationWidget,
-      library,
-    ],
+    [addLiquidityPureParams, account, chainId, toggleWalletModal, handleOpenZapMigrationWidget, library, changeNetwork],
   )
 
   const migrateLiquidityParams: MigrateLiquidityParams | null = useMemo(
@@ -224,7 +218,7 @@ const useLiquidityWidget = () => {
             },
             onClose: handleCloseZapMigrationWidget,
             onConnectWallet: toggleWalletModal,
-            onSwitchChain: toggleNetworkModal,
+            onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
             onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
               try {
                 if (!library) throw new Error('Library is not ready!')
@@ -238,7 +232,7 @@ const useLiquidityWidget = () => {
             },
           }
         : null,
-    [account, chainId, library, migrateLiquidityPureParams, toggleNetworkModal, toggleWalletModal],
+    [account, chainId, library, migrateLiquidityPureParams, changeNetwork, toggleWalletModal],
   )
 
   const liquidityWidget = addLiquidityParams ? (
