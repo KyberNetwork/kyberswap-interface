@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import { usePositionEarningStatisticsQuery } from 'services/zapEarn'
 
+import HelpIcon from 'assets/svg/help-circle.svg'
 import InfoHelper from 'components/InfoHelper'
 import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -51,12 +52,24 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             })}
           </Text>
           <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <DexImage src={position.token0Logo} />
+            <DexImage
+              src={position.token0Logo}
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null // prevents looping
+                currentTarget.src = HelpIcon
+              }}
+            />
             <Text>{formatDisplayNumber(position.token0TotalAmount, { significantDigits: 6 })}</Text>
             <Text>{position.token0Symbol}</Text>
           </Flex>
           <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <DexImage src={position.token1Logo} />
+            <DexImage
+              src={position.token1Logo}
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null // prevents looping
+                currentTarget.src = HelpIcon
+              }}
+            />
             <Text>{formatDisplayNumber(position.token1TotalAmount, { significantDigits: 6 })}</Text>
             <Text>{position.token1Symbol}</Text>
           </Flex>
