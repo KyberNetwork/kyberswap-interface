@@ -65,13 +65,20 @@ export default function LiquidityChartRangeInput({
   const isSorted = !revertPrice
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
-    const leftPrice = isSorted ? priceLower : priceUpper
-    const rightPrice = isSorted ? priceUpper : priceLower
+    if (!priceLower || !priceUpper) return undefined
 
-    return leftPrice && rightPrice
-      ? [parseFloat(leftPrice.replace(',', '')), parseFloat(rightPrice.replace(',', ''))]
-      : undefined
-  }, [isSorted, priceLower, priceUpper])
+    const leftPrice = !revertPrice ? priceLower : 1 / parseFloat(priceUpper)
+    const rightPrice = !revertPrice ? priceUpper : 1 / parseFloat(priceLower)
+
+    if (leftPrice && rightPrice) {
+      const sortedPrices = [
+        parseFloat(leftPrice.toString().replace(/,/g, '')),
+        parseFloat(rightPrice.toString().replace(/,/g, '')),
+      ].sort((a, b) => a - b)
+      return sortedPrices.length === 2 ? (sortedPrices as [number, number]) : undefined
+    }
+    return undefined
+  }, [priceLower, priceUpper, revertPrice])
 
   const onBrushDomainChangeEnded = useCallback(
     (domain: [number, number], mode: string | undefined) => {
