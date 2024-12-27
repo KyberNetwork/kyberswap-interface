@@ -14058,27 +14058,6 @@ jsprim@^2.0.2:
     array-includes "^3.1.5"
     object.assign "^4.1.3"
 
-kane-liquidity-widgets@1.2.12:
-  version "1.2.12"
-  resolved "https://registry.yarnpkg.com/kane-liquidity-widgets/-/kane-liquidity-widgets-1.2.12.tgz#4068119bfc4cb8df82f00780e4eeccf1d421fbe8"
-  integrity sha512-8XXRDRN0TeTttCuHfiquXNXtcfpDvvaymRYnsGxfOcr4jEiv9ssOoqdoHv0eRCEs90HEfQzgSzLevxnP2n73Hw==
-  dependencies:
-    "@popperjs/core" "^2.11.8"
-    "@radix-ui/react-accordion" "^1.2.1"
-    "@radix-ui/react-icons" "^1.3.0"
-    "@radix-ui/react-scroll-area" "^1.1.0"
-    "@radix-ui/react-slot" "^1.1.0"
-    class-variance-authority "^0.7.0"
-    clsx "^2.1.1"
-    d3 "^7.9.0"
-    jsbi "^3.2.5"
-    lodash.partition "^4.6.0"
-    numeral "^2.0.6"
-    polished "^4.3.1"
-    react-popper "^2.3.0"
-    zod "^3.23.8"
-    zustand "^5.0.0"
-
 keccak@^3.0.3:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/keccak/-/keccak-3.0.4.tgz#edc09b89e633c0549da444432ecf062ffadee86d"
@@ -19499,10 +19478,31 @@ viem@^2.21.55:
     webauthn-p256 "0.0.10"
     ws "8.18.0"
 
-viet-nv-zap-migration-widgets@1.0.14:
-  version "1.0.14"
-  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.14.tgz#515ffb291097a01e7f582ecf65f8d5380ffa4c9c"
-  integrity sha512-PHr8aINTQ0K6BTcGfdBqFjJQs3ZCqwcCyuVarvIgdIQPBYieuZxsg6J19VkBHoKmLXICeIwDjEQ7i/mh1T6dmQ==
+viet-nv-liquidity-widgets@1.2.13:
+  version "1.2.13"
+  resolved "https://registry.yarnpkg.com/viet-nv-liquidity-widgets/-/viet-nv-liquidity-widgets-1.2.13.tgz#d3eaf11fa7dbf0bc84966ff5b42284c2ad884a52"
+  integrity sha512-r0EOYUeoruyyGLjTOVjIYzHPCUigdBkZhcUAJJtQCxz8GbQLDnFp04Y/9rJbJ3ZrChjghgivXshQ+2ka8UlMiQ==
+  dependencies:
+    "@popperjs/core" "^2.11.8"
+    "@radix-ui/react-accordion" "^1.2.1"
+    "@radix-ui/react-icons" "^1.3.0"
+    "@radix-ui/react-scroll-area" "^1.1.0"
+    "@radix-ui/react-slot" "^1.1.0"
+    class-variance-authority "^0.7.0"
+    clsx "^2.1.1"
+    d3 "^7.9.0"
+    jsbi "^3.2.5"
+    lodash.partition "^4.6.0"
+    numeral "^2.0.6"
+    polished "^4.3.1"
+    react-popper "^2.3.0"
+    zod "^3.23.8"
+    zustand "^5.0.0"
+
+viet-nv-zap-migration-widgets@1.0.15:
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.15.tgz#4a1249474f1c1a8eac1fa3f74882076a13c61592"
+  integrity sha512-6Z+F7X5qaQnymPhtjdOoJCWlQAfoC3MS8oltaqjeAHfJH3WnbEB0WQnrAOz/PjjzkxZxgSqUiO9azW9ybXUKxw==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"
