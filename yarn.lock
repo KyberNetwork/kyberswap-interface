@@ -19499,10 +19499,10 @@ viem@^2.21.55:
     webauthn-p256 "0.0.10"
     ws "8.18.0"
 
-viet-nv-zap-migration-widgets@1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.9.tgz#5d7ebc9902b0f2bb8ba3ad1f38756c30770cdb92"
-  integrity sha512-8633YBLDugbWm78U/kOG1+xpuzDM5w8SOHAbbao0V2T4HyxNclsrkz2DGFaFWig87ZQhivkqi73cqLYhHc670w==
+viet-nv-zap-migration-widgets@1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.10.tgz#8e1a16fbc96af81c5a8d842a9e4999efa92913a0"
+  integrity sha512-OJ5uma9pFwFEJ59cgpGZRYx1xXKrioBjUOvljxvEf9fAA1+Q+H2zhtCVU1YPFZHKlvVY9joDd/W5Y/5e55WvXA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"

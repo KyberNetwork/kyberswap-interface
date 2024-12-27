@@ -51,7 +51,7 @@
     "@kyberswap/ks-sdk-core": "1.1.7",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "kane-liquidity-widgets": "1.2.10",
-    "viet-nv-zap-migration-widgets": "1.0.9",
+    "viet-nv-zap-migration-widgets": "1.0.10",
     "@kyberswap/oauth2": "1.0.2",
     "@lingui/macro": "^4.6.0",
     "@lingui/react": "^4.6.0",
