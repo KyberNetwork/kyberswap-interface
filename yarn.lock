@@ -14058,10 +14058,10 @@ jsprim@^2.0.2:
     array-includes "^3.1.5"
     object.assign "^4.1.3"
 
-kane-liquidity-widgets@1.2.10:
-  version "1.2.10"
-  resolved "https://registry.yarnpkg.com/kane-liquidity-widgets/-/kane-liquidity-widgets-1.2.10.tgz#d4af7a73574453a91851c2c36a8d6239c506f386"
-  integrity sha512-I3IhyqXGCVSPhY4EtG8Nx6ZT02E70uKoRAQSu9+sAn4O/wDduLhW9gBxcili+dEkvi5IjetduzZL0Jk8Txmfog==
+kane-liquidity-widgets@1.2.11:
+  version "1.2.11"
+  resolved "https://registry.yarnpkg.com/kane-liquidity-widgets/-/kane-liquidity-widgets-1.2.11.tgz#5d6a2b4d762e477e66901ef745825e81a99a7c54"
+  integrity sha512-/wC5dPWQhVy4wd4nL+72GefBZdXLxJmc1Ok/gLmcsOpITcStVHsEzh41E38JTcuWtsarGavDTg5vsxdTKpkOJQ==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
