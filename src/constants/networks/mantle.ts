@@ -16,7 +16,7 @@ const mantle: NetworkInfo = {
   iconSelected: NOT_SUPPORT,
 
   defaultBlockSubgraph: '',
-  etherscanUrl: 'https://explorer.mantle.xyz',
+  etherscanUrl: 'https://mantlescan.xyz',
   etherscanName: 'Mantle scan',
   bridgeURL: 'https://bridge.mantle.xyz',
   nativeToken: {
