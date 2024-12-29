@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { usePreviousDistinct } from 'react-use'
 import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'viet-nv-liquidity-widgets'
 import 'viet-nv-liquidity-widgets/dist/style.css'
 import { Dex, ChainId as MigrateChainId, ZapMigration } from 'viet-nv-zap-migration-widgets'
@@ -301,6 +302,15 @@ const useLiquidityWidget = () => {
       positionId: position.id,
     })
   }
+
+  const previousAccount = usePreviousDistinct(account)
+  useEffect(() => {
+    if (account && previousAccount) {
+      setAddLiquidityPureParams(null)
+      setMigrateLiquidityPureParams(null)
+      setZapOutPureParams(null)
+    }
+  }, [account, previousAccount])
 
   const liquidityWidget = addLiquidityParams ? (
     <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapInWidget}>
