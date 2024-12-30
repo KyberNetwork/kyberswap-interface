@@ -333,7 +333,7 @@ export default function Earns() {
             icon={LiquidityPoolIcon}
             desc="Explore and instantly add liquidity to high-APY pools the easy way with Zap Technology."
             action={{
-              text: 'View Pools',
+              text: 'Explore Pools',
               onClick: () => navigate({ pathname: APP_PATHS.EARN_POOLS }),
             }}
           />
@@ -342,7 +342,7 @@ export default function Earns() {
             icon={LiquidityPosIcon}
             desc="Track, adjust, and optimize your positions to stay in control of your DeFi journey."
             action={{
-              text: 'Your Pools',
+              text: 'My positions',
               onClick: () => navigate({ pathname: APP_PATHS.EARN_POSITIONS }),
             }}
           />
