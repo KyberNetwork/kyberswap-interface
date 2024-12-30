@@ -1,12 +1,17 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
+import { ReactComponent as IconUserEarnPosition } from 'assets/svg/ic_user_earn_position.svg'
+import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import LocalLoader from 'components/LocalLoader'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 
+import { NavigateButton } from '../PoolExplorer/styles'
 import { EmptyPositionText, PositionPageWrapper } from '../UserPositions/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
 import PositionDetailHeader from './Header'
@@ -41,19 +46,23 @@ export interface ParsedPosition {
   token1UnclaimedAmount: number
   token0UnclaimedValue: number
   token1UnclaimedValue: number
+  earning24h: number
+  earning7d: number
   totalEarnedFee: number
 }
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
+  const navigate = useNavigate()
 
   const { account } = useActiveWeb3React()
-  const { id } = useParams()
+  const { id, chainId } = useParams()
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const { data: userPosition, isLoading } = useUserPositionsQuery(
-    { addresses: account || '', positionId: id },
+    { addresses: account || '', positionId: id, chainIds: chainId },
     { skip: !account, pollingInterval: 15_000 },
   )
+  const currentWalletAddress = useRef(account)
 
   const position: ParsedPosition | undefined = useMemo(() => {
     if (!userPosition?.[0]) return
@@ -91,6 +100,8 @@ const PositionDetail = () => {
       token1UnclaimedAmount: position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price,
       token0UnclaimedValue: position.feePending[0]?.quotes.usd.value,
       token1UnclaimedValue: position.feePending[1]?.quotes.usd.value,
+      earning24h: position.earning24h,
+      earning7d: position.earning7d,
       totalEarnedFee:
         position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
         position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
@@ -114,6 +125,10 @@ const PositionDetail = () => {
       firstLoading.current = true
     }
   }, [isLoading])
+
+  useEffect(() => {
+    if (!account || account !== currentWalletAddress.current) navigate(APP_PATHS.EARN_POSITIONS)
+  }, [account, navigate])
 
   return (
     <>
@@ -143,7 +158,15 @@ const PositionDetail = () => {
         ) : (
           <EmptyPositionText>
             <IconEarnNotFound />
-            {t`No position found!`}
+            <Text>{t`No position found!`}</Text>
+            <Flex sx={{ gap: 2 }} marginTop={12}>
+              <NavigateButton
+                icon={<RocketIcon width={20} height={20} />}
+                text={t`Explorer Pools`}
+                to={APP_PATHS.EARN_POOLS}
+              />
+              <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+            </Flex>
           </EmptyPositionText>
         )}
       </PositionPageWrapper>

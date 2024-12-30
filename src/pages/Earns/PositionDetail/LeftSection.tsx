@@ -1,7 +1,5 @@
 import { t } from '@lingui/macro'
-import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
-import { usePositionEarningStatisticsQuery } from 'services/zapEarn'
 
 import HelpIcon from 'assets/svg/help-circle.svg'
 import InfoHelper from 'components/InfoHelper'
@@ -15,28 +13,6 @@ import { InfoLeftColumn, InfoRight, InfoSection, InfoSectionFirstFormat, Vertica
 
 const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
-
-  const { data: positionEarningStatistics } = usePositionEarningStatisticsQuery(
-    {
-      tokenAddress: position.tokenAddress,
-      tokenId: position.id,
-      chainId: position.chainId,
-    },
-    { skip: !position, pollingInterval: 15_000 },
-  )
-
-  const earning = useMemo(() => {
-    if (!positionEarningStatistics || !positionEarningStatistics.length) return {}
-
-    const reversedPositionEarningStatistics = [...positionEarningStatistics].reverse()
-    const earning24h = reversedPositionEarningStatistics[0].earningByDay
-    const earning7d = reversedPositionEarningStatistics.slice(0, 7).reduce((a, b) => a + b.earningByDay, 0)
-
-    return {
-      earning24h,
-      earning7d,
-    }
-  }, [positionEarningStatistics])
 
   return (
     <InfoLeftColumn>
@@ -96,8 +72,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               1 {t`day`}
             </Text>
             <Text>
-              {earning.earning24h || earning.earning24h === 0
-                ? formatDisplayNumber(earning.earning24h, { significantDigits: 4, style: 'currency' })
+              {position.earning24h || position.earning24h === 0
+                ? formatDisplayNumber(position.earning24h, { significantDigits: 4, style: 'currency' })
                 : '--'}
             </Text>
           </Flex>
@@ -107,8 +83,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               7 {t`days`}
             </Text>
             <Text>
-              {earning.earning7d || earning.earning7d === 0
-                ? formatDisplayNumber(earning.earning7d, { significantDigits: 4, style: 'currency' })
+              {position.earning7d || position.earning7d === 0
+                ? formatDisplayNumber(position.earning7d, { significantDigits: 4, style: 'currency' })
                 : '--'}
             </Text>
           </Flex>

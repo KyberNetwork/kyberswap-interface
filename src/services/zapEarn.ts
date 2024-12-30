@@ -150,6 +150,7 @@ export interface EarnPosition {
   totalWithdrawValue: number
   yesterdayEarning: number
   earning24h: number
+  earning7d: number
   status: PositionStatus
   avgConvertPrice: number
   isConvertedFromToken0: boolean
@@ -265,16 +266,6 @@ const zapEarnServiceApi = createApi({
         }
       }) => response.data.positions,
     }),
-    positionEarningStatistics: builder.query<
-      Array<PositionEarning>,
-      { tokenAddress: string; tokenId: string; chainId: string | number }
-    >({
-      query: params => ({
-        url: `/v1/userPositions/positionEarningStatistic`,
-        params,
-      }),
-      transformResponse: (response: { data: Array<PositionEarning> }) => response.data,
-    }),
     addFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
       query: body => ({
         method: 'POST',
@@ -297,7 +288,6 @@ export const {
   useSupportedProtocolsQuery,
   usePoolsExplorerQuery,
   useUserPositionsQuery,
-  usePositionEarningStatisticsQuery,
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
 } = zapEarnServiceApi

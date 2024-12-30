@@ -39,7 +39,7 @@ export default function Filter({
           onChange={value => value !== filters.protocols && onFilterChange('protocols', value)}
         />
       </Flex>
-      <NavigateButton icon={<RocketIcon width={20} height={20} />} text={t`Explorer Pools`} to={APP_PATHS.EARN_POOLS} />
+      <NavigateButton icon={<RocketIcon width={20} height={20} />} text={t`Explore Pools`} to={APP_PATHS.EARN_POOLS} />
     </Flex>
   )
 }
