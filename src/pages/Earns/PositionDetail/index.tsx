@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
@@ -53,6 +53,7 @@ export interface ParsedPosition {
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
+  const navigate = useNavigate()
 
   const { account } = useActiveWeb3React()
   const { id, chainId } = useParams()
@@ -61,6 +62,7 @@ const PositionDetail = () => {
     { addresses: account || '', positionId: id, chainIds: chainId },
     { skip: !account, pollingInterval: 15_000 },
   )
+  const currentWalletAddress = useRef(account)
 
   const position: ParsedPosition | undefined = useMemo(() => {
     if (!userPosition?.[0]) return
@@ -123,6 +125,10 @@ const PositionDetail = () => {
       firstLoading.current = true
     }
   }, [isLoading])
+
+  useEffect(() => {
+    if (!account || account !== currentWalletAddress.current) navigate(APP_PATHS.EARN_POSITIONS)
+  }, [account, navigate])
 
   return (
     <>
