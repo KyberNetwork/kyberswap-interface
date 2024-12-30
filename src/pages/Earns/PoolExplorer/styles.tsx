@@ -63,9 +63,10 @@ export const Tag = styled.div<{ active: boolean }>`
   `}
 `
 
-export const StyledNavigateButton = styled.div`
+export const StyledNavigateButton = styled.div<{ mobileFullWidth?: boolean }>`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
   color: ${({ theme }) => theme.subText};
@@ -79,9 +80,8 @@ export const StyledNavigateButton = styled.div`
     filter: brightness(1.1);
   }
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 8px;
-    gap: 4px;
+  ${({ theme, mobileFullWidth }) => theme.mediaWidth.upToSmall`
+    ${mobileFullWidth && 'width: 100%;'}
   `}
 `
 
@@ -89,13 +89,14 @@ interface NavigateButtonProps {
   icon: React.ReactNode
   text: string
   to: string
+  mobileFullWidth?: boolean
 }
 
-export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to }) => {
+export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to, mobileFullWidth }) => {
   const navigate = useNavigate()
 
   return (
-    <StyledNavigateButton onClick={() => navigate({ pathname: to })}>
+    <StyledNavigateButton mobileFullWidth={mobileFullWidth} onClick={() => navigate({ pathname: to })}>
       {icon}
       <Text width={'max-content'}>{text}</Text>
     </StyledNavigateButton>

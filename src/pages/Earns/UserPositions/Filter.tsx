@@ -1,8 +1,10 @@
 import { t } from '@lingui/macro'
+import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { APP_PATHS } from 'constants/index'
+import { MEDIA_WIDTHS } from 'theme'
 
 import DropdownMenu, { MenuOption } from '../PoolExplorer/DropdownMenu'
 import { NavigateButton } from '../PoolExplorer/styles'
@@ -23,23 +25,37 @@ export default function Filter({
   }
   onFilterChange: (key: string, value: string | number) => void
 }) {
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   return (
-    <Flex alignItems={'center'} justifyContent={'space-between'}>
-      <Flex sx={{ gap: 2 }}>
+    <Flex
+      flexDirection={upToSmall ? 'column-reverse' : 'row'}
+      alignItems={'center'}
+      justifyContent={'space-between'}
+      sx={{ gap: 2 }}
+    >
+      <Flex sx={{ gap: 2, width: upToSmall ? '100%' : 'auto' }}>
         <DropdownMenu
           alignLeft
+          mobileFullWidth
           value={filters.chainIds}
           options={supportedChains.length ? supportedChains : [AllChainsOption]}
           onChange={value => value !== filters.chainIds && onFilterChange('chainIds', value)}
         />
         <DropdownMenu
           alignLeft
+          mobileFullWidth
           value={filters.protocols}
           options={supportedDexes.length ? supportedDexes : [AllProtocolsOption]}
           onChange={value => value !== filters.protocols && onFilterChange('protocols', value)}
         />
       </Flex>
-      <NavigateButton icon={<RocketIcon width={20} height={20} />} text={t`Explore Pools`} to={APP_PATHS.EARN_POOLS} />
+      <NavigateButton
+        mobileFullWidth
+        icon={<RocketIcon width={20} height={20} />}
+        text={t`Explore Pools`}
+        to={APP_PATHS.EARN_POOLS}
+      />
     </Flex>
   )
 }

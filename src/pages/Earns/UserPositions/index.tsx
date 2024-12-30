@@ -290,7 +290,7 @@ const MyPositions = () => {
           ) : (
             <EmptyPositionText>
               <IconEarnNotFound />
-              <Flex sx={{ gap: 1 }} marginBottom={12}>
+              <Flex flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: 1 }} marginBottom={12}>
                 <Text color={theme.subText}>{t`You don’t have any liquidity positions yet`}.</Text>
                 <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
               </Flex>
