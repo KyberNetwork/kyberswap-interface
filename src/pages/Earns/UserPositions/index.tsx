@@ -108,7 +108,7 @@ const MyPositions = () => {
         <MyLiquidityWrapper>
           {isFetching && loading ? (
             <LocalLoader />
-          ) : userPosition && userPosition.length > 0 ? (
+          ) : account && userPosition && userPosition.length > 0 ? (
             userPosition.map(position => {
               const { id, status, chainId: poolChainId } = position
               const positionId = position.tokenId
