@@ -11,12 +11,15 @@ import CopyHelper from 'components/Copy'
 import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { CurrencyRoundedImage, CurrencySecondImage, Disclaimer } from '../PoolExplorer/styles'
+import { PositionAction as PositionActionBtn } from '../PositionDetail/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
 import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
 import Filter from './Filter'
@@ -40,6 +43,8 @@ import useFilter from './useFilter'
 
 const MyPositions = () => {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
   const navigate = useNavigate()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -285,10 +290,11 @@ const MyPositions = () => {
           ) : (
             <EmptyPositionText>
               <IconEarnNotFound />
-              <Flex sx={{ gap: 1 }}>
+              <Flex sx={{ gap: 1 }} marginBottom={12}>
                 <Text color={theme.subText}>{t`You don’t have any liquidity positions yet`}.</Text>
                 <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
               </Flex>
+              {!account && <PositionActionBtn onClick={toggleWalletModal}>Connect Wallet</PositionActionBtn>}
             </EmptyPositionText>
           )}
         </MyLiquidityWrapper>
