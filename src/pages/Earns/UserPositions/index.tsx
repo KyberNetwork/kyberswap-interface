@@ -134,7 +134,14 @@ const MyPositions = () => {
               return (
                 <PositionRow
                   key={positionId}
-                  onClick={() => navigate({ pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':id', id) })}
+                  onClick={() =>
+                    navigate({
+                      pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':chainId', poolChainId.toString()).replace(
+                        ':id',
+                        id,
+                      ),
+                    })
+                  }
                 >
                   <PositionOverview>
                     <Flex alignItems={'center'} sx={{ gap: 2 }}>

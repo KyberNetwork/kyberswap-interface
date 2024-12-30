@@ -41,6 +41,8 @@ export interface ParsedPosition {
   token1UnclaimedAmount: number
   token0UnclaimedValue: number
   token1UnclaimedValue: number
+  earning24h: number
+  earning7d: number
   totalEarnedFee: number
 }
 
@@ -48,10 +50,10 @@ const PositionDetail = () => {
   const firstLoading = useRef(false)
 
   const { account } = useActiveWeb3React()
-  const { id } = useParams()
+  const { id, chainId } = useParams()
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const { data: userPosition, isLoading } = useUserPositionsQuery(
-    { addresses: account || '', positionId: id },
+    { addresses: account || '', positionId: id, chainIds: chainId },
     { skip: !account, pollingInterval: 15_000 },
   )
 
@@ -91,6 +93,8 @@ const PositionDetail = () => {
       token1UnclaimedAmount: position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price,
       token0UnclaimedValue: position.feePending[0]?.quotes.usd.value,
       token1UnclaimedValue: position.feePending[1]?.quotes.usd.value,
+      earning24h: position.earning24h,
+      earning7d: position.earning7d,
       totalEarnedFee:
         position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
         position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
