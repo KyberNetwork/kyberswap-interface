@@ -211,6 +211,11 @@ const Earn = () => {
           style={{ height: '36px' }}
         />
       </Flex>
+
+      {upToLarge && (
+        <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+      )}
+
       <TableWrapper>
         <ContentWrapper>
           {!upToMedium && (

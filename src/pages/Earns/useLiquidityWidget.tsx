@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'viet-nv-liquidity-widgets'
 import 'viet-nv-liquidity-widgets/dist/style.css'
@@ -176,6 +177,7 @@ const useLiquidityWidget = () => {
   }
 
   const { changeNetwork } = useChangeNetwork()
+  const navigate = useNavigate()
 
   const addLiquidityParams: AddLiquidityParams | null = useMemo(
     () =>
@@ -183,6 +185,10 @@ const useLiquidityWidget = () => {
         ? {
             ...addLiquidityPureParams,
             source: 'kyberswap-demo-zap',
+            onViewPosition: () => {
+              handleCloseZapInWidget()
+              navigate(`/earns/positions`)
+            },
             connectedAccount: {
               address: account,
               chainId: chainId,
@@ -204,7 +210,16 @@ const useLiquidityWidget = () => {
             },
           }
         : null,
-    [addLiquidityPureParams, account, chainId, toggleWalletModal, handleOpenZapMigrationWidget, library, changeNetwork],
+    [
+      addLiquidityPureParams,
+      account,
+      chainId,
+      toggleWalletModal,
+      handleOpenZapMigrationWidget,
+      library,
+      changeNetwork,
+      navigate,
+    ],
   )
 
   const migrateLiquidityParams: MigrateLiquidityParams | null = useMemo(
@@ -217,6 +232,11 @@ const useLiquidityWidget = () => {
               address: account,
               chainId: chainId as unknown as MigrateChainId,
             },
+            onViewPosition: () => {
+              handleCloseZapMigrationWidget()
+              navigate(`/earns/positions`)
+            },
+
             onClose: handleCloseZapMigrationWidget,
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
@@ -233,7 +253,7 @@ const useLiquidityWidget = () => {
             },
           }
         : null,
-    [account, chainId, library, migrateLiquidityPureParams, changeNetwork, toggleWalletModal],
+    [account, chainId, library, migrateLiquidityPureParams, changeNetwork, toggleWalletModal, navigate],
   )
 
   const [zapOutPureParams, setZapOutPureParams] = useState<{
