@@ -24,10 +24,15 @@ const PositionDetailHeader = ({ position }: { position: ParsedPosition }) => {
   const onOpenPositionInDexSite = () => {
     if (!position || !earnSupportedProtocols.includes(position.dex)) return
 
+    const chainName =
+      position.dex === EarnSupportedProtocols.UNISWAP_V3 && position.chainName === 'eth'
+        ? 'ethereum'
+        : position.chainName
+
     if (position.dex === EarnSupportedProtocols.UNISWAP_V3)
-      window.open(`https://app.uniswap.org/positions/v3/${position.chainName}/${position.id}`)
+      window.open(`https://app.uniswap.org/positions/v3/${chainName}/${position.id}`)
     else if (position.dex === EarnSupportedProtocols.SUSHISWAP_V3)
-      window.open(`https://www.sushi.com/${position.chainName}/pool/v3/${position.poolAddress}/${position.id}`)
+      window.open(`https://www.sushi.com/${chainName}/pool/v3/${position.poolAddress}/${position.id}`)
     else if (position.dex === EarnSupportedProtocols.PANCAKESWAP_V3)
       window.open(`https://pancakeswap.finance/liquidity/${position.id}`)
   }

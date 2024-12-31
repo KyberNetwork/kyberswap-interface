@@ -49,7 +49,7 @@ export const usePoolActiveLiquidity = ({
   const tickSpacing = isPoolAvailable ? pool.positionInfo.tickSpacing : undefined
 
   return useMemo(() => {
-    if (!isPoolAvailable || !tickCurrent || !tickSpacing) return []
+    if (!isPoolAvailable || (!tickCurrent && tickCurrent !== 0) || !tickSpacing) return []
 
     const activeTick = Math.floor(tickCurrent / tickSpacing) * tickSpacing
     const ticks = pool.positionInfo.ticks || []
