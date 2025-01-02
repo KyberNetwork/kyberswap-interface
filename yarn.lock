@@ -14058,6 +14058,37 @@ jsprim@^2.0.2:
     array-includes "^3.1.5"
     object.assign "^4.1.3"
 
+kane-liquidity-widgets@1.2.31:
+  version "1.2.31"
+  resolved "https://registry.yarnpkg.com/kane-liquidity-widgets/-/kane-liquidity-widgets-1.2.31.tgz#6eedba3755371df8d83e46f71e39675e0fc484b5"
+  integrity sha512-ELXX/gPwVPqMbieufdCpr+LMpHvXNPO9zPJmLYFZAAO4jFSd3lFuVC4Qlp2lKc9xWwjcfNc5DDIKyL1nNOdeQg==
+  dependencies:
+    "@popperjs/core" "^2.11.8"
+    "@radix-ui/react-accordion" "^1.2.1"
+    "@radix-ui/react-icons" "^1.3.0"
+    "@radix-ui/react-scroll-area" "^1.1.0"
+    "@radix-ui/react-slot" "^1.1.0"
+    class-variance-authority "^0.7.0"
+    clsx "^2.1.1"
+    d3 "^7.9.0"
+    jsbi "^3.2.5"
+    lodash.partition "^4.6.0"
+    numeral "^2.0.6"
+    polished "^4.3.1"
+    react-popper "^2.3.0"
+    zod "^3.23.8"
+    zustand "^5.0.0"
+
+kane-zap-migration-widgets@1.0.27:
+  version "1.0.27"
+  resolved "https://registry.yarnpkg.com/kane-zap-migration-widgets/-/kane-zap-migration-widgets-1.0.27.tgz#2d95dd595d77df29bd2c9310d78063f1f6b0a09d"
+  integrity sha512-3VctYOJOWNBgNAy+mptNQqap5Dj+Jx7NalfJFpW5cJGcXMUU/P3KShUZReofgagrg6FIPh9lTa9teHQY9g+oAA==
+  dependencies:
+    "@popperjs/core" "^2.11.8"
+    react-popper "^2.3.0"
+    zod "^3.23.8"
+    zustand "^5.0.0"
+
 keccak@^3.0.3:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/keccak/-/keccak-3.0.4.tgz#edc09b89e633c0549da444432ecf062ffadee86d"
@@ -19477,37 +19508,6 @@ viem@^2.21.55:
     ox "0.1.2"
     webauthn-p256 "0.0.10"
     ws "8.18.0"
-
-viet-nv-liquidity-widgets@1.2.30:
-  version "1.2.30"
-  resolved "https://registry.yarnpkg.com/viet-nv-liquidity-widgets/-/viet-nv-liquidity-widgets-1.2.30.tgz#d56256cb4b43f5d18a3c2c1cad3e7dc108c7d60c"
-  integrity sha512-Ujf0/4B6/rcWA9WaV3hCWkaUEepvC+bSLLl1rnrLJaZcrh//I61TD3TkuBpvXx2UNbqBgy2XnMAU0XYJ95sR3g==
-  dependencies:
-    "@popperjs/core" "^2.11.8"
-    "@radix-ui/react-accordion" "^1.2.1"
-    "@radix-ui/react-icons" "^1.3.0"
-    "@radix-ui/react-scroll-area" "^1.1.0"
-    "@radix-ui/react-slot" "^1.1.0"
-    class-variance-authority "^0.7.0"
-    clsx "^2.1.1"
-    d3 "^7.9.0"
-    jsbi "^3.2.5"
-    lodash.partition "^4.6.0"
-    numeral "^2.0.6"
-    polished "^4.3.1"
-    react-popper "^2.3.0"
-    zod "^3.23.8"
-    zustand "^5.0.0"
-
-viet-nv-zap-migration-widgets@1.0.25:
-  version "1.0.25"
-  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.25.tgz#9ece1c2805a032bb231cb41ebdb6fcfe81eb113a"
-  integrity sha512-Kikj70C1mzggMXl2VMp6bhxYDH8vDhF78M9XnJ+9+aABxlOHcHcVFzxrtNdiCesCO4Ko73CeZSS91dp+2zaUVQ==
-  dependencies:
-    "@popperjs/core" "^2.11.8"
-    react-popper "^2.3.0"
-    zod "^3.23.8"
-    zustand "^5.0.0"
 
 vite-plugin-checker@^0.5.6:
   version "0.5.6"

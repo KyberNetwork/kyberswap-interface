@@ -1,10 +1,10 @@
+import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'kane-liquidity-widgets'
+import 'kane-liquidity-widgets/dist/style.css'
+import { Dex, ChainId as MigrateChainId, ZapMigration } from 'kane-zap-migration-widgets'
+import 'kane-zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'viet-nv-liquidity-widgets'
-import 'viet-nv-liquidity-widgets/dist/style.css'
-import { Dex, ChainId as MigrateChainId, ZapMigration } from 'viet-nv-zap-migration-widgets'
-import 'viet-nv-zap-migration-widgets/dist/style.css'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -99,10 +99,6 @@ const useLiquidityWidget = () => {
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
 
-  const handleCloseZapInWidget = () => setAddLiquidityPureParams(null)
-
-  const handleCloseZapMigrationWidget = () => setMigrateLiquidityPureParams(null)
-
   const handleOpenZapMigrationWidget = useCallback(
     (position: { exchange: string; poolId: string; positionId: string | number }) => {
       if (!addLiquidityPureParams) return
@@ -141,7 +137,6 @@ const useLiquidityWidget = () => {
         },
         chainId: addLiquidityPureParams.chainId as MigrateChainId,
       }
-      handleCloseZapInWidget()
       setMigrateLiquidityPureParams(paramsToSet)
     },
     [addLiquidityPureParams, notify],
@@ -186,14 +181,14 @@ const useLiquidityWidget = () => {
             ...addLiquidityPureParams,
             source: 'kyberswap-demo-zap',
             onViewPosition: () => {
-              handleCloseZapInWidget()
+              setAddLiquidityPureParams(null)
               navigate(`/earns/positions`)
             },
             connectedAccount: {
               address: account,
               chainId: chainId,
             },
-            onClose: handleCloseZapInWidget,
+            onClose: () => setAddLiquidityPureParams(null),
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
             onOpenZapMigration: handleOpenZapMigrationWidget,
@@ -233,11 +228,15 @@ const useLiquidityWidget = () => {
               chainId: chainId as unknown as MigrateChainId,
             },
             onViewPosition: () => {
-              handleCloseZapMigrationWidget()
+              setMigrateLiquidityPureParams(null)
               navigate(`/earns/positions`)
             },
 
-            onClose: handleCloseZapMigrationWidget,
+            onClose: () => {
+              setMigrateLiquidityPureParams(null)
+              setAddLiquidityPureParams(null)
+            },
+            onBack: () => setMigrateLiquidityPureParams(null),
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
             onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
@@ -332,19 +331,35 @@ const useLiquidityWidget = () => {
     }
   }, [account, previousAccount])
 
-  const liquidityWidget = addLiquidityParams ? (
-    <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapInWidget}>
-      <LiquidityWidget {...addLiquidityParams} />
-    </Modal>
-  ) : migrateLiquidityParams ? (
-    <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapMigrationWidget}>
-      <ZapMigration {...migrateLiquidityParams} />
-    </Modal>
-  ) : zapOutParams ? (
-    <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={() => setZapOutPureParams(null)}>
-      <ZapOut {...zapOutParams} />
-    </Modal>
-  ) : null
+  const liquidityWidget = (
+    <>
+      {addLiquidityParams && (
+        <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={() => setAddLiquidityPureParams(null)}>
+          <LiquidityWidget {...addLiquidityParams} />
+        </Modal>
+      )}
+      {migrateLiquidityParams && (
+        <Modal
+          isOpen
+          mobileFullWidth
+          maxWidth={760}
+          width={'760px'}
+          onDismiss={() => {
+            setMigrateLiquidityPureParams(null)
+            setAddLiquidityPureParams(null)
+          }}
+          zindex={9999}
+        >
+          <ZapMigration {...migrateLiquidityParams} />
+        </Modal>
+      )}
+      {zapOutParams && (
+        <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={() => setZapOutPureParams(null)}>
+          <ZapOut {...zapOutParams} />
+        </Modal>
+      )}
+    </>
+  )
 
   return { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut }
 }
