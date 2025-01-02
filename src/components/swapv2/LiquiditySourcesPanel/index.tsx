@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import Checkbox from 'components/CheckBox'
 import useDebounce from 'hooks/useDebounce'
+import { Dex } from 'state/customizeDexes'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
 import SearchBar from './SearchBar'
@@ -108,6 +109,10 @@ const LiquiditySourceHeader = styled.div`
 `
 
 export const isKyberSwapDex = (id: string) => id.toLowerCase().includes('kyber')
+const isRfqDex = (id: string, items: Dex[]) => {
+  const item = items.find(i => i.id === id)
+  return item?.tags?.some(tag => tag.name === 'RFQ sources')
+}
 
 const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
   const [searchText, setSearchText] = useState('')
@@ -118,6 +123,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
 
   const checkAllRef = useRef<HTMLInputElement | null>(null)
   const kyberSwapRef = useRef<HTMLInputElement>(null)
+  const rfqRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const selectedDexes = dexes?.filter(item => !excludeDexes.includes(item.id)) || []
@@ -140,6 +146,8 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
     () => dexes.filter(item => isKyberSwapDex(item.id)).sort((a, b) => a.sortId - b.sortId),
     [dexes],
   )
+
+  const rfqDexes = useMemo(() => dexes.filter(item => !!item.tags?.find(tag => tag.name === 'RFQ sources')), [dexes])
 
   useEffect(() => {
     if (!kyberSwapRef.current) return
@@ -245,6 +253,45 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
                 })}
             </>
           )}
+          {!!rfqDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
+            <>
+              <Source>
+                <Checkbox
+                  ref={rfqRef}
+                  checked={!rfqDexes.map(i => i.id).every(item => excludeDexes.includes(item))}
+                  onChange={e => {
+                    if (e.target.checked) {
+                      setExcludeDexes(excludeDexes.filter(item => !isRfqDex(item, dexes)))
+                    } else {
+                      const newData = [
+                        ...excludeDexes.filter(item => !isKyberSwapDex(item)),
+                        ...rfqDexes.map(item => item.id),
+                      ]
+                      setExcludeDexes(newData)
+                    }
+                  }}
+                />
+                <SourceName>RFQ Sources</SourceName>
+              </Source>
+
+              {rfqDexes
+                .filter(item => item.name.toLowerCase().includes(debouncedSearchText))
+                .map(({ name, logoURL, id }) => {
+                  return (
+                    <Source key={name} style={{ padding: '12px 48px' }}>
+                      <Checkbox checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />
+
+                      <ImageWrapper>
+                        <img src={logoURL} alt="" />
+                      </ImageWrapper>
+
+                      <SourceName>{name}</SourceName>
+                    </Source>
+                  )
+                })}
+            </>
+          )}
+
           {dexes
             ?.filter(item => !isKyberSwapDex(item.id) && item.name.toLowerCase().includes(debouncedSearchText))
             .map(({ name, logoURL, id }) => (
