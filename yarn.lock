@@ -19499,10 +19499,10 @@ viet-nv-liquidity-widgets@1.2.29:
     zod "^3.23.8"
     zustand "^5.0.0"
 
-viet-nv-zap-migration-widgets@1.0.23:
-  version "1.0.23"
-  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.23.tgz#cb0b1eba90d62cbb245f517d2d6b98713bb31aae"
-  integrity sha512-LGfOLHS/UJnhbeXvftJL0S7pD/X5mfIdbb2K4rs5xpqPfP32NW54gXFFIeiQegMi0s/vdF9urIJVI5yieQEdpg==
+viet-nv-zap-migration-widgets@1.0.24:
+  version "1.0.24"
+  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.24.tgz#370dd4be99a95eb6343127886793c35c530fdc9c"
+  integrity sha512-LKbONlDN/m+5qUx9UpXuqbdv9IfW5Q/YrNbVEJQ3H3RN3A1qSluoW8prAKNYodFc2oZrhGGHTo51jBFL17wTwA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"
