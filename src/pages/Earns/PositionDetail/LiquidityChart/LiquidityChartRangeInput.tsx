@@ -33,9 +33,6 @@ export default function LiquidityChartRangeInput({
   price,
   priceLower,
   priceUpper,
-  onBothRangeInput = () => {},
-  onLeftRangeInput = () => {},
-  onRightRangeInput = () => {},
   isLoading,
   error,
   zoomLevel,
@@ -53,9 +50,6 @@ export default function LiquidityChartRangeInput({
   price?: number
   priceLower?: string
   priceUpper?: string
-  onLeftRangeInput?: (typedValue: string) => void
-  onRightRangeInput?: (typedValue: string) => void
-  onBothRangeInput?: (leftTypedValue: string, rightTypedValue: string) => void
   zoomLevel?: ZoomLevels
   formattedData: ChartEntry[] | undefined
   isUninitialized: boolean
@@ -80,42 +74,9 @@ export default function LiquidityChartRangeInput({
     return undefined
   }, [priceLower, priceUpper, revertPrice])
 
-  const onBrushDomainChangeEnded = useCallback(
-    (domain: [number, number], mode: string | undefined) => {
-      const [leftPrice, rightPrice] = brushDomain || []
+  // console.log('brushDomain', brushDomain)
 
-      let leftRangeValue = Number(domain[0])
-      const rightRangeValue = Number(domain[1])
-
-      if (leftRangeValue <= 0) {
-        leftRangeValue = 1 / 10 ** 6
-      }
-
-      const updateLeft =
-        (!ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] || mode === 'handle' || mode === 'reset') &&
-        leftRangeValue > 0 &&
-        leftRangeValue !== leftPrice
-
-      const updateRight =
-        (!ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER] || mode === 'reset') &&
-        rightRangeValue > 0 &&
-        rightRangeValue < 1e35 &&
-        rightRangeValue !== rightPrice
-
-      if (updateLeft && updateRight) {
-        const parsedLeftRangeValue = parseFloat(leftRangeValue.toFixed(18))
-        const parsedRightRangeValue = parseFloat(rightRangeValue.toFixed(18))
-        if (parsedLeftRangeValue > 0 && parsedRightRangeValue > 0 && parsedLeftRangeValue < parsedRightRangeValue) {
-          onBothRangeInput?.(leftRangeValue.toFixed(18), rightRangeValue.toFixed(18))
-        }
-      } else if (updateLeft) {
-        onLeftRangeInput?.(leftRangeValue.toFixed(18))
-      } else if (updateRight) {
-        onRightRangeInput?.(rightRangeValue.toFixed(18))
-      }
-    },
-    [isSorted, onBothRangeInput, onLeftRangeInput, onRightRangeInput, ticksAtLimit, brushDomain],
-  )
+  const onBrushDomainChangeEnded = useCallback((_domain: [number, number], _mode: string | undefined) => {}, [])
 
   const brushLabelValue = useCallback(
     (d: 'w' | 'e', x: number) => {

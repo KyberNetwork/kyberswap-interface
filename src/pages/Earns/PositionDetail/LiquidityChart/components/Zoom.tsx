@@ -30,7 +30,6 @@ const ZoomAction = styled.div`
 `
 
 export default function Zoom({
-  svg,
   xScale,
   setZoom,
   width,
@@ -39,7 +38,6 @@ export default function Zoom({
   showResetButton,
   zoomLevels,
 }: {
-  svg: SVGElement | null
   xScale: ScaleLinear<number, number>
   setZoom: (transform: ZoomTransform) => void
   width: number
@@ -49,40 +47,43 @@ export default function Zoom({
   zoomLevels: ZoomLevels
 }) {
   const zoomBehavior = useRef<ZoomBehavior<Element, unknown>>()
+  const svgRef = useRef<SVGElement | null>(null)
 
   const [zoomIn, zoomOut, zoomInitial, zoomReset] = useMemo(
     () => [
       () =>
-        svg &&
+        svgRef.current &&
         zoomBehavior.current &&
-        select(svg as Element)
+        select(svgRef.current as Element)
           .transition()
           .call(zoomBehavior.current.scaleBy, 2),
       () =>
-        svg &&
+        svgRef.current &&
         zoomBehavior.current &&
-        select(svg as Element)
+        select(svgRef.current as Element)
           .transition()
           .call(zoomBehavior.current.scaleBy, 0.5),
       () =>
-        svg &&
+        svgRef.current &&
         zoomBehavior.current &&
-        select(svg as Element)
+        select(svgRef.current as Element)
           .transition()
           .call(zoomBehavior.current.scaleTo, 0.5),
       () =>
-        svg &&
+        svgRef.current &&
         zoomBehavior.current &&
-        select(svg as Element)
+        select(svgRef.current as Element)
           .call(zoomBehavior.current.transform, zoomIdentity.translate(0, 0).scale(1))
           .transition()
           .call(zoomBehavior.current.scaleTo, 0.5),
     ],
-    [svg],
+    [svgRef],
   )
 
   useEffect(() => {
-    if (!svg) return
+    const zoomRefEl = document.querySelector('.zoomRef')
+    if (!zoomRefEl) return
+    svgRef.current = zoomRefEl as SVGElement
 
     zoomBehavior.current = zoom()
       .scaleExtent([zoomLevels.min, zoomLevels.max])
@@ -92,8 +93,8 @@ export default function Zoom({
       ])
       .on('zoom', ({ transform }: { transform: ZoomTransform }) => setZoom(transform))
 
-    select(svg as Element).call(zoomBehavior.current)
-  }, [height, width, setZoom, svg, xScale, zoomBehavior, zoomLevels, zoomLevels.max, zoomLevels.min])
+    select(svgRef.current as Element).call(zoomBehavior.current)
+  }, [height, width, setZoom, svgRef, xScale, zoomBehavior, zoomLevels, zoomLevels.max, zoomLevels.min])
 
   useEffect(() => {
     // reset zoom to initial on zoomLevel change

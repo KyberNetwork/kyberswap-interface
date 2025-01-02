@@ -1,6 +1,6 @@
 import { ZoomTransform, max, scaleLinear } from 'd3'
 import partition from 'lodash/partition'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import useTheme from 'hooks/useTheme'
 
@@ -26,7 +26,6 @@ export function Chart({
   zoomLevels,
   showZoomButtons = true,
 }: LiquidityChartRangeInputProps) {
-  const zoomRef = useRef<SVGRectElement | null>(null)
   const theme = useTheme()
 
   const [zoom, setZoom] = useState<ZoomTransform | null>(null)
@@ -58,12 +57,6 @@ export function Chart({
     // reset zoom as necessary
     setZoom(null)
   }, [zoomLevels])
-
-  useEffect(() => {
-    if (!brushDomain) {
-      onBrushDomainChange(xScale.domain() as [number, number], undefined)
-    }
-  }, [brushDomain, onBrushDomainChange, xScale])
 
   const [leftSeries, rightSeries] = useMemo(() => {
     const isHighToLow = series[0]?.price0 > series[series.length - 1]?.price0
@@ -97,7 +90,6 @@ export function Chart({
     <>
       {showZoomButtons && (
         <Zoom
-          svg={zoomRef.current}
           xScale={xScale}
           setZoom={setZoom}
           width={innerWidth}
@@ -176,7 +168,7 @@ export function Chart({
             <AxisBottom xScale={xScale} innerHeight={innerHeight} />
           </g>
 
-          <rect fill="transparent" cursor="grab" width={innerWidth} height={height} ref={zoomRef} />
+          <rect className="zoomRef" fill="transparent" cursor="grab" width={innerWidth} height={height} />
 
           <Brush
             id={id}
