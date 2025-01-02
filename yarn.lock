@@ -19478,10 +19478,10 @@ viem@^2.21.55:
     webauthn-p256 "0.0.10"
     ws "8.18.0"
 
-viet-nv-liquidity-widgets@1.2.29:
-  version "1.2.29"
-  resolved "https://registry.yarnpkg.com/viet-nv-liquidity-widgets/-/viet-nv-liquidity-widgets-1.2.29.tgz#e5b128e81dfd1ce32b8998730d8f3dbc3c82017e"
-  integrity sha512-wab4z8sH0zt2ukgPctwAAmrNuibLFsaIpg66uP5P31gdhp6cD+Yj5K6hD/sunlzo9g4g0gbShcBdvpKCT5Fwxg==
+viet-nv-liquidity-widgets@1.2.30:
+  version "1.2.30"
+  resolved "https://registry.yarnpkg.com/viet-nv-liquidity-widgets/-/viet-nv-liquidity-widgets-1.2.30.tgz#d56256cb4b43f5d18a3c2c1cad3e7dc108c7d60c"
+  integrity sha512-Ujf0/4B6/rcWA9WaV3hCWkaUEepvC+bSLLl1rnrLJaZcrh//I61TD3TkuBpvXx2UNbqBgy2XnMAU0XYJ95sR3g==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
@@ -19499,10 +19499,10 @@ viet-nv-liquidity-widgets@1.2.29:
     zod "^3.23.8"
     zustand "^5.0.0"
 
-viet-nv-zap-migration-widgets@1.0.24:
-  version "1.0.24"
-  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.24.tgz#370dd4be99a95eb6343127886793c35c530fdc9c"
-  integrity sha512-LKbONlDN/m+5qUx9UpXuqbdv9IfW5Q/YrNbVEJQ3H3RN3A1qSluoW8prAKNYodFc2oZrhGGHTo51jBFL17wTwA==
+viet-nv-zap-migration-widgets@1.0.25:
+  version "1.0.25"
+  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.25.tgz#9ece1c2805a032bb231cb41ebdb6fcfe81eb113a"
+  integrity sha512-Kikj70C1mzggMXl2VMp6bhxYDH8vDhF78M9XnJ+9+aABxlOHcHcVFzxrtNdiCesCO4Ko73CeZSS91dp+2zaUVQ==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"
