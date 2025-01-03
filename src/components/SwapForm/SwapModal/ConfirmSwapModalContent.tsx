@@ -190,6 +190,7 @@ export default function ConfirmSwapModalContent({
       parsedAmountOutFromBuild = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
 
       amountOutUsdFromBuild = buildResult.data.amountOutUsd
+      amountInUsd = buildResult.data.amountInUsd
     }
   }
 
