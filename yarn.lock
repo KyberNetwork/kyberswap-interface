@@ -14079,16 +14079,6 @@ kane-liquidity-widgets@1.2.34:
     zod "^3.23.8"
     zustand "^5.0.0"
 
-kane-zap-migration-widgets@1.0.29:
-  version "1.0.29"
-  resolved "https://registry.yarnpkg.com/kane-zap-migration-widgets/-/kane-zap-migration-widgets-1.0.29.tgz#eeca7d3cac8a2317374690d9e96da7cbbaf082b0"
-  integrity sha512-u4H0Tc+ypvgqrOCS4pahY1injJB5RI1NGmlfOfggbU4HgYn+IMiaZtnm05Ym2FMFnZdDh1Sch7po+94uJ72ELg==
-  dependencies:
-    "@popperjs/core" "^2.11.8"
-    react-popper "^2.3.0"
-    zod "^3.23.8"
-    zustand "^5.0.0"
-
 keccak@^3.0.3:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/keccak/-/keccak-3.0.4.tgz#edc09b89e633c0549da444432ecf062ffadee86d"
@@ -19508,6 +19498,16 @@ viem@^2.21.55:
     ox "0.1.2"
     webauthn-p256 "0.0.10"
     ws "8.18.0"
+
+viet-nv-zap-migration-widgets@1.0.30:
+  version "1.0.30"
+  resolved "https://registry.yarnpkg.com/viet-nv-zap-migration-widgets/-/viet-nv-zap-migration-widgets-1.0.30.tgz#a26ddbb219b1f85b020a9e4aa237c6b62f15d57a"
+  integrity sha512-6aLAdgY2moz9z3z4bfCs529CH9JMHHKFoupBEYJdztWorgRfDLRxpJ0gGv6Vfd0LswA709XiFTP6uD1d+HS+MQ==
+  dependencies:
+    "@popperjs/core" "^2.11.8"
+    react-popper "^2.3.0"
+    zod "^3.23.8"
+    zustand "^5.0.0"
 
 vite-plugin-checker@^0.5.6:
   version "0.5.6"

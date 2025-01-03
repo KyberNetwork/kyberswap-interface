@@ -1,10 +1,10 @@
 import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'kane-liquidity-widgets'
 import 'kane-liquidity-widgets/dist/style.css'
-import { Dex, ChainId as MigrateChainId, ZapMigration } from 'kane-zap-migration-widgets'
-import 'kane-zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
+import { Dex, ChainId as MigrateChainId, ZapMigration } from 'viet-nv-zap-migration-widgets'
+import 'viet-nv-zap-migration-widgets/dist/style.css'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
