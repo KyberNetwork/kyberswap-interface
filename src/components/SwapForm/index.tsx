@@ -142,6 +142,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     slippage,
     transactionTimeout,
     permit,
+    currencyIn,
+    currencyOut,
   })
 
   const swapInputError = useGetInputError({

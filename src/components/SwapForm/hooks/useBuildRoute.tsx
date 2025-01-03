@@ -1,3 +1,4 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -28,10 +29,12 @@ type Args = {
   slippage: number
   transactionTimeout: number
   permit?: string
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
 }
 
 const useBuildRoute = (args: Args) => {
-  const { recipient, routeSummary, slippage, transactionTimeout, permit } = args
+  const { recipient, routeSummary, slippage, transactionTimeout, permit, currencyIn, currencyOut } = args
   const [searchParams] = useSearchParams()
   const clientId = searchParams.get('clientId')
   const { chainId, account } = useActiveWeb3React()
@@ -65,6 +68,10 @@ const useBuildRoute = (args: Args) => {
       skipSimulateTx: false,
       enableGasEstimation: true,
       permit,
+      // for calculating price impact only
+      chainId,
+      tokenInDecimals: currencyIn?.decimals,
+      tokenOutDecimals: currencyOut?.decimals,
     }
 
     try {
@@ -105,6 +112,8 @@ const useBuildRoute = (args: Args) => {
     buildRoute,
     isEnableAuthenAggregator,
     permit,
+    currencyIn?.decimals,
+    currencyOut?.decimals,
   ])
 
   return fetcher
