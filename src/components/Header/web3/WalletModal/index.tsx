@@ -231,6 +231,7 @@ export default function WalletModal() {
         //&& activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
         // walletView === WALLET_VIEWS.PENDING && ['WALLET_CONNECT', 'KRYSTAL_WC', 'BLOCTO'].includes(pendingWalletKey)
       }
+      zindex={99999}
     >
       <Wrapper>{getModalContent()}</Wrapper>
     </Modal>

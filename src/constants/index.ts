@@ -169,6 +169,11 @@ export const APP_PATHS = {
   LIMIT_ORDER_CAMPAIGN: '/campaigns/limit-order',
   REFFERAL_CAMPAIGN: '/campaigns/referrals',
   MY_DASHBOARD: '/campaigns/dashboard',
+
+  EARN: '/earns',
+  EARN_POOLS: '/earns/pools',
+  EARN_POSITIONS: '/earns/positions',
+  EARN_POSITION_DETAIL: '/earns/position/:chainId/:id',
 } as const
 
 export const TERM_FILES_PATH = {
