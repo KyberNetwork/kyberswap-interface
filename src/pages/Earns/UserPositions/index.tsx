@@ -110,6 +110,7 @@ const MyPositions = () => {
             <LocalLoader />
           ) : account && userPosition && userPosition.length > 0 ? (
             userPosition.map(position => {
+              console.log('position', position)
               const { id, status, chainId: poolChainId } = position
               const positionId = position.tokenId
               const chainImage = position.chainLogo
@@ -122,9 +123,9 @@ const MyPositions = () => {
               const poolFee = position.pool.fees?.[0]
               const poolAddress = position.pool.poolAddress
               const totalValue = position.currentPositionValue
-              const token0TotalAmount =
+              const token0TotalProvide =
                 position.currentAmounts[0]?.quotes.usd.value / position.currentAmounts[0]?.quotes.usd.price
-              const token1TotalAmount =
+              const token1TotalProvide =
                 position.currentAmounts[1]?.quotes.usd.value / position.currentAmounts[1]?.quotes.usd.price
               const token0EarnedAmount =
                 position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price +
@@ -132,6 +133,8 @@ const MyPositions = () => {
               const token1EarnedAmount =
                 position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price +
                 position.feesClaimed[1]?.quotes.usd.value / position.feesClaimed[1]?.quotes.usd.price
+              const token0TotalAmount = token0TotalProvide + token0EarnedAmount
+              const token1TotalAmount = token1TotalProvide + token1EarnedAmount
               const totalEarnedFee =
                 position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
                 position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0)
@@ -246,11 +249,11 @@ const MyPositions = () => {
                     <PositionValueLabel>Balance</PositionValueLabel>
                     <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
                       <Text>
-                        {formatDisplayNumber(token0TotalAmount, { significantDigits: 4 })} {token0Symbol}
+                        {formatDisplayNumber(token0TotalProvide, { significantDigits: 4 })} {token0Symbol}
                       </Text>
                       {upToSmall && <Divider />}
                       <Text>
-                        {formatDisplayNumber(token1TotalAmount, { significantDigits: 4 })} {token1Symbol}
+                        {formatDisplayNumber(token1TotalProvide, { significantDigits: 4 })} {token1Symbol}
                       </Text>
                     </Flex>
                   </PositionValueWrapper>
