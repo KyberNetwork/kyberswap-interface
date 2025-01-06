@@ -1,10 +1,10 @@
-import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'kane-liquidity-widgets'
-import 'kane-liquidity-widgets/dist/style.css'
+import { ChainId, LiquidityWidget, PoolType, ZapOut } from '@kyberswap/liquidity-widgets'
+import '@kyberswap/liquidity-widgets/dist/style.css'
+import { Dex, ChainId as MigrateChainId, ZapMigration } from '@kyberswap/zap-migration-widgets'
+import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { Dex, ChainId as MigrateChainId, ZapMigration } from 'viet-nv-zap-migration-widgets'
-import 'viet-nv-zap-migration-widgets/dist/style.css'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -179,7 +179,7 @@ const useLiquidityWidget = () => {
       addLiquidityPureParams
         ? {
             ...addLiquidityPureParams,
-            source: 'kyberswap-demo-zap',
+            source: 'KyberSwap-Earn',
             onViewPosition: () => {
               setAddLiquidityPureParams(null)
               navigate(`/earns/positions`)
@@ -222,7 +222,7 @@ const useLiquidityWidget = () => {
       migrateLiquidityPureParams
         ? {
             ...migrateLiquidityPureParams,
-            client: 'zap-migration-demo',
+            client: 'KyberSwap-Earn',
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as MigrateChainId,
@@ -266,7 +266,7 @@ const useLiquidityWidget = () => {
       zapOutPureParams
         ? {
             ...zapOutPureParams,
-            source: 'kyberswap-earn',
+            source: 'KyberSwap-Earn',
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as MigrateChainId,
