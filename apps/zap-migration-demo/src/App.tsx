@@ -1,7 +1,7 @@
 import "./App.css";
 import { useSwitchChain } from "wagmi";
-import { Dex, ZapMigration, ChainId } from "@kyber/zap-migration-widgets";
-import "@kyber/zap-migration-widgets/dist/style.css";
+import { Dex, ZapMigration, ChainId } from "@kyberswap/zap-migration-widgets";
+import "@kyberswap/zap-migration-widgets/dist/style.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import {
   ConnectButton,
@@ -10,7 +10,7 @@ import {
   getDefaultWallets,
   useConnectModal,
 } from "@rainbow-me/rainbowkit";
-import { arbitrum, mainnet, polygon, bsc } from "wagmi/chains";
+import { arbitrum, mainnet, polygon, bsc, base } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   useAccount,
@@ -26,7 +26,7 @@ const wagmiConfig = getDefaultConfig({
   appName: "Liquidity Widgets",
   projectId: "d5fd1fd479f2a155c151efdf91c12c9e",
   wallets,
-  chains: [mainnet, arbitrum, polygon, bsc],
+  chains: [mainnet, arbitrum, polygon, bsc, base],
   storage: createStorage({
     storage: localStorage,
   }),
@@ -61,18 +61,41 @@ function App() {
     to: {
       dex: Dex;
       poolId: string;
+      positionId?: number;
     };
   }>({
-    chainId: "56",
+    chainId: "8453",
     from: {
-      dex: Dex.Pancakev3,
-      poolId: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
-      positionId: 1404415,
+      dex: Dex.Uniswapv3,
+      poolId: "0x06959273e9a65433de71f5a452d529544e07ddd0",
+      positionId: 1636872,
     },
     to: {
-      dex: Dex.Pancakev3,
-      poolId: "0xf2688Fb5B81049DFB7703aDa5e770543770612C4",
+      dex: Dex.Uniswapv3,
+      //poolId: "0xd0b53d9277642d899df5c87a3966a349a798f224",
+      poolId: "0x06959273e9a65433de71f5a452d529544e07ddd0",
     },
+    //chainId: "56",
+    //from: {
+    //  dex: Dex.Pancakev3,
+    //  poolId: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
+    //  positionId: 1404415,
+    //},
+    //to: {
+    //  dex: Dex.Pancakev3,
+    //  poolId: "0xf2688Fb5B81049DFB7703aDa5e770543770612C4",
+    //},
+    //chainId: "42161",
+    //from: {
+    //  dex: Dex.Uniswapv3,
+    //  poolId: "0x2f5e87C9312fa29aed5c179E456625D79015299c",
+    //  positionId: 4040452,
+    //},
+    //to: {
+    //  dex: Dex.Uniswapv3,
+    //  poolId: "0x641C00A822e8b671738d32a431a4Fb6074E5c79d",
+    //  positionId: 3611201,
+    //},
   });
 
   const [showMigration, setShowMigration] = useState(false);
@@ -251,6 +274,7 @@ function App() {
               to={{
                 dex: state.to.dex,
                 poolId: state.to.poolId,
+                positionId: state.to.positionId,
                 //dex: Dex.Uniswapv3,
                 //poolId: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
               }}

@@ -12,6 +12,7 @@ interface TooltipProps extends Omit<PopoverProps, "content"> {
   onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;
   onMouseLeave?: React.MouseEventHandler<HTMLDivElement>;
   dataTestId?: string;
+  className?: string;
 }
 
 export default function Tooltip({

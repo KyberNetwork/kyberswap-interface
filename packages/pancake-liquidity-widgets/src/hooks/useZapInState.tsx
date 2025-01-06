@@ -21,7 +21,6 @@ import { ZapRouteDetail, Type, PancakeTokenAdvanced } from "@/types/zapInTypes";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";
-// export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
 
 const ERROR_MESSAGE = {
   WRONG_NETWORK: "Wrong network",

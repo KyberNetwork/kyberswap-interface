@@ -1,4 +1,4 @@
-const prefixOverrideList = ["html", "body"];
+const prefixOverrideList = ["html", "body", "[role='portal']"];
 
 export default {
   plugins: {

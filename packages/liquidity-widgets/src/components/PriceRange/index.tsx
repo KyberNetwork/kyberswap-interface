@@ -13,6 +13,7 @@ import {
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
 import { univ3PoolNormalize, univ3PoolType } from "@/schema";
+import { toString } from "@/utils/number";
 
 interface SelectedRange {
   range: typeof FULL_PRICE_RANGE | number;
@@ -93,8 +94,8 @@ const PriceRange = () => {
 
     const currentPoolPrice = tickToPrice(
       data.tick,
-      pool.token0.decimals,
-      pool.token1.decimals,
+      pool.token0?.decimals,
+      pool.token1?.decimals,
       false
     );
 
@@ -104,15 +105,15 @@ const PriceRange = () => {
     const right = +currentPoolPrice * (1 + range);
 
     const lower = priceToClosestTick(
-      left.toString(),
-      pool.token0.decimals,
-      pool.token1.decimals,
+      toString(Number(left)),
+      pool.token0?.decimals,
+      pool.token1?.decimals,
       false
     );
     const upper = priceToClosestTick(
-      right.toString(),
-      pool.token0.decimals,
-      pool.token1.decimals,
+      toString(Number(right)),
+      pool.token0?.decimals,
+      pool.token1?.decimals,
       false
     );
 

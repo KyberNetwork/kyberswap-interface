@@ -1,7 +1,7 @@
 import { formatCurrency } from "@/utils";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useWidgetContext } from "@/stores/widget";
 import { formatTokenAmount } from "@kyber/utils/number";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
 const PositionLiquidity = () => {
   const { pool, position } = useWidgetContext((s) => s);
@@ -9,12 +9,12 @@ const PositionLiquidity = () => {
 
   const amount0 =
     position === "loading" || pool === "loading"
-      ? 0
-      : formatTokenAmount(position.amount0, pool.token0.decimals);
+      ? "0"
+      : formatTokenAmount(position.amount0, pool.token0?.decimals);
   const amount1 =
     position === "loading" || pool === "loading"
-      ? 0
-      : formatTokenAmount(position.amount1, pool.token1.decimals);
+      ? "0"
+      : formatTokenAmount(position.amount1, pool.token1?.decimals);
 
   return (
     <div className="px-4 py-3 mt-4 border border-stroke rounded-md">
@@ -39,7 +39,10 @@ const PositionLiquidity = () => {
             <div className="text-right relative top-[-4px]">
               <p>{amount0}</p>
               <p className="text-subText text-xs mt-1">
-                {formatCurrency(+amount0 * (pool.token0.price || 0))}
+                {formatCurrency(
+                  parseFloat(amount0.replace(/,/g, "")) *
+                    (pool.token0.price || 0)
+                )}
               </p>
             </div>
           </div>
@@ -59,7 +62,10 @@ const PositionLiquidity = () => {
             <div className="text-right relative top-[-4px]">
               <p>{amount1}</p>
               <p className="text-subText text-xs mt-1">
-                {formatCurrency(+amount1 * (pool.token1.price || 0))}
+                {formatCurrency(
+                  parseFloat(amount1.replace(/,/g, "")) *
+                    (pool.token1.price || 0)
+                )}
               </p>
             </div>
           </div>

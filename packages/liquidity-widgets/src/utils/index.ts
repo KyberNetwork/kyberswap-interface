@@ -1,30 +1,5 @@
 import { ChainId, NetworkInfo } from "../constants";
-import { ProtocolFeeAction } from "@/hooks/types/zapInTypes";
 import { formatUnits } from "@kyber/utils/number";
-
-export function copyToClipboard(textToCopy: string) {
-  // navigator clipboard api needs a secure context (https)
-  if (navigator.clipboard && window.isSecureContext) {
-    // navigator clipboard api method'
-    return navigator.clipboard.writeText(textToCopy);
-  } else {
-    // text area method
-    const textArea = document.createElement("textarea");
-    textArea.value = textToCopy;
-    // make the textarea out of viewport
-    textArea.style.position = "fixed";
-    textArea.style.left = "-999999px";
-    textArea.style.top = "-999999px";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    return new Promise((res, rej) => {
-      // here the magic happens
-      document.execCommand("copy") ? res(textToCopy) : rej();
-      textArea.remove();
-    });
-  }
-}
 
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -35,6 +10,7 @@ export const formatCurrency = (value: number) =>
     //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
   }).format(value);
+
 export const formatNumber = (value: number) =>
   new Intl.NumberFormat("en-US", { maximumSignificantDigits: 6 }).format(value);
 
@@ -183,30 +159,38 @@ export enum PI_LEVEL {
 
 export const getPriceImpact = (
   pi: number | null | undefined,
-  zapFeeInfo?: ProtocolFeeAction
+  type: "Swap Price Impact" | "Zap Impact",
+  suggestedSlippage: number
 ) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
-      msg: "Unable to calculate Price Impact",
+      msg: `Unable to calculate ${type}`,
       level: PI_LEVEL.INVALID,
       display: "--",
     };
 
   const piDisplay = pi < 0.01 ? "<0.01%" : pi.toFixed(2) + "%";
 
-  const warningThreshold = zapFeeInfo ? getWarningThreshold(zapFeeInfo) : 1;
+  const warningThreshold = (2 * suggestedSlippage * 100) / 10_000;
 
-  if (pi > 10 * warningThreshold) {
+  if (pi > 2 * warningThreshold) {
     return {
-      msg: "Warning: The price impact seems high, and you may lose funds in this swap. Click ‘Zap Anyway’ if you wish to continue to Zap in by enabling Degen Mode.",
-      level: PI_LEVEL.VERY_HIGH,
+      msg:
+        type === "Swap Price Impact"
+          ? "The price impact for this swap is higher than usual, which may affect trade outcomes."
+          : "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
+
+      level: type === "Swap Price Impact" ? PI_LEVEL.HIGH : PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
   }
 
   if (pi > warningThreshold) {
     return {
-      msg: "Price impact is high",
+      msg:
+        type === "Swap Price Impact"
+          ? "The price impact for this swap is higher than usual, which may affect trade outcomes."
+          : "Overall zap price impact is higher than expected.",
       level: PI_LEVEL.HIGH,
       display: piDisplay,
     };
@@ -225,21 +209,6 @@ export enum PairType {
   Common = "common",
   Exotic = "exotic",
 }
-
-// basis point is 100k
-const feeConfig = {
-  [PairType.Stable]: 10,
-  [PairType.Correlated]: 25,
-  [PairType.Common]: 100,
-  [PairType.Exotic]: 250,
-};
-
-// basis point is 10k
-export const getWarningThreshold = (zapFee: ProtocolFeeAction) => {
-  if (zapFee.protocolFee.pcm <= feeConfig[PairType.Stable]) return 0.1;
-  if (zapFee.protocolFee.pcm <= feeConfig[PairType.Correlated]) return 0.25;
-  return 1;
-};
 
 export function getEtherscanLink(
   chainId: ChainId,
@@ -279,4 +248,9 @@ export const assertUnreachable = (x: never, errorMsg?: string) => {
     throw new Error(errorMsg);
   }
   throw new Error("Unhandled case: " + x);
+};
+
+export const countDecimals = (value: string | number) => {
+  if (Math.floor(+value) === +value) return 0;
+  return value.toString().split(".")[1].length || 0;
 };

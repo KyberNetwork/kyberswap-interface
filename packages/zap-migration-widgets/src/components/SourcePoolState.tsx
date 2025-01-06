@@ -4,7 +4,7 @@ import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
-import { usePositionStore } from "../stores/useFromPositionStore";
+import { usePositionStore } from "../stores/usePositionStore";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
   formatDisplayNumber,
@@ -12,10 +12,11 @@ import {
   toRawString,
 } from "@kyber/utils/number";
 import { useZapStateStore } from "../stores/useZapStateStore";
+import { PoolFee } from "./PoolFee";
 
 export function SourcePoolState() {
   const { pools } = usePoolsStore();
-  const { position } = usePositionStore();
+  const { fromPosition: position } = usePositionStore();
 
   const { liquidityOut, setLiquidityOut } = useZapStateStore();
 
@@ -24,7 +25,7 @@ export function SourcePoolState() {
   useEffect(() => {
     if (position === "loading") return;
     setLiquidityOut((position.liquidity * BigInt(percent)) / BigInt(100));
-  }, [percent, position]);
+  }, [percent, position, setLiquidityOut]);
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -40,8 +41,8 @@ export function SourcePoolState() {
 
   return (
     <div className="flex-1">
-      <div className="border border-stroke rounded-md px-4 py-3">
-        <span className="text-subText text-sm">Liquidity to Remove</span>
+      <div className="border border-stroke rounded-md px-4 py-3 mb-4">
+        <span className="text-subText text-sm">Liquidity to Migrate</span>
         <div className="flex justify-between items-center mt-2 py-1.5">
           <div className="font-medium text-lg">{percent}%</div>
           <div className="flex gap-2">
@@ -127,11 +128,7 @@ export function SourcePoolState() {
         </div>
       </div>
 
-      {/*
-      <div className="border border-stroke rounded-md px-4 py-3 mt-4">
-        <span className="text-subText text-sm">Claim fee</span>
-      </div>
-      */}
+      <PoolFee />
     </div>
   );
 }

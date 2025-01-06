@@ -18,6 +18,7 @@ import {
   univ2Pool,
   univ3PoolType,
   univ2PoolType,
+  Token,
 } from "@/schema";
 import { createStore, useStore } from "zustand";
 import { DexInfos, NetworkInfo, PATHS } from "@/constants";
@@ -40,6 +41,11 @@ export interface WidgetProps {
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
+  onOpenZapMigration?: (position: {
+    exchange: string;
+    poolId: string;
+    positionId: string | number;
+  }) => void;
   onSubmitTx: (txData: {
     from: string;
     to: string;
@@ -61,6 +67,8 @@ export interface WidgetProps {
     feePcm: number;
     feeAddress: string;
   };
+
+  onViewPosition?: () => void;
 }
 
 interface WidgetState extends WidgetProps {
@@ -68,12 +76,20 @@ interface WidgetState extends WidgetProps {
   pool: "loading" | Pool;
   position: "loading" | Position;
   errorMsg: string;
+  showWidget: boolean;
+  poolLoading: boolean;
 
   getPool: (
     fetchPrices: (
       address: string[]
     ) => Promise<{ [key: string]: { PriceBuy: number } }>
   ) => void;
+
+  setConnectedAccount: (
+    connectedAccount: WidgetProps["connectedAccount"]
+  ) => void;
+
+  toggleShowWidget: (newState: boolean) => void;
 }
 
 type WidgetProviderProps = React.PropsWithChildren<WidgetProps>;
@@ -85,12 +101,16 @@ const createWidgetStore = (initProps: WidgetProps) => {
     pool: "loading",
     position: "loading",
     errorMsg: "",
+    showWidget: true,
+    poolLoading: false,
 
     getPool: async (fetchPrices) => {
       const { poolAddress, chainId, poolType, positionId } = get();
 
+      set({ poolLoading: true });
+
       const res = await fetch(
-        `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}`
+        `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}&protocol=${poolType}`
       ).then((res) => res.json());
       const { success, data, error } = poolResponse.safeParse({
         poolType,
@@ -102,6 +122,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
         firstLoad &&
           set({ errorMsg: `Can't get pool info ${error.toString()}` });
         console.error("Can't get pool info", error);
+        set({ poolLoading: false });
         return;
       }
       const pool = data.data.pools.find(
@@ -109,6 +130,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
       );
       if (!pool) {
         firstLoad && set({ errorMsg: `Can't get pool info, address: ${pool}` });
+        set({ poolLoading: false });
         return;
       }
       const token0Address = pool.tokens[0].address;
@@ -135,17 +157,60 @@ const createWidgetStore = (initProps: WidgetProps) => {
         .then((res) => res?.data?.tokens || [])
         .catch(() => []);
 
-      const token0 = tokens.find(
+      let token0 = tokens.find(
         (tk) => tk.address.toLowerCase() === token0Address.toLowerCase()
       );
-      const token1 = tokens.find(
+      let token1 = tokens.find(
         (tk) => tk.address.toLowerCase() === token1Address.toLowerCase()
       );
 
       if (!token0 || !token1) {
-        set({ errorMsg: `Can't get token info` });
-        return;
+        const tokensToImport = [];
+        if (!token0)
+          tokensToImport.push({
+            chainId: chainId.toString(),
+            address: token0Address,
+          });
+        if (!token1)
+          tokensToImport.push({
+            chainId: chainId.toString(),
+            address: token1Address,
+          });
+
+        const res = await fetch(
+          `https://ks-setting.kyberswap.com/api/v1/tokens/import`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ tokens: tokensToImport }),
+          }
+        ).then((res) => res.json());
+
+        if (!token0)
+          token0 = res?.data?.tokens?.find(
+            (item: { data: Token }) =>
+              item.data.address.toLowerCase() === token0Address.toLowerCase()
+          )?.data;
+        if (!token1)
+          token1 = res?.data?.tokens?.find(
+            (item: { data: Token }) =>
+              item.data.address.toLowerCase() === token1Address.toLowerCase()
+          )?.data;
+
+        if (!token0 || !token1) {
+          set({ errorMsg: `Can't get token info` });
+          set({ poolLoading: false });
+          return;
+        }
       }
+
+      // check category pair
+      const pairCheck = await fetch(
+        `${PATHS.TOKEN_API}/v1/public/pair-category/check?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`
+      ).then((res) => res.json());
+      const cat = pairCheck?.data?.category || "commonPair";
 
       const { success: isUniV3, data: poolUniv3 } = univ3Pool.safeParse(pool);
       const { success: isUniV2, data: poolUniv2 } = univ2Pool.safeParse(pool);
@@ -159,6 +224,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
           throw new Error("Invalid pool univ3 type");
         }
         p = {
+          category: cat,
           poolType: pt,
           address: poolUniv3.address,
           token0: {
@@ -196,6 +262,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
             set({
               errorMsg: `Pool type ${poolType} is not supported in chainId: ${chainId}`,
             });
+            set({ poolLoading: false });
             return;
           }
           // Function signature and encoded token ID
@@ -252,18 +319,22 @@ const createWidgetStore = (initProps: WidgetProps) => {
                 amount1,
               },
             });
+            set({ poolLoading: false });
             return;
           }
 
           set({ errorMsg: error.message || "Position not found" });
+          set({ poolLoading: false });
         }
       } else if (isUniV2) {
         const { success: isUniV2PoolType, data: pt } =
           univ2PoolType.safeParse(poolType);
         if (!isUniV2PoolType) {
+          set({ poolLoading: false });
           throw new Error("Invalid pool univ2 type");
         }
         p = {
+          category: cat,
           poolType: pt,
           token0: {
             ...token0,
@@ -281,9 +352,18 @@ const createWidgetStore = (initProps: WidgetProps) => {
 
         set({ pool: p });
       } else {
+        set({ poolLoading: false });
         throw new Error("Invalid pool type");
       }
+      set({ poolLoading: false });
     },
+    setConnectedAccount: (
+      connectedAccount: WidgetProps["connectedAccount"]
+    ) => {
+      set({ connectedAccount });
+    },
+    toggleShowWidget: (newState: boolean) =>
+      set(() => ({ showWidget: newState })),
   }));
 };
 
@@ -302,11 +382,16 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
   useEffect(() => {
     // get Pool and position then update store here
     store.getState().getPool(fetchPrices);
-    const i = setInterval(() => {
-      store.getState().getPool(fetchPrices);
-    }, 15_000);
-    return () => clearInterval(i);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Update store when props change
+  useEffect(() => {
+    store.setState({
+      ...props,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props]);
 
   return (
     <WidgetContext.Provider value={store}>{children}</WidgetContext.Provider>

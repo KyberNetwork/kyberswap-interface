@@ -9,8 +9,9 @@ import {
   toRawString,
 } from "@kyber/utils/number";
 import { Skeleton } from "@kyber/ui/skeleton";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
-export function ToPool() {
+export function ToPool({ className }: { className?: string }) {
   const { pools } = usePoolsStore();
   const { fetchingRoute, tickUpper, tickLower, route } = useZapStateStore();
 
@@ -27,7 +28,12 @@ export function ToPool() {
   }
 
   return (
-    <div className="flex-1 border border-stroke rounded-md px-4 py-3">
+    <div
+      className={cn(
+        "flex-1 border border-stroke rounded-md px-4 py-3",
+        className
+      )}
+    >
       <div className="text-subText text-sm">Your New Position Liquidity</div>
       <div className="mt-2 flex items-start justify-between">
         {pools === "loading" ? (

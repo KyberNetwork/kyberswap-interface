@@ -24,14 +24,9 @@ export default function InfoHelper({
   const close = useCallback(() => setShow(false), [setShow]);
 
   return (
-    <div className="ks-lw-helper-wrapper" style={style}>
+    <div style={style}>
       <Tooltip text={text} show={show} placement={placement} size={size}>
-        <div
-          className="ks-lw-wrapper"
-          onClick={open}
-          onMouseEnter={open}
-          onMouseLeave={close}
-        >
+        <div onClick={open} onMouseEnter={open} onMouseLeave={close}>
           <Info style={{ color, width: size, height: size }} />
         </div>
       </Tooltip>

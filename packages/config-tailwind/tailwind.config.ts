@@ -31,6 +31,7 @@ const config: Omit<Config, "content"> = {
         chartRange: "var(--ks-lw-chart-range)",
         chartArea: "var(--ks-lw-chart-area)",
         success: "var(--ks-lw-success)",
+        blue: "var(--ks-lw-blue)",
         "primary-20": "var(--ks-lw-accent-20)",
         primary: {
           DEFAULT: "var(--ks-lw-accent)",
@@ -69,6 +70,21 @@ const config: Omit<Config, "content"> = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      brightness: {
+        80: ".8",
+        85: ".85",
+        120: "1.2",
+        130: "1.3",
+        140: "1.4",
+        150: "1.5",
+      },
+      scale: {
+        96: ".96",
+        99: ".99",
+      },
+      transitionDuration: {
+        "2000": "2000ms",
       },
     },
   },

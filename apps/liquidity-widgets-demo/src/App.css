@@ -35,6 +35,8 @@ body {
   align-items: center;
   padding: 1rem 0;
   gap: 1rem;
+  max-width: 760px;
+  margin: 0 auto;
 }
 
 .ks-demo-params-wrapper {

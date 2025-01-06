@@ -369,7 +369,7 @@ export const DexInfos: Record<PoolType, DexInfo> = {
       [ChainId.Optimism]: "0x74a52eb08d699CD8BE1d42dA4B241d526B8a8285",
     },
   },
-  [PoolType.DEX_KOLCL]: {
+  [PoolType.DEX_KOICL]: {
     icon: koiclLogo,
     name: "KOI CL",
     nftManagerContract: {
@@ -446,7 +446,7 @@ export const DexInfos: Record<PoolType, DexInfo> = {
   },
 };
 
-export const chainIdToChain: { [chainId: number]: string } = {
+export const chainIdToChain: { [chainId in ChainId]: string } = {
   1: "ethereum",
   137: "polygon",
   56: "bsc",
@@ -463,6 +463,26 @@ export const chainIdToChain: { [chainId: number]: string } = {
   324: "zksync",
 };
 
+export const poolTypeToDexId: { [poolType in PoolType]: number } = {
+  DEX_UNISWAPV3: 2,
+  DEX_PANCAKESWAPV3: 3,
+  DEX_METAVAULTV3: 8,
+  DEX_LINEHUBV3: 35,
+  DEX_SWAPMODEV3: 46,
+  DEX_KOICL: 38,
+  DEX_THRUSTERV3: 12,
+  DEX_SUSHISWAPV3: 11,
+  DEX_QUICKSWAPV3UNI: 10,
+
+  DEX_PANCAKESWAPV2: 16,
+  DEX_UNISWAPV2: 4,
+  DEX_PANGOLINSTANDARD: 18,
+  DEX_SUSHISWAPV2: 5,
+  DEX_QUICKSWAPV2: 19,
+  DEX_THRUSTERV2: 20,
+  DEX_SWAPMODEV2: 44,
+};
+
 export const PATHS = {
   BFF_API: "https://bff.kyberswap.com/api",
   KYBERSWAP_DOCS: "https://docs.kyberswap.com",
@@ -471,11 +491,13 @@ export const PATHS = {
   ZAP_API: "https://zap-api.kyberswap.com",
   COINGECKO_API_URL: "https://api.coingecko.com/api/v3",
   GO_PLUS_API: "https://api.gopluslabs.io/api/v1/token_security",
+  ZAP_EARN_API: "https://zap-earn-service.kyberengineering.io/api",
+  TOKEN_API: "https://token-api.kyberengineering.io/api",
 };
 
 export const DEFAULT_PRICE_RANGE = {
   LOW_POOL_FEE: 0.01,
-  MEDIUM_POOL_FEE: 0.1,
+  MEDIUM_POOL_FEE: 0.2,
   HIGH_POOL_FEE: 0.5,
 };
 

@@ -89,10 +89,12 @@ export const useApprovals = (
         isTransactionSuccessful(rpcUrl, pendingTx).then((res) => {
           if (res) {
             setPendingTx("");
-            setAddressToApprove("");
+            if (res.status) setAddressToApprove("");
             setApprovalStates({
               ...approvalStates,
-              [addressToApprove]: APPROVAL_STATE.APPROVED,
+              [addressToApprove]: res.status
+                ? APPROVAL_STATE.APPROVED
+                : APPROVAL_STATE.NOT_APPROVED,
             });
           }
         });

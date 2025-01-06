@@ -4,7 +4,6 @@ import Spinner from "@/assets/svg/loader.svg";
 import SwitchIcon from "@/assets/svg/switch.svg";
 import SuccessIcon from "@/assets/svg/success.svg";
 import ErrorIcon from "@/assets/svg/error.svg";
-import "./Preview.scss";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 import { useZapState } from "@/hooks/useZapInState";
@@ -24,20 +23,17 @@ import {
   formatWei,
   friendlyError,
   getPriceImpact,
-  getWarningThreshold,
 } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
-import { CircleCheckBig } from "lucide-react";
-import IconCopy from "@/assets/svg/copy.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@kyber/ui/accordion";
 import {
   divideBigIntToString,
   formatDisplayNumber,
@@ -53,6 +49,9 @@ import {
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
+import useCopy from "@/hooks/useCopy";
+import { cn } from "@kyber/utils/tailwind-helpers";
+import { SlippageWarning } from "../SlippageWarning";
 
 export interface ZapState {
   pool: Pool;
@@ -72,9 +71,6 @@ export interface PreviewProps {
   zapState: ZapState;
   onDismiss: () => void;
 }
-
-const COPY_TIMEOUT = 2000;
-let hideCopied: ReturnType<typeof setTimeout>;
 
 export default function Preview({
   zapState: {
@@ -98,6 +94,7 @@ export default function Preview({
     position,
     poolAddress,
     onSubmitTx,
+    onViewPosition,
   } = useWidgetContext((s) => s);
 
   const { address: account } = connectedAccount;
@@ -112,13 +109,13 @@ export default function Preview({
   } = useZapState();
 
   const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
+  const Copy = useCopy({ text: poolAddress });
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
   const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
@@ -136,7 +133,7 @@ export default function Preview({
           (res) => {
             if (!res) return;
 
-            if (res) {
+            if (res.status) {
               setTxStatus("success");
             } else setTxStatus("failed");
           }
@@ -147,7 +144,7 @@ export default function Preview({
         clearInterval(i);
       };
     }
-  }, [txHash]);
+  }, [chainId, txHash]);
 
   const addedLiqInfo = useMemo(
     () =>
@@ -161,28 +158,28 @@ export default function Preview({
     () =>
       formatUnits(
         addedLiqInfo?.addLiquidity.token0.amount,
-        pool.token0.decimals
+        pool.token0?.decimals
       ),
-    [addedLiqInfo?.addLiquidity.token0.amount, pool.token0.decimals]
+    [addedLiqInfo?.addLiquidity.token0.amount, pool]
   );
 
   const addedAmount1 = useMemo(
     () =>
       formatUnits(
         addedLiqInfo?.addLiquidity.token1.amount,
-        pool.token1.decimals
+        pool.token1?.decimals
       ),
-    [addedLiqInfo?.addLiquidity.token1.amount, pool.token1.decimals]
+    [addedLiqInfo?.addLiquidity.token1.amount, pool]
   );
 
   const amount0 =
     position === "loading"
       ? 0
-      : +toRawString(position.amount0, pool.token0.decimals);
+      : +toRawString(position.amount0, pool.token0?.decimals);
   const amount1 =
     position === "loading"
       ? 0
-      : +toRawString(position.amount1, pool.token1.decimals);
+      : +toRawString(position.amount1, pool.token1?.decimals);
 
   const positionAmount0Usd = useMemo(
     () =>
@@ -213,12 +210,12 @@ export default function Preview({
 
   const refundAmount0 = formatWei(
     refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    pool.token0.decimals
+    pool.token0?.decimals
   );
 
   const refundAmount1 = formatWei(
     refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    pool.token1.decimals
+    pool.token1?.decimals
   );
 
   const refundUsd =
@@ -229,8 +226,8 @@ export default function Preview({
     univ2PoolNormalize.safeParse(pool);
   const univ2Price = isUniV2
     ? +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
         18
       )
     : 0;
@@ -239,8 +236,8 @@ export default function Preview({
     ? formatDisplayNumber(
         tickToPrice(
           univ3Pool.tick,
-          pool.token0.decimals,
-          pool.token1.decimals,
+          pool.token0?.decimals,
+          pool.token1?.decimals,
           revert
         ),
         { significantDigits: 6 }
@@ -267,7 +264,11 @@ export default function Preview({
   ) as ProtocolFeeAction | undefined;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const piRes = getPriceImpact(
+    zapInfo?.zapDetails.priceImpact,
+    "Zap Impact",
+    zapInfo?.zapDetails.suggestedSlippage || 100
+  );
 
   const piVeryHigh =
     zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);
@@ -301,15 +302,25 @@ export default function Preview({
           (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatWei(
+          item.tokenIn.amount,
+          tokenIn?.decimals
+        ).replace(/,/g, "");
+        const amountOut = formatWei(
+          item.tokenOut.amount,
+          tokenOut?.decimals
+        ).replace(/,/g, "");
 
         const pi =
           ((parseFloat(item.tokenIn.amountUsd) -
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -330,15 +341,25 @@ export default function Preview({
           (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatWei(
+          item.tokenIn.amount,
+          tokenIn?.decimals
+        ).replace(/,/g, "");
+        const amountOut = formatWei(
+          item.tokenOut.amount,
+          tokenOut?.decimals
+        ).replace(/,/g, "");
 
         const pi =
           ((parseFloat(item.tokenIn.amountUsd) -
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -350,7 +371,7 @@ export default function Preview({
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [feeInfo, zapInfo, chainId]);
+  }, [zapInfo?.zapDetails.actions, pool, tokensIn, chainId, feeInfo]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
@@ -368,13 +389,6 @@ export default function Preview({
 
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
-
-  const handleCopy = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(poolAddress);
-      setCopied(true);
-    }
-  };
 
   const rpcUrl = NetworkInfo[chainId].defaultRpc;
 
@@ -397,7 +411,7 @@ export default function Preview({
             from: account,
             to: data.routerAddress,
             data: data.callData,
-            value: data.value,
+            value: `0x${BigInt(data.value).toString(16)}`,
           };
 
           try {
@@ -407,7 +421,7 @@ export default function Preview({
               await Promise.all([
                 estimateGas(rpcUrl, txData),
                 fetchPrices([wethAddress])
-                  .then((prices) => {
+                  .then((prices: { [x: string]: { PriceBuy: number } }) => {
                     return prices[wethAddress]?.PriceBuy || 0;
                   })
                   .catch(() => 0),
@@ -425,17 +439,7 @@ export default function Preview({
           }
         }
       });
-  }, [account, chainId, deadline, source, zapInfo.route]);
-
-  useEffect(() => {
-    if (copied) {
-      hideCopied = setTimeout(() => setCopied(false), COPY_TIMEOUT);
-    }
-
-    return () => {
-      clearTimeout(hideCopied);
-    };
-  }, [copied]);
+  }, [account, chainId, deadline, fetchPrices, rpcUrl, source, zapInfo.route]);
 
   const dexName =
     typeof DexInfos[poolType].name === "string"
@@ -484,9 +488,6 @@ export default function Preview({
       .finally(() => setAttempTx(false));
   };
 
-  const warningThreshold =
-    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
-
   if (attempTx || txHash) {
     let txStatusText = "";
     if (txHash) {
@@ -498,19 +499,19 @@ export default function Preview({
     }
 
     return (
-      <div className="ks-lw-confirming">
-        <div className="loading-area">
+      <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
+        <div className="min-h-[300px] flex justify-center gap-3 flex-col items-center flex-1">
           {txStatus === "success" ? (
-            <SuccessIcon className="success-icon" />
+            <SuccessIcon className="text-success" />
           ) : txStatus === "failed" ? (
-            <ErrorIcon className="error-icon" />
+            <ErrorIcon className="text-error" />
           ) : (
-            <Spinner className="spinner" />
+            <Spinner className="text-success animate-spin duration-2000 ease-linear repeat-infinite" />
           )}
           <div>{txStatusText}</div>
 
           {!txHash && (
-            <div className="subText text-center">
+            <div className="text-sm text-subText text-center">
               Confirm this transaction in your wallet - Zapping{" "}
               {positionId
                 ? `Position #${positionId}`
@@ -518,16 +519,16 @@ export default function Preview({
             </div>
           )}
           {txHash && txStatus === "" && (
-            <div className="subText">
+            <div className="text-sm text-subText">
               Waiting for the transaction to be mined
             </div>
           )}
         </div>
 
-        <div className="divider" />
+        <div className="ks-lw-divider" />
         {txHash && (
           <a
-            className="view-tx"
+            className="flex justify-end items-center text-accent text-sm gap-1"
             href={`${NetworkInfo[chainId].scanLink}/tx/${txHash}`}
             target="_blank"
             rel="noopener norefferer"
@@ -535,62 +536,62 @@ export default function Preview({
             View transaction ↗
           </a>
         )}
-        <button
-          className="primary-btn"
-          style={{ width: "100%" }}
-          onClick={onDismiss}
-        >
-          Close
-        </button>
+        <div className="flex gap-4 w-full">
+          <button
+            className={cn(
+              onViewPosition ? "ks-outline-btn flex-1" : "ks-primary-btn flex-1"
+            )}
+            onClick={onDismiss}
+          >
+            Close
+          </button>
+          {txStatus === "success" && onViewPosition && (
+            <button className="ks-primary-btn flex-1" onClick={onViewPosition}>
+              View position
+            </button>
+          )}
+        </div>
       </div>
     );
   }
 
   if (txError) {
     return (
-      <div className="ks-lw-confirming">
-        <div className="loading-area">
-          <ErrorIcon className="error-icon" />
-          <div>{friendlyError(txError)}</div>
+      <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
+        <div className="min-h-[300px] flex justify-center items-center gap-3 flex-col flex-1">
+          <ErrorIcon className="text-error" />
+          <div className="text-center">{friendlyError(txError)}</div>
         </div>
 
-        <div style={{ width: "100%" }}>
-          <div className="divider" />
+        <div className="w-full">
+          <div className="ks-lw-divider" />
           <div
-            className="error-detail"
+            className="flex justify-between items-center px-0 py-[10px] cursor-pointer w-full"
             role="button"
             onClick={() => setShowErrorDetail((prev) => !prev)}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                fontSize: "14px",
-              }}
-            >
+            <div className="flex items-center gap-1 text-sm">
               <Info />
               Error details
             </div>
             <DropdownIcon
-              style={{
-                transform: `rotate(${!showErrorDetail ? "0" : "-180deg"})`,
-                transition: `all 0.2s ease`,
-              }}
+              className={`transition-all duration-200 ease-in-out ${
+                !showErrorDetail ? "rotate-0" : "-rotate-180"
+              }`}
             />
           </div>
-          <div className="divider" />
+          <div className="ks-lw-divider" />
 
-          <div className={`error-msg ${showErrorDetail ? "error-open" : ""}`}>
+          <div
+            className={`ks-error-msg ${
+              showErrorDetail ? "mt-3 max-h-[200px]" : ""
+            }`}
+          >
             {txError?.message || JSON.stringify(txError)}
           </div>
         </div>
 
-        <button
-          className="primary-btn"
-          style={{ width: "100%" }}
-          onClick={onDismiss}
-        >
+        <button className="ks-primary-btn w-full" onClick={onDismiss}>
           {txError ? "Dismiss" : "Close"}
         </button>
       </div>
@@ -599,14 +600,14 @@ export default function Preview({
 
   return (
     <div className="ks-lw-preview">
-      <div className="title">
-        <div className="logo">
+      <div className="flex items-center h-9 gap-4 mt-4 text-base">
+        <div className="relative flex items-center">
           <img
             src={pool.token0.logo}
             alt=""
             width="36px"
             height="36px"
-            style={{ borderRadius: "50%" }}
+            className="rounded-full border-2 border-layer1"
             onError={({ currentTarget }) => {
               currentTarget.onerror = null;
               currentTarget.src = defaultTokenLogo;
@@ -617,7 +618,7 @@ export default function Preview({
             alt=""
             width="36px"
             height="36px"
-            style={{ borderRadius: "50%" }}
+            className="rounded-full border-2 border-layer1 relative -left-2"
             onError={({ currentTarget }) => {
               currentTarget.onerror = null;
               currentTarget.src = defaultTokenLogo;
@@ -625,7 +626,7 @@ export default function Preview({
           />
 
           <img
-            className="network-logo"
+            className="rounded-full border-2 border-layer1 absolute bottom-0 -right-1"
             src={NetworkInfo[chainId].logo}
             width="18px"
             height="18px"
@@ -638,20 +639,14 @@ export default function Preview({
 
         <div>
           <div className="flex items-center gap-2">
-            {pool.token0.symbol}/{pool.token1.symbol}{" "}
-            {!copied ? (
-              <IconCopy
-                className="w-3 h-3 text-subText cursor-pointer"
-                onClick={handleCopy}
-              />
-            ) : (
-              <CircleCheckBig className="w-3 h-3 text-accent" />
-            )}
+            {pool.token0.symbol}/{pool.token1.symbol} {Copy}
           </div>
-          <div className="pool-info mt-[2px]">
-            <div className="tag tag-default">Fee {pool.fee}%</div>
+          <div className="flex items-center gap-1 mt-[2px]">
+            <div className="rounded-full text-xs leading-5 bg-layer2 px-2 py-0 h-max text-text flex items-center gap-1 brightness-75">
+              Fee {pool.fee}%
+            </div>
             {positionId !== undefined && (
-              <div className="tag tag-primary">
+              <div className="rounded-full text-xs px-2 py-0 h-max flex items-center gap-1 bg-transparent text-success relative before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:opacity-20 before:bg-success before:rounded-full">
                 <Info width={12} /> ID {positionId}
               </div>
             )}
@@ -660,9 +655,8 @@ export default function Preview({
 
         {isOutOfRange && (
           <div
-            className="rounded-full text-xs px-2 py-1 font-normal text-warning"
+            className="rounded-full text-xs px-2 py-1 font-normal text-warning ml-auto"
             style={{
-              marginLeft: "auto",
               background: `${theme.warning}33`,
             }}
           >
@@ -670,7 +664,7 @@ export default function Preview({
             <InfoHelper
               width="300px"
               color={theme.warning}
-              text="The position is inactive and not earning trading fees due to the current price being out of the set price range."
+              text="Your liquidity is outside the current market range and will not be used/earn fees until the market price enters your specified range."
               size={16}
               style={{ position: "relative", top: "-1px", margin: 0 }}
             />
@@ -678,10 +672,10 @@ export default function Preview({
         )}
       </div>
 
-      <div className="card" style={{ marginTop: "1rem" }}>
-        <div className="card-title">
+      <div className="ks-lw-card mt-4">
+        <div className="ks-lw-card-title">
           <p>Zap-in Amount</p>
-          <p className="est-usd">
+          <p className="text-text font-normal text-lg">
             {formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
           </p>
         </div>
@@ -710,17 +704,14 @@ export default function Preview({
         </div>
       </div>
 
-      <div
-        className="card card-outline"
-        style={{ marginTop: "1rem", fontSize: "14px" }}
-      >
-        <div className="row-between">
-          <div className="card-title">Current pool price</div>
-          <div className="row">
+      <div className="ks-lw-card border border-stroke bg-transparent mt-4 text-sm">
+        <div className="flex justify-between items-center gap-4 w-full">
+          <div className="ks-lw-card-title">Current pool price</div>
+          <div className="flex items-center gap-1 text-sm">
             <span>{price}</span>
             {quote}
             <SwitchIcon
-              style={{ cursor: "pointer" }}
+              className="cursor-pointer"
               onClick={() => toggleRevertPrice()}
               role="button"
             />
@@ -728,18 +719,10 @@ export default function Preview({
         </div>
 
         {isUniV3 && (
-          <div className="row-between" style={{ marginTop: "8px" }}>
-            <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
-              <div className="card-title">Min Price</div>
-              <div
-                style={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  width: "100%",
-                  textAlign: "center",
-                }}
-              >
+          <div className="flex justify-between items-center gap-4 w-full mt-2">
+            <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
+              <div className="ks-lw-card-title">Min Price</div>
+              <div className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-center">
                 {(
                   revert
                     ? tickUpper === univ3Pool.maxTick
@@ -748,19 +731,11 @@ export default function Preview({
                   ? "0"
                   : leftPrice}
               </div>
-              <div className="card-title">{quote}</div>
+              <div className="ks-lw-card-title">{quote}</div>
             </div>
-            <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
-              <div className="card-title">Max Price</div>
-              <div
-                style={{
-                  textAlign: "center",
-                  width: "100%",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
+            <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
+              <div className="ks-lw-card-title">Max Price</div>
+              <div className="text-center w-full overflow-hidden text-ellipsis whitespace-nowrap">
                 {(
                   !revert
                     ? tickUpper === univ3Pool.maxTick
@@ -769,23 +744,25 @@ export default function Preview({
                   ? "∞"
                   : rightPrice}
               </div>
-              <div className="card-title">{quote}</div>
+              <div className="ks-lw-card-title">{quote}</div>
             </div>
           </div>
         )}
       </div>
 
-      <div className="flex-col" style={{ gap: "12px", marginTop: "1rem" }}>
-        <div className="row-between" style={{ alignItems: "flex-start" }}>
-          <div className="summary-title">Est. Pooled Amount</div>
+      <div className="flex flex-col items-center gap-3 mt-4">
+        <div className="flex justify-between gap-4 w-full items-start">
+          <div className="text-sm font-medium text-subText">
+            Est. Pooled Amount
+          </div>
           <div className="text-[14px] flex gap-4">
-            <div>
-              <div className="flex gap-[4px]">
+            <div className="flex flex-col gap-1">
+              <div className="flex gap-1">
                 {pool?.token0?.logo && (
                   <img
                     src={pool.token0.logo}
                     className={`w-4 h-4 rounded-full relative ${
-                      positionId ? "" : "mt-1 top-[-4px]"
+                      positionId ? "" : "mt-1 -top-1"
                     }`}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
@@ -793,19 +770,19 @@ export default function Preview({
                     }}
                   />
                 )}
-                <div className="text-end">
+                <div>
                   {formatDisplayNumber(
                     positionId !== undefined ? amount0 : +addedAmount0,
-                    { significantDigits: 5 }
+                    { significantDigits: 4 }
                   )}{" "}
                   {pool?.token0.symbol}
                 </div>
               </div>
 
-              {position && (
+              {positionId && (
                 <div className="text-end">
                   +{" "}
-                  {formatDisplayNumber(+addedAmount0, { significantDigits: 5 })}{" "}
+                  {formatDisplayNumber(+addedAmount0, { significantDigits: 4 })}{" "}
                   {pool?.token0.symbol}
                 </div>
               )}
@@ -817,13 +794,13 @@ export default function Preview({
                 )}
               </div>
             </div>
-            <div>
+            <div className="flex flex-col gap-1">
               <div className="flex gap-1">
                 {pool?.token1?.logo && (
                   <img
                     src={pool.token1.logo}
                     className={`w-4 h-4 rounded-full relative ${
-                      positionId ? "" : "mt-1 top-[-4px]"
+                      positionId ? "" : "mt-1 -top-1"
                     }`}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
@@ -831,18 +808,18 @@ export default function Preview({
                     }}
                   />
                 )}
-                <div className="text-end">
+                <div>
                   {formatDisplayNumber(
                     positionId !== undefined ? amount1 : +addedAmount1,
-                    { significantDigits: 5 }
+                    { significantDigits: 4 }
                   )}{" "}
                   {pool?.token1.symbol}
                 </div>
               </div>
-              {position && (
+              {positionId && (
                 <div className="text-end">
                   +{" "}
-                  {formatDisplayNumber(+addedAmount1, { significantDigits: 5 })}{" "}
+                  {formatDisplayNumber(+addedAmount1, { significantDigits: 4 })}{" "}
                   {pool?.token1.symbol}
                 </div>
               )}
@@ -857,14 +834,16 @@ export default function Preview({
           </div>
         </div>
 
-        <div className="row-between">
+        <div className="flex justify-between items-center gap-4 w-full">
           <MouseoverTooltip
             text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
             width="220px"
           >
-            <div className="summary-title text-underline">Remaining Amount</div>
+            <div className="text-xs text-subText border-b border-dotted border-subText">
+              Remaining Amount
+            </div>
           </MouseoverTooltip>
-          <span className="summary-value">
+          <span className="text-sm font-medium">
             {formatCurrency(refundUsd)}
             <InfoHelper
               text={
@@ -881,24 +860,14 @@ export default function Preview({
           </span>
         </div>
 
-        <div className="row-between">
-          <MouseoverTooltip
-            text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-            width="220px"
-          >
-            <div className="summary-title text-underline">Max Slippage</div>
-          </MouseoverTooltip>
-          <span
-            className="summary-value"
-            style={{
-              color: slippage > warningThreshold ? theme.warning : theme.text,
-            }}
-          >
-            {((slippage * 100) / 10_000).toFixed(2)}%
-          </span>
-        </div>
+        <SlippageWarning
+          className="gap-4 w-full mt-0"
+          slippage={slippage}
+          suggestedSlippage={zapInfo.zapDetails.suggestedSlippage}
+          showWarning
+        />
 
-        <div className="row-between">
+        <div className="flex justify-between items-center gap-4 w-full">
           {swapPi.length ? (
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
@@ -908,15 +877,15 @@ export default function Preview({
                     width="220px"
                   >
                     <div
-                      className={`label text-underline text-xs ${
+                      className={`text-xs border-b border-dotted border-subText ${
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
-                          ? ""
+                          ? "text-subText"
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
                           ? "!text-warning !border-warning"
                           : "!text-error !border-error"
                       }`}
                     >
-                      Swap Impact
+                      Swap Price Impact
                     </div>
                   </MouseoverTooltip>
                 </AccordionTrigger>
@@ -954,32 +923,44 @@ export default function Preview({
                 text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
                 width="220px"
               >
-                <div className="label text-underline">Swap Impact</div>
+                <div className="border-b border-dotted border-subText text-xs text-subText">
+                  Swap Impact
+                </div>
               </MouseoverTooltip>
               <span>--</span>
             </>
           )}
         </div>
 
-        <div className="row-between">
+        <div className="flex justify-between items-center gap-4 w-full">
           <MouseoverTooltip
             text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
             width="220px"
           >
-            <div className="summary-title text-underline">Zap impact</div>
+            <div
+              className={cn(
+                "text-xs text-subText border-b border-dotted border-subText",
+                piRes.level === PI_LEVEL.VERY_HIGH ||
+                  piRes.level === PI_LEVEL.INVALID
+                  ? "border-error text-error"
+                  : piRes.level === PI_LEVEL.HIGH
+                  ? "border-warning text-warning"
+                  : "border-subText text-subText"
+              )}
+            >
+              Zap impact
+            </div>
           </MouseoverTooltip>
           {zapInfo ? (
             <div
-              className="summary-value"
-              style={{
-                color:
-                  piRes.level === PI_LEVEL.VERY_HIGH ||
-                  piRes.level === PI_LEVEL.INVALID
-                    ? theme.error
-                    : piRes.level === PI_LEVEL.HIGH
-                    ? theme.warning
-                    : theme.text,
-              }}
+              className={`text-sm font-medium ${
+                piRes.level === PI_LEVEL.VERY_HIGH ||
+                piRes.level === PI_LEVEL.INVALID
+                  ? "text-error"
+                  : piRes.level === PI_LEVEL.HIGH
+                  ? "text-warning"
+                  : "text-text"
+              }`}
             >
               {piRes.display}
             </div>
@@ -988,26 +969,28 @@ export default function Preview({
           )}
         </div>
 
-        <div className="row-between">
+        <div className="flex justify-between items-center gap-4 w-full">
           <MouseoverTooltip
             text="Estimated network fee for your transaction."
             width="220px"
           >
-            <div className="summary-title text-underline">Est. Gas Fee</div>
+            <div className="text-xs text-subText border-b border-dotted border-subText">
+              Est. Gas Fee
+            </div>
           </MouseoverTooltip>
-          <div className="summary-value">
+          <div className="text-sm font-medium">
             {gasUsd ? formatCurrency(gasUsd) : "--"}
           </div>
         </div>
 
-        <div className="row-between">
+        <div className="flex justify-between items-center gap-4 w-full">
           <MouseoverTooltip
             text={
               <div>
                 Fees charged for automatically zapping into a liquidity pool.
                 You still have to pay the standard gas fees.{" "}
                 <a
-                  style={{ color: theme.accent }}
+                  className="text-accent"
                   href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
                   target="_blank"
                   rel="noopener norefferer"
@@ -1018,73 +1001,76 @@ export default function Preview({
             }
             width="220px"
           >
-            <div className="summary-title text-underline">Zap Fee</div>
+            <div className="text-xs text-subText border-b border-dotted border-subText">
+              Zap Fee
+            </div>
           </MouseoverTooltip>
-          <div className="summary-value">{parseFloat(zapFee.toFixed(3))}%</div>
+          <div className="text-sm font-medium">
+            {parseFloat(zapFee.toFixed(3))}%
+          </div>
         </div>
       </div>
 
-      {slippage > warningThreshold && (
+      {(slippage > 2 * zapInfo.zapDetails.suggestedSlippage ||
+        slippage < zapInfo.zapDetails.suggestedSlippage / 2) && (
         <div
-          className="warning-msg"
+          className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
           style={{
-            backgroundColor: theme.warning + "33",
-            color: theme.warning,
+            backgroundColor: `${theme.warning}33`,
           }}
         >
-          Slippage is high, your transaction might be front-run!
+          {zapInfo.zapDetails.suggestedSlippage / 2 > slippage
+            ? "Your slippage is set higher than usual, which may cause unexpected losses."
+            : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
+        </div>
+      )}
+
+      {zapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+        <div
+          className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
+            swapPiRes.piRes.level === PI_LEVEL.HIGH
+              ? "text-warning"
+              : "text-error"
+          }`}
+          style={{
+            backgroundColor:
+              swapPiRes.piRes.level === PI_LEVEL.HIGH
+                ? `${theme.warning}33`
+                : `${theme.error}33`,
+          }}
+        >
+          {swapPiRes.piRes.msg}
         </div>
       )}
 
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
         <div
-          className="warning-msg"
+          className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
+            piHigh ? "text-warning" : "text-error"
+          }`}
           style={{
             backgroundColor: piHigh ? `${theme.warning}33` : `${theme.error}33`,
-            color: piHigh ? theme.warning : theme.error,
           }}
         >
           {piRes.msg}
         </div>
       )}
 
-      {zapInfo &&
-        piRes.level === PI_LEVEL.NORMAL &&
-        swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-          <div
-            className="warning-msg"
-            style={{
-              backgroundColor:
-                swapPiRes.piRes.level === PI_LEVEL.HIGH
-                  ? `${theme.warning}33`
-                  : `${theme.error}33`,
-              color:
-                swapPiRes.piRes.level === PI_LEVEL.HIGH
-                  ? theme.warning
-                  : theme.error,
-            }}
-          >
-            {swapPiRes.piRes.msg}
-          </div>
-        )}
+      <p className="text-[#737373] italic text-xs mt-4">
+        The information is intended solely for your reference at the time you
+        are viewing. It is your responsibility to verify all information before
+        making decisions
+      </p>
 
       <button
-        className="primary-btn"
+        className={`ks-primary-btn mt-4 w-full ${
+          piVeryHigh
+            ? "bg-error border-error"
+            : piHigh
+            ? "bg-warning border-warning"
+            : ""
+        }`}
         onClick={handleClick}
-        style={{
-          marginTop: "1rem",
-          width: "100%",
-          background: piVeryHigh
-            ? theme.error
-            : piHigh
-            ? theme.warning
-            : undefined,
-          border: piVeryHigh
-            ? `1px solid ${theme.error}`
-            : piHigh
-            ? theme.warning
-            : undefined,
-        }}
       >
         {positionId ? "Increase" : "Add"} Liquidity
       </button>

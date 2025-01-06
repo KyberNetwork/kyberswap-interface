@@ -12,7 +12,6 @@ import { ZapRouteDetail } from "@/hooks/types/zapInTypes";
 import useMarketPrice from "@/hooks/useMarketPrice";
 import useDebounce from "@/hooks/useDebounce";
 import useTokenBalances from "@/hooks/useTokenBalances";
-
 import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
@@ -20,7 +19,12 @@ import {
   ZERO_ADDRESS,
   chainIdToChain,
 } from "@/constants";
-import { assertUnreachable, formatWei } from "@/utils";
+import {
+  assertUnreachable,
+  formatWei,
+  countDecimals,
+  formatNumber,
+} from "@/utils";
 import {
   Token,
   univ2PoolNormalize,
@@ -29,7 +33,7 @@ import {
   univ3Position,
 } from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
-import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
+import { divideBigIntToString } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { formatUnits, parseUnits } from "@kyber/utils/crypto";
 
@@ -42,7 +46,7 @@ export const ERROR_MESSAGE = {
   INVALID_PRICE_RANGE: "Invalid price range",
   ENTER_AMOUNT: "Enter amount for",
   INSUFFICIENT_BALANCE: "Insufficient balance",
-  INVALID_INPUT_AMOUNTT: "Invalid input amount",
+  INVALID_INPUT_AMOUNT: "Invalid input amount",
 };
 
 const ZapContext = createContext<{
@@ -66,7 +70,8 @@ const ZapContext = createContext<{
   setSlippage: (val: number) => void;
   ttl: number;
   setTtl: (val: number) => void;
-  toggleSetting: () => void;
+  toggleSetting: (highlightDegenMode?: boolean) => void;
+  highlightDegenMode: boolean;
   setShowSeting: (val: boolean) => void;
   showSetting: boolean;
   degenMode: boolean;
@@ -80,7 +85,9 @@ const ZapContext = createContext<{
   tokensInUsdPrice: number[];
   token0Price: number;
   token1Price: number;
+  setManualSlippage: (val: boolean) => void;
 }>({
+  highlightDegenMode: false,
   price: null,
   revertPrice: false,
   tickLower: null,
@@ -97,7 +104,7 @@ const ZapContext = createContext<{
   error: "",
   zapInfo: null,
   loading: false,
-  slippage: 10,
+  slippage: 50,
   setSlippage: () => {},
   ttl: 20, // 20min
   setTtl: () => {},
@@ -112,6 +119,7 @@ const ZapContext = createContext<{
   tokensInUsdPrice: [],
   token0Price: 0,
   token1Price: 0,
+  setManualSlippage: () => {},
 });
 
 export const ZapContextProvider = ({
@@ -144,10 +152,15 @@ export const ZapContextProvider = ({
 
   const networkChainId = connectedAccount?.chainId;
   const { allTokens } = useTokenList();
-  const { balances } = useTokenBalances(allTokens.map((item) => item.address));
+  const { balances } = useTokenBalances(
+    chainId,
+    allTokens.map((item) => item.address),
+    account
+  );
 
   const [showSetting, setShowSeting] = useState(false);
-  const [slippage, setSlippage] = useState(10);
+  const [slippage, setSlippage] = useState(50);
+  const [manualSlippage, setManualSlippage] = useState(false);
   const [ttl, setTtl] = useState(20);
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(null);
@@ -158,10 +171,35 @@ export const ZapContextProvider = ({
   const [zapApiError, setZapApiError] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [degenMode, setDegenMode] = useState(false);
+  const [highlightDegenMode, setHighlightDegenMode] = useState(false);
 
   const debounceTickLower = useDebounce(tickLower, 300);
   const debounceTickUpper = useDebounce(tickUpper, 300);
   const debounceAmountsIn = useDebounce(amountsIn, 300);
+
+  const isTokensStable = tokensIn.every((tk) => tk.isStable);
+
+  const isTokensInPair = tokensIn.every((tk) => {
+    const addr =
+      tk.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+        ? NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+        : tk.address.toLowerCase();
+    return (
+      pool !== "loading" &&
+      (pool.token0.address.toLowerCase() === addr ||
+        pool.token1.address.toLowerCase() === addr)
+    );
+  });
+
+  useEffect(() => {
+    if (pool === "loading" || manualSlippage) return;
+    if (pool.category === "stablePair" && isTokensStable) setSlippage(10);
+    else if (pool.category === "correlatedPair" && isTokensInPair)
+      setSlippage(25);
+    else {
+      setSlippage(50);
+    }
+  }, [isTokensStable, pool, manualSlippage, isTokensInPair]);
 
   const tokensInUsdPrice = useMarketPrice(
     tokensIn
@@ -182,7 +220,7 @@ export const ZapContextProvider = ({
   const nativeToken = useMemo(
     () => ({
       address: NATIVE_TOKEN_ADDRESS,
-      decimals: NetworkInfo[chainId].wrappedToken.decimals,
+      decimals: NetworkInfo[chainId].wrappedToken?.decimals,
       symbol: NetworkInfo[chainId].wrappedToken.symbol.slice(1) || "",
       logo: NetworkInfo[chainId].nativeLogo,
     }),
@@ -191,27 +229,25 @@ export const ZapContextProvider = ({
 
   const priceLower = useMemo(() => {
     if (pool === "loading" || tickLower == null) return null;
-    return formatDisplayNumber(
+    return formatNumber(
       +tickToPrice(
         tickLower,
-        pool.token0.decimals,
-        pool.token1.decimals,
+        pool.token0?.decimals,
+        pool.token1?.decimals,
         false
-      ),
-      { significantDigits: 8 }
+      )
     );
-  }, [pool, tickUpper]);
+  }, [pool, tickLower]);
 
   const priceUpper = useMemo(() => {
     if (pool === "loading" || tickUpper === null) return null;
-    return formatDisplayNumber(
+    return formatNumber(
       +tickToPrice(
         tickUpper,
-        pool.token0.decimals,
-        pool.token1.decimals,
+        pool.token0?.decimals,
+        pool.token1?.decimals,
         false
-      ),
-      { significantDigits: 8 }
+      )
     );
   }, [pool, tickUpper]);
 
@@ -255,14 +291,16 @@ export const ZapContextProvider = ({
               ? NATIVE_TOKEN_ADDRESS
               : tokensIn[i]?.address.toLowerCase()
           ]?.toString() || "0",
-          tokensIn[i].decimals
+          tokensIn[i]?.decimals
         );
 
+        if (countDecimals(listAmountsIn[i]) > tokensIn[i]?.decimals)
+          return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
         if (parseFloat(listAmountsIn[i]) > parseFloat(balance))
           return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
       }
     } catch (e) {
-      return ERROR_MESSAGE.INVALID_INPUT_AMOUNTT;
+      return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
     }
 
     if (zapApiError) return zapApiError;
@@ -284,8 +322,14 @@ export const ZapContextProvider = ({
     setRevertPrice((prev) => !prev);
   }, []);
 
-  const toggleSetting = () => {
+  const toggleSetting = (highlight?: boolean) => {
     setShowSeting((prev) => !prev);
+    if (highlight) {
+      setHighlightDegenMode(true);
+      setTimeout(() => {
+        setHighlightDegenMode(false);
+      }, 4000);
+    }
   };
 
   useEffect(() => {
@@ -305,6 +349,7 @@ export const ZapContextProvider = ({
 
   const token0Price = pool !== "loading" ? pool.token0.price || 0 : 0;
   const token1Price = pool !== "loading" ? pool.token1.price || 0 : 0;
+
   // set init tokens in
   useEffect(() => {
     if (!pool || tokensIn.length) return;
@@ -348,8 +393,8 @@ export const ZapContextProvider = ({
     if (
       !initDepositTokens &&
       pool !== "loading" &&
-      pool.token0.price &&
-      pool.token1.price &&
+      (pool.token0.price || pool.token0.price === 0) &&
+      (pool.token1.price || pool.token1.price === 0) &&
       Object.keys(balances).length
     ) {
       const isToken0Native =
@@ -368,7 +413,7 @@ export const ZapContextProvider = ({
             ? NATIVE_TOKEN_ADDRESS
             : pool.token0.address.toLowerCase()
         ]?.toString() || "0",
-        token0.decimals
+        token0?.decimals
       );
       const token1Balance = formatWei(
         balances[
@@ -376,7 +421,7 @@ export const ZapContextProvider = ({
             ? NATIVE_TOKEN_ADDRESS
             : pool.token1.address.toLowerCase()
         ]?.toString() || "0",
-        token1.decimals
+        token1?.decimals
       );
 
       setTokensIn([
@@ -424,7 +469,7 @@ export const ZapContextProvider = ({
 
         formattedAmountsInWeis = tokensIn
           .map((token: Token, index: number) =>
-            parseUnits(listAmountsIn[index] || "0", token.decimals).toString()
+            parseUnits(listAmountsIn[index] || "0", token?.decimals).toString()
           )
           .join(",");
       } catch (error) {
@@ -434,9 +479,8 @@ export const ZapContextProvider = ({
       if (
         !formattedTokensIn ||
         !formattedAmountsInWeis ||
-        !formattedAmountsInWeis.length ||
-        !formattedAmountsInWeis[0] ||
-        formattedAmountsInWeis[0] === "0"
+        formattedAmountsInWeis === "0" ||
+        formattedAmountsInWeis === "00"
       ) {
         setZapInfo(null);
         return;
@@ -451,7 +495,8 @@ export const ZapContextProvider = ({
         "pool.fee": pool.fee * 10_000,
         ...(isUniv3Pool &&
         debounceTickUpper !== null &&
-        debounceTickLower !== null
+        debounceTickLower !== null &&
+        !positionId
           ? {
               "position.tickUpper": debounceTickUpper,
               "position.tickLower": debounceTickLower,
@@ -460,7 +505,6 @@ export const ZapContextProvider = ({
         tokensIn: formattedTokensIn,
         amountsIn: formattedAmountsInWeis,
         slippage,
-        "aggregatorOptions.disable": false,
         ...(positionId ? { "position.id": positionId } : {}),
         ...(feeAddress ? { feeAddress, feePcm } : {}),
         ...(includedSources
@@ -531,8 +575,8 @@ export const ZapContextProvider = ({
     if (success) {
       return +tickToPrice(
         data.tick,
-        data.token0.decimals,
-        data.token1.decimals,
+        data.token0?.decimals,
+        data.token1?.decimals,
         revertPrice
       );
     }
@@ -542,15 +586,15 @@ export const ZapContextProvider = ({
 
     if (isUniV2) {
       const p = +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
         18
       );
       return revertPrice ? 1 / p : p;
     }
 
     return assertUnreachable(poolType as never, "poolType is not handled");
-  }, [pool, revertPrice]);
+  }, [pool, poolType, revertPrice]);
 
   return (
     <ZapContext.Provider
@@ -587,6 +631,8 @@ export const ZapContextProvider = ({
         tokensInUsdPrice,
         token0Price,
         token1Price,
+        highlightDegenMode,
+        setManualSlippage,
       }}
     >
       {children}

@@ -12,7 +12,6 @@ import {
   PI_LEVEL,
   formatCurrency,
   formatNumber,
-  formatWei,
   getPriceImpact,
 } from "../../utils";
 import InfoHelper from "../InfoHelper";
@@ -23,13 +22,15 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@kyber/ui/accordion";
 import { useMemo } from "react";
 import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useWidgetContext } from "@/stores/widget";
 import { toRawString } from "@kyber/utils/number";
 import { formatUnits } from "@kyber/utils/crypto";
+import { SlippageWarning } from "../SlippageWarning";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 export default function EstLiqValue() {
   const { zapInfo, source, slippage, tokensIn } = useZapState();
@@ -81,19 +82,35 @@ export default function EstLiqValue() {
       (item) => item.address.toLowerCase() === token1Address?.toLowerCase()
     ) || [];
 
-  const refundAmount0 = formatWei(
-    refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    token0Decimals
+  const refundAmount0 = formatDisplayNumber(
+    formatUnits(
+      refundToken0
+        .reduce((acc, cur) => acc + BigInt(cur.amount), 0n)
+        .toString(),
+      token0Decimals
+    ),
+    { significantDigits: 6 }
   );
 
-  const refundAmount1 = formatWei(
-    refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    token1Decimals
+  const refundAmount1 = formatDisplayNumber(
+    formatUnits(
+      refundToken1
+        .reduce((acc, cur) => acc + BigInt(cur.amount), 0n)
+        .toString(),
+      token1Decimals
+    ),
+    { significantDigits: 6 }
   );
 
   const refundUsd =
     refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
     0;
+  const initUsd = Number(zapInfo?.zapDetails.initialAmountUsd || 0);
+  const suggestedSlippage =
+    (zapInfo?.zapDetails.suggestedSlippage || 100) / 10_000;
+  const isHighRemainingAmount = initUsd
+    ? refundUsd / initUsd >= suggestedSlippage
+    : false;
 
   const feeInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.PROTOCOL_FEE
@@ -106,7 +123,11 @@ export default function EstLiqValue() {
   const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const piRes = getPriceImpact(
+    zapInfo?.zapDetails.priceImpact,
+    "Zap Impact",
+    zapInfo?.zapDetails.suggestedSlippage || 100
+  );
 
   const swapPi = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
@@ -136,15 +157,22 @@ export default function EstLiqValue() {
           (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
         const pi =
-          ((parseFloat(item.tokenIn.amountUsd) -
-            parseFloat(item.tokenOut.amountUsd)) /
-            parseFloat(item.tokenIn.amountUsd)) *
-          100;
-        const piRes = getPriceImpact(pi, feeInfo);
+          parseFloat(item.tokenIn.amountUsd) === 0
+            ? 0
+            : ((parseFloat(item.tokenIn.amountUsd) -
+                parseFloat(item.tokenOut.amountUsd)) /
+                parseFloat(item.tokenIn.amountUsd)) *
+              100;
+
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -167,15 +195,21 @@ export default function EstLiqValue() {
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
 
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
         const pi =
-          ((parseFloat(item.tokenIn.amountUsd) -
-            parseFloat(item.tokenOut.amountUsd)) /
-            parseFloat(item.tokenIn.amountUsd)) *
-          100;
-        const piRes = getPriceImpact(pi, feeInfo);
+          parseFloat(item.tokenIn.amountUsd) === 0
+            ? 0
+            : ((parseFloat(item.tokenIn.amountUsd) -
+                parseFloat(item.tokenOut.amountUsd)) /
+                parseFloat(item.tokenIn.amountUsd)) *
+              100;
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -187,7 +221,7 @@ export default function EstLiqValue() {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [feeInfo, zapInfo, chainId]);
+  }, [zapInfo?.zapDetails.actions, pool, tokensIn, chainId, feeInfo]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
@@ -207,11 +241,11 @@ export default function EstLiqValue() {
   }, [swapPi]);
 
   const amount0 =
-    position === "loading" || pool === "loading"
+    position === "loading" || pool === "loading" || !pool.token0?.decimals
       ? 0
       : +toRawString(position.amount0, pool.token0.decimals);
   const amount1 =
-    position === "loading" || pool === "loading"
+    position === "loading" || pool === "loading" || !pool.token1.decimals
       ? 0
       : +toRawString(position.amount1, pool.token1.decimals);
 
@@ -230,23 +264,25 @@ export default function EstLiqValue() {
 
   return (
     <>
-      <div className="zap-route est-liq-val">
-        <div className="title">
+      <div className="border border-stroke rounded-md py-3 px-4">
+        <div className="text-sm mb-1 flex justify-between">
           Est. Liquidity Value
           {!!addedAmountUsd && <span>{formatCurrency(addedAmountUsd)}</span>}
         </div>
-        <div className="divider"></div>
+        <div className="ks-lw-divider" />
 
-        <div className="detail-row">
-          <div className="label">Est. Pooled {symbol0}</div>
+        <div className="flex justify-between items-start mt-3 text-xs">
+          <div className="text-subText mt-[2px] w-fit">
+            Est. Pooled {symbol0}
+          </div>
           {zapInfo ? (
             <div>
-              <div className="token-amount">
+              <div className="flex justify-end items-start gap-1">
                 {logo0 && (
                   <img
                     src={logo0}
                     width="14px"
-                    style={{ marginTop: "2px", borderRadius: "50%" }}
+                    className="mt-[2px] rounded-full"
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
                       currentTarget.src = defaultTokenLogo;
@@ -260,13 +296,13 @@ export default function EstLiqValue() {
                   {symbol0}
                 </div>
               </div>
-              {positionId !== undefined && (
+              {positionId && (
                 <div className="text-end">
                   + {formatNumber(+addedAmount0)} {symbol0}
                 </div>
               )}
 
-              <div className="label" style={{ marginLeft: "auto" }}>
+              <div className="text-subText mt-[2px] w-fit ml-auto">
                 ~
                 {formatCurrency(
                   +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0) +
@@ -279,16 +315,18 @@ export default function EstLiqValue() {
           )}
         </div>
 
-        <div className="detail-row">
-          <div className="label">Est. Pooled {symbol1}</div>
+        <div className="flex justify-between items-start mt-3 text-xs">
+          <div className="text-subText mt-[2px] w-fit">
+            Est. Pooled {symbol1}
+          </div>
           {zapInfo ? (
             <div>
-              <div className="token-amount">
+              <div className="flex justify-end items-start gap-1">
                 {logo1 && (
                   <img
                     src={logo1}
                     width="14px"
-                    style={{ marginTop: "2px", borderRadius: "50%" }}
+                    className="mt-[2px] rounded-full"
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
                       currentTarget.src = defaultTokenLogo;
@@ -302,13 +340,13 @@ export default function EstLiqValue() {
                   {symbol1}
                 </div>
               </div>
-              {position && (
+              {positionId && (
                 <div className="text-end">
                   + {formatNumber(+addedAmount1)} {symbol1}
                 </div>
               )}
 
-              <div className="label" style={{ marginLeft: "auto" }}>
+              <div className="text-subText mt-[2px] w-fit ml-auto">
                 ~
                 {formatCurrency(
                   +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0) +
@@ -321,12 +359,14 @@ export default function EstLiqValue() {
           )}
         </div>
 
-        <div className="detail-row">
+        <div className="flex justify-between items-start mt-3 text-xs">
           <MouseoverTooltip
             text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
             width="220px"
           >
-            <div className="label text-underline">Est. Remaining Value</div>
+            <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
+              Est. Remaining Value
+            </div>
           </MouseoverTooltip>
 
           <div>
@@ -346,7 +386,7 @@ export default function EstLiqValue() {
           </div>
         </div>
 
-        <div className="detail-row">
+        <div className="flex justify-between items-start mt-3 text-xs">
           {swapPi.length ? (
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
@@ -356,7 +396,7 @@ export default function EstLiqValue() {
                     width="220px"
                   >
                     <div
-                      className={`label text-underline text-xs ${
+                      className={`text-subText mt-[2px] w-fit border-b border-dotted border-subText text-xs ${
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
                           ? ""
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
@@ -364,7 +404,7 @@ export default function EstLiqValue() {
                           : "!text-error !border-error"
                       }`}
                     >
-                      Swap Impact
+                      Swap Price Impact
                     </div>
                   </MouseoverTooltip>
                 </AccordionTrigger>
@@ -402,38 +442,53 @@ export default function EstLiqValue() {
                 text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
                 width="220px"
               >
-                <div className="label text-underline">Swap Impact</div>
+                <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
+                  Swap Impact
+                </div>
               </MouseoverTooltip>
               <span>--</span>
             </>
           )}
         </div>
 
-        <div className="detail-row">
-          <MouseoverTooltip text="Swap Max Slippage" width="220px">
-            <div className="label text-underline">Swap Max Slippage</div>
-          </MouseoverTooltip>
-          <div>{((slippage * 100) / 10_000).toString() + "%"}</div>
-        </div>
+        <SlippageWarning
+          className="mt-3 text-xs"
+          slippage={slippage}
+          suggestedSlippage={zapInfo?.zapDetails.suggestedSlippage || 100}
+          showWarning={!!zapInfo}
+        />
 
-        <div className="detail-row">
+        <div className="flex justify-between items-start mt-3 text-xs">
           <MouseoverTooltip
             text="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
             width="220px"
           >
-            <div className="label text-underline">Zap Impact</div>
+            <div
+              className={cn(
+                "text-subText mt-[2px] w-fit border-b border-dotted border-subText",
+                zapInfo
+                  ? piRes.level === PI_LEVEL.VERY_HIGH ||
+                    piRes.level === PI_LEVEL.INVALID
+                    ? "border-error text-error"
+                    : piRes.level === PI_LEVEL.HIGH
+                    ? "border-warning text-warning"
+                    : "border-subText"
+                  : ""
+              )}
+            >
+              Zap Impact
+            </div>
           </MouseoverTooltip>
           {zapInfo ? (
             <div
-              style={{
-                color:
-                  piRes.level === PI_LEVEL.VERY_HIGH ||
-                  piRes.level === PI_LEVEL.INVALID
-                    ? theme.error
-                    : piRes.level === PI_LEVEL.HIGH
-                    ? theme.warning
-                    : theme.text,
-              }}
+              className={
+                piRes.level === PI_LEVEL.VERY_HIGH ||
+                piRes.level === PI_LEVEL.INVALID
+                  ? "text-error"
+                  : piRes.level === PI_LEVEL.HIGH
+                  ? "text-warning"
+                  : "text-text"
+              }
             >
               {piRes.display}
             </div>
@@ -442,14 +497,14 @@ export default function EstLiqValue() {
           )}
         </div>
 
-        <div className="detail-row">
+        <div className="flex justify-between items-start mt-3 text-xs">
           <MouseoverTooltip
             text={
               <div>
                 Fees charged for automatically zapping into a liquidity pool.
                 You still have to pay the standard gas fees.{" "}
                 <a
-                  style={{ color: theme.accent }}
+                  className="text-accent"
                   href={`${PATHS.KYBERSWAP_DOCS}/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model`}
                   target="_blank"
                   rel="noopener norefferer"
@@ -460,7 +515,9 @@ export default function EstLiqValue() {
             }
             width="220px"
           >
-            <div className="label text-underline">Zap Fee</div>
+            <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
+              Zap Fee
+            </div>
           </MouseoverTooltip>
 
           <MouseoverTooltip
@@ -483,40 +540,49 @@ export default function EstLiqValue() {
         </div>
       </div>
 
+      {zapInfo && isHighRemainingAmount && (
+        <div
+          className="rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] text-warning"
+          style={{ background: `${theme.warning}33` }}
+        >
+          {((refundUsd * 100) / initUsd).toFixed(2)}% of your input remains
+          unused. Consider lowering your input amount
+        </div>
+      )}
+
+      {zapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+        <div
+          className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
+            swapPiRes.piRes.level === PI_LEVEL.HIGH
+              ? "text-warning"
+              : "text-error"
+          }`}
+          style={{
+            backgroundColor:
+              swapPiRes.piRes.level === PI_LEVEL.HIGH
+                ? `${theme.warning}33`
+                : `${theme.error}33`,
+          }}
+        >
+          {swapPiRes.piRes.msg}
+        </div>
+      )}
+
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
         <div
-          className="warning-msg"
+          className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
+            piRes.level === PI_LEVEL.HIGH ? "text-warning" : "text-error"
+          }`}
           style={{
             backgroundColor:
               piRes.level === PI_LEVEL.HIGH
                 ? `${theme.warning}33`
                 : `${theme.error}33`,
-            color: piRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
           }}
         >
           {piRes.msg}
         </div>
       )}
-
-      {zapInfo &&
-        piRes.level === PI_LEVEL.NORMAL &&
-        swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-          <div
-            className="warning-msg"
-            style={{
-              backgroundColor:
-                swapPiRes.piRes.level === PI_LEVEL.HIGH
-                  ? `${theme.warning}33`
-                  : `${theme.error}33`,
-              color:
-                swapPiRes.piRes.level === PI_LEVEL.HIGH
-                  ? theme.warning
-                  : theme.error,
-            }}
-          >
-            {swapPiRes.piRes.msg}
-          </div>
-        )}
     </>
   );
 }

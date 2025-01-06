@@ -1,3 +1,4 @@
+import { cn } from "@kyber/utils/tailwind-helpers";
 import questionImg from "../assets/icons/question.svg?url";
 
 export function Image({
@@ -14,7 +15,7 @@ export function Image({
   return (
     <img
       style={style}
-      className={className}
+      className={cn("rounded-full", className)}
       src={src}
       alt={alt}
       onError={({ currentTarget }) => {

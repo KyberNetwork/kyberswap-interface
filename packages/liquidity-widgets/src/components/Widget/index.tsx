@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import "./Widget.scss";
 
 import { Theme } from "../../theme";
@@ -9,7 +9,7 @@ import { TokenListProvider } from "../../hooks/useTokenList";
 import Setting from "../Setting";
 
 import "../../globals.css";
-import { WidgetProps, WidgetProvider } from "@/stores/widget";
+import { WidgetProps, WidgetProvider, useWidgetContext } from "@/stores/widget";
 
 export { PoolType, ChainId };
 
@@ -40,7 +40,7 @@ export default function Widget(props: WidgetProps) {
 
   return (
     <WidgetProvider {...props}>
-      <TokenListProvider>
+      <TokenProvider chainId={props.chainId}>
         <ZapContextProvider
           includedSources={aggregatorOptions?.includedSources?.join(",")}
           excludedSources={aggregatorOptions?.excludedSources?.join(",")}
@@ -53,7 +53,22 @@ export default function Widget(props: WidgetProps) {
             <Setting />
           </div>
         </ZapContextProvider>
-      </TokenListProvider>
+      </TokenProvider>
     </WidgetProvider>
   );
 }
+
+const TokenProvider = ({
+  children,
+  chainId,
+}: {
+  children: ReactNode;
+  chainId: ChainId;
+}) => {
+  const pool = useWidgetContext((s) => s.pool);
+  return (
+    <TokenListProvider chainId={chainId} pool={pool}>
+      {children}
+    </TokenListProvider>
+  );
+};

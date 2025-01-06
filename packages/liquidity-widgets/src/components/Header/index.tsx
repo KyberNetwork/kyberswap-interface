@@ -1,17 +1,23 @@
-import "./Header.scss";
 import SettingIcon from "@/assets/svg/setting.svg";
 import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-
+import RefreshLoading from "./RefreshLoading";
 import { DexInfos, NetworkInfo } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
 import { MouseoverTooltip } from "../Tooltip";
 import { useWidgetContext } from "@/stores/widget";
 import { univ3PoolNormalize, univ3Position } from "@/schema";
+import { shortenAddress } from "../TokenInfo/utils";
+import useCopy from "@/hooks/useCopy";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
-  const { chainId, pool, poolType, positionId, position, theme } =
+  const { chainId, pool, poolType, positionId, position, theme, poolAddress } =
     useWidgetContext((s) => s);
+
+  const Copy = useCopy({
+    text: poolAddress,
+    copyClassName: "!text-[#2C9CE4] hover:brightness-125",
+  });
 
   const { toggleSetting, degenMode } = useZapState();
 
@@ -37,13 +43,13 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
   return (
     <>
-      <div className="ks-lw-title">
+      <div className="flex text-xl font-medium justify-between items-center">
         <div className="flex items-center gap-[6px]">
-          {positionId !== undefined ? "Increase Liquidity" : "Zap in"}{" "}
+          {positionId !== undefined ? "Increase" : "Add"} Liquidity{" "}
           {pool.token0.symbol}/{pool.token1.symbol}{" "}
           {positionId !== undefined && (
             <>
-              <div className="text-accent">#{positionId}</div>
+              <div>#{positionId}</div>
               <div
                 className={`rounded-full text-xs px-2 py-1 font-normal text-${
                   isOutOfRange ? "warning" : "accent"
@@ -54,20 +60,26 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
                   }33`,
                 }}
               >
-                {isOutOfRange ? "● Out of range" : "Active"}
+                {isOutOfRange ? "● Out of range" : "● In range"}
               </div>
             </>
           )}
+          <RefreshLoading />
         </div>
-        <div className="close-btn" role="button" onClick={onDismiss}>
+        <div
+          className="cursor-pointer text-subText"
+          role="button"
+          onClick={onDismiss}
+        >
           <X />
         </div>
       </div>
-      <div className="ks-lw-header">
-        <div className="pool-info">
-          <div className="pool-tokens-logo">
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center flex-wrap gap-1 text-sm max-sm:gap-y-2">
+          <div className="flex items-end">
             <img
               src={token0.logo}
+              className="rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
               alt="token0 logo"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -76,6 +88,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             />
             <img
               src={token1.logo}
+              className="-ml-[6px] rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
               alt="token1 logo"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -83,7 +96,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               }}
             />
             <img
-              className="network-logo"
+              className="-ml-1 bg-layer1 rounded-full w-[14px] h-[14px] border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2"
               src={NetworkInfo[chainId].logo}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -92,15 +105,18 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             />
           </div>
 
-          <span className="symbol">
+          <span className="text-xl">
             {token0.symbol}/{token1.symbol}
           </span>
 
-          <div className="dex-type">
-            <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px]">
+          <div className="flex ml-[2px] gap-[6px] text-subText items-center">
+            <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
               Fee {fee}%
             </div>
-            <span className="divide">|</span>
+            <div className="rounded-full text-xs bg-layer2 text-[#2C9CE4] px-3 py-1 flex gap-1">
+              {shortenAddress(chainId, poolAddress, 4)}
+              {Copy}
+            </div>
             <img
               src={logo}
               width={16}
@@ -111,22 +127,24 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
                 currentTarget.src = defaultTokenLogo;
               }}
             />
-            <span>{name}</span>
+            <span className="relative top-[-1=px]">{name}</span>
           </div>
         </div>
 
-        <MouseoverTooltip text={degenMode ? "Degen Mode is turned on!" : ""}>
+        <MouseoverTooltip
+          className="top-16 right-6 max-sm:absolute"
+          text={degenMode ? "Degen Mode is turned on!" : ""}
+        >
           <div
-            className="setting"
+            className={`setting w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95 ${
+              degenMode ? "text-warning" : ""
+            }`}
             role="button"
+            id="zapin-setting"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
               toggleSetting();
-            }}
-            style={{
-              background: degenMode ? theme.warning + "33" : undefined,
-              color: degenMode ? theme.warning : undefined,
             }}
           >
             <SettingIcon />

@@ -2,8 +2,9 @@ import {
   PoolType,
   LiquidityWidget,
   ChainId,
+  ZapOut,
 } from "@kyberswap/liquidity-widgets";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   init,
   useWallets,
@@ -63,7 +64,7 @@ init({
 function App() {
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const connectedWallets = useWallets();
-  const [{}, setChain] = useSetChain();
+  const [, setChain] = useSetChain();
 
   // create an ethers provider
   let ethersProvider: providers.Web3Provider | undefined;
@@ -88,9 +89,18 @@ function App() {
     //poolAddress: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
     //poolType: PoolType.DEX_PANCAKESWAPV3,
 
-    chainId: ChainId.Bsc,
-    poolAddress: "0x16b9a82891338f9ba80e2d6970fdda79d1eb0dae",
-    poolType: PoolType.DEX_PANCAKESWAPV2,
+    // chainId: ChainId.Bsc,
+    // poolAddress: "0x16b9a82891338f9ba80e2d6970fdda79d1eb0dae",
+    // poolType: PoolType.DEX_PANCAKESWAPV2,
+
+    //chainId: ChainId.Base,
+    //poolAddress: "0xd0b53d9277642d899df5c87a3966a349a798f224",
+    //poolType: PoolType.DEX_UNISWAPV3,
+    // positionId: "24654",
+
+    chainId: ChainId.Arbitrum,
+    poolAddress: "0xbE3aD6a5669Dc0B8b12FeBC03608860C31E2eef6",
+    poolType: PoolType.DEX_UNISWAPV3,
   });
   const [key, setKey] = useState(Date.now());
 
@@ -139,6 +149,19 @@ function App() {
     }
   }, [connect]);
 
+  const [address, setAddress] = useState<string | undefined>();
+  useEffect(() => {
+    setAddress(wallet?.accounts?.[0].address);
+  }, [wallet?.accounts?.[0].address]);
+
+  const connectedAccount = useMemo(
+    () => ({
+      address,
+      chainId: +(wallet?.chains[0].id || ChainId.Bsc),
+    }),
+    [address, wallet?.chains[0].id]
+  );
+
   const props = {
     onClose: () => {
       window.location.reload();
@@ -149,7 +172,7 @@ function App() {
     positionId: params.positionId,
     poolType: params.poolType,
     connectedAccount: {
-      address: wallet?.accounts?.[0].address,
+      address,
       chainId: +(wallet?.chains[0].id || params.chainId),
     },
     onSwitchChain: () => {
@@ -185,11 +208,39 @@ function App() {
       </div>
 
       <div className="ks-demo-app-wrapper">
+        <ZapOut
+          poolAddress="0x3ba13e5074292aaba8f56faf65055952ccc20dc6"
+          poolType={PoolType.DEX_UNISWAPV3}
+          positionId="1716748"
+          chainId={ChainId.Base}
+          connectedAccount={connectedAccount}
+          onClose={() => {
+            //
+          }}
+          onConnectWallet={() => {
+            handleConnectWallet();
+          }}
+          onSwitchChain={() => {
+            setChain({
+              chainId: params.chainId.toString(),
+            });
+          }}
+          onSubmitTx={async (txData) => {
+            const res = await ethersProvider
+              ?.getSigner()
+              .sendTransaction(txData);
+            if (!res) throw new Error("Transaction failed");
+            return res.hash;
+          }}
+          source="zap-out-demo"
+        />
+      </div>
+      <div className="ks-demo-app-wrapper">
         <div className="ks-demo-params-wrapper">
           <Params params={params} setParams={handleUpdateParams} />
         </div>
 
-        <LiquidityWidget key={key + JSON.stringify(props)} {...props} />
+        <LiquidityWidget key={key} {...props} />
       </div>
     </div>
   );

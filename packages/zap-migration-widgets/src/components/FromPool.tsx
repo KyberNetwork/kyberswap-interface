@@ -1,13 +1,14 @@
 import { Skeleton } from "@kyber/ui/skeleton";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
-import { usePositionStore } from "../stores/useFromPositionStore";
+import { usePositionStore } from "../stores/usePositionStore";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
   formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 export const LiquiditySkeleton = () => (
   <>
@@ -19,9 +20,9 @@ export const LiquiditySkeleton = () => (
   </>
 );
 
-export function FromPool() {
+export function FromPool({ className }: { className?: string }) {
   const { pools } = usePoolsStore();
-  const { position } = usePositionStore();
+  const { fromPosition: position } = usePositionStore();
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -36,7 +37,12 @@ export function FromPool() {
   }
 
   return (
-    <div className="flex-1 border border-stroke rounded-md px-4 py-3">
+    <div
+      className={cn(
+        "flex-1 border border-stroke rounded-md px-4 py-3",
+        className
+      )}
+    >
       <div className="text-subText text-sm">
         Your Current Position Liquidity
       </div>

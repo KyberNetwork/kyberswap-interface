@@ -1,5 +1,6 @@
 import { defineConfig } from "tsup";
 import { svgrPlugin } from "@kyber/svgr-esbuild-plugin";
+import { sassPlugin } from "esbuild-sass-plugin";
 
 export default defineConfig({
   entry: { "zap-migration-widget": "src/index.tsx" },
@@ -17,7 +18,7 @@ export default defineConfig({
     ".png": "dataurl",
   },
 
-  esbuildPlugins: [svgrPlugin()],
+  esbuildPlugins: [svgrPlugin(), sassPlugin()],
   esbuildOptions(options) {
     options.globalName = "Widgets";
     options.define = {

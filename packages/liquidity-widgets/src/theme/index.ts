@@ -12,6 +12,7 @@ export const defaultTheme = {
   warning: "#ff9901",
   error: "#ff537b",
   success: "#189470",
+  blue: "#2c9ce4",
   fontFamily: "Work Sans",
   borderRadius: "20px",
   buttonRadius: "24px",

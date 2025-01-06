@@ -1,14 +1,15 @@
 import { useZapState } from "../../hooks/useZapInState";
 import { useMemo, useState } from "react";
-import { formatCurrency, formatWei } from "@/utils";
+import { formatWei } from "@/utils";
 import { TOKEN_SELECT_MODE } from "../TokenSelector/index";
 import WalletIcon from "@/assets/svg/wallet.svg";
 import DropdownIcon from "@/assets/svg/dropdown.svg";
 import { NATIVE_TOKEN_ADDRESS } from "@/constants";
-import { X } from "lucide-react";
+import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
 import { formatUnits } from "@kyber/utils/crypto";
+import { formatDisplayNumber } from "@kyber/utils/number";
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const {
@@ -85,22 +86,25 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           onClose={onCloseTokenSelectModal}
         />
       )}
-      <div className="input-token bg-layer2 relative">
-        <div className="balance">
-          <div className="balance-flex">
+      <div className="mt-4 border border-stroke rounded-md p-3 brightness-85 bg-layer2 relative">
+        <div className="flex justify-between text-subText text-sm font-medium">
+          <div className="flex items-center gap-[6px]">
             <button
-              className="small"
+              className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
               onClick={() => {
                 if (balanceInWei)
                   onChangeTokenAmount(
-                    formatUnits(BigInt(balanceInWei).toString(), token.decimals)
+                    formatUnits(
+                      BigInt(balanceInWei).toString(),
+                      token?.decimals
+                    )
                   );
               }}
             >
               Max
             </button>
             <button
-              className="small"
+              className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
               onClick={() => {
                 if (balanceInWei)
                   onChangeTokenAmount(
@@ -115,14 +119,22 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             </button>
           </div>
 
-          <div className="balance-flex">
+          <div
+            className="flex items-center gap-[6px] cursor-pointer"
+            onClick={() => {
+              if (balanceInWei)
+                onChangeTokenAmount(
+                  formatUnits(BigInt(balanceInWei).toString(), token?.decimals)
+                );
+            }}
+          >
             <WalletIcon />
-            {formatWei(balanceInWei, token.decimals) || ""}
+            {formatWei(balanceInWei, token?.decimals) || ""}
           </div>
         </div>
 
-        <div className="input-row">
-          <div className="input">
+        <div className="w-full flex mt-4 items-center gap-2">
+          <div className="flex-1">
             <input
               value={amount}
               onChange={onChangeAmount}
@@ -135,17 +147,27 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               minLength={1}
               maxLength={79}
               spellCheck="false"
+              className="bg-transparent text-text text-xl font-medium w-full p-0 border-none outline-none"
             />
           </div>
           {!!usdAmount && (
-            <div className="est-usd">~{formatCurrency(usdAmount)}</div>
+            <div className="text-subText text-xs max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap">
+              ~
+              {formatDisplayNumber(usdAmount, {
+                significantDigits: 6,
+                style: "currency",
+              })}
+            </div>
           )}
-          <button onClick={onOpenTokenSelectModal}>
+          <button
+            className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
+            onClick={onOpenTokenSelectModal}
+          >
             <img
-              src={token.logo}
+              src={token.logo ? token.logo : defaultTokenLogo}
               alt="TokenLogo"
               width="20px"
-              style={{ borderRadius: "50%" }}
+              className="rounded-full brightness-75"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
                 currentTarget.src = defaultTokenLogo;
@@ -161,7 +183,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             className="text-subText cursor-pointer hover:text-text w-fit absolute top-[-16px] right-[3px] brightness-75"
             onClick={onClickRemoveToken}
           >
-            <X size={14} />
+            <X className="w-[14px] h-[14px]" />
           </div>
         ) : null}
       </div>

@@ -1,4 +1,3 @@
-import "./Content.scss";
 import X from "@/assets/svg/x.svg";
 import ErrorIcon from "@/assets/svg/error.svg";
 import PriceInfo from "./PriceInfo";
@@ -8,18 +7,17 @@ import { ERROR_MESSAGE, useZapState } from "../../hooks/useZapInState";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
-  ProtocolFeeAction,
   Type,
   ZapAction,
 } from "../../hooks/types/zapInTypes";
 import ZapRoute from "./ZapRoute";
 import EstLiqValue from "./EstLiqValue";
 import { APPROVAL_STATE, useApprovals } from "../../hooks/useApproval";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import Modal from "../Modal";
-import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
+import { PI_LEVEL, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { TOKEN_SELECT_MODE } from "../TokenSelector";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
@@ -37,7 +35,9 @@ import {
 } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
+import PoolInfo from "./PoolInfo";
 import { parseUnits } from "@kyber/utils/crypto";
+import LiquidityChart from "../LiquidityChart";
 
 export default function Content() {
   const {
@@ -56,6 +56,7 @@ export default function Content() {
     marketPrice,
     tokensIn,
     amountsIn,
+    toggleSetting,
   } = useZapState();
 
   const {
@@ -64,8 +65,12 @@ export default function Content() {
     theme,
     errorMsg: loadPoolError,
     position,
+    showWidget,
     onConnectWallet,
     onSwitchChain,
+    toggleShowWidget,
+    poolAddress,
+    chainId,
   } = useWidgetContext((s) => s);
 
   const amountsInWei: string[] = useMemo(
@@ -75,7 +80,10 @@ export default function Content() {
         : amountsIn
             .split(",")
             .map((amount, index) =>
-              parseUnits(amount || "0", tokensIn[index]?.decimals).toString()
+              parseUnits(
+                amount || "0",
+                tokensIn[index]?.decimals || 0
+              ).toString()
             ),
     [tokensIn, amountsIn]
   );
@@ -108,11 +116,11 @@ export default function Content() {
       (item) => item.type === ZapAction.POOL_SWAP
     ) as PoolSwapAction | null;
 
-    const feeInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.PROTOCOL_FEE
-    ) as ProtocolFeeAction | undefined;
-
-    const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+    const piRes = getPriceImpact(
+      zapInfo?.zapDetails.priceImpact,
+      "Zap Impact",
+      zapInfo?.zapDetails.suggestedSlippage || 100
+    );
 
     const aggregatorSwapPi =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
@@ -121,7 +129,11 @@ export default function Content() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, feeInfo);
+        return getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
       }) || [];
     const poolSwapPi =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
@@ -130,7 +142,11 @@ export default function Content() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, feeInfo);
+        return getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
       }) || [];
 
     const swapPiHigh = !!aggregatorSwapPi
@@ -151,7 +167,7 @@ export default function Content() {
     return { piVeryHigh, piHigh };
   }, [zapInfo]);
 
-  const btnText = useMemo(() => {
+  const btnText = (() => {
     if (error) return error;
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
@@ -160,33 +176,19 @@ export default function Content() {
     if (pi.piVeryHigh) return "Zap anyway";
 
     return "Preview";
-  }, [addressToApprove, error, loading, notApprove, pi, zapLoading]);
+  })();
 
   const isWrongNetwork = error === ERROR_MESSAGE.WRONG_NETWORK;
   const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
 
-  const disabled = useMemo(
-    () =>
-      clickedApprove ||
-      loading ||
-      zapLoading ||
-      (!!error && !isWrongNetwork && !isNotConnected) ||
-      Object.values(approvalStates).some(
-        (item) => item === APPROVAL_STATE.PENDING
-      ) ||
-      (pi.piVeryHigh && !degenMode),
-    [
-      approvalStates,
-      clickedApprove,
-      degenMode,
-      error,
-      isWrongNetwork,
-      isNotConnected,
-      loading,
-      pi.piVeryHigh,
-      zapLoading,
-    ]
-  );
+  const disabled =
+    clickedApprove ||
+    loading ||
+    zapLoading ||
+    (!!error && !isWrongNetwork && !isNotConnected) ||
+    Object.values(approvalStates).some(
+      (item) => item === APPROVAL_STATE.PENDING
+    );
 
   const { success: isUniV3PoolType } = univ3PoolType.safeParse(poolType);
 
@@ -224,15 +226,15 @@ export default function Content() {
         };
     }
     return null;
-  }, [pool, zapInfo]);
+  }, [pool, poolType, zapInfo]);
 
   const newPoolPrice = useMemo(() => {
     const { success, data } = univ3PoolNormalize.safeParse(newPool);
     if (success)
       return +tickToPrice(
         data.tick,
-        data.token0.decimals,
-        data.token1.decimals,
+        data.token0?.decimals,
+        data.token1?.decimals,
         false
       );
 
@@ -241,8 +243,8 @@ export default function Content() {
 
     if (isUniV2) {
       return +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
         18
       );
     }
@@ -253,7 +255,7 @@ export default function Content() {
       !!marketPrice &&
       newPoolPrice &&
       Math.abs(marketPrice / +newPoolPrice - 1) > 0.02,
-    [marketPrice, newPool]
+    [marketPrice, newPoolPrice]
   );
 
   const isOutOfRangeAfterZap = useMemo(() => {
@@ -267,10 +269,21 @@ export default function Content() {
       : false;
   }, [newPool, position]);
 
+  const isFullRange = useMemo(
+    () =>
+      pool !== "loading" &&
+      "minTick" in pool &&
+      tickLower === pool.minTick &&
+      tickUpper === pool.maxTick,
+    [pool, tickLower, tickUpper]
+  );
+
   const marketRate = useMemo(
     () =>
       marketPrice
-        ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
+        ? formatDisplayNumber(revertPrice ? 1 / marketPrice : marketPrice, {
+            significantDigits: 6,
+          })
         : null,
     [marketPrice, revertPrice]
   );
@@ -282,7 +295,7 @@ export default function Content() {
             significantDigits: 6,
           })
         : "--",
-    [newPool, revertPrice]
+    [newPoolPrice, revertPrice]
   );
 
   const hanldeClick = () => {
@@ -308,6 +321,15 @@ export default function Content() {
         ? tickLower !== null && tickUpper !== null && priceLower && priceUpper
         : true)
     ) {
+      if (pi.piVeryHigh && !degenMode) {
+        toggleSetting(true);
+        document
+          .getElementById("zapin-setting")
+          ?.scrollIntoView({ behavior: "smooth" });
+
+        return;
+      }
+
       const date = new Date();
       date.setMinutes(date.getMinutes() + (ttl || 20));
 
@@ -338,29 +360,20 @@ export default function Content() {
 
   const { onClose } = useWidgetContext((s) => s);
 
+  useEffect(() => {
+    toggleShowWidget(!snapshotState);
+  }, [snapshotState, toggleShowWidget]);
+
   return (
     <>
       {loadPoolError && (
         <Modal isOpen onClick={() => onClose()}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "2rem",
-              color: theme.error,
-            }}
-          >
-            <ErrorIcon className="error-icon" />
-            <div style={{ textAlign: "center" }}>{loadPoolError}</div>
+          <div className="flex flex-col items-center gap-8 text-error">
+            <ErrorIcon className="text-error" />
+            <div className="text-center">{loadPoolError}</div>
             <button
-              className="primary-btn"
+              className="ks-primary-btn w-[95%] bg-error border-solid border-error"
               onClick={onClose}
-              style={{
-                width: "95%",
-                background: theme.error,
-                border: `1px solid ${theme.error}`,
-              }}
             >
               Close
             </button>
@@ -373,12 +386,12 @@ export default function Content() {
           onClick={() => setSnapshotState(null)}
           modalContentClass="!max-h-[96vh]"
         >
-          <div className="ks-lw-modal-headline">
+          <div className="flex justify-between text-xl font-medium">
             <div>{positionId ? "Increase" : "Add"} Liquidity via Zap</div>
             <div
               role="button"
               onClick={() => setSnapshotState(null)}
-              style={{ cursor: "pointer" }}
+              className="cursor-pointer"
             >
               <X />
             </div>
@@ -396,161 +409,167 @@ export default function Content() {
           onClose={onCloseTokenSelectModal}
         />
       )}
-      <Header onDismiss={onClose} />
-      <div className="ks-lw-content">
-        <div className="left">
-          <PriceInfo />
-          {/* <LiquidityChart /> */}
-          <PriceRange />
-          {positionId === undefined ? (
-            isUniV3PoolType && (
-              <>
-                <PriceInput type={Type.PriceLower} />
-                <PriceInput type={Type.PriceUpper} />
-              </>
-            )
-          ) : (
-            <PositionLiquidity />
-          )}
-
-          <div className="liquidity-to-add">
-            <div className="label">
-              Liquidity to {positionId ? "increase" : "Zap in"}
-            </div>
-            {tokensIn.map((_, tokenIndex: number) => (
-              <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
-            ))}
-          </div>
-
-          <div
-            className="mt-4 text-accent cursor-pointer w-fit"
-            onClick={onOpenTokenSelectModal}
-          >
-            + Add more token
-            <InfoHelper
-              text={`Can zap in with up to ${MAX_ZAP_IN_TOKENS} tokens`}
-              color={theme.accent}
-              style={{
-                verticalAlign: "baseline",
-                position: "relative",
-                top: 2,
-                left: 2,
-              }}
+      <div className={`p-6 ${!showWidget ? "hidden" : ""}`}>
+        <Header onDismiss={onClose} />
+        <div className="mt-5 flex gap-5 max-sm:flex-col">
+          <div className="flex-1 w-1/2 max-sm:w-full">
+            <PoolInfo
+              chainId={chainId}
+              poolAddress={poolAddress}
+              poolType={poolType}
+              positionId={positionId}
             />
+            <PriceInfo />
+            {!positionId && <LiquidityChart />}
+            <PriceRange />
+            {positionId === undefined ? (
+              isUniV3PoolType && (
+                <>
+                  <PriceInput type={Type.PriceLower} />
+                  <PriceInput type={Type.PriceUpper} />
+                </>
+              )
+            ) : (
+              <PositionLiquidity />
+            )}
           </div>
-        </div>
 
-        <div className="right">
-          <ZapRoute />
-          <EstLiqValue />
-
-          {isOutOfRangeAfterZap && (
-            <div
-              className="price-warning !text-warning !mt-4"
-              style={{
-                backgroundColor: `${theme.warning}33`,
-              }}
-            >
-              The position will be inactive after zapping and won’t earn any
-              fees until the pool price moves back to select price range
-            </div>
-          )}
-          {isDeviated && (
-            <div
-              className="price-warning"
-              style={{ backgroundColor: `${theme.warning}33` }}
-            >
-              <div className="text">
-                The pool's estimated price after zapping of{" "}
-                <span
-                  style={{
-                    fontWeight: "500",
-                    color: theme.warning,
-                    fontStyle: "normal",
-                    marginLeft: "2px",
-                  }}
-                >
-                  1 {revertPrice ? token1?.symbol : token0?.symbol} = {price}{" "}
-                  {revertPrice ? token0?.symbol : token1?.symbol}
-                </span>{" "}
-                deviates from the market price{" "}
-                <span
-                  style={{
-                    fontWeight: "500",
-                    color: theme.warning,
-                    fontStyle: "normal",
-                  }}
-                >
-                  (1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
-                  {marketRate} {revertPrice ? token0?.symbol : token1?.symbol})
-                </span>
-                . You might have high impermanent loss after you add liquidity
-                to this pool
+          <div className="flex-1 w-1/2 max-sm:w-full">
+            <div>
+              <div className="text-base">
+                {positionId ? "Increase" : "Add"} Liquidity
               </div>
+              {tokensIn.map((_, tokenIndex: number) => (
+                <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
+              ))}
             </div>
-          )}
 
-          {/* TODO: implement owner check 
-          {position?.owner &&
-            account &&
-            position.owner.toLowerCase() !== account.toLowerCase() && (
-              <div
-                className="price-warning text-warning"
+            <div
+              className="my-3 text-accent cursor-pointer w-fit text-sm"
+              onClick={onOpenTokenSelectModal}
+            >
+              + Add Token(s) or Use Existing Position
+              <InfoHelper
+                placement="bottom"
+                text={`You can either zap in with up to ${MAX_ZAP_IN_TOKENS} tokens or select an existing position as the liquidity source`}
+                color={theme.accent}
+                width="300px"
                 style={{
-                  backgroundColor: `${theme.warning}33`,
+                  verticalAlign: "baseline",
+                  position: "relative",
+                  top: 2,
+                  left: 2,
+                }}
+              />
+            </div>
+
+            <EstLiqValue />
+            <ZapRoute />
+
+            {isOutOfRangeAfterZap && (
+              <div
+                className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
+                style={{
+                  backgroundColor: `${theme.blue}33`,
                 }}
               >
-                You are not the current owner of the position #{positionId},
-                please double check before proceeding
+                Your liquidity is outside the current market range and will not
+                be used/earn fees until the market price enters your specified
+                range.
               </div>
             )}
-          */}
-        </div>
-      </div>
+            {isFullRange && (
+              <div
+                className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
+                style={{
+                  backgroundColor: `${theme.blue}33`,
+                }}
+              >
+                Your liquidity is active across the full price range. However,
+                this may result in a lower APR than estimated due to less
+                concentration of liquidity.
+              </div>
+            )}
+            {isDeviated && (
+              <div
+                className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
+                style={{ backgroundColor: `${theme.warning}33` }}
+              >
+                <div className="italic text-text">
+                  The pool's estimated price after zapping of{" "}
+                  <span className="font-medium text-warning not-italic ml-[2px]">
+                    1 {revertPrice ? token1?.symbol : token0?.symbol} = {price}{" "}
+                    {revertPrice ? token0?.symbol : token1?.symbol}
+                  </span>{" "}
+                  deviates from the market price{" "}
+                  <span className="font-medium text-warning not-italic">
+                    (1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
+                    {marketRate} {revertPrice ? token0?.symbol : token1?.symbol}
+                    )
+                  </span>
+                  . You might have high impermanent loss after you add liquidity
+                  to this pool
+                </div>
+              </div>
+            )}
 
-      <div className="ks-lw-action">
-        <button className="outline-btn" onClick={onClose}>
-          Cancel
-        </button>
-        <button
-          className="primary-btn"
-          disabled={disabled}
-          onClick={hanldeClick}
-          style={
-            !disabled &&
-            Object.values(approvalStates).some(
-              (item) => item !== APPROVAL_STATE.NOT_APPROVED
-            )
-              ? {
-                  background:
-                    pi.piVeryHigh && degenMode
-                      ? theme.error
-                      : pi.piHigh
-                      ? theme.warning
-                      : undefined,
-                  border:
-                    pi.piVeryHigh && degenMode
-                      ? `1px solid ${theme.error}`
-                      : pi.piHigh
-                      ? theme.warning
-                      : undefined,
-                }
-              : {}
-          }
-        >
-          {btnText}
-          {pi.piVeryHigh && (
-            <InfoHelper
-              color={disabled ? theme.subText : theme.layer1}
-              width="300px"
-              text={
-                degenMode
-                  ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
-                  : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
-              }
-            />
-          )}
-        </button>
+            {/* TODO: implement owner check 
+                {position?.owner &&
+                  account &&
+                  position.owner.toLowerCase() !== account.toLowerCase() && (
+                    <div
+                      className="py-3 px-4 text-sm rounded-md mt-2 font-normal text-warning"
+                      style={{
+                        backgroundColor: `${theme.warning}33`,
+                      }}
+                    >
+                      You are not the current owner of the position #{positionId},
+                      please double check before proceeding
+                    </div>
+                  )}
+                */}
+          </div>
+        </div>
+        <div className="flex gap-6 mt-6">
+          <button className="ks-outline-btn flex-1" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className={`ks-primary-btn flex-1 ${
+              !disabled &&
+              Object.values(approvalStates).some(
+                (item) => item !== APPROVAL_STATE.NOT_APPROVED
+              )
+                ? pi.piVeryHigh
+                  ? "bg-error border-solid border-error text-white"
+                  : pi.piHigh
+                  ? "bg-warning border-solid border-warning"
+                  : ""
+                : ""
+            }`}
+            disabled={disabled}
+            onClick={hanldeClick}
+          >
+            {btnText}
+            {pi.piVeryHigh &&
+              !error &&
+              !isWrongNetwork &&
+              !isNotConnected &&
+              Object.values(approvalStates).every(
+                (item) => item === APPROVAL_STATE.APPROVED
+              ) && (
+                <InfoHelper
+                  width="300px"
+                  color="#ffffff"
+                  text={
+                    degenMode
+                      ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+                      : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+                  }
+                />
+              )}
+          </button>
+        </div>
       </div>
     </>
   );

@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { ChainId, Dex, Pool, Token, tick, token } from "../schema";
 import { z } from "zod";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
+import { Theme, defaultTheme } from "../theme";
+// import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 interface GetPoolParams {
   chainId: ChainId;
@@ -9,11 +10,17 @@ interface GetPoolParams {
   dexFrom: Dex;
   poolTo: string;
   dexTo: Dex;
+  fetchPrices: (
+    address: string[]
+  ) => Promise<{ [key: string]: { PriceBuy: number } }>;
 }
 interface PoolsState {
   pools: "loading" | [Pool, Pool];
   error: string;
   getPools: (params: GetPoolParams) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  reset: () => void;
 }
 
 const BFF_API = "https://bff.kyberswap.com/api";
@@ -22,6 +29,7 @@ const BFF_API = "https://bff.kyberswap.com/api";
 const dexMapping: Record<Dex, string> = {
   [Dex.Uniswapv3]: "uniswapv3",
   [Dex.Pancakev3]: "pancake-v3",
+  [Dex.Sushiv3]: "sushiswap-v3",
   // Add new DEX mappings here when needed
 } as const;
 
@@ -59,20 +67,32 @@ const poolResponse = z.object({
   }),
 });
 
-export const usePoolsStore = create<PoolsState>((set, get) => ({
-  pools: "loading",
+const initState = {
+  pools: "loading" as "loading" | [Pool, Pool],
   error: "",
+  theme: defaultTheme,
+};
+export const usePoolsStore = create<PoolsState>((set, get) => ({
+  ...initState,
+  reset: () => set(initState),
+  setTheme: (theme: Theme) => set({ theme }),
   getPools: async ({
     chainId,
     poolFrom,
     poolTo,
     dexFrom,
     dexTo,
+    fetchPrices,
   }: GetPoolParams) => {
-    const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
     try {
       const res = await fetch(
-        `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}`
+        `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${
+          dexFrom === Dex.Uniswapv3
+            ? "DEX_UNISWAPV3"
+            : dexFrom === Dex.Pancakev3
+            ? "DEX_PANCAKESWAPV3"
+            : "DEX_SUSHISWAPV3"
+        }`
       ).then((res) => res.json());
       const { success, data, error } = poolResponse.safeParse(res);
 
@@ -108,7 +128,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         fromPoolToken1,
         toPoolToken0,
         toPoolToken1,
-      ];
+      ].map((item) => item.address.toLowerCase());
 
       const tokens: {
         address: string;
@@ -124,19 +144,38 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         .catch(() => []);
 
       const prices = await fetchPrices(
-        addresses.map((item) => item.address.toLowerCase())
+        addresses.map((item) => item.toLowerCase())
       );
 
-      const enrichLogoAndPrice = (
+      const enrichLogoAndPrice = async (
         token: Pick<Token, "address">
-      ): Token | undefined => {
+      ): Promise<Token | undefined> => {
         const price = prices[token.address.toLowerCase()];
-        const tk = tokens.find(
+        let tk = tokens.find(
           (item) => item.address.toLowerCase() === token.address.toLowerCase()
         );
 
         if (!tk) {
-          return;
+          const res = await fetch(
+            `https://ks-setting.kyberswap.com/api/v1/tokens/import`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                tokens: [
+                  { chainId: chainId.toString(), address: token.address },
+                ],
+              }),
+            }
+          ).then((res) => res.json());
+
+          tk = res?.data.tokens?.find(
+            (item: { data: Token }) =>
+              item.data.address.toLowerCase() === token.address.toLowerCase()
+          )?.data;
+          if (!tk) return;
         }
 
         return {
@@ -147,14 +186,20 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         };
       };
 
-      const tokenFrom0 = enrichLogoAndPrice(fromPoolToken0);
-      const tokenFrom1 = enrichLogoAndPrice(fromPoolToken1);
+      const tokenFrom0 = await enrichLogoAndPrice(fromPoolToken0);
+      const tokenFrom1 = await enrichLogoAndPrice(fromPoolToken1);
       if (!tokenFrom0 || !tokenFrom1) {
         set({ error: "Can't get token info" });
         return;
       }
+      // check category pair
+      const pairCheck0 = await fetch(
+        `https://token-api.kyberengineering.io/api/v1/public/pair-category/check?chainId=${chainId}&tokenIn=${tokenFrom0.address}&tokenOut=${tokenFrom1.address}`
+      ).then((res) => res.json());
+      const cat = pairCheck0?.data?.category || "commonPair";
 
       const pool0: Pool = {
+        category: cat,
         token0: tokenFrom0,
         token1: tokenFrom1,
         address: poolFrom,
@@ -167,14 +212,21 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         ticks: fromPool.positionInfo.ticks,
       };
 
-      const tokenTo0 = enrichLogoAndPrice(toPoolToken0);
-      const tokenTo1 = enrichLogoAndPrice(toPoolToken1);
+      const tokenTo0 = await enrichLogoAndPrice(toPoolToken0);
+      const tokenTo1 = await enrichLogoAndPrice(toPoolToken1);
       if (!tokenTo0 || !tokenTo1) {
         set({ error: "Can't get token info" });
         return;
       }
 
+      // check category pair
+      const pairCheck1 = await fetch(
+        `https://token-api.kyberengineering.io/api/v1/public/pair-category/check?chainId=${chainId}&tokenIn=${tokenTo0.address}&tokenOut=${tokenTo1.address}`
+      ).then((res) => res.json());
+      const cat1 = pairCheck1?.data?.category || "commonPair";
+
       const pool1: Pool = {
+        category: cat1,
         token0: tokenTo0,
         token1: tokenTo1,
         address: poolTo,

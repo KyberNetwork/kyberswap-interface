@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { usePoolsStore } from "./usePoolsStore";
-import { usePositionStore } from "./useFromPositionStore";
+import { usePositionStore } from "./usePositionStore";
 import { NetworkInfo, ZAP_URL } from "../constants";
 import { ChainId } from "../schema";
 
@@ -15,72 +15,134 @@ interface ZapState {
   setTickLower: (tickLower: number) => void;
   setTickUpper: (tickUpper: number) => void;
   setLiquidityOut: (liquidity: bigint) => void;
-  fetchZapRoute: (chainId: ChainId) => Promise<void>;
+  fetchZapRoute: (chainId: ChainId, client: string) => Promise<void>;
   fetchingRoute: boolean;
   route: GetRouteResponse | null;
   showPreview: boolean;
   togglePreview: () => void;
+  degenMode: boolean;
+  toggleDegenMode: () => void;
+  showSetting: boolean;
+  toggleSetting: (highlightDegenMode?: boolean) => void;
+  ttl: number;
+  setTtl: (value: number) => void;
+  reset: () => void;
+  highlightDegenMode: boolean;
+  manualSlippage: boolean;
+  setManualSlippage: (value: boolean) => void;
 }
 
-export const useZapStateStore = create<ZapState>((set, get) => ({
+const initState = {
+  showSetting: false,
+  ttl: 20,
+  degenMode: false,
   slippage: 50,
-  setSlippage: (value: number) => set({ slippage: value }),
   showPreview: false,
-  togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
   liquidityOut: 0n,
   tickLower: null,
   tickUpper: null,
   fetchingRoute: false,
   route: null,
+  highlightDegenMode: false,
+  manualSlippage: false,
+};
+
+export const useZapStateStore = create<ZapState>((set, get) => ({
+  ...initState,
+  reset: () => set(initState),
+  setTtl: (value: number) => set({ ttl: value }),
+  toggleSetting: (highlightDegenMode?: boolean) => {
+    set((state) => ({
+      showSetting: !state.showSetting,
+      highlightDegenMode: Boolean(highlightDegenMode),
+    }));
+    if (highlightDegenMode) {
+      setTimeout(() => {
+        set({ highlightDegenMode: false });
+      }, 4000);
+    }
+  },
+  toggleDegenMode: () => set((state) => ({ degenMode: !state.degenMode })),
+  setSlippage: (value: number) => set({ slippage: value }),
+  togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),
-  fetchZapRoute: async (chainId: ChainId) => {
-    const { liquidityOut, tickLower, tickUpper } = get();
+  fetchZapRoute: async (chainId: ChainId, client: string) => {
+    const {
+      liquidityOut,
+      tickLower: lower,
+      tickUpper: upper,
+      slippage,
+    } = get();
     const { pools } = usePoolsStore.getState();
-    const { position } = usePositionStore.getState();
+    const { fromPosition: position, toPosition } = usePositionStore.getState();
+
+    let tickLower = lower,
+      tickUpper = upper;
+    if (toPosition !== "loading" && toPosition !== null) {
+      tickLower = toPosition.tickLower;
+      tickUpper = toPosition.tickUpper;
+    }
 
     if (
       pools === "loading" ||
       position === "loading" ||
+      toPosition === "loading" ||
       liquidityOut === 0n ||
       tickLower === null ||
-      tickUpper === null
-    )
+      tickUpper === null ||
+      tickLower >= tickUpper
+    ) {
+      set({ route: null });
       return;
+    }
 
     set({ fetchingRoute: true });
 
-    const params: { [key: string]: string | number | boolean } = {
+    const params: { [key: string]: string | number | boolean | undefined } = {
+      slippage,
       dexFrom: pools[0].dex,
       "poolFrom.id": pools[0].address,
       "positionFrom.id": position.id,
       liquidityOut: liquidityOut.toString(),
       dexTo: pools[1].dex,
       "poolTo.id": pools[1].address,
-      "positionTo.tickLower": tickLower,
-      "positionTo.tickUpper": tickUpper,
+
+      ...(toPosition?.id
+        ? {
+            "positionTo.id": toPosition.id,
+          }
+        : {
+            "positionTo.tickLower": tickLower,
+            "positionTo.tickUpper": tickUpper,
+          }),
     };
     let tmp = "";
     Object.keys(params).forEach((key) => {
-      tmp = `${tmp}&${key}=${params[key]}`;
+      if (params[key] !== undefined) tmp = `${tmp}&${key}=${params[key]}`;
     });
 
     try {
-      // TODO: x-client-id
       const res = await fetch(
         `${ZAP_URL}/${
           NetworkInfo[chainId].zapPath
-        }/api/v1/migrate/route?${tmp.slice(1)}`
+        }/api/v1/migrate/route?${tmp.slice(1)}`,
+        {
+          headers: {
+            "x-client-id": client,
+          },
+        }
       ).then((res) => res.json());
 
       apiResponse.parse(res.data);
       set({ route: res.data, fetchingRoute: false });
     } catch (e) {
       console.log(e);
-      set({ fetchingRoute: false });
+      set({ fetchingRoute: false, route: null });
     }
   },
+  setManualSlippage: (value) => set({ manualSlippage: value }),
 }));
 
 const token = z.object({
@@ -93,6 +155,7 @@ const removeLiquidityAction = z.object({
   type: z.literal("ACTION_TYPE_REMOVE_LIQUIDITY"),
   removeLiquidity: z.object({
     tokens: z.array(token),
+    fees: z.array(token).optional(),
   }),
 });
 
@@ -122,6 +185,38 @@ const addliquidtyAction = z.object({
 
 export type AddLiquidityAction = z.infer<typeof addliquidtyAction>;
 
+const poolSwapAction = z.object({
+  type: z.literal("ACTION_TYPE_POOL_SWAP"),
+  poolSwap: z.object({
+    swaps: z.array(
+      z.object({
+        tokenIn: token,
+        tokenOut: token,
+      })
+    ),
+  }),
+});
+export type PoolSwapAction = z.infer<typeof poolSwapAction>;
+
+const protocolFeeAction = z.object({
+  type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
+  protocolFee: z.object({
+    pcm: z.number(),
+    tokens: z.array(token),
+  }),
+});
+
+export type ProtocolFeeAction = z.infer<typeof protocolFeeAction>;
+
+const refundAction = z.object({
+  type: z.literal("ACTION_TYPE_REFUND"),
+  refund: z.object({
+    tokens: z.array(token),
+  }),
+});
+
+export type RefundAction = z.infer<typeof refundAction>;
+
 const apiResponse = z.object({
   poolDetails: z.object({
     category: z.string(), // TODO: "exotic_pair",
@@ -143,41 +238,19 @@ const apiResponse = z.object({
     actions: z.array(
       z.discriminatedUnion("type", [
         removeLiquidityAction,
-        z.object({
-          type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
-          protocolFee: z.object({
-            pcm: z.number(),
-            tokens: z.array(token),
-          }),
-        }),
-
+        protocolFeeAction,
         aggregatorSwapAction,
 
-        z.object({
-          type: z.literal("ACTION_TYPE_POOL_SWAP"),
-          poolSwap: z.object({
-            swaps: z.array(
-              z.object({
-                tokenIn: token,
-                tokenOut: token,
-              })
-            ),
-          }),
-        }),
+        poolSwapAction,
 
         addliquidtyAction,
-
-        z.object({
-          type: z.literal("ACTION_TYPE_REFUND"),
-          refund: z.object({
-            tokens: z.array(token),
-          }),
-        }),
+        refundAction,
       ])
     ),
 
     finalAmountUsd: z.string(),
-    priceImpact: z.number(),
+    priceImpact: z.number().nullable().optional(),
+    suggestedSlippage: z.number(),
   }),
   route: z.string(),
   routerAddress: z.string(),

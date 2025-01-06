@@ -10,10 +10,10 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@kyber/ui/accordion";
 import { NO_DATA } from "@/constants";
 import IconAlertOctagon from "@/assets/svg/alert-octagon.svg";
-import Loader from "@/components/LiquidityChartRangeInput/Loader";
+import Loader from "../LiquidityChart/components/Loader";
 
 const CollapseInfoItem = ({
   icon,

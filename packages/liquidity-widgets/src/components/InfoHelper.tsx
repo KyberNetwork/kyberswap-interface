@@ -3,7 +3,6 @@ import { CSSProperties, ReactNode, useCallback, useState } from "react";
 import Info from "@/assets/svg/info.svg";
 
 import Tooltip from "./Tooltip";
-import { useWidgetContext } from "@/stores/widget";
 
 export default function InfoHelper({
   text,
@@ -25,7 +24,6 @@ export default function InfoHelper({
 
   const open = useCallback(() => setShow(true), [setShow]);
   const close = useCallback(() => setShow(false), [setShow]);
-  const theme = useWidgetContext((s) => s.theme);
 
   return (
     <span
@@ -50,17 +48,7 @@ export default function InfoHelper({
           onClick={open}
           onMouseEnter={open}
           onMouseLeave={close}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: "none",
-            background: "none",
-            outline: "none",
-            cursor: "default",
-            borderRadius: "36px",
-            color: theme.subText,
-          }}
+          className="flex items-center justify-center border-none bg-none outline-none cursor-default rounded-full text-subText"
         >
           <Info style={{ color, width: size, height: size }} />
         </div>

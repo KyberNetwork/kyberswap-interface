@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useWidgetContext } from "@/stores/widget";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
+import { ChainId, NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 import { getFunctionSelector } from "@kyber/utils/crypto";
 
 function encodeBytes(data: string) {
@@ -129,9 +128,11 @@ function decodeMulticallOutput(result: string | undefined): bigint[] {
 
 const ERC20_BALANCE_OF_SELECTOR = getFunctionSelector("balanceOf(address)"); // "70a08231"; // Function selector for "";
 
-const useTokenBalances = (tokenAddresses: string[]) => {
-  const { chainId, connectedAccount } = useWidgetContext((s) => s);
-  const { address: account } = connectedAccount;
+const useTokenBalances = (
+  chainId: ChainId,
+  tokenAddresses: string[],
+  account?: string
+) => {
   const { defaultRpc: rpcUrl, multiCall } = NetworkInfo[chainId];
 
   const [balances, setBalances] = useState<{ [address: string]: bigint }>({});

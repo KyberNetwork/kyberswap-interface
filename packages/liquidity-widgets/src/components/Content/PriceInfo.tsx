@@ -1,11 +1,17 @@
 import { useMemo } from "react";
 import { useZapState } from "../../hooks/useZapInState";
-import { assertUnreachable, formatNumber } from "../../utils";
+import { assertUnreachable } from "../../utils";
 import SwitchIcon from "@/assets/svg/switch.svg";
 import { useWidgetContext } from "@/stores/widget";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import { univ2PoolNormalize, univ3PoolNormalize } from "@/schema";
+import { MouseoverTooltip } from "../Tooltip";
+
+const shortenSymbol = (symbol: string, characterNumber: number = 8) =>
+  symbol.length > characterNumber + 2
+    ? symbol.slice(0, characterNumber) + "..."
+    : symbol;
 
 export default function PriceInfo() {
   const { pool, theme, poolType } = useWidgetContext((s) => s);
@@ -20,8 +26,8 @@ export default function PriceInfo() {
       return formatDisplayNumber(
         tickToPrice(
           data.tick,
-          data.token0.decimals,
-          data.token1.decimals,
+          data.token0?.decimals,
+          data.token1?.decimals,
           revertPrice
         ),
         { significantDigits: 6 }
@@ -33,16 +39,16 @@ export default function PriceInfo() {
 
     if (isUniV2) {
       const p = divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
         18
       );
       return formatDisplayNumber(revertPrice ? 1 / +p : p, {
-        significantDigits: 8,
+        significantDigits: 6,
       });
     }
     return assertUnreachable(poolType as never, "poolType is not handled");
-  }, [pool, revertPrice]);
+  }, [pool, poolType, revertPrice]);
 
   const isDeviated = useMemo(
     () =>
@@ -54,26 +60,56 @@ export default function PriceInfo() {
   const marketRate = useMemo(
     () =>
       marketPrice
-        ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
+        ? formatDisplayNumber(revertPrice ? 1 / marketPrice : marketPrice, {
+            significantDigits: 6,
+          })
         : null,
     [marketPrice, revertPrice]
   );
 
-  if (loading) return <div className="price-info">Loading...</div>;
+  if (loading)
+    return (
+      <div className="rounded-md border border-stroke py-3 px-4">
+        Loading...
+      </div>
+    );
+
+  const firstToken = revertPrice ? pool?.token1 : pool?.token0;
+  const secondToken = revertPrice ? pool?.token0 : pool?.token1;
+
+  const firstTokenShortenSymbol = shortenSymbol(firstToken?.symbol || "");
+  const secondTokenShortenSymbol = shortenSymbol(secondToken?.symbol || "");
 
   return (
     <>
-      <div className="price-info">
-        <div className="row">
+      <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
+        <div className="flex items-center justify-start gap-1 text-subText text-sm flex-wrap">
           <span>Pool price</span>
-          <span className="price">{price}</span>
-          <span>
-            {revertPrice
-              ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-              : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
-          </span>
+          <span className="font-medium text-text">{price}</span>
+
+          <MouseoverTooltip
+            text={
+              secondTokenShortenSymbol !== secondToken?.symbol
+                ? secondToken?.symbol
+                : ""
+            }
+            placement="top"
+          >
+            {secondTokenShortenSymbol}
+          </MouseoverTooltip>
+          <span>per</span>
+          <MouseoverTooltip
+            text={
+              firstTokenShortenSymbol !== firstToken?.symbol
+                ? firstToken?.symbol
+                : ""
+            }
+            placement="top"
+          >
+            {firstTokenShortenSymbol}
+          </MouseoverTooltip>
           <SwitchIcon
-            style={{ cursor: "pointer" }}
+            className="cursor-pointer"
             onClick={() => toggleRevertPrice()}
             role="button"
           />
@@ -82,10 +118,10 @@ export default function PriceInfo() {
 
       {marketPrice === null && (
         <div
-          className="price-warning"
+          className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          <span className="text">
+          <span className="italic text-text">
             Unable to get the market price. Please be cautious!
           </span>
         </div>
@@ -93,32 +129,17 @@ export default function PriceInfo() {
 
       {isDeviated && (
         <div
-          className="price-warning"
+          className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          <div className="text">
+          <div className="italic text-text">
             The pool's current price of{" "}
-            <span
-              style={{
-                fontWeight: "500",
-                color: theme.warning,
-                fontStyle: "normal",
-              }}
-            >
-              1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
-              {price} {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
+            <span className="font-medium text-warning not-italic">
+              1 {secondToken.symbol} = {price} {firstToken.symbol}
             </span>{" "}
             deviates from the market price{" "}
-            <span
-              style={{
-                fontWeight: "500",
-                color: theme.warning,
-                fontStyle: "normal",
-              }}
-            >
-              (1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
-              {marketRate}{" "}
-              {revertPrice ? pool?.token0.symbol : pool?.token1.symbol})
+            <span className="font-medium text-warning not-italic">
+              (1 {secondToken.symbol} = {marketRate} {firstToken.symbol})
             </span>
             . You might have high impermanent loss after you add liquidity to
             this pool

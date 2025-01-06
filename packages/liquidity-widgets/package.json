@@ -1,6 +1,6 @@
 {
   "name": "@kyberswap/liquidity-widgets",
-  "version": "1.1.0-rc.0",
+  "version": "1.1.0",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -34,7 +34,6 @@
     "d3": "^7.9.0",
     "jsbi": "^3.2.5",
     "lodash.partition": "^4.6.0",
-    "lucide-react": "^0.453.0",
     "numeral": "^2.0.6",
     "polished": "^4.3.1",
     "react-popper": "^2.3.0",

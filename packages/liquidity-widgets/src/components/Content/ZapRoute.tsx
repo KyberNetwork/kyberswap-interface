@@ -5,18 +5,36 @@ import {
   PoolSwapAction,
   ZapAction,
 } from "../../hooks/types/zapInTypes";
+import { useMemo, useState } from "react";
 import { formatWei } from "../../utils";
-import { useMemo } from "react";
 import { DexInfos, NetworkInfo } from "@/constants";
 import { useWidgetContext } from "@/stores/widget";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@kyber/ui/accordion";
 
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
   const { pool, poolType, chainId } = useWidgetContext((s) => s);
+  const [expanded, setExpanded] = useState(false);
+
+  const defaultToken = {
+    decimals: undefined,
+    address: "",
+    logo: "",
+    symbol: "",
+  };
+  const { symbol: symbol0 } = pool === "loading" ? defaultToken : pool.token0;
+  const { symbol: symbol1 } = pool === "loading" ? defaultToken : pool.token1;
 
   const dexNameObj = DexInfos[poolType].name;
   const dexName =
     typeof dexNameObj === "string" ? dexNameObj : dexNameObj[chainId];
+
+  const onExpand = () => setExpanded((prev) => !prev);
 
   const swapInfo = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
@@ -74,10 +92,8 @@ export default function ZapRoute() {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [poolType, zapInfo?.zapDetails.actions]);
+  }, [chainId, dexName, pool, tokensIn, zapInfo?.zapDetails.actions]);
 
-  const token0Decimals = pool !== "loading" && pool?.token0.decimals;
-  const token1Decimals = pool !== "loading" && pool?.token1.decimals;
   const addedLiquidityInfo = useMemo(() => {
     if (pool === "loading") return { addedAmount0: "0", addedAmount1: "0" };
     const data = zapInfo?.zapDetails.actions.find(
@@ -86,45 +102,66 @@ export default function ZapRoute() {
 
     const addedAmount0 = formatWei(
       data?.addLiquidity.token0.amount,
-      pool?.token0.decimals
+      pool?.token0?.decimals
     );
     const addedAmount1 = formatWei(
       data?.addLiquidity.token1.amount,
-      pool?.token1.decimals
+      pool?.token1?.decimals
     );
 
     return { addedAmount0, addedAmount1 };
-  }, [zapInfo?.zapDetails.actions, token0Decimals, token1Decimals]);
+  }, [pool, zapInfo?.zapDetails.actions]);
 
   return (
-    <div className="zap-route mb-4">
-      <div className="title">Zap Summary</div>
-      <div className="subTitle">
-        The actual Zap Routes could be adjusted with on-chain states
-      </div>
-      <div className="divider mt-1" />
+    <>
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full mt-4"
+        value={expanded ? "item-1" : ""}
+      >
+        <AccordionItem value="item-1">
+          <AccordionTrigger
+            className={`px-4 py-3 text-sm border border-stroke text-text rounded-md ${
+              expanded ? "!rounded-b-none !border-b-0 !pb-1" : ""
+            }`}
+            onClick={onExpand}
+          >
+            Zap Summary
+          </AccordionTrigger>
+          <AccordionContent className="px-4 pb-4 pt-0 border border-stroke !border-t-0 rounded-b-md">
+            <p className="text-subText text-xs italic">
+              The actual Zap Routes could be adjusted with on-chain states
+            </p>
 
-      {swapInfo.map((item, index) => (
-        <div className="row" key={index}>
-          <div className="step">{index + 1}</div>
-          <div className="text">
-            Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{" "}
-            {item.tokenOutSymbol} via{" "}
-            <span className="font-medium text-text">{item.pool}</span>
-          </div>
-        </div>
-      ))}
+            <div className="h-[1px] w-full bg-stroke mt-1 mb-3" />
 
-      <div className="row">
-        <div className="step">{swapInfo.length + 1}</div>
-        <div className="text">
-          Build LP using {addedLiquidityInfo.addedAmount0}{" "}
-          {pool === "loading" ? "" : pool.token0.symbol} and{" "}
-          {addedLiquidityInfo.addedAmount1}{" "}
-          {pool === "loading" ? "" : pool.token1.symbol} on{" "}
-          <span className="font-medium text-text">{dexName}</span>
-        </div>
-      </div>
-    </div>
+            {swapInfo.map((item, index) => (
+              <div className="flex gap-3 items-center mt-3 text-xs" key={index}>
+                <div className="rounded-full w-6 h-6 flex items-center justify-center font-medium bg-layer2">
+                  {index + 1}
+                </div>
+                <div className="flex-1 text-subText leading-4">
+                  Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{" "}
+                  {item.tokenOutSymbol} via{" "}
+                  <span className="font-medium text-text">{item.pool}</span>
+                </div>
+              </div>
+            ))}
+
+            <div className="flex gap-3 items-center text-xs mt-3">
+              <div className="rounded-full w-6 h-6 flex items-center justify-center font-medium bg-layer2">
+                {swapInfo.length + 1}
+              </div>
+              <div className="flex-1 text-subText leading-4">
+                Build LP using {addedLiquidityInfo.addedAmount0} {symbol0} and{" "}
+                {addedLiquidityInfo.addedAmount1} {symbol1} on{" "}
+                <span className="font-medium text-text">{dexName}</span>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </>
   );
 }

@@ -1,3 +1,144 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* button */
+  .ks-primary-btn {
+    @apply flex justify-center items-center justify-self-end;
+    @apply border border-accent rounded-md;
+    @apply text-sm font-medium bg-accent text-layer1;
+    @apply px-3 py-[10px] cursor-pointer;
+
+    @apply hover:enabled:brightness-110;
+    @apply active:enabled:scale-99;
+    @apply disabled:cursor-not-allowed disabled:text-subText disabled:bg-layer2 disabled:border-layer2 disabled:brightness-105;
+  }
+
+  .ks-outline-btn {
+    @apply flex justify-center items-center justify-self-end;
+    @apply border border-[#ffffffb3] rounded-md;
+    @apply text-sm font-medium bg-transparent text-[#ffffffb3];
+    @apply px-3 py-[10px] cursor-pointer;
+
+    @apply hover:border-accent hover:text-accent;
+    @apply active:scale-99;
+  }
+
+  /* modal */
+  .ks-lw-modal-overlay {
+    @apply fixed top-0 left-0 right-0 bottom-0;
+    @apply flex justify-center items-center;
+    @apply bg-[#00000080] z-[9999];
+  }
+
+  .ks-lw-modal-content {
+    @apply relative overflow-y-scroll;
+    @apply w-full max-w-[500px] max-h-[96vh] p-6 rounded-md;
+    @apply bg-layer1 text-text;
+    @apply transition-all duration-200;
+    font-family: var(--ks-lw-fontFamily) "Work Sans", Sans-serif;
+  }
+
+  .ks-lw-modal-content::-webkit-scrollbar {
+    @apply hidden;
+  }
+
+  .ks-lw-modal-close {
+    @apply absolute top-5 right-5 cursor-pointer;
+  }
+
+  /* popover */
+  .ks-lw-popover {
+    @apply text-subText bg-layer2;
+    @apply border border-transparent rounded-md;
+    @apply transition-all duration-150 ease-linear z-[9999];
+    @apply invisible opacity-0;
+    box-shadow: 0px 4px 12px 0px #00000052;
+    font-family: var(--ks-lw-fontFamily);
+
+    @apply data-[visibility='true']:visible data-[visibility='true']:opacity-100;
+  }
+
+  .ks-lw-popover .arrow {
+    @apply w-3 h-3 z-[9998];
+    @apply before:absolute before:w-3 before:h-3 before:z-[9998];
+    @apply before:content-[''] before:border before:border-transparent before:rotate-45 before:bg-layer2;
+  }
+
+  .ks-lw-popover .arrow-top {
+    @apply -bottom-[7px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+
+  .ks-lw-popover .arrow-bottom {
+    @apply -top-[7px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+
+  .ks-lw-popover .arrow-left {
+    @apply -right-[7px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+
+  .ks-lw-popover .arrow-right {
+    @apply -left-[7px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+
+  /* card */
+  .ks-lw-card {
+    @apply bg-layer2 rounded-md px-4 py-3;
+  }
+
+  .ks-lw-card-title {
+    @apply flex justify-between items-center text-subText text-sm;
+  }
+
+  /* divider */
+  .ks-lw-divider {
+    @apply h-[1px] w-full bg-stroke;
+  }
+
+  /* error */
+  .ks-error-msg {
+    @apply mt-0 max-h-0 transition-all duration-200 ease-out;
+    @apply text-xs text-subText;
+    @apply break-words overflow-y-scroll;
+  }
+
+  .ks-error-msg::-webkit-scrollbar {
+    display: unset;
+    @apply w-[6px] rounded-full;
+  }
+
+  .ks-error-msg::-webkit-scrollbar-track {
+    @apply bg-transparent rounded-full;
+  }
+
+  .ks-error-msg::-webkit-scrollbar-thumb {
+    @apply bg-subText rounded-full;
+  }
+
+  img {
+    border-radius: 50%;
+  }
+
+  @keyframes highlight {
+    0% {
+      box-shadow: 0 0 0 0 var(--ks-lw-accent);
+    }
+
+    70% {
+      box-shadow: 0 0 0 2px var(--ks-lw-accent);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 var(--ks-lw-accent);
+    }
+  }
+
+  .degen-mode[data-highlight='true'] {
+    animation: highlight 2s 2 alternate ease-in-out;
+  }
+}

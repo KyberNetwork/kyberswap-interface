@@ -24,14 +24,14 @@ export enum PoolType {
   DEX_METAVAULTV3 = "DEX_METAVAULTV3",
   DEX_LINEHUBV3 = "DEX_LINEHUBV3",
   DEX_SWAPMODEV3 = "DEX_SWAPMODEV3",
-  DEX_KOLCL = "DEX_KOICL",
+  DEX_KOICL = "DEX_KOICL",
   DEX_THRUSTERV3 = "DEX_THRUSTERV3",
   DEX_SUSHISWAPV3 = "DEX_SUSHISWAPV3",
   DEX_QUICKSWAPV3UNI = "DEX_QUICKSWAPV3UNI",
 
   DEX_PANCAKESWAPV2 = "DEX_PANCAKESWAPV2",
   DEX_UNISWAPV2 = "DEX_UNISWAPV2",
-  DEX_PANGOLINSTANDARD = "DEX_PANGOLINSTANDARD ",
+  DEX_PANGOLINSTANDARD = "DEX_PANGOLINSTANDARD",
   DEX_SUSHISWAPV2 = "DEX_SUSHISWAPV2",
   DEX_QUICKSWAPV2 = "DEX_QUICKSWAPV2",
   DEX_THRUSTERV2 = "DEX_THRUSTERV2",
@@ -44,7 +44,7 @@ export const univ3Types = [
   PoolType.DEX_METAVAULTV3,
   PoolType.DEX_LINEHUBV3,
   PoolType.DEX_SWAPMODEV3,
-  PoolType.DEX_KOLCL,
+  PoolType.DEX_KOICL,
   PoolType.DEX_THRUSTERV3,
   PoolType.DEX_SUSHISWAPV3,
   PoolType.DEX_QUICKSWAPV3UNI,
@@ -71,6 +71,7 @@ export const token = z.object({
   decimals: z.number(),
   logo: z.string().optional(),
   price: z.number().optional(),
+  isStable: z.boolean().optional(),
 });
 export type Token = z.infer<typeof token>;
 
@@ -114,13 +115,26 @@ export const univ3PoolNormalize = z.object({
   ticks: z.array(tick),
   minTick: z.number(),
   maxTick: z.number(),
+  category: z.enum([
+    "stablePair",
+    "correlatedPair",
+    "commonPair",
+    "exoticPair",
+  ]),
 });
+export type UniV3Pool = z.infer<typeof univ3PoolNormalize>;
 
 export const univ2PoolNormalize = z.object({
   token0: token,
   token1: token,
   fee: z.number(),
   reserves: z.tuple([z.string(), z.string()]),
+  category: z.enum([
+    "stablePair",
+    "correlatedPair",
+    "commonPair",
+    "exoticPair",
+  ]),
 });
 
 export const pool = z.discriminatedUnion("poolType", [
@@ -142,6 +156,7 @@ export const univ3Position = z.object({
   amount0: z.bigint(),
   amount1: z.bigint(),
 });
+export type UniV3Position = z.infer<typeof univ3Position>;
 
 export const univ2Position = z.object({
   liquidity: z.string(),
@@ -168,7 +183,7 @@ const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_METAVAULTV3]: ["metavault-v3"],
   [PoolType.DEX_LINEHUBV3]: ["linehub-v3"],
   [PoolType.DEX_SWAPMODEV3]: ["baseswap-v3", "arbidex-v3", "superswap-v3"],
-  [PoolType.DEX_KOLCL]: ["koi-cl"],
+  [PoolType.DEX_KOICL]: ["koi-cl"],
   [PoolType.DEX_THRUSTERV3]: ["thruster-v3"],
   [PoolType.DEX_SUSHISWAPV3]: ["sushiswap-v3"],
   [PoolType.DEX_QUICKSWAPV3UNI]: ["quickswap-uni-v3"],

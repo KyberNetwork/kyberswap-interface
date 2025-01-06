@@ -11,7 +11,9 @@ export default function useMarketPrice(tokensAddress: string) {
       .map((item) => item.toLowerCase()),
     chainId,
   });
-  return Object.keys(prices).map((key) => {
-    return prices[key.toLowerCase()] || 0;
-  });
+
+  return tokensAddress
+    .split(",")
+    .filter(Boolean)
+    .map((item) => prices[item.toLowerCase()] || 0);
 }
