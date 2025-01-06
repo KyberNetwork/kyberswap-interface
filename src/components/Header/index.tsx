@@ -207,9 +207,11 @@ export default function Header() {
         {!isPartnerSwap && (
           <HeaderLinks>
             <SwapNavGroup />
-            <StyledNavLink style={{ position: 'relative', width: 72 }} to={`${APP_PATHS.EARN}`}>
-              Earn
-              <NewLabel style={{ position: 'absolute', right: '0' }}>New</NewLabel>
+            <StyledNavLink to={`${APP_PATHS.EARN}`}>
+              <Flex>
+                Earn
+                <NewLabel>New</NewLabel>
+              </Flex>
             </StyledNavLink>
             <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>
             <KyberDAONavGroup />

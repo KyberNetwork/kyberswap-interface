@@ -68,8 +68,8 @@ export const StyledNavigateButton = styled.div<{ mobileFullWidth?: boolean }>`
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
-  color: ${({ theme }) => theme.subText};
+  background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
+  color: ${({ theme }) => theme.text};
   border-radius: 12px;
   padding: 8px 16px;
   width: max-content;

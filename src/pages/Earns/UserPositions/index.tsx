@@ -110,7 +110,6 @@ const MyPositions = () => {
             <LocalLoader />
           ) : account && userPosition && userPosition.length > 0 ? (
             userPosition.map(position => {
-              console.log('position', position)
               const { id, status, chainId: poolChainId } = position
               const positionId = position.tokenId
               const chainImage = position.chainLogo

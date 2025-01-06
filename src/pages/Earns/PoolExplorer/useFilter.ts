@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PoolQueryParams, earnSupportedChains } from 'services/zapEarn'
 
@@ -11,12 +11,11 @@ import { FilterTag, SortBy, timings } from '.'
 export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { account, chainId } = useActiveWeb3React()
+  const [defaultChainId] = useState(chainId && earnSupportedChains.includes(chainId) ? chainId : ChainId.MAINNET)
 
   const filters: PoolQueryParams = useMemo(() => {
     return {
-      chainId: +(
-        searchParams.get('chainId') || (chainId && earnSupportedChains.includes(chainId) ? chainId : ChainId.MAINNET)
-      ),
+      chainId: +(searchParams.get('chainId') || defaultChainId),
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[0].value as string),
@@ -27,7 +26,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
       orderBy: searchParams.get('orderBy') || (!searchParams.get('tag') ? Direction.DESC : ''),
       q: searchParams.get('q')?.trim() || '',
     }
-  }, [searchParams, account, chainId])
+  }, [searchParams, defaultChainId, account])
 
   const updateFilters = useCallback(
     (key: keyof PoolQueryParams, value: string) => {
