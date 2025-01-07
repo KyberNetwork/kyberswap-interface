@@ -53,7 +53,15 @@ const EarnBannerWrapper = styled.div`
     padding: 20px 18px;
   `}
 
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    flex-direction: column;
+    background-image: url(${earnSmallBg});
+    padding: 20px 24px;
+  `}
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex-direction: row;
+    background-image: url(${earnLargeBg});
     padding: 20px 18px 20px 60px;
   `}
 
@@ -98,6 +106,7 @@ const PoolButton = styled.div<{ animate: boolean }>`
   background: #1d5b49cc;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   border: 1px solid rgba(25, 103, 80, 1);
 
@@ -106,6 +115,14 @@ const PoolButton = styled.div<{ animate: boolean }>`
     css`
       animation: ${pulse} 0.6s;
     `}
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    width: 100%;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: unset;
+  `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
@@ -206,10 +223,10 @@ export default function EarnBanner() {
                 <Flex>
                   <TokenImage src={pool.tokens[0].logoURI} alt="" />
                   <TokenImage src={pool.tokens[1].logoURI} alt="" />
+                  <Text fontSize={18} marginLeft={2}>
+                    {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
+                  </Text>
                 </Flex>
-                <Text fontSize={18}>
-                  {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
-                </Text>
                 <PoolAprWrapper>
                   <PoolApr>
                     {formatAprNumber(pool.apr)}% <AprText>APR</AprText>
