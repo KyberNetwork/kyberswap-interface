@@ -191,10 +191,10 @@ export default function EarnBanner() {
   useEffect(() => {
     const handleIndexChange = () => {
       setAnimate(true)
-      setTimeout(() => setIndex(prev => (prev >= 4 ? 0 : prev + 1)), 200)
+      setTimeout(() => setIndex(prev => (prev >= 9 ? 0 : prev + 1)), 200)
       setTimeout(() => setAnimate(false), 1000)
     }
-    indexInterval = setInterval(handleIndexChange, 6000)
+    indexInterval = setInterval(handleIndexChange, 4000)
 
     return () => clearInterval(indexInterval)
   }, [])

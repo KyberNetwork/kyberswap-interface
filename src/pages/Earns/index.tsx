@@ -320,19 +320,20 @@ export default function Earns() {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   useEffect(() => {
+    const poolsToOpen = data?.data?.highlightedPools || []
     const openPool = searchParams.get('openPool')
     const openPoolIndex = parseInt(openPool || '', 10)
 
-    if (!isNaN(openPoolIndex) && highlightedPools.length && highlightedPools[openPoolIndex]) {
+    if (!isNaN(openPoolIndex) && poolsToOpen.length && poolsToOpen[openPoolIndex]) {
       searchParams.delete('openPool')
       setSearchParams(searchParams)
       handleOpenZapInWidget({
-        exchange: highlightedPools[openPoolIndex].exchange,
-        chainId: highlightedPools[openPoolIndex].chainId,
-        address: highlightedPools[openPoolIndex].address,
+        exchange: poolsToOpen[openPoolIndex].exchange,
+        chainId: poolsToOpen[openPoolIndex].chainId,
+        address: poolsToOpen[openPoolIndex].address,
       })
     }
-  }, [handleOpenZapInWidget, highlightedPools, searchParams, setSearchParams])
+  }, [handleOpenZapInWidget, data, searchParams, setSearchParams])
 
   return (
     <WrapperBg>
