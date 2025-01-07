@@ -8,7 +8,6 @@ import earnLargeBg from 'assets/images/earn_background_large.png'
 import earnSmallBg from 'assets/images/earn_background_small.png'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import { formatAprNumber } from 'pages/Earns/utils'
 
 const EarnBannerContainer = styled.div`
@@ -183,7 +182,6 @@ export default function EarnBanner() {
   const navigate = useNavigate()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
-  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
 
   const [index, setIndex] = useState(0)
   const [animate, setAnimate] = useState(false)
@@ -202,41 +200,38 @@ export default function EarnBanner() {
   }, [])
 
   return (
-    <>
-      {liquidityWidget}
-      <EarnBannerContainer>
-        <EarnBannerWrapper onClick={() => navigate({ pathname: APP_PATHS.EARN })}>
-          <Description>
-            Explore and Add Liquidity to High-APR Pools <PrimaryText>Instantly</PrimaryText> with{' '}
-            <PrimaryText>Any Token(s)</PrimaryText> or <PrimaryText>Position</PrimaryText> you choose!
-          </Description>
-          <PoolButton
-            animate={animate}
-            onClick={e => {
-              if (!pool) return
-              e.stopPropagation()
-              handleOpenZapInWidget({ exchange: pool.exchange, chainId: pool.chainId, address: pool.address })
-            }}
-          >
-            {!!pool && (
-              <>
-                <Flex>
-                  <TokenImage src={pool.tokens[0].logoURI} alt="" />
-                  <TokenImage src={pool.tokens[1].logoURI} alt="" />
-                  <Text fontSize={18} marginLeft={2}>
-                    {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
-                  </Text>
-                </Flex>
-                <PoolAprWrapper>
-                  <PoolApr>
-                    {formatAprNumber(pool.apr)}% <AprText>APR</AprText>
-                  </PoolApr>
-                </PoolAprWrapper>
-              </>
-            )}
-          </PoolButton>
-        </EarnBannerWrapper>
-      </EarnBannerContainer>
-    </>
+    <EarnBannerContainer>
+      <EarnBannerWrapper onClick={() => navigate({ pathname: APP_PATHS.EARN })}>
+        <Description>
+          Explore and Add Liquidity to High-APR Pools <PrimaryText>Instantly</PrimaryText> with{' '}
+          <PrimaryText>Any Token(s)</PrimaryText> or <PrimaryText>Position</PrimaryText> you choose!
+        </Description>
+        <PoolButton
+          animate={animate}
+          onClick={e => {
+            if (!pool) return
+            e.stopPropagation()
+            navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}` })
+          }}
+        >
+          {!!pool && (
+            <>
+              <Flex>
+                <TokenImage src={pool.tokens[0].logoURI} alt="" />
+                <TokenImage src={pool.tokens[1].logoURI} alt="" />
+                <Text fontSize={18} marginLeft={2}>
+                  {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
+                </Text>
+              </Flex>
+              <PoolAprWrapper>
+                <PoolApr>
+                  {formatAprNumber(pool.apr)}% <AprText>APR</AprText>
+                </PoolApr>
+              </PoolAprWrapper>
+            </>
+          )}
+        </PoolButton>
+      </EarnBannerWrapper>
+    </EarnBannerContainer>
   )
 }

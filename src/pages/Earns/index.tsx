@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
-import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { EarnPool, useExplorerLandingQuery } from 'services/zapEarn'
@@ -285,9 +286,11 @@ const Card = ({
 
 export default function Earns() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { isLoading, data } = useExplorerLandingQuery({ userAddress: account })
+  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
 
   const title = (title: string, tooltip: string, icon: string) => (
     <>
@@ -316,8 +319,24 @@ export default function Earns() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
+  useEffect(() => {
+    const openPool = searchParams.get('openPool')
+    const openPoolIndex = parseInt(openPool || '', 10)
+
+    if (!isNaN(openPoolIndex) && highlightedPools.length && highlightedPools[openPoolIndex]) {
+      searchParams.delete('openPool')
+      setSearchParams(searchParams)
+      handleOpenZapInWidget({
+        exchange: highlightedPools[openPoolIndex].exchange,
+        chainId: highlightedPools[openPoolIndex].chainId,
+        address: highlightedPools[openPoolIndex].address,
+      })
+    }
+  }, [handleOpenZapInWidget, highlightedPools, searchParams, setSearchParams])
+
   return (
     <WrapperBg>
+      {liquidityWidget}
       <Container>
         <Text fontSize={36} fontWeight="500">
           Maximize Your Earnings in DeFi
