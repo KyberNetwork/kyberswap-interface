@@ -175,8 +175,8 @@ export function calculateGasMargin(value: bigint): string {
   return (
     "0x" +
     (gasMargin < defaultGasLimitMargin
-      ? value + gasMargin
-      : value + defaultGasLimitMargin
+      ? value + defaultGasLimitMargin
+      : value + gasMargin
     ).toString(16)
   );
 }
