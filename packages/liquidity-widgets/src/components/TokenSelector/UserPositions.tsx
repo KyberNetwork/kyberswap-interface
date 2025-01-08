@@ -9,6 +9,7 @@ import { useWidgetContext } from "@/stores/widget";
 import { formatDisplayNumber } from "@kyber/utils/number";
 import { ChainId, PATHS } from "@/constants";
 import { isAddress } from "@kyber/utils/crypto";
+import { useZapState } from "@/hooks/useZapInState";
 
 export enum PositionStatus {
   IN_RANGE = "IN_RANGE",
@@ -132,6 +133,7 @@ const UserPositions = ({ search }: { search: string }) => {
     onConnectWallet,
   } = useWidgetContext((s) => s);
   const { address: account } = connectedAccount || {};
+  const { tickLower, tickUpper } = useZapState();
 
   const [userPositions, setUserPositions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -256,11 +258,19 @@ const UserPositions = ({ search }: { search: string }) => {
         <div
           className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
           onClick={() =>
-            onOpenZapMigration({
-              exchange: position.pool.project,
-              poolId: position.pool.poolAddress,
-              positionId: position.tokenId,
-            })
+            onOpenZapMigration(
+              {
+                exchange: position.pool.project,
+                poolId: position.pool.poolAddress,
+                positionId: position.tokenId,
+              },
+              tickLower !== null && tickUpper !== null
+                ? {
+                    tickLower,
+                    tickUpper,
+                  }
+                : undefined
+            )
           }
         >
           <div className="flex items-center justify-between w-full">

@@ -309,6 +309,10 @@ function App() {
                   throw e;
                 }
               }}
+              initialTick={{
+                tickLower: -100,
+                tickUpper: 20,
+              }}
             />
           )}
         </div>

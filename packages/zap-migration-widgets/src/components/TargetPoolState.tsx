@@ -26,7 +26,11 @@ const PRICE_RANGE = {
   HIGH_POOL_FEE: [100, 50, 20, 10],
 };
 
-export function TargetPoolState() {
+export function TargetPoolState({
+  initialTick,
+}: {
+  initialTick?: { tickLower: number; tickUpper: number };
+}) {
   const { pools } = usePoolsStore();
   const { tickLower, tickUpper, setTickLower, setTickUpper } =
     useZapStateStore();
@@ -162,7 +166,8 @@ export function TargetPoolState() {
       pool !== "loading" &&
       tickLower === null &&
       tickUpper === null &&
-      toPosition === null
+      toPosition === null &&
+      !initialTick
     ) {
       handleSelectRange(
         fee <= 0.01
@@ -173,6 +178,17 @@ export function TargetPoolState() {
       );
     }
   }, [pool, tickLower, tickUpper, toPosition]);
+
+  useEffect(() => {
+    if (pools === "loading" || !initialTick) return;
+    if (
+      initialTick.tickLower % pools[1].tickSpacing === 0 &&
+      initialTick.tickUpper % pools[1].tickSpacing === 0
+    ) {
+      setTickLower(initialTick.tickLower);
+      setTickUpper(initialTick.tickUpper);
+    }
+  }, [initialTick?.tickLower, initialTick?.tickUpper, pools]);
 
   const handleSelectRange = (percent: number) => {
     if (pool === "loading") return;

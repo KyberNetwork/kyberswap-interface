@@ -60,6 +60,10 @@ export interface ZapMigrationProps {
   }) => Promise<string>;
   onViewPosition?: () => void;
   onBack?: () => void;
+  initialTick?: {
+    tickLower: number;
+    tickUpper: number;
+  };
 }
 
 // createModalRoot.js
@@ -90,6 +94,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     theme,
     onViewPosition,
     onBack,
+    initialTick,
     //aggregatorOptions,
     //feeConfig,
   } = props;
@@ -221,7 +226,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
           <ToPool className="block md:!hidden" />
 
-          <TargetPoolState />
+          <TargetPoolState initialTick={initialTick} />
         </div>
         <EstimateLiqValue
           client={client}

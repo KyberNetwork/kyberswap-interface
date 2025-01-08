@@ -41,11 +41,14 @@ export interface WidgetProps {
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
-  onOpenZapMigration?: (position: {
-    exchange: string;
-    poolId: string;
-    positionId: string | number;
-  }) => void;
+  onOpenZapMigration?: (
+    position: {
+      exchange: string;
+      poolId: string;
+      positionId: string | number;
+    },
+    initialTick?: { tickLower: number; tickUpper: number }
+  ) => void;
   onSubmitTx: (txData: {
     from: string;
     to: string;
