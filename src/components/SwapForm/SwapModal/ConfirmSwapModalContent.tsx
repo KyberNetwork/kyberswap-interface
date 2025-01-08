@@ -93,7 +93,6 @@ export default function ConfirmSwapModalContent({
   const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
   useEffect(() => {
     if (!currencyIn?.wrapped.address) return
-    console.log('xxx')
     fetch(
       `${TOKEN_API_URL}/v1/public/tokens/honeypot-fot-info?address=${currencyIn.wrapped.address.toLowerCase()}&chainId=${chainId}`,
     )
@@ -127,7 +126,7 @@ export default function ConfirmSwapModalContent({
     if (honeypot?.isFOT) {
       return (
         <Text>
-          This token has a Fee-on-Transfer. Please increase the slippage to at least {honeypot.tax}% to proceed.
+          This token has a Fee-on-Transfer. Please increase the slippage to at least {honeypot.tax * 100}% to proceed.
         </Text>
       )
     }
