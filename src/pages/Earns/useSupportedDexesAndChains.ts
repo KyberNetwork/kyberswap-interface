@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { PoolQueryParams, PositionQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
 
-import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 
 import { MenuOption } from './PoolExplorer/DropdownMenu'
@@ -10,7 +9,6 @@ export const AllChainsOption = { label: 'All Chains', value: '' }
 export const AllProtocolsOption = { label: 'All Protocols', value: '' }
 
 const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionQueryParams) => {
-  const { chainId: currentChainId } = useActiveWeb3React()
   const { supportedChains } = useChainsConfig()
   const { data: supportedProtocols } = useSupportedProtocolsQuery()
 
@@ -28,14 +26,11 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionQueryPara
   }, [filters, supportedChains, supportedProtocols?.data?.chains])
 
   const selectedChainId = useMemo(() => {
-    if ('chainId' in filters)
-      return filters.chainId || chains.some(chain => chain.value === currentChainId.toString())
-        ? currentChainId
-        : chains[0]?.value
+    if ('chainId' in filters) return filters.chainId || chains[0]?.value
     else if ('chainIds' in filters) return filters.chainIds
 
     return ''
-  }, [chains, currentChainId, filters])
+  }, [chains, filters])
 
   const supportedDexes = useMemo(() => {
     if (!supportedProtocols?.data?.chains) return []

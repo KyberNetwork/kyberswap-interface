@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Info, Star } from 'react-feather'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolsExplorerQuery } from 'services/zapEarn'
@@ -20,6 +20,7 @@ import useTheme from 'hooks/useTheme'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
+import { IconArrowLeft } from '../PositionDetail/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
 import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
 import DropdownMenu, { MenuOption } from './DropdownMenu'
@@ -88,6 +89,7 @@ const Earn = () => {
   const [search, setSearch] = useState('')
   const deboundedSearch = useDebounce(search, 300)
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const theme = useTheme()
   const { filters, updateFilters } = useFilter(setSearch)
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
@@ -139,11 +141,14 @@ const Earn = () => {
       {liquidityWidget}
 
       <div>
-        <Text as="h1" fontSize={24} fontWeight="500">
-          {t`Earning with Smart Liquidity Providing`}
-        </Text>
+        <Flex sx={{ gap: 3 }}>
+          <IconArrowLeft onClick={() => navigate(-1)} />
+          <Text as="h1" fontSize={24} fontWeight="500">
+            {t`Earning with Smart Liquidity Providing`}
+          </Text>
+        </Flex>
         <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-          {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
+          {t`KyberSwap Zap: Instantly add liquidity to high-APY pools using any token(s) or your existing liquidity position with KyberZap`}
         </Text>
       </div>
       <HeadSection>
@@ -151,14 +156,14 @@ const Earn = () => {
           <Tag active={!filters.tag} role="button" onClick={() => updateFilters('tag', '')}>
             {t`All pools`}
           </Tag>
-          <MouseoverTooltip text="List of pools added as favorite" placement="bottom" width="fit-content">
+          <MouseoverTooltip text="List of pools added as favorite" placement="top" width="fit-content">
             <Tag active={filters.tag === 'favorite'} role="button" onClick={() => updateFilters('tag', 'favorite')}>
               <Star size={16} />
             </Tag>
           </MouseoverTooltip>
           {filterTags.map((item, index) =>
             !upToMedium ? (
-              <MouseoverTooltip text={item.tooltip} placement="bottom" key={index}>
+              <MouseoverTooltip text={item.tooltip} placement="top" key={index}>
                 <Tag
                   active={filters.tag === item.value}
                   key={item.value}
@@ -249,7 +254,7 @@ const Earn = () => {
                 TVL
                 <MouseoverTooltipDesktopOnly
                   text={t`Only pools with a Total Value Locked of $10,000 or more are displayed on this page`}
-                  placement="bottom"
+                  placement="top"
                 >
                   <Text marginRight={1} marginLeft={1} sx={{ position: 'relative', top: '2.5px' }}>
                     <Info color={theme.subText} size={16} />

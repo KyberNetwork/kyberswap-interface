@@ -19,7 +19,7 @@ import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { CurrencyRoundedImage, CurrencySecondImage, Disclaimer } from '../PoolExplorer/styles'
-import { PositionAction as PositionActionBtn } from '../PositionDetail/styles'
+import { IconArrowLeft, PositionAction as PositionActionBtn } from '../PositionDetail/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
 import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
 import Filter from './Filter'
@@ -87,9 +87,12 @@ const MyPositions = () => {
       {liquidityWidget}
       <PositionPageWrapper>
         <div>
-          <Text as="h1" fontSize={24} fontWeight="500">
-            {t`My Liquidity`}
-          </Text>
+          <Flex sx={{ gap: 3 }}>
+            <IconArrowLeft onClick={() => navigate(-1)} />
+            <Text as="h1" fontSize={24} fontWeight="500">
+              {t`My Liquidity`}
+            </Text>
+          </Flex>
           <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
             {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
           </Text>
@@ -110,7 +113,6 @@ const MyPositions = () => {
             <LocalLoader />
           ) : account && userPosition && userPosition.length > 0 ? (
             userPosition.map(position => {
-              console.log('position', position)
               const { id, status, chainId: poolChainId } = position
               const positionId = position.tokenId
               const chainImage = position.chainLogo
