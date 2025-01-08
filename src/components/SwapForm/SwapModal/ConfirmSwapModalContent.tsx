@@ -1,8 +1,9 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Check, Info } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { calculatePriceImpact } from 'services/route/utils'
 import styled from 'styled-components'
@@ -20,8 +21,11 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
+import { TOKEN_API_URL } from 'constants/env'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme/components'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
@@ -84,6 +88,20 @@ export default function ConfirmSwapModalContent({
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
+  const { currencyIn } = useCurrenciesByPage()
+  const { chainId } = useActiveWeb3React()
+  const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
+  useEffect(() => {
+    if (!currencyIn?.wrapped.address) return
+    fetch(
+      `${TOKEN_API_URL}/v1/public/tokens/honeypot-fot-info?address=${currencyIn.wrapped.address.toLowerCase()}&chainId=${chainId}`,
+    )
+      .then(res => res.json())
+      .then(res => {
+        setHoneypot(res.data)
+      })
+  }, [currencyIn?.wrapped.address, chainId])
+
   const errorText = useMemo(() => {
     if (!errorWhileBuildRoute) return
     if (errorWhileBuildRoute.toLowerCase().includes('permit')) {
@@ -95,6 +113,24 @@ export default function ConfirmSwapModalContent({
         </Text>
       )
     }
+
+    if (honeypot?.isHoneypot) {
+      return (
+        <Text>
+          This token might be a honeypot token and could be unsellable. Please consult the project team for further
+          assistance
+        </Text>
+      )
+    }
+
+    if (honeypot?.isFOT) {
+      return (
+        <Text>
+          This token has a Fee-on-Transfer. Please increase the slippage to at least {honeypot.tax * 100}% to proceed.
+        </Text>
+      )
+    }
+
     if (
       errorWhileBuildRoute.includes('enough') ||
       errorWhileBuildRoute.includes('min') ||
@@ -121,7 +157,7 @@ export default function ConfirmSwapModalContent({
         <Trans>There was an issue while trying to confirm your price. Please try to swap again.</Trans>
       </Text>
     )
-  }, [errorWhileBuildRoute])
+  }, [errorWhileBuildRoute, honeypot?.isHoneypot, honeypot?.isFOT, honeypot?.tax])
 
   const priceImpactFromBuild = buildResult?.data
     ? calculatePriceImpact(Number(buildResult?.data?.amountInUsd || 0), Number(buildResult?.data?.amountOutUsd || 0))
@@ -245,6 +281,8 @@ export default function ConfirmSwapModalContent({
     setShowAreYouSureModal(true)
   }
 
+  const [searchParams, setSearchParams] = useSearchParams()
+
   return (
     <>
       <SwapModalAreYouSure
@@ -320,9 +358,17 @@ export default function ConfirmSwapModalContent({
           {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
 
           {errorWhileBuildRoute ? (
-            <ButtonPrimary onClick={onDismiss}>
+            <ButtonPrimary
+              onClick={() => {
+                if (honeypot?.isFOT) {
+                  searchParams.set('tab', 'settings')
+                  setSearchParams(searchParams)
+                }
+                onDismiss()
+              }}
+            >
               <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
-                <Trans>Dismiss</Trans>
+                {honeypot?.isFOT ? 'Adjust Settings' : 'Dismiss'}
               </Text>
             </ButtonPrimary>
           ) : (
