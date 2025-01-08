@@ -47,6 +47,7 @@ interface MigrateLiquidityPureParams {
     positionId?: string | number
   }
   chainId: MigrateChainId
+  initialTick?: { tickUpper: number; tickLower: number }
 }
 
 interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
@@ -100,7 +101,10 @@ const useLiquidityWidget = () => {
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
 
   const handleOpenZapMigrationWidget = useCallback(
-    (position: { exchange: string; poolId: string; positionId: string | number }) => {
+    (
+      position: { exchange: string; poolId: string; positionId: string | number },
+      initialTick?: { tickUpper: number; tickLower: number },
+    ) => {
       if (!addLiquidityPureParams) return
       if (!dexFormatter[position.exchange as SupporttedExchange]) {
         notify(
@@ -136,6 +140,7 @@ const useLiquidityWidget = () => {
           positionId: addLiquidityPureParams.positionId,
         },
         chainId: addLiquidityPureParams.chainId as MigrateChainId,
+        initialTick,
       }
       setMigrateLiquidityPureParams(paramsToSet)
     },
