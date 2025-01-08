@@ -326,6 +326,10 @@ export default function App() {
               <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
               <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
 
+              <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
+              <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />
+              <Route path={APP_PATHS.EARNS_POSITIONS} element={<Navigate to={APP_PATHS.EARN_POSITIONS} replace />} />
+
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>
           </BodyWrapper>
