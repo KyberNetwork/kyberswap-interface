@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
+import EarnBanner from 'components/EarnBanner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasTokenSetting from 'components/swapv2/GasTokenSetting'
@@ -117,6 +118,7 @@ export default function Swap() {
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
+  const isPartnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
 
   const enableDegenMode = searchParams.get('enableDegenMode') === 'true'
 
@@ -188,6 +190,7 @@ export default function Swap() {
           </SwapFormWrapper>
 
           <InfoComponents>
+            {(isSwapPage || isLimitPage) && !isPartnerSwap && <EarnBanner />}
             {isShowTradeRoutes && isSwapPage && (
               <RoutesWrapper isOpenChart={false}>
                 <Flex flexDirection="column" width="100%">

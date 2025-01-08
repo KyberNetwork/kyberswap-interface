@@ -170,10 +170,13 @@ export const APP_PATHS = {
   REFFERAL_CAMPAIGN: '/campaigns/referrals',
   MY_DASHBOARD: '/campaigns/dashboard',
 
-  EARN: '/earns',
-  EARN_POOLS: '/earns/pools',
-  EARN_POSITIONS: '/earns/positions',
-  EARN_POSITION_DETAIL: '/earns/position/:chainId/:id',
+  EARN: '/earn',
+  EARN_POOLS: '/earn/pools',
+  EARN_POSITIONS: '/earn/positions',
+  EARN_POSITION_DETAIL: '/earn/position/:chainId/:id',
+  EARNS: '/earns',
+  EARNS_POOLS: '/earns/pools',
+  EARNS_POSITIONS: '/earns/positions',
 } as const
 
 export const TERM_FILES_PATH = {

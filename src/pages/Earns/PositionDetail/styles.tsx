@@ -6,7 +6,7 @@ export const IconArrowLeft = styled(IconArrowLeftSvg)`
   cursor: pointer;
   position: relative;
   top: 5px;
-  color: ${({ theme }) => theme.subText};
+  color: rgba(250, 250, 250, 1);
 
   :hover {
     filter: brightness(1.5);

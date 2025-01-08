@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Info, Star } from 'react-feather'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolsExplorerQuery } from 'services/zapEarn'
@@ -20,6 +20,7 @@ import useTheme from 'hooks/useTheme'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
+import { IconArrowLeft } from '../PositionDetail/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
 import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
 import DropdownMenu, { MenuOption } from './DropdownMenu'
@@ -88,6 +89,7 @@ const Earn = () => {
   const [search, setSearch] = useState('')
   const deboundedSearch = useDebounce(search, 300)
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const theme = useTheme()
   const { filters, updateFilters } = useFilter(setSearch)
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
@@ -139,9 +141,12 @@ const Earn = () => {
       {liquidityWidget}
 
       <div>
-        <Text as="h1" fontSize={24} fontWeight="500">
-          {t`Earning with Smart Liquidity Providing`}
-        </Text>
+        <Flex sx={{ gap: 3 }}>
+          <IconArrowLeft onClick={() => navigate(-1)} />
+          <Text as="h1" fontSize={24} fontWeight="500">
+            {t`Earning with Smart Liquidity Providing`}
+          </Text>
+        </Flex>
         <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
           {t`KyberSwap Zap: Instantly add liquidity to high-APY pools using any token(s) or your existing liquidity position with KyberZap`}
         </Text>
