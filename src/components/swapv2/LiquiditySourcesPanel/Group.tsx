@@ -48,6 +48,10 @@ export const LiquiditySourceGroup = ({
     }
   }, [excludeDexes, dexByTag])
 
+  const filteredDexes = dexByTag.filter(item => item.name.toLowerCase().includes(debouncedSearchText))
+
+  if (!filteredDexes.length) return null
+
   return (
     <>
       <Source>
@@ -69,21 +73,19 @@ export const LiquiditySourceGroup = ({
         <SourceName>{tag.name}</SourceName>
       </Source>
 
-      {dexByTag
-        .filter(item => item.name.toLowerCase().includes(debouncedSearchText))
-        .map(({ name, logoURL, id }) => {
-          return (
-            <Source key={name} style={{ padding: '12px 48px' }}>
-              <Checkbox checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />
+      {filteredDexes.map(({ name, logoURL, id }) => {
+        return (
+          <Source key={name} style={{ padding: '12px 48px' }}>
+            <Checkbox checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />
 
-              <ImageWrapper>
-                <img src={logoURL} alt="" />
-              </ImageWrapper>
+            <ImageWrapper>
+              <img src={logoURL} alt="" />
+            </ImageWrapper>
 
-              <SourceName>{name}</SourceName>
-            </Source>
-          )
-        })}
+            <SourceName>{name}</SourceName>
+          </Source>
+        )
+      })}
     </>
   )
 }
