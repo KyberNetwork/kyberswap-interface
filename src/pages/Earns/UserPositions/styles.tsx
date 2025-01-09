@@ -19,8 +19,6 @@ export const MyLiquidityWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-height: 539px;
-  overflow-y: auto;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     max-height: unset;
