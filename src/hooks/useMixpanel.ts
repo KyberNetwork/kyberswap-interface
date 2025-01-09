@@ -243,6 +243,10 @@ export enum MIXPANEL_TYPE {
   EARNING_DASHBOARD_CLICK_CURRENT_CHAIN_BUTTON,
   EARNING_DASHBOARD_VIEW_PAGE,
   EARNING_DASHBOARD_CLICK_SUBSCRIBE,
+
+  // earn banner
+  EARN_BANNER_CLICK,
+  EARN_BANNER_POOL_CLICK,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1257,6 +1261,16 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
 
         case MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_SUBSCRIBE: {
           mixpanel.track('Earning Dashboard - Subscribe Click')
+          break
+        }
+
+        case MIXPANEL_TYPE.EARN_BANNER_CLICK: {
+          mixpanel.track('Banner Click to Earn', payload)
+          break
+        }
+
+        case MIXPANEL_TYPE.EARN_BANNER_POOL_CLICK: {
+          mixpanel.track('Banner Click to Pool Details', payload)
           break
         }
       }
