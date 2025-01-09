@@ -8,6 +8,7 @@ import earnLargeBg from 'assets/images/earn_background_large.png'
 import earnSmallBg from 'assets/images/earn_background_small.png'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { formatAprNumber } from 'pages/Earns/utils'
 
 const EarnBannerContainer = styled.div`
@@ -41,7 +42,7 @@ const EarnBannerWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   padding: 22px 18px 22px 68px;
 
   background-image: url(${earnLargeBg});
@@ -180,6 +181,7 @@ let indexInterval: NodeJS.Timeout
 
 export default function EarnBanner() {
   const navigate = useNavigate()
+  const { mixpanelHandler } = useMixpanel()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
 
@@ -187,6 +189,27 @@ export default function EarnBanner() {
   const [animate, setAnimate] = useState(false)
 
   const pool = useMemo(() => data?.data.highlightedPools[index] || null, [data, index])
+
+  const handleClickBanner = () => {
+    mixpanelHandler(MIXPANEL_TYPE.EARN_BANNER_CLICK, {
+      banner_name: 'HomePage_Earn_Banner',
+      page: 'HomePage',
+      destination_url: '/earn',
+    })
+    navigate({ pathname: APP_PATHS.EARN })
+  }
+
+  const handleClickBannerPool = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!pool) return
+    e.stopPropagation()
+    mixpanelHandler(MIXPANEL_TYPE.EARN_BANNER_POOL_CLICK, {
+      banner_name: 'HomePage_Pool_Banner',
+      page: 'HomePage',
+      pool_pair: `${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
+      destination_url: `/pools/${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
+    })
+    navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}` })
+  }
 
   useEffect(() => {
     const handleIndexChange = () => {
@@ -201,19 +224,12 @@ export default function EarnBanner() {
 
   return (
     <EarnBannerContainer>
-      <EarnBannerWrapper onClick={() => navigate({ pathname: APP_PATHS.EARN })}>
+      <EarnBannerWrapper onClick={handleClickBanner}>
         <Description>
           Explore and Add Liquidity to High-APR Pools <PrimaryText>Instantly</PrimaryText> with{' '}
           <PrimaryText>Any Token(s)</PrimaryText> or <PrimaryText>Position</PrimaryText> you choose!
         </Description>
-        <PoolButton
-          animate={animate}
-          onClick={e => {
-            if (!pool) return
-            e.stopPropagation()
-            navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}` })
-          }}
-        >
+        <PoolButton animate={animate} onClick={handleClickBannerPool}>
           {!!pool && (
             <>
               <Flex>
