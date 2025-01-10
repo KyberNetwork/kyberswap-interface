@@ -16,7 +16,7 @@ import useTokenBalance from "@/hooks/useTokenBalance";
 import { Price, Token } from "@pancakeswap/sdk";
 import { tickToPrice } from "@pancakeswap/v3-sdk";
 import { useDebounce } from "@kyber/hooks/use-debounce";
-import { chainIdToChain } from "@/constants";
+import { chainIdToChain, NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 import { ZapRouteDetail, Type, PancakeTokenAdvanced } from "@/types/zapInTypes";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
@@ -150,14 +150,19 @@ export const ZapContextProvider = ({
     if (prices.length) {
       const tokensInClone = [...tokensIn];
       tokensInClone.forEach((token) => {
+        const address =
+          token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+            ? NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+            : token.address.toLowerCase();
+
         const price = prices.find(
-          (price) => price.address.toLowerCase() === token.address.toLowerCase()
+          (price) => price.address.toLowerCase() === address
         );
         token.price = price?.price;
       });
       setTokensIn(tokensInClone);
     }
-  }, [prices]);
+  }, [prices, chainId]);
 
   const balances = useTokenBalance({ tokens: tokensIn });
 
@@ -366,7 +371,8 @@ export const ZapContextProvider = ({
       pool &&
       (!error ||
         error === zapApiError ||
-        error === ERROR_MESSAGE.INSUFFICIENT_BALANCE)
+        error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
+        error === ERROR_MESSAGE.WRONG_NETWORK)
     ) {
       let formattedAmountsInWeis = "";
       const listAmountsIn = amountsIn.split(",");

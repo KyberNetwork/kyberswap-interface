@@ -50,9 +50,9 @@ export default function useTokenBalance({
         .multicall({
           contracts: contractCalls,
         })
-        .then((res) => {
+        .then(async (res) => {
           const newBalances: Array<Balance> = [];
-          res.forEach(async (item, index) => {
+          for (const [index, item] of res.entries()) {
             if (item.status === "success")
               newBalances.push({
                 address: tokens[index].address,
@@ -69,7 +69,7 @@ export default function useTokenBalance({
                   balance,
                 });
             }
-          });
+          }
           setBalances(newBalances);
         });
     };
