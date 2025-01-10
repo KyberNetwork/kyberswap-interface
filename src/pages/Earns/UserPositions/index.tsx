@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Minus, Plus } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -9,6 +9,7 @@ import { EarnPosition, PositionStatus, useUserPositionsQuery } from 'services/za
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
 import CopyHelper from 'components/Copy'
 import LocalLoader from 'components/LocalLoader'
+import Pagination from 'components/Pagination'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -41,6 +42,8 @@ import {
 } from './styles'
 import useFilter from './useFilter'
 
+const LIMIT = 20
+
 const MyPositions = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -54,11 +57,19 @@ const MyPositions = () => {
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const firstLoading = useRef(false)
   const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(1)
 
   const { data: userPosition, isFetching } = useUserPositionsQuery(filters, {
     skip: !filters.addresses,
     pollingInterval: 15_000,
   })
+
+  const isShowPagination = (!isFetching || !loading) && userPosition && userPosition.length > LIMIT
+
+  const positionsToShow = useMemo(() => {
+    if (!isShowPagination) return userPosition
+    return userPosition.slice((page - 1) * LIMIT, page * LIMIT)
+  }, [isShowPagination, page, userPosition])
 
   const onOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
@@ -104,6 +115,7 @@ const MyPositions = () => {
           filters={filters}
           onFilterChange={(...args) => {
             onFilterChange(...args)
+            setPage(1)
             setLoading(true)
           }}
         />
@@ -111,8 +123,8 @@ const MyPositions = () => {
         <MyLiquidityWrapper>
           {isFetching && loading ? (
             <LocalLoader />
-          ) : account && userPosition && userPosition.length > 0 ? (
-            userPosition.map(position => {
+          ) : account && positionsToShow && positionsToShow.length > 0 ? (
+            positionsToShow.map(position => {
               const { id, status, chainId: poolChainId } = position
               const positionId = position.tokenId
               const chainImage = position.chainLogo
@@ -303,6 +315,15 @@ const MyPositions = () => {
             </EmptyPositionText>
           )}
         </MyLiquidityWrapper>
+        {isShowPagination && (
+          <Pagination
+            haveBg={false}
+            onPageChange={(newPage: number) => setPage(newPage)}
+            totalCount={userPosition.length}
+            currentPage={page}
+            pageSize={LIMIT}
+          />
+        )}
 
         <Disclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Disclaimer>
       </PositionPageWrapper>

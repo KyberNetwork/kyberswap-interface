@@ -143,6 +143,15 @@ export default function Swap() {
     setActiveTab(getDefaultTab())
   }, [getDefaultTab])
 
+  const tabFromUrl = searchParams.get('tab')
+  useEffect(() => {
+    if (tabFromUrl === 'settings') {
+      setActiveTab(TAB.SETTINGS)
+      searchParams.delete('tab')
+      setSearchParams(searchParams)
+    }
+  }, [tabFromUrl, searchParams, setSearchParams])
+
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
