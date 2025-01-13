@@ -191,7 +191,11 @@ const Routing = ({
                 <StyledDot />
                 <StyledDot out />
                 {isSwapRouteV3 ? (
-                  <RouteRowV3 tradeComposition={tradeComposition as SwapRouteV3[]} />
+                  <RouteRowV3
+                    tradeComposition={tradeComposition as SwapRouteV3[]}
+                    tokenIn={inputAmount?.currency.wrapped}
+                    tokenOut={outputAmount?.currency.wrapped}
+                  />
                 ) : (
                   (tradeComposition as SwapRouteV2[]).map(route => {
                     return (

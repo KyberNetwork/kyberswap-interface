@@ -116,7 +116,7 @@ const hideLoader = () => {
 const ReactApp = () => {
   useEffect(hideLoader, [])
   return (
-    <StrictMode>
+    <>
       <FixedGlobalStyle />
       <Provider store={store}>
         <BrowserRouter>
@@ -131,7 +131,7 @@ const ReactApp = () => {
           </LanguageProvider>
         </BrowserRouter>
       </Provider>
-    </StrictMode>
+    </>
   )
 }
 
