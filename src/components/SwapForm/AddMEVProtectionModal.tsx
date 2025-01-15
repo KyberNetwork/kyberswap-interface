@@ -37,13 +37,16 @@ const Wrapper = styled.div`
   }
 `
 
-const KYBER_SWAP_RPC = 'https://ethereum-mev-protection.kyberengineering.io/'
+const KYBER_SWAP_RPC: { [key: number]: string } = {
+  [ChainId.MAINNET]: 'https://ethereum-mev-protection.kyberengineering.io/',
+  [ChainId.BASE]: 'https://base-mev-protection.kyberengineering.io/',
+}
 
 export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { addNewNetwork } = useChangeNetwork()
   const { mixpanelHandler } = useMixpanel()
-  const { walletKey } = useActiveWeb3React()
+  const { walletKey, chainId } = useActiveWeb3React()
   const notify = useNotify()
   const theme = useTheme()
 
@@ -55,11 +58,13 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
       return
     }
 
+    if (!KYBER_SWAP_RPC[chainId]) return
+
     const name = 'Ethereum Mainnet (KyberSwap RPC)'
     mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_CLICK_MODAL, { type: name })
     addNewNetwork(
-      ChainId.MAINNET,
-      KYBER_SWAP_RPC,
+      chainId,
+      KYBER_SWAP_RPC[chainId],
       {
         name,
         title: t`Failed to switch to ${name} RPC Endpoint`,
@@ -80,7 +85,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
         onClose?.()
       },
     )
-  }, [isUsingMetamask, onClose, mixpanelHandler, addNewNetwork, notify])
+  }, [isUsingMetamask, onClose, mixpanelHandler, addNewNetwork, notify, chainId])
 
   return (
     <Modal

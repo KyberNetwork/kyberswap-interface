@@ -65,7 +65,7 @@ export default function SlippageSettingGroup({
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   let rightButton =
-    chainId === ChainId.MAINNET && active && !isPartnerSwap && !isMobile && !isTablet ? (
+    [ChainId.MAINNET, ChainId.BASE].includes(chainId) && active && !isPartnerSwap && !isMobile && !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
         <Shield size={14} color={theme.subText} />
         <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
