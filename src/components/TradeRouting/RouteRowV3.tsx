@@ -1,13 +1,14 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import '@xyflow/react/dist/style.css'
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
+import cytoscapeHTML from 'cytoscape-html'
 import { useEffect } from 'react'
 
 import useTheme from 'hooks/useTheme'
 import { SwapRouteV3 } from 'utils/aggregationRouting'
 
 cytoscape.use(dagre)
+cytoscape.use(cytoscapeHTML)
 
 type Node = {
   id: string
@@ -65,7 +66,7 @@ export const RouteRowV3 = ({
 
     const initEdges: Edge[] = []
     for (let i = 0; i < initNodes.length; i++) {
-      for (let j = i + 1; j < initNodes.length; j++) {
+      for (let j = 0; j < initNodes.length; j++) {
         const swaps = tradeComposition.filter(
           swap =>
             swap.tokenIn.address.toLowerCase() === initNodes[i].id &&
@@ -122,20 +123,12 @@ export const RouteRowV3 = ({
         {
           selector: 'edge',
           style: {
-            width: 3,
-            'line-color': '#888',
-            'target-arrow-color': '#888',
+            width: 1,
+            'line-color': '#505050',
+            'target-arrow-color': theme.primary,
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier', // Taxi edge style
-          },
-        },
-        {
-          selector: 'edge.round-taxi',
-          style: {
-            'curve-style': 'taxi',
-            'taxi-direction': 'horizontal',
-            'taxi-turn': 20,
-            'taxi-turn-min-distance': 5,
+            'arrow-scale': 0.8,
           },
         },
       ],
@@ -148,32 +141,4 @@ export const RouteRowV3 = ({
   if (!tokenIn || !tokenOut) return null
 
   return <div style={{ height: '500px' }} id="cy"></div>
-
-  //return (
-  //  <>
-  //    {groups.map((group, index) => {
-  //      if (group.tokenOut.toLowerCase() === tokenOut.address.toLowerCase())
-  //        return (
-  //          <div style={{ display: 'flex', padding: level * 16 + 'px' }}>
-  //            {tokenOut.symbol} {level}
-  //          </div>
-  //        )
-  //
-  //      return (
-  //        <div style={{ padding: level * 16 + 'px' }} key={`${group.tokenIn.address}-${group.tokenOut}`}>
-  //          <div>
-  //            {group.swaps[0].tokenOut.symbol} {' -> '}{' '}
-  //          </div>
-  //
-  //          <RouteRowV3
-  //            level={level + 1}
-  //            tradeComposition={tradeComposition}
-  //            tokenIn={group.swaps[0].tokenOut}
-  //            tokenOut={tokenOut}
-  //          />
-  //        </div>
-  //      )
-  //    })}
-  //  </>
-  //)
 }
