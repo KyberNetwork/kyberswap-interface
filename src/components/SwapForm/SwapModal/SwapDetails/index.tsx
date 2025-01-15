@@ -142,7 +142,7 @@ export default function SwapDetails({
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const addMevButton =
-    (chainId === ChainId.MAINNET || chainId === ChainId.BASE) &&
+    chainId === ChainId.MAINNET &&
     active &&
     !isPartnerSwap &&
     slippageStatus === SLIPPAGE_STATUS.HIGH &&

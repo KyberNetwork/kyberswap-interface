@@ -39,7 +39,7 @@ const Wrapper = styled.div`
 
 const KYBER_SWAP_RPC: { [key: number]: string } = {
   [ChainId.MAINNET]: 'https://ethereum-mev-protection.kyberengineering.io/',
-  [ChainId.BASE]: 'https://base-mev-protection.kyberengineering.io/',
+  // [ChainId.BASE]: 'https://base-mev-protection.kyberengineering.io/',
 }
 
 export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
