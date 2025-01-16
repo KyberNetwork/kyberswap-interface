@@ -1,30 +1,48 @@
-# React + TypeScript + Vite
+# Kyber Liquidity Widgets
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The `@kyberswap/liquidity-widgets` package is an npm package of React components used to provide subsets of the Zap Protocol functionality in a small and configurable user interface element.
+Demo: https://kyberswap.com/earn
 
-Currently, two official plugins are available:
+## Installation
+Install the widgets library via npm or yarn.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+```
+yarn add @kyberswap/liquidity-widgets
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+```
+npm i --save @kyberswap/liquidity-widgets
+```
+
+## Usage
+Example usage: https://github.com/KyberNetwork/kyberswap-widgets/blob/main/apps/liquidity-widgets-demo/src/App.tsx#L243
+
+### Params
+
+Property | Description | Type | Default Value
+--- | --- | --- | --- |
+poolAddress | address of pool to zap | string | Required
+positionId | Optional, in case “Increasing Liquidity into an existing position”, pass the position id. The position should belong to the poolAddress. Otherwise, it considers as “Adding Liquidity into a new position” | number | undefined 
+poolType | supported protocol | [PoolType](https://github.com/KyberNetwork/kyberswap-widgets/blob/main/packages/liquidity-widgets/src/schema/index.ts#L21-L39) | Required
+chainId | network of selected pool | number | Required 
+connectedAccount | current network that user connected. if not connect, address should be undefined | { address?: string, chainId: number } | Required
+onClose | action when user close the widget | () => void | Required
+onConnectWallet | action to trigger connect wallet | () => void | Required 
+onSwitchChain | action to trigger switch chain if network of the pool is different with network from connected account | () => void | Required
+onSubmitTx | trigger submit transaction (approval or zap). Should return the tx hash | (txData: {from: string, to: string, value: string, data: string, gasLimit: string}) => Promise<string> | Required
+initDepositTokens | init tokens in to zap, list of address separate by "," | string | 
+initAmounts | init amounts of tokens in, list of amount separate by "," | string | 
+source | To identify the dapp that integrating with liquidity widget | string | 
+
+
+## Migrate from version 0.0.16 to 1.x.x 
+### Deprecated 
+Property | Description | Type | Default Value
+--- | --- | --- | --- |
+<s>provider</s> | <s>Web3Provider to interact with blockchain</s> |  [Web3Provider](https://docs.ethers.org/v5/api/providers/) | undefined 
+<s>onTxSubmit</s> | <s>Callback function when tx was submitted</s> | (txHash: string) => void |
+### New 
+Property | Description | Type | Default Value
+--- | --- | --- | --- |
+connectedAccount | Info of current account that user connect to your website | { address?: string, chainId: number } |  
+onTxSubmit | Function that trigger tx | (txData: {from: string, to: string, value: string, data: string, gasLimit: string}) => Promise<string>  |
