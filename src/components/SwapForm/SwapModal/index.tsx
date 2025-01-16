@@ -12,7 +12,7 @@ import {
   TransactionSubmittedContent,
 } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
-import { permitError } from 'state/user/actions'
+import { permitError } from 'state/swap/actions'
 import { captureSwapError } from 'utils/sentry'
 
 import ConfirmSwapModalContent from './ConfirmSwapModalContent'

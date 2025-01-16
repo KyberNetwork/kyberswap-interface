@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import Announcement from 'components/Announcement'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
-import Menu from 'components/Menu'
+import Menu, { NewLabel } from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
@@ -18,7 +18,6 @@ import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import AboutNavGroup from './groups/AboutNavGroup'
-import CampaignNavGroup from './groups/CampaignNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
 import { StyledNavExternalLink, StyledNavLink } from './styleds'
@@ -127,11 +126,11 @@ const HeaderLinks = styled(Row)`
 
 const IconImage = styled.img<{ isChristmas?: boolean }>`
   width: 140px;
-  margin-top: ${({ isChristmas }) => (isChristmas ? '-18px' : '1px')};
+  margin-top: ${({ isChristmas }) => (isChristmas ? '-9px' : '1px')};
 
   ${({ theme, isChristmas }) => theme.mediaWidth.upToSmall`
     width: 114px;
-    margin-top: ${isChristmas ? '-10px' : '1px'};
+    margin-top: ${isChristmas ? '-2px' : '1px'};
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -196,7 +195,7 @@ export default function Header() {
           <Title to={`${APP_PATHS.SWAP}/${networkInfo.route}`}>
             {holidayMode ? (
               <LogoIcon>
-                <IconImage isChristmas src={'/christmas-logo-dark.svg'} alt="logo" />
+                <IconImage isChristmas src={'/christmas-logo-dark.svg?'} alt="logo" />
               </LogoIcon>
             ) : (
               <LogoIcon>
@@ -208,10 +207,14 @@ export default function Header() {
         {!isPartnerSwap && (
           <HeaderLinks>
             <SwapNavGroup />
-
+            <StyledNavLink to={`${APP_PATHS.EARN}`}>
+              <Flex>
+                Earn
+                <NewLabel>New</NewLabel>
+              </Flex>
+            </StyledNavLink>
             <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>
             <KyberDAONavGroup />
-            <CampaignNavGroup />
             <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
               <Trans>Analytics</Trans>
             </StyledNavExternalLink>

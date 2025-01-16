@@ -9,6 +9,7 @@ import { CORRELATED_COINS_ADDRESS, DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrenci
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrencyV2, useStableCoins } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { Field, resetSelectCurrency, setRecipient, setTrade, typeInput } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
@@ -260,7 +261,11 @@ export const useInputCurrency = () => {
   const allTokens = useAllTokens()
 
   const token = useMemo(() => {
-    return Object.values(allTokens).find(item => item?.symbol?.toLowerCase() === fromCurrency.toLowerCase())
+    return Object.values(allTokens).find(
+      item =>
+        item?.symbol?.toLowerCase() === fromCurrency.toLowerCase() ||
+        item.address.toLowerCase() === fromCurrency.toLowerCase(),
+    )
   }, [allTokens, fromCurrency])
 
   const inputCurrency = useCurrencyV2(token ? token.address : fromCurrency)
@@ -271,7 +276,11 @@ export const useOutputCurrency = () => {
   const allTokens = useAllTokens()
 
   const token = useMemo(() => {
-    return Object.values(allTokens).find(item => item?.symbol?.toLowerCase() === toCurrency.toLowerCase())
+    return Object.values(allTokens).find(
+      item =>
+        item?.symbol?.toLowerCase() === toCurrency.toLowerCase() ||
+        item.address.toLowerCase() === toCurrency.toLowerCase(),
+    )
   }, [allTokens, toCurrency])
 
   const outputCurrency = useCurrencyV2(token ? token.address : toCurrency)
@@ -324,4 +333,13 @@ export const useSwitchPairToLimitOrder = () => {
     () => navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}/${inputCurrencyId}-to-${outputCurrencyId}`),
     [networkInfo, inputCurrencyId, outputCurrencyId, navigate],
   )
+}
+
+export const usePermitData: (
+  address?: string,
+) => { rawSignature?: string; deadline?: number; value?: string; errorCount?: number } | null = address => {
+  const { chainId, account } = useActiveWeb3React()
+  const permitData = useAppSelector(state => state.swap.permitData)
+
+  return address && account && permitData ? permitData[account]?.[chainId]?.[address] : null
 }

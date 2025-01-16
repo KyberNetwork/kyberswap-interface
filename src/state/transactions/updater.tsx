@@ -12,7 +12,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
 import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
-import { revokePermit } from 'state/user/actions'
+import { revokePermit } from 'state/swap/actions'
 import { findTx } from 'utils'
 
 import { checkedTransaction, finalizeTransaction, modifyTransaction, removeTx, replaceTx } from './actions'

@@ -364,6 +364,17 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     if (isEdit) return
     setRotate(prev => !prev)
     switchCurrency()
+    setInputAmount(outputAmount)
+    setOutputAmount(inputAmount)
+    if (currencyIn) {
+      const rate = calcRate(outputAmount, inputAmount, currencyIn?.decimals)
+      setRateInfo({
+        ...rateInfo,
+        rate,
+        rateFraction: parseFraction(rate),
+        invertRate: calcInvert(rate),
+      })
+    }
   }
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)

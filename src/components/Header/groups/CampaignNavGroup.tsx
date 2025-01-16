@@ -4,7 +4,6 @@ import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import Column from 'components/Column'
-import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
@@ -29,9 +28,8 @@ const CampaignNavGroup = () => {
         dropdownAlign={upTo500 ? 'right' : 'left'}
         isActive={isActive}
         anchor={
-          <DropdownTextAnchor style={{ position: 'relative', width: '115px' }}>
+          <DropdownTextAnchor style={{ position: 'relative', width: 'max-content' }}>
             <Trans>Campaigns</Trans>
-            <NewLabel style={{ position: 'absolute', right: '0' }}>New</NewLabel>
           </DropdownTextAnchor>
         }
         dropdownContent={
