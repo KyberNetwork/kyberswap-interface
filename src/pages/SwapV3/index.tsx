@@ -153,14 +153,7 @@ export default function Swap() {
   }, [tabFromUrl, searchParams, setSearchParams])
 
   const tradeRouteComposition = useMemo(() => {
-    return getTradeComposition(
-      chainId,
-      routeSummary?.parsedAmountIn,
-      undefined,
-      routeSummary?.route,
-      defaultTokens,
-      routeSummary?.tokenOut || '',
-    )
+    return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
 
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())

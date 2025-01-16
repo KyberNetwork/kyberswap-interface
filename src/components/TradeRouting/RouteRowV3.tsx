@@ -136,6 +136,8 @@ export const RouteRowV3 = ({
 
     // Clean up Cytoscape instance on unmount
     return () => cy.destroy()
+
+    // eslint-disable-next-line
   }, [tradeComposition])
 
   if (!tokenIn || !tokenOut) return null
