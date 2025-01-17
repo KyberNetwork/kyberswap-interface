@@ -28,6 +28,8 @@ export interface ParsedPosition {
   chainLogo: string
   poolAddress: string
   tokenAddress: string
+  token0Address: string
+  token1Address: string
   token0Logo: string
   token1Logo: string
   token0Symbol: string
@@ -44,6 +46,8 @@ export interface ParsedPosition {
   totalUnclaimedFee: number
   token0UnclaimedAmount: number
   token1UnclaimedAmount: number
+  token0UnclaimedBalance: string
+  token1UnclaimedBalance: string
   token0UnclaimedValue: number
   token1UnclaimedValue: number
   earning24h: number
@@ -58,7 +62,11 @@ const PositionDetail = () => {
   const { account } = useActiveWeb3React()
   const { id, chainId } = useParams()
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
-  const { data: userPosition, isLoading } = useUserPositionsQuery(
+  const {
+    data: userPosition,
+    isLoading,
+    refetch,
+  } = useUserPositionsQuery(
     { addresses: account || '', positionId: id, chainIds: chainId },
     { skip: !account, pollingInterval: 15_000 },
   )
@@ -77,6 +85,8 @@ const PositionDetail = () => {
       chainLogo: position.chainLogo || '',
       poolAddress: position.pool.poolAddress || '',
       tokenAddress: position.tokenAddress,
+      token0Address: position.pool.tokenAmounts[0]?.token.address || '',
+      token1Address: position.pool.tokenAmounts[1]?.token.address || '',
       token0Logo: position.pool.tokenAmounts[0]?.token.logo || '',
       token1Logo: position.pool.tokenAmounts[1]?.token.logo || '',
       token0Symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
@@ -98,6 +108,8 @@ const PositionDetail = () => {
         (position.feePending?.[0].quotes.usd.value || 0) + (position.feePending?.[1].quotes.usd.value || 0),
       token0UnclaimedAmount: position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price,
       token1UnclaimedAmount: position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price,
+      token0UnclaimedBalance: position.feePending[0]?.balance,
+      token1UnclaimedBalance: position.feePending[1]?.balance,
       token0UnclaimedValue: position.feePending[0]?.quotes.usd.value,
       token1UnclaimedValue: position.feePending[1]?.quotes.usd.value,
       earning24h: position.earning24h,
@@ -141,7 +153,7 @@ const PositionDetail = () => {
             <PositionDetailHeader position={position} />
             <PositionDetailWrapper>
               <MainSection>
-                <LeftSection position={position} />
+                <LeftSection position={position} refetchPosition={refetch} />
                 <RightSection position={position} />
               </MainSection>
               <PositionActionWrapper>

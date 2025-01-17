@@ -1,21 +1,59 @@
 import { t } from '@lingui/macro'
+import { useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import HelpIcon from 'assets/svg/help-circle.svg'
 import InfoHelper from 'components/InfoHelper'
+import Loader from 'components/Loader'
 import useTheme from 'hooks/useTheme'
+import { useAllTransactions } from 'state/transactions/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { ParsedPosition } from '.'
 import { DexImage } from '../UserPositions/styles'
 import { formatAprNumber } from '../utils'
-import { InfoLeftColumn, InfoRight, InfoSection, InfoSectionFirstFormat, VerticalDivider } from './styles'
+import ClaimFeeModal from './ClaimFeeModal'
+import {
+  InfoLeftColumn,
+  InfoRight,
+  InfoSection,
+  InfoSectionFirstFormat,
+  PositionAction,
+  VerticalDivider,
+} from './styles'
 
-const LeftSection = ({ position }: { position: ParsedPosition }) => {
+const LeftSection = ({ position, refetchPosition }: { position: ParsedPosition; refetchPosition: () => void }) => {
   const theme = useTheme()
+  const [openClaimFeeModal, setOpenClaimFeeModal] = useState(false)
+  const [claiming, setClaiming] = useState(false)
+  const [claimTx, setClaimTx] = useState<string | null>(null)
+  const allTransactions = useAllTransactions(true)
+
+  useEffect(() => {
+    if (claimTx && allTransactions && allTransactions[claimTx]) {
+      const tx = allTransactions[claimTx]
+      if (tx?.[0].receipt && tx?.[0].receipt.status === 1) {
+        setTimeout(() => {
+          setClaiming(false)
+          setClaimTx(null)
+          refetchPosition()
+        }, 5000)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allTransactions])
 
   return (
     <InfoLeftColumn>
+      {openClaimFeeModal && (
+        <ClaimFeeModal
+          claiming={claiming}
+          setClaiming={setClaiming}
+          setClaimTx={setClaimTx}
+          position={position}
+          onClose={() => setOpenClaimFeeModal(false)}
+        />
+      )}
       <InfoSectionFirstFormat>
         <Text fontSize={14} color={theme.subText} marginTop={1}>
           {t`Total Liquidity`}
@@ -31,7 +69,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <DexImage
               src={position.token0Logo}
               onError={({ currentTarget }) => {
-                currentTarget.onerror = null // prevents looping
+                currentTarget.onerror = null
                 currentTarget.src = HelpIcon
               }}
             />
@@ -42,7 +80,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <DexImage
               src={position.token1Logo}
               onError={({ currentTarget }) => {
-                currentTarget.onerror = null // prevents looping
+                currentTarget.onerror = null
                 currentTarget.src = HelpIcon
               }}
             />
@@ -101,36 +139,49 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           </Flex>
         </Flex>
       </InfoSection>
-      <InfoSectionFirstFormat>
-        <Text fontSize={14} color={theme.subText} marginTop={1}>
-          {t`Total Unclaimed Fee`}
-        </Text>
-        <InfoRight>
-          <Text fontSize={20}>
+      <InfoSection>
+        <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
+          <Text fontSize={14} color={theme.subText} marginTop={1}>
+            {t`Total Unclaimed Fee`}
+          </Text>
+          <Text fontSize={18}>
             {formatDisplayNumber(position.totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
           </Text>
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <Text>{formatDisplayNumber(position.token0UnclaimedAmount, { significantDigits: 4 })}</Text>
-            <Text>{position.token0Symbol}</Text>
-            <Text fontSize={14} color={theme.subText}>
-              {formatDisplayNumber(position.token0UnclaimedValue, {
-                style: 'currency',
-                significantDigits: 4,
-              })}
-            </Text>
-          </Flex>
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <Text>{formatDisplayNumber(position.token1UnclaimedAmount, { significantDigits: 4 })}</Text>
-            <Text>{position.token1Symbol}</Text>
-            <Text fontSize={14} color={theme.subText}>
-              {formatDisplayNumber(position.token1UnclaimedValue, {
-                style: 'currency',
-                significantDigits: 4,
-              })}
-            </Text>
-          </Flex>
-        </InfoRight>
-      </InfoSectionFirstFormat>
+        </Flex>
+        <Flex alignItems={'center'} justifyContent={'space-between'}>
+          <div>
+            <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
+              <Text>{formatDisplayNumber(position.token0UnclaimedAmount, { significantDigits: 4 })}</Text>
+              <Text>{position.token0Symbol}</Text>
+              <Text fontSize={14} color={theme.subText}>
+                {formatDisplayNumber(position.token0UnclaimedValue, {
+                  style: 'currency',
+                  significantDigits: 4,
+                })}
+              </Text>
+            </Flex>
+            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+              <Text>{formatDisplayNumber(position.token1UnclaimedAmount, { significantDigits: 4 })}</Text>
+              <Text>{position.token1Symbol}</Text>
+              <Text fontSize={14} color={theme.subText}>
+                {formatDisplayNumber(position.token1UnclaimedValue, {
+                  style: 'currency',
+                  significantDigits: 4,
+                })}
+              </Text>
+            </Flex>
+          </div>
+          <PositionAction
+            small
+            outline
+            disabled={position.totalUnclaimedFee === 0 || claiming}
+            onClick={() => position.totalUnclaimedFee !== 0 && !claiming && setOpenClaimFeeModal(true)}
+          >
+            {claiming && <Loader size="14px" />}
+            {claiming ? t`Claiming` : t`Claim`}
+          </PositionAction>
+        </Flex>
+      </InfoSection>
     </InfoLeftColumn>
   )
 }

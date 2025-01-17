@@ -121,13 +121,17 @@ export const PositionActionWrapper = styled.div`
   `}
 `
 
-export const PositionAction = styled.button<{ outline?: boolean }>`
+export const PositionAction = styled.button<{ outline?: boolean; small?: boolean; disabled?: boolean }>`
   border-radius: 24px;
   padding: 10px 18px;
   background-color: ${({ theme }) => theme.primary};
   border: 1px solid ${({ theme }) => theme.primary};
+  display: flex;
+  gap: 6px;
+  align-items: center;
   cursor: pointer;
 
+  ${({ small }) => small && 'padding: 6px 16px;'}
   ${({ outline }) => outline && 'background-color: transparent;'}
   ${({ outline, theme }) => outline && `color: ${theme.primary};`}
 
@@ -138,4 +142,6 @@ export const PositionAction = styled.button<{ outline?: boolean }>`
   :hover {
     filter: brightness(1.2);
   }
+
+  ${({ disabled }) => disabled && `cursor: not-allowed; filter: brightness(0.6) !important;`}
 `
