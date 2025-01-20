@@ -8,7 +8,6 @@ import { EarnPool, useExplorerLandingQuery } from 'services/zapEarn'
 import styled, { keyframes } from 'styled-components'
 
 import bg from 'assets/images/earn-bg.png'
-import CursorIcon from 'assets/svg/cursor.svg'
 import FireIcon from 'assets/svg/fire.svg'
 import LiquidityPoolIcon from 'assets/svg/liquidity-pools.svg'
 import LiquidityPosIcon from 'assets/svg/liquidity-positions.svg'
@@ -159,9 +158,9 @@ const CardWrapper = styled.div`
   overflow: hidden;
   height: 100%;
 
-  cursor: url(${CursorIcon}), auto;
+  cursor: pointer;
   button {
-    cursor: url(${CursorIcon}), auto;
+    cursor: pointer;
   }
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -195,7 +194,7 @@ const ListPoolWrapper = styled.div`
   border-radius: 20px;
   height: 100%;
   background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
-  cursor: url(${CursorIcon}), auto;
+  cursor: pointer;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 12px;
