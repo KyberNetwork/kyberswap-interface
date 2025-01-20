@@ -203,8 +203,8 @@ export default function ClaimFeeModal({
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
-          <ButtonPrimary gap="4px" disabled={claiming} altDisabledStyle onClick={handleCollectFees}>
-            {claiming && <Loader stroke={theme.text} />}
+          <ButtonPrimary gap="4px" disabled={claiming} onClick={handleCollectFees}>
+            {claiming && <Loader stroke={'#505050'} />}
             {claiming ? t`Claiming` : t`Claim`}
           </ButtonPrimary>
         </Row>
