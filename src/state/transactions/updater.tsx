@@ -85,20 +85,11 @@ export default function Updater(): null {
       }),
     )
 
-    if (transaction.type === TRANSACTION_TYPE.CLAIM && receipt.status === 1)
-      setTimeout(() => {
-        transactionNotify({
-          hash: receipt.transactionHash,
-          type: NotificationType.SUCCESS,
-          account: account ?? '',
-        })
-      }, 5000)
-    else
-      transactionNotify({
-        hash: receipt.transactionHash,
-        type: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
-        account: account ?? '',
-      })
+    transactionNotify({
+      hash: receipt.transactionHash,
+      type: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
+      account: account ?? '',
+    })
     if (receipt.status === 1) {
       // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
       const swapEventTopic = ethers.utils.id('Swapped(address,address,address,address,uint256,uint256)')

@@ -19,6 +19,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { ParsedPosition } from '..'
 import { NFT_MANAGER_CONTRACT } from '../../constants'
+import { FeeInfo } from '../LeftSection'
 import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from './styles'
 
 const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
@@ -30,12 +31,14 @@ export default function ClaimFeeModal({
   setClaiming,
   setClaimTx,
   position,
+  feeInfo,
   onClose,
 }: {
   claiming: boolean
   setClaiming: (claiming: boolean) => void
   setClaimTx: (tx: string | null) => void
   position: ParsedPosition
+  feeInfo: FeeInfo
   onClose: () => void
 }) {
   const { library, account } = useWeb3React()
@@ -74,9 +77,9 @@ export default function ClaimFeeModal({
       calldatas.push(collectCallData)
 
       if (involvesETH) {
-        const ethAmount = isToken0Native ? position.token0UnclaimedBalance : position.token1UnclaimedBalance
+        const ethAmount = isToken0Native ? feeInfo.balance0 : feeInfo.balance1
         const token = isToken0Native ? position.token1Address : position.token0Address
-        const tokenAmount = isToken0Native ? position.token1UnclaimedBalance : position.token0UnclaimedBalance
+        const tokenAmount = isToken0Native ? feeInfo.balance1 : feeInfo.balance0
 
         // Encode the unwrapWETH9 call
         const unwrapWETH9CallData = contract.interface.encodeFunctionData('unwrapWETH9', [ethAmount, recipient])
@@ -123,22 +126,22 @@ export default function ClaimFeeModal({
             <Flex alignItems={'center'} justifyContent={'space-between'}>
               <Text fontSize={14} color={theme.subText}>{t`Total Value`}</Text>
               <Text fontSize={18}>
-                {formatDisplayNumber(position.totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
+                {formatDisplayNumber(feeInfo.totalValue, { style: 'currency', significantDigits: 4 })}
               </Text>
             </Flex>
             <ClaimInfoRow
               tokenImage={position.token0Logo}
               dexImage={position.chainLogo}
-              tokenAmount={position.token0UnclaimedAmount}
+              tokenAmount={feeInfo.amount0}
               tokenSymbol={position.token0Symbol}
-              tokenUsdValue={position.token0UnclaimedValue}
+              tokenUsdValue={feeInfo.value0}
             />
             <ClaimInfoRow
               tokenImage={position.token1Logo}
               dexImage={position.chainLogo}
-              tokenAmount={position.token1UnclaimedAmount}
+              tokenAmount={feeInfo.amount1}
               tokenSymbol={position.token1Symbol}
-              tokenUsdValue={position.token1UnclaimedValue}
+              tokenUsdValue={feeInfo.value1}
             />
           </ClaimInfo>
         </ClaimInfoWrapper>

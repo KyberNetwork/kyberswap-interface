@@ -121,7 +121,12 @@ export const PositionActionWrapper = styled.div`
   `}
 `
 
-export const PositionAction = styled.button<{ outline?: boolean; small?: boolean; disabled?: boolean }>`
+export const PositionAction = styled.button<{
+  outline?: boolean
+  small?: boolean
+  disabled?: boolean
+  loading?: boolean
+}>`
   border-radius: 24px;
   padding: 10px 18px;
   background-color: ${({ theme }) => theme.primary};
@@ -143,5 +148,8 @@ export const PositionAction = styled.button<{ outline?: boolean; small?: boolean
     filter: brightness(1.2);
   }
 
-  ${({ disabled }) => disabled && `cursor: not-allowed; filter: brightness(0.6) !important;`}
+  ${({ loading }) => loading && `cursor: not-allowed; filter: brightness(0.6) !important;`}
+  ${({ disabled, theme }) =>
+    disabled &&
+    `cursor: not-allowed; color: ${theme.subText}; border-color: ${theme.subText}; filter: brightness(0.6) !important;`}
 `

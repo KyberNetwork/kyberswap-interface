@@ -34,6 +34,10 @@ export interface ParsedPosition {
   token1Logo: string
   token0Symbol: string
   token1Symbol: string
+  token0Decimals: number
+  token1Decimals: number
+  token0Price: number
+  token1Price: number
   poolFee: number
   status: string
   totalValue: number
@@ -43,13 +47,6 @@ export interface ParsedPosition {
   minPrice: number
   maxPrice: number
   pairRate: number
-  totalUnclaimedFee: number
-  token0UnclaimedAmount: number
-  token1UnclaimedAmount: number
-  token0UnclaimedBalance: string
-  token1UnclaimedBalance: string
-  token0UnclaimedValue: number
-  token1UnclaimedValue: number
   earning24h: number
   earning7d: number
   totalEarnedFee: number
@@ -62,11 +59,7 @@ const PositionDetail = () => {
   const { account } = useActiveWeb3React()
   const { id, chainId } = useParams()
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
-  const {
-    data: userPosition,
-    isLoading,
-    refetch,
-  } = useUserPositionsQuery(
+  const { data: userPosition, isLoading } = useUserPositionsQuery(
     { addresses: account || '', positionId: id, chainIds: chainId },
     { skip: !account, pollingInterval: 15_000 },
   )
@@ -91,6 +84,10 @@ const PositionDetail = () => {
       token1Logo: position.pool.tokenAmounts[1]?.token.logo || '',
       token0Symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
       token1Symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
+      token0Decimals: position.pool.tokenAmounts[0]?.token.decimals,
+      token1Decimals: position.pool.tokenAmounts[1]?.token.decimals,
+      token0Price: position.currentAmounts[0]?.token.price,
+      token1Price: position.currentAmounts[1]?.token.price,
       poolFee: position.pool.fees?.[0],
       status: position.status,
       totalValue: position.currentPositionValue,
@@ -104,14 +101,6 @@ const PositionDetail = () => {
       minPrice: position.minPrice || 0,
       maxPrice: position.maxPrice || 0,
       pairRate: position.pool.price || 0,
-      totalUnclaimedFee:
-        (position.feePending?.[0].quotes.usd.value || 0) + (position.feePending?.[1].quotes.usd.value || 0),
-      token0UnclaimedAmount: position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price,
-      token1UnclaimedAmount: position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price,
-      token0UnclaimedBalance: position.feePending[0]?.balance,
-      token1UnclaimedBalance: position.feePending[1]?.balance,
-      token0UnclaimedValue: position.feePending[0]?.quotes.usd.value,
-      token1UnclaimedValue: position.feePending[1]?.quotes.usd.value,
       earning24h: position.earning24h,
       earning7d: position.earning7d,
       totalEarnedFee:
@@ -153,7 +142,7 @@ const PositionDetail = () => {
             <PositionDetailHeader position={position} />
             <PositionDetailWrapper>
               <MainSection>
-                <LeftSection position={position} refetchPosition={refetch} />
+                <LeftSection position={position} />
                 <RightSection position={position} />
               </MainSection>
               <PositionActionWrapper>
