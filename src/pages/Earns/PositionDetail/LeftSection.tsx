@@ -55,7 +55,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
     typeof nftManagerContractOfDex === 'string'
       ? nftManagerContractOfDex
       : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
-  const contract = useReadingContract(nftManagerContract, NonfungiblePositionManagerABI)
+  const contract = useReadingContract(nftManagerContract, NonfungiblePositionManagerABI, position.chainId)
 
   const handleFetchUnclaimedFee = async () => {
     if (!contract) return

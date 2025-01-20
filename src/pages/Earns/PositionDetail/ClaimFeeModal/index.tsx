@@ -1,5 +1,6 @@
 import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { useCallback, useEffect, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -12,6 +13,7 @@ import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { useWeb3React } from 'hooks'
 import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
@@ -41,10 +43,13 @@ export default function ClaimFeeModal({
   feeInfo: FeeInfo
   onClose: () => void
 }) {
-  const { library, account } = useWeb3React()
+  const { library, account, chainId } = useWeb3React()
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const addTransactionWithType = useTransactionAdder()
+  const { changeNetwork } = useChangeNetwork()
+
+  const [autoClaim, setAutoClaim] = useState(false)
 
   const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[position.dex as keyof typeof NFT_MANAGER_CONTRACT]
   const nftManagerContract =
@@ -54,8 +59,14 @@ export default function ClaimFeeModal({
 
   const contract = useSigningContract(nftManagerContract, NonfungiblePositionManagerABI)
 
-  const handleCollectFees = async () => {
+  const handleCollectFees = useCallback(async () => {
     if (!library || !contract) return
+    const accounts = await library.listAccounts()
+    if (chainId !== position.chainId || !accounts.length) {
+      if (chainId !== position.chainId) changeNetwork(position.chainId)
+      setAutoClaim(true)
+      return
+    }
     setClaiming(true)
 
     const tokenId = position.id
@@ -100,8 +111,22 @@ export default function ClaimFeeModal({
         data: multicallData,
       })
       addTransactionWithType({
-        type: TRANSACTION_TYPE.CLAIM,
+        type: TRANSACTION_TYPE.COLLECT_FEE,
         hash: tx.hash,
+        extraInfo: {
+          tokenAmountIn: formatDisplayNumber(feeInfo.amount0, { significantDigits: 4 }),
+          tokenAmountOut: formatDisplayNumber(feeInfo.amount1, { significantDigits: 4 }),
+          tokenAddressIn: position.token0Address,
+          tokenAddressOut: position.token1Address,
+          tokenSymbolIn: position.token0Symbol,
+          tokenSymbolOut: position.token1Symbol,
+          arbitrary: {
+            token_1: position.token0Symbol,
+            token_2: position.token1Symbol,
+            token_1_amount: formatDisplayNumber(feeInfo.amount0, { significantDigits: 4 }),
+            token_2_amount: formatDisplayNumber(feeInfo.amount1, { significantDigits: 4 }),
+          },
+        },
       })
       setClaimTx(tx.hash)
       onClose()
@@ -109,7 +134,35 @@ export default function ClaimFeeModal({
       console.error(error)
       setClaiming(false)
     }
-  }
+  }, [
+    account,
+    addTransactionWithType,
+    chainId,
+    changeNetwork,
+    contract,
+    feeInfo.amount0,
+    feeInfo.amount1,
+    feeInfo.balance0,
+    feeInfo.balance1,
+    library,
+    nftManagerContract,
+    onClose,
+    position.chainId,
+    position.id,
+    position.token0Address,
+    position.token0Symbol,
+    position.token1Address,
+    position.token1Symbol,
+    setClaimTx,
+    setClaiming,
+  ])
+
+  useEffect(() => {
+    if (autoClaim && chainId === position.chainId) {
+      handleCollectFees()
+      setAutoClaim(false)
+    }
+  }, [chainId, position.chainId, handleCollectFees, autoClaim])
 
   return (
     <Modal isOpen onDismiss={onClose}>

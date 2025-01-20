@@ -93,7 +93,7 @@ const Description2Token = (transaction: TransactionDetails) => {
   const signTokenIn = [
     TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
     TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-    TRANSACTION_TYPE.ELASTIC_COLLECT_FEE,
+    TRANSACTION_TYPE.COLLECT_FEE,
   ].includes(type)
 
   return (
@@ -373,7 +373,7 @@ const DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY]: DescriptionLiquidity,
   [TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY]: DescriptionLiquidity,
   [TRANSACTION_TYPE.ELASTIC_ZAP_IN_LIQUIDITY]: DescriptionLiquidity,
-  [TRANSACTION_TYPE.ELASTIC_COLLECT_FEE]: DescriptionLiquidity,
+  [TRANSACTION_TYPE.COLLECT_FEE]: DescriptionLiquidity,
 
   [TRANSACTION_TYPE.HARVEST]: DescriptionHarvestFarmReward,
   [TRANSACTION_TYPE.CLAIM]: DescriptionApproveClaim,
