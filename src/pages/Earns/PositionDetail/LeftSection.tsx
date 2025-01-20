@@ -247,7 +247,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             small
             outline
             loading={claiming}
-            disabled={!feeInfo || feeInfo.totalValue === 0}
+            disabled={(!feeInfo || feeInfo.totalValue === 0) && !claiming}
             onClick={() => feeInfo && feeInfo.totalValue !== 0 && !claiming && setOpenClaimFeeModal(true)}
           >
             {claiming && <Loader size="14px" />}

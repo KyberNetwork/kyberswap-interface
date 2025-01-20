@@ -148,8 +148,8 @@ export const PositionAction = styled.button<{
     filter: brightness(1.2);
   }
 
-  ${({ loading }) => loading && `cursor: not-allowed; filter: brightness(0.6) !important;`}
   ${({ disabled, theme }) =>
     disabled &&
     `cursor: not-allowed; color: ${theme.subText}; border-color: ${theme.subText}; filter: brightness(0.6) !important;`}
+  ${({ loading }) => loading && `cursor: not-allowed; filter: brightness(0.6) !important;`}
 `
