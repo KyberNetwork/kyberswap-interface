@@ -126,6 +126,7 @@ export const PositionAction = styled.button<{
   small?: boolean
   disabled?: boolean
   loading?: boolean
+  mobileAutoWidth?: boolean
 }>`
   border-radius: 24px;
   padding: 10px 18px;
@@ -140,7 +141,9 @@ export const PositionAction = styled.button<{
   ${({ outline }) => outline && 'background-color: transparent;'}
   ${({ outline, theme }) => outline && `color: ${theme.primary};`}
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme, mobileAutoWidth }) =>
+    !mobileAutoWidth &&
+    theme.mediaWidth.upToSmall`
     width: 100%;
   `}
 

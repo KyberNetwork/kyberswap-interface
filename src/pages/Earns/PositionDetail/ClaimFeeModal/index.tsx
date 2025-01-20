@@ -59,6 +59,9 @@ export default function ClaimFeeModal({
 
   const contract = useSigningContract(nftManagerContract, NonfungiblePositionManagerABI)
 
+  const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
+  const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
+
   const handleCollectFees = useCallback(async () => {
     if (!library || !contract) return
     const accounts = await library.listAccounts()
@@ -75,8 +78,6 @@ export default function ClaimFeeModal({
     const calldatas = []
 
     try {
-      const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
-      const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
       const involvesETH = isToken0Native || isToken1Native
       const collectParams = {
         tokenId,
@@ -118,8 +119,8 @@ export default function ClaimFeeModal({
           tokenAmountOut: formatDisplayNumber(feeInfo.amount1, { significantDigits: 4 }),
           tokenAddressIn: position.token0Address,
           tokenAddressOut: position.token1Address,
-          tokenSymbolIn: position.token0Symbol,
-          tokenSymbolOut: position.token1Symbol,
+          tokenSymbolIn: isToken0Native ? 'ETH' : position.token0Symbol,
+          tokenSymbolOut: isToken1Native ? 'ETH' : position.token1Symbol,
           arbitrary: {
             token_1: position.token0Symbol,
             token_2: position.token1Symbol,
@@ -144,6 +145,8 @@ export default function ClaimFeeModal({
     feeInfo.amount1,
     feeInfo.balance0,
     feeInfo.balance1,
+    isToken0Native,
+    isToken1Native,
     library,
     nftManagerContract,
     onClose,

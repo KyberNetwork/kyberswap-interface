@@ -246,6 +246,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           <PositionAction
             small
             outline
+            mobileAutoWidth
             loading={claiming}
             disabled={(!feeInfo || feeInfo.totalValue === 0) && !claiming}
             onClick={() => feeInfo && feeInfo.totalValue !== 0 && !claiming && setOpenClaimFeeModal(true)}

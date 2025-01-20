@@ -135,7 +135,7 @@ export enum TRANSACTION_TYPE {
   ELASTIC_REMOVE_LIQUIDITY = 'Elastic Remove Liquidity',
   ELASTIC_INCREASE_LIQUIDITY = 'Elastic Increase Liquidity',
   ELASTIC_ZAP_IN_LIQUIDITY = 'Elastic Zap-in Liquidity',
-  COLLECT_FEE = 'Collect Fee',
+  COLLECT_FEE = 'Collected Fee',
 
   STAKE = 'Stake Into Farm',
   UNSTAKE = 'Unstake From Farm',
