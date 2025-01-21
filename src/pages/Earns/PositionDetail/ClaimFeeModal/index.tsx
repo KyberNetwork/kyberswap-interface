@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
+import ethereumIcon from 'assets/networks/ethereum.svg'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
@@ -24,7 +25,7 @@ import { NFT_MANAGER_CONTRACT } from '../../constants'
 import { FeeInfo } from '../LeftSection'
 import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from './styles'
 
-const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
+export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   tokenAddress.toLowerCase() === ETHER_ADDRESS.toLowerCase() ||
   (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address)
 
@@ -186,17 +187,17 @@ export default function ClaimFeeModal({
               </Text>
             </Flex>
             <ClaimInfoRow
-              tokenImage={position.token0Logo}
+              tokenImage={isToken0Native ? ethereumIcon : position.token0Logo}
               dexImage={position.chainLogo}
               tokenAmount={feeInfo.amount0}
-              tokenSymbol={position.token0Symbol}
+              tokenSymbol={isToken0Native ? 'ETH' : position.token0Symbol}
               tokenUsdValue={feeInfo.value0}
             />
             <ClaimInfoRow
-              tokenImage={position.token1Logo}
+              tokenImage={isToken1Native ? ethereumIcon : position.token1Logo}
               dexImage={position.chainLogo}
               tokenAmount={feeInfo.amount1}
-              tokenSymbol={position.token1Symbol}
+              tokenSymbol={isToken1Native ? 'ETH' : position.token1Symbol}
               tokenUsdValue={feeInfo.value1}
             />
           </ClaimInfo>

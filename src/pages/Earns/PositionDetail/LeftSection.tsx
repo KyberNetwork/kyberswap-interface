@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -17,7 +17,7 @@ import { ParsedPosition } from '.'
 import { DexImage } from '../UserPositions/styles'
 import { NFT_MANAGER_CONTRACT } from '../constants'
 import { formatAprNumber } from '../utils'
-import ClaimFeeModal from './ClaimFeeModal'
+import ClaimFeeModal, { isNativeToken } from './ClaimFeeModal'
 import {
   InfoLeftColumn,
   InfoRight,
@@ -56,6 +56,9 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
       ? nftManagerContractOfDex
       : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
   const contract = useReadingContract(nftManagerContract, NonfungiblePositionManagerABI, position.chainId)
+
+  const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
+  const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!contract) return
@@ -237,7 +240,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           <div>
             <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
               <Text>{formatDisplayNumber(feeInfo?.amount0, { significantDigits: 4 })}</Text>
-              <Text>{position.token0Symbol}</Text>
+              <Text>{isToken0Native ? 'ETH' : position.token0Symbol}</Text>
               <Text fontSize={14} color={theme.subText}>
                 {formatDisplayNumber(feeInfo?.value0, {
                   style: 'currency',
@@ -247,7 +250,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             </Flex>
             <Flex alignItems={'center'} sx={{ gap: '6px' }}>
               <Text>{formatDisplayNumber(feeInfo?.amount1, { significantDigits: 4 })}</Text>
-              <Text>{position.token1Symbol}</Text>
+              <Text>{isToken1Native ? 'ETH' : position.token1Symbol}</Text>
               <Text fontSize={14} color={theme.subText}>
                 {formatDisplayNumber(feeInfo?.value1, {
                   style: 'currency',
