@@ -1,6 +1,6 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import HelpIcon from 'assets/svg/help-circle.svg'
@@ -57,7 +57,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
       : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
   const contract = useReadingContract(nftManagerContract, NonfungiblePositionManagerABI, position.chainId)
 
-  const handleFetchUnclaimedFee = async () => {
+  const handleFetchUnclaimedFee = useCallback(async () => {
     if (!contract) return
     const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
     const results = await contract.callStatic.collect(
@@ -88,14 +88,27 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
       value1: parseFloat(amount1) * position.token1Price,
       totalValue: parseFloat(amount0) * position.token0Price + parseFloat(amount1) * position.token1Price,
     })
-  }
+  }, [
+    account,
+    contract,
+    position.chainId,
+    position.id,
+    position.token0Address,
+    position.token0Decimals,
+    position.token0Price,
+    position.token1Address,
+    position.token1Decimals,
+    position.token1Price,
+  ])
 
   useEffect(() => {
-    handleFetchUnclaimedFee()
-    feeFetchingInterval = setInterval(handleFetchUnclaimedFee, FEE_FETCHING_INTERVAL)
+    const wrappedHandleFetchUnclaimedFee = () => {
+      if (!claiming) handleFetchUnclaimedFee()
+    }
+    wrappedHandleFetchUnclaimedFee()
+    feeFetchingInterval = setInterval(wrappedHandleFetchUnclaimedFee, FEE_FETCHING_INTERVAL)
     return () => clearInterval(feeFetchingInterval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [claiming, handleFetchUnclaimedFee])
 
   useEffect(() => {
     if (claimTx && allTransactions && allTransactions[claimTx]) {
