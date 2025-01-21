@@ -225,7 +225,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
       <InfoSection>
         <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
           <Text fontSize={14} color={theme.subText} marginTop={1}>
-            {t`Total Unclaimed Fee`}
+            {t`Total Unclaimed Fees`}
           </Text>
           <Text fontSize={18}>
             {feeInfo
