@@ -99,8 +99,8 @@ function App() {
     // positionId: "24654",
 
     chainId: ChainId.Arbitrum,
-    poolAddress: "0xbE3aD6a5669Dc0B8b12FeBC03608860C31E2eef6",
-    poolType: PoolType.DEX_UNISWAPV3,
+    poolAddress: "0xbde832b5e1e7a98e73703a558d751f2846258eae",
+    poolType: PoolType.DEX_SWAPMODEV3,
   });
   const [key, setKey] = useState(Date.now());
 

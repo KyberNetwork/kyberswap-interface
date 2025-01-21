@@ -7,6 +7,7 @@ import Loader from "./components/Loader";
 import {
   Bound,
   ChartEntry,
+  FeeAmount,
   TickDataRaw,
   ZOOM_LEVELS,
   ZoomLevels,
@@ -172,6 +173,17 @@ export default function LiquidityChartRangeInput({
     [isSorted, price, ticksAtLimit]
   );
 
+  const f = feeAmount ?? 2500;
+  const nearestFeeAmount = [
+    FeeAmount.LOWEST,
+    FeeAmount.LOW,
+    FeeAmount.MIDDLE,
+    FeeAmount.MEDIUM,
+    FeeAmount.HIGH,
+  ].reduce((nearest, cur) => {
+    return Math.abs(cur - f) < Math.abs(nearest - f) ? cur : nearest;
+  });
+
   return (
     <div className="flex items-center min-h-52 w-full mt-2 gap-4 justify-center">
       {isUninitialized ? (
@@ -207,9 +219,7 @@ export default function LiquidityChartRangeInput({
             brushLabels={brushLabelValue}
             brushDomain={brushDomain}
             onBrushDomainChange={onBrushDomainChangeEnded}
-            zoomLevels={
-              zoomLevel ?? ZOOM_LEVELS[feeAmount as keyof typeof ZOOM_LEVELS]
-            }
+            zoomLevels={zoomLevel ?? ZOOM_LEVELS[nearestFeeAmount]}
             ticksAtLimit={ticksAtLimit}
           />
         </div>
