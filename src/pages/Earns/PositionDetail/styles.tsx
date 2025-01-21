@@ -125,7 +125,7 @@ export const PositionAction = styled.button<{
   outline?: boolean
   small?: boolean
   disabled?: boolean
-  loading?: boolean
+  load?: boolean
   mobileAutoWidth?: boolean
 }>`
   border-radius: 24px;
@@ -154,5 +154,5 @@ export const PositionAction = styled.button<{
   ${({ disabled, theme }) =>
     disabled &&
     `cursor: not-allowed; color: ${theme.subText}; border-color: ${theme.subText}; filter: brightness(0.6) !important;`}
-  ${({ loading }) => loading && `cursor: not-allowed; filter: brightness(0.6) !important;`}
+  ${({ load }) => load && `cursor: not-allowed; filter: brightness(0.6) !important;`}
 `
