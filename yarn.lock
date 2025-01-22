@@ -14079,10 +14079,10 @@ kane-liquidity-widgets@1.2.2:
     zod "^3.23.8"
     zustand "^5.0.0"
 
-kane-zap-migration-widgets@1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/kane-zap-migration-widgets/-/kane-zap-migration-widgets-1.2.1.tgz#da0c9a5c08d178a3aff810b9468ba45892ea4933"
-  integrity sha512-Qp2JIiJq0Bov61x8q+NiGZnFO3uKn2ytjaUNFLgH6OpRI+lkK/kOMdDmK68Jl9gRenG+/NhBYVfHSVqbspEtuw==
+kane-zap-migration-widgets@1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/kane-zap-migration-widgets/-/kane-zap-migration-widgets-1.2.2.tgz#07b4509c3f779fdf122336c2df25c1dfaa14335b"
+  integrity sha512-XKRf0baLH1eDapDZjdxbbqU7pmrdqNJrNDTmPj8Z41nQGe20QNzoSdB3ps6LTInH1PjYnm3sbARrE1R28L6HOQ==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"
