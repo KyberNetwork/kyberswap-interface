@@ -54,6 +54,7 @@ export default function LiquidityChart() {
           pool.token1?.decimals,
           revertPrice
         );
+        if (!tickLowerFromPrice || !tickUpperFromPrice) return;
         const tickLower = nearestUsableTick(
           Number(tickLowerFromPrice),
           tickSpacing
@@ -76,6 +77,7 @@ export default function LiquidityChart() {
           pool.token1?.decimals,
           revertPrice
         );
+        if (!tickFromPrice) return;
         const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
         if (tick) revertPrice ? setTickUpper(tick) : setTickLower(tick);
       }}
@@ -87,6 +89,7 @@ export default function LiquidityChart() {
           pool.token1?.decimals,
           revertPrice
         );
+        if (!tickFromPrice) return;
         const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
         if (tick) revertPrice ? setTickLower(tick) : setTickUpper(tick);
       }}
