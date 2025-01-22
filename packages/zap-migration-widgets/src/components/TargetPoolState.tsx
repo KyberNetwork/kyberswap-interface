@@ -57,7 +57,7 @@ export function TargetPoolState({
     tickUpper === nearestUsableTick(MAX_TICK, pool.tickSpacing);
 
   useEffect(() => {
-    if (pool !== "loading" && tickUpper)
+    if (pool !== "loading" && tickUpper && tickLower)
       setMaxPrice(
         isMaxTick
           ? revertDisplay
@@ -65,7 +65,7 @@ export function TargetPoolState({
             : "∞"
           : formatDisplayNumber(
               +tickToPrice(
-                tickUpper,
+                !revertDisplay ? tickUpper : tickLower,
                 pool.token0.decimals,
                 pool.token1.decimals,
                 revertDisplay
@@ -73,12 +73,12 @@ export function TargetPoolState({
               { significantDigits: 8 }
             )
       );
-  }, [tickUpper, pool, revertDisplay, isMaxTick]);
+  }, [tickUpper, pool, revertDisplay, isMaxTick, tickLower]);
 
   const [selectedRange, setSelectedRange] = useState(0);
 
   useEffect(() => {
-    if (pool !== "loading" && tickLower)
+    if (pool !== "loading" && tickLower && tickUpper)
       setMinPrice(
         isMinTick
           ? revertDisplay
@@ -86,7 +86,7 @@ export function TargetPoolState({
             : "0"
           : formatDisplayNumber(
               +tickToPrice(
-                tickLower,
+                !revertDisplay ? tickLower : tickUpper,
                 pool.token0.decimals,
                 pool.token1.decimals,
                 revertDisplay
@@ -94,7 +94,7 @@ export function TargetPoolState({
               { significantDigits: 8 }
             )
       );
-  }, [tickLower, pool, revertDisplay, isMinTick]);
+  }, [tickLower, pool, revertDisplay, isMinTick, tickUpper]);
 
   const priceLabel =
     pool === "loading" ? (
