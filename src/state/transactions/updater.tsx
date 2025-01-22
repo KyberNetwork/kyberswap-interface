@@ -146,12 +146,12 @@ export default function Updater(): null {
           }
           break
         }
-        case TRANSACTION_TYPE.ELASTIC_COLLECT_FEE: {
-          if (arbitrary) {
-            mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, arbitrary)
-          }
-          break
-        }
+        // case TRANSACTION_TYPE.ELASTIC_COLLECT_FEE: {
+        //   if (arbitrary) {
+        //     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, arbitrary)
+        //   }
+        //   break
+        // }
         case TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY: {
           if (arbitrary) {
             mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {

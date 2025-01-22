@@ -1,21 +1,142 @@
+import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { useCallback, useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import HelpIcon from 'assets/svg/help-circle.svg'
 import InfoHelper from 'components/InfoHelper'
+import Loader from 'components/Loader'
+import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
+import { useActiveWeb3React } from 'hooks'
+import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
+import { useAllTransactions } from 'state/transactions/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { ParsedPosition } from '.'
 import { DexImage } from '../UserPositions/styles'
+import { NFT_MANAGER_CONTRACT } from '../constants'
 import { formatAprNumber } from '../utils'
-import { InfoLeftColumn, InfoRight, InfoSection, InfoSectionFirstFormat, VerticalDivider } from './styles'
+import ClaimFeeModal, { isNativeToken } from './ClaimFeeModal'
+import {
+  InfoLeftColumn,
+  InfoRight,
+  InfoSection,
+  InfoSectionFirstFormat,
+  PositionAction,
+  VerticalDivider,
+} from './styles'
+
+const FEE_FETCHING_INTERVAL = 15_000
+let feeFetchingInterval: NodeJS.Timeout
+
+export interface FeeInfo {
+  balance0: string
+  balance1: string
+  amount0: string
+  amount1: string
+  value0: number
+  value1: number
+  totalValue: number
+}
 
 const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
+  const [openClaimFeeModal, setOpenClaimFeeModal] = useState(false)
+  const [claiming, setClaiming] = useState(false)
+  const [claimTx, setClaimTx] = useState<string | null>(null)
+  const [feeInfo, setFeeInfo] = useState<FeeInfo | null>(null)
+
+  const allTransactions = useAllTransactions(true)
+  const { account } = useActiveWeb3React()
+
+  const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[position.dex as keyof typeof NFT_MANAGER_CONTRACT]
+  const nftManagerContract =
+    typeof nftManagerContractOfDex === 'string'
+      ? nftManagerContractOfDex
+      : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
+  const contract = useReadingContract(nftManagerContract, NonfungiblePositionManagerABI, position.chainId)
+
+  const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
+  const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
+
+  const handleFetchUnclaimedFee = useCallback(async () => {
+    if (!contract) return
+    const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
+    const results = await contract.callStatic.collect(
+      {
+        tokenId: position.id,
+        recipient: account,
+        amount0Max: maxUnit,
+        amount1Max: maxUnit,
+      },
+      { from: account },
+    )
+    const balance0 = results.amount0.toString()
+    const balance1 = results.amount1.toString()
+    const amount0 = CurrencyAmount.fromRawAmount(
+      new Token(position.chainId, position.token0Address, position.token0Decimals),
+      balance0,
+    ).toExact()
+    const amount1 = CurrencyAmount.fromRawAmount(
+      new Token(position.chainId, position.token1Address, position.token1Decimals),
+      balance1,
+    ).toExact()
+    setFeeInfo({
+      balance0,
+      balance1,
+      amount0,
+      amount1,
+      value0: parseFloat(amount0) * position.token0Price,
+      value1: parseFloat(amount1) * position.token1Price,
+      totalValue: parseFloat(amount0) * position.token0Price + parseFloat(amount1) * position.token1Price,
+    })
+  }, [
+    account,
+    contract,
+    position.chainId,
+    position.id,
+    position.token0Address,
+    position.token0Decimals,
+    position.token0Price,
+    position.token1Address,
+    position.token1Decimals,
+    position.token1Price,
+  ])
+
+  useEffect(() => {
+    const wrappedHandleFetchUnclaimedFee = () => {
+      if (!claiming) handleFetchUnclaimedFee()
+    }
+    wrappedHandleFetchUnclaimedFee()
+    feeFetchingInterval = setInterval(wrappedHandleFetchUnclaimedFee, FEE_FETCHING_INTERVAL)
+    return () => clearInterval(feeFetchingInterval)
+  }, [claiming, handleFetchUnclaimedFee])
+
+  useEffect(() => {
+    if (claimTx && allTransactions && allTransactions[claimTx]) {
+      const tx = allTransactions[claimTx]
+      if (tx?.[0].receipt && tx?.[0].receipt.status === 1) {
+        setClaiming(false)
+        setClaimTx(null)
+        handleFetchUnclaimedFee()
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allTransactions])
 
   return (
     <InfoLeftColumn>
+      {openClaimFeeModal && feeInfo && (
+        <ClaimFeeModal
+          claiming={claiming}
+          setClaiming={setClaiming}
+          setClaimTx={setClaimTx}
+          position={position}
+          feeInfo={feeInfo}
+          onClose={() => setOpenClaimFeeModal(false)}
+        />
+      )}
       <InfoSectionFirstFormat>
         <Text fontSize={14} color={theme.subText} marginTop={1}>
           {t`Total Liquidity`}
@@ -31,7 +152,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <DexImage
               src={position.token0Logo}
               onError={({ currentTarget }) => {
-                currentTarget.onerror = null // prevents looping
+                currentTarget.onerror = null
                 currentTarget.src = HelpIcon
               }}
             />
@@ -42,7 +163,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <DexImage
               src={position.token1Logo}
               onError={({ currentTarget }) => {
-                currentTarget.onerror = null // prevents looping
+                currentTarget.onerror = null
                 currentTarget.src = HelpIcon
               }}
             />
@@ -101,36 +222,56 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           </Flex>
         </Flex>
       </InfoSection>
-      <InfoSectionFirstFormat>
-        <Text fontSize={14} color={theme.subText} marginTop={1}>
-          {t`Total Unclaimed Fee`}
-        </Text>
-        <InfoRight>
-          <Text fontSize={20}>
-            {formatDisplayNumber(position.totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
+      <InfoSection>
+        <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
+          <Text fontSize={14} color={theme.subText} marginTop={1}>
+            {t`Total Unclaimed Fees`}
           </Text>
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <Text>{formatDisplayNumber(position.token0UnclaimedAmount, { significantDigits: 4 })}</Text>
-            <Text>{position.token0Symbol}</Text>
-            <Text fontSize={14} color={theme.subText}>
-              {formatDisplayNumber(position.token0UnclaimedValue, {
-                style: 'currency',
-                significantDigits: 4,
-              })}
-            </Text>
-          </Flex>
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <Text>{formatDisplayNumber(position.token1UnclaimedAmount, { significantDigits: 4 })}</Text>
-            <Text>{position.token1Symbol}</Text>
-            <Text fontSize={14} color={theme.subText}>
-              {formatDisplayNumber(position.token1UnclaimedValue, {
-                style: 'currency',
-                significantDigits: 4,
-              })}
-            </Text>
-          </Flex>
-        </InfoRight>
-      </InfoSectionFirstFormat>
+          <Text fontSize={18}>
+            {feeInfo
+              ? formatDisplayNumber(feeInfo.totalValue, {
+                  significantDigits: 4,
+                  style: 'currency',
+                })
+              : '--'}
+          </Text>
+        </Flex>
+        <Flex alignItems={'center'} justifyContent={'space-between'}>
+          <div>
+            <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
+              <Text>{formatDisplayNumber(feeInfo?.amount0, { significantDigits: 4 })}</Text>
+              <Text>{isToken0Native ? 'ETH' : position.token0Symbol}</Text>
+              <Text fontSize={14} color={theme.subText}>
+                {formatDisplayNumber(feeInfo?.value0, {
+                  style: 'currency',
+                  significantDigits: 4,
+                })}
+              </Text>
+            </Flex>
+            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+              <Text>{formatDisplayNumber(feeInfo?.amount1, { significantDigits: 4 })}</Text>
+              <Text>{isToken1Native ? 'ETH' : position.token1Symbol}</Text>
+              <Text fontSize={14} color={theme.subText}>
+                {formatDisplayNumber(feeInfo?.value1, {
+                  style: 'currency',
+                  significantDigits: 4,
+                })}
+              </Text>
+            </Flex>
+          </div>
+          <PositionAction
+            small
+            outline
+            mobileAutoWidth
+            load={claiming}
+            disabled={(!feeInfo || feeInfo.totalValue === 0) && !claiming}
+            onClick={() => feeInfo && feeInfo.totalValue !== 0 && !claiming && setOpenClaimFeeModal(true)}
+          >
+            {claiming && <Loader size="14px" />}
+            {claiming ? t`Claiming` : t`Claim`}
+          </PositionAction>
+        </Flex>
+      </InfoSection>
     </InfoLeftColumn>
   )
 }
