@@ -15,8 +15,11 @@ export const Portal: React.FC<{ children: React.ReactNode }> = ({
 
     // Cleanup when the component unmounts
     return () => {
-      if (portalContainer.current) {
-        document.body.removeChild(portalContainer.current);
+      if (
+        portalContainer.current &&
+        document.body.contains(portalContainer.current)
+      ) {
+        document.body.removeChild(portalContainer.current)
       }
     };
   }, []);
