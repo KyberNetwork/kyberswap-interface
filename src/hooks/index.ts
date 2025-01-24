@@ -24,7 +24,7 @@ export function useActiveWeb3React(): {
   const [searchParams] = useSearchParams()
   const rawChainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const { chainId } = useAccountWagmi()
-  const isWrongNetwork = !isSupportedChainId(chainId)
+  const isWrongNetwork = !!chainId && !isSupportedChainId(chainId)
   const { connector } = useAccount()
   const chainIdState = isWrongNetwork ? ChainId.MAINNET : rawChainIdState
 
