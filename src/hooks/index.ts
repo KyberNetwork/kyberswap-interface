@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import blackjackApi from 'services/blackjack'
+import { useAccount as useAccountWagmi } from 'wagmi'
 
 import { MOCK_ACCOUNT_EVM } from 'constants/env'
 import { isSupportedChainId } from 'constants/networks'
@@ -22,7 +23,8 @@ export function useActiveWeb3React(): {
 } {
   const [searchParams] = useSearchParams()
   const rawChainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
-  const isWrongNetwork = !isSupportedChainId(rawChainIdState)
+  const { chainId } = useAccountWagmi()
+  const isWrongNetwork = !!chainId && !isSupportedChainId(chainId)
   const { connector } = useAccount()
   const chainIdState = isWrongNetwork ? ChainId.MAINNET : rawChainIdState
 

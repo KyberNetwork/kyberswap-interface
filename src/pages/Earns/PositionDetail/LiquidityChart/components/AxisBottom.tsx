@@ -2,6 +2,7 @@ import { NumberValue, ScaleLinear, axisBottom, Axis as d3Axis, select } from 'd3
 import { useMemo } from 'react'
 
 import useTheme from 'hooks/useTheme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const Axis = ({ axisGenerator }: { axisGenerator: d3Axis<NumberValue> }) => {
   const theme = useTheme()
@@ -30,7 +31,11 @@ export const AxisBottom = ({
   useMemo(
     () => (
       <g className="group" transform={`translate(0, ${innerHeight + offset})`}>
-        <Axis axisGenerator={axisBottom(xScale).ticks(6)} />
+        <Axis
+          axisGenerator={axisBottom(xScale)
+            .ticks(6)
+            .tickFormat(value => formatDisplayNumber(Number(value), { significantDigits: 6 }))}
+        />
       </g>
     ),
     [innerHeight, offset, xScale],
