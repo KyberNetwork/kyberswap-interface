@@ -24,6 +24,7 @@ import { IconArrowLeft, PositionAction as PositionActionBtn } from '../PositionD
 import useLiquidityWidget from '../useLiquidityWidget'
 import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
 import Filter from './Filter'
+import PositionBanner from './PositionBanner'
 import {
   Badge,
   BadgeType,
@@ -97,17 +98,14 @@ const MyPositions = () => {
     <>
       {liquidityWidget}
       <PositionPageWrapper>
-        <div>
-          <Flex sx={{ gap: 3 }}>
-            <IconArrowLeft onClick={() => navigate(-1)} />
-            <Text as="h1" fontSize={24} fontWeight="500">
-              {t`My Liquidity`}
-            </Text>
-          </Flex>
-          <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-            {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
+        <Flex sx={{ gap: 3 }}>
+          <IconArrowLeft onClick={() => navigate(-1)} />
+          <Text as="h1" fontSize={24} fontWeight="500">
+            {t`My Liquidity Positions`}
           </Text>
-        </div>
+        </Flex>
+
+        <PositionBanner userPosition={userPosition} />
 
         <Filter
           supportedChains={supportedChains}

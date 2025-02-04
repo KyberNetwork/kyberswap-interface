@@ -1,6 +1,8 @@
 import { rgba } from 'polished'
 import styled from 'styled-components'
 
+import earnLargeBg from 'assets/banners/earn_background_large.png'
+
 import { PoolPageWrapper } from '../PoolExplorer/styles'
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
@@ -196,4 +198,90 @@ export const EmptyPositionText = styled.div`
   border-radius: 20px;
   height: 400px;
   margin: 20px 0;
+`
+
+export const BannerContainer = styled.div`
+  padding: 1px;
+  position: relative;
+  background-clip: padding-box;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+
+  ::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1px;
+    background: linear-gradient(306.9deg, #262525 38.35%, rgba(148, 117, 203, 0.2) 104.02%),
+      radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(130, 71, 229, 0.6) 0%, rgba(130, 71, 229, 0) 100%);
+    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    z-index: -1;
+  }
+`
+
+export const BannerWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3rem;
+  padding: 22px 18px 22px 88px;
+
+  background-image: url(${earnLargeBg});
+  background-position: center;
+  background-size: cover;
+
+  ${({ theme }) => theme.mediaWidth.upToXL`
+    padding: 20px 18px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex-direction: column;
+    gap: 1rem;
+    padding: 20px 24px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 16px;
+    align-items: flex-start;
+  `}
+`
+
+export const BannerDivider = styled.div`
+  background-color: ${({ theme }) => theme.tabActive};
+  height: 60px;
+  width: 1px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    height: 1px;
+    width: 100%;
+  `}
+`
+
+export const BannerOverview = styled.div`
+  display: flex;
+  gap: 4rem;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  `}
+`
+
+export const BannerDataItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: row;
+    justify-content: space-between;
+  `}
 `
