@@ -5,12 +5,13 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { MEDIA_WIDTHS } from 'theme'
 
-const DropdownWrapper = styled.div<{ mobileFullWidth: boolean }>`
+const DropdownWrapper = styled.div<{ mobileFullWidth: boolean; mobileHalfWidth: boolean }>`
   position: relative;
   width: fit-content;
 
-  ${({ theme, mobileFullWidth }) => theme.mediaWidth.upToSmall`
+  ${({ theme, mobileFullWidth, mobileHalfWidth }) => theme.mediaWidth.upToSmall`
     ${mobileFullWidth && 'width: 100%;'}
+    ${mobileHalfWidth && 'width: calc(50% - 4px);'}
   `}
 `
 
@@ -97,6 +98,7 @@ const DropdownMenu = ({
   width,
   alignLeft = false,
   mobileFullWidth = false,
+  mobileHalfWidth = false,
   onChange,
 }: {
   options: MenuOption[]
@@ -104,6 +106,7 @@ const DropdownMenu = ({
   width?: number
   alignLeft?: boolean
   mobileFullWidth?: boolean
+  mobileHalfWidth?: boolean
   onChange: (value: string | number) => void
 }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
@@ -133,7 +136,7 @@ const DropdownMenu = ({
   }, [ref])
 
   return (
-    <DropdownWrapper mobileFullWidth={mobileFullWidth} ref={ref}>
+    <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
       <DropdownTitleWrapper onClick={handleOpenChange}>
         <DropdownTitle width={width}>
           {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}

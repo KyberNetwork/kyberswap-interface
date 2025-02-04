@@ -107,6 +107,7 @@ export interface PositionQueryParams {
   positionId?: string
   protocols?: string
   status?: string
+  q?: string
 }
 
 export interface EarnPosition {

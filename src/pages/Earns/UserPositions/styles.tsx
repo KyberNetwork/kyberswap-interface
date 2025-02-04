@@ -205,7 +205,6 @@ export const BannerContainer = styled.div`
   position: relative;
   background-clip: padding-box;
   overflow: hidden;
-  margin-bottom: 20px;
   border-radius: 12px;
   border: 1px solid transparent;
 

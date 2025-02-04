@@ -7,6 +7,7 @@ import { Flex, Text } from 'rebass'
 import { EarnPosition, PositionStatus, useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
+import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import CopyHelper from 'components/Copy'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
@@ -19,7 +20,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { CurrencyRoundedImage, CurrencySecondImage, Disclaimer } from '../PoolExplorer/styles'
+import { CurrencyRoundedImage, CurrencySecondImage, Disclaimer, NavigateButton } from '../PoolExplorer/styles'
 import { IconArrowLeft, PositionAction as PositionActionBtn } from '../PositionDetail/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
 import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
@@ -98,11 +99,24 @@ const MyPositions = () => {
     <>
       {liquidityWidget}
       <PositionPageWrapper>
-        <Flex sx={{ gap: 3 }}>
-          <IconArrowLeft onClick={() => navigate(-1)} />
-          <Text as="h1" fontSize={24} fontWeight="500">
-            {t`My Liquidity Positions`}
-          </Text>
+        <Flex
+          flexDirection={upToSmall ? 'column' : 'row'}
+          alignItems={upToSmall ? 'flex-start' : 'center'}
+          justifyContent={'space-between'}
+          sx={{ gap: 3 }}
+        >
+          <Flex sx={{ gap: 3 }}>
+            <IconArrowLeft onClick={() => navigate(-1)} />
+            <Text as="h1" fontSize={24} fontWeight="500">
+              {t`My Liquidity Positions`}
+            </Text>
+          </Flex>
+          <NavigateButton
+            mobileFullWidth
+            icon={<RocketIcon width={20} height={20} />}
+            text={t`Explore Pools`}
+            to={APP_PATHS.EARN_POOLS}
+          />
         </Flex>
 
         <PositionBanner userPosition={userPosition} />
