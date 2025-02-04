@@ -106,6 +106,7 @@ export interface PositionQueryParams {
   addresses: string
   positionId?: string
   protocols?: string
+  status?: string
 }
 
 export interface EarnPosition {
@@ -260,11 +261,18 @@ const zapEarnServiceApi = createApi({
           positionStatus: 'open',
         },
       }),
-      transformResponse: (response: {
-        data: {
-          positions: Array<EarnPosition>
-        }
-      }) => response.data.positions,
+      transformResponse: (
+        response: {
+          data: {
+            positions: Array<EarnPosition>
+          }
+        },
+        _meta,
+        arg,
+      ) => {
+        if (!arg.status) return response.data.positions
+        return response.data.positions.filter((position: EarnPosition) => position.status === arg.status)
+      },
     }),
     addFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
       query: body => ({

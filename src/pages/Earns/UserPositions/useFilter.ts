@@ -8,6 +8,7 @@ export default function useFilter() {
     addresses: '',
     chainIds: '',
     protocols: '',
+    status: '',
   })
 
   const onFilterChange = (key: string, value: string | number) => {

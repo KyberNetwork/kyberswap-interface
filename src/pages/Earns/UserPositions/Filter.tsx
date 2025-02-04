@@ -1,6 +1,7 @@
 import { t } from '@lingui/macro'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
+import { PositionStatus } from 'services/zapEarn'
 
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { APP_PATHS } from 'constants/index'
@@ -9,6 +10,12 @@ import { MEDIA_WIDTHS } from 'theme'
 import DropdownMenu, { MenuOption } from '../PoolExplorer/DropdownMenu'
 import { NavigateButton } from '../PoolExplorer/styles'
 import { AllChainsOption, AllProtocolsOption } from '../useSupportedDexesAndChains'
+
+const POSITION_STATUS = [
+  { label: 'All Positions', value: '' },
+  { label: 'In Range', value: PositionStatus.IN_RANGE },
+  { label: 'Out Range', value: PositionStatus.OUT_RANGE },
+]
 
 export default function Filter({
   supportedChains,
@@ -22,6 +29,7 @@ export default function Filter({
     addresses: string
     chainIds: string
     protocols: string
+    status: string
   }
   onFilterChange: (key: string, value: string | number) => void
 }) {
@@ -48,6 +56,13 @@ export default function Filter({
           value={filters.protocols}
           options={supportedDexes.length ? supportedDexes : [AllProtocolsOption]}
           onChange={value => value !== filters.protocols && onFilterChange('protocols', value)}
+        />
+        <DropdownMenu
+          alignLeft
+          mobileFullWidth
+          value={filters.status}
+          options={POSITION_STATUS}
+          onChange={value => value !== filters.status && onFilterChange('status', value)}
         />
       </Flex>
       <NavigateButton
