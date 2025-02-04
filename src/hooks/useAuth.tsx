@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useCallback, useContext, useState } from 'react'
+import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import { OAUTH_INTERCEPTOR_URL } from 'constants/env'
 import { useWeb3React } from 'hooks'
@@ -12,14 +12,42 @@ const AuthContext = createContext<
   | undefined
 >(undefined)
 
-const LS_ACCESS_TOKEN_KEY = 'kyberswap_access_token'
-const LS_REFRESH_TOKEN_KEY = 'kyberswap_refresh_token'
+export const LS_ACCESS_TOKEN_KEY = 'kyberswap_access_token'
+export const LS_REFRESH_TOKEN_KEY = 'kyberswap_refresh_token'
+
+function parseJwt(token: string) {
+  const base64Url = token.split('.')[1]
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  const jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split('')
+      .map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      })
+      .join(''),
+  )
+
+  return JSON.parse(jsonPayload)
+}
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const { library, account } = useWeb3React()
+
   const [accessToken, setAccessToken] = useState(localStorage.getItem(LS_ACCESS_TOKEN_KEY) || '')
   const [refreshToken, setRefreshToken] = useState(localStorage.getItem(LS_REFRESH_TOKEN_KEY) || '')
 
-  const { library, account } = useWeb3React()
+  useEffect(() => {
+    if (accessToken && account) {
+      const { sub } = parseJwt(accessToken)
+      if (sub.toLowerCase() !== account.toLowerCase()) {
+        setAccessToken('')
+        setRefreshToken('')
+        localStorage.removeItem(LS_ACCESS_TOKEN_KEY)
+        localStorage.removeItem(LS_REFRESH_TOKEN_KEY)
+      }
+    }
+  }, [account, accessToken])
 
   const login = useCallback(async () => {
     const accounts = await library?.listAccounts()

@@ -1,20 +1,22 @@
 import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useCreateSessionMutation } from 'services/affiliate'
 
-import { AFFILIATE_SERVICE_URL } from 'constants/env'
 import { useWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 import { useAuth } from './useAuth'
 
 export const useAffiliate = () => {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const refCode = searchParams.get('refCode')
 
   const { account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
   const { accessToken, login } = useAuth()
+
+  const [createSession] = useCreateSessionMutation()
 
   const ref = useRef(false)
 
@@ -31,16 +33,16 @@ export const useAffiliate = () => {
       login()
     } else if (!ref.current) {
       ref.current = true
-      fetch(`${AFFILIATE_SERVICE_URL}/v1/public/affiliates/session`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refCode }),
+      createSession(refCode).then((res: any) => {
+        // already handle refresh, if it's still return 401 here, that means we need to login again
+        if (res.error && (res.error.status === 401 || res.error.status === 'FETCH_ERROR')) {
+          ref.current = false
+          login()
+        } else {
+          searchParams.delete('refCode')
+          setSearchParams(searchParams)
+        }
       })
-        .then(res => res.json())
-        .then(console.log)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refCode, accessToken, account, login])

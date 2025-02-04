@@ -22,7 +22,6 @@ import 'swiper/swiper.min.css'
 import Web3Provider from 'components/Web3Provider'
 import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
-import { useAffiliate } from 'hooks/useAffiliate'
 import AuthProvider from 'hooks/useAuth'
 
 import { sentryRequestId } from './constants'
@@ -93,8 +92,6 @@ if (window.ethereum) {
 }
 
 function Updaters() {
-  useAffiliate()
-
   return (
     <>
       <ListsUpdater />
