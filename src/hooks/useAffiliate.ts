@@ -5,7 +5,7 @@ import { useCreateSessionMutation } from 'services/affiliate'
 import { useWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 
-import { useAuth } from './useAuth'
+import { parseJwt, useAuth } from './useAuth'
 
 export const useAffiliate = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -29,7 +29,7 @@ export const useAffiliate = () => {
       return
     }
 
-    if (!accessToken) {
+    if (!accessToken || parseJwt(accessToken).sub.toLowerCase() !== account.toLowerCase()) {
       login()
     } else if (!ref.current) {
       ref.current = true

@@ -26,7 +26,11 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
   //if (result.error && result.error.status === 401) {
   // api doesn't return header Access-Control-Allow-Origin then rtk understand it as CORS error and return "TypeError: Failed to fetch"
   // https://stackoverflow.com/questions/71709379/rtk-query-fetchbasequery-returning-fetch-error-instead-of-401
-  if (result.error && (result.error.status === 401 || result.error.status === 'FETCH_ERROR')) {
+  if (
+    result.error &&
+    (result.error.status === 401 || result.error.status === 'FETCH_ERROR') &&
+    localStorage.getItem(LS_REFRESH_TOKEN_KEY)
+  ) {
     // try to get a new token
     const refreshResult = await fetch(`${OAUTH_INTERCEPTOR_URL}/v1/oauth/refresh`, {
       method: 'POST',
