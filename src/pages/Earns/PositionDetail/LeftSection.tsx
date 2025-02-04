@@ -272,6 +272,44 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           </PositionAction>
         </Flex>
       </InfoSection>
+      {/* <InfoSection>
+        <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
+          <Text fontSize={14} color={theme.subText}>
+            {t`Created Time`}
+          </Text>
+          <Text>2:12:34 12/12/2024</Text>
+        </Flex>
+        <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
+          <Text fontSize={14} color={theme.subText}>
+            {t`Liquidity Source`}
+          </Text>
+          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+            <Text fontSize={14} color={theme.subText}>{t`Value`}</Text>
+            <Text>$12,600</Text>
+          </Flex>
+        </Flex>
+        <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: 2 }} marginBottom={2}>
+          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+            <Text>345 KNC</Text> <Text>+ 12.65 JUP</Text> <Text>+ 0.18 ETH</Text>
+          </Flex>
+          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+            <Text fontSize={14} color={theme.subText}>{t`Tnx Hash`}</Text>
+            <Text color={theme.blue2}>
+              {shortenAddress(position.chainId as ChainId, '0xbf6ef625de5df898cc1d0f91868aae03976a2e2d', 4)}
+            </Text>
+          </Flex>
+        </Flex>
+        <Flex alignItems={'flex-start'} justifyContent={'space-between'}>
+          <Text fontSize={14} color={theme.subText}>{t`Past Actions`}</Text>
+          <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: '6px' }}>
+            <Text>{t`Increased Liquidity`}</Text>
+            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+              <Text fontSize={14} color={theme.subText}>{t`Value`}</Text>
+              <Text>$12,600</Text>
+            </Flex>
+          </Flex>
+        </Flex>
+      </InfoSection> */}
     </InfoLeftColumn>
   )
 }

@@ -112,7 +112,7 @@ export const Badge = styled.div<{ type?: BadgeType }>`
             `
       case BadgeType.SECONDARY:
         return `
-            color: #2C9CE4;
+            color: ${theme.blue2};
             `
       default:
         return ''
