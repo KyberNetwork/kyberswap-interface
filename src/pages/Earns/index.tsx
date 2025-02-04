@@ -428,7 +428,7 @@ export default function Earns() {
                 })
               }}
             >
-              {title('High APR', 'Top 100 Pools with assets that offer exceptionally high APYs', RocketIcon)}
+              {title('High APR', 'Top 100 Pools with assets that offer exceptionally high APRs', RocketIcon)}
               {isLoading ? (
                 <LocalLoader />
               ) : (

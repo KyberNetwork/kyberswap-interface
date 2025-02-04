@@ -3765,10 +3765,10 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/liquidity-widgets@1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-1.1.2.tgz#08ee98b0ba8db3e7214f0b8d349dc3b2bf1284c6"
-  integrity sha512-eilnNwAf6mJvC2A3HXSfCICBy5Xo5I8IUrCBdu2RRyvrO1xWFgtiVavlOECz4pVYRqgtC3HWYy216Y5vraStnA==
+"@kyberswap/liquidity-widgets@1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-1.1.5.tgz#83a9cb48c633e6410ed514ed09fb283510cafc41"
+  integrity sha512-Zc55iO7d2/j/HreklnfyQD/x5PMPkZM5W43kflgHPG/ShOgVZ9gPziEe0fggdfSJNOyfiVOybKTtsKZB2Y+FDw==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
@@ -3794,10 +3794,10 @@
     axios "1.2.1"
     client-oauth2 "^4.3.3"
 
-"@kyberswap/zap-migration-widgets@1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@kyberswap/zap-migration-widgets/-/zap-migration-widgets-1.0.2.tgz#01c1e7f719b0f88470209b826cf9479fb2836f49"
-  integrity sha512-CKLzNxAllOkdS7cinhp7MdwFe469ZRfhvvuyV194yghZpPNxG5mVG6u67gpjJj6syS69FYOz+ieCSQsLkm8VyA==
+"@kyberswap/zap-migration-widgets@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@kyberswap/zap-migration-widgets/-/zap-migration-widgets-1.0.3.tgz#2b22c97328c0fb43ace84f2dba776ca67258db78"
+  integrity sha512-i4kkEFbZCrMAcciVJbxLVE8q8oHjMYVPAW0peDq4SmT4gCcJ2wGUWYnACIyhFT1sFJ6ytaBjeLJr7d6nVUD4eg==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"
