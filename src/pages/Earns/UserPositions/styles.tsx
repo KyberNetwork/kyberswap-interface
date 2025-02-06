@@ -3,10 +3,10 @@ import styled from 'styled-components'
 
 import earnLargeBg from 'assets/banners/earn_background_large.png'
 
-import { PoolPageWrapper } from '../PoolExplorer/styles'
+import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from '../PoolExplorer/styles'
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
-  padding: 24px 6rem 50px;
+  padding: 24px 6rem 62px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     padding: 24px 6rem 60px;
@@ -17,28 +17,16 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
   `}
 `
 
-export const MyLiquidityWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    max-height: unset;
-  `}
-`
-
 export const PositionRow = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 75px;
+  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.5fr 1fr;
   grid-template-rows: 1fr;
-  background-color: ${({ theme }) => rgba(theme.background, 0.8)};
-  border-radius: 20px;
   padding: 16px 28px;
   row-gap: 8px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     justify-content: flex-start;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     grid-template-rows: 1fr 1fr;
   `}
 
@@ -47,11 +35,18 @@ export const PositionRow = styled.div`
     flex-direction: column;
     row-gap: 16px;
     padding: 16px;
+    border-radius: 20px;
+    background: ${rgba(theme.background, 0.8)};
+    margin-bottom: 16px;
   `}
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   &:hover {
     cursor: pointer;
-    filter: brightness(1.1);
+    background: #31cb9e1a;
   }
 `
 
@@ -61,7 +56,7 @@ export const PositionOverview = styled.div`
   gap: 8px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-column: span 2;
+    grid-column: span 3;
   `}
 `
 
@@ -147,6 +142,11 @@ export const PositionValueLabel = styled.p`
   color: ${({ theme }) => theme.subText};
   position: relative;
   top: 1px;
+  display: none;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    display: block;
+  `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 16px;
@@ -283,4 +283,19 @@ export const BannerDataItem = styled.div`
     flex-direction: row;
     justify-content: space-between;
   `}
+`
+
+export const PositionTableHeader = styled(TableHeader)`
+  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.5fr 1fr;
+`
+
+export const PositionTableWrapper = styled(TableWrapper)`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    background: transparent;
+    margin: 0;
+  `}
+`
+
+export const PositionTableBody = styled(TableBody)`
+  max-height: unset;
 `
