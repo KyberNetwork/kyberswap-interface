@@ -7,10 +7,12 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { PAIR_CATEGORY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { checkWarningSlippage, formatSlippage, getDefaultSlippage } from 'utils/slippage'
+import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
 const DropdownIcon = styled(DropdownSVG)`
   transition: transform 300ms;
@@ -21,20 +23,18 @@ const DropdownIcon = styled(DropdownSVG)`
 `
 
 type Props = {
-  isStablePairSwap: boolean
-  isCorrelatedPair: boolean
   rightComponent?: ReactNode
   tooltip?: ReactNode
 }
-const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, tooltip }: Props) => {
+const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
-  const defaultRawSlippage = getDefaultSlippage(isStablePairSwap, isCorrelatedPair)
 
-  const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap, isCorrelatedPair)
+  const pairCategory = usePairCategory()
+  const isWarningSlippage = checkWarningSlippage(rawSlippage, pairCategory)
   if (!isSlippageControlPinned) {
     return null
   }
@@ -109,9 +109,9 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
               <MouseoverTooltip
                 text={
                   isWarningSlippage
-                    ? isStablePairSwap
+                    ? pairCategory === PAIR_CATEGORY.STABLE
                       ? t`Your slippage setting might be high compared to typical stable pair trades. Consider adjusting it to reduce the risk of front-running.`
-                      : isCorrelatedPair
+                      : pairCategory === PAIR_CATEGORY.CORRELATED
                       ? t`Your slippage setting might be high compared with other similar trades. You might want to adjust it to avoid potential front-running.`
                       : t`Your slippage setting might be high. You might want to adjust it to avoid potential front-running.`
                     : ''
@@ -136,23 +136,14 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
           gap: '1rem',
         }}
       >
-        <SlippageControl
-          rawSlippage={rawSlippage}
-          setRawSlippage={setRawSlippage}
-          isWarning={isWarningSlippage}
-          defaultRawSlippage={defaultRawSlippage}
-        />
+        <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} isWarning={isWarningSlippage} />
         {isDegenMode && expanded && (
           <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px" marginTop="-12px">
             Maximum Slippage allow for Degen mode is 50%
           </Text>
         )}
 
-        <SlippageWarningNote
-          rawSlippage={rawSlippage}
-          isStablePairSwap={isStablePairSwap}
-          isCorrelatedPair={isCorrelatedPair}
-        />
+        <SlippageWarningNote rawSlippage={rawSlippage} />
       </Flex>
     </Flex>
   )

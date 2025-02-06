@@ -3,8 +3,9 @@ import { ParsedUrlQuery } from 'querystring'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useCheckPairQuery } from 'services/marketOverview'
 
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { CORRELATED_COINS_ADDRESS, DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrencyV2, useStableCoins } from 'hooks/Tokens'
@@ -286,6 +287,43 @@ export const useOutputCurrency = () => {
   const outputCurrency = useCurrencyV2(token ? token.address : toCurrency)
 
   return outputCurrency || undefined
+}
+
+export const usePairCategory = () => {
+  const { chainId } = useActiveWeb3React()
+  const inputCurrency = useInputCurrency()
+  const outputCurrency = useOutputCurrency()
+  const inputAddress = inputCurrency?.wrapped.address
+  const outputAddress = outputCurrency?.wrapped.address
+
+  const { data } = useCheckPairQuery(
+    {
+      chainId,
+      tokenIn: inputAddress || '',
+      tokenOut: outputAddress || '',
+    },
+    {
+      skip: !inputAddress || !outputAddress,
+    },
+  )
+
+  return data?.data.category
+}
+export const useDefaultSlippageByPair = () => {
+  const cat = usePairCategory()
+
+  switch (cat) {
+    case PAIR_CATEGORY.STABLE:
+      return 1
+    case PAIR_CATEGORY.CORRELATED:
+      return 5
+    // case PAIR_CATEGORY.EXOTIC:
+    // return 100
+    case PAIR_CATEGORY.HIGH_VOLATILITY:
+      return 150
+    default:
+      return 50
+  }
 }
 
 export const useCheckStablePairSwap = () => {

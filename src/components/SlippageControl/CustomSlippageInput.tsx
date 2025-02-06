@@ -6,6 +6,7 @@ import styled, { css } from 'styled-components'
 import Tooltip from 'components/Tooltip'
 import { DEFAULT_SLIPPAGES, MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useDefaultSlippageByPair } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { formatSlippage } from 'utils/slippage'
 
@@ -115,13 +116,14 @@ export type Props = {
   rawSlippage: number
   setRawSlippage: (value: number) => void
   isWarning: boolean
-  defaultRawSlippage: number
 }
-const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isWarning, defaultRawSlippage }) => {
+const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isWarning }) => {
   const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const { mixpanelHandler } = useMixpanel()
   const [isDegenMode] = useDegenModeManager()
+
+  const defaultRawSlippage = useDefaultSlippageByPair()
 
   // rawSlippage = 10
   // slippage shown to user: = 10 / 10_000 = 0.001 = 0.1%

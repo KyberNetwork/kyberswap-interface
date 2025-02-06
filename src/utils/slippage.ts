@@ -1,4 +1,9 @@
-import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_CORRELATED_PAIR, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
+import {
+  DEFAULT_SLIPPAGE,
+  DEFAULT_SLIPPAGE_CORRELATED_PAIR,
+  DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
+  PAIR_CATEGORY,
+} from 'constants/index'
 
 export enum SLIPPAGE_STATUS {
   NORMAL,
@@ -14,12 +19,8 @@ export const getDefaultSlippage = (isStablePairSwap: boolean, isCorrelatedPair: 
     : DEFAULT_SLIPPAGE
 }
 
-export const checkRangeSlippage = (
-  slippage: number,
-  isStablePairSwap: boolean,
-  isCorrelatedPair: boolean,
-): SLIPPAGE_STATUS => {
-  if (isStablePairSwap) {
+export const checkRangeSlippage = (slippage: number, pairCategory: PAIR_CATEGORY | undefined): SLIPPAGE_STATUS => {
+  if (pairCategory === PAIR_CATEGORY.STABLE) {
     if (slippage >= 10) {
       return SLIPPAGE_STATUS.HIGH
     }
@@ -27,8 +28,18 @@ export const checkRangeSlippage = (
     return SLIPPAGE_STATUS.NORMAL
   }
 
-  if (isCorrelatedPair) {
+  if (pairCategory === PAIR_CATEGORY.CORRELATED) {
     if (slippage > 25) {
+      return SLIPPAGE_STATUS.HIGH
+    }
+    return SLIPPAGE_STATUS.NORMAL
+  }
+
+  if (pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY) {
+    if (slippage < 50) {
+      return SLIPPAGE_STATUS.LOW
+    }
+    if (slippage > 500) {
       return SLIPPAGE_STATUS.HIGH
     }
     return SLIPPAGE_STATUS.NORMAL
@@ -45,8 +56,8 @@ export const checkRangeSlippage = (
   return SLIPPAGE_STATUS.NORMAL
 }
 
-export const checkWarningSlippage = (slippage: number, isStablePairSwap: boolean, isCorrelatedPair: boolean) => {
-  return checkRangeSlippage(slippage, isStablePairSwap, isCorrelatedPair) !== SLIPPAGE_STATUS.NORMAL
+export const checkWarningSlippage = (slippage: number, cat: PAIR_CATEGORY | undefined) => {
+  return checkRangeSlippage(slippage, cat) !== SLIPPAGE_STATUS.NORMAL
 }
 
 export const formatSlippage = (slp: number, withPercent = true) => {
