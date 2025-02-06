@@ -27,7 +27,7 @@ export const PositionRow = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     justify-content: flex-start;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr 1fr;
   `}
 
@@ -57,7 +57,7 @@ export const PositionOverview = styled.div`
   gap: 8px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-column: span 3;
+    grid-column: span 2;
   `}
 `
 
@@ -318,6 +318,11 @@ export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`
   border-radius: 4px;
   position: relative;
   top: 46%;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin: 30px 0 20px;
+    width: 100%;
+  `}
 `
 
 export const PriceRangeEl = styled.div<{ isLowestPrice: boolean; isHighestPrice: boolean }>`

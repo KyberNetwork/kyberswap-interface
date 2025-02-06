@@ -397,7 +397,7 @@ export default function TableContent({
                     <Text>{formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}</Text>
                   </MouseoverTooltipDesktopOnly>
                 </PositionValueWrapper>
-                <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
+                <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
                   <PositionValueLabel>{t`Bal`}</PositionValueLabel>
                   <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
                     <Text>
