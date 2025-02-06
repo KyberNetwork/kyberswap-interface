@@ -28,6 +28,7 @@ import ClaimFeeModal, { PositionToClaim, isNativeToken } from '../PositionDetail
 import { FeeInfo } from '../PositionDetail/LeftSection'
 import { PositionAction as PositionActionBtn } from '../PositionDetail/styles'
 import { NFT_MANAGER_CONTRACT } from '../constants'
+import PriceRange from './PriceRange'
 import {
   Badge,
   BadgeType,
@@ -229,15 +230,26 @@ export default function TableContent({
       <PositionTableBody>
         {account && positions && positions.length > 0 ? (
           positions.map(position => {
-            const { id, status, chainId: poolChainId } = position
-            const positionId = position.tokenId
-            const chainImage = position.chainLogo
+            const {
+              id,
+              status,
+              chainId: poolChainId,
+              minPrice,
+              maxPrice,
+              tokenId: positionId,
+              chainLogo: chainImage,
+            } = position
+
+            const currentPrice = position.pool.price
+            const tickSpacing = position.pool.tickSpacing
             const dexImage = position.pool.projectLogo
             const dexVersion = position.pool.project?.split(' ')?.[1] || ''
             const token0Logo = position.pool.tokenAmounts[0]?.token.logo
             const token1Logo = position.pool.tokenAmounts[1]?.token.logo
             const token0Symbol = position.pool.tokenAmounts[0]?.token.symbol
             const token1Symbol = position.pool.tokenAmounts[1]?.token.symbol
+            const token0Decimals = position.pool.tokenAmounts[0]?.token.decimals
+            const token1Decimals = position.pool.tokenAmounts[1]?.token.decimals
             const poolFee = position.pool.fees?.[0]
             const poolAddress = position.pool.poolAddress
             const totalValue = position.currentPositionValue
@@ -397,7 +409,16 @@ export default function TableContent({
                     </Text>
                   </Flex>
                 </PositionValueWrapper>
-                <PositionValueWrapper />
+                <PositionValueWrapper>
+                  <PriceRange
+                    minPrice={minPrice}
+                    maxPrice={maxPrice}
+                    currentPrice={currentPrice}
+                    tickSpacing={tickSpacing}
+                    token0Decimals={token0Decimals}
+                    token1Decimals={token1Decimals}
+                  />
+                </PositionValueWrapper>
                 {(upToSmall || !upToLarge) && (
                   <Flex
                     alignItems={'center'}

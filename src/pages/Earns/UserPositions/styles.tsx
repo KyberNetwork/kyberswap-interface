@@ -2,6 +2,7 @@ import { rgba } from 'polished'
 import styled from 'styled-components'
 
 import earnLargeBg from 'assets/banners/earn_background_large.png'
+import { ReactComponent as IconCurrentPrice } from 'assets/svg/ic_position_current_price.svg'
 
 import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from '../PoolExplorer/styles'
 
@@ -19,7 +20,7 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
 
 export const PositionRow = styled.div`
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.5fr 1fr;
+  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 1fr;
   grid-template-rows: 1fr;
   padding: 16px 28px;
   row-gap: 8px;
@@ -296,7 +297,7 @@ export const BannerDataItem = styled.div`
 `
 
 export const PositionTableHeader = styled(TableHeader)`
-  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.5fr 1fr;
+  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 1fr;
 `
 
 export const PositionTableWrapper = styled(TableWrapper)`
@@ -308,4 +309,55 @@ export const PositionTableWrapper = styled(TableWrapper)`
 
 export const PositionTableBody = styled(TableBody)`
   max-height: unset;
+`
+
+export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`
+  height: 4px;
+  width: 90%;
+  background: ${({ theme, outOfRange }) => (outOfRange ? rgba(theme.warning, 0.3) : theme.border)};
+  border-radius: 4px;
+  position: relative;
+  top: 46%;
+`
+
+export const PriceRangeEl = styled.div<{ isLowestPrice: boolean; isHighestPrice: boolean }>`
+  display: flex;
+  position: absolute;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: ${({ isLowestPrice, isHighestPrice }) =>
+    isLowestPrice ? (isHighestPrice ? '100%' : '80%') : isHighestPrice ? '80%' : '60%'};
+  left: ${({ isLowestPrice }) => (isLowestPrice ? 0 : '20%')};
+  border-radius: 4px;
+  background: linear-gradient(90deg, #09ae7d 0%, #6368f1 100%);
+`
+
+export const RangeThumb = styled.div`
+  height: 16px;
+  width: 4px;
+  border-radius: 4px;
+  position: relative;
+`
+
+export const RangeFirstThumb = styled(RangeThumb)`
+  background: #09ae7d;
+`
+
+export const RangeSecondThumb = styled(RangeThumb)`
+  background: #6368f1;
+`
+
+export const ThumbLabel = styled.div`
+  position: absolute;
+  top: -20px;
+  transform: translateX(-42%);
+  font-size: 12px;
+  color: #fafafa;
+`
+
+export const CustomIconCurrentPrice = styled(IconCurrentPrice)<{ lower?: boolean }>`
+  position: absolute;
+  top: -5px;
+  left: ${({ lower }) => (lower ? '6%' : '86%')};
 `
