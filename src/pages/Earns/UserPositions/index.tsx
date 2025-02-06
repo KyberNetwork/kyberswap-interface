@@ -18,7 +18,7 @@ import useLiquidityWidget from '../useLiquidityWidget'
 import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
 import Filter from './Filter'
 import PositionBanner from './PositionBanner'
-import TableContent from './TableContent'
+import TableContent, { FeeInfoFromRpc } from './TableContent'
 import { PositionPageWrapper, PositionTableHeader, PositionTableWrapper } from './styles'
 import useFilter, { SortBy } from './useFilter'
 
@@ -35,6 +35,7 @@ const MyPositions = () => {
   const firstLoading = useRef(false)
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
+  const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
 
   const {
     data: userPosition,
@@ -45,12 +46,51 @@ const MyPositions = () => {
     pollingInterval: 15_000,
   })
 
-  const positionsToShow = useMemo(() => {
-    if ((!isFetching || !loading) && userPosition && userPosition.length > POSITIONS_TABLE_LIMIT)
-      return userPosition.slice((page - 1) * POSITIONS_TABLE_LIMIT, page * POSITIONS_TABLE_LIMIT)
+  const filteredPositions = useMemo(() => {
+    if (!userPosition) return []
 
-    return userPosition
-  }, [isFetching, loading, page, userPosition])
+    let positions = [...userPosition].map(position => {
+      const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
+      if (!feeInfo) return position
+      return {
+        ...position,
+        feeInfo,
+      }
+    })
+    if (filters.status) positions = positions.filter(position => position.status === filters.status)
+    if (filters.sortBy) {
+      if (filters.sortBy === SortBy.VALUE) {
+        positions.sort((a, b) => {
+          const aValue = a.currentPositionValue
+          const bValue = b.currentPositionValue
+          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
+        })
+      } else if (filters.sortBy === SortBy.APR_7D) {
+        positions.sort((a, b) => {
+          const aValue = a.earning7d
+          const bValue = b.earning7d
+          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
+        })
+      } else if (filters.sortBy === SortBy.UNCLAIMED_FEE) {
+        positions.sort((a, b) => {
+          const aValue = a.feeInfo
+            ? a.feeInfo.totalValue
+            : a.feePending.reduce((total, fee) => total + fee.quotes.usd.value, 0)
+          const bValue = b.feeInfo
+            ? b.feeInfo.totalValue
+            : b.feePending.reduce((total, fee) => total + fee.quotes.usd.value, 0)
+          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
+        })
+      }
+    }
+
+    return positions
+  }, [feeInfoFromRpc, filters.orderBy, filters.sortBy, filters.status, userPosition])
+
+  const positionsToShow = useMemo(() => {
+    if (filteredPositions.length <= POSITIONS_TABLE_LIMIT) return filteredPositions
+    return filteredPositions.slice((page - 1) * POSITIONS_TABLE_LIMIT, page * POSITIONS_TABLE_LIMIT)
+  }, [filteredPositions, page])
 
   const onSortChange = (sortBy: string) => {
     setPage(1)
@@ -77,6 +117,23 @@ const MyPositions = () => {
     }
   }, [isFetching])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFeeInfoFromRpc(prev =>
+        prev
+          .filter(feeInfo => feeInfo.timeRemaining > 0)
+          .map(feeInfo => {
+            return {
+              ...feeInfo,
+              timeRemaining: feeInfo.timeRemaining - 1,
+            }
+          }),
+      )
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <>
       {liquidityWidget}
@@ -101,7 +158,7 @@ const MyPositions = () => {
           />
         </Flex>
 
-        <PositionBanner userPosition={userPosition} />
+        <PositionBanner positions={filteredPositions} />
 
         <Filter
           supportedChains={supportedChains}
@@ -155,6 +212,8 @@ const MyPositions = () => {
             ) : (
               <TableContent
                 positions={positionsToShow}
+                feeInfoFromRpc={feeInfoFromRpc}
+                setFeeInfoFromRpc={setFeeInfoFromRpc}
                 onOpenZapInWidget={handleOpenZapInWidget}
                 onOpenZapOut={handleOpenZapOut}
               />

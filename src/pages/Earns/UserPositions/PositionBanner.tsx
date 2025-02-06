@@ -13,29 +13,33 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { BannerContainer, BannerDataItem, BannerDivider, BannerOverview, BannerWrapper } from './styles'
 
-export default function PositionBanner({ userPosition }: { userPosition: Array<EarnPosition> | undefined }) {
+export default function PositionBanner({ positions }: { positions: Array<EarnPosition> | undefined }) {
   const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const overviewData = useMemo(() => {
-    if (!userPosition) return
-    const totalValue = userPosition.reduce((acc, position) => acc + position.currentPositionValue, 0)
-    const totalEarnedFee = userPosition.reduce(
+    if (!positions) return
+    const totalValue = positions.reduce((acc, position) => acc + position.currentPositionValue, 0)
+    const totalEarnedFee = positions.reduce(
       (acc, position) =>
         acc +
         position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
         position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
       0,
     )
-    const totalUnclaimedFee = userPosition.reduce(
-      (acc, position) => acc + position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0),
+    const totalUnclaimedFee = positions.reduce(
+      (acc, position) =>
+        acc +
+        (position.feeInfo
+          ? position.feeInfo.totalValue
+          : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)),
       0,
     )
 
     return { totalValue, totalEarnedFee, totalUnclaimedFee }
-  }, [userPosition])
+  }, [positions])
 
   return (
     <BannerContainer>

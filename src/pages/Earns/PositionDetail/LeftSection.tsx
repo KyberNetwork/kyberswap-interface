@@ -119,6 +119,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
       if (tx?.[0].receipt && tx?.[0].receipt.status === 1) {
         setClaiming(false)
         setClaimTx(null)
+        setOpenClaimFeeModal(false)
         handleFetchUnclaimedFee()
       }
     }

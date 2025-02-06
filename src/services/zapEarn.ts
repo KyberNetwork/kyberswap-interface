@@ -1,9 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { SortBy } from 'pages/Earns/UserPositions/useFilter'
-import { Direction } from 'pages/MarketOverview/SortIcon'
-
 interface ExplorerLandingResponse {
   data: {
     highlightedPools: Array<EarnPool>
@@ -267,43 +264,11 @@ const zapEarnServiceApi = createApi({
           positionStatus: 'open',
         },
       }),
-      transformResponse: (
-        response: {
-          data: {
-            positions: Array<EarnPosition>
-          }
-        },
-        _meta,
-        arg,
-      ) => {
-        let positions
-        if (!arg.status) positions = response.data.positions
-        else positions = response.data.positions.filter((position: EarnPosition) => position.status === arg.status)
-
-        if (arg.sortBy && positions && positions.length) {
-          if (arg.sortBy === SortBy.VALUE) {
-            positions = positions.sort((a, b) => {
-              const aValue = a.currentPositionValue
-              const bValue = b.currentPositionValue
-              return arg.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-            })
-          } else if (arg.sortBy === SortBy.APR_7D) {
-            positions = positions.sort((a, b) => {
-              const aValue = a.earning7d
-              const bValue = b.earning7d
-              return arg.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-            })
-          } else if (arg.sortBy === SortBy.UNCLAIMED_FEE) {
-            positions = positions.sort((a, b) => {
-              const aValue = a.feePending.reduce((total, fee) => total + fee.quotes.usd.value, 0)
-              const bValue = b.feePending.reduce((total, fee) => total + fee.quotes.usd.value, 0)
-              return arg.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-            })
-          }
+      transformResponse: (response: {
+        data: {
+          positions: Array<EarnPosition>
         }
-
-        return positions
-      },
+      }) => response.data.positions,
     }),
     addFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
       query: body => ({

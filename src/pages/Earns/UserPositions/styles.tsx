@@ -154,7 +154,7 @@ export const PositionValueLabel = styled.p`
   `}
 `
 
-export const PositionAction = styled.div<{ primary?: boolean }>`
+export const PositionAction = styled.div<{ primary?: boolean; disabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,6 +177,16 @@ export const PositionAction = styled.div<{ primary?: boolean }>`
     width: 36px;
     height: 36px;
   `}
+
+  ${({ disabled }) =>
+    disabled &&
+    `
+      filter: brightness(0.7) !important;
+    `}
+
+  :hover {
+    ${({ disabled }) => disabled && 'cursor: not-allowed;'}
+  }
 `
 
 export const Divider = styled.div`

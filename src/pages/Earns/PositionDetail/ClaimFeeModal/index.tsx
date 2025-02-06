@@ -20,10 +20,22 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { ParsedPosition } from '..'
 import { NFT_MANAGER_CONTRACT } from '../../constants'
 import { FeeInfo } from '../LeftSection'
 import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from './styles'
+
+export interface PositionToClaim {
+  id: string
+  dex: string
+  chainId: number
+  token0Address: string
+  token1Address: string
+  token0Symbol: string
+  token1Symbol: string
+  token0Logo: string
+  token1Logo: string
+  chainLogo: string
+}
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   tokenAddress.toLowerCase() === ETHER_ADDRESS.toLowerCase() ||
@@ -40,7 +52,7 @@ export default function ClaimFeeModal({
   claiming: boolean
   setClaiming: (claiming: boolean) => void
   setClaimTx: (tx: string | null) => void
-  position: ParsedPosition
+  position: PositionToClaim
   feeInfo: FeeInfo
   onClose: () => void
 }) {
@@ -131,7 +143,6 @@ export default function ClaimFeeModal({
         },
       })
       setClaimTx(tx.hash)
-      onClose()
     } catch (error) {
       console.error(error)
       setClaiming(false)
@@ -150,7 +161,6 @@ export default function ClaimFeeModal({
     isToken1Native,
     library,
     nftManagerContract,
-    onClose,
     position.chainId,
     position.id,
     position.token0Address,
