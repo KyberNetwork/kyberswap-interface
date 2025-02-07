@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useCheckPairQuery } from 'services/marketOverview'
 
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
-import { CORRELATED_COINS_ADDRESS, DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrencyV2, useStableCoins } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -15,7 +15,7 @@ import { AppDispatch, AppState } from 'state/index'
 import { Field, resetSelectCurrency, setRecipient, setTrade, typeInput } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
 import { useDegenModeManager } from 'state/user/hooks'
-import { isAddress, isAddressString } from 'utils'
+import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
 
@@ -289,7 +289,7 @@ export const useOutputCurrency = () => {
   return outputCurrency || undefined
 }
 
-export const usePairCategory = () => {
+export const usePairCategory = (customChainId?: ChainId) => {
   const { chainId } = useActiveWeb3React()
   const inputCurrency = useInputCurrency()
   const outputCurrency = useOutputCurrency()
@@ -298,7 +298,7 @@ export const usePairCategory = () => {
 
   const { data } = useCheckPairQuery(
     {
-      chainId,
+      chainId: customChainId || chainId,
       tokenIn: inputAddress || '',
       tokenOut: outputAddress || '',
     },
@@ -309,8 +309,8 @@ export const usePairCategory = () => {
 
   return data?.data.category
 }
-export const useDefaultSlippageByPair = () => {
-  const cat = usePairCategory()
+export const useDefaultSlippageByPair = (customChainId?: ChainId) => {
+  const cat = usePairCategory(customChainId)
 
   switch (cat) {
     case PAIR_CATEGORY.STABLE:
@@ -335,28 +335,6 @@ export const useCheckStablePairSwap = () => {
   const isStablePairSwap = isStableCoin(inputCurrency?.wrapped.address) && isStableCoin(outputCurrency?.wrapped.address)
 
   return isStablePairSwap
-}
-
-export const useCheckCorrelatedPair = (customIn?: string, customOut?: string) => {
-  const { chainId } = useActiveWeb3React()
-
-  const inputCurrency = useInputCurrency()
-  const outputCurrency = useOutputCurrency()
-
-  const inputCurrencyId = customIn || inputCurrency?.wrapped.address
-  const outputCurrencyId = customOut || outputCurrency?.wrapped.address
-
-  const inputAddress =
-    NativeCurrencies[chainId].symbol === inputCurrencyId
-      ? NativeCurrencies[chainId].wrapped.address
-      : isAddressString(inputCurrencyId)
-
-  const outputAddress =
-    NativeCurrencies[chainId].symbol === outputCurrencyId
-      ? NativeCurrencies[chainId].wrapped.address
-      : isAddressString(outputCurrencyId)
-
-  return CORRELATED_COINS_ADDRESS[chainId].some(pair => pair.includes(inputAddress) && pair.includes(outputAddress))
 }
 
 export const useSwitchPairToLimitOrder = () => {

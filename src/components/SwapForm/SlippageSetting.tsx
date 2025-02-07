@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -7,7 +7,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { PAIR_CATEGORY } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
@@ -35,6 +35,12 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
 
   const pairCategory = usePairCategory()
   const isWarningSlippage = checkWarningSlippage(rawSlippage, pairCategory)
+
+  const options = useMemo(
+    () => (pairCategory === 'highVolatilityPair' ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
+    [pairCategory],
+  )
+
   if (!isSlippageControlPinned) {
     return null
   }
@@ -136,7 +142,12 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
           gap: '1rem',
         }}
       >
-        <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} isWarning={isWarningSlippage} />
+        <SlippageControl
+          rawSlippage={rawSlippage}
+          setRawSlippage={setRawSlippage}
+          isWarning={isWarningSlippage}
+          options={options}
+        />
         {isDegenMode && expanded && (
           <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px" marginTop="-12px">
             Maximum Slippage allow for Degen mode is 50%

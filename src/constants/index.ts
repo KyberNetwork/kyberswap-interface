@@ -129,6 +129,7 @@ export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 1999
 export const MAX_DEGEN_SLIPPAGE_IN_BIPS = 5000
 
 export const DEFAULT_SLIPPAGES = [5, 10, 50, 100]
+export const DEFAULT_SLIPPAGES_HIGH_VOTALITY = [50, 150, 300, 500]
 export const DEFAULT_TIPS = [0, 10, 50, 100]
 export const MAX_FEE_IN_BIPS = 1500
 

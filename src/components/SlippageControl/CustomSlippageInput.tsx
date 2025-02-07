@@ -4,15 +4,15 @@ import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
-import { DEFAULT_SLIPPAGES, MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
+import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useDefaultSlippageByPair } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { formatSlippage } from 'utils/slippage'
 
 const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
-const getSlippageText = (rawSlippage: number) => {
-  const isCustom = !DEFAULT_SLIPPAGES.includes(rawSlippage)
+const getSlippageText = (rawSlippage: number, options: number[]) => {
+  const isCustom = !options.includes(rawSlippage)
   if (!isCustom) {
     return ''
   }
@@ -116,8 +116,9 @@ export type Props = {
   rawSlippage: number
   setRawSlippage: (value: number) => void
   isWarning: boolean
+  options: number[]
 }
-const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isWarning }) => {
+const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlippage, isWarning }) => {
   const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const { mixpanelHandler } = useMixpanel()
@@ -127,9 +128,9 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
 
   // rawSlippage = 10
   // slippage shown to user: = 10 / 10_000 = 0.001 = 0.1%
-  const [rawText, setRawText] = useState(getSlippageText(rawSlippage))
+  const [rawText, setRawText] = useState(getSlippageText(rawSlippage, options))
 
-  const isCustomOptionActive = !DEFAULT_SLIPPAGES.includes(rawSlippage)
+  const isCustomOptionActive = !options.includes(rawSlippage)
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTooltip('')
@@ -167,16 +168,16 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
 
   const handleCommitChange = () => {
     setTooltip('')
-    setRawText(getSlippageText(rawSlippage))
+    setRawText(getSlippageText(rawSlippage, options))
     mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: Number(formatSlippage(rawSlippage, false)) })
   }
 
   useEffect(() => {
     if (inputRef.current !== document.activeElement) {
-      setRawText(getSlippageText(rawSlippage))
+      setRawText(getSlippageText(rawSlippage, options))
       setTooltip('')
     }
-  }, [rawSlippage])
+  }, [rawSlippage, options])
 
   return (
     <Flex sx={{ flex: 1 }}>
