@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
-import affiliateApi from 'services/affiliate'
 import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
 import blackjackApi from 'services/blackjack'
@@ -111,7 +110,6 @@ const store = configureStore({
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
-    [affiliateApi.reducerPath]: affiliateApi.reducer,
     [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
     [poolServiceApi.reducerPath]: poolServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
@@ -129,7 +127,6 @@ const store = configureStore({
       .concat(contractQuery.middleware)
       .concat(limitOrderApi.middleware)
       .concat(aggregatorStatsApi.middleware)
-      .concat(affiliateApi.middleware)
       .concat(announcementApi.middleware)
       .concat(publicAnnouncementApi.middleware)
       .concat(kyberDAO.middleware)

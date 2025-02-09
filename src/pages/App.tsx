@@ -18,7 +18,6 @@ import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useAffiliate } from 'hooks/useAffiliate'
 import { useAutoLogin } from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
@@ -176,7 +175,6 @@ export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { pathname } = useLocation()
   useAutoLogin()
-  useAffiliate()
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
   useSessionExpiredGlobal()

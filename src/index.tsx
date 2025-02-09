@@ -22,7 +22,7 @@ import 'swiper/swiper.min.css'
 import Web3Provider from 'components/Web3Provider'
 import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
-import AuthProvider from 'hooks/useAuth'
+import { useAffiliate } from 'hooks/useAffiliate'
 
 import { sentryRequestId } from './constants'
 import { LanguageProvider } from './i18n'
@@ -92,6 +92,7 @@ if (window.ethereum) {
 }
 
 function Updaters() {
+  useAffiliate()
   return (
     <>
       <ListsUpdater />
@@ -123,13 +124,11 @@ const ReactApp = () => {
         <BrowserRouter>
           <LanguageProvider>
             <Web3Provider>
-              <AuthProvider>
-                <Updaters />
-                <ThemeProvider>
-                  <ThemedGlobalStyle />
-                  <App />
-                </ThemeProvider>
-              </AuthProvider>
+              <Updaters />
+              <ThemeProvider>
+                <ThemedGlobalStyle />
+                <App />
+              </ThemeProvider>
             </Web3Provider>
           </LanguageProvider>
         </BrowserRouter>

@@ -49,6 +49,7 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
+import { getCookieValue } from 'utils'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatTimeDuration } from 'utils/time'
@@ -520,10 +521,12 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
         throw new Error('wrong input')
       }
 
+      const refCode = getCookieValue('refCode')
+
       const { signature, salt } = await signOrder(params)
       const payload = getPayloadCreateOrder(params)
       setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
-      const response = await submitOrder({ ...payload, salt, signature }).unwrap()
+      const response = await submitOrder({ ...payload, salt, signature, refCode }).unwrap()
       setFlowState(state => ({ ...state, showConfirm: false }))
 
       notify(

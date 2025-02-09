@@ -12,6 +12,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { getCookieValue } from 'utils'
 
 import useFilter from './PoolExplorer/useFilter'
 
@@ -179,12 +180,15 @@ const useLiquidityWidget = () => {
   const { changeNetwork } = useChangeNetwork()
   const navigate = useNavigate()
 
+  const refCode = getCookieValue('refCode')
+
   const addLiquidityParams: AddLiquidityParams | null = useMemo(
     () =>
       addLiquidityPureParams
         ? {
             ...addLiquidityPureParams,
             source: 'KyberSwap-Earn',
+            refCode,
             onViewPosition: () => {
               setAddLiquidityPureParams(null)
               navigate(`/earns/positions`)
@@ -216,6 +220,7 @@ const useLiquidityWidget = () => {
     [
       addLiquidityPureParams,
       account,
+      refCode,
       chainId,
       toggleWalletModal,
       handleOpenZapMigrationWidget,
@@ -231,6 +236,7 @@ const useLiquidityWidget = () => {
         ? {
             ...migrateLiquidityPureParams,
             client: 'KyberSwap-Earn',
+            refCode,
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as MigrateChainId,
@@ -260,7 +266,7 @@ const useLiquidityWidget = () => {
             },
           }
         : null,
-    [account, chainId, library, migrateLiquidityPureParams, changeNetwork, toggleWalletModal, navigate],
+    [account, chainId, library, migrateLiquidityPureParams, changeNetwork, toggleWalletModal, navigate, refCode],
   )
 
   const [zapOutPureParams, setZapOutPureParams] = useState<{
@@ -275,6 +281,7 @@ const useLiquidityWidget = () => {
         ? {
             ...zapOutPureParams,
             source: 'KyberSwap-Earn',
+            refCode,
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as MigrateChainId,
@@ -295,7 +302,7 @@ const useLiquidityWidget = () => {
             },
           }
         : null,
-    [account, chainId, changeNetwork, library, toggleWalletModal, zapOutPureParams],
+    [account, chainId, changeNetwork, library, toggleWalletModal, zapOutPureParams, refCode],
   )
 
   const handleOpenZapOut = (position: { dex: string; chainId: number; poolAddress: string; id: string }) => {
