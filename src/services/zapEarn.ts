@@ -269,6 +269,13 @@ const zapEarnServiceApi = createApi({
           positions: Array<EarnPosition>
         }
       }) => response.data.positions,
+      async onQueryStarted(agr, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch {
+          dispatch(zapEarnServiceApi.util.upsertQueryData('userPositions', agr, []))
+        }
+      },
     }),
     addFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
       query: body => ({

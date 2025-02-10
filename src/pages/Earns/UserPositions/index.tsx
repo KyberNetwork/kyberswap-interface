@@ -9,6 +9,7 @@ import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -28,6 +29,7 @@ const MyPositions = () => {
   const navigate = useNavigate()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const { account } = useActiveWeb3React()
   const { filters, onFilterChange } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
@@ -158,7 +160,7 @@ const MyPositions = () => {
           />
         </Flex>
 
-        <PositionBanner positions={filteredPositions} />
+        {account && <PositionBanner positions={filteredPositions} />}
 
         <Filter
           supportedChains={supportedChains}
