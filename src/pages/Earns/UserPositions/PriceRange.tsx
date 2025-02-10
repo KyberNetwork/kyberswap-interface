@@ -1,9 +1,12 @@
-import { useMemo } from 'react'
+import { t } from '@lingui/macro'
+import { useMemo, useState } from 'react'
 
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '../PositionDetail/LiquidityChart/uniswapv3'
 import {
+  CurrentPriceTooltip,
+  CurrentPriceWrapper,
   CustomIconCurrentPrice as IconCurrentPrice,
   PriceRangeEl,
   PriceRangeWrapper,
@@ -27,6 +30,7 @@ export default function PriceRange({
   token0Decimals: number
   token1Decimals: number
 }) {
+  const [currentPriceHover, setCurrentPriceHover] = useState(false)
   const outOfRange = currentPrice < minPrice || currentPrice > maxPrice
 
   const ticksAtLimit = useMemo(() => {
@@ -53,13 +57,30 @@ export default function PriceRange({
 
   return (
     <PriceRangeWrapper outOfRange={outOfRange}>
-      {outOfRange && <IconCurrentPrice lower={currentPrice < minPrice} color="#fbb324" />}
+      {outOfRange && (
+        <CurrentPriceWrapper lower={currentPrice < minPrice}>
+          <IconCurrentPrice
+            color="#fbb324"
+            onMouseEnter={() => setCurrentPriceHover(true)}
+            onMouseLeave={() => setCurrentPriceHover(false)}
+          />
+          <CurrentPriceTooltip show={currentPriceHover}>
+            {t`Current Price`}: {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
+          </CurrentPriceTooltip>
+        </CurrentPriceWrapper>
+      )}
       <PriceRangeEl isLowestPrice={ticksAtLimit.lower} isHighestPrice={ticksAtLimit.upper}>
         {!outOfRange && (
-          <IconCurrentPrice
-            color={maxPrice - currentPrice > (maxPrice - minPrice) / 2 ? '#09ae7d' : '#6368f1'}
-            style={{ left: `${((currentPrice - minPrice) / (maxPrice - minPrice)) * 100}%` }}
-          />
+          <CurrentPriceWrapper style={{ left: `${((currentPrice - minPrice) / (maxPrice - minPrice)) * 100}%` }}>
+            <IconCurrentPrice
+              color={maxPrice - currentPrice > (maxPrice - minPrice) / 2 ? '#09ae7d' : '#6368f1'}
+              onMouseEnter={() => setCurrentPriceHover(true)}
+              onMouseLeave={() => setCurrentPriceHover(false)}
+            />
+            <CurrentPriceTooltip show={currentPriceHover}>
+              {t`Current Price`}: {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
+            </CurrentPriceTooltip>
+          </CurrentPriceWrapper>
         )}
         <RangeFirstThumb>
           <ThumbLabel>{ticksAtLimit.lower ? '0' : formatDisplayNumber(minPrice, { significantDigits: 6 })}</ThumbLabel>

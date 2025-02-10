@@ -361,8 +361,28 @@ export const ThumbLabel = styled.div`
   color: #fafafa;
 `
 
-export const CustomIconCurrentPrice = styled(IconCurrentPrice)<{ lower?: boolean }>`
+export const CurrentPriceWrapper = styled.div<{ lower?: boolean }>`
   position: absolute;
   top: -5px;
   left: ${({ lower }) => (lower ? '6%' : '86%')};
+`
+
+export const CustomIconCurrentPrice = styled(IconCurrentPrice)<{ lower?: boolean }>`
+  transition: 0.2s ease-in-out;
+
+  :hover {
+    transform: scale(1.1);
+  }
+`
+
+export const CurrentPriceTooltip = styled.div<{ show?: boolean }>`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  position: relative;
+  left: -50%;
+  transition: 0.2s ease-in-out;
+  opacity: 0;
+  width: max-content;
+
+  ${({ show }) => show && 'opacity: 1;'}
 `
