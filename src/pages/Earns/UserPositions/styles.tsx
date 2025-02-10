@@ -1,7 +1,7 @@
 import { rgba } from 'polished'
 import styled from 'styled-components'
 
-import earnLargeBg from 'assets/banners/earn_background_large.png'
+import positionsBg from 'assets/banners/positions_background.png'
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/ic_position_current_price.svg'
 
 import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from '../PoolExplorer/styles'
@@ -217,7 +217,6 @@ export const BannerContainer = styled.div`
   background-clip: padding-box;
   overflow: hidden;
   border-radius: 12px;
-  border: 1px solid transparent;
 
   ::before {
     content: '';
@@ -241,25 +240,32 @@ export const BannerWrapper = styled.div`
   align-items: center;
   justify-content: flex-start;
   gap: 3rem;
-  padding: 22px 18px 22px 88px;
+  padding: 18px 28px;
+  position: relative;
+  background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
 
-  background-image: url(${earnLargeBg});
-  background-position: center;
-  background-size: cover;
-
-  ${({ theme }) => theme.mediaWidth.upToXL`
-    padding: 20px 18px;
-  `}
+  ::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url(${positionsBg});
+    background-position: right-top;
+    background-size: cover;
+  }
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column;
-    gap: 1rem;
-    padding: 20px 24px;
+    justify-content: space-between;
+    gap: 0;
   `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
     padding: 16px;
     align-items: flex-start;
+    gap: 0.5rem;
   `}
 `
 
@@ -268,20 +274,8 @@ export const BannerDivider = styled.div`
   height: 60px;
   width: 1px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    height: 1px;
-    width: 100%;
-  `}
-`
-
-export const BannerOverview = styled.div`
-  display: flex;
-  gap: 4rem;
-
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
+    display: none;
   `}
 `
 
@@ -291,8 +285,10 @@ export const BannerDataItem = styled.div`
   gap: 8px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
   `}
 `
 

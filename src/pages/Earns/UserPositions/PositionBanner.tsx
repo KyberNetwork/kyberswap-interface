@@ -1,20 +1,16 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import { EarnPosition } from 'services/zapEarn'
 
-import CopyHelper from 'components/Copy'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { BannerContainer, BannerDataItem, BannerDivider, BannerOverview, BannerWrapper } from './styles'
+import { BannerContainer, BannerDataItem, BannerDivider, BannerWrapper } from './styles'
 
 export default function PositionBanner({ positions }: { positions: Array<EarnPosition> | undefined }) {
-  const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -44,31 +40,26 @@ export default function PositionBanner({ positions }: { positions: Array<EarnPos
   return (
     <BannerContainer>
       <BannerWrapper>
-        <Flex sx={{ gap: upToSmall ? 1 : 2 }}>
-          <Text fontSize={upToSmall ? 18 : 20}>{account && shortenAddress(chainId, account, 4)}</Text>
-          <CopyHelper size={16} toCopy={account || ''} />
-        </Flex>
+        <BannerDataItem>
+          <Text color={theme.subText}>{t`Total Value`}</Text>
+          <Text fontSize={upToSmall ? 20 : 24} color={theme.primary}>
+            {formatDisplayNumber(overviewData?.totalValue, { style: 'currency', significantDigits: 6 })}
+          </Text>
+        </BannerDataItem>
         <BannerDivider />
-        <BannerOverview>
-          <BannerDataItem>
-            <Text color={theme.subText}>{t`Total Value`}</Text>
-            <Text fontSize={upToSmall ? 20 : 24} color={theme.primary}>
-              {formatDisplayNumber(overviewData?.totalValue, { style: 'currency', significantDigits: 6 })}
-            </Text>
-          </BannerDataItem>
-          <BannerDataItem>
-            <Text color={theme.subText}>{t`Earned Fee`}</Text>
-            <Text fontSize={upToSmall ? 20 : 24}>
-              {formatDisplayNumber(overviewData?.totalEarnedFee, { style: 'currency', significantDigits: 6 })}
-            </Text>
-          </BannerDataItem>
-          <BannerDataItem>
-            <Text color={theme.subText}>{t`Total Unclaimed Fee`}</Text>
-            <Text fontSize={upToSmall ? 20 : 24}>
-              {formatDisplayNumber(overviewData?.totalUnclaimedFee, { style: 'currency', significantDigits: 6 })}
-            </Text>
-          </BannerDataItem>
-        </BannerOverview>
+        <BannerDataItem>
+          <Text color={theme.subText}>{t`Earned Fee`}</Text>
+          <Text fontSize={upToSmall ? 20 : 24}>
+            {formatDisplayNumber(overviewData?.totalEarnedFee, { style: 'currency', significantDigits: 6 })}
+          </Text>
+        </BannerDataItem>
+        <BannerDivider />
+        <BannerDataItem>
+          <Text color={theme.subText}>{t`Total Unclaimed Fee`}</Text>
+          <Text fontSize={upToSmall ? 20 : 24}>
+            {formatDisplayNumber(overviewData?.totalUnclaimedFee, { style: 'currency', significantDigits: 6 })}
+          </Text>
+        </BannerDataItem>
       </BannerWrapper>
     </BannerContainer>
   )

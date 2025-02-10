@@ -419,7 +419,7 @@ export default function TableContent({
                   <Flex
                     alignItems={'center'}
                     justifyContent={upToSmall ? 'flex-end' : 'flex-start'}
-                    sx={{ gap: '12px' }}
+                    sx={{ gap: '12px', zIndex: 1 }}
                   >
                     <MouseoverTooltipDesktopOnly
                       text={t`Add more liquidity to this position using any token(s) or migrate liquidity from your existing positions.`}
