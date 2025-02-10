@@ -489,6 +489,7 @@ export const PATHS = {
   INTERFACE_GATEWAY_UNISWAP: "https://interface.gateway.uniswap.org/v1/graphql",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
   ZAP_API: "https://zap-api.kyberswap.com",
+  //PRE_ZAP_API: "https://pre-zap-api.kyberengineering.io",
   COINGECKO_API_URL: "https://api.coingecko.com/api/v3",
   GO_PLUS_API: "https://api.gopluslabs.io/api/v1/token_security",
   ZAP_EARN_API: "https://zap-earn-service.kyberengineering.io/api",

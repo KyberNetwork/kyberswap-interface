@@ -120,6 +120,7 @@ export const univ3PoolNormalize = z.object({
     "correlatedPair",
     "commonPair",
     "exoticPair",
+    "highVolatilityPair",
   ]),
 });
 export type UniV3Pool = z.infer<typeof univ3PoolNormalize>;
@@ -134,6 +135,7 @@ export const univ2PoolNormalize = z.object({
     "correlatedPair",
     "commonPair",
     "exoticPair",
+    "highVolatilityPair",
   ]),
 });
 

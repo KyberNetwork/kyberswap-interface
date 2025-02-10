@@ -14,6 +14,7 @@ export function PoolPrice() {
 
   const price = useMemo(() => {
     if (pool === "loading") return "--";
+    console.log(pool);
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (success) {
       return formatDisplayNumber(

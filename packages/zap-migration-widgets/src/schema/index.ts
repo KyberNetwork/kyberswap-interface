@@ -152,6 +152,7 @@ const univ3PoolCommonField = z.object({
     "correlatedPair",
     "commonPair",
     "exoticPair",
+    "highVolatilityPair",
   ]),
 });
 
