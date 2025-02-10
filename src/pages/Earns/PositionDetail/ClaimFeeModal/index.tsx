@@ -5,6 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import ethereumIcon from 'assets/networks/ethereum.svg'
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
@@ -15,6 +16,7 @@ import { useWeb3React } from 'hooks'
 import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
@@ -60,6 +62,7 @@ export default function ClaimFeeModal({
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const addTransactionWithType = useTransactionAdder()
+  const notify = useNotify()
   const { changeNetwork } = useChangeNetwork()
 
   const [autoClaim, setAutoClaim] = useState(false)
@@ -145,6 +148,11 @@ export default function ClaimFeeModal({
       setClaimTx(tx.hash)
     } catch (error) {
       console.error(error)
+      notify({
+        title: t`Error`,
+        type: NotificationType.ERROR,
+        summary: error.message,
+      })
       setClaiming(false)
     }
   }, [
@@ -161,6 +169,7 @@ export default function ClaimFeeModal({
     isToken1Native,
     library,
     nftManagerContract,
+    notify,
     position.chainId,
     position.id,
     position.token0Address,
