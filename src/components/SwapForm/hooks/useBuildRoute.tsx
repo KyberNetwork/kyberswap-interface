@@ -71,7 +71,7 @@ const useBuildRoute = (args: Args) => {
       skipSimulateTx: false,
       enableGasEstimation: true,
       permit,
-      refCode,
+      referral: refCode,
       // for calculating price impact only
       chainId,
       tokenInDecimals: currencyIn?.decimals,

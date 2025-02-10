@@ -188,7 +188,7 @@ const useLiquidityWidget = () => {
         ? {
             ...addLiquidityPureParams,
             source: 'KyberSwap-Earn',
-            refCode,
+            referral: refCode,
             onViewPosition: () => {
               setAddLiquidityPureParams(null)
               navigate(`/earns/positions`)
@@ -236,7 +236,7 @@ const useLiquidityWidget = () => {
         ? {
             ...migrateLiquidityPureParams,
             client: 'KyberSwap-Earn',
-            refCode,
+            referral: refCode,
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as MigrateChainId,
@@ -281,7 +281,7 @@ const useLiquidityWidget = () => {
         ? {
             ...zapOutPureParams,
             source: 'KyberSwap-Earn',
-            refCode,
+            referral: refCode,
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as MigrateChainId,

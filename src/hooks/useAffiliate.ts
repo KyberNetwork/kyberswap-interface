@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { AFFILIATE_SERVICE_URL } from 'constants/env'
+
 export const useAffiliate = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const refCode = searchParams.get('refCode')
@@ -8,12 +10,18 @@ export const useAffiliate = () => {
   useEffect(() => {
     if (!refCode) return
 
-    // TODO: check refcode expired time
-    const expireTime = new Date().getTime() + 1000 * 60 * 60 * 24 * 2 // 2 days
-    const d = new Date()
-    d.setTime(expireTime)
-    document.cookie = `refCode=${refCode};expires=${d.toUTCString()};path=/`
-    searchParams.delete('refCode')
-    setSearchParams(searchParams)
+    fetch(`${AFFILIATE_SERVICE_URL}/v1/public/affiliates/${refCode}/info`)
+      .then(res => res.json())
+      .then(res => {
+        const duration = res?.info?.sessionDurationSecond
+        if (!duration) return
+
+        const expireTime = new Date().getTime() + 1000 * duration
+        const d = new Date()
+        d.setTime(expireTime)
+        document.cookie = `refCode=${refCode};expires=${d.toUTCString()};path=/`
+        searchParams.delete('refCode')
+        setSearchParams(searchParams)
+      })
   }, [refCode, searchParams, setSearchParams])
 }

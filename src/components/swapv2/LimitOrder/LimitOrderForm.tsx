@@ -526,7 +526,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       const { signature, salt } = await signOrder(params)
       const payload = getPayloadCreateOrder(params)
       setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
-      const response = await submitOrder({ ...payload, salt, signature, refCode }).unwrap()
+      const response = await submitOrder({ ...payload, salt, signature, referral: refCode }).unwrap()
       setFlowState(state => ({ ...state, showConfirm: false }))
 
       notify(

@@ -10,7 +10,7 @@ export type BuildRoutePayload = {
   skipSimulateTx: boolean
   enableGasEstimation?: boolean
   permit?: string
-  refCode?: string
+  referral?: string
   // for calculating price impact only
   chainId?: number
   tokenInDecimals?: number
