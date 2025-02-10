@@ -182,7 +182,7 @@ export const PositionAction = styled.div<{ primary?: boolean; disabled?: boolean
   ${({ disabled }) =>
     disabled &&
     `
-      filter: brightness(0.7) !important;
+      filter: brightness(0.6) !important;
     `}
 
   :hover {
