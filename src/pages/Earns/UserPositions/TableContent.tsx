@@ -28,6 +28,7 @@ import ClaimFeeModal, { PositionToClaim, isNativeToken } from '../PositionDetail
 import { FeeInfo } from '../PositionDetail/LeftSection'
 import { PositionAction as PositionActionBtn } from '../PositionDetail/styles'
 import { NFT_MANAGER_CONTRACT } from '../constants'
+import { formatAprNumber } from '../utils'
 import PriceRange from './PriceRange'
 import {
   Badge,
@@ -265,7 +266,7 @@ export default function TableContent({
               position.feesClaimed[1]?.quotes.usd.value / position.feesClaimed[1]?.quotes.usd.price
             const token0TotalAmount = token0TotalProvide + token0EarnedAmount
             const token1TotalAmount = token1TotalProvide + token1EarnedAmount
-            const earning7d = position.earning7d
+            const apr7d = position.apr
             const totalUnclaimedFee = position.feeInfo
               ? position.feeInfo.totalValue
               : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
@@ -369,12 +370,7 @@ export default function TableContent({
                 </PositionValueWrapper>
                 <PositionValueWrapper>
                   <PositionValueLabel>{t`APR`}</PositionValueLabel>
-                  <Text>
-                    {formatDisplayNumber(earning7d, {
-                      style: 'currency',
-                      significantDigits: 4,
-                    })}
-                  </Text>
+                  <Text>{formatAprNumber(apr7d * 100)}%</Text>
                 </PositionValueWrapper>
                 <PositionValueWrapper align={upToLarge ? 'center' : ''}>
                   <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>

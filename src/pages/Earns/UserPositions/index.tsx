@@ -69,8 +69,8 @@ const MyPositions = () => {
         })
       } else if (filters.sortBy === SortBy.APR_7D) {
         positions.sort((a, b) => {
-          const aValue = a.earning7d
-          const bValue = b.earning7d
+          const aValue = a.apr
+          const bValue = b.apr
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
       } else if (filters.sortBy === SortBy.UNCLAIMED_FEE) {
