@@ -50,6 +50,7 @@ export interface ZapOutProps {
   }) => Promise<string>;
 
   source: string; // for tracking volume
+  referral?: string;
 }
 
 interface ZapOutState extends ZapOutProps {

@@ -72,6 +72,7 @@ export interface WidgetProps {
   };
 
   onViewPosition?: () => void;
+  referral?: string;
 }
 
 interface WidgetState extends WidgetProps {
