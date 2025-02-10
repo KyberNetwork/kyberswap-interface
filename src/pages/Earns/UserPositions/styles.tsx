@@ -29,6 +29,9 @@ export const PositionRow = styled.div`
     justify-content: flex-start;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr 1fr;
+    border-radius: 20px;
+    background: ${rgba(theme.background, 0.8)};
+    margin-bottom: 16px;
   `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -36,9 +39,6 @@ export const PositionRow = styled.div`
     flex-direction: column;
     row-gap: 16px;
     padding: 16px;
-    border-radius: 20px;
-    background: ${rgba(theme.background, 0.8)};
-    margin-bottom: 16px;
   `}
 
   &:last-child {
@@ -297,7 +297,7 @@ export const PositionTableHeader = styled(TableHeader)`
 `
 
 export const PositionTableWrapper = styled(TableWrapper)`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.mediaWidth.upToLarge`
     background: transparent;
     margin: 0;
   `}

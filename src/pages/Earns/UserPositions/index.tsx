@@ -27,7 +27,7 @@ const POSITIONS_TABLE_LIMIT = 10
 
 const MyPositions = () => {
   const navigate = useNavigate()
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const { filters, onFilterChange } = useFilter()
@@ -175,7 +175,7 @@ const MyPositions = () => {
 
         <PositionTableWrapper>
           <ContentWrapper>
-            {!upToMedium && positionsToShow && positionsToShow.length > 0 && (
+            {!upToLarge && positionsToShow && positionsToShow.length > 0 && (
               <PositionTableHeader>
                 <Text>{t`Position`}</Text>
                 <Flex
