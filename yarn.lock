@@ -3765,10 +3765,10 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/liquidity-widgets@1.1.10":
-  version "1.1.10"
-  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-1.1.10.tgz#528a76d1d408685901d65e5b3369af02b9beb804"
-  integrity sha512-YhqDnLQcO7JJk5naSkTZ/UKB9cM4Vh2to/AkNiRxbKOScJ7YJQ5I+iNzGpuxgIUqOnmdo8O4SLHMGhhu4ezS2w==
+"@kyberswap/liquidity-widgets@1.1.11":
+  version "1.1.11"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-1.1.11.tgz#f78d8a5a8f2240c8c178967af5b1a983a42e4bf7"
+  integrity sha512-HKpd1/8yuXSqRS1mArfkCKMXCQVyIVchOqV0WquZmvJq5D7wg6zWOjWBCF9qPQNR2sMwL+NHME/Pa17D595hLA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"

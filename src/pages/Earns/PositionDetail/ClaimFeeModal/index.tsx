@@ -5,6 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import ethereumIcon from 'assets/networks/ethereum.svg'
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
@@ -15,15 +16,28 @@ import { useWeb3React } from 'hooks'
 import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { ParsedPosition } from '..'
 import { NFT_MANAGER_CONTRACT } from '../../constants'
 import { FeeInfo } from '../LeftSection'
 import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from './styles'
+
+export interface PositionToClaim {
+  id: string
+  dex: string
+  chainId: number
+  token0Address: string
+  token1Address: string
+  token0Symbol: string
+  token1Symbol: string
+  token0Logo: string
+  token1Logo: string
+  chainLogo: string
+}
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   tokenAddress.toLowerCase() === ETHER_ADDRESS.toLowerCase() ||
@@ -40,7 +54,7 @@ export default function ClaimFeeModal({
   claiming: boolean
   setClaiming: (claiming: boolean) => void
   setClaimTx: (tx: string | null) => void
-  position: ParsedPosition
+  position: PositionToClaim
   feeInfo: FeeInfo
   onClose: () => void
 }) {
@@ -48,6 +62,7 @@ export default function ClaimFeeModal({
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const addTransactionWithType = useTransactionAdder()
+  const notify = useNotify()
   const { changeNetwork } = useChangeNetwork()
 
   const [autoClaim, setAutoClaim] = useState(false)
@@ -131,9 +146,13 @@ export default function ClaimFeeModal({
         },
       })
       setClaimTx(tx.hash)
-      onClose()
     } catch (error) {
       console.error(error)
+      notify({
+        title: t`Error`,
+        type: NotificationType.ERROR,
+        summary: error.message,
+      })
       setClaiming(false)
     }
   }, [
@@ -150,7 +169,7 @@ export default function ClaimFeeModal({
     isToken1Native,
     library,
     nftManagerContract,
-    onClose,
+    notify,
     position.chainId,
     position.id,
     position.token0Address,

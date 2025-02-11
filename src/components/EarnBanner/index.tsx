@@ -4,8 +4,8 @@ import { Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 import styled, { css, keyframes } from 'styled-components'
 
-import earnLargeBg from 'assets/images/earn_background_large.png'
-import earnSmallBg from 'assets/images/earn_background_small.png'
+import earnLargeBg from 'assets/banners/earn_background_large.png'
+import earnSmallBg from 'assets/banners/earn_background_small.png'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -43,10 +43,10 @@ const EarnBannerWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 22px 18px 22px 68px;
+  padding: 22px 18px 22px 70px;
 
   background-image: url(${earnLargeBg});
-  background-position: center;
+  background-position: left;
   background-size: cover;
 
   ${({ theme }) => theme.mediaWidth.upToXL`

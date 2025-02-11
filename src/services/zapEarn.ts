@@ -106,6 +106,10 @@ export interface PositionQueryParams {
   addresses: string
   positionId?: string
   protocols?: string
+  status?: string
+  q?: string
+  sortBy?: string
+  orderBy?: string
 }
 
 export interface EarnPosition {
@@ -265,6 +269,13 @@ const zapEarnServiceApi = createApi({
           positions: Array<EarnPosition>
         }
       }) => response.data.positions,
+      async onQueryStarted(agr, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch {
+          dispatch(zapEarnServiceApi.util.upsertQueryData('userPositions', agr, []))
+        }
+      },
     }),
     addFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
       query: body => ({
