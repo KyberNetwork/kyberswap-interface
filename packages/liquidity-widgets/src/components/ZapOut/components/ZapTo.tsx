@@ -42,12 +42,6 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   const amountOut = BigInt(actionRefund?.refund.tokens[0].amount || 0);
 
   useEffect(() => {
-    if (!tokenOut && pool !== "loading") {
-      setTokenOut(pool.token0);
-    }
-  }, [tokenOut, pool]);
-
-  useEffect(() => {
     if (pool === "loading" || !tokenOut || manualSlippage) return;
 
     if (pool.category === "stablePair" && tokenOut.isStable) {
@@ -67,7 +61,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
     } else {
       setSlippage(50);
     }
-  }, [tokenOut, manualSlippage, pool, chainId]);
+  }, [tokenOut, manualSlippage, pool, chainId, setSlippage]);
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -91,6 +85,18 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
       console.log(univ2Pool);
     } else assertUnreachable(poolType as never, `${poolType} is not handled`);
   }
+
+  useEffect(() => {
+    if (!tokenOut && pool !== "loading") {
+      const usdValue0 =
+        (pool.token0.price || 0) *
+        Number(toRawString(amount0, pool.token0.decimals));
+      const usdValue1 =
+        (pool.token1.price || 0) *
+        Number(toRawString(amount1, pool.token1.decimals));
+      setTokenOut(usdValue1 > usdValue0 ? pool.token1 : pool.token0);
+    }
+  }, [tokenOut, pool, setTokenOut, amount1, amount0]);
 
   return (
     <>

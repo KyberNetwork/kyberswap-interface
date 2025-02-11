@@ -14,7 +14,6 @@ export function PoolPrice() {
 
   const price = useMemo(() => {
     if (pool === "loading") return "--";
-    console.log(pool);
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (success) {
       return formatDisplayNumber(
@@ -42,6 +41,7 @@ export function PoolPrice() {
       });
     }
     return assertUnreachable(poolType as never, "poolType is not handled");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pool, revertPrice]);
 
   return (

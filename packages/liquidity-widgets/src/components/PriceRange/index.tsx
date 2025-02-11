@@ -48,9 +48,11 @@ const PriceRange = () => {
         ? []
         : fee <= 0.01
         ? PRICE_RANGE.LOW_POOL_FEE
-        : fee > 0.1
-        ? PRICE_RANGE.HIGH_POOL_FEE
-        : PRICE_RANGE.MEDIUM_POOL_FEE,
+        : fee <= 0.05
+        ? PRICE_RANGE.MEDIUM_POOL_FEE
+        : fee <= 0.3
+        ? PRICE_RANGE.MIDDLE_POOL_FEE
+        : PRICE_RANGE.HIGH_POOL_FEE,
     [fee]
   );
 
@@ -156,9 +158,11 @@ const PriceRange = () => {
       handleSelectPriceRange(
         fee <= 0.01
           ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
-          : fee > 0.1
-          ? DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
-          : DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
+          : fee <= 0.05
+          ? DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
+          : fee <= 0.3
+          ? DEFAULT_PRICE_RANGE.MIDDLE_POOL_FEE
+          : DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
       );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fee]);

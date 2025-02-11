@@ -350,9 +350,9 @@ export const ZapContextProvider = ({
   const token0Price = pool !== "loading" ? pool.token0.price || 0 : 0;
   const token1Price = pool !== "loading" ? pool.token1.price || 0 : 0;
 
-  // set init tokens in
+  // set default tokens in
   useEffect(() => {
-    if (!pool || tokensIn.length) return;
+    if (!pool || pool === "loading" || tokensIn.length) return;
 
     // with params
     if (initDepositTokens && allTokens.length) {
@@ -373,36 +373,36 @@ export const ZapContextProvider = ({
         });
         setTokensIn(listInitTokens as Token[]);
         setAmountsIn(parseListAmountsIn.join(","));
+        return;
       }
-
-      return;
     }
 
     // without wallet connect
-    if (!account && pool !== "loading") {
-      const isToken0Native =
-        pool.token0.address.toLowerCase() ===
-        NetworkInfo[chainId].wrappedToken.address.toLowerCase();
-
-      const token0 = isToken0Native ? nativeToken : pool.token0;
-
-      setTokensIn([token0] as Token[]);
+    if (!account) {
+      setTokensIn([nativeToken] as Token[]);
     }
 
-    // with balance compare
+    // with balance
+    const isToken0Native =
+      pool?.token0.address.toLowerCase() ===
+      NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+    const isToken1Native =
+      pool?.token1.address.toLowerCase() ===
+      NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+
+    const token0Address = isToken0Native
+      ? NATIVE_TOKEN_ADDRESS
+      : pool.token0.address.toLowerCase();
+    const token1Address = isToken1Native
+      ? NATIVE_TOKEN_ADDRESS
+      : pool.token1.address.toLowerCase();
+
     if (
       !initDepositTokens &&
-      pool !== "loading" &&
-      (pool.token0.price || pool.token0.price === 0) &&
-      (pool.token1.price || pool.token1.price === 0) &&
-      Object.keys(balances).length
+      token0Address in balances &&
+      token1Address in balances
     ) {
-      const isToken0Native =
-        pool?.token0.address.toLowerCase() ===
-        NetworkInfo[chainId].wrappedToken.address.toLowerCase();
-      const isToken1Native =
-        pool?.token1.address.toLowerCase() ===
-        NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+      const tokensToSet = [];
 
       const token0 = isToken0Native ? nativeToken : pool.token0;
       const token1 = isToken1Native ? nativeToken : pool.token1;
@@ -423,13 +423,11 @@ export const ZapContextProvider = ({
         ]?.toString() || "0",
         token1?.decimals
       );
+      if (parseFloat(token0Balance) > 0) tokensToSet.push(token0);
+      if (parseFloat(token1Balance) > 0) tokensToSet.push(token1);
+      if (!tokensToSet.length) tokensToSet.push(nativeToken);
 
-      setTokensIn([
-        token0Price * parseFloat(token0Balance) >=
-        token1Price * parseFloat(token1Balance)
-          ? token0
-          : token1,
-      ] as Token[]);
+      setTokensIn(tokensToSet as Token[]);
     }
   }, [
     pool,
