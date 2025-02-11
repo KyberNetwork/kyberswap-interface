@@ -13,7 +13,6 @@ const zkSyncInfo: NetworkInfo = {
   route: 'zksync',
   ksSettingRoute: 'zksync',
   priceRoute: 'zksync',
-  poolFarmRoute: 'zksync',
   aggregatorRoute: 'zksync',
   name: 'zkSync Era',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/bd11850b-6aef-48c6-a27d-f8ee833e0dbc1693378187666.svg',

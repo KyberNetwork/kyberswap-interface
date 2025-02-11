@@ -358,6 +358,12 @@ function AboutKyberSwap() {
               <img src="https://www.mantle.xyz/logo-lockup.svg" alt="mantle" width="100%" />
 
               <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
+
+              <img
+                src="https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png"
+                alt="Bera"
+                width="100%"
+              />
             </Powered>
           </Text>
         </Wrapper>

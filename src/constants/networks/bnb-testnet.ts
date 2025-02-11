@@ -12,7 +12,6 @@ const bnbTestnetInfo: NetworkInfo = {
   route: 'bnb-testnet',
   ksSettingRoute: 'bsc',
   priceRoute: 'bsc',
-  poolFarmRoute: EMPTY,
   aggregatorRoute: 'bsc',
   name: 'BNB Testnet',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/14c1b7c4-b66e-4169-b82e-ea6237f15b461699420601184.png',

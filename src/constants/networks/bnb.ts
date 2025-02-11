@@ -11,7 +11,6 @@ const bnbInfo: NetworkInfo = {
   route: 'bnb',
   ksSettingRoute: 'bsc',
   priceRoute: 'bsc',
-  poolFarmRoute: 'bsc',
   aggregatorRoute: 'bsc',
   name: 'BNB Chain',
   icon: bnbIcon,

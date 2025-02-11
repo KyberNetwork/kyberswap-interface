@@ -14,7 +14,6 @@ const ethereumInfo: NetworkInfo = {
   route: 'ethereum',
   ksSettingRoute: 'ethereum',
   priceRoute: 'ethereum',
-  poolFarmRoute: 'ethereum',
   aggregatorRoute: 'ethereum',
   name: 'Ethereum',
   icon: ethereumIcon,
