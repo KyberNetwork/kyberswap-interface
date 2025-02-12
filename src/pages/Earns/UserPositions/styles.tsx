@@ -1,10 +1,13 @@
 import { rgba } from 'polished'
 import styled from 'styled-components'
 
-import { PoolPageWrapper } from '../PoolExplorer/styles'
+import positionsBg from 'assets/banners/positions_background.png'
+import { ReactComponent as IconCurrentPrice } from 'assets/svg/ic_position_current_price.svg'
+
+import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from '../PoolExplorer/styles'
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
-  padding: 24px 6rem 50px;
+  padding: 24px 6rem 62px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     padding: 24px 6rem 60px;
@@ -15,22 +18,10 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
   `}
 `
 
-export const MyLiquidityWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    max-height: unset;
-  `}
-`
-
 export const PositionRow = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 75px;
+  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 1fr;
   grid-template-rows: 1fr;
-  background-color: ${({ theme }) => rgba(theme.background, 0.8)};
-  border-radius: 20px;
   padding: 16px 28px;
   row-gap: 8px;
 
@@ -38,6 +29,9 @@ export const PositionRow = styled.div`
     justify-content: flex-start;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr 1fr;
+    border-radius: 20px;
+    background: ${rgba(theme.background, 0.8)};
+    margin-bottom: 16px;
   `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -47,9 +41,13 @@ export const PositionRow = styled.div`
     padding: 16px;
   `}
 
+  &:last-child {
+    margin-bottom: 0;
+  }
+
   &:hover {
     cursor: pointer;
-    filter: brightness(1.1);
+    background: #31cb9e1a;
   }
 `
 
@@ -112,7 +110,7 @@ export const Badge = styled.div<{ type?: BadgeType }>`
             `
       case BadgeType.SECONDARY:
         return `
-            color: #2C9CE4;
+            color: ${theme.blue2};
             `
       default:
         return ''
@@ -145,6 +143,11 @@ export const PositionValueLabel = styled.p`
   color: ${({ theme }) => theme.subText};
   position: relative;
   top: 1px;
+  display: none;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    display: block;
+  `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 16px;
@@ -152,7 +155,7 @@ export const PositionValueLabel = styled.p`
   `}
 `
 
-export const PositionAction = styled.div<{ primary?: boolean }>`
+export const PositionAction = styled.div<{ primary?: boolean; disabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -175,6 +178,16 @@ export const PositionAction = styled.div<{ primary?: boolean }>`
     width: 36px;
     height: 36px;
   `}
+
+  ${({ disabled }) =>
+    disabled &&
+    `
+      filter: brightness(0.6) !important;
+    `}
+
+  :hover {
+    ${({ disabled }) => disabled && 'cursor: not-allowed;'}
+  }
 `
 
 export const Divider = styled.div`
@@ -196,4 +209,176 @@ export const EmptyPositionText = styled.div`
   border-radius: 20px;
   height: 400px;
   margin: 20px 0;
+`
+
+export const BannerContainer = styled.div`
+  padding: 1px;
+  position: relative;
+  background-clip: padding-box;
+  overflow: hidden;
+  border-radius: 12px;
+
+  ::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1px;
+    background: linear-gradient(306.9deg, #262525 38.35%, rgba(148, 117, 203, 0.2) 104.02%),
+      radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(130, 71, 229, 0.6) 0%, rgba(130, 71, 229, 0) 100%);
+    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    z-index: -1;
+  }
+`
+
+export const BannerWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3rem;
+  padding: 18px 28px;
+  position: relative;
+  background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
+
+  ::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url(${positionsBg});
+    background-position: right-top;
+    background-size: cover;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    justify-content: space-between;
+    gap: 0;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    padding: 16px;
+    align-items: flex-start;
+    gap: 0.5rem;
+  `}
+`
+
+export const BannerDivider = styled.div`
+  background-color: ${({ theme }) => theme.tabActive};
+  height: 60px;
+  width: 1px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    display: none;
+  `}
+`
+
+export const BannerDataItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  `}
+`
+
+export const PositionTableHeader = styled(TableHeader)`
+  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 1fr;
+`
+
+export const PositionTableWrapper = styled(TableWrapper)`
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    background: transparent;
+    margin: 0;
+  `}
+`
+
+export const PositionTableBody = styled(TableBody)`
+  max-height: unset;
+`
+
+export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`
+  height: 4px;
+  width: 90%;
+  background: ${({ theme, outOfRange }) => (outOfRange ? rgba(theme.warning, 0.3) : theme.border)};
+  border-radius: 4px;
+  position: relative;
+  top: 46%;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin: 30px 0 20px;
+    width: 100%;
+  `}
+`
+
+export const PriceRangeEl = styled.div<{ isLowestPrice: boolean; isHighestPrice: boolean }>`
+  display: flex;
+  position: absolute;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: ${({ isLowestPrice, isHighestPrice }) =>
+    isLowestPrice ? (isHighestPrice ? '100%' : '80%') : isHighestPrice ? '80%' : '60%'};
+  left: ${({ isLowestPrice }) => (isLowestPrice ? 0 : '20%')};
+  border-radius: 4px;
+  background: linear-gradient(90deg, #09ae7d 0%, #6368f1 100%);
+`
+
+export const RangeThumb = styled.div`
+  height: 16px;
+  width: 4px;
+  border-radius: 4px;
+  position: relative;
+`
+
+export const RangeFirstThumb = styled(RangeThumb)`
+  background: #09ae7d;
+`
+
+export const RangeSecondThumb = styled(RangeThumb)`
+  background: #6368f1;
+`
+
+export const ThumbLabel = styled.div`
+  position: absolute;
+  top: -20px;
+  transform: translateX(-42%);
+  font-size: 12px;
+  color: #fafafa;
+`
+
+export const CurrentPriceWrapper = styled.div<{ lower?: boolean }>`
+  position: absolute;
+  top: -5px;
+  left: ${({ lower }) => (lower ? '6%' : '86%')};
+`
+
+export const CustomIconCurrentPrice = styled(IconCurrentPrice)<{ lower?: boolean }>`
+  transition: 0.2s ease-in-out;
+
+  :hover {
+    transform: scale(1.1);
+  }
+`
+
+export const CurrentPriceTooltip = styled.div<{ show?: boolean }>`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  position: relative;
+  left: -50%;
+  transition: 0.2s ease-in-out;
+  opacity: 0;
+  width: max-content;
+
+  ${({ show }) => show && 'opacity: 1;'}
 `
