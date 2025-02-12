@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -9,6 +9,7 @@ import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
@@ -318,7 +319,12 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           </Flex> */}
           <Flex alignItems={'center'} sx={{ gap: '6px' }}>
             <Text fontSize={14} color={theme.subText}>{t`Tnx Hash`}</Text>
-            <Text color={theme.blue2}>{`${txHash.substring(0, 6)}...${txHash.substring(62)}`}</Text>
+            <Text
+              color={theme.blue2}
+              onClick={() => window.open(NETWORKS_INFO[position.chainId as ChainId].etherscanUrl + '/tx/' + txHash)}
+              sx={{ cursor: 'pointer' }}
+              marginRight={-1}
+            >{`${txHash.substring(0, 6)}...${txHash.substring(62)}`}</Text>
             <CopyHelper color={theme.blue2} size={16} toCopy={txHash} />
           </Flex>
         </Flex>
