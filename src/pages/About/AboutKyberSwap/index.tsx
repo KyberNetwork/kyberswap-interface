@@ -359,11 +359,10 @@ function AboutKyberSwap() {
 
               <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
 
-              <img
-                src="https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png"
-                alt="Bera"
-                width="100%"
-              />
+              <Flex sx={{ gap: '12px' }} alignItems="center">
+                <img src="https://www.berachain.com/images/icons/berachain.svg" alt="Bera" width="80px" />
+                <Text>Berachain</Text>
+              </Flex>
             </Powered>
           </Text>
         </Wrapper>

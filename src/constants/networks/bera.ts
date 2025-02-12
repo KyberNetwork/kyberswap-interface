@@ -18,11 +18,11 @@ const bera: NetworkInfo = {
 
   defaultBlockSubgraph: '',
   etherscanUrl: 'https://berascan.com',
-  etherscanName: 'Bera scan',
+  etherscanName: 'Berascan',
   bridgeURL: 'https://bridge.berachain.com/bridge/token',
   nativeToken: {
-    symbol: 'Bera',
-    name: 'Bera',
+    symbol: 'BERA',
+    name: 'BERA',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png',
     decimal: 18,
     minForGas: 2 * 10 ** 17,
