@@ -12,7 +12,6 @@ const avaxTestnetInfo: NetworkInfo = {
   ksSettingRoute: 'avalanche',
   priceRoute: 'avalanche',
   aggregatorRoute: 'avalanche',
-  poolFarmRoute: EMPTY,
   name: 'Avalanche Testnet',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/e72081b5-cb5f-4fb6-b771-ac189bdfd7c81699420213175.png',
 

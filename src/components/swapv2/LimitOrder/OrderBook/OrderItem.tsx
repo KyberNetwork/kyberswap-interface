@@ -5,7 +5,7 @@ import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
-import useChainsConfig from 'hooks/useChainsConfig'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -66,12 +66,8 @@ export default function OrderItem({
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
-  const { supportedChains } = useChainsConfig()
 
-  const chain = useMemo(
-    () => supportedChains.find(chain => chain.chainId === order.chainId),
-    [order.chainId, supportedChains],
-  )
+  const chain = useMemo(() => NETWORKS_INFO[order.chainId], [order.chainId])
 
   return (
     <ItemWrapper style={style}>
