@@ -1,12 +1,15 @@
-import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
+import { PositionHistoryType, usePositionHistoryQuery } from 'services/zapEarn'
 
 import HelpIcon from 'assets/svg/help-circle.svg'
+import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
@@ -40,6 +43,8 @@ export interface FeeInfo {
   totalValue: number
 }
 
+const formatDateTime = (number: number) => (number < 10 ? `0${number}` : number)
+
 const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
   const [openClaimFeeModal, setOpenClaimFeeModal] = useState(false)
@@ -50,6 +55,12 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const allTransactions = useAllTransactions(true)
   const { account } = useActiveWeb3React()
 
+  const { data: historyData } = usePositionHistoryQuery({
+    chainId: position.chainId,
+    tokenAddress: position.tokenAddress,
+    tokenId: position.id,
+  })
+
   const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[position.dex as keyof typeof NFT_MANAGER_CONTRACT]
   const nftManagerContract =
     typeof nftManagerContractOfDex === 'string'
@@ -59,6 +70,19 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
 
   const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
   const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
+
+  const createdTime = useMemo(() => {
+    const data = new Date(position.createdTime * 1000)
+    const hours = formatDateTime(data.getHours())
+    const minutes = formatDateTime(data.getMinutes())
+    const seconds = formatDateTime(data.getSeconds())
+    return `${hours}:${minutes}:${seconds} ${data.toLocaleDateString()}`
+  }, [position.createdTime])
+
+  const txHash = useMemo(() => {
+    if (!historyData) return ''
+    return [...historyData].reverse().find(item => item.type === PositionHistoryType.DEPOSIT)?.txHash || ''
+  }, [historyData])
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!contract) return
@@ -273,14 +297,14 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           </PositionAction>
         </Flex>
       </InfoSection>
-      {/* <InfoSection>
+      <InfoSection>
         <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
           <Text fontSize={14} color={theme.subText}>
             {t`Created Time`}
           </Text>
-          <Text>2:12:34 12/12/2024</Text>
+          <Text>{createdTime}</Text>
         </Flex>
-        <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
+        {/* <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
           <Text fontSize={14} color={theme.subText}>
             {t`Liquidity Source`}
           </Text>
@@ -288,19 +312,23 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <Text fontSize={14} color={theme.subText}>{t`Value`}</Text>
             <Text>$12,600</Text>
           </Flex>
-        </Flex>
+        </Flex> */}
         <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: 2 }} marginBottom={2}>
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+          {/* <Flex alignItems={'center'} sx={{ gap: '6px' }}>
             <Text>345 KNC</Text> <Text>+ 12.65 JUP</Text> <Text>+ 0.18 ETH</Text>
-          </Flex>
+          </Flex> */}
           <Flex alignItems={'center'} sx={{ gap: '6px' }}>
             <Text fontSize={14} color={theme.subText}>{t`Tnx Hash`}</Text>
-            <Text color={theme.blue2}>
-              {shortenAddress(position.chainId as ChainId, '0xbf6ef625de5df898cc1d0f91868aae03976a2e2d', 4)}
-            </Text>
+            <Text
+              color={theme.blue2}
+              onClick={() => window.open(NETWORKS_INFO[position.chainId as ChainId].etherscanUrl + '/tx/' + txHash)}
+              sx={{ cursor: 'pointer' }}
+              marginRight={-1}
+            >{`${txHash.substring(0, 6)}...${txHash.substring(62)}`}</Text>
+            <CopyHelper color={theme.blue2} size={16} toCopy={txHash} />
           </Flex>
         </Flex>
-        <Flex alignItems={'flex-start'} justifyContent={'space-between'}>
+        {/* <Flex alignItems={'flex-start'} justifyContent={'space-between'}>
           <Text fontSize={14} color={theme.subText}>{t`Past Actions`}</Text>
           <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: '6px' }}>
             <Text>{t`Increased Liquidity`}</Text>
@@ -309,8 +337,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               <Text>$12,600</Text>
             </Flex>
           </Flex>
-        </Flex>
-      </InfoSection> */}
+        </Flex> */}
+      </InfoSection>
     </InfoLeftColumn>
   )
 }

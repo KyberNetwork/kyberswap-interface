@@ -203,10 +203,8 @@ const useLiquidityWidget = () => {
             onOpenZapMigration: handleOpenZapMigrationWidget,
             onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
               try {
-                console.log('txData', txData)
                 if (!library) throw new Error('Library is not ready!')
-                const gas = await library.estimateGas(txData)
-                console.log(gas)
+                await library.estimateGas(txData)
                 const res = await library?.getSigner().sendTransaction(txData)
                 if (!res) throw new Error('Transaction failed')
                 return res.hash

@@ -50,6 +50,7 @@ export interface ParsedPosition {
   earning24h: number
   earning7d: number
   totalEarnedFee: number
+  createdTime: number
 }
 
 const PositionDetail = () => {
@@ -106,6 +107,7 @@ const PositionDetail = () => {
       totalEarnedFee:
         position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
         position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
+      createdTime: position.createdTime,
     }
   }, [userPosition])
 
