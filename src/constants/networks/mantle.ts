@@ -8,7 +8,6 @@ const mantle: NetworkInfo = {
   route: 'mantle',
   ksSettingRoute: 'mantle',
   priceRoute: 'mantle',
-  poolFarmRoute: 'mantle',
   aggregatorRoute: 'mantle',
   name: 'Mantle',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',

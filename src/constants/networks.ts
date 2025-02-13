@@ -6,6 +6,7 @@ import {
   avax,
   avaxTestnet,
   base,
+  bera,
   blast,
   bnb,
   bnbTestnet,
@@ -46,6 +47,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.BLAST]: blast,
   [ChainId.MANTLE]: mantle,
   [ChainId.SONIC]: sonic,
+  [ChainId.BERA]: bera,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -75,6 +77,7 @@ export const MAINNET_NETWORKS = [
   ChainId.BLAST,
   ChainId.MANTLE,
   ChainId.SONIC,
+  ChainId.BERA,
 ] as const
 
 // These option of walletconnect is not support by wallets properly

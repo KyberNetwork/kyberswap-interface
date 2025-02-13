@@ -12,7 +12,6 @@ const arbitrumInfo: NetworkInfo = {
   route: 'arbitrum',
   ksSettingRoute: 'arbitrum',
   priceRoute: 'arbitrum',
-  poolFarmRoute: 'arbitrum',
   aggregatorRoute: 'arbitrum',
   name: 'Arbitrum',
   icon: arbitrumIcon,

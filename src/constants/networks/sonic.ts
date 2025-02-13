@@ -10,7 +10,6 @@ const sonic: NetworkInfo = {
   route: 'sonic',
   ksSettingRoute: 'sonic',
   priceRoute: 'sonic',
-  poolFarmRoute: 'sonic',
   aggregatorRoute: 'sonic',
   name: 'Sonic',
   icon: 'https://www.soniclabs.com/favicon.ico',

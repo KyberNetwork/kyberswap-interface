@@ -11,7 +11,6 @@ const mumbaiInfo: NetworkInfo = {
   route: 'mumbai',
   ksSettingRoute: 'mumbai',
   priceRoute: 'mumbai',
-  poolFarmRoute: EMPTY,
   aggregatorRoute: 'mumbai',
   name: 'Mumbai',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/8a936cf9-3e8f-4518-9fb2-8579c14fb8cd1699420035633.png',
