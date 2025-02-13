@@ -166,11 +166,3 @@ jobs:
           prerelease: false
           name: 'KyberSwap Interface - ${{ env.VERSION_TAG }}'
           generate_release_notes: true
-
-  post_release_note:
-    uses: KyberNetwork/service-framework/.github/workflows/post-to-slack.yaml@main
-    with:
-      channel_id: C06EXALUR51
-      title: New _${{ github.event.repository.name }}_ release *${{ github.event.release.name }}*
-      body: ${{ github.event.release.body }}
-    secrets: inherit
