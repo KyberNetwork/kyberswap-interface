@@ -87,7 +87,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   }
 
   useEffect(() => {
-    if (!tokenOut && pool !== "loading") {
+    if (!tokenOut && pool !== "loading" && (!!amount0 || !!amount1)) {
       const usdValue0 =
         (pool.token0.price || 0) *
         Number(toRawString(amount0, pool.token0.decimals));
