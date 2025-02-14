@@ -61,7 +61,7 @@ const PositionDetail = () => {
   const { id, chainId } = useParams()
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const { data: userPosition, isLoading } = useUserPositionsQuery(
-    { addresses: account || '', positionId: id, chainIds: chainId },
+    { addresses: account || '', positionId: id, chainIds: chainId || '', protocols: '', status: '', page: 1 },
     { skip: !account, pollingInterval: 15_000 },
   )
   const currentWalletAddress = useRef(account)
