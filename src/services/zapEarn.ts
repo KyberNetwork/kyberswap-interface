@@ -64,7 +64,15 @@ export enum EarnSupportedProtocols {
   PANCAKESWAP_V3 = 'PancakeSwap V3',
   SUSHISWAP_V3 = 'SushiSwap V3',
 }
-export const earnSupportedChains = [ChainId.MAINNET, ChainId.BASE, ChainId.BSCMAINNET]
+
+export const earnSupportedChains = [
+  ChainId.MAINNET,
+  ChainId.BASE,
+  ChainId.BSCMAINNET,
+  ChainId.ARBITRUM,
+  ChainId.AVAXMAINNET,
+]
+
 export const earnSupportedProtocols = [
   EarnSupportedProtocols.UNISWAP_V3,
   EarnSupportedProtocols.PANCAKESWAP_V3,
