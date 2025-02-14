@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import ethereumIcon from 'assets/networks/ethereum.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
@@ -12,6 +11,7 @@ import Modal from 'components/Modal'
 import Row from 'components/Row'
 import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useWeb3React } from 'hooks'
 import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
@@ -39,8 +39,11 @@ export interface PositionToClaim {
   chainLogo: string
 }
 
+const BNB_NATIVE_ADDRESS = '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   tokenAddress.toLowerCase() === ETHER_ADDRESS.toLowerCase() ||
+  tokenAddress.toLowerCase() === BNB_NATIVE_ADDRESS.toLowerCase() ||
   (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address)
 
 export default function ClaimFeeModal({
@@ -77,6 +80,8 @@ export default function ClaimFeeModal({
 
   const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
   const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
+
+  const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
 
   const handleCollectFees = useCallback(async () => {
     if (!library || !contract) return
@@ -135,8 +140,8 @@ export default function ClaimFeeModal({
           tokenAmountOut: formatDisplayNumber(feeInfo.amount1, { significantDigits: 4 }),
           tokenAddressIn: position.token0Address,
           tokenAddressOut: position.token1Address,
-          tokenSymbolIn: isToken0Native ? 'ETH' : position.token0Symbol,
-          tokenSymbolOut: isToken1Native ? 'ETH' : position.token1Symbol,
+          tokenSymbolIn: isToken0Native ? nativeToken.symbol : position.token0Symbol,
+          tokenSymbolOut: isToken1Native ? nativeToken.symbol : position.token1Symbol,
           arbitrary: {
             token_1: position.token0Symbol,
             token_2: position.token1Symbol,
@@ -168,6 +173,7 @@ export default function ClaimFeeModal({
     isToken0Native,
     isToken1Native,
     library,
+    nativeToken.symbol,
     nftManagerContract,
     notify,
     position.chainId,
@@ -206,17 +212,17 @@ export default function ClaimFeeModal({
               </Text>
             </Flex>
             <ClaimInfoRow
-              tokenImage={isToken0Native ? ethereumIcon : position.token0Logo}
+              tokenImage={isToken0Native ? nativeToken.logo : position.token0Logo}
               dexImage={position.chainLogo}
               tokenAmount={feeInfo.amount0}
-              tokenSymbol={isToken0Native ? 'ETH' : position.token0Symbol}
+              tokenSymbol={isToken0Native ? nativeToken.symbol : position.token0Symbol}
               tokenUsdValue={feeInfo.value0}
             />
             <ClaimInfoRow
-              tokenImage={isToken1Native ? ethereumIcon : position.token1Logo}
+              tokenImage={isToken1Native ? nativeToken.logo : position.token1Logo}
               dexImage={position.chainLogo}
               tokenAmount={feeInfo.amount1}
-              tokenSymbol={isToken1Native ? 'ETH' : position.token1Symbol}
+              tokenSymbol={isToken1Native ? nativeToken.symbol : position.token1Symbol}
               tokenUsdValue={feeInfo.value1}
             />
           </ClaimInfo>

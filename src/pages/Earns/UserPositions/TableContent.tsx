@@ -14,6 +14,7 @@ import Loader from 'components/Loader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -283,6 +284,7 @@ export default function TableContent({
 
             const isToken0Native = isNativeToken(token0Address, position.chainId as keyof typeof WETH)
             const isToken1Native = isNativeToken(token1Address, position.chainId as keyof typeof WETH)
+            const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
 
             return (
               <PositionRow
@@ -379,11 +381,11 @@ export default function TableContent({
                       <>
                         <Text>
                           {formatDisplayNumber(token0UnclaimedAmount, { significantDigits: 6 })}{' '}
-                          {isToken0Native ? 'ETH' : token0Symbol}
+                          {isToken0Native ? nativeToken.symbol : token0Symbol}
                         </Text>
                         <Text>
                           {formatDisplayNumber(token1UnclaimedAmount, { significantDigits: 6 })}{' '}
-                          {isToken1Native ? 'ETH' : token1Symbol}
+                          {isToken1Native ? nativeToken.symbol : token1Symbol}
                         </Text>
                       </>
                     }
