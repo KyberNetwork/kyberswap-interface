@@ -10,7 +10,6 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useAllTransactions } from 'state/transactions/hooks'
@@ -53,7 +52,6 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const [feeInfo, setFeeInfo] = useState<FeeInfo | null>(null)
 
   const allTransactions = useAllTransactions(true)
-  const { account } = useActiveWeb3React()
 
   const { data: historyData } = usePositionHistoryQuery({
     chainId: position.chainId,
@@ -86,15 +84,16 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!contract) return
+    const owner = await contract.callStatic.ownerOf(position.id)
     const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
     const results = await contract.callStatic.collect(
       {
         tokenId: position.id,
-        recipient: account,
+        recipient: owner,
         amount0Max: maxUnit,
         amount1Max: maxUnit,
       },
-      { from: account },
+      { from: owner },
     )
     const balance0 = results.amount0.toString()
     const balance1 = results.amount1.toString()
@@ -116,7 +115,6 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
       totalValue: parseFloat(amount0) * position.token0Price + parseFloat(amount1) * position.token1Price,
     })
   }, [
-    account,
     contract,
     position.chainId,
     position.id,

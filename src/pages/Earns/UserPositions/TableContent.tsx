@@ -155,14 +155,16 @@ export default function TableContent({
       const token0Address = position.pool.tokenAmounts[0]?.token.address
       const token1Address = position.pool.tokenAmounts[1]?.token.address
 
+      const owner = await contract.callStatic.ownerOf(position.id)
+
       const results = await contract.callStatic.collect(
         {
           tokenId: id,
-          recipient: account,
+          recipient: owner,
           amount0Max: maxUnit,
           amount1Max: maxUnit,
         },
-        { from: account },
+        { from: owner },
       )
       const balance0 = results.amount0.toString()
       const balance1 = results.amount1.toString()
@@ -197,7 +199,7 @@ export default function TableContent({
 
       setFeeInfoFromRpc(feeInfoFromRpcClone)
     },
-    [account, feeInfoFromRpc, library, positions, setFeeInfoFromRpc],
+    [feeInfoFromRpc, library, positions, setFeeInfoFromRpc],
   )
 
   useEffect(() => {

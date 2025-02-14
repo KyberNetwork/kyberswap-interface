@@ -99,6 +99,8 @@ export default function ClaimFeeModal({
     const calldatas = []
 
     try {
+      const owner = await contract.callStatic.ownerOf(position.id)
+
       const involvesETH = isToken0Native || isToken1Native
       const collectParams = {
         tokenId,
@@ -129,7 +131,7 @@ export default function ClaimFeeModal({
 
       // Send transaction
       const tx = await library.getSigner().sendTransaction({
-        to: nftManagerContract,
+        to: owner !== account ? owner : nftManagerContract,
         data: multicallData,
       })
       addTransactionWithType({
