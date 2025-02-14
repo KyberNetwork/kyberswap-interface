@@ -4,12 +4,12 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import WarningNote from 'components/WarningNote'
+import { PAIR_CATEGORY } from 'constants/index'
+import { usePairCategory } from 'state/swap/hooks'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 
 type Props = {
   rawSlippage: number
-  isStablePairSwap: boolean
-  isCorrelatedPair: boolean
   className?: string
 }
 
@@ -31,8 +31,9 @@ const TextUnderlineTransparent = styled(Text)`
   display: inline;
 `
 
-const SlippageWarningNote: FC<Props> = ({ className, rawSlippage, isStablePairSwap, isCorrelatedPair }) => {
-  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap, isCorrelatedPair)
+const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
+  const cat = usePairCategory()
+  const slippageStatus = checkRangeSlippage(rawSlippage, cat)
 
   if (slippageStatus === SLIPPAGE_STATUS.NORMAL) {
     return null
@@ -43,10 +44,10 @@ const SlippageWarningNote: FC<Props> = ({ className, rawSlippage, isStablePairSw
     msg = 'is low. Your transaction may fail.'
   }
 
-  if (isStablePairSwap)
+  if (cat === PAIR_CATEGORY.STABLE)
     msg =
       'setting might be high compared to typical stable pair trades. Consider adjusting it to reduce the risk of front-running.'
-  if (isCorrelatedPair)
+  if (cat === PAIR_CATEGORY.CORRELATED)
     msg =
       'setting might be high compared with other similar trades. You might want to adjust it to avoid potential front-running.'
 

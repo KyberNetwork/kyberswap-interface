@@ -22,10 +22,12 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
 import { TOKEN_API_URL } from 'constants/env'
+import { PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
+import { usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme/components'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
@@ -81,10 +83,11 @@ export default function ConfirmSwapModalContent({
   onSwap,
 }: Props) {
   const theme = useTheme()
-  const { routeSummary, slippage, isStablePairSwap, isCorrelatedPair, isAdvancedMode } = useSwapFormContext()
+  const { routeSummary, slippage, isAdvancedMode } = useSwapFormContext()
   const [hasAcceptedNewAmount, setHasAcceptedNewAmount] = useState(false)
   const [showAreYouSureModal, setShowAreYouSureModal] = useState(false)
   const [isDegenMode] = useDegenModeManager()
+  const cat = usePairCategory()
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
@@ -266,7 +269,7 @@ export default function ConfirmSwapModalContent({
   const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isAdvancedMode, priceImpactFromBuild)
 
   const isShowAcceptNewAmount =
-    outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD || (isStablePairSwap && outputChangePercent < 0)
+    outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD || (cat === PAIR_CATEGORY.STABLE && outputChangePercent < 0)
   const disableSwap =
     (isShowAcceptNewAmount && !hasAcceptedNewAmount) || shouldDisableConfirmButton || shouldDisableByPriceImpact
 
@@ -348,11 +351,7 @@ export default function ConfirmSwapModalContent({
         <SwapDetails {...getSwapDetailsProps()} />
 
         <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
-          <SlippageWarningNote
-            rawSlippage={slippage}
-            isStablePairSwap={isStablePairSwap}
-            isCorrelatedPair={isCorrelatedPair}
-          />
+          <SlippageWarningNote rawSlippage={slippage} />
 
           <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 

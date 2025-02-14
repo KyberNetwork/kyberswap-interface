@@ -117,10 +117,19 @@ export const sentryRequestId = uuid()
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
+export enum PAIR_CATEGORY {
+  STABLE = 'stablePair',
+  CORRELATED = 'correlatedPair',
+  EXOTIC = 'exoticPair',
+  HIGH_VOLATILITY = 'highVolatilityPair',
+}
+
 // https://www.nasdaq.com/glossary/b/bip
 export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 1999
 export const MAX_DEGEN_SLIPPAGE_IN_BIPS = 5000
+
 export const DEFAULT_SLIPPAGES = [5, 10, 50, 100]
+export const DEFAULT_SLIPPAGES_HIGH_VOTALITY = [50, 150, 300, 500]
 export const DEFAULT_TIPS = [0, 10, 50, 100]
 export const MAX_FEE_IN_BIPS = 1500
 

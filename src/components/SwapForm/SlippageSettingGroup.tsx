@@ -35,13 +35,9 @@ export const PriceAlertButton = styled.div`
 `
 
 export default function SlippageSettingGroup({
-  isStablePairSwap,
-  isCorrelatedPair,
   isWrapOrUnwrap,
   onOpenGasToken,
 }: {
-  isStablePairSwap: boolean
-  isCorrelatedPair: boolean
   isWrapOrUnwrap: boolean
   onOpenGasToken?: () => void
 }) {
@@ -106,11 +102,7 @@ export default function SlippageSettingGroup({
           {rightButton}
         </>
       ) : (
-        <SlippageSetting
-          isStablePairSwap={isStablePairSwap}
-          rightComponent={rightButton}
-          isCorrelatedPair={isCorrelatedPair}
-        />
+        <SlippageSetting rightComponent={rightButton} />
       )}
       <AddMEVProtectionModal isOpen={showMevModal} onClose={onClose} />
     </Flex>

@@ -2,16 +2,23 @@ import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useInterval } from 'react-use'
 
-import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
+import {
+  DEFAULT_SLIPPAGE,
+  DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
+  MAX_NORMAL_SLIPPAGE_IN_BIPS,
+  PAIR_CATEGORY,
+} from 'constants/index'
 import { AppDispatch, AppState } from 'state/index'
-import { useCheckStablePairSwap } from 'state/swap/hooks'
+import { usePairCategory } from 'state/swap/hooks'
 import { usePoolSlippageTolerance, useSwapSlippageTolerance } from 'state/user/hooks'
 
 import { updatePoolDegenMode, updateUserDegenMode } from './actions'
 
 export default function Updater(): null {
   const dispatch = useDispatch<AppDispatch>()
-  const isStablePairSwap = useCheckStablePairSwap()
+  const cat = usePairCategory()
+
+  const isStablePairSwap = cat === PAIR_CATEGORY.STABLE
 
   const swapDegenMode = useSelector<AppState, AppState['user']['userDegenMode']>(state => state.user.userDegenMode)
   const swapDegenModeAutoDisableTimestamp = useSelector<

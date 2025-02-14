@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { TOKEN_API_URL } from 'constants/env'
+import { PAIR_CATEGORY } from 'constants/index'
 
 export interface QueryParams {
   // name?: string
@@ -112,6 +113,20 @@ const marketOverviewServiceApi = createApi({
     >({
       query: () => ({ url: '/v1/public/tokens/config' }),
     }),
+
+    checkPair: builder.query<
+      { data: { category: PAIR_CATEGORY } },
+      { chainId: number; tokenIn: string; tokenOut: string }
+    >({
+      query: ({ chainId, tokenIn, tokenOut }) => ({
+        url: `/v1/public/category/pair`,
+        params: {
+          chainId,
+          tokenIn,
+          tokenOut,
+        },
+      }),
+    }),
   }),
 })
 
@@ -121,6 +136,7 @@ export const {
   useRemoveFavoriteMutation,
   useGetPricesMutation,
   useGetQuoteByChainQuery,
+  useCheckPairQuery,
 } = marketOverviewServiceApi
 
 export default marketOverviewServiceApi
