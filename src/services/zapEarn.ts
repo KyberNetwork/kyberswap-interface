@@ -199,14 +199,15 @@ export interface PositionHistory {
 }
 
 export interface PositionQueryParams {
-  chainIds?: string
+  chainIds: string
   addresses: string
   positionId?: string
-  protocols?: string
-  status?: string
+  protocols: string
+  status: string
   q?: string
   sortBy?: string
   orderBy?: string
+  page: number
 }
 
 interface PositionHistoryParams {
