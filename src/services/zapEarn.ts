@@ -101,13 +101,6 @@ export interface PositionAmount {
   }
 }
 
-export interface PositionQueryParams {
-  chainIds?: string
-  addresses: string
-  positionId?: string
-  protocols?: string
-}
-
 export interface EarnPosition {
   [x: string]: any
   chainName: 'eth'
@@ -176,15 +169,6 @@ export interface EarnPosition {
   }
 }
 
-export interface PositionEarning {
-  date: string
-  timestamp: number
-  totalFeeEarning: number
-  totalFarmEarning: number
-  totalEarning: number
-  earningByDay: number
-}
-
 interface PoolsExplorerResponse {
   code: number
   message: string
@@ -195,6 +179,32 @@ interface PoolsExplorerResponse {
     }
   }
   requestId: string
+}
+
+export enum PositionHistoryType {
+  DEPOSIT = 'DEPOSIT',
+}
+
+export interface PositionHistory {
+  txHash: string
+  type: PositionHistoryType
+}
+
+export interface PositionQueryParams {
+  chainIds?: string
+  addresses: string
+  positionId?: string
+  protocols?: string
+  status?: string
+  q?: string
+  sortBy?: string
+  orderBy?: string
+}
+
+interface PositionHistoryParams {
+  chainId: ChainId
+  tokenAddress: string
+  tokenId: string
 }
 
 interface AddRemoveFavoriteParams {
@@ -265,6 +275,27 @@ const zapEarnServiceApi = createApi({
           positions: Array<EarnPosition>
         }
       }) => response.data.positions,
+      async onQueryStarted(agr, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch {
+          dispatch(zapEarnServiceApi.util.upsertQueryData('userPositions', agr, []))
+        }
+      },
+    }),
+    positionHistory: builder.query<Array<PositionHistory>, PositionHistoryParams>({
+      query: params => ({
+        url: `/v1/userPositions/positionHistory`,
+        params,
+      }),
+      transformResponse: (response: { data: Array<PositionHistory> }) => response.data,
+      async onQueryStarted(agr, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch {
+          dispatch(zapEarnServiceApi.util.upsertQueryData('positionHistory', agr, []))
+        }
+      },
     }),
     addFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
       query: body => ({
@@ -288,6 +319,7 @@ export const {
   useSupportedProtocolsQuery,
   usePoolsExplorerQuery,
   useUserPositionsQuery,
+  usePositionHistoryQuery,
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
 } = zapEarnServiceApi

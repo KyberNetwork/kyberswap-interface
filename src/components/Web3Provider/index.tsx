@@ -7,6 +7,7 @@ import {
   arbitrum,
   avalanche,
   base,
+  berachain,
   blast,
   bsc,
   fantom,
@@ -159,6 +160,7 @@ export const wagmiConfig = createConfig({
     fantom,
     blast,
     sonic,
+    berachain,
   ],
   connectors: [
     injectedWithFallback(),

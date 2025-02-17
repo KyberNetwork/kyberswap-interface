@@ -449,3 +449,6 @@ export function buildFlagsForFarmV21({
   if (isClaimReward) flags = flags | (1 << 1)
   return flags
 }
+
+export const getCookieValue = (name: string) =>
+  document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''

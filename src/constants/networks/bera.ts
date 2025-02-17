@@ -1,34 +1,33 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const scroll: NetworkInfo = {
-  chainId: ChainId.BLAST,
-  route: 'blast',
-  ksSettingRoute: 'blast',
-  priceRoute: 'blast',
-  aggregatorRoute: 'blast',
-  name: 'Blast',
-  icon: 'https://static.debank.com/image/project/logo_url/blast/c0e1eb5f4051bd62ca904cf2e3282f47.png',
+const bera: NetworkInfo = {
+  chainId: ChainId.BERA,
+  route: 'berachain',
+  ksSettingRoute: 'berachain',
+  priceRoute: 'berachain',
+  aggregatorRoute: 'berachain',
+  name: 'Berachain',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png',
 
   iconSelected: NOT_SUPPORT,
 
   defaultBlockSubgraph: '',
-  etherscanUrl: 'https://blastscan.io',
-  etherscanName: 'Blastscan',
-  bridgeURL: 'https://blast.io/en/bridge',
+  etherscanUrl: 'https://berascan.com',
+  etherscanName: 'Berascan',
+  bridgeURL: 'https://bridge.berachain.com/bridge/token',
   nativeToken: {
-    symbol: 'ETH',
-    name: 'ETH',
-    logo: EthereumLogo,
+    symbol: 'BERA',
+    name: 'BERA',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png',
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 2 * 10 ** 17,
   },
-  defaultRpcUrl: 'https://rpc.blast.io',
+  defaultRpcUrl: 'https://rpc.berachain.com',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
@@ -66,10 +65,10 @@ const scroll: NetworkInfo = {
   },
   limitOrder: '*',
   averageBlockTimeInSeconds: 2.0, // dont use for base
-  coingeckoNetworkId: 'blast',
-  coingeckoNativeTokenId: 'ethereum',
+  coingeckoNetworkId: 'bera',
+  coingeckoNativeTokenId: 'bera',
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }
 
-export default scroll
+export default bera

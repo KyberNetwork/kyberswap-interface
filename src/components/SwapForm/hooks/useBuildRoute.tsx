@@ -12,6 +12,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
+import { getCookieValue } from 'utils'
 
 export type BuildRouteResult =
   | {
@@ -58,6 +59,8 @@ const useBuildRoute = (args: Args) => {
       }
     }
 
+    const refCode = getCookieValue('refCode')
+
     const payload: BuildRoutePayload = {
       routeSummary,
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
@@ -68,6 +71,7 @@ const useBuildRoute = (args: Args) => {
       skipSimulateTx: false,
       enableGasEstimation: true,
       permit,
+      referral: refCode,
       // for calculating price impact only
       chainId,
       tokenInDecimals: currencyIn?.decimals,
