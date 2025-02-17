@@ -148,6 +148,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allTransactions])
 
+  const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
+
   return (
     <InfoLeftColumn>
       {openClaimFeeModal && feeInfo && (
@@ -263,7 +265,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           <div>
             <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
               <Text>{formatDisplayNumber(feeInfo?.amount0, { significantDigits: 4 })}</Text>
-              <Text>{isToken0Native ? 'ETH' : position.token0Symbol}</Text>
+              <Text>{isToken0Native ? nativeToken.symbol : position.token0Symbol}</Text>
               <Text fontSize={14} color={theme.subText}>
                 {formatDisplayNumber(feeInfo?.value0, {
                   style: 'currency',
@@ -273,7 +275,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             </Flex>
             <Flex alignItems={'center'} sx={{ gap: '6px' }}>
               <Text>{formatDisplayNumber(feeInfo?.amount1, { significantDigits: 4 })}</Text>
-              <Text>{isToken1Native ? 'ETH' : position.token1Symbol}</Text>
+              <Text>{isToken1Native ? nativeToken.symbol : position.token1Symbol}</Text>
               <Text fontSize={14} color={theme.subText}>
                 {formatDisplayNumber(feeInfo?.value1, {
                   style: 'currency',

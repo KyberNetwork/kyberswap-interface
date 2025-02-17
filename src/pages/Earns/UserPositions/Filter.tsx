@@ -47,6 +47,18 @@ export default function Filter({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    if (
+      filters.protocols &&
+      !supportedDexes
+        .map(item => item.value)
+        .filter(Boolean)
+        .includes(filters.protocols)
+    ) {
+      updateFilters('protocols', '')
+    }
+  }, [filters.protocols, supportedDexes, updateFilters])
+
   return (
     <Flex
       flexDirection={upToSmall ? 'column' : 'row'}
