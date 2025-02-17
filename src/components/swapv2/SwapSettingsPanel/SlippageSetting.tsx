@@ -1,12 +1,12 @@
 import { Trans, t } from '@lingui/macro'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import SlippageControl from 'components/SlippageControl'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
-import { PAIR_CATEGORY } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { usePairCategory } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
@@ -35,6 +35,11 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } = useSlippageSettingByPage()
 
   const cat = usePairCategory()
+
+  const options = useMemo(
+    () => (cat === 'highVolatilityPair' ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
+    [cat],
+  )
 
   const slippageStatus = checkRangeSlippage(rawSlippage, cat)
   const isWarning = slippageStatus !== SLIPPAGE_STATUS.NORMAL
@@ -74,7 +79,12 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
         {shouldShowPinButton && <PinButton isActive={isSlippageControlPinned} onClick={togglePinSlippage} />}
       </Flex>
 
-      <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} isWarning={isWarning} />
+      <SlippageControl
+        rawSlippage={rawSlippage}
+        setRawSlippage={setRawSlippage}
+        isWarning={isWarning}
+        options={options}
+      />
 
       {isWarning && (
         <Message data-warning={true} data-error={false}>

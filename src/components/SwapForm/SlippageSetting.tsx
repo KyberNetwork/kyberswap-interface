@@ -9,7 +9,7 @@ import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { usePairCategory } from 'state/swap/hooks'
+import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
@@ -34,6 +34,7 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
 
   const pairCategory = usePairCategory()
+  const defaultSlp = useDefaultSlippageByPair()
   const isWarningSlippage = checkWarningSlippage(rawSlippage, pairCategory)
 
   const options = useMemo(
@@ -152,6 +153,21 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
           <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px" marginTop="-12px">
             Maximum Slippage allow for Degen mode is 50%
           </Text>
+        )}
+        {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && (
+          <Flex
+            fontSize={12}
+            color={theme.primary}
+            sx={{ gap: '4px' }}
+            alignItems="center"
+            marginTop="-12px"
+            paddingX="4px"
+          >
+            <MouseoverTooltip text="Dynamic entry based on trading pair.">
+              <Text sx={{ borderBottom: `1px dotted ${theme.primary}` }}>Suggestion</Text>
+            </MouseoverTooltip>
+            {(defaultSlp * 100) / 10_000}%
+          </Flex>
         )}
 
         <SlippageWarningNote rawSlippage={rawSlippage} />
