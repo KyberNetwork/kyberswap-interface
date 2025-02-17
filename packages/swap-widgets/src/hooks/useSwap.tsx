@@ -1,6 +1,5 @@
-import { BigNumber } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { parseUnits } from '@kyber/utils/crypto'
 import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS, WRAPPED_NATIVE_TOKEN } from '../constants'
 import { useDebounce } from '@kyber/hooks/use-debounce'
 import useTokenBalances from './useTokenBalances'
@@ -146,7 +145,7 @@ const useSwap = ({
   enableDexes?: string
   client: string
 }) => {
-  const { provider, chainId } = useActiveWeb3()
+  const { chainId, connectedAccount } = useActiveWeb3()
   const [tokenIn, setTokenIn] = useState(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
   const [tokenOut, setTokenOut] = useState(defaultTokenOut || '')
   const tokens = useTokens()
@@ -200,9 +199,9 @@ const useSwap = ({
       return
     }
 
-    let amountIn: BigNumber = BigNumber.from('0')
+    let amountIn: bigint = 0n
     try {
-      amountIn = parseUnits(debouncedInput, tokenInDecimal)
+      amountIn = BigInt(parseUnits(debouncedInput, tokenInDecimal))
     } catch (e) {
       setError('Invalid input amount')
       setTrade(null)
@@ -215,14 +214,14 @@ const useSwap = ({
       return
     }
 
-    const tokenInBalance = balances[tokenIn] || BigNumber.from(0)
+    const tokenInBalance = balances[tokenIn] || 0n
 
     let error = ''
-    if (tokenInBalance.lt(amountIn)) {
+    if (tokenInBalance < amountIn) {
       error = 'Insufficient balance'
     }
 
-    if (!provider) {
+    if (!connectedAccount.address) {
       error = 'Please connect your wallet'
     }
 
@@ -290,7 +289,7 @@ const useSwap = ({
 
     if (Number(routeResponse.data?.routeSummary?.amountOut)) {
       setTrade(routeResponse.data)
-      if (provider && !tokenInBalance.lt(amountIn)) setError('')
+      if (connectedAccount.address && tokenInBalance >= amountIn) setError('')
     } else {
       setTrade(null)
       setError('Insufficient liquidity')
@@ -305,7 +304,7 @@ const useSwap = ({
     tokenOut,
     isWrap,
     isUnwrap,
-    provider,
+    connectedAccount.address,
     debouncedInput,
     dexes,
     isUnsupported,
@@ -315,7 +314,7 @@ const useSwap = ({
     isInBps,
     feeReceiver,
     // eslint-disable-next-line
-    JSON.stringify(balances),
+    JSON.stringify(balances, (_key: string, value: any) => (typeof value === 'bigint' ? value.toString() : value)),
   ])
 
   useEffect(() => {

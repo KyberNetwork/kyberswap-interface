@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { Widget } from "@kyberswap/widgets";
-import { init, useWallets, useConnectWallet } from "@web3-onboard/react";
+import {
+  init,
+  useWallets,
+  useConnectWallet,
+  useSetChain,
+} from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { ethers } from "ethers";
 import walletConnectModule from "@web3-onboard/walletconnect";
@@ -12,11 +17,11 @@ const walletConnect = walletConnectModule({
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
-  requiredChains: [1],
+  requiredChains: [1, 42161, 8453],
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
-  optionalChains: [42161, 8453, 10, 137, 56],
+  optionalChains: [10, 137, 56],
   /**
    * Defaults to `appMetadata.explore` that is supplied to the web3-onboard init
    * Strongly recommended to provide atleast one URL as it is required by some wallets (i.e. MetaMask)
@@ -36,6 +41,12 @@ init({
       rpcUrl: "https://ethereum.kyberengineering.io",
     },
     {
+      id: "0xa4b1", // 42161 in hex
+      token: "ETH",
+      label: "Arbitrum One",
+      rpcUrl: "https://arbitrum.llamarpc.com",
+    },
+    {
       id: "0x89",
       token: "MATIC",
       label: "Polygon",
@@ -45,7 +56,7 @@ init({
 });
 
 function App() {
-  const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
+  const [{ wallet }, connect, disconnect] = useConnectWallet();
 
   // create an ethers provider
   let ethersProvider: any;
@@ -158,6 +169,11 @@ function App() {
   const [showRate, setShowRate] = useState(true);
   const [showDetail, setShowDetail] = useState(true);
 
+  console.log("wallet", wallet?.accounts[0].address);
+
+  const [, setChain] = useSetChain();
+  const [customChainId, setCustomChainId] = useState(chainId);
+
   return (
     <div className="App">
       <div>
@@ -215,6 +231,23 @@ function App() {
               }}
             />
             <label htmlFor="custom">Custom</label>
+          </div>
+        </div>
+
+        <div className="row" style={{ marginTop: "16px" }}>
+          chainId
+          <div style={{ display: "flex" }}>
+            <div>
+              <select
+                value={customChainId}
+                onChange={(e) => setCustomChainId(Number(e.target.value))}
+              >
+                <option value={1}>Ethereum Mainnet</option>
+                <option value={56}>BSC</option>
+                <option value={8453}>Base</option>
+              </select>
+              <label>chainId</label>
+            </div>
           </div>
         </div>
 
@@ -361,20 +394,34 @@ function App() {
         </div>
       </div>
       <Widget
-        client="widget-react-demo"
         theme={theme}
         tokenList={[]}
-        provider={ethersProvider}
-        defaultTokenOut={defaultTokenOut[chainId]}
+        defaultTokenOut={defaultTokenOut[customChainId]}
         feeSetting={
           feeSetting.feeAmount && feeSetting.feeReceiver
             ? feeSetting
             : undefined
         }
+        client="widget-react-demo"
+        onSubmitTx={async (txData) => {
+          const res = await ethersProvider?.getSigner().sendTransaction(txData);
+          if (!res) throw new Error("Transaction failed");
+          return res.hash;
+        }}
+        onSwitchChain={() => {
+          setChain({
+            chainId: chainId.toString(),
+          });
+        }}
         enableRoute={enableRoute}
         enableDexes={enableDexes}
         showDetail={showDetail}
         showRate={showRate}
+        chainId={customChainId}
+        connectedAccount={{
+          address: wallet?.accounts[0].address,
+          chainId: chainId,
+        }}
       />
     </div>
   );

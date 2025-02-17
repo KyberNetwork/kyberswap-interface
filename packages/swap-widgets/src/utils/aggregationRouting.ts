@@ -1,4 +1,5 @@
-import { isAddress, isSameTokenAddress } from '.'
+import { isAddress } from '@kyber/utils/crypto'
+import { isSameTokenAddress } from '.'
 import { NATIVE_TOKEN_ADDRESS, NATIVE_TOKEN, TokenInfo } from '../constants'
 
 export type Route = {
@@ -305,7 +306,7 @@ export function getTradeComposition(
     }
 
     return (
-      allTokens?.[isAddress(address) || ''] ||
+      allTokens?.[isAddress(address) ? address : ''] ||
       allTokens?.[address] || {
         name: '--',
         decimals: 0,

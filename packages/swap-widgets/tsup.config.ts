@@ -10,7 +10,7 @@ export default defineConfig({
   dts: true, // This generates type declaration files
   minify: false, // Set to true if you want to minify the output
   external: ['react', 'react-dom'], // Externals
-  noExternal: ['styled-components', '@kyber/ui', '@kyber/hooks', 'lodash.throttle', 'ethers'],
+  noExternal: ['styled-components', '@kyber/ui', '@kyber/hooks', 'lodash.throttle'],
 
   esbuildPlugins: [svgrPlugin()],
   esbuildOptions(options) {

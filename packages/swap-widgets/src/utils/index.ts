@@ -1,14 +1,4 @@
-import { getAddress } from 'ethers/lib/utils'
 import { NATIVE_TOKEN_ADDRESS, WRAPPED_NATIVE_TOKEN } from '../constants'
-
-// returns the checksummed address if the address is valid, otherwise returns false
-export function isAddress(value: string): string | false {
-  try {
-    return getAddress(value)
-  } catch {
-    return false
-  }
-}
 
 export function copyToClipboard(textToCopy: string) {
   // navigator clipboard api needs a secure context (https)

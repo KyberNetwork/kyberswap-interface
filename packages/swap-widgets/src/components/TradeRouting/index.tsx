@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
 import { getDexInfoByPool, getSwapPercent, onScroll, useShadow } from './helpers'
@@ -26,10 +26,9 @@ import {
 import { SCAN_LINK, TokenInfo } from '../../constants'
 import { SwapPool, SwapRouteV2, getTradeComposition } from '../../utils/aggregationRouting'
 import { Trade, useDexes } from '../../hooks/useSwap'
-import { useTokens } from '../../hooks/useTokens'
-import { isAddress } from '../../utils'
 import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import questionImg from '../../assets/question.svg?url'
+import { isAddress } from '@kyber/utils/crypto'
 
 interface RouteRowProps {
   route: SwapRouteV2
@@ -143,7 +142,25 @@ const Routing = ({ trade, currencyIn, currencyOut }: RoutingProps) => {
   const shadowRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const tokens = useTokens()
+
+  const tokenAddresses = useMemo(
+    () => [
+      currencyIn?.address,
+      currencyOut?.address,
+      ...new Set((trade?.routeSummary.route || []).map(item => [item[0].tokenIn, item[0].tokenOut]).flat()),
+    ],
+    [trade, currencyIn, currencyOut],
+  )
+
+  const [tokens, setTokens] = useState<TokenInfo[]>([])
+
+  useEffect(() => {
+    fetch(`https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${tokenAddresses.join(',')}`)
+      .then(res => res.json())
+      .then(res => {
+        setTokens(res?.data?.tokens || [])
+      })
+  }, [tokenAddresses])
 
   const inputAmount = trade?.routeSummary.amountIn
   const outputAmount = trade?.routeSummary.amountOut

@@ -1,5 +1,3 @@
-import { BigNumber } from 'ethers'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { TokenInfo as TokenDetail, NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS } from '../constants'
@@ -12,6 +10,7 @@ import questionImg from '../assets/question.svg?url'
 import TrashIcon from '../assets/trash.svg'
 import { useToken } from '../hooks/useToken'
 import { Button } from './Widget/styled'
+import { formatUnits, isAddress } from '@kyber/utils/crypto'
 
 const Trash = styled(TrashIcon)`
   width: 20px;
@@ -179,13 +178,13 @@ function SelectCurrency({
     {
       ...NATIVE_TOKEN[chainId],
       balance: balances[NATIVE_TOKEN_ADDRESS],
-      formattedBalance: formatUnits(balances[NATIVE_TOKEN_ADDRESS] || BigNumber.from(0), 18),
+      formattedBalance: formatUnits((balances[NATIVE_TOKEN_ADDRESS] || 0n).toString(), 18),
     },
 
     ...tokens
       .map(item => {
         const balance = balances[item.address]
-        const formattedBalance = formatUnits(balance || BigNumber.from(0), item.decimals)
+        const formattedBalance = formatUnits((balance || 0n).toString(), item.decimals)
 
         return { ...item, balance, formattedBalance }
       })
@@ -245,7 +244,6 @@ function SelectCurrency({
                     }}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null // prevents looping
-                      console.log(questionImg)
                       currentTarget.src = questionImg
                     }}
                   />

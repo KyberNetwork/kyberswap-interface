@@ -42,13 +42,11 @@ import {
   ViewRouteTitle,
 } from './styled'
 
-import { BigNumber } from 'ethers'
 import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS, TokenInfo, ZIndex } from '../../constants'
 import SelectCurrency from '../SelectCurrency'
-import { useActiveWeb3, Web3Provider } from '../../hooks/useWeb3Provider'
+import { Web3Provider, useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import useSwap from '../../hooks/useSwap'
 import useTokenBalances from '../../hooks/useTokenBalances'
-import { formatUnits } from 'ethers/lib/utils'
 import useApproval, { APPROVAL_STATE } from '../../hooks/useApproval'
 import Settings from '../Settings'
 import { TokenListProvider, useTokens } from '../../hooks/useTokens'
@@ -59,6 +57,8 @@ import ImportModal from '../ImportModal'
 import InfoHelper from '../InfoHelper'
 import TradeRouting from '../TradeRouting'
 import Slippage from '../Slippage'
+import { formatUnits } from '@kyber/utils/crypto'
+import Select from '../Select'
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.dialog};
@@ -149,6 +149,14 @@ enum ModalType {
   TRADE_ROUTE = 'trade_route',
 }
 
+export interface TxData {
+  from: string
+  to: string
+  value: string
+  data: string
+  gasLimit: string
+}
+
 interface FeeSetting {
   chargeFeeBy: 'currency_in' | 'currency_out'
   feeReceiver: string
@@ -161,7 +169,6 @@ interface FeeSetting {
 export interface WidgetProps {
   client: string
   enableRoute?: boolean
-  provider?: any
   tokenList?: TokenInfo[]
   theme?: Theme
   defaultTokenIn?: string
@@ -169,7 +176,7 @@ export interface WidgetProps {
   defaultSlippage?: number
   defaultAmountIn?: string
   feeSetting?: FeeSetting
-  onTxSubmit?: (txHash: string, data: any) => void
+  onSubmitTx: (data: TxData) => Promise<string>
   enableDexes?: string
   title?: string | ReactNode
   onSourceTokenChange?: (token: TokenInfo) => void
@@ -179,6 +186,19 @@ export interface WidgetProps {
   showRate?: boolean
   showDetail?: boolean
   width?: number
+
+  rpcUrl?: string
+  chainId: number
+  connectedAccount: {
+    address?: string
+    chainId: number
+  }
+  onSwitchChain?: () => void
+}
+
+enum AllowanceType {
+  INFINITE = 'infinite',
+  EXACT = 'exact',
 }
 
 const Widget = ({
@@ -188,7 +208,6 @@ const Widget = ({
   defaultAmountIn,
   feeSetting,
   client,
-  onTxSubmit,
   enableRoute,
   enableDexes,
   title,
@@ -199,13 +218,13 @@ const Widget = ({
   showRate,
   showDetail,
   width,
+  onSwitchChain,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
   defaultAmountIn?: string
   feeSetting?: FeeSetting
   client: string
-  onTxSubmit?: (txHash: string, data: any) => void
   enableRoute: boolean
   enableDexes?: string
   title?: string | ReactNode
@@ -217,9 +236,12 @@ const Widget = ({
   showRate?: boolean
   showDetail?: boolean
   width?: number
+  onSwitchChain?: () => void
 }) => {
+  const { chainId, connectedAccount } = useActiveWeb3()
+  const wrongNetwork = chainId !== connectedAccount.chainId
+
   const [showModal, setShowModal] = useState<ModalType | null>(null)
-  const { chainId } = useActiveWeb3()
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
   const tokens = useTokens()
@@ -286,11 +308,11 @@ const Widget = ({
         : (Number(amountOut) * (1 - slippage / 10_000)).toPrecision(8).toString()
   }
 
-  const tokenInBalance = balances[tokenIn] || BigNumber.from(0)
-  const tokenOutBalance = balances[tokenOut] || BigNumber.from(0)
+  const tokenInBalance = balances[tokenIn] || 0n
+  const tokenOutBalance = balances[tokenOut] || 0n
 
-  const tokenInWithUnit = formatUnits(tokenInBalance, tokenInInfo?.decimals || 18)
-  const tokenOutWithUnit = formatUnits(tokenOutBalance, tokenOutInfo?.decimals || 18)
+  const tokenInWithUnit = formatUnits(tokenInBalance.toString(), tokenInInfo?.decimals || 18)
+  const tokenOutWithUnit = formatUnits(tokenOutBalance.toString(), tokenOutInfo?.decimals || 18)
 
   const rate =
     isWrap || isUnwrap
@@ -401,7 +423,6 @@ const Widget = ({
                 setShowModal(null)
                 refetch()
               }}
-              onTxSubmit={onTxSubmit}
               onError={onError}
               showDetail={showDetail}
             />
@@ -437,6 +458,8 @@ const Widget = ({
     approve,
     approvalState,
   } = useApproval(trade?.routeSummary?.amountIn || '0', tokenIn, trade?.routerAddress || '')
+
+  const [approvalType, setApprovalType] = useState(AllowanceType.INFINITE)
 
   return (
     <Wrapper width={width}>
@@ -687,8 +710,13 @@ const Widget = ({
       <Button
         disabled={!!error || loading || checkingAllowance || approvalState === APPROVAL_STATE.PENDING || isUnsupported}
         onClick={async () => {
+          if (wrongNetwork && onSwitchChain) {
+            onSwitchChain()
+            return
+          }
+
           if (approvalState === APPROVAL_STATE.NOT_APPROVED && !isWrap && !isUnwrap) {
-            approve()
+            approve(approvalType === AllowanceType.INFINITE ? undefined : BigInt(trade?.routeSummary?.amountIn || '0'))
           } else {
             setShowModal(ModalType.REVIEW)
           }
@@ -703,6 +731,12 @@ const Widget = ({
           <Dots>Calculate best route</Dots>
         ) : error ? (
           error
+        ) : wrongNetwork ? (
+          onSwitchChain ? (
+            'Switch Network'
+          ) : (
+            'Wrong Network'
+          )
         ) : isWrap ? (
           'Wrap'
         ) : isUnwrap ? (
@@ -717,6 +751,42 @@ const Widget = ({
           'Swap'
         )}
       </Button>
+      {approvalState === APPROVAL_STATE.NOT_APPROVED && !isWrap && !isUnwrap && (
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div />
+          <Select
+            value={approvalType}
+            style={{ marginTop: '1rem', fontSize: '14px', padding: 0, background: 'transparent' }}
+            optionStyle={{ fontSize: '14px' }}
+            options={[
+              {
+                value: AllowanceType.INFINITE,
+                label: 'Infinite Allowance',
+                onSelect: () => setApprovalType(AllowanceType.INFINITE),
+              },
+              {
+                value: AllowanceType.EXACT,
+                label: 'Exact Allowance',
+                onSelect: () => setApprovalType(AllowanceType.EXACT),
+              },
+            ]}
+            activeRender={selected =>
+              selected ? (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {selected.label}{' '}
+                  <InfoHelper
+                    text={
+                      selected.value === AllowanceType.EXACT
+                        ? 'You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again.'
+                        : 'You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke.'
+                    }
+                  />
+                </div>
+              ) : null
+            }
+          />
+        </div>
+      )}
 
       <Footer>
         <PoweredBy>
@@ -737,7 +807,7 @@ const Widget = ({
 }
 
 export default function SwapWidget({
-  provider,
+  rpcUrl,
   tokenList,
   theme,
   defaultTokenIn,
@@ -746,7 +816,7 @@ export default function SwapWidget({
   defaultSlippage,
   feeSetting,
   client,
-  onTxSubmit,
+  onSubmitTx,
   enableRoute = true,
   enableDexes,
   title,
@@ -757,11 +827,14 @@ export default function SwapWidget({
   showRate = true,
   showDetail = true,
   width,
+  chainId,
+  connectedAccount,
+  onSwitchChain,
 }: WidgetProps) {
   return (
     <StrictMode>
       <ThemeProvider theme={theme || defaultTheme}>
-        <Web3Provider provider={provider}>
+        <Web3Provider chainId={chainId} connectedAccount={connectedAccount} rpcUrl={rpcUrl} onSubmitTx={onSubmitTx}>
           <TokenListProvider tokenList={tokenList}>
             <Widget
               defaultTokenIn={defaultTokenIn}
@@ -770,7 +843,6 @@ export default function SwapWidget({
               defaultSlippage={defaultSlippage}
               feeSetting={feeSetting}
               client={client}
-              onTxSubmit={onTxSubmit}
               onSourceTokenChange={onSourceTokenChange}
               onAmountInChange={onAmountInChange}
               onDestinationTokenChange={onDestinationTokenChange}
@@ -781,6 +853,7 @@ export default function SwapWidget({
               showRate={showRate}
               showDetail={showDetail}
               width={width}
+              onSwitchChain={onSwitchChain}
             />
           </TokenListProvider>
         </Web3Provider>
