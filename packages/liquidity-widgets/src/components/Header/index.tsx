@@ -44,7 +44,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   return (
     <>
       <div className="flex text-xl font-medium justify-between items-center">
-        <div className="flex items-center gap-[6px]">
+        <div className="flex items-center flex-wrap gap-[6px]">
           {positionId !== undefined ? "Increase" : "Add"} Liquidity{" "}
           {pool.token0.symbol}/{pool.token1.symbol}{" "}
           {positionId !== undefined && (
@@ -109,7 +109,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             {token0.symbol}/{token1.symbol}
           </span>
 
-          <div className="flex ml-[2px] gap-[6px] text-subText items-center">
+          <div className="flex flex-wrap ml-[2px] gap-[6px] text-subText items-center">
             <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
               Fee {fee}%
             </div>
@@ -117,17 +117,19 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               {shortenAddress(chainId, poolAddress, 4)}
               {Copy}
             </div>
-            <img
-              src={logo}
-              width={16}
-              height={16}
-              alt=""
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
-            />
-            <span className="relative top-[-1=px]">{name}</span>
+            <div className="flex items-center gap-1">
+              <img
+                src={logo}
+                width={16}
+                height={16}
+                alt=""
+                onError={({ currentTarget }) => {
+                  currentTarget.onerror = null;
+                  currentTarget.src = defaultTokenLogo;
+                }}
+              />
+              <span>{name}</span>
+            </div>
           </div>
         </div>
 
