@@ -39,17 +39,25 @@ const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
     return null
   }
 
-  let msg = 'setting might be high. You might want to adjust it to avoid potential front-running.'
-  if (slippageStatus === SLIPPAGE_STATUS.LOW) {
-    msg = 'is low. Your transaction may fail.'
-  }
+  let msg
 
-  if (cat === PAIR_CATEGORY.STABLE)
-    msg =
-      'setting might be high compared to typical stable pair trades. Consider adjusting it to reduce the risk of front-running.'
-  if (cat === PAIR_CATEGORY.CORRELATED)
-    msg =
-      'setting might be high compared with other similar trades. You might want to adjust it to avoid potential front-running.'
+  if (slippageStatus === SLIPPAGE_STATUS.LOW) {
+    if (cat === PAIR_CATEGORY.HIGH_VOLATILITY) {
+      msg = 'is quite low and may cause failed transactions in volatile markets'
+    } else if (cat === PAIR_CATEGORY.EXOTIC) {
+      msg = 'is quite low and may cause failed transactions in highly volatile markets.'
+    }
+  } else if (slippageStatus === SLIPPAGE_STATUS.HIGH) {
+    if (cat === PAIR_CATEGORY.STABLE) {
+      msg =
+        'setting might be high compared to typical stable pair trades. Consider adjusting it to reduce front-running risks.'
+    } else if (cat === PAIR_CATEGORY.CORRELATED) {
+      msg =
+        'setting might be high compared with other similar trades. Consider adjusting it to reduce front-running risks.'
+    } else if (cat === PAIR_CATEGORY.HIGH_VOLATILITY) {
+      msg = 'setting might be high for this market. Consider adjusting it to reduce front-running risks.'
+    } else msg = 'setting might be high. Consider adjusting it to reduce front-running risks.'
+  }
 
   const shortText = (
     <div>

@@ -21,7 +21,7 @@ export const getDefaultSlippage = (isStablePairSwap: boolean, isCorrelatedPair: 
 
 export const checkRangeSlippage = (slippage: number, pairCategory: PAIR_CATEGORY | undefined): SLIPPAGE_STATUS => {
   if (pairCategory === PAIR_CATEGORY.STABLE) {
-    if (slippage >= 10) {
+    if (slippage > 20) {
       return SLIPPAGE_STATUS.HIGH
     }
 
@@ -29,7 +29,7 @@ export const checkRangeSlippage = (slippage: number, pairCategory: PAIR_CATEGORY
   }
 
   if (pairCategory === PAIR_CATEGORY.CORRELATED) {
-    if (slippage > 25) {
+    if (slippage > 50) {
       return SLIPPAGE_STATUS.HIGH
     }
     return SLIPPAGE_STATUS.NORMAL
@@ -49,8 +49,11 @@ export const checkRangeSlippage = (slippage: number, pairCategory: PAIR_CATEGORY
   //   return SLIPPAGE_STATUS.LOW
   // }
 
-  if (slippage > 100) {
+  if (slippage > 150) {
     return SLIPPAGE_STATUS.HIGH
+  }
+  if (slippage < 10) {
+    return SLIPPAGE_STATUS.LOW
   }
 
   return SLIPPAGE_STATUS.NORMAL

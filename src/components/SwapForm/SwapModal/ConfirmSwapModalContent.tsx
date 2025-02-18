@@ -366,14 +366,26 @@ export default function ConfirmSwapModalContent({
           {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
 
           {errorWhileBuildRoute ? (
-            isSlippageNotEnough && slippage < defaultSlp ? (
+            isSlippageNotEnough && slippage <= defaultSlp ? (
               <Flex sx={{ gap: '16px' }}>
                 <ButtonOutlined onClick={onDismiss} style={{ flex: 1 }}>
                   Dissmis
                 </ButtonOutlined>
-                <ButtonPrimary style={{ flex: 2 }} onClick={() => setRawSlippage(defaultSlp)}>
-                  Use Suggested Slippage
-                </ButtonPrimary>
+                {slippage < defaultSlp ? (
+                  <ButtonPrimary style={{ flex: 2 }} onClick={() => setRawSlippage(defaultSlp)}>
+                    Use Suggested Slippage
+                  </ButtonPrimary>
+                ) : (
+                  <ButtonPrimary
+                    style={{ flex: 1 }}
+                    onClick={() => {
+                      searchParams.set('tab', 'settings')
+                      setSearchParams(searchParams)
+                    }}
+                  >
+                    Adjust Max Slippage
+                  </ButtonPrimary>
+                )}
               </Flex>
             ) : (
               <ButtonPrimary
