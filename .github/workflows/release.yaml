@@ -1,7 +1,5 @@
 name: 'KyberSwap Interface Release'
 
-permissions: write-all
-
 on:
   workflow_dispatch:
     inputs:
@@ -12,7 +10,7 @@ on:
 
 jobs:
   prepare:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       version_tag: ${{ steps.version_tag.outputs.value }}
       build_date: ${{ steps.build_date.outputs.value }}
@@ -33,20 +31,20 @@ jobs:
   build:
     needs:
       - prepare
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
           node-version: 21.0.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
 
       - name: Restore node_modules
-        uses: actions/cache@v2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
@@ -81,10 +79,10 @@ jobs:
       SERVICE: kyberswap-interface
       VERSION_TAG: ${{ needs.prepare.outputs.version_tag }}
       BUILD_DATE: ${{ needs.prepare.outputs.build_date }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Restore build
         uses: actions/download-artifact@v4
@@ -99,24 +97,24 @@ jobs:
         uses: docker/setup-buildx-action@master
 
       - name: Gcloud Auth
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@71f986410dfbc7added4569d411d040a91dc6935  #v2.1.8
         with:
           credentials_json: '${{ secrets.GCR_CREDENTIALS }}'
 
       - name: Setup Gcloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@77e7a554d41e2ee56fc945c52dfd3f33d12def9a #v2.1.4
 
       - name: Configure docker
         run: gcloud auth configure-docker
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-${{ env.SERVICE }}-buildx
 
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 #v6.13.0
         with:
           context: .
           push: true
@@ -140,12 +138,15 @@ jobs:
     needs:
       - prepare
       - docker
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       VERSION_TAG: ${{ needs.prepare.outputs.version_tag }}
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Setup Git
         run: |
@@ -159,7 +160,7 @@ jobs:
           git push origin "refs/tags/$VERSION_TAG"
 
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.VERSION_TAG }}

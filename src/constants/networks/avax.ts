@@ -10,7 +10,6 @@ const avaxInfo: NetworkInfo = {
   route: 'avalanche',
   ksSettingRoute: 'avalanche',
   priceRoute: 'avalanche',
-  poolFarmRoute: 'avalanche',
   aggregatorRoute: 'avalanche',
   name: 'Avalanche',
   icon: avalancheIcon,

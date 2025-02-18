@@ -12,7 +12,6 @@ const optimismInfo: NetworkInfo = {
   route: 'optimism',
   ksSettingRoute: 'optimism',
   priceRoute: 'optimism',
-  poolFarmRoute: 'optimism',
   aggregatorRoute: 'optimism',
   name: 'Optimism',
   icon: optimismIcon,

@@ -1,86 +1,110 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Minus, Plus } from 'react-feather'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { EarnPosition, PositionStatus, useUserPositionsQuery } from 'services/zapEarn'
+import { useUserPositionsQuery } from 'services/zapEarn'
 
-import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
-import CopyHelper from 'components/Copy'
+import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
-import { useWalletModalToggle } from 'state/application/hooks'
+import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
-import { formatDisplayNumber } from 'utils/numbers'
 
-import { CurrencyRoundedImage, CurrencySecondImage, Disclaimer } from '../PoolExplorer/styles'
-import { IconArrowLeft, PositionAction as PositionActionBtn } from '../PositionDetail/styles'
+import { ContentWrapper, Disclaimer, NavigateButton } from '../PoolExplorer/styles'
+import { IconArrowLeft } from '../PositionDetail/styles'
 import useLiquidityWidget from '../useLiquidityWidget'
 import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
 import Filter from './Filter'
-import {
-  Badge,
-  BadgeType,
-  ChainImage,
-  DexImage,
-  Divider,
-  EmptyPositionText,
-  ImageContainer,
-  MyLiquidityWrapper,
-  PositionAction,
-  PositionOverview,
-  PositionPageWrapper,
-  PositionRow,
-  PositionValueLabel,
-  PositionValueWrapper,
-} from './styles'
-import useFilter from './useFilter'
+import PositionBanner from './PositionBanner'
+import TableContent, { FeeInfoFromRpc } from './TableContent'
+import { PositionPageWrapper, PositionTableHeader, PositionTableWrapper } from './styles'
+import useFilter, { SortBy } from './useFilter'
 
-const LIMIT = 20
+const POSITIONS_TABLE_LIMIT = 10
 
 const MyPositions = () => {
-  const theme = useTheme()
-  const { account } = useActiveWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
   const navigate = useNavigate()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { filters, onFilterChange } = useFilter()
+  const { account } = useActiveWeb3React()
+  const { filters, updateFilters } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const firstLoading = useRef(false)
   const [loading, setLoading] = useState(false)
-  const [page, setPage] = useState(1)
+  const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
 
-  const { data: userPosition, isFetching } = useUserPositionsQuery(filters, {
+  const {
+    data: userPosition,
+    isFetching,
+    isError,
+  } = useUserPositionsQuery(filters, {
     skip: !filters.addresses,
     pollingInterval: 15_000,
   })
 
-  const isShowPagination = (!isFetching || !loading) && userPosition && userPosition.length > LIMIT
+  const filteredPositions = useMemo(() => {
+    if (!userPosition) return []
+
+    let positions = [...userPosition].map(position => {
+      const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
+      if (!feeInfo) return position
+      return {
+        ...position,
+        feeInfo,
+      }
+    })
+    if (filters.status) positions = positions.filter(position => position.status === filters.status)
+    if (filters.sortBy) {
+      if (filters.sortBy === SortBy.VALUE) {
+        positions.sort((a, b) => {
+          const aValue = a.currentPositionValue
+          const bValue = b.currentPositionValue
+          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
+        })
+      } else if (filters.sortBy === SortBy.APR_7D) {
+        positions.sort((a, b) => {
+          const aValue = a.apr
+          const bValue = b.apr
+          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
+        })
+      } else if (filters.sortBy === SortBy.UNCLAIMED_FEE) {
+        positions.sort((a, b) => {
+          const aValue = a.feeInfo
+            ? a.feeInfo.totalValue
+            : a.feePending.reduce((total, fee) => total + fee.quotes.usd.value, 0)
+          const bValue = b.feeInfo
+            ? b.feeInfo.totalValue
+            : b.feePending.reduce((total, fee) => total + fee.quotes.usd.value, 0)
+          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
+        })
+      }
+    }
+
+    return positions
+  }, [feeInfoFromRpc, filters.orderBy, filters.sortBy, filters.status, userPosition])
 
   const positionsToShow = useMemo(() => {
-    if (!isShowPagination) return userPosition
-    return userPosition.slice((page - 1) * LIMIT, page * LIMIT)
-  }, [isShowPagination, page, userPosition])
+    if (filteredPositions.length <= POSITIONS_TABLE_LIMIT) return filteredPositions
+    return filteredPositions.slice((filters.page - 1) * POSITIONS_TABLE_LIMIT, filters.page * POSITIONS_TABLE_LIMIT)
+  }, [filteredPositions, filters.page])
 
-  const onOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: EarnPosition) => {
-    e.stopPropagation()
-    handleOpenZapInWidget(
-      {
-        exchange: position.pool.project || '',
-        chainId: position.chainId,
-        address: position.pool.poolAddress,
-      },
-      position.tokenId,
-    )
+  const onSortChange = (sortBy: string) => {
+    if (!filters.sortBy || filters.sortBy !== sortBy) {
+      updateFilters('sortBy', sortBy)
+      updateFilters('orderBy', Direction.DESC)
+      return
+    }
+    if (filters.orderBy === Direction.DESC) {
+      updateFilters('orderBy', Direction.ASC)
+      return
+    }
+    updateFilters('sortBy', SortBy.VALUE)
+    updateFilters('orderBy', Direction.DESC)
   }
 
   useEffect(() => {
@@ -93,237 +117,117 @@ const MyPositions = () => {
     }
   }, [isFetching])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFeeInfoFromRpc(prev =>
+        prev
+          .filter(feeInfo => feeInfo.timeRemaining > 0)
+          .map(feeInfo => {
+            return {
+              ...feeInfo,
+              timeRemaining: feeInfo.timeRemaining - 1,
+            }
+          }),
+      )
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <>
       {liquidityWidget}
       <PositionPageWrapper>
-        <div>
+        <Flex
+          flexDirection={upToSmall ? 'column' : 'row'}
+          alignItems={upToSmall ? 'flex-start' : 'center'}
+          justifyContent={'space-between'}
+          sx={{ gap: 3 }}
+        >
           <Flex sx={{ gap: 3 }}>
             <IconArrowLeft onClick={() => navigate(-1)} />
             <Text as="h1" fontSize={24} fontWeight="500">
-              {t`My Liquidity`}
+              {t`My Liquidity Positions`}
             </Text>
           </Flex>
-          <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-            {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
-          </Text>
-        </div>
+          <NavigateButton
+            mobileFullWidth
+            icon={<RocketIcon width={20} height={20} />}
+            text={t`Explore Pools`}
+            to={APP_PATHS.EARN_POOLS}
+          />
+        </Flex>
+
+        {account && <PositionBanner positions={filteredPositions} />}
 
         <Filter
           supportedChains={supportedChains}
           supportedDexes={supportedDexes}
           filters={filters}
-          onFilterChange={(...args) => {
-            onFilterChange(...args)
-            setPage(1)
+          updateFilters={(...args) => {
+            updateFilters(...args)
             setLoading(true)
           }}
         />
 
-        <MyLiquidityWrapper>
-          {isFetching && loading ? (
-            <LocalLoader />
-          ) : account && positionsToShow && positionsToShow.length > 0 ? (
-            positionsToShow.map(position => {
-              const { id, status, chainId: poolChainId } = position
-              const positionId = position.tokenId
-              const chainImage = position.chainLogo
-              const dexImage = position.pool.projectLogo
-              const dexVersion = position.pool.project?.split(' ')?.[1] || ''
-              const token0Logo = position.pool.tokenAmounts[0]?.token.logo
-              const token1Logo = position.pool.tokenAmounts[1]?.token.logo
-              const token0Symbol = position.pool.tokenAmounts[0]?.token.symbol
-              const token1Symbol = position.pool.tokenAmounts[1]?.token.symbol
-              const poolFee = position.pool.fees?.[0]
-              const poolAddress = position.pool.poolAddress
-              const totalValue = position.currentPositionValue
-              const token0TotalProvide =
-                position.currentAmounts[0]?.quotes.usd.value / position.currentAmounts[0]?.quotes.usd.price
-              const token1TotalProvide =
-                position.currentAmounts[1]?.quotes.usd.value / position.currentAmounts[1]?.quotes.usd.price
-              const token0EarnedAmount =
-                position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price +
-                position.feesClaimed[0]?.quotes.usd.value / position.feesClaimed[0]?.quotes.usd.price
-              const token1EarnedAmount =
-                position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price +
-                position.feesClaimed[1]?.quotes.usd.value / position.feesClaimed[1]?.quotes.usd.price
-              const token0TotalAmount = token0TotalProvide + token0EarnedAmount
-              const token1TotalAmount = token1TotalProvide + token1EarnedAmount
-              const totalEarnedFee =
-                position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
-                position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0)
-
-              return (
-                <PositionRow
-                  key={positionId}
-                  onClick={() =>
-                    navigate({
-                      pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':chainId', poolChainId.toString()).replace(
-                        ':id',
-                        id,
-                      ),
-                    })
-                  }
+        <PositionTableWrapper>
+          <ContentWrapper>
+            {!upToLarge && positionsToShow && positionsToShow.length > 0 && (
+              <PositionTableHeader>
+                <Text>{t`Position`}</Text>
+                <Flex
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  role="button"
+                  onClick={() => onSortChange(SortBy.VALUE)}
                 >
-                  <PositionOverview>
-                    <Flex alignItems={'center'} sx={{ gap: 2 }}>
-                      <ImageContainer>
-                        <CurrencyRoundedImage src={token0Logo} alt="" />
-                        <CurrencySecondImage src={token1Logo} alt="" />
-                        <ChainImage src={chainImage} alt="" />
-                      </ImageContainer>
-                      <Text marginLeft={-3}>
-                        {token0Symbol}/{token1Symbol}
-                      </Text>
-                      {poolFee && <Badge>{poolFee}%</Badge>}
-                      <Badge type={status === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-                        ● {status === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
-                      </Badge>
-                    </Flex>
-                    <Flex alignItems={'center'} sx={{ gap: '10px' }}>
-                      <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        <DexImage src={dexImage} alt="" />
-                        <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-                          {dexVersion}
-                        </Text>
-                      </Flex>
-                      <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-                        #{positionId}
-                      </Text>
-                      <Badge type={BadgeType.SECONDARY}>
-                        <Text fontSize={14}>{shortenAddress(poolChainId, poolAddress, 4)}</Text>
-                        <CopyHelper size={16} toCopy={poolAddress} />
-                      </Badge>
-                    </Flex>
-                  </PositionOverview>
-                  {upToLarge && !upToSmall && (
-                    <Flex alignItems={'center'} justifyContent={'flex-end'} sx={{ gap: '16px' }}>
-                      <PositionAction
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleOpenZapOut({
-                            dex: position.pool.project || '',
-                            chainId: position.chainId,
-                            id: position.tokenId,
-                            poolAddress: position.pool.poolAddress,
-                          })
-                        }}
-                      >
-                        <Minus size={16} />
-                      </PositionAction>
-                      <PositionAction primary onClick={e => onOpenIncreaseLiquidityWidget(e, position)}>
-                        <Plus size={16} />
-                      </PositionAction>
-                    </Flex>
-                  )}
-                  <PositionValueWrapper>
-                    <PositionValueLabel>{t`Value`}</PositionValueLabel>
-                    <MouseoverTooltipDesktopOnly
-                      text={
-                        <>
-                          <Text>
-                            {formatDisplayNumber(token0TotalAmount, { significantDigits: 6 })} {token0Symbol}
-                          </Text>
-                          <Text>
-                            {formatDisplayNumber(token1TotalAmount, { significantDigits: 6 })} {token1Symbol}
-                          </Text>
-                        </>
-                      }
-                      width="fit-content"
-                      placement="bottom"
-                    >
-                      <Text>
-                        {formatDisplayNumber(totalValue, {
-                          style: 'currency',
-                          significantDigits: 4,
-                        })}
-                      </Text>
-                    </MouseoverTooltipDesktopOnly>
-                  </PositionValueWrapper>
-                  <PositionValueWrapper align={upToLarge ? 'center' : ''}>
-                    <PositionValueLabel>{t`Earned Fee`}</PositionValueLabel>
-                    <MouseoverTooltipDesktopOnly
-                      text={
-                        <>
-                          <Text>
-                            {formatDisplayNumber(token0EarnedAmount, { significantDigits: 6 })} {token0Symbol}
-                          </Text>
-                          <Text>
-                            {formatDisplayNumber(token1EarnedAmount, { significantDigits: 6 })} {token1Symbol}
-                          </Text>
-                        </>
-                      }
-                      width="fit-content"
-                      placement="bottom"
-                    >
-                      <Text>{formatDisplayNumber(totalEarnedFee, { style: 'currency', significantDigits: 4 })}</Text>
-                    </MouseoverTooltipDesktopOnly>
-                  </PositionValueWrapper>
-                  <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
-                    <PositionValueLabel>Balance</PositionValueLabel>
-                    <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
-                      <Text>
-                        {formatDisplayNumber(token0TotalProvide, { significantDigits: 4 })} {token0Symbol}
-                      </Text>
-                      {upToSmall && <Divider />}
-                      <Text>
-                        {formatDisplayNumber(token1TotalProvide, { significantDigits: 4 })} {token1Symbol}
-                      </Text>
-                    </Flex>
-                  </PositionValueWrapper>
-                  {(upToSmall || !upToLarge) && (
-                    <Flex alignItems={'center'} justifyContent={'flex-end'} sx={{ gap: '16px' }}>
-                      <MouseoverTooltipDesktopOnly
-                        text={t`Remove liquidity from this position by zapping out to any token(s) or migrating to another position.`}
-                        placement="top"
-                      >
-                        <PositionAction
-                          onClick={e => {
-                            e.stopPropagation()
-                            handleOpenZapOut({
-                              dex: position.pool.project || '',
-                              chainId: position.chainId,
-                              id: position.tokenId,
-                              poolAddress: position.pool.poolAddress,
-                            })
-                          }}
-                        >
-                          <Minus size={16} />
-                        </PositionAction>
-                      </MouseoverTooltipDesktopOnly>
-                      <MouseoverTooltipDesktopOnly
-                        text={t`Add more liquidity to this position using any token(s) or migrate liquidity from your existing positions.`}
-                        placement="top"
-                      >
-                        <PositionAction primary onClick={e => onOpenIncreaseLiquidityWidget(e, position)}>
-                          <Plus size={16} />
-                        </PositionAction>
-                      </MouseoverTooltipDesktopOnly>
-                    </Flex>
-                  )}
-                </PositionRow>
-              )
-            })
-          ) : (
-            <EmptyPositionText>
-              <IconEarnNotFound />
-              <Flex flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: 1 }} marginBottom={12}>
-                <Text color={theme.subText}>{t`You don’t have any liquidity positions yet`}.</Text>
-                <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
-              </Flex>
-              {!account && <PositionActionBtn onClick={toggleWalletModal}>Connect Wallet</PositionActionBtn>}
-            </EmptyPositionText>
+                  {t`Value`}
+                  <SortIcon sorted={filters.sortBy === SortBy.VALUE ? (filters.orderBy as Direction) : undefined} />
+                </Flex>
+                <Flex
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  role="button"
+                  onClick={() => onSortChange(SortBy.APR_7D)}
+                >
+                  {t`7D APR`}
+                  <SortIcon sorted={filters.sortBy === SortBy.APR_7D ? (filters.orderBy as Direction) : undefined} />
+                </Flex>
+                <Flex
+                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  role="button"
+                  onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
+                >
+                  {t`Unclaimed fee`}
+                  <SortIcon
+                    sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
+                  />
+                </Flex>
+                <Text>{t`Balance`}</Text>
+                <Text>{t`Price Range`}</Text>
+                <Text>{t`Actions`}</Text>
+              </PositionTableHeader>
+            )}
+            {isFetching && loading ? (
+              <LocalLoader />
+            ) : (
+              <TableContent
+                positions={positionsToShow}
+                feeInfoFromRpc={feeInfoFromRpc}
+                setFeeInfoFromRpc={setFeeInfoFromRpc}
+                onOpenZapInWidget={handleOpenZapInWidget}
+                onOpenZapOut={handleOpenZapOut}
+              />
+            )}
+          </ContentWrapper>
+          {!isError && (
+            <Pagination
+              haveBg={false}
+              onPageChange={(newPage: number) => updateFilters('page', newPage)}
+              totalCount={userPosition?.length || 0}
+              currentPage={filters.page}
+              pageSize={POSITIONS_TABLE_LIMIT}
+            />
           )}
-        </MyLiquidityWrapper>
-        {isShowPagination && (
-          <Pagination
-            haveBg={false}
-            onPageChange={(newPage: number) => setPage(newPage)}
-            totalCount={userPosition.length}
-            currentPage={page}
-            pageSize={LIMIT}
-          />
-        )}
+        </PositionTableWrapper>
 
         <Disclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Disclaimer>
       </PositionPageWrapper>

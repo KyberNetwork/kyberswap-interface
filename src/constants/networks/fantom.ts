@@ -12,7 +12,6 @@ const fantomInfo: NetworkInfo = {
   route: 'fantom',
   ksSettingRoute: 'fantom',
   priceRoute: 'fantom',
-  poolFarmRoute: 'fantom',
   aggregatorRoute: 'fantom',
   name: 'Fantom',
   icon: fantomIcon,

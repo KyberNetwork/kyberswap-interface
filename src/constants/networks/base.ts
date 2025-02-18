@@ -11,7 +11,6 @@ const base: NetworkInfo = {
   route: 'base',
   ksSettingRoute: 'base',
   priceRoute: 'base',
-  poolFarmRoute: 'base',
   aggregatorRoute: 'base',
   name: 'Base',
   icon: 'https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/in-product/Base_Network_Logo.svg',

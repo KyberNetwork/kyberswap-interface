@@ -11,7 +11,6 @@ const zkEvm: NetworkInfo = {
   route: 'polygon-zkevm',
   ksSettingRoute: 'polygon-zkevm',
   priceRoute: 'polygon-zkevm',
-  poolFarmRoute: 'polygon-zkevm',
   aggregatorRoute: 'polygon-zkevm',
   name: 'Polygon zkEVM',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png',

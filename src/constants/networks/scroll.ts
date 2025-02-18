@@ -11,7 +11,6 @@ const scroll: NetworkInfo = {
   route: 'scroll',
   ksSettingRoute: 'scroll',
   priceRoute: 'scroll',
-  poolFarmRoute: 'scroll',
   aggregatorRoute: 'scroll',
   name: 'Scroll',
   icon: 'https://storage.googleapis.com/ks-setting-1d682dca/fe12013c-4d72-4ac3-9415-a278b7d474c71697595633825.png',

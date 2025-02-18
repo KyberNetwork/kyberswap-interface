@@ -11,7 +11,6 @@ const scroll: NetworkInfo = {
   route: 'blast',
   ksSettingRoute: 'blast',
   priceRoute: 'blast',
-  poolFarmRoute: 'blast',
   aggregatorRoute: 'blast',
   name: 'Blast',
   icon: 'https://static.debank.com/image/project/logo_url/blast/c0e1eb5f4051bd62ca904cf2e3282f47.png',

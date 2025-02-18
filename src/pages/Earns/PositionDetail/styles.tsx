@@ -73,6 +73,10 @@ export const InfoSection = styled.div`
   border-radius: 16px;
   padding: 16px 24px;
   border: 1px solid ${({ theme }) => theme.tabActive};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 16px;
+  `}
 `
 
 export const InfoSectionFirstFormat = styled(InfoSection)`
@@ -103,6 +107,7 @@ export const VerticalDivider = styled.div`
 `
 
 export const RevertIconWrapper = styled.div`
+  transform: rotate(90deg);
   cursor: pointer;
 
   :hover {
@@ -121,21 +126,40 @@ export const PositionActionWrapper = styled.div`
   `}
 `
 
-export const PositionAction = styled.button<{ outline?: boolean }>`
+export const PositionAction = styled.button<{
+  outline?: boolean
+  small?: boolean
+  disabled?: boolean
+  load?: boolean
+  mobileAutoWidth?: boolean
+}>`
   border-radius: 24px;
   padding: 10px 18px;
   background-color: ${({ theme }) => theme.primary};
   border: 1px solid ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.black};
+  display: flex;
+  gap: 6px;
+  align-items: center;
   cursor: pointer;
 
+  ${({ small }) => small && 'padding: 6px 16px;'}
   ${({ outline }) => outline && 'background-color: transparent;'}
   ${({ outline, theme }) => outline && `color: ${theme.primary};`}
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
+  ${({ theme, mobileAutoWidth }) =>
+    !mobileAutoWidth &&
+    theme.mediaWidth.upToSmall`
+      width: 100%;
+      justify-content: center;
+    `}
 
   :hover {
     filter: brightness(1.2);
   }
+
+  ${({ disabled, theme }) =>
+    disabled &&
+    `cursor: not-allowed; color: ${theme.subText}; border-color: ${theme.subText}; filter: brightness(0.6) !important;`}
+  ${({ load }) => load && `cursor: not-allowed; filter: brightness(0.6) !important;`}
 `

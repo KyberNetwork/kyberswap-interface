@@ -32,7 +32,6 @@ export interface NetworkInfo {
 
   readonly geckoTermialId: string | null
   readonly state?: ChainState
-  readonly poolFarmRoute: string // use this to get data from our internal BE
   readonly defaultBlockSubgraph: string
   readonly multicall: string
   readonly classic: {

@@ -14,7 +14,6 @@ const görliInfo: NetworkInfo = {
   route: 'goerli',
   ksSettingRoute: 'ethereum',
   priceRoute: 'ethereum',
-  poolFarmRoute: EMPTY,
   aggregatorRoute: EMPTY,
   name: 'Görli',
   icon: ethereumIcon,

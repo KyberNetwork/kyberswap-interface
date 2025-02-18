@@ -123,6 +123,7 @@ export const calcPercentFilledOrder = (value: string, total: string, decimals: n
     const float = parseFloat(
       uint256ToFraction(value, decimals).divide(uint256ToFraction(total, decimals)).multiply(100).toFixed(16),
     )
+    if (float && float > 99.99) return '99.99'
     return float && float < 0.01 ? '< 0.01' : formatNumberWithPrecisionRange(float, 0, 2)
   } catch (error) {
     return '0'

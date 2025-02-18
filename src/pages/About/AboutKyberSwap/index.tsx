@@ -358,6 +358,11 @@ function AboutKyberSwap() {
               <img src="https://www.mantle.xyz/logo-lockup.svg" alt="mantle" width="100%" />
 
               <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
+
+              <Flex sx={{ gap: '12px' }} alignItems="center">
+                <img src="https://www.berachain.com/images/icons/berachain.svg" alt="Bera" width="80px" />
+                <Text>Berachain</Text>
+              </Flex>
             </Powered>
           </Text>
         </Wrapper>

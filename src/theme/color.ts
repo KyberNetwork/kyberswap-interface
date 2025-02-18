@@ -70,6 +70,7 @@ export function colors() {
 
     blue: '#08A1E7',
     blue1: '#31cb9e',
+    blue2: '#2c9ce4',
     darkBlue: '#1183b7',
   } as const
 }

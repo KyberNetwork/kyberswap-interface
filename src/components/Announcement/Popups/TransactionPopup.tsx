@@ -167,7 +167,7 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_ZAP_IN_LIQUIDITY]: zapInLiquidity,
-  [TRANSACTION_TYPE.ELASTIC_COLLECT_FEE]: summaryLiquidity,
+  [TRANSACTION_TYPE.COLLECT_FEE]: summaryLiquidity,
 
   [TRANSACTION_TYPE.STAKE]: summaryStakeUnstakeFarm,
   [TRANSACTION_TYPE.UNSTAKE]: summaryStakeUnstakeFarm,

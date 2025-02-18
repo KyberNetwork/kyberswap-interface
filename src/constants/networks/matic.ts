@@ -10,7 +10,6 @@ const maticInfo: NetworkInfo = {
   route: 'polygon',
   ksSettingRoute: 'polygon',
   priceRoute: 'polygon',
-  poolFarmRoute: 'polygon',
   aggregatorRoute: 'polygon',
   name: 'Polygon PoS',
   icon: polygonIcon,

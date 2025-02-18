@@ -63,7 +63,7 @@ const filterTags = [
     label: 'High APR',
     value: FilterTag.HIGH_APR,
     icon: <IconHighAprPool width={20} color="#31CB9E" />,
-    tooltip: 'Top 100 Pools with assets that offer exceptionally high APYs',
+    tooltip: 'Top 100 Pools with assets that offer exceptionally high APRs',
   },
   {
     label: 'Solid Earning',
