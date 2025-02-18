@@ -113,7 +113,13 @@ enum EarnSupportedProtocols {
   PANCAKESWAP_V3 = "PancakeSwap V3",
   SUSHISWAP_V3 = "SushiSwap V3",
 }
-const earnSupportedChains = [ChainId.Ethereum, ChainId.Base];
+const earnSupportedChains = [
+  ChainId.Ethereum,
+  ChainId.Base,
+  ChainId.Bsc,
+  ChainId.Arbitrum,
+  ChainId.Avalanche,
+];
 const earnSupportedProtocols = [
   EarnSupportedProtocols.UNISWAP_V3,
   EarnSupportedProtocols.PANCAKESWAP_V3,

@@ -324,7 +324,7 @@ export const DexInfos: Record<PoolType, DexInfo> = {
   },
   [PoolType.DEX_PANCAKESWAPV3]: {
     icon: pancakeLogo,
-    name: "Pancake V3",
+    name: "PancakeSwap V3",
     nftManagerContract: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   },
   [PoolType.DEX_METAVAULTV3]: {
