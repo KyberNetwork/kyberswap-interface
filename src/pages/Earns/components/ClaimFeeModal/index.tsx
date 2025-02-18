@@ -96,7 +96,7 @@ export default function ClaimFeeModal({
     const calldatas = []
 
     try {
-      const owner = await contract.callStatic.ownerOf(position.id)
+      const owner = await contract.ownerOf(position.id)
 
       const involvesETH = isToken0Native || isToken1Native
       const collectParams = {

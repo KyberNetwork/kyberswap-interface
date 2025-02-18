@@ -84,7 +84,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!contract) return
-    const owner = await contract.callStatic.ownerOf(position.id)
+    const owner = await contract.ownerOf(position.id)
     const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
     const results = await contract.callStatic.collect(
       {

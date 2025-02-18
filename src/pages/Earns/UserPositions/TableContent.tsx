@@ -155,7 +155,7 @@ export default function TableContent({
       const token0Address = position.pool.tokenAmounts[0]?.token.address
       const token1Address = position.pool.tokenAmounts[1]?.token.address
 
-      const owner = await contract.callStatic.ownerOf(position.id)
+      const owner = await contract.ownerOf(position.id)
 
       const results = await contract.callStatic.collect(
         {
