@@ -14,6 +14,7 @@ import Loader from 'components/Loader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -24,9 +25,9 @@ import { getReadingContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { CurrencyRoundedImage, CurrencySecondImage } from '../PoolExplorer/styles'
-import ClaimFeeModal, { PositionToClaim, isNativeToken } from '../PositionDetail/ClaimFeeModal'
 import { FeeInfo } from '../PositionDetail/LeftSection'
 import { PositionAction as PositionActionBtn } from '../PositionDetail/styles'
+import ClaimFeeModal, { PositionToClaim, isNativeToken } from '../components/ClaimFeeModal'
 import { NFT_MANAGER_CONTRACT } from '../constants'
 import { formatAprNumber } from '../utils'
 import PriceRange from './PriceRange'
@@ -154,14 +155,16 @@ export default function TableContent({
       const token0Address = position.pool.tokenAmounts[0]?.token.address
       const token1Address = position.pool.tokenAmounts[1]?.token.address
 
+      const owner = await contract.ownerOf(position.id)
+
       const results = await contract.callStatic.collect(
         {
           tokenId: id,
-          recipient: account,
+          recipient: owner,
           amount0Max: maxUnit,
           amount1Max: maxUnit,
         },
-        { from: account },
+        { from: owner },
       )
       const balance0 = results.amount0.toString()
       const balance1 = results.amount1.toString()
@@ -196,7 +199,7 @@ export default function TableContent({
 
       setFeeInfoFromRpc(feeInfoFromRpcClone)
     },
-    [account, feeInfoFromRpc, library, positions, setFeeInfoFromRpc],
+    [feeInfoFromRpc, library, positions, setFeeInfoFromRpc],
   )
 
   useEffect(() => {
@@ -283,6 +286,7 @@ export default function TableContent({
 
             const isToken0Native = isNativeToken(token0Address, position.chainId as keyof typeof WETH)
             const isToken1Native = isNativeToken(token1Address, position.chainId as keyof typeof WETH)
+            const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
 
             return (
               <PositionRow
@@ -297,7 +301,7 @@ export default function TableContent({
                 }
               >
                 <PositionOverview>
-                  <Flex alignItems={'center'} sx={{ gap: 2 }}>
+                  <Flex alignItems={'center'} sx={{ gap: 2 }} flexWrap={'wrap'}>
                     <ImageContainer>
                       <CurrencyRoundedImage src={token0Logo} alt="" />
                       <CurrencySecondImage src={token1Logo} alt="" />
@@ -379,11 +383,11 @@ export default function TableContent({
                       <>
                         <Text>
                           {formatDisplayNumber(token0UnclaimedAmount, { significantDigits: 6 })}{' '}
-                          {isToken0Native ? 'ETH' : token0Symbol}
+                          {isToken0Native ? nativeToken.symbol : token0Symbol}
                         </Text>
                         <Text>
                           {formatDisplayNumber(token1UnclaimedAmount, { significantDigits: 6 })}{' '}
-                          {isToken1Native ? 'ETH' : token1Symbol}
+                          {isToken1Native ? nativeToken.symbol : token1Symbol}
                         </Text>
                       </>
                     }
