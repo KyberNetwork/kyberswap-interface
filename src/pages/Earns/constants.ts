@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import { ETHER_ADDRESS } from 'constants/index'
+
 export enum PoolType {
   DEX_UNISWAPV3 = 'Uniswap V3',
   DEX_PANCAKESWAPV3 = 'PancakeSwap V3',
@@ -38,3 +40,9 @@ export const NFT_MANAGER_CONTRACT = {
     [ChainId.SCROLL]: '0x0389879e0156033202C44BF784ac18fC02edeE4f',
   },
 }
+
+export const NATIVE_ADDRESS = [
+  ETHER_ADDRESS.toLowerCase(),
+  '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', // BNB
+  '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', // AVAX
+]

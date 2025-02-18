@@ -10,20 +10,20 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
 import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
-import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useWeb3React } from 'hooks'
 import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
+import { NATIVE_ADDRESS, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { NFT_MANAGER_CONTRACT } from '../../constants'
-import { FeeInfo } from '../LeftSection'
 import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from './styles'
 
 export interface PositionToClaim {
@@ -39,14 +39,8 @@ export interface PositionToClaim {
   chainLogo: string
 }
 
-const nativeAddress = [
-  '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', // BNB
-  '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', // AVAX
-]
-
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
-  tokenAddress.toLowerCase() === ETHER_ADDRESS.toLowerCase() ||
-  nativeAddress.includes(tokenAddress.toLowerCase()) ||
+  NATIVE_ADDRESS.includes(tokenAddress.toLowerCase()) ||
   (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address)
 
 export default function ClaimFeeModal({

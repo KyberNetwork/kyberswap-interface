@@ -17,9 +17,9 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { ParsedPosition } from '.'
 import { DexImage } from '../UserPositions/styles'
+import ClaimFeeModal, { isNativeToken } from '../components/ClaimFeeModal'
 import { NFT_MANAGER_CONTRACT } from '../constants'
 import { formatAprNumber } from '../utils'
-import ClaimFeeModal, { isNativeToken } from './ClaimFeeModal'
 import {
   InfoLeftColumn,
   InfoRight,
