@@ -39,11 +39,14 @@ export interface PositionToClaim {
   chainLogo: string
 }
 
-const BNB_NATIVE_ADDRESS = '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+const nativeAddress = [
+  '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', // BNB
+  '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', // AVAX
+]
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   tokenAddress.toLowerCase() === ETHER_ADDRESS.toLowerCase() ||
-  tokenAddress.toLowerCase() === BNB_NATIVE_ADDRESS.toLowerCase() ||
+  nativeAddress.includes(tokenAddress.toLowerCase()) ||
   (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address)
 
 export default function ClaimFeeModal({
