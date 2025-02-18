@@ -146,8 +146,10 @@ const SwapActionButton: React.FC<Props> = ({
   }, [showApproveFlow])
 
   const [approvalType, setApprovalType] = useState(AllowanceType.INFINITE)
+  const [autoShowPreview, setAutoShowPreview] = useState(false)
   const handleApproveClick = () => {
     setLoading(true)
+    setAutoShowPreview(true)
     approveCallback(
       approvalType === AllowanceType.EXACT && parsedAmountFromTypedValue ? parsedAmountFromTypedValue : undefined,
     ).finally(() => setLoading(false))
@@ -259,6 +261,8 @@ const SwapActionButton: React.FC<Props> = ({
       buildRoute,
 
       isApproved: approval === ApprovalState.APPROVED || permitState === PermitState.SIGNED,
+      autoShowPreview,
+      setAutoShowPreview,
     }
 
     const Approvebtn = permitState === PermitState.NOT_SIGNED ? ButtonLight : ButtonPrimary
@@ -321,7 +325,7 @@ const SwapActionButton: React.FC<Props> = ({
                     placement="top"
                     text={approveTooltipText()}
                   />
-                  <Trans>Approve {currencyIn?.symbol}</Trans>
+                  <Trans>Approve & Swap</Trans>
                 </RowFit>
               )}
             </Approvebtn>

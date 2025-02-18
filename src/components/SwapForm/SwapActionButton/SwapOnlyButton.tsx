@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import SwapModal from 'components/SwapForm/SwapModal'
@@ -41,6 +41,9 @@ export type Props = {
   setProcessingSwap: React.Dispatch<React.SetStateAction<boolean>>
   setErrorWhileSwap: (e: string) => void
   buildRoute: () => Promise<BuildRouteResult>
+
+  autoShowPreview: boolean
+  setAutoShowPreview: (val: boolean) => void
 }
 
 const SwapOnlyButton: React.FC<Props> = ({
@@ -60,6 +63,9 @@ const SwapOnlyButton: React.FC<Props> = ({
   setProcessingSwap,
   setErrorWhileSwap,
   buildRoute,
+
+  autoShowPreview,
+  setAutoShowPreview,
 }) => {
   const { mixpanelHandler } = useMixpanel({
     [Field.INPUT]: currencyIn,
@@ -97,6 +103,14 @@ const SwapOnlyButton: React.FC<Props> = ({
       feeInfo: getFeeInfoForMixPanel(routeSummary),
     })
   }
+
+  useEffect(() => {
+    if (autoShowPreview && isApproved) {
+      handleClickSwapForNormalMode()
+      setAutoShowPreview(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoShowPreview, isApproved])
 
   const handleClickSwapButton = () => {
     mixpanelSwapInit()
