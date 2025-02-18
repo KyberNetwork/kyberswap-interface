@@ -107,6 +107,7 @@ export const VerticalDivider = styled.div`
 `
 
 export const RevertIconWrapper = styled.div`
+  transform: rotate(90deg);
   cursor: pointer;
 
   :hover {

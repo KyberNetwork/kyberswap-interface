@@ -68,7 +68,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
             {!revert ? position.token0Symbol : position.token1Symbol}
           </Text>
           <RevertIconWrapper onClick={() => setRevert(!revert)}>
-            <SwapIcon rotate={90} size={18} />
+            <SwapIcon size={18} />
           </RevertIconWrapper>
         </Flex>
       </InfoSection>

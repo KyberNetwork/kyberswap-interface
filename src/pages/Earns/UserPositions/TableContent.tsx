@@ -301,7 +301,7 @@ export default function TableContent({
                 }
               >
                 <PositionOverview>
-                  <Flex alignItems={'center'} sx={{ gap: 2 }}>
+                  <Flex alignItems={'center'} sx={{ gap: 2 }} flexWrap={'wrap'}>
                     <ImageContainer>
                       <CurrencyRoundedImage src={token0Logo} alt="" />
                       <CurrencySecondImage src={token1Logo} alt="" />
