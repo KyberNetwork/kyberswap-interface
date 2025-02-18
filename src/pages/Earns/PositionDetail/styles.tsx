@@ -73,6 +73,10 @@ export const InfoSection = styled.div`
   border-radius: 16px;
   padding: 16px 24px;
   border: 1px solid ${({ theme }) => theme.tabActive};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 16px;
+  `}
 `
 
 export const InfoSectionFirstFormat = styled(InfoSection)`

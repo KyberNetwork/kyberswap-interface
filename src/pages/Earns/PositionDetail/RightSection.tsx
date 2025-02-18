@@ -54,7 +54,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   return (
     <InfoRightColumn>
       <InfoSection>
-        <Flex alignItems={'center'} sx={{ gap: 1 }}>
+        <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
           <Text fontSize={14} color={theme.subText}>
             {t`Current Price`}
           </Text>
