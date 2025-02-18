@@ -724,7 +724,10 @@ export default function Preview({
           <div className="flex justify-between items-center gap-4 w-full mt-2">
             <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
               <div className="ks-lw-card-title">Min Price</div>
-              <div className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-center">
+              <div
+                title={leftPrice}
+                className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-center"
+              >
                 {(
                   revert
                     ? tickUpper === univ3Pool.maxTick
@@ -737,7 +740,10 @@ export default function Preview({
             </div>
             <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
               <div className="ks-lw-card-title">Max Price</div>
-              <div className="text-center w-full overflow-hidden text-ellipsis whitespace-nowrap">
+              <div
+                title={rightPrice}
+                className="text-center w-full overflow-hidden text-ellipsis whitespace-nowrap"
+              >
                 {(
                   !revert
                     ? tickUpper === univ3Pool.maxTick

@@ -390,6 +390,8 @@ export function priceToClosestTick(
   }
   if (!tick) return undefined;
 
+  const tickPrice = tickToPrice(tick, token0Decimal, token1Decimal, revert);
+
   const nextTickPrice = tickToPrice(
     tick + 1,
     token0Decimal,
@@ -397,13 +399,13 @@ export function priceToClosestTick(
     revert
   );
 
-  if (!revert) {
-    if (+value >= +nextTickPrice) {
-      tick++;
-    }
-  } else if (+value <= +nextTickPrice) {
+  const diffCurrent = Math.abs(+value - +tickPrice);
+  const diffNext = Math.abs(+value - +nextTickPrice);
+
+  if (diffNext < diffCurrent) {
     tick++;
   }
+
   return tick;
 }
 

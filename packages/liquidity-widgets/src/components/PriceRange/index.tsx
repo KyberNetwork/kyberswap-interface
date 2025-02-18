@@ -200,16 +200,20 @@ const PriceRange = () => {
         <div className="flex items-center gap-4">
           <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
             <p className="text-subText">Min Price</p>
-            <p>{minPrice}</p>
+            <p className="max-w-full truncate" title={minPrice?.toString()}>
+              {minPrice}
+            </p>
             <p className="text-subText">
               {revertPrice
                 ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
                 : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
             </p>
           </div>
-          <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
+          <div className="bg-white bg-opacity-[0.04] rounded-md px-2 py-3 w-1/2 flex flex-col items-center justify-center gap-1">
             <p className="text-subText">Max Price</p>
-            <p>{maxPrice}</p>
+            <p className="max-w-full truncate" title={maxPrice?.toString()}>
+              {maxPrice}
+            </p>
             <p className="text-subText">
               {revertPrice
                 ? `${pool?.token0.symbol}/${pool?.token1.symbol}`

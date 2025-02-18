@@ -175,6 +175,7 @@ export default function PriceInput({ type }: { type: Type }) {
         <input
           className="bg-transparent text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
           value={localValue}
+          autoFocus={false}
           onChange={onPriceChange}
           onBlur={(e) => wrappedCorrectPrice(e.target.value)}
           inputMode="decimal"
