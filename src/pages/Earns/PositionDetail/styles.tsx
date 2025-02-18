@@ -132,6 +132,7 @@ export const PositionAction = styled.button<{
   padding: 10px 18px;
   background-color: ${({ theme }) => theme.primary};
   border: 1px solid ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.black};
   display: flex;
   gap: 6px;
   align-items: center;
@@ -144,8 +145,9 @@ export const PositionAction = styled.button<{
   ${({ theme, mobileAutoWidth }) =>
     !mobileAutoWidth &&
     theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
+      width: 100%;
+      justify-content: center;
+    `}
 
   :hover {
     filter: brightness(1.2);
