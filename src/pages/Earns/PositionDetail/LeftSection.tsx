@@ -10,7 +10,6 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useAllTransactions } from 'state/transactions/hooks'
@@ -18,9 +17,9 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { ParsedPosition } from '.'
 import { DexImage } from '../UserPositions/styles'
+import ClaimFeeModal, { isNativeToken } from '../components/ClaimFeeModal'
 import { NFT_MANAGER_CONTRACT } from '../constants'
 import { formatAprNumber } from '../utils'
-import ClaimFeeModal, { isNativeToken } from './ClaimFeeModal'
 import {
   InfoLeftColumn,
   InfoRight,
@@ -53,7 +52,6 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const [feeInfo, setFeeInfo] = useState<FeeInfo | null>(null)
 
   const allTransactions = useAllTransactions(true)
-  const { account } = useActiveWeb3React()
 
   const { data: historyData } = usePositionHistoryQuery({
     chainId: position.chainId,
@@ -86,15 +84,16 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!contract) return
+    const owner = await contract.ownerOf(position.id)
     const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
     const results = await contract.callStatic.collect(
       {
         tokenId: position.id,
-        recipient: account,
+        recipient: owner,
         amount0Max: maxUnit,
         amount1Max: maxUnit,
       },
-      { from: account },
+      { from: owner },
     )
     const balance0 = results.amount0.toString()
     const balance1 = results.amount1.toString()
@@ -116,7 +115,6 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
       totalValue: parseFloat(amount0) * position.token0Price + parseFloat(amount1) * position.token1Price,
     })
   }, [
-    account,
     contract,
     position.chainId,
     position.id,
@@ -149,6 +147,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allTransactions])
+
+  const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
 
   return (
     <InfoLeftColumn>
@@ -265,7 +265,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           <div>
             <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
               <Text>{formatDisplayNumber(feeInfo?.amount0, { significantDigits: 4 })}</Text>
-              <Text>{isToken0Native ? 'ETH' : position.token0Symbol}</Text>
+              <Text>{isToken0Native ? nativeToken.symbol : position.token0Symbol}</Text>
               <Text fontSize={14} color={theme.subText}>
                 {formatDisplayNumber(feeInfo?.value0, {
                   style: 'currency',
@@ -275,7 +275,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             </Flex>
             <Flex alignItems={'center'} sx={{ gap: '6px' }}>
               <Text>{formatDisplayNumber(feeInfo?.amount1, { significantDigits: 4 })}</Text>
-              <Text>{isToken1Native ? 'ETH' : position.token1Symbol}</Text>
+              <Text>{isToken1Native ? nativeToken.symbol : position.token1Symbol}</Text>
               <Text fontSize={14} color={theme.subText}>
                 {formatDisplayNumber(feeInfo?.value1, {
                   style: 'currency',
