@@ -369,7 +369,7 @@ export default function ConfirmSwapModalContent({
             isSlippageNotEnough && slippage <= defaultSlp ? (
               <Flex sx={{ gap: '16px' }}>
                 <ButtonOutlined onClick={onDismiss} style={{ flex: 1 }}>
-                  Dissmis
+                  Dismiss
                 </ButtonOutlined>
                 {slippage < defaultSlp ? (
                   <ButtonPrimary style={{ flex: 2 }} onClick={() => setRawSlippage(defaultSlp)}>
@@ -381,9 +381,10 @@ export default function ConfirmSwapModalContent({
                     onClick={() => {
                       searchParams.set('tab', 'settings')
                       setSearchParams(searchParams)
+                      onDismiss()
                     }}
                   >
-                    Adjust Max Slippage
+                    Set Custom Slippage
                   </ButtonPrimary>
                 )}
               </Flex>
