@@ -64,7 +64,15 @@ export enum EarnSupportedProtocols {
   PANCAKESWAP_V3 = 'PancakeSwap V3',
   SUSHISWAP_V3 = 'SushiSwap V3',
 }
-export const earnSupportedChains = [ChainId.MAINNET, ChainId.BASE]
+
+export const earnSupportedChains = [
+  ChainId.MAINNET,
+  ChainId.BASE,
+  ChainId.BSCMAINNET,
+  ChainId.ARBITRUM,
+  ChainId.AVAXMAINNET,
+]
+
 export const earnSupportedProtocols = [
   EarnSupportedProtocols.UNISWAP_V3,
   EarnSupportedProtocols.PANCAKESWAP_V3,
@@ -191,14 +199,15 @@ export interface PositionHistory {
 }
 
 export interface PositionQueryParams {
-  chainIds?: string
+  chainIds: string
   addresses: string
   positionId?: string
-  protocols?: string
-  status?: string
+  protocols: string
+  status: string
   q?: string
   sortBy?: string
   orderBy?: string
+  page: number
 }
 
 interface PositionHistoryParams {

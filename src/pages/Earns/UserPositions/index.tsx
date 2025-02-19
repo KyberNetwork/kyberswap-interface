@@ -30,13 +30,12 @@ const MyPositions = () => {
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
-  const { filters, onFilterChange } = useFilter()
+  const { filters, updateFilters } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const firstLoading = useRef(false)
   const [loading, setLoading] = useState(false)
-  const [page, setPage] = useState(1)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
 
   const {
@@ -91,22 +90,21 @@ const MyPositions = () => {
 
   const positionsToShow = useMemo(() => {
     if (filteredPositions.length <= POSITIONS_TABLE_LIMIT) return filteredPositions
-    return filteredPositions.slice((page - 1) * POSITIONS_TABLE_LIMIT, page * POSITIONS_TABLE_LIMIT)
-  }, [filteredPositions, page])
+    return filteredPositions.slice((filters.page - 1) * POSITIONS_TABLE_LIMIT, filters.page * POSITIONS_TABLE_LIMIT)
+  }, [filteredPositions, filters.page])
 
   const onSortChange = (sortBy: string) => {
-    setPage(1)
     if (!filters.sortBy || filters.sortBy !== sortBy) {
-      onFilterChange('sortBy', sortBy)
-      onFilterChange('orderBy', Direction.DESC)
+      updateFilters('sortBy', sortBy)
+      updateFilters('orderBy', Direction.DESC)
       return
     }
     if (filters.orderBy === Direction.DESC) {
-      onFilterChange('orderBy', Direction.ASC)
+      updateFilters('orderBy', Direction.ASC)
       return
     }
-    onFilterChange('sortBy', SortBy.VALUE)
-    onFilterChange('orderBy', Direction.DESC)
+    updateFilters('sortBy', SortBy.VALUE)
+    updateFilters('orderBy', Direction.DESC)
   }
 
   useEffect(() => {
@@ -166,9 +164,8 @@ const MyPositions = () => {
           supportedChains={supportedChains}
           supportedDexes={supportedDexes}
           filters={filters}
-          onFilterChange={(...args) => {
-            onFilterChange(...args)
-            setPage(1)
+          updateFilters={(...args) => {
+            updateFilters(...args)
             setLoading(true)
           }}
         />
@@ -224,9 +221,9 @@ const MyPositions = () => {
           {!isError && (
             <Pagination
               haveBg={false}
-              onPageChange={(newPage: number) => setPage(newPage)}
+              onPageChange={(newPage: number) => updateFilters('page', newPage)}
               totalCount={userPosition?.length || 0}
-              currentPage={page || 1}
+              currentPage={filters.page}
               pageSize={POSITIONS_TABLE_LIMIT}
             />
           )}
