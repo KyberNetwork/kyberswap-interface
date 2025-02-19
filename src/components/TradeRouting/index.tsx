@@ -73,7 +73,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                   <TokenRoute token={token} />
                   {Array.isArray(subRoute)
                     ? subRoute.map(pool => {
-                        const dex = getDexInfoByPool(pool, allDexes)
+                        const dex = getDexInfoByPool(pool.exchange, allDexes)
                         const poolId = pool.id.split('-')?.[0]
                         const link = (i => {
                           // TODO: Dungz remove condition
@@ -188,8 +188,12 @@ const Routing = ({
           {hasRoutes ? (
             <div>
               <StyledRoutes>
-                <StyledDot />
-                <StyledDot out />
+                {!isSwapRouteV3 && (
+                  <>
+                    <StyledDot />
+                    <StyledDot out />
+                  </>
+                )}
                 {isSwapRouteV3 ? (
                   <RouteRowV3
                     tradeComposition={tradeComposition as SwapRouteV3[]}

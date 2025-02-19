@@ -1,24 +1,23 @@
 import useThrottle from 'hooks/useThrottle'
 import { Dex } from 'state/customizeDexes'
-import { SwapPool } from 'utils/aggregationRouting'
 
-export const getDexInfoByPool = (pool: SwapPool, allDexes?: Dex[]) => {
-  if (pool.exchange === '1inch') {
+export const getDexInfoByPool = (exchange: string, allDexes?: Dex[]) => {
+  if (exchange === '1inch') {
     return { name: '1inch', logoURL: 'https://s2.coinmarketcap.com/static/img/coins/64x64/8104.png' }
   }
 
-  if (pool.exchange === 'paraswap') {
+  if (exchange === 'paraswap') {
     return { name: 'Paraswap', logoURL: 'https://s2.coinmarketcap.com/static/img/coins/64x64/14534.png' }
   }
 
-  if (pool.exchange === '0x') {
+  if (exchange === '0x') {
     return { name: '0x', logoURL: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1896.png' }
   }
 
   return allDexes?.find(
     dex =>
-      dex.id === pool.exchange ||
-      ((pool.exchange === 'kyberswap' || pool.exchange === 'kyberswap-static') && dex.id === 'kyberswapv1'), // Mapping for kyberswap classic dex
+      dex.id === exchange ||
+      ((exchange === 'kyberswap' || exchange === 'kyberswap-static') && dex.id === 'kyberswapv1'), // Mapping for kyberswap classic dex
   )
 }
 
