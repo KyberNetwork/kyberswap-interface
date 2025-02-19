@@ -307,7 +307,7 @@ export const usePairCategory = (customChainId?: ChainId) => {
     },
   )
 
-  return data?.data.category
+  return data?.data.category || PAIR_CATEGORY.EXOTIC
 }
 export const useDefaultSlippageByPair = (customChainId?: ChainId) => {
   const cat = usePairCategory(customChainId)
