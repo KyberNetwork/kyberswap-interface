@@ -26,7 +26,6 @@ import { TOKEN_API_URL } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
@@ -94,7 +93,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const { typedValue } = useSwapState()
   const [recipient, setRecipient] = useState<string | null>(null)
-  useUpdateSlippageInStableCoinSwap(chainId)
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(

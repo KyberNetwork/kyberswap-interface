@@ -158,12 +158,14 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
           <Flex
             fontSize={12}
             color={theme.primary}
-            sx={{ gap: '4px' }}
+            sx={{ gap: '4px', cursor: 'pointer' }}
             alignItems="center"
             marginTop="-12px"
             paddingX="4px"
+            role="button"
+            onClick={() => setRawSlippage(defaultSlp)}
           >
-            <MouseoverTooltip text="Dynamic entry based on trading pair.">
+            <MouseoverTooltip text="Dynamic entry based on trading pair." placement="bottom">
               <Text sx={{ borderBottom: `1px dotted ${theme.primary}` }}>Suggestion</Text>
             </MouseoverTooltip>
             {(defaultSlp * 100) / 10_000}%
