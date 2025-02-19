@@ -1,9 +1,9 @@
 import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { ReactNode, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
@@ -14,11 +14,40 @@ import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
-const DropdownIcon = styled(DropdownSVG)`
-  transition: transform 300ms;
+const highlight = keyframes`
+  0% {
+    box-shadow: 0 0 0 0 #31CB9E66;
+  }
+
+  70% {
+    box-shadow: 0 0 0 3px #31CB9E66; 
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 #31CB9E66;
+  }
+`
+
+//transition: transform 300ms;
+const DropdownIcon = styled.div`
+  margin-left: 6px;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+
+  transition: all 0.2s ease-in-out;
   color: ${({ theme }) => theme.subText};
   &[data-flip='true'] {
     transform: rotate(180deg);
+  }
+
+  &[data-highlight='true'] {
+    background: ${({ theme }) => rgba(theme.primary, 0.6)};
+    animation: ${highlight} 2s infinite alternate ease-in-out;
   }
 `
 
@@ -128,7 +157,14 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
               </MouseoverTooltip>
             </Text>
 
-            <DropdownIcon data-flip={expanded} />
+            <DropdownIcon data-flip={expanded} data-highlight={!expanded && defaultSlp !== rawSlippage}>
+              <svg width="10" height="6" viewBox="0 0 6 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M3.70711 3.29289L5.29289 1.70711C5.92286 1.07714 5.47669 0 4.58579 0H1.41421C0.523309 0 0.0771406 1.07714 0.707105 1.70711L2.29289 3.29289C2.68342 3.68342 3.31658 3.68342 3.70711 3.29289Z"
+                  fill="#FAFAFA"
+                />
+              </svg>
+            </DropdownIcon>
           </Flex>
         </Flex>
         {rightComponent}
