@@ -105,10 +105,16 @@ const SwapActionButton: React.FC<Props> = ({
   )
 
   // check whether the user has approved the router on the input token
-  const [approval, approveCallback, currentAllowance] = useApproveCallback(
+  const [approval, approveCallback, currentAllowance, pendingApproval] = useApproveCallback(
     parsedAmountFromTypedValue,
     routeSummary?.routerAddress,
   )
+
+  useEffect(() => {
+    if (pendingApproval) {
+      setAutoShowPreview(true)
+    }
+  }, [pendingApproval])
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
@@ -149,7 +155,6 @@ const SwapActionButton: React.FC<Props> = ({
   const [autoShowPreview, setAutoShowPreview] = useState(false)
   const handleApproveClick = () => {
     setLoading(true)
-    setAutoShowPreview(true)
     approveCallback(
       approvalType === AllowanceType.EXACT && parsedAmountFromTypedValue ? parsedAmountFromTypedValue : undefined,
     ).finally(() => setLoading(false))

@@ -36,7 +36,7 @@ export function useApproveCallback(
   amountToApprove?: CurrencyAmount<Currency>,
   spender?: string,
   forceApprove = false,
-): [ApprovalState, (customAllowance?: CurrencyAmount<Currency>) => Promise<void>, TokenAmount | undefined] {
+): [ApprovalState, (customAllowance?: CurrencyAmount<Currency>) => Promise<void>, TokenAmount | undefined, boolean] {
   const { account } = useActiveWeb3React()
   const token = amountToApprove?.currency.wrapped
 
@@ -193,14 +193,14 @@ export function useApproveCallback(
     ],
   )
 
-  return [approvalState, approve, currentAllowance]
+  return [approvalState, approve, currentAllowance, pendingApproval]
 }
 
 // wraps useApproveCallback in the context of a swap
 export function useApproveCallbackFromTradeV2(
   trade?: Aggregator,
   allowedSlippage = 0,
-): [ApprovalState, () => Promise<void>, TokenAmount | undefined] {
+): [ApprovalState, () => Promise<void>, TokenAmount | undefined, boolean] {
   const amountToApprove = useMemo(
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
