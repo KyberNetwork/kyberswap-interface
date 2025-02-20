@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
-import { DEFAULT_SLIPPAGES } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { usePairCategory } from 'state/swap/hooks'
 
 import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
 
@@ -63,6 +64,12 @@ const SlippageControl: React.FC<Props> = props => {
   const { rawSlippage, setRawSlippage, isWarning } = props
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
+  const cat = usePairCategory()
+  const options = useMemo(
+    () => (cat === 'highVolatilityPair' ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
+    [cat],
+  )
+
   return (
     <Flex
       sx={{
@@ -75,7 +82,7 @@ const SlippageControl: React.FC<Props> = props => {
         padding: '2px',
       }}
     >
-      {DEFAULT_SLIPPAGES.map(slp => (
+      {options.map(slp => (
         <DefaultSlippageOption
           key={slp}
           onClick={() => {
@@ -89,7 +96,7 @@ const SlippageControl: React.FC<Props> = props => {
         </DefaultSlippageOption>
       ))}
 
-      <CustomSlippageInput {...props} />
+      <CustomSlippageInput {...props} options={options} />
     </Flex>
   )
 }

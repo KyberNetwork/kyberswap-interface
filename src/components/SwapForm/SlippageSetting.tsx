@@ -1,40 +1,76 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, useState } from 'react'
+import { rgba } from 'polished'
+import { ReactNode, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { checkWarningSlippage, formatSlippage, getDefaultSlippage } from 'utils/slippage'
+import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
-const DropdownIcon = styled(DropdownSVG)`
-  transition: transform 300ms;
+const highlight = keyframes`
+  0% {
+    box-shadow: 0 0 0 0 #31CB9E66;
+  }
+
+  70% {
+    box-shadow: 0 0 0 3px #31CB9E66; 
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 #31CB9E66;
+  }
+`
+
+//transition: transform 300ms;
+const DropdownIcon = styled.div`
+  margin-left: 6px;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+
+  transition: all 0.2s ease-in-out;
   color: ${({ theme }) => theme.subText};
   &[data-flip='true'] {
     transform: rotate(180deg);
   }
+
+  &[data-highlight='true'] {
+    background: ${({ theme }) => rgba(theme.primary, 0.6)};
+    animation: ${highlight} 2s infinite alternate ease-in-out;
+  }
 `
 
 type Props = {
-  isStablePairSwap: boolean
-  isCorrelatedPair: boolean
   rightComponent?: ReactNode
   tooltip?: ReactNode
 }
-const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, tooltip }: Props) => {
+const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
-  const defaultRawSlippage = getDefaultSlippage(isStablePairSwap, isCorrelatedPair)
 
-  const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap, isCorrelatedPair)
+  const pairCategory = usePairCategory()
+  const defaultSlp = useDefaultSlippageByPair()
+  const isWarningSlippage = checkWarningSlippage(rawSlippage, pairCategory)
+
+  const options = useMemo(
+    () => (pairCategory === 'highVolatilityPair' ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
+    [pairCategory],
+  )
+
   if (!isSlippageControlPinned) {
     return null
   }
@@ -109,9 +145,9 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
               <MouseoverTooltip
                 text={
                   isWarningSlippage
-                    ? isStablePairSwap
+                    ? pairCategory === PAIR_CATEGORY.STABLE
                       ? t`Your slippage setting might be high compared to typical stable pair trades. Consider adjusting it to reduce the risk of front-running.`
-                      : isCorrelatedPair
+                      : pairCategory === PAIR_CATEGORY.CORRELATED
                       ? t`Your slippage setting might be high compared with other similar trades. You might want to adjust it to avoid potential front-running.`
                       : t`Your slippage setting might be high. You might want to adjust it to avoid potential front-running.`
                     : ''
@@ -121,7 +157,14 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
               </MouseoverTooltip>
             </Text>
 
-            <DropdownIcon data-flip={expanded} />
+            <DropdownIcon data-flip={expanded} data-highlight={!expanded && defaultSlp !== rawSlippage}>
+              <svg width="10" height="6" viewBox="0 0 6 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M3.70711 3.29289L5.29289 1.70711C5.92286 1.07714 5.47669 0 4.58579 0H1.41421C0.523309 0 0.0771406 1.07714 0.707105 1.70711L2.29289 3.29289C2.68342 3.68342 3.31658 3.68342 3.70711 3.29289Z"
+                  fill="#FAFAFA"
+                />
+              </svg>
+            </DropdownIcon>
           </Flex>
         </Flex>
         {rightComponent}
@@ -140,19 +183,32 @@ const SlippageSetting = ({ isStablePairSwap, isCorrelatedPair, rightComponent, t
           rawSlippage={rawSlippage}
           setRawSlippage={setRawSlippage}
           isWarning={isWarningSlippage}
-          defaultRawSlippage={defaultRawSlippage}
+          options={options}
         />
         {isDegenMode && expanded && (
           <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px" marginTop="-12px">
             Maximum Slippage allow for Degen mode is 50%
           </Text>
         )}
+        {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && (
+          <Flex
+            fontSize={12}
+            color={theme.primary}
+            sx={{ gap: '4px', cursor: 'pointer' }}
+            alignItems="center"
+            marginTop="-12px"
+            paddingX="4px"
+            role="button"
+            onClick={() => setRawSlippage(defaultSlp)}
+          >
+            <MouseoverTooltip text="Dynamic entry based on trading pair." placement="bottom">
+              <Text sx={{ borderBottom: `1px dotted ${theme.primary}` }}>Suggestion</Text>
+            </MouseoverTooltip>
+            {(defaultSlp * 100) / 10_000}%
+          </Flex>
+        )}
 
-        <SlippageWarningNote
-          rawSlippage={rawSlippage}
-          isStablePairSwap={isStablePairSwap}
-          isCorrelatedPair={isCorrelatedPair}
-        />
+        <SlippageWarningNote rawSlippage={rawSlippage} />
       </Flex>
     </Flex>
   )

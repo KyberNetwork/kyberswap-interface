@@ -7,6 +7,7 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import { Field } from 'state/swap/actions'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
@@ -111,6 +112,12 @@ const SwapOnlyButton: React.FC<Props> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoShowPreview, isApproved])
+
+  const [slippage] = useUserSlippageTolerance()
+  useEffect(() => {
+    if (Boolean(buildResult) && isProcessingSwap) handleClickSwapForNormalMode()
+    // eslint-disable-next-line
+  }, [slippage])
 
   const handleClickSwapButton = () => {
     mixpanelSwapInit()
