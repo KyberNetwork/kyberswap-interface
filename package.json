@@ -48,7 +48,7 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@holdstation/paymaster-helper": "^2.0.20",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.1.8",
+    "@kyberswap/ks-sdk-core": "1.1.9",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/liquidity-widgets": "1.1.17",
     "@kyberswap/zap-migration-widgets": "1.0.7",
@@ -199,7 +199,7 @@
     "vite-tsconfig-paths": "^4.0.8"
   },
   "resolutions": {
-    "@kyberswap/ks-sdk-core": "1.1.8",
+    "@kyberswap/ks-sdk-core": "1.1.9",
     "babel-plugin-lodash/@babel/types": "~7.20.0",
     "react-error-overlay": "6.0.9"
   }
