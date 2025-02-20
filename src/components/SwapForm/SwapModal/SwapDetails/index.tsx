@@ -20,7 +20,6 @@ import { PriceAlertButton } from 'components/SwapForm/SlippageSettingGroup'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import { TooltipTextOfSwapFee } from 'components/SwapForm/TradeSummary'
-import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
@@ -28,7 +27,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useCheckCorrelatedPair } from 'state/swap/hooks'
+import { usePairCategory } from 'state/swap/hooks'
 import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
@@ -87,7 +86,6 @@ export default function SwapDetails({
   const theme = useTheme()
   const { slippage, routeSummary } = useSwapFormContext()
 
-  const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
   const minimumAmountOutStr =
@@ -103,8 +101,7 @@ export default function SwapDetails({
     )
 
   const priceImpactResult = checkPriceImpact(priceImpact)
-  const isStablePair = useCheckStablePairSwap(currencyIn, currencyOut)
-  const isCorrelated = useCheckCorrelatedPair()
+  const cat = usePairCategory()
 
   const { formattedAmountUsd: feeAmountUsdFromGet = '' } = routeSummary?.fee || {}
 
@@ -138,7 +135,7 @@ export default function SwapDetails({
   }, [])
 
   const { rawSlippage } = useSlippageSettingByPage()
-  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePair, isCorrelated)
+  const slippageStatus = checkRangeSlippage(rawSlippage, cat)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const addMevButton =
@@ -410,10 +407,7 @@ export default function SwapDetails({
           </RowFixed>
 
           <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: '6px' }}>
-            <TYPE.black
-              fontSize={12}
-              color={checkWarningSlippage(slippage, isStablePair, isCorrelated) ? theme.warning : undefined}
-            >
+            <TYPE.black fontSize={12} color={checkWarningSlippage(slippage, cat) ? theme.warning : undefined}>
               {formatSlippage(slippage)}
             </TYPE.black>
             {addMevButton}

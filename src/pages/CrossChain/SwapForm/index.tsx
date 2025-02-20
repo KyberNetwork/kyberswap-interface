@@ -15,7 +15,6 @@ import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
-import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { formatDurationCrossChain } from 'components/swapv2/AdvancedSwapDetails'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { CROSS_CHAIN_CONFIG } from 'constants/env'
@@ -36,7 +35,7 @@ import useValidateInput, { useIsTokensSupport } from 'pages/CrossChain/useValida
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { tryParseAmount, useCheckCorrelatedPair } from 'state/swap/hooks'
+import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCrossChainSetting, useDegenModeManager } from 'state/user/hooks'
@@ -297,8 +296,6 @@ export default function SwapForm() {
     !!inputError || [debouncedInput, currencyIn, currencyOut, chainIdOut].some(e => !e) || gettingRoute
 
   const priceImpactResult = checkPriceImpact(priceImpact)
-  const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
-  const isCorrelatedPair = useCheckCorrelatedPair()
 
   return (
     <>
@@ -354,8 +351,6 @@ export default function SwapForm() {
         </div>
 
         <SlippageSetting
-          isCorrelatedPair={isCorrelatedPair}
-          isStablePairSwap={isStablePairSwap}
           tooltip={
             <Text>
               <Trans>
@@ -371,11 +366,7 @@ export default function SwapForm() {
         />
 
         <TradeTypeSelection />
-        <SlippageWarningNote
-          rawSlippage={slippageTolerance}
-          isStablePairSwap={isStablePairSwap}
-          isCorrelatedPair={isCorrelatedPair}
-        />
+        <SlippageWarningNote rawSlippage={slippageTolerance} />
 
         {!!priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 

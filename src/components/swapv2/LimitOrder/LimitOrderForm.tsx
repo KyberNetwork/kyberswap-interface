@@ -391,6 +391,9 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const parsedActiveOrderMakingAmount = useMemo(() => {
     try {
       if (currencyIn && activeOrderMakingAmount) {
+        if (currencyIn.isNative) {
+          return TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(0))
+        }
         const value = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(activeOrderMakingAmount))
         if (isEdit && orderInfo) {
           const makingAmount = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(orderInfo.makingAmount))

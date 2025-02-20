@@ -13,7 +13,7 @@ import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
-import { useCheckCorrelatedPair, useCheckStablePairSwap } from 'state/swap/hooks'
+import { usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { formattedNum } from 'utils'
@@ -37,8 +37,6 @@ export default function SwapModalFooter({
   swapErrorMessage: string | undefined
   disabledConfirm: boolean
 }) {
-  const isStablePairSwap = useCheckStablePairSwap()
-  const isCorrelatedPair = useCheckCorrelatedPair()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
   const slippageAdjustedAmounts = useMemo(
@@ -46,7 +44,8 @@ export default function SwapModalFooter({
     [allowedSlippage, trade],
   )
   const [isDegenMode] = useDegenModeManager()
-  const isWarningSlippage = checkWarningSlippage(allowedSlippage, isStablePairSwap, isCorrelatedPair)
+  const cate = usePairCategory()
+  const isWarningSlippage = checkWarningSlippage(allowedSlippage, cate)
 
   const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
 
@@ -169,11 +168,7 @@ export default function SwapModalFooter({
           marginTop: '1rem',
         }}
       >
-        <SlippageWarningNote
-          rawSlippage={allowedSlippage}
-          isStablePairSwap={isStablePairSwap}
-          isCorrelatedPair={isCorrelatedPair}
-        />
+        <SlippageWarningNote rawSlippage={allowedSlippage} />
 
         <PriceImpactNote priceImpact={priceImpact} isDegenMode={isDegenMode} />
 
