@@ -79,3 +79,19 @@ export const formatSlippage = (slp: number, withPercent = true) => {
 
   return text
 }
+
+export const SLIPPAGE_WARNING_MESSAGES = {
+  [SLIPPAGE_STATUS.LOW]: {
+    [PAIR_CATEGORY.HIGH_VOLATILITY]: 'is quite low and may cause failed transactions in volatile markets.',
+    [PAIR_CATEGORY.EXOTIC]: 'is quite low and may cause failed transactions in highly volatile markets.',
+  },
+  [SLIPPAGE_STATUS.HIGH]: {
+    [PAIR_CATEGORY.STABLE]:
+      'setting might be high compared to typical stable pair trades. Consider adjusting it to reduce front-running risks.',
+    [PAIR_CATEGORY.CORRELATED]:
+      'setting might be high compared with other similar trades. Consider adjusting it to reduce front-running risks.',
+    [PAIR_CATEGORY.HIGH_VOLATILITY]:
+      'setting might be high for this market. Consider adjusting it to reduce front-running risks.',
+    [PAIR_CATEGORY.EXOTIC]: 'setting might be high. Consider adjusting it to reduce front-running risks.',
+  },
+}

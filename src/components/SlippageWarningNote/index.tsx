@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import WarningNote from 'components/WarningNote'
 import { PAIR_CATEGORY } from 'constants/index'
 import { usePairCategory } from 'state/swap/hooks'
-import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
+import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage } from 'utils/slippage'
 
 type Props = {
   rawSlippage: number
@@ -39,25 +39,7 @@ const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
     return null
   }
 
-  let msg
-
-  if (slippageStatus === SLIPPAGE_STATUS.LOW) {
-    if (cat === PAIR_CATEGORY.HIGH_VOLATILITY) {
-      msg = 'is quite low and may cause failed transactions in volatile markets'
-    } else if (cat === PAIR_CATEGORY.EXOTIC) {
-      msg = 'is quite low and may cause failed transactions in highly volatile markets.'
-    }
-  } else if (slippageStatus === SLIPPAGE_STATUS.HIGH) {
-    if (cat === PAIR_CATEGORY.STABLE) {
-      msg =
-        'setting might be high compared to typical stable pair trades. Consider adjusting it to reduce front-running risks.'
-    } else if (cat === PAIR_CATEGORY.CORRELATED) {
-      msg =
-        'setting might be high compared with other similar trades. Consider adjusting it to reduce front-running risks.'
-    } else if (cat === PAIR_CATEGORY.HIGH_VOLATILITY) {
-      msg = 'setting might be high for this market. Consider adjusting it to reduce front-running risks.'
-    } else msg = 'setting might be high. Consider adjusting it to reduce front-running risks.'
-  }
+  const msg = (SLIPPAGE_WARNING_MESSAGES[slippageStatus] as Record<PAIR_CATEGORY, string>)[cat] || ''
 
   const shortText = (
     <div>
