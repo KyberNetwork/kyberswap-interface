@@ -42,6 +42,9 @@ export type Props = {
   setProcessingSwap: React.Dispatch<React.SetStateAction<boolean>>
   setErrorWhileSwap: (e: string) => void
   buildRoute: () => Promise<BuildRouteResult>
+
+  autoShowPreview: boolean
+  setAutoShowPreview: (val: boolean) => void
 }
 
 const SwapOnlyButton: React.FC<Props> = ({
@@ -61,6 +64,9 @@ const SwapOnlyButton: React.FC<Props> = ({
   setProcessingSwap,
   setErrorWhileSwap,
   buildRoute,
+
+  autoShowPreview,
+  setAutoShowPreview,
 }) => {
   const { mixpanelHandler } = useMixpanel({
     [Field.INPUT]: currencyIn,
@@ -99,8 +105,15 @@ const SwapOnlyButton: React.FC<Props> = ({
     })
   }
 
-  const [slippage] = useUserSlippageTolerance()
+  useEffect(() => {
+    if (autoShowPreview && isApproved) {
+      handleClickSwapForNormalMode()
+      setAutoShowPreview(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoShowPreview, isApproved])
 
+  const [slippage] = useUserSlippageTolerance()
   useEffect(() => {
     if (Boolean(buildResult) && isProcessingSwap) handleClickSwapForNormalMode()
     // eslint-disable-next-line

@@ -29,7 +29,6 @@ export const SwapButtonWithPriceImpact = ({
   showLoading,
   onClick,
   priceImpact,
-  isApproved,
   route,
   disabled,
   showNoteGetRoute,
@@ -77,7 +76,7 @@ export const SwapButtonWithPriceImpact = ({
   }
 
   const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isDegenMode, priceImpact)
-  const shouldDisable = !route || !isApproved || disabled
+  const shouldDisable = !route || disabled
 
   if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {
     return (
@@ -104,7 +103,13 @@ export const SwapButtonWithPriceImpact = ({
         }
       }}
       $minimal={minimal}
-      style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        background: shouldDisableByPriceImpact ? theme.red : undefined,
+        color: shouldDisableByPriceImpact ? theme.text : undefined,
+      }}
     >
       {shouldDisableByPriceImpact && showTooltipPriceImpact ? (
         <MouseoverTooltip
