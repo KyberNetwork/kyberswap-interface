@@ -8,7 +8,6 @@ const Network = {
   MAINNET: 1,
   BSC: 56,
   POLYGON: 137,
-  ZKEVM: 1101,
   AVALANCHE: 43114,
   FANTOM: 250,
   ARBITRUM: 42161,

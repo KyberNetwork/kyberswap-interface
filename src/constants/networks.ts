@@ -20,7 +20,6 @@ import {
   optimism,
   scroll,
   sonic,
-  zkEvm,
   zksync,
 } from './networks/index'
 import { NetworkInfo } from './networks/type'
@@ -41,7 +40,6 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.OPTIMISM]: optimism,
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA]: linea,
-  [ChainId.ZKEVM]: zkEvm,
   [ChainId.BASE]: base,
   [ChainId.SCROLL]: scroll,
   [ChainId.BLAST]: blast,
@@ -67,7 +65,6 @@ export const MAINNET_NETWORKS = [
   ChainId.OPTIMISM,
   ChainId.LINEA,
   ChainId.MATIC,
-  ChainId.ZKEVM,
   ChainId.ZKSYNC,
   ChainId.BASE,
   ChainId.SCROLL,
@@ -116,7 +113,6 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.GÖRLI]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.LINEA]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.ZKEVM]: [8, 10, 50, 300, 500, 1000],
   [ChainId.BASE]: [8, 10, 50, 300, 500, 1000],
   [ChainId.SCROLL]: [8, 10, 50, 300, 500, 1000],
 }
@@ -127,7 +123,6 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.GÖRLI,
   ChainId.ZKSYNC,
   ChainId.LINEA,
-  ChainId.ZKEVM,
   ChainId.BASE,
   ChainId.SCROLL,
 ]

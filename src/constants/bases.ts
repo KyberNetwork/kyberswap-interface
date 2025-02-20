@@ -20,7 +20,6 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.OPTIMISM]: [WETH[ChainId.OPTIMISM]],
   [ChainId.ZKSYNC]: [WETH[ChainId.ZKSYNC]],
   [ChainId.LINEA]: [WETH[ChainId.LINEA]],
-  [ChainId.ZKEVM]: [WETH[ChainId.ZKEVM]],
   [ChainId.BASE]: [WETH[ChainId.BASE]],
   [ChainId.SCROLL]: [WETH[ChainId.SCROLL]],
   [ChainId.BLAST]: [WETH[ChainId.BLAST]],

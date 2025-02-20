@@ -341,7 +341,6 @@ function AboutKyberSwap() {
               <OptimismLogoFull />
               <ZkSyncFull color={theme.text} />
               <LineaFull />
-              <img src={'https://i.imgur.com/QP6x5aC.png'} alt="zkevm" width="100%" />
               <img
                 src="https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/wordmark/Base_Wordmark_Blue.svg"
                 alt="Base"
