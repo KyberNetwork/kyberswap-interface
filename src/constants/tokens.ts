@@ -40,7 +40,6 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.FANTOM]: [],
   [ChainId.BSCMAINNET]: [],
   [ChainId.ARBITRUM]: [],
-  [ChainId.ZKEVM]: [],
   [ChainId.LINEA]: [],
   [ChainId.BASE]: [],
   [ChainId.SCROLL]: [],
@@ -105,11 +104,6 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
-  [ChainId.ZKEVM]: [
-    '0xA8CE8aee21bC2A48a5EF670afCc9274C7bbbC035', // USDC
-    '0x1E4a5963aBFD975d8c9021ce480b42188849D41d', // USDT
-    '0xC5015b9d9161Dca7e18e32f6f25C4aD850731Fd4', // DAI
-  ],
   [ChainId.BASE]: [
     '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA', // USDbC
     '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb', // DAI
@@ -342,13 +336,6 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
-  [ChainId.ZKEVM]: [
-    [
-      // Eth/rEth:
-      '0x4f9a0e7fd2bf6067db6994cf12e4495df938e6e9',
-      '0xb23c20efce6e24acca0cef9b7b7aa196b84ec942',
-    ],
-  ],
   [ChainId.LINEA]: [
     [
       // Eth/wstEth:
@@ -409,7 +396,6 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xe4DDDfe67E7164b0FE14E218d80dC4C08eDC01cB', 18, 'KNC', 'KNC'),
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0xa00e3a3511aac35ca78530c85007afcd31753819', 18, 'KNC', 'KNC'),
   [ChainId.LINEA]: new Token(ChainId.LINEA, '0x3b2F62d42DB19B30588648bf1c184865D4C3B1D6', 18, 'KNC', 'KNC'),
-  [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0x6A80A465409ce8D36C513129C0FEEa61BEd579ba', 18, 'KNC', 'KNC'),
   [ChainId.BASE]: new Token(ChainId.BASE, '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1', 18, 'KNC', 'KNC'),
 
   // TODO(viet-nv): KNC does not exist on the below chain
@@ -441,7 +427,6 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 6, 'USDC', 'USD Coin'),
   [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x2bf64acf7ead856209749d0d125e9ade2d908e7f', 18, 'USDT', 'Tether USD'),
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', 6, 'USDC', 'USD Coin'),
-  [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0x1E4a5963aBFD975d8c9021ce480b42188849D41d', 6, 'USDT', 'Tether USD'),
   [ChainId.LINEA]: new Token(ChainId.LINEA, '0x176211869cA2b568f2A7D4EE941E073a821EE1ff', 6, 'USDC', 'USD Coin'),
   [ChainId.BASE]: new Token(ChainId.BASE, '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA', 6, 'USDC', 'USD Coin'),
   [ChainId.SCROLL]: new Token(ChainId.SCROLL, '0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df', 6, 'USDT', 'Tether USD'),

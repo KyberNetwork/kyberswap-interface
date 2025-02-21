@@ -7,8 +7,6 @@ type SwapFormContextProps = {
   routeSummary: DetailedRouteSummary | undefined
   typedValue: string
   recipient: string | null
-  isStablePairSwap: boolean
-  isCorrelatedPair: boolean
   isAdvancedMode: boolean
 }
 
