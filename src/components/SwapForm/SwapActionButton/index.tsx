@@ -1,7 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
@@ -23,7 +22,6 @@ import { WrapType } from 'hooks/useWrapCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { DetailedRouteSummary } from 'types/route'
-import { checkPriceImpact } from 'utils/prices'
 
 import { Props as SwapOnlyButtonProps } from './SwapOnlyButton'
 
@@ -107,16 +105,10 @@ const SwapActionButton: React.FC<Props> = ({
   )
 
   // check whether the user has approved the router on the input token
-  const [approval, approveCallback, currentAllowance, pendingApproval] = useApproveCallback(
+  const [approval, approveCallback, currentAllowance] = useApproveCallback(
     parsedAmountFromTypedValue,
     routeSummary?.routerAddress,
   )
-
-  useEffect(() => {
-    if (pendingApproval) {
-      setAutoShowPreview(true)
-    }
-  }, [pendingApproval])
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
@@ -153,20 +145,8 @@ const SwapActionButton: React.FC<Props> = ({
     if (!showApproveFlow) setLoading(false)
   }, [showApproveFlow])
 
-  const { priceImpact } = routeSummary || {}
-  const priceImpactResult = checkPriceImpact(priceImpact)
-
-  const [searchParams, setSearchParams] = useSearchParams()
   const [approvalType, setApprovalType] = useState(AllowanceType.INFINITE)
-  const [autoShowPreview, setAutoShowPreview] = useState(false)
-
   const handleApproveClick = () => {
-    if (!isDegenMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)) {
-      searchParams.set('enableDegenMode', 'true')
-      setSearchParams(searchParams)
-      return
-    }
-
     setLoading(true)
     approveCallback(
       approvalType === AllowanceType.EXACT && parsedAmountFromTypedValue ? parsedAmountFromTypedValue : undefined,
@@ -279,13 +259,11 @@ const SwapActionButton: React.FC<Props> = ({
       buildRoute,
 
       isApproved: approval === ApprovalState.APPROVED || permitState === PermitState.SIGNED,
-      autoShowPreview,
-      setAutoShowPreview,
     }
 
     const Approvebtn = permitState === PermitState.NOT_SIGNED ? ButtonLight : ButtonPrimary
 
-    if (showApproveFlow && (isDegenMode ? true : !priceImpactResult.isInvalid && !priceImpactResult.isVeryHigh)) {
+    if (showApproveFlow) {
       return (
         <div>
           <RowBetween style={{ gap: '1rem' }}>
@@ -330,12 +308,6 @@ const SwapActionButton: React.FC<Props> = ({
               style={{
                 border: 'none',
                 flex: 1,
-                ...(priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
-                  ? {
-                      background: theme.red,
-                      color: loading || approval === ApprovalState.PENDING ? theme.subText : theme.text,
-                    }
-                  : {}),
               }}
             >
               {approval === ApprovalState.PENDING ? (
@@ -345,17 +317,11 @@ const SwapActionButton: React.FC<Props> = ({
               ) : (
                 <RowFit gap="4px">
                   <InfoHelper
-                    color={
-                      priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
-                        ? theme.text
-                        : !loading && permitState === PermitState.NOT_SIGNED
-                        ? theme.primary
-                        : theme.textReverse
-                    }
+                    color={!loading && permitState === PermitState.NOT_SIGNED ? theme.primary : theme.textReverse}
                     placement="top"
                     text={approveTooltipText()}
                   />
-                  Approve & Swap
+                  <Trans>Approve {currencyIn?.symbol}</Trans>
                 </RowFit>
               )}
             </Approvebtn>
