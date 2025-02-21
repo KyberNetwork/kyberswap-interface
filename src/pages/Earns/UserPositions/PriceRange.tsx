@@ -33,7 +33,7 @@ export default function PriceRange({
   const [currentPriceHover, setCurrentPriceHover] = useState(false)
   const outOfRange = currentPrice < minPrice || currentPrice > maxPrice
 
-  const ticksAtLimit = useMemo(() => {
+  const ticksAtLimit: { lower: boolean; upper: boolean } | undefined = useMemo(() => {
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
     const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
     const parsedMinPrice = toString(Number(minPrice.toFixed(18)))
@@ -46,6 +46,8 @@ export default function PriceRange({
         ? maxTick
         : priceToClosestTick(parsedMaxPrice, token0Decimals, token1Decimals, false)
 
+    if (tickLower === undefined || tickUpper === undefined) return undefined
+
     const usableTickLower = nearestUsableTick(Number(tickLower), tickSpacing)
     const usableTickUpper = nearestUsableTick(Number(tickUpper), tickSpacing)
 
@@ -54,6 +56,8 @@ export default function PriceRange({
       upper: usableTickUpper === maxTick,
     }
   }, [maxPrice, minPrice, tickSpacing, token0Decimals, token1Decimals])
+
+  if (!ticksAtLimit) return null
 
   return (
     <PriceRangeWrapper outOfRange={outOfRange}>
