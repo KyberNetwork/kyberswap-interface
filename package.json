@@ -50,7 +50,7 @@
     "@kyberswap/ks-sdk-classic": "^1.0.3",
     "@kyberswap/ks-sdk-core": "1.1.9",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
-    "kane4-liquidity-widgets": "1.1.17",
+    "kane4-liquidity-widgets": "1.1.18",
     "kane4-zap-migration-widgets": "1.0.7",
     "@kyberswap/oauth2": "1.0.2",
     "@lingui/macro": "^4.6.0",
