@@ -1,9 +1,11 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { usePoolDetailQuery } from 'services/poolService'
 
 import { Swap as SwapIcon } from 'components/Icons'
+import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
@@ -16,6 +18,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
   const { data: pool } = usePoolDetailQuery({ chainId: position.chainId, ids: position.poolAddress })
   const [revert, setRevert] = useState(false)
+  const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
 
   const price = useMemo(() => (!revert ? position.pairRate : 1 / position.pairRate), [position.pairRate, revert])
 
@@ -48,6 +51,15 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
         formatDisplayNumber(parsedMaxPrice, { significantDigits: 6 }),
       ]
   }, [pool, position, revert])
+
+  useEffect(() => {
+    if (!pool || !position.chainId || !pool.tokens?.[0] || defaultRevertChecked) return
+    setDefaultRevertChecked(true)
+    const isToken0Native =
+      pool.tokens[0].address.toLowerCase() ===
+      NativeCurrencies[position.chainId as ChainId].wrapped.address.toLowerCase()
+    if (isToken0Native) setRevert(true)
+  }, [defaultRevertChecked, pool, position.chainId])
 
   if (!priceRange || !price) return null
 
