@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { EarnSupportedProtocols, PositionStatus, earnSupportedProtocols } from 'services/zapEarn'
+import { Dex, PositionStatus, earnSupportedProtocols } from 'services/zapEarn'
 
 import CopyHelper from 'components/Copy'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -25,16 +25,13 @@ const PositionDetailHeader = ({ position }: { position: ParsedPosition }) => {
     if (!position || !earnSupportedProtocols.includes(position.dex)) return
 
     const chainName =
-      position.dex === EarnSupportedProtocols.DEX_UNISWAPV3 && position.chainName === 'eth'
-        ? 'ethereum'
-        : position.chainName
+      position.dex === Dex.DEX_UNISWAPV3 && position.chainName === 'eth' ? 'ethereum' : position.chainName
 
-    if (position.dex === EarnSupportedProtocols.DEX_UNISWAPV3)
+    if (position.dex === Dex.DEX_UNISWAPV3)
       window.open(`https://app.uniswap.org/positions/v3/${chainName}/${position.id}`)
-    else if (position.dex === EarnSupportedProtocols.DEX_SUSHISWAPV3)
+    else if (position.dex === Dex.DEX_SUSHISWAPV3)
       window.open(`https://www.sushi.com/${chainName}/pool/v3/${position.poolAddress}/${position.id}`)
-    else if (position.dex === EarnSupportedProtocols.DEX_PANCAKESWAPV3)
-      window.open(`https://pancakeswap.finance/liquidity/${position.id}`)
+    else if (position.dex === Dex.DEX_PANCAKESWAPV3) window.open(`https://pancakeswap.finance/liquidity/${position.id}`)
   }
 
   return (

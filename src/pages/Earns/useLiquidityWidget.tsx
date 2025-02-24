@@ -1,11 +1,11 @@
 import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'kane5-liquidity-widgets'
 import 'kane5-liquidity-widgets/dist/style.css'
-import { Dex, ChainId as MigrateChainId, ZapMigration } from 'kane5-zap-migration-widgets'
+import { ChainId as MigrateChainId, Dex as MigrationDex, ZapMigration } from 'kane5-zap-migration-widgets'
 import 'kane5-zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { EarnSupportedProtocols } from 'services/zapEarn'
+import { Dex } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -39,12 +39,12 @@ interface AddLiquidityParams extends AddLiquidityPureParams {
 
 interface MigrateLiquidityPureParams {
   from: {
-    dex: Dex
+    dex: MigrationDex
     poolId: string
     positionId: string | number
   }
   to: {
-    dex: Dex
+    dex: MigrationDex
     poolId: string
     positionId?: string | number
   }
@@ -65,9 +65,9 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
 }
 
 const dexFormatter = {
-  [PoolType.DEX_UNISWAPV3]: Dex.Uniswapv3,
-  [PoolType.DEX_PANCAKESWAPV3]: Dex.Pancakev3,
-  [PoolType.DEX_SUSHISWAPV3]: Dex.Sushiv3,
+  [PoolType.DEX_UNISWAPV3]: MigrationDex.Uniswapv3,
+  [PoolType.DEX_PANCAKESWAPV3]: MigrationDex.Pancakev3,
+  [PoolType.DEX_SUSHISWAPV3]: MigrationDex.Sushiv3,
   [PoolType.DEX_UNISWAPV2]: null,
   [PoolType.DEX_PANCAKESWAPV2]: null,
   [PoolType.DEX_SUSHISWAPV2]: null,
@@ -80,11 +80,11 @@ const dexFormatter = {
   [PoolType.DEX_SWAPMODEV3]: null,
   [PoolType.DEX_KOICL]: null,
   [PoolType.DEX_THRUSTERV3]: null,
-  [PoolType.DEX_QUICKSWAPV3UNI]: Dex.Quickswapv3Uni,
-  [EarnSupportedProtocols.DEX_UNISWAPV3]: Dex.Uniswapv3,
-  [EarnSupportedProtocols.DEX_PANCAKESWAPV3]: Dex.Pancakev3,
-  [EarnSupportedProtocols.DEX_SUSHISWAPV3]: Dex.Sushiv3,
-  [EarnSupportedProtocols.DEX_QUICKSWAPV3UNI]: Dex.Quickswapv3Uni,
+  [PoolType.DEX_QUICKSWAPV3UNI]: MigrationDex.Quickswapv3Uni,
+  [Dex.DEX_UNISWAPV3]: MigrationDex.Uniswapv3,
+  [Dex.DEX_PANCAKESWAPV3]: MigrationDex.Pancakev3,
+  [Dex.DEX_SUSHISWAPV3]: MigrationDex.Sushiv3,
+  [Dex.DEX_QUICKSWAPV3UNI]: MigrationDex.Quickswapv3Uni,
 }
 
 const useLiquidityWidget = () => {
@@ -103,7 +103,7 @@ const useLiquidityWidget = () => {
       initialTick?: { tickUpper: number; tickLower: number },
     ) => {
       if (!addLiquidityPureParams) return
-      if (!dexFormatter[position.exchange as EarnSupportedProtocols]) {
+      if (!dexFormatter[position.exchange as Dex]) {
         notify(
           {
             title: `Open liquidity migration widget failed`,
@@ -127,12 +127,12 @@ const useLiquidityWidget = () => {
       }
       const paramsToSet = {
         from: {
-          dex: dexFormatter[position.exchange as EarnSupportedProtocols],
+          dex: dexFormatter[position.exchange as Dex],
           poolId: position.poolId,
           positionId: position.positionId,
         },
         to: {
-          dex: dexFormatter[addLiquidityPureParams.poolType] as Dex,
+          dex: dexFormatter[addLiquidityPureParams.poolType] as MigrationDex,
           poolId: addLiquidityPureParams.poolAddress,
           positionId: addLiquidityPureParams.positionId,
         },
