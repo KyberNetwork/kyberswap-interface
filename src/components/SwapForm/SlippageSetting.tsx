@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -7,12 +7,12 @@ import styled, { keyframes } from 'styled-components'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
+import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage, formatSlippage } from 'utils/slippage'
 
 const highlight = keyframes`
   0% {
@@ -64,7 +64,10 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
 
   const pairCategory = usePairCategory()
   const defaultSlp = useDefaultSlippageByPair()
-  const isWarningSlippage = checkWarningSlippage(rawSlippage, pairCategory)
+  const slippageStatus = checkRangeSlippage(rawSlippage, pairCategory)
+  const isWarningSlippage = slippageStatus !== SLIPPAGE_STATUS.NORMAL
+
+  const msg = SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || ''
 
   const options = useMemo(
     () => (pairCategory === 'highVolatilityPair' ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
@@ -142,19 +145,7 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
                 borderBottom: isWarningSlippage ? `1px dashed ${theme.warning}` : 'none',
               }}
             >
-              <MouseoverTooltip
-                text={
-                  isWarningSlippage
-                    ? pairCategory === PAIR_CATEGORY.STABLE
-                      ? t`Your slippage setting might be high compared to typical stable pair trades. Consider adjusting it to reduce the risk of front-running.`
-                      : pairCategory === PAIR_CATEGORY.CORRELATED
-                      ? t`Your slippage setting might be high compared with other similar trades. You might want to adjust it to avoid potential front-running.`
-                      : t`Your slippage setting might be high. You might want to adjust it to avoid potential front-running.`
-                    : ''
-                }
-              >
-                {formatSlippage(rawSlippage)}
-              </MouseoverTooltip>
+              <MouseoverTooltip text={`Your slippage ${msg}`}>{formatSlippage(rawSlippage)}</MouseoverTooltip>
             </Text>
 
             <DropdownIcon data-flip={expanded} data-highlight={!expanded && defaultSlp !== rawSlippage}>
