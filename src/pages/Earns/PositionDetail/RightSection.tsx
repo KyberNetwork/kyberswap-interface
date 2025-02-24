@@ -11,8 +11,8 @@ import { formatDisplayNumber, toString } from 'utils/numbers'
 
 import { ParsedPosition } from '.'
 import LiquidityChart from './LiquidityChart'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from './LiquidityChart/uniswapv3'
 import { InfoRightColumn, InfoSection, InfoSectionSecondFormat, RevertIconWrapper } from './styles'
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from './uniswapv3'
 
 const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()

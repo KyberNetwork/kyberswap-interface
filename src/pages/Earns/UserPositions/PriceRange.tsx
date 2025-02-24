@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '../PositionDetail/LiquidityChart/uniswapv3'
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '../PositionDetail/uniswapv3'
 import {
   CurrentPriceTooltip,
   CurrentPriceWrapper,
