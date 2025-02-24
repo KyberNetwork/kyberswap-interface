@@ -60,9 +60,10 @@ export interface EarnPool {
 }
 
 export enum EarnSupportedProtocols {
-  UNISWAP_V3 = 'Uniswap V3',
-  PANCAKESWAP_V3 = 'PancakeSwap V3',
-  SUSHISWAP_V3 = 'SushiSwap V3',
+  DEX_UNISWAPV3 = 'Uniswap V3',
+  DEX_PANCAKESWAPV3 = 'PancakeSwap V3',
+  DEX_SUSHISWAPV3 = 'SushiSwap V3',
+  DEX_QUICKSWAPV3UNI = 'QuickSwap V3',
 }
 
 export const earnSupportedChains = [
@@ -71,13 +72,11 @@ export const earnSupportedChains = [
   ChainId.BSCMAINNET,
   ChainId.ARBITRUM,
   ChainId.AVAXMAINNET,
+  ChainId.OPTIMISM,
+  ChainId.MATIC,
 ]
 
-export const earnSupportedProtocols = [
-  EarnSupportedProtocols.UNISWAP_V3,
-  EarnSupportedProtocols.PANCAKESWAP_V3,
-  EarnSupportedProtocols.SUSHISWAP_V3,
-]
+export const earnSupportedProtocols = Object.keys(EarnSupportedProtocols).map(dexKey => EarnSupportedProtocols[dexKey])
 
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',
