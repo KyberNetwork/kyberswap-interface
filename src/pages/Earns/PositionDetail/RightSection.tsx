@@ -23,9 +23,11 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
     if (!pool) return
 
     const tickSpacing = pool?.positionInfo.tickSpacing
-
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
     const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
+
+    if (minTick === undefined || maxTick === undefined) return
+
     const parsedMinPrice = toString(Number((!revert ? position.minPrice : 1 / position.maxPrice).toFixed(18)))
     const parsedMaxPrice = toString(Number((!revert ? position.maxPrice : 1 / position.minPrice).toFixed(18)))
 
@@ -41,6 +43,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
     const usableTickLower = nearestUsableTick(Number(tickLower), tickSpacing)
     const usableTickUpper = nearestUsableTick(Number(tickUpper), tickSpacing)
 
+    if (usableTickLower === undefined || usableTickUpper === undefined) return
     if (usableTickLower === minTick && usableTickUpper === maxTick) return ['0', '∞']
     else
       return [
@@ -49,29 +52,29 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
       ]
   }, [pool, position, revert])
 
-  if (!priceRange || !price) return null
-
   return (
     <InfoRightColumn>
-      <InfoSection>
-        <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Current Price`}
-          </Text>
-          <Text fontSize={14}>
-            {formatDisplayNumber(price, {
-              significantDigits: 6,
-            })}
-          </Text>
-          <Text fontSize={14} color={theme.subText}>
-            {!revert ? position.token1Symbol : position.token0Symbol} per{' '}
-            {!revert ? position.token0Symbol : position.token1Symbol}
-          </Text>
-          <RevertIconWrapper onClick={() => setRevert(!revert)}>
-            <SwapIcon size={18} />
-          </RevertIconWrapper>
-        </Flex>
-      </InfoSection>
+      {price ? (
+        <InfoSection>
+          <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
+            <Text fontSize={14} color={theme.subText}>
+              {t`Current Price`}
+            </Text>
+            <Text fontSize={14}>
+              {formatDisplayNumber(price, {
+                significantDigits: 6,
+              })}
+            </Text>
+            <Text fontSize={14} color={theme.subText}>
+              {!revert ? position.token1Symbol : position.token0Symbol} per{' '}
+              {!revert ? position.token0Symbol : position.token1Symbol}
+            </Text>
+            <RevertIconWrapper onClick={() => setRevert(!revert)}>
+              <SwapIcon size={18} />
+            </RevertIconWrapper>
+          </Flex>
+        </InfoSection>
+      ) : null}
 
       <LiquidityChart
         chainId={position.chainId}
@@ -82,32 +85,34 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
         revertPrice={revert}
       />
 
-      <Flex sx={{ gap: '16px' }}>
-        <InfoSectionSecondFormat>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Min Price`}
-          </Text>
-          <Text fontSize={18} marginBottom={2} marginTop={2}>
-            {priceRange[0]}
-          </Text>
-          <Text fontSize={14} color={theme.subText}>
-            {!revert ? position.token1Symbol : position.token0Symbol}/
-            {!revert ? position.token0Symbol : position.token1Symbol}
-          </Text>
-        </InfoSectionSecondFormat>
-        <InfoSectionSecondFormat>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Max Price`}
-          </Text>
-          <Text fontSize={18} marginBottom={2} marginTop={2}>
-            {priceRange[1]}
-          </Text>
-          <Text fontSize={14} color={theme.subText}>
-            {!revert ? position.token1Symbol : position.token0Symbol}/
-            {!revert ? position.token0Symbol : position.token1Symbol}
-          </Text>
-        </InfoSectionSecondFormat>
-      </Flex>
+      {priceRange ? (
+        <Flex sx={{ gap: '16px' }}>
+          <InfoSectionSecondFormat>
+            <Text fontSize={14} color={theme.subText}>
+              {t`Min Price`}
+            </Text>
+            <Text fontSize={18} marginBottom={2} marginTop={2}>
+              {priceRange[0]}
+            </Text>
+            <Text fontSize={14} color={theme.subText}>
+              {!revert ? position.token1Symbol : position.token0Symbol}/
+              {!revert ? position.token0Symbol : position.token1Symbol}
+            </Text>
+          </InfoSectionSecondFormat>
+          <InfoSectionSecondFormat>
+            <Text fontSize={14} color={theme.subText}>
+              {t`Max Price`}
+            </Text>
+            <Text fontSize={18} marginBottom={2} marginTop={2}>
+              {priceRange[1]}
+            </Text>
+            <Text fontSize={14} color={theme.subText}>
+              {!revert ? position.token1Symbol : position.token0Symbol}/
+              {!revert ? position.token0Symbol : position.token1Symbol}
+            </Text>
+          </InfoSectionSecondFormat>
+        </Flex>
+      ) : null}
     </InfoRightColumn>
   )
 }
