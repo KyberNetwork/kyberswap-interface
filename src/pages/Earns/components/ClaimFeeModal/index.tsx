@@ -17,7 +17,7 @@ import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
-import { NATIVE_ADDRESS, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
+import { NATIVE_ADDRESSES, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -40,7 +40,7 @@ export interface PositionToClaim {
 }
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
-  NATIVE_ADDRESS.includes(tokenAddress.toLowerCase()) ||
+  NATIVE_ADDRESSES.includes(tokenAddress.toLowerCase()) ||
   (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address)
 
 export default function ClaimFeeModal({

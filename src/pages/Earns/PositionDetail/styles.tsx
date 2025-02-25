@@ -163,3 +163,13 @@ export const PositionAction = styled.button<{
     `cursor: not-allowed; color: ${theme.subText}; border-color: ${theme.subText}; filter: brightness(0.6) !important;`}
   ${({ load }) => load && `cursor: not-allowed; filter: brightness(0.6) !important;`}
 `
+
+export const ChartWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  padding: 0 32px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 0;
+  `}
+`
