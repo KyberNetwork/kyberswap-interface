@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
@@ -8,11 +8,11 @@ import {
   CurrentPriceTooltip,
   CurrentPriceWrapper,
   CustomIconCurrentPrice as IconCurrentPrice,
+  IndicatorLabel,
+  LowerPriceIndicator,
   PriceRangeEl,
   PriceRangeWrapper,
-  RangeFirstThumb,
-  RangeSecondThumb,
-  ThumbLabel,
+  UpperPriceIndicator,
 } from './styles'
 
 export default function PriceRange({
@@ -30,7 +30,6 @@ export default function PriceRange({
   token0Decimals: number
   token1Decimals: number
 }) {
-  const [currentPriceHover, setCurrentPriceHover] = useState(false)
   const outOfRange = currentPrice < minPrice || currentPrice > maxPrice
 
   const ticksAtLimit: { lower: boolean; upper: boolean } | undefined = useMemo(() => {
@@ -67,37 +66,63 @@ export default function PriceRange({
   return (
     <PriceRangeWrapper outOfRange={outOfRange}>
       {outOfRange && (
-        <CurrentPriceWrapper lower={currentPrice < minPrice}>
-          <IconCurrentPrice
-            color="#fbb324"
-            onMouseEnter={() => setCurrentPriceHover(true)}
-            onMouseLeave={() => setCurrentPriceHover(false)}
-          />
-          <CurrentPriceTooltip show={currentPriceHover}>
-            {t`Current Price`}: {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
-          </CurrentPriceTooltip>
-        </CurrentPriceWrapper>
+        <CurrentPriceIndicator lower={currentPrice < minPrice} currentPrice={currentPrice} color="#fbb324" />
       )}
       <PriceRangeEl isLowestPrice={ticksAtLimit.lower} isHighestPrice={ticksAtLimit.upper}>
         {!outOfRange && (
-          <CurrentPriceWrapper style={{ left: `${((currentPrice - minPrice) / (maxPrice - minPrice)) * 100}%` }}>
-            <IconCurrentPrice
-              color={maxPrice - currentPrice > (maxPrice - minPrice) / 2 ? '#09ae7d' : '#6368f1'}
-              onMouseEnter={() => setCurrentPriceHover(true)}
-              onMouseLeave={() => setCurrentPriceHover(false)}
-            />
-            <CurrentPriceTooltip show={currentPriceHover}>
-              {t`Current Price`}: {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
-            </CurrentPriceTooltip>
-          </CurrentPriceWrapper>
+          <CurrentPriceIndicator
+            currentPrice={currentPrice}
+            color={maxPrice - currentPrice > (maxPrice - minPrice) / 2 ? '#09ae7d' : '#6368f1'}
+            left={(currentPrice - minPrice) / (maxPrice - minPrice)}
+          />
         )}
-        <RangeFirstThumb>
-          <ThumbLabel>{ticksAtLimit.lower ? '0' : formatDisplayNumber(minPrice, { significantDigits: 6 })}</ThumbLabel>
-        </RangeFirstThumb>
-        <RangeSecondThumb>
-          <ThumbLabel>{ticksAtLimit.upper ? '∞' : formatDisplayNumber(maxPrice, { significantDigits: 6 })}</ThumbLabel>
-        </RangeSecondThumb>
+        <LowerPriceIndicator>
+          <IndicatorLabel>
+            {ticksAtLimit.lower ? '0' : formatDisplayNumber(minPrice, { significantDigits: 6 })}
+          </IndicatorLabel>
+        </LowerPriceIndicator>
+        <UpperPriceIndicator>
+          <IndicatorLabel>
+            {ticksAtLimit.upper ? '∞' : formatDisplayNumber(maxPrice, { significantDigits: 6 })}
+          </IndicatorLabel>
+        </UpperPriceIndicator>
       </PriceRangeEl>
     </PriceRangeWrapper>
+  )
+}
+
+const CurrentPriceIndicator = ({
+  currentPrice,
+  lower,
+  color,
+  left,
+}: {
+  currentPrice: number
+  lower?: boolean
+  color: string
+  left?: number
+}) => {
+  const [currentPriceHover, setCurrentPriceHover] = useState(false)
+  const indicatorRef = useRef<HTMLDivElement>(null)
+
+  const fullRangeElement = indicatorRef.current?.parentElement
+  const maxWidth = fullRangeElement ? fullRangeElement.offsetWidth - 4 * 2 : 0 // 4 is width of lower & upper price indicator
+  const indicatorWidth = 7.53
+
+  return (
+    <CurrentPriceWrapper
+      ref={indicatorRef}
+      lower={lower}
+      style={{ left: left || left === 0 ? `${left * maxWidth - indicatorWidth / 2}px` : undefined }}
+    >
+      <IconCurrentPrice
+        color={color}
+        onMouseEnter={() => setCurrentPriceHover(true)}
+        onMouseLeave={() => setCurrentPriceHover(false)}
+      />
+      <CurrentPriceTooltip show={currentPriceHover}>
+        {t`Current Price`}: {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
+      </CurrentPriceTooltip>
+    </CurrentPriceWrapper>
   )
 }
