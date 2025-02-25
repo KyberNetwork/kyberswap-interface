@@ -210,23 +210,6 @@ export const NetworkInfo: Record<ChainId, Chain> = {
     },
     zapPath: "scroll",
   },
-  [ChainId.PolygonZkEVM]: {
-    chainId: ChainId.PolygonZkEVM,
-    name: "Polygyon ZkEVM",
-    logo: "https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png",
-    nativeLogo:
-      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
-    scanLink: "https://zkevm.polygonscan.com",
-    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://zkevm-rpc.com",
-    wrappedToken: {
-      name: "WETH",
-      address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
-      symbol: "WETH",
-      decimals: 18,
-    },
-    zapPath: "polygon-zkevm",
-  },
 };
 
 export const DexInfos: Record<Dex, DexInfo> = {
@@ -246,7 +229,6 @@ export const DexInfos: Record<Dex, DexInfo> = {
       // [ChainId.Mantle]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
       [ChainId.Optimism]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
       [ChainId.Scroll]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-      [ChainId.PolygonZkEVM]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
     },
   },
   [Dex.Pancakev3]: {
@@ -268,7 +250,6 @@ export const DexInfos: Record<Dex, DexInfo> = {
       [ChainId.Linea]: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
       [ChainId.Optimism]: "0x1af415a1EbA07a4986a52B6f2e7dE7003D82231e",
       [ChainId.PolygonPos]: "0xb7402ee99F0A008e461098AC3A27F4957Df89a40",
-      [ChainId.PolygonZkEVM]: "0xF4d73326C13a4Fc5FD7A064217e12780e9Bd62c3",
       [ChainId.Scroll]: "0x0389879e0156033202C44BF784ac18fC02edeE4f",
     },
   },

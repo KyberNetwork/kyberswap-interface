@@ -13,7 +13,6 @@ export enum ChainId {
   // Mantle = 5000,
   Optimism = 10,
   Scroll = 534352,
-  PolygonZkEVM = 1101,
   // ZkSync = 324,
 }
 
@@ -47,10 +46,6 @@ export enum Dex {
   Uniswapv3 = 2,
   Pancakev3 = 3,
   Sushiv3 = 11,
-  //Uniswapv2 = 4,
-  //Sushiv2 = 5,
-  //Curve = 6,
-  //Balancer = 7,
 }
 
 export const dex = z.nativeEnum(Dex);

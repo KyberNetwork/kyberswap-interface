@@ -13,7 +13,6 @@ export enum ChainId {
   Mantle = 5000,
   Optimism = 10,
   Scroll = 534352,
-  PolygonZkEVM = 1101,
   ZkSync = 324,
 }
 export const chainId = z.nativeEnum(ChainId);
@@ -27,7 +26,6 @@ export enum PoolType {
   DEX_KOICL = "DEX_KOICL",
   DEX_THRUSTERV3 = "DEX_THRUSTERV3",
   DEX_SUSHISWAPV3 = "DEX_SUSHISWAPV3",
-  DEX_QUICKSWAPV3UNI = "DEX_QUICKSWAPV3UNI",
 
   DEX_PANCAKESWAPV2 = "DEX_PANCAKESWAPV2",
   DEX_UNISWAPV2 = "DEX_UNISWAPV2",
@@ -47,7 +45,6 @@ export const univ3Types = [
   PoolType.DEX_KOICL,
   PoolType.DEX_THRUSTERV3,
   PoolType.DEX_SUSHISWAPV3,
-  PoolType.DEX_QUICKSWAPV3UNI,
 ] as const;
 export const univ3PoolType = z.enum(univ3Types);
 
@@ -188,7 +185,6 @@ const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_KOICL]: ["koi-cl"],
   [PoolType.DEX_THRUSTERV3]: ["thruster-v3"],
   [PoolType.DEX_SUSHISWAPV3]: ["sushiswap-v3"],
-  [PoolType.DEX_QUICKSWAPV3UNI]: ["quickswap-uni-v3"],
 
   // uni v2 forks
   [PoolType.DEX_PANCAKESWAPV2]: ["pancake"],

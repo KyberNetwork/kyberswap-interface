@@ -33,6 +33,14 @@ const dexMapping: Record<Dex, string> = {
   // Add new DEX mappings here when needed
 } as const;
 
+// Create a mapping object for Dex enum to string
+const dexMapping2: Record<Dex, string> = {
+  [Dex.Uniswapv3]: "DEX_UNISWAPV3",
+  [Dex.Pancakev3]: "DEX_PANCAKESWAPV3",
+  [Dex.Sushiv3]: "DEX_SUSHISWAPV3",
+  // Add new DEX mappings here when needed
+} as const;
+
 const poolResponse = z.object({
   data: z.object({
     pools: z.array(
@@ -86,13 +94,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
   }: GetPoolParams) => {
     try {
       const res = await fetch(
-        `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${
-          dexFrom === Dex.Uniswapv3
-            ? "DEX_UNISWAPV3"
-            : dexFrom === Dex.Pancakev3
-            ? "DEX_PANCAKESWAPV3"
-            : "DEX_SUSHISWAPV3"
-        }`
+        `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${dexMapping2[dexFrom]}`
       ).then((res) => res.json());
       const { success, data, error } = poolResponse.safeParse(res);
 

@@ -263,25 +263,6 @@ export const NetworkInfo: {
     },
   },
 
-  [ChainId.PolygonZkEVM]: {
-    name: "Polgyon ZkEVM",
-    logo: "https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png",
-    nativeLogo:
-      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
-    scanLink: "https://zkevm.polygonscan.com",
-    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://zkevm-rpc.com",
-    coingeckoNetworkId: "polygon-zkevm",
-    coingeckoNativeTokenId: "ethereum",
-    wrappedToken: {
-      //chainId: ChainId.PolygonZkEVM,
-      name: "WETH",
-      address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
-      symbol: "WETH",
-      decimals: 18,
-    },
-  },
-
   [ChainId.ZkSync]: {
     name: "ZkSync",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/bd11850b-6aef-48c6-a27d-f8ee833e0dbc1693378187666.svg",
@@ -319,7 +300,6 @@ export const DexInfos: Record<PoolType, DexInfo> = {
       [ChainId.Mantle]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
       [ChainId.Optimism]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
       [ChainId.Scroll]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-      [ChainId.PolygonZkEVM]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
     },
   },
   [PoolType.DEX_PANCAKESWAPV3]: {
@@ -398,15 +378,7 @@ export const DexInfos: Record<PoolType, DexInfo> = {
       [ChainId.Linea]: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
       [ChainId.Optimism]: "0x1af415a1EbA07a4986a52B6f2e7dE7003D82231e",
       [ChainId.PolygonPos]: "0xb7402ee99F0A008e461098AC3A27F4957Df89a40",
-      [ChainId.PolygonZkEVM]: "0xF4d73326C13a4Fc5FD7A064217e12780e9Bd62c3",
       [ChainId.Scroll]: "0x0389879e0156033202C44BF784ac18fC02edeE4f",
-    },
-  },
-  [PoolType.DEX_QUICKSWAPV3UNI]: {
-    icon: quickswapLogo,
-    name: "QuickSwap V3 Uni",
-    nftManagerContract: {
-      [ChainId.PolygonZkEVM]: "0x331F3a300b7115A45ba31E3428AC002267BB6D77",
     },
   },
   [PoolType.DEX_PANCAKESWAPV2]: {
@@ -459,7 +431,6 @@ export const chainIdToChain: { [chainId in ChainId]: string } = {
   10: "optimism",
   534352: "scroll",
   59144: "linea",
-  1101: "polygon-zkevm",
   324: "zksync",
 };
 
@@ -472,7 +443,6 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   DEX_KOICL: 38,
   DEX_THRUSTERV3: 12,
   DEX_SUSHISWAPV3: 11,
-  DEX_QUICKSWAPV3UNI: 10,
 
   DEX_PANCAKESWAPV2: 16,
   DEX_UNISWAPV2: 4,
