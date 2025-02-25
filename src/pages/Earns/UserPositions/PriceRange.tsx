@@ -36,6 +36,9 @@ export default function PriceRange({
   const ticksAtLimit: { lower: boolean; upper: boolean } | undefined = useMemo(() => {
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
     const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
+
+    if (minTick === undefined || maxTick === undefined) return
+
     const parsedMinPrice = toString(Number(minPrice.toFixed(18)))
     const parsedMaxPrice = toString(Number(maxPrice.toFixed(18)))
 
@@ -46,10 +49,12 @@ export default function PriceRange({
         ? maxTick
         : priceToClosestTick(parsedMaxPrice, token0Decimals, token1Decimals, false)
 
-    if (tickLower === undefined || tickUpper === undefined) return undefined
+    if (tickLower === undefined || tickUpper === undefined) return
 
     const usableTickLower = nearestUsableTick(Number(tickLower), tickSpacing)
     const usableTickUpper = nearestUsableTick(Number(tickUpper), tickSpacing)
+
+    if (usableTickLower === undefined || usableTickUpper === undefined) return
 
     return {
       lower: usableTickLower === minTick,
