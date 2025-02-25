@@ -91,6 +91,9 @@ export default function PriceRange({
   )
 }
 
+const priceIndicatorWidth = 4
+const currentPriceIndicatorWidth = 7.53
+
 const CurrentPriceIndicator = ({
   currentPrice,
   lower,
@@ -106,14 +109,18 @@ const CurrentPriceIndicator = ({
   const indicatorRef = useRef<HTMLDivElement>(null)
 
   const fullRangeElement = indicatorRef.current?.parentElement
-  const maxWidth = fullRangeElement ? fullRangeElement.offsetWidth - 4 * 2 : 0 // 4 is width of lower & upper price indicator
-  const indicatorWidth = 7.53
+  const maxWidth = fullRangeElement ? fullRangeElement.offsetWidth - priceIndicatorWidth * 2 : 0 // 4 is width of lower & upper price indicator
 
   return (
     <CurrentPriceWrapper
       ref={indicatorRef}
       lower={lower}
-      style={{ left: left || left === 0 ? `${left * maxWidth - indicatorWidth / 2}px` : undefined }}
+      style={{
+        left:
+          left || left === 0
+            ? `${left * maxWidth + priceIndicatorWidth - currentPriceIndicatorWidth / 2}px`
+            : undefined,
+      }}
     >
       <IconCurrentPrice
         color={color}
