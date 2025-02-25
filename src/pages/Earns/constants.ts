@@ -47,4 +47,5 @@ export const NATIVE_ADDRESS = [
   ETHER_ADDRESS.toLowerCase(),
   '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', // BNB
   '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', // AVAX
+  '0xcccccccccccccccccccccccccccccccccccccccc', // POL
 ]
