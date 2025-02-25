@@ -8,6 +8,7 @@ import { usePoolDetailQuery } from 'services/poolService'
 import { MEDIA_WIDTHS } from 'theme'
 import { toString } from 'utils/numbers'
 
+import { ChartWrapper } from './styles'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from './uniswapv3'
 
 export default function LiquidityChart({
@@ -76,25 +77,33 @@ export default function LiquidityChart({
   if (!ticksAtLimit) return null
 
   return (
-    <LiquidityChartRangeInput
-      id="earn-position-detail-liquidity-chart"
-      pool={{
-        fee,
-        tickCurrent,
-        tickSpacing,
-        ticks,
-        liquidity,
-        token0,
-        token1,
-      }}
-      price={{ current: price, lower: priceLower.toString(), upper: priceUpper.toString() }}
-      ticksAtLimit={ticksAtLimit}
-      revertPrice={revertPrice}
-      zoomInIcon={<PlusCircle size={20} />}
-      zoomOutIcon={<MinusCircle size={20} />}
-      zoomPosition={{ top: undefined, left: undefined, right: '18px', bottom: upToSmall ? '35px' : '60px', gap: '8px' }}
-      dimensions={upToSmall ? { width: 400, height: 200 } : { width: 800, height: 400 }}
-      margins={upToSmall ? { top: 0, right: 10, bottom: 20, left: 10 } : { top: 20, right: 20, bottom: 40, left: 20 }}
-    />
+    <ChartWrapper>
+      <LiquidityChartRangeInput
+        id="earn-position-detail-liquidity-chart"
+        pool={{
+          fee,
+          tickCurrent,
+          tickSpacing,
+          ticks,
+          liquidity,
+          token0,
+          token1,
+        }}
+        price={{ current: price, lower: priceLower.toString(), upper: priceUpper.toString() }}
+        ticksAtLimit={ticksAtLimit}
+        revertPrice={revertPrice}
+        zoomInIcon={<PlusCircle size={20} />}
+        zoomOutIcon={<MinusCircle size={20} />}
+        zoomPosition={{
+          top: undefined,
+          left: undefined,
+          right: '18px',
+          bottom: upToSmall ? '35px' : '60px',
+          gap: '8px',
+        }}
+        dimensions={upToSmall ? { width: 400, height: 200 } : { width: 800, height: 400 }}
+        margins={upToSmall ? { top: 0, right: 10, bottom: 20, left: 10 } : { top: 20, right: 20, bottom: 40, left: 20 }}
+      />
+    </ChartWrapper>
   )
 }
