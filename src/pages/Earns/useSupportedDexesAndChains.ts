@@ -1,5 +1,11 @@
 import { useMemo } from 'react'
-import { PoolQueryParams, PositionQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
+import {
+  PoolQueryParams,
+  PositionQueryParams,
+  earnSupportedChains,
+  earnSupportedProtocols,
+  useSupportedProtocolsQuery,
+} from 'services/zapEarn'
 
 import useChainsConfig from 'hooks/useChainsConfig'
 
@@ -19,7 +25,9 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionQueryPara
         value: chain.chainId.toString(),
         icon: chain.icon,
       }))
-      .filter(chain => supportedProtocols?.data?.chains?.[chain.value])
+      .filter(
+        chain => supportedProtocols?.data?.chains?.[chain.value] && earnSupportedChains.includes(Number(chain.value)),
+      )
 
     const allowAllChains = 'chainIds' in filters
     return allowAllChains ? [AllChainsOption].concat(parsedChains) : parsedChains
@@ -55,6 +63,7 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionQueryPara
           if (!parsedProtocols.some(protocol => protocol.value === item.value)) parsedProtocols.push(item)
         })
 
+    parsedProtocols = parsedProtocols.filter(protocol => earnSupportedProtocols.includes(protocol.label))
     return [AllProtocolsOption].concat(parsedProtocols)
   }, [selectedChainId, supportedProtocols])
 

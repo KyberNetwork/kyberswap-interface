@@ -1,6 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+import { enumToArrayOfValues } from 'utils'
+
 interface ExplorerLandingResponse {
   data: {
     highlightedPools: Array<EarnPool>
@@ -75,7 +77,7 @@ export const earnSupportedChains = [
   ChainId.MATIC,
 ]
 
-export const earnSupportedProtocols = Object.keys(EarnDex).map(dexKey => EarnDex[dexKey])
+export const earnSupportedProtocols = enumToArrayOfValues(EarnDex)
 
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',
