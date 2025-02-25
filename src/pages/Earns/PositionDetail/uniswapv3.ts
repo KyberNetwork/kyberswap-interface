@@ -307,9 +307,9 @@ export function priceToClosestTick(
 }
 
 export function nearestUsableTick(tick: number, tickSpacing: number) {
-  if (!Number.isInteger(tick) || !Number.isInteger(tickSpacing)) throw new Error('INTEGERS')
-  if (tickSpacing <= 0) throw new Error('TICK_SPACING')
-  if (tick < MIN_TICK || tick > MAX_TICK) throw new Error('TICK_BOUND')
+  if (!Number.isInteger(tick) || !Number.isInteger(tickSpacing)) return // Error('INTEGERS')
+  if (tickSpacing <= 0) return // Error('TICK_SPACING')
+  if (tick < MIN_TICK || tick > MAX_TICK) return // Error('TICK_BOUND')
   const rounded = Math.round(tick / tickSpacing) * tickSpacing
   if (rounded < MIN_TICK) return rounded + tickSpacing
   if (rounded > MAX_TICK) return rounded - tickSpacing

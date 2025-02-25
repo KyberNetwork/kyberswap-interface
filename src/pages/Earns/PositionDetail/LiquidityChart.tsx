@@ -43,11 +43,14 @@ export default function LiquidityChart({
 
   const ticksAtLimit: { [bound in Bound]?: boolean } | undefined = useMemo(() => {
     if (!tickSpacing || !token0 || !token1) return
+
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
     const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
+
+    if (!minTick || !maxTick) return
+
     const parsedMinPrice = toString(Number(minPrice.toFixed(18)))
     const parsedMaxPrice = toString(Number(maxPrice.toFixed(18)))
-
     const tickLower =
       parsedMinPrice === '0'
         ? minTick
@@ -61,6 +64,8 @@ export default function LiquidityChart({
 
     const usableTickLower = nearestUsableTick(Number(tickLower), tickSpacing)
     const usableTickUpper = nearestUsableTick(Number(tickUpper), tickSpacing)
+
+    if (usableTickLower === undefined || usableTickUpper === undefined) return
 
     return {
       [Bound.LOWER]: usableTickLower === minTick,
