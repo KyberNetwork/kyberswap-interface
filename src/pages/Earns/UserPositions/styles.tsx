@@ -334,22 +334,22 @@ export const PriceRangeEl = styled.div<{ isLowestPrice: boolean; isHighestPrice:
   background: linear-gradient(90deg, #09ae7d 0%, #6368f1 100%);
 `
 
-export const RangeThumb = styled.div`
+export const PriceIndicator = styled.div`
   height: 16px;
   width: 4px;
   border-radius: 4px;
   position: relative;
 `
 
-export const RangeFirstThumb = styled(RangeThumb)`
+export const LowerPriceIndicator = styled(PriceIndicator)`
   background: #09ae7d;
 `
 
-export const RangeSecondThumb = styled(RangeThumb)`
+export const UpperPriceIndicator = styled(PriceIndicator)`
   background: #6368f1;
 `
 
-export const ThumbLabel = styled.div`
+export const IndicatorLabel = styled.div`
   position: absolute;
   top: -20px;
   transform: translateX(-42%);

@@ -14090,10 +14090,10 @@ kane4-liquidity-chart@1.0.7:
     d3 "^7.9.0"
     lodash.partition "^4.6.0"
 
-kane4-liquidity-widgets@1.1.28:
-  version "1.1.28"
-  resolved "https://registry.yarnpkg.com/kane4-liquidity-widgets/-/kane4-liquidity-widgets-1.1.28.tgz#94b60647fbe5228fea5c6bda3f96661f4fa69fcf"
-  integrity sha512-K74KMEVUGWnOZOYv5I/ETP6pkO2Cbpa3zExfRDKEpwTaBQ3LinPfiH7dHYmwcVe9J+3rG0b2/AOtstMI+K+WZg==
+kane4-liquidity-widgets@1.1.29:
+  version "1.1.29"
+  resolved "https://registry.yarnpkg.com/kane4-liquidity-widgets/-/kane4-liquidity-widgets-1.1.29.tgz#0c64197250ae526c88f57dd3cdc701c814fc95b0"
+  integrity sha512-UVpRR16tdae3upNhnmmirpMpDnII5jKt+VboZDgH8defeLevpk4B7hNbaDtcOJ1njDw2JNBi36Zq3G5aQRe3hg==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
@@ -14109,10 +14109,10 @@ kane4-liquidity-widgets@1.1.28:
     zod "^3.23.8"
     zustand "^5.0.0"
 
-kane4-zap-migration-widgets@1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/kane4-zap-migration-widgets/-/kane4-zap-migration-widgets-1.0.7.tgz#59705280d2475821418c16f6e853e18e2a5d4194"
-  integrity sha512-k9HrsaRT18JaQXfLLliO5fb34Rz0lBZrBlZdOB1HkVdRTBsIyoJWXe0rDj9g4Nkx1coNoMvpRidpWA993RZfSg==
+kane4-zap-migration-widgets@1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/kane4-zap-migration-widgets/-/kane4-zap-migration-widgets-1.0.8.tgz#14e7f5a100b0c713a9be36098d01598eb48f1475"
+  integrity sha512-Y6gHnXVZupdmM8mwYcK+/BMakk/3U8+HS0gHJZRQfStxwJWsEk6riZhNrlsNQ5LGvZfeDagflX0cgpQiYllyEA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"

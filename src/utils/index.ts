@@ -452,3 +452,6 @@ export function buildFlagsForFarmV21({
 
 export const getCookieValue = (name: string) =>
   document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
+
+export const enumToArrayOfValues = (enumObject: { [x: string]: unknown }) =>
+  Object.keys(enumObject).map(key => enumObject[key])

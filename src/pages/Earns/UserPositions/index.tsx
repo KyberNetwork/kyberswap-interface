@@ -218,7 +218,7 @@ const MyPositions = () => {
               />
             )}
           </ContentWrapper>
-          {!isError && (
+          {!isError && (!isFetching || !loading) && (
             <Pagination
               haveBg={false}
               onPageChange={(newPage: number) => updateFilters('page', newPage)}

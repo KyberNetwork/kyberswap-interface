@@ -46,7 +46,6 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
     const usableTickUpper = nearestUsableTick(Number(tickUpper), tickSpacing)
 
     if (usableTickLower === undefined || usableTickUpper === undefined) return
-
     if (usableTickLower === minTick && usableTickUpper === maxTick) return ['0', '∞']
     else
       return [
