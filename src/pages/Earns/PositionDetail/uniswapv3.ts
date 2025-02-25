@@ -283,19 +283,18 @@ export function priceToClosestTick(
 
   //const sqrtRatioX96 = encodeSqrtRatioX96(numerator, denominator);
   const sqrtRatioX96 = !revert ? encodeSqrtRatioX96(numerator, denominator) : encodeSqrtRatioX96(denominator, numerator)
-
-  let tick
   if (sqrtRatioX96 > MAX_SQRT_RATIO) return MAX_TICK
   if (sqrtRatioX96 < MIN_SQRT_RATIO) return MIN_TICK
 
+  let tick
   try {
     tick = getTickAtSqrtRatio(sqrtRatioX96)
   } catch (error) {
     console.log(error)
   }
   if (tick === undefined) return
-  const nextTickPrice = tickToPrice(tick + 1, token0Decimal, token1Decimal, revert)
 
+  const nextTickPrice = tickToPrice(tick + 1, token0Decimal, token1Decimal, revert)
   if (!revert) {
     if (+value >= +nextTickPrice) {
       tick++
