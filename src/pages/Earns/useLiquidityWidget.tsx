@@ -1,7 +1,7 @@
-import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'kane5-liquidity-widgets'
-import 'kane5-liquidity-widgets/dist/style.css'
-import { ZapMigration, ChainId as ZapMigrationChainId, Dex as ZapMigrationDex } from 'kane5-zap-migration-widgets'
-import 'kane5-zap-migration-widgets/dist/style.css'
+import { ChainId, LiquidityWidget, PoolType, ZapOut } from '@kyberswap/liquidity-widgets'
+import '@kyberswap/liquidity-widgets/dist/style.css'
+import { ZapMigration, ChainId as ZapMigrationChainId, Dex as ZapMigrationDex } from '@kyberswap/zap-migration-widgets'
+import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
@@ -80,7 +80,6 @@ const dexFormatter = {
   [PoolType.DEX_SWAPMODEV3]: null,
   [PoolType.DEX_KOICL]: null,
   [PoolType.DEX_THRUSTERV3]: null,
-  [PoolType.DEX_QUICKSWAPV3UNI]: null,
   [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.Uniswapv3,
   [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.Pancakev3,
   [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.Sushiv3,
