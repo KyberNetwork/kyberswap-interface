@@ -65,7 +65,7 @@ const DropdownContent = styled.div<{ alignLeft: boolean }>`
   flex-direction: column;
   align-items: ${({ alignLeft }) => (alignLeft ? 'flex-start' : 'center')};
   gap: 4px;
-  max-height: 218px;
+  max-height: 197px;
   overflow-y: auto;
   z-index: 100;
   filter: brightness(1.2);
