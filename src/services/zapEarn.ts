@@ -59,11 +59,10 @@ export interface EarnPool {
   }>
 }
 
-export enum Dex {
+export enum EarnDex {
   DEX_UNISWAPV3 = 'Uniswap V3',
   DEX_PANCAKESWAPV3 = 'PancakeSwap V3',
   DEX_SUSHISWAPV3 = 'SushiSwap V3',
-  DEX_QUICKSWAPV3UNI = 'QuickSwap V3',
 }
 
 export const earnSupportedChains = [
@@ -76,7 +75,7 @@ export const earnSupportedChains = [
   ChainId.MATIC,
 ]
 
-export const earnSupportedProtocols = Object.keys(Dex).map(dexKey => Dex[dexKey])
+export const earnSupportedProtocols = Object.keys(EarnDex).map(dexKey => EarnDex[dexKey])
 
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',

@@ -14082,10 +14082,10 @@ jsprim@^2.0.2:
     array-includes "^3.1.5"
     object.assign "^4.1.3"
 
-kane5-liquidity-widgets@1.1.18:
-  version "1.1.18"
-  resolved "https://registry.yarnpkg.com/kane5-liquidity-widgets/-/kane5-liquidity-widgets-1.1.18.tgz#b586f331c5a8b6f92ea6b644ae8b3d86e9d31b7e"
-  integrity sha512-puqwiwLMrI/KupLgnSzTj+cDCzDlOy5XS0UrQAzxeWfuSCMEI9G0OkgOYKz9eImrWc5Jn2mWN0JuEvOmtPOFEA==
+kane5-liquidity-widgets@1.1.19:
+  version "1.1.19"
+  resolved "https://registry.yarnpkg.com/kane5-liquidity-widgets/-/kane5-liquidity-widgets-1.1.19.tgz#2fd4332b0c1a699405929daed91e44508572dea9"
+  integrity sha512-JJEZQPejkUDeVdKkQejPDMFivNkKrOwTIIsD2+4/fFKhaPybY96C5nJGkVO6M+mRhZIlbPlwDv4fjOLXl1a3QQ==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
@@ -14103,10 +14103,10 @@ kane5-liquidity-widgets@1.1.18:
     zod "^3.23.8"
     zustand "^5.0.0"
 
-kane5-zap-migration-widgets@1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/kane5-zap-migration-widgets/-/kane5-zap-migration-widgets-1.0.8.tgz#50aac3b77b6debac5d23c04a7e83d827ba2c98d6"
-  integrity sha512-aJRg0CIZK5G0HN6auKG/TTDDkvCBL6wfPmOmA3faHx1jCbTWWq2El8BLCXm474LX10Rj53j+hrUom8PviWO0Fg==
+kane5-zap-migration-widgets@1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/kane5-zap-migration-widgets/-/kane5-zap-migration-widgets-1.0.9.tgz#7c2454334a2f816fd8760a2fa0c5dbceebf5e57c"
+  integrity sha512-xYqLjkd49uWLTTFEJ5bziXBdwEa+9/EfWA+XNZrXcohKUooNYXlm9M+lufPPfP4BpaIo4jjUry5g1Yp1xWIN7Q==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"
