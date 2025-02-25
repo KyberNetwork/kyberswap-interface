@@ -29,7 +29,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
     const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
 
-    if (!minTick || !maxTick) return
+    if (minTick === undefined || maxTick === undefined) return
 
     const parsedMinPrice = toString(Number((!revert ? position.minPrice : 1 / position.maxPrice).toFixed(18)))
     const parsedMaxPrice = toString(Number((!revert ? position.maxPrice : 1 / position.minPrice).toFixed(18)))

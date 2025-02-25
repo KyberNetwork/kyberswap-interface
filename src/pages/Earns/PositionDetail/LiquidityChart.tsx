@@ -47,7 +47,7 @@ export default function LiquidityChart({
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
     const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
 
-    if (!minTick || !maxTick) return
+    if (minTick === undefined || maxTick === undefined) return
 
     const parsedMinPrice = toString(Number(minPrice.toFixed(18)))
     const parsedMaxPrice = toString(Number(maxPrice.toFixed(18)))

@@ -293,7 +293,7 @@ export function priceToClosestTick(
   } catch (error) {
     console.log(error)
   }
-  if (!tick) return
+  if (tick === undefined) return
   const nextTickPrice = tickToPrice(tick + 1, token0Decimal, token1Decimal, revert)
 
   if (!revert) {
