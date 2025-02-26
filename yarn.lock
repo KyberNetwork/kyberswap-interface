@@ -14090,10 +14090,10 @@ kane4-liquidity-chart@1.0.43:
     d3 "^7.9.0"
     lodash.partition "^4.6.0"
 
-kane4-liquidity-widgets@1.1.32:
-  version "1.1.32"
-  resolved "https://registry.yarnpkg.com/kane4-liquidity-widgets/-/kane4-liquidity-widgets-1.1.32.tgz#e6d63df011e06abb70a77bec824df9b701053252"
-  integrity sha512-hXu+w2Q6dfzsOFXr0Rklir6T1UbmmVJh9bmm6mxqi7KYEhBofa0/z+4B/BEaneQtSV7Kf1sPIcSib1sJdjrtlQ==
+kane4-liquidity-widgets@1.1.33:
+  version "1.1.33"
+  resolved "https://registry.yarnpkg.com/kane4-liquidity-widgets/-/kane4-liquidity-widgets-1.1.33.tgz#64b0601940ff481927f079d276e8d38ad0b2a6ff"
+  integrity sha512-Hh0T1zWXqtYNOEt5vTgMGesz1ZF76t2/cJBJhimOuI03D5k3NWdbbPm1y2ZThjY39rjoLNFkPC3QliI5Zj5Xjg==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
