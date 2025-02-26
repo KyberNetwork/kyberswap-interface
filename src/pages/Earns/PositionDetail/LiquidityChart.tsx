@@ -69,8 +69,8 @@ export default function LiquidityChart({
     if (usableTickLower === undefined || usableTickUpper === undefined) return
 
     return {
-      [Bound.LOWER]: usableTickLower === minTick,
-      [Bound.UPPER]: usableTickUpper === maxTick,
+      [Bound.LOWER]: !revertPrice ? usableTickLower === minTick : usableTickUpper === maxTick,
+      [Bound.UPPER]: !revertPrice ? usableTickUpper === maxTick : usableTickLower === minTick,
     }
   }, [maxPrice, minPrice, revertPrice, tickSpacing, token0, token1])
 

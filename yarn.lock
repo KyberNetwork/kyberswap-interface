@@ -14082,18 +14082,18 @@ jsprim@^2.0.2:
     array-includes "^3.1.5"
     object.assign "^4.1.3"
 
-kane4-liquidity-chart@1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/kane4-liquidity-chart/-/kane4-liquidity-chart-1.0.7.tgz#96f73fcf269bd36ea69f01bcb6e178ab1d08386e"
-  integrity sha512-QP9JEH+HvWGIAgi1cKmKKZpZ0xLjHafPpx43nXcp5/dtVIXUDbhQLdstglB+fOPj2hRupQcMm/OYs30uDCxcNg==
+kane4-liquidity-chart@1.0.42:
+  version "1.0.42"
+  resolved "https://registry.yarnpkg.com/kane4-liquidity-chart/-/kane4-liquidity-chart-1.0.42.tgz#efd7434c1d38a60513ce3fcb53c6c2c1a1a4147e"
+  integrity sha512-RSTpbuEDvsVjCAQ44VKZmX7052VX8io8mOXCyQR76FnIRfQbV2BKuz1+zjw34U37XLVwUUVaIFrixprPjguMWw==
   dependencies:
     d3 "^7.9.0"
     lodash.partition "^4.6.0"
 
-kane4-liquidity-widgets@1.1.29:
-  version "1.1.29"
-  resolved "https://registry.yarnpkg.com/kane4-liquidity-widgets/-/kane4-liquidity-widgets-1.1.29.tgz#0c64197250ae526c88f57dd3cdc701c814fc95b0"
-  integrity sha512-UVpRR16tdae3upNhnmmirpMpDnII5jKt+VboZDgH8defeLevpk4B7hNbaDtcOJ1njDw2JNBi36Zq3G5aQRe3hg==
+kane4-liquidity-widgets@1.1.31:
+  version "1.1.31"
+  resolved "https://registry.yarnpkg.com/kane4-liquidity-widgets/-/kane4-liquidity-widgets-1.1.31.tgz#e9cf6a238896c90b3265f8e92840aff42a76489f"
+  integrity sha512-Pac7n8vz+kWmndsHWdXZOx50+zb4+e/9JQ4Utpay3uP/XqW7JY2iAD7dL2shIxctVDia6Warg4EIG/383SNhcA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
