@@ -62,12 +62,9 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
     const isToken0Native =
       pool.tokens[0].address.toLowerCase() ===
       NativeCurrencies[position.chainId as ChainId].wrapped.address.toLowerCase()
-    const isToken1Native =
-      pool.tokens[1].address.toLowerCase() ===
-      NativeCurrencies[position.chainId as ChainId].wrapped.address.toLowerCase()
     const isToken0Stable = stableCoins.some(coin => coin.address === pool.tokens[0].address)
     const isToken1Stable = stableCoins.some(coin => coin.address === pool.tokens[1].address)
-    if ((isToken0Native && !isToken1Stable) || (isToken1Native && isToken0Stable)) setRevert(true)
+    if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevert(true)
   }, [defaultRevertChecked, pool, position.chainId, stableCoins])
 
   return (
