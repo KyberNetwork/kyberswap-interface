@@ -182,7 +182,8 @@ const Earn = () => {
     }
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
-      if (pool && pool.exchange === exchange) handleOpenZapInWidget({ exchange, chainId: Number(chainId), address })
+      if (pool && pool.exchange === exchange)
+        handleOpenZapInWidget({ exchange, chainId: Number(chainId), address: pool.address })
       else {
         notify(
           {
