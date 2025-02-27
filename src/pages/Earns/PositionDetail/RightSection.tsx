@@ -6,6 +6,7 @@ import { usePoolDetailQuery } from 'services/poolService'
 
 import { Swap as SwapIcon } from 'components/Icons'
 import { NativeCurrencies } from 'constants/tokens'
+import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
@@ -16,6 +17,7 @@ import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from './uni
 
 const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
+  const { stableCoins } = useStableCoins(position.chainId)
   const { data: pool } = usePoolDetailQuery({ chainId: position.chainId, ids: position.poolAddress })
   const [revert, setRevert] = useState(false)
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
@@ -55,13 +57,18 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   }, [pool, position, revert])
 
   useEffect(() => {
-    if (!pool || !position.chainId || !pool.tokens?.[0] || defaultRevertChecked) return
+    if (!pool || !position.chainId || !pool.tokens?.[0] || defaultRevertChecked || !stableCoins.length) return
     setDefaultRevertChecked(true)
     const isToken0Native =
       pool.tokens[0].address.toLowerCase() ===
       NativeCurrencies[position.chainId as ChainId].wrapped.address.toLowerCase()
-    if (isToken0Native) setRevert(true)
-  }, [defaultRevertChecked, pool, position.chainId])
+    const isToken1Native =
+      pool.tokens[1].address.toLowerCase() ===
+      NativeCurrencies[position.chainId as ChainId].wrapped.address.toLowerCase()
+    const isToken0Stable = stableCoins.some(coin => coin.address === pool.tokens[0].address)
+    const isToken1Stable = stableCoins.some(coin => coin.address === pool.tokens[1].address)
+    if ((isToken0Native && !isToken1Stable) || (isToken1Native && isToken0Stable)) setRevert(true)
+  }, [defaultRevertChecked, pool, position.chainId, stableCoins])
 
   return (
     <InfoRightColumn>
