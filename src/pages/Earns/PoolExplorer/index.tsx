@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 import { Info, Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -130,13 +129,16 @@ const Earn = () => {
 
   const handleFetchPoolData = async ({ chainId, address }: { chainId: number; address: string }) => {
     try {
-      const { data: response } = await axios.get(`${BFF_API}/v1/pools`, {
-        params: {
-          chainId,
-          ids: address,
-        },
-      })
-      return response?.data?.pools?.[0]
+      const response = await fetch(
+        `${BFF_API}/v1/pools` +
+          '?' +
+          new URLSearchParams({
+            chainId: chainId.toString(),
+            ids: address,
+          }).toString(),
+      )
+      const data = await response.json()
+      return data?.data?.pools?.[0]
     } catch (error) {
       console.log('Fetch Pool Data Error:', error)
       return
