@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Info, Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -11,13 +11,16 @@ import { ReactComponent as IconHighlightedPool } from 'assets/svg/ic_pool_highli
 import { ReactComponent as IconLowVolatility } from 'assets/svg/ic_pool_low_volatility.svg'
 import { ReactComponent as IconSolidEarningPool } from 'assets/svg/ic_pool_solid_earning.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/ic_user_earn_position.svg'
+import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
 import Search from 'components/Search'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { IconArrowLeft } from '../PositionDetail/styles'
@@ -88,9 +91,10 @@ export const timings: MenuOption[] = [
 const Earn = () => {
   const [search, setSearch] = useState('')
   const deboundedSearch = useDebounce(search, 300)
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const theme = useTheme()
+  const notify = useNotify()
   const { filters, updateFilters } = useFilter(setSearch)
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
@@ -123,6 +127,40 @@ const Earn = () => {
     updateFilters('orderBy', '')
   }
 
+  const handleFetchPoolData = async ({ chainId, address }: { chainId: number; address: string }) => {
+    try {
+      const response = await fetch(
+        `${BFF_API}/v1/pools` +
+          '?' +
+          new URLSearchParams({
+            chainId: chainId.toString(),
+            ids: address,
+          }).toString(),
+      )
+      const data = await response.json()
+      return data?.data?.pools?.[0]
+    } catch (error) {
+      console.log('Fetch Pool Data Error:', error)
+      return
+    }
+  }
+
+  const handleOpenZapInWidgetWithParams = (pool: { exchange: string; chainId?: number; address: string }) => {
+    const { exchange, chainId, address } = pool
+    searchParams.set('exchange', exchange)
+    searchParams.set('poolChainId', chainId ? chainId.toString() : filters.chainId.toString())
+    searchParams.set('poolAddress', address)
+    setSearchParams(searchParams)
+    handleOpenZapInWidget(pool)
+  }
+
+  const handleRemoveUrlParams = useCallback(() => {
+    searchParams.delete('exchange')
+    searchParams.delete('poolChainId')
+    searchParams.delete('poolAddress')
+    setSearchParams(searchParams)
+  }, [searchParams, setSearchParams])
+
   useEffect(() => {
     if (searchParams.get('q') && !search) {
       setSearch(searchParams.get('q') || '')
@@ -135,6 +173,33 @@ const Earn = () => {
       updateFilters('q', deboundedSearch || '')
     }
   }, [deboundedSearch, filters.q, updateFilters])
+
+  useEffect(() => {
+    const exchange = searchParams.get('exchange')
+    const chainId = searchParams.get('poolChainId')
+    const address = searchParams.get('poolAddress')
+    if (!exchange || !chainId || !address) {
+      handleRemoveUrlParams()
+      return
+    }
+    ;(async () => {
+      const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
+      if (pool && pool.exchange === exchange)
+        handleOpenZapInWidget({ exchange, chainId: Number(chainId), address: pool.address })
+      else {
+        notify(
+          {
+            title: `Open pool detail failed`,
+            summary: `Invalid pool info`,
+            type: NotificationType.ERROR,
+          },
+          5000,
+        )
+        handleRemoveUrlParams()
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <PoolPageWrapper>
@@ -274,7 +339,7 @@ const Earn = () => {
               <div />
             </TableHeader>
           )}
-          <TableContent onOpenZapInWidget={handleOpenZapInWidget} />
+          <TableContent onOpenZapInWidget={handleOpenZapInWidgetWithParams} />
         </ContentWrapper>
         {!isError && (
           <Pagination

@@ -3,7 +3,7 @@ import 'kane4-liquidity-widgets/dist/style.css'
 import { ZapMigration, ChainId as ZapMigrationChainId, Dex as ZapMigrationDex } from 'kane4-zap-migration-widgets'
 import 'kane4-zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { EarnDex } from 'services/zapEarn'
 
@@ -91,6 +91,7 @@ const useLiquidityWidget = () => {
   const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { filters } = useFilter()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
@@ -142,6 +143,14 @@ const useLiquidityWidget = () => {
     [addLiquidityPureParams, notify],
   )
 
+  const handleCloseZapInWidget = useCallback(() => {
+    searchParams.delete('exchange')
+    searchParams.delete('poolChainId')
+    searchParams.delete('poolAddress')
+    setSearchParams(searchParams)
+    setAddLiquidityPureParams(null)
+  }, [searchParams, setSearchParams])
+
   const handleOpenZapInWidget = (
     pool: { exchange: string; chainId?: number; address: string },
     positionId?: string,
@@ -184,14 +193,14 @@ const useLiquidityWidget = () => {
             source: 'KyberSwap-Earn',
             referral: refCode,
             onViewPosition: () => {
-              setAddLiquidityPureParams(null)
+              handleCloseZapInWidget()
               navigate(`/earns/positions`)
             },
             connectedAccount: {
               address: account,
               chainId: chainId,
             },
-            onClose: () => setAddLiquidityPureParams(null),
+            onClose: () => handleCloseZapInWidget(),
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
             onOpenZapMigration: handleOpenZapMigrationWidget,
@@ -211,14 +220,15 @@ const useLiquidityWidget = () => {
         : null,
     [
       addLiquidityPureParams,
-      account,
       refCode,
+      account,
       chainId,
       toggleWalletModal,
       handleOpenZapMigrationWidget,
-      library,
-      changeNetwork,
+      handleCloseZapInWidget,
       navigate,
+      changeNetwork,
+      library,
     ],
   )
 
@@ -240,7 +250,7 @@ const useLiquidityWidget = () => {
 
             onClose: () => {
               setMigrateLiquidityPureParams(null)
-              setAddLiquidityPureParams(null)
+              handleCloseZapInWidget()
             },
             onBack: () => setMigrateLiquidityPureParams(null),
             onConnectWallet: toggleWalletModal,
@@ -258,7 +268,17 @@ const useLiquidityWidget = () => {
             },
           }
         : null,
-    [account, chainId, library, migrateLiquidityPureParams, changeNetwork, toggleWalletModal, navigate, refCode],
+    [
+      migrateLiquidityPureParams,
+      refCode,
+      account,
+      chainId,
+      toggleWalletModal,
+      navigate,
+      handleCloseZapInWidget,
+      changeNetwork,
+      library,
+    ],
   )
 
   const [zapOutPureParams, setZapOutPureParams] = useState<{
@@ -332,16 +352,16 @@ const useLiquidityWidget = () => {
   const previousAccount = usePreviousDistinct(account)
   useEffect(() => {
     if (account && previousAccount) {
-      setAddLiquidityPureParams(null)
+      handleCloseZapInWidget()
       setMigrateLiquidityPureParams(null)
       setZapOutPureParams(null)
     }
-  }, [account, previousAccount])
+  }, [account, handleCloseZapInWidget, previousAccount])
 
   const liquidityWidget = (
     <>
       {addLiquidityParams && (
-        <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={() => setAddLiquidityPureParams(null)}>
+        <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapInWidget}>
           <LiquidityWidget {...addLiquidityParams} />
         </Modal>
       )}
@@ -353,7 +373,7 @@ const useLiquidityWidget = () => {
           width={'760px'}
           onDismiss={() => {
             setMigrateLiquidityPureParams(null)
-            setAddLiquidityPureParams(null)
+            handleCloseZapInWidget()
           }}
           zindex={9999}
         >
