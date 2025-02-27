@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PositionQueryParams } from 'services/zapEarn'
 
@@ -39,6 +39,11 @@ export default function useFilter() {
     },
     [searchParams, setSearchParams],
   )
+
+  useEffect(() => {
+    updateFilters('page', 1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account])
 
   return { filters, updateFilters }
 }
