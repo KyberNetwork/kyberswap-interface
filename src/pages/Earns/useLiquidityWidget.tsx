@@ -342,23 +342,12 @@ const useLiquidityWidget = () => {
   )
 
   const handleOpenZapOut = (position: { dex: string; chainId: number; poolAddress: string; id: string }) => {
-    const poolType = (() => {
-      switch (position?.dex) {
-        case 'Uniswap V3':
-          return PoolType.DEX_UNISWAPV3
-        case 'SushiSwap V3':
-          return PoolType.DEX_SUSHISWAPV3
-        case 'PancakeSwap V3':
-          return PoolType.DEX_PANCAKESWAPV3
-        default:
-          return null
-      }
-    })()
+    const poolType = zapDexMapping[position.dex as keyof typeof zapDexMapping]
     if (!poolType) {
       notify(
         {
           type: NotificationType.ERROR,
-          title: 'Pool Type is supported',
+          title: 'Pool Type is not supported',
         },
         5_000,
       )
