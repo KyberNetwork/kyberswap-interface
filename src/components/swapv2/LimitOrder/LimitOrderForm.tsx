@@ -391,6 +391,9 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   const parsedActiveOrderMakingAmount = useMemo(() => {
     try {
       if (currencyIn && activeOrderMakingAmount) {
+        if (currencyIn.isNative) {
+          return TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(0))
+        }
         const value = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(activeOrderMakingAmount))
         if (isEdit && orderInfo) {
           const makingAmount = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(orderInfo.makingAmount))
@@ -522,11 +525,12 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       }
 
       const refCode = getCookieValue('refCode')
+      const clientId = searchParams.get('clientId')
 
       const { signature, salt } = await signOrder(params)
       const payload = getPayloadCreateOrder(params)
       setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
-      const response = await submitOrder({ ...payload, salt, signature, referral: refCode }).unwrap()
+      const response = await submitOrder({ ...payload, salt, signature, referral: refCode, clientId }).unwrap()
       setFlowState(state => ({ ...state, showConfirm: false }))
 
       notify(

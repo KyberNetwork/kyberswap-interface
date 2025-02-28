@@ -1,10 +1,11 @@
 import { ChainId, LiquidityWidget, PoolType, ZapOut } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
-import { Dex, ChainId as MigrateChainId, ZapMigration } from '@kyberswap/zap-migration-widgets'
+import { ZapMigration, ChainId as ZapMigrationChainId, Dex as ZapMigrationDex } from '@kyberswap/zap-migration-widgets'
 import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
+import { EarnDex } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -38,16 +39,16 @@ interface AddLiquidityParams extends AddLiquidityPureParams {
 
 interface MigrateLiquidityPureParams {
   from: {
-    dex: Dex
+    dex: ZapMigrationDex
     poolId: string
     positionId: string | number
   }
   to: {
-    dex: Dex
+    dex: ZapMigrationDex
     poolId: string
     positionId?: string | number
   }
-  chainId: MigrateChainId
+  chainId: ZapMigrationChainId
   initialTick?: { tickUpper: number; tickLower: number }
 }
 
@@ -55,7 +56,7 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   client: string
   connectedAccount: {
     address: string | undefined
-    chainId: MigrateChainId
+    chainId: ZapMigrationChainId
   }
   onClose: () => void
   onConnectWallet: () => void
@@ -63,16 +64,10 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
 }
 
-enum SupporttedExchange {
-  UniswapV3 = 'Uniswap V3',
-  Pancakev3 = 'PancakeSwap V3',
-  Sushiv3 = 'SushiSwap V3',
-}
-
 const dexFormatter = {
-  [PoolType.DEX_UNISWAPV3]: Dex.Uniswapv3,
-  [PoolType.DEX_PANCAKESWAPV3]: Dex.Pancakev3,
-  [PoolType.DEX_SUSHISWAPV3]: Dex.Sushiv3,
+  [PoolType.DEX_UNISWAPV3]: ZapMigrationDex.Uniswapv3,
+  [PoolType.DEX_PANCAKESWAPV3]: ZapMigrationDex.Pancakev3,
+  [PoolType.DEX_SUSHISWAPV3]: ZapMigrationDex.Sushiv3,
   [PoolType.DEX_UNISWAPV2]: null,
   [PoolType.DEX_PANCAKESWAPV2]: null,
   [PoolType.DEX_SUSHISWAPV2]: null,
@@ -85,10 +80,9 @@ const dexFormatter = {
   [PoolType.DEX_SWAPMODEV3]: null,
   [PoolType.DEX_KOICL]: null,
   [PoolType.DEX_THRUSTERV3]: null,
-  [PoolType.DEX_QUICKSWAPV3UNI]: null,
-  [SupporttedExchange.UniswapV3]: Dex.Uniswapv3,
-  [SupporttedExchange.Pancakev3]: Dex.Pancakev3,
-  [SupporttedExchange.Sushiv3]: Dex.Sushiv3,
+  [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.Uniswapv3,
+  [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.Pancakev3,
+  [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.Sushiv3,
 }
 
 const useLiquidityWidget = () => {
@@ -97,6 +91,7 @@ const useLiquidityWidget = () => {
   const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { filters } = useFilter()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
@@ -107,7 +102,7 @@ const useLiquidityWidget = () => {
       initialTick?: { tickUpper: number; tickLower: number },
     ) => {
       if (!addLiquidityPureParams) return
-      if (!dexFormatter[position.exchange as SupporttedExchange]) {
+      if (!dexFormatter[position.exchange as EarnDex]) {
         notify(
           {
             title: `Open liquidity migration widget failed`,
@@ -131,22 +126,30 @@ const useLiquidityWidget = () => {
       }
       const paramsToSet = {
         from: {
-          dex: dexFormatter[position.exchange as SupporttedExchange],
+          dex: dexFormatter[position.exchange as EarnDex],
           poolId: position.poolId,
           positionId: position.positionId,
         },
         to: {
-          dex: dexFormatter[addLiquidityPureParams.poolType] as Dex,
+          dex: dexFormatter[addLiquidityPureParams.poolType] as ZapMigrationDex,
           poolId: addLiquidityPureParams.poolAddress,
           positionId: addLiquidityPureParams.positionId,
         },
-        chainId: addLiquidityPureParams.chainId as MigrateChainId,
+        chainId: addLiquidityPureParams.chainId as ZapMigrationChainId,
         initialTick,
       }
       setMigrateLiquidityPureParams(paramsToSet)
     },
     [addLiquidityPureParams, notify],
   )
+
+  const handleCloseZapInWidget = useCallback(() => {
+    searchParams.delete('exchange')
+    searchParams.delete('poolChainId')
+    searchParams.delete('poolAddress')
+    setSearchParams(searchParams)
+    setAddLiquidityPureParams(null)
+  }, [searchParams, setSearchParams])
 
   const handleOpenZapInWidget = (
     pool: { exchange: string; chainId?: number; address: string },
@@ -190,14 +193,14 @@ const useLiquidityWidget = () => {
             source: 'KyberSwap-Earn',
             referral: refCode,
             onViewPosition: () => {
-              setAddLiquidityPureParams(null)
+              handleCloseZapInWidget()
               navigate(`/earns/positions`)
             },
             connectedAccount: {
               address: account,
               chainId: chainId,
             },
-            onClose: () => setAddLiquidityPureParams(null),
+            onClose: () => handleCloseZapInWidget(),
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
             onOpenZapMigration: handleOpenZapMigrationWidget,
@@ -217,14 +220,15 @@ const useLiquidityWidget = () => {
         : null,
     [
       addLiquidityPureParams,
-      account,
       refCode,
+      account,
       chainId,
       toggleWalletModal,
       handleOpenZapMigrationWidget,
-      library,
-      changeNetwork,
+      handleCloseZapInWidget,
       navigate,
+      changeNetwork,
+      library,
     ],
   )
 
@@ -237,7 +241,7 @@ const useLiquidityWidget = () => {
             referral: refCode,
             connectedAccount: {
               address: account,
-              chainId: chainId as unknown as MigrateChainId,
+              chainId: chainId as unknown as ZapMigrationChainId,
             },
             onViewPosition: () => {
               setMigrateLiquidityPureParams(null)
@@ -246,7 +250,7 @@ const useLiquidityWidget = () => {
 
             onClose: () => {
               setMigrateLiquidityPureParams(null)
-              setAddLiquidityPureParams(null)
+              handleCloseZapInWidget()
             },
             onBack: () => setMigrateLiquidityPureParams(null),
             onConnectWallet: toggleWalletModal,
@@ -264,7 +268,17 @@ const useLiquidityWidget = () => {
             },
           }
         : null,
-    [account, chainId, library, migrateLiquidityPureParams, changeNetwork, toggleWalletModal, navigate, refCode],
+    [
+      migrateLiquidityPureParams,
+      refCode,
+      account,
+      chainId,
+      toggleWalletModal,
+      navigate,
+      handleCloseZapInWidget,
+      changeNetwork,
+      library,
+    ],
   )
 
   const [zapOutPureParams, setZapOutPureParams] = useState<{
@@ -282,7 +296,7 @@ const useLiquidityWidget = () => {
             referral: refCode,
             connectedAccount: {
               address: account,
-              chainId: chainId as unknown as MigrateChainId,
+              chainId: chainId as unknown as ZapMigrationChainId,
             },
             onClose: () => setZapOutPureParams(null),
             onConnectWallet: toggleWalletModal,
@@ -338,16 +352,16 @@ const useLiquidityWidget = () => {
   const previousAccount = usePreviousDistinct(account)
   useEffect(() => {
     if (account && previousAccount) {
-      setAddLiquidityPureParams(null)
+      handleCloseZapInWidget()
       setMigrateLiquidityPureParams(null)
       setZapOutPureParams(null)
     }
-  }, [account, previousAccount])
+  }, [account, handleCloseZapInWidget, previousAccount])
 
   const liquidityWidget = (
     <>
       {addLiquidityParams && (
-        <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={() => setAddLiquidityPureParams(null)}>
+        <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapInWidget}>
           <LiquidityWidget {...addLiquidityParams} />
         </Modal>
       )}
@@ -359,7 +373,7 @@ const useLiquidityWidget = () => {
           width={'760px'}
           onDismiss={() => {
             setMigrateLiquidityPureParams(null)
-            setAddLiquidityPureParams(null)
+            handleCloseZapInWidget()
           }}
           zindex={9999}
         >

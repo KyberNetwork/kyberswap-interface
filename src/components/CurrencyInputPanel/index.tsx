@@ -1,7 +1,7 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken, lighten, rgba } from 'polished'
-import { ReactNode, useCallback, useState } from 'react'
+import { ReactNode, useCallback, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -17,8 +17,9 @@ import Wallet from 'components/Icons/Wallet'
 import { Input as NumericalInput } from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { MouseoverTooltip } from 'components/Tooltip'
+import Tooltip from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -255,6 +256,9 @@ export default function CurrencyInputPanel({
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
   const { account } = useActiveWeb3React()
+  const [showTooltip, setShowTooltip] = useState(false)
+  const infoRef = useRef<HTMLDivElement>(null)
+  useOnClickOutside(infoRef, () => setShowTooltip(false))
 
   const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined, customChainId)
 
@@ -375,14 +379,28 @@ export default function CurrencyInputPanel({
                     </StyledTokenName>
                   </RowFixed>
                   {!!nativeCurrency && !isMobile && !upToMedium && (
-                    <MouseoverTooltip
-                      text={nativeCurrency?.isNative ? 'Native token' : nativeCurrency?.wrapped.address}
-                      delay={200}
-                      placement="top"
+                    <Flex
                       width="fit-content"
+                      height="fit-content"
+                      marginTop="6px"
+                      marginLeft="4px"
+                      role="button"
+                      ref={infoRef}
+                      onClick={e => {
+                        e.stopPropagation()
+                        setShowTooltip(prev => !prev)
+                      }}
                     >
-                      <Info color={theme.subText} size={18} style={{ margin: '0 8px' }} />
-                    </MouseoverTooltip>
+                      <Tooltip
+                        show={showTooltip}
+                        text={nativeCurrency?.isNative ? 'Native token' : nativeCurrency?.wrapped.address}
+                        delay={200}
+                        placement="top"
+                        width="fit-content"
+                      >
+                        <Info color={theme.subText} size={18} />
+                      </Tooltip>
+                    </Flex>
                   )}
                   {!disableCurrencySelect && !isSwitchMode && (
                     <DropdownSVG style={{ marginLeft: tight ? '-8px' : undefined }} />

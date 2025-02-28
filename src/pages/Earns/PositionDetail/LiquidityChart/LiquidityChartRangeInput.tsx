@@ -25,6 +25,10 @@ const ChartWrapper = styled.div`
   align-items: center;
   justify-content: center;
   width: 76%;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
 `
 
 export default function LiquidityChartRangeInput({

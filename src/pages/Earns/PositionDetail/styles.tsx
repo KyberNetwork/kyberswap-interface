@@ -73,6 +73,10 @@ export const InfoSection = styled.div`
   border-radius: 16px;
   padding: 16px 24px;
   border: 1px solid ${({ theme }) => theme.tabActive};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 16px;
+  `}
 `
 
 export const InfoSectionFirstFormat = styled(InfoSection)`
@@ -103,6 +107,7 @@ export const VerticalDivider = styled.div`
 `
 
 export const RevertIconWrapper = styled.div`
+  transform: rotate(90deg);
   cursor: pointer;
 
   :hover {
@@ -132,6 +137,7 @@ export const PositionAction = styled.button<{
   padding: 10px 18px;
   background-color: ${({ theme }) => theme.primary};
   border: 1px solid ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.black};
   display: flex;
   gap: 6px;
   align-items: center;
@@ -144,8 +150,9 @@ export const PositionAction = styled.button<{
   ${({ theme, mobileAutoWidth }) =>
     !mobileAutoWidth &&
     theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
+      width: 100%;
+      justify-content: center;
+    `}
 
   :hover {
     filter: brightness(1.2);

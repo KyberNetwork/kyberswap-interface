@@ -17,7 +17,6 @@ import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
-import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
@@ -27,9 +26,8 @@ import { TOKEN_API_URL } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { Field } from 'state/swap/actions'
-import { useCheckCorrelatedPair, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
 
 import MultichainKNCNote from './MultichainKNCNote'
@@ -95,7 +93,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const { typedValue } = useSwapState()
   const [recipient, setRecipient] = useState<string | null>(null)
-  useUpdateSlippageInStableCoinSwap(chainId)
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(
@@ -112,9 +109,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     execute: onWrap,
   } = useWrapCallback(currencyIn, currencyOut, typedValue, false, customChainId)
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
-
-  const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
-  const isCorrelatedPair = useCheckCorrelatedPair()
 
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
@@ -180,8 +174,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       routeSummary={routeSummary}
       typedValue={typedValue}
       recipient={recipient}
-      isStablePairSwap={isStablePairSwap}
-      isCorrelatedPair={isCorrelatedPair}
       isAdvancedMode={isDegenMode}
     >
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
@@ -223,12 +215,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             {isDegenMode && !isWrapOrUnwrap && (
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
-            <SlippageSettingGroup
-              isWrapOrUnwrap={isWrapOrUnwrap}
-              isStablePairSwap={isStablePairSwap}
-              onOpenGasToken={onOpenGasToken}
-              isCorrelatedPair={isCorrelatedPair}
-            />
+            <SlippageSettingGroup onOpenGasToken={onOpenGasToken} isWrapOrUnwrap={isWrapOrUnwrap} />
             <FeeControlGroup />
           </Flex>
         </Wrapper>

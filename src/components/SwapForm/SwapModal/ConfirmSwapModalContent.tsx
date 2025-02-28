@@ -8,7 +8,7 @@ import { Flex, Text } from 'rebass'
 import { calculatePriceImpact } from 'services/route/utils'
 import styled from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
@@ -22,11 +22,13 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
 import { TOKEN_API_URL } from 'constants/env'
+import { PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import { useDegenModeManager } from 'state/user/hooks'
+import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
+import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { CloseIcon } from 'theme/components'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
 import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
@@ -81,10 +83,12 @@ export default function ConfirmSwapModalContent({
   onSwap,
 }: Props) {
   const theme = useTheme()
-  const { routeSummary, slippage, isStablePairSwap, isCorrelatedPair, isAdvancedMode } = useSwapFormContext()
+  const { routeSummary, slippage, isAdvancedMode } = useSwapFormContext()
   const [hasAcceptedNewAmount, setHasAcceptedNewAmount] = useState(false)
   const [showAreYouSureModal, setShowAreYouSureModal] = useState(false)
   const [isDegenMode] = useDegenModeManager()
+  const cat = usePairCategory()
+  const { setRawSlippage } = useSlippageSettingByPage()
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
@@ -101,6 +105,12 @@ export default function ConfirmSwapModalContent({
         setHoneypot(res.data)
       })
   }, [currencyIn?.wrapped.address, chainId])
+
+  const isSlippageNotEnough =
+    !!errorWhileBuildRoute &&
+    (errorWhileBuildRoute.includes('enough') ||
+      errorWhileBuildRoute.includes('min') ||
+      errorWhileBuildRoute.includes('smaller'))
 
   const errorText = useMemo(() => {
     if (!errorWhileBuildRoute) return
@@ -164,6 +174,7 @@ export default function ConfirmSwapModalContent({
     : undefined
 
   const priceImpactResult = checkPriceImpact(priceImpactFromBuild)
+  const defaultSlp = useDefaultSlippageByPair()
 
   const outputChangePercent = Number(buildResult?.data?.outputChange?.percent) || 0
   const formattedOutputChangePercent =
@@ -266,7 +277,7 @@ export default function ConfirmSwapModalContent({
   const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isAdvancedMode, priceImpactFromBuild)
 
   const isShowAcceptNewAmount =
-    outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD || (isStablePairSwap && outputChangePercent < 0)
+    outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD || (cat === PAIR_CATEGORY.STABLE && outputChangePercent < 0)
   const disableSwap =
     (isShowAcceptNewAmount && !hasAcceptedNewAmount) || shouldDisableConfirmButton || shouldDisableByPriceImpact
 
@@ -348,30 +359,50 @@ export default function ConfirmSwapModalContent({
         <SwapDetails {...getSwapDetailsProps()} />
 
         <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
-          <SlippageWarningNote
-            rawSlippage={slippage}
-            isStablePairSwap={isStablePairSwap}
-            isCorrelatedPair={isCorrelatedPair}
-          />
+          <SlippageWarningNote rawSlippage={slippage} />
 
           <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
           {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
 
           {errorWhileBuildRoute ? (
-            <ButtonPrimary
-              onClick={() => {
-                if (honeypot?.isFOT) {
-                  searchParams.set('tab', 'settings')
-                  setSearchParams(searchParams)
-                }
-                onDismiss()
-              }}
-            >
-              <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
-                {honeypot?.isFOT ? 'Adjust Settings' : 'Dismiss'}
-              </Text>
-            </ButtonPrimary>
+            isSlippageNotEnough && slippage <= defaultSlp ? (
+              <Flex sx={{ gap: '16px' }}>
+                <ButtonOutlined onClick={onDismiss} style={{ flex: 1 }}>
+                  Dismiss
+                </ButtonOutlined>
+                {slippage < defaultSlp ? (
+                  <ButtonPrimary style={{ flex: 2 }} onClick={() => setRawSlippage(defaultSlp)}>
+                    Use Suggested Slippage
+                  </ButtonPrimary>
+                ) : (
+                  <ButtonPrimary
+                    style={{ flex: 1 }}
+                    onClick={() => {
+                      searchParams.set('tab', 'settings')
+                      setSearchParams(searchParams)
+                      onDismiss()
+                    }}
+                  >
+                    Set Custom Slippage
+                  </ButtonPrimary>
+                )}
+              </Flex>
+            ) : (
+              <ButtonPrimary
+                onClick={() => {
+                  if (honeypot?.isFOT) {
+                    searchParams.set('tab', 'settings')
+                    setSearchParams(searchParams)
+                  }
+                  onDismiss()
+                }}
+              >
+                <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
+                  {honeypot?.isFOT ? 'Adjust Settings' : 'Dismiss'}
+                </Text>
+              </ButtonPrimary>
+            )
           ) : (
             <Flex sx={{ gap: '8px', width: '100%' }}>
               {isShowAcceptNewAmount && (

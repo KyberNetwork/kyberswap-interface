@@ -1,17 +1,17 @@
-import { Trans, t } from '@lingui/macro'
-import React from 'react'
+import { Trans } from '@lingui/macro'
+import React, { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import SlippageControl from 'components/SlippageControl'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
-import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useCheckCorrelatedPair, useCheckStablePairSwap } from 'state/swap/hooks'
+import { usePairCategory } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
+import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage } from 'utils/slippage'
 
 const Message = styled.div`
   font-size: 12px;
@@ -34,10 +34,16 @@ type Props = {
 const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } = useSlippageSettingByPage()
 
-  const isStablePairSwap = useCheckStablePairSwap()
-  const isCorrelatedPair = useCheckCorrelatedPair()
-  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap, isCorrelatedPair)
+  const cat = usePairCategory()
+
+  const options = useMemo(
+    () => (cat === 'highVolatilityPair' ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
+    [cat],
+  )
+
+  const slippageStatus = checkRangeSlippage(rawSlippage, cat)
   const isWarning = slippageStatus !== SLIPPAGE_STATUS.NORMAL
+  const msg = SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[cat] || ''
   const theme = useTheme()
 
   return (
@@ -78,18 +84,12 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
         rawSlippage={rawSlippage}
         setRawSlippage={setRawSlippage}
         isWarning={isWarning}
-        defaultRawSlippage={isStablePairSwap ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP : DEFAULT_SLIPPAGE}
+        options={options}
       />
 
       {isWarning && (
         <Message data-warning={true} data-error={false}>
-          {slippageStatus === SLIPPAGE_STATUS.HIGH
-            ? isStablePairSwap
-              ? t`Your slippage setting might be high compared to typical stable pair trades. Consider adjusting it to reduce the risk of front-running.`
-              : isCorrelatedPair
-              ? t`Your slippage setting might be high compared with other similar trades. You might want to adjust it to avoid potential front-running.`
-              : t`Your slippage setting might be high. You might want to adjust it to avoid potential front-running.`
-            : t`Slippage is low. Your transaction may fail.`}
+          `Your slippage ${msg}`
         </Message>
       )}
     </Flex>

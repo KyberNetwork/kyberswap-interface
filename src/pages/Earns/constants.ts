@@ -1,4 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { EarnDex } from 'services/zapEarn'
+
+import { ETHER_ADDRESS } from 'constants/index'
 
 export enum PoolType {
   DEX_UNISWAPV3 = 'Uniswap V3',
@@ -7,7 +10,7 @@ export enum PoolType {
 }
 
 export const NFT_MANAGER_CONTRACT = {
-  [PoolType.DEX_UNISWAPV3]: {
+  [EarnDex.DEX_UNISWAPV3]: {
     [ChainId.MAINNET]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
     [ChainId.BSCMAINNET]: '0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613',
     [ChainId.MATIC]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
@@ -20,10 +23,9 @@ export const NFT_MANAGER_CONTRACT = {
     [ChainId.MANTLE]: '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1',
     [ChainId.OPTIMISM]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
     [ChainId.SCROLL]: '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1',
-    [ChainId.ZKEVM]: '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1',
   },
-  [PoolType.DEX_PANCAKESWAPV3]: '0x46A15B0b27311cedF172AB29E4f4766fbE7F4364',
-  [PoolType.DEX_SUSHISWAPV3]: {
+  [EarnDex.DEX_PANCAKESWAPV3]: '0x46A15B0b27311cedF172AB29E4f4766fbE7F4364',
+  [EarnDex.DEX_SUSHISWAPV3]: {
     [ChainId.ARBITRUM]: '0x96E04591579f298681361C6122Dc4Ef405c19385',
     [ChainId.AVAXMAINNET]: '0x18350b048AB366ed601fFDbC669110Ecb36016f3',
     [ChainId.BASE]: '0x80C7DD17B01855a6D2347444a0FCC36136a314de',
@@ -34,7 +36,13 @@ export const NFT_MANAGER_CONTRACT = {
     [ChainId.LINEA]: '0x80C7DD17B01855a6D2347444a0FCC36136a314de',
     [ChainId.OPTIMISM]: '0x1af415a1EbA07a4986a52B6f2e7dE7003D82231e',
     [ChainId.MATIC]: '0xb7402ee99F0A008e461098AC3A27F4957Df89a40',
-    [ChainId.ZKEVM]: '0xF4d73326C13a4Fc5FD7A064217e12780e9Bd62c3',
     [ChainId.SCROLL]: '0x0389879e0156033202C44BF784ac18fC02edeE4f',
   },
 }
+
+export const NATIVE_ADDRESS = [
+  ETHER_ADDRESS.toLowerCase(),
+  '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', // BNB
+  '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', // AVAX
+  '0xcccccccccccccccccccccccccccccccccccccccc', // POL
+]

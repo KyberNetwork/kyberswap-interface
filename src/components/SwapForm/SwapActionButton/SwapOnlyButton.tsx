@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import SwapModal from 'components/SwapForm/SwapModal'
@@ -7,6 +7,7 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import { Field } from 'state/swap/actions'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
@@ -97,6 +98,13 @@ const SwapOnlyButton: React.FC<Props> = ({
       feeInfo: getFeeInfoForMixPanel(routeSummary),
     })
   }
+
+  const [slippage] = useUserSlippageTolerance()
+
+  useEffect(() => {
+    if (Boolean(buildResult) && isProcessingSwap) handleClickSwapForNormalMode()
+    // eslint-disable-next-line
+  }, [slippage])
 
   const handleClickSwapButton = () => {
     mixpanelSwapInit()

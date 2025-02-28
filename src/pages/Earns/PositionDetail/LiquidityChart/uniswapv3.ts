@@ -272,9 +272,7 @@ export function priceToClosestTick(
   token1Decimal: number,
   revert = false,
 ): number | undefined {
-  if (!value.match(/^\d*\.?\d+$/)) {
-    return undefined
-  }
+  if (!value.match(/^\d*\.?\d+$/)) return
   const [whole, fraction] = value.split('.')
 
   const decimals = fraction?.length ?? 0
@@ -285,8 +283,16 @@ export function priceToClosestTick(
 
   //const sqrtRatioX96 = encodeSqrtRatioX96(numerator, denominator);
   const sqrtRatioX96 = !revert ? encodeSqrtRatioX96(numerator, denominator) : encodeSqrtRatioX96(denominator, numerator)
+  if (sqrtRatioX96 > MAX_SQRT_RATIO) return MAX_TICK
+  if (sqrtRatioX96 < MIN_SQRT_RATIO) return MIN_TICK
 
-  let tick = getTickAtSqrtRatio(sqrtRatioX96)
+  let tick
+  try {
+    tick = getTickAtSqrtRatio(sqrtRatioX96)
+  } catch (error) {
+    console.log(error)
+  }
+  if (tick === undefined) return
   const nextTickPrice = tickToPrice(tick + 1, token0Decimal, token1Decimal, revert)
 
   if (!revert) {
@@ -300,9 +306,9 @@ export function priceToClosestTick(
 }
 
 export function nearestUsableTick(tick: number, tickSpacing: number) {
-  if (!Number.isInteger(tick) || !Number.isInteger(tickSpacing)) throw new Error('INTEGERS')
-  if (tickSpacing <= 0) throw new Error('TICK_SPACING')
-  if (tick < MIN_TICK || tick > MAX_TICK) throw new Error('TICK_BOUND')
+  if (!Number.isInteger(tick) || !Number.isInteger(tickSpacing)) return // Error('INTEGERS')
+  if (tickSpacing <= 0) return // Error('TICK_SPACING')
+  if (tick < MIN_TICK || tick > MAX_TICK) return // Error('TICK_BOUND')
   const rounded = Math.round(tick / tickSpacing) * tickSpacing
   if (rounded < MIN_TICK) return rounded + tickSpacing
   if (rounded > MAX_TICK) return rounded - tickSpacing
