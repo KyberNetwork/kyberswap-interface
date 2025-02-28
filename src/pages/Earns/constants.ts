@@ -3,12 +3,6 @@ import { EarnDex } from 'services/zapEarn'
 
 import { ETHER_ADDRESS } from 'constants/index'
 
-export enum PoolType {
-  DEX_UNISWAPV3 = 'Uniswap V3',
-  DEX_PANCAKESWAPV3 = 'PancakeSwap V3',
-  DEX_SUSHISWAPV3 = 'SushiSwap V3',
-}
-
 export const NFT_MANAGER_CONTRACT = {
   [EarnDex.DEX_UNISWAPV3]: {
     [ChainId.MAINNET]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
@@ -37,6 +31,15 @@ export const NFT_MANAGER_CONTRACT = {
     [ChainId.OPTIMISM]: '0x1af415a1EbA07a4986a52B6f2e7dE7003D82231e',
     [ChainId.MATIC]: '0xb7402ee99F0A008e461098AC3A27F4957Df89a40',
     [ChainId.SCROLL]: '0x0389879e0156033202C44BF784ac18fC02edeE4f',
+  },
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: {
+    [ChainId.MATIC]: '0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6',
+  },
+  [EarnDex.DEX_CAMELOTV3]: {
+    [ChainId.ARBITRUM]: '0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15',
+  },
+  [EarnDex.DEX_THENAFUSION]: {
+    [ChainId.BSCMAINNET]: '0xa51ADb08Cbe6Ae398046A23bec013979816B77Ab',
   },
 }
 
