@@ -1,7 +1,7 @@
-import { ChainId, LiquidityWidget, PoolType, ZapOut } from '@kyberswap/liquidity-widgets'
-import '@kyberswap/liquidity-widgets/dist/style.css'
-import { ZapMigration, ChainId as ZapMigrationChainId, Dex as ZapMigrationDex } from '@kyberswap/zap-migration-widgets'
-import '@kyberswap/zap-migration-widgets/dist/style.css'
+import { ChainId, LiquidityWidget, PoolType, ZapOut } from 'kane6-liquidity-widgets'
+import 'kane6-liquidity-widgets/dist/style.css'
+import { ZapMigration, ChainId as ZapMigrationChainId, Dex as ZapMigrationDex } from 'kane6-zap-migration-widgets'
+import 'kane6-zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
@@ -65,9 +65,9 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
 }
 
 const dexFormatter = {
-  [PoolType.DEX_UNISWAPV3]: ZapMigrationDex.Uniswapv3,
-  [PoolType.DEX_PANCAKESWAPV3]: ZapMigrationDex.Pancakev3,
-  [PoolType.DEX_SUSHISWAPV3]: ZapMigrationDex.Sushiv3,
+  [PoolType.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
+  [PoolType.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
+  [PoolType.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
   [PoolType.DEX_UNISWAPV2]: null,
   [PoolType.DEX_PANCAKESWAPV2]: null,
   [PoolType.DEX_SUSHISWAPV2]: null,
@@ -80,9 +80,15 @@ const dexFormatter = {
   [PoolType.DEX_SWAPMODEV3]: null,
   [PoolType.DEX_KOICL]: null,
   [PoolType.DEX_THRUSTERV3]: null,
-  [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.Uniswapv3,
-  [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.Pancakev3,
-  [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.Sushiv3,
+  [PoolType.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
+  [PoolType.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
+  [PoolType.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
+  [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
+  [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
+  [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
+  [EarnDex.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
 }
 
 const useLiquidityWidget = () => {

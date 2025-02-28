@@ -65,6 +65,9 @@ export enum EarnDex {
   DEX_UNISWAPV3 = 'Uniswap V3',
   DEX_PANCAKESWAPV3 = 'PancakeSwap V3',
   DEX_SUSHISWAPV3 = 'SushiSwap V3',
+  DEX_QUICKSWAPV3ALGEBRA = 'QuickSwap V3',
+  DEX_CAMELOTV3 = 'Camelot V3',
+  DEX_THENAFUSION = 'THENA',
 }
 
 export const earnSupportedChains = [
