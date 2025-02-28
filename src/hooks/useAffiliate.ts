@@ -5,7 +5,7 @@ import { AFFILIATE_SERVICE_URL } from 'constants/env'
 
 export const useAffiliate = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const refCode = searchParams.get('refCode')
+  const refCode = searchParams.get('r')
 
   useEffect(() => {
     if (!refCode) return
