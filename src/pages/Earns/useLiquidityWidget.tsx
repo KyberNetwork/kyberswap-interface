@@ -369,7 +369,8 @@ const useLiquidityWidget = () => {
       setMigrateLiquidityPureParams(null)
       setZapOutPureParams(null)
     }
-  }, [account, handleCloseZapInWidget, previousAccount])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, previousAccount])
 
   const liquidityWidget = (
     <>
