@@ -8,7 +8,7 @@ import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
 import { ParsedPosition } from '.'
-import LiquidityChart from './LiquidityChart'
+// import LiquidityChart from './LiquidityChart'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from './LiquidityChart/uniswapv3'
 import { InfoRightColumn, InfoSection, InfoSectionSecondFormat, RevertIconWrapper } from './styles'
 
@@ -76,14 +76,14 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
         </InfoSection>
       ) : null}
 
-      <LiquidityChart
+      {/* <LiquidityChart
         chainId={position.chainId}
         poolAddress={position.poolAddress}
         price={price}
         minPrice={position.minPrice}
         maxPrice={position.maxPrice}
         revertPrice={revert}
-      />
+      /> */}
 
       {priceRange ? (
         <Flex sx={{ gap: '16px' }}>
