@@ -70,6 +70,15 @@ export enum EarnDex {
   DEX_THENAFUSION = 'THENA',
 }
 
+export enum EarnDex2 {
+  DEX_UNISWAPV3 = 'uniswapv3',
+  DEX_PANCAKESWAPV3 = 'pancake-v3',
+  DEX_SUSHISWAPV3 = 'sushiswap-v3',
+  DEX_QUICKSWAPV3ALGEBRA = 'quickswap-v3',
+  DEX_CAMELOTV3 = 'camelot-v3',
+  DEX_THENAFUSION = 'thena',
+}
+
 export const earnSupportedChains = [
   ChainId.MAINNET,
   ChainId.BASE,

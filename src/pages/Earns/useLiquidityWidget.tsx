@@ -5,7 +5,7 @@ import 'kane6-zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { EarnDex } from 'services/zapEarn'
+import { EarnDex, EarnDex2 } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -64,7 +64,16 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
 }
 
-const dexFormatter = {
+const zapDexMapping = {
+  [EarnDex2.DEX_UNISWAPV3]: PoolType.DEX_UNISWAPV3,
+  [EarnDex2.DEX_PANCAKESWAPV3]: PoolType.DEX_PANCAKESWAPV3,
+  [EarnDex2.DEX_SUSHISWAPV3]: PoolType.DEX_SUSHISWAPV3,
+  [EarnDex2.DEX_QUICKSWAPV3ALGEBRA]: PoolType.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex2.DEX_CAMELOTV3]: PoolType.DEX_CAMELOTV3,
+  [EarnDex2.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
+}
+
+const zapMigrationDexMapping = {
   [PoolType.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
   [PoolType.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
   [PoolType.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
@@ -108,7 +117,7 @@ const useLiquidityWidget = () => {
       initialTick?: { tickUpper: number; tickLower: number },
     ) => {
       if (!addLiquidityPureParams) return
-      if (!dexFormatter[position.exchange as EarnDex]) {
+      if (!zapMigrationDexMapping[position.exchange as EarnDex]) {
         notify(
           {
             title: `Open liquidity migration widget failed`,
@@ -119,7 +128,7 @@ const useLiquidityWidget = () => {
         )
         return
       }
-      if (!dexFormatter[addLiquidityPureParams.poolType]) {
+      if (!zapMigrationDexMapping[addLiquidityPureParams.poolType]) {
         notify(
           {
             title: `Open liquidity migration widget failed`,
@@ -132,12 +141,12 @@ const useLiquidityWidget = () => {
       }
       const paramsToSet = {
         from: {
-          dex: dexFormatter[position.exchange as EarnDex],
+          dex: zapMigrationDexMapping[position.exchange as EarnDex],
           poolId: position.poolId,
           positionId: position.positionId,
         },
         to: {
-          dex: dexFormatter[addLiquidityPureParams.poolType] as ZapMigrationDex,
+          dex: zapMigrationDexMapping[addLiquidityPureParams.poolType] as ZapMigrationDex,
           poolId: addLiquidityPureParams.poolAddress,
           positionId: addLiquidityPureParams.positionId,
         },
@@ -161,9 +170,7 @@ const useLiquidityWidget = () => {
     pool: { exchange: string; chainId?: number; address: string },
     positionId?: string,
   ) => {
-    const supportedDexs = Object.keys(PoolType).map(item => item.replace('DEX_', '').replace('V3', '').toLowerCase())
-    const formattedExchange = pool.exchange.toLowerCase().replaceAll('_', '').replaceAll('-', '').replaceAll('v3', '')
-    const dex = supportedDexs.find(item => formattedExchange.includes(item) || item.includes(formattedExchange))
+    const dex = zapDexMapping[pool.exchange as EarnDex2]
     if (!dex) {
       notify(
         {
@@ -181,7 +188,7 @@ const useLiquidityWidget = () => {
     setAddLiquidityPureParams({
       poolAddress: pool.address,
       chainId: (pool.chainId || filters.chainId) as ChainId,
-      poolType: PoolType[`DEX_${dex.toUpperCase()}V3` as keyof typeof PoolType],
+      poolType: dex,
       positionId,
     })
   }
