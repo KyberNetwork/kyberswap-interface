@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Text } from 'rebass'
@@ -11,6 +11,7 @@ import {
   WORSE_PRICE_DIFF_THRESHOLD,
 } from 'components/swapv2/LimitOrder/const'
 import { useActiveWeb3React } from 'hooks'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const HightLight = styled.span`
   font-weight: 500;
@@ -22,12 +23,14 @@ export default function useWarningCreateOrder({
   displayRate,
   deltaRate,
   estimateUSD,
+  missingAllowance,
 }: {
   currencyIn: Currency | undefined
   outputAmount: string
   displayRate: string
   deltaRate: DeltaRateLimitOrder
   estimateUSD: number
+  missingAllowance: boolean | CurrencyAmount<Currency>
 }) {
   const { chainId } = useActiveWeb3React()
   const warningMessage = useMemo(() => {
@@ -70,6 +73,17 @@ export default function useWarningCreateOrder({
       )
     }
 
+    if (missingAllowance && typeof missingAllowance !== 'boolean') {
+      messages.push(
+        <Text>
+          <Trans>
+            Your current allowance is insufficient. Approve an additional{' '}
+            {formatDisplayNumber(missingAllowance.toExact(), { significantDigits: 6 })} {currencyIn?.symbol} to proceed.
+          </Trans>
+        </Text>,
+      )
+    }
+
     return messages
   }, [
     chainId,
@@ -80,6 +94,7 @@ export default function useWarningCreateOrder({
     displayRate,
     estimateUSD,
     outputAmount,
+    missingAllowance,
   ])
   return warningMessage
 }
