@@ -68,7 +68,7 @@ export enum EarnDex {
   DEX_QUICKSWAPV3ALGEBRA = 'QuickSwap V3',
   DEX_CAMELOTV3 = 'Camelot V3',
   DEX_THENAFUSION = 'THENA',
-  DEX_UNISWAPV2 = 'Uniswap V2',
+  // DEX_UNISWAPV2 = 'Uniswap V2',
 }
 
 export enum EarnDex2 {
@@ -78,7 +78,7 @@ export enum EarnDex2 {
   DEX_QUICKSWAPV3ALGEBRA = 'quickswap-v3',
   DEX_CAMELOTV3 = 'camelot-v3',
   DEX_THENAFUSION = 'thena',
-  DEX_UNISWAPV2 = 'uniswapv2',
+  // DEX_UNISWAPV2 = 'uniswapv2',
 }
 
 export const earnSupportedChains = [

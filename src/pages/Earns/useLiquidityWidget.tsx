@@ -71,14 +71,14 @@ const zapDexMapping = {
   [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: PoolType.DEX_QUICKSWAPV3ALGEBRA,
   [EarnDex.DEX_CAMELOTV3]: PoolType.DEX_CAMELOTV3,
   [EarnDex.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
-  [EarnDex.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
+  // [EarnDex.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
   [EarnDex2.DEX_UNISWAPV3]: PoolType.DEX_UNISWAPV3,
   [EarnDex2.DEX_PANCAKESWAPV3]: PoolType.DEX_PANCAKESWAPV3,
   [EarnDex2.DEX_SUSHISWAPV3]: PoolType.DEX_SUSHISWAPV3,
   [EarnDex2.DEX_QUICKSWAPV3ALGEBRA]: PoolType.DEX_QUICKSWAPV3ALGEBRA,
   [EarnDex2.DEX_CAMELOTV3]: PoolType.DEX_CAMELOTV3,
   [EarnDex2.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
-  [EarnDex2.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
+  // [EarnDex2.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
 }
 
 const zapMigrationDexMapping = {
@@ -106,7 +106,7 @@ const zapMigrationDexMapping = {
   [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
   [EarnDex.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
   [EarnDex.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
-  [EarnDex.DEX_UNISWAPV2]: null,
+  // [EarnDex.DEX_UNISWAPV2]: null,
 }
 
 const useLiquidityWidget = () => {
