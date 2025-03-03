@@ -421,7 +421,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   }, [maxAmountInput, onSetInput, parsedActiveOrderMakingAmount, currencyIn])
 
   const missingAllowance = useMemo(() => {
-    if (currentAllowance.equalTo(0)) return true
+    if (currentAllowance?.equalTo(0)) return true
     if (currencyIn?.isNative || !parseInputAmount) return false
     const allowanceSubtracted = parsedActiveOrderMakingAmount
       ? currentAllowance?.subtract(parsedActiveOrderMakingAmount)
