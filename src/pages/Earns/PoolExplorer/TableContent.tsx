@@ -30,6 +30,10 @@ import {
 } from './styles'
 import useFilter from './useFilter'
 
+const dexMapping: { [key: string]: string } = {
+  uniswapv2: 'uniswap',
+}
+
 const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPool) => void }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -53,8 +57,8 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const tablePoolData = useMemo(() => {
     return (poolData?.data?.pools || []).map(pool => ({
       ...pool,
-      dexLogo: dexList.data?.find(dex => dex.dexId === pool.exchange)?.logoURL || '',
-      dexName: dexList.data?.find(dex => dex.dexId === pool.exchange)?.name || '',
+      dexLogo: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.logoURL || '',
+      dexName: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.name || '',
     }))
   }, [poolData, dexList])
 
