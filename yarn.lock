@@ -3765,10 +3765,18 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/liquidity-widgets@1.1.18":
-  version "1.1.18"
-  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-1.1.18.tgz#f49bdbb8017f8851486f3d585e79e262d30ec2ab"
-  integrity sha512-cAjnqVuS0a64JyHMa0c9g40ZaBf4M2w56d2TFpcBxhp0w07YhXzb6YH7/mZp0sTnO+V9aY+ctm1rs85JoPmWEA==
+"@kyberswap/liquidity-chart@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-chart/-/liquidity-chart-1.0.1.tgz#ec809e5a21aacca0c47f60aa04508cc59e1d78b0"
+  integrity sha512-pfDdkfyfi4oyQSE+6HoDpHgFlWZjjUftPS8pWBkWPaRrrKbOw/LAp885aHIaWBMdDlwut0fm2XuiMEARsDlyrQ==
+  dependencies:
+    d3 "^7.9.0"
+    lodash.partition "^4.6.0"
+
+"@kyberswap/liquidity-widgets@1.1.19":
+  version "1.1.19"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-1.1.19.tgz#020a23ad04e73a8360add07ed2ee0fee503c5327"
+  integrity sha512-V8NInD6ixwfz13rADtYGa8P7WnJDISnBCxMwI/guJAFqixTuZ6tnFisioKiLDijd/5OKSBbcw/8dOsJ1GSZF6g==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
@@ -3777,9 +3785,7 @@
     "@radix-ui/react-slot" "^1.1.0"
     class-variance-authority "^0.7.0"
     clsx "^2.1.1"
-    d3 "^7.9.0"
     jsbi "^3.2.5"
-    lodash.partition "^4.6.0"
     numeral "^2.0.6"
     polished "^4.3.1"
     react-popper "^2.3.0"

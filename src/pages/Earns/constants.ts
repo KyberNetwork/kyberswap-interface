@@ -40,7 +40,7 @@ export const NFT_MANAGER_CONTRACT = {
   },
 }
 
-export const NATIVE_ADDRESS = [
+export const NATIVE_ADDRESSES = [
   ETHER_ADDRESS.toLowerCase(),
   '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', // BNB
   '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', // AVAX
