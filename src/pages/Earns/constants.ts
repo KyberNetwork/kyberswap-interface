@@ -1,6 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { EarnDex } from 'services/zapEarn'
 
+import AlgebraNftManagerABI from 'constants/abis/nft-manager-contract/algebraNftManagerContract.json'
+import Univ3NftManagerABI from 'constants/abis/nft-manager-contract/uniswapv3NftManagerContract.json'
 import { ETHER_ADDRESS } from 'constants/index'
 
 export const NFT_MANAGER_CONTRACT = {
@@ -49,3 +51,21 @@ export const NATIVE_ADDRESSES = [
   '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', // AVAX
   '0xcccccccccccccccccccccccccccccccccccccccc', // POL
 ]
+
+export const NFT_MANAGER_ABI = {
+  [EarnDex.DEX_UNISWAPV3]: Univ3NftManagerABI,
+  [EarnDex.DEX_PANCAKESWAPV3]: Univ3NftManagerABI,
+  [EarnDex.DEX_SUSHISWAPV3]: Univ3NftManagerABI,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: AlgebraNftManagerABI,
+  [EarnDex.DEX_CAMELOTV3]: AlgebraNftManagerABI,
+  [EarnDex.DEX_THENAFUSION]: AlgebraNftManagerABI,
+}
+
+export const unwrapWNativeTokenFunc = {
+  [EarnDex.DEX_UNISWAPV3]: 'unwrapWETH9',
+  [EarnDex.DEX_PANCAKESWAPV3]: 'unwrapWETH9',
+  [EarnDex.DEX_SUSHISWAPV3]: 'unwrapWETH9',
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: 'unwrapWNativeToken',
+  [EarnDex.DEX_CAMELOTV3]: 'unwrapWNativeToken',
+  [EarnDex.DEX_THENAFUSION]: 'unwrapWNativeToken',
+}
