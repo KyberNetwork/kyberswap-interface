@@ -3765,6 +3765,14 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
+"@kyberswap/liquidity-chart@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-chart/-/liquidity-chart-1.0.1.tgz#ec809e5a21aacca0c47f60aa04508cc59e1d78b0"
+  integrity sha512-pfDdkfyfi4oyQSE+6HoDpHgFlWZjjUftPS8pWBkWPaRrrKbOw/LAp885aHIaWBMdDlwut0fm2XuiMEARsDlyrQ==
+  dependencies:
+    d3 "^7.9.0"
+    lodash.partition "^4.6.0"
+
 "@kyberswap/oauth2@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@kyberswap/oauth2/-/oauth2-1.0.2.tgz#4e0fdfa9722ba2f185a104293b85b6ca58be775b"
@@ -14082,10 +14090,10 @@ jsprim@^2.0.2:
     array-includes "^3.1.5"
     object.assign "^4.1.3"
 
-kane6-liquidity-widgets@1.1.28:
-  version "1.1.28"
-  resolved "https://registry.yarnpkg.com/kane6-liquidity-widgets/-/kane6-liquidity-widgets-1.1.28.tgz#7bcd691cdd2a0bae3d616f65610ecc53303eafab"
-  integrity sha512-ncA3aYphSsSRD1K/kuI+DHq9qEbDcX84by6rqg2nwlvuQn/UZ2w6+yQs1DC07+cBpWpfBMXAo3Dyki4DK1y+jw==
+kane6-liquidity-widgets@1.1.29:
+  version "1.1.29"
+  resolved "https://registry.yarnpkg.com/kane6-liquidity-widgets/-/kane6-liquidity-widgets-1.1.29.tgz#ce9dfb33d425bb13c7d5bc279b610921aa0c6a96"
+  integrity sha512-SDsPLRghY0W1+w6ixNrbqnWpSEQlWc10dBBwU4z4g4gYzl7KKSHAdIXM/KmN1Dmxk5hTW3XKWYIFgfo+hVpJsA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
@@ -14094,9 +14102,7 @@ kane6-liquidity-widgets@1.1.28:
     "@radix-ui/react-slot" "^1.1.0"
     class-variance-authority "^0.7.0"
     clsx "^2.1.1"
-    d3 "^7.9.0"
     jsbi "^3.2.5"
-    lodash.partition "^4.6.0"
     numeral "^2.0.6"
     polished "^4.3.1"
     react-popper "^2.3.0"
