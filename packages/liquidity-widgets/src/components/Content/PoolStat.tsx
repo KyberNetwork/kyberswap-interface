@@ -10,7 +10,7 @@ interface PoolInfo {
   apr24h: number;
 }
 
-export default function PoolInfo({
+export default function PoolStat({
   chainId,
   poolAddress,
   poolType,
@@ -50,7 +50,7 @@ export default function PoolInfo({
       <div className="flex justify-between">
         <span>TVL</span>
         <span className="text-text">
-          {poolInfo?.tvl
+          {poolInfo?.tvl || poolInfo?.tvl === 0
             ? formatDisplayNumber(poolInfo.tvl, {
                 style: "currency",
                 significantDigits: 6,
@@ -61,7 +61,7 @@ export default function PoolInfo({
       <div className="flex justify-between">
         <span>24h Volume</span>
         <span className="text-text">
-          {poolInfo?.volume24h
+          {poolInfo?.volume24h || poolInfo?.volume24h === 0
             ? formatDisplayNumber(poolInfo.volume24h, {
                 style: "currency",
                 significantDigits: 6,
@@ -72,7 +72,7 @@ export default function PoolInfo({
       <div className="flex justify-between">
         <span>24h Fees</span>
         <span className="text-text">
-          {poolInfo?.fees24h
+          {poolInfo?.fees24h || poolInfo?.fees24h === 0
             ? formatDisplayNumber(poolInfo.fees24h, {
                 style: "currency",
                 significantDigits: 6,
@@ -89,7 +89,7 @@ export default function PoolInfo({
               : "text-text"
           }
         >
-          {poolInfo?.apr24h
+          {poolInfo?.apr24h || poolInfo?.apr24h === 0
             ? formatDisplayNumber(poolInfo.apr24h, {
                 significantDigits:
                   poolInfo.apr24h < 1

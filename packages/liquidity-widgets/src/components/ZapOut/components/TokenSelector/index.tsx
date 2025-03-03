@@ -1,6 +1,6 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@kyber/ui/input";
+import { ScrollArea } from "@kyber/ui/scroll-area";
 import { formatWei } from "@/utils";
 import { NATIVE_TOKEN_ADDRESS } from "@/constants";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
@@ -10,7 +10,7 @@ import Info from "@/assets/svg/info.svg";
 import X from "@/assets/svg/x.svg";
 import { Token } from "@/schema";
 import { formatUnits, isAddress } from "@kyber/utils/crypto";
-import { Button } from "@/components/ui/button";
+import { Button } from "@kyber/ui/button";
 import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { useTokenList } from "@/hooks/useTokenList";
 import { useZapOutContext } from "@/stores/zapout";

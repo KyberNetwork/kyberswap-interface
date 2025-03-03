@@ -1,36 +1,34 @@
-import { max, scaleLinear, ZoomTransform } from "d3";
+import type { ZoomTransform } from "d3";
+import { max, scaleLinear } from "d3";
 import { useEffect, useMemo, useRef, useState } from "react";
 import partition from "lodash.partition";
+import type { ChartEntry, ChartProps } from "@/types";
+import { Bound } from "@/types";
+import Area from "@/components/Area";
+import AxisBottom from "@/components/AxisBottom";
+import Brush from "@/components/Brush";
+import Line from "@/components/Line";
+import Zoom from "@/components/Zoom";
 
-import { Area } from "./Area";
-import { AxisBottom } from "./AxisBottom";
-import { Brush } from "./Brush";
-import { Line } from "./Line";
-import { Bound, ChartEntry, LiquidityChartRangeInputProps } from "../types";
-import Zoom from "./Zoom";
-import { useWidgetContext } from "@/stores/widget";
-
-const xAccessor = (d: ChartEntry) => d.price0;
+const xAccessor = (d: ChartEntry) => d.price;
 const yAccessor = (d: ChartEntry) => d.activeLiquidity;
 
 let zoomTimeout: ReturnType<typeof setTimeout> | undefined;
 
-export function Chart({
-  id = "liquidityChartRangeInput",
+export default function Chart({
+  id = "liquidityChart",
   data: { series, current },
-  ticksAtLimit,
-  styles,
   dimensions: { width, height },
   margins,
-  interactive = true,
   brushDomain,
+  zoomLevels,
+  zoomPosition,
+  zoomInIcon,
+  zoomOutIcon,
   brushLabels,
   onBrushDomainChange,
-  zoomLevels,
-  showZoomButtons = true,
-}: LiquidityChartRangeInputProps) {
+}: ChartProps) {
   const zoomRef = useRef<SVGRectElement | null>(null);
-  const theme = useWidgetContext((s) => s.theme);
 
   const [zoom, setZoom] = useState<ZoomTransform | null>(null);
   const [zoomInited, setZoomInited] = useState(false);
@@ -90,25 +88,27 @@ export function Chart({
   }, [zoom]);
 
   const [leftSeries, rightSeries] = useMemo(() => {
-    const isHighToLow = series[0]?.price0 > series[series.length - 1]?.price0;
-    let [left, right] = partition(series, (d) =>
-      isHighToLow ? +xAccessor(d) < current : +xAccessor(d) > current
+    const isHighToLow = series[0]?.price > series[series.length - 1]?.price;
+    let [left, right] = partition(series, (d: ChartEntry) =>
+      isHighToLow
+        ? Number(xAccessor(d)) < current
+        : Number(xAccessor(d)) > current
     );
 
     if (right.length && right[right.length - 1]) {
-      if (right[right.length - 1].price0 !== current) {
+      if (right[right.length - 1].price !== current) {
         right = [
           ...right,
           {
             activeLiquidity: right[right.length - 1].activeLiquidity,
-            price0: current,
+            price: current,
           },
         ];
       }
       left = [
         {
           activeLiquidity: right[right.length - 1].activeLiquidity,
-          price0: current,
+          price: current,
         },
         ...left,
       ];
@@ -117,118 +117,111 @@ export function Chart({
     return [left, right];
   }, [current, series]);
 
+  const westHandleInView =
+    brushDomain &&
+    xScale(brushDomain[0]) >= 0 &&
+    xScale(brushDomain[0]) <= innerWidth;
+  const eastHandleInView =
+    brushDomain &&
+    xScale(brushDomain[1]) >= 0 &&
+    xScale(brushDomain[1]) <= innerWidth;
+
   return (
     <>
-      {showZoomButtons && (
-        <Zoom
-          svg={zoomRef.current}
-          xScale={xScale}
-          setZoom={setZoom}
-          width={innerWidth}
-          height={
-            // allow zooming inside the x-axis
-            height
-          }
-          resetBrush={() => {
-            onBrushDomainChange(
-              [
-                current * zoomLevels.initialMin,
-                current * zoomLevels.initialMax,
-              ] as [number, number],
-              "reset"
-            );
-          }}
-          showResetButton={Boolean(
-            ticksAtLimit[Bound.LOWER] || ticksAtLimit[Bound.UPPER]
-          )}
-          zoomLevels={zoomLevels}
-        />
-      )}
+      <Zoom
+        height={height} // allow zooming inside the x-axis
+        setZoom={setZoom}
+        showResetButton={Boolean(
+          (!westHandleInView && !eastHandleInView) ||
+            (zoom && zoom.k >= 2 ** 4) ||
+            (zoom && zoom.k <= 2 ** -3)
+        )}
+        svg={zoomRef.current}
+        width={innerWidth}
+        xScale={xScale}
+        zoomInIcon={zoomInIcon}
+        zoomLevels={zoomLevels}
+        zoomOutIcon={zoomOutIcon}
+        zoomPosition={zoomPosition}
+      />
       <svg
-        width="100%"
+        className="overflow-visible"
         height="100%"
         viewBox={`0 0 ${width} ${height}`}
-        className="overflow-visible"
+        width="100%"
       >
         <defs>
-          <clipPath id={`${id}-chart-clip`}>
-            <rect x="0" y="0" width={innerWidth} height={height} />
+          <clipPath id={`${id}-clip`}>
+            <rect height={height} width={innerWidth} x="0" y="0" />
           </clipPath>
 
-          {brushDomain && (
-            // mask to highlight selected area
-            <mask id={`${id}-chart-area-mask`}>
+          {brushDomain ? (
+            <mask id={`${id}-area-mask`}>
               <rect
                 fill="white"
+                height={innerHeight}
+                width={xScale(brushDomain[1]) - xScale(brushDomain[0])}
                 x={xScale(brushDomain[0])}
                 y="0"
-                width={xScale(brushDomain[1]) - xScale(brushDomain[0])}
-                height={innerHeight}
               />
             </mask>
-          )}
+          ) : null}
         </defs>
 
         <g transform={`translate(${margins.left},${margins.top})`}>
-          <g clipPath={`url(#${id}-chart-clip)`}>
+          <g clipPath={`url(#${id}-clip)`}>
             <Area
+              fill="#065F44"
+              opacity={1}
               series={leftSeries}
               xScale={xScale}
-              yScale={yScale}
               xValue={xAccessor}
+              yScale={yScale}
               yValue={yAccessor}
-              opacity={1}
-              fill={"#065F44"}
             />
             <Area
+              fill="#065F44"
+              opacity={1}
               series={rightSeries}
               xScale={xScale}
-              yScale={yScale}
               xValue={xAccessor}
+              yScale={yScale}
               yValue={yAccessor}
-              opacity={1}
-              fill={"#065F44"}
             />
 
-            {brushDomain && (
-              // duplicate area chart with mask for selected area
-              <g mask={`url(#${id}-chart-area-mask)`}>
+            {brushDomain ? (
+              <g mask={`url(#${id}-area-mask)`}>
                 <Area
+                  fill="#31cb9e"
                   opacity={1}
                   series={series}
                   xScale={xScale}
-                  yScale={yScale}
                   xValue={xAccessor}
+                  yScale={yScale}
                   yValue={yAccessor}
-                  fill={theme.accent}
                 />
               </g>
-            )}
-
-            <Line value={current} xScale={xScale} innerHeight={innerHeight} />
-
-            <AxisBottom xScale={xScale} innerHeight={innerHeight} />
+            ) : null}
+            <Line innerHeight={innerHeight} value={current} xScale={xScale} />
+            <AxisBottom innerHeight={innerHeight} xScale={xScale} />
           </g>
 
           <rect
-            fill="transparent"
             cursor="grab"
-            width={innerWidth}
+            fill="transparent"
             height={height}
             ref={zoomRef}
+            width={innerWidth}
           />
 
           <Brush
-            id={id}
-            xScale={xScale}
-            interactive={interactive}
-            brushLabelValue={brushLabels}
             brushExtent={brushDomain ?? (xScale.domain() as [number, number])}
-            innerWidth={innerWidth}
+            brushLabelValue={brushLabels}
+            id={id}
             innerHeight={innerHeight}
+            innerWidth={innerWidth}
             setBrushExtent={onBrushDomainChange}
-            westHandleColor={styles.brush.handle.west}
-            eastHandleColor={styles.brush.handle.east}
+            xScale={xScale}
             zoomInited={zoomInited}
           />
         </g>

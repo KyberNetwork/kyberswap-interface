@@ -1,10 +1,5 @@
 import { useWidgetContext } from "@/stores/widget";
 
-/**
- * Takes in custom size and stroke for circle color, default to primary color as fill,
- * need ...rest for layered styles on top
- */
-// TODO: v3 merge with UIkit strokeWidth
 export default function Loader({
   size = "16px",
   stroke,
@@ -17,6 +12,7 @@ export default function Loader({
   [k: string]: unknown;
 }) {
   const theme = useWidgetContext((s) => s.theme);
+
   return (
     <svg
       viewBox="0 0 24 24"

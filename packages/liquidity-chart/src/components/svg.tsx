@@ -2,16 +2,6 @@
  * Generates an SVG path for the east brush handle.
  * Apply `scale(-1, 1)` to generate west brush handle.
  *
- *    |```````\
- *    |  | |  |
- *    |______/
- *    |
- *    |
- *    |
- *    |
- *    |
- *
- * https://medium.com/@dennismphil/one-side-rounded-rectangle-using-svg-fb31cf318d90
  */
 export const brushHandlePath = (height: number) =>
   [
@@ -46,11 +36,11 @@ export const OffScreenHandle = ({
   margin?: number;
 }) => (
   <polygon
-    points={`0 0, ${size} ${size}, 0 ${size}`}
-    transform={` translate(${size + margin}, ${margin}) rotate(45) `}
     fill={color}
+    points={`0 0, ${size} ${size}, 0 ${size}`}
     stroke={color}
-    strokeWidth="4"
     strokeLinejoin="round"
+    strokeWidth="4"
+    transform={` translate(${size + margin}, ${margin}) rotate(45) `}
   />
 );

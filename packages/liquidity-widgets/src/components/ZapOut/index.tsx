@@ -14,7 +14,7 @@ import { ZapSummary } from "./components/ZapSummary";
 import { EstLiqValue } from "./components/EstLiqValue";
 import { Preview } from "./components/Preview";
 import { TokenListProvider } from "@/hooks/useTokenList";
-import PoolInfo from "../Content/PoolInfo";
+import PoolStat from "../Content/PoolStat";
 import { PoolFee } from "./components/PoolFee";
 import { Action } from "./components/Action";
 
@@ -38,7 +38,7 @@ export default function ZapOut(props: ZapOutProps) {
             <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
               <div className="flex flex-col gap-4">
                 <div className="-mb-4">
-                  <PoolInfo
+                  <PoolStat
                     chainId={props.chainId}
                     poolType={props.poolType}
                     positionId={props.positionId}

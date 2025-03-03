@@ -120,7 +120,7 @@ export const formatDisplayNumber = (
     currency: "USD",
     minimumFractionDigits: fractionDigits ? 0 : undefined,
     maximumFractionDigits: fractionDigits,
-    minimumSignificantDigits: significantDigits,
+    minimumSignificantDigits: significantDigits ? 1 : undefined,
     maximumSignificantDigits: significantDigits,
   });
 

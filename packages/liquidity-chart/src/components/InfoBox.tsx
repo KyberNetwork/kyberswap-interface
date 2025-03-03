@@ -1,20 +1,20 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
-export function InfoBox({
+export default function InfoBox({
   message,
-  icon,
+  icon = null,
 }: {
   message?: ReactNode;
-  icon: ReactNode;
+  icon?: ReactNode;
 }) {
   return (
     <div className="h-full justify-center">
       {icon}
-      {message && (
+      {message ? (
         <div className="font-bold text-xl text-center pt-1 text-subText">
           {message}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

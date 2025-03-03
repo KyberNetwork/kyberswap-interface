@@ -35,7 +35,7 @@ import {
 } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
-import PoolInfo from "./PoolInfo";
+import PoolStat from "./PoolStat";
 import { parseUnits } from "@kyber/utils/crypto";
 import LiquidityChart from "../LiquidityChart";
 
@@ -413,7 +413,7 @@ export default function Content() {
         <Header onDismiss={onClose} />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="flex-1 w-1/2 max-sm:w-full">
-            <PoolInfo
+            <PoolStat
               chainId={chainId}
               poolAddress={poolAddress}
               poolType={poolType}

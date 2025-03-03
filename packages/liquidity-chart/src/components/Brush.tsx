@@ -1,9 +1,10 @@
-import { BrushBehavior, brushX, D3BrushEvent, ScaleLinear, select } from "d3";
+import type { BrushBehavior, D3BrushEvent } from "d3";
+import { brushX, select } from "d3";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-import { brushHandlePath, OffScreenHandle } from "./svg";
+import { brushHandlePath, OffScreenHandle } from "@/components/svg";
+import { compare } from "@/utils";
+import type { BrushProps } from "@/types";
 import usePreviousValue from "@/hooks/usePreviousValue";
-import { useWidgetContext } from "@/stores/widget";
 
 // flips the handles draggers when close to the container edges
 const FLIP_HANDLE_THRESHOLD_PX = 20;
@@ -11,47 +12,16 @@ const FLIP_HANDLE_THRESHOLD_PX = 20;
 // margin to prevent tick snapping from putting the brush off screen
 const BRUSH_EXTENT_MARGIN_PX = 2;
 
-/**
- * Returns true if every element in `a` maps to the
- * same pixel coordinate as elements in `b`
- */
-const compare = (
-  a: [number, number],
-  b: [number, number],
-  xScale: ScaleLinear<number, number>
-): boolean => {
-  // normalize pixels to 1 decimals
-  const aNorm = a.map((x) => xScale(x).toFixed(1));
-  const bNorm = b.map((x) => xScale(x).toFixed(1));
-  return aNorm.every((v, i) => v === bNorm[i]);
-};
-
-export const Brush = ({
+export default function Brush({
   id,
   xScale,
-  interactive,
-  brushLabelValue,
   brushExtent,
-  setBrushExtent,
   innerWidth,
   innerHeight,
-  westHandleColor,
-  eastHandleColor,
   zoomInited,
-}: {
-  id: string;
-  xScale: ScaleLinear<number, number>;
-  interactive: boolean;
-  brushLabelValue: (d: "w" | "e", x: number) => string;
-  brushExtent: [number, number];
-  setBrushExtent: (extent: [number, number], mode: string | undefined) => void;
-  innerWidth: number;
-  innerHeight: number;
-  westHandleColor: string;
-  eastHandleColor: string;
-  zoomInited: boolean;
-}) => {
-  const theme = useWidgetContext((s) => s.theme);
+  brushLabelValue,
+  setBrushExtent,
+}: BrushProps) {
   const brushRef = useRef<SVGGElement | null>(null);
   const brushBehavior = useRef<BrushBehavior<SVGGElement> | null>(null);
 
@@ -82,7 +52,8 @@ export const Brush = ({
       if (
         type === "end" &&
         !compare(brushExtent, scaled, xScale) &&
-        zoomInited
+        zoomInited &&
+        setBrushExtent
       ) {
         setBrushExtent(scaled, mode);
       }
@@ -108,14 +79,15 @@ export const Brush = ({
         [innerWidth - BRUSH_EXTENT_MARGIN_PX, innerHeight],
       ])
       .handleSize(30)
-      .filter(() => interactive)
       .on("brush end", brushed);
 
     brushBehavior.current(select(brushRef.current));
 
     if (
       previousBrushExtent &&
-      compare(brushExtent, previousBrushExtent, xScale)
+      previousBrushExtent &&
+      Array.isArray(previousBrushExtent) &&
+      compare(brushExtent, previousBrushExtent as [number, number], xScale)
     ) {
       select(brushRef.current)
         .transition()
@@ -123,19 +95,30 @@ export const Brush = ({
     }
 
     // brush linear gradient
-    select(brushRef.current)
-      .selectAll(".selection")
-      .attr("stroke", "none")
-      .attr("fill-opacity", "0.1")
-      .attr("fill", `url(#${id}-gradient-selection)`);
+    if (!setBrushExtent) {
+      select(brushRef.current)
+        .selectAll(".selection")
+        .attr("stroke", "none")
+        .attr("fill-opacity", "0.1")
+        .attr("fill", `url(#${id}-gradient-selection)`)
+        .attr("cursor", "default");
+      select(brushRef.current).selectAll(".overlay").attr("cursor", "default");
+      select(brushRef.current).selectAll(".handle").attr("cursor", "default");
+    } else {
+      select(brushRef.current)
+        .selectAll(".selection")
+        .attr("stroke", "none")
+        .attr("fill-opacity", "0.1")
+        .attr("fill", `url(#${id}-gradient-selection)`);
+    }
   }, [
     brushExtent,
     brushed,
     id,
     innerHeight,
     innerWidth,
-    interactive,
     previousBrushExtent,
+    setBrushExtent,
     xScale,
   ]);
 
@@ -144,8 +127,8 @@ export const Brush = ({
     if (!brushRef.current || !brushBehavior.current) return;
 
     brushBehavior.current.move(
-      select(brushRef.current) as any,
-      brushExtent.map(xScale) as any
+      select(brushRef.current),
+      brushExtent.map(xScale) as [number, number]
     );
   }, [brushExtent, xScale]);
 
@@ -187,32 +170,33 @@ export const Brush = ({
           <linearGradient
             id={`${id}-gradient-selection`}
             x1="0%"
-            y1="100%"
             x2="100%"
+            y1="100%"
             y2="100%"
           >
-            <stop stopColor={westHandleColor} />
-            <stop stopColor={eastHandleColor} offset="1" />
+            <stop stopColor="transparent" />
+            <stop offset="1" stopColor="transparent" />
           </linearGradient>
 
           {/* clips at exactly the svg area */}
           <clipPath id={`${id}-brush-clip`}>
-            <rect x="0" y="0" width={innerWidth} height={innerHeight} />
+            <rect height={innerHeight} width={innerWidth} x="0" y="0" />
           </clipPath>
         </defs>
 
         {/* will host the d3 brush */}
-        <g
-          ref={brushRef}
-          clipPath={`url(#${id}-brush-clip)`}
-          onMouseEnter={() => setHovering(true)}
-          onMouseLeave={() => setHovering(false)}
-        />
+        {setBrushExtent ? (
+          <g
+            clipPath={`url(#${id}-brush-clip)`}
+            onMouseEnter={() => setHovering(true)}
+            onMouseLeave={() => setHovering(false)}
+            ref={brushRef}
+          />
+        ) : null}
 
         {/* custom brush handles */}
-        {localBrushExtent && (
+        {localBrushExtent ? (
           <>
-            {/* west handle */}
             {westHandleInView ? (
               <g
                 transform={`translate(${Math.max(
@@ -223,36 +207,36 @@ export const Brush = ({
                 <g>
                   <path
                     d={brushHandlePath(innerHeight)}
+                    fill="transparent"
+                    pointerEvents="none"
+                    stroke="#31cb9e"
                     strokeWidth={2}
-                    pointerEvents={"none"}
-                    stroke={theme.accent}
-                    fill={"transparent"}
                   />
                 </g>
 
                 <g
+                  className="transition-opacity duration-300"
+                  opacity={showLabels || hovering ? 1 : 0}
                   transform={`translate(50,0), scale(${
                     flipWestHandle ? "1" : "-1"
                   }, 1)`}
-                  opacity={showLabels || hovering ? 1 : 0}
-                  className="transition-opacity duration-300"
                 >
                   <rect
-                    y="0"
-                    x="-30"
+                    fill="transparent"
                     height="30"
-                    width="60"
                     rx="8"
-                    fill={"transparent"}
+                    width="60"
+                    x="-30"
+                    y="0"
                   />
 
                   <text
+                    dominantBaseline="middle"
+                    fill="#979797"
+                    fontSize="13px"
+                    textAnchor="middle"
                     transform="scale(-1, 1)"
                     y="15"
-                    dominantBaseline="middle"
-                    textAnchor="middle"
-                    fontSize="13px"
-                    fill={theme.subText}
                   >
                     {brushLabelValue("w", localBrushExtent[0])}
                   </text>
@@ -269,35 +253,35 @@ export const Brush = ({
                 <g>
                   <path
                     d={brushHandlePath(innerHeight)}
+                    fill="transparent"
+                    pointerEvents="none"
+                    stroke="#7289DA"
                     strokeWidth={2}
-                    pointerEvents={"none"}
-                    stroke={"#7289DA"}
-                    fill={"transparent"}
                   />
                 </g>
 
                 <g
+                  className="transition-opacity duration-300"
+                  opacity={showLabels || hovering ? 1 : 0}
                   transform={`translate(50,0), scale(${
                     flipEastHandle ? "-1" : "1"
                   }, 1)`}
-                  opacity={showLabels || hovering ? 1 : 0}
-                  className="transition-opacity duration-300"
                 >
                   <rect
-                    y="0"
-                    x="-30"
+                    fill="transparent"
                     height="30"
-                    width="60"
                     rx="8"
-                    fill={"transparent"}
+                    width="60"
+                    x="-30"
+                    y="0"
                   />
 
                   <text
-                    y="15"
                     dominantBaseline="middle"
+                    fill="#979797"
                     fontSize="13px"
                     textAnchor="middle"
-                    fill={theme.subText}
+                    y="15"
                   >
                     {brushLabelValue("e", localBrushExtent[1])}
                   </text>
@@ -305,29 +289,26 @@ export const Brush = ({
               </g>
             ) : null}
 
-            {showWestArrow && <OffScreenHandle color={theme.accent} />}
+            {showWestArrow ? <OffScreenHandle color="#31cb9e" /> : null}
 
-            {showEastArrow && (
+            {showEastArrow ? (
               <g transform={`translate(${innerWidth}, 0) scale(-1, 1)`}>
-                <OffScreenHandle color={"#7289DA"} />
+                <OffScreenHandle color="#7289DA" />
               </g>
-            )}
+            ) : null}
           </>
-        )}
+        ) : null}
       </>
     ),
     [
       id,
-      westHandleColor,
-      eastHandleColor,
       innerWidth,
       innerHeight,
+      setBrushExtent,
       localBrushExtent,
       westHandleInView,
       xScale,
       flipWestHandle,
-      theme.accent,
-      theme.subText,
       showLabels,
       hovering,
       brushLabelValue,
@@ -337,4 +318,4 @@ export const Brush = ({
       showEastArrow,
     ]
   );
-};
+}

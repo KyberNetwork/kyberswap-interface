@@ -1,5 +1,7 @@
 import { tickToPrice } from "@kyber/utils/uniswapv3";
-import { TickDataRaw, TickProcessed, PRICE_FIXED_DIGITS } from "./types";
+import type { ScaleLinear } from "d3";
+import type { TickDataRaw, TickProcessed } from "@/types";
+import { PRICE_FIXED_DIGITS } from "@/constants";
 
 // Computes the numSurroundingTicks above or below the active tick.
 export const computeSurroundingTicks = (
@@ -8,7 +10,8 @@ export const computeSurroundingTicks = (
   activeTickProcessed: TickProcessed,
   sortedTickData: TickDataRaw[],
   pivot: number,
-  ascending: boolean
+  ascending: boolean,
+  revert: boolean
 ): TickProcessed[] => {
   let previousTickProcessed: TickProcessed = {
     ...activeTickProcessed,
@@ -28,9 +31,9 @@ export const computeSurroundingTicks = (
       liquidityActive: previousTickProcessed.liquidityActive,
       tick,
       liquidityNet: BigInt(sortedTickData[i].liquidityNet),
-      price0: Number(tickToPrice(tick, token0decimals, token1decimal)).toFixed(
-        PRICE_FIXED_DIGITS
-      ),
+      price: Number(
+        tickToPrice(tick, token0decimals, token1decimal, revert)
+      ).toFixed(PRICE_FIXED_DIGITS),
     };
 
     // Update the active liquidity.
@@ -41,7 +44,7 @@ export const computeSurroundingTicks = (
       currentTickProcessed.liquidityActive =
         previousTickProcessed.liquidityActive +
         BigInt(sortedTickData[i].liquidityNet);
-    } else if (!ascending && previousTickProcessed.liquidityNet !== 0n) {
+    } else if (previousTickProcessed.liquidityNet !== 0n) {
       // We are iterating descending, so look at the previous tick and apply any net liquidity.
       currentTickProcessed.liquidityActive =
         previousTickProcessed.liquidityActive -
@@ -52,9 +55,22 @@ export const computeSurroundingTicks = (
     previousTickProcessed = currentTickProcessed;
   }
 
-  if (!ascending) {
-    processedTicks = processedTicks.reverse();
-  }
+  if (!ascending) processedTicks = processedTicks.reverse();
 
   return processedTicks;
+};
+
+/**
+ * Returns true if every element in `a` maps to the
+ * same pixel coordinate as elements in `b`
+ */
+export const compare = (
+  a: [number, number],
+  b: [number, number],
+  xScale: ScaleLinear<number, number>
+): boolean => {
+  // normalize pixels to 1 decimals
+  const aNorm = a.map((x) => xScale(x).toFixed(1));
+  const bNorm = b.map((x) => xScale(x).toFixed(1));
+  return aNorm.every((v, i) => v === bNorm[i]);
 };

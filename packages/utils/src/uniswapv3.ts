@@ -363,9 +363,7 @@ export function priceToClosestTick(
   token1Decimal: number,
   revert = false
 ): number | undefined {
-  if (!value.match(/^\d*\.?\d+$/)) {
-    return undefined;
-  }
+  if (!value.match(/^\d*\.?\d+$/)) return;
   const [whole, fraction] = value.split(".");
 
   const decimals = fraction?.length ?? 0;
@@ -383,12 +381,15 @@ export function priceToClosestTick(
     : encodeSqrtRatioX96(denominator, numerator);
 
   let tick;
+  if (sqrtRatioX96 > MAX_SQRT_RATIO) return MAX_TICK;
+  if (sqrtRatioX96 < MIN_SQRT_RATIO) return MIN_TICK;
+
   try {
     tick = getTickAtSqrtRatio(sqrtRatioX96);
   } catch (error) {
     console.log(error);
   }
-  if (!tick) return undefined;
+  if (tick === undefined) return;
 
   const tickPrice = tickToPrice(tick, token0Decimal, token1Decimal, revert);
 

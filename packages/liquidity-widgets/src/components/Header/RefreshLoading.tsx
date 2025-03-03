@@ -91,7 +91,7 @@ export default function RefreshLoading() {
   }, [countdown, fetchPrices, getPool]);
 
   return (
-    <div className="flex items-center relative w-fit" role="button">
+    <div className="flex items-center relative w-fit">
       <Spin countdown={countdown} />
 
       {countdown > 0 && (

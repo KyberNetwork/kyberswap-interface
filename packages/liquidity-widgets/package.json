@@ -1,6 +1,6 @@
 {
   "name": "@kyberswap/liquidity-widgets",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -31,9 +31,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "d3": "^7.9.0",
     "jsbi": "^3.2.5",
-    "lodash.partition": "^4.6.0",
     "numeral": "^2.0.6",
     "polished": "^4.3.1",
     "react-popper": "^2.3.0",
@@ -44,9 +42,9 @@
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/ui": "workspace:^",
+    "@kyberswap/liquidity-chart": "workspace:^",
     "@kyber/hooks": "workspace:^",
     "@kyber/utils": "workspace:^",
-    "@types/d3": "^7.4.3",
     "@types/lodash": "^4.14.196",
     "@types/numeral": "^2.0.5",
     "@types/react": "^18.0.17",
