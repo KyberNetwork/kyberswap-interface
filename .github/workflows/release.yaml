@@ -47,12 +47,8 @@ jobs:
         working-directory: packages/ui
         run: pnpm run build
 
-      - name: Build ui
+      - name: Build liquidity chart
         working-directory: packages/liquidity-chart
-        run: pnpm run build
-
-      - name: Build package
-        working-directory: ${{ github.event.inputs.package }}
         run: pnpm run build
 
       - name: Publish package to npm
