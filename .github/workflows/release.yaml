@@ -1,0 +1,51 @@
+name: Publish NPM
+
+concurrency:
+  group: publish-npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        type: choice
+        description: package
+        required: true
+        options:
+        - packages/liquidity-widgets
+        - packages/zap-migration-widgets
+        - packages/liquidity-chart
+        - packages/swap-widgets
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.9.2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build package
+        working-directory: ${{ github.event.inputs.package }}
+        run: pnpm run build
+
+      - name: Publish package to npm
+        working-directory: ${{ github.event.inputs.package }}
+        run: npm publish --public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
