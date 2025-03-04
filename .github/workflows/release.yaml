@@ -39,6 +39,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build other svgr
+        working-directory: packages/svgr-esbuild-plugin-svgr
+        run: pnpm run build
+
       - name: Build package
         working-directory: ${{ github.event.inputs.package }}
         run: pnpm run build
