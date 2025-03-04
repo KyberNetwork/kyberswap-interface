@@ -26,6 +26,7 @@ import { SwapPI, useSwapPI } from "./SwapImpact";
 import { SlippageWarning } from "@/components/SlippageWarning";
 import { WarningMsg } from "./WarningMsg";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import { univ3PoolType } from "@/schema";
 export const Preview = () => {
   const {
     onClose,
@@ -38,9 +39,11 @@ export const Preview = () => {
     connectedAccount,
     onSubmitTx,
     referral,
+    poolType,
   } = useZapOutContext((s) => s);
 
   const { address: account } = connectedAccount;
+  const isUniV3 = univ3PoolType.safeParse(poolType).success;
 
   const { showPreview, slippage, togglePreview, tokenOut, route } =
     useZapOutUserState();
@@ -304,7 +307,8 @@ export const Preview = () => {
 
         <div>
           <div className="text-base">
-            {pool.token0.symbol}/{pool.token1.symbol} #{positionId}
+            {pool.token0.symbol}/{pool.token1.symbol}{" "}
+            {isUniV3 ? `#${positionId}` : ""}
           </div>
           <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px] w-fit">
             Fee {pool.fee}%

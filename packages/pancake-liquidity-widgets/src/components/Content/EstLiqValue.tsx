@@ -227,11 +227,14 @@ export default function EstLiqValue() {
       positionAmount0Usd +
       positionAmount1Usd || 0;
 
+  const newData =
+    zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
+
   const newPool =
-    zapInfo && pool
+    zapInfo && pool && newData
       ? pool.newPool({
-          sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
-          tick: zapInfo.poolDetails.uniswapV3.newTick,
+          sqrtRatioX96: newData.newSqrtP,
+          tick: newData.newTick,
           liquidity: (
             pool.liquidity + BigInt(zapInfo.positionDetails.addedLiquidity)
           ).toString(),

@@ -64,16 +64,17 @@ function App() {
       positionId?: number;
     };
   }>({
-    chainId: "8453",
+    chainId: ChainId.Bsc.toString(),
     from: {
-      dex: Dex.Uniswapv3,
-      poolId: "0x06959273e9a65433de71f5a452d529544e07ddd0",
-      positionId: 1636872,
+      dex: Dex.DEX_PANCAKESWAPV3,
+      poolId: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
+      positionId: 1404415,
     },
     to: {
-      dex: Dex.Uniswapv3,
-      //poolId: "0xd0b53d9277642d899df5c87a3966a349a798f224",
-      poolId: "0x06959273e9a65433de71f5a452d529544e07ddd0",
+      dex: Dex.DEX_THENAFUSION,
+      //poolId: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
+      poolId: "0x1123e75b71019962cd4d21b0f3018a6412edb63c",
+      positionId: 16142,
     },
     //chainId: "56",
     //from: {
@@ -130,36 +131,29 @@ function App() {
                 <div className="flex-1">
                   <div>Source</div>
 
-                  <div className="flex gap-2 mt-2">
-                    Dex:
-                    <input
-                      type="radio"
-                      id="dex-from-Uniswapv3"
-                      name="dex-from"
-                      value={Dex.Uniswapv3}
-                      checked={state.from.dex === Dex.Uniswapv3}
-                      onChange={() =>
-                        setState((s) => ({
-                          ...s,
-                          from: { ...s.from, dex: Dex.Uniswapv3 },
-                        }))
-                      }
-                    />
-                    <label htmlFor="dex-from-Uniswapv3">UniswapV3</label>
-                    <input
-                      type="radio"
-                      id="dex-from-pancakev3"
-                      name="dex-from"
-                      value={Dex.Pancakev3}
-                      checked={state.from.dex === Dex.Pancakev3}
-                      onChange={() =>
-                        setState((s) => ({
-                          ...s,
-                          from: { ...s.from, dex: Dex.Pancakev3 },
-                        }))
-                      }
-                    />
-                    <label htmlFor="dex-from-pancakev3">Pancackev3</label>
+                  <div className="flex flex-wrap gap-4">
+                    {Object.entries(Dex)
+                      .filter((x) => isNaN(+x[0]))
+                      .map(([key, value]) => {
+                        return (
+                          <div className="flex" key={key}>
+                            <input
+                              type="radio"
+                              id={`from-${key}`}
+                              name={key}
+                              value={value as string}
+                              checked={state.from.dex == value}
+                              onChange={() => {
+                                setState((s) => ({
+                                  ...s,
+                                  from: { ...s.from, dex: value as any },
+                                }));
+                              }}
+                            />
+                            <label htmlFor={`from-${key}`}>{key}</label>
+                          </div>
+                        );
+                      })}
                   </div>
 
                   <div className="flex gap-2 mt-2">
@@ -192,36 +186,30 @@ function App() {
                 </div>
                 <div className="flex-1">
                   <div>Target</div>
-                  <div className="flex gap-2 mt-2">
-                    Dex:
-                    <input
-                      type="radio"
-                      id="dex-to-Uniswapv3"
-                      name="dex-to"
-                      value={Dex.Uniswapv3}
-                      checked={state.to.dex === Dex.Uniswapv3}
-                      onChange={() =>
-                        setState((s) => ({
-                          ...s,
-                          to: { ...s.to, dex: Dex.Uniswapv3 },
-                        }))
-                      }
-                    />
-                    <label htmlFor="dex-to-Uniswapv3">UniswapV3</label>
-                    <input
-                      type="radio"
-                      id="dex-to-pancakev3"
-                      name="dex-to"
-                      value={Dex.Pancakev3}
-                      checked={state.to.dex === Dex.Pancakev3}
-                      onChange={() =>
-                        setState((s) => ({
-                          ...s,
-                          to: { ...s.to, dex: Dex.Pancakev3 },
-                        }))
-                      }
-                    />
-                    <label htmlFor="dex-to-pancakev3">Pancackev3</label>
+                  <div className="flex flex-wrap gap-4">
+                    {Object.entries(Dex)
+                      .filter((x) => isNaN(+x[0]))
+                      .map(([key, value]) => {
+                        return (
+                          <div className="flex" key={key}>
+                            <input
+                              type="radio"
+                              id={"to-" + key}
+                              name={key}
+                              value={value as string}
+                              checked={state.to.dex === value}
+                              onChange={() => {
+                                console.log(key, value);
+                                setState((s) => ({
+                                  ...s,
+                                  to: { ...s.to, dex: value as any },
+                                }));
+                              }}
+                            />
+                            <label htmlFor={`to-${key}`}>{key}</label>
+                          </div>
+                        );
+                      })}
                   </div>
 
                   <div className="flex gap-2 mt-2">

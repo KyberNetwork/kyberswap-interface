@@ -227,8 +227,10 @@ export default function Preview({
     univ2PoolNormalize.safeParse(pool);
   const univ2Price = isUniV2
     ? +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
+        BigInt(uniV2Pool.reserves[1]) *
+          10n ** BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) *
+          10n ** BigInt(uniV2Pool.token1?.decimals),
         18
       )
     : 0;
@@ -515,7 +517,7 @@ export default function Preview({
           {!txHash && (
             <div className="text-sm text-subText text-center">
               Confirm this transaction in your wallet - Zapping{" "}
-              {positionId
+              {positionId && isUniV3
                 ? `Position #${positionId}`
                 : `${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`}
             </div>
@@ -647,7 +649,7 @@ export default function Preview({
             <div className="rounded-full text-xs leading-5 bg-layer2 px-2 py-0 h-max text-text flex items-center gap-1 brightness-75">
               Fee {pool.fee}%
             </div>
-            {positionId !== undefined && (
+            {positionId !== undefined && isUniV3 && (
               <div className="rounded-full text-xs px-2 py-0 h-max flex items-center gap-1 bg-transparent text-success relative before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:opacity-20 before:bg-success before:rounded-full">
                 <Info width={12} /> ID {positionId}
               </div>

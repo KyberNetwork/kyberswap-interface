@@ -13,7 +13,7 @@ export enum ChainId {
   // Mantle = 5000,
   Optimism = 10,
   Scroll = 534352,
-  // ZkSync = 324,
+  ZkSync = 324,
 }
 
 export const chainId = z.nativeEnum(ChainId);
@@ -43,16 +43,26 @@ export const chain = z.object({
 });
 
 export enum Dex {
-  Uniswapv3 = 2,
-  Pancakev3 = 3,
-  Sushiv3 = 11,
+  DEX_UNISWAPV3 = 2,
+  DEX_PANCAKESWAPV3 = 3,
+  DEX_SUSHISWAPV3 = 11,
+  DEX_METAVAULTV3 = 8,
+  DEX_LINEHUBV3 = 35,
+  DEX_SWAPMODEV3 = 46,
+  DEX_KOICL = 38,
+  DEX_THRUSTERV3 = 12,
+
+  DEX_THENAFUSION = 15,
+
+  DEX_CAMELOTV3 = 13,
+  DEX_QUICKSWAPV3ALGEBRA = 14,
 }
 
 export const dex = z.nativeEnum(Dex);
 
 export const dexInfo = z.object({
   icon: z.string(),
-  name: z.string(),
+  name: z.string().or(z.record(z.number(), z.string())),
   nftManagerContract: z.string().or(z.record(z.number(), z.string())),
 });
 
@@ -66,16 +76,10 @@ export const dexFrom = z
     liquidityOut: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    if (
-      (data.dex === Dex.Uniswapv3 ||
-        data.dex === Dex.Pancakev3 ||
-        data.dex === Dex.Sushiv3) &&
-      typeof data.positionId !== "number"
-    ) {
+    if (univ3Dexes.includes(data.dex) && typeof data.positionId !== "number") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          "Position ID must be a number for Uniswapv3 or Pancakev3 or Sushiv3",
+        message: "Position ID must be a number for univ3 pool type",
         path: ["positionId"],
       });
     }
@@ -94,9 +98,7 @@ export const dexTo = z
   .superRefine((data, ctx) => {
     // If dex is Pancakev3 or Uniswapv3, positionId should be a number
     if (
-      (data.dex === Dex.Pancakev3 ||
-        data.dex === Dex.Uniswapv3 ||
-        data.dex === Dex.Sushiv3) &&
+      univ3Dexes.includes(data.dex) &&
       data.positionId &&
       typeof data.positionId !== "number"
     ) {
@@ -151,20 +153,62 @@ const univ3PoolCommonField = z.object({
   ]),
 });
 
+export const algebraTypes: Dex[] = [
+  Dex.DEX_THENAFUSION,
+  Dex.DEX_CAMELOTV3,
+  Dex.DEX_QUICKSWAPV3ALGEBRA,
+] as const;
+
+export const univ3Dexes = [
+  Dex.DEX_UNISWAPV3,
+  Dex.DEX_PANCAKESWAPV3,
+  Dex.DEX_METAVAULTV3,
+  Dex.DEX_LINEHUBV3,
+  Dex.DEX_SWAPMODEV3,
+  Dex.DEX_KOICL,
+  Dex.DEX_THRUSTERV3,
+  Dex.DEX_SUSHISWAPV3,
+  Dex.DEX_THENAFUSION,
+  Dex.DEX_CAMELOTV3,
+  Dex.DEX_QUICKSWAPV3ALGEBRA,
+] as const;
+
+// Create the discriminated union with the correct structure
 export const pool = z.discriminatedUnion("dex", [
   univ3PoolCommonField.extend({
-    dex: z.literal(Dex.Uniswapv3),
+    dex: z.literal(Dex.DEX_UNISWAPV3),
   }),
-
   univ3PoolCommonField.extend({
-    dex: z.literal(Dex.Pancakev3),
+    dex: z.literal(Dex.DEX_PANCAKESWAPV3),
   }),
-
   univ3PoolCommonField.extend({
-    dex: z.literal(Dex.Sushiv3),
+    dex: z.literal(Dex.DEX_METAVAULTV3),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_LINEHUBV3),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_SWAPMODEV3),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_KOICL),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_THRUSTERV3),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_SUSHISWAPV3),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_THENAFUSION),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_CAMELOTV3),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_QUICKSWAPV3ALGEBRA),
   }),
 ]);
-
 export type Pool = z.infer<typeof pool>;
 
 const univ3Position = z.object({
@@ -176,13 +220,37 @@ const univ3Position = z.object({
 
 export const position = z.discriminatedUnion("dex", [
   univ3Position.extend({
-    dex: z.literal(Dex.Uniswapv3),
+    dex: z.literal(Dex.DEX_UNISWAPV3),
   }),
   univ3Position.extend({
-    dex: z.literal(Dex.Pancakev3),
+    dex: z.literal(Dex.DEX_PANCAKESWAPV3),
   }),
   univ3Position.extend({
-    dex: z.literal(Dex.Sushiv3),
+    dex: z.literal(Dex.DEX_METAVAULTV3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_LINEHUBV3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_SWAPMODEV3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_KOICL),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_THRUSTERV3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_SUSHISWAPV3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_THENAFUSION),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_CAMELOTV3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_QUICKSWAPV3ALGEBRA),
   }),
 ]);
 

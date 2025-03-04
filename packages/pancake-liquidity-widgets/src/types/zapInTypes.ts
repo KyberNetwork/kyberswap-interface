@@ -104,6 +104,12 @@ export interface ZapRouteDetail {
       sqrtP: string;
       newSqrtP: string;
     };
+    algebraV1: {
+      tick: number;
+      newTick: number;
+      sqrtP: string;
+      newSqrtP: string;
+    };
   };
   positionDetails: {
     addedLiquidity: string;

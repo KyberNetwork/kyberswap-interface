@@ -1,5 +1,6 @@
 import {
   ChainId,
+  UniV2Position,
   UniV3Position,
   univ2PoolNormalize,
   univ3PoolNormalize,
@@ -81,8 +82,12 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
         liquidityOut
       ));
     } else if (isUniv2) {
-      // TODO: handle univ2
-      console.log(univ2Pool);
+      amount0 =
+        (BigInt(liquidityOut) * BigInt(univ2Pool.reserves[0])) /
+        (position as UniV2Position).totalSupply;
+      amount1 =
+        (BigInt(liquidityOut) * BigInt(univ2Pool.reserves[1])) /
+        (position as UniV2Position).totalSupply;
     } else assertUnreachable(poolType as never, `${poolType} is not handled`);
   }
 

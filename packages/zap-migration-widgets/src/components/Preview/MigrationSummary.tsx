@@ -107,6 +107,15 @@ export function MigrationSummary({
   const addedAmount1 = BigInt(
     addliquidityAction?.addLiquidity.token1.amount || 0
   );
+  const dexFrom =
+    typeof DexInfos[pools[0].dex].name === "string"
+      ? DexInfos[pools[0].dex].name
+      : DexInfos[pools[0].dex].name[chainId];
+
+  const dexTo =
+    typeof DexInfos[pools[1].dex].name === "string"
+      ? DexInfos[pools[1].dex].name
+      : DexInfos[pools[1].dex].name[chainId];
 
   return (
     <div className="border border-stroke rounded-md px-4 py-3 mt-8">
@@ -131,7 +140,7 @@ export function MigrationSummary({
             8
           )}{" "}
           {pools[0].token1.symbol} from{" "}
-          <span className="text-text">{DexInfos[pools[0].dex].name}</span>
+          <span className="text-text">{dexFrom as string}</span>
         </div>
       </div>
 
@@ -164,8 +173,8 @@ export function MigrationSummary({
             `${formatTokenAmount(addedAmount1, pools[1].token1.decimals, 8)} ${
               pools[1].token1.symbol
             }`}{" "}
-          into <span className="text-text">{DexInfos[pools[1].dex].name}</span>{" "}
-          in the selected fee pool
+          into <span className="text-text">{dexTo as string}</span> in the
+          selected fee pool
         </div>
       </div>
     </div>

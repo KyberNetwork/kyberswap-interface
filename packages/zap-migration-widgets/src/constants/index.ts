@@ -1,7 +1,15 @@
 import { ChainId, Chain, Dex, DexInfo } from "../schema";
+import camelotLogo from "../assets/dexes/camelot.svg?url";
+import quickswapLogo from "../assets/dexes/quickswap.png";
 import uniLogo from "../assets/dexes/uniswap.png";
 import pancakeLogo from "../assets/dexes/pancake.png";
 import sushiLogo from "../assets/dexes/sushi.png";
+import metavaultLogo from "../assets/dexes/metavault.svg?url";
+import linehubLogo from "../assets/dexes/metavault.svg?url";
+import swapmodeLogo from "../assets/dexes/swapmode.png";
+import koiclLogo from "../assets/dexes/koicl.png";
+import thrusterLogo from "../assets/dexes/thruster.png";
+import thenaLogo from "../assets/dexes/thena.png";
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
@@ -210,10 +218,28 @@ export const NetworkInfo: Record<ChainId, Chain> = {
     },
     zapPath: "scroll",
   },
+  [ChainId.ZkSync]: {
+    chainId: ChainId.ZkSync,
+    name: "ZkSync",
+    logo: "https://storage.googleapis.com/ks-setting-1d682dca/bd11850b-6aef-48c6-a27d-f8ee833e0dbc1693378187666.svg",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
+    scanLink: "https://era.zksync.network",
+    multiCall: "0xF9cda624FBC7e059355ce98a31693d299FACd963",
+    defaultRpc: "https://mainnet.era.zksync.io",
+    wrappedToken: {
+      //chainId: ChainId.PolygonZkEVM,
+      name: "WETH",
+      address: "0x5aea5775959fbc2557cc8789bc1bf90a239d9a91",
+      symbol: "WETH",
+      decimals: 18,
+    },
+    zapPath: "zksync",
+  },
 };
 
 export const DexInfos: Record<Dex, DexInfo> = {
-  [Dex.Uniswapv3]: {
+  [Dex.DEX_UNISWAPV3]: {
     icon: uniLogo,
     name: "Uniswap V3",
     nftManagerContract: {
@@ -231,12 +257,12 @@ export const DexInfos: Record<Dex, DexInfo> = {
       [ChainId.Scroll]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
     },
   },
-  [Dex.Pancakev3]: {
+  [Dex.DEX_PANCAKESWAPV3]: {
     icon: pancakeLogo,
     name: "Pancake V3",
     nftManagerContract: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   },
-  [Dex.Sushiv3]: {
+  [Dex.DEX_SUSHISWAPV3]: {
     icon: sushiLogo,
     name: "SushiSwap V3",
     nftManagerContract: {
@@ -251,6 +277,84 @@ export const DexInfos: Record<Dex, DexInfo> = {
       [ChainId.Optimism]: "0x1af415a1EbA07a4986a52B6f2e7dE7003D82231e",
       [ChainId.PolygonPos]: "0xb7402ee99F0A008e461098AC3A27F4957Df89a40",
       [ChainId.Scroll]: "0x0389879e0156033202C44BF784ac18fC02edeE4f",
+    },
+  },
+  [Dex.DEX_METAVAULTV3]: {
+    icon: metavaultLogo,
+    name: "Metavault V3",
+    nftManagerContract: {
+      [ChainId.Linea]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
+      [ChainId.Scroll]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
+    },
+  },
+  [Dex.DEX_LINEHUBV3]: {
+    icon: linehubLogo,
+    name: "LineHub V3",
+    nftManagerContract: {
+      [ChainId.Linea]: "0xD27166FA3E2c1a2C1813d0fe6226b8EB21783184",
+    },
+  },
+  [Dex.DEX_SWAPMODEV3]: {
+    icon: swapmodeLogo,
+    name: new Proxy(
+      {
+        [ChainId.Base]: "Baseswap",
+        [ChainId.Arbitrum]: "Arbidex",
+        [ChainId.Optimism]: "Superswap",
+      } as Record<number, string>,
+      {
+        get: function (target, name) {
+          if (
+            [ChainId.Base, ChainId.Arbitrum, ChainId.Optimism].includes(
+              Number(name)
+            )
+          ) {
+            return target[Number(name)];
+          }
+          return "Swapmode";
+        },
+      }
+    ),
+    nftManagerContract: {
+      [ChainId.Arbitrum]: "0x81F2c375AEDbdF02f11c1Ae125e2f51Efa777cEa",
+      [ChainId.Base]: "0xDe151D5c92BfAA288Db4B67c21CD55d5826bCc93",
+      [ChainId.Optimism]: "0x74a52eb08d699CD8BE1d42dA4B241d526B8a8285",
+    },
+  },
+  [Dex.DEX_KOICL]: {
+    icon: koiclLogo,
+    name: "KOI CL",
+    nftManagerContract: {
+      [ChainId.ZkSync]: "0xa459EbF3E6A6d5875345f725bA3F107340b67732",
+    },
+  },
+  [Dex.DEX_THRUSTERV3]: {
+    icon: thrusterLogo,
+    name: "Thruster V3",
+    nftManagerContract: {
+      [ChainId.Blast]: "0x434575EaEa081b735C985FA9bf63CD7b87e227F9",
+    },
+  },
+  [Dex.DEX_THENAFUSION]: {
+    icon: thenaLogo,
+    name: "Thena",
+    nftManagerContract: {
+      //[ChainId.Bsc]: "0x643B68Bf3f855B8475C0A700b6D1020bfc21d02e",
+      [ChainId.Bsc]: "0xa51ADb08Cbe6Ae398046A23bec013979816B77Ab",
+    },
+  },
+  [Dex.DEX_CAMELOTV3]: {
+    icon: camelotLogo,
+    name: "Camelot",
+    nftManagerContract: {
+      [ChainId.Arbitrum]: "0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15",
+    },
+  },
+  [Dex.DEX_QUICKSWAPV3ALGEBRA]: {
+    icon: quickswapLogo,
+    name: "QuickSwap",
+    nftManagerContract: {
+      [ChainId.PolygonPos]: "0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6",
     },
   },
 };

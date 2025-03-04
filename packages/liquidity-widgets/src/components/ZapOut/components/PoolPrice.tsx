@@ -32,8 +32,10 @@ export function PoolPrice() {
 
     if (isUniV2) {
       const p = divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        BigInt(uniV2Pool.reserves[1]) *
+          10n ** BigInt(uniV2Pool.token0.decimals),
+        BigInt(uniV2Pool.reserves[0]) *
+          10n ** BigInt(uniV2Pool.token1.decimals),
         18
       );
       return formatDisplayNumber(revertPrice ? 1 / +p : p, {

@@ -220,12 +220,22 @@ export type RefundAction = z.infer<typeof refundAction>;
 const apiResponse = z.object({
   poolDetails: z.object({
     category: z.string(), // TODO: "exotic_pair",
-    uniswapV3: z.object({
-      tick: z.number(),
-      newTick: z.number(),
-      sqrtP: z.string(),
-      newSqrtP: z.string(),
-    }),
+    uniswapV3: z
+      .object({
+        tick: z.number(),
+        newTick: z.number(),
+        sqrtP: z.string(),
+        newSqrtP: z.string(),
+      })
+      .optional(),
+    algebraV1: z
+      .object({
+        tick: z.number(),
+        newTick: z.number(),
+        sqrtP: z.string(),
+        newSqrtP: z.string(),
+      })
+      .optional(),
   }),
 
   positionDetails: z.object({

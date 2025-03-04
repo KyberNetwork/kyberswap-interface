@@ -174,12 +174,13 @@ export function Preview({
   if (route === null || pools === "loading" || !account) return null;
   let amount0 = 0n;
   let amount1 = 0n;
-  if (route !== null && tickLower !== null && tickUpper !== null) {
+  const newDetail = route.poolDetails.uniswapV3 || route.poolDetails.algebraV1;
+  if (route !== null && tickLower !== null && tickUpper !== null && newDetail) {
     ({ amount0, amount1 } = getPositionAmounts(
-      route.poolDetails.uniswapV3.newTick,
+      newDetail.newTick,
       tickLower,
       tickUpper,
-      BigInt(route.poolDetails.uniswapV3.newSqrtP),
+      BigInt(newDetail.newSqrtP),
       BigInt(route.positionDetails.addedLiquidity)
     ));
   }
@@ -322,12 +323,21 @@ export function Preview({
       </Dialog>
     );
   }
+  const dexFrom =
+    typeof DexInfos[pools[0].dex].name === "string"
+      ? (DexInfos[pools[0].dex].name as string)
+      : DexInfos[pools[0].dex].name[chainId];
+
+  const dexTo =
+    typeof DexInfos[pools[1].dex].name === "string"
+      ? (DexInfos[pools[1].dex].name as string)
+      : DexInfos[pools[1].dex].name[chainId];
 
   return (
     <>
       <Dialog open={showPreview} onOpenChange={() => togglePreview()}>
         <DialogPortal>
-          <DialogContent containerClassName="ks-lw-migration-style">
+          <DialogContent className="max-h-[800px] overflow-auto" containerClassName="ks-lw-migration-style">
             <DialogHeader>
               <DialogTitle>Migrate Liquidity via Zap</DialogTitle>
             </DialogHeader>
@@ -366,12 +376,10 @@ export function Preview({
                   <div className="flex gap-1 items-center text-subText mt-1">
                     <Image
                       src={DexInfos[pools[0].dex].icon}
-                      alt={DexInfos[pools[0].dex].name}
+                      alt={dexFrom}
                       className="w-3 h-3"
                     />
-                    <div className="text-sm opacity-70">
-                      {DexInfos[pools[0].dex].name}
-                    </div>
+                    <div className="text-sm opacity-70">{dexFrom}</div>
                     <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
                       Fee {pools[0].fee}%
                     </div>
@@ -405,12 +413,10 @@ export function Preview({
                   <div className="flex gap-1 items-center text-subText mt-1">
                     <Image
                       src={DexInfos[pools[1].dex].icon}
-                      alt={DexInfos[pools[1].dex].name}
+                      alt={dexTo}
                       className="w-3 h-3"
                     />
-                    <div className="text-sm opacity-70">
-                      {DexInfos[pools[1].dex].name}
-                    </div>
+                    <div className="text-sm opacity-70">{dexTo}</div>
                     <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
                       Fee {pools[1].fee}%
                     </div>

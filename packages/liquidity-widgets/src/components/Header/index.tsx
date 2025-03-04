@@ -50,18 +50,20 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
           {positionId !== undefined && (
             <>
               <div>#{positionId}</div>
-              <div
-                className={`rounded-full text-xs px-2 py-1 font-normal text-${
-                  isOutOfRange ? "warning" : "accent"
-                }`}
-                style={{
-                  background: `${
-                    isOutOfRange ? theme.warning : theme.accent
-                  }33`,
-                }}
-              >
-                {isOutOfRange ? "● Out of range" : "● In range"}
-              </div>
+              {isUniV3 && (
+                <div
+                  className={`rounded-full text-xs px-2 py-1 font-normal text-${
+                    isOutOfRange ? "warning" : "accent"
+                  }`}
+                  style={{
+                    background: `${
+                      isOutOfRange ? theme.warning : theme.accent
+                    }33`,
+                  }}
+                >
+                  {isOutOfRange ? "● Out of range" : "● In range"}
+                </div>
+              )}
             </>
           )}
           <RefreshLoading />

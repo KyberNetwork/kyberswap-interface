@@ -11,10 +11,12 @@ import {
   toRawString,
 } from "@kyber/utils/number";
 import { SyntheticEvent, useRef } from "react";
+import { univ2PoolNormalize } from "@/schema";
 
 export const PoolFee = () => {
   const { route } = useZapOutUserState();
   const { pool } = useZapOutContext((s) => s);
+  const { success: isUniv2 } = univ2PoolNormalize.safeParse(pool);
 
   const actionRemoveLiq = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REMOVE_LIQUIDITY"
@@ -48,6 +50,8 @@ export const PoolFee = () => {
     currentTarget.onerror = null; // prevents looping
     currentTarget.src = questionImg;
   };
+
+  if (isUniv2) return null;
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">

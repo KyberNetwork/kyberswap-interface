@@ -102,6 +102,12 @@ export interface ZapRouteDetail {
       sqrtP: string;
       newSqrtP: string;
     };
+    algebraV1: {
+      tick: number;
+      newTick: number;
+      sqrtP: string;
+      newSqrtP: string;
+    };
     uniswapV2: {
       newReserve0: string;
       newReserve1: string;

@@ -8,6 +8,7 @@ import { PI_LEVEL } from "@/utils";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import InfoHelper from "@/components/InfoHelper";
 import { WarningMsg } from "./WarningMsg";
+import { univ3PoolType } from "@/schema";
 
 export const Action = () => {
   const {
@@ -28,12 +29,20 @@ export const Action = () => {
   const nftManagerContract =
     typeof nftManager === "string" ? nftManager : nftManager[chainId];
 
-  const { isChecking, isApproved, approve, pendingTx } = useNftApproval({
+  const {
+    isChecking,
+    isApproved: approved,
+    approve,
+    pendingTx,
+  } = useNftApproval({
     rpcUrl: NetworkInfo[chainId].defaultRpc,
     nftManagerContract,
     nftId: +positionId,
     spender: route?.routerAddress,
   });
+
+  const isUniV3 = univ3PoolType.safeParse(poolType).success;
+  const isApproved = isUniV3 ? approved && !isChecking : true;
 
   const [clickedApprove, setClickedApprove] = useState(false);
 
