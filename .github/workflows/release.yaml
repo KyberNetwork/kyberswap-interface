@@ -54,6 +54,7 @@ jobs:
         working-directory: packages/liquidity-chart
         run: pnpm run build
 
+
       - name: Publish package to npm
         working-directory: ${{ github.event.inputs.package }}
         run: npm publish --access public
