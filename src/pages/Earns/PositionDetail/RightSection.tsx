@@ -33,27 +33,26 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
 
     if (minTick === undefined || maxTick === undefined) return
 
-    const parsedMinPrice = toString(Number((!revert ? position.minPrice : 1 / position.maxPrice).toFixed(18)))
-    const parsedMaxPrice = toString(Number((!revert ? position.maxPrice : 1 / position.minPrice).toFixed(18)))
+    const minPrice = toString(Number(position.minPrice.toFixed(18)))
+    const maxPrice = toString(Number(position.maxPrice.toFixed(18)))
+
     const tickLower =
-      parsedMinPrice === '0'
-        ? minTick
-        : priceToClosestTick(parsedMinPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
-    const tickUpper =
-      Number(parsedMaxPrice) === Infinity
-        ? maxTick
-        : priceToClosestTick(parsedMaxPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
+      minPrice === '0' ? minTick : priceToClosestTick(minPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
+    const tickUpper = priceToClosestTick(maxPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
 
     const usableTickLower = nearestUsableTick(Number(tickLower), tickSpacing)
     const usableTickUpper = nearestUsableTick(Number(tickUpper), tickSpacing)
 
     if (usableTickLower === undefined || usableTickUpper === undefined) return
     if (usableTickLower === minTick && usableTickUpper === maxTick) return ['0', '∞']
-    else
+    else {
+      const parsedMinPrice = toString(Number((!revert ? position.minPrice : 1 / position.maxPrice).toFixed(18)))
+      const parsedMaxPrice = toString(Number((!revert ? position.maxPrice : 1 / position.minPrice).toFixed(18)))
       return [
         formatDisplayNumber(parsedMinPrice, { significantDigits: 6 }),
         formatDisplayNumber(parsedMaxPrice, { significantDigits: 6 }),
       ]
+    }
   }, [pool, position, revert])
 
   useEffect(() => {

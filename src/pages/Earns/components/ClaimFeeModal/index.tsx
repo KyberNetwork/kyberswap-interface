@@ -9,7 +9,6 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
-import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
 import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useWeb3React } from 'hooks'
@@ -17,7 +16,7 @@ import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
-import { NATIVE_ADDRESSES, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
+import { NATIVE_ADDRESSES, NFT_MANAGER_ABI, NFT_MANAGER_CONTRACT, unwrapWNativeTokenFunc } from 'pages/Earns/constants'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -72,8 +71,8 @@ export default function ClaimFeeModal({
     typeof nftManagerContractOfDex === 'string'
       ? nftManagerContractOfDex
       : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
-
-  const contract = useSigningContract(nftManagerContract, NonfungiblePositionManagerABI)
+  const nftManagerAbi = NFT_MANAGER_ABI[position.dex as keyof typeof NFT_MANAGER_ABI]
+  const contract = useSigningContract(nftManagerContract, nftManagerAbi)
 
   const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
   const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
@@ -97,7 +96,6 @@ export default function ClaimFeeModal({
 
     try {
       const owner = await contract.ownerOf(position.id)
-
       const involvesETH = isToken0Native || isToken1Native
       const collectParams = {
         tokenId,
@@ -114,7 +112,11 @@ export default function ClaimFeeModal({
         const tokenAmount = isToken0Native ? feeInfo.balance1 : feeInfo.balance0
 
         // Encode the unwrapWETH9 call
-        const unwrapWETH9CallData = contract.interface.encodeFunctionData('unwrapWETH9', [ethAmount, recipient])
+        const unwrapWNativeTokenFuncName = unwrapWNativeTokenFunc[position.dex as keyof typeof unwrapWNativeTokenFunc]
+        const unwrapWETH9CallData = contract.interface.encodeFunctionData(unwrapWNativeTokenFuncName, [
+          ethAmount,
+          recipient,
+        ])
 
         // Encode the sweepToken call
         const sweepTokenCallData = contract.interface.encodeFunctionData('sweepToken', [token, tokenAmount, recipient])
@@ -176,6 +178,7 @@ export default function ClaimFeeModal({
     nftManagerContract,
     notify,
     position.chainId,
+    position.dex,
     position.id,
     position.token0Address,
     position.token0Symbol,

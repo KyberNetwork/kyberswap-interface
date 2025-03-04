@@ -12,7 +12,6 @@ import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found
 import CopyHelper from 'components/Copy'
 import Loader from 'components/Loader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -28,7 +27,7 @@ import { CurrencyRoundedImage, CurrencySecondImage } from '../PoolExplorer/style
 import { FeeInfo } from '../PositionDetail/LeftSection'
 import { PositionAction as PositionActionBtn } from '../PositionDetail/styles'
 import ClaimFeeModal, { PositionToClaim, isNativeToken } from '../components/ClaimFeeModal'
-import { NFT_MANAGER_CONTRACT } from '../constants'
+import { NFT_MANAGER_ABI, NFT_MANAGER_CONTRACT } from '../constants'
 import { formatAprNumber } from '../utils'
 import PriceRange from './PriceRange'
 import {
@@ -146,7 +145,8 @@ export default function TableContent({
         typeof nftManagerContractOfDex === 'string'
           ? nftManagerContractOfDex
           : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
-      const contract = getReadingContract(nftManagerContract, NonfungiblePositionManagerABI, library)
+      const nftManagerAbi = NFT_MANAGER_ABI[position.dex as keyof typeof NFT_MANAGER_ABI]
+      const contract = getReadingContract(nftManagerContract, nftManagerAbi, library)
 
       if (!contract) return
       const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)

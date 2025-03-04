@@ -420,20 +420,22 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     } catch (error) {}
   }, [maxAmountInput, onSetInput, parsedActiveOrderMakingAmount, currencyIn])
 
-  const enoughAllowance = useMemo(() => {
-    try {
-      const allowanceSubtracted = parsedActiveOrderMakingAmount
-        ? currentAllowance?.subtract(parsedActiveOrderMakingAmount)
-        : undefined
-      return Boolean(
-        currencyIn?.isNative ||
-          (parseInputAmount &&
-            (allowanceSubtracted?.greaterThan(parseInputAmount) || allowanceSubtracted?.equalTo(parseInputAmount))),
-      )
-    } catch (error) {
+  const missingAllowance = useMemo(() => {
+    if (currentAllowance?.equalTo(0)) return true
+    if (currencyIn?.isNative || !parseInputAmount) return false
+    const allowanceSubtracted = parsedActiveOrderMakingAmount
+      ? currentAllowance?.subtract(parsedActiveOrderMakingAmount)
+      : undefined
+    if (
+      !allowanceSubtracted ||
+      allowanceSubtracted.greaterThan(parseInputAmount) ||
+      allowanceSubtracted.equalTo(parseInputAmount)
+    )
       return false
-    }
+    return parseInputAmount.subtract(allowanceSubtracted)
   }, [currencyIn?.isNative, currentAllowance, parseInputAmount, parsedActiveOrderMakingAmount])
+
+  const enoughAllowance = !Boolean(missingAllowance)
 
   const [approval, approveCallback] = useApproveCallback(
     parseInputAmount,
@@ -703,6 +705,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     outputAmount,
     displayRate,
     deltaRate,
+    missingAllowance,
   })
 
   useImperativeHandle(ref, () => ({

@@ -118,7 +118,7 @@ export const ContentWrapper = styled.div``
 
 export const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 0.5fr 1fr 1fr 1fr 80px;
+  grid-template-columns: 1fr 1.4fr 0.5fr 1fr 1fr 1fr 80px;
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
@@ -138,7 +138,7 @@ export const TableBody = styled.div`
 
 export const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 0.5fr 1fr 1fr 1fr 80px;
+  grid-template-columns: 1fr 1.4fr 0.5fr 1fr 1fr 1fr 80px;
   padding: 24px;
   cursor: pointer;
 
@@ -176,7 +176,6 @@ export const CurrencySecondImage = styled(CurrencyRoundedImage)`
 `
 
 export const SymbolText = styled.div`
-  max-width: 115px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

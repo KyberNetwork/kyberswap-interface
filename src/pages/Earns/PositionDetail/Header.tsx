@@ -33,6 +33,9 @@ const PositionDetailHeader = ({ position }: { position: ParsedPosition }) => {
       window.open(`https://www.sushi.com/${chainName}/pool/v3/${position.poolAddress}/${position.id}`)
     else if (position.dex === EarnDex.DEX_PANCAKESWAPV3)
       window.open(`https://pancakeswap.finance/liquidity/${position.id}`)
+    else if (position.dex === EarnDex.DEX_QUICKSWAPV3ALGEBRA) window.open(`https://quickswap.exchange/#/pools`)
+    else if (position.dex === EarnDex.DEX_CAMELOTV3) window.open(`https://app.camelot.exchange/positions`)
+    else if (position.dex === EarnDex.DEX_THENAFUSION) window.open(`https://thena.fi/pools/${position.poolAddress}`)
   }
 
   return (

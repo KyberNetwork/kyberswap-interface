@@ -222,7 +222,7 @@ const MyPositions = () => {
             <Pagination
               haveBg={false}
               onPageChange={(newPage: number) => updateFilters('page', newPage)}
-              totalCount={userPosition?.length || 0}
+              totalCount={filteredPositions?.length || 0}
               currentPage={filters.page}
               pageSize={POSITIONS_TABLE_LIMIT}
             />

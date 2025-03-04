@@ -5,7 +5,7 @@ import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { EarnDex } from 'services/zapEarn'
+import { EarnDex, EarnDex2 } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -64,10 +64,27 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
 }
 
-const dexFormatter = {
-  [PoolType.DEX_UNISWAPV3]: ZapMigrationDex.Uniswapv3,
-  [PoolType.DEX_PANCAKESWAPV3]: ZapMigrationDex.Pancakev3,
-  [PoolType.DEX_SUSHISWAPV3]: ZapMigrationDex.Sushiv3,
+const zapDexMapping = {
+  [EarnDex.DEX_UNISWAPV3]: PoolType.DEX_UNISWAPV3,
+  [EarnDex.DEX_PANCAKESWAPV3]: PoolType.DEX_PANCAKESWAPV3,
+  [EarnDex.DEX_SUSHISWAPV3]: PoolType.DEX_SUSHISWAPV3,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: PoolType.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex.DEX_CAMELOTV3]: PoolType.DEX_CAMELOTV3,
+  [EarnDex.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
+  // [EarnDex.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
+  [EarnDex2.DEX_UNISWAPV3]: PoolType.DEX_UNISWAPV3,
+  [EarnDex2.DEX_PANCAKESWAPV3]: PoolType.DEX_PANCAKESWAPV3,
+  [EarnDex2.DEX_SUSHISWAPV3]: PoolType.DEX_SUSHISWAPV3,
+  [EarnDex2.DEX_QUICKSWAPV3ALGEBRA]: PoolType.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex2.DEX_CAMELOTV3]: PoolType.DEX_CAMELOTV3,
+  [EarnDex2.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
+  // [EarnDex2.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
+}
+
+const zapMigrationDexMapping = {
+  [PoolType.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
+  [PoolType.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
+  [PoolType.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
   [PoolType.DEX_UNISWAPV2]: null,
   [PoolType.DEX_PANCAKESWAPV2]: null,
   [PoolType.DEX_SUSHISWAPV2]: null,
@@ -80,9 +97,16 @@ const dexFormatter = {
   [PoolType.DEX_SWAPMODEV3]: null,
   [PoolType.DEX_KOICL]: null,
   [PoolType.DEX_THRUSTERV3]: null,
-  [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.Uniswapv3,
-  [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.Pancakev3,
-  [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.Sushiv3,
+  [PoolType.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
+  [PoolType.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
+  [PoolType.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
+  [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
+  [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
+  [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
+  [EarnDex.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
+  // [EarnDex.DEX_UNISWAPV2]: null,
 }
 
 const useLiquidityWidget = () => {
@@ -102,7 +126,9 @@ const useLiquidityWidget = () => {
       initialTick?: { tickUpper: number; tickLower: number },
     ) => {
       if (!addLiquidityPureParams) return
-      if (!dexFormatter[position.exchange as EarnDex]) {
+      const zapFromDex = zapMigrationDexMapping[position.exchange as EarnDex]
+      const zapToDex = zapMigrationDexMapping[addLiquidityPureParams.poolType]
+      if (!zapFromDex) {
         notify(
           {
             title: `Open liquidity migration widget failed`,
@@ -113,7 +139,7 @@ const useLiquidityWidget = () => {
         )
         return
       }
-      if (!dexFormatter[addLiquidityPureParams.poolType]) {
+      if (!zapToDex) {
         notify(
           {
             title: `Open liquidity migration widget failed`,
@@ -126,12 +152,12 @@ const useLiquidityWidget = () => {
       }
       const paramsToSet = {
         from: {
-          dex: dexFormatter[position.exchange as EarnDex],
+          dex: zapFromDex,
           poolId: position.poolId,
           positionId: position.positionId,
         },
         to: {
-          dex: dexFormatter[addLiquidityPureParams.poolType] as ZapMigrationDex,
+          dex: zapToDex,
           poolId: addLiquidityPureParams.poolAddress,
           positionId: addLiquidityPureParams.positionId,
         },
@@ -155,9 +181,7 @@ const useLiquidityWidget = () => {
     pool: { exchange: string; chainId?: number; address: string },
     positionId?: string,
   ) => {
-    const supportedDexs = Object.keys(PoolType).map(item => item.replace('DEX_', '').replace('V3', '').toLowerCase())
-    const formattedExchange = pool.exchange.toLowerCase().replaceAll('_', '').replaceAll('-', '').replaceAll('v3', '')
-    const dex = supportedDexs.find(item => formattedExchange.includes(item) || item.includes(formattedExchange))
+    const dex = zapDexMapping[pool.exchange as EarnDex2]
     if (!dex) {
       notify(
         {
@@ -175,7 +199,7 @@ const useLiquidityWidget = () => {
     setAddLiquidityPureParams({
       poolAddress: pool.address,
       chainId: (pool.chainId || filters.chainId) as ChainId,
-      poolType: PoolType[`DEX_${dex.toUpperCase()}V3` as keyof typeof PoolType],
+      poolType: dex,
       positionId,
     })
   }
@@ -318,23 +342,12 @@ const useLiquidityWidget = () => {
   )
 
   const handleOpenZapOut = (position: { dex: string; chainId: number; poolAddress: string; id: string }) => {
-    const poolType = (() => {
-      switch (position?.dex) {
-        case 'Uniswap V3':
-          return PoolType.DEX_UNISWAPV3
-        case 'SushiSwap V3':
-          return PoolType.DEX_SUSHISWAPV3
-        case 'PancakeSwap V3':
-          return PoolType.DEX_PANCAKESWAPV3
-        default:
-          return null
-      }
-    })()
+    const poolType = zapDexMapping[position.dex as keyof typeof zapDexMapping]
     if (!poolType) {
       notify(
         {
           type: NotificationType.ERROR,
-          title: 'Pool Type is supported',
+          title: 'Pool Type is not supported',
         },
         5_000,
       )
@@ -356,7 +369,8 @@ const useLiquidityWidget = () => {
       setMigrateLiquidityPureParams(null)
       setZapOutPureParams(null)
     }
-  }, [account, handleCloseZapInWidget, previousAccount])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, previousAccount])
 
   const liquidityWidget = (
     <>

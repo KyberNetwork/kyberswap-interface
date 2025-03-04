@@ -8,7 +8,6 @@ import HelpIcon from 'assets/svg/help-circle.svg'
 import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
-import NonfungiblePositionManagerABI from 'constants/abis/uniswapv3NftManagerContract.json'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
@@ -18,7 +17,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 import { ParsedPosition } from '.'
 import { DexImage } from '../UserPositions/styles'
 import ClaimFeeModal, { isNativeToken } from '../components/ClaimFeeModal'
-import { NFT_MANAGER_CONTRACT } from '../constants'
+import { NFT_MANAGER_ABI, NFT_MANAGER_CONTRACT } from '../constants'
 import { formatAprNumber } from '../utils'
 import {
   InfoLeftColumn,
@@ -64,7 +63,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
     typeof nftManagerContractOfDex === 'string'
       ? nftManagerContractOfDex
       : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
-  const contract = useReadingContract(nftManagerContract, NonfungiblePositionManagerABI, position.chainId)
+  const nftManagerAbi = NFT_MANAGER_ABI[position.dex as keyof typeof NFT_MANAGER_ABI]
+  const contract = useReadingContract(nftManagerContract, nftManagerAbi, position.chainId)
 
   const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
   const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
