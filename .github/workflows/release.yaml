@@ -56,5 +56,5 @@ jobs:
 
       - name: Publish package to npm
         working-directory: ${{ github.event.inputs.package }}
-        run: npm publish --public
+        run: npm publish --access public
 
