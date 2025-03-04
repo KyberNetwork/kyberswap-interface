@@ -39,8 +39,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build other svgr
+      - name: Build svgr
         working-directory: packages/svgr-esbuild-plugin
+        run: pnpm run build
+
+      - name: Build ui
+        working-directory: packages/ui
+        run: pnpm run build
+
+      - name: Build ui
+        working-directory: packages/liquidity-chart
         run: pnpm run build
 
       - name: Build package
