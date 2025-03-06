@@ -1,5 +1,5 @@
-import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
-import '@kyberswap/liquidity-chart/style.css'
+import { Bound, LiquidityChartRangeInput } from 'kane7-liquidity-chart'
+import 'kane7-liquidity-chart/style.css'
 import { useMemo } from 'react'
 import { MinusCircle, PlusCircle } from 'react-feather'
 import { useMedia } from 'react-use'
