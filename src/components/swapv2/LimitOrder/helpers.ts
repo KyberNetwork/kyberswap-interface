@@ -143,7 +143,7 @@ export const getErrorMessage = (error: any) => {
 }
 
 export const getPayloadCreateOrder = (params: CreateOrderParam) => {
-  const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt } = params
+  const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt, referral } = params
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
   return {
     chainId: chainId.toString(),
@@ -153,6 +153,7 @@ export const getPayloadCreateOrder = (params: CreateOrderParam) => {
     makingAmount: parseInputAmount?.quotient?.toString(),
     takingAmount: tryParseAmount(outputAmount, currencyOut)?.quotient?.toString(),
     expiredAt: Math.floor(expiredAt / 1000),
+    ...(referral ? { referral } : {}),
   }
 }
 
