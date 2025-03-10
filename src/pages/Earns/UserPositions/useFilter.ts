@@ -25,7 +25,6 @@ export default function useFilter() {
       sortBy: searchParams.get('sortBy') || SortBy.VALUE,
       orderBy: searchParams.get('orderBy') || Direction.DESC,
       page: +(searchParams.get('page') || 1),
-      positionId: searchParams.get('positionId') || '',
     }),
     [searchParams, account],
   )
@@ -37,9 +36,6 @@ export default function useFilter() {
       if ((key !== 'sortBy' && key !== 'orderBy' && key !== 'page') || (key === 'page' && value === 1))
         searchParams.delete('page')
 
-      const positionId = searchParams.get('positionId')
-      if (positionId && key !== 'positionId') searchParams.delete('positionId')
-
       setSearchParams(searchParams)
     },
     [searchParams, setSearchParams],
@@ -47,10 +43,7 @@ export default function useFilter() {
 
   useEffect(() => {
     const page = searchParams.get('page')
-    if (page && page !== '1') {
-      console.log(1)
-      updateFilters('page', 1)
-    }
+    if (page && page !== '1') updateFilters('page', 1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 

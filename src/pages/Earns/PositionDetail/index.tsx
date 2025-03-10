@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
@@ -56,13 +56,15 @@ export interface ParsedPosition {
 const PositionDetail = () => {
   const firstLoading = useRef(false)
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const forceLoading = searchParams.get('forceLoading')
 
   const { account } = useActiveWeb3React()
-  const { id, chainId } = useParams()
+  const { id } = useParams()
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const { data: userPosition, isLoading } = useUserPositionsQuery(
-    { addresses: account || '', positionId: id, chainIds: chainId || '', protocols: '', status: '', page: 1 },
-    { skip: !account, pollingInterval: 15_000 },
+    { addresses: account || '', positionId: id, protocols: '', status: '', page: 1 },
+    { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
   const currentWalletAddress = useRef(account)
 
@@ -133,11 +135,19 @@ const PositionDetail = () => {
     if (!account || account !== currentWalletAddress.current) navigate(APP_PATHS.EARN_POSITIONS)
   }, [account, navigate])
 
+  useEffect(() => {
+    if (position && forceLoading) {
+      searchParams.delete('forceLoading')
+      setSearchParams(searchParams)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [position])
+
   return (
     <>
       {liquidityWidget}
       <PositionPageWrapper>
-        {isLoading && !firstLoading.current ? (
+        {forceLoading || (isLoading && !firstLoading.current) ? (
           <LocalLoader />
         ) : !!position ? (
           <>

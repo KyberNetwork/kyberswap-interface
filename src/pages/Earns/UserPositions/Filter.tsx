@@ -70,7 +70,7 @@ export default function Filter({
         <DropdownMenu
           alignLeft
           mobileHalfWidth
-          value={filters.chainIds}
+          value={filters.chainIds || ''}
           options={supportedChains.length ? supportedChains : [AllChainsOption]}
           onChange={value => value !== filters.chainIds && updateFilters('chainIds', value)}
         />
