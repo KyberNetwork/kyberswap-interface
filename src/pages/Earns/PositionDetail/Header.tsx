@@ -16,7 +16,13 @@ import { CurrencyRoundedImage, CurrencySecondImage } from '../PoolExplorer/style
 import { Badge, BadgeType, ChainImage, DexImage, ImageContainer, PositionOverview } from '../UserPositions/styles'
 import { DexInfo, IconArrowLeft } from './styles'
 
-const PositionDetailHeader = ({ position }: { position: ParsedPosition }) => {
+const PositionDetailHeader = ({
+  position,
+  hadForceLoading,
+}: {
+  position: ParsedPosition
+  hadForceLoading: boolean
+}) => {
   const theme = useTheme()
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -40,7 +46,7 @@ const PositionDetailHeader = ({ position }: { position: ParsedPosition }) => {
 
   return (
     <Flex sx={{ gap: 3 }}>
-      <IconArrowLeft onClick={() => navigate(-1)} />
+      <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />
       <PositionOverview>
         <Flex alignItems={'center'} sx={{ gap: 2 }}>
           <ImageContainer>

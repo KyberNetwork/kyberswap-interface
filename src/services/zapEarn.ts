@@ -213,7 +213,7 @@ export interface PositionHistory {
 }
 
 export interface PositionQueryParams {
-  chainIds: string
+  chainIds?: string
   addresses: string
   positionId?: string
   protocols: string

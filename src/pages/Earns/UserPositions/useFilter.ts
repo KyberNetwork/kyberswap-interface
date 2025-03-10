@@ -33,7 +33,8 @@ export default function useFilter() {
     (key: keyof PositionQueryParams, value: string | number) => {
       if (!value) searchParams.delete(key)
       else searchParams.set(key, value.toString())
-      if (key !== 'sortBy' && key !== 'orderBy' && key !== 'page') searchParams.delete('page')
+      if ((key !== 'sortBy' && key !== 'orderBy' && key !== 'page') || (key === 'page' && value === 1))
+        searchParams.delete('page')
 
       setSearchParams(searchParams)
     },
@@ -41,7 +42,8 @@ export default function useFilter() {
   )
 
   useEffect(() => {
-    updateFilters('page', 1)
+    const page = searchParams.get('page')
+    if (page && page !== '1') updateFilters('page', 1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 

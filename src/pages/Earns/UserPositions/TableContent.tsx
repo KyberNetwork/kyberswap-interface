@@ -293,10 +293,7 @@ export default function TableContent({
                 key={positionId}
                 onClick={() =>
                   navigate({
-                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':chainId', poolChainId.toString()).replace(
-                      ':id',
-                      id,
-                    ),
+                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':id', id),
                   })
                 }
               >
