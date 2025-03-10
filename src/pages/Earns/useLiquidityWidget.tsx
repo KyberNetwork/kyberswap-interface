@@ -237,7 +237,7 @@ const useLiquidityWidget = () => {
             ...addLiquidityPureParams,
             source: 'KyberSwap-Earn',
             referral: refCode,
-            onViewPosition: async (txHash: string) => {
+            onViewPosition: (txHash: string) => {
               handleCloseZapInWidget()
               handleNavigateToPosition(txHash)
             },
