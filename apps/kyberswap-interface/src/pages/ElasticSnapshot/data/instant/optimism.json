@@ -1,0 +1,70 @@
+[
+  {
+    "claimData": {
+      "receiver": "0x438c77ddeee736709f0f29a118df94bdc279d41d",
+      "tokenInfo": [
+        {
+          "token": "0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2",
+          "amount": "29800000000",
+          "value": 0
+        }
+      ],
+      "index": 0
+    },
+    "proof": [
+      "0x323e4317634738fef859352a3a99be53199cc00735d7aef5412add8437f609dd",
+      "0xdd211f3810804376adf964905a719e9f545f1d60bfa2e7f43ba302e13e7040c2"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0x53fe681b09df998d5f545e6b9743acfef904209e",
+      "tokenInfo": [
+        {
+          "token": "0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2",
+          "amount": "2190000000000",
+          "value": 0
+        }
+      ],
+      "index": 1
+    },
+    "proof": [
+      "0x7e951535ba342e8d3470c68f5008d5497d9b3e0a6251153ecf181eaae2c8cc15",
+      "0xdd211f3810804376adf964905a719e9f545f1d60bfa2e7f43ba302e13e7040c2"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0x8180a5ca4e3b94045e05a9313777955f7518d757",
+      "tokenInfo": [
+        {
+          "token": "0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2",
+          "amount": "60540253069999996928",
+          "value": 132378.12
+        }
+      ],
+      "index": 2
+    },
+    "proof": [
+      "0xf5b2ffb9eb9627092e92f7cac07f4dc0a8cee03526550a9fd0647174608184b6",
+      "0xfaebda2ccc191dd95b00d338d642bb11b8ef027e6b3d160b98ba9b4a73372d47"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d",
+      "tokenInfo": [
+        {
+          "token": "0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2",
+          "amount": "39300000000",
+          "value": 0
+        }
+      ],
+      "index": 3
+    },
+    "proof": [
+      "0xa0f232d7156e20abc92a0788f697fce47066e40e70308061745b4b7b7fec8d8e",
+      "0xfaebda2ccc191dd95b00d338d642bb11b8ef027e6b3d160b98ba9b4a73372d47"
+    ]
+  }
+]

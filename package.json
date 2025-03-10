@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "examples/*"
+    "apps/**"
   ],
   "packageManager": "pnpm@8.9.2",
   "devDependencies": {
