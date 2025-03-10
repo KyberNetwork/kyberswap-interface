@@ -9,6 +9,7 @@ import { EarnDex, EarnDex2 } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -16,6 +17,8 @@ import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
 import useFilter from './PoolExplorer/useFilter'
+import { NFT_MANAGER_CONTRACT } from './constants'
+import { getTokenId } from './utils'
 
 interface AddLiquidityPureParams {
   poolAddress: string
@@ -216,9 +219,22 @@ const useLiquidityWidget = () => {
             ...addLiquidityPureParams,
             source: 'KyberSwap-Earn',
             referral: refCode,
-            onViewPosition: () => {
+            onViewPosition: async (txHash: string) => {
+              if (!library) return
               handleCloseZapInWidget()
-              navigate(`/earns/positions`)
+              const tokenId = await getTokenId(library, txHash)
+              if (!tokenId) {
+                navigate(APP_PATHS.EARN_POSITIONS)
+                return
+              }
+              const dexIndex = Object.values(zapDexMapping).findIndex(item => item === addLiquidityPureParams.poolType)
+              const dex = Object.keys(zapDexMapping)[dexIndex] as EarnDex
+              const nftContractObj = NFT_MANAGER_CONTRACT[dex]
+              const nftContract =
+                typeof nftContractObj === 'string'
+                  ? nftContractObj
+                  : nftContractObj[addLiquidityPureParams.chainId as unknown as keyof typeof nftContractObj]
+              navigate(`${APP_PATHS.EARN_POSITIONS}?positionId=${nftContract}-${tokenId}`)
             },
             connectedAccount: {
               address: account,
@@ -269,7 +285,7 @@ const useLiquidityWidget = () => {
             },
             onViewPosition: () => {
               setMigrateLiquidityPureParams(null)
-              navigate(`/earns/positions`)
+              navigate(APP_PATHS.EARN_POSITIONS)
             },
 
             onClose: () => {
