@@ -67,6 +67,7 @@ const PositionDetail = () => {
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
   const currentWalletAddress = useRef(account)
+  const hadForceLoading = useRef(forceLoading ? true : false)
 
   const position: ParsedPosition | undefined = useMemo(() => {
     if (!userPosition?.[0]) return
@@ -140,8 +141,7 @@ const PositionDetail = () => {
       searchParams.delete('forceLoading')
       setSearchParams(searchParams)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [position])
+  }, [forceLoading, position, searchParams, setSearchParams])
 
   return (
     <>
@@ -151,7 +151,7 @@ const PositionDetail = () => {
           <LocalLoader />
         ) : !!position ? (
           <>
-            <PositionDetailHeader position={position} />
+            <PositionDetailHeader position={position} hadForceLoading={hadForceLoading.current} />
             <PositionDetailWrapper>
               <MainSection>
                 <LeftSection position={position} />
