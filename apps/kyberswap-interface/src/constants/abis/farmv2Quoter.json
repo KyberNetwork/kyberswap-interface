@@ -1,0 +1,199 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "PositionNotEligible",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "pAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "nftContract",
+        "type": "address"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickLower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickUpper",
+        "type": "int24"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "nftIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "checkPosition",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "isInvalid",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint128[]",
+        "name": "liquidities",
+        "type": "uint128[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IKSElasticLMV2",
+        "name": "farm",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getCurrentUnclaimedReward",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "currentUnclaimedRewards",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IKSElasticLMV2",
+        "name": "farm",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getEligibleRanges",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "indexesValid",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftContract",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPositionInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int24",
+        "name": "",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "",
+        "type": "int24"
+      },
+      {
+        "internalType": "uint128",
+        "name": "",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IKSElasticLMV2",
+        "name": "farm",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserInfo",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "nftId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "fId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rangeId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "currentUnclaimedRewards",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct IKSElasticLMHelper.UserInfo[]",
+        "name": "result",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

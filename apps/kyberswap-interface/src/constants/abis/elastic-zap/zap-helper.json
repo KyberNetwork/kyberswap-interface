@@ -1,0 +1,286 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "quoterAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidZapParams",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IPool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickLower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickUpper",
+        "type": "int24"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount0Desired",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount1Desired",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAddLiquidityAmounts",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "qty0",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "qty1",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IPool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "tokenIn",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "precision",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickLower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickUpper",
+        "type": "int24"
+      }
+    ],
+    "name": "getOptimalSwapAmountToZapIn",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "swapAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "returnedAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint160",
+            "name": "sqrtP",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint256",
+            "name": "baseL",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reinvestL",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IKSElasticZapHelper.GetOptimalSwapAmountResults",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IPool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "tokenIn",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "precision",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickLower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickUpper",
+        "type": "int24"
+      }
+    ],
+    "name": "getZapInPoolResults",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint128",
+            "name": "liquidity",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint256",
+            "name": "usedAmount0",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "usedAmount1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "remainingAmount0",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "remainingAmount1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "int24",
+            "name": "currentTick",
+            "type": "int24"
+          },
+          {
+            "internalType": "uint160",
+            "name": "sqrtP",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint256",
+            "name": "baseL",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reinvestL",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IKSElasticZapHelper.ZapInResults",
+        "name": "results",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "positionManager",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IPool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "positionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint128",
+        "name": "liquidity",
+        "type": "uint128"
+      },
+      {
+        "internalType": "address",
+        "name": "receivedToken",
+        "type": "address"
+      }
+    ],
+    "name": "getZapOutPoolResults",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "returnAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "quoter",
+    "outputs": [
+      {
+        "internalType": "contract IQuoterV2",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
