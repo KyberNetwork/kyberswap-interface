@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { stringify } from 'querystring'
 import React, { useEffect, useRef } from 'react'
 import { ArrowDown, ChevronDown, Repeat } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
@@ -251,7 +250,7 @@ function BuyCrypto() {
       const stepNumber = Number(step)
       if (!isNaN(stepNumber)) {
         handleStepClick(stepNumber)
-        navigate({ search: stringify(rest) }, { replace: true })
+        navigate({ search: new URLSearchParams(rest).toString() }, { replace: true })
       }
     }, 500)
   }, [qs, navigate])

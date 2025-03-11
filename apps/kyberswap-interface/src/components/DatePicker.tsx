@@ -160,7 +160,7 @@ export default function DatePicker({ onChange, value }: { value: Date; onChange:
         className="custom-date-picker"
         value={value}
         closeCalendar={false}
-        onChange={onChange}
+        onChange={onChange as any}
         minDate={minDate}
       />
     </Container>

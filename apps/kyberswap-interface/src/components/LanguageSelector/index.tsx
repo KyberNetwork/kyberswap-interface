@@ -1,4 +1,3 @@
-import { stringify } from 'querystring'
 import { isMobile } from 'react-device-detect'
 import { ArrowLeft, Check } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -43,7 +42,7 @@ export default function LanguageSelector({
   const handleSelectLanguage = (locale: SupportedLocale) => {
     const target = {
       ...location,
-      search: stringify({ ...qs, lng: locale }),
+      search: new URLSearchParams({ ...qs, lng: locale }).toString(),
     }
 
     navigate(target)

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export const timePeriods = ['7D', '1M', '6M', '1Y'] as const
-export type TimePeriod = typeof timePeriods[number]
+export type TimePeriod = (typeof timePeriods)[number]
 
 const Wrapper = styled.div`
   width: 100%;

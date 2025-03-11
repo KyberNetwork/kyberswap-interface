@@ -509,7 +509,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
 
                     if (upToSmall)
                       return (
-                        <Box sx={{ padding: '8px 1rem' }}>
+                        <Box sx={{ padding: '8px 1rem' }} key={idx}>
                           <Flex sx={{ gap: '6px' }} alignItems="center" marginTop="0.5rem">
                             <CurrencyLogo currency={tk} size="16px" />
                             <Text>

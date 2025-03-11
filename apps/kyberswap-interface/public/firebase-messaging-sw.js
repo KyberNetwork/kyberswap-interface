@@ -15,11 +15,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig)
 const messaging = firebase.messaging()
 
-messaging.onBackgroundMessage(function(payload) {
+messaging.onBackgroundMessage(function (payload) {
   return
 })
 
-self.addEventListener('notificationclick', function(event) {
+self.addEventListener('notificationclick', function (event) {
   event.notification.close()
 
   // This looks to see if the current is already open and
@@ -29,7 +29,7 @@ self.addEventListener('notificationclick', function(event) {
       .matchAll({
         type: 'window',
       })
-      .then(function(clientList) {
+      .then(function (clientList) {
         for (let i = 0; i < clientList.length; i++) {
           const client = clientList[i]
           if (client.url === '/discover?tab=trending_soon' && 'focus' in client) return client.focus()

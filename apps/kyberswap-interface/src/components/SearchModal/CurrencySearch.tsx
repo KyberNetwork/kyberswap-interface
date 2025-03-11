@@ -2,7 +2,6 @@ import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import { rgba } from 'polished'
-import { stringify } from 'querystring'
 import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trash } from 'react-feather'
 import { usePrevious } from 'react-use'
@@ -111,7 +110,9 @@ const fetchTokens = async (
     if (!search) {
       params.isWhitelisted = true
     }
-    const url = `${KS_SETTING_API}/v1/tokens?${stringify(params)}`
+    const stringParams = Object.fromEntries(Object.entries(params).map(([key, value]) => [key, String(value)]))
+    const p = new URLSearchParams(stringParams)
+    const url = `${KS_SETTING_API}/v1/tokens?${p.toString()}`
 
     const response = await axios.get(url, { signal })
     const { tokens = [] } = response.data.data

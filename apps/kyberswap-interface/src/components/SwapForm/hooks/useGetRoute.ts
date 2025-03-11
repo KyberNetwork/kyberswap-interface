@@ -1,5 +1,5 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import debounce from 'lodash/debounce'
+import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'

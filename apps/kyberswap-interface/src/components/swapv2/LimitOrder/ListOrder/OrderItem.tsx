@@ -2,7 +2,6 @@ import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { stringify } from 'querystring'
 import { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -279,10 +278,10 @@ export default function OrderItem({
   const navigate = useNavigate()
   const onClickOrder = () => {
     navigate({
-      search: stringify({
+      search: new URLSearchParams({
         inputCurrency: makerAsset,
         outputCurrency: takerAsset,
-      }),
+      }).toString(),
     })
   }
 

@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { rgba } from 'polished'
-import { stringify } from 'querystring'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useNavigate } from 'react-router-dom'
@@ -153,10 +152,14 @@ const DraggableNetworkButton = ({
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
     } else {
+      const filteredParams = Object.fromEntries(
+        Object.entries(qs).filter(([_, value]) => value !== undefined), // Remove undefined values
+      ) as { [key: string]: string }
+
       changeNetwork(chainId, () => {
         navigate(
           {
-            search: stringify(qs),
+            search: new URLSearchParams(filteredParams).toString(),
           },
           { replace: true },
         )

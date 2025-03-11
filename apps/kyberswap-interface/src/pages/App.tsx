@@ -123,6 +123,7 @@ const RedirectWithNetworkPrefix = () => {
 const RedirectWithNetworkSuffix = () => {
   const { networkInfo } = useActiveWeb3React()
   const location = useLocation()
+  console.log('xxx')
 
   return (
     <Navigate

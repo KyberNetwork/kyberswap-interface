@@ -334,7 +334,7 @@ export const ICON_IDS = [
   'pencil',
   'trash',
 ] as const
-export type ICON_ID = typeof ICON_IDS[number]
+export type ICON_ID = (typeof ICON_IDS)[number]
 
 export const FRAX_FARMS: { [chainId in ChainId]?: string[] } = {
   [ChainId.MAINNET]: [

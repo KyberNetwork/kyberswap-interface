@@ -59,7 +59,7 @@ export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
   [CONNECTION.BLOCTO_ID]: BLOCTO_ICON,
 }
 
-type ConnectorID = typeof CONNECTION[keyof typeof CONNECTION]
+type ConnectorID = (typeof CONNECTION)[keyof typeof CONNECTION]
 
 export function getConnectorWithId(
   connectors: readonly Connector[],

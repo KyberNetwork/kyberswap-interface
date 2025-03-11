@@ -1,6 +1,5 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import DOMPurify from 'dompurify'
-import { parse } from 'querystring'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 
@@ -21,7 +20,7 @@ export const getSymbolSlug = (token: Currency | Token | undefined) =>
   token ? (token?.symbol || token?.wrapped?.symbol || '').toLowerCase() : ''
 
 export const queryStringToObject = (queryString: string) => {
-  return parse(queryString.startsWith('?') ? queryString.substring(1) : queryString)
+  return Object.fromEntries(new URLSearchParams(queryString).entries())
 }
 
 export const isInEnum = <T extends Record<string, string>>(str: string, enumParam: T): str is T[keyof T] => {

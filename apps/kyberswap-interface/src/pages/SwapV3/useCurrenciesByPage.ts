@@ -1,4 +1,3 @@
-import { stringify } from 'querystring'
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -39,10 +38,10 @@ const useCurrenciesByPage = () => {
   const shareUrl = useMemo(() => {
     const path = `${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/${networkInfo.route}${
       currencyIn && currencyOut
-        ? `?${stringify({
+        ? `?${new URLSearchParams({
             inputCurrency: currencyId(currencyIn, chainId),
             outputCurrency: currencyId(currencyOut, chainId),
-          })}`
+          }).toString()}`
         : ''
     }`
     return `${window.location.origin}${isCrossChainPage ? APP_PATHS.CROSS_CHAIN : path}`

@@ -28,4 +28,4 @@ export const INJECTED_KEYS = [
   'RABBY',
   'INJECTED',
 ] as const
-export type INJECTED_KEY = typeof INJECTED_KEYS[number]
+export type INJECTED_KEY = (typeof INJECTED_KEYS)[number]
