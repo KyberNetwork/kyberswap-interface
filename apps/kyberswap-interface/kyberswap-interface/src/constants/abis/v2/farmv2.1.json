@@ -1,0 +1,1474 @@
+[
+  {
+    "type": "constructor",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_nft",
+        "internalType": "contract IERC721"
+      },
+      {
+        "type": "address",
+        "name": "_helper",
+        "internalType": "contract IKSElasticLMHelper"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "EmergencyEnabled",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Expired",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FailToAdd",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FailToRemove",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FarmNotFound",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Forbidden",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidFarm",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidInput",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidRange",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidReward",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidTime",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "LiquidityNotMatch",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotOwner",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "PhaseSettled",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "PositionNotEligible",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RangeNotFound",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RangeNotMatch",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "StakeNotFound",
+    "inputs": []
+  },
+  {
+    "type": "event",
+    "name": "ActivateRange",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "rangeId",
+        "internalType": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AddFarm",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "poolAddress",
+        "internalType": "address",
+        "indexed": false
+      },
+      {
+        "type": "tuple[]",
+        "name": "ranges",
+        "internalType": "struct IKSElasticLMV2.RangeInput[]",
+        "indexed": false,
+        "components": [
+          {
+            "type": "int24",
+            "name": "tickLower",
+            "internalType": "int24"
+          },
+          {
+            "type": "int24",
+            "name": "tickUpper",
+            "internalType": "int24"
+          },
+          {
+            "type": "uint32",
+            "name": "weight",
+            "internalType": "uint32"
+          }
+        ]
+      },
+      {
+        "type": "tuple",
+        "name": "phase",
+        "internalType": "struct IKSElasticLMV2.PhaseInput",
+        "indexed": false,
+        "components": [
+          {
+            "type": "uint32",
+            "name": "startTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "uint32",
+            "name": "endTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "tuple[]",
+            "name": "rewards",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
+            "components": [
+              {
+                "type": "address",
+                "name": "rewardToken",
+                "internalType": "address"
+              },
+              {
+                "type": "uint256",
+                "name": "rewardAmount",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "address",
+        "name": "farmingToken",
+        "internalType": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AddPhase",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "tuple",
+        "name": "phase",
+        "internalType": "struct IKSElasticLMV2.PhaseInput",
+        "indexed": false,
+        "components": [
+          {
+            "type": "uint32",
+            "name": "startTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "uint32",
+            "name": "endTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "tuple[]",
+            "name": "rewards",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
+            "components": [
+              {
+                "type": "address",
+                "name": "rewardToken",
+                "internalType": "address"
+              },
+              {
+                "type": "uint256",
+                "name": "rewardAmount",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AddRange",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "tuple",
+        "name": "range",
+        "internalType": "struct IKSElasticLMV2.RangeInput",
+        "indexed": false,
+        "components": [
+          {
+            "type": "int24",
+            "name": "tickLower",
+            "internalType": "int24"
+          },
+          {
+            "type": "int24",
+            "name": "tickUpper",
+            "internalType": "int24"
+          },
+          {
+            "type": "uint32",
+            "name": "weight",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ClaimReward",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "nftId",
+        "internalType": "uint256",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "token",
+        "internalType": "address",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "amount",
+        "internalType": "uint256",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "receiver",
+        "internalType": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ClaimReward",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "uint256[]",
+        "name": "nftIds",
+        "internalType": "uint256[]",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "token",
+        "internalType": "address",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "amount",
+        "internalType": "uint256",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "receiver",
+        "internalType": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Deposit",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "rangeId",
+        "internalType": "uint256",
+        "indexed": false
+      },
+      {
+        "type": "uint256[]",
+        "name": "nftIds",
+        "internalType": "uint256[]",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "depositer",
+        "internalType": "address",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "receiver",
+        "internalType": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ExpandEndTimeAndRewards",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "duration",
+        "internalType": "uint256",
+        "indexed": false
+      },
+      {
+        "type": "uint256[]",
+        "name": "rewardAmounts",
+        "internalType": "uint256[]",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ForceClosePhase",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OwnershipTransferred",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "previousOwner",
+        "internalType": "address",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "newOwner",
+        "internalType": "address",
+        "indexed": true
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Paused",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account",
+        "internalType": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RemoveRange",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "rangeId",
+        "internalType": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Unpaused",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account",
+        "internalType": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UpdateEmergency",
+    "inputs": [
+      {
+        "type": "bool",
+        "name": "enableOrDisable",
+        "internalType": "bool",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UpdateGuardian",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "user",
+        "internalType": "address",
+        "indexed": false
+      },
+      {
+        "type": "bool",
+        "name": "grantOrRevoke",
+        "internalType": "bool",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UpdateHelper",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "helper",
+        "internalType": "contract IKSElasticLMHelper",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UpdateLiquidity",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "nftId",
+        "internalType": "uint256",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "liquidity",
+        "internalType": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UpdateOperator",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "user",
+        "internalType": "address",
+        "indexed": false
+      },
+      {
+        "type": "bool",
+        "name": "grantOrRevoke",
+        "internalType": "bool",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UpdateTokenCode",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "farmingTokenCode",
+        "internalType": "bytes",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Withdraw",
+    "inputs": [
+      {
+        "type": "uint256[]",
+        "name": "nftIds",
+        "internalType": "uint256[]",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "receiver",
+        "internalType": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WithdrawEmergency",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "nftId",
+        "internalType": "uint256",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "receiver",
+        "internalType": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WithdrawUnusedRewards",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "token",
+        "internalType": "address",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "amount",
+        "internalType": "uint256",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "receiver",
+        "internalType": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "activateRange",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "rangeId",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      }
+    ],
+    "name": "addFarm",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "poolAddress",
+        "internalType": "address"
+      },
+      {
+        "type": "tuple[]",
+        "name": "ranges",
+        "internalType": "struct IKSElasticLMV2.RangeInput[]",
+        "components": [
+          {
+            "type": "int24",
+            "name": "tickLower",
+            "internalType": "int24"
+          },
+          {
+            "type": "int24",
+            "name": "tickUpper",
+            "internalType": "int24"
+          },
+          {
+            "type": "uint32",
+            "name": "weight",
+            "internalType": "uint32"
+          }
+        ]
+      },
+      {
+        "type": "tuple",
+        "name": "phase",
+        "internalType": "struct IKSElasticLMV2.PhaseInput",
+        "components": [
+          {
+            "type": "uint32",
+            "name": "startTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "uint32",
+            "name": "endTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "tuple[]",
+            "name": "rewards",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
+            "components": [
+              {
+                "type": "address",
+                "name": "rewardToken",
+                "internalType": "address"
+              },
+              {
+                "type": "uint256",
+                "name": "rewardAmount",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "bool",
+        "name": "isUsingToken",
+        "internalType": "bool"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "addLiquidity",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "rangeId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256[]",
+        "name": "nftIds",
+        "internalType": "uint256[]"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "addPhase",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "tuple",
+        "name": "phaseInput",
+        "internalType": "struct IKSElasticLMV2.PhaseInput",
+        "components": [
+          {
+            "type": "uint32",
+            "name": "startTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "uint32",
+            "name": "endTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "tuple[]",
+            "name": "rewards",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
+            "components": [
+              {
+                "type": "address",
+                "name": "rewardToken",
+                "internalType": "address"
+              },
+              {
+                "type": "uint256",
+                "name": "rewardAmount",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "addRange",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "tuple",
+        "name": "range",
+        "internalType": "struct IKSElasticLMV2.RangeInput",
+        "components": [
+          {
+            "type": "int24",
+            "name": "tickLower",
+            "internalType": "int24"
+          },
+          {
+            "type": "int24",
+            "name": "tickUpper",
+            "internalType": "int24"
+          },
+          {
+            "type": "uint32",
+            "name": "weight",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "claimFee",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256[]",
+        "name": "nftIds",
+        "internalType": "uint256[]"
+      },
+      {
+        "type": "uint256",
+        "name": "amount0Min",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "amount1Min",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "deadline",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint8",
+        "name": "flags",
+        "internalType": "uint8"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "claimReward",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256[]",
+        "name": "nftIds",
+        "internalType": "uint256[]"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "deposit",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "rangeId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256[]",
+        "name": "nftIds",
+        "internalType": "uint256[]"
+      },
+      {
+        "type": "address",
+        "name": "receiver",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "disableLogic",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "bool",
+        "name": "",
+        "internalType": "bool"
+      }
+    ],
+    "name": "emergencyEnabled",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "enableLogic",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": "",
+        "internalType": "uint256"
+      }
+    ],
+    "name": "farmCount",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "forceClosePhase",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "uint256[]",
+        "name": "listNFTs",
+        "internalType": "uint256[]"
+      }
+    ],
+    "name": "getDepositedNFTs",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "user",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "address",
+        "name": "poolAddress",
+        "internalType": "address"
+      },
+      {
+        "type": "tuple[]",
+        "name": "ranges",
+        "internalType": "struct IKSElasticLMV2.RangeInfo[]",
+        "components": [
+          {
+            "type": "int24",
+            "name": "tickLower",
+            "internalType": "int24"
+          },
+          {
+            "type": "int24",
+            "name": "tickUpper",
+            "internalType": "int24"
+          },
+          {
+            "type": "uint32",
+            "name": "weight",
+            "internalType": "uint32"
+          },
+          {
+            "type": "bool",
+            "name": "isRemoved",
+            "internalType": "bool"
+          }
+        ]
+      },
+      {
+        "type": "tuple",
+        "name": "phase",
+        "internalType": "struct IKSElasticLMV2.PhaseInfo",
+        "components": [
+          {
+            "type": "uint32",
+            "name": "startTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "uint32",
+            "name": "endTime",
+            "internalType": "uint32"
+          },
+          {
+            "type": "bool",
+            "name": "isSettled",
+            "internalType": "bool"
+          },
+          {
+            "type": "tuple[]",
+            "name": "rewards",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
+            "components": [
+              {
+                "type": "address",
+                "name": "rewardToken",
+                "internalType": "address"
+              },
+              {
+                "type": "uint256",
+                "name": "rewardAmount",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "uint256",
+        "name": "liquidity",
+        "internalType": "uint256"
+      },
+      {
+        "type": "address",
+        "name": "farmingToken",
+        "internalType": "address"
+      },
+      {
+        "type": "uint256[]",
+        "name": "sumRewardPerLiquidity",
+        "internalType": "uint256[]"
+      },
+      {
+        "type": "uint32",
+        "name": "lastTouchedTime",
+        "internalType": "uint32"
+      }
+    ],
+    "name": "getFarm",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "address",
+        "name": "",
+        "internalType": "contract IERC721"
+      }
+    ],
+    "name": "getNft",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "address",
+        "name": "owner",
+        "internalType": "address"
+      },
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "rangeId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "liquidity",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256[]",
+        "name": "lastSumRewardPerLiquidity",
+        "internalType": "uint256[]"
+      },
+      {
+        "type": "uint256[]",
+        "name": "rewardUnclaimed",
+        "internalType": "uint256[]"
+      }
+    ],
+    "name": "getStake",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "nftId",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "bool",
+        "name": "",
+        "internalType": "bool"
+      }
+    ],
+    "name": "guardians",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "bool",
+        "name": "",
+        "internalType": "bool"
+      }
+    ],
+    "name": "operators",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "address",
+        "name": "",
+        "internalType": "address"
+      }
+    ],
+    "name": "owner",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "bool",
+        "name": "",
+        "internalType": "bool"
+      }
+    ],
+    "name": "paused",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "removeLiquidity",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "nftId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint128",
+        "name": "liquidity",
+        "internalType": "uint128"
+      },
+      {
+        "type": "uint256",
+        "name": "amount0Min",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "amount1Min",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "deadline",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint8",
+        "name": "flags",
+        "internalType": "uint8"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "removeRange",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "rangeId",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "renounceOwnership",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "transferOwnership",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "newOwner",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "updateEmergency",
+    "inputs": [
+      {
+        "type": "bool",
+        "name": "enableOrDisable",
+        "internalType": "bool"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "updateGuardian",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "user",
+        "internalType": "address"
+      },
+      {
+        "type": "bool",
+        "name": "grantOrRevoke",
+        "internalType": "bool"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "updateHelper",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_helper",
+        "internalType": "contract IKSElasticLMHelper"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "updateOperator",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "user",
+        "internalType": "address"
+      },
+      {
+        "type": "bool",
+        "name": "grantOrRevoke",
+        "internalType": "bool"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "updateTokenCode",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "_farmingTokenCreationCode",
+        "internalType": "bytes"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "type": "address",
+        "name": "",
+        "internalType": "address"
+      }
+    ],
+    "name": "weth",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "withdraw",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "fId",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256[]",
+        "name": "nftIds",
+        "internalType": "uint256[]"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "withdrawEmergency",
+    "inputs": [
+      {
+        "type": "uint256[]",
+        "name": "nftIds",
+        "internalType": "uint256[]"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "withdrawUnusedRewards",
+    "inputs": [
+      {
+        "type": "address[]",
+        "name": "tokens",
+        "internalType": "address[]"
+      },
+      {
+        "type": "uint256[]",
+        "name": "amounts",
+        "internalType": "uint256[]"
+      }
+    ]
+  },
+  {
+    "type": "receive",
+    "stateMutability": "payable"
+  }
+]

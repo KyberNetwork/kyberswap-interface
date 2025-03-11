@@ -1,0 +1,151 @@
+[
+  {
+    "claimData": {
+      "receiver": "0xee2147fcf090ce08095e65a3c9e193c459364d5b",
+      "vestingAmount": 585805040000,
+      "claimedAmount": 0,
+      "index": 0
+    },
+    "proof": [
+      "0x536db29d6ffa3655ddfc3d41eec4cf3b67536466f67a72b0f3deaec607304792",
+      "0x6b8cd97e3b174868d0d8070633df2147f3b51632e864bb911397d5bba6f86fd5",
+      "0xf9bd6e1e21ccef7abd2c5dae87900703c867dcbb2d60939f24d6e116c5dc5c24"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0x00e6bc5f73ef330c5f553554dcec8a863db84a23",
+      "vestingAmount": 185848210000,
+      "claimedAmount": 19657410552,
+      "index": 1
+    },
+    "proof": [
+      "0x625629c1b3f29d041bf3a150423f3c0b1d82ea9c6e84e16a4e9636c051672a84",
+      "0xd2d83f740529822e74b88621c064ce28daf8861f5668e9a7ef9be108c2065f3a",
+      "0xacafbd834797f37c26a5859fc57a3b8c204bcafece7224a184e3c77797a1c9af"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0x2130fd01026867a6c8dde24ad5e64f2e2dfce196",
+      "vestingAmount": 179477543200,
+      "claimedAmount": 0,
+      "index": 2
+    },
+    "proof": [
+      "0x511f70b6a17ca026c4d2d7a442508ee36b4b71dafd11633b76b7758e9ffca6dc",
+      "0x0a7a0e8d85d57986cba941a2b77a3387510bef732a0322c4e33bedabafdba7fc",
+      "0x471e7a4c933280a683baf4e751ad032092c482e75434054f3d6a76543fd74752",
+      "0xf9bd6e1e21ccef7abd2c5dae87900703c867dcbb2d60939f24d6e116c5dc5c24"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0xcab9760e56bfd28803b41cac1e6616704aa5ecce",
+      "vestingAmount": 2375410000,
+      "claimedAmount": 174442519,
+      "index": 3
+    },
+    "proof": [
+      "0x4fdbdc2458926d579b4b3040f733c38e5ebd23ed7ec7d40c8987d99f0343a61d",
+      "0xa0b3d2ebb9c0db2bf0afdaefc0dc644095918ebdc26929b43bc76a39c4b363dd",
+      "0x471e7a4c933280a683baf4e751ad032092c482e75434054f3d6a76543fd74752",
+      "0xf9bd6e1e21ccef7abd2c5dae87900703c867dcbb2d60939f24d6e116c5dc5c24"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0x87b1594e6e8b8fee7b14cd77a5c2324e31a7bcd4",
+      "vestingAmount": 1020780000,
+      "claimedAmount": 0,
+      "index": 4
+    },
+    "proof": [
+      "0xa151728400e6b6525fadc0f5246a88dac3d29148f5ef80bb6bf811e797f7d1a5",
+      "0x59a3b3aeb6fe52f70105734a7ad44e4fd570fb984a97d258d11829b81b940158",
+      "0xacafbd834797f37c26a5859fc57a3b8c204bcafece7224a184e3c77797a1c9af"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0x4526b09df42775975a543e0e984172ab202b4ff8",
+      "vestingAmount": 627260000,
+      "claimedAmount": 0,
+      "index": 5
+    },
+    "proof": [
+      "0xb4b9f21cc947c14a69982b81a7b234c207f6e4a4653ac4b397d4fd7cde0f7425",
+      "0x59a3b3aeb6fe52f70105734a7ad44e4fd570fb984a97d258d11829b81b940158",
+      "0xacafbd834797f37c26a5859fc57a3b8c204bcafece7224a184e3c77797a1c9af"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0x5da35491ff9d73e3f5ff0d3c6ed1ea5ab68770c0",
+      "vestingAmount": 167390000,
+      "claimedAmount": 0,
+      "index": 6
+    },
+    "proof": [
+      "0x10d0de53631a5d49ea16756f00a401712928ed66d1d9f3c88922d8cf28e11c68",
+      "0xd2bb1fba38258d3efe9e1f913c74bccf69f8bfce07c2bd9da1645ecf1714e260",
+      "0x6b8cd97e3b174868d0d8070633df2147f3b51632e864bb911397d5bba6f86fd5",
+      "0xf9bd6e1e21ccef7abd2c5dae87900703c867dcbb2d60939f24d6e116c5dc5c24"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0x5119d8c206546c5361bb6317d7508d9bd4787c16",
+      "vestingAmount": 141810000,
+      "claimedAmount": 0,
+      "index": 7
+    },
+    "proof": [
+      "0x5e53ac9763e815531f1c75473e714904a993a3c390e669afd9c44eaf93b669d8",
+      "0x0a7a0e8d85d57986cba941a2b77a3387510bef732a0322c4e33bedabafdba7fc",
+      "0x471e7a4c933280a683baf4e751ad032092c482e75434054f3d6a76543fd74752",
+      "0xf9bd6e1e21ccef7abd2c5dae87900703c867dcbb2d60939f24d6e116c5dc5c24"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0x6ef7173ba0552f8940dda4b5ea5ac48b17f8b8a2",
+      "vestingAmount": 111780000,
+      "claimedAmount": 0,
+      "index": 8
+    },
+    "proof": [
+      "0x422b94961714a4d9a6db744836f2806a7bcc86c3b65174e6acc8c5e7dbc6ca65",
+      "0xa0b3d2ebb9c0db2bf0afdaefc0dc644095918ebdc26929b43bc76a39c4b363dd",
+      "0x471e7a4c933280a683baf4e751ad032092c482e75434054f3d6a76543fd74752",
+      "0xf9bd6e1e21ccef7abd2c5dae87900703c867dcbb2d60939f24d6e116c5dc5c24"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0xd5c6519a51a840398c4444c2fbd9d34820baa10c",
+      "vestingAmount": 82820000,
+      "claimedAmount": 21632833,
+      "index": 9
+    },
+    "proof": [
+      "0x76e77adb1024fa8ae9c4dc6f441274d8382494bdae8f8b75bb2c1a8d5689f5df",
+      "0xd2d83f740529822e74b88621c064ce28daf8861f5668e9a7ef9be108c2065f3a",
+      "0xacafbd834797f37c26a5859fc57a3b8c204bcafece7224a184e3c77797a1c9af"
+    ]
+  },
+  {
+    "claimData": {
+      "receiver": "0xb4d353a9706264e92d25dbb93c292a7ea3649956",
+      "vestingAmount": 262854550063,
+      "claimedAmount": 0,
+      "index": 10
+    },
+    "proof": [
+      "0x0eb784d5eef61a0646adbd54497f17846f06be7593c71bbb0ca79ab762af88f5",
+      "0xd2bb1fba38258d3efe9e1f913c74bccf69f8bfce07c2bd9da1645ecf1714e260",
+      "0x6b8cd97e3b174868d0d8070633df2147f3b51632e864bb911397d5bba6f86fd5",
+      "0xf9bd6e1e21ccef7abd2c5dae87900703c867dcbb2d60939f24d6e116c5dc5c24"
+    ]
+  }
+]
