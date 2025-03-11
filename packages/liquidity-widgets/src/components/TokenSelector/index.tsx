@@ -1,11 +1,11 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@kyber/ui/input";
+import { ScrollArea } from "@kyber/ui/scroll-area";
 import { useZapState } from "@/hooks/useZapInState";
 import { useTokenList } from "../../hooks/useTokenList";
 import { formatWei } from "@/utils";
 import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
-import { Button } from "../ui/button";
+import { Button } from "@kyber/ui/button";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TrashIcon from "@/assets/svg/trash.svg";
 import IconSearch from "@/assets/svg/search.svg";

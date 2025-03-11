@@ -6,7 +6,7 @@ import IconZiczac from "@/assets/svg/ziczac.svg";
 import LogoCoingecko from "@/assets/svg/coingecko.svg";
 import IconDown from "@/assets/svg/down.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import Loader from "../LiquidityChart/components/Loader";
+import Loader from "../Loader";
 import { useWidgetContext } from "@/stores/widget";
 import { Token } from "@/schema";
 

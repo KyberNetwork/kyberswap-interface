@@ -265,6 +265,7 @@ export function getPositionAmounts(
 }
 
 /*
+// Uniswap
 struct Position {
     uint96 nonce;
     address operator;
@@ -279,6 +280,7 @@ struct Position {
     uint128 tokensOwed0;
     uint128 tokensOwed1;
 }
+
 */
 export function decodePosition(rawData: string) {
   // Remove the "0x" prefix
@@ -304,6 +306,56 @@ export function decodePosition(rawData: string) {
     token0,
     token1,
     fee,
+    tickLower,
+    tickUpper,
+    liquidity,
+    feeGrowthInside0LastX128,
+    feeGrowthInside1LastX128,
+    tokensOwed0,
+    tokensOwed1,
+  };
+}
+
+/*
+
+// algebra
+struct Position {
+    uint96 nonce;
+    address operator;
+    address token0;
+    address token1;
+    int24 tickLower;
+    int24 tickUpper;
+    uint128 liquidity;
+    uint256 feeGrowthInside0LastX128;
+    uint256 feeGrowthInside1LastX128;
+    uint128 tokensOwed0;
+    uint128 tokensOwed1;
+}
+ * */
+
+export function decodeAlgebraV1Position(rawData: string) {
+  // Remove the "0x" prefix
+  let hexData = rawData.slice(2);
+
+  // Decode fields according to the ABI layout
+  const nonce = decodeUint(hexData.slice(0, 64)); // uint96: first 12 bytes and padding (64 hex chars)
+  const operator = decodeAddress(hexData.slice(64, 128)); // address: next 32 bytes (64 hex chars)
+  const token0 = decodeAddress(hexData.slice(128, 192)); // address: next 32 bytes (64 hex chars)
+  const token1 = decodeAddress(hexData.slice(192, 256)); // address: next 32 bytes (64 hex chars)
+  const tickLower = decodeInt24(hexData.slice(256, 320));
+  const tickUpper = decodeInt24(hexData.slice(320, 384));
+  const liquidity = decodeUint(hexData.slice(384, 448));
+  const feeGrowthInside0LastX128 = decodeUint(hexData.slice(448, 512));
+  const feeGrowthInside1LastX128 = decodeUint(hexData.slice(512, 576));
+  const tokensOwed0 = decodeUint(hexData.slice(576, 640));
+  const tokensOwed1 = decodeUint(hexData.slice(640, 704));
+
+  return {
+    nonce,
+    operator,
+    token0,
+    token1,
     tickLower,
     tickUpper,
     liquidity,
@@ -363,9 +415,7 @@ export function priceToClosestTick(
   token1Decimal: number,
   revert = false
 ): number | undefined {
-  if (!value.match(/^\d*\.?\d+$/)) {
-    return undefined;
-  }
+  if (!value.match(/^\d*\.?\d+$/)) return;
   const [whole, fraction] = value.split(".");
 
   const decimals = fraction?.length ?? 0;
@@ -383,12 +433,15 @@ export function priceToClosestTick(
     : encodeSqrtRatioX96(denominator, numerator);
 
   let tick;
+  if (sqrtRatioX96 > MAX_SQRT_RATIO) return MAX_TICK;
+  if (sqrtRatioX96 < MIN_SQRT_RATIO) return MIN_TICK;
+
   try {
     tick = getTickAtSqrtRatio(sqrtRatioX96);
   } catch (error) {
     console.log(error);
   }
-  if (!tick) return undefined;
+  if (tick === undefined) return;
 
   const tickPrice = tickToPrice(tick, token0Decimal, token1Decimal, revert);
 

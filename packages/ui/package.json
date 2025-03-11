@@ -12,7 +12,9 @@
     "./tooltip": "./src/components/tooltip.tsx",
     "./toggle": "./src/components/toggle.tsx",
     "./scroll-area": "./src/components/ui/scroll-area.tsx",
-    "./info-helper": "./src/components/info-helper.tsx"
+    "./info-helper": "./src/components/info-helper.tsx",
+    "./button": "./src/components/ui/button.tsx",
+    "./input": "./src/components/ui/input.tsx"
   },
   "scripts": {
     "build": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
@@ -26,6 +28,8 @@
     "@radix-ui/react-slider": "^1.2.1",
     "@radix-ui/react-tooltip": "^1.1.3",
     "@radix-ui/react-scroll-area": "^1.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "class-variance-authority": "^0.7.0",
     "react-popper": "^2.3.0"
   },
   "devDependencies": {

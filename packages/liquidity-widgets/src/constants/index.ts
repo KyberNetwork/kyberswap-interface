@@ -9,6 +9,9 @@ import thrusterLogo from "@/assets/dexes/thruster.png";
 import sushiLogo from "@/assets/dexes/sushi.png";
 import quickswapLogo from "@/assets/dexes/quickswap.png";
 import pangolinLogo from "@/assets/dexes/pangolin.png";
+import thenaLogo from "@/assets/dexes/thena.png";
+import camelotLogo from "@/assets/dexes/camelot.svg?url";
+//import blastswapLogo from "@/assets/dexes/blastswap.png";
 
 export { PoolType, ChainId };
 
@@ -416,6 +419,36 @@ export const DexInfos: Record<PoolType, DexInfo> = {
     name: "SwapMode V2",
     nftManagerContract: {},
   },
+
+  [PoolType.DEX_THENAFUSION]: {
+    icon: thenaLogo,
+    name: "Thena",
+    nftManagerContract: {
+      //[ChainId.Bsc]: "0x643B68Bf3f855B8475C0A700b6D1020bfc21d02e",
+      [ChainId.Bsc]: "0xa51ADb08Cbe6Ae398046A23bec013979816B77Ab",
+    },
+  },
+  [PoolType.DEX_CAMELOTV3]: {
+    icon: camelotLogo,
+    name: "Camelot V3",
+    nftManagerContract: {
+      [ChainId.Arbitrum]: "0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15",
+    },
+  },
+  [PoolType.DEX_QUICKSWAPV3ALGEBRA]: {
+    icon: quickswapLogo,
+    name: "QuickSwap",
+    nftManagerContract: {
+      [ChainId.PolygonPos]: "0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6",
+    },
+  },
+  //[PoolType.DEX_BLADESWAP]: {
+  //  icon: blastswapLogo,
+  //  name: "BlastSwap",
+  //  nftManagerContract: {
+  //    [ChainId.Blast]: "0x7553b306773EFa59E6f9676aFE049D2D2AbdfDd6",
+  //  },
+  //},
 };
 
 export const chainIdToChain: { [chainId in ChainId]: string } = {
@@ -451,6 +484,11 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   DEX_QUICKSWAPV2: 19,
   DEX_THRUSTERV2: 20,
   DEX_SWAPMODEV2: 44,
+
+  DEX_THENAFUSION: 15,
+  DEX_CAMELOTV3: 13,
+  DEX_QUICKSWAPV3ALGEBRA: 14,
+  //DEX_BLADESWAP: 50,
 };
 
 export const PATHS = {
@@ -459,7 +497,6 @@ export const PATHS = {
   INTERFACE_GATEWAY_UNISWAP: "https://interface.gateway.uniswap.org/v1/graphql",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
   ZAP_API: "https://zap-api.kyberswap.com",
-  //PRE_ZAP_API: "https://pre-zap-api.kyberengineering.io",
   COINGECKO_API_URL: "https://api.coingecko.com/api/v3",
   GO_PLUS_API: "https://api.gopluslabs.io/api/v1/token_security",
   ZAP_EARN_API: "https://zap-earn-service.kyberengineering.io/api",

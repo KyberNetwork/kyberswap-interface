@@ -35,7 +35,7 @@ import {
 } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
-import PoolInfo from "./PoolInfo";
+import PoolStat from "./PoolStat";
 import { parseUnits } from "@kyber/utils/crypto";
 import LiquidityChart from "../LiquidityChart";
 
@@ -204,17 +204,20 @@ export default function Content() {
       univ2PoolType.safeParse(poolType);
 
     if (zapInfo) {
-      if (success && isUniV3PoolType)
+      if (success && isUniV3PoolType) {
+        const newInfo =
+          zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
         return {
           ...data,
           poolType: pt,
-          sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
-          tick: zapInfo.poolDetails.uniswapV3.newTick,
+          sqrtRatioX96: newInfo?.newSqrtP,
+          tick: newInfo.newTick,
           liquidity: (
             BigInt(data.liquidity) +
             BigInt(zapInfo.positionDetails.addedLiquidity)
           ).toString(),
         };
+      }
       if (isUniV2 && isUniV2PoolType)
         return {
           ...poolUniv2,
@@ -243,8 +246,10 @@ export default function Content() {
 
     if (isUniV2) {
       return +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
+        BigInt(uniV2Pool.reserves[1]) *
+          10n ** BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) *
+          10n ** BigInt(uniV2Pool.token1?.decimals),
         18
       );
     }
@@ -413,7 +418,7 @@ export default function Content() {
         <Header onDismiss={onClose} />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="flex-1 w-1/2 max-sm:w-full">
-            <PoolInfo
+            <PoolStat
               chainId={chainId}
               poolAddress={poolAddress}
               poolType={poolType}

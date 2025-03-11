@@ -14,12 +14,6 @@ interface Window {
   };
 }
 
-declare module "lodash.partition" {
-  export default function partition<T>(
-    array: T[],
-    predicate: (value: T) => boolean
-  ): [T[], T[]];
-}
 declare module "*.png";
 
 declare module "*.svg" {

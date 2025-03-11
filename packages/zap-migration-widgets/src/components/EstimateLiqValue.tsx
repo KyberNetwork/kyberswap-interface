@@ -103,12 +103,14 @@ export function EstimateLiqValue({
 
   let amount0 = 0n;
   let amount1 = 0n;
-  if (route !== null && tickLower !== null && tickUpper !== null) {
+  const newDetail =
+    route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
+  if (route !== null && tickLower !== null && tickUpper !== null && newDetail) {
     ({ amount0, amount1 } = getPositionAmounts(
-      route.poolDetails.uniswapV3.newTick,
+      newDetail.newTick,
       tickLower,
       tickUpper,
-      BigInt(route.poolDetails.uniswapV3.newSqrtP),
+      BigInt(newDetail.newSqrtP),
       BigInt(route.positionDetails.addedLiquidity)
     ));
   }

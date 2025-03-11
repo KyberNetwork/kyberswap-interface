@@ -1,5 +1,5 @@
 import X from "@/assets/svg/x.svg";
-import { Button } from "@/components/ui/button";
+import { Button } from "@kyber/ui/button";
 import { shortenAddress } from "@/components/TokenInfo/utils";
 import { getEtherscanLink } from "@/utils";
 import { useTokenList } from "@/hooks/useTokenList";

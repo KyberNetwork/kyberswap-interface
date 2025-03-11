@@ -10,6 +10,7 @@ import {
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { SyntheticEvent, useEffect, useState } from "react";
 import {
+  UniV2Position,
   UniV3Position,
   univ2PoolNormalize,
   univ3PoolNormalize,
@@ -50,8 +51,12 @@ export function LiquidityToRemove() {
         liquidityOut
       ));
     } else if (isUniv2) {
-      // TODO: handle univ2
-      console.log(univ2Pool);
+      amount0 =
+        (BigInt(liquidityOut) * BigInt(univ2Pool.reserves[0])) /
+        (position as UniV2Position).totalSupply;
+      amount1 =
+        (BigInt(liquidityOut) * BigInt(univ2Pool.reserves[1])) /
+        (position as UniV2Position).totalSupply;
     } else assertUnreachable(poolType as never, `${poolType} is not handled`);
   }
   const onError = ({

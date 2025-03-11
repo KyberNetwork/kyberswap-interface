@@ -27,6 +27,11 @@ export function PoolInfo({
     ? pool.tick < position.tickLower || pool.tick > position.tickUpper
     : false;
 
+  const dexName =
+    typeof DexInfos[pool.dex].name === "string"
+      ? (DexInfos[pool.dex].name as string)
+      : DexInfos[pool.dex].name[chainId];
+
   return (
     <>
       <div className="flex gap-1 items-center">
@@ -56,10 +61,10 @@ export function PoolInfo({
       <div className="mt-2.5 flex items-center gap-1">
         <Image
           src={DexInfos[pool.dex].icon}
-          alt={DexInfos[pool.dex].name}
+          alt={dexName}
           className="w-4 h-4 rounded-full"
         />
-        <div className="text-sm opacity-70">{DexInfos[pool.dex].name}</div>
+        <div className="text-sm opacity-70">{dexName}</div>
         <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
           Fee {pool.fee}%
         </div>

@@ -26,19 +26,20 @@ interface PoolsState {
 const BFF_API = "https://bff.kyberswap.com/api";
 
 // Create a mapping object for string to Dex enum
-const dexMapping: Record<Dex, string> = {
-  [Dex.Uniswapv3]: "uniswapv3",
-  [Dex.Pancakev3]: "pancake-v3",
-  [Dex.Sushiv3]: "sushiswap-v3",
-  // Add new DEX mappings here when needed
-} as const;
+const dexMapping: Record<Dex, string[]> = {
+  // uni v3 forks
+  [Dex.DEX_UNISWAPV3]: ["uniswapv3"],
+  [Dex.DEX_PANCAKESWAPV3]: ["pancake-v3"],
+  [Dex.DEX_METAVAULTV3]: ["metavault-v3"],
+  [Dex.DEX_LINEHUBV3]: ["linehub-v3"],
+  [Dex.DEX_SWAPMODEV3]: ["baseswap-v3", "arbidex-v3", "superswap-v3"],
+  [Dex.DEX_KOICL]: ["koi-cl"],
+  [Dex.DEX_THRUSTERV3]: ["thruster-v3"],
+  [Dex.DEX_SUSHISWAPV3]: ["sushiswap-v3"],
 
-// Create a mapping object for Dex enum to string
-const dexMapping2: Record<Dex, string> = {
-  [Dex.Uniswapv3]: "DEX_UNISWAPV3",
-  [Dex.Pancakev3]: "DEX_PANCAKESWAPV3",
-  [Dex.Sushiv3]: "DEX_SUSHISWAPV3",
-  // Add new DEX mappings here when needed
+  [Dex.DEX_THENAFUSION]: ["thena-fusion"],
+  [Dex.DEX_CAMELOTV3]: ["camelot-v3"],
+  [Dex.DEX_QUICKSWAPV3ALGEBRA]: ["quickswap-v3"],
 } as const;
 
 const poolResponse = z.object({
@@ -48,11 +49,11 @@ const poolResponse = z.object({
         address: z.string(),
         swapFee: z.number(),
         exchange: z
-          .enum(Object.values(dexMapping) as [string, ...string[]])
+          .enum(Object.values(dexMapping).flat() as [string, ...string[]])
           .transform((val) => {
             // Reverse lookup in the enum
-            const dexEnumKey = Object.keys(dexMapping).find(
-              (key) => dexMapping[+key as Dex] === val
+            const dexEnumKey = Object.keys(dexMapping).find((key) =>
+              dexMapping[+key as Dex].includes(val)
             );
             if (!dexEnumKey) {
               throw new Error(`No enum value for exchange: ${val}`);
@@ -94,7 +95,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
   }: GetPoolParams) => {
     try {
       const res = await fetch(
-        `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${dexMapping2[dexFrom]}`
+        `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${Dex[dexFrom]}`
       ).then((res) => res.json());
       const { success, data, error } = poolResponse.safeParse(res);
 

@@ -2,6 +2,7 @@ import { Theme, defaultTheme } from "@/theme";
 import {
   MAX_TICK,
   MIN_TICK,
+  decodeAlgebraV1Position,
   decodePosition,
   getPositionAmounts,
   nearestUsableTick,
@@ -19,6 +20,7 @@ import {
   univ3PoolType,
   univ2PoolType,
   Token,
+  algebraTypes,
 } from "@/schema";
 import { createStore, useStore } from "zustand";
 import { DexInfos, NetworkInfo, PATHS } from "@/constants";
@@ -302,7 +304,9 @@ const createWidgetStore = (initProps: WidgetProps) => {
           const { result, error } = await response.json();
 
           if (result && result !== "0x") {
-            const data = decodePosition(result);
+            const data = algebraTypes.includes(pt)
+              ? decodeAlgebraV1Position(result)
+              : decodePosition(result);
 
             const { amount0, amount1 } = getPositionAmounts(
               p.tick,
@@ -355,6 +359,57 @@ const createWidgetStore = (initProps: WidgetProps) => {
         };
 
         set({ pool: p });
+
+        if (positionId) {
+          // get pool total supply and user supply
+          const balanceOfSelector = getFunctionSelector("balanceOf(address)");
+          const totalSupplySelector = getFunctionSelector("totalSupply()");
+          const paddedAccount = positionId.replace("0x", "").padStart(64, "0");
+
+          const getPayload = (d: string) => {
+            return {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                jsonrpc: "2.0",
+                method: "eth_call",
+                params: [
+                  {
+                    to: poolAddress,
+                    data: d,
+                  },
+                  "latest",
+                ],
+                id: 1,
+              }),
+            };
+          };
+
+          const balanceRes = await fetch(
+            NetworkInfo[chainId].defaultRpc,
+            getPayload(`0x${balanceOfSelector}${paddedAccount}`)
+          ).then((res) => res.json());
+          const totalSupplyRes = await fetch(
+            NetworkInfo[chainId].defaultRpc,
+            getPayload(`0x${totalSupplySelector}`)
+          ).then((res) => res.json());
+
+          const userBalance = BigInt(balanceRes?.result || "0");
+          const totalSupply = BigInt(totalSupplyRes?.result || "0");
+
+          const p = {
+            liquidity: userBalance.toString(),
+            amount0:
+              (userBalance * BigInt(poolUniv2.reserves[0])) / totalSupply,
+            amount1:
+              (userBalance * BigInt(poolUniv2.reserves[1])) / totalSupply,
+            poolType: pt,
+            totalSupply,
+          };
+          set({ position: p });
+        }
       } else {
         set({ poolLoading: false });
         throw new Error("Invalid pool type");
