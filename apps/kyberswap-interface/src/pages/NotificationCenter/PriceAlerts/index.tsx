@@ -1,4 +1,3 @@
-import { stringify } from 'querystring'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAckPrivateAnnouncementsByIdsMutation, useGetPrivateAnnouncementsByIdsQuery } from 'services/announcement'
@@ -56,7 +55,7 @@ const PriceAlerts = () => {
   const onSetTab = (tab: Tab) => {
     setCurrentTab(tab)
     const search = { ...rest, tab }
-    navigate({ search: stringify(search) }, { replace: true })
+    navigate({ search: new URLSearchParams(search).toString() }, { replace: true })
     setDisabledClearAll(false)
   }
 

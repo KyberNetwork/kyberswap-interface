@@ -1,4 +1,4 @@
-import throttle from 'lodash/throttle'
+import throttle from 'lodash.throttle'
 import { useMemo, useRef } from 'react'
 
 export default function useThrottle(cb: (...args: any) => any, delay: number) {

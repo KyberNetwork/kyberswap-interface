@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { stringify } from 'querystring'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -109,7 +108,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
         tab === TAB.CROSS_CHAIN
           ? APP_PATHS.CROSS_CHAIN
           : `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
-      search: stringify(newQs),
+      search: new URLSearchParams(newQs).toString(),
     })
   }
 

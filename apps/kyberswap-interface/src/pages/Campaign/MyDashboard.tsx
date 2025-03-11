@@ -342,7 +342,7 @@ const MyDashboard = () => {
               No data found
             </Text>
           )}
-          {data?.data?.weeklyRewards?.map(item => {
+          {data?.data?.weeklyRewards?.map((item, idx) => {
             const rw = item.reward.split('.')[0]
             const totalRw = CurrencyAmount.fromRawAmount(mockToken, rw)
 
@@ -356,7 +356,7 @@ const MyDashboard = () => {
 
             if (upToSmall)
               return (
-                <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }}>
+                <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }} key={idx}>
                   <Flex justifyContent="space-between" alignItems="center">
                     <Text color={theme.subText}>
                       Week {item.week - BASE_WEEK}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}

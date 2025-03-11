@@ -1,1 +1,1 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[59],[]]);
+;(window.webpackJsonp = window.webpackJsonp || []).push([[59], []])

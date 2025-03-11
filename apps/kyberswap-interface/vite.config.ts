@@ -46,6 +46,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      querystring: 'query-string',
       process: 'process/browser',
       stream: 'stream-browserify',
       zlib: 'browserify-zlib',

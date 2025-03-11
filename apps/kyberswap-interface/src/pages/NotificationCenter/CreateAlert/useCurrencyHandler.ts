@@ -1,5 +1,4 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { stringify } from 'querystring'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -23,8 +22,11 @@ export default function useCurrencyHandler(chainId: ChainId) {
   const navigate = useNavigate()
   const replaceUrl = useCallback(() => {
     const { inputCurrency, outputCurrency, amount, ...rest } = qs
+    const filteredParams = Object.fromEntries(
+      Object.entries(rest).filter(([_, value]) => value !== undefined), // Remove undefined values
+    ) as { [key: string]: string }
     if (!inputCurrency && !outputCurrency) return
-    navigate({ search: stringify(rest) }, { replace: true })
+    navigate({ search: new URLSearchParams(filteredParams).toString() }, { replace: true })
   }, [qs, navigate])
 
   const isInit = useRef(false)

@@ -1,6 +1,5 @@
 import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { stringify } from 'querystring'
 import { useState } from 'react'
 import { AlertTriangle, Info } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -98,7 +97,9 @@ export default function MyAssets({
               return (
                 <CurrencyRow
                   onSelect={() => {
-                    navigate({ search: stringify({ ...qs, inputCurrency: currencyId(token, chainId) }) })
+                    navigate({
+                      search: new URLSearchParams({ ...qs, inputCurrency: currencyId(token, chainId) }).toString(),
+                    })
                   }}
                   isSelected={false}
                   key={address + token.symbol}

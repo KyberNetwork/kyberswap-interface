@@ -3,7 +3,7 @@ adpr:
     repository: asia.gcr.io/kyber-operation/core/kyberswap-interface
     tagPrefix: adpr
   workflow:
-    name: "Auto Deploy PR"
+    name: 'Auto Deploy PR'
     ignoreCase: true
 
 container:

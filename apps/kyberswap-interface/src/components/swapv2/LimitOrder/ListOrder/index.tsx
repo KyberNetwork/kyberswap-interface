@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { stringify } from 'querystring'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -198,7 +197,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
     setOrderType(type)
     onReset()
     if (!isPartnerSwap) {
-      navigate({ search: stringify(qs) }, { replace: true })
+      navigate({ search: new URLSearchParams(qs).toString() }, { replace: true })
     }
   }
 

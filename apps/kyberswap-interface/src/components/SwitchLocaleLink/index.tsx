@@ -1,5 +1,4 @@
-import { stringify } from 'querystring'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useLocation } from 'react-router'
 import styled from 'styled-components'
 
@@ -36,7 +35,7 @@ export function SwitchLocaleLink() {
 
     const target = {
       ...location,
-      search: stringify({ ...qs, lng: targetLocale }),
+      search: new URLSearchParams({ ...qs, lng: targetLocale }).toString(),
     }
 
     return (
