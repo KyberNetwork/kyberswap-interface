@@ -1,0 +1,89 @@
+[
+  {
+    "receiver": "0x3872afe887ced05d353252a88a2acebdacda5071",
+    "oldAddress": "0x6decaef50cf902106b6d9626b016d8b2b38025de",
+    "vestingAmount": 1999510000,
+    "value": 1999.51
+  },
+  {
+    "receiver": "0x87b1594e6e8b8fee7b14cd77a5c2324e31a7bcd4",
+    "oldAddress": "0x6695d48582641bce4eaeeae0865bc2382abd67f4",
+    "vestingAmount": 1020780000,
+    "value": 1020.78
+  },
+  {
+    "receiver": "0x2244cfdb499a05c8f08a548f75a13c7485fe9433",
+    "oldAddress": "0xded95478877fddea13805f6bac6b7988e319e585",
+    "vestingAmount": 27325420000,
+    "value": 27325.42
+  },
+  {
+    "receiver": "0xee2147fcf090ce08095e65a3c9e193c459364d5b",
+    "oldAddress": "0xcc98cfdc5f5480d8dd0a0d0a7f80506eb30d5159",
+    "vestingAmount": 585805040000,
+    "value": 585805.04
+  },
+  {
+    "receiver": "0x00e6bc5f73ef330c5f553554dcec8a863db84a23",
+    "oldAddress": "0xd1bbca0dfde1f51ccd17e33de1a7ead48faa1d68",
+    "vestingAmount": 185848210000,
+    "value": 185848.21,
+    "vestedAmount": 19657.410552
+  },
+  {
+    "receiver": "0xcab9760e56bfd28803b41cac1e6616704aa5ecce",
+    "oldAddress": "0x194eda5c8302bc8550e3e918b36520d138fba8ae",
+    "vestingAmount": 2375410000,
+    "value": 2375.41,
+    "vestedAmount": 174.442519
+  },
+  {
+    "receiver": "0xd5c6519a51a840398c4444c2fbd9d34820baa10c",
+    "oldAddress": "0x12a2455cca45d8f6d9149f0e996260ae49eda8b4",
+    "vestingAmount": 82820000,
+    "value": 82.82,
+    "vestedAmount": 21.632833
+  },
+  {
+    "receiver": "0x2130fd01026867a6c8dde24ad5e64f2e2dfce196",
+    "oldAddress": "",
+    "vestingAmount": 179477543200,
+    "value": 179477.54,
+    "vestedAmount": 0
+  },
+  {
+    "receiver": "0x4526b09df42775975a543e0e984172ab202b4ff8",
+    "oldAddress": "",
+    "vestingAmount": 627260000,
+    "value": 627.26,
+    "vestedAmount": 0
+  },
+  {
+    "receiver": "0x5da35491ff9d73e3f5ff0d3c6ed1ea5ab68770c0",
+    "oldAddress": "",
+    "vestingAmount": 167390000,
+    "value": 167.39,
+    "vestedAmount": 0
+  },
+  {
+    "receiver": "0x5119d8c206546c5361bb6317d7508d9bd4787c16",
+    "oldAddress": "",
+    "vestingAmount": 141810000,
+    "value": 141.81,
+    "vestedAmount": 0
+  },
+  {
+    "receiver": "0x6ef7173ba0552f8940dda4b5ea5ac48b17f8b8a2",
+    "oldAddress": "",
+    "vestingAmount": 111780000,
+    "value": 111.78,
+    "vestedAmount": 0
+  },
+  {
+    "receiver": "0xb4d353a9706264e92d25dbb93c292a7ea3649956",
+    "oldAddress": "",
+    "vestingAmount": 262854550063,
+    "value": 262854.55,
+    "vestedAmount": 0
+  }
+]
