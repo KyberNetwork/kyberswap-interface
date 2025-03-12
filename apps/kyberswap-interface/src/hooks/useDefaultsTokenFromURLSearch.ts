@@ -17,7 +17,7 @@ const useDefaultsTokenFromURLSearch = (
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
-  const parsedQs = useParsedQueryString()
+  const parsedQs = useParsedQueryString() as Record<string, string | string[]>
   const storedInputValue = currentTokenIn?.chainId === chainId ? currentTokenIn : undefined
   const storedOutputValue = currentTokenOut?.chainId === chainId ? currentTokenOut : undefined
   const { pathname } = useLocation()
