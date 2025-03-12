@@ -176,5 +176,5 @@ jobs:
         run: pnpm install
 
       - name: Run lint
-        run: pnpm lint --quiet && pnpm type-check
+        run: pnpm lint && pnpm type-check
  
