@@ -56,7 +56,7 @@ const OptionCardClickable = styled.div<{
   ${({ isDisabled, connected, theme }) =>
     !isDisabled && connected
       ? `
-      background-color: ${theme.primary};
+      background-color: ${theme.primary} !important;
       & ${HeaderText} {
         color: ${theme.darkText} !important;
       }
