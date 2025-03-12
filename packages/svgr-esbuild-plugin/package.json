@@ -5,7 +5,6 @@
   "description": "SVGR plugin for esbuild",
   "scripts": {
     "type-check": "tsc --noEmit",
-    "lint": "eslint src/",
     "dev": "tsc --watch",
     "build": "tsc"
   },

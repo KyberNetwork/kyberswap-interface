@@ -160,7 +160,7 @@ const Routing = ({ trade, currencyIn, currencyOut }: RoutingProps) => {
       .then(res => {
         setTokens(res?.data?.tokens || [])
       })
-  }, [tokenAddresses])
+  }, [tokenAddresses, chainId])
 
   const inputAmount = trade?.routeSummary.amountIn
   const outputAmount = trade?.routeSummary.amountOut
