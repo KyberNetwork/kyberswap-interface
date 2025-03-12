@@ -121,6 +121,10 @@ export const TYPE = {
 }
 
 export const FixedGlobalStyle = createGlobalStyle`
+  :root {
+    --wcm-z-index: 100000;
+  }
+
   html, input, textarea, button {
     font-family: 'Work Sans', 'Inter', sans-serif;
     font-display: fallback;
@@ -162,7 +166,6 @@ export const FixedGlobalStyle = createGlobalStyle`
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     font-feature-settings: 'ss01' on, 'ss02' on, 'cv01' on, 'cv03' on;
-    --wcm-z-index: 100000;
   }
 `
 
