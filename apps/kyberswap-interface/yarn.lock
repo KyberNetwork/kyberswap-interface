@@ -3765,18 +3765,18 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/liquidity-chart@1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-chart/-/liquidity-chart-1.0.3.tgz#6e9a60ced834878d22a203fd2d05299cca9fac30"
-  integrity sha512-60StdCdEz+lrsy3YougKlhJYEvr5hxKe0BpmrhXpuQ0gII38V6YRfaQQhCWOS+d0CS7xKSUijRhNc0bLFFxAGg==
+"@kyberswap/liquidity-chart@1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-chart/-/liquidity-chart-1.0.5.tgz#be21c7f6ae1129e90a4602395907254b057577cb"
+  integrity sha512-+OOrLiZleRNx8jcMH1Vza3rrCv6DYAGXqRdx6tvSIyRLtBaBgOtNLFMEewxIjaOpB5iBWXfcwgTGnIfXk6+vGQ==
   dependencies:
     d3 "^7.9.0"
     lodash.partition "^4.6.0"
 
-"@kyberswap/liquidity-widgets@1.1.20":
-  version "1.1.20"
-  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-1.1.20.tgz#4337ab0077a738f9b538b61583f140ac777e5f0b"
-  integrity sha512-w49GRwjp7ligoZLwamhCe2Dq0ZFm/NfSFviBCZEgWGRUSbhErfLONHefQYpaqtDeY38i2vhr5JXozVdMjJ+74A==
+"@kyberswap/liquidity-widgets@1.1.21":
+  version "1.1.21"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-1.1.21.tgz#47ab63c12d8af2b4192c3a030c512ddc7efbee02"
+  integrity sha512-52b/qwhnyVW47hk5b+5hTR/ctxf9Cw9PADcMd5nJxhW/HAFhAFL8iNVqG+7qH4mFvxKHQf5PTFxAc7OT3bUx0w==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@radix-ui/react-accordion" "^1.2.1"
@@ -3800,10 +3800,10 @@
     axios "1.2.1"
     client-oauth2 "^4.3.3"
 
-"@kyberswap/zap-migration-widgets@1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@kyberswap/zap-migration-widgets/-/zap-migration-widgets-1.0.9.tgz#3ea4d010ca55c6dd74719abb2fbcbff64774d671"
-  integrity sha512-bhR9vbIZSWE9M1Wgew7xZAmDGcX9pb2F4vuiOU7o8M5XbRy0lLIxy38shEAbeyziVdtdAGg1vktzt5tK3290bQ==
+"@kyberswap/zap-migration-widgets@1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@kyberswap/zap-migration-widgets/-/zap-migration-widgets-1.0.10.tgz#29f00a8501f5bf25569c2834c6fb9a20e6b9fce2"
+  integrity sha512-hj4R3iJuEDEydTk33Rm3Rd+hAAB6frTZNvEkXjE0B2+uMZO5DjauHvzgHy4hEq7GTPFNKBGE5qBqpNMMxtoHRw==
   dependencies:
     "@popperjs/core" "^2.11.8"
     react-popper "^2.3.0"
