@@ -9,6 +9,7 @@ import { EarnDex, EarnDex2 } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -16,6 +17,8 @@ import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
 import useFilter from './PoolExplorer/useFilter'
+import { NFT_MANAGER_CONTRACT } from './constants'
+import { getTokenId } from './utils'
 
 interface AddLiquidityPureParams {
   poolAddress: string
@@ -112,13 +115,44 @@ const zapMigrationDexMapping = {
 const useLiquidityWidget = () => {
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
+  const navigate = useNavigate()
+  const refCode = getCookieValue('refCode')
   const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { filters } = useFilter()
+  const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
+
+  const handleCloseZapInWidget = useCallback(() => {
+    searchParams.delete('exchange')
+    searchParams.delete('poolChainId')
+    searchParams.delete('poolAddress')
+    setSearchParams(searchParams)
+    setAddLiquidityPureParams(null)
+  }, [searchParams, setSearchParams])
+
+  const handleNavigateToPosition = useCallback(
+    async (txHash: string) => {
+      if (!library || !addLiquidityPureParams) return
+      const tokenId = await getTokenId(library, txHash)
+      if (!tokenId) {
+        navigate(APP_PATHS.EARN_POSITIONS)
+        return
+      }
+      const dexIndex = Object.values(zapDexMapping).findIndex(item => item === addLiquidityPureParams.poolType)
+      const dex = Object.keys(zapDexMapping)[dexIndex] as EarnDex
+      const nftContractObj = NFT_MANAGER_CONTRACT[dex]
+      const nftContract =
+        typeof nftContractObj === 'string'
+          ? nftContractObj
+          : nftContractObj[addLiquidityPureParams.chainId as unknown as keyof typeof nftContractObj]
+      navigate(APP_PATHS.EARN_POSITION_DETAIL.replace(':id', `${nftContract}-${tokenId}?forceLoading=true`))
+    },
+    [addLiquidityPureParams, library, navigate],
+  )
 
   const handleOpenZapMigrationWidget = useCallback(
     (
@@ -169,14 +203,6 @@ const useLiquidityWidget = () => {
     [addLiquidityPureParams, notify],
   )
 
-  const handleCloseZapInWidget = useCallback(() => {
-    searchParams.delete('exchange')
-    searchParams.delete('poolChainId')
-    searchParams.delete('poolAddress')
-    setSearchParams(searchParams)
-    setAddLiquidityPureParams(null)
-  }, [searchParams, setSearchParams])
-
   const handleOpenZapInWidget = (
     pool: { exchange: string; chainId?: number; address: string },
     positionId?: string,
@@ -204,21 +230,16 @@ const useLiquidityWidget = () => {
     })
   }
 
-  const { changeNetwork } = useChangeNetwork()
-  const navigate = useNavigate()
-
-  const refCode = getCookieValue('refCode')
-
   const addLiquidityParams: AddLiquidityParams | null = useMemo(
     () =>
       addLiquidityPureParams
         ? {
             ...addLiquidityPureParams,
-            source: 'KyberSwap-Earn',
+            source: 'kyberswap-earn',
             referral: refCode,
-            onViewPosition: () => {
+            onViewPosition: (txHash: string) => {
               handleCloseZapInWidget()
-              navigate(`/earns/positions`)
+              handleNavigateToPosition(txHash)
             },
             connectedAccount: {
               address: account,
@@ -250,7 +271,7 @@ const useLiquidityWidget = () => {
       toggleWalletModal,
       handleOpenZapMigrationWidget,
       handleCloseZapInWidget,
-      navigate,
+      handleNavigateToPosition,
       changeNetwork,
       library,
     ],
@@ -261,15 +282,15 @@ const useLiquidityWidget = () => {
       migrateLiquidityPureParams
         ? {
             ...migrateLiquidityPureParams,
-            client: 'KyberSwap-Earn',
+            client: 'kyberswap-earn',
             referral: refCode,
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as ZapMigrationChainId,
             },
-            onViewPosition: () => {
+            onViewPosition: (txHash: string) => {
               setMigrateLiquidityPureParams(null)
-              navigate(`/earns/positions`)
+              handleNavigateToPosition(txHash)
             },
 
             onClose: () => {
@@ -298,7 +319,7 @@ const useLiquidityWidget = () => {
       account,
       chainId,
       toggleWalletModal,
-      navigate,
+      handleNavigateToPosition,
       handleCloseZapInWidget,
       changeNetwork,
       library,
@@ -316,7 +337,7 @@ const useLiquidityWidget = () => {
       zapOutPureParams
         ? {
             ...zapOutPureParams,
-            source: 'KyberSwap-Earn',
+            source: 'kyberswap-earn',
             referral: refCode,
             connectedAccount: {
               address: account,

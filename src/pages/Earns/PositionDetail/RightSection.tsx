@@ -109,8 +109,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
               {priceRange[0]}
             </Text>
             <Text fontSize={14} color={theme.subText}>
-              {!revert ? position.token1Symbol : position.token0Symbol}/
-              {!revert ? position.token0Symbol : position.token1Symbol}
+              {!revert ? position.token0Symbol : position.token1Symbol}/
+              {!revert ? position.token1Symbol : position.token0Symbol}
             </Text>
           </InfoSectionSecondFormat>
           <InfoSectionSecondFormat>
@@ -121,8 +121,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
               {priceRange[1]}
             </Text>
             <Text fontSize={14} color={theme.subText}>
-              {!revert ? position.token1Symbol : position.token0Symbol}/
-              {!revert ? position.token0Symbol : position.token1Symbol}
+              {!revert ? position.token1Symbol : position.token1Symbol}/
+              {!revert ? position.token1Symbol : position.token1Symbol}
             </Text>
           </InfoSectionSecondFormat>
         </Flex>
