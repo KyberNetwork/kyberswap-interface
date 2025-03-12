@@ -2,7 +2,6 @@ import { Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { stringify } from 'querystring'
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -327,11 +326,11 @@ function PositionListItem({
               style={{ marginBottom: '20px', textDecoration: 'none', color: theme.textReverse, fontSize: '14px' }}
               padding="8px"
               as={StyledInternalLink}
-              to={`${APP_PATHS.FARMS}/${networkInfo.route}?${stringify({
+              to={`${APP_PATHS.FARMS}/${networkInfo.route}?${new URLSearchParams({
                 tab: 'elastic',
                 type: positionDetails.endTime ? (positionDetails.endTime > now ? 'active' : 'ended') : 'active',
                 search: positionDetails.poolId,
-              })}`}
+              }).toString()}`}
             >
               <Trans>Go to Farm</Trans>
             </ButtonPrimary>
