@@ -1,6 +1,7 @@
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import type { ScaleLinear } from "d3";
 import type { TickDataRaw, TickProcessed } from "@/types";
+import { FeeAmount } from "@/types";
 import { PRICE_FIXED_DIGITS } from "@/constants";
 
 // Computes the numSurroundingTicks above or below the active tick.
@@ -74,3 +75,10 @@ export const compare = (
   const bNorm = b.map((x) => xScale(x).toFixed(1));
   return aNorm.every((v, i) => v === bNorm[i]);
 };
+
+export const getFeeRange = (fee: number): FeeAmount =>
+  (Object.values(FeeAmount).find((f) => f === fee) as FeeAmount) ||
+  [FeeAmount.HIGH, FeeAmount.MEDIUM, FeeAmount.LOW, FeeAmount.LOWEST].reduce(
+    (range, current) => (current >= fee ? current : range),
+    FeeAmount.HIGH
+  );

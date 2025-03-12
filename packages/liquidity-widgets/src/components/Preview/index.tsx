@@ -256,7 +256,7 @@ export default function Preview({
 
   const quote = (
     <span>
-      {revert
+      {!revert
         ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
         : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
     </span>
@@ -550,7 +550,10 @@ export default function Preview({
             Close
           </button>
           {txStatus === "success" && onViewPosition && (
-            <button className="ks-primary-btn flex-1" onClick={onViewPosition}>
+            <button
+              className="ks-primary-btn flex-1"
+              onClick={() => onViewPosition(txHash)}
+            >
               View position
             </button>
           )}

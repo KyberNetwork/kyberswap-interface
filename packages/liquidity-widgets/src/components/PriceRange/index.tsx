@@ -1,8 +1,9 @@
 import {
-  DEFAULT_PRICE_RANGE,
-  FULL_PRICE_RANGE,
+  FeeAmount,
   PRICE_RANGE,
-} from "@/constants";
+  FULL_PRICE_RANGE,
+  DEFAULT_PRICE_RANGE,
+} from "./constants";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@kyber/ui/button";
 import { useZapState } from "@/hooks/useZapInState";
@@ -20,6 +21,19 @@ interface SelectedRange {
   tickLower?: number;
   tickUpper?: number;
 }
+
+const getFeeRange = (fee: number): FeeAmount | undefined => {
+  if (!fee) return;
+  return [
+    FeeAmount.HIGH,
+    FeeAmount.MEDIUM,
+    FeeAmount.LOW,
+    FeeAmount.LOWEST,
+  ].reduce(
+    (range, current) => (current >= fee ? current : range),
+    FeeAmount.HIGH
+  );
+};
 
 const PriceRange = () => {
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(
@@ -40,19 +54,10 @@ const PriceRange = () => {
   const loading = pool === "loading";
 
   const fee = pool === "loading" ? 0 : pool.fee;
-
+  const feeRange = getFeeRange(fee);
   const priceRanges = useMemo(
-    () =>
-      !fee
-        ? []
-        : fee <= 0.01
-        ? PRICE_RANGE.LOW_POOL_FEE
-        : fee <= 0.05
-        ? PRICE_RANGE.MEDIUM_POOL_FEE
-        : fee <= 0.3
-        ? PRICE_RANGE.MIDDLE_POOL_FEE
-        : PRICE_RANGE.HIGH_POOL_FEE,
-    [fee]
+    () => (feeRange ? PRICE_RANGE[feeRange] : []),
+    [feeRange]
   );
 
   const priceRangeCalculated = useMemo(() => {
@@ -150,19 +155,10 @@ const PriceRange = () => {
 
   // Set default price range depending on protocol fee
   useEffect(() => {
-    if (!fee) return;
-    if (!selectedRange)
-      handleSelectPriceRange(
-        fee <= 0.01
-          ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
-          : fee <= 0.05
-          ? DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
-          : fee <= 0.3
-          ? DEFAULT_PRICE_RANGE.MIDDLE_POOL_FEE
-          : DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
-      );
+    if (!feeRange) return;
+    if (!selectedRange) handleSelectPriceRange(DEFAULT_PRICE_RANGE[feeRange]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fee]);
+  }, [feeRange]);
 
   const isUniv3 =
     pool !== "loading" && univ3PoolType.safeParse(pool.poolType).success;

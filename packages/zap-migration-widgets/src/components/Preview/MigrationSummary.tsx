@@ -149,8 +149,8 @@ export function MigrationSummary({
           2
         </div>
         <div className="text-xs">
-          {swaps.map((item) => (
-            <div className="flex-1 text-subText leading-4">
+          {swaps.map((item, index) => (
+            <div className="flex-1 text-subText leading-4" key={index}>
               Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{" "}
               {item.tokenOutSymbol} via{" "}
               <span className="font-medium text-text">{item.pool}</span>
