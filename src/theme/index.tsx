@@ -122,7 +122,7 @@ export const TYPE = {
 
 export const FixedGlobalStyle = createGlobalStyle`
   :root {
-    --wcm-z-index: 100000;
+    --wcm-z-index: 100000 !important;
   }
 
   html, input, textarea, button {
