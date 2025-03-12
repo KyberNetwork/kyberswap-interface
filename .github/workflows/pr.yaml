@@ -132,7 +132,7 @@ jobs:
       - name: Docker build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: apps/kyberswap-interface
           push: true
           labels: |
             kyber.network.schema-version=1.0
