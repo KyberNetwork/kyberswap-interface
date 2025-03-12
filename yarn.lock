@@ -3765,6 +3765,33 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
+"@kyberswap/liquidity-chart@1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-chart/-/liquidity-chart-1.0.5.tgz#be21c7f6ae1129e90a4602395907254b057577cb"
+  integrity sha512-+OOrLiZleRNx8jcMH1Vza3rrCv6DYAGXqRdx6tvSIyRLtBaBgOtNLFMEewxIjaOpB5iBWXfcwgTGnIfXk6+vGQ==
+  dependencies:
+    d3 "^7.9.0"
+    lodash.partition "^4.6.0"
+
+"@kyberswap/liquidity-widgets@1.1.21":
+  version "1.1.21"
+  resolved "https://registry.yarnpkg.com/@kyberswap/liquidity-widgets/-/liquidity-widgets-1.1.21.tgz#47ab63c12d8af2b4192c3a030c512ddc7efbee02"
+  integrity sha512-52b/qwhnyVW47hk5b+5hTR/ctxf9Cw9PADcMd5nJxhW/HAFhAFL8iNVqG+7qH4mFvxKHQf5PTFxAc7OT3bUx0w==
+  dependencies:
+    "@popperjs/core" "^2.11.8"
+    "@radix-ui/react-accordion" "^1.2.1"
+    "@radix-ui/react-icons" "^1.3.0"
+    "@radix-ui/react-scroll-area" "^1.1.0"
+    "@radix-ui/react-slot" "^1.1.0"
+    class-variance-authority "^0.7.0"
+    clsx "^2.1.1"
+    jsbi "^3.2.5"
+    numeral "^2.0.6"
+    polished "^4.3.1"
+    react-popper "^2.3.0"
+    zod "^3.23.8"
+    zustand "^5.0.0"
+
 "@kyberswap/oauth2@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@kyberswap/oauth2/-/oauth2-1.0.2.tgz#4e0fdfa9722ba2f185a104293b85b6ca58be775b"
@@ -3772,6 +3799,16 @@
   dependencies:
     axios "1.2.1"
     client-oauth2 "^4.3.3"
+
+"@kyberswap/zap-migration-widgets@1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@kyberswap/zap-migration-widgets/-/zap-migration-widgets-1.0.10.tgz#29f00a8501f5bf25569c2834c6fb9a20e6b9fce2"
+  integrity sha512-hj4R3iJuEDEydTk33Rm3Rd+hAAB6frTZNvEkXjE0B2+uMZO5DjauHvzgHy4hEq7GTPFNKBGE5qBqpNMMxtoHRw==
+  dependencies:
+    "@popperjs/core" "^2.11.8"
+    react-popper "^2.3.0"
+    zod "^3.23.8"
+    zustand "^5.0.0"
 
 "@leichtgewicht/ip-codec@^2.0.1":
   version "2.0.4"
@@ -14081,43 +14118,6 @@ jsprim@^2.0.2:
   dependencies:
     array-includes "^3.1.5"
     object.assign "^4.1.3"
-
-kane7-liquidity-chart@1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/kane7-liquidity-chart/-/kane7-liquidity-chart-1.0.4.tgz#7af4650c21c0a4321f6ab137138c27c070629cb9"
-  integrity sha512-Bp6fhQ6MX3foNOUXNVYAH39ruGTt4NexuTQRzzeenfq2P6jY1PoO+bcFlI7meRPROVrWTSm4QDCOUf4ztqfw4g==
-  dependencies:
-    d3 "^7.9.0"
-    lodash.partition "^4.6.0"
-
-kane7-liquidity-widgets@1.1.21:
-  version "1.1.21"
-  resolved "https://registry.yarnpkg.com/kane7-liquidity-widgets/-/kane7-liquidity-widgets-1.1.21.tgz#adaa790d34445e38bd160e15e2ffc3027c088408"
-  integrity sha512-8oqH/GJJYjAe4z29SJbFbl01dtJH8DUe/vZvH/yQwQHsE0gkNk/TWkMqbEQlzCxfm3XxPwwTiH03Vk4kEB0CAA==
-  dependencies:
-    "@popperjs/core" "^2.11.8"
-    "@radix-ui/react-accordion" "^1.2.1"
-    "@radix-ui/react-icons" "^1.3.0"
-    "@radix-ui/react-scroll-area" "^1.1.0"
-    "@radix-ui/react-slot" "^1.1.0"
-    class-variance-authority "^0.7.0"
-    clsx "^2.1.1"
-    jsbi "^3.2.5"
-    numeral "^2.0.6"
-    polished "^4.3.1"
-    react-popper "^2.3.0"
-    zod "^3.23.8"
-    zustand "^5.0.0"
-
-kane7-zap-migration-widgets@1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/kane7-zap-migration-widgets/-/kane7-zap-migration-widgets-1.0.10.tgz#762dddca596e023d0d2f9757efb42e58980b8bd4"
-  integrity sha512-LosL/eR7ZMvaPikh+ecKkMm7aDlJSR9Om1TGCVtkn0EF28UcX6FuqhmwZnhyZqvnMlioCFNXvn4prw/2JnSTGQ==
-  dependencies:
-    "@popperjs/core" "^2.11.8"
-    react-popper "^2.3.0"
-    zod "^3.23.8"
-    zustand "^5.0.0"
 
 keccak@^3.0.3:
   version "3.0.4"
