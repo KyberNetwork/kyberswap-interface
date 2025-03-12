@@ -502,19 +502,3 @@ export const PATHS = {
   ZAP_EARN_API: "https://zap-earn-service.kyberengineering.io/api",
   TOKEN_API: "https://token-api.kyberengineering.io/api",
 };
-
-export const DEFAULT_PRICE_RANGE = {
-  LOW_POOL_FEE: 0.005,
-  MEDIUM_POOL_FEE: 0.05,
-  MIDDLE_POOL_FEE: 0.2,
-  HIGH_POOL_FEE: 0.5,
-};
-
-export const FULL_PRICE_RANGE = "Full Range";
-
-export const PRICE_RANGE = {
-  LOW_POOL_FEE: [FULL_PRICE_RANGE, 0.01, 0.005, 0.001],
-  MEDIUM_POOL_FEE: [FULL_PRICE_RANGE, 0.1, 0.05, 0.01],
-  MIDDLE_POOL_FEE: [FULL_PRICE_RANGE, 0.3, 0.2, 0.1],
-  HIGH_POOL_FEE: [FULL_PRICE_RANGE, 0.8, 0.5, 0.2],
-};

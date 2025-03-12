@@ -73,7 +73,7 @@ export interface WidgetProps {
     feeAddress: string;
   };
 
-  onViewPosition?: () => void;
+  onViewPosition?: (txHash: string) => void;
   referral?: string;
 }
 
