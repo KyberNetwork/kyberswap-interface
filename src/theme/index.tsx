@@ -121,10 +121,6 @@ export const TYPE = {
 }
 
 export const FixedGlobalStyle = createGlobalStyle`
-  :root {
-    --wcm-z-index: 100000 !important;
-  }
-
   html, input, textarea, button {
     font-family: 'Work Sans', 'Inter', sans-serif;
     font-display: fallback;
