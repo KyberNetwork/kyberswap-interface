@@ -1,7 +1,5 @@
-declare module "*.svg" {
-  const content: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
-  export default content;
-}
+/// <reference types="vite/client" />
+
 declare module "*.svg?react" {
   const content: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   export default content;
