@@ -112,7 +112,7 @@ jobs:
   release:
     needs:
       - prepare
-      - docker
+      - build
     runs-on: ubuntu-latest
     env:
       VERSION_TAG: ${{ needs.prepare.outputs.version_tag }}
