@@ -1,4 +1,4 @@
-name: Publish NPM
+name: Publish Widget to NPM
 
 concurrency:
   group: publish-npm
