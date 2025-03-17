@@ -27,3 +27,4 @@ dist-ssr
 .turbo
 
 .pnpm-store
+.npmrc

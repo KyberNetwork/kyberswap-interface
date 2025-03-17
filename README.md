@@ -1,32 +1,30 @@
-# KyberSwap Widgets
+# KyberSwap Interface
 
-The `@kyberswap/widgets` package is an [npm package](https://www.npmjs.com/package/@kyberswap/widgets) of React components used to provide subsets of the KyberSwap Protocol functionality in a small and configurable user interface element.
+KyberSwap Interface is the unified frontend for the entire Kyber Network suite of products. This monorepo houses all KyberSwap frontend projects, allowing for a modular, scalable, and collaborative development environment.
 
-# KyberSwap Widget
+- Website: [kyberswap.com](https://kyberswap.com/)
+- Document: [docs.kyberswap.com](https://docs.kyberswap.com/)
 
-KyberSwap widget provides users of your website with a handy tool for swap tokens at the best rate.
+## Accessing the KyberSwap Interface
 
-![swap widget screenshot](https://docs.kyberswap.com/assets/images/widget_powered_by_kyberswap-c8e301050927f11aac9f414ded1c88b6.gif)
+To access the KyberSwap Interface, visit [kyberswap.com](https://kyberswap.com/)
 
-You can customize the theme (colors, fonts, border radius, and more) to match the style of your application. You can also configure your own default token list and optionally set a convenience fee on swaps executed through the widget on your site.
+## Development
 
-## Installation
+### Install Dependencies
 
-Install the widgets library via `npm` or `yarn`.
-
-```js
-yarn add @kyberswap/widgets
+```bash
+pnpm i
 ```
 
-```js
-npm i --save @kyberswap/widgets
+### Run
+
+```bash
+cd apps/kyberswap-interface && pnpm start
 ```
 
-## Documentation
+## Contributions
 
-- [overview](https://docs.kyberswap.com/Aggregator/swap-widget/getting-started)
+**Please open all pull requests against the `main` branch.**
+CI checks will run against all PRs.
 
-## Example Apps
-
-- [NextJS](https://github.com/KyberNetwork/kyberswap-widgets/tree/main/examples/nextjs-demo)
-- [Vite React App](https://github.com/KyberNetwork/kyberswap-widgets/tree/main/examples/react-demo)
