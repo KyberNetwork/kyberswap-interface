@@ -194,6 +194,8 @@ export default function App() {
     preloadImages()
   }, [])
 
+  console.log('xxx')
+
   useEffect(() => {
     if (account) {
       Sentry.setUser({ id: account })

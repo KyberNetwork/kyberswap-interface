@@ -1,5 +1,4 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { ParsedUrlQuery } from 'querystring'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -18,6 +17,10 @@ import { useDegenModeManager } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
+
+interface ParsedUrlQuery {
+  [key: string]: string | string[]
+}
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
