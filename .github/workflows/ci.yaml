@@ -1,0 +1,99 @@
+name: 'KyberSwap Interface CI'
+
+concurrency:
+  group: ci-workflow-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  SERVICE: kyberswap-interface
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      current_branch: ${{ steps.current_branch.outputs.value }}
+      head_sha: ${{ steps.head_sha.outputs.value }}
+      image_name: 'asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}'
+      image_tag: ${{ steps.get_tag.outputs.image_tag }}
+      image_tag_stg: ${{ steps.get_tag.outputs.image_tag_stg }}
+      branch_tag: ${{ steps.get_tag.outputs.branch_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Extract branch
+        shell: bash
+        id: current_branch
+        run: |
+          if [[ ! "${{ github.ref }}"  = "refs/tags/"* ]]; then
+            if [[ "${{ github.event_name }}" = "pull_request" ]]; then
+              HEAD_REF=$(printf "%q" "${{ github.head_ref }}")
+              HEAD_REF=${HEAD_REF/refs\/heads\//}
+              BRANCH=$HEAD_REF
+            else
+              REF=$(printf "%q" "${{ github.ref }}")
+              REF_BRANCH=${REF/refs\/pull\//}
+              REF_BRANCH=${REF_BRANCH/refs\/heads\//}
+              BRANCH=$REF_BRANCH
+            fi
+          else
+            REF=$(printf "%q" "${{ github.ref }}")
+            REF_BRANCH=${REF/refs\/tags\//}
+            BRANCH=$REF_BRANCH
+          fi
+          echo "::set-output name=value::$BRANCH"
+
+      - name: Extract GitHub HEAD SHA
+        id: head_sha
+        run: echo "::set-output name=value::$(git rev-parse HEAD)"
+
+      - name: Get Docker image tag
+        id: get_tag
+        env:
+          CURRENT_BRANCH: ${{ steps.current_branch.outputs.value }}
+        run: |
+          short_sha="$(git rev-parse --short HEAD)"
+          branch_tag="$(echo "$CURRENT_BRANCH" | sed 's/[^a-zA-Z0-9]/-/g' | sed 's/--*/-/g' | sed 's/-$//g')"
+          echo "::set-output name=image_tag::$branch_tag-$short_sha"
+          echo "::set-output name=image_tag_stg::$branch_tag-stg-build-$short_sha"
+          echo "::set-output name=branch_tag::$branch_tag-$short_sha"
+
+  lint:
+    runs-on: ubuntu-22.04
+    needs:
+      - prepare
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 8.9.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: 21.0.0
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@kybernetwork'
+          token: ${{ secrets.GH_PAT }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build packages
+        run: |
+          pnpm --parallel -r --filter "@kyber/svgr-esbuild-plugin" --filter "@kyber/ui" build
+          pnpm --filter "@kyberswap/liquidity-chart" build
+
+      - name: Run lint
+        run: pnpm lint && pnpm type-check
+ 
