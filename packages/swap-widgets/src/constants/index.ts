@@ -14,6 +14,8 @@ import {
   baseTokens,
   blastTokens,
   mantleTokens,
+  beraTokens,
+  sonicTokens,
 } from './tokens'
 
 export enum ZIndex {
@@ -110,6 +112,22 @@ export const NATIVE_TOKEN: {
     address: NATIVE_TOKEN_ADDRESS,
     chainId: 5000,
     logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
+  },
+  80094: {
+    name: 'BERA',
+    symbol: 'BERA',
+    decimals: 18,
+    address: NATIVE_TOKEN_ADDRESS,
+    chainId: 80094,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png',
+  },
+  146: {
+    name: 'Sonic',
+    symbol: 'S',
+    decimals: 18,
+    address: NATIVE_TOKEN_ADDRESS,
+    chainId: 146,
+    logoURI: 'https://www.soniclabs.com/favicon.ico',
   },
 }
 
@@ -236,6 +254,22 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 5000,
     logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
   },
+  80094: {
+    name: 'Wrapped BERA',
+    decimals: 18,
+    symbol: 'WBERA',
+    address: '0x6969696969696969696969696969696969696969',
+    chainId: 80094,
+    logoURI: 'https://berascan.com/token/images/wrappedbera_ofc_64.png',
+  },
+  146: {
+    name: 'Wrapped S',
+    decimals: 18,
+    symbol: 'wS',
+    address: '0x039e2fb66102314ce7b64ce5ce3e5183bc94ad38',
+    chainId: 146,
+    logoURI: 'https://sonicscan.org/token/images/wrappedsonic_32.svg',
+  },
 }
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -258,6 +292,8 @@ export const DEFAULT_TOKENS: {
   8453: baseTokens,
   81457: blastTokens,
   5000: mantleTokens,
+  80094: beraTokens,
+  146: sonicTokens,
 }
 
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
@@ -276,6 +312,8 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   8453: '0xcA11bde05977b3631167028862bE2a173976CA11',
   81457: '0xcA11bde05977b3631167028862bE2a173976CA11',
   5000: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  80094: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  146: '0xcA11bde05977b3631167028862bE2a173976CA11',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
@@ -294,6 +332,8 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   8453: 'base',
   81457: 'blast',
   5000: 'mantle',
+  80094: 'berachain',
+  146: 'sonic',
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -312,6 +352,8 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   8453: 'https://basescan.org',
   81457: 'https://blastscan.io',
   5000: 'https://explorer.mantle.xyz',
+  80094: 'https://berascan.com',
+  146: 'https://sonicscan.org',
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
@@ -330,6 +372,8 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   8453: 'https://mainnet.base.org',
   81457: 'https://rpc.blast.io',
   5000: 'https://rpc.mantle.xyz',
+  80094: 'https://rpc.berachain.com',
+  146: 'https://rpc.soniclabs.com',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)

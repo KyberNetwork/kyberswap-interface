@@ -17,7 +17,7 @@ const walletConnect = walletConnectModule({
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
-  requiredChains: [1, 42161, 8453],
+  requiredChains: [1, 42161, 8453, 80094],
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
@@ -51,6 +51,12 @@ init({
       token: "MATIC",
       label: "Polygon",
       rpcUrl: "https://polygon.kyberengineering.io",
+    },
+    {
+      id: "0x138de",
+      token: "BERA",
+      label: "Berachain",
+      rpcUrl: "https://rpc.berachain.com",
     },
   ],
 });
@@ -157,6 +163,7 @@ function App() {
     1101: "0x1e4a5963abfd975d8c9021ce480b42188849d41d",
     324: "0x493257fd37edb34451f62edf8d2a0c418852ba4c",
     8453: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+    80094: "0x549943e04f40284185054145c6e4e9568c1d3241",
   };
 
   const [feeSetting, setFeeSetting] = useState({
@@ -245,6 +252,8 @@ function App() {
                 <option value={1}>Ethereum Mainnet</option>
                 <option value={56}>BSC</option>
                 <option value={8453}>Base</option>
+                <option value={80094}>Bera</option>
+                <option value={146}>Sonic</option>
               </select>
               <label>chainId</label>
             </div>
