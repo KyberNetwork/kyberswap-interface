@@ -72,8 +72,8 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3
       '@kyberswap/ks-sdk-core':
-        specifier: 1.1.9
-        version: 1.1.9
+        specifier: 1.1.10
+        version: 1.1.10
       '@kyberswap/ks-sdk-elastic':
         specifier: ^1.1.2
         version: 1.1.3
@@ -6400,7 +6400,7 @@ packages:
       '@ethersproject/networks': 5.7.1
       '@ethersproject/providers': 5.8.0
       '@ethersproject/solidity': 5.8.0
-      '@kyberswap/ks-sdk-core': 1.1.9
+      '@kyberswap/ks-sdk-core': 1.1.10
       big.js: 5.2.2
       decimal.js-light: 2.5.1
       jsbi: 3.2.5
@@ -6412,8 +6412,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@kyberswap/ks-sdk-core@1.1.9:
-    resolution: {integrity: sha512-/euKHUpia/fYkDAKbKyfFLQlryFQZ4imY8FthXDwjEL4OY3hK9tjbr/cZVN0gLoVYJTF0e1ytiNLX8x2U1lk7A==}
+  /@kyberswap/ks-sdk-core@1.1.10:
+    resolution: {integrity: sha512-m1fzEvCQInA0mTcLa5ezHgBD+2mW0i9VIaYVLioEpGjf+/WlM60z3ab8bSFZ/5MNlTetXDUXxeKwlUQERsRXbA==}
     engines: {node: '>=10'}
     dependencies:
       '@ethersproject/address': 5.8.0
@@ -6430,7 +6430,7 @@ packages:
     dependencies:
       '@ethersproject/abi': 5.8.0
       '@ethersproject/solidity': 5.8.0
-      '@kyberswap/ks-sdk-core': 1.1.9
+      '@kyberswap/ks-sdk-core': 1.1.10
       '@uniswap/v3-periphery': 1.4.4
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
