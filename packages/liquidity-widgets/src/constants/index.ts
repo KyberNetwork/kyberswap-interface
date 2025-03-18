@@ -6,6 +6,7 @@ import linehubLogo from "@/assets/dexes/metavault.svg?url";
 import pancakeLogo from "@/assets/dexes/pancake.png";
 import pangolinLogo from "@/assets/dexes/pangolin.png";
 import quickswapLogo from "@/assets/dexes/quickswap.png";
+import squadswapLogo from "@/assets/dexes/squadswap.png";
 import sushiLogo from "@/assets/dexes/sushi.png";
 import swapmodeLogo from "@/assets/dexes/swapmode.png";
 import thenaLogo from "@/assets/dexes/thena.png";
@@ -497,6 +498,20 @@ export const DexInfos: Record<PoolType, DexInfo> = {
       [ChainId.Berachain]: "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD",
     },
   },
+
+  [PoolType.DEX_SQUADSWAP_V3]: {
+    icon: squadswapLogo,
+    name: "Squad Swap V3",
+    nftManagerContract: {
+      [ChainId.Bsc]: "0x501535ef0B92eE1df5C12f47720f1E479b1Db7b4",
+    },
+  },
+
+  [PoolType.DEX_SQUADSWAP_V2]: {
+    icon: squadswapLogo,
+    name: "Squad Swap V2",
+    nftManagerContract: {},
+  },
 };
 
 export const chainIdToChain: { [chainId in ChainId]: string } = {
@@ -541,6 +556,9 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   //DEX_BLADESWAP: 50,
   DEX_KODIAK_V3: 58,
   DEX_KODIAK_V2: 57,
+
+  DEX_SQUADSWAP_V2: 65,
+  DEX_SQUADSWAP_V3: 66,
 };
 
 export const PATHS = {

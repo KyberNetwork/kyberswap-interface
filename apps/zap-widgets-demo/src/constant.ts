@@ -18,4 +18,8 @@ export const dexMapping = {
   DEX_CAMELOTV3: "Camelot V3",
   DEX_QUICKSWAPV3ALGEBRA: "QuickSwap",
   DEX_PANGOLINSTANDARD: "Pangolin Standard",
+  DEX_KODIAK_V3: "Kodiak V3",
+  DEX_KODIAK_V2: "Kodiak V2",
+  DEX_SQUADSWAP_V3: "Squad Swap V3",
+  DEX_SQUADSWAP_V2: "Squad Swap V2",
 };

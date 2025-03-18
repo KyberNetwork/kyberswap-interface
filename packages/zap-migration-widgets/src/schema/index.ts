@@ -59,6 +59,7 @@ export enum Dex {
 
   DEX_CAMELOTV3 = 13,
   DEX_QUICKSWAPV3ALGEBRA = 14,
+  DEX_SQUADSWAP_V3 = 66,
 }
 
 export const dex = z.nativeEnum(Dex);
@@ -175,6 +176,7 @@ export const univ3Dexes = [
   Dex.DEX_CAMELOTV3,
   Dex.DEX_QUICKSWAPV3ALGEBRA,
   Dex.DEX_KODIAK_V3,
+  Dex.DEX_SQUADSWAP_V3,
 ] as const;
 
 // Create the discriminated union with the correct structure
@@ -214,6 +216,9 @@ export const pool = z.discriminatedUnion("dex", [
   }),
   univ3PoolCommonField.extend({
     dex: z.literal(Dex.DEX_KODIAK_V3),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_SQUADSWAP_V3),
   }),
 ]);
 export type Pool = z.infer<typeof pool>;
@@ -261,6 +266,9 @@ export const position = z.discriminatedUnion("dex", [
   }),
   univ3Position.extend({
     dex: z.literal(Dex.DEX_KODIAK_V3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_SQUADSWAP_V3),
   }),
 ]);
 

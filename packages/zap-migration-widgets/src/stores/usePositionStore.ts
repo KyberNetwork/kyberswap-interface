@@ -1,11 +1,11 @@
-import { create } from "zustand";
-import { algebraTypes, ChainId, Dex, Position } from "../schema";
 import { DexInfos, NetworkInfo } from "../constants";
+import { algebraTypes, ChainId, Dex, Position } from "../schema";
 import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
 import {
   decodeAlgebraV1Position,
   decodePosition,
 } from "@kyber/utils/uniswapv3";
+import { create } from "zustand";
 
 const initState = {
   fromPosition: "loading" as "loading" | Position,

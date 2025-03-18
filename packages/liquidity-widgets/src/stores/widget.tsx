@@ -264,6 +264,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
           const contract = DexInfos[poolType].nftManagerContract;
           const contractAddress =
             typeof contract === "string" ? contract : contract[chainId];
+          console.log(contractAddress);
           if (!contractAddress) {
             set({
               errorMsg: `Pool type ${poolType} is not supported in chainId: ${chainId}`,

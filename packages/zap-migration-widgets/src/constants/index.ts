@@ -5,6 +5,7 @@ import metavaultLogo from "../assets/dexes/metavault.svg?url";
 import linehubLogo from "../assets/dexes/metavault.svg?url";
 import pancakeLogo from "../assets/dexes/pancake.png";
 import quickswapLogo from "../assets/dexes/quickswap.png";
+import squadswapLogo from "../assets/dexes/squadswap.png";
 import sushiLogo from "../assets/dexes/sushi.png";
 import swapmodeLogo from "../assets/dexes/swapmode.png";
 import thenaLogo from "../assets/dexes/thena.png";
@@ -396,6 +397,13 @@ export const DexInfos: Record<Dex, DexInfo> = {
     name: "Kodiak V3",
     nftManagerContract: {
       [ChainId.Berachain]: "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD",
+    },
+  },
+  [Dex.DEX_SQUADSWAP_V3]: {
+    icon: squadswapLogo,
+    name: "Squad Swap V3",
+    nftManagerContract: {
+      [ChainId.Bsc]: "0x501535ef0B92eE1df5C12f47720f1E479b1Db7b4",
     },
   },
 };

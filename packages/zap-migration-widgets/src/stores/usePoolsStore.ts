@@ -42,6 +42,7 @@ const dexMapping: Record<Dex, string[]> = {
   [Dex.DEX_CAMELOTV3]: ["camelot-v3"],
   [Dex.DEX_QUICKSWAPV3ALGEBRA]: ["quickswap-v3"],
   [Dex.DEX_KODIAK_V3]: ["kodiak-v3"],
+  [Dex.DEX_SQUADSWAP_V3]: ["squadswap-v3"],
 } as const;
 
 const poolResponse = z.object({
