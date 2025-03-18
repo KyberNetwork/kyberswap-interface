@@ -14,6 +14,8 @@ export enum ChainId {
   Optimism = 10,
   Scroll = 534352,
   ZkSync = 324,
+  Berachain = 80094,
+  Sonic = 146,
 }
 
 export const chainId = z.nativeEnum(ChainId);
@@ -51,6 +53,7 @@ export enum Dex {
   DEX_SWAPMODEV3 = 46,
   DEX_KOICL = 38,
   DEX_THRUSTERV3 = 12,
+  DEX_KODIAK_V3 = 58,
 
   DEX_THENAFUSION = 15,
 
@@ -171,6 +174,7 @@ export const univ3Dexes = [
   Dex.DEX_THENAFUSION,
   Dex.DEX_CAMELOTV3,
   Dex.DEX_QUICKSWAPV3ALGEBRA,
+  Dex.DEX_KODIAK_V3,
 ] as const;
 
 // Create the discriminated union with the correct structure
@@ -207,6 +211,9 @@ export const pool = z.discriminatedUnion("dex", [
   }),
   univ3PoolCommonField.extend({
     dex: z.literal(Dex.DEX_QUICKSWAPV3ALGEBRA),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_KODIAK_V3),
   }),
 ]);
 export type Pool = z.infer<typeof pool>;
@@ -251,6 +258,9 @@ export const position = z.discriminatedUnion("dex", [
   }),
   univ3Position.extend({
     dex: z.literal(Dex.DEX_QUICKSWAPV3ALGEBRA),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_KODIAK_V3),
   }),
 ]);
 

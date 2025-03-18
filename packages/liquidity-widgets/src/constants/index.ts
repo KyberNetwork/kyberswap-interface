@@ -1,16 +1,18 @@
-import { ChainId, DexInfo, PoolType, Token } from "@/schema";
-import uniLogo from "@/assets/dexes/uniswap.png";
-import pancakeLogo from "@/assets/dexes/pancake.png";
+import camelotLogo from "@/assets/dexes/camelot.svg?url";
+import kodiakLogo from "@/assets/dexes/kodiak.png";
+import koiclLogo from "@/assets/dexes/koicl.png";
 import metavaultLogo from "@/assets/dexes/metavault.svg?url";
 import linehubLogo from "@/assets/dexes/metavault.svg?url";
-import swapmodeLogo from "@/assets/dexes/swapmode.png";
-import koiclLogo from "@/assets/dexes/koicl.png";
-import thrusterLogo from "@/assets/dexes/thruster.png";
-import sushiLogo from "@/assets/dexes/sushi.png";
-import quickswapLogo from "@/assets/dexes/quickswap.png";
+import pancakeLogo from "@/assets/dexes/pancake.png";
 import pangolinLogo from "@/assets/dexes/pangolin.png";
+import quickswapLogo from "@/assets/dexes/quickswap.png";
+import sushiLogo from "@/assets/dexes/sushi.png";
+import swapmodeLogo from "@/assets/dexes/swapmode.png";
 import thenaLogo from "@/assets/dexes/thena.png";
-import camelotLogo from "@/assets/dexes/camelot.svg?url";
+import thrusterLogo from "@/assets/dexes/thruster.png";
+import uniLogo from "@/assets/dexes/uniswap.png";
+import { ChainId, DexInfo, PoolType, Token } from "@/schema";
+
 //import blastswapLogo from "@/assets/dexes/blastswap.png";
 
 export { PoolType, ChainId };
@@ -284,6 +286,39 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+  [ChainId.Berachain]: {
+    name: "Berachain",
+    logo: "https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png",
+    scanLink: "https://berascan.com",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://rpc.berachain.com",
+    coingeckoNetworkId: "bera",
+    coingeckoNativeTokenId: "bera",
+    wrappedToken: {
+      name: "Wrapped Bera",
+      address: "0x6969696969696969696969696969696969696969",
+      symbol: "wBera",
+      decimals: 18,
+    },
+  },
+  [ChainId.Sonic]: {
+    name: "Sonic",
+    logo: "https://www.soniclabs.com/favicon.ico",
+    nativeLogo: "https://www.soniclabs.com/favicon.ico",
+    scanLink: "https://sonicscan.org",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://rpc.soniclabs.com",
+    coingeckoNetworkId: "sonic",
+    coingeckoNativeTokenId: "s",
+    wrappedToken: {
+      name: "Wrapped Sonic",
+      address: "0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38",
+      symbol: "wS",
+      decimals: 18,
+    },
+  },
 };
 
 export const DexInfos: Record<PoolType, DexInfo> = {
@@ -419,6 +454,11 @@ export const DexInfos: Record<PoolType, DexInfo> = {
     name: "SwapMode V2",
     nftManagerContract: {},
   },
+  [PoolType.DEX_KODIAK_V2]: {
+    icon: kodiakLogo,
+    name: "Kodiak V2",
+    nftManagerContract: {},
+  },
 
   [PoolType.DEX_THENAFUSION]: {
     icon: thenaLogo,
@@ -449,6 +489,14 @@ export const DexInfos: Record<PoolType, DexInfo> = {
   //    [ChainId.Blast]: "0x7553b306773EFa59E6f9676aFE049D2D2AbdfDd6",
   //  },
   //},
+
+  [PoolType.DEX_KODIAK_V3]: {
+    icon: kodiakLogo,
+    name: "Kodiak V3",
+    nftManagerContract: {
+      [ChainId.Berachain]: "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD",
+    },
+  },
 };
 
 export const chainIdToChain: { [chainId in ChainId]: string } = {
@@ -465,6 +513,8 @@ export const chainIdToChain: { [chainId in ChainId]: string } = {
   534352: "scroll",
   59144: "linea",
   324: "zksync",
+  [ChainId.Berachain]: "berachain",
+  [ChainId.Sonic]: "sonic",
 };
 
 export const poolTypeToDexId: { [poolType in PoolType]: number } = {
@@ -489,12 +539,13 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   DEX_CAMELOTV3: 13,
   DEX_QUICKSWAPV3ALGEBRA: 14,
   //DEX_BLADESWAP: 50,
+  DEX_KODIAK_V3: 58,
+  DEX_KODIAK_V2: 57,
 };
 
 export const PATHS = {
   BFF_API: "https://bff.kyberswap.com/api",
   KYBERSWAP_DOCS: "https://docs.kyberswap.com",
-  INTERFACE_GATEWAY_UNISWAP: "https://interface.gateway.uniswap.org/v1/graphql",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
   ZAP_API: "https://zap-api.kyberswap.com",
   COINGECKO_API_URL: "https://api.coingecko.com/api/v3",

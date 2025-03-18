@@ -68,6 +68,7 @@ export enum EarnDex {
   DEX_QUICKSWAPV3ALGEBRA = 'QuickSwap V3',
   DEX_CAMELOTV3 = 'Camelot V3',
   DEX_THENAFUSION = 'THENA',
+  DEX_KODIAK_V3 = 'Kodiak V3',
   // DEX_UNISWAPV2 = 'Uniswap V2',
 }
 
@@ -78,6 +79,7 @@ export enum EarnDex2 {
   DEX_QUICKSWAPV3ALGEBRA = 'quickswap-v3',
   DEX_CAMELOTV3 = 'camelot-v3',
   DEX_THENAFUSION = 'thena',
+  DEX_KODIAK_V3 = 'kodiakcl',
   // DEX_UNISWAPV2 = 'uniswapv2',
 }
 
@@ -89,6 +91,7 @@ export const earnSupportedChains = [
   ChainId.AVAXMAINNET,
   ChainId.OPTIMISM,
   ChainId.MATIC,
+  ChainId.BERA,
 ]
 
 export const earnSupportedProtocols = enumToArrayOfValues(EarnDex)

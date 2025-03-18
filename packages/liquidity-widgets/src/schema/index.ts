@@ -14,6 +14,8 @@ export enum ChainId {
   Optimism = 10,
   Scroll = 534352,
   ZkSync = 324,
+  Berachain = 80094,
+  Sonic = 146,
 }
 export const chainId = z.nativeEnum(ChainId);
 
@@ -26,6 +28,7 @@ export enum PoolType {
   DEX_KOICL = "DEX_KOICL",
   DEX_THRUSTERV3 = "DEX_THRUSTERV3",
   DEX_SUSHISWAPV3 = "DEX_SUSHISWAPV3",
+  DEX_KODIAK_V3 = "DEX_KODIAK_V3",
 
   DEX_PANCAKESWAPV2 = "DEX_PANCAKESWAPV2",
   DEX_UNISWAPV2 = "DEX_UNISWAPV2",
@@ -34,6 +37,7 @@ export enum PoolType {
   DEX_QUICKSWAPV2 = "DEX_QUICKSWAPV2",
   DEX_THRUSTERV2 = "DEX_THRUSTERV2",
   DEX_SWAPMODEV2 = "DEX_SWAPMODEV2",
+  DEX_KODIAK_V2 = "DEX_KODIAK_V2",
 
   // algebraV1
   DEX_THENAFUSION = "DEX_THENAFUSION",
@@ -66,6 +70,7 @@ export const univ3Types = [
   PoolType.DEX_CAMELOTV3,
   PoolType.DEX_QUICKSWAPV3ALGEBRA,
   //PoolType.DEX_BLADESWAP,
+  PoolType.DEX_KODIAK_V3,
 ] as const;
 export const univ3PoolType = z.enum(univ3Types);
 
@@ -77,6 +82,7 @@ export const univ2Types = [
   PoolType.DEX_QUICKSWAPV2,
   PoolType.DEX_THRUSTERV2,
   PoolType.DEX_SWAPMODEV2,
+  PoolType.DEX_KODIAK_V2,
 ] as const;
 export const univ2PoolType = z.enum(univ2Types);
 
@@ -222,6 +228,8 @@ const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_QUICKSWAPV2]: ["quickswap"],
   [PoolType.DEX_THRUSTERV2]: ["thruster-v2"],
   [PoolType.DEX_SWAPMODEV2]: ["baseswap, arbidex, superswap"],
+  [PoolType.DEX_KODIAK_V3]: ["kodiak-v3"],
+  [PoolType.DEX_KODIAK_V2]: ["kodiak"],
 } as const;
 
 const dexValues = Object.values(dexMapping).flat();

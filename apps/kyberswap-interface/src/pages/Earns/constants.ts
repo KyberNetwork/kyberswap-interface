@@ -43,6 +43,9 @@ export const NFT_MANAGER_CONTRACT = {
   [EarnDex.DEX_THENAFUSION]: {
     [ChainId.BSCMAINNET]: '0xa51ADb08Cbe6Ae398046A23bec013979816B77Ab',
   },
+  [EarnDex.DEX_KODIAK_V3]: {
+    [ChainId.BERA]: '0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD',
+  },
 }
 
 export const NATIVE_ADDRESSES = [

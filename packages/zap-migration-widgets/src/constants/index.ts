@@ -1,15 +1,16 @@
-import { ChainId, Chain, Dex, DexInfo } from "../schema";
 import camelotLogo from "../assets/dexes/camelot.svg?url";
-import quickswapLogo from "../assets/dexes/quickswap.png";
-import uniLogo from "../assets/dexes/uniswap.png";
-import pancakeLogo from "../assets/dexes/pancake.png";
-import sushiLogo from "../assets/dexes/sushi.png";
+import kodiakLogo from "../assets/dexes/kodiak.png";
+import koiclLogo from "../assets/dexes/koicl.png";
 import metavaultLogo from "../assets/dexes/metavault.svg?url";
 import linehubLogo from "../assets/dexes/metavault.svg?url";
+import pancakeLogo from "../assets/dexes/pancake.png";
+import quickswapLogo from "../assets/dexes/quickswap.png";
+import sushiLogo from "../assets/dexes/sushi.png";
 import swapmodeLogo from "../assets/dexes/swapmode.png";
-import koiclLogo from "../assets/dexes/koicl.png";
-import thrusterLogo from "../assets/dexes/thruster.png";
 import thenaLogo from "../assets/dexes/thena.png";
+import thrusterLogo from "../assets/dexes/thruster.png";
+import uniLogo from "../assets/dexes/uniswap.png";
+import { ChainId, Chain, Dex, DexInfo } from "../schema";
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
@@ -236,6 +237,39 @@ export const NetworkInfo: Record<ChainId, Chain> = {
     },
     zapPath: "zksync",
   },
+  [ChainId.Berachain]: {
+    chainId: ChainId.Berachain,
+    name: "Berachain",
+    logo: "https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png",
+    scanLink: "https://berascan.com",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://rpc.berachain.com",
+    wrappedToken: {
+      name: "Wrapped Bera",
+      address: "0x6969696969696969696969696969696969696969",
+      symbol: "wBera",
+      decimals: 18,
+    },
+    zapPath: "berachain",
+  },
+  [ChainId.Sonic]: {
+    chainId: ChainId.Sonic,
+    name: "Sonic",
+    logo: "https://www.soniclabs.com/favicon.ico",
+    nativeLogo: "https://www.soniclabs.com/favicon.ico",
+    scanLink: "https://sonicscan.org",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://rpc.soniclabs.com",
+    wrappedToken: {
+      name: "Wrapped Sonic",
+      address: "0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38",
+      symbol: "wS",
+      decimals: 18,
+    },
+    zapPath: "sonic",
+  },
 };
 
 export const DexInfos: Record<Dex, DexInfo> = {
@@ -355,6 +389,13 @@ export const DexInfos: Record<Dex, DexInfo> = {
     name: "QuickSwap",
     nftManagerContract: {
       [ChainId.PolygonPos]: "0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6",
+    },
+  },
+  [Dex.DEX_KODIAK_V3]: {
+    icon: kodiakLogo,
+    name: "Kodiak V3",
+    nftManagerContract: {
+      [ChainId.Berachain]: "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD",
     },
   },
 };

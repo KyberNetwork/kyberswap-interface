@@ -1,7 +1,8 @@
-import { create } from "zustand";
 import { ChainId, Dex, Pool, Token, tick, token } from "../schema";
-import { z } from "zod";
 import { Theme, defaultTheme } from "../theme";
+import { z } from "zod";
+import { create } from "zustand";
+
 // import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 interface GetPoolParams {
@@ -40,6 +41,7 @@ const dexMapping: Record<Dex, string[]> = {
   [Dex.DEX_THENAFUSION]: ["thena-fusion"],
   [Dex.DEX_CAMELOTV3]: ["camelot-v3"],
   [Dex.DEX_QUICKSWAPV3ALGEBRA]: ["quickswap-v3"],
+  [Dex.DEX_KODIAK_V3]: ["kodiak-v3"],
 } as const;
 
 const poolResponse = z.object({
