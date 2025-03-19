@@ -115,7 +115,7 @@ const zapMigrationDexMapping = {
   [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
   [EarnDex.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
   [EarnDex.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: ZapMigrationDex.DEX_THENAFUSION,
+  [EarnDex.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
   // [EarnDex.DEX_UNISWAPV2]: null,
 }
 
