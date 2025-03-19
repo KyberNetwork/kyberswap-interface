@@ -191,7 +191,7 @@ const apiResponse = z.object({
           type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
           protocolFee: z.object({
             pcm: z.number(),
-            tokens: z.array(token),
+            tokens: z.array(token).optional(),
           }),
         }),
 
