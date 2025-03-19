@@ -15,6 +15,7 @@ import { ChainId, Chain, Dex, DexInfo } from "../schema";
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const NetworkInfo: Record<ChainId, Chain> = {
   [ChainId.Ethereum]: {
@@ -405,6 +406,16 @@ export const DexInfos: Record<Dex, DexInfo> = {
     nftManagerContract: {
       [ChainId.Bsc]: "0x501535ef0B92eE1df5C12f47720f1E479b1Db7b4",
     },
+  },
+  [Dex.DEX_UNISWAPV2]: {
+    icon: uniLogo,
+    name: "Uniswap V2",
+    nftManagerContract: {},
+  },
+  [Dex.DEX_SQUADSWAP_V2]: {
+    icon: squadswapLogo,
+    name: "Squad Swap V2",
+    nftManagerContract: {},
   },
 };
 

@@ -1,29 +1,29 @@
-import { useEffect, useState } from "react";
-import { useDebounce } from "@kyber/hooks/use-debounce";
-import { usePositionStore } from "../stores/usePositionStore";
+import { DexInfos, NetworkInfo, ZERO_ADDRESS } from "../constants";
+import { useNftApproval } from "../hooks/use-nft-approval";
+import { ChainId, Token, univ3Dexes } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
+import { usePositionStore } from "../stores/usePositionStore";
 import {
   ProtocolFeeAction,
   RefundAction,
   useZapStateStore,
 } from "../stores/useZapStateStore";
-import { ChainId, Token } from "../schema";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { PI_LEVEL, formatCurrency } from "../utils";
 import { Image } from "./Image";
+import { SlippageInfo } from "./SlippageInfo";
+import { SwapPI, useSwapPI } from "./SwapImpact";
+import { useDebounce } from "@kyber/hooks/use-debounce";
+import { InfoHelper } from "@kyber/ui/info-helper";
+import { Skeleton } from "@kyber/ui/skeleton";
+import { MouseoverTooltip } from "@kyber/ui/tooltip";
 import {
   formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
-import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { SwapPI, useSwapPI } from "./SwapImpact";
-import { useNftApproval } from "../hooks/use-nft-approval";
-import { DexInfos, NetworkInfo } from "../constants";
-import { PI_LEVEL, formatCurrency } from "../utils";
-import { InfoHelper } from "@kyber/ui/info-helper";
-import { MouseoverTooltip } from "@kyber/ui/tooltip";
-import { SlippageInfo } from "./SlippageInfo";
+import { getPositionAmounts } from "@kyber/utils/uniswapv3";
+import { useEffect, useState } from "react";
 
 export function EstimateLiqValue({
   chainId,
@@ -71,18 +71,25 @@ export function EstimateLiqValue({
   const nftManager =
     pools === "loading" ? undefined : DexInfos[pools[0].dex].nftManagerContract;
 
-  const { isChecking, isApproved, approve, pendingTx } = useNftApproval({
+  const isUniv3 = position !== "loading" && univ3Dexes.includes(position.dex);
+  const {
+    isChecking,
+    isApproved: approved,
+    approve,
+    pendingTx,
+  } = useNftApproval({
     rpcUrl: NetworkInfo[chainId].defaultRpc,
     nftManagerContract: nftManager
       ? typeof nftManager === "string"
         ? nftManager
         : nftManager[chainId]
       : undefined,
-    nftId: position === "loading" ? undefined : position.id,
+    nftId: position === "loading" ? undefined : +position.id,
     spender: route?.routerAddress,
     account: connectedAccount.address,
     onSubmitTx,
   });
+  const isApproved = isUniv3 ? approved && !isChecking : true;
 
   const debounceLiquidityOut = useDebounce(liquidityOut, 500);
   const debouncedTickUpper = useDebounce(tickUpper, 500);
@@ -90,7 +97,7 @@ export function EstimateLiqValue({
 
   useEffect(() => {
     if (showPreview) return;
-    fetchZapRoute(chainId, client);
+    fetchZapRoute(chainId, client, connectedAccount?.address || ZERO_ADDRESS);
   }, [
     pools,
     position,
@@ -99,6 +106,7 @@ export function EstimateLiqValue({
     debouncedTickLower,
     debounceLiquidityOut,
     showPreview,
+    connectedAccount?.address,
   ]);
 
   let amount0 = 0n;

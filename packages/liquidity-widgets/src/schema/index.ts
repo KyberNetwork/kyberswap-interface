@@ -281,10 +281,10 @@ export const univ2Pool = z.object({
       swappable: z.boolean(),
     })
   ),
-  extraFields: z.object({
-    fee: z.number(),
-    feePrecision: z.number(),
-  }),
+  //extraFields: z.object({
+  //  fee: z.number(),
+  //  feePrecision: z.number(),
+  //}),
 });
 
 export const univ3PoolResponse = z.object({

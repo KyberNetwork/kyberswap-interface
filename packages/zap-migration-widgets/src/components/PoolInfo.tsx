@@ -1,8 +1,15 @@
-import { Skeleton } from "@kyber/ui/skeleton";
 import { DexInfos, NetworkInfo } from "../constants";
-import { ChainId, Pool, Position } from "../schema";
-import { Image } from "./Image";
+import {
+  ChainId,
+  Pool,
+  Position,
+  UniV3Pool,
+  UniV3Position,
+  univ3Dexes,
+} from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
+import { Image } from "./Image";
+import { Skeleton } from "@kyber/ui/skeleton";
 
 export function PoolInfo({
   chainId,
@@ -23,9 +30,11 @@ export function PoolInfo({
       </div>
     );
 
-  const isOutOfRange = position
-    ? pool.tick < position.tickLower || pool.tick > position.tickUpper
-    : false;
+  const isOutOfRange =
+    position && univ3Dexes.includes(position.dex)
+      ? (pool as UniV3Pool).tick < (position as UniV3Position).tickLower ||
+        (pool as UniV3Pool).tick > (position as UniV3Position).tickUpper
+      : false;
 
   const dexName =
     typeof DexInfos[pool.dex].name === "string"
@@ -55,7 +64,11 @@ export function PoolInfo({
         <div className="text-xl self-center">
           {pool.token0.symbol}/{pool.token1.symbol}
         </div>
-        <div className="text-lg"> {position && <div>#{position.id}</div>}</div>
+        <div className="text-lg">
+          {position && univ3Dexes.includes(position.dex) && (
+            <div>#{position.id}</div>
+          )}
+        </div>
       </div>
 
       <div className="mt-2.5 flex items-center gap-1">
@@ -68,7 +81,7 @@ export function PoolInfo({
         <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
           Fee {pool.fee}%
         </div>
-        {position && (
+        {position && univ3Dexes.includes(position.dex) && (
           <div
             className={`rounded-full text-xs px-2 py-1 font-normal ${
               isOutOfRange ? "text-warning" : "text-accent"
