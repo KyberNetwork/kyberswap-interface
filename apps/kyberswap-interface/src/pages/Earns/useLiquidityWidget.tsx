@@ -107,6 +107,8 @@ const zapMigrationDexMapping = {
   [PoolType.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
   [PoolType.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
   [PoolType.DEX_KODIAK_V2]: null,
+  [PoolType.DEX_SQUADSWAP_V3]: null,
+  [PoolType.DEX_SQUADSWAP_V2]: null,
   [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
   [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
   [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,

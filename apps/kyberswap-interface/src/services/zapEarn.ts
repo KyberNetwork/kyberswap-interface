@@ -68,7 +68,7 @@ export enum EarnDex {
   DEX_QUICKSWAPV3ALGEBRA = 'QuickSwap V3',
   DEX_CAMELOTV3 = 'Camelot V3',
   DEX_THENAFUSION = 'THENA',
-  DEX_KODIAK_V3 = 'Kodiak V3',
+  DEX_KODIAK_V3 = 'Kodiak Concentrated',
   // DEX_UNISWAPV2 = 'Uniswap V2',
 }
 
