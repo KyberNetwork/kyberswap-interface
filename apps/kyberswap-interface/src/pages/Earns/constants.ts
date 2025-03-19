@@ -62,6 +62,7 @@ export const NFT_MANAGER_ABI = {
   [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: AlgebraNftManagerABI,
   [EarnDex.DEX_CAMELOTV3]: AlgebraNftManagerABI,
   [EarnDex.DEX_THENAFUSION]: AlgebraNftManagerABI,
+  [EarnDex.DEX_KODIAK_V3]: Univ3NftManagerABI,
 }
 
 export const unwrapWNativeTokenFunc = {

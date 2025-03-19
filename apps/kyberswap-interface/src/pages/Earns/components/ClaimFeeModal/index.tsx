@@ -80,6 +80,7 @@ export default function ClaimFeeModal({
   const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
 
   const handleCollectFees = useCallback(async () => {
+    console.log('handleCollectFees', nftManagerContract)
     if (!library || !contract) return
     const accounts = await library.listAccounts()
     if (chainId !== position.chainId || !accounts.length) {
