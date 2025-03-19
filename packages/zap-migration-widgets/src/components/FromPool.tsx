@@ -38,8 +38,8 @@ export function FromPool({ className }: { className?: string }) {
   const isUniv2 = pools !== "loading" && univ2Dexes.includes(pools[0].dex);
   if (position !== "loading" && pools !== "loading") {
     if (isUniv3) {
-      let p = position as UniV3Position;
-      let pool0 = pools[0] as UniV3Pool;
+      const p = position as UniV3Position;
+      const pool0 = pools[0] as UniV3Pool;
       ({ amount0, amount1 } = getPositionAmounts(
         pool0.tick,
         p.tickLower,
@@ -48,8 +48,8 @@ export function FromPool({ className }: { className?: string }) {
         p.liquidity
       ));
     } else if (isUniv2) {
-      let p = position as UniV2Position;
-      let pool0 = pools[0] as UniV2Pool;
+      const p = position as UniV2Position;
+      const pool0 = pools[0] as UniV2Pool;
       amount0 =
         (BigInt(p.liquidity) * BigInt(pool0.reserves[0])) /
         BigInt(p.totalSupply);

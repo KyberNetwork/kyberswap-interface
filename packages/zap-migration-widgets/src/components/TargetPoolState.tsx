@@ -261,7 +261,7 @@ export function TargetPoolState({
       { significantDigits: 6 }
     );
   } else if (isUniV2 && pool !== "loading") {
-    let po = pool as UniV2Pool;
+    const po = pool as UniV2Pool;
     const p = divideBigIntToString(
       BigInt(po.reserves[1]) * 10n ** BigInt(po.token0.decimals),
       BigInt(po.reserves[0]) * 10n ** BigInt(po.token1.decimals),
