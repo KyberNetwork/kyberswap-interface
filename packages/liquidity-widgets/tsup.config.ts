@@ -1,6 +1,6 @@
-import { defineConfig } from "tsup";
 import { svgrPlugin } from "@kyber/svgr-esbuild-plugin";
 import { sassPlugin } from "esbuild-sass-plugin";
+import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: { "liquidity-widget": "src/components/index.ts" },
@@ -13,7 +13,7 @@ export default defineConfig({
   sourcemap: true,
   onSuccess: "tsc --noEmit",
   external: ["react", "react-dom"], // Externals
-  noExternal: ["@kyber/ui", "@kyber/utils", "@uniswap/v3-sdk"],
+  noExternal: ["@kyber/ui", "@kyber/utils", "@kyber/utils", "@kyber/hooks"],
   loader: {
     ".png": "dataurl",
   },

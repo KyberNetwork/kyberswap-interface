@@ -1,18 +1,26 @@
+import {
+  UniV2Pool,
+  UniV2Position,
+  UniV3Pool,
+  UniV3Position,
+  univ2Dexes,
+  univ3Dexes,
+} from "../schema";
+import { usePoolsStore } from "../stores/usePoolsStore";
+import { usePositionStore } from "../stores/usePositionStore";
+import { useZapStateStore } from "../stores/useZapStateStore";
+import { Image } from "./Image";
+import { PoolFee } from "./PoolFee";
 import { Skeleton } from "@kyber/ui/skeleton";
 import { Slider } from "@kyber/ui/slider";
-import { cn } from "@kyber/utils/tailwind-helpers";
-import { useEffect, useState } from "react";
-import { usePoolsStore } from "../stores/usePoolsStore";
-import { Image } from "./Image";
-import { usePositionStore } from "../stores/usePositionStore";
-import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
   formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
-import { useZapStateStore } from "../stores/useZapStateStore";
-import { PoolFee } from "./PoolFee";
+import { cn } from "@kyber/utils/tailwind-helpers";
+import { getPositionAmounts } from "@kyber/utils/uniswapv3";
+import { useEffect, useState } from "react";
 
 export function SourcePoolState() {
   const { pools } = usePoolsStore();
@@ -24,19 +32,37 @@ export function SourcePoolState() {
 
   useEffect(() => {
     if (position === "loading") return;
-    setLiquidityOut((position.liquidity * BigInt(percent)) / BigInt(100));
+    setLiquidityOut(
+      (BigInt(position.liquidity.toString()) * BigInt(percent)) / BigInt(100)
+    );
   }, [percent, position, setLiquidityOut]);
 
   let amount0 = 0n;
   let amount1 = 0n;
+
+  const isUniv3 = pools !== "loading" && univ3Dexes.includes(pools[0].dex);
+  const isUniv2 = pools !== "loading" && univ2Dexes.includes(pools[0].dex);
   if (position !== "loading" && pools !== "loading") {
-    ({ amount0, amount1 } = getPositionAmounts(
-      pools[0].tick,
-      position.tickLower,
-      position.tickUpper,
-      BigInt(pools[0].sqrtPriceX96),
-      liquidityOut
-    ));
+    if (isUniv3) {
+      const p = position as UniV3Position;
+      const pool0 = pools[0] as UniV3Pool;
+      ({ amount0, amount1 } = getPositionAmounts(
+        pool0.tick,
+        p.tickLower,
+        p.tickUpper,
+        BigInt(pool0.sqrtPriceX96),
+        liquidityOut
+      ));
+    } else if (isUniv2) {
+      const p = position as UniV2Position;
+      const pool0 = pools[0] as UniV2Pool;
+      amount0 =
+        (liquidityOut * BigInt(pool0.reserves[0])) / BigInt(p.totalSupply);
+      amount1 =
+        (liquidityOut * BigInt(pool0.reserves[1])) / BigInt(p.totalSupply);
+    } else {
+      throw new Error("Invalid dex");
+    }
   }
 
   return (

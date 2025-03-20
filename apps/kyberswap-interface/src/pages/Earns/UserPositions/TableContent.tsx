@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { Minus, Plus } from 'react-feather'
@@ -302,7 +302,7 @@ export default function TableContent({
                     <ImageContainer>
                       <CurrencyRoundedImage src={token0Logo} alt="" />
                       <CurrencySecondImage src={token1Logo} alt="" />
-                      <ChainImage src={chainImage} alt="" />
+                      <ChainImage src={NETWORKS_INFO[poolChainId as ChainId]?.icon || chainImage} alt="" />
                     </ImageContainer>
                     <Text marginLeft={-3} fontSize={upToSmall ? 15 : 16}>
                       {token0Symbol}/{token1Symbol}

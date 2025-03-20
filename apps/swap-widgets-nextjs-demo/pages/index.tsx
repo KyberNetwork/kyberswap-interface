@@ -153,8 +153,6 @@ export default function Home() {
     isInBps: true,
   });
 
-  console.log(feeSetting);
-
   return (
     <>
       <Head>

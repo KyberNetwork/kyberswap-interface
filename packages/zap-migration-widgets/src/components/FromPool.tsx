@@ -1,14 +1,22 @@
-import { Skeleton } from "@kyber/ui/skeleton";
+import {
+  UniV2Pool,
+  UniV2Position,
+  UniV3Pool,
+  UniV3Position,
+  univ2Dexes,
+  univ3Dexes,
+} from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
-import { Image } from "./Image";
 import { usePositionStore } from "../stores/usePositionStore";
-import { getPositionAmounts } from "@kyber/utils/uniswapv3";
+import { Image } from "./Image";
+import { Skeleton } from "@kyber/ui/skeleton";
 import {
   formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 
 export const LiquiditySkeleton = () => (
   <>
@@ -26,14 +34,31 @@ export function FromPool({ className }: { className?: string }) {
 
   let amount0 = 0n;
   let amount1 = 0n;
+  const isUniv3 = pools !== "loading" && univ3Dexes.includes(pools[0].dex);
+  const isUniv2 = pools !== "loading" && univ2Dexes.includes(pools[0].dex);
   if (position !== "loading" && pools !== "loading") {
-    ({ amount0, amount1 } = getPositionAmounts(
-      pools[0].tick,
-      position.tickLower,
-      position.tickUpper,
-      BigInt(pools[0].sqrtPriceX96),
-      position.liquidity
-    ));
+    if (isUniv3) {
+      const p = position as UniV3Position;
+      const pool0 = pools[0] as UniV3Pool;
+      ({ amount0, amount1 } = getPositionAmounts(
+        pool0.tick,
+        p.tickLower,
+        p.tickUpper,
+        BigInt(pool0.sqrtPriceX96),
+        p.liquidity
+      ));
+    } else if (isUniv2) {
+      const p = position as UniV2Position;
+      const pool0 = pools[0] as UniV2Pool;
+      amount0 =
+        (BigInt(p.liquidity) * BigInt(pool0.reserves[0])) /
+        BigInt(p.totalSupply);
+      amount1 =
+        (BigInt(p.liquidity) * BigInt(pool0.reserves[1])) /
+        BigInt(p.totalSupply);
+    } else {
+      throw new Error("Invalid dex");
+    }
   }
 
   return (

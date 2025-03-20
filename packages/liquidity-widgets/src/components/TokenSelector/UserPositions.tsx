@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { shortenAddress } from "../TokenInfo/utils";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import CircleCheckBig from "@/assets/svg/circle-check-big.svg";
 import IconCopy from "@/assets/svg/copy.svg";
 import IconPositionConnectWallet from "@/assets/svg/ic_position_connect_wallet.svg";
 import IconPositionNotFound from "@/assets/svg/ic_position_not_found.svg";
-import { useWidgetContext } from "@/stores/widget";
-import { formatDisplayNumber } from "@kyber/utils/number";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { ChainId, PATHS } from "@/constants";
-import { isAddress } from "@kyber/utils/crypto";
 import { useZapState } from "@/hooks/useZapInState";
+import { useWidgetContext } from "@/stores/widget";
+import { isAddress } from "@kyber/utils/crypto";
+import { formatDisplayNumber } from "@kyber/utils/number";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export enum PositionStatus {
   IN_RANGE = "IN_RANGE",
@@ -115,6 +115,7 @@ enum EarnDex {
   DEX_QUICKSWAPV3ALGEBRA = "QuickSwap V3",
   DEX_CAMELOTV3 = "Camelot V3",
   DEX_THENAFUSION = "THENA",
+  DEX_KODIAK_V3 = "Kodiak Concentrated",
   // DEX_UNISWAPV2 = "Uniswap V2",
 }
 const earnSupportedChains = [
@@ -125,6 +126,7 @@ const earnSupportedChains = [
   ChainId.Avalanche,
   ChainId.Optimism,
   ChainId.PolygonPos,
+  ChainId.Berachain,
 ];
 export const earnSupportedProtocols = Object.keys(EarnDex).map(
   (dexKey) => EarnDex[dexKey as keyof typeof EarnDex]

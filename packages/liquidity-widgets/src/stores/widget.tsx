@@ -1,14 +1,4 @@
-import { Theme, defaultTheme } from "@/theme";
-import {
-  MAX_TICK,
-  MIN_TICK,
-  decodeAlgebraV1Position,
-  decodePosition,
-  getPositionAmounts,
-  nearestUsableTick,
-} from "@kyber/utils/uniswapv3";
-import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
-import { createContext, useRef, useContext, useEffect } from "react";
+import { DexInfos, NetworkInfo, PATHS } from "@/constants";
 import {
   ChainId,
   PoolType,
@@ -22,9 +12,19 @@ import {
   Token,
   algebraTypes,
 } from "@/schema";
-import { createStore, useStore } from "zustand";
-import { DexInfos, NetworkInfo, PATHS } from "@/constants";
+import { Theme, defaultTheme } from "@/theme";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
+import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
+import {
+  MAX_TICK,
+  MIN_TICK,
+  decodeAlgebraV1Position,
+  decodePosition,
+  getPositionAmounts,
+  nearestUsableTick,
+} from "@kyber/utils/uniswapv3";
+import { createContext, useRef, useContext, useEffect } from "react";
+import { createStore, useStore } from "zustand";
 
 export interface WidgetProps {
   theme?: Theme;

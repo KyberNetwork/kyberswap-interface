@@ -1,15 +1,15 @@
-import { useWidgetContext } from "@/stores/widget";
 import { useZapState } from "@/hooks/useZapInState";
+import { univ3PoolNormalize } from "@/schema";
+import { useWidgetContext } from "@/stores/widget";
+import { toString } from "@/utils/number";
 import {
   nearestUsableTick,
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
-import { useCallback, useMemo } from "react";
-import { toString } from "@/utils/number";
-import { univ3PoolNormalize } from "@/schema";
 import { LiquidityChartRangeInput, Bound } from "@kyberswap/liquidity-chart";
 import "@kyberswap/liquidity-chart/style.css";
+import { useCallback, useMemo } from "react";
 
 export default function LiquidityChart() {
   const { pool: rawPool, positionId } = useWidgetContext((s) => s);

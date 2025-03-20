@@ -1,9 +1,6 @@
-import { useState } from "react";
-import {
-  Dex,
-  ZapMigration as ZapMigrationWidget,
-  ChainId,
-} from "@kyberswap/zap-migration-widgets";
+import { dexMapping } from "../constant";
+import Input from "./Input";
+import Modal from "./Modal";
 import SubmitButton from "./SubmitButton";
 import {
   Card,
@@ -14,13 +11,16 @@ import {
   CardTitle,
 } from "@kyber/ui/card";
 import { Label } from "@kyber/ui/label";
-import { TabsContent } from "@kyber/ui/tabs";
-import Input from "./Input";
 import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
-import { dexMapping } from "../constant";
-import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
+import { TabsContent } from "@kyber/ui/tabs";
+import {
+  Dex,
+  ZapMigration as ZapMigrationWidget,
+  ChainId,
+} from "@kyberswap/zap-migration-widgets";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import Modal from "./Modal";
+import { useState } from "react";
+import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
 
 const ZapMigration = () => {
   const { address } = useAccount();
@@ -35,7 +35,7 @@ const ZapMigration = () => {
     from: {
       dex: Dex;
       poolId: string;
-      positionId: number | undefined;
+      positionId: number | string | undefined;
     };
     to: {
       dex: Dex;
@@ -58,12 +58,12 @@ const ZapMigration = () => {
   const widgetProps = {
     chainId: +params.chainId,
     from: {
-      dex: params.from.dex,
+      dex: +params.from.dex,
       poolId: params.from.poolId,
-      positionId: +(params.from.positionId || -1),
+      positionId: params.from.positionId || -1,
     },
     to: {
-      dex: params.to.dex,
+      dex: +params.to.dex,
       poolId: params.to.poolId,
       positionId: params.to.positionId,
     },
@@ -163,7 +163,7 @@ const ZapMigration = () => {
                   onChange={(e) =>
                     setParams((p) => ({
                       ...p,
-                      from: { ...p.from, positionId: +e.target.value },
+                      from: { ...p.from, positionId: e.target.value },
                     }))
                   }
                 />

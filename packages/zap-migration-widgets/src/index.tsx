@@ -1,17 +1,20 @@
+import CircleChevronRight from "./assets/icons/circle-chevron-right.svg";
+import { EstimateLiqValue } from "./components/EstimateLiqValue";
+import { FromPool } from "./components/FromPool";
+import { Header } from "./components/Header";
+import { PoolInfo } from "./components/PoolInfo";
+import { Preview } from "./components/Preview";
+import { SourcePoolState } from "./components/SourcePoolState";
+import { TargetPoolState } from "./components/TargetPoolState";
+import { ToPool } from "./components/ToPool";
 import "./index.css";
 import "./index.scss";
-import { Preview } from "./components/Preview";
-import "@kyber/ui/styles.css";
-
-import { cn } from "@kyber/utils/tailwind-helpers";
 import { ChainId, Dex, DexFrom, DexTo } from "./schema";
 import { usePoolsStore } from "./stores/usePoolsStore";
 import { usePositionStore } from "./stores/usePositionStore";
-import { useEffect } from "react";
-import { Header } from "./components/Header";
-import { FromPool } from "./components/FromPool";
-import { ToPool } from "./components/ToPool";
-import CircleChevronRight from "./assets/icons/circle-chevron-right.svg";
+import { useZapStateStore } from "./stores/useZapStateStore";
+import { Theme } from "./theme";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   Dialog,
   DialogContent,
@@ -19,13 +22,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@kyber/ui/dialog";
-import { SourcePoolState } from "./components/SourcePoolState";
-import { TargetPoolState } from "./components/TargetPoolState";
-import { EstimateLiqValue } from "./components/EstimateLiqValue";
-import { useZapStateStore } from "./stores/useZapStateStore";
-import { Theme } from "./theme";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
-import { PoolInfo } from "./components/PoolInfo";
+import "@kyber/ui/styles.css";
+import { cn } from "@kyber/utils/tailwind-helpers";
+import { useEffect } from "react";
 
 export { Dex, ChainId };
 
@@ -142,8 +141,9 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     resetPools();
     reset();
 
-    fetchPosition(from.dex, chainId, +from.positionId, true);
-    if (to.positionId) fetchPosition(to.dex, chainId, +to.positionId, false);
+    fetchPosition(from.dex, chainId, from.positionId, from.poolId, true);
+    if (to.positionId)
+      fetchPosition(to.dex, chainId, to.positionId, to.poolId, false);
     else setToPositionNull();
 
     const params = {
@@ -159,7 +159,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     // refresh pools every 10s
     const interval = setInterval(() => {
       getPools(params);
-      fetchPosition(from.dex, chainId, +from.positionId, true);
+      fetchPosition(from.dex, chainId, from.positionId, from.poolId, true);
     }, 15_000);
 
     return () => clearInterval(interval);

@@ -1,30 +1,30 @@
-import X from "@/assets/svg/x.svg";
-import ErrorIcon from "@/assets/svg/error.svg";
-import PriceInfo from "./PriceInfo";
-import PriceInput from "./PriceInput";
-import LiquidityToAdd from "./LiquidityToAdd";
-import { ERROR_MESSAGE, useZapState } from "../../hooks/useZapInState";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
   Type,
   ZapAction,
 } from "../../hooks/types/zapInTypes";
-import ZapRoute from "./ZapRoute";
-import EstLiqValue from "./EstLiqValue";
 import { APPROVAL_STATE, useApprovals } from "../../hooks/useApproval";
-import { useEffect, useMemo, useState } from "react";
-import Header from "../Header";
-import Preview, { ZapState } from "../Preview";
-import Modal from "../Modal";
+import { ERROR_MESSAGE, useZapState } from "../../hooks/useZapInState";
 import { PI_LEVEL, getPriceImpact } from "../../utils";
+import Header from "../Header";
 import InfoHelper from "../InfoHelper";
-import { TOKEN_SELECT_MODE } from "../TokenSelector";
-import { MAX_ZAP_IN_TOKENS } from "@/constants";
-import PriceRange from "../PriceRange";
+import LiquidityChart from "../LiquidityChart";
+import Modal from "../Modal";
 import PositionLiquidity from "../PositionLiquidity";
+import Preview, { ZapState } from "../Preview";
+import PriceRange from "../PriceRange";
+import { TOKEN_SELECT_MODE } from "../TokenSelector";
 import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
-import { useWidgetContext } from "@/stores/widget";
+import EstLiqValue from "./EstLiqValue";
+import LiquidityToAdd from "./LiquidityToAdd";
+import PoolStat from "./PoolStat";
+import PriceInfo from "./PriceInfo";
+import PriceInput from "./PriceInput";
+import ZapRoute from "./ZapRoute";
+import ErrorIcon from "@/assets/svg/error.svg";
+import X from "@/assets/svg/x.svg";
+import { MAX_ZAP_IN_TOKENS } from "@/constants";
 import {
   Pool,
   univ2PoolNormalize,
@@ -33,11 +33,11 @@ import {
   univ3PoolType,
   univ3Position,
 } from "@/schema";
-import { tickToPrice } from "@kyber/utils/uniswapv3";
-import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
-import PoolStat from "./PoolStat";
+import { useWidgetContext } from "@/stores/widget";
 import { parseUnits } from "@kyber/utils/crypto";
-import LiquidityChart from "../LiquidityChart";
+import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { useEffect, useMemo, useState } from "react";
 
 export default function Content() {
   const {
@@ -72,6 +72,8 @@ export default function Content() {
     poolAddress,
     chainId,
   } = useWidgetContext((s) => s);
+
+  const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -425,7 +427,7 @@ export default function Content() {
               positionId={positionId}
             />
             <PriceInfo />
-            {!positionId && <LiquidityChart />}
+            {!positionId && isUniV3 && <LiquidityChart />}
             <PriceRange />
             {positionId === undefined ? (
               isUniV3PoolType && (

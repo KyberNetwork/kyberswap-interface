@@ -32,6 +32,7 @@ import useFilter from './useFilter'
 
 const dexMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
+  kodiakcl: 'kodiak-v3',
 }
 
 const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPool) => void }) => {

@@ -1,7 +1,17 @@
-import { create } from "zustand";
-import { ChainId, Dex, Pool, Token, tick, token } from "../schema";
-import { z } from "zod";
+import {
+  ChainId,
+  Dex,
+  Pool,
+  Token,
+  tick,
+  token,
+  univ2Dexes,
+  univ3Dexes,
+} from "../schema";
 import { Theme, defaultTheme } from "../theme";
+import { z } from "zod";
+import { create } from "zustand";
+
 // import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 interface GetPoolParams {
@@ -40,38 +50,66 @@ const dexMapping: Record<Dex, string[]> = {
   [Dex.DEX_THENAFUSION]: ["thena-fusion"],
   [Dex.DEX_CAMELOTV3]: ["camelot-v3"],
   [Dex.DEX_QUICKSWAPV3ALGEBRA]: ["quickswap-v3"],
+  [Dex.DEX_KODIAK_V3]: ["kodiak-v3"],
+  [Dex.DEX_SQUADSWAP_V3]: ["squadswap-v3"],
+
+  [Dex.DEX_UNISWAPV2]: ["uniswap"],
+  [Dex.DEX_SQUADSWAP_V2]: ["squadswap"],
 } as const;
 
 const poolResponse = z.object({
   data: z.object({
     pools: z.array(
-      z.object({
-        address: z.string(),
-        swapFee: z.number(),
-        exchange: z
-          .enum(Object.values(dexMapping).flat() as [string, ...string[]])
-          .transform((val) => {
-            // Reverse lookup in the enum
-            const dexEnumKey = Object.keys(dexMapping).find((key) =>
-              dexMapping[+key as Dex].includes(val)
-            );
-            if (!dexEnumKey) {
-              throw new Error(`No enum value for exchange: ${val}`);
-            }
-            return parseInt(dexEnumKey, 10) as Dex;
+      z
+        .object({
+          address: z.string(),
+          swapFee: z.number(),
+          exchange: z
+            .enum(Object.values(dexMapping).flat() as [string, ...string[]])
+            .transform((val) => {
+              // Reverse lookup in the enum
+              const dexEnumKey = Object.keys(dexMapping).find((key) =>
+                dexMapping[+key as Dex].includes(val)
+              );
+              if (!dexEnumKey) {
+                throw new Error(`No enum value for exchange: ${val}`);
+              }
+              return parseInt(dexEnumKey, 10) as Dex;
+            }),
+          tokens: z.tuple([
+            token.pick({ address: true }),
+            token.pick({ address: true }),
+          ]),
+          positionInfo: z.object({
+            liquidity: z.string(),
+            sqrtPriceX96: z.string(),
+            tickSpacing: z.number(),
+            tick: z.number(),
+            ticks: z.array(tick),
           }),
-        tokens: z.tuple([
-          token.pick({ address: true }),
-          token.pick({ address: true }),
-        ]),
-        positionInfo: z.object({
-          liquidity: z.string(),
-          sqrtPriceX96: z.string(),
-          tickSpacing: z.number(),
-          tick: z.number(),
-          ticks: z.array(tick),
-        }),
-      })
+        })
+        .or(
+          z.object({
+            address: z.string(),
+            reserveUsd: z.string(),
+            amplifiedTvl: z.string(),
+            swapFee: z.number(),
+            exchange: z.string(),
+            type: z.string(),
+            timestamp: z.number(),
+            reserves: z.tuple([z.string(), z.string()]),
+            tokens: z.array(
+              z.object({
+                address: z.string(),
+                swappable: z.boolean(),
+              })
+            ),
+            extraFields: z.object({
+              fee: z.number(),
+              feePrecision: z.number(),
+            }),
+          })
+        )
     ),
   }),
 });
@@ -97,6 +135,10 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
       const res = await fetch(
         `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${Dex[dexFrom]}`
       ).then((res) => res.json());
+
+      const isUniV3 = univ3Dexes.includes(dexFrom);
+      const isUniV2 = univ2Dexes.includes(dexFrom);
+
       const { success, data, error } = poolResponse.safeParse(res);
 
       const firstLoad = get().pools === "loading";
@@ -201,19 +243,36 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
       ).then((res) => res.json());
       const cat = pairCheck0?.data?.category || "commonPair";
 
-      const pool0: Pool = {
-        category: cat,
-        token0: tokenFrom0,
-        token1: tokenFrom1,
-        address: poolFrom,
-        dex: dexFrom,
-        fee: fromPool.swapFee,
-        tick: fromPool.positionInfo.tick,
-        liquidity: fromPool.positionInfo.liquidity,
-        sqrtPriceX96: fromPool.positionInfo.sqrtPriceX96,
-        tickSpacing: fromPool.positionInfo.tickSpacing,
-        ticks: fromPool.positionInfo.ticks,
-      };
+      let pool0: Pool;
+      const p = fromPool as any;
+      if (isUniV3) {
+        pool0 = {
+          category: cat,
+          token0: tokenFrom0,
+          token1: tokenFrom1,
+          address: poolFrom,
+          dex: dexFrom,
+          fee: fromPool.swapFee,
+          tick: p.positionInfo.tick,
+          liquidity: p.positionInfo.liquidity,
+          sqrtPriceX96: p.positionInfo.sqrtPriceX96,
+          tickSpacing: p.positionInfo.tickSpacing,
+          ticks: p.positionInfo.ticks,
+        } as Pool;
+      } else if (isUniV2) {
+        pool0 = {
+          address: poolFrom,
+          category: cat,
+          dex: dexFrom,
+          token0: tokenFrom0,
+          token1: tokenFrom1,
+          fee: p.swapFee,
+          reserves: p.reserves,
+        } as Pool;
+      } else {
+        set({ error: `Can't get pool info ${poolFrom}` });
+        return;
+      }
 
       const tokenTo0 = await enrichLogoAndPrice(toPoolToken0);
       const tokenTo1 = await enrichLogoAndPrice(toPoolToken1);
@@ -228,19 +287,38 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
       ).then((res) => res.json());
       const cat1 = pairCheck1?.data?.category || "commonPair";
 
-      const pool1: Pool = {
-        category: cat1,
-        token0: tokenTo0,
-        token1: tokenTo1,
-        address: poolTo,
-        dex: dexTo,
-        fee: toPool.swapFee,
-        tick: toPool.positionInfo.tick,
-        liquidity: toPool.positionInfo.liquidity,
-        sqrtPriceX96: toPool.positionInfo.sqrtPriceX96,
-        tickSpacing: toPool.positionInfo.tickSpacing,
-        ticks: toPool.positionInfo.ticks,
-      };
+      const isPoolToUniV3 = univ3Dexes.includes(dexTo);
+      const isPoolToUniV2 = univ2Dexes.includes(dexTo);
+      let pool1: Pool;
+      const p1 = toPool as any;
+      if (isPoolToUniV3) {
+        pool1 = {
+          category: cat1,
+          token0: tokenTo0,
+          token1: tokenTo1,
+          address: poolTo,
+          dex: dexTo,
+          fee: toPool.swapFee,
+          tick: p1.positionInfo.tick,
+          liquidity: p1.positionInfo.liquidity,
+          sqrtPriceX96: p1.positionInfo.sqrtPriceX96,
+          tickSpacing: p1.positionInfo.tickSpacing,
+          ticks: p1.positionInfo.ticks,
+        } as Pool;
+      } else if (isPoolToUniV2) {
+        pool1 = {
+          address: poolTo,
+          category: cat,
+          dex: dexTo,
+          token0: tokenTo0,
+          token1: tokenTo1,
+          fee: p.swapFee,
+          reserves: p.reserves,
+        } as Pool;
+      } else {
+        set({ error: `Can't get pool info ${poolTo}` });
+        return;
+      }
 
       set({ pools: [pool0, pool1], error: "" });
     } catch (e) {

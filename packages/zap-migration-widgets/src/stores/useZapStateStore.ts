@@ -1,10 +1,9 @@
-import { create } from "zustand";
+import { NetworkInfo, ZAP_URL } from "../constants";
+import { ChainId, UniV3Position, univ3Dexes } from "../schema";
 import { usePoolsStore } from "./usePoolsStore";
 import { usePositionStore } from "./usePositionStore";
-import { NetworkInfo, ZAP_URL } from "../constants";
-import { ChainId } from "../schema";
-
 import { z } from "zod";
+import { create } from "zustand";
 
 interface ZapState {
   slippage: number;
@@ -15,7 +14,11 @@ interface ZapState {
   setTickLower: (tickLower: number) => void;
   setTickUpper: (tickUpper: number) => void;
   setLiquidityOut: (liquidity: bigint) => void;
-  fetchZapRoute: (chainId: ChainId, client: string) => Promise<void>;
+  fetchZapRoute: (
+    chainId: ChainId,
+    client: string,
+    account: string
+  ) => Promise<void>;
   fetchingRoute: boolean;
   route: GetRouteResponse | null;
   showPreview: boolean;
@@ -68,7 +71,7 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),
-  fetchZapRoute: async (chainId: ChainId, client: string) => {
+  fetchZapRoute: async (chainId: ChainId, client: string, account: string) => {
     const {
       liquidityOut,
       tickLower: lower,
@@ -78,11 +81,14 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
     const { pools } = usePoolsStore.getState();
     const { fromPosition: position, toPosition } = usePositionStore.getState();
 
+    const isUniv3Dest =
+      pools !== "loading" && univ3Dexes.includes(pools[1].dex);
+
     let tickLower = lower,
       tickUpper = upper;
-    if (toPosition !== "loading" && toPosition !== null) {
-      tickLower = toPosition.tickLower;
-      tickUpper = toPosition.tickUpper;
+    if (toPosition !== "loading" && toPosition !== null && isUniv3Dest) {
+      tickLower = (toPosition as UniV3Position).tickLower;
+      tickUpper = (toPosition as UniV3Position).tickUpper;
     }
 
     if (
@@ -90,9 +96,9 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       position === "loading" ||
       toPosition === "loading" ||
       liquidityOut === 0n ||
-      tickLower === null ||
-      tickUpper === null ||
-      tickLower >= tickUpper
+      (isUniv3Dest
+        ? tickLower === null || tickUpper === null || tickLower >= tickUpper
+        : false)
     ) {
       set({ route: null });
       return;
@@ -100,7 +106,9 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
 
     set({ fetchingRoute: true });
 
-    const params: { [key: string]: string | number | boolean | undefined } = {
+    const params: {
+      [key: string]: string | number | boolean | undefined | null;
+    } = {
       slippage,
       dexFrom: pools[0].dex,
       "poolFrom.id": pools[0].address,
@@ -109,18 +117,23 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       dexTo: pools[1].dex,
       "poolTo.id": pools[1].address,
 
+      ...(!isUniv3Dest ? { "positionTo.id": account } : {}),
+
       ...(toPosition?.id
         ? {
             "positionTo.id": toPosition.id,
           }
-        : {
+        : isUniv3Dest
+        ? {
             "positionTo.tickLower": tickLower,
             "positionTo.tickUpper": tickUpper,
-          }),
+          }
+        : {}),
     };
     let tmp = "";
     Object.keys(params).forEach((key) => {
-      if (params[key] !== undefined) tmp = `${tmp}&${key}=${params[key]}`;
+      if (params[key] !== undefined && params[key] !== null)
+        tmp = `${tmp}&${key}=${params[key]}`;
     });
 
     try {
@@ -202,7 +215,7 @@ const protocolFeeAction = z.object({
   type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
   protocolFee: z.object({
     pcm: z.number(),
-    tokens: z.array(token),
+    tokens: z.array(token).optional(),
   }),
 });
 
