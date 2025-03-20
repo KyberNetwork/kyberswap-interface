@@ -328,8 +328,6 @@ export const ZapContextProvider = ({
         ).then(
           (tokens) => tokens.filter((item) => !!item) as PancakeTokenAdvanced[]
         );
-
-        console.log("set tokens in");
         setTokensIn(listInitTokens);
       }
     })();
