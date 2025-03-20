@@ -47,6 +47,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.MANTLE]: [],
   [ChainId.SONIC]: [],
   [ChainId.BERA]: [],
+  [ChainId.RONIN]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
@@ -114,6 +115,7 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.MANTLE]: [],
   [ChainId.SONIC]: [],
   [ChainId.BERA]: [],
+  [ChainId.RONIN]: [],
 }
 
 export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
@@ -380,6 +382,7 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.MANTLE]: [],
   [ChainId.SONIC]: [],
   [ChainId.BERA]: [],
+  [ChainId.RONIN]: [],
 }
 
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
@@ -406,6 +409,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.MANTLE]: new Token(ChainId.MANTLE, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.SONIC]: new Token(ChainId.SONIC, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.BERA]: new Token(ChainId.BERA, KNC_ADDRESS, 18, 'KNC', 'KNC'),
+  [ChainId.RONIN]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
 
   [ChainId.AVAXTESTNET]: new Token(ChainId.AVAXTESTNET, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.MUMBAI]: new Token(ChainId.MUMBAI, '0xFD1f9381Cb641Dc76Fe8087dbcf8ea84a2c77cbE', 18, 'KNC', 'KNC'),
@@ -434,6 +438,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.MANTLE]: new Token(ChainId.MANTLE, '0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE', 6, 'USDT', 'USDT'),
   [ChainId.SONIC]: new Token(ChainId.SONIC, '0x29219dd400f2Bf60E5a23d13Be72B486D4038894', 6, 'USDC.e', 'USDC.e'),
   [ChainId.BERA]: new Token(ChainId.BERA, '0x549943e04f40284185054145c6E4e9568C1D3241', 6, 'USDC.e', 'USDC.e'),
+  [ChainId.RONIN]: new Token(ChainId.RONIN, '0x0b7007c13325c48911f73a2dad5fa5dcbf808adc', 6, 'USDC', 'USD Coin'),
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
