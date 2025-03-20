@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/liquidity-widgets",
   "repository": "git@github.com:KyberNetwork/kyberswap-widgets.git",
-  "version": "1.1.22",
+  "version": "1.1.23",
   "license": "MIT",
   "type": "module",
   "exports": {
