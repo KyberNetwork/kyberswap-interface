@@ -20,8 +20,11 @@ export const useAffiliate = () => {
         const d = new Date()
         d.setTime(expireTime)
         document.cookie = `refCode=${refCode};expires=${d.toUTCString()};path=/`
-        searchParams.delete('refCode')
-        setSearchParams(searchParams)
+        // Prevent loop because conflict with RedirectPathToSwapV3Network when acceess /swap?r=xxx
+        setTimeout(() => {
+          searchParams.delete('r')
+          setSearchParams(searchParams)
+        }, 3000)
       })
   }, [refCode, searchParams, setSearchParams])
 }
