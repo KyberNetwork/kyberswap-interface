@@ -132,7 +132,7 @@ const WC_PARAMS = {
     chainImages: undefined,
     themeMode: 'dark' as const,
     themeVariables: {
-      '--wcm-z-index': '1000',
+      '--wcm-z-index': '100000',
       '--wcm-logo-image-url': Kyber,
       '--wcm-background-image-url': WC_BG,
       '--wcm-accent-color': '#31CB9E',

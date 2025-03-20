@@ -1,3 +1,4 @@
+import { useZapOutUserState } from "./zapout-state";
 import { DexInfos, NetworkInfo, PATHS } from "@/constants";
 import {
   ChainId,
@@ -25,7 +26,6 @@ import {
 } from "@kyber/utils/uniswapv3";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { createStore, useStore } from "zustand";
-import { useZapOutUserState } from "./zapout-state";
 
 export interface ZapOutProps {
   theme?: Theme;
