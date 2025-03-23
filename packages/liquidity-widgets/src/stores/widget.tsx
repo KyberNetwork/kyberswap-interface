@@ -12,7 +12,7 @@ import {
   Token,
   algebraTypes,
 } from "@/schema";
-import { Theme, defaultTheme } from "@/theme";
+import { Theme } from "@/theme";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
 import {
@@ -98,12 +98,16 @@ interface WidgetState extends WidgetProps {
   toggleShowWidget: (newState: boolean) => void;
 }
 
-type WidgetProviderProps = React.PropsWithChildren<WidgetProps>;
+interface InnerWidgetProps extends WidgetProps {
+  theme: Theme;
+}
 
-const createWidgetStore = (initProps: WidgetProps) => {
+type WidgetProviderProps = React.PropsWithChildren<InnerWidgetProps>;
+
+const createWidgetStore = (initProps: InnerWidgetProps) => {
   return createStore<WidgetState>()((set, get) => ({
     ...initProps,
-    theme: initProps.theme || defaultTheme,
+    theme: initProps.theme,
     pool: "loading",
     position: "loading",
     errorMsg: "",

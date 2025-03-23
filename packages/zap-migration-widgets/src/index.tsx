@@ -13,7 +13,7 @@ import { ChainId, Dex, DexFrom, DexTo } from "./schema";
 import { usePoolsStore } from "./stores/usePoolsStore";
 import { usePositionStore } from "./stores/usePositionStore";
 import { useZapStateStore } from "./stores/useZapStateStore";
-import { Theme } from "./theme";
+import { defaultTheme, Theme } from "./theme";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   Dialog,
@@ -128,12 +128,16 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
   useEffect(() => {
     if (!theme) return;
-    setTheme(theme);
+    const themeToApply = {
+      ...defaultTheme,
+      ...theme,
+    };
+    setTheme(themeToApply);
     const r = document.querySelector<HTMLElement>(":root");
-    Object.keys(theme).forEach((key) => {
-      r?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
+    Object.keys(themeToApply).forEach((key) => {
+      r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
     });
-  }, [theme]);
+  }, [setTheme, theme]);
 
   // fetch pool on load
   useEffect(() => {

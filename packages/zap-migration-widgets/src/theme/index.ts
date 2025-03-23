@@ -17,4 +17,5 @@ export const defaultTheme = {
   buttonRadius: "24px",
   boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
 };
+
 export type Theme = typeof defaultTheme;
