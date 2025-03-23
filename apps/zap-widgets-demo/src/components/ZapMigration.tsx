@@ -18,6 +18,7 @@ import {
   ZapMigration as ZapMigrationWidget,
   ChainId,
 } from "@kyberswap/zap-migration-widgets";
+import "@kyberswap/zap-migration-widgets/dist/style.css";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";

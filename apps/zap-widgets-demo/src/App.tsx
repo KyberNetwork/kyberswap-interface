@@ -1,26 +1,45 @@
-import "@kyberswap/liquidity-widgets/dist/style.css";
-import "@kyberswap/zap-migration-widgets/dist/style.css";
-import "@rainbow-me/rainbowkit/styles.css";
 import "@kyber/ui/styles.css";
+import "@rainbow-me/rainbowkit/styles.css";
 import "./App.css";
 
-import { Tabs, TabsList, TabsTrigger } from "@kyber/ui/tabs";
 import Header from "./components/Header";
 import ZapIn from "./components/ZapIn";
 import ZapMigration from "./components/ZapMigration";
 import ZapOut from "./components/ZapOut";
+import { Tabs, TabsList, TabsTrigger } from "@kyber/ui/tabs";
+
+enum Zap {
+  ZAP_IN = "zap-in",
+  ZAP_MIGRATION = "zap-migration",
+  ZAP_OUT = "zap-out",
+}
 
 function App() {
+  const search = window.location.search;
+  const params = new URLSearchParams(search);
+  const zap = params.get("zap");
+
+  const openZap =
+    zap && Object.values(Zap).includes(zap as Zap) ? zap : Zap.ZAP_IN;
+
+  const handleChangeTab = (value: Zap) => {
+    window.history.pushState({}, "", `?zap=${value}`);
+  };
+
   return (
     <>
       <Header />
 
       <div className="w-full p-4">
-        <Tabs defaultValue="zap-in" className="w-[650px] mx-auto max-md:w-full">
+        <Tabs
+          defaultValue={openZap}
+          className="w-[650px] mx-auto max-md:w-full"
+          onValueChange={(value) => handleChangeTab(value as Zap)}
+        >
           <TabsList className="grid w-full grid-cols-3 p-1">
-            <TabsTrigger value="zap-in">Zap in</TabsTrigger>
-            <TabsTrigger value="zap-migration">Zap migration</TabsTrigger>
-            <TabsTrigger value="zap-out">Zap out</TabsTrigger>
+            <TabsTrigger value={Zap.ZAP_IN}>Zap in</TabsTrigger>
+            <TabsTrigger value={Zap.ZAP_MIGRATION}>Zap migration</TabsTrigger>
+            <TabsTrigger value={Zap.ZAP_OUT}>Zap out</TabsTrigger>
           </TabsList>
           <ZapIn />
           <ZapMigration />
