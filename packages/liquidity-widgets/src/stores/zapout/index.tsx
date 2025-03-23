@@ -13,7 +13,7 @@ import {
   univ3Pool,
   univ3PoolType,
 } from "@/schema";
-import { Theme, defaultTheme } from "@/theme";
+import { Theme } from "@/theme";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import { encodeUint256, getFunctionSelector } from "@kyber/utils/crypto";
 import {
@@ -68,12 +68,16 @@ interface ZapOutState extends ZapOutProps {
   ) => void;
 }
 
-type ZapOutProviderState = React.PropsWithChildren<ZapOutProps>;
+interface InnerZapOutProps extends ZapOutProps {
+  theme: Theme;
+}
 
-const createZapOutStore = (initProps: ZapOutProps) => {
+type ZapOutProviderState = React.PropsWithChildren<InnerZapOutProps>;
+
+const createZapOutStore = (initProps: InnerZapOutProps) => {
   return createStore<ZapOutState>()((set, get) => ({
     ...initProps,
-    theme: initProps.theme || defaultTheme,
+    theme: initProps.theme,
     pool: "loading",
     position: "loading",
     errorMsg: "",

@@ -1,7 +1,7 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import "./Widget.scss";
 
-import { Theme } from "../../theme";
+import { defaultTheme, Theme } from "../../theme";
 import { PoolType, ChainId } from "../../constants";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
@@ -27,20 +27,42 @@ const createModalRoot = () => {
 createModalRoot();
 
 export default function Widget(props: WidgetProps) {
-  const { theme, aggregatorOptions, source, initDepositTokens, initAmounts } =
-    props;
+  const {
+    theme,
+    aggregatorOptions,
+    source,
+    initDepositTokens,
+    initAmounts,
+    chainId,
+  } = props;
+
+  const themeToApply = useMemo(
+    () =>
+      theme && typeof theme === "object"
+        ? {
+            ...defaultTheme,
+            ...theme,
+          }
+        : defaultTheme,
+    [theme]
+  );
 
   useEffect(() => {
-    if (!theme) return;
+    if (!themeToApply) return;
     const r = document.querySelector<HTMLElement>(":root");
-    Object.keys(theme).forEach((key) => {
-      r?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
+    Object.keys(themeToApply).forEach((key) => {
+      r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
     });
-  }, [theme]);
+  }, [themeToApply]);
+
+  const widgetProps = {
+    ...props,
+    theme: themeToApply,
+  };
 
   return (
-    <WidgetProvider {...props}>
-      <TokenProvider chainId={props.chainId}>
+    <WidgetProvider {...widgetProps}>
+      <TokenProvider chainId={chainId}>
         <ZapContextProvider
           includedSources={aggregatorOptions?.includedSources?.join(",")}
           excludedSources={aggregatorOptions?.excludedSources?.join(",")}
