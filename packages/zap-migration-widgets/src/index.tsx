@@ -68,10 +68,10 @@ export interface ZapMigrationProps {
 
 // createModalRoot.js
 const createModalRoot = () => {
-  let modalRoot = document.getElementById("ks-lw-modal-root");
+  let modalRoot = document.getElementById("ks-lw-migration-modal-root");
   if (!modalRoot) {
     modalRoot = document.createElement("div");
-    modalRoot.id = "ks-lw-modal-root";
+    modalRoot.id = "ks-lw-migration-modal-root";
     modalRoot.className = "ks-lw-migration-style";
     document.body.appendChild(modalRoot);
   }

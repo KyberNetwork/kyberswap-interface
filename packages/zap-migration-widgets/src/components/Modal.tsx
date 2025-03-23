@@ -1,5 +1,5 @@
-import ReactDOM from "react-dom";
 import { ReactElement } from "react";
+import ReactDOM from "react-dom";
 
 const Modal = ({
   isOpen,
@@ -24,7 +24,7 @@ const Modal = ({
       </div>
     </div>,
     // already created in Widget/index.ts
-    document.getElementById("ks-lw-modal-root")!
+    document.getElementById("ks-lw-migration-modal-root")!
   ) as ReactElement;
 };
 
