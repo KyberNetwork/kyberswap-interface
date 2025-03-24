@@ -136,4 +136,5 @@ export type CreateOrderParam = {
   signature?: string
   salt?: string
   referral?: string
+  allowedSenders?: string[]
 }
