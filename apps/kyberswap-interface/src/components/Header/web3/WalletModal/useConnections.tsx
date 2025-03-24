@@ -33,11 +33,17 @@ export function useOrderedConnections(): InjectableConnector[] {
 
   return useMemo(() => {
     const { injectedConnectors: injectedConnectorsBase, isCoinbaseWalletBrowser } = getInjectedConnectors(connectors)
-    const injectedConnectors = injectedConnectorsBase.map(c => ({ ...c, isInjected: true }))
+    let injectedConnectors = injectedConnectorsBase.map(c => ({ ...c, isInjected: true }))
 
     const coinbaseSdkConnector = getConnectorWithId(connectors, CONNECTION.COINBASE_SDK_CONNECTOR_ID)
     const walletConnectConnector = getConnectorWithId(connectors, CONNECTION.WALLET_CONNECT_CONNECTOR_ID)
     const bloctoConnector = getConnectorWithId(connectors, CONNECTION.BLOCTO_ID)
+    const bitgetConnector = getConnectorWithId(connectors, CONNECTION.BITGET_CONNECTOR_ID)
+    //const hardcodedBitgetConnector = getConnectorWithId(connectors, CONNECTION.HARDCODED_BITGET_CONNECTOR_ID)
+
+    if (bitgetConnector) {
+      injectedConnectors = injectedConnectors.filter(c => c.id !== CONNECTION.HARDCODED_BITGET_CONNECTOR_ID)
+    }
 
     if (!coinbaseSdkConnector || !walletConnectConnector) {
       throw new Error('Expected connector(s) missing from wagmi context.')
