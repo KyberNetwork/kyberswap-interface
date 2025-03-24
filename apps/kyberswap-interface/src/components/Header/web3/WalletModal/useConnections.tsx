@@ -37,7 +37,6 @@ export function useOrderedConnections(): InjectableConnector[] {
 
     const coinbaseSdkConnector = getConnectorWithId(connectors, CONNECTION.COINBASE_SDK_CONNECTOR_ID)
     const walletConnectConnector = getConnectorWithId(connectors, CONNECTION.WALLET_CONNECT_CONNECTOR_ID)
-    const bloctoConnector = getConnectorWithId(connectors, CONNECTION.BLOCTO_ID)
     const bitgetConnector = getConnectorWithId(connectors, CONNECTION.BITGET_CONNECTOR_ID)
     //const hardcodedBitgetConnector = getConnectorWithId(connectors, CONNECTION.HARDCODED_BITGET_CONNECTOR_ID)
 
@@ -67,8 +66,6 @@ export function useOrderedConnections(): InjectableConnector[] {
     // WalletConnect and Coinbase are added last in the list.
     orderedConnectors.push(walletConnectConnector)
     orderedConnectors.push(coinbaseSdkConnector)
-
-    if (bloctoConnector) orderedConnectors.push(bloctoConnector)
 
     // Place the most recent connector at the top of the list.
     orderedConnectors

@@ -1,4 +1,3 @@
-import { blocto } from '@blocto/wagmi-connector'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
 import { ReactNode, useEffect, useMemo } from 'react'
@@ -25,7 +24,6 @@ import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
 
 import WC_BG from 'assets/images/wc-bg.png'
 import Kyber from 'assets/svg/kyber/logo_kyberswap_with_padding.svg'
-import BLOCTO_ICON from 'assets/wallets-connect/bocto.svg'
 import COINBASE_ICON from 'assets/wallets-connect/coinbase.svg'
 import METAMASK_ICON from 'assets/wallets-connect/metamask.svg'
 import SAFE_ICON from 'assets/wallets-connect/safe.svg'
@@ -46,7 +44,6 @@ export const CONNECTION = {
   COINBASE_SDK_CONNECTOR_ID: 'coinbaseWalletSDK',
   COINBASE_RDNS: 'com.coinbase.wallet',
   METAMASK_RDNS: 'io.metamask',
-  BLOCTO_ID: 'blocto',
   //UNISWAP_EXTENSION_RDNS: 'org.uniswap.app',
   SAFE_CONNECTOR_ID: 'safe',
   BITGET_CONNECTOR_ID: 'com.bitget.web3',
@@ -58,7 +55,6 @@ export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
   [CONNECTION.COINBASE_SDK_CONNECTOR_ID]: COINBASE_ICON,
   [CONNECTION.WALLET_CONNECT_CONNECTOR_ID]: WALLET_CONNECT_ICON,
   [CONNECTION.SAFE_CONNECTOR_ID]: SAFE_ICON,
-  [CONNECTION.BLOCTO_ID]: BLOCTO_ICON,
 }
 
 type ConnectorID = (typeof CONNECTION)[keyof typeof CONNECTION]
@@ -195,7 +191,6 @@ export const wagmiConfig = createConfig({
       reloadOnDisconnect: false,
       enableMobileWalletLink: true,
     }),
-    blocto({ appId: 'fbd356ae-8f39-4650-ab42-4ef8cb9e15c9' }),
     safe(),
     bigetConnector(),
   ],
