@@ -1,4 +1,5 @@
 import { PATHS, PoolType } from "@/constants";
+import { useWidgetContext } from "@/stores/widget";
 import { formatDisplayNumber } from "@/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
@@ -21,7 +22,17 @@ export default function PoolStat({
   poolType: PoolType;
   positionId?: string;
 }) {
+  const { position } = useWidgetContext((s) => s);
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
+
+  const isUniv2 =
+    position !== "loading" && position.poolType === PoolType.DEX_UNISWAPV2;
+  const poolShare =
+    position === "loading" || !isUniv2
+      ? null
+      : Number(
+          (BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)
+        ) / 100;
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {
@@ -103,6 +114,14 @@ export default function PoolStat({
             : "--"}
         </span>
       </div>
+      {isUniv2 && (
+        <div className="flex justify-between">
+          <span>Pool Share</span>
+          <span className="text-text">
+            {poolShare ? poolShare + "%" : "--"}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

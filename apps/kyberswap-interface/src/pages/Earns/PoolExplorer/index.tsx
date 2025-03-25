@@ -88,7 +88,7 @@ export const timings: MenuOption[] = [
   { label: '30d', value: '30d' },
 ]
 
-const Earn = () => {
+const PoolExplorer = () => {
   const [search, setSearch] = useState('')
   const deboundedSearch = useDebounce(search, 300)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -356,4 +356,4 @@ const Earn = () => {
   )
 }
 
-export default Earn
+export default PoolExplorer

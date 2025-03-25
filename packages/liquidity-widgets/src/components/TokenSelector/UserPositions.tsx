@@ -1,136 +1,20 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { shortenAddress } from "../TokenInfo/utils";
+import {
+  EARN_SUPPORTED_CHAINS,
+  EARN_SUPPORTED_PROTOCOLS,
+  PATHS,
+} from "@/constants";
+import { useZapState } from "@/hooks/useZapInState";
+import { useWidgetContext } from "@/stores/widget";
+import { EarnPosition, PositionStatus } from "@/types/index";
+import { isAddress } from "@kyber/utils/crypto";
+import { formatDisplayNumber } from "@kyber/utils/number";
 import CircleCheckBig from "@/assets/svg/circle-check-big.svg";
 import IconCopy from "@/assets/svg/copy.svg";
 import IconPositionConnectWallet from "@/assets/svg/ic_position_connect_wallet.svg";
 import IconPositionNotFound from "@/assets/svg/ic_position_not_found.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { ChainId, PATHS } from "@/constants";
-import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores/widget";
-import { isAddress } from "@kyber/utils/crypto";
-import { formatDisplayNumber } from "@kyber/utils/number";
-import { useCallback, useEffect, useMemo, useState } from "react";
-
-export enum PositionStatus {
-  IN_RANGE = "IN_RANGE",
-  OUT_RANGE = "OUT_RANGE",
-}
-
-export interface PositionAmount {
-  token: {
-    address: string;
-    symbol: string;
-    name: string;
-    decimals: number;
-    logo: string;
-    tag: string;
-    price: number;
-  };
-  tokenType: string;
-  tokenID: string;
-  balance: string;
-  quotes: {
-    usd: {
-      symbol: string;
-      marketPrice: number;
-      price: number;
-      priceChange24hPercentage: number;
-      value: number;
-      timestamp: number;
-    };
-  };
-}
-
-export interface EarnPosition {
-  [x: string]: any;
-  chainName: "eth";
-  chainId: number;
-  chainLogo: string;
-  userAddress: string;
-  id: string;
-  tokenAddress: string;
-  tokenId: string;
-  liquidity: string;
-  minPrice: number;
-  maxPrice: number;
-  currentAmounts: Array<PositionAmount>;
-  providedAmounts: Array<PositionAmount>;
-  feePending: Array<PositionAmount>;
-  feesClaimed: Array<PositionAmount>;
-  farmRewardsPending: Array<PositionAmount>;
-  farmRewardsClaimed: Array<PositionAmount>;
-  feeEarned24h: Array<PositionAmount>;
-  farmReward24h: Array<PositionAmount>;
-  createdTime: number;
-  lastUpdateBlock: number;
-  openedBlock: number;
-  openedTime: number;
-  closedBlock: number;
-  closedTime: number;
-  closedPrice: number;
-  farming: boolean;
-  impermanentLoss: number;
-  apr: number;
-  feeApr: number;
-  farmApr: number;
-  pnl: number;
-  initialUnderlyingValue: number;
-  currentUnderlyingValue: number;
-  currentPositionValue: number;
-  compareWithHodl: number;
-  returnOnInvestment: number;
-  totalDepositValue: number;
-  totalWithdrawValue: number;
-  yesterdayEarning: number;
-  earning24h: number;
-  status: PositionStatus;
-  avgConvertPrice: number;
-  isConvertedFromToken0: boolean;
-  gasUsed: number;
-  isSupportAutomation: boolean;
-  hasAutomationOrder: boolean;
-  pool: {
-    id: string;
-    poolAddress: string;
-    price: number;
-    tokenAmounts: Array<PositionAmount>;
-    farmRewardTokens: Array<PositionAmount>;
-    fees: Array<number>;
-    rewards24h: Array<PositionAmount>;
-    tickSpacing: number;
-    project: string;
-    projectLogo: string;
-    projectAddress: string;
-    showWarning: boolean;
-    tvl: number;
-    farmAddress: string;
-    tag: string;
-  };
-}
-
-enum EarnDex {
-  DEX_UNISWAPV3 = "Uniswap V3",
-  DEX_PANCAKESWAPV3 = "PancakeSwap V3",
-  DEX_SUSHISWAPV3 = "SushiSwap V3",
-  DEX_QUICKSWAPV3ALGEBRA = "QuickSwap V3",
-  DEX_CAMELOTV3 = "Camelot V3",
-  DEX_THENAFUSION = "THENA",
-  DEX_KODIAK_V3 = "Kodiak Concentrated",
-  DEX_UNISWAPV2 = "Uniswap V2",
-}
-const earnSupportedChains = [
-  ChainId.Ethereum,
-  ChainId.Base,
-  ChainId.Bsc,
-  ChainId.Arbitrum,
-  ChainId.Avalanche,
-  ChainId.Optimism,
-  ChainId.PolygonPos,
-  ChainId.Berachain,
-];
-export const earnSupportedProtocols = Object.keys(EarnDex).map(
-  (dexKey) => EarnDex[dexKey as keyof typeof EarnDex]
-);
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
@@ -197,7 +81,7 @@ const UserPositions = ({ search }: { search: string }) => {
   };
 
   const handleGetUserPositions = useCallback(async () => {
-    if (!account || !earnSupportedChains.includes(chainId)) return;
+    if (!account || !EARN_SUPPORTED_CHAINS.includes(chainId)) return;
     setLoading(true);
     try {
       const response = await fetch(
@@ -206,7 +90,7 @@ const UserPositions = ({ search }: { search: string }) => {
           new URLSearchParams({
             addresses: account,
             chainIds: chainId.toString(),
-            protocols: earnSupportedProtocols.join(","),
+            protocols: EARN_SUPPORTED_PROTOCOLS.join(","),
             quoteSymbol: "usd",
             offset: "0",
             orderBy: "liquidity",

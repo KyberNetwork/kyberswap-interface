@@ -371,6 +371,38 @@ export default function Content() {
     toggleShowWidget(!snapshotState);
   }, [snapshotState, toggleShowWidget]);
 
+  const addLiquiditySection = (
+    <>
+      <div>
+        <div className="text-base pl-1">
+          {positionId ? "Increase" : "Add"} Liquidity
+        </div>
+        {tokensIn.map((_, tokenIndex: number) => (
+          <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
+        ))}
+      </div>
+
+      <div
+        className="my-3 text-accent cursor-pointer w-fit text-sm"
+        onClick={onOpenTokenSelectModal}
+      >
+        + Add Token(s) or Use Existing Position
+        <InfoHelper
+          placement="bottom"
+          text={`You can either zap in with up to ${MAX_ZAP_IN_TOKENS} tokens or select an existing position as the liquidity source`}
+          color={theme.accent}
+          width="300px"
+          style={{
+            verticalAlign: "baseline",
+            position: "relative",
+            top: 2,
+            left: 2,
+          }}
+        />
+      </div>
+    </>
+  );
+
   return (
     <>
       {loadPoolError && (
@@ -439,36 +471,16 @@ export default function Content() {
             ) : (
               <PositionLiquidity />
             )}
+            {!isUniV3PoolType ? (
+              <>
+                <div className="mt-4" />
+                {addLiquiditySection}
+              </>
+            ) : null}
           </div>
 
           <div className="flex-1 w-1/2 max-sm:w-full">
-            <div>
-              <div className="text-base">
-                {positionId ? "Increase" : "Add"} Liquidity
-              </div>
-              {tokensIn.map((_, tokenIndex: number) => (
-                <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
-              ))}
-            </div>
-
-            <div
-              className="my-3 text-accent cursor-pointer w-fit text-sm"
-              onClick={onOpenTokenSelectModal}
-            >
-              + Add Token(s) or Use Existing Position
-              <InfoHelper
-                placement="bottom"
-                text={`You can either zap in with up to ${MAX_ZAP_IN_TOKENS} tokens or select an existing position as the liquidity source`}
-                color={theme.accent}
-                width="300px"
-                style={{
-                  verticalAlign: "baseline",
-                  position: "relative",
-                  top: 2,
-                  left: 2,
-                }}
-              />
-            </div>
+            {isUniV3PoolType ? addLiquiditySection : null}
 
             <EstLiqValue />
             <ZapRoute />
