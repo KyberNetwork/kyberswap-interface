@@ -4,7 +4,6 @@ import { X } from 'react-feather'
 import { Image, Text } from 'rebass'
 import styled from 'styled-components'
 
-import bloctoIcon from 'assets/wallets-connect/bocto.svg'
 import braveIcon from 'assets/wallets-connect/brave.svg'
 import coin98Icon from 'assets/wallets-connect/coin98.svg'
 import coinbaseIcon from 'assets/wallets-connect/coinbase.svg'
@@ -81,7 +80,6 @@ const wallets = [
 
   { name: 'Coinbase', icon: coinbaseIcon, installLink: 'https://www.coinbase.com/wallet' },
   { name: 'Coin98', icon: coin98Icon, installLink: 'https://wallet.coin98.com/' },
-  { name: 'Blocto', icon: bloctoIcon, installLink: 'https://blocto.io/download' },
   {
     name: 'MetaMask',
     icon: metaMaskIcon,

@@ -15,7 +15,6 @@ interface Window {
     isTrust?: boolean
     isTrustWallet?: boolean
     isRabby?: boolean
-    isBlocto?: boolean
     isLedgerConnect?: boolean
     isKrystal?: boolean
     isKrystalWallet?: boolean

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Connector, useConnect } from 'wagmi'
 
-import { CONNECTION, getConnectorWithId } from 'components/Web3Provider'
+import { CONNECTION, HardCodedConnectors, getConnectorWithId } from 'components/Web3Provider'
 
 function getInjectedConnectors(connectors: readonly Connector[]) {
   let isCoinbaseWalletBrowser = false
@@ -37,15 +37,30 @@ export function useOrderedConnections(): InjectableConnector[] {
 
     const coinbaseSdkConnector = getConnectorWithId(connectors, CONNECTION.COINBASE_SDK_CONNECTOR_ID)
     const walletConnectConnector = getConnectorWithId(connectors, CONNECTION.WALLET_CONNECT_CONNECTOR_ID)
-    const bloctoConnector = getConnectorWithId(connectors, CONNECTION.BLOCTO_ID)
+
+    const hardcodedInjectedIds = HardCodedConnectors.map(c => c.id)
+
+    let hardcodeInjectedConnectors = connectors.filter(c => hardcodedInjectedIds.includes(c.id))
+
+    const injectedConnectorsWithoutHardcoded = injectedConnectors.filter(c => {
+      return !hardcodedInjectedIds.includes(c.id)
+    })
+
+    // remove hardcoded connectors if the real connector is present
+    HardCodedConnectors.forEach(c => {
+      const connector = getConnectorWithId(connectors, c.realId as any)
+      if (connector) {
+        hardcodeInjectedConnectors = hardcodeInjectedConnectors.filter(ic => ic.id !== c.id)
+      }
+    })
 
     if (!coinbaseSdkConnector || !walletConnectConnector) {
       throw new Error('Expected connector(s) missing from wagmi context.')
     }
 
     // Special-case: Only display the injected connector for in-wallet browsers.
-    if (isMobile && injectedConnectors.length === 1) {
-      return injectedConnectors
+    if (isMobile && injectedConnectorsWithoutHardcoded.length === 1) {
+      return injectedConnectorsWithoutHardcoded
     }
 
     // Special-case: Only display the Coinbase connector in the Coinbase Wallet.
@@ -56,13 +71,13 @@ export function useOrderedConnections(): InjectableConnector[] {
     const orderedConnectors: InjectableConnector[] = []
 
     // Injected connectors should appear next in the list, as the user intentionally installed/uses them.
-    orderedConnectors.push(...injectedConnectors)
+    orderedConnectors.push(...injectedConnectorsWithoutHardcoded)
 
     // WalletConnect and Coinbase are added last in the list.
     orderedConnectors.push(walletConnectConnector)
     orderedConnectors.push(coinbaseSdkConnector)
 
-    if (bloctoConnector) orderedConnectors.push(bloctoConnector)
+    orderedConnectors.push(...hardcodeInjectedConnectors)
 
     // Place the most recent connector at the top of the list.
     orderedConnectors
