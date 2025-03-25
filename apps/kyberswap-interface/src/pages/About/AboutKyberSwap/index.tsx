@@ -358,9 +358,14 @@ function AboutKyberSwap() {
 
               <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
 
-              <Flex sx={{ gap: '12px' }} alignItems="center">
+              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
                 <img src="https://www.berachain.com/images/icons/berachain.svg" alt="Bera" width="80px" />
                 <Text>Berachain</Text>
+              </Flex>
+
+              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <img src="https://docs.roninchain.com/img/logo.svg" alt="Ronin" height="80px" />
+                <Text>Roninchain</Text>
               </Flex>
             </Powered>
           </Text>

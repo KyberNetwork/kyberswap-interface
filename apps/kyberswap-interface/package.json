@@ -55,7 +55,7 @@
     "@ethersproject/units": "^5.8.0",
     "@holdstation/paymaster-helper": "^2.0.20",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.1.9",
+    "@kyberswap/ks-sdk-core": "1.1.10",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/liquidity-widgets": "workspace:*",
     "@kyberswap/zap-migration-widgets": "workspace:*",
@@ -220,7 +220,7 @@
     "vite-tsconfig-paths": "^4.0.8"
   },
   "resolutions": {
-    "@kyberswap/ks-sdk-core": "1.1.9",
+    "@kyberswap/ks-sdk-core": "1.1.10",
     "babel-plugin-lodash/@babel/types": "~7.20.0",
     "react-error-overlay": "6.0.9"
   }
