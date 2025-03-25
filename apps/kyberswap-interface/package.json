@@ -41,7 +41,6 @@
   "dependencies": {
     "@0xsquid/sdk": "2.8.24",
     "@apollo/client": "^3.7.1",
-    "@blocto/wagmi-connector": "^2.0.4",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@ethersproject/abi": "^5.8.0",
     "@ethersproject/abstract-provider": "^5.8.0",

@@ -14,9 +14,6 @@ export function useWalletSupportedChains(): ChainId[] {
     //  ]
     //case gnosisSafe:
     //  return chainId ? [chainId] : SUPPORTED_NETWORKS
-    //case blocto:
-    //case bloctoInject:
-    //  return BLOCTO_SUPPORTED_NETWORKS
     default:
       return SUPPORTED_NETWORKS
   }

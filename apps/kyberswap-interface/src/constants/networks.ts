@@ -157,16 +157,6 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = []
-export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
-  ChainId.MAINNET,
-  ChainId.ARBITRUM,
-  ChainId.OPTIMISM,
-  ChainId.MATIC,
-  ChainId.BSCMAINNET,
-  ChainId.AVAXMAINNET,
-  ChainId.BASE,
-  ChainId.SCROLL,
-]
 
 export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,
