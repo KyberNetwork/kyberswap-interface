@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { PositionQueryParams } from 'services/zapEarn'
+import { PositionFilter } from 'pages/Earns/types'
 
 import { useActiveWeb3React } from 'hooks'
 import { Direction } from 'pages/MarketOverview/SortIcon'
@@ -15,9 +15,8 @@ export default function useFilter() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { account } = useActiveWeb3React()
 
-  const filters: PositionQueryParams = useMemo(
+  const filters: PositionFilter = useMemo(
     () => ({
-      addresses: account || '',
       chainIds: searchParams.get('chainIds') || '',
       protocols: searchParams.get('protocols') || '',
       status: searchParams.get('status') || '',
@@ -26,15 +25,22 @@ export default function useFilter() {
       orderBy: searchParams.get('orderBy') || Direction.DESC,
       page: +(searchParams.get('page') || 1),
     }),
-    [searchParams, account],
+    [searchParams],
   )
 
   const updateFilters = useCallback(
-    (key: keyof PositionQueryParams, value: string | number) => {
+    (key: keyof PositionFilter, value: string | number) => {
       if (!value) searchParams.delete(key)
       else searchParams.set(key, value.toString())
       if ((key !== 'sortBy' && key !== 'orderBy' && key !== 'page') || (key === 'page' && value === 1))
         searchParams.delete('page')
+
+      const orderBy = searchParams.get('orderBy')
+      const sortBy = searchParams.get('sortBy')
+      if (orderBy === Direction.DESC && sortBy === SortBy.VALUE) {
+        searchParams.delete('orderBy')
+        searchParams.delete('sortBy')
+      }
 
       setSearchParams(searchParams)
     },

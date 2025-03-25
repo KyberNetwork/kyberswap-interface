@@ -5,7 +5,7 @@ import { Minus, Plus } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { EarnPosition, PositionStatus } from 'services/zapEarn'
+import { PositionStatus, EarnPosition } from 'pages/Earns/types'
 
 import { ReactComponent as IconClaim } from 'assets/svg/ic_claim.svg'
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
@@ -23,13 +23,19 @@ import { shortenAddress } from 'utils'
 import { getReadingContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { CurrencyRoundedImage, CurrencySecondImage } from '../PoolExplorer/styles'
-import { FeeInfo } from '../PositionDetail/LeftSection'
-import { PositionAction as PositionActionBtn } from '../PositionDetail/styles'
-import ClaimFeeModal, { PositionToClaim, isNativeToken } from '../components/ClaimFeeModal'
-import { NFT_MANAGER_ABI, NFT_MANAGER_CONTRACT } from '../constants'
-import { formatAprNumber } from '../utils'
-import PriceRange from './PriceRange'
+import { CurrencyRoundedImage, CurrencySecondImage } from 'pages/Earns/PoolExplorer/styles'
+import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
+import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
+import ClaimFeeModal, { PositionToClaim, isNativeToken } from 'pages/Earns/ClaimFeeModal'
+import {
+  DEXES_SUPPORT_COLLECT_FEE,
+  DEXES_HIDE_TOKEN_ID,
+  NFT_MANAGER_ABI,
+  NFT_MANAGER_CONTRACT,
+  EarnDex,
+} from 'pages/Earns/constants'
+import { formatAprNumber } from 'pages/Earns/utils'
+import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
   Badge,
   BadgeType,
@@ -44,7 +50,7 @@ import {
   PositionTableBody,
   PositionValueLabel,
   PositionValueWrapper,
-} from './styles'
+} from 'pages/Earns/UserPositions/styles'
 
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string
@@ -87,7 +93,7 @@ export default function TableContent({
         chainId: position.chainId,
         address: position.pool.poolAddress,
       },
-      position.tokenId,
+      position.pool.project === EarnDex.DEX_UNISWAPV2 ? account || '' : position.tokenId,
     )
   }
 
@@ -96,7 +102,7 @@ export default function TableContent({
     onOpenZapOut({
       dex: position.pool.project || '',
       chainId: position.chainId,
-      id: position.tokenId,
+      id: position.pool.project === EarnDex.DEX_UNISWAPV2 ? account || '' : position.tokenId,
       poolAddress: position.pool.poolAddress,
     })
   }
@@ -146,6 +152,8 @@ export default function TableContent({
           ? nftManagerContractOfDex
           : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
       const nftManagerAbi = NFT_MANAGER_ABI[position.dex as keyof typeof NFT_MANAGER_ABI]
+
+      if (!nftManagerAbi) return
       const contract = getReadingContract(nftManagerContract, nftManagerAbi, library)
 
       if (!contract) return
@@ -233,7 +241,7 @@ export default function TableContent({
       )}
       <PositionTableBody>
         {account && positions && positions.length > 0 ? (
-          positions.map(position => {
+          positions.map((position, index) => {
             const {
               id,
               status,
@@ -246,6 +254,7 @@ export default function TableContent({
 
             const currentPrice = position.pool.price
             const tickSpacing = position.pool.tickSpacing
+            const dex = position.pool.project
             const dexImage = position.pool.projectLogo
             const dexVersion = position.pool.project?.split(' ')?.[1] || ''
             const token0Logo = position.pool.tokenAmounts[0]?.token.logo
@@ -279,7 +288,7 @@ export default function TableContent({
             const token1UnclaimedAmount = position.feeInfo
               ? position.feeInfo.amount1
               : position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price
-            const claimDisabled = totalUnclaimedFee === 0 || claiming
+            const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex as EarnDex] || totalUnclaimedFee === 0 || claiming
 
             const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
             const token1Address = position.pool.tokenAmounts[1]?.token.address || ''
@@ -290,10 +299,15 @@ export default function TableContent({
 
             return (
               <PositionRow
-                key={positionId}
+                key={`${positionId}-${poolAddress}-${index}`}
                 onClick={() =>
                   navigate({
-                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':id', id),
+                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(
+                      ':positionId',
+                      dex !== EarnDex.DEX_UNISWAPV2 ? id : poolAddress,
+                    )
+                      .replace(':chainId', poolChainId.toString())
+                      .replace(':protocol', dex),
                   })
                 }
               >
@@ -319,9 +333,11 @@ export default function TableContent({
                         {dexVersion}
                       </Text>
                     </Flex>
-                    <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-                      #{positionId}
-                    </Text>
+                    {DEXES_HIDE_TOKEN_ID[dex as EarnDex] ? null : (
+                      <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
+                        #{positionId}
+                      </Text>
+                    )}
                     <Badge type={BadgeType.SECONDARY}>
                       <Text fontSize={14}>{shortenAddress(poolChainId, poolAddress, 4)}</Text>
                       <CopyHelper size={16} toCopy={poolAddress} />

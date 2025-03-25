@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from 'react'
 
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '../PositionDetail/uniswapv3'
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 import {
   CurrentPriceTooltip,
   CurrentPriceWrapper,
@@ -13,7 +13,7 @@ import {
   PriceRangeEl,
   PriceRangeWrapper,
   UpperPriceIndicator,
-} from './styles'
+} from 'pages/Earns/UserPositions/styles'
 
 export default function PriceRange({
   minPrice,

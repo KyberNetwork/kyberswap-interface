@@ -59,7 +59,7 @@ const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 const Campaign = lazy(() => import('pages/Campaign'))
 const CampaignMyDashboard = lazy(() => import('pages/Campaign/MyDashboard'))
 
-const Earns = lazy(() => import('pages/Earns'))
+const Earns = lazy(() => import('pages/Earns/Landing'))
 const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))

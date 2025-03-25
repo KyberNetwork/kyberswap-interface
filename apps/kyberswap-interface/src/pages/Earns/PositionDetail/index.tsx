@@ -11,13 +11,19 @@ import LocalLoader from 'components/LocalLoader'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 
-import { NavigateButton } from '../PoolExplorer/styles'
-import { EmptyPositionText, PositionPageWrapper } from '../UserPositions/styles'
-import useLiquidityWidget from '../useLiquidityWidget'
-import PositionDetailHeader from './Header'
-import LeftSection from './LeftSection'
-import RightSection from './RightSection'
-import { MainSection, PositionAction, PositionActionWrapper, PositionDetailWrapper } from './styles'
+import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
+import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
+import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
+import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
+import RightSection from 'pages/Earns/PositionDetail/RightSection'
+import {
+  MainSection,
+  PositionAction,
+  PositionActionWrapper,
+  PositionDetailWrapper,
+} from 'pages/Earns/PositionDetail/styles'
+import { EarnDex } from 'pages/Earns/constants'
 
 export interface ParsedPosition {
   id: string
@@ -60,10 +66,15 @@ const PositionDetail = () => {
   const forceLoading = searchParams.get('forceLoading')
 
   const { account } = useActiveWeb3React()
-  const { id } = useParams()
+  const { positionId, chainId, protocol } = useParams()
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const { data: userPosition, isLoading } = useUserPositionsQuery(
-    { addresses: account || '', positionId: id, protocols: '', status: '', page: 1 },
+    {
+      addresses: account || '',
+      positionId: positionId,
+      chainIds: chainId || '',
+      protocols: protocol || '',
+    },
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
   const currentWalletAddress = useRef(account)
@@ -122,7 +133,7 @@ const PositionDetail = () => {
         chainId: position.chainId,
         address: position.poolAddress,
       },
-      position.id,
+      position.dex === EarnDex.DEX_UNISWAPV2 ? account || '' : position.id,
     )
   }
 
@@ -161,7 +172,10 @@ const PositionDetail = () => {
                 <PositionAction
                   outline
                   onClick={() => {
-                    handleOpenZapOut(position)
+                    handleOpenZapOut({
+                      ...position,
+                      id: position.dex === EarnDex.DEX_UNISWAPV2 ? account || '' : position.id,
+                    })
                   }}
                 >{t`Remove Liquidity`}</PositionAction>
                 <PositionAction onClick={onOpenIncreaseLiquidityWidget}>{t`Add Liquidity`}</PositionAction>

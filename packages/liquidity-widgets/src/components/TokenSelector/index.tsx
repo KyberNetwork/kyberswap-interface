@@ -440,9 +440,9 @@ export default function TokenSelector({
           {modalTabSelected === MODAL_TAB.TOKENS && (
             <>
               {tabSelected === TOKEN_TAB.ALL &&
-                unImportedTokens.map((token: Token) => (
+                unImportedTokens.map((token: Token, index) => (
                   <div
-                    key={token.symbol}
+                    key={`${token.symbol}-${index}`}
                     className="flex items-center justify-between py-2 px-6 text-red"
                   >
                     <div className="flex items-center gap-2">

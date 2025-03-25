@@ -10,10 +10,15 @@ import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
-import { ParsedPosition } from '.'
-import LiquidityChart from './LiquidityChart'
-import { InfoRightColumn, InfoSection, InfoSectionSecondFormat, RevertIconWrapper } from './styles'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from './uniswapv3'
+import { ParsedPosition } from 'pages/Earns/PositionDetail'
+import LiquidityChart from 'pages/Earns/PositionDetail/LiquidityChart'
+import {
+  InfoRightColumn,
+  InfoSection,
+  InfoSectionSecondFormat,
+  RevertIconWrapper,
+} from 'pages/Earns/PositionDetail/styles'
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 
 const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()

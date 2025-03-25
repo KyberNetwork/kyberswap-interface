@@ -5,7 +5,7 @@ import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { EarnDex, EarnDex2 } from 'services/zapEarn'
+import { EarnDex, EarnDex2, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -16,9 +16,8 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
-import useFilter from './PoolExplorer/useFilter'
-import { NFT_MANAGER_CONTRACT } from './constants'
-import { getTokenId } from './utils'
+import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import { getTokenId } from 'pages/Earns/utils'
 
 interface AddLiquidityPureParams {
   poolAddress: string
@@ -67,7 +66,7 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
 }
 
-const zapDexMapping = {
+const zapDexMapping: Record<EarnDex | EarnDex2, PoolType> = {
   [EarnDex.DEX_UNISWAPV3]: PoolType.DEX_UNISWAPV3,
   [EarnDex.DEX_PANCAKESWAPV3]: PoolType.DEX_PANCAKESWAPV3,
   [EarnDex.DEX_SUSHISWAPV3]: PoolType.DEX_SUSHISWAPV3,
@@ -75,7 +74,7 @@ const zapDexMapping = {
   [EarnDex.DEX_CAMELOTV3]: PoolType.DEX_CAMELOTV3,
   [EarnDex.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
   [EarnDex.DEX_KODIAK_V3]: PoolType.DEX_KODIAK_V3,
-  // [EarnDex.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
+  [EarnDex.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
   [EarnDex2.DEX_UNISWAPV3]: PoolType.DEX_UNISWAPV3,
   [EarnDex2.DEX_PANCAKESWAPV3]: PoolType.DEX_PANCAKESWAPV3,
   [EarnDex2.DEX_SUSHISWAPV3]: PoolType.DEX_SUSHISWAPV3,
@@ -83,14 +82,14 @@ const zapDexMapping = {
   [EarnDex2.DEX_CAMELOTV3]: PoolType.DEX_CAMELOTV3,
   [EarnDex2.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
   [EarnDex2.DEX_KODIAK_V3]: PoolType.DEX_KODIAK_V3,
-  // [EarnDex2.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
+  [EarnDex2.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
 }
 
-const zapMigrationDexMapping = {
+const zapMigrationDexMapping: Record<PoolType | EarnDex, ZapMigrationDex | null> = {
   [PoolType.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
   [PoolType.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
   [PoolType.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
-  [PoolType.DEX_UNISWAPV2]: null,
+  [PoolType.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
   [PoolType.DEX_PANCAKESWAPV2]: null,
   [PoolType.DEX_SUSHISWAPV2]: null,
   [PoolType.DEX_QUICKSWAPV2]: null,
@@ -116,7 +115,7 @@ const zapMigrationDexMapping = {
   [EarnDex.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
   [EarnDex.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
   [EarnDex.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
-  // [EarnDex.DEX_UNISWAPV2]: null,
+  [EarnDex.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
 }
 
 const useLiquidityWidget = () => {
@@ -149,6 +148,8 @@ const useLiquidityWidget = () => {
         navigate(APP_PATHS.EARN_POSITIONS)
         return
       }
+      const poolAddress = addLiquidityPureParams.poolAddress
+      const chainId = addLiquidityPureParams.chainId
       const dexIndex = Object.values(zapDexMapping).findIndex(item => item === addLiquidityPureParams.poolType)
       const dex = Object.keys(zapDexMapping)[dexIndex] as EarnDex
       const nftContractObj = NFT_MANAGER_CONTRACT[dex]
@@ -156,7 +157,14 @@ const useLiquidityWidget = () => {
         typeof nftContractObj === 'string'
           ? nftContractObj
           : nftContractObj[addLiquidityPureParams.chainId as unknown as keyof typeof nftContractObj]
-      navigate(APP_PATHS.EARN_POSITION_DETAIL.replace(':id', `${nftContract}-${tokenId}?forceLoading=true`))
+      navigate(
+        APP_PATHS.EARN_POSITION_DETAIL.replace(
+          ':positionId',
+          dex !== EarnDex.DEX_UNISWAPV2 ? `${nftContract}-${tokenId}` : poolAddress,
+        )
+          .replace(':chainId', chainId.toString())
+          .replace(':protocol', dex) + '?forceLoading=true',
+      )
     },
     [addLiquidityPureParams, library, navigate],
   )
@@ -167,8 +175,8 @@ const useLiquidityWidget = () => {
       initialTick?: { tickUpper: number; tickLower: number },
     ) => {
       if (!addLiquidityPureParams) return
-      const zapFromDex = zapMigrationDexMapping[position.exchange as EarnDex]
-      const zapToDex = zapMigrationDexMapping[addLiquidityPureParams.poolType]
+      const zapFromDex = zapMigrationDexMapping[position.exchange as keyof typeof zapMigrationDexMapping]
+      const zapToDex = zapMigrationDexMapping[addLiquidityPureParams.poolType as keyof typeof zapMigrationDexMapping]
       if (!zapFromDex) {
         notify(
           {
@@ -214,7 +222,7 @@ const useLiquidityWidget = () => {
     pool: { exchange: string; chainId?: number; address: string },
     positionId?: string,
   ) => {
-    const dex = zapDexMapping[pool.exchange as EarnDex2]
+    const dex = zapDexMapping[pool.exchange as keyof typeof zapDexMapping]
     if (!dex) {
       notify(
         {

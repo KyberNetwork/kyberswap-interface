@@ -116,7 +116,7 @@ enum EarnDex {
   DEX_CAMELOTV3 = "Camelot V3",
   DEX_THENAFUSION = "THENA",
   DEX_KODIAK_V3 = "Kodiak Concentrated",
-  // DEX_UNISWAPV2 = "Uniswap V2",
+  DEX_UNISWAPV2 = "Uniswap V2",
 }
 const earnSupportedChains = [
   ChainId.Ethereum,

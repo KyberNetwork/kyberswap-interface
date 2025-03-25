@@ -182,7 +182,7 @@ export const APP_PATHS = {
   EARN: '/earn',
   EARN_POOLS: '/earn/pools',
   EARN_POSITIONS: '/earn/positions',
-  EARN_POSITION_DETAIL: '/earn/position/:id',
+  EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:protocol',
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',
