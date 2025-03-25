@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { PositionStatus } from 'pages/Earns/types'
+import { PositionStatus, ParsedPosition } from 'pages/Earns/types'
 import { EarnDex, earnSupportedProtocols, PROTOCOL_POSITION_URL, DEXES_HIDE_TOKEN_ID } from 'pages/Earns/constants'
 
 import CopyHelper from 'components/Copy'
@@ -12,7 +12,6 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
-import { ParsedPosition } from 'pages/Earns/PositionDetail'
 import { CurrencyRoundedImage, CurrencySecondImage } from 'pages/Earns/PoolExplorer/styles'
 import {
   Badge,

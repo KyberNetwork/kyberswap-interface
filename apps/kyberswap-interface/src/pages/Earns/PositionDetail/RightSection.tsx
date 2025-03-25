@@ -10,7 +10,7 @@ import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
-import { ParsedPosition } from 'pages/Earns/PositionDetail'
+import { ParsedPosition } from 'pages/Earns/types'
 import LiquidityChart from 'pages/Earns/PositionDetail/LiquidityChart'
 import {
   InfoRightColumn,

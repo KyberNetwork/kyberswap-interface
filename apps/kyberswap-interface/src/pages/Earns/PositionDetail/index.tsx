@@ -24,40 +24,7 @@ import {
   PositionDetailWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import { EarnDex } from 'pages/Earns/constants'
-
-export interface ParsedPosition {
-  id: string
-  dex: string
-  dexImage: string
-  chainId: number
-  chainName: string
-  chainLogo: string
-  poolAddress: string
-  tokenAddress: string
-  token0Address: string
-  token1Address: string
-  token0Logo: string
-  token1Logo: string
-  token0Symbol: string
-  token1Symbol: string
-  token0Decimals: number
-  token1Decimals: number
-  token0Price: number
-  token1Price: number
-  poolFee: number
-  status: string
-  totalValue: number
-  apr: number
-  token0TotalAmount: number
-  token1TotalAmount: number
-  minPrice: number
-  maxPrice: number
-  pairRate: number
-  earning24h: number
-  earning7d: number
-  totalEarnedFee: number
-  createdTime: number
-}
+import { ParsedPosition } from 'pages/Earns/types'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
