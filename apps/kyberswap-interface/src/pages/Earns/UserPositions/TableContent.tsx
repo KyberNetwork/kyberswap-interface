@@ -289,7 +289,9 @@ export default function TableContent({
             const token1UnclaimedAmount = position.feeInfo
               ? position.feeInfo.amount1
               : position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price
-            const posStatus = dex === EarnDex.DEX_UNISWAPV2 ? PositionStatus.IN_RANGE : status
+
+            const isUniv2 = dex === EarnDex.DEX_UNISWAPV2
+            const posStatus = isUniv2 ? PositionStatus.IN_RANGE : status
             const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex as EarnDex] || totalUnclaimedFee === 0 || claiming
 
             const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
@@ -392,25 +394,31 @@ export default function TableContent({
                   <Text>{formatAprNumber(apr7d * 100)}%</Text>
                 </PositionValueWrapper>
                 <PositionValueWrapper align={upToLarge ? 'center' : ''}>
-                  <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
-                  <MouseoverTooltipDesktopOnly
-                    text={
-                      <>
+                  {!isUniv2 ? (
+                    <>
+                      <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+                      <MouseoverTooltipDesktopOnly
+                        text={
+                          <>
+                            <Text>
+                              {formatDisplayNumber(token0UnclaimedAmount, { significantDigits: 6 })}{' '}
+                              {isToken0Native ? nativeToken.symbol : token0Symbol}
+                            </Text>
+                            <Text>
+                              {formatDisplayNumber(token1UnclaimedAmount, { significantDigits: 6 })}{' '}
+                              {isToken1Native ? nativeToken.symbol : token1Symbol}
+                            </Text>
+                          </>
+                        }
+                        width="fit-content"
+                        placement="bottom"
+                      >
                         <Text>
-                          {formatDisplayNumber(token0UnclaimedAmount, { significantDigits: 6 })}{' '}
-                          {isToken0Native ? nativeToken.symbol : token0Symbol}
+                          {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
                         </Text>
-                        <Text>
-                          {formatDisplayNumber(token1UnclaimedAmount, { significantDigits: 6 })}{' '}
-                          {isToken1Native ? nativeToken.symbol : token1Symbol}
-                        </Text>
-                      </>
-                    }
-                    width="fit-content"
-                    placement="bottom"
-                  >
-                    <Text>{formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}</Text>
-                  </MouseoverTooltipDesktopOnly>
+                      </MouseoverTooltipDesktopOnly>
+                    </>
+                  ) : null}
                 </PositionValueWrapper>
                 <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
                   <PositionValueLabel>{t`Bal`}</PositionValueLabel>
