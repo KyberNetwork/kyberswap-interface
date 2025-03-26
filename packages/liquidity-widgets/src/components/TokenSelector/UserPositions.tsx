@@ -150,128 +150,135 @@ const UserPositions = ({ search }: { search: string }) => {
       </svg>
     </div>
   ) : positions.length ? (
-    positions.map((position: EarnPosition, index: number) => (
-      <div key={index}>
-        <div
-          className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
-          onClick={() =>
-            onOpenZapMigration(
-              {
-                exchange: position.pool.project,
-                poolId: position.pool.poolAddress,
-                positionId: position.tokenId,
-              },
-              tickLower !== null && tickUpper !== null
-                ? {
-                    tickLower,
-                    tickUpper,
-                  }
-                : undefined
-            )
-          }
-        >
-          <div className="flex items-center justify-between w-full">
-            <div className="flex gap-2 items-center">
-              <div className="flex items-end">
-                <img
-                  className="rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
-                  src={position.pool.tokenAmounts[0]?.token.logo}
-                  alt="token0 logo"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
-                <img
-                  className="ml-[-8px] rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
-                  src={position.pool.tokenAmounts[1]?.token.logo}
-                  alt="token1 logo"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
-                <img
-                  className="ml-[-6px] rounded-full w-[14px] h-[14px] border-[2px] border-transparent relative top-1"
-                  src={position.chainLogo}
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
-              </div>
-              <span>
-                {position.pool.tokenAmounts[0]?.token.symbol || ""}/
-                {position.pool.tokenAmounts[1]?.token.symbol || ""}
-              </span>
-              {position.pool.fees?.length > 0 && (
-                <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
-                  {position.pool.fees[0]}%
-                </div>
-              )}
-            </div>
-            <div>
-              {formatDisplayNumber(position.currentPositionValue, {
-                style: "currency",
-                significantDigits: 4,
-              })}
-            </div>
-          </div>
-          <div className="flex items-center justify-between w-full">
-            <div className="flex gap-2 items-center">
-              <img
-                src={position.pool.projectLogo}
-                width={20}
-                height={20}
-                alt=""
-                onError={({ currentTarget }) => {
-                  currentTarget.onerror = null;
-                  currentTarget.src = defaultTokenLogo;
-                }}
-              />
-              {position.pool.project !== EarnDex.DEX_UNISWAPV2 && (
-                <span className="text-subText">#{position.tokenId}</span>
-              )}
-              <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
-                {shortenAddress(position.chainId, position.pool.poolAddress, 4)}
-                {copied !== position.tokenId ? (
-                  <IconCopy
-                    className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      copy(position);
+    positions.map((position: EarnPosition, index: number) => {
+      const isUniv2 = position.pool.project === EarnDex.DEX_UNISWAPV2;
+      const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status;
+
+      return (
+        <div key={index}>
+          <div
+            className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
+            onClick={() =>
+              onOpenZapMigration(
+                {
+                  exchange: position.pool.project,
+                  poolId: position.pool.poolAddress,
+                  positionId: position.tokenId,
+                },
+                tickLower !== null && tickUpper !== null
+                  ? {
+                      tickLower,
+                      tickUpper,
+                    }
+                  : undefined
+              )
+            }
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="flex gap-2 items-center">
+                <div className="flex items-end">
+                  <img
+                    className="rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
+                    src={position.pool.tokenAmounts[0]?.token.logo}
+                    alt="token0 logo"
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
                     }}
                   />
-                ) : (
-                  <CircleCheckBig className="w-[14px] h-[14px] text-accent" />
+                  <img
+                    className="ml-[-8px] rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
+                    src={position.pool.tokenAmounts[1]?.token.logo}
+                    alt="token1 logo"
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
+                  />
+                  <img
+                    className="ml-[-6px] rounded-full w-[14px] h-[14px] border-[2px] border-transparent relative top-1"
+                    src={position.chainLogo}
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
+                  />
+                </div>
+                <span>
+                  {position.pool.tokenAmounts[0]?.token.symbol || ""}/
+                  {position.pool.tokenAmounts[1]?.token.symbol || ""}
+                </span>
+                {position.pool.fees?.length > 0 && (
+                  <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
+                    {position.pool.fees[0]}%
+                  </div>
                 )}
               </div>
+              <div>
+                {formatDisplayNumber(position.currentPositionValue, {
+                  style: "currency",
+                  significantDigits: 4,
+                })}
+              </div>
             </div>
-            <div
-              className={`rounded-full text-xs px-2 py-1 font-normal text-${
-                position.status === PositionStatus.OUT_RANGE
-                  ? "warning"
-                  : "accent"
-              }`}
-              style={{
-                background: `${
-                  position.status === PositionStatus.OUT_RANGE
-                    ? theme.warning
-                    : theme.accent
-                }33`,
-              }}
-            >
-              {position.status === PositionStatus.OUT_RANGE
-                ? "● Out of range"
-                : "● In range"}
+            <div className="flex items-center justify-between w-full">
+              <div className="flex gap-2 items-center">
+                <img
+                  src={position.pool.projectLogo}
+                  width={20}
+                  height={20}
+                  alt=""
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null;
+                    currentTarget.src = defaultTokenLogo;
+                  }}
+                />
+                {!isUniv2 && (
+                  <span className="text-subText">#{position.tokenId}</span>
+                )}
+                <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
+                  {shortenAddress(
+                    position.chainId,
+                    position.pool.poolAddress,
+                    4
+                  )}
+                  {copied !== position.tokenId ? (
+                    <IconCopy
+                      className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copy(position);
+                      }}
+                    />
+                  ) : (
+                    <CircleCheckBig className="w-[14px] h-[14px] text-accent" />
+                  )}
+                </div>
+              </div>
+              <div
+                className={`rounded-full text-xs px-2 py-1 font-normal text-${
+                  posStatus === PositionStatus.OUT_RANGE ? "warning" : "accent"
+                }`}
+                style={{
+                  background: `${
+                    posStatus === PositionStatus.OUT_RANGE
+                      ? theme.warning
+                      : theme.accent
+                  }33`,
+                }}
+              >
+                {posStatus === PositionStatus.OUT_RANGE
+                  ? "● Out of range"
+                  : "● In range"}
+              </div>
             </div>
           </div>
+          {index !== userPositions.length - 1 && (
+            <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />
+          )}
         </div>
-        {index !== userPositions.length - 1 && (
-          <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />
-        )}
-      </div>
-    ))
+      );
+    })
   ) : (
     <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[280px]">
       <IconPositionNotFound />
