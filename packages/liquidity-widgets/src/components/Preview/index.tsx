@@ -1046,7 +1046,7 @@ export default function Preview({
             backgroundColor: `${theme.warning}33`,
           }}
         >
-          {zapInfo.zapDetails.suggestedSlippage / 2 > slippage
+          {slippage > zapInfo.zapDetails.suggestedSlippage * 2
             ? "Your slippage is set higher than usual, which may cause unexpected losses."
             : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
         </div>
