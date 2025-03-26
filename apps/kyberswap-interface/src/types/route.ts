@@ -13,7 +13,8 @@ export type Route = {
   exchange: string
   poolLength: number
   poolType: string
-  extra: string
+  extra?: any
+  poolExtra?: any
 }
 
 export enum ChargeFeeBy {
