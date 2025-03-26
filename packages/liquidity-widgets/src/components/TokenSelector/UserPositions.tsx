@@ -3,6 +3,7 @@ import { shortenAddress } from "../TokenInfo/utils";
 import {
   EARN_SUPPORTED_CHAINS,
   EARN_SUPPORTED_PROTOCOLS,
+  EarnDex,
   PATHS,
 } from "@/constants";
 import { useZapState } from "@/hooks/useZapInState";
@@ -150,7 +151,7 @@ const UserPositions = ({ search }: { search: string }) => {
     </div>
   ) : positions.length ? (
     positions.map((position: EarnPosition, index: number) => (
-      <div key={position.tokenId}>
+      <div key={index}>
         <div
           className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
           onClick={() =>
@@ -228,7 +229,9 @@ const UserPositions = ({ search }: { search: string }) => {
                   currentTarget.src = defaultTokenLogo;
                 }}
               />
-              <span className="text-subText">#{position.tokenId}</span>
+              {position.pool.project !== EarnDex.DEX_UNISWAPV2 && (
+                <span className="text-subText">#{position.tokenId}</span>
+              )}
               <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
                 {shortenAddress(position.chainId, position.pool.poolAddress, 4)}
                 {copied !== position.tokenId ? (
