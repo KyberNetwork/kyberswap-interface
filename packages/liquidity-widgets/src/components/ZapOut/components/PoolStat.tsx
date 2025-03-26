@@ -1,8 +1,8 @@
 import { PATHS, PoolType } from "@/constants";
-import { useWidgetContext } from "@/stores/widget";
 import { formatDisplayNumber } from "@/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
+import { useZapOutContext } from "@/stores/zapout";
 
 interface PoolInfo {
   tvl: number;
@@ -22,7 +22,7 @@ export default function PoolStat({
   poolType: PoolType;
   positionId?: string;
 }) {
-  const { position } = useWidgetContext((s) => s);
+  const { position } = useZapOutContext((s) => s);
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
 
   const isUniv2 =
@@ -33,6 +33,9 @@ export default function PoolStat({
       : Number(
           (BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)
         ) / 100;
+
+  console.log("isUniv2", isUniv2);
+  console.log("poolShare", poolShare);
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {

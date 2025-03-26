@@ -1,5 +1,5 @@
 import "../../globals.css";
-import PoolStat from "../Content/PoolStat";
+import PoolStat from "./components/PoolStat";
 import "../Widget/Widget.scss";
 import { Action } from "./components/Action";
 import { EstLiqValue } from "./components/EstLiqValue";
