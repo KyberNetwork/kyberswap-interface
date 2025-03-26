@@ -288,6 +288,7 @@ export default function TableContent({
             const token1UnclaimedAmount = position.feeInfo
               ? position.feeInfo.amount1
               : position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price
+            const posStatus = dex === EarnDex.DEX_UNISWAPV2 ? PositionStatus.IN_RANGE : status
             const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex as EarnDex] || totalUnclaimedFee === 0 || claiming
 
             const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
@@ -322,8 +323,8 @@ export default function TableContent({
                       {token0Symbol}/{token1Symbol}
                     </Text>
                     {poolFee && <Badge>{poolFee}%</Badge>}
-                    <Badge type={status === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-                      ● {status === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
+                    <Badge type={posStatus === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
+                      ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
                     </Badge>
                   </Flex>
                   <Flex alignItems={'center'} sx={{ gap: '10px' }}>
