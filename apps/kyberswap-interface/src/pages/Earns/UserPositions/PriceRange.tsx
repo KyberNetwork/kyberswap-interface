@@ -14,6 +14,7 @@ import {
   PriceRangeWrapper,
   UpperPriceIndicator,
 } from 'pages/Earns/UserPositions/styles'
+import { EarnDex } from 'pages/Earns/constants'
 
 export default function PriceRange({
   minPrice,
@@ -22,6 +23,7 @@ export default function PriceRange({
   tickSpacing,
   token0Decimals,
   token1Decimals,
+  dex,
 }: {
   minPrice: number
   maxPrice: number
@@ -29,10 +31,14 @@ export default function PriceRange({
   tickSpacing: number
   token0Decimals: number
   token1Decimals: number
+  dex: EarnDex
 }) {
-  const outOfRange = currentPrice < minPrice || currentPrice > maxPrice
+  const isUniv2 = dex === EarnDex.DEX_UNISWAPV2
+  const outOfRange = isUniv2 ? false : currentPrice < minPrice || currentPrice > maxPrice
 
   const ticksAtLimit: { lower: boolean; upper: boolean } | undefined = useMemo(() => {
+    if (isUniv2) return { lower: true, upper: true }
+
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
     const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
 
@@ -59,7 +65,7 @@ export default function PriceRange({
       lower: usableTickLower === minTick,
       upper: usableTickUpper === maxTick,
     }
-  }, [maxPrice, minPrice, tickSpacing, token0Decimals, token1Decimals])
+  }, [isUniv2, maxPrice, minPrice, tickSpacing, token0Decimals, token1Decimals])
 
   if (!ticksAtLimit) return null
 
@@ -72,8 +78,8 @@ export default function PriceRange({
         {!outOfRange && (
           <CurrentPriceIndicator
             currentPrice={currentPrice}
-            color={maxPrice - currentPrice > (maxPrice - minPrice) / 2 ? '#09ae7d' : '#6368f1'}
-            left={(currentPrice - minPrice) / (maxPrice - minPrice)}
+            color={isUniv2 || maxPrice - currentPrice > (maxPrice - minPrice) / 2 ? '#09ae7d' : '#6368f1'}
+            left={isUniv2 ? 0.4 : (currentPrice - minPrice) / (maxPrice - minPrice)}
           />
         )}
         <LowerPriceIndicator>

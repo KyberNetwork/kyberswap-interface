@@ -430,6 +430,7 @@ export default function TableContent({
                     tickSpacing={tickSpacing}
                     token0Decimals={token0Decimals}
                     token1Decimals={token1Decimals}
+                    dex={dex as EarnDex}
                   />
                 </PositionValueWrapper>
                 {(upToSmall || !upToLarge) && (
