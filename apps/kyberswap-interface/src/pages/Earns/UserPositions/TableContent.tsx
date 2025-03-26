@@ -112,7 +112,8 @@ export default function TableContent({
     const totalUnclaimedFees = position.feeInfo
       ? position.feeInfo.totalValue
       : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
-    if (claiming || totalUnclaimedFees === 0) return
+    const isUniv2 = position.pool.project === EarnDex.DEX_UNISWAPV2
+    if (isUniv2 || claiming || totalUnclaimedFees === 0) return
     setPositionToClaim({
       id: position.tokenId,
       dex: position.pool.project || '',
