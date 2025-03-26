@@ -94,18 +94,16 @@ export function useNftApproval({
       .then((res) => res.json())
       .then((res) => {
         setIsChecking(false);
-        console.log(res, decodeAddress((res?.result || "").slice(2)));
         if (
           decodeAddress((res?.result || "").slice(2))?.toLowerCase() ===
           spender.toLowerCase()
-        ) {
+        )
           setIsApproved(true);
-        }
       })
       .finally(() => {
         setIsChecking(false);
       });
-  }, [nftManagerContract, nftId, spender]);
+  }, [nftManagerContract, nftId, spender, rpcUrl]);
 
   return { isChecking, isApproved, approve, pendingTx };
 }

@@ -34,9 +34,6 @@ export default function PoolStat({
           (BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)
         ) / 100;
 
-  console.log("isUniv2", isUniv2);
-  console.log("poolShare", poolShare);
-
   useEffect(() => {
     const handleFetchPoolInfo = () => {
       fetch(

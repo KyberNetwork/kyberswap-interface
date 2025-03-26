@@ -19,6 +19,8 @@ import {
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
+import { EarnDex } from 'pages/Earns/constants'
+import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 
 const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
@@ -28,6 +30,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
 
   const price = useMemo(() => (!revert ? position.pairRate : 1 / position.pairRate), [position.pairRate, revert])
+  const isUniv2 = position.dex === EarnDex.DEX_UNISWAPV2
 
   const priceRange = useMemo(() => {
     if (!pool) return
@@ -72,7 +75,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   }, [defaultRevertChecked, pool, position.chainId, stableCoins])
 
   return (
-    <InfoRightColumn>
+    <InfoRightColumn halfWidth={isUniv2}>
       {price ? (
         <InfoSection>
           <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
@@ -132,6 +135,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
           </InfoSectionSecondFormat>
         </Flex>
       ) : null}
+
+      {isUniv2 && <PositionHistory position={position} />}
     </InfoRightColumn>
   )
 }

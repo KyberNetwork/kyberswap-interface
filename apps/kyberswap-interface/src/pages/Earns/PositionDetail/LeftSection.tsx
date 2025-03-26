@@ -1,12 +1,10 @@
-import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
-import { usePositionHistoryQuery } from 'services/zapEarn'
-import { PositionHistoryType, ParsedPosition } from 'pages/Earns/types'
+import { ParsedPosition } from 'pages/Earns/types'
 
 import HelpIcon from 'assets/svg/help-circle.svg'
-import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -27,7 +25,7 @@ import {
   PositionAction,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
-import { useActiveWeb3React } from 'hooks'
+import PositionHistory from './PositionHistory'
 
 const FEE_FETCHING_INTERVAL = 15_000
 let feeFetchingInterval: NodeJS.Timeout
@@ -42,24 +40,14 @@ export interface FeeInfo {
   totalValue: number
 }
 
-const formatDateTime = (number: number) => (number < 10 ? `0${number}` : number)
-
 const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
   const [openClaimFeeModal, setOpenClaimFeeModal] = useState(false)
   const [claiming, setClaiming] = useState(false)
   const [claimTx, setClaimTx] = useState<string | null>(null)
   const [feeInfo, setFeeInfo] = useState<FeeInfo | null>(null)
 
   const allTransactions = useAllTransactions(true)
-
-  const { data: historyData } = usePositionHistoryQuery({
-    chainId: position.chainId,
-    tokenAddress: position.tokenAddress,
-    tokenId: position.id,
-    userAddress: account,
-  })
 
   const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[position.dex as keyof typeof NFT_MANAGER_CONTRACT]
   const nftManagerContract =
@@ -71,19 +59,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
 
   const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
   const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
-
-  const createdTime = useMemo(() => {
-    const data = new Date(position.createdTime * 1000)
-    const hours = formatDateTime(data.getHours())
-    const minutes = formatDateTime(data.getMinutes())
-    const seconds = formatDateTime(data.getSeconds())
-    return `${hours}:${minutes}:${seconds} ${data.toLocaleDateString()}`
-  }, [position.createdTime])
-
-  const txHash = useMemo(() => {
-    if (!historyData) return ''
-    return [...historyData].reverse().find(item => item.type === PositionHistoryType.DEPOSIT)?.txHash || ''
-  }, [historyData])
+  const isUniv2 = position.dex === EarnDex.DEX_UNISWAPV2
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!contract) return
@@ -154,7 +130,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
 
   return (
-    <InfoLeftColumn>
+    <InfoLeftColumn halfWidth={isUniv2}>
       {openClaimFeeModal && feeInfo && (
         <ClaimFeeModal
           claiming={claiming}
@@ -302,50 +278,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           </Flex>
         </InfoSection>
       ) : null}
-      <InfoSection>
-        <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Created Time`}
-          </Text>
-          <Text>{createdTime}</Text>
-        </Flex>
-        {/* <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Liquidity Source`}
-          </Text>
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <Text fontSize={14} color={theme.subText}>{t`Value`}</Text>
-            <Text>$12,600</Text>
-          </Flex>
-        </Flex> */}
-        <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: 2 }} marginBottom={2}>
-          {/* <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <Text>345 KNC</Text> <Text>+ 12.65 JUP</Text> <Text>+ 0.18 ETH</Text>
-          </Flex> */}
-          {txHash ? (
-            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-              <Text fontSize={14} color={theme.subText}>{t`Tnx Hash`}</Text>
-              <Text
-                color={theme.blue2}
-                onClick={() => window.open(NETWORKS_INFO[position.chainId as ChainId].etherscanUrl + '/tx/' + txHash)}
-                sx={{ cursor: 'pointer' }}
-                marginRight={-1}
-              >{`${txHash.substring(0, 6)}...${txHash.substring(62)}`}</Text>
-              <CopyHelper color={theme.blue2} size={16} toCopy={txHash} />
-            </Flex>
-          ) : null}
-        </Flex>
-        {/* <Flex alignItems={'flex-start'} justifyContent={'space-between'}>
-          <Text fontSize={14} color={theme.subText}>{t`Past Actions`}</Text>
-          <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: '6px' }}>
-            <Text>{t`Increased Liquidity`}</Text>
-            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-              <Text fontSize={14} color={theme.subText}>{t`Value`}</Text>
-              <Text>$12,600</Text>
-            </Flex>
-          </Flex>
-        </Flex> */}
-      </InfoSection>
+      {!isUniv2 && <PositionHistory position={position} />}
     </InfoLeftColumn>
   )
 }

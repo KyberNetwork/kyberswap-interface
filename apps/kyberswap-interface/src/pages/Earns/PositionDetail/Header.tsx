@@ -34,6 +34,9 @@ const PositionDetailHeader = ({
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
+  const isUniv2 = position.dex === EarnDex.DEX_UNISWAPV2
+  const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status
+
   const onOpenPositionInDexSite = () => {
     if (!position || !earnSupportedProtocols.includes(position.dex)) return
 
@@ -73,8 +76,8 @@ const PositionDetailHeader = ({
               #{position.id}
             </Text>
           )}
-          <Badge type={position.status === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-            ● {position.status === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
+          <Badge type={posStatus === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
+            ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
           </Badge>
           <Badge type={BadgeType.SECONDARY}>
             <Text fontSize={14}>

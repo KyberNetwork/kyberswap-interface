@@ -114,6 +114,10 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
         }/api/v1/out/route?${search.slice(1)}`
       ).then((res) => res.json());
 
+      if (!res.data) {
+        set({ route: null, fetchingRoute: false });
+        return;
+      }
       apiResponse.parse(res.data);
       set({ route: res.data, fetchingRoute: false });
     } catch (e) {
@@ -165,8 +169,13 @@ const refundAction = z.object({
 export type RefundAction = z.infer<typeof refundAction>;
 
 const apiResponse = z.object({
+  gas: z.string(),
+  gasUsd: z.string(),
   zapDetails: z.object({
+    finalAmountUsd: z.string(),
     initialAmountUsd: z.string(),
+    priceImpact: z.number().nullable().optional(),
+    suggestedSlippage: z.number(),
     actions: z.array(
       z.discriminatedUnion("type", [
         removeLiquidityAction,
@@ -204,10 +213,6 @@ const apiResponse = z.object({
         //}),
       ])
     ),
-
-    finalAmountUsd: z.string(),
-    priceImpact: z.number().nullable().optional(),
-    suggestedSlippage: z.number(),
   }),
   route: z.string(),
   routerAddress: z.string(),
