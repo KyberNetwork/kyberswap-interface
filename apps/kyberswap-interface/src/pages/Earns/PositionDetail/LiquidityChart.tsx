@@ -36,8 +36,8 @@ export default function LiquidityChart({
   const tickSpacing = isUninitialized ? undefined : pool.positionInfo.tickSpacing
   const ticks = isUninitialized ? [] : pool.positionInfo.ticks
   const liquidity = isUninitialized ? '0' : pool.positionInfo.liquidity
-  const token0 = isUninitialized ? undefined : pool.tokens[0]
-  const token1 = isUninitialized ? undefined : pool.tokens[1]
+  const token0 = isUninitialized ? undefined : pool.tokens?.[0]
+  const token1 = isUninitialized ? undefined : pool.tokens?.[1]
 
   const priceLower = !revertPrice ? minPrice : 1 / minPrice
   const priceUpper = !revertPrice ? maxPrice : 1 / maxPrice
