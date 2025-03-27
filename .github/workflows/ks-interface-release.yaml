@@ -74,7 +74,7 @@ jobs:
       - name: Build interface
         env:
           CI: false
-          VITE_TAG: ${{ needs.prepare.outputs.image_tag }}
+          VITE_TAG: ${{ github.event.inputs.version }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         working-directory: apps/kyberswap-interface
         run: pnpm build-prod
