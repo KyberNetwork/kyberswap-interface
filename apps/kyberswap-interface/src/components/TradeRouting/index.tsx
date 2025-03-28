@@ -28,7 +28,8 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
-import { SwapRouteV2 } from 'utils/aggregationRouting'
+import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
+import TradeRouteV3 from './TradeRouteV3'
 
 interface RouteRowProps {
   route: SwapRouteV2
@@ -71,7 +72,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                   <TokenRoute token={token} />
                   {Array.isArray(subRoute)
                     ? subRoute.map(pool => {
-                        const dex = getDexInfoByPool(pool, allDexes)
+                        const dex = getDexInfoByPool(pool.exchange, allDexes)
                         const poolId = pool.id.split('-')?.[0]
                         const link = (i => {
                           // TODO: Dungz remove condition
@@ -117,7 +118,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
 interface RoutingProps {
   maxHeight?: string
 
-  tradeComposition: SwapRouteV2[] | undefined
+  tradeComposition: SwapRouteV2[] | SwapRouteV3[] | undefined
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   inputAmount: CurrencyAmount<Currency> | undefined
@@ -172,6 +173,8 @@ const Routing = ({
     handleScroll()
   }, [tradeComposition, maxHeight, handleScroll])
 
+  const isSwapRouteV3 = tradeComposition?.every(item => 'pool' in item)
+
   return (
     <Shadow ref={shadowRef}>
       <StyledContainer ref={wrapperRef} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
@@ -185,18 +188,33 @@ const Routing = ({
           {hasRoutes ? (
             <div>
               <StyledRoutes>
-                <StyledDot />
-                <StyledDot out />
-                {tradeComposition.map(route => (
-                  <StyledRoute key={route.id}>
-                    <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
-                    <StyledRouteLine />
-                    <RouteRow route={route} chainId={chainId} />
-                    <StyledHopChevronWrapper style={{ marginRight: '2px' }}>
-                      <StyledHopChevronRight />
-                    </StyledHopChevronWrapper>
-                  </StyledRoute>
-                ))}
+                {!isSwapRouteV3 && (
+                  <>
+                    <StyledDot />
+                    <StyledDot out />
+                  </>
+                )}
+                {isSwapRouteV3 ? (
+                  inputAmount && outputAmount ? (
+                    <TradeRouteV3
+                      tradeComposition={tradeComposition as SwapRouteV3[]}
+                      tokenIn={inputAmount?.currency.wrapped}
+                    />
+                  ) : null
+                ) : (
+                  (tradeComposition as SwapRouteV2[]).map(route => {
+                    return (
+                      <StyledRoute key={route.id}>
+                        <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
+                        <StyledRouteLine />
+                        <RouteRow route={route} chainId={chainId} />
+                        <StyledHopChevronWrapper style={{ marginRight: '2px' }}>
+                          <StyledHopChevronRight />
+                        </StyledHopChevronWrapper>
+                      </StyledRoute>
+                    )
+                  })
+                )}{' '}
               </StyledRoutes>
             </div>
           ) : null}
