@@ -79,7 +79,7 @@ export default function PriceRange({
           <CurrentPriceIndicator
             currentPrice={currentPrice}
             color={isUniv2 || maxPrice - currentPrice > (maxPrice - minPrice) / 2 ? '#09ae7d' : '#6368f1'}
-            left={isUniv2 ? 0.4 : (currentPrice - minPrice) / (maxPrice - minPrice)}
+            left={isUniv2 ? 0.2 : (currentPrice - minPrice) / (maxPrice - minPrice)}
           />
         )}
         <LowerPriceIndicator>

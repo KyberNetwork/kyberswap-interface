@@ -38,13 +38,13 @@ const UserPositions = ({ search }: { search: string }) => {
   const [copied, setCopied] = useState<string | null>(null);
 
   const positions = useMemo(() => {
-    const positions = userPositions.filter((position: EarnPosition) =>
-      positionId
-        ? position.pool.project !== EarnDex.DEX_UNISWAPV2
-          ? position.tokenId !== positionId
-          : position.userAddress !== positionId
-        : position.pool.poolAddress !== poolAddress
-    );
+    const positions = positionId
+      ? userPositions.filter((position: EarnPosition) =>
+          position.pool.project !== EarnDex.DEX_UNISWAPV2
+            ? position.tokenId !== positionId
+            : position.pool.poolAddress !== poolAddress
+        )
+      : userPositions;
     if (!search) return positions;
 
     return positions.filter((position: EarnPosition) => {
@@ -71,7 +71,7 @@ const UserPositions = ({ search }: { search: string }) => {
             token0Name.includes(search.toLowerCase()) ||
             token1Name.includes(search.toLowerCase());
     });
-  }, [positionId, search, userPositions]);
+  }, [poolAddress, positionId, search, userPositions]);
 
   const copy = (position: EarnPosition) => {
     if (!navigator?.clipboard) return;
@@ -166,7 +166,10 @@ const UserPositions = ({ search }: { search: string }) => {
                 {
                   exchange: position.pool.project,
                   poolId: position.pool.poolAddress,
-                  positionId: position.tokenId,
+                  positionId:
+                    position.pool.project !== EarnDex.DEX_UNISWAPV2
+                      ? position.tokenId
+                      : position.userAddress,
                 },
                 tickLower !== null && tickUpper !== null
                   ? {

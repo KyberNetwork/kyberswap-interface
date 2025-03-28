@@ -1,6 +1,5 @@
-import { ChainId, Token, univ3Dexes } from "../schema";
+import { ChainId, Token, univ2Dexes } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
-import { usePositionStore } from "../stores/usePositionStore";
 import {
   ProtocolFeeAction,
   RefundAction,
@@ -23,12 +22,12 @@ import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 
 export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
   const { pools, theme } = usePoolsStore();
-  const { fromPosition: position } = usePositionStore();
 
   const { tickUpper, tickLower, route, fetchingRoute, slippage } =
     useZapStateStore();
 
-  const isUniv3 = position !== "loading" && univ3Dexes.includes(position.dex);
+  const isTargetUniv2 =
+    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -98,7 +97,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
       </div>
       <div
         className={`py-4 flex gap-2 md:gap-6 flex-col ${
-          isUniv3 ? "md:!flex-row" : ""
+          !isTargetUniv2 ? "md:!flex-row" : ""
         }`}
       >
         <div className="flex-1">
