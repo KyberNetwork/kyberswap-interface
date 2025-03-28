@@ -115,7 +115,8 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
     poolLoading: false,
 
     getPool: async (fetchPrices) => {
-      const { poolAddress, chainId, poolType, positionId } = get();
+      const { poolAddress, chainId, poolType, positionId, connectedAccount } =
+        get();
 
       set({ poolLoading: true });
 
@@ -364,11 +365,12 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
 
         set({ pool: p });
 
-        if (positionId) {
+        if (positionId || connectedAccount.address) {
           // get pool total supply and user supply
+          const posId = positionId || connectedAccount.address || "";
           const balanceOfSelector = getFunctionSelector("balanceOf(address)");
           const totalSupplySelector = getFunctionSelector("totalSupply()");
-          const paddedAccount = positionId.replace("0x", "").padStart(64, "0");
+          const paddedAccount = posId.replace("0x", "").padStart(64, "0");
 
           const getPayload = (d: string) => {
             return {
@@ -413,6 +415,12 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
             totalSupply,
           };
           set({ position: p });
+          if (
+            !positionId &&
+            connectedAccount.address &&
+            userBalance > BigInt(0)
+          )
+            set({ positionId: connectedAccount.address });
         }
       } else {
         set({ poolLoading: false });
@@ -448,7 +456,7 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update store when props change
+  // Update store when props changeƒ
   useEffect(() => {
     store.setState({
       ...props,

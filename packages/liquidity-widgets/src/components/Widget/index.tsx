@@ -1,8 +1,8 @@
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import "./Widget.scss";
 
 import { defaultTheme, Theme } from "../../theme";
-import { PoolType, ChainId, NetworkInfo } from "../../constants";
+import { PoolType, ChainId } from "../../constants";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
 import { TokenListProvider } from "../../hooks/useTokenList";
@@ -10,7 +10,6 @@ import Setting from "../Setting";
 
 import "../../globals.css";
 import { WidgetProps, WidgetProvider, useWidgetContext } from "@/stores/widget";
-import { getFunctionSelector } from "@kyber/utils/crypto";
 
 export { PoolType, ChainId };
 
@@ -35,15 +34,7 @@ export default function Widget(props: WidgetProps) {
     initDepositTokens,
     initAmounts,
     chainId,
-    positionId: purePositionId,
-    poolType,
-    connectedAccount,
-    poolAddress,
   } = props;
-
-  const [positionId, setPositionId] = useState<string | undefined>(
-    purePositionId
-  );
 
   const themeToApply = useMemo(
     () =>
@@ -64,54 +55,9 @@ export default function Widget(props: WidgetProps) {
     });
   }, [themeToApply]);
 
-  useEffect(() => {
-    if (
-      poolType === PoolType.DEX_UNISWAPV2 &&
-      !positionId &&
-      connectedAccount.address
-    ) {
-      const balanceOfSelector = getFunctionSelector("balanceOf(address)");
-      const paddedAccount = connectedAccount.address
-        .replace("0x", "")
-        .padStart(64, "0");
-
-      const getPayload = (d: string) => {
-        return {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "eth_call",
-            params: [
-              {
-                to: poolAddress,
-                data: d,
-              },
-              "latest",
-            ],
-            id: 1,
-          }),
-        };
-      };
-
-      fetch(
-        NetworkInfo[chainId].defaultRpc,
-        getPayload(`0x${balanceOfSelector}${paddedAccount}`)
-      )
-        .then((res) => res.json())
-        .then((res) => {
-          if (res.result && BigInt(res.result) > BigInt(0))
-            setPositionId(connectedAccount.address);
-        });
-    }
-  }, [chainId, connectedAccount.address, poolAddress, poolType, positionId]);
-
   const widgetProps = {
     ...props,
     theme: themeToApply,
-    positionId,
   };
 
   return (
