@@ -249,6 +249,14 @@ const apiResponse = z.object({
         newSqrtP: z.string(),
       })
       .optional(),
+    uniswapV2: z
+      .object({
+        reserve0: z.string(),
+        reserve1: z.string(),
+        newReserve0: z.string(),
+        newReserve1: z.string(),
+      })
+      .optional(),
   }),
 
   positionDetails: z.object({

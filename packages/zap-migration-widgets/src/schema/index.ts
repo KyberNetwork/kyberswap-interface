@@ -172,6 +172,7 @@ export const univ2PoolNormalize = z.object({
     "exoticPair",
     "highVolatilityPair",
   ]),
+  totalSupply: z.bigint().optional(),
 });
 export type UniV2Pool = z.infer<typeof univ2PoolNormalize>;
 
@@ -196,13 +197,13 @@ export const univ3Dexes: Dex[] = [
   Dex.DEX_KODIAK_V3,
   Dex.DEX_SQUADSWAP_V3,
 ] as const;
-export type Univ3Dex = typeof univ3Dexes[number];
+export type Univ3Dex = (typeof univ3Dexes)[number];
 
 export const univ2Dexes: Dex[] = [
   Dex.DEX_UNISWAPV2,
   Dex.DEX_SQUADSWAP_V2,
 ] as const;
-export type Univ2Dex = typeof univ2Dexes[number];
+export type Univ2Dex = (typeof univ2Dexes)[number];
 
 // Create the discriminated union with the correct structure
 export const pool = z.discriminatedUnion("dex", [
