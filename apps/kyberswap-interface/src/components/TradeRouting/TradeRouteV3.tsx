@@ -91,6 +91,24 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
   const theme = useTheme()
   const svgRef = useRef<SVGSVGElement>(null)
 
+  useEffect(() => {
+    const update = () => {
+      if (!svgRef.current) return
+      const svgRect = svgRef.current.getBoundingClientRect()
+      const tokenInRect = {
+        ...svgRect,
+        width: 1,
+        height: svgRect.height,
+        x: svgRect.x + 10,
+        y: svgRect.y,
+      }
+      setNodeRects(prev => ({ ...prev, [tokenIn.address]: tokenInRect }))
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [tokenIn.address])
+
   return (
     <>
       <StyledDot />
@@ -113,7 +131,9 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
             <polygon points="0 0, 4 2, 0 4" fill={theme.primary} />
           </marker>
         </defs>
+
         {nodes.map(node => {
+          const isStartNode = node.address === tokenIn.address
           const svgRect = svgRef.current?.getBoundingClientRect()
           if (!svgRect) return null
           const totalAmount = edges
@@ -141,7 +161,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   x2={svgRect.width - 10}
                   y2={y}
                   stroke={rgba('#fff', 0.06)}
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                   markerEnd="url(#arrowhead)"
                 />
                 <line
@@ -150,7 +170,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   x2={svgRect.width - 10}
                   y2={y - svgRect.height / 2}
                   stroke={rgba('#fff', 0.06)}
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                 />
               </React.Fragment>
             )
@@ -202,56 +222,36 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
               }
             })
 
-          //token in
-
-          if (node.address === tokenIn.address) {
-            const eds = edges.filter(edge => edge.source.address === node.address)
-            const totalAmount = eds.reduce((acc, cur) => {
-              const swapAmount = cur.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
-              return acc + swapAmount
-            }, 0n)
-
-            const maxY = Math.max(
-              ...eds.map(edge => nodeRects[edge.target.address].y + nodeRects[edge.target.address].height / 2),
-            )
-
-            return (
-              <React.Fragment key={node.address}>
-                <line x1={10} y1={10} x2={10} y2={maxY - svgRect.y} stroke={rgba('#fff', 0.06)} strokeWidth="2" />
-
-                {eds.map(edge => {
-                  const target = nodeRects[edge.target.address]
-                  if (!target) return null
-                  const y = target.y + target.height / 2 - svgRect.y
-                  const percent =
-                    (edge.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n) * 100n) / totalAmount
-
-                  return (
-                    <React.Fragment key={edge.source.address + edge.target.address}>
-                      <text x={16} y={y + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
-                        {percent.toString()}%
-                      </text>
-                      <line
-                        x1={10}
-                        y1={y}
-                        x2={target.x - svgRect.x}
-                        y2={y}
-                        stroke={rgba('#fff', 0.06)}
-                        strokeWidth="2"
-                        markerEnd={'url(#arrowhead)'}
-                      />
-                    </React.Fragment>
-                  )
-                })}
-              </React.Fragment>
-            )
-          }
-
           const noCrossEdges = edgesOut.filter(edge => !edge.isCorss)
           const crossEdges = edgesOut.filter(edge => edge.isCorss)
 
+          const lowestYForStartNode = Math.max(
+            ...crossEdges.map(edge => {
+              const middleNodeRects = edge.middleNodes
+                .map(node => {
+                  const nodeRect = nodeRects[node.address]
+                  if (!nodeRect) return null
+                  return nodeRect
+                })
+                .filter(Boolean) as DOMRect[]
+              const startY =
+                Math.max(...middleNodeRects.map(node => node.y + node.height)) + 30 + (crossEdges.length - 1) * 10
+              return startY
+            }),
+          )
+
           return (
             <React.Fragment key={node.address}>
+              {isStartNode && (
+                <line
+                  x1={10}
+                  y1={10}
+                  x2={10}
+                  y2={lowestYForStartNode - svgRect.y}
+                  stroke={rgba('#fff', 0.06)}
+                  strokeWidth="1.5"
+                />
+              )}
               {noCrossEdges.map(edge => {
                 const x1 = edge.start.x - svgRect.x
                 const y1 = edge.start.y - svgRect.y
@@ -268,7 +268,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                       x2={edge.end.x - svgRect.x}
                       y2={edge.end.y - svgRect.y}
                       stroke={rgba('#fff', 0.06)}
-                      strokeWidth="2"
+                      strokeWidth="1.5"
                       markerEnd="url(#arrowhead)"
                     />
                   </React.Fragment>
@@ -288,9 +288,9 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
 
                 const startY =
                   Math.max(
-                    source.y + source.height,
+                    isStartNode ? 0 : source.y + source.height,
                     ...middleNodeRects.map(node => node.y + node.height),
-                    target.y + target.height,
+                    isStartNode ? 0 : target.y + target.height,
                   ) +
                   30 +
                   (crossEdges.length - 1 - index) * 10
@@ -312,14 +312,16 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                     </text>
 
                     {/*vertical line*/}
-                    <line
-                      x1={startX - svgRect.x}
-                      y1={source.y + source.height - svgRect.y}
-                      x2={startX - svgRect.x}
-                      y2={startY - svgRect.y}
-                      stroke={rgba('#fff', 0.06)}
-                      strokeWidth="2"
-                    />
+                    {!isStartNode && (
+                      <line
+                        x1={startX - svgRect.x}
+                        y1={source.y + source.height - svgRect.y}
+                        x2={startX - svgRect.x}
+                        y2={startY - svgRect.y}
+                        stroke={rgba('#fff', 0.06)}
+                        strokeWidth="2"
+                      />
+                    )}
                     {/*horizontal line*/}
                     <line
                       x1={startX - svgRect.x}
@@ -327,7 +329,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                       x2={end.x + (isLineUnderTarget ? target.width / 2 : 0) - svgRect.x}
                       y2={startY - svgRect.y}
                       stroke={rgba('#fff', 0.06)}
-                      strokeWidth="2"
+                      strokeWidth="1.5"
                       markerEnd={isLineUnderTarget ? undefined : 'url(#arrowhead)'}
                     />
                     {isLineUnderTarget && (
@@ -337,7 +339,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                         x2={end.x + target.width / 2 - svgRect.x}
                         y2={target.y + target.height - svgRect.y}
                         stroke={rgba('#fff', 0.06)}
-                        strokeWidth="2"
+                        strokeWidth="1.5"
                         markerEnd={'url(#arrowhead)'}
                       />
                     )}
@@ -385,9 +387,14 @@ const RouteNode = ({
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    setNodeRects(prev => ({ ...prev, [node.address]: rect }))
+    const update = () => {
+      if (!ref.current) return
+      const rect = ref.current.getBoundingClientRect()
+      setNodeRects(prev => ({ ...prev, [node.address]: rect }))
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
   }, [setNodeRects, node.address])
 
   return (
@@ -403,9 +410,8 @@ const RouteNode = ({
         const totalAmount = edge.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
         return (
           <ListPool key={edge.source.address + edge.target.address}>
-            <Flex alignItems="center" sx={{ gap: '4px', fontSize: '10px' }}>
-              <CurrencyLogo currency={edge.source} size="12px" />
-              {edge.source.symbol}
+            <Flex alignItems="center" sx={{ gap: '4px', fontSize: '12px' }} color={theme.subText}>
+              {edge.source.symbol} → {edge.target.symbol}
             </Flex>
             {edge.swaps.map(swap => {
               const dex = getDexInfoByPool(swap.exchange, allDexes)
