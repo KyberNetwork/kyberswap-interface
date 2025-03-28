@@ -28,6 +28,7 @@ const UserPositions = ({ search }: { search: string }) => {
     positionId,
     onOpenZapMigration,
     onConnectWallet,
+    poolAddress,
   } = useWidgetContext((s) => s);
   const { address: account } = connectedAccount || {};
   const { tickLower, tickUpper } = useZapState();
@@ -37,11 +38,13 @@ const UserPositions = ({ search }: { search: string }) => {
   const [copied, setCopied] = useState<string | null>(null);
 
   const positions = useMemo(() => {
-    const positions = positionId
-      ? userPositions.filter(
-          (position: EarnPosition) => position.tokenId !== positionId
-        )
-      : userPositions;
+    const positions = userPositions.filter((position: EarnPosition) =>
+      positionId
+        ? position.pool.project !== EarnDex.DEX_UNISWAPV2
+          ? position.tokenId !== positionId
+          : position.userAddress !== positionId
+        : position.pool.poolAddress !== poolAddress
+    );
     if (!search) return positions;
 
     return positions.filter((position: EarnPosition) => {

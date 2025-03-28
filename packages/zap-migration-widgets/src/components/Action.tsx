@@ -1,6 +1,6 @@
 import { DexInfos, NetworkInfo, ZERO_ADDRESS } from "../constants";
 import { useNftApproval } from "../hooks/use-nft-approval";
-import { ChainId, Token } from "../schema";
+import { ChainId, Token, univ2Dexes } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { usePositionStore } from "../stores/usePositionStore";
 import { RefundAction, useZapStateStore } from "../stores/useZapStateStore";
@@ -53,6 +53,9 @@ export function Action({
     showPreview,
     degenMode,
   } = useZapStateStore();
+
+  const isTargetUniv2 =
+    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
 
   const nftManager =
     pools === "loading" ? undefined : DexInfos[pools[0].dex].nftManagerContract;
@@ -107,16 +110,17 @@ export function Action({
   let btnText = "";
   if (fetchingRoute) btnText = "Fetching Route...";
   else if (liquidityOut === 0n) btnText = "Select Liquidity to Migrate";
-  else if (tickLower === null || tickUpper === null)
-    btnText = "Select Price Range";
-  else if (route === null) btnText = "No Route Found";
+  else if (!isTargetUniv2) {
+    if (tickLower === null || tickUpper === null)
+      btnText = "Select Price Range";
+    else if (tickLower >= tickUpper) btnText = "Invalid Price Range";
+  } else if (route === null) btnText = "No Route Found";
   else if (!connectedAccount.address) btnText = "Connect Wallet";
   else if (connectedAccount.chainId !== chainId) btnText = "Switch Network";
   else if (isChecking) btnText = "Checking Allowance";
   else if (pendingTx || clickedApprove) btnText = "Approving...";
   else if (!isApproved) btnText = "Approve";
   else if (pi.piVeryHigh) btnText = "Zap anyway";
-  else if (tickLower >= tickUpper) btnText = "Invalid Price Range";
   else if (!route) btnText = "No Route Found";
   else btnText = "Preview";
 
@@ -124,9 +128,8 @@ export function Action({
     fetchingRoute ||
     route === null ||
     liquidityOut === 0n ||
-    tickLower === null ||
-    tickUpper === null ||
-    tickLower >= tickUpper ||
+    (!isTargetUniv2 &&
+      (tickLower === null || tickUpper === null || tickLower >= tickUpper)) ||
     isChecking ||
     !!pendingTx ||
     clickedApprove;

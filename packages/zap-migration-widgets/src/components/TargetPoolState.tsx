@@ -50,7 +50,6 @@ export function TargetPoolState({
 
   const isUniV3 = pools !== "loading" && univ3Dexes.includes(pools[1].dex);
   const isUniV2 = pools !== "loading" && univ2Dexes.includes(pools[1].dex);
-  const isFromUniv2 = pools !== "loading" && univ2Dexes.includes(pools[0].dex);
 
   useEffect(() => {
     if (toPosition !== "loading" && toPosition !== null && isUniV3) {
@@ -298,7 +297,7 @@ export function TargetPoolState({
         )}
       </div>
 
-      {isFromUniv2 && <EstimateLiqValue chainId={chainId} />}
+      {isUniV2 && <EstimateLiqValue chainId={chainId} />}
 
       {isUniV3 &&
         (toPosition !== "loading" && toPosition !== null ? (

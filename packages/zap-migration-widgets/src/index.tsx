@@ -111,7 +111,8 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   const { reset } = useZapStateStore();
   const { reset: resetPos, toPosition } = usePositionStore();
 
-  const isFromUniv2 = pools !== "loading" && univ2Dexes.includes(pools[0].dex);
+  const isTargetUniv2 =
+    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
 
   const onClose = () => {
     resetPos();
@@ -237,7 +238,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
           <TargetPoolState initialTick={initialTick} chainId={chainId} />
         </div>
-        {!isFromUniv2 && <EstimateLiqValue chainId={chainId} />}
+        {!isTargetUniv2 && <EstimateLiqValue chainId={chainId} />}
 
         <Action
           client={client}
