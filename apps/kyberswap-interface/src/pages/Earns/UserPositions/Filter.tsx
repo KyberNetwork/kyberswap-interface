@@ -3,14 +3,14 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
-import { PositionQueryParams, PositionStatus } from 'services/zapEarn'
+import { PositionStatus, PositionFilter } from 'pages/Earns/types'
 
 import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
 import { MEDIA_WIDTHS } from 'theme'
 
-import DropdownMenu, { MenuOption } from '../PoolExplorer/DropdownMenu'
-import { AllChainsOption, AllProtocolsOption } from '../useSupportedDexesAndChains'
+import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
+import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/useSupportedDexesAndChains'
 
 const POSITION_STATUS = [
   { label: 'All Positions', value: '' },
@@ -26,8 +26,8 @@ export default function Filter({
 }: {
   supportedChains: MenuOption[]
   supportedDexes: MenuOption[]
-  filters: PositionQueryParams
-  updateFilters: (key: keyof PositionQueryParams, value: string | number) => void
+  filters: PositionFilter
+  updateFilters: (key: keyof PositionFilter, value: string | number) => void
 }) {
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState('')
@@ -50,6 +50,7 @@ export default function Filter({
   useEffect(() => {
     if (
       filters.protocols &&
+      supportedDexes.length &&
       !supportedDexes
         .map(item => item.value)
         .filter(Boolean)
@@ -77,14 +78,14 @@ export default function Filter({
         <DropdownMenu
           alignLeft
           mobileHalfWidth
-          value={filters.protocols}
+          value={filters.protocols || ''}
           options={supportedDexes.length ? supportedDexes : [AllProtocolsOption]}
           onChange={value => value !== filters.protocols && updateFilters('protocols', value)}
         />
         <DropdownMenu
           alignLeft
           mobileFullWidth
-          value={filters.status}
+          value={filters.status || ''}
           options={POSITION_STATUS}
           onChange={value => value !== filters.status && updateFilters('status', value)}
         />

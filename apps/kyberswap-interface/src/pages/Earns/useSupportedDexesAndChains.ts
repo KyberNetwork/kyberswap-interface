@@ -1,20 +1,16 @@
 import { useMemo } from 'react'
-import {
-  PoolQueryParams,
-  PositionQueryParams,
-  earnSupportedChains,
-  earnSupportedProtocols,
-  useSupportedProtocolsQuery,
-} from 'services/zapEarn'
+import { PoolQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
+import { earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import { PositionFilter } from 'pages/Earns/types'
 
 import useChainsConfig from 'hooks/useChainsConfig'
 
-import { MenuOption } from './PoolExplorer/DropdownMenu'
+import { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
 
 export const AllChainsOption = { label: 'All Chains', value: '' }
 export const AllProtocolsOption = { label: 'All Protocols', value: '' }
 
-const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionQueryParams) => {
+const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) => {
   const { supportedChains } = useChainsConfig()
   const { data: supportedProtocols } = useSupportedProtocolsQuery()
 

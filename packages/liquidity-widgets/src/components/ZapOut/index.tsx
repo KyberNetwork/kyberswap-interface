@@ -1,37 +1,52 @@
 import "../../globals.css";
+import PoolStat from "./components/PoolStat";
 import "../Widget/Widget.scss";
-import "@kyber/ui/styles.css";
-
-import { ZapOutProps, ZapOutProvider, useZapOutContext } from "@/stores/zapout";
-import { Theme } from "@/theme";
-import { ReactNode, useEffect } from "react";
+import { Action } from "./components/Action";
+import { EstLiqValue } from "./components/EstLiqValue";
 import { Header } from "./components/Header";
+import { LiquidityToRemove } from "./components/LiquidityToRemove";
+import { PoolFee } from "./components/PoolFee";
 import { PoolPrice } from "./components/PoolPrice";
 import { PositionPriceRange } from "./components/PositionPriceRange";
-import { LiquidityToRemove } from "./components/LiquidityToRemove";
-import { ZapTo } from "./components/ZapTo";
-import { ZapSummary } from "./components/ZapSummary";
-import { EstLiqValue } from "./components/EstLiqValue";
 import { Preview } from "./components/Preview";
+import { ZapSummary } from "./components/ZapSummary";
+import { ZapTo } from "./components/ZapTo";
 import { TokenListProvider } from "@/hooks/useTokenList";
-import PoolStat from "../Content/PoolStat";
-import { PoolFee } from "./components/PoolFee";
-import { Action } from "./components/Action";
+import { ZapOutProps, ZapOutProvider, useZapOutContext } from "@/stores/zapout";
+import { defaultTheme, Theme } from "@/theme";
+import "@kyber/ui/styles.css";
+import { ReactNode, useEffect, useMemo } from "react";
 
 export default function ZapOut(props: ZapOutProps) {
-  const { theme } = props;
+  const { theme, chainId, poolType, positionId, poolAddress } = props;
+
+  const themeToApply = useMemo(
+    () =>
+      theme && typeof theme === "object"
+        ? {
+            ...defaultTheme,
+            ...theme,
+          }
+        : defaultTheme,
+    [theme]
+  );
 
   useEffect(() => {
-    if (!theme) return;
+    if (!themeToApply) return;
     const r = document.querySelector<HTMLElement>(":root");
-    Object.keys(theme).forEach((key) => {
-      r?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
+    Object.keys(themeToApply).forEach((key) => {
+      r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
     });
-  }, [theme]);
+  }, [themeToApply]);
+
+  const widgetProps = {
+    ...props,
+    theme: themeToApply,
+  };
 
   return (
-    <ZapOutProvider {...props}>
-      <TokenProvider chainId={props.chainId}>
+    <ZapOutProvider {...widgetProps}>
+      <TokenProvider chainId={chainId}>
         <div className="ks-lw ks-lw-style">
           <div className="px-4 py-6 sm:px-6">
             <Header />
@@ -39,10 +54,10 @@ export default function ZapOut(props: ZapOutProps) {
               <div className="flex flex-col gap-4">
                 <div className="-mb-4">
                   <PoolStat
-                    chainId={props.chainId}
-                    poolType={props.poolType}
-                    positionId={props.positionId}
-                    poolAddress={props.poolAddress}
+                    chainId={chainId}
+                    poolType={poolType}
+                    positionId={positionId}
+                    poolAddress={poolAddress}
                   />
                 </div>
                 <PoolPrice />
@@ -52,7 +67,7 @@ export default function ZapOut(props: ZapOutProps) {
               </div>
 
               <div className="flex flex-col gap-4">
-                <ZapTo chainId={props.chainId} />
+                <ZapTo chainId={chainId} />
                 <EstLiqValue />
                 <ZapSummary />
               </div>

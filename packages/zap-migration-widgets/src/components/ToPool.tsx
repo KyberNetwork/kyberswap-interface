@@ -10,21 +10,44 @@ import {
 } from "@kyber/utils/number";
 import { Skeleton } from "@kyber/ui/skeleton";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import { univ2Dexes, UniV2Pool } from "../schema";
 
 export function ToPool({ className }: { className?: string }) {
   const { pools } = usePoolsStore();
   const { fetchingRoute, tickUpper, tickLower, route } = useZapStateStore();
 
+  const isTargetUniv2 =
+    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
+
   let amount0 = 0n;
   let amount1 = 0n;
-  const newDetail =
+
+  const newUniv2PoolDetail = route?.poolDetails.uniswapV2;
+  const newOtherPoolDetail =
     route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
-  if (route !== null && tickLower !== null && tickUpper !== null && newDetail) {
+
+  if (isTargetUniv2 && newUniv2PoolDetail) {
+    const p = pools[1] as UniV2Pool;
+    amount0 =
+      (BigInt(route.positionDetails.addedLiquidity) *
+        BigInt(newUniv2PoolDetail.newReserve0)) /
+      BigInt(p.totalSupply || 0n);
+    amount1 =
+      (BigInt(route.positionDetails.addedLiquidity) *
+        BigInt(newUniv2PoolDetail.newReserve1)) /
+      BigInt(p.totalSupply || 0n);
+  } else if (
+    !isTargetUniv2 &&
+    route !== null &&
+    tickLower !== null &&
+    tickUpper !== null &&
+    newOtherPoolDetail
+  ) {
     ({ amount0, amount1 } = getPositionAmounts(
-      newDetail.newTick,
+      newOtherPoolDetail.newTick,
       tickLower,
       tickUpper,
-      BigInt(newDetail.newSqrtP),
+      BigInt(newOtherPoolDetail.newSqrtP),
       BigInt(route.positionDetails.addedLiquidity)
     ));
   }

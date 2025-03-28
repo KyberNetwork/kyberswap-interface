@@ -52,6 +52,7 @@ import {
 import useCopy from "@/hooks/useCopy";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { SlippageWarning } from "../SlippageWarning";
+import { shortenAddress } from "../TokenInfo/utils";
 
 export interface ZapState {
   pool: Pool;
@@ -110,7 +111,10 @@ export default function Preview({
   } = useZapState();
 
   const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
-  const Copy = useCopy({ text: poolAddress });
+  const Copy = useCopy({
+    text: poolAddress,
+    copyClassName: "!text-[#2C9CE4] hover:brightness-125",
+  });
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
@@ -374,7 +378,13 @@ export default function Preview({
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [zapInfo?.zapDetails.actions, pool, tokensIn, chainId, feeInfo]);
+  }, [
+    zapInfo?.zapDetails.actions,
+    zapInfo?.zapDetails.suggestedSlippage,
+    pool,
+    tokensIn,
+    chainId,
+  ]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
@@ -646,11 +656,15 @@ export default function Preview({
 
         <div>
           <div className="flex items-center gap-2">
-            {pool.token0.symbol}/{pool.token1.symbol} {Copy}
+            {pool.token0.symbol}/{pool.token1.symbol}
           </div>
           <div className="flex items-center gap-1 mt-[2px]">
             <div className="rounded-full text-xs leading-5 bg-layer2 px-2 py-0 h-max text-text flex items-center gap-1 brightness-75">
               Fee {pool.fee}%
+            </div>
+            <div className="rounded-full text-xs bg-layer2 text-[#2C9CE4] px-3 py-1 flex gap-1">
+              {shortenAddress(chainId, poolAddress, 4)}
+              {Copy}
             </div>
             {positionId !== undefined && isUniV3 && (
               <div className="rounded-full text-xs px-2 py-0 h-max flex items-center gap-1 bg-transparent text-success relative before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:opacity-20 before:bg-success before:rounded-full">
@@ -711,21 +725,21 @@ export default function Preview({
         </div>
       </div>
 
-      <div className="ks-lw-card border border-stroke bg-transparent mt-4 text-sm">
-        <div className="flex justify-between items-center gap-4 w-full">
-          <div className="ks-lw-card-title">Current pool price</div>
-          <div className="flex items-center gap-1 text-sm">
-            <span>{price}</span>
-            {quote}
-            <SwitchIcon
-              className="cursor-pointer"
-              onClick={() => toggleRevertPrice()}
-              role="button"
-            />
+      {isUniV3 ? (
+        <div className="ks-lw-card border border-stroke bg-transparent mt-4 text-sm">
+          <div className="flex justify-between items-center gap-4 w-full">
+            <div className="ks-lw-card-title">Current pool price</div>
+            <div className="flex items-center gap-1 text-sm">
+              <span>{price}</span>
+              {quote}
+              <SwitchIcon
+                className="cursor-pointer"
+                onClick={() => toggleRevertPrice()}
+                role="button"
+              />
+            </div>
           </div>
-        </div>
 
-        {isUniV3 && (
           <div className="flex justify-between items-center gap-4 w-full mt-2">
             <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
               <div className="ks-lw-card-title">Min Price</div>
@@ -760,8 +774,8 @@ export default function Preview({
               <div className="ks-lw-card-title">{quote}</div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      ) : null}
 
       <div className="flex flex-col items-center gap-3 mt-4">
         <div className="flex justify-between gap-4 w-full items-start">

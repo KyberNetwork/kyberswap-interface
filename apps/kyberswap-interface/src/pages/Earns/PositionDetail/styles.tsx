@@ -61,12 +61,12 @@ export const InfoColumn = styled.div`
   gap: 16px;
 `
 
-export const InfoLeftColumn = styled(InfoColumn)`
-  flex: 0 1 35%;
+export const InfoLeftColumn = styled(InfoColumn)<{ halfWidth?: boolean }>`
+  flex: ${({ halfWidth }) => (!halfWidth ? '1 1 35%' : '1 1 50%')};
 `
 
-export const InfoRightColumn = styled(InfoColumn)`
-  flex: 1 1 65%;
+export const InfoRightColumn = styled(InfoColumn)<{ halfWidth?: boolean }>`
+  flex: ${({ halfWidth }) => (!halfWidth ? '1 1 65%' : '1 1 50%')};
 `
 
 export const InfoSection = styled.div`

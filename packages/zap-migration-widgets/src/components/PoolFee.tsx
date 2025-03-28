@@ -10,12 +10,14 @@ import {
   useZapStateStore,
 } from "../stores/useZapStateStore";
 import { usePoolsStore } from "../stores/usePoolsStore";
+import { univ3Dexes } from "../schema";
 
 export const PoolFee = () => {
   const { route } = useZapStateStore();
   const { pools } = usePoolsStore((s) => s);
 
   const pool = pools === "loading" ? "loading" : pools[0];
+  const isUniv3 = pools !== "loading" && univ3Dexes.includes(pools[0].dex);
 
   const actionRemoveLiq = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REMOVE_LIQUIDITY"
@@ -42,6 +44,8 @@ export const PoolFee = () => {
 
   const feeAmount1Ref = useRef(feeAmount1);
   if (route) feeAmount1Ref.current = feeAmount1;
+
+  if (!isUniv3) return null;
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">

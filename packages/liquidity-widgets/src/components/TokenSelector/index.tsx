@@ -440,9 +440,9 @@ export default function TokenSelector({
           {modalTabSelected === MODAL_TAB.TOKENS && (
             <>
               {tabSelected === TOKEN_TAB.ALL &&
-                unImportedTokens.map((token: Token) => (
+                unImportedTokens.map((token: Token, index) => (
                   <div
-                    key={token.symbol}
+                    key={`${token.symbol}-${index}`}
                     className="flex items-center justify-between py-2 px-6 text-red"
                   >
                     <div className="flex items-center gap-2">
@@ -468,9 +468,9 @@ export default function TokenSelector({
                 ))}
 
               {filteredTokens?.length > 0 && !unImportedTokens.length ? (
-                filteredTokens.map((token: CustomizeToken) => (
+                filteredTokens.map((token: CustomizeToken, index) => (
                   <div
-                    key={token.symbol}
+                    key={`${token.symbol}-${index}`}
                     className={`flex items-center justify-between py-2 px-6 cursor-pointer hover:bg-[#0f0f0f] ${
                       mode === TOKEN_SELECT_MODE.SELECT &&
                       token.address?.toLowerCase() ===

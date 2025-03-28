@@ -16,14 +16,22 @@ import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
-import { NATIVE_ADDRESSES, NFT_MANAGER_ABI, NFT_MANAGER_CONTRACT, unwrapWNativeTokenFunc } from 'pages/Earns/constants'
+import {
+  DEXES_SUPPORT_COLLECT_FEE,
+  EarnChain,
+  EarnDex,
+  NATIVE_ADDRESSES,
+  NFT_MANAGER_ABI,
+  NFT_MANAGER_CONTRACT,
+  UNWRAP_WNATIVE_TOKEN_FUNC,
+} from 'pages/Earns/constants'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from './styles'
+import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from 'pages/Earns/ClaimFeeModal/styles'
 
 export interface PositionToClaim {
   id: string
@@ -39,7 +47,7 @@ export interface PositionToClaim {
 }
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
-  NATIVE_ADDRESSES.includes(tokenAddress.toLowerCase()) ||
+  NATIVE_ADDRESSES[chainId as EarnChain] === tokenAddress.toLowerCase() ||
   (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address)
 
 export default function ClaimFeeModal({
@@ -80,7 +88,7 @@ export default function ClaimFeeModal({
   const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
 
   const handleCollectFees = useCallback(async () => {
-    if (!library || !contract) return
+    if (!library || !contract || !DEXES_SUPPORT_COLLECT_FEE[position.dex as EarnDex]) return
     const accounts = await library.listAccounts()
     if (chainId !== position.chainId || !accounts.length) {
       if (chainId !== position.chainId) changeNetwork(position.chainId)
@@ -112,7 +120,9 @@ export default function ClaimFeeModal({
         const tokenAmount = isToken0Native ? feeInfo.balance1 : feeInfo.balance0
 
         // Encode the unwrapWETH9 call
-        const unwrapWNativeTokenFuncName = unwrapWNativeTokenFunc[position.dex as keyof typeof unwrapWNativeTokenFunc]
+        const unwrapWNativeTokenFuncName =
+          UNWRAP_WNATIVE_TOKEN_FUNC[position.dex as keyof typeof UNWRAP_WNATIVE_TOKEN_FUNC]
+        if (!unwrapWNativeTokenFuncName) return
         const unwrapWETH9CallData = contract.interface.encodeFunctionData(unwrapWNativeTokenFuncName, [
           ethAmount,
           recipient,

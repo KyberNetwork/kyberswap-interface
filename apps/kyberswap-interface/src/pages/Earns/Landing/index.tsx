@@ -1,13 +1,9 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
 import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import { EarnPool, useExplorerLandingQuery } from 'services/zapEarn'
-import styled, { keyframes } from 'styled-components'
-
-import bg from 'assets/images/earn-bg.png'
+import { useExplorerLandingQuery } from 'services/zapEarn'
 import FireIcon from 'assets/svg/fire.svg'
 import LiquidityPoolIcon from 'assets/svg/liquidity-pools.svg'
 import LiquidityPosIcon from 'assets/svg/liquidity-positions.svg'
@@ -16,274 +12,20 @@ import PlayIcon from 'assets/svg/play-icon.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
 import SolidEarningIcon from 'assets/svg/solid-earning.svg'
 import StakingIcon from 'assets/svg/staking.svg'
-import { ButtonPrimary } from 'components/Button'
 import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
+import { FilterTag } from 'pages/Earns/PoolExplorer'
+import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
+import { OverviewWrapper, WrapperBg, Container, PoolWrapper, ListPoolWrapper } from 'pages/Earns/Landing/styles'
+import Icon from 'pages/Earns/Landing/Icon'
+import Card from 'pages/Earns/Landing/Card'
+import PoolItem from 'pages/Earns/Landing/PoolItem'
 
-import { FilterTag } from './PoolExplorer'
-import useLiquidityWidget from './useLiquidityWidget'
-import { formatAprNumber } from './utils'
-
-const WrapperBg = styled.div`
-  background-image: url(${bg});
-  background-size: 100% auto;
-  background-repeat: repeat-y;
-  width: 100vw;
-`
-
-const Container = styled.div`
-  max-width: 1152px;
-  padding: 60px 16px;
-  margin: auto;
-  text-align: center;
-
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    padding: 36px 12px;
-  `}
-`
-
-/* Spin animation */
-const spin = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`
-
-const BorderWrapper = styled.div`
-  padding: 1px;
-  position: relative;
-  background-clip: padding-box;
-  border-radius: 20px;
-  overflow: hidden;
-
-  ::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 1px; /* Border width */
-    background: linear-gradient(306.9deg, #262525 38.35%, rgba(49, 203, 158, 0.06) 104.02%),
-      radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(49, 203, 158, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
-    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); /* Mask to avoid background bleed */
-    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); /* Mask to avoid background bleed */
-    z-index: -1;
-  }
-
-  :hover::before {
-    top: -20%;
-    left: -20%;
-    right: -20%;
-    bottom: -20%;
-    padding: 1px; /* Border width */
-    background: linear-gradient(306.9deg, #262525 38.35%, rgba(49, 203, 158, 0.6) 104.02%),
-      radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(49, 203, 158, 1) 0%, rgba(0, 0, 0, 0) 100%);
-
-    animation: ${spin} 2s linear infinite; /* Spin animation */
-  }
-`
-
-const OverviewWrapper = styled.div`
-  box-sizing: border-box;
-  margin: 0;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin-top: 64px;
-  gap: 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: flex;
-    flex-direction: column;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    margin-top: 40px;
-    gap: 16px;
-  `}
-`
-
-const PoolWrapper = styled.div`
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
-  padding: 1px;
-  transition: box-shadow 0.3s ease, transform 0.3s ease, background 0.3s ease;
-
-  :hover {
-    box-shadow: 0px 12px 64px 0px rgba(71, 32, 139, 0.8);
-    ::before {
-      background: linear-gradient(215.58deg, #262525 -9.03%, rgba(148, 115, 221, 0.6) 59.21%),
-        radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(130, 71, 229, 1) 0%, rgba(0, 0, 0, 0) 100%);
-    }
-  }
-
-  /* Create the gradient border effect using ::before */
-  ::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 20px;
-    padding: 1px;
-
-    background: linear-gradient(215.58deg, #262525 -9.03%, rgba(148, 115, 221, 0.2) 59.21%),
-      radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(130, 71, 229, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
-    mask-composite: destination-out;
-    -webkit-mask-composite: destination-out;
-    z-index: -1; /* Position behind the content */
-  }
-`
-
-const CardWrapper = styled.div`
-  border-radius: 20px;
-
-  background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
-  padding: 0 36px 44px 50px;
-  text-align: left;
-  min-height: 360px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  height: 100%;
-
-  cursor: pointer;
-  button {
-    cursor: pointer;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0 36px 40px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 0 36px 28px;
-    min-height: 285px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    padding: 0 30px 24px;
-    min-height: unset;
-    height: fit-content;
-  `}
-`
-
-const ButtonPrimaryStyled = styled(ButtonPrimary)`
-  margin-top: auto;
-  width: 132px;
-  height: 36px;
-
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    margin-top: 18px;
-  `}
-`
-
-const ListPoolWrapper = styled.div`
-  padding: 20px;
-  border-radius: 20px;
-  height: 100%;
-  background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
-  cursor: pointer;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 12px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 18px;
-  `}
-`
-
-const PoolRow = styled(Flex)`
-  gap: 12px;
-  align-items: center;
-  border-radius: 999px;
-  padding: 8px 16px;
-
-  :hover {
-    background: #31cb9e1a;
-  }
-`
-
-const Tag = styled.div`
-  border-radius: 999px;
-  background: ${({ theme }) => rgba(theme.text, 0.1)};
-  color: ${({ theme }) => theme.subText};
-  padding: 4px 8px;
-  font-size: 12px;
-`
-
-const Icon = ({ icon, size = 'medium' }: { icon: string; size: 'small' | 'medium' }) => {
-  return (
-    <Flex
-      width={size === 'small' ? '40px' : '80px'}
-      height={size === 'small' ? '40px' : '80px'}
-      padding={size === 'medium' ? '8px' : '4px'}
-      sx={{ border: `1px solid #258166`, borderRadius: '50%' }}
-    >
-      <Flex
-        width="100%"
-        height="100%"
-        backgroundColor="#23312E"
-        alignItems="center"
-        justifyContent="center"
-        sx={{
-          borderRadius: '50%',
-        }}
-      >
-        <img src={icon} alt="icon" width={size === 'small' ? '24px' : '40px'} />
-      </Flex>
-    </Flex>
-  )
-}
-
-const Card = ({
-  title,
-  icon,
-  desc,
-  action,
-}: {
-  title: string
-  icon: string
-  desc: string
-  action: { text: string; disabled?: boolean; onClick: () => void }
-}) => {
-  const theme = useTheme()
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
-  return (
-    <BorderWrapper onClick={() => !action.disabled && action.onClick()}>
-      <CardWrapper>
-        <Flex flexDirection="column" width="80px" alignItems="center">
-          <Box width="1px" height="36px" backgroundColor="#258166" />
-          <Icon icon={icon} size="medium" />
-        </Flex>
-
-        <Text fontSize={18} fontWeight={500} marginTop={upToSmall ? 22 : 28}>
-          {title}
-        </Text>
-        <Text fontSize={upToMedium ? 14 : 16} color={theme.subText} marginTop="12px">
-          {desc}
-        </Text>
-        <ButtonPrimaryStyled disabled={action.disabled}>{action.text}</ButtonPrimaryStyled>
-      </CardWrapper>
-    </BorderWrapper>
-  )
-}
-
-export default function Earns() {
+const EarnLanding = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const theme = useTheme()
@@ -545,58 +287,4 @@ export default function Earns() {
   )
 }
 
-const PoolItem = ({ pool }: { pool: EarnPool }) => {
-  const theme = useTheme()
-  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
-
-  return (
-    <PoolRow
-      justifyContent="space-between"
-      key={pool.address}
-      role="button"
-      onClick={e => {
-        e.stopPropagation()
-        handleOpenZapInWidget({
-          exchange: pool.exchange,
-          chainId: pool.chainId,
-          address: pool.address,
-        })
-      }}
-    >
-      {liquidityWidget}
-      <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
-        <img src={pool.tokens?.[0].logoURI} width={24} height={24} alt="" style={{ borderRadius: '50%' }} />
-        <img
-          src={pool.tokens?.[1].logoURI}
-          width={24}
-          height={24}
-          alt=""
-          style={{ marginLeft: '-8px', borderRadius: '50%' }}
-        />
-        <img
-          src={NETWORKS_INFO[pool.chainId as ChainId].icon}
-          width={12}
-          height={12}
-          alt=""
-          style={{ marginLeft: '-4px', alignSelf: 'flex-end' }}
-        />
-        <Text
-          textAlign="left"
-          sx={{
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-        >
-          {pool.tokens?.[0].symbol} /{' '}
-          <Text as="span" color={theme.subText}>
-            {pool.tokens?.[1].symbol}
-          </Text>
-        </Text>
-        <Tag>{pool.feeTier}%</Tag>
-      </Flex>
-
-      <Text color={theme.primary}>{formatAprNumber(pool.apr)}%</Text>
-    </PoolRow>
-  )
-}
+export default EarnLanding

@@ -1,3 +1,4 @@
+import { getFunctionSelector } from "@kyber/utils/crypto";
 import {
   ChainId,
   Dex,
@@ -11,6 +12,7 @@ import {
 import { Theme, defaultTheme } from "../theme";
 import { z } from "zod";
 import { create } from "zustand";
+import { NetworkInfo } from "../constants";
 
 // import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
@@ -306,6 +308,32 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           ticks: p1.positionInfo.ticks,
         } as Pool;
       } else if (isPoolToUniV2) {
+        const totalSupplySelector = getFunctionSelector("totalSupply()");
+        const getPayload = (d: string) => {
+          return {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              method: "eth_call",
+              params: [
+                {
+                  to: poolTo,
+                  data: d,
+                },
+                "latest",
+              ],
+              id: 1,
+            }),
+          };
+        };
+        const totalSupplyRes = await fetch(
+          NetworkInfo[chainId].defaultRpc,
+          getPayload(`0x${totalSupplySelector}`)
+        ).then((res) => res.json());
+        const totalSupply = BigInt(totalSupplyRes?.result || "0");
         pool1 = {
           address: poolTo,
           category: cat,
@@ -314,6 +342,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           token1: tokenTo1,
           fee: p.swapFee,
           reserves: p.reserves,
+          totalSupply: totalSupply,
         } as Pool;
       } else {
         set({ error: `Can't get pool info ${poolTo}` });

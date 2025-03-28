@@ -2,13 +2,13 @@ import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import { EarnPosition } from 'services/zapEarn'
+import { EarnPosition } from 'pages/Earns/types'
 
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { BannerContainer, BannerDataItem, BannerDivider, BannerWrapper } from './styles'
+import { BannerContainer, BannerDataItem, BannerDivider, BannerWrapper } from 'pages/Earns/UserPositions/styles'
 
 export default function PositionBanner({ positions }: { positions: Array<EarnPosition> | undefined }) {
   const theme = useTheme()

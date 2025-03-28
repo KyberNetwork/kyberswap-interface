@@ -1,4 +1,5 @@
 import CircleChevronRight from "./assets/icons/circle-chevron-right.svg";
+import { Action } from "./components/Action";
 import { EstimateLiqValue } from "./components/EstimateLiqValue";
 import { FromPool } from "./components/FromPool";
 import { Header } from "./components/Header";
@@ -9,11 +10,11 @@ import { TargetPoolState } from "./components/TargetPoolState";
 import { ToPool } from "./components/ToPool";
 import "./index.css";
 import "./index.scss";
-import { ChainId, Dex, DexFrom, DexTo } from "./schema";
+import { ChainId, Dex, DexFrom, DexTo, univ2Dexes } from "./schema";
 import { usePoolsStore } from "./stores/usePoolsStore";
 import { usePositionStore } from "./stores/usePositionStore";
 import { useZapStateStore } from "./stores/useZapStateStore";
-import { Theme } from "./theme";
+import { defaultTheme, Theme } from "./theme";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   Dialog,
@@ -68,10 +69,10 @@ export interface ZapMigrationProps {
 
 // createModalRoot.js
 const createModalRoot = () => {
-  let modalRoot = document.getElementById("ks-lw-modal-root");
+  let modalRoot = document.getElementById("ks-lw-migration-modal-root");
   if (!modalRoot) {
     modalRoot = document.createElement("div");
-    modalRoot.id = "ks-lw-modal-root";
+    modalRoot.id = "ks-lw-migration-modal-root";
     modalRoot.className = "ks-lw-migration-style";
     document.body.appendChild(modalRoot);
   }
@@ -110,6 +111,9 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   const { reset } = useZapStateStore();
   const { reset: resetPos, toPosition } = usePositionStore();
 
+  const isTargetUniv2 =
+    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
+
   const onClose = () => {
     resetPos();
     resetPools();
@@ -128,12 +132,16 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
   useEffect(() => {
     if (!theme) return;
-    setTheme(theme);
+    const themeToApply = {
+      ...defaultTheme,
+      ...theme,
+    };
+    setTheme(themeToApply);
     const r = document.querySelector<HTMLElement>(":root");
-    Object.keys(theme).forEach((key) => {
-      r?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
+    Object.keys(themeToApply).forEach((key) => {
+      r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
     });
-  }, [theme]);
+  }, [setTheme, theme]);
 
   // fetch pool on load
   useEffect(() => {
@@ -228,9 +236,11 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
           <ToPool className="block md:!hidden" />
 
-          <TargetPoolState initialTick={initialTick} />
+          <TargetPoolState initialTick={initialTick} chainId={chainId} />
         </div>
-        <EstimateLiqValue
+        {!isTargetUniv2 && <EstimateLiqValue chainId={chainId} />}
+
+        <Action
           client={client}
           chainId={chainId}
           connectedAccount={connectedAccount}
