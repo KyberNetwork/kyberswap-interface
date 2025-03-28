@@ -1,5 +1,6 @@
 import SwapIcon from "../assets/icons/swap.svg";
 import {
+  ChainId,
   UniV2Pool,
   UniV3Pool,
   UniV3Position,
@@ -20,6 +21,7 @@ import {
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
 import { useEffect, useMemo, useState } from "react";
+import { EstimateLiqValue } from "./EstimateLiqValue";
 
 const DEFAULT_PRICE_RANGE = {
   LOW_POOL_FEE: 1,
@@ -35,8 +37,10 @@ const PRICE_RANGE = {
 
 export function TargetPoolState({
   initialTick,
+  chainId,
 }: {
   initialTick?: { tickLower: number; tickUpper: number };
+  chainId: ChainId;
 }) {
   const { pools } = usePoolsStore();
   const { tickLower, tickUpper, setTickLower, setTickUpper } =
@@ -46,6 +50,7 @@ export function TargetPoolState({
 
   const isUniV3 = pools !== "loading" && univ3Dexes.includes(pools[1].dex);
   const isUniV2 = pools !== "loading" && univ2Dexes.includes(pools[1].dex);
+  const isFromUniv2 = pools !== "loading" && univ2Dexes.includes(pools[0].dex);
 
   useEffect(() => {
     if (toPosition !== "loading" && toPosition !== null && isUniV3) {
@@ -262,21 +267,23 @@ export function TargetPoolState({
     );
   } else if (isUniV2 && pool !== "loading") {
     const po = pool as UniV2Pool;
-    const p = divideBigIntToString(
-      BigInt(po.reserves[1]) * 10n ** BigInt(po.token0.decimals),
-      BigInt(po.reserves[0]) * 10n ** BigInt(po.token1.decimals),
-      18
-    );
-    poolPrice = formatDisplayNumber(revertDisplay ? 1 / +p : p, {
-      significantDigits: 5,
-    });
+    if (po.reserves) {
+      const p = divideBigIntToString(
+        BigInt(po.reserves[1]) * 10n ** BigInt(po.token0.decimals),
+        BigInt(po.reserves[0]) * 10n ** BigInt(po.token1.decimals),
+        18
+      );
+      poolPrice = formatDisplayNumber(revertDisplay ? 1 / +p : p, {
+        significantDigits: 5,
+      });
+    }
   }
 
   return (
     <div className="flex-1">
       <div className="border border-stroke rounded-md px-4 py-3 text-subText text-sm flex items-center gap-1 flex-wrap">
         Pool Price{" "}
-        {pool === "loading" ? (
+        {pool === "loading" && poolPrice ? (
           <Skeleton className="w-[200px] h-3.5" />
         ) : (
           <>
@@ -290,6 +297,8 @@ export function TargetPoolState({
           </>
         )}
       </div>
+
+      {isFromUniv2 && <EstimateLiqValue chainId={chainId} />}
 
       {isUniV3 &&
         (toPosition !== "loading" && toPosition !== null ? (

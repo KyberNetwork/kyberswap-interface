@@ -31,7 +31,7 @@ import {
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 
-const dexMapping: { [key: string]: string } = {
+export const dexMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
   kodiakcl: 'kodiak-v3',
 }

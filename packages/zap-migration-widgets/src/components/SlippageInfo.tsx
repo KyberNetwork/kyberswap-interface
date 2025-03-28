@@ -29,7 +29,7 @@ export const SlippageInfo = ({
               : ""
           )}
         >
-          Max Slippage
+          Swap Max Slippage
         </div>
       </MouseoverTooltip>
       <MouseoverTooltip

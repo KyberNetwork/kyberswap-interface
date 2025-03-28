@@ -23,11 +23,11 @@ import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
-import { IconArrowLeft } from '../PositionDetail/styles'
-import useLiquidityWidget from '../useLiquidityWidget'
-import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
-import DropdownMenu, { MenuOption } from './DropdownMenu'
-import TableContent from './TableContent'
+import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
+import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
+import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
+import TableContent, { dexMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import {
   ContentWrapper,
   Disclaimer,
@@ -38,8 +38,8 @@ import {
   TableWrapper,
   Tag,
   TagContainer,
-} from './styles'
-import useFilter from './useFilter'
+} from 'pages/Earns/PoolExplorer/styles'
+import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 
 export enum FilterTag {
   HIGHLIGHTED_POOL = 'highlighted_pool',
@@ -184,7 +184,7 @@ const PoolExplorer = () => {
     }
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
-      if (pool && pool.exchange === exchange)
+      if (pool && (pool.exchange === exchange || pool.exchange === dexMapping[exchange]))
         handleOpenZapInWidget({ exchange, chainId: Number(chainId), address: pool.address })
       else {
         notify(

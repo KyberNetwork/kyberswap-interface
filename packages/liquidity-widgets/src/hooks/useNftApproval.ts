@@ -133,11 +133,11 @@ export function useNftApproval({
       .then((res) => res.json())
       .then((res) => {
         setIsChecking(false);
-        if (isUniv2)
+        if (isUniv2) {
           setIsApproved(
             res?.result && BigInt(res?.result) >= BigInt(liquidityOut)
           );
-        else if (
+        } else if (
           decodeAddress((res?.result || "").slice(2))?.toLowerCase() ===
           spender.toLowerCase()
         )

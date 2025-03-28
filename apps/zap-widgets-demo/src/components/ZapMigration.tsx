@@ -48,7 +48,7 @@ const ZapMigration = () => {
     from: {
       dex: Dex.DEX_UNISWAPV3,
       poolId: "0xc9034c3e7f58003e6ae0c8438e7c8f4598d5acaa",
-      positionId: 2277276,
+      positionId: 2275270,
     },
     to: {
       dex: Dex.DEX_UNISWAPV3,

@@ -1,4 +1,5 @@
 import CircleChevronRight from "./assets/icons/circle-chevron-right.svg";
+import { Action } from "./components/Action";
 import { EstimateLiqValue } from "./components/EstimateLiqValue";
 import { FromPool } from "./components/FromPool";
 import { Header } from "./components/Header";
@@ -9,7 +10,7 @@ import { TargetPoolState } from "./components/TargetPoolState";
 import { ToPool } from "./components/ToPool";
 import "./index.css";
 import "./index.scss";
-import { ChainId, Dex, DexFrom, DexTo } from "./schema";
+import { ChainId, Dex, DexFrom, DexTo, univ2Dexes } from "./schema";
 import { usePoolsStore } from "./stores/usePoolsStore";
 import { usePositionStore } from "./stores/usePositionStore";
 import { useZapStateStore } from "./stores/useZapStateStore";
@@ -109,6 +110,8 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   } = usePoolsStore();
   const { reset } = useZapStateStore();
   const { reset: resetPos, toPosition } = usePositionStore();
+
+  const isFromUniv2 = pools !== "loading" && univ2Dexes.includes(pools[0].dex);
 
   const onClose = () => {
     resetPos();
@@ -232,9 +235,11 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
           <ToPool className="block md:!hidden" />
 
-          <TargetPoolState initialTick={initialTick} />
+          <TargetPoolState initialTick={initialTick} chainId={chainId} />
         </div>
-        <EstimateLiqValue
+        {!isFromUniv2 && <EstimateLiqValue chainId={chainId} />}
+
+        <Action
           client={client}
           chainId={chainId}
           connectedAccount={connectedAccount}
