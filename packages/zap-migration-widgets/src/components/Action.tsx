@@ -110,7 +110,10 @@ export function Action({
   let btnText = "";
   if (fetchingRoute) btnText = "Fetching Route...";
   else if (liquidityOut === 0n) btnText = "Select Liquidity to Migrate";
-  else if (!isTargetUniv2) {
+  else if (
+    !isTargetUniv2 &&
+    (tickLower === null || tickUpper === null || tickLower >= tickUpper)
+  ) {
     if (tickLower === null || tickUpper === null)
       btnText = "Select Price Range";
     else if (tickLower >= tickUpper) btnText = "Invalid Price Range";

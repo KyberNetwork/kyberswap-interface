@@ -340,8 +340,8 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           dex: dexTo,
           token0: tokenTo0,
           token1: tokenTo1,
-          fee: p.swapFee,
-          reserves: p.reserves,
+          fee: p1.swapFee,
+          reserves: p1.reserves,
           totalSupply: totalSupply,
         } as Pool;
       } else {
