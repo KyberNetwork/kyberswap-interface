@@ -218,9 +218,16 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <Text fontSize={14} color={theme.subText}>
               {t`All`}
             </Text>
-            <Text fontSize={18} color={position.totalEarnedFee ? theme.primary : theme.text}>
+            <Text
+              fontSize={18}
+              color={position.totalEarnedFee > 0 ? theme.primary : position.totalEarnedFee < 0 ? theme.red : theme.text}
+            >
               {position.totalEarnedFee || position.totalEarnedFee === 0
-                ? formatDisplayNumber(position.totalEarnedFee, { style: 'currency', significantDigits: 4 })
+                ? (position.totalEarnedFee < 0 ? '-' : '') +
+                  formatDisplayNumber(
+                    position.totalEarnedFee < 0 ? Math.abs(position.totalEarnedFee) : position.totalEarnedFee,
+                    { style: 'currency', significantDigits: 4 },
+                  )
                 : '--'}
             </Text>
           </Flex>
