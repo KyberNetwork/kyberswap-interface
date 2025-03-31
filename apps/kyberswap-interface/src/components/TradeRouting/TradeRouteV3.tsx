@@ -75,11 +75,12 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
 
     for (const neighbor of neighbors) {
       const targetAddress = neighbor.target.address
-      if (maximumPathLengths[targetAddress] === undefined) {
-        maximumPathLengths[targetAddress] = currentLength + 1
-        queue.push(targetAddress)
-      } else {
-        maximumPathLengths[targetAddress] = Math.max(maximumPathLengths[targetAddress], currentLength + 1)
+      const newLength = currentLength + 1
+
+      // If we found a longer path to this node
+      if (maximumPathLengths[targetAddress] === undefined || newLength > maximumPathLengths[targetAddress]) {
+        maximumPathLengths[targetAddress] = newLength
+        queue.push(targetAddress) // Add back to the queue to find potentially longer paths from it
       }
     }
   }
@@ -350,12 +351,12 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
           )
         })}
       </svg>
-      <Flex justifyContent="space-evenly" sx={{ paddingBottom: '60px' }}>
+      <Flex justifyContent="space-evenly" sx={{ paddingBottom: '60px', gap: '24px' }}>
         {levels.map(level => {
           const nodesAtLevel = nodes.filter(node => maximumPathLengths[node.address] === level)
 
           return (
-            <Flex key={level} flexDirection="column" justifyContent="space-around">
+            <Flex key={level} flexDirection="column" justifyContent="space-around" sx={{ gap: '36px' }}>
               {nodesAtLevel.map(node => {
                 const edgesIn = edges.filter(edge => edge.target.address === node.address)
 
