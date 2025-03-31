@@ -108,7 +108,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
     update()
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
-  }, [tokenIn.address])
+  }, [tokenIn.address, tradeComposition])
 
   return (
     <>
@@ -191,19 +191,27 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
               const sourceLevel = maximumPathLengths[edge.source.address]
               const targetLevel = maximumPathLengths[edge.target.address]
 
+              const middleNodes = nodes.filter(node => {
+                const level = maximumPathLengths[node.address]
+                return level > sourceLevel && level < targetLevel
+              })
+
               const start = {
                 x: source.x + source.width,
-                y: (Math.max(source.y, target.y) + Math.min(source.y + source.height, target.y + target.height)) / 2,
+                y:
+                  (Math.max(source.y, target.y) +
+                    Math.min(
+                      source.y + source.height,
+                      target.y + target.height,
+                      ...middleNodes.map(n => nodeRects[n.address]?.y).filter(Boolean),
+                    )) /
+                  2,
               }
               const end = {
                 x: target.x,
                 y: start.y,
               }
 
-              const middleNodes = nodes.filter(node => {
-                const level = maximumPathLengths[node.address]
-                return level > sourceLevel && level < targetLevel
-              })
               const isCorss = middleNodes.some(node => {
                 const nodeRect = nodeRects[node.address]
                 if (!nodeRect) return false
@@ -227,18 +235,15 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
           const crossEdges = edgesOut.filter(edge => edge.isCorss)
 
           const lowestYForStartNode = Math.max(
-            ...crossEdges.map(edge => {
-              const middleNodeRects = edge.middleNodes
-                .map(node => {
-                  const nodeRect = nodeRects[node.address]
-                  if (!nodeRect) return null
-                  return nodeRect
-                })
-                .filter(Boolean) as DOMRect[]
-              const startY =
-                Math.max(...middleNodeRects.map(node => node.y + node.height)) + 30 + (crossEdges.length - 1) * 10
-              return startY
-            }),
+            ...edgesOut
+              .filter(edge => edge.source.address === tokenIn.address)
+              .map(edge => {
+                return edge.start.y
+
+                //const startY =
+                //  Math.max(...middleNodeRects.map(node => node.y + node.height)) + 30 + (crossEdges.length - 1) * 10
+                //return startY
+              }),
           )
 
           return (
@@ -303,8 +308,8 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   <React.Fragment key={edge.source.address + edge.target.address}>
                     {/*label*/}
                     <text
-                      x={startX - svgRect.x + 6}
-                      y={startY - svgRect.y + 3}
+                      x={startX - svgRect.x - 6}
+                      y={source.y + source.height - svgRect.y + 14}
                       fontSize="10"
                       fontWeight="500"
                       fill={theme.primary}
@@ -360,7 +365,15 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
               {nodesAtLevel.map(node => {
                 const edgesIn = edges.filter(edge => edge.target.address === node.address)
 
-                return <RouteNode node={node} edgesIn={edgesIn} key={node.address} setNodeRects={setNodeRects} />
+                return (
+                  <RouteNode
+                    node={node}
+                    edgesIn={edgesIn}
+                    key={node.address}
+                    setNodeRects={setNodeRects}
+                    tradeComposition={tradeComposition}
+                  />
+                )
               })}
             </Flex>
           )
@@ -376,10 +389,12 @@ const RouteNode = ({
   edgesIn,
   node,
   setNodeRects,
+  tradeComposition,
 }: {
   edgesIn: Edge[]
   node: Token
   setNodeRects: React.Dispatch<React.SetStateAction<{ [key: string]: DOMRect }>>
+  tradeComposition: SwapRouteV3[]
 }) => {
   const theme = useTheme()
   const { chainId } = useWeb3React()
@@ -396,7 +411,7 @@ const RouteNode = ({
     update()
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
-  }, [setNodeRects, node.address])
+  }, [setNodeRects, node.address, tradeComposition])
 
   return (
     <NodeWrapper ref={ref}>

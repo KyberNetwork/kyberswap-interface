@@ -1,3 +1,4 @@
+import { rgba } from 'polished'
 import styled, { css } from 'styled-components'
 
 export const StyledContainer = styled.div`
@@ -99,7 +100,7 @@ export const StyledPair = styled.div`
 export const StyledPairLine = styled.div`
   flex: auto;
   min-width: 50px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
+  border-bottom: 1px solid ${rgba('#fff', 0.1)};
   height: 1px;
 `
 export const StyledWrapToken = styled.div`
@@ -132,7 +133,6 @@ export const StyledToken = styled.a<{ reverse?: boolean }>`
       justify-content: flex-start;
     `}
   padding-bottom: 7px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
 
   & > span {
     margin-left: 4px;
@@ -187,7 +187,7 @@ export const StyledRoute = styled.div`
 `
 export const StyledRouteLine = styled.div`
   position: absolute;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
+  border-bottom: 1px solid ${rgba('#fff', 0.1)};
   width: calc(100% - 68px);
   left: 43px;
 `
@@ -198,10 +198,10 @@ export const StyledHops = styled.div<{ length: string | number }>`
 `
 
 export const StyledHop = styled.div`
-  padding: 8px;
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.background};
-  border: 1px solid ${({ theme }) => theme.border};
+  padding: 12px;
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.buttonBlack};
+  border: 1px solid ${rgba('#fff', 0.1)};
   height: fit-content;
   position: relative;
   flex: 0 0 146px;
@@ -217,10 +217,8 @@ export const StyledExchange = styled.a`
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 4px 0;
-  margin-top: 4px;
   font-size: 10px;
-  border-radius: 8px;
+  border-radius: 12px;
   color: ${({ theme }) => theme.subText};
   line-height: 20px;
   white-space: nowrap;
@@ -235,19 +233,13 @@ export const StyledExchange = styled.a`
     height: 14px;
     margin-right: 4px;
   }
-
-  &:first-child {
-    margin-top: 8px;
-  }
 `
 export const StyledExchangeStatic = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 4px 0;
-  margin-top: 4px;
   font-size: 10px;
-  border-radius: 8px;
+  border-radius: 12px;
   color: ${({ theme }) => theme.subText};
   line-height: 20px;
   white-space: nowrap;
@@ -257,10 +249,6 @@ export const StyledExchangeStatic = styled.div`
     width: 14px;
     height: 14px;
     margin-right: 4px;
-  }
-
-  &:first-child {
-    margin-top: 8px;
   }
 `
 

@@ -30,6 +30,8 @@ import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
 import TradeRouteV3 from './TradeRouteV3'
+import { Box } from 'rebass'
+import useTheme from 'hooks/useTheme'
 
 interface RouteRowProps {
   route: SwapRouteV2
@@ -54,6 +56,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
     handleShadow()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route])
+  const theme = useTheme()
 
   return (
     <StyledWrap ref={shadowRef} backgroundColor={backgroundColor}>
@@ -70,36 +73,48 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
               <React.Fragment key={id}>
                 <StyledHop>
                   <TokenRoute token={token} />
-                  {Array.isArray(subRoute)
-                    ? subRoute.map(pool => {
-                        const dex = getDexInfoByPool(pool.exchange, allDexes)
-                        const poolId = pool.id.split('-')?.[0]
-                        const link = (i => {
-                          // TODO: Dungz remove condition
-                          return isAddress(chainId, poolId) && !['1inch', 'paraswap', '0x'].includes(pool.exchange) ? (
-                            <StyledExchange
-                              key={`${i}-${pool.id}`}
-                              href={getEtherscanLink(chainId, poolId, 'address')}
-                              target="_blank"
-                            >
-                              {i}
-                            </StyledExchange>
-                          ) : (
-                            <StyledExchangeStatic key={`${i}-${pool.id}`}>{i}</StyledExchangeStatic>
-                          )
-                        })(
-                          <>
-                            {dex?.logoURL ? (
-                              <img src={dex?.logoURL} alt="" className="img--sm" />
+                  <Box
+                    sx={{
+                      background: theme.background,
+                      padding: '8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px',
+                    }}
+                  >
+                    {Array.isArray(subRoute)
+                      ? subRoute.map(pool => {
+                          const dex = getDexInfoByPool(pool.exchange, allDexes)
+                          const poolId = pool.id.split('-')?.[0]
+                          const link = (i => {
+                            // TODO: Dungz remove condition
+                            return isAddress(chainId, poolId) &&
+                              !['1inch', 'paraswap', '0x'].includes(pool.exchange) ? (
+                              <StyledExchange
+                                key={`${i}-${pool.id}`}
+                                href={getEtherscanLink(chainId, poolId, 'address')}
+                                target="_blank"
+                              >
+                                {i}
+                              </StyledExchange>
                             ) : (
-                              <i className="img--sm" />
-                            )}
-                            {`${dex?.name || '--'}: ${pool.swapPercentage}%`}
-                          </>,
-                        )
-                        return link
-                      })
-                    : null}
+                              <StyledExchangeStatic key={`${i}-${pool.id}`}>{i}</StyledExchangeStatic>
+                            )
+                          })(
+                            <>
+                              {dex?.logoURL ? (
+                                <img src={dex?.logoURL} alt="" className="img--sm" />
+                              ) : (
+                                <i className="img--sm" />
+                              )}
+                              {`${dex?.name || '--'}: ${pool.swapPercentage}%`}
+                            </>,
+                          )
+                          return link
+                        })
+                      : null}
+                  </Box>
                 </StyledHop>
                 {index !== arr.length - 1 && (
                   <StyledHopChevronWrapper>
