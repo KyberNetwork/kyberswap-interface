@@ -179,16 +179,6 @@ export function Preview({
   if (route === null || pools === "loading" || !account) return null;
   let amount0 = 0n;
   let amount1 = 0n;
-  // const newDetail = route.poolDetails.uniswapV3 || route.poolDetails.algebraV1;
-  // if (route !== null && tickLower !== null && tickUpper !== null && newDetail) {
-  //   ({ amount0, amount1 } = getPositionAmounts(
-  //     newDetail.newTick,
-  //     tickLower,
-  //     tickUpper,
-  //     BigInt(newDetail.newSqrtP),
-  //     BigInt(route.positionDetails.addedLiquidity)
-  //   ));
-  // }
 
   const newUniv2PoolDetail = route?.poolDetails.uniswapV2;
   const newOtherPoolDetail =
@@ -503,35 +493,37 @@ export function Preview({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-4">
-                <MouseoverTooltip
-                  text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
-                  width="220px"
-                >
-                  <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
-                    Est. Remaining Value
-                  </div>
-                </MouseoverTooltip>
+              {!isTargetUniv2 && (
+                <div className="flex items-center justify-between mt-4">
+                  <MouseoverTooltip
+                    text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+                    width="220px"
+                  >
+                    <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
+                      Est. Remaining Value
+                    </div>
+                  </MouseoverTooltip>
 
-                {refunds.length > 0 ? (
-                  <div>
-                    {formatCurrency(refundUsd)}
-                    <InfoHelper
-                      text={
-                        <div>
-                          {refunds.map((refund) => (
-                            <div key={refund.symbol}>
-                              {refund.amount} {refund.symbol}{" "}
-                            </div>
-                          ))}
-                        </div>
-                      }
-                    />
-                  </div>
-                ) : (
-                  <div>--</div>
-                )}
-              </div>
+                  {refunds.length > 0 ? (
+                    <div>
+                      {formatCurrency(refundUsd)}
+                      <InfoHelper
+                        text={
+                          <div>
+                            {refunds.map((refund) => (
+                              <div key={refund.symbol}>
+                                {refund.amount} {refund.symbol}{" "}
+                              </div>
+                            ))}
+                          </div>
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <div>--</div>
+                  )}
+                </div>
+              )}
 
               <SlippageInfo
                 slippage={slippage}
