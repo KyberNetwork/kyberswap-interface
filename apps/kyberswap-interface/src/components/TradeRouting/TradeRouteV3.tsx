@@ -202,7 +202,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   (Math.max(
                     source.y,
                     target.y,
-                    ...middleNodes.map(n => nodeRects[n.address]?.y + nodeRects[n.address]?.height).filter(Boolean),
+                    //...middleNodes.map(n => nodeRects[n.address]?.y + nodeRects[n.address]?.height).filter(Boolean),
                   ) +
                     Math.min(
                       source.y + source.height,
@@ -216,11 +216,14 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                 y: start.y,
               }
 
-              const isCorss = middleNodes.some(node => {
-                const nodeRect = nodeRects[node.address]
-                if (!nodeRect) return false
-                return nodeRect.y < start.y && start.y < nodeRect.y + nodeRect.height
-              })
+              const isCorss =
+                middleNodes.some(node => {
+                  const nodeRect = nodeRects[node.address]
+                  if (!nodeRect) return false
+                  return nodeRect.y < start.y && start.y < nodeRect.y + nodeRect.height
+                }) ||
+                source.y + source.height < target.y ||
+                source.y > target.y + target.height
 
               const swapAmount = edge.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
               const percent = (swapAmount * 100n) / totalAmount
@@ -230,13 +233,16 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                 start,
                 end,
                 middleNodes,
+                crossUnder: isCorss && source.y >= target.y + target.height,
+                crossAbove: isCorss && source.y < target.y + target.height,
                 isCorss,
                 percent,
               }
             })
 
           const noCrossEdges = edgesOut.filter(edge => !edge.isCorss)
-          const crossEdges = edgesOut.filter(edge => edge.isCorss)
+          const crossUnder = edgesOut.filter(edge => edge.crossUnder)
+          const crossAbove = edgesOut.filter(edge => edge.crossAbove)
 
           const lowestYForStartNode = Math.max(
             ...edgesOut
@@ -252,7 +258,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                     .filter(Boolean) as DOMRect[]
 
                   return (
-                    Math.max(...middleNodeRects.map(node => node.y + node.height)) + 30 + (crossEdges.length - 1) * 10
+                    Math.max(...middleNodeRects.map(node => node.y + node.height)) + 30 + (crossAbove.length - 1) * 10
                   )
                 }
                 return edge.start.y
@@ -297,7 +303,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   </React.Fragment>
                 )
               })}
-              {crossEdges.map((edge, index) => {
+              {crossUnder.map((edge, index) => {
                 const source = nodeRects[edge.source.address]
                 const target = nodeRects[edge.target.address]
                 const { end, middleNodes } = edge
@@ -310,14 +316,17 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   .filter(Boolean) as DOMRect[]
 
                 const startY =
-                  Math.max(
-                    isStartNode ? 0 : source.y + source.height,
-                    ...middleNodeRects.map(node => node.y + node.height),
-                    isStartNode ? 0 : target.y + target.height,
-                  ) +
-                  30 +
-                  (crossEdges.length - 1 - index) * 20
-                const startX = source.x + (source.width / (crossEdges.length + 1)) * (index + 1)
+                  middleNodeRects.length === 0
+                    ? target.y + target.height / 2
+                    : Math.max(
+                        isStartNode ? 0 : source.y + source.height,
+                        ...middleNodeRects.map(node => node.y + node.height),
+                        isStartNode ? 0 : target.y + target.height,
+                      ) +
+                      30 +
+                      (crossUnder.length - 1 - index) * 20
+
+                const startX = source.x + (source.width / (crossUnder.length + 1)) * (index + 1)
 
                 const isLineUnderTarget = startY > target.y + target.height
 
@@ -325,8 +334,83 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   <React.Fragment key={edge.source.address + edge.target.address}>
                     {/*label*/}
                     <text
-                      x={startX - svgRect.x + 6}
-                      y={startY - svgRect.y + 3}
+                      x={isStartNode ? startX - svgRect.x + 6 : startX - svgRect.x - 10}
+                      y={isStartNode ? startY - svgRect.y + 3 : startY}
+                      fontSize="10"
+                      fontWeight="500"
+                      fill={theme.primary}
+                    >
+                      {edge.percent.toString()}%
+                    </text>
+
+                    {/*vertical line*/}
+                    {!isStartNode && (
+                      <line
+                        x1={startX - svgRect.x}
+                        y1={source.y - svgRect.y}
+                        x2={startX - svgRect.x}
+                        y2={startY - svgRect.y}
+                        stroke={rgba('#fff', 0.06)}
+                        strokeWidth="2"
+                      />
+                    )}
+                    {/*horizontal line*/}
+                    <line
+                      x1={startX - svgRect.x}
+                      y1={startY - svgRect.y}
+                      x2={end.x + (isLineUnderTarget ? target.width / 2 : 0) - svgRect.x}
+                      y2={startY - svgRect.y}
+                      stroke={rgba('#fff', 0.06)}
+                      strokeWidth="1.5"
+                      markerEnd={isLineUnderTarget ? undefined : 'url(#arrowhead)'}
+                    />
+                    {isLineUnderTarget && (
+                      <line
+                        x1={end.x + target.width / 2 - svgRect.x}
+                        y1={startY - svgRect.y}
+                        x2={end.x + target.width / 2 - svgRect.x}
+                        y2={target.y + target.height - svgRect.y}
+                        stroke={rgba('#fff', 0.06)}
+                        strokeWidth="1.5"
+                        markerEnd={'url(#arrowhead)'}
+                      />
+                    )}
+                  </React.Fragment>
+                )
+              })}
+              {crossAbove.map((edge, index) => {
+                const source = nodeRects[edge.source.address]
+                const target = nodeRects[edge.target.address]
+                const { end, middleNodes } = edge
+                const middleNodeRects = middleNodes
+                  .map(node => {
+                    const nodeRect = nodeRects[node.address]
+                    if (!nodeRect) return null
+                    return nodeRect
+                  })
+                  .filter(Boolean) as DOMRect[]
+
+                const startY =
+                  middleNodeRects.length === 0
+                    ? target.y + target.height / 2
+                    : Math.max(
+                        isStartNode ? 0 : source.y + source.height,
+                        ...middleNodeRects.map(node => node.y + node.height),
+                        isStartNode ? 0 : target.y + target.height,
+                      ) +
+                      30 +
+                      (crossAbove.length - 1 - index) * 20
+
+                const startX = source.x + (source.width / (crossAbove.length + 1)) * (index + 1)
+
+                const isLineUnderTarget = startY > target.y + target.height
+
+                return (
+                  <React.Fragment key={edge.source.address + edge.target.address}>
+                    {/*label*/}
+                    <text
+                      x={isStartNode ? startX - svgRect.x + 6 : startX - svgRect.x - 6}
+                      y={isStartNode ? startY - svgRect.y + 3 : source.y + source.height - svgRect.y + 16}
                       fontSize="10"
                       fontWeight="500"
                       fill={theme.primary}
