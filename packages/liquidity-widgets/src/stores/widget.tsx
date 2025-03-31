@@ -415,7 +415,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
             poolType: pt,
             totalSupply,
           };
-          set({ position: p });
+          if (positionId || userBalance > BigInt(0)) set({ position: p });
           if (
             !positionId &&
             connectedAccount.address &&
