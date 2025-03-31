@@ -44,19 +44,7 @@ const PositionHistory = ({ position }: { position: ParsedPosition }) => {
         </Text>
         <Text>{createdTime}</Text>
       </Flex>
-      {/* <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Liquidity Source`}
-          </Text>
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <Text fontSize={14} color={theme.subText}>{t`Value`}</Text>
-            <Text>$12,600</Text>
-          </Flex>
-        </Flex> */}
       <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: 2 }} marginBottom={2}>
-        {/* <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <Text>345 KNC</Text> <Text>+ 12.65 JUP</Text> <Text>+ 0.18 ETH</Text>
-          </Flex> */}
         {txHash ? (
           <Flex alignItems={'center'} sx={{ gap: '6px' }}>
             <Text fontSize={14} color={theme.subText}>{t`Tnx Hash`}</Text>
@@ -70,16 +58,6 @@ const PositionHistory = ({ position }: { position: ParsedPosition }) => {
           </Flex>
         ) : null}
       </Flex>
-      {/* <Flex alignItems={'flex-start'} justifyContent={'space-between'}>
-          <Text fontSize={14} color={theme.subText}>{t`Past Actions`}</Text>
-          <Flex flexDirection={'column'} alignItems={'flex-end'} sx={{ gap: '6px' }}>
-            <Text>{t`Increased Liquidity`}</Text>
-            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-              <Text fontSize={14} color={theme.subText}>{t`Value`}</Text>
-              <Text>$12,600</Text>
-            </Flex>
-          </Flex>
-        </Flex> */}
     </InfoSection>
   )
 }
