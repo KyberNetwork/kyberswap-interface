@@ -15,8 +15,14 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { DexImage } from 'pages/Earns/UserPositions/styles'
 import ClaimFeeModal, { isNativeToken } from 'pages/Earns/ClaimFeeModal'
-import { DEXES_SUPPORT_COLLECT_FEE, EarnDex, NFT_MANAGER_ABI, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
-import { formatAprNumber } from 'pages/Earns/utils'
+import {
+  CoreProtocol,
+  DEXES_SUPPORT_COLLECT_FEE,
+  EarnDex,
+  NFT_MANAGER_ABI,
+  NFT_MANAGER_CONTRACT,
+} from 'pages/Earns/constants'
+import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
 import {
   InfoLeftColumn,
   InfoRight,
@@ -59,7 +65,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
 
   const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
   const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
-  const isUniv2 = position.dex === EarnDex.DEX_UNISWAPV2
+  const isUniv2 = isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2)
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!contract) return

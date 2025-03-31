@@ -23,8 +23,9 @@ import {
   PositionActionWrapper,
   PositionDetailWrapper,
 } from 'pages/Earns/PositionDetail/styles'
-import { EarnDex } from 'pages/Earns/constants'
+import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
+import { isForkFrom } from 'pages/Earns/utils'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -92,6 +93,8 @@ const PositionDetail = () => {
     }
   }, [userPosition])
 
+  const isUniv2 = useMemo(() => position && isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2), [position])
+
   const onOpenIncreaseLiquidityWidget = () => {
     if (!position) return
     handleOpenZapInWidget(
@@ -100,7 +103,7 @@ const PositionDetail = () => {
         chainId: position.chainId,
         address: position.poolAddress,
       },
-      position.dex === EarnDex.DEX_UNISWAPV2 ? account || '' : position.id,
+      isUniv2 ? account || '' : position.id,
     )
   }
 
@@ -141,7 +144,7 @@ const PositionDetail = () => {
                   onClick={() => {
                     handleOpenZapOut({
                       ...position,
-                      id: position.dex === EarnDex.DEX_UNISWAPV2 ? account || '' : position.id,
+                      id: isUniv2 ? account || '' : position.id,
                     })
                   }}
                 >{t`Remove Liquidity`}</PositionAction>

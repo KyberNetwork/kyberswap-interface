@@ -4,7 +4,13 @@ import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { PositionStatus, ParsedPosition } from 'pages/Earns/types'
-import { EarnDex, earnSupportedProtocols, PROTOCOL_POSITION_URL, DEXES_HIDE_TOKEN_ID } from 'pages/Earns/constants'
+import {
+  EarnDex,
+  earnSupportedProtocols,
+  PROTOCOL_POSITION_URL,
+  DEXES_HIDE_TOKEN_ID,
+  CoreProtocol,
+} from 'pages/Earns/constants'
 
 import CopyHelper from 'components/Copy'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -22,6 +28,7 @@ import {
   PositionOverview,
 } from 'pages/Earns/UserPositions/styles'
 import { DexInfo, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import { isForkFrom } from 'pages/Earns/utils'
 
 const PositionDetailHeader = ({
   position,
@@ -34,7 +41,7 @@ const PositionDetailHeader = ({
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const isUniv2 = position.dex === EarnDex.DEX_UNISWAPV2
+  const isUniv2 = isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2)
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status
 
   const onOpenPositionInDexSite = () => {

@@ -152,3 +152,22 @@ export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
   [EarnDex.DEX_KODIAK_V3]: true,
   [EarnDex.DEX_UNISWAPV2]: false,
 }
+
+export enum CoreProtocol {
+  UniswapV3,
+  UniswapV2,
+  AlgebraV1,
+  AlgebraV19,
+  AlgebraIntegral,
+}
+
+export const PROTOCOLS_CORE_MAPPING: Record<EarnDex, CoreProtocol> = {
+  [EarnDex.DEX_UNISWAPV3]: CoreProtocol.UniswapV3,
+  [EarnDex.DEX_PANCAKESWAPV3]: CoreProtocol.UniswapV3,
+  [EarnDex.DEX_SUSHISWAPV3]: CoreProtocol.UniswapV3,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: CoreProtocol.AlgebraV1,
+  [EarnDex.DEX_CAMELOTV3]: CoreProtocol.AlgebraV19,
+  [EarnDex.DEX_THENAFUSION]: CoreProtocol.AlgebraV1,
+  [EarnDex.DEX_KODIAK_V3]: CoreProtocol.UniswapV3,
+  [EarnDex.DEX_UNISWAPV2]: CoreProtocol.UniswapV2,
+}

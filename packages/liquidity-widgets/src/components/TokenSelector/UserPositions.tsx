@@ -16,6 +16,8 @@ import IconCopy from "@/assets/svg/copy.svg";
 import IconPositionConnectWallet from "@/assets/svg/ic_position_connect_wallet.svg";
 import IconPositionNotFound from "@/assets/svg/ic_position_not_found.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import { isForkFrom } from "@/utils";
+import { CoreProtocol } from "@/schema";
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
@@ -154,7 +156,10 @@ const UserPositions = ({ search }: { search: string }) => {
     </div>
   ) : positions.length ? (
     positions.map((position: EarnPosition, index: number) => {
-      const isUniv2 = position.pool.project === EarnDex.DEX_UNISWAPV2;
+      const isUniv2 = isForkFrom(
+        position.pool.project as EarnDex,
+        CoreProtocol.UniswapV2
+      );
       const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status;
 
       return (

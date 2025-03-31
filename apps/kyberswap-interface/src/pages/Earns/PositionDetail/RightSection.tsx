@@ -19,8 +19,9 @@ import {
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
-import { EarnDex } from 'pages/Earns/constants'
+import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
+import { isForkFrom } from 'pages/Earns/utils'
 
 const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
@@ -30,7 +31,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
 
   const price = useMemo(() => (!revert ? position.pairRate : 1 / position.pairRate), [position.pairRate, revert])
-  const isUniv2 = position.dex === EarnDex.DEX_UNISWAPV2
+  const isUniv2 = isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2)
 
   const priceRange = useMemo(() => {
     if (!pool) return

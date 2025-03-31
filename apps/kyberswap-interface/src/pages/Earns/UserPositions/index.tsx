@@ -22,8 +22,9 @@ import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
 import { PositionPageWrapper, PositionTableHeader, PositionTableWrapper } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
-import { EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import { CoreProtocol, EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
 import { PositionStatus } from 'pages/Earns/types'
+import { isForkFrom } from 'pages/Earns/utils'
 
 const POSITIONS_TABLE_LIMIT = 10
 
@@ -69,7 +70,7 @@ const UserPositions = () => {
     })
     if (filters.status)
       positions = positions.filter(position =>
-        position.pool.project !== EarnDex.DEX_UNISWAPV2
+        !isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
           ? position.status === filters.status
           : filters.status === PositionStatus.IN_RANGE,
       )

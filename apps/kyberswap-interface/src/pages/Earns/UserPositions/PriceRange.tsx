@@ -14,7 +14,8 @@ import {
   PriceRangeWrapper,
   UpperPriceIndicator,
 } from 'pages/Earns/UserPositions/styles'
-import { EarnDex } from 'pages/Earns/constants'
+import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
+import { isForkFrom } from 'pages/Earns/utils'
 
 export default function PriceRange({
   minPrice,
@@ -33,7 +34,7 @@ export default function PriceRange({
   token1Decimals: number
   dex: EarnDex
 }) {
-  const isUniv2 = dex === EarnDex.DEX_UNISWAPV2
+  const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
   const outOfRange = isUniv2 ? false : currentPrice < minPrice || currentPrice > maxPrice
 
   const ticksAtLimit: { lower: boolean; upper: boolean } | undefined = useMemo(() => {

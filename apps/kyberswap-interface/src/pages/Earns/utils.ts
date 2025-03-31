@@ -2,6 +2,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import { ethers } from 'ethers'
 
 import { formatDisplayNumber } from 'utils/numbers'
+import { CoreProtocol, EarnDex, PROTOCOLS_CORE_MAPPING } from 'pages/Earns/constants'
 
 export const formatAprNumber = (apr: string | number): string => {
   const formattedApr = Number(apr)
@@ -29,3 +30,6 @@ export const getTokenId = async (provider: Web3Provider, txHash: string) => {
     return
   }
 }
+
+export const isForkFrom = (protocol: EarnDex, coreProtocol: CoreProtocol) =>
+  PROTOCOLS_CORE_MAPPING[protocol] === coreProtocol

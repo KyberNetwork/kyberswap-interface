@@ -33,8 +33,9 @@ import {
   NFT_MANAGER_ABI,
   NFT_MANAGER_CONTRACT,
   EarnDex,
+  CoreProtocol,
 } from 'pages/Earns/constants'
-import { formatAprNumber } from 'pages/Earns/utils'
+import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
   Badge,
@@ -87,22 +88,24 @@ export default function TableContent({
 
   const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
+    const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
     onOpenZapInWidget(
       {
         exchange: position.pool.project || '',
         chainId: position.chainId,
         address: position.pool.poolAddress,
       },
-      position.pool.project === EarnDex.DEX_UNISWAPV2 ? account || '' : position.tokenId,
+      isUniv2 ? account || '' : position.tokenId,
     )
   }
 
   const handleOpenZapOut = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
+    const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
     onOpenZapOut({
       dex: position.pool.project || '',
       chainId: position.chainId,
-      id: position.pool.project === EarnDex.DEX_UNISWAPV2 ? account || '' : position.tokenId,
+      id: isUniv2 ? account || '' : position.tokenId,
       poolAddress: position.pool.poolAddress,
     })
   }
@@ -112,7 +115,7 @@ export default function TableContent({
     const totalUnclaimedFees = position.feeInfo
       ? position.feeInfo.totalValue
       : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
-    const isUniv2 = position.pool.project === EarnDex.DEX_UNISWAPV2
+    const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
     if (isUniv2 || claiming || totalUnclaimedFees === 0) return
     setPositionToClaim({
       id: position.tokenId,
@@ -290,7 +293,7 @@ export default function TableContent({
               ? position.feeInfo.amount1
               : position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price
 
-            const isUniv2 = dex === EarnDex.DEX_UNISWAPV2
+            const isUniv2 = isForkFrom(dex as EarnDex, CoreProtocol.UniswapV2)
             const posStatus = isUniv2 ? PositionStatus.IN_RANGE : status
             const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex as EarnDex] || totalUnclaimedFee === 0 || claiming
 
@@ -306,10 +309,7 @@ export default function TableContent({
                 key={`${positionId}-${poolAddress}-${index}`}
                 onClick={() =>
                   navigate({
-                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(
-                      ':positionId',
-                      dex !== EarnDex.DEX_UNISWAPV2 ? id : poolAddress,
-                    )
+                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !isUniv2 ? id : poolAddress)
                       .replace(':chainId', poolChainId.toString())
                       .replace(':protocol', dex),
                   })

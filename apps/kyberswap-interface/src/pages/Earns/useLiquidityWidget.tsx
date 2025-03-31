@@ -5,7 +5,7 @@ import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { EarnDex, EarnDex2, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
+import { CoreProtocol, EarnDex, EarnDex2, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -17,7 +17,7 @@ import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
-import { getTokenId } from 'pages/Earns/utils'
+import { getTokenId, isForkFrom } from 'pages/Earns/utils'
 
 interface AddLiquidityPureParams {
   poolAddress: string
@@ -160,7 +160,7 @@ const useLiquidityWidget = () => {
       navigate(
         APP_PATHS.EARN_POSITION_DETAIL.replace(
           ':positionId',
-          dex !== EarnDex.DEX_UNISWAPV2 ? `${nftContract}-${tokenId}` : poolAddress,
+          !isForkFrom(dex, CoreProtocol.UniswapV2) ? `${nftContract}-${tokenId}` : poolAddress,
         )
           .replace(':chainId', chainId.toString())
           .replace(':protocol', dex) + '?forceLoading=true',

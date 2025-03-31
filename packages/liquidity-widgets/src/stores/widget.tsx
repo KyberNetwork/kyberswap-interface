@@ -456,7 +456,7 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update store when props changeƒ
+  // Update store when props change
   useEffect(() => {
     store.setState({
       ...props,
