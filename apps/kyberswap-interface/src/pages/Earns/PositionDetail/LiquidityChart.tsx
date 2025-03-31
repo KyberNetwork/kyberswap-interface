@@ -8,8 +8,8 @@ import { usePoolDetailQuery } from 'services/poolService'
 import { MEDIA_WIDTHS } from 'theme'
 import { toString } from 'utils/numbers'
 
-import { ChartWrapper } from './styles'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from './uniswapv3'
+import { ChartWrapper } from 'pages/Earns/PositionDetail/styles'
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 
 export default function LiquidityChart({
   chainId,

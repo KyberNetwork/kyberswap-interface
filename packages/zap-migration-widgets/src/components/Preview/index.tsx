@@ -24,7 +24,7 @@ import LoadingIcon from "../../assets/icons/loader-circle.svg";
 import CheckIcon from "../../assets/icons/circle-check.svg";
 import { Image } from "../Image";
 import { ZAP_URL, DexInfos, NetworkInfo } from "../../constants";
-import { ChainId, Token } from "../../schema";
+import { ChainId, Token, univ2Dexes, UniV2Pool } from "../../schema";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
@@ -173,16 +173,39 @@ export function Preview({
 
   const { zapPiRes } = useSwapPI(chainId);
 
+  const isTargetUniv2 =
+    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
+
   if (route === null || pools === "loading" || !account) return null;
   let amount0 = 0n;
   let amount1 = 0n;
-  const newDetail = route.poolDetails.uniswapV3 || route.poolDetails.algebraV1;
-  if (route !== null && tickLower !== null && tickUpper !== null && newDetail) {
+
+  const newUniv2PoolDetail = route?.poolDetails.uniswapV2;
+  const newOtherPoolDetail =
+    route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
+
+  if (isTargetUniv2 && newUniv2PoolDetail) {
+    const p = pools[1] as UniV2Pool;
+    amount0 =
+      (BigInt(route.positionDetails.addedLiquidity) *
+        BigInt(newUniv2PoolDetail.newReserve0)) /
+      BigInt(p.totalSupply || 0n);
+    amount1 =
+      (BigInt(route.positionDetails.addedLiquidity) *
+        BigInt(newUniv2PoolDetail.newReserve1)) /
+      BigInt(p.totalSupply || 0n);
+  } else if (
+    !isTargetUniv2 &&
+    route !== null &&
+    tickLower !== null &&
+    tickUpper !== null &&
+    newOtherPoolDetail
+  ) {
     ({ amount0, amount1 } = getPositionAmounts(
-      newDetail.newTick,
+      newOtherPoolDetail.newTick,
       tickLower,
       tickUpper,
-      BigInt(newDetail.newSqrtP),
+      BigInt(newOtherPoolDetail.newSqrtP),
       BigInt(route.positionDetails.addedLiquidity)
     ));
   }
@@ -470,35 +493,37 @@ export function Preview({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-4">
-                <MouseoverTooltip
-                  text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
-                  width="220px"
-                >
-                  <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
-                    Est. Remaining Value
-                  </div>
-                </MouseoverTooltip>
+              {!isTargetUniv2 && (
+                <div className="flex items-center justify-between mt-4">
+                  <MouseoverTooltip
+                    text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+                    width="220px"
+                  >
+                    <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
+                      Est. Remaining Value
+                    </div>
+                  </MouseoverTooltip>
 
-                {refunds.length > 0 ? (
-                  <div>
-                    {formatCurrency(refundUsd)}
-                    <InfoHelper
-                      text={
-                        <div>
-                          {refunds.map((refund) => (
-                            <div key={refund.symbol}>
-                              {refund.amount} {refund.symbol}{" "}
-                            </div>
-                          ))}
-                        </div>
-                      }
-                    />
-                  </div>
-                ) : (
-                  <div>--</div>
-                )}
-              </div>
+                  {refunds.length > 0 ? (
+                    <div>
+                      {formatCurrency(refundUsd)}
+                      <InfoHelper
+                        text={
+                          <div>
+                            {refunds.map((refund) => (
+                              <div key={refund.symbol}>
+                                {refund.amount} {refund.symbol}{" "}
+                              </div>
+                            ))}
+                          </div>
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <div>--</div>
+                  )}
+                </div>
+              )}
 
               <SlippageInfo
                 slippage={slippage}

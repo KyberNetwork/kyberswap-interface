@@ -1,4 +1,5 @@
-import { ChainId, NetworkInfo } from "../constants";
+import { CoreProtocol, PROTOCOLS_CORE_MAPPING } from "@/schema";
+import { ChainId, EarnDex, NetworkInfo, PoolType } from "@/constants";
 import { formatUnits } from "@kyber/utils/number";
 
 export const formatCurrency = (value: number) =>
@@ -254,3 +255,8 @@ export const countDecimals = (value: string | number) => {
   if (Math.floor(+value) === +value) return 0;
   return value.toString().split(".")[1].length || 0;
 };
+
+export const isForkFrom = (
+  protocol: EarnDex | PoolType,
+  coreProtocol: CoreProtocol
+) => PROTOCOLS_CORE_MAPPING[protocol] === coreProtocol;

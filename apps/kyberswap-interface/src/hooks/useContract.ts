@@ -30,7 +30,7 @@ import { getReadingContract, getSigningContract } from 'utils/getContract'
 import { useActiveWeb3React } from './index'
 
 // returns null on errors
-export function useSigningContract(address: string | undefined, ABI: ContractInterface): Contract | null {
+export function useSigningContract(address: string | undefined, ABI: ContractInterface | null): Contract | null {
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
 
@@ -49,7 +49,7 @@ export function useSigningContract(address: string | undefined, ABI: ContractInt
 
 export function useReadingContract(
   address: string | undefined,
-  ABI: ContractInterface,
+  ABI: ContractInterface | null,
   customChainId?: ChainId,
 ): Contract | null {
   const { chainId: curChainId } = useActiveWeb3React()
@@ -57,7 +57,7 @@ export function useReadingContract(
   const { readProvider } = useKyberSwapConfig(chainId)
 
   return useMemo(() => {
-    if (!address || !readProvider) return null
+    if (!address || !readProvider || !ABI) return null
     try {
       return getReadingContract(address, ABI, readProvider)
     } catch (error) {

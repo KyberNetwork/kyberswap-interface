@@ -1,3 +1,4 @@
+import { EarnDex } from "@/constants";
 import { z } from "zod";
 
 export enum ChainId {
@@ -237,6 +238,54 @@ const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_SQUADSWAP_V3]: ["squadswap-v3"],
   [PoolType.DEX_SQUADSWAP_V2]: ["squadswap"],
 } as const;
+
+export enum CoreProtocol {
+  UniswapV3,
+  UniswapV2,
+  AlgebraV1,
+  AlgebraV19,
+  AlgebraIntegral,
+}
+
+export const PROTOCOLS_CORE_MAPPING: Record<EarnDex | PoolType, CoreProtocol> =
+  {
+    [EarnDex.DEX_UNISWAPV3]: CoreProtocol.UniswapV3,
+    [EarnDex.DEX_PANCAKESWAPV3]: CoreProtocol.UniswapV3,
+    [EarnDex.DEX_SUSHISWAPV3]: CoreProtocol.UniswapV3,
+    [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: CoreProtocol.AlgebraV1,
+    [EarnDex.DEX_CAMELOTV3]: CoreProtocol.AlgebraV19,
+    [EarnDex.DEX_THENAFUSION]: CoreProtocol.AlgebraV1,
+    [EarnDex.DEX_KODIAK_V3]: CoreProtocol.UniswapV3,
+    [EarnDex.DEX_UNISWAPV2]: CoreProtocol.UniswapV2,
+
+    [PoolType.DEX_UNISWAPV3]: CoreProtocol.UniswapV3,
+    [PoolType.DEX_PANCAKESWAPV3]: CoreProtocol.UniswapV3,
+    [PoolType.DEX_METAVAULTV3]: CoreProtocol.UniswapV3,
+    [PoolType.DEX_LINEHUBV3]: CoreProtocol.UniswapV3,
+    [PoolType.DEX_SWAPMODEV3]: CoreProtocol.UniswapV3,
+    [PoolType.DEX_KOICL]: CoreProtocol.UniswapV3,
+    [PoolType.DEX_THRUSTERV3]: CoreProtocol.UniswapV3,
+    [PoolType.DEX_SUSHISWAPV3]: CoreProtocol.UniswapV3,
+    [PoolType.DEX_KODIAK_V3]: CoreProtocol.UniswapV3,
+    [PoolType.DEX_SQUADSWAP_V3]: CoreProtocol.UniswapV3,
+
+    [PoolType.DEX_PANCAKESWAPV2]: CoreProtocol.UniswapV2,
+    [PoolType.DEX_UNISWAPV2]: CoreProtocol.UniswapV2,
+    [PoolType.DEX_PANGOLINSTANDARD]: CoreProtocol.UniswapV2,
+    [PoolType.DEX_SUSHISWAPV2]: CoreProtocol.UniswapV2,
+    [PoolType.DEX_QUICKSWAPV2]: CoreProtocol.UniswapV2,
+    [PoolType.DEX_THRUSTERV2]: CoreProtocol.UniswapV2,
+    [PoolType.DEX_SWAPMODEV2]: CoreProtocol.UniswapV2,
+    [PoolType.DEX_KODIAK_V2]: CoreProtocol.UniswapV2,
+    [PoolType.DEX_SQUADSWAP_V2]: CoreProtocol.UniswapV2,
+
+    [PoolType.DEX_THENAFUSION]: CoreProtocol.AlgebraV1,
+    [PoolType.DEX_QUICKSWAPV3ALGEBRA]: CoreProtocol.AlgebraV1,
+
+    [PoolType.DEX_CAMELOTV3]: CoreProtocol.AlgebraV19,
+
+    // [PoolType.DEX_BLADESWAP]: CoreProtocol.AlgebraIntegral,
+  };
 
 const dexValues = Object.values(dexMapping).flat();
 

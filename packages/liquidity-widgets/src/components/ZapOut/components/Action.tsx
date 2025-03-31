@@ -3,7 +3,6 @@ import { WarningMsg } from "./WarningMsg";
 import InfoHelper from "@/components/InfoHelper";
 import { DexInfos, NetworkInfo } from "@/constants";
 import { useNftApproval } from "@/hooks/useNftApproval";
-import { univ3PoolType } from "@/schema";
 import { useZapOutContext } from "@/stores/zapout";
 import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { PI_LEVEL } from "@/utils";
@@ -41,8 +40,7 @@ export const Action = () => {
     spender: route?.routerAddress,
   });
 
-  const isUniV3 = univ3PoolType.safeParse(poolType).success;
-  const isApproved = isUniV3 ? approved && !isChecking : true;
+  const isApproved = approved && !isChecking;
 
   const [clickedApprove, setClickedApprove] = useState(false);
 
@@ -95,7 +93,7 @@ export const Action = () => {
     if (!route) return "No route found";
     if (chainId !== walletChainId) return "Switch Network";
     if (clickedApprove || pendingTx) return "Approving...";
-    if (!isApproved) return "Approve NFT";
+    if (!isApproved) return "Approve";
     if (pi.piVeryHigh) return "Remove anyway";
     return "Preview";
   }, [

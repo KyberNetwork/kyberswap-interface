@@ -5,7 +5,7 @@ import { Minus, Plus } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { EarnPosition, PositionStatus } from 'services/zapEarn'
+import { PositionStatus, EarnPosition } from 'pages/Earns/types'
 
 import { ReactComponent as IconClaim } from 'assets/svg/ic_claim.svg'
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
@@ -23,13 +23,20 @@ import { shortenAddress } from 'utils'
 import { getReadingContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { CurrencyRoundedImage, CurrencySecondImage } from '../PoolExplorer/styles'
-import { FeeInfo } from '../PositionDetail/LeftSection'
-import { PositionAction as PositionActionBtn } from '../PositionDetail/styles'
-import ClaimFeeModal, { PositionToClaim, isNativeToken } from '../components/ClaimFeeModal'
-import { NFT_MANAGER_ABI, NFT_MANAGER_CONTRACT } from '../constants'
-import { formatAprNumber } from '../utils'
-import PriceRange from './PriceRange'
+import { CurrencyRoundedImage, CurrencySecondImage } from 'pages/Earns/PoolExplorer/styles'
+import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
+import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
+import ClaimFeeModal, { PositionToClaim, isNativeToken } from 'pages/Earns/ClaimFeeModal'
+import {
+  DEXES_SUPPORT_COLLECT_FEE,
+  DEXES_HIDE_TOKEN_ID,
+  NFT_MANAGER_ABI,
+  NFT_MANAGER_CONTRACT,
+  EarnDex,
+  CoreProtocol,
+} from 'pages/Earns/constants'
+import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
+import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
   Badge,
   BadgeType,
@@ -44,7 +51,7 @@ import {
   PositionTableBody,
   PositionValueLabel,
   PositionValueWrapper,
-} from './styles'
+} from 'pages/Earns/UserPositions/styles'
 
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string
@@ -81,22 +88,24 @@ export default function TableContent({
 
   const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
+    const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
     onOpenZapInWidget(
       {
         exchange: position.pool.project || '',
         chainId: position.chainId,
         address: position.pool.poolAddress,
       },
-      position.tokenId,
+      isUniv2 ? account || '' : position.tokenId,
     )
   }
 
   const handleOpenZapOut = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
+    const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
     onOpenZapOut({
       dex: position.pool.project || '',
       chainId: position.chainId,
-      id: position.tokenId,
+      id: isUniv2 ? account || '' : position.tokenId,
       poolAddress: position.pool.poolAddress,
     })
   }
@@ -106,7 +115,8 @@ export default function TableContent({
     const totalUnclaimedFees = position.feeInfo
       ? position.feeInfo.totalValue
       : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
-    if (claiming || totalUnclaimedFees === 0) return
+    const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
+    if (isUniv2 || claiming || totalUnclaimedFees === 0) return
     setPositionToClaim({
       id: position.tokenId,
       dex: position.pool.project || '',
@@ -146,6 +156,8 @@ export default function TableContent({
           ? nftManagerContractOfDex
           : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
       const nftManagerAbi = NFT_MANAGER_ABI[position.dex as keyof typeof NFT_MANAGER_ABI]
+
+      if (!nftManagerAbi) return
       const contract = getReadingContract(nftManagerContract, nftManagerAbi, library)
 
       if (!contract) return
@@ -233,7 +245,7 @@ export default function TableContent({
       )}
       <PositionTableBody>
         {account && positions && positions.length > 0 ? (
-          positions.map(position => {
+          positions.map((position, index) => {
             const {
               id,
               status,
@@ -246,6 +258,7 @@ export default function TableContent({
 
             const currentPrice = position.pool.price
             const tickSpacing = position.pool.tickSpacing
+            const dex = position.pool.project
             const dexImage = position.pool.projectLogo
             const dexVersion = position.pool.project?.split(' ')?.[1] || ''
             const token0Logo = position.pool.tokenAmounts[0]?.token.logo
@@ -279,7 +292,10 @@ export default function TableContent({
             const token1UnclaimedAmount = position.feeInfo
               ? position.feeInfo.amount1
               : position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price
-            const claimDisabled = totalUnclaimedFee === 0 || claiming
+
+            const isUniv2 = isForkFrom(dex as EarnDex, CoreProtocol.UniswapV2)
+            const posStatus = isUniv2 ? PositionStatus.IN_RANGE : status
+            const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex as EarnDex] || totalUnclaimedFee === 0 || claiming
 
             const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
             const token1Address = position.pool.tokenAmounts[1]?.token.address || ''
@@ -290,10 +306,12 @@ export default function TableContent({
 
             return (
               <PositionRow
-                key={positionId}
+                key={`${positionId}-${poolAddress}-${index}`}
                 onClick={() =>
                   navigate({
-                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':id', id),
+                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !isUniv2 ? id : poolAddress)
+                      .replace(':chainId', poolChainId.toString())
+                      .replace(':protocol', dex),
                   })
                 }
               >
@@ -308,8 +326,8 @@ export default function TableContent({
                       {token0Symbol}/{token1Symbol}
                     </Text>
                     {poolFee && <Badge>{poolFee}%</Badge>}
-                    <Badge type={status === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-                      ● {status === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
+                    <Badge type={posStatus === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
+                      ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
                     </Badge>
                   </Flex>
                   <Flex alignItems={'center'} sx={{ gap: '10px' }}>
@@ -319,9 +337,11 @@ export default function TableContent({
                         {dexVersion}
                       </Text>
                     </Flex>
-                    <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-                      #{positionId}
-                    </Text>
+                    {DEXES_HIDE_TOKEN_ID[dex as EarnDex] ? null : (
+                      <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
+                        #{positionId}
+                      </Text>
+                    )}
                     <Badge type={BadgeType.SECONDARY}>
                       <Text fontSize={14}>{shortenAddress(poolChainId, poolAddress, 4)}</Text>
                       <CopyHelper size={16} toCopy={poolAddress} />
@@ -374,25 +394,31 @@ export default function TableContent({
                   <Text>{formatAprNumber(apr7d * 100)}%</Text>
                 </PositionValueWrapper>
                 <PositionValueWrapper align={upToLarge ? 'center' : ''}>
-                  <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
-                  <MouseoverTooltipDesktopOnly
-                    text={
-                      <>
+                  {!isUniv2 ? (
+                    <>
+                      <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+                      <MouseoverTooltipDesktopOnly
+                        text={
+                          <>
+                            <Text>
+                              {formatDisplayNumber(token0UnclaimedAmount, { significantDigits: 6 })}{' '}
+                              {isToken0Native ? nativeToken.symbol : token0Symbol}
+                            </Text>
+                            <Text>
+                              {formatDisplayNumber(token1UnclaimedAmount, { significantDigits: 6 })}{' '}
+                              {isToken1Native ? nativeToken.symbol : token1Symbol}
+                            </Text>
+                          </>
+                        }
+                        width="fit-content"
+                        placement="bottom"
+                      >
                         <Text>
-                          {formatDisplayNumber(token0UnclaimedAmount, { significantDigits: 6 })}{' '}
-                          {isToken0Native ? nativeToken.symbol : token0Symbol}
+                          {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
                         </Text>
-                        <Text>
-                          {formatDisplayNumber(token1UnclaimedAmount, { significantDigits: 6 })}{' '}
-                          {isToken1Native ? nativeToken.symbol : token1Symbol}
-                        </Text>
-                      </>
-                    }
-                    width="fit-content"
-                    placement="bottom"
-                  >
-                    <Text>{formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}</Text>
-                  </MouseoverTooltipDesktopOnly>
+                      </MouseoverTooltipDesktopOnly>
+                    </>
+                  ) : null}
                 </PositionValueWrapper>
                 <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
                   <PositionValueLabel>{t`Bal`}</PositionValueLabel>
@@ -414,6 +440,7 @@ export default function TableContent({
                     tickSpacing={tickSpacing}
                     token0Decimals={token0Decimals}
                     token1Decimals={token1Decimals}
+                    dex={dex as EarnDex}
                   />
                 </PositionValueWrapper>
                 {(upToSmall || !upToLarge) && (

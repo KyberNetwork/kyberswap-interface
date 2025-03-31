@@ -12,7 +12,7 @@ import {
   Token,
   algebraTypes,
 } from "@/schema";
-import { Theme, defaultTheme } from "@/theme";
+import { Theme } from "@/theme";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
 import {
@@ -98,12 +98,16 @@ interface WidgetState extends WidgetProps {
   toggleShowWidget: (newState: boolean) => void;
 }
 
-type WidgetProviderProps = React.PropsWithChildren<WidgetProps>;
+interface InnerWidgetProps extends WidgetProps {
+  theme: Theme;
+}
 
-const createWidgetStore = (initProps: WidgetProps) => {
+type WidgetProviderProps = React.PropsWithChildren<InnerWidgetProps>;
+
+const createWidgetStore = (initProps: InnerWidgetProps) => {
   return createStore<WidgetState>()((set, get) => ({
     ...initProps,
-    theme: initProps.theme || defaultTheme,
+    theme: initProps.theme,
     pool: "loading",
     position: "loading",
     errorMsg: "",
@@ -111,7 +115,8 @@ const createWidgetStore = (initProps: WidgetProps) => {
     poolLoading: false,
 
     getPool: async (fetchPrices) => {
-      const { poolAddress, chainId, poolType, positionId } = get();
+      const { poolAddress, chainId, poolType, positionId, connectedAccount } =
+        get();
 
       set({ poolLoading: true });
 
@@ -360,11 +365,12 @@ const createWidgetStore = (initProps: WidgetProps) => {
 
         set({ pool: p });
 
-        if (positionId) {
+        if (positionId || connectedAccount.address) {
           // get pool total supply and user supply
+          const posId = positionId || connectedAccount.address || "";
           const balanceOfSelector = getFunctionSelector("balanceOf(address)");
           const totalSupplySelector = getFunctionSelector("totalSupply()");
-          const paddedAccount = positionId.replace("0x", "").padStart(64, "0");
+          const paddedAccount = posId.replace("0x", "").padStart(64, "0");
 
           const getPayload = (d: string) => {
             return {
@@ -409,6 +415,12 @@ const createWidgetStore = (initProps: WidgetProps) => {
             totalSupply,
           };
           set({ position: p });
+          if (
+            !positionId &&
+            connectedAccount.address &&
+            userBalance > BigInt(0)
+          )
+            set({ positionId: connectedAccount.address });
         }
       } else {
         set({ poolLoading: false });

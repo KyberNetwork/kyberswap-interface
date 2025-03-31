@@ -3,7 +3,14 @@ import { t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { EarnDex, PositionStatus, earnSupportedProtocols } from 'services/zapEarn'
+import { PositionStatus, ParsedPosition } from 'pages/Earns/types'
+import {
+  EarnDex,
+  earnSupportedProtocols,
+  PROTOCOL_POSITION_URL,
+  DEXES_HIDE_TOKEN_ID,
+  CoreProtocol,
+} from 'pages/Earns/constants'
 
 import CopyHelper from 'components/Copy'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -11,10 +18,17 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
-import { ParsedPosition } from '.'
-import { CurrencyRoundedImage, CurrencySecondImage } from '../PoolExplorer/styles'
-import { Badge, BadgeType, ChainImage, DexImage, ImageContainer, PositionOverview } from '../UserPositions/styles'
-import { DexInfo, IconArrowLeft } from './styles'
+import { CurrencyRoundedImage, CurrencySecondImage } from 'pages/Earns/PoolExplorer/styles'
+import {
+  Badge,
+  BadgeType,
+  ChainImage,
+  DexImage,
+  ImageContainer,
+  PositionOverview,
+} from 'pages/Earns/UserPositions/styles'
+import { DexInfo, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import { isForkFrom } from 'pages/Earns/utils'
 
 const PositionDetailHeader = ({
   position,
@@ -27,21 +41,25 @@ const PositionDetailHeader = ({
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
+  const isUniv2 = isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2)
+  const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status
+
   const onOpenPositionInDexSite = () => {
     if (!position || !earnSupportedProtocols.includes(position.dex)) return
 
     const chainName =
       position.dex === EarnDex.DEX_UNISWAPV3 && position.chainName === 'eth' ? 'ethereum' : position.chainName
+    const positionId = position.id
+    const poolAddress = position.poolAddress
+    const positionDetailUrl = PROTOCOL_POSITION_URL[position.dex as EarnDex]
 
-    if (position.dex === EarnDex.DEX_UNISWAPV3)
-      window.open(`https://app.uniswap.org/positions/v3/${chainName}/${position.id}`)
-    else if (position.dex === EarnDex.DEX_SUSHISWAPV3)
-      window.open(`https://www.sushi.com/${chainName}/pool/v3/${position.poolAddress}/${position.id}`)
-    else if (position.dex === EarnDex.DEX_PANCAKESWAPV3)
-      window.open(`https://pancakeswap.finance/liquidity/${position.id}`)
-    else if (position.dex === EarnDex.DEX_QUICKSWAPV3ALGEBRA) window.open(`https://quickswap.exchange/#/pools`)
-    else if (position.dex === EarnDex.DEX_CAMELOTV3) window.open(`https://app.camelot.exchange/positions`)
-    else if (position.dex === EarnDex.DEX_THENAFUSION) window.open(`https://thena.fi/pools/${position.poolAddress}`)
+    if (!positionDetailUrl) return
+    const parsedUrl = positionDetailUrl
+      .replace('$chainName', chainName)
+      .replace('$positionId', positionId)
+      .replace('$poolAddress', poolAddress)
+
+    window.open(parsedUrl)
   }
 
   return (
@@ -60,11 +78,13 @@ const PositionDetailHeader = ({
           {position.poolFee && <Badge>{position.poolFee}%</Badge>}
         </Flex>
         <Flex alignItems={'center'} sx={{ gap: '10px' }} flexWrap={'wrap'}>
-          <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-            #{position.id}
-          </Text>
-          <Badge type={position.status === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-            ● {position.status === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
+          {DEXES_HIDE_TOKEN_ID[position.dex as EarnDex] ? null : (
+            <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
+              #{position.id}
+            </Text>
+          )}
+          <Badge type={posStatus === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
+            ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
           </Badge>
           <Badge type={BadgeType.SECONDARY}>
             <Text fontSize={14}>

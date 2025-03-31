@@ -3,7 +3,8 @@ import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetDexListQuery } from 'services/ksSetting'
-import { EarnPool, useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
+import { useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
+import { EarnPool } from 'pages/Earns/types'
 
 import { NotificationType } from 'components/Announcement/type'
 import CopyHelper from 'components/Copy'
@@ -16,7 +17,7 @@ import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { formatAprNumber } from '../utils'
+import { formatAprNumber } from 'pages/Earns/utils'
 import {
   Apr,
   CurrencyRoundedImage,
@@ -27,10 +28,10 @@ import {
   SymbolText,
   TableBody,
   TableRow,
-} from './styles'
-import useFilter from './useFilter'
+} from 'pages/Earns/PoolExplorer/styles'
+import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 
-const dexMapping: { [key: string]: string } = {
+export const dexMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
   kodiakcl: 'kodiak-v3',
 }

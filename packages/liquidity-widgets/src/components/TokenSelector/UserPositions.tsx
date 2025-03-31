@@ -1,136 +1,23 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { shortenAddress } from "../TokenInfo/utils";
+import {
+  EARN_SUPPORTED_CHAINS,
+  EARN_SUPPORTED_PROTOCOLS,
+  EarnDex,
+  PATHS,
+} from "@/constants";
+import { useZapState } from "@/hooks/useZapInState";
+import { useWidgetContext } from "@/stores/widget";
+import { EarnPosition, PositionStatus } from "@/types/index";
+import { isAddress } from "@kyber/utils/crypto";
+import { formatDisplayNumber } from "@kyber/utils/number";
 import CircleCheckBig from "@/assets/svg/circle-check-big.svg";
 import IconCopy from "@/assets/svg/copy.svg";
 import IconPositionConnectWallet from "@/assets/svg/ic_position_connect_wallet.svg";
 import IconPositionNotFound from "@/assets/svg/ic_position_not_found.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { ChainId, PATHS } from "@/constants";
-import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores/widget";
-import { isAddress } from "@kyber/utils/crypto";
-import { formatDisplayNumber } from "@kyber/utils/number";
-import { useCallback, useEffect, useMemo, useState } from "react";
-
-export enum PositionStatus {
-  IN_RANGE = "IN_RANGE",
-  OUT_RANGE = "OUT_RANGE",
-}
-
-export interface PositionAmount {
-  token: {
-    address: string;
-    symbol: string;
-    name: string;
-    decimals: number;
-    logo: string;
-    tag: string;
-    price: number;
-  };
-  tokenType: string;
-  tokenID: string;
-  balance: string;
-  quotes: {
-    usd: {
-      symbol: string;
-      marketPrice: number;
-      price: number;
-      priceChange24hPercentage: number;
-      value: number;
-      timestamp: number;
-    };
-  };
-}
-
-export interface EarnPosition {
-  [x: string]: any;
-  chainName: "eth";
-  chainId: number;
-  chainLogo: string;
-  userAddress: string;
-  id: string;
-  tokenAddress: string;
-  tokenId: string;
-  liquidity: string;
-  minPrice: number;
-  maxPrice: number;
-  currentAmounts: Array<PositionAmount>;
-  providedAmounts: Array<PositionAmount>;
-  feePending: Array<PositionAmount>;
-  feesClaimed: Array<PositionAmount>;
-  farmRewardsPending: Array<PositionAmount>;
-  farmRewardsClaimed: Array<PositionAmount>;
-  feeEarned24h: Array<PositionAmount>;
-  farmReward24h: Array<PositionAmount>;
-  createdTime: number;
-  lastUpdateBlock: number;
-  openedBlock: number;
-  openedTime: number;
-  closedBlock: number;
-  closedTime: number;
-  closedPrice: number;
-  farming: boolean;
-  impermanentLoss: number;
-  apr: number;
-  feeApr: number;
-  farmApr: number;
-  pnl: number;
-  initialUnderlyingValue: number;
-  currentUnderlyingValue: number;
-  currentPositionValue: number;
-  compareWithHodl: number;
-  returnOnInvestment: number;
-  totalDepositValue: number;
-  totalWithdrawValue: number;
-  yesterdayEarning: number;
-  earning24h: number;
-  status: PositionStatus;
-  avgConvertPrice: number;
-  isConvertedFromToken0: boolean;
-  gasUsed: number;
-  isSupportAutomation: boolean;
-  hasAutomationOrder: boolean;
-  pool: {
-    id: string;
-    poolAddress: string;
-    price: number;
-    tokenAmounts: Array<PositionAmount>;
-    farmRewardTokens: Array<PositionAmount>;
-    fees: Array<number>;
-    rewards24h: Array<PositionAmount>;
-    tickSpacing: number;
-    project: string;
-    projectLogo: string;
-    projectAddress: string;
-    showWarning: boolean;
-    tvl: number;
-    farmAddress: string;
-    tag: string;
-  };
-}
-
-enum EarnDex {
-  DEX_UNISWAPV3 = "Uniswap V3",
-  DEX_PANCAKESWAPV3 = "PancakeSwap V3",
-  DEX_SUSHISWAPV3 = "SushiSwap V3",
-  DEX_QUICKSWAPV3ALGEBRA = "QuickSwap V3",
-  DEX_CAMELOTV3 = "Camelot V3",
-  DEX_THENAFUSION = "THENA",
-  DEX_KODIAK_V3 = "Kodiak Concentrated",
-  // DEX_UNISWAPV2 = "Uniswap V2",
-}
-const earnSupportedChains = [
-  ChainId.Ethereum,
-  ChainId.Base,
-  ChainId.Bsc,
-  ChainId.Arbitrum,
-  ChainId.Avalanche,
-  ChainId.Optimism,
-  ChainId.PolygonPos,
-  ChainId.Berachain,
-];
-export const earnSupportedProtocols = Object.keys(EarnDex).map(
-  (dexKey) => EarnDex[dexKey as keyof typeof EarnDex]
-);
+import { isForkFrom } from "@/utils";
+import { CoreProtocol } from "@/schema";
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
@@ -143,6 +30,7 @@ const UserPositions = ({ search }: { search: string }) => {
     positionId,
     onOpenZapMigration,
     onConnectWallet,
+    poolAddress,
   } = useWidgetContext((s) => s);
   const { address: account } = connectedAccount || {};
   const { tickLower, tickUpper } = useZapState();
@@ -153,8 +41,10 @@ const UserPositions = ({ search }: { search: string }) => {
 
   const positions = useMemo(() => {
     const positions = positionId
-      ? userPositions.filter(
-          (position: EarnPosition) => position.tokenId !== positionId
+      ? userPositions.filter((position: EarnPosition) =>
+          position.pool.project !== EarnDex.DEX_UNISWAPV2
+            ? position.tokenId !== positionId
+            : position.pool.poolAddress !== poolAddress
         )
       : userPositions;
     if (!search) return positions;
@@ -183,7 +73,7 @@ const UserPositions = ({ search }: { search: string }) => {
             token0Name.includes(search.toLowerCase()) ||
             token1Name.includes(search.toLowerCase());
     });
-  }, [positionId, search, userPositions]);
+  }, [poolAddress, positionId, search, userPositions]);
 
   const copy = (position: EarnPosition) => {
     if (!navigator?.clipboard) return;
@@ -197,7 +87,7 @@ const UserPositions = ({ search }: { search: string }) => {
   };
 
   const handleGetUserPositions = useCallback(async () => {
-    if (!account || !earnSupportedChains.includes(chainId)) return;
+    if (!account || !EARN_SUPPORTED_CHAINS.includes(chainId)) return;
     setLoading(true);
     try {
       const response = await fetch(
@@ -206,7 +96,7 @@ const UserPositions = ({ search }: { search: string }) => {
           new URLSearchParams({
             addresses: account,
             chainIds: chainId.toString(),
-            protocols: earnSupportedProtocols.join(","),
+            protocols: EARN_SUPPORTED_PROTOCOLS.join(","),
             quoteSymbol: "usd",
             offset: "0",
             orderBy: "liquidity",
@@ -265,126 +155,141 @@ const UserPositions = ({ search }: { search: string }) => {
       </svg>
     </div>
   ) : positions.length ? (
-    positions.map((position: EarnPosition, index: number) => (
-      <div key={position.tokenId}>
-        <div
-          className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
-          onClick={() =>
-            onOpenZapMigration(
-              {
-                exchange: position.pool.project,
-                poolId: position.pool.poolAddress,
-                positionId: position.tokenId,
-              },
-              tickLower !== null && tickUpper !== null
-                ? {
-                    tickLower,
-                    tickUpper,
-                  }
-                : undefined
-            )
-          }
-        >
-          <div className="flex items-center justify-between w-full">
-            <div className="flex gap-2 items-center">
-              <div className="flex items-end">
-                <img
-                  className="rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
-                  src={position.pool.tokenAmounts[0]?.token.logo}
-                  alt="token0 logo"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
-                <img
-                  className="ml-[-8px] rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
-                  src={position.pool.tokenAmounts[1]?.token.logo}
-                  alt="token1 logo"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
-                <img
-                  className="ml-[-6px] rounded-full w-[14px] h-[14px] border-[2px] border-transparent relative top-1"
-                  src={position.chainLogo}
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
-              </div>
-              <span>
-                {position.pool.tokenAmounts[0]?.token.symbol || ""}/
-                {position.pool.tokenAmounts[1]?.token.symbol || ""}
-              </span>
-              {position.pool.fees?.length > 0 && (
-                <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
-                  {position.pool.fees[0]}%
-                </div>
-              )}
-            </div>
-            <div>
-              {formatDisplayNumber(position.currentPositionValue, {
-                style: "currency",
-                significantDigits: 4,
-              })}
-            </div>
-          </div>
-          <div className="flex items-center justify-between w-full">
-            <div className="flex gap-2 items-center">
-              <img
-                src={position.pool.projectLogo}
-                width={20}
-                height={20}
-                alt=""
-                onError={({ currentTarget }) => {
-                  currentTarget.onerror = null;
-                  currentTarget.src = defaultTokenLogo;
-                }}
-              />
-              <span className="text-subText">#{position.tokenId}</span>
-              <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
-                {shortenAddress(position.chainId, position.pool.poolAddress, 4)}
-                {copied !== position.tokenId ? (
-                  <IconCopy
-                    className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      copy(position);
+    positions.map((position: EarnPosition, index: number) => {
+      const isUniv2 = isForkFrom(
+        position.pool.project as EarnDex,
+        CoreProtocol.UniswapV2
+      );
+      const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status;
+
+      return (
+        <div key={index}>
+          <div
+            className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
+            onClick={() =>
+              onOpenZapMigration(
+                {
+                  exchange: position.pool.project,
+                  poolId: position.pool.poolAddress,
+                  positionId:
+                    position.pool.project !== EarnDex.DEX_UNISWAPV2
+                      ? position.tokenId
+                      : position.userAddress,
+                },
+                tickLower !== null && tickUpper !== null
+                  ? {
+                      tickLower,
+                      tickUpper,
+                    }
+                  : undefined
+              )
+            }
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="flex gap-2 items-center">
+                <div className="flex items-end">
+                  <img
+                    className="rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
+                    src={position.pool.tokenAmounts[0]?.token.logo}
+                    alt="token0 logo"
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
                     }}
                   />
-                ) : (
-                  <CircleCheckBig className="w-[14px] h-[14px] text-accent" />
+                  <img
+                    className="ml-[-8px] rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
+                    src={position.pool.tokenAmounts[1]?.token.logo}
+                    alt="token1 logo"
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
+                  />
+                  <img
+                    className="ml-[-6px] rounded-full w-[14px] h-[14px] border-[2px] border-transparent relative top-1"
+                    src={position.chainLogo}
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
+                  />
+                </div>
+                <span>
+                  {position.pool.tokenAmounts[0]?.token.symbol || ""}/
+                  {position.pool.tokenAmounts[1]?.token.symbol || ""}
+                </span>
+                {position.pool.fees?.length > 0 && (
+                  <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
+                    {position.pool.fees[0]}%
+                  </div>
                 )}
               </div>
+              <div>
+                {formatDisplayNumber(position.currentPositionValue, {
+                  style: "currency",
+                  significantDigits: 4,
+                })}
+              </div>
             </div>
-            <div
-              className={`rounded-full text-xs px-2 py-1 font-normal text-${
-                position.status === PositionStatus.OUT_RANGE
-                  ? "warning"
-                  : "accent"
-              }`}
-              style={{
-                background: `${
-                  position.status === PositionStatus.OUT_RANGE
-                    ? theme.warning
-                    : theme.accent
-                }33`,
-              }}
-            >
-              {position.status === PositionStatus.OUT_RANGE
-                ? "● Out of range"
-                : "● In range"}
+            <div className="flex items-center justify-between w-full">
+              <div className="flex gap-2 items-center">
+                <img
+                  src={position.pool.projectLogo}
+                  width={20}
+                  height={20}
+                  alt=""
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null;
+                    currentTarget.src = defaultTokenLogo;
+                  }}
+                />
+                {!isUniv2 && (
+                  <span className="text-subText">#{position.tokenId}</span>
+                )}
+                <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
+                  {shortenAddress(
+                    position.chainId,
+                    position.pool.poolAddress,
+                    4
+                  )}
+                  {copied !== position.tokenId ? (
+                    <IconCopy
+                      className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copy(position);
+                      }}
+                    />
+                  ) : (
+                    <CircleCheckBig className="w-[14px] h-[14px] text-accent" />
+                  )}
+                </div>
+              </div>
+              <div
+                className={`rounded-full text-xs px-2 py-1 font-normal text-${
+                  posStatus === PositionStatus.OUT_RANGE ? "warning" : "accent"
+                }`}
+                style={{
+                  background: `${
+                    posStatus === PositionStatus.OUT_RANGE
+                      ? theme.warning
+                      : theme.accent
+                  }33`,
+                }}
+              >
+                {posStatus === PositionStatus.OUT_RANGE
+                  ? "● Out of range"
+                  : "● In range"}
+              </div>
             </div>
           </div>
+          {index !== userPositions.length - 1 && (
+            <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />
+          )}
         </div>
-        {index !== userPositions.length - 1 && (
-          <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />
-        )}
-      </div>
-    ))
+      );
+    })
   ) : (
     <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[280px]">
       <IconPositionNotFound />

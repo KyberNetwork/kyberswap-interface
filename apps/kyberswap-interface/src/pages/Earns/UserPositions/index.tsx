@@ -13,19 +13,22 @@ import { useActiveWeb3React } from 'hooks'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
-import { ContentWrapper, Disclaimer, NavigateButton } from '../PoolExplorer/styles'
-import { IconArrowLeft } from '../PositionDetail/styles'
-import useLiquidityWidget from '../useLiquidityWidget'
-import useSupportedDexesAndChains from '../useSupportedDexesAndChains'
-import Filter from './Filter'
-import PositionBanner from './PositionBanner'
-import TableContent, { FeeInfoFromRpc } from './TableContent'
-import { PositionPageWrapper, PositionTableHeader, PositionTableWrapper } from './styles'
-import useFilter, { SortBy } from './useFilter'
+import { ContentWrapper, Disclaimer, NavigateButton } from 'pages/Earns/PoolExplorer/styles'
+import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
+import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
+import Filter from 'pages/Earns/UserPositions/Filter'
+import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
+import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
+import { PositionPageWrapper, PositionTableHeader, PositionTableWrapper } from 'pages/Earns/UserPositions/styles'
+import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
+import { CoreProtocol, EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import { PositionStatus } from 'pages/Earns/types'
+import { isForkFrom } from 'pages/Earns/utils'
 
 const POSITIONS_TABLE_LIMIT = 10
 
-const MyPositions = () => {
+const UserPositions = () => {
   const navigate = useNavigate()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -38,12 +41,19 @@ const MyPositions = () => {
   const [loading, setLoading] = useState(false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
 
+  const positionQueryParams = {
+    addresses: account || '',
+    chainIds: filters.chainIds || earnSupportedChains.join(','),
+    protocols: filters.protocols || earnSupportedProtocols.join(','),
+    q: filters.q,
+  }
+
   const {
     data: userPosition,
     isFetching,
     isError,
-  } = useUserPositionsQuery(filters, {
-    skip: !filters.addresses,
+  } = useUserPositionsQuery(positionQueryParams, {
+    skip: !account,
     pollingInterval: 15_000,
   })
 
@@ -58,7 +68,12 @@ const MyPositions = () => {
         feeInfo,
       }
     })
-    if (filters.status) positions = positions.filter(position => position.status === filters.status)
+    if (filters.status)
+      positions = positions.filter(position =>
+        !isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
+          ? position.status === filters.status
+          : filters.status === PositionStatus.IN_RANGE,
+      )
     if (filters.sortBy) {
       if (filters.sortBy === SortBy.VALUE) {
         positions.sort((a, b) => {
@@ -235,4 +250,4 @@ const MyPositions = () => {
   )
 }
 
-export default MyPositions
+export default UserPositions

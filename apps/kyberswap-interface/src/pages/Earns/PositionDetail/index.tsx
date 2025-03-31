@@ -11,47 +11,21 @@ import LocalLoader from 'components/LocalLoader'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 
-import { NavigateButton } from '../PoolExplorer/styles'
-import { EmptyPositionText, PositionPageWrapper } from '../UserPositions/styles'
-import useLiquidityWidget from '../useLiquidityWidget'
-import PositionDetailHeader from './Header'
-import LeftSection from './LeftSection'
-import RightSection from './RightSection'
-import { MainSection, PositionAction, PositionActionWrapper, PositionDetailWrapper } from './styles'
-
-export interface ParsedPosition {
-  id: string
-  dex: string
-  dexImage: string
-  chainId: number
-  chainName: string
-  chainLogo: string
-  poolAddress: string
-  tokenAddress: string
-  token0Address: string
-  token1Address: string
-  token0Logo: string
-  token1Logo: string
-  token0Symbol: string
-  token1Symbol: string
-  token0Decimals: number
-  token1Decimals: number
-  token0Price: number
-  token1Price: number
-  poolFee: number
-  status: string
-  totalValue: number
-  apr: number
-  token0TotalAmount: number
-  token1TotalAmount: number
-  minPrice: number
-  maxPrice: number
-  pairRate: number
-  earning24h: number
-  earning7d: number
-  totalEarnedFee: number
-  createdTime: number
-}
+import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
+import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
+import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
+import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
+import RightSection from 'pages/Earns/PositionDetail/RightSection'
+import {
+  MainSection,
+  PositionAction,
+  PositionActionWrapper,
+  PositionDetailWrapper,
+} from 'pages/Earns/PositionDetail/styles'
+import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
+import { ParsedPosition } from 'pages/Earns/types'
+import { isForkFrom } from 'pages/Earns/utils'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -60,10 +34,15 @@ const PositionDetail = () => {
   const forceLoading = searchParams.get('forceLoading')
 
   const { account } = useActiveWeb3React()
-  const { id } = useParams()
+  const { positionId, chainId, protocol } = useParams()
   const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
   const { data: userPosition, isLoading } = useUserPositionsQuery(
-    { addresses: account || '', positionId: id, protocols: '', status: '', page: 1 },
+    {
+      addresses: account || '',
+      positionId: positionId,
+      chainIds: chainId || '',
+      protocols: protocol || '',
+    },
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
   const currentWalletAddress = useRef(account)
@@ -114,6 +93,8 @@ const PositionDetail = () => {
     }
   }, [userPosition])
 
+  const isUniv2 = useMemo(() => position && isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2), [position])
+
   const onOpenIncreaseLiquidityWidget = () => {
     if (!position) return
     handleOpenZapInWidget(
@@ -122,7 +103,7 @@ const PositionDetail = () => {
         chainId: position.chainId,
         address: position.poolAddress,
       },
-      position.id,
+      isUniv2 ? account || '' : position.id,
     )
   }
 
@@ -161,7 +142,10 @@ const PositionDetail = () => {
                 <PositionAction
                   outline
                   onClick={() => {
-                    handleOpenZapOut(position)
+                    handleOpenZapOut({
+                      ...position,
+                      id: isUniv2 ? account || '' : position.id,
+                    })
                   }}
                 >{t`Remove Liquidity`}</PositionAction>
                 <PositionAction onClick={onOpenIncreaseLiquidityWidget}>{t`Add Liquidity`}</PositionAction>

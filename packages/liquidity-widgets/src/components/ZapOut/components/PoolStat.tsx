@@ -1,10 +1,10 @@
 import { PATHS, PoolType } from "@/constants";
-import { CoreProtocol } from "@/schema";
-import { useWidgetContext } from "@/stores/widget";
-import { isForkFrom } from "@/utils";
 import { formatDisplayNumber } from "@/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
+import { useZapOutContext } from "@/stores/zapout";
+import { isForkFrom } from "@/utils";
+import { CoreProtocol } from "@/schema";
 
 interface PoolInfo {
   tvl: number;
@@ -24,7 +24,7 @@ export default function PoolStat({
   poolType: PoolType;
   positionId?: string;
 }) {
-  const { position } = useWidgetContext((s) => s);
+  const { position } = useZapOutContext((s) => s);
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
 
   const isUniv2 =

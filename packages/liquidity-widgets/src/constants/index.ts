@@ -13,6 +13,7 @@ import thenaLogo from "@/assets/dexes/thena.png";
 import thrusterLogo from "@/assets/dexes/thruster.png";
 import uniLogo from "@/assets/dexes/uniswap.png";
 import { ChainId, DexInfo, PoolType, Token } from "@/schema";
+import { enumToArrayOfValues } from "@kyber/utils";
 
 //import blastswapLogo from "@/assets/dexes/blastswap.png";
 
@@ -582,3 +583,29 @@ export const PATHS = {
 //  ZAP_EARN_API: "https://pre-zap-earn-service.kyberengineering.io/api",
 //  TOKEN_API: "https://pre-token-api.kyberengineering.io/api",
 //};
+
+export enum EarnDex {
+  DEX_UNISWAPV3 = "Uniswap V3",
+  DEX_PANCAKESWAPV3 = "PancakeSwap V3",
+  DEX_SUSHISWAPV3 = "SushiSwap V3",
+  DEX_QUICKSWAPV3ALGEBRA = "QuickSwap V3",
+  DEX_CAMELOTV3 = "Camelot V3",
+  DEX_THENAFUSION = "THENA",
+  DEX_KODIAK_V3 = "Kodiak Concentrated",
+  DEX_UNISWAPV2 = "Uniswap V2",
+}
+
+export enum EarnChain {
+  MAINNET = ChainId.Ethereum,
+  BASE = ChainId.Base,
+  BSC = ChainId.Bsc,
+  ARBITRUM = ChainId.Arbitrum,
+  AVAX = ChainId.Avalanche,
+  OPTIMISM = ChainId.Optimism,
+  MATIC = ChainId.PolygonPos,
+  BERA = ChainId.Berachain,
+}
+
+export const EARN_SUPPORTED_CHAINS = enumToArrayOfValues(EarnChain, "number");
+
+export const EARN_SUPPORTED_PROTOCOLS = enumToArrayOfValues(EarnDex);

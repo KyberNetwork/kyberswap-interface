@@ -1,9 +1,6 @@
-import { useState } from "react";
-import {
-  PoolType,
-  LiquidityWidget as ZapInWidget,
-  ChainId,
-} from "@kyberswap/liquidity-widgets";
+import { dexMapping } from "../constant";
+import Input from "./Input";
+import Modal from "./Modal";
 import SubmitButton from "./SubmitButton";
 import {
   Card,
@@ -13,14 +10,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@kyber/ui/card";
-import Input from "./Input";
 import { Label } from "@kyber/ui/label";
-import { TabsContent } from "@kyber/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
-import { dexMapping } from "../constant";
-import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
+import { TabsContent } from "@kyber/ui/tabs";
+import {
+  PoolType,
+  LiquidityWidget as ZapInWidget,
+  ChainId,
+} from "@kyberswap/liquidity-widgets";
+import "@kyberswap/liquidity-widgets/dist/style.css";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import Modal from "./Modal";
+import { useState } from "react";
+import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
 
 const ZapIn = () => {
   const { address } = useAccount();

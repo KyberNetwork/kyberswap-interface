@@ -10,10 +10,18 @@ import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
-import { ParsedPosition } from '.'
-import LiquidityChart from './LiquidityChart'
-import { InfoRightColumn, InfoSection, InfoSectionSecondFormat, RevertIconWrapper } from './styles'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from './uniswapv3'
+import { ParsedPosition } from 'pages/Earns/types'
+import LiquidityChart from 'pages/Earns/PositionDetail/LiquidityChart'
+import {
+  InfoRightColumn,
+  InfoSection,
+  InfoSectionSecondFormat,
+  RevertIconWrapper,
+} from 'pages/Earns/PositionDetail/styles'
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
+import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
+import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
+import { isForkFrom } from 'pages/Earns/utils'
 
 const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
@@ -23,6 +31,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
 
   const price = useMemo(() => (!revert ? position.pairRate : 1 / position.pairRate), [position.pairRate, revert])
+  const isUniv2 = isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2)
 
   const priceRange = useMemo(() => {
     if (!pool) return
@@ -67,7 +76,7 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   }, [defaultRevertChecked, pool, position.chainId, stableCoins])
 
   return (
-    <InfoRightColumn>
+    <InfoRightColumn halfWidth={isUniv2}>
       {price ? (
         <InfoSection>
           <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
@@ -127,6 +136,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
           </InfoSectionSecondFormat>
         </Flex>
       ) : null}
+
+      {isUniv2 && <PositionHistory position={position} />}
     </InfoRightColumn>
   )
 }
