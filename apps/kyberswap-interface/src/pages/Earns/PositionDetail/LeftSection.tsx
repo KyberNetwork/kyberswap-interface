@@ -197,7 +197,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               1 {t`day`}
             </Text>
             <Text>
-              {position.earning24h || position.earning24h === 0
+              {(position.earning24h || position.earning24h === 0) && !isUniv2
                 ? formatDisplayNumber(position.earning24h, { significantDigits: 4, style: 'currency' })
                 : '--'}
             </Text>
@@ -208,7 +208,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               7 {t`days`}
             </Text>
             <Text>
-              {position.earning7d || position.earning7d === 0
+              {(position.earning7d || position.earning7d === 0) && !isUniv2
                 ? formatDisplayNumber(position.earning7d, { significantDigits: 4, style: 'currency' })
                 : '--'}
             </Text>
