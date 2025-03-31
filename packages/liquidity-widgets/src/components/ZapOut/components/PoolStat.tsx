@@ -118,7 +118,11 @@ export default function PoolStat({
         <div className="flex justify-between">
           <span>Pool Share</span>
           <span className="text-text">
-            {poolShare || poolShare === 0 ? poolShare + "%" : "--"}
+            {poolShare || poolShare === 0
+              ? poolShare < 0.01
+                ? "<0.01%"
+                : poolShare + "%"
+              : "--"}
           </span>
         </div>
       )}
