@@ -199,7 +199,11 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
               const start = {
                 x: source.x + source.width,
                 y:
-                  (Math.max(source.y, target.y) +
+                  (Math.max(
+                    source.y,
+                    target.y,
+                    ...middleNodes.map(n => nodeRects[n.address]?.y + nodeRects[n.address]?.height).filter(Boolean),
+                  ) +
                     Math.min(
                       source.y + source.height,
                       target.y + target.height,
@@ -238,6 +242,19 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
             ...edgesOut
               .filter(edge => edge.source.address === tokenIn.address)
               .map(edge => {
+                if (edge.isCorss) {
+                  const middleNodeRects = edge.middleNodes
+                    .map(node => {
+                      const nodeRect = nodeRects[node.address]
+                      if (!nodeRect) return null
+                      return nodeRect
+                    })
+                    .filter(Boolean) as DOMRect[]
+
+                  return (
+                    Math.max(...middleNodeRects.map(node => node.y + node.height)) + 30 + (crossEdges.length - 1) * 10
+                  )
+                }
                 return edge.start.y
 
                 //const startY =
@@ -299,7 +316,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                     isStartNode ? 0 : target.y + target.height,
                   ) +
                   30 +
-                  (crossEdges.length - 1 - index) * 10
+                  (crossEdges.length - 1 - index) * 20
                 const startX = source.x + (source.width / (crossEdges.length + 1)) * (index + 1)
 
                 const isLineUnderTarget = startY > target.y + target.height
@@ -308,8 +325,8 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   <React.Fragment key={edge.source.address + edge.target.address}>
                     {/*label*/}
                     <text
-                      x={startX - svgRect.x - 6}
-                      y={source.y + source.height - svgRect.y + 14}
+                      x={startX - svgRect.x + 6}
+                      y={startY - svgRect.y + 3}
                       fontSize="10"
                       fontWeight="500"
                       fill={theme.primary}
@@ -356,12 +373,12 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
           )
         })}
       </svg>
-      <Flex justifyContent="space-evenly" sx={{ paddingBottom: '60px', gap: '24px' }}>
+      <Flex justifyContent="space-evenly" sx={{ paddingBottom: '120px', gap: '24px' }}>
         {levels.map(level => {
           const nodesAtLevel = nodes.filter(node => maximumPathLengths[node.address] === level)
 
           return (
-            <Flex key={level} flexDirection="column" justifyContent="space-around" sx={{ gap: '36px' }}>
+            <Flex key={level} flexDirection="column" justifyContent="space-around" sx={{ gap: '24px' }}>
               {nodesAtLevel.map(node => {
                 const edgesIn = edges.filter(edge => edge.target.address === node.address)
 
