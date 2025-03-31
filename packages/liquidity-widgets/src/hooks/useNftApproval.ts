@@ -67,7 +67,6 @@ export function useNftApproval({
       ...txData,
       gasLimit: calculateGasMargin(gasEstimation),
     });
-    console.log("txHash", txHash);
     setPendingTx(txHash);
   }, [
     account,
