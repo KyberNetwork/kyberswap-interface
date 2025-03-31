@@ -88,7 +88,8 @@ interface WidgetState extends WidgetProps {
   getPool: (
     fetchPrices: (
       address: string[]
-    ) => Promise<{ [key: string]: { PriceBuy: number } }>
+    ) => Promise<{ [key: string]: { PriceBuy: number } }>,
+    isFirstTimeFetch?: boolean
   ) => void;
 
   setConnectedAccount: (
@@ -114,7 +115,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
     showWidget: true,
     poolLoading: false,
 
-    getPool: async (fetchPrices) => {
+    getPool: async (fetchPrices, isFirstTimeFetch) => {
       const { poolAddress, chainId, poolType, positionId, connectedAccount } =
         get();
 
@@ -365,7 +366,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
 
         set({ pool: p });
 
-        if (positionId || connectedAccount.address) {
+        if (positionId || (isFirstTimeFetch && connectedAccount.address)) {
           // get pool total supply and user supply
           const posId = positionId || connectedAccount.address || "";
           const balanceOfSelector = getFunctionSelector("balanceOf(address)");
@@ -452,7 +453,7 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
 
   useEffect(() => {
     // get Pool and position then update store here
-    store.getState().getPool(fetchPrices);
+    store.getState().getPool(fetchPrices, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

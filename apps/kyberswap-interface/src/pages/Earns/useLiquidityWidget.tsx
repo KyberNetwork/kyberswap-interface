@@ -143,28 +143,35 @@ const useLiquidityWidget = () => {
   const handleNavigateToPosition = useCallback(
     async (txHash: string) => {
       if (!library || !addLiquidityPureParams) return
-      const tokenId = await getTokenId(library, txHash)
-      if (!tokenId) {
-        navigate(APP_PATHS.EARN_POSITIONS)
-        return
-      }
-      const poolAddress = addLiquidityPureParams.poolAddress
+      let url
       const chainId = addLiquidityPureParams.chainId
       const dexIndex = Object.values(zapDexMapping).findIndex(item => item === addLiquidityPureParams.poolType)
       const dex = Object.keys(zapDexMapping)[dexIndex] as EarnDex
-      const nftContractObj = NFT_MANAGER_CONTRACT[dex]
-      const nftContract =
-        typeof nftContractObj === 'string'
-          ? nftContractObj
-          : nftContractObj[addLiquidityPureParams.chainId as unknown as keyof typeof nftContractObj]
-      navigate(
-        APP_PATHS.EARN_POSITION_DETAIL.replace(
-          ':positionId',
-          !isForkFrom(dex, CoreProtocol.UniswapV2) ? `${nftContract}-${tokenId}` : poolAddress,
-        )
-          .replace(':chainId', chainId.toString())
-          .replace(':protocol', dex) + '?forceLoading=true',
-      )
+      const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
+      if (isUniv2) {
+        const poolAddress = addLiquidityPureParams.poolAddress
+        url =
+          APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', poolAddress)
+            .replace(':chainId', chainId.toString())
+            .replace(':protocol', dex) + '?forceLoading=true'
+      } else {
+        const tokenId = await getTokenId(library, txHash)
+        if (!tokenId) {
+          navigate(APP_PATHS.EARN_POSITIONS)
+          return
+        }
+        const nftContractObj = NFT_MANAGER_CONTRACT[dex]
+        const nftContract =
+          typeof nftContractObj === 'string'
+            ? nftContractObj
+            : nftContractObj[addLiquidityPureParams.chainId as unknown as keyof typeof nftContractObj]
+        url =
+          APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', `${nftContract}-${tokenId}`)
+            .replace(':chainId', chainId.toString())
+            .replace(':protocol', dex) + '?forceLoading=true'
+      }
+
+      navigate(url)
     },
     [addLiquidityPureParams, library, navigate],
   )
