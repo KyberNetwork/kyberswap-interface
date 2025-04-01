@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Token } from '@kyberswap/ks-sdk-core'
 import { SwapRouteV3 } from 'utils/aggregationRouting'
 import { StyledDot } from './styled'
@@ -11,6 +11,7 @@ import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useWeb3React } from 'hooks'
 import { getDexInfoByPool, selectPointsOnRectEdge } from './helpers'
 import { getEtherscanLink, isAddress } from 'utils'
+import ScrollContainer from 'react-indiana-drag-scroll'
 
 interface SwapRouteV3Props {
   tradeComposition: SwapRouteV3[]
@@ -127,11 +128,17 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
   }
 
   const levels = [...new Set(Object.values(maximumPathLengths))].filter(Boolean).sort()
+  const maxLevel = Math.max(...levels)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   nodes.sort((a, b) => (maximumPathLengths[a.address] || 0) - (maximumPathLengths[b.address] || 0))
 
   const theme = useTheme()
   const svgRef = useRef<SVGSVGElement>(null)
+
+  const [force, updateState] = useState(1)
+  const forceUpdate = useCallback(() => updateState(prev => prev + 1), [])
 
   useEffect(() => {
     const update = () => {
@@ -149,10 +156,16 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
     update()
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
-  }, [tokenIn.address, tradeComposition])
+  }, [tokenIn.address, tradeComposition, force])
 
   return (
-    <>
+    <ScrollContainer
+      innerRef={scrollRef}
+      vertical={false}
+      onScroll={() => {
+        forceUpdate()
+      }}
+    >
       <StyledDot />
       <StyledDot out />
 
@@ -470,11 +483,14 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
           )
         })}
       </svg>
+
       <Flex
         justifyContent="space-evenly"
+        ref={contentRef}
         sx={{
-          paddingBottom: '120px',
+          padding: '0 48px 120px',
           gap: '48px',
+          minWidth: maxLevel * 168 + (maxLevel + 1) * 48,
         }}
       >
         {levels.map(level => {
@@ -489,7 +505,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                   <RouteNode
                     node={node}
                     edgesIn={edgesIn}
-                    key={node.address}
+                    key={node.address + force}
                     setNodeRects={setNodeRects}
                     tradeComposition={tradeComposition}
                   />
@@ -499,7 +515,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
           )
         })}
       </Flex>
-    </>
+    </ScrollContainer>
   )
 }
 
