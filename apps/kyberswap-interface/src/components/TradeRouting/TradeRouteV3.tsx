@@ -9,7 +9,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useWeb3React } from 'hooks'
-import { getDexInfoByPool } from './helpers'
+import { getDexInfoByPool, selectPointsOnRectEdge } from './helpers'
 import { getEtherscanLink, isAddress } from 'utils'
 
 interface SwapRouteV3Props {
@@ -36,6 +36,47 @@ const ListPool = styled.div`
 `
 
 type Edge = { source: Token; target: Token; swaps: SwapRouteV3[] }
+
+// find the non overlap between the source rect and middle rects
+function findNonOverlapRanges(mainLine: [number, number], overlappingLines: [number, number][]): [number, number][] {
+  const [x1, x2] = mainLine
+
+  // Create events for start and end points
+  type Event = [number, number] // [position, eventType]
+  const events: Event[] = []
+
+  for (const [start, end] of overlappingLines) {
+    // Only consider overlaps within the main line
+    if (end >= x1 && start <= x2) {
+      events.push([Math.max(start, x1), 1]) // 1 for start event
+      events.push([Math.min(end, x2), -1]) // -1 for end event
+    }
+  }
+
+  // Sort events by position, then by event type (end before start)
+  events.sort((a, b) => (a[0] !== b[0] ? a[0] - b[0] : -a[1] - -b[1]))
+
+  const availableRanges: [number, number][] = []
+  let currentPos = x1
+  let overlapCount = 0
+
+  for (const [pos, eventType] of events) {
+    // If we're entering a non-overlapping region
+    if (overlapCount === 0 && pos > currentPos) {
+      availableRanges.push([currentPos, pos])
+    }
+
+    overlapCount += eventType
+    currentPos = pos
+  }
+
+  // Check if there's a final available range
+  if (currentPos < x2) {
+    availableRanges.push([currentPos, x2])
+  }
+
+  return availableRanges
+}
 
 const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn }) => {
   const tokenMap: { [key: string]: Token } = {}
@@ -134,322 +175,294 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
         </defs>
 
         {nodes.map(node => {
-          const isStartNode = node.address === tokenIn.address
           const svgRect = svgRef.current?.getBoundingClientRect()
-          if (!svgRect) return null
-          const totalAmount = edges
-            .filter(edge => edge.source.address === node.address)
-            .reduce((acc, cur) => {
-              const swapAmount = cur.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
-              return acc + swapAmount
-            }, 0n)
+          const nodeRect = nodeRects[node.address]
+          if (!svgRect || !nodeRect) return null
 
-          // tokenOut
-          if (edges.filter(edge => edge.source.address === node.address).length === 0) {
-            const rect = nodeRects[node.address]
-            if (!rect) return null
-            const x = rect.x + rect.width - svgRect.x
-            const y = rect.y + rect.height / 2 - svgRect.y
+          const edgesOut = edges.filter(edge => edge.source.address === node.address)
+          const totalSwapAmount = edgesOut.reduce((acc, cur) => {
+            return cur.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n) + acc
+          }, 0n)
 
-            return (
-              <React.Fragment key={node.address}>
-                <text x={x + 4} y={y + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
-                  100%
-                </text>
-                <line
-                  x1={x}
-                  y1={y}
-                  x2={svgRect.width - 10}
-                  y2={y}
-                  stroke={rgba('#fff', 0.06)}
-                  strokeWidth="1.5"
-                  markerEnd="url(#arrowhead)"
-                />
-                <line
-                  x1={svgRect.width - 10}
-                  y1={y}
-                  x2={svgRect.width - 10}
-                  y2={y - svgRect.height / 2}
-                  stroke={rgba('#fff', 0.06)}
-                  strokeWidth="1.5"
-                />
-              </React.Fragment>
+          const temp = edgesOut.map(edge => {
+            const swapAmount = edge.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
+            const percent = (Number(((swapAmount * 10000n) / totalSwapAmount).toString()) / 100).toFixed(0)
+
+            const sourceLevel = maximumPathLengths[edge.source.address]
+            const targetLevel = maximumPathLengths[edge.target.address]
+            const middleNodeRects = nodes
+              .filter(
+                node =>
+                  maximumPathLengths[node.address] > sourceLevel && maximumPathLengths[node.address] < targetLevel,
+              )
+              .map(node => nodeRects[node.address])
+              .filter(Boolean) as DOMRect[]
+            const sameLevelNodes = nodes
+              .filter(node => maximumPathLengths[node.address] === targetLevel)
+              .map(node => nodeRects[node.address])
+              .filter(Boolean) as DOMRect[]
+
+            const sourceRect = nodeRects[edge.source.address]
+            const targetRect = nodeRects[edge.target.address]
+            if (!sourceRect || !targetRect) return null
+
+            // source: y, y + height
+            //  middlenodes -> obstacle
+            //  return all the available ranges [y1, y2] that we can draw a line from source to target
+            const availableRanges = findNonOverlapRanges(
+              [sourceRect.y, sourceRect.y + sourceRect.height],
+              middleNodeRects.map(node => [node.y, node.y + node.height]),
             )
-          }
 
-          const edgesOut = edges
-            .filter(
-              edge =>
-                edge.source.address === node.address &&
-                nodeRects[edge.source.address] &&
-                nodeRects[edge.target.address],
+            let maxWidthOverlap: [number, number] | null = null
+            let maxWidth = 0
+            const [start, end] = [targetRect.y, targetRect.y + targetRect.height]
+
+            for (const [rangeStart, rangeEnd] of availableRanges) {
+              // Check if there's an overlap
+              if (end >= rangeStart && start <= rangeEnd) {
+                // Calculate the overlap range
+                const overlapStart = Math.max(start, rangeStart)
+                const overlapEnd = Math.min(end, rangeEnd)
+                const width = overlapEnd - overlapStart
+                // Update if this overlap has a greater width
+                if (width > maxWidth) {
+                  maxWidth = width
+                  maxWidthOverlap = [overlapStart, overlapEnd]
+                }
+              }
+            }
+            if (maxWidthOverlap) {
+              const startX = sourceRect.x + sourceRect.width - svgRect.x
+              const startY = (maxWidthOverlap[0] + maxWidthOverlap[1]) / 2 - svgRect.y
+              return {
+                direct: true,
+                startX,
+                startY,
+                endX: targetRect.x - svgRect.x,
+                endY: startY,
+                percent,
+                path: `M ${startX} ${startY} L ${targetRect.x - svgRect.x} ${startY}`,
+              }
+            }
+            return {
+              direct: false,
+              sourceRect,
+              targetRect,
+              middleNodeRects,
+              sameLevelNodes,
+              percent,
+            }
+          })
+
+          const directEdges = temp.filter(item => item && item.direct)
+          const fixedPoints = directEdges.map((e: any) => ({ x: e.startX + svgRect.x, y: e.startY + svgRect.y }))
+          const nonDirects = temp.filter(item => item && !item.direct)
+          const points = selectPointsOnRectEdge(nodeRects[node.address], fixedPoints, nonDirects.length)
+
+          const nonDirectEdges = nonDirects.map((item: any, index) => {
+            const point = points[index]
+            const startX = point.x - svgRect.x
+            const startY = point.y - svgRect.y
+
+            const isOnBottomRect = point.y + svgRect.y === item.targetRect.y + item.targetRect.height
+            const isOnTopRect = point.y + svgRect.y === item.targetRect.y
+            const lowestY = Math.min(
+              item.targetRect.y,
+              ...[...item.middleNodeRects, ...item.sameLevelNodes].map((node: any) => node.y),
             )
-            .map(edge => {
-              const source = nodeRects[edge.source.address]
-              const target = nodeRects[edge.target.address]
+            const highestY = Math.max(
+              item.targetRect.y + item.targetRect.height,
+              ...[...item.middleNodeRects, ...item.sameLevelNodes].map((node: any) => node.y + node.height),
+            )
 
-              const sourceLevel = maximumPathLengths[edge.source.address]
-              const targetLevel = maximumPathLengths[edge.target.address]
+            // target below source and no middle nodes
+            if (lowestY > (isOnBottomRect ? point.y + 36 : point.y)) {
+              const targetX = item.targetRect.x + item.targetRect.width / 2 - svgRect.x
+              const targetY = item.targetRect.y - svgRect.y
 
-              const middleNodes = nodes.filter(node => {
-                const level = maximumPathLengths[node.address]
-                return level > sourceLevel && level < targetLevel
-              })
-
-              const start = {
-                x: source.x + source.width,
-                y:
-                  (Math.max(
-                    source.y,
-                    target.y,
-                    //...middleNodes.map(n => nodeRects[n.address]?.y + nodeRects[n.address]?.height).filter(Boolean),
-                  ) +
-                    Math.min(
-                      source.y + source.height,
-                      target.y + target.height,
-                      ...middleNodes.map(n => nodeRects[n.address]?.y).filter(Boolean),
-                    )) /
-                  2,
-              }
-              const end = {
-                x: target.x,
-                y: start.y,
+              if (isOnBottomRect) {
+                return {
+                  startX,
+                  startY,
+                  percent: item.percent,
+                  path: `M ${startX} ${startY} L ${startX} ${startY + 36} L ${targetX} ${
+                    startY + 36
+                  } L ${targetX} ${targetY}`,
+                }
               }
 
-              const isCorss =
-                middleNodes.some(node => {
-                  const nodeRect = nodeRects[node.address]
-                  if (!nodeRect) return false
-                  return nodeRect.y < start.y && start.y < nodeRect.y + nodeRect.height
-                }) ||
-                source.y + source.height < target.y ||
-                source.y > target.y + target.height
-
-              const swapAmount = edge.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
-              const percent = (swapAmount * 100n) / totalAmount
+              if (isOnTopRect) {
+                return {
+                  startX,
+                  startY,
+                  percent: item.percent,
+                  path: `M ${startX} ${startY} L ${startX} ${startY - 36} L ${targetX} ${
+                    startY - 36
+                  } L ${targetX} ${targetY}`,
+                }
+              }
 
               return {
-                ...edge,
-                start,
-                end,
-                middleNodes,
-                crossUnder: isCorss && source.y >= target.y + target.height,
-                crossAbove: isCorss && source.y < target.y + target.height,
-                isCorss,
-                percent,
+                startX,
+                startY,
+                percent: item.percent,
+                path: `M ${startX} ${startY} L ${targetX} ${startY} L ${targetX} ${targetY}`,
               }
-            })
+            }
 
-          const noCrossEdges = edgesOut.filter(edge => !edge.isCorss)
-          const crossUnder = edgesOut.filter(edge => edge.crossUnder)
-          const crossAbove = edgesOut.filter(edge => edge.crossAbove)
+            // target above source and no middle nodes
+            if (highestY < (isOnTopRect ? point.y - 36 : point.y)) {
+              const targetX = item.targetRect.x + item.targetRect.width / 2 - svgRect.x
+              const targetY = item.targetRect.y + item.targetRect.height - svgRect.y
 
-          const lowestYForStartNode = Math.max(
-            ...edgesOut
-              .filter(edge => edge.source.address === tokenIn.address)
-              .map(edge => {
-                if (edge.isCorss) {
-                  const middleNodeRects = edge.middleNodes
-                    .map(node => {
-                      const nodeRect = nodeRects[node.address]
-                      if (!nodeRect) return null
-                      return nodeRect
-                    })
-                    .filter(Boolean) as DOMRect[]
-
-                  return (
-                    Math.max(...middleNodeRects.map(node => node.y + node.height)) + 30 + (crossAbove.length - 1) * 10
-                  )
+              if (isOnBottomRect) {
+                return {
+                  startX,
+                  startY,
+                  percent: item.percent,
+                  path: `M ${startX} ${startY} L ${startX} ${startY + 36} L ${targetX} ${
+                    startY + 36
+                  } L ${targetX} ${targetY}`,
                 }
-                return edge.start.y
+              }
 
-                //const startY =
-                //  Math.max(...middleNodeRects.map(node => node.y + node.height)) + 30 + (crossEdges.length - 1) * 10
-                //return startY
-              }),
-          )
+              if (isOnTopRect) {
+                return {
+                  startX,
+                  startY,
+                  percent: item.percent,
+                  path: `M ${startX} ${startY} L ${startX} ${startY - 36} L ${targetX} ${
+                    startY - 36
+                  } L ${targetX} ${targetY}`,
+                }
+              }
+
+              return {
+                startX,
+                startY,
+                percent: item.percent,
+                path: `M ${startX} ${startY} L ${targetX} ${startY} L ${targetX} ${targetY}`,
+              }
+            }
+
+            const availableRanges = findNonOverlapRanges(
+              [item.targetRect.y, item.targetRect.y + item.targetRect.height],
+              item.middleNodeRects.map((node: any) => [node.y, node.y + node.height]),
+            )
+            let maxWidthOverlap: [number, number] | null = null
+            let maxWidth = 0
+            const [start, end] = [item.targetRect.y, item.targetRect.y + item.targetRect.height]
+
+            for (const [rangeStart, rangeEnd] of availableRanges) {
+              // Check if there's an overlap
+              if (end >= rangeStart && start <= rangeEnd) {
+                // Calculate the overlap range
+                const overlapStart = Math.max(start, rangeStart)
+                const overlapEnd = Math.min(end, rangeEnd)
+                const width = overlapEnd - overlapStart
+                // Update if this overlap has a greater width
+                if (width > maxWidth) {
+                  maxWidth = width
+                  maxWidthOverlap = [overlapStart, overlapEnd]
+                }
+              }
+            }
+
+            const targetX = maxWidthOverlap
+              ? item.targetRect.x - svgRect.x
+              : item.targetRect.x + item.targetRect.width / 2 - svgRect.x
+            let targetY = maxWidthOverlap
+              ? (maxWidthOverlap[0] + maxWidthOverlap[1]) / 2 - svgRect.y
+              : item.targetRect.y + item.targetRect.height - svgRect.y
+
+            const middleMin = Math.min(...item.middleNodeRects.map((node: any) => node.y))
+            const middleMax = Math.max(...item.middleNodeRects.map((node: any) => node.y + node.height))
+
+            const translateY =
+              targetY + svgRect.y < middleMax
+                ? middleMax + 30 - svgRect.y
+                : targetY + svgRect.y > middleMin
+                ? middleMin - 30 - svgRect.y
+                : 0
+            const translate = translateY ? `L ${targetX} ${translateY}` : ''
+
+            if (translateY && targetX + svgRect.x === item.targetRect.x) {
+              targetY = translateY
+            }
+
+            return {
+              startX,
+              startY,
+              endX: item.targetRect.x - svgRect.x,
+              endY: item.targetRect.y - svgRect.y,
+              percent: item.percent,
+              path: isOnTopRect
+                ? `M ${startX} ${startY} L ${startX} ${startY - 36} L ${
+                    item.sourceRect.x + item.sourceRect.width + 36
+                  } ${startY - 36} L ${item.sourceRect.x + item.sourceRect.width + 36} ${
+                    translateY || targetY
+                  } ${translate} L ${targetX} ${targetY}`
+                : isOnBottomRect
+                ? `M ${startX} ${startY} L ${startX} ${startY + 36} L ${
+                    item.sourceRect.x + item.sourceRect.width + 36
+                  } ${startY + 36} L ${item.sourceRect.x + item.sourceRect.width + 36} ${
+                    translateY || targetY
+                  } ${translate} L ${targetX} ${targetY}`
+                : `M ${startX} ${startY} L ${startX + 36} ${startY} L ${startX + 36} ${
+                    translateY || targetY
+                  } ${translate} L ${targetX} ${targetY}`,
+            }
+          })
+          const finalEdges = [...directEdges, ...nonDirectEdges]
+
+          const isStartNode = node.address === tokenIn.address
+          const lowestYForStartNode = isStartNode
+            ? Math.max(...(finalEdges.map(item => item?.startY).filter(Boolean) as number[]))
+            : null
+
+          const x = nodeRect.x + nodeRect.width - svgRect.x
+          const y = nodeRect.y + nodeRect.height / 2 - svgRect.y
 
           return (
             <React.Fragment key={node.address}>
-              {isStartNode && (
-                <line
-                  x1={10}
-                  y1={10}
-                  x2={10}
-                  y2={lowestYForStartNode - svgRect.y}
-                  stroke={rgba('#fff', 0.06)}
-                  strokeWidth="1.5"
-                />
-              )}
-              {noCrossEdges.map(edge => {
-                const x1 = edge.start.x - svgRect.x
-                const y1 = edge.start.y - svgRect.y
-                return (
-                  <React.Fragment key={edge.source.address + edge.target.address}>
-                    <text x={x1 + 4} y={y1 + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
-                      {edge.percent.toString()}%
-                    </text>
+              {finalEdges.length === 0 && (
+                <>
+                  <text x={x + 4} y={y + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
+                    100%
+                  </text>
+                  <path
+                    d={`M ${x} ${y} L ${svgRect.width - 10} ${y}`}
+                    stroke={rgba('#fff', 0.06)}
+                    strokeWidth="1.5"
+                    markerEnd="url(#arrowhead)"
+                    fill="none"
+                  />
 
-                    <line
-                      key={edge.source.address + edge.target.address}
-                      x1={edge.start.x - svgRect.x}
-                      y1={edge.start.y - svgRect.y}
-                      x2={edge.end.x - svgRect.x}
-                      y2={edge.end.y - svgRect.y}
+                  <path
+                    d={`M ${svgRect.width - 10} ${y} L ${svgRect.width - 10} 10`}
+                    stroke={rgba('#fff', 0.06)}
+                    strokeWidth="1.5"
+                    fill="none"
+                  />
+                </>
+              )}
+              {isStartNode && lowestYForStartNode && (
+                <line x1={10} x2={10} y1={lowestYForStartNode} y2={10} stroke={rgba('#fff', 0.06)} strokeWidth="1.5" />
+              )}
+              {finalEdges.map((item: any, index) => {
+                return (
+                  <React.Fragment key={index}>
+                    <text x={item.startX + 4} y={item.startY + 3} fontSize="10" fontWeight="500" fill={theme.primary}>
+                      {item.percent}%
+                    </text>
+                    <path
+                      d={item.path}
                       stroke={rgba('#fff', 0.06)}
                       strokeWidth="1.5"
                       markerEnd="url(#arrowhead)"
+                      fill="none"
                     />
-                  </React.Fragment>
-                )
-              })}
-              {crossUnder.map((edge, index) => {
-                const source = nodeRects[edge.source.address]
-                const target = nodeRects[edge.target.address]
-                const { end, middleNodes } = edge
-                const middleNodeRects = middleNodes
-                  .map(node => {
-                    const nodeRect = nodeRects[node.address]
-                    if (!nodeRect) return null
-                    return nodeRect
-                  })
-                  .filter(Boolean) as DOMRect[]
-
-                const startY =
-                  middleNodeRects.length === 0
-                    ? target.y + target.height / 2
-                    : Math.max(
-                        isStartNode ? 0 : source.y + source.height,
-                        ...middleNodeRects.map(node => node.y + node.height),
-                        isStartNode ? 0 : target.y + target.height,
-                      ) +
-                      30 +
-                      (crossUnder.length - 1 - index) * 20
-
-                const startX = source.x + (source.width / (crossUnder.length + 1)) * (index + 1)
-
-                const isLineUnderTarget = startY > target.y + target.height
-
-                return (
-                  <React.Fragment key={edge.source.address + edge.target.address}>
-                    {/*label*/}
-                    <text
-                      x={isStartNode ? startX - svgRect.x + 6 : startX - svgRect.x - 10}
-                      y={isStartNode ? startY - svgRect.y + 3 : startY}
-                      fontSize="10"
-                      fontWeight="500"
-                      fill={theme.primary}
-                    >
-                      {edge.percent.toString()}%
-                    </text>
-
-                    {/*vertical line*/}
-                    {!isStartNode && (
-                      <line
-                        x1={startX - svgRect.x}
-                        y1={source.y - svgRect.y}
-                        x2={startX - svgRect.x}
-                        y2={startY - svgRect.y}
-                        stroke={rgba('#fff', 0.06)}
-                        strokeWidth="2"
-                      />
-                    )}
-                    {/*horizontal line*/}
-                    <line
-                      x1={startX - svgRect.x}
-                      y1={startY - svgRect.y}
-                      x2={end.x + (isLineUnderTarget ? target.width / 2 : 0) - svgRect.x}
-                      y2={startY - svgRect.y}
-                      stroke={rgba('#fff', 0.06)}
-                      strokeWidth="1.5"
-                      markerEnd={isLineUnderTarget ? undefined : 'url(#arrowhead)'}
-                    />
-                    {isLineUnderTarget && (
-                      <line
-                        x1={end.x + target.width / 2 - svgRect.x}
-                        y1={startY - svgRect.y}
-                        x2={end.x + target.width / 2 - svgRect.x}
-                        y2={target.y + target.height - svgRect.y}
-                        stroke={rgba('#fff', 0.06)}
-                        strokeWidth="1.5"
-                        markerEnd={'url(#arrowhead)'}
-                      />
-                    )}
-                  </React.Fragment>
-                )
-              })}
-              {crossAbove.map((edge, index) => {
-                const source = nodeRects[edge.source.address]
-                const target = nodeRects[edge.target.address]
-                const { end, middleNodes } = edge
-                const middleNodeRects = middleNodes
-                  .map(node => {
-                    const nodeRect = nodeRects[node.address]
-                    if (!nodeRect) return null
-                    return nodeRect
-                  })
-                  .filter(Boolean) as DOMRect[]
-
-                const startY =
-                  middleNodeRects.length === 0
-                    ? target.y + target.height / 2
-                    : Math.max(
-                        isStartNode ? 0 : source.y + source.height,
-                        ...middleNodeRects.map(node => node.y + node.height),
-                        isStartNode ? 0 : target.y + target.height,
-                      ) +
-                      30 +
-                      (crossAbove.length - 1 - index) * 20
-
-                const startX = source.x + (source.width / (crossAbove.length + 1)) * (index + 1)
-
-                const isLineUnderTarget = startY > target.y + target.height
-
-                return (
-                  <React.Fragment key={edge.source.address + edge.target.address}>
-                    {/*label*/}
-                    <text
-                      x={isStartNode ? startX - svgRect.x + 6 : startX - svgRect.x - 6}
-                      y={isStartNode ? startY - svgRect.y + 3 : source.y + source.height - svgRect.y + 16}
-                      fontSize="10"
-                      fontWeight="500"
-                      fill={theme.primary}
-                    >
-                      {edge.percent.toString()}%
-                    </text>
-
-                    {/*vertical line*/}
-                    {!isStartNode && (
-                      <line
-                        x1={startX - svgRect.x}
-                        y1={source.y + source.height - svgRect.y}
-                        x2={startX - svgRect.x}
-                        y2={startY - svgRect.y}
-                        stroke={rgba('#fff', 0.06)}
-                        strokeWidth="2"
-                      />
-                    )}
-                    {/*horizontal line*/}
-                    <line
-                      x1={startX - svgRect.x}
-                      y1={startY - svgRect.y}
-                      x2={end.x + (isLineUnderTarget ? target.width / 2 : 0) - svgRect.x}
-                      y2={startY - svgRect.y}
-                      stroke={rgba('#fff', 0.06)}
-                      strokeWidth="1.5"
-                      markerEnd={isLineUnderTarget ? undefined : 'url(#arrowhead)'}
-                    />
-                    {isLineUnderTarget && (
-                      <line
-                        x1={end.x + target.width / 2 - svgRect.x}
-                        y1={startY - svgRect.y}
-                        x2={end.x + target.width / 2 - svgRect.x}
-                        y2={target.y + target.height - svgRect.y}
-                        stroke={rgba('#fff', 0.06)}
-                        strokeWidth="1.5"
-                        markerEnd={'url(#arrowhead)'}
-                      />
-                    )}
                   </React.Fragment>
                 )
               })}
@@ -457,7 +470,13 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
           )
         })}
       </svg>
-      <Flex justifyContent="space-evenly" sx={{ paddingBottom: '120px', gap: '24px' }}>
+      <Flex
+        justifyContent="space-evenly"
+        sx={{
+          paddingBottom: '120px',
+          gap: '48px',
+        }}
+      >
         {levels.map(level => {
           const nodesAtLevel = nodes.filter(node => maximumPathLengths[node.address] === level)
 
