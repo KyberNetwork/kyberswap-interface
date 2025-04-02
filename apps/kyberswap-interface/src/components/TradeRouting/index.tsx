@@ -165,7 +165,7 @@ const Routing = ({
       return (
         <StyledToken as="div" reverse={reverseOrder} style={{ border: 'none' }}>
           <CurrencyLogo currency={currency} size="20px" />
-          <span>{`${amount ? amount.toSignificant(6) : ''} ${currency.symbol}`}</span>
+          <span>{`${amount ? amount.toSignificant(8) : ''} ${currency.symbol}`}</span>
         </StyledToken>
       )
     }

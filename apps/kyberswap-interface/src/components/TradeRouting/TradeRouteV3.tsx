@@ -199,7 +199,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
 
           const temp = edgesOut.map(edge => {
             const swapAmount = edge.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
-            const percent = (Number(((swapAmount * 10000n) / totalSwapAmount).toString()) / 100).toFixed(0)
+            const percent = (Number(((swapAmount * 100000n) / totalSwapAmount).toString()) / 1000).toFixed(0)
 
             const sourceLevel = maximumPathLengths[edge.source.address]
             const targetLevel = maximumPathLengths[edge.target.address]
@@ -573,7 +573,8 @@ const RouteNode = ({
               const poolId = swap.pool.split('-')?.[0]
 
               const isAddressLink = isAddress(chainId || 1, poolId)
-              const percent = swap.swapAmount ? (BigInt(swap.swapAmount) * 100n) / totalAmount : 0n
+              const percent =
+                Number((swap.swapAmount ? (BigInt(swap.swapAmount) * 100000n) / totalAmount : 0n).toString()) / 1000
 
               return (
                 <Flex
@@ -588,7 +589,7 @@ const RouteNode = ({
                   <Text flex={1} sx={{}}>
                     {dex?.name || swap.exchange}
                   </Text>
-                  <Text marginLeft="auto">{Number(percent.toString()).toFixed(0)}%</Text>
+                  <Text marginLeft="auto">{percent.toFixed(0)}%</Text>
                 </Flex>
               )
             })}
