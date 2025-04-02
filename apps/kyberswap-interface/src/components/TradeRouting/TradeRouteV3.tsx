@@ -273,160 +273,163 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
           const nonDirects = temp.filter(item => item && !item.direct)
           const points = selectPointsOnRectEdge(nodeRects[node.address], fixedPoints, nonDirects.length)
 
-          const nonDirectEdges = nonDirects.map((item: any, index) => {
-            const point = points[index]
-            const startX = point.x - svgRect.x
-            const startY = point.y - svgRect.y
+          const nonDirectEdges = nonDirects
+            .map((item: any, index) => {
+              const point = points[index]
+              if (!point) return null
+              const startX = point.x - svgRect.x
+              const startY = point.y - svgRect.y
 
-            const isOnBottomRect = point.y + svgRect.y === item.targetRect.y + item.targetRect.height
-            const isOnTopRect = point.y + svgRect.y === item.targetRect.y
-            const lowestY = Math.min(
-              item.targetRect.y,
-              ...[...item.middleNodeRects, ...item.sameLevelNodes].map((node: any) => node.y),
-            )
-            const highestY = Math.max(
-              item.targetRect.y + item.targetRect.height,
-              ...[...item.middleNodeRects, ...item.sameLevelNodes].map((node: any) => node.y + node.height),
-            )
+              const isOnBottomRect = point.y + svgRect.y === item.targetRect.y + item.targetRect.height
+              const isOnTopRect = point.y + svgRect.y === item.targetRect.y
+              const lowestY = Math.min(
+                item.targetRect.y,
+                ...[...item.middleNodeRects, ...item.sameLevelNodes].map((node: any) => node.y),
+              )
+              const highestY = Math.max(
+                item.targetRect.y + item.targetRect.height,
+                ...[...item.middleNodeRects, ...item.sameLevelNodes].map((node: any) => node.y + node.height),
+              )
 
-            // target below source and no middle nodes
-            if (lowestY > (isOnBottomRect ? point.y + 36 : point.y)) {
-              const targetX = item.targetRect.x + item.targetRect.width / 2 - svgRect.x
-              const targetY = item.targetRect.y - svgRect.y
+              // target below source and no middle nodes
+              if (lowestY > (isOnBottomRect ? point.y + 36 : point.y)) {
+                const targetX = item.targetRect.x + item.targetRect.width / 2 - svgRect.x
+                const targetY = item.targetRect.y - svgRect.y
 
-              if (isOnBottomRect) {
+                if (isOnBottomRect) {
+                  return {
+                    startX,
+                    startY,
+                    percent: item.percent,
+                    path: `M ${startX} ${startY} L ${startX} ${startY + 36} L ${targetX} ${
+                      startY + 36
+                    } L ${targetX} ${targetY}`,
+                  }
+                }
+
+                if (isOnTopRect) {
+                  return {
+                    startX,
+                    startY,
+                    percent: item.percent,
+                    path: `M ${startX} ${startY} L ${startX} ${startY - 36} L ${targetX} ${
+                      startY - 36
+                    } L ${targetX} ${targetY}`,
+                  }
+                }
+
                 return {
                   startX,
                   startY,
                   percent: item.percent,
-                  path: `M ${startX} ${startY} L ${startX} ${startY + 36} L ${targetX} ${
-                    startY + 36
-                  } L ${targetX} ${targetY}`,
+                  path: `M ${startX} ${startY} L ${targetX} ${startY} L ${targetX} ${targetY}`,
                 }
               }
 
-              if (isOnTopRect) {
+              // target above source and no middle nodes
+              if (highestY < (isOnTopRect ? point.y - 36 : point.y)) {
+                const targetX = item.targetRect.x + item.targetRect.width / 2 - svgRect.x
+                const targetY = item.targetRect.y + item.targetRect.height - svgRect.y
+
+                if (isOnBottomRect) {
+                  return {
+                    startX,
+                    startY,
+                    percent: item.percent,
+                    path: `M ${startX} ${startY} L ${startX} ${startY + 36} L ${targetX} ${
+                      startY + 36
+                    } L ${targetX} ${targetY}`,
+                  }
+                }
+
+                if (isOnTopRect) {
+                  return {
+                    startX,
+                    startY,
+                    percent: item.percent,
+                    path: `M ${startX} ${startY} L ${startX} ${startY - 36} L ${targetX} ${
+                      startY - 36
+                    } L ${targetX} ${targetY}`,
+                  }
+                }
+
                 return {
                   startX,
                   startY,
                   percent: item.percent,
-                  path: `M ${startX} ${startY} L ${startX} ${startY - 36} L ${targetX} ${
-                    startY - 36
-                  } L ${targetX} ${targetY}`,
+                  path: `M ${startX} ${startY} L ${targetX} ${startY} L ${targetX} ${targetY}`,
                 }
+              }
+
+              const availableRanges = findNonOverlapRanges(
+                [item.targetRect.y, item.targetRect.y + item.targetRect.height],
+                item.middleNodeRects.map((node: any) => [node.y, node.y + node.height]),
+              )
+              let maxWidthOverlap: [number, number] | null = null
+              let maxWidth = 0
+              const [start, end] = [item.targetRect.y, item.targetRect.y + item.targetRect.height]
+
+              for (const [rangeStart, rangeEnd] of availableRanges) {
+                // Check if there's an overlap
+                if (end >= rangeStart && start <= rangeEnd) {
+                  // Calculate the overlap range
+                  const overlapStart = Math.max(start, rangeStart)
+                  const overlapEnd = Math.min(end, rangeEnd)
+                  const width = overlapEnd - overlapStart
+                  // Update if this overlap has a greater width
+                  if (width > maxWidth) {
+                    maxWidth = width
+                    maxWidthOverlap = [overlapStart, overlapEnd]
+                  }
+                }
+              }
+
+              const targetX = maxWidthOverlap
+                ? item.targetRect.x - svgRect.x
+                : item.targetRect.x + item.targetRect.width / 2 - svgRect.x
+              let targetY = maxWidthOverlap
+                ? (maxWidthOverlap[0] + maxWidthOverlap[1]) / 2 - svgRect.y
+                : item.targetRect.y + item.targetRect.height - svgRect.y
+
+              const middleMin = Math.min(...item.middleNodeRects.map((node: any) => node.y))
+              const middleMax = Math.max(...item.middleNodeRects.map((node: any) => node.y + node.height))
+
+              const translateY =
+                targetY + svgRect.y < middleMax
+                  ? middleMax + 30 - svgRect.y
+                  : targetY + svgRect.y > middleMin
+                  ? middleMin - 30 - svgRect.y
+                  : 0
+              const translate = translateY ? `L ${targetX} ${translateY}` : ''
+
+              if (translateY && targetX + svgRect.x === item.targetRect.x) {
+                targetY = translateY
               }
 
               return {
                 startX,
                 startY,
+                endX: item.targetRect.x - svgRect.x,
+                endY: item.targetRect.y - svgRect.y,
                 percent: item.percent,
-                path: `M ${startX} ${startY} L ${targetX} ${startY} L ${targetX} ${targetY}`,
+                path: isOnTopRect
+                  ? `M ${startX} ${startY} L ${startX} ${startY - 36} L ${
+                      item.sourceRect.x + item.sourceRect.width + 36
+                    } ${startY - 36} L ${item.sourceRect.x + item.sourceRect.width + 36} ${
+                      translateY || targetY
+                    } ${translate} L ${targetX} ${targetY}`
+                  : isOnBottomRect
+                  ? `M ${startX} ${startY} L ${startX} ${startY + 36} L ${
+                      item.sourceRect.x + item.sourceRect.width + 36
+                    } ${startY + 36} L ${item.sourceRect.x + item.sourceRect.width + 36} ${
+                      translateY || targetY
+                    } ${translate} L ${targetX} ${targetY}`
+                  : `M ${startX} ${startY} L ${startX + 36} ${startY} L ${startX + 36} ${
+                      translateY || targetY
+                    } ${translate} L ${targetX} ${targetY}`,
               }
-            }
-
-            // target above source and no middle nodes
-            if (highestY < (isOnTopRect ? point.y - 36 : point.y)) {
-              const targetX = item.targetRect.x + item.targetRect.width / 2 - svgRect.x
-              const targetY = item.targetRect.y + item.targetRect.height - svgRect.y
-
-              if (isOnBottomRect) {
-                return {
-                  startX,
-                  startY,
-                  percent: item.percent,
-                  path: `M ${startX} ${startY} L ${startX} ${startY + 36} L ${targetX} ${
-                    startY + 36
-                  } L ${targetX} ${targetY}`,
-                }
-              }
-
-              if (isOnTopRect) {
-                return {
-                  startX,
-                  startY,
-                  percent: item.percent,
-                  path: `M ${startX} ${startY} L ${startX} ${startY - 36} L ${targetX} ${
-                    startY - 36
-                  } L ${targetX} ${targetY}`,
-                }
-              }
-
-              return {
-                startX,
-                startY,
-                percent: item.percent,
-                path: `M ${startX} ${startY} L ${targetX} ${startY} L ${targetX} ${targetY}`,
-              }
-            }
-
-            const availableRanges = findNonOverlapRanges(
-              [item.targetRect.y, item.targetRect.y + item.targetRect.height],
-              item.middleNodeRects.map((node: any) => [node.y, node.y + node.height]),
-            )
-            let maxWidthOverlap: [number, number] | null = null
-            let maxWidth = 0
-            const [start, end] = [item.targetRect.y, item.targetRect.y + item.targetRect.height]
-
-            for (const [rangeStart, rangeEnd] of availableRanges) {
-              // Check if there's an overlap
-              if (end >= rangeStart && start <= rangeEnd) {
-                // Calculate the overlap range
-                const overlapStart = Math.max(start, rangeStart)
-                const overlapEnd = Math.min(end, rangeEnd)
-                const width = overlapEnd - overlapStart
-                // Update if this overlap has a greater width
-                if (width > maxWidth) {
-                  maxWidth = width
-                  maxWidthOverlap = [overlapStart, overlapEnd]
-                }
-              }
-            }
-
-            const targetX = maxWidthOverlap
-              ? item.targetRect.x - svgRect.x
-              : item.targetRect.x + item.targetRect.width / 2 - svgRect.x
-            let targetY = maxWidthOverlap
-              ? (maxWidthOverlap[0] + maxWidthOverlap[1]) / 2 - svgRect.y
-              : item.targetRect.y + item.targetRect.height - svgRect.y
-
-            const middleMin = Math.min(...item.middleNodeRects.map((node: any) => node.y))
-            const middleMax = Math.max(...item.middleNodeRects.map((node: any) => node.y + node.height))
-
-            const translateY =
-              targetY + svgRect.y < middleMax
-                ? middleMax + 30 - svgRect.y
-                : targetY + svgRect.y > middleMin
-                ? middleMin - 30 - svgRect.y
-                : 0
-            const translate = translateY ? `L ${targetX} ${translateY}` : ''
-
-            if (translateY && targetX + svgRect.x === item.targetRect.x) {
-              targetY = translateY
-            }
-
-            return {
-              startX,
-              startY,
-              endX: item.targetRect.x - svgRect.x,
-              endY: item.targetRect.y - svgRect.y,
-              percent: item.percent,
-              path: isOnTopRect
-                ? `M ${startX} ${startY} L ${startX} ${startY - 36} L ${
-                    item.sourceRect.x + item.sourceRect.width + 36
-                  } ${startY - 36} L ${item.sourceRect.x + item.sourceRect.width + 36} ${
-                    translateY || targetY
-                  } ${translate} L ${targetX} ${targetY}`
-                : isOnBottomRect
-                ? `M ${startX} ${startY} L ${startX} ${startY + 36} L ${
-                    item.sourceRect.x + item.sourceRect.width + 36
-                  } ${startY + 36} L ${item.sourceRect.x + item.sourceRect.width + 36} ${
-                    translateY || targetY
-                  } ${translate} L ${targetX} ${targetY}`
-                : `M ${startX} ${startY} L ${startX + 36} ${startY} L ${startX + 36} ${
-                    translateY || targetY
-                  } ${translate} L ${targetX} ${targetY}`,
-            }
-          })
+            })
+            .filter(Boolean)
           const finalEdges = [...directEdges, ...nonDirectEdges]
 
           const isStartNode = node.address === tokenIn.address
