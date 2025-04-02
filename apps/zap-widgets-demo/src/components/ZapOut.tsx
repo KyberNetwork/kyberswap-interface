@@ -155,8 +155,12 @@ const ZapOut = () => {
                     id={`${index + 1}`}
                   />
                   <Label className="text-xs" htmlFor={`${index + 1}`}>
-                    {key in dexMapping
-                      ? dexMapping[key as keyof typeof dexMapping]
+                    {PoolType[key as keyof typeof PoolType] in dexMapping
+                      ? dexMapping[
+                          PoolType[
+                            key as keyof typeof PoolType
+                          ] as keyof typeof dexMapping
+                        ]
                       : PoolType[key as keyof typeof PoolType]}
                   </Label>
                 </div>
