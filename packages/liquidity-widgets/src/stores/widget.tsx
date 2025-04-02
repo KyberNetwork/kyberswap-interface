@@ -38,6 +38,18 @@ export interface WidgetProps {
     address?: string | undefined; // check if account is connected
     chainId: number; // check if wrong network
   };
+  initDepositTokens?: string;
+  initAmounts?: string;
+  source: string; // for tracking volume
+  aggregatorOptions?: {
+    includedSources?: string[];
+    excludedSources?: string[];
+  };
+  feeConfig?: {
+    feePcm: number;
+    feeAddress: string;
+  };
+  referral?: string;
 
   // Widget Actions
   onClose: () => void;
@@ -58,23 +70,7 @@ export interface WidgetProps {
     data: string;
     gasLimit: string;
   }) => Promise<string>;
-
-  initDepositTokens?: string;
-  initAmounts?: string;
-
-  source: string; // for tracking volume
-
-  aggregatorOptions?: {
-    includedSources?: string[];
-    excludedSources?: string[];
-  };
-  feeConfig?: {
-    feePcm: number;
-    feeAddress: string;
-  };
-
   onViewPosition?: (txHash: string) => void;
-  referral?: string;
 }
 
 interface WidgetState extends WidgetProps {
@@ -88,8 +84,7 @@ interface WidgetState extends WidgetProps {
   getPool: (
     fetchPrices: (
       address: string[]
-    ) => Promise<{ [key: string]: { PriceBuy: number } }>,
-    isFirstTimeFetch?: boolean
+    ) => Promise<{ [key: string]: { PriceBuy: number } }>
   ) => void;
 
   setConnectedAccount: (
@@ -115,7 +110,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
     showWidget: true,
     poolLoading: false,
 
-    getPool: async (fetchPrices, isFirstTimeFetch) => {
+    getPool: async (fetchPrices) => {
       const { poolAddress, chainId, poolType, positionId, connectedAccount } =
         get();
 
@@ -366,7 +361,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
 
         set({ pool: p });
 
-        if (positionId || (isFirstTimeFetch && connectedAccount.address)) {
+        if (positionId || (firstLoad && connectedAccount.address)) {
           // get pool total supply and user supply
           const posId = positionId || connectedAccount.address || "";
           const balanceOfSelector = getFunctionSelector("balanceOf(address)");
@@ -453,7 +448,7 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
 
   useEffect(() => {
     // get Pool and position then update store here
-    store.getState().getPool(fetchPrices, true);
+    store.getState().getPool(fetchPrices);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
