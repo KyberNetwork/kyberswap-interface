@@ -16,7 +16,7 @@ import {
 } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "../Tooltip";
-import { NetworkInfo, PATHS } from "@/constants";
+import { NETWORKS_INFO, PATHS } from "@/constants";
 import {
   Accordion,
   AccordionContent,
@@ -144,7 +144,7 @@ export default function EstLiqValue() {
       ...tokensIn,
       pool.token0,
       pool.token1,
-      NetworkInfo[chainId].wrappedToken,
+      NETWORKS_INFO[chainId].wrappedToken,
     ];
 
     const parsedAggregatorSwapInfo =
@@ -221,7 +221,13 @@ export default function EstLiqValue() {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [zapInfo?.zapDetails.actions, pool, tokensIn, chainId, feeInfo]);
+  }, [
+    zapInfo?.zapDetails.actions,
+    zapInfo?.zapDetails.suggestedSlippage,
+    pool,
+    tokensIn,
+    chainId,
+  ]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(

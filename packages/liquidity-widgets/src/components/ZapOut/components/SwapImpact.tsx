@@ -14,7 +14,7 @@ import {
   useZapOutUserState,
 } from "@/stores/zapout/zapout-state";
 import { useZapOutContext } from "@/stores/zapout";
-import { NetworkInfo } from "@/constants";
+import { NETWORKS_INFO } from "@/constants";
 import { formatUnits } from "@kyber/utils/crypto";
 
 export const useSwapPI = () => {
@@ -44,7 +44,7 @@ export const useSwapPI = () => {
 
     if (pool === "loading") return [];
 
-    const tokens = [...tokensIn, NetworkInfo[chainId].wrappedToken];
+    const tokens = [...tokensIn, NETWORKS_INFO[chainId].wrappedToken];
 
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {

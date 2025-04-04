@@ -18,21 +18,15 @@ export default function PositionBanner({ positions }: { positions: Array<EarnPos
   const overviewData = useMemo(() => {
     if (!positions) return
     const totalValue = positions.reduce((acc, position) => acc + position.currentPositionValue, 0)
-    const totalEarnedFee = positions.reduce(
-      (acc, position) =>
-        acc +
-        position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
-        position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
-      0,
-    )
-    const totalUnclaimedFee = positions.reduce(
-      (acc, position) =>
-        acc +
-        (position.feeInfo
-          ? position.feeInfo.totalValue
-          : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)),
-      0,
-    )
+    const totalEarnedFee = positions.reduce((acc, position) => {
+      const feePending = position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
+      const feeClaimed = position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0)
+      return acc + (feePending > 0 ? feePending : 0) + (feeClaimed > 0 ? feeClaimed : 0)
+    }, 0)
+    const totalUnclaimedFee = positions.reduce((acc, position) => {
+      const feePending = position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
+      return acc + (position.feeInfo ? position.feeInfo.totalValue : feePending > 0 ? feePending : 0)
+    }, 0)
 
     return { totalValue, totalEarnedFee, totalUnclaimedFee }
   }, [positions])

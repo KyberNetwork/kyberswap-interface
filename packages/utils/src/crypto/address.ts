@@ -8,12 +8,17 @@ import { keccak256 } from "js-sha3";
  * @returns {boolean} `true` if the address is valid, otherwise `false`.
  */
 export const isAddress = (address: string): boolean => {
-  if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
+  if (
+    !/^(0x)?[0-9a-f]{40}$/i.test(address) &&
+    !/^(0x)?[0-9a-f]{64}$/i.test(address)
+  ) {
     // check if it has the basic requirements of an address
     return false;
   } else if (
     /^(0x)?[0-9a-f]{40}$/.test(address) ||
-    /^(0x)?[0-9A-F]{40}$/.test(address)
+    /^(0x)?[0-9A-F]{40}$/.test(address) ||
+    /^(0x)?[0-9a-f]{64}$/.test(address) ||
+    /^(0x)?[0-9A-F]{64}$/.test(address)
   ) {
     // If it's all small caps or all all caps, return true
     return true;

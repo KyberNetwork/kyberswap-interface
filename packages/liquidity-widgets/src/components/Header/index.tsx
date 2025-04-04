@@ -2,11 +2,11 @@ import SettingIcon from "@/assets/svg/setting.svg";
 import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import RefreshLoading from "./RefreshLoading";
-import { DexInfos, NetworkInfo } from "../../constants";
+import { DEXES_INFO, NETWORKS_INFO } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
 import { MouseoverTooltip } from "../Tooltip";
 import { useWidgetContext } from "@/stores/widget";
-import { univ3PoolNormalize, univ3Position } from "@/schema";
+import { univ3PoolNormalize, univ3Position, univ4Types } from "@/schema";
 import { shortenAddress } from "../TokenInfo/utils";
 import useCopy from "@/hooks/useCopy";
 
@@ -28,13 +28,15 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   if (!pool) return <span>can't get pool info</span>;
   const { token0, token1, fee } = pool;
 
-  const { icon: logo, name: rawName } = DexInfos[poolType];
+  const { icon: logo, name: rawName } = DEXES_INFO[poolType];
   const name = typeof rawName === "string" ? rawName : rawName[chainId];
 
   const { success, data } = univ3Position.safeParse(position);
 
   const { success: isUniV3, data: univ3Pool } =
     univ3PoolNormalize.safeParse(pool);
+
+  const isUniv4 = univ4Types.includes(poolType);
 
   const isOutOfRange =
     positionId !== undefined && success && isUniV3
@@ -97,7 +99,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             />
             <img
               className="-ml-1 bg-layer1 rounded-full w-[14px] h-[14px] border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2"
-              src={NetworkInfo[chainId].logo}
+              src={NETWORKS_INFO[chainId].logo}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
                 currentTarget.src = defaultTokenLogo;
@@ -114,7 +116,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               Fee {fee}%
             </div>
             <div className="rounded-full text-xs bg-layer2 text-[#2C9CE4] px-3 py-1 flex gap-1">
-              {shortenAddress(chainId, poolAddress, 4)}
+              {shortenAddress(poolAddress, 4, isUniv4)}
               {Copy}
             </div>
             <div className="flex items-center gap-1">

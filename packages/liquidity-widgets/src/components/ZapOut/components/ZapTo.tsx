@@ -20,7 +20,7 @@ import CircleChevronRight from "@/assets/svg/circle-chevron-right.svg";
 import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { useEffect, useState } from "react";
 import TokenSelectorModal from "./TokenSelector/TokenSelectorModal";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
   const { position, pool, poolType } = useZapOutContext((s) => s);
@@ -54,7 +54,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
         pool.token1.address.toLowerCase(),
       ].includes(
         tokenOut.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+          ? NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
           : tokenOut.address.toLowerCase()
       )
     ) {

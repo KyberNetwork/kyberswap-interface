@@ -1,5 +1,5 @@
 import { useZapOutUserState } from "./zapout-state";
-import { DexInfos, NetworkInfo, PATHS } from "@/constants";
+import { DEXES_INFO, NETWORKS_INFO, PATHS } from "@/constants";
 import {
   ChainId,
   Pool,
@@ -9,9 +9,9 @@ import {
   algebraTypes,
   poolResponse,
   univ2Pool,
-  univ2PoolType,
+  Univ2PoolType,
   univ3Pool,
-  univ3PoolType,
+  Univ3PoolType,
 } from "@/schema";
 import { Theme } from "@/theme";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
@@ -192,7 +192,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
 
       if (isUniV3) {
         const { success: isUniV3PoolType, data: pt } =
-          univ3PoolType.safeParse(poolType);
+          Univ3PoolType.safeParse(poolType);
         if (!isUniV3PoolType) {
           throw new Error("Invalid pool univ3 type");
         }
@@ -227,7 +227,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         };
         set({ pool: p });
 
-        const contract = DexInfos[poolType].nftManagerContract;
+        const contract = DEXES_INFO[poolType].nftManagerContract;
         const contractAddress =
           typeof contract === "string" ? contract : contract[chainId];
         if (!contractAddress) {
@@ -258,7 +258,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         };
 
         // Send JSON-RPC request via fetch
-        const response = await fetch(NetworkInfo[chainId].defaultRpc, {
+        const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -298,7 +298,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         set({ errorMsg: error.message || "Position not found" });
       } else if (isUniV2) {
         const { success: isUniV2PoolType, data: pt } =
-          univ2PoolType.safeParse(poolType);
+          Univ2PoolType.safeParse(poolType);
         if (!isUniV2PoolType) {
           throw new Error("Invalid pool univ2 type");
         }
@@ -348,11 +348,11 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         };
 
         const balanceRes = await fetch(
-          NetworkInfo[chainId].defaultRpc,
+          NETWORKS_INFO[chainId].defaultRpc,
           getPayload(`0x${balanceOfSelector}${paddedAccount}`)
         ).then((res) => res.json());
         const totalSupplyRes = await fetch(
-          NetworkInfo[chainId].defaultRpc,
+          NETWORKS_INFO[chainId].defaultRpc,
           getPayload(`0x${totalSupplySelector}`)
         ).then((res) => res.json());
 

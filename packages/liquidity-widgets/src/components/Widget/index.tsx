@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useMemo } from "react";
 import "./Widget.scss";
 
 import { defaultTheme, Theme } from "../../theme";
-import { PoolType, ChainId } from "../../constants";
+import { PoolType, ChainId } from "@/schema";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
 import { TokenListProvider } from "../../hooks/useTokenList";

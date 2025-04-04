@@ -242,9 +242,9 @@ const ZapMigration = () => {
                           id={`to-${key}`}
                         />
                         <Label className="text-xs" htmlFor={`to-${key}`}>
-                          {key in dexMapping
-                            ? dexMapping[key as keyof typeof dexMapping]
-                            : key}
+                          {value in dexMapping
+                            ? dexMapping[value as keyof typeof dexMapping]
+                            : value}
                         </Label>
                       </div>
                     );
