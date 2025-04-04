@@ -8,7 +8,7 @@ import { rgba } from 'polished'
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
-import { useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { getDexInfoByPool, selectPointsOnRectEdge } from './helpers'
 import { getEtherscanLink, isAddress } from 'utils'
 import ScrollContainer from 'react-indiana-drag-scroll'
@@ -536,7 +536,7 @@ const RouteNode = ({
   tradeComposition: SwapRouteV3[]
 }) => {
   const theme = useTheme()
-  const { chainId } = useWeb3React()
+  const { chainId } = useActiveWeb3React()
   const allDexes = useAllDexes(chainId)
 
   const ref = useRef<HTMLDivElement>(null)
