@@ -13,7 +13,7 @@ import {
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
-import { univ3PoolNormalize, univ3PoolType } from "@/schema";
+import { univ3PoolNormalize, Univ3PoolType } from "@/schema";
 import { toString } from "@/utils/number";
 
 interface SelectedRange {
@@ -161,7 +161,7 @@ const PriceRange = () => {
   }, [feeRange]);
 
   const isUniv3 =
-    pool !== "loading" && univ3PoolType.safeParse(pool.poolType).success;
+    pool !== "loading" && Univ3PoolType.safeParse(pool.poolType).success;
 
   if (!isUniv3) return null;
 

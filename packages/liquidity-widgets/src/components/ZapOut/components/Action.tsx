@@ -1,7 +1,7 @@
 import { useSwapPI } from "./SwapImpact";
 import { WarningMsg } from "./WarningMsg";
 import InfoHelper from "@/components/InfoHelper";
-import { DexInfos, NetworkInfo } from "@/constants";
+import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
 import { useNftApproval } from "@/hooks/useNftApproval";
 import { useZapOutContext } from "@/stores/zapout";
 import { useZapOutUserState } from "@/stores/zapout/zapout-state";
@@ -24,7 +24,7 @@ export const Action = () => {
   const { fetchingRoute, togglePreview, route, degenMode, toggleSetting } =
     useZapOutUserState();
 
-  const nftManager = DexInfos[poolType].nftManagerContract;
+  const nftManager = DEXES_INFO[poolType].nftManagerContract;
   const nftManagerContract =
     typeof nftManager === "string" ? nftManager : nftManager[chainId];
 
@@ -34,7 +34,7 @@ export const Action = () => {
     approve,
     pendingTx,
   } = useNftApproval({
-    rpcUrl: NetworkInfo[chainId].defaultRpc,
+    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
     nftManagerContract,
     nftId: +positionId,
     spender: route?.routerAddress,

@@ -1,7 +1,6 @@
-import { CoreProtocol } from "@/schema";
+import { Univ2PoolType } from "@/schema";
 import { useZapOutContext } from "@/stores/zapout";
 import { useZapOutUserState } from "@/stores/zapout/zapout-state";
-import { isForkFrom } from "@/utils";
 import {
   calculateGasMargin,
   decodeAddress,
@@ -30,7 +29,7 @@ export function useNftApproval({
   const [isApproved, setIsApproved] = useState(false);
   const [pendingTx, setPendingTx] = useState("");
 
-  const isUniv2 = isForkFrom(poolType, CoreProtocol.UniswapV2);
+  const isUniv2 = Univ2PoolType.safeParse(poolType).success;
 
   const { address: account } = connectedAccount;
 

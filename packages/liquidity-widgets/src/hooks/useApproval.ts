@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "../constants";
 import {
   calculateGasMargin,
   checkApproval,
@@ -81,7 +81,7 @@ export const useApprovals = (
     }
   };
 
-  const rpcUrl = NetworkInfo[chainId].defaultRpc;
+  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
   useEffect(() => {
     if (pendingTx) {

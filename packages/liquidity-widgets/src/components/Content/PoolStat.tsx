@@ -1,10 +1,10 @@
-import { PATHS, PoolType } from "@/constants";
-import { CoreProtocol } from "@/schema";
+import { PATHS } from "@/constants";
+import { Univ2PoolType } from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
-import { isForkFrom } from "@/utils";
 import { formatDisplayNumber } from "@/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
+import { PoolType } from "@/schema";
 
 interface PoolInfo {
   tvl: number;
@@ -29,7 +29,8 @@ export default function PoolStat({
 
   const isUniv2 =
     position !== "loading" &&
-    isForkFrom(position.poolType, CoreProtocol.UniswapV2);
+    Univ2PoolType.safeParse(position.poolType).success;
+
   const poolShare =
     position === "loading" || !isUniv2 || !("totalSupply" in position)
       ? null

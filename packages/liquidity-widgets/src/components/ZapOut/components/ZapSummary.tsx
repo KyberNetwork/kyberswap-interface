@@ -1,4 +1,4 @@
-import { DexInfos, NetworkInfo } from "@/constants";
+import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
 import { PoolSwapAction, ZapAction } from "@/hooks/types/zapInTypes";
 import { Token } from "@/schema";
 import { useZapOutContext } from "@/stores/zapout";
@@ -67,7 +67,7 @@ export function ZapSummary() {
     }
   });
 
-  const dexNameObj = DexInfos[poolType].name;
+  const dexNameObj = DEXES_INFO[poolType].name;
   const dexName =
     typeof dexNameObj === "string" ? dexNameObj : dexNameObj[chainId];
 
@@ -84,7 +84,7 @@ export function ZapSummary() {
     const tokens = [
       pool.token0,
       pool.token1,
-      NetworkInfo[chainId].wrappedToken,
+      NETWORKS_INFO[chainId].wrappedToken,
     ];
     if (tokenOut) tokens.push(tokenOut);
 

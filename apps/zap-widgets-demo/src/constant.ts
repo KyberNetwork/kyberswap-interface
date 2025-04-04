@@ -2,6 +2,7 @@ import { PoolType } from "@kyberswap/liquidity-widgets";
 import { Dex } from "@kyberswap/zap-migration-widgets";
 
 export const dexMapping: Record<PoolType | Dex, string> = {
+  [PoolType.DEX_UNISWAP_V4]: "Uniswap V4",
   [PoolType.DEX_UNISWAPV3]: "Uniswap V3",
   [PoolType.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [PoolType.DEX_METAVAULTV3]: "MetaVault V3",

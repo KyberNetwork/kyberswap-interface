@@ -150,18 +150,17 @@ export const parseMarketTokenInfo = (tokenInfo: TokenInfo | null) => {
 };
 
 export const shortenAddress = (
-  chainId: number,
   address: string,
-  chars = 4
+  chars = 4,
+  isUniv4 = false
 ): string => {
   const parsed = isAddress(address);
   if (!parsed) {
-    throw Error(
-      `Invalid 'address' parameter '${address}' on chain ${chainId}.`
-    );
+    throw Error(`Invalid 'address' parameter '${address}'`);
   }
+  const addressLength = isUniv4 ? 66 : 42;
   return `${address.substring(0, chars + 2)}...${address.substring(
-    42 - chars
+    addressLength - chars
   )}`;
 };
 

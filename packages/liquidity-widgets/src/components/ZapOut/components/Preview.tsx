@@ -4,7 +4,7 @@ import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import X from "@/assets/svg/x.svg";
 import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { useZapOutContext } from "@/stores/zapout";
-import { NetworkInfo, PATHS, chainIdToChain } from "@/constants";
+import { NETWORKS_INFO, PATHS, CHAIN_ID_TO_CHAIN } from "@/constants";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { formatTokenAmount } from "@kyber/utils/number";
 import { PI_LEVEL, formatCurrency } from "@/utils";
@@ -18,7 +18,6 @@ import {
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
-//import CopyIcon from "@/assets/icons/copy.svg";
 import AlertIcon from "@/assets/svg/error.svg";
 import LoadingIcon from "@/assets/svg/loader.svg";
 import CheckIcon from "@/assets/svg/success.svg";
@@ -26,7 +25,7 @@ import { SwapPI, useSwapPI } from "./SwapImpact";
 import { SlippageWarning } from "@/components/SlippageWarning";
 import { WarningMsg } from "./WarningMsg";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { univ3PoolType } from "@/schema";
+import { Univ3PoolType } from "@/schema";
 export const Preview = () => {
   const {
     onClose,
@@ -43,7 +42,7 @@ export const Preview = () => {
   } = useZapOutContext((s) => s);
 
   const { address: account } = connectedAccount;
-  const isUniV3 = univ3PoolType.safeParse(poolType).success;
+  const isUniV3 = Univ3PoolType.safeParse(poolType).success;
 
   const { showPreview, slippage, togglePreview, tokenOut, route } =
     useZapOutUserState();
@@ -61,7 +60,7 @@ export const Preview = () => {
   useEffect(() => {
     if (!route?.route || !showPreview || !account) return;
     fetch(
-      `${PATHS.ZAP_API}/${chainIdToChain[chainId]}/api/v1/out/route/build`,
+      `${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route/build`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -84,14 +83,15 @@ export const Preview = () => {
       .catch((err) => {
         setError(err.message || JSON.stringify(err));
       });
-  }, [route?.route, showPreview, account]);
+  }, [route?.route, showPreview, account, chainId, source, referral]);
 
-  const rpcUrl = NetworkInfo[chainId].defaultRpc;
+  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
+
   useEffect(() => {
     if (!buildData || !account) return;
     (async () => {
       const wethAddress =
-        NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+        NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
       const [gasEstimation, gasPrice, nativeTokenPrice] = await Promise.all([
         estimateGas(rpcUrl, {
           from: account,
@@ -116,7 +116,7 @@ export const Preview = () => {
 
       setGasUsd(gasUsd);
     })();
-  }, [buildData, account]);
+  }, [buildData, account, chainId, rpcUrl, fetchPrices]);
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [submiting, setSubmiting] = useState(false);
@@ -126,7 +126,7 @@ export const Preview = () => {
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        isTransactionSuccessful(NetworkInfo[chainId].defaultRpc, txHash).then(
+        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(
           (res) => {
             if (!res) return;
 
@@ -141,7 +141,7 @@ export const Preview = () => {
         clearInterval(i);
       };
     }
-  }, [txHash]);
+  }, [chainId, txHash]);
 
   const { swapPiRes, zapPiRes } = useSwapPI();
 
@@ -210,7 +210,7 @@ export const Preview = () => {
           </div>
           <a
             className="text-primary text-xs mt-4"
-            href={`${NetworkInfo[chainId].scanLink}/tx/${txHash}`}
+            href={`${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}`}
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -298,7 +298,7 @@ export const Preview = () => {
           />
           <img
             {...imgProps}
-            src={NetworkInfo[chainId].logo}
+            src={NETWORKS_INFO[chainId].logo}
             width="18px"
             height="18px"
             className="rounded-full -ml-2"

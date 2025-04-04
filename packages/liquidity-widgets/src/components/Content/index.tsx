@@ -28,9 +28,9 @@ import { MAX_ZAP_IN_TOKENS } from "@/constants";
 import {
   Pool,
   univ2PoolNormalize,
-  univ2PoolType,
+  Univ2PoolType,
   univ3PoolNormalize,
-  univ3PoolType,
+  Univ3PoolType,
   univ3Position,
 } from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
@@ -192,18 +192,18 @@ export default function Content() {
       (item) => item === APPROVAL_STATE.PENDING
     );
 
-  const { success: isUniV3PoolType } = univ3PoolType.safeParse(poolType);
+  const { success: isUniV3PoolType } = Univ3PoolType.safeParse(poolType);
 
   const newPool: Pool | null = useMemo(() => {
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     const { success: isUniV3PoolType, data: pt } =
-      univ3PoolType.safeParse(poolType);
+      Univ3PoolType.safeParse(poolType);
 
     const { success: isUniV2, data: poolUniv2 } =
       univ2PoolNormalize.safeParse(pool);
 
     const { success: isUniV2PoolType, data: univ2pt } =
-      univ2PoolType.safeParse(poolType);
+      Univ2PoolType.safeParse(poolType);
 
     if (zapInfo) {
       if (success && isUniV3PoolType) {

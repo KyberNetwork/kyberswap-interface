@@ -3,9 +3,9 @@ import SettingIcon from "@/assets/svg/setting.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { Skeleton } from "@kyber/ui/skeleton";
 import X from "@/assets/svg/x.svg";
-import { UniV3Pool, UniV3Position, univ3PoolType } from "@/schema";
+import { UniV3Pool, UniV3Position, Univ3PoolType } from "@/schema";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { DexInfos, NetworkInfo } from "@/constants";
+import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
 import { SyntheticEvent } from "react";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { useZapOutUserState } from "@/stores/zapout/zapout-state";
@@ -24,7 +24,7 @@ export const Header = () => {
     theme,
     chainId,
   } = useZapOutContext((s) => s);
-  const isUniV3 = univ3PoolType.safeParse(poolType).success;
+  const isUniV3 = Univ3PoolType.safeParse(poolType).success;
 
   const { degenMode, toggleSetting } = useZapOutUserState();
   const Copy = useCopy({
@@ -47,7 +47,7 @@ export const Header = () => {
     currentTarget.src = defaultTokenLogo;
   };
 
-  const { icon: logo, name: rawName } = DexInfos[poolType];
+  const { icon: logo, name: rawName } = DEXES_INFO[poolType];
   const name = typeof rawName === "string" ? rawName : rawName[chainId];
 
   return (
@@ -104,7 +104,7 @@ export const Header = () => {
               />
               <img
                 className="w-3 h-3 -ml-1"
-                src={NetworkInfo[chainId].logo}
+                src={NETWORKS_INFO[chainId].logo}
                 onError={onImgError}
               />
             </div>
@@ -116,7 +116,7 @@ export const Header = () => {
             </div>
 
             <div className="rounded-full text-xs bg-layer2 text-blue px-3 py-1 flex gap-1">
-              {shortenAddress(chainId, poolAddress, 4)}
+              {shortenAddress(poolAddress, 4)}
               {Copy}
             </div>
 

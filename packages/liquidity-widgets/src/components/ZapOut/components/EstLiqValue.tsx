@@ -52,6 +52,10 @@ export function EstLiqValue() {
     fetchZapOutRoute,
     debounceLiquidityOut,
     tokenOut?.address,
+    chainId,
+    positionId,
+    poolAddress,
+    poolType,
   ]);
 
   const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
