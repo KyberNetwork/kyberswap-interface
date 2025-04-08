@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "../constants";
+import { useCallback, useEffect, useState } from "react";
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
 import {
   calculateGasMargin,
   checkApproval,
+  decodeAddress,
   estimateGas,
   getFunctionSelector,
   isAddress,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import { useWidgetContext } from "@/stores/widget";
+import { univ4Types } from "@/schema";
 
 export enum APPROVAL_STATE {
   UNKNOWN = "unknown",
@@ -22,10 +24,14 @@ export const useApprovals = (
   addreses: string[],
   spender: string
 ) => {
-  const { chainId, connectedAccount, onSubmitTx } = useWidgetContext((s) => s);
+  const { chainId, connectedAccount, onSubmitTx, poolType, positionId } =
+    useWidgetContext((s) => s);
   const { address: account } = connectedAccount;
 
-  const [loading, setLoading] = useState(false);
+  const isUniv4 = univ4Types.includes(poolType);
+
+  const [tokenApprovalloading, setTokenApprovelLoading] = useState(false);
+  const [nftApprovalLoading, setNftApprovalLoading] = useState(false);
   const [approvalStates, setApprovalStates] = useState<{
     [address: string]: APPROVAL_STATE;
   }>(() =>
@@ -39,8 +45,12 @@ export const useApprovals = (
       };
     }, {})
   );
-  const [pendingTx, setPendingTx] = useState("");
+  const [nftApproval, setNftApproval] = useState(false);
+  const [tokenPendingTx, setTokenPendingTx] = useState("");
+  const [nftPendingTx, setNftPendingTx] = useState("");
   const [addressToApprove, setAddressToApprove] = useState("");
+
+  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
   const approve = async (address: string) => {
     if (!isAddress(address) || !account) return;
@@ -74,21 +84,60 @@ export const useApprovals = (
         ...approvalStates,
         [address]: APPROVAL_STATE.PENDING,
       });
-      setPendingTx(txHash);
+      setTokenPendingTx(txHash);
     } catch (e) {
       console.log("approve failed", e);
       setAddressToApprove("");
     }
   };
 
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
+  const approveNft = useCallback(async () => {
+    if (!account || !spender || !isUniv4 || !positionId) return;
+
+    const contract = DEXES_INFO[poolType].nftManagerContract;
+    const nftManagerContract =
+      typeof contract === "string" ? contract : contract[chainId];
+
+    if (!nftManagerContract) return;
+
+    const methodSignature = getFunctionSelector("approve(address,uint256)");
+    const encodedSpenderAddress = spender.slice(2).padStart(64, "0");
+    const encodedTokenId = (+positionId).toString(16).padStart(64, "0");
+    const approvalData = `0x${methodSignature}${encodedSpenderAddress}${encodedTokenId}`;
+    const txData = {
+      from: account,
+      to: nftManagerContract,
+      data: approvalData,
+      value: "0x0",
+    };
+
+    try {
+      const gasEstimation = await estimateGas(rpcUrl, txData);
+      const txHash = await onSubmitTx({
+        ...txData,
+        gasLimit: calculateGasMargin(gasEstimation),
+      });
+      setNftPendingTx(txHash);
+    } catch (error) {
+      console.log("nft approve error", error);
+    }
+  }, [
+    account,
+    spender,
+    isUniv4,
+    positionId,
+    poolType,
+    chainId,
+    rpcUrl,
+    onSubmitTx,
+  ]);
 
   useEffect(() => {
-    if (pendingTx) {
+    if (tokenPendingTx) {
       const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, pendingTx).then((res) => {
+        isTransactionSuccessful(rpcUrl, tokenPendingTx).then((res) => {
           if (res) {
-            setPendingTx("");
+            setTokenPendingTx("");
             if (res.status) setAddressToApprove("");
             setApprovalStates({
               ...approvalStates,
@@ -104,11 +153,28 @@ export const useApprovals = (
         clearInterval(i);
       };
     }
-  }, [pendingTx, rpcUrl, addressToApprove, approvalStates]);
+  }, [tokenPendingTx, rpcUrl, addressToApprove, approvalStates]);
+
+  useEffect(() => {
+    if (nftPendingTx) {
+      const i = setInterval(() => {
+        isTransactionSuccessful(rpcUrl, nftPendingTx).then((res) => {
+          if (res) {
+            setNftPendingTx("");
+            setNftApproval(res.status);
+          }
+        });
+      }, 8_000);
+
+      return () => {
+        clearInterval(i);
+      };
+    }
+  }, [nftPendingTx, rpcUrl]);
 
   useEffect(() => {
     if (account && spender && addreses.length === amounts.length) {
-      setLoading(true);
+      setTokenApprovelLoading(true);
       Promise.all(
         addreses.map(async (address, index) => {
           if (address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase())
@@ -145,7 +211,7 @@ export const useApprovals = (
           setApprovalStates(tmp);
         })
         .finally(() => {
-          setLoading(false);
+          setTokenApprovelLoading(false);
         });
     }
     // eslint-disable-next-line
@@ -159,10 +225,58 @@ export const useApprovals = (
     rpcUrl,
   ]);
 
+  useEffect(() => {
+    if (!spender || !account || !isUniv4 || !positionId) return;
+
+    const contract = DEXES_INFO[poolType].nftManagerContract;
+    const nftManagerContract =
+      typeof contract === "string" ? contract : contract[chainId];
+
+    if (!nftManagerContract) return;
+
+    const methodSignature = getFunctionSelector("getApproved(uint256)");
+    const encodedTokenId = (+positionId).toString(16).padStart(64, "0");
+    const data = "0x" + methodSignature + encodedTokenId;
+
+    setNftApprovalLoading(true);
+    fetch(rpcUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_call",
+        params: [
+          {
+            to: nftManagerContract,
+            data,
+          },
+          "latest",
+        ],
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setNftApprovalLoading(false);
+        const address = decodeAddress(
+          (res?.result || "").slice(2)
+        )?.toLowerCase();
+        if (address === spender.toLowerCase()) setNftApproval(true);
+        else setNftApproval(false);
+      })
+      .finally(() => {
+        setNftApprovalLoading(false);
+      });
+  }, [positionId, spender, rpcUrl, account, isUniv4, poolType, chainId]);
+
   return {
     approvalStates,
     addressToApprove,
     approve,
-    loading,
+    loading: tokenApprovalloading || nftApprovalLoading,
+    nftApproval,
+    approveNft,
   };
 };

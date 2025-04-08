@@ -46,9 +46,10 @@ const ZapMigration = () => {
   }>({
     chainId: ChainId.Base.toString(),
     from: {
-      dex: Dex.DEX_UNISWAPV3,
-      poolId: "0xc9034c3e7f58003e6ae0c8438e7c8f4598d5acaa",
-      positionId: 2275270,
+      dex: Dex.DEX_UNISWAP_V4,
+      poolId:
+        "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
+      positionId: 35636,
     },
     to: {
       dex: Dex.DEX_UNISWAPV3,
@@ -242,9 +243,9 @@ const ZapMigration = () => {
                           id={`to-${key}`}
                         />
                         <Label className="text-xs" htmlFor={`to-${key}`}>
-                          {value in dexMapping
-                            ? dexMapping[value as keyof typeof dexMapping]
-                            : value}
+                          {key in dexMapping
+                            ? dexMapping[key as keyof typeof dexMapping]
+                            : key}
                         </Label>
                       </div>
                     );

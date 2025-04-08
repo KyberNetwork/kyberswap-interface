@@ -1,3 +1,4 @@
+import usePositionOwner from "@/hooks/usePositionOwner";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
@@ -32,6 +33,7 @@ import {
   univ3PoolNormalize,
   Univ3PoolType,
   univ3Position,
+  univ4Types,
 } from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
 import { parseUnits } from "@kyber/utils/crypto";
@@ -71,9 +73,11 @@ export default function Content() {
     toggleShowWidget,
     poolAddress,
     chainId,
+    connectedAccount,
   } = useWidgetContext((s) => s);
 
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
+  const isUniv4 = univ4Types.includes(poolType);
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -90,11 +94,25 @@ export default function Content() {
     [tokensIn, amountsIn]
   );
 
-  const { loading, approvalStates, approve, addressToApprove } = useApprovals(
+  const {
+    loading,
+    approvalStates,
+    approve,
+    addressToApprove,
+    nftApproval,
+    approveNft,
+  } = useApprovals(
     amountsInWei,
     tokensIn.map((token) => token?.address || ""),
     zapInfo?.routerAddress || ""
   );
+  const positionOwner = usePositionOwner({ positionId, chainId, poolType });
+  const isNotOwner =
+    positionId &&
+    positionOwner &&
+    positionOwner !== connectedAccount?.address?.toLowerCase()
+      ? true
+      : false;
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
@@ -171,10 +189,12 @@ export default function Content() {
 
   const btnText = (() => {
     if (error) return error;
+    if (isUniv4 && isNotOwner) return "Not the position owner";
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
     if (addressToApprove) return "Approving";
     if (notApprove) return `Approve ${notApprove.symbol}`;
+    if (isUniv4 && positionId && !nftApproval) return "Approve NFT";
     if (pi.piVeryHigh) return "Zap anyway";
 
     return "Preview";
@@ -184,13 +204,15 @@ export default function Content() {
   const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
 
   const disabled =
+    (isUniv4 && isNotOwner) ||
     clickedApprove ||
     loading ||
     zapLoading ||
     (!!error && !isWrongNetwork && !isNotConnected) ||
     Object.values(approvalStates).some(
       (item) => item === APPROVAL_STATE.PENDING
-    );
+    ) ||
+    (isUniv4 && positionId && !nftApproval ? true : false);
 
   const { success: isUniV3PoolType } = Univ3PoolType.safeParse(poolType);
 
@@ -319,6 +341,9 @@ export default function Content() {
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
+    } else if (isUniv4 && positionId && !nftApproval) {
+      setClickedLoading(true);
+      approveNft().finally(() => setClickedLoading(false));
     } else if (
       pool !== "loading" &&
       amountsIn &&
@@ -532,21 +557,15 @@ export default function Content() {
               </div>
             )}
 
-            {/* TODO: implement owner check 
-                {position?.owner &&
-                  account &&
-                  position.owner.toLowerCase() !== account.toLowerCase() && (
-                    <div
-                      className="py-3 px-4 text-sm rounded-md mt-2 font-normal text-warning"
-                      style={{
-                        backgroundColor: `${theme.warning}33`,
-                      }}
-                    >
-                      You are not the current owner of the position #{positionId},
-                      please double check before proceeding
-                    </div>
-                  )}
-                */}
+            {isUniv4 && isNotOwner && (
+              <div
+                className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
+                style={{ backgroundColor: `${theme.warning}33` }}
+              >
+                You are not the current owner of the position #{positionId},
+                please double check before proceeding
+              </div>
+            )}
           </div>
         </div>
         <div className="flex gap-6 mt-6">

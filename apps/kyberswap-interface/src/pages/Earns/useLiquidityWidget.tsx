@@ -75,6 +75,7 @@ const zapDexMapping: Record<EarnDex | EarnDex2, PoolType> = {
   [EarnDex.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
   [EarnDex.DEX_KODIAK_V3]: PoolType.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
+  [EarnDex.DEX_UNISWAP_V4]: PoolType.DEX_UNISWAP_V4,
   [EarnDex2.DEX_UNISWAPV3]: PoolType.DEX_UNISWAPV3,
   [EarnDex2.DEX_PANCAKESWAPV3]: PoolType.DEX_PANCAKESWAPV3,
   [EarnDex2.DEX_SUSHISWAPV3]: PoolType.DEX_SUSHISWAPV3,
@@ -83,6 +84,7 @@ const zapDexMapping: Record<EarnDex | EarnDex2, PoolType> = {
   [EarnDex2.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
   [EarnDex2.DEX_KODIAK_V3]: PoolType.DEX_KODIAK_V3,
   [EarnDex2.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
+  [EarnDex2.DEX_UNISWAP_V4]: PoolType.DEX_UNISWAP_V4,
 }
 
 const zapMigrationDexMapping: Record<PoolType | EarnDex, ZapMigrationDex | null> = {
@@ -108,6 +110,7 @@ const zapMigrationDexMapping: Record<PoolType | EarnDex, ZapMigrationDex | null>
   [PoolType.DEX_KODIAK_V2]: null,
   [PoolType.DEX_SQUADSWAP_V3]: null,
   [PoolType.DEX_SQUADSWAP_V2]: null,
+  [PoolType.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
   [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
   [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
@@ -116,6 +119,7 @@ const zapMigrationDexMapping: Record<PoolType | EarnDex, ZapMigrationDex | null>
   [EarnDex.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
   [EarnDex.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
+  [EarnDex.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
 }
 
 const useLiquidityWidget = () => {

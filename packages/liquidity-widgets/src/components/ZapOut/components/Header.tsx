@@ -3,7 +3,7 @@ import SettingIcon from "@/assets/svg/setting.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { Skeleton } from "@kyber/ui/skeleton";
 import X from "@/assets/svg/x.svg";
-import { UniV3Pool, UniV3Position, Univ3PoolType } from "@/schema";
+import { UniV3Pool, UniV3Position, Univ3PoolType, univ4Types } from "@/schema";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
 import { SyntheticEvent } from "react";
@@ -25,6 +25,7 @@ export const Header = () => {
     chainId,
   } = useZapOutContext((s) => s);
   const isUniV3 = Univ3PoolType.safeParse(poolType).success;
+  const isUniv4 = univ4Types.includes(poolType);
 
   const { degenMode, toggleSetting } = useZapOutUserState();
   const Copy = useCopy({
@@ -116,7 +117,7 @@ export const Header = () => {
             </div>
 
             <div className="rounded-full text-xs bg-layer2 text-blue px-3 py-1 flex gap-1">
-              {shortenAddress(poolAddress, 4)}
+              {shortenAddress(poolAddress, 4, isUniv4)}
               {Copy}
             </div>
 
