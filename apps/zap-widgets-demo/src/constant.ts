@@ -26,6 +26,7 @@ export const dexMapping: Record<PoolType | Dex, string> = {
   [PoolType.DEX_SQUADSWAP_V3]: "Squad Swap V3",
   [PoolType.DEX_SQUADSWAP_V2]: "Squad Swap V2",
 
+  [Dex.DEX_UNISWAP_V4]: "Uniswap V4",
   [Dex.DEX_UNISWAPV3]: "Uniswap V3",
   [Dex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [Dex.DEX_METAVAULTV3]: "MetaVault V3",
