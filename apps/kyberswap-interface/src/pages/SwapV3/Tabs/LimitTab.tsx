@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useLocation } from 'react-router-dom'
-import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
+import { useGetListOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -12,12 +12,12 @@ import { isSupportLimitOrder } from 'utils'
 
 import { Tab } from './index'
 
-const WarningBadge = styled.span`
+const ActiveBadge = styled.span`
   display: inline-block;
   min-width: 20px;
   padding: 2px 6px;
-  color: ${({ theme }) => theme.warning};
-  background-color: ${({ theme }) => rgba(theme.warning, 0.3)};
+  color: ${({ theme }) => theme.primary};
+  background-color: ${({ theme }) => rgba(theme.primary, 0.3)};
   border-radius: 20px;
   font-weight: 500;
   font-size: 14px;
@@ -37,11 +37,19 @@ export default function LimitTab({ onClick, active, customChainId }: Props) {
   const isSupport = isSupportLimitOrder(chainId)
 
   const skip = !account || !isSupport
-  const { data } = useGetNumberOfInsufficientFundOrdersQuery(
-    { chainId, maker: account || '' },
-    { skip, pollingInterval: 10_000 },
+
+  const { data: { totalOrder = 0 } = {} } = useGetListOrdersQuery(
+    {
+      chainId,
+      maker: account,
+      status: 'active',
+      query: '',
+      page: 1,
+      pageSize: 10,
+    },
+    { skip, refetchOnFocus: true, pollingInterval: 10_000 },
   )
-  const numberOfInsufficientFundOrders = skip ? undefined : data
+  const numberOfActiveOrders = skip ? undefined : totalOrder
 
   if (!isSupport) {
     return null
@@ -56,16 +64,9 @@ export default function LimitTab({ onClick, active, customChainId }: Props) {
       style={{ display: 'flex', gap: '4px', fontSize: '20px', fontWeight: '500' }}
     >
       <Trans>Limit Order</Trans>{' '}
-      {!!numberOfInsufficientFundOrders && (
-        <MouseoverTooltip
-          placement="top"
-          text={
-            <Trans>
-              You have {numberOfInsufficientFundOrders} active orders that don&apos;t have sufficient funds.
-            </Trans>
-          }
-        >
-          <WarningBadge>{numberOfInsufficientFundOrders}</WarningBadge>
+      {!!numberOfActiveOrders && (
+        <MouseoverTooltip placement="top" text={<Trans>You have {numberOfActiveOrders} active orders.</Trans>}>
+          <ActiveBadge>{numberOfActiveOrders}</ActiveBadge>
         </MouseoverTooltip>
       )}
     </Tab>
