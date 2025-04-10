@@ -17,6 +17,7 @@ export default function usePoolActiveLiquidity({
     if (
       (!tickCurrent && tickCurrent !== 0) ||
       !tickSpacing ||
+      !ticks ||
       !ticks.length ||
       !token0 ||
       !token1
