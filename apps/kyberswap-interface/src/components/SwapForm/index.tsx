@@ -110,7 +110,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   } = useWrapCallback(currencyIn, currencyOut, typedValue, false, customChainId)
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
 
-  const { fetcher: getRoute, result } = useGetRoute({
+  const {
+    fetcher: getRoute,
+    result,
+    isLoading: routeLoading,
+  } = useGetRoute({
     currencyIn,
     currencyOut,
     parsedAmount,
@@ -225,6 +229,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
           {!isWrapOrUnwrap && (
             <TradeSummary
               routeSummary={routeSummary}
+              routeLoading={routeLoading}
               slippage={slippage}
               disableRefresh={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
               refreshCallback={getRoute}

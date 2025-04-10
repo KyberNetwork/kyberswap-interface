@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import debounce from 'lodash.debounce'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
@@ -79,6 +79,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const { parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
+  const [isLoading, setIsLoading] = useState(false)
 
   const feeConfigFromUrl = useGetFeeConfig()
 
@@ -119,7 +120,9 @@ const useGetRoute = (args: ArgsGetRoute) => {
     () =>
       debounce(
         async (args: { url: string; params: GetRouteParams; authentication: boolean }) => {
+          setIsLoading(true)
           await trigger({ ...args, clientId })
+          setIsLoading(false)
           dismissSwapModalFlag.current = false
         },
         INPUT_DEBOUNCE_TIME,
@@ -184,7 +187,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     feeConfigFromUrl,
   ])
 
-  return { fetcher, result }
+  return { fetcher, result, isLoading }
 }
 
 export default useGetRoute
