@@ -211,8 +211,7 @@ export default function Content() {
     (!!error && !isWrongNetwork && !isNotConnected) ||
     Object.values(approvalStates).some(
       (item) => item === APPROVAL_STATE.PENDING
-    ) ||
-    (isUniv4 && positionId && !nftApproval ? true : false);
+    );
 
   const { success: isUniV3PoolType } = Univ3PoolType.safeParse(poolType);
 
