@@ -52,6 +52,16 @@ export function shortenAddress(chainId: ChainId, address: string, chars = 4, che
   return `${value.substring(0, chars + 2)}...${value.substring(42 - chars)}`
 }
 
+export const shortenHash = (hash: string, chars = 3): string => {
+  if (!hash) return ''
+  if (hash.length < chars * 2) return hash
+
+  const start = hash.substring(0, chars + 2)
+  const end = hash.substring(hash.length - chars)
+
+  return `${start}...${end}`
+}
+
 /**
  * Add a margin amount equal to max of 20000 or 20% of estimatedGas
  * total = estimate + max(20k, 20% * estimate)

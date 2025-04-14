@@ -58,6 +58,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
         destinationChainId: +params.toChain,
         inputToken: params.fromToken.address as `0x${string}`,
         outputToken: params.toToken.address as `0x${string}`,
+        isNative: params.fromToken.isNative,
       },
       inputAmount: params.amount,
     })
@@ -83,6 +84,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     const outputUsd = tokenOutUsd * +formattedOutputAmount
 
     return {
+      quoteParams: params,
       outputAmount: BigInt(resp.deposit.outputAmount),
       formattedOutputAmount,
       inputUsd: tokenInUsd * +formatUnits(BigInt(params.amount), params.fromToken.decimals),
@@ -109,6 +111,13 @@ export class AcrossAdapter extends BaseSwapAdapter {
                 sourceTxHash: progress.txHash,
                 adapter: this.getName(),
                 id: progress.txHash,
+                sourceChain: quote.quote.quoteParams.fromChain,
+                targetChain: quote.quote.quoteParams.toChain,
+                inputAmount: quote.quote.quoteParams.amount,
+                outputAmount: quote.quote.outputAmount.toString(),
+                sourceToken: quote.quote.quoteParams.fromToken,
+                targetToken: quote.quote.quoteParams.toToken,
+                timestamp: new Date().getTime(),
               })
             }
           },
@@ -116,8 +125,18 @@ export class AcrossAdapter extends BaseSwapAdapter {
         .catch(reject)
     })
   }
-  getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
-    console.log(params)
-    return Promise.resolve({})
+  async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
+    const res = await this.acrossClient.getDeposit({
+      findBy: {
+        originChainId: +params.sourceChain,
+        destinationChainId: +params.targetChain,
+        depositTxHash: params.sourceTxHash as `0x${string}`,
+      },
+    })
+
+    return {
+      txHash: res.fillTxHash || '',
+      status: res.status || 'pending',
+    }
   }
 }

@@ -15,6 +15,8 @@ export interface QuoteParams {
 }
 
 export interface NormalizedQuote {
+  quoteParams: QuoteParams
+
   outputAmount: bigint
   formattedOutputAmount: string
 
@@ -36,10 +38,20 @@ export interface NormalizedTxResponse {
   id: string // specific id for each provider
   sourceTxHash: string
   adapter: string
+  sourceChain: Chain
+  targetChain: Chain
+  inputAmount: string
+  outputAmount: string
+  sourceToken: Token
+  targetToken: Token
+  targetTxHash?: string
+  timestamp: number
+  status?: 'pending' | 'filled'
 }
 
 export interface SwapStatus {
-  foo?: 'bar'
+  txHash: string
+  status: 'pending' | 'filled'
 }
 
 // Define a common interface for all swap providers

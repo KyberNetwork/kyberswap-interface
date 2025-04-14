@@ -26,7 +26,6 @@ import { useCurrencyV2 } from 'hooks/Tokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChain from 'pages/CrossChain'
-import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import { TAB, isSettingTab } from 'pages/SwapV3'
 import Header from 'pages/SwapV3/Header'
@@ -231,7 +230,6 @@ export default function PartnerSwap() {
                 ))}
               {isCrossChainPage && <CrossChain visible={activeTab === TAB.CROSS_CHAIN} />}
             </AppBodyWrapped>
-            {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>
 
           <InfoComponents>

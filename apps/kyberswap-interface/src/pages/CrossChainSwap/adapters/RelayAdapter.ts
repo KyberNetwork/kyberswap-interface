@@ -57,6 +57,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       // },
     })
     return {
+      quoteParams: params,
       outputAmount: BigInt(resp.details?.currencyOut?.amount || '0'),
       formattedOutputAmount: formatUnits(BigInt(resp.details?.currencyOut?.amount || '0'), params.toToken.decimals),
       inputUsd: Number(resp.details?.currencyIn?.amountUsd || 0),
@@ -85,6 +86,13 @@ export class RelayAdapter extends BaseSwapAdapter {
                   sourceTxHash: txHash,
                   adapter: this.getName(),
                   id: currentStep.requestId,
+                  sourceChain: quote.quote.quoteParams.fromChain,
+                  targetChain: quote.quote.quoteParams.toChain,
+                  inputAmount: quote.quote.quoteParams.amount,
+                  outputAmount: quote.quote.outputAmount.toString(),
+                  sourceToken: quote.quote.quoteParams.fromToken,
+                  targetToken: quote.quote.quoteParams.toToken,
+                  timestamp: new Date().getTime(),
                 })
               }
             }
@@ -94,8 +102,12 @@ export class RelayAdapter extends BaseSwapAdapter {
     })
   }
 
-  getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    console.log(p)
-    return Promise.resolve({})
+  async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
+    const res = await fetch(`https://api.relay.link/intents/status/v2?requestId=${p.id}`).then(r => r.json())
+
+    return {
+      txHash: res.txHashes?.[0] || '',
+      status: res.status === 'success' ? 'filled' : res.status || 'pending',
+    }
   }
 }

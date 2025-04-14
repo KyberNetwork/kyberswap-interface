@@ -11,7 +11,8 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Summary } from './Summary'
 import { useState } from 'react'
-import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { useCrossChainTransactions } from 'state/crossChainTransactions'
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -71,32 +72,43 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
   const { data: walletClient } = useWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
+  const [txError, setTxError] = useState('')
+  const [transactions, setTransactions] = useCrossChainTransactions()
 
   if (!selectedQuote || !currencyIn || !currencyOut || !inputAmount || !fromChainId || !toChainId) return null
 
   const handleSwap = async () => {
     if (!walletClient) return
     setSubmittingTx(true)
-    const res = await selectedQuote.adapter.executeSwap(selectedQuote, walletClient).catch(() => {
+    const res = await selectedQuote.adapter.executeSwap(selectedQuote, walletClient).catch(e => {
+      console.log(e)
+      setTxError(e?.message)
       setSubmittingTx(false)
     })
+    if (res) setTransactions([res, ...transactions])
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)
+  }
+
+  const dismiss = () => {
+    setSubmittingTx(false)
+    onDismiss()
+    setTxHash('')
+    setSubmittingTx(false)
+    setTxError('')
   }
 
   return (
     <TransactionConfirmationModal
       isOpen={submittingTx || isOpen}
-      onDismiss={() => {
-        setSubmittingTx(false)
-        onDismiss()
-        setTxHash('')
-        setSubmittingTx(false)
-      }}
+      onDismiss={dismiss}
       hash={txHash}
       attemptingTxn={submittingTx}
       pendingText={`Swapping ${currencyIn?.symbol} for ${currencyOut?.symbol}`}
       content={() => {
+        if (txError) {
+          return <TransactionErrorContent message={txError} onDismiss={dismiss} />
+        }
         return (
           <Wrapper>
             <Flex justifyContent="space-between" alignItems="center" mb="0.75rem">

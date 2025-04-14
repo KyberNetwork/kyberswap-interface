@@ -9,7 +9,7 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'viem'
 import { useWalletClient } from 'wagmi'
 
-const registry = new CrossChainSwapAdapterRegistry()
+export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
   registry.registerAdapter(adapter)
 })
