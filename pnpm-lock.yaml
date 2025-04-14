@@ -23,6 +23,9 @@ importers:
       '@0xsquid/sdk':
         specifier: 2.8.24
         version: 2.8.24
+      '@across-protocol/app-sdk':
+        specifier: ^0.2.0
+        version: 0.2.0(viem@2.23.7)
       '@apollo/client':
         specifier: ^3.7.1
         version: 3.13.2(@types/react@18.3.12)(graphql@15.10.1)(react-dom@18.3.1)(react@18.3.1)
@@ -107,6 +110,9 @@ importers:
       '@reduxjs/toolkit':
         specifier: 1.9.3
         version: 1.9.3(react-redux@7.2.9)(react@18.3.1)
+      '@reservoir0x/relay-sdk':
+        specifier: ^1.6.13
+        version: 1.6.13(viem@2.23.7)
       '@safe-global/safe-apps-sdk':
         specifier: ^9.1.0
         version: 9.1.0(typescript@5.3.3)
@@ -1515,6 +1521,15 @@ packages:
       long: 5.3.1
       typescript: 5.3.3
     dev: true
+
+  /@across-protocol/app-sdk@0.2.0(viem@2.23.7):
+    resolution: {integrity: sha512-2evSZQHC+xBvH4gBMDwxwwAgCimjBRId0n/bOAW/EHZv179xdP1wQJu6/bfCbEeCrBwhQaGrZEsUtxrrJ+SJNg==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      viem: ^2.20.1
+    dependencies:
+      viem: 2.23.7(typescript@5.3.3)
+    dev: false
 
   /@adobe/css-tools@4.4.2:
     resolution: {integrity: sha512-baYZExFpsdkBNuvGKTKWCwKH57HRZLVtycZS05WTQNVOiXVSeAki3nU35zlRbToeMW8aHlJfyS+1C4BOv27q0A==}
@@ -9060,6 +9075,17 @@ packages:
   /@remix-run/router@1.1.0:
     resolution: {integrity: sha512-rGl+jH/7x1KBCQScz9p54p0dtPLNeKGb3e0wD2H5/oZj41bwQUnXdzbj2TbUAFhvD7cp9EyEQA4dEgpUFa1O7Q==}
     engines: {node: '>=14'}
+    dev: false
+
+  /@reservoir0x/relay-sdk@1.6.13(viem@2.23.7):
+    resolution: {integrity: sha512-bfceR2vIQI9FM+rh7NsI2K/WASJBl2DlBM1mlg91wVafz7psUvgbWmex/8jtNr3elCyuGU/nGTIJSHSnmdmM/Q==}
+    peerDependencies:
+      viem: ^2.21.55
+    dependencies:
+      axios: 1.8.2(debug@4.3.7)
+      viem: 2.23.7(typescript@5.3.3)
+    transitivePeerDependencies:
+      - debug
     dev: false
 
   /@rollup/plugin-inject@5.0.5(rollup@3.29.5):
