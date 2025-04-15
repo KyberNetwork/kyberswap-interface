@@ -34,6 +34,8 @@ import MultichainKNCNote from './MultichainKNCNote'
 import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
 import SwapActionButton from './SwapActionButton'
 import TradeSummary from './TradeSummary'
+import { isInSafeApp } from 'utils'
+import { SAFE_APP_CLIENT_ID } from 'constants/index'
 
 export const RoutingIconWrapper = styled(RoutingIcon)`
   height: 20px;
@@ -116,7 +118,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     parsedAmount,
     isProcessingSwap,
     customChain: chainId,
-    clientId: searchParams.get('clientId') || undefined,
+    clientId: isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId') || undefined,
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
