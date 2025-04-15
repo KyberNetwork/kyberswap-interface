@@ -8,6 +8,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'viem'
 import { useWalletClient } from 'wagmi'
+import useDebounce from 'hooks/useDebounce'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -16,6 +17,8 @@ CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
 
 const RegistryContext = createContext<
   | {
+      amount: string
+      setAmount: (amount: string) => void
       registry: CrossChainSwapAdapterRegistry
       fromChainId: ChainId
       toChainId: ChainId | undefined
@@ -36,7 +39,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const to = searchParams.get('to')
   const tokenIn = searchParams.get('tokenIn')
   const tokenOut = searchParams.get('tokenOut')
-  const amount = searchParams.get('amount')
+  const [amount, setAmount] = useState('1')
+  const amountDebounce = useDebounce(amount, 500)
 
   const { chainId } = useActiveWeb3React()
 
@@ -49,9 +53,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const inputAmount = useMemo(
     () =>
       currencyIn &&
-      amount &&
-      CurrencyAmount.fromRawAmount(currencyIn, parseUnits(amount || '0', currencyIn.wrapped.decimals).toString()),
-    [currencyIn, amount],
+      amountDebounce &&
+      CurrencyAmount.fromRawAmount(
+        currencyIn,
+        parseUnits(amountDebounce || '0', currencyIn.wrapped.decimals).toString(),
+      ),
+    [currencyIn, amountDebounce],
   )
 
   const [loading, setLoading] = useState(false)
@@ -99,6 +106,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         inputAmount: inputAmount || undefined,
         quotes,
         loading,
+        amount,
+        setAmount,
       }}
     >
       {children}

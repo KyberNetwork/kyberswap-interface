@@ -19,8 +19,17 @@ const Wrapper = styled.div`
 `
 
 function CrossChainSwap() {
-  const { selectedQuote, setSelectedQuote, fromChainId, toChainId, currencyIn, currencyOut, inputAmount, quotes } =
-    useCrossChainSwap()
+  const {
+    amount,
+    setAmount,
+    selectedQuote,
+    setSelectedQuote,
+    fromChainId,
+    toChainId,
+    currencyIn,
+    currencyOut,
+    quotes,
+  } = useCrossChainSwap()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -33,11 +42,10 @@ function CrossChainSwap() {
           searchParams.set('from', chainId.toString())
           setSearchParams(searchParams)
         }}
-        value={inputAmount?.toExact() || ''}
+        value={amount}
         amountUsd={selectedQuote?.quote.inputUsd}
         onUserInput={value => {
-          searchParams.set('amount', value)
-          setSearchParams(searchParams)
+          setAmount(value)
         }}
         disabled={false}
         onSelectCurrency={currency => {
