@@ -31,7 +31,7 @@ import { usePairCategory } from 'state/swap/hooks'
 import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
-import { formattedNum, shortenAddress } from 'utils'
+import { formattedNum, isInSafeApp, shortenAddress } from 'utils'
 import { calculateFeeFromBuildData } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
@@ -336,14 +336,21 @@ export default function SwapDetails({
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
                 <MouseoverTooltip
                   text={
-                    <TooltipTextOfSwapFee
-                      feeAmountText={feeAmountWithSymbol}
-                      feeBips={routeSummary?.extraFee?.feeAmount}
-                    />
+                    isInSafeApp ? (
+                      <Text>
+                        Learn more about the Platform Fee{' '}
+                        <ExternalLink href="https://docs.kyberswap.com/">here ↗</ExternalLink>
+                      </Text>
+                    ) : (
+                      <TooltipTextOfSwapFee
+                        feeAmountText={feeAmountWithSymbol}
+                        feeBips={routeSummary?.extraFee?.feeAmount}
+                      />
+                    )
                   }
                   placement="right"
                 >
-                  <Trans>Est. Swap Fee</Trans>
+                  {isInSafeApp ? 'Platform Fee' : <Trans>Est. Swap Fee</Trans>}
                 </MouseoverTooltip>
               </TextDashed>
             </RowFixed>

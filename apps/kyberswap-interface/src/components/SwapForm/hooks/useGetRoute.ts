@@ -8,13 +8,22 @@ import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { AGGREGATOR_API } from 'constants/env'
-import { AGGREGATOR_API_PATHS, ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, SWAP_FEE_RECEIVER_ADDRESS } from 'constants/index'
+import {
+  SAFE_APP_CLIENT_ID,
+  SAFE_APP_FEE_RECEIVER_ADDRESS,
+  AGGREGATOR_API_PATHS,
+  ETHER_ADDRESS,
+  INPUT_DEBOUNCE_TIME,
+  SWAP_FEE_RECEIVER_ADDRESS,
+} from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { ChargeFeeBy } from 'types/route'
+import { isInSafeApp } from 'utils'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 export type ArgsGetRoute = {
   parsedAmount: CurrencyAmount<Currency> | undefined
@@ -130,6 +139,28 @@ const useGetRoute = (args: ArgsGetRoute) => {
     [trigger, clientId],
   )
 
+  const safeAppFeeConfig = useMemo(() => {
+    let chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+    if (currencyOut?.isNative) {
+      chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+    } else if (currencyIn instanceof WrappedTokenInfo && currencyOut instanceof WrappedTokenInfo) {
+      if (!currencyIn.isWhitelisted && currencyOut.isWhitelisted) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+      else if (currencyIn.cmcRank && currencyOut.cmcRank) {
+        if (currencyOut.cmcRank < currencyIn.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+      } else if (currencyIn.cgkRank && currencyOut.cgkRank) {
+        if (currencyOut.cgkRank < currencyIn.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+      }
+    }
+    return {
+      feeAmount: '10',
+      chargeFeeBy,
+      isInBps: '1',
+      feeReceiver: SAFE_APP_FEE_RECEIVER_ADDRESS,
+      enableTip: false,
+      clientId: SAFE_APP_CLIENT_ID,
+    }
+  }, [currencyIn, currencyOut])
+
   const fetcher = useCallback(async () => {
     const amountIn = parsedAmount?.quotient?.toString() || ''
 
@@ -141,7 +172,9 @@ const useGetRoute = (args: ArgsGetRoute) => {
     const tokenOutAddress = getRouteTokenAddressParam(currencyOut)
 
     const swapFeeConfig = await getSwapFeeConfig(chainId, tokenInAddress, tokenOutAddress)
-    const feeConfigParams = feeConfigFromUrl || getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
+    const feeConfigParams = isInSafeApp
+      ? safeAppFeeConfig
+      : feeConfigFromUrl || getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
 
     const params: GetRouteParams = {
       tokenIn: tokenInAddress,
@@ -171,6 +204,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
     return undefined
   }, [
+    safeAppFeeConfig,
     aggregatorDomain,
     chainId,
     currencyIn,

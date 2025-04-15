@@ -24,7 +24,7 @@ import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
-import { isSupportLimitOrder } from 'utils'
+import { isInSafeApp, isSupportLimitOrder } from 'utils'
 
 import VerifyAuth from './Verify/VerifyAuth'
 
@@ -179,9 +179,6 @@ export default function App() {
   const prevOnline = usePrevious(online)
   useSessionExpiredGlobal()
 
-  const ancestorOrigins = window.location.ancestorOrigins
-  const isSafeAppOrigin = !!ancestorOrigins?.[ancestorOrigins.length - 1]?.includes('app.safe.global')
-
   useEffect(() => {
     if (prevOnline === false && online && account) {
       // refresh page when network back to normal to prevent some issues: ex: stale data, ...
@@ -245,7 +242,7 @@ export default function App() {
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
               <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
-              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isSafeAppOrigin && (
+              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
                 <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
               )}
 
