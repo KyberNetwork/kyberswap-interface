@@ -141,15 +141,27 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
   const safeAppFeeConfig = useMemo(() => {
     let chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+
+    // Case 1: Output currency is native
     if (currencyOut?.isNative) {
       chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-    } else if (currencyIn instanceof WrappedTokenInfo && currencyOut instanceof WrappedTokenInfo) {
+    }
+
+    // Case 2: Both are wrapped tokens
+    else if (currencyIn instanceof WrappedTokenInfo && currencyOut instanceof WrappedTokenInfo) {
+      // Case 2.1: Whitelist check
       if (!currencyIn.isWhitelisted && currencyOut.isWhitelisted) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+      // Case 2.2: CMC rank comparison (highest priority)
       else if (currencyIn.cmcRank && currencyOut.cmcRank) {
         if (currencyOut.cmcRank < currencyIn.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-      } else if (currencyIn.cgkRank && currencyOut.cgkRank) {
+      }
+      // Case 2.3: CGK rank comparison (only if CMC rank isn't available for both)
+      else if (currencyIn.cgkRank && currencyOut.cgkRank) {
         if (currencyOut.cgkRank < currencyIn.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
       }
+
+      // Case 2.4: Output has rank but input doesn't
+      else if (currencyOut.cmcRank || currencyOut.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     }
     return {
       feeAmount: '10',
