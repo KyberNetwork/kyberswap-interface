@@ -57,6 +57,14 @@ export const SwapAction = () => {
       }
     }
 
+    if (!account)
+      return {
+        label: 'Connect Wallet',
+        onClick: () => {
+          toggleWalletModal()
+        },
+      }
+
     if (!balance || inputAmount.greaterThan(balance)) {
       return {
         label: 'Insufficient Balance',
@@ -70,14 +78,6 @@ export const SwapAction = () => {
         label: 'No route found',
         disabled: true,
         onClick: () => {},
-      }
-
-    if (!account)
-      return {
-        label: 'Connect Wallet',
-        onClick: () => {
-          toggleWalletModal()
-        },
       }
 
     if (chainId !== fromChainId) {

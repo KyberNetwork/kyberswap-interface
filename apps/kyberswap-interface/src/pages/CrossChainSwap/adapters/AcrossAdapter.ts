@@ -2,14 +2,13 @@ import { arbitrum, mainnet, optimism } from 'viem/chains'
 import {
   BaseSwapAdapter,
   Chain,
-  Token,
   QuoteParams,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
 } from './BaseSwapAdapter'
 import { createAcrossClient, AcrossClient } from '@across-protocol/app-sdk'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
 import { TOKEN_API_URL } from 'constants/env'
 import { Quote } from '../registry'
@@ -47,7 +46,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM]
   }
 
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Token[] {
+  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
     return []
   }
 
@@ -56,8 +55,8 @@ export class AcrossAdapter extends BaseSwapAdapter {
       route: {
         originChainId: +params.fromChain,
         destinationChainId: +params.toChain,
-        inputToken: params.fromToken.address as `0x${string}`,
-        outputToken: params.toToken.address as `0x${string}`,
+        inputToken: params.fromToken.wrapped.address as `0x${string}`,
+        outputToken: params.toToken.wrapped.address as `0x${string}`,
         isNative: params.fromToken.isNative,
       },
       inputAmount: params.amount,
@@ -72,12 +71,12 @@ export class AcrossAdapter extends BaseSwapAdapter {
     } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
       method: 'POST',
       body: JSON.stringify({
-        [params.fromChain]: [params.fromToken.address],
-        [params.toChain]: [params.toToken.address],
+        [params.fromChain]: [params.fromToken.wrapped.address],
+        [params.toChain]: [params.toToken.wrapped.address],
       }),
     }).then(r => r.json())
-    const tokenInUsd = r?.data?.[params.fromChain]?.[params.fromToken.address]?.PriceBuy || 0
-    const tokenOutUsd = r?.data?.[params.toChain]?.[params.toToken.address]?.PriceBuy || 0
+    const tokenInUsd = r?.data?.[params.fromChain]?.[params.fromToken.wrapped.address]?.PriceBuy || 0
+    const tokenOutUsd = r?.data?.[params.toChain]?.[params.toToken.wrapped.address]?.PriceBuy || 0
     const formattedOutputAmount = formatUnits(BigInt(resp.deposit.outputAmount), params.toToken.decimals)
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
     const inputUsd = tokenInUsd * +formattedInputAmount

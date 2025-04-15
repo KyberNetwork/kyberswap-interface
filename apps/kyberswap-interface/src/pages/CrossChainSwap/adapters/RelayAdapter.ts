@@ -1,8 +1,7 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import {
   BaseSwapAdapter,
   Chain,
-  Token,
   QuoteParams,
   NormalizedQuote,
   NormalizedTxResponse,
@@ -33,7 +32,7 @@ export class RelayAdapter extends BaseSwapAdapter {
     return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM]
   }
 
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Token[] {
+  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
     return []
   }
 
@@ -41,8 +40,8 @@ export class RelayAdapter extends BaseSwapAdapter {
     const resp = await getClient().actions.getQuote({
       chainId: +params.fromChain,
       toChainId: +params.toChain,
-      currency: params.fromToken.address,
-      toCurrency: params.toToken.address,
+      currency: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address,
+      toCurrency: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
       amount: params.amount,
       tradeType: 'EXACT_INPUT',
       wallet: params.walletClient,

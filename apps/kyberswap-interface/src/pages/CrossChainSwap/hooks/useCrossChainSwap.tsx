@@ -78,8 +78,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         .getQuotes({
           fromChain: fromChainId,
           toChain: toChainId,
-          fromToken: currencyIn.wrapped,
-          toToken: currencyOut.wrapped,
+          fromToken: currencyIn,
+          toToken: currencyOut,
           amount: inputAmount.quotient.toString(),
           walletClient: walletClient?.data,
         })
