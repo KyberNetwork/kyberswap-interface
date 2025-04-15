@@ -142,11 +142,14 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const safeAppFeeConfig = useMemo(() => {
     let chargeFeeBy = ChargeFeeBy.CURRENCY_IN
 
-    // Case 1: Output currency is native
-    if (currencyOut?.isNative) {
+    // case 0: Output is stable
+    if (currencyOut instanceof WrappedTokenInfo && currencyOut.isStable) {
       chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     }
-
+    // Case 1: Output currency is native
+    else if (currencyOut?.isNative) {
+      chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+    }
     // Case 2: Both are wrapped tokens
     else if (currencyIn instanceof WrappedTokenInfo && currencyOut instanceof WrappedTokenInfo) {
       // Case 2.1: Whitelist check
