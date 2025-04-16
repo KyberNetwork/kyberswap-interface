@@ -141,14 +141,20 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
   const safeAppFeeConfig = useMemo(() => {
     let chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+    const isCurrencyInStatble = currencyIn instanceof WrappedTokenInfo && currencyIn.isStable
+    const isCurrencyOutStatble = currencyOut instanceof WrappedTokenInfo && currencyOut.isStable
 
-    // case 0: Output is stable
-    if (currencyOut instanceof WrappedTokenInfo && currencyOut.isStable) {
-      chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+    // case 0: stable is highest priority
+    if (isCurrencyOutStatble) {
+      if (isCurrencyInStatble) {
+        if (currencyIn.cmcRank && currencyOut.cmcRank) {
+          if (currencyIn.cmcRank < currencyOut.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+        }
+      } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     }
     // Case 1: Output currency is native
     else if (currencyOut?.isNative) {
-      chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+      chargeFeeBy = ChargeFeeBy.CURRENCY_IN
     }
     // Case 2: Both are wrapped tokens
     else if (currencyIn instanceof WrappedTokenInfo && currencyOut instanceof WrappedTokenInfo) {
@@ -162,7 +168,6 @@ const useGetRoute = (args: ArgsGetRoute) => {
       else if (currencyIn.cgkRank && currencyOut.cgkRank) {
         if (currencyOut.cgkRank < currencyIn.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
       }
-
       // Case 2.4: Output has rank but input doesn't
       else if (currencyOut.cmcRank || currencyOut.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     }
