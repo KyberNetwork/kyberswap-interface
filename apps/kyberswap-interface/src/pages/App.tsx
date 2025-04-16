@@ -246,14 +246,18 @@ export default function App() {
           */}
 
           <BodyWrapper>
-            {isInSafeApp && !safeAppAcceptedTermOfUse && (
+            {!isInSafeApp && !safeAppAcceptedTermOfUse && (
               <Modal isOpen>
-                <Flex width="100%" padding="24px" flexDirection="column" sx={{ gap: '24px' }} alignItems="center">
+                <Flex width="100%" padding="32px 24px" flexDirection="column" sx={{ gap: '24px' }} alignItems="center">
                   <Text fontSize={16} lineHeight="24px" textAlign="center">
                     By clicking Continue, you accept the{' '}
                     <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                       KyberSwap&lsquo;s Terms of Use
                     </ExternalLink>{' '}
+                    and{' '}
+                    <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                      Privacy Policy
+                    </ExternalLink>
                   </Text>
                   <ButtonPrimary
                     onClick={() => {

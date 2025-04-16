@@ -149,6 +149,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
       if (isCurrencyInStatble) {
         if (currencyIn.cmcRank && currencyOut.cmcRank) {
           if (currencyIn.cmcRank < currencyOut.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+          else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
         }
       } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     }
