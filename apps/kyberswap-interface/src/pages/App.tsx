@@ -15,7 +15,7 @@ import Loader from 'components/LocalLoader'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
 import SupportButton from 'components/SupportButton'
-import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
+import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
@@ -27,6 +27,12 @@ import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
 
 import VerifyAuth from './Verify/VerifyAuth'
+import Modal from 'components/Modal'
+import { useAppDispatch, useAppSelector } from 'state/hooks'
+import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
+import { Flex, Text } from 'rebass'
+import { ExternalLink } from 'theme'
+import { ButtonPrimary } from 'components/Button'
 
 const Login = lazy(() => import('./Oauth/Login'))
 const Logout = lazy(() => import('./Oauth/Logout'))
@@ -213,6 +219,9 @@ export default function App() {
   const snowflake = new Image()
   snowflake.src = snow
 
+  const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
+  const dispatch = useAppDispatch()
+
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
@@ -237,6 +246,25 @@ export default function App() {
           */}
 
           <BodyWrapper>
+            {isInSafeApp && !safeAppAcceptedTermOfUse && (
+              <Modal isOpen>
+                <Flex width="100%" padding="24px" flexDirection="column" sx={{ gap: '24px' }} alignItems="center">
+                  <Text fontSize={16} lineHeight="24px" textAlign="center">
+                    By clicking Continue, you accept the{' '}
+                    <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+                      KyberSwap&lsquo;s Terms of Use
+                    </ExternalLink>{' '}
+                  </Text>
+                  <ButtonPrimary
+                    onClick={() => {
+                      dispatch(updateSafeAppAcceptedTermOfUse(true))
+                    }}
+                  >
+                    Continue
+                  </ButtonPrimary>
+                </Flex>
+              </Modal>
+            )}
             <Popups />
             <Routes>
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
