@@ -384,7 +384,7 @@ export default function SwapDetails({
                     </Flex>
                   )}
                   <TYPE.black color={theme.text} fontWeight={500} fontSize={12}>
-                    {feeAmountUsdFromBuild || feeAmountWithSymbol || '--'}
+                    {isInSafeApp ? '0.1%' : feeAmountUsdFromBuild || feeAmountWithSymbol || '--'}
                   </TYPE.black>
                 </Flex>
               }

@@ -137,7 +137,7 @@ const SwapFee: React.FC = () => {
 
       <RowFixed>
         <TYPE.black color={theme.text} fontSize={12}>
-          {feeAmountUsd || feeAmountWithSymbol || '--'}
+          {isInSafeApp ? '0.1%' : feeAmountUsd || feeAmountWithSymbol || '--'}
         </TYPE.black>
       </RowFixed>
     </RowBetween>
