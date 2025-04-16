@@ -155,7 +155,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     }
     // Case 1: Output currency is native
     else if (currencyOut?.isNative) {
-      chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+      chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     }
     // Case 2: Both are wrapped tokens
     else if (currencyIn instanceof WrappedTokenInfo && currencyOut instanceof WrappedTokenInfo) {
