@@ -141,21 +141,23 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
   const safeAppFeeConfig = useMemo(() => {
     let chargeFeeBy = ChargeFeeBy.CURRENCY_IN
-    const isCurrencyInStatble = currencyIn instanceof WrappedTokenInfo && currencyIn.isStable
-    const isCurrencyOutStatble = currencyOut instanceof WrappedTokenInfo && currencyOut.isStable
+    const isCurrencyInStable = currencyIn instanceof WrappedTokenInfo && currencyIn.isStable
+    const isCurrencyOutStable = currencyOut instanceof WrappedTokenInfo && currencyOut.isStable
 
     // case 0: stable is highest priority
-    if (isCurrencyOutStatble) {
-      if (isCurrencyInStatble) {
+    if (isCurrencyOutStable) {
+      if (isCurrencyInStable) {
         if (currencyIn.cmcRank && currencyOut.cmcRank) {
           if (currencyIn.cmcRank < currencyOut.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_IN
           else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
         }
       } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+    } else if (currencyIn?.isNative) {
+      chargeFeeBy = ChargeFeeBy.CURRENCY_IN
     }
     // Case 1: Output currency is native
     else if (currencyOut?.isNative) {
-      if (isCurrencyInStatble) {
+      if (isCurrencyInStable) {
         chargeFeeBy = ChargeFeeBy.CURRENCY_IN
       } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     } else if (currencyOut instanceof WrappedTokenInfo) {
