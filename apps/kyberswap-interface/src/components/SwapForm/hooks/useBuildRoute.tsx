@@ -7,12 +7,12 @@ import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRou
 import { RouteSummary } from 'services/route/types/getRoute'
 
 import { useRouteApiDomain } from 'components/SwapForm/hooks/useGetRoute'
-import { AGGREGATOR_API_PATHS } from 'constants/index'
+import { AGGREGATOR_API_PATHS, SAFE_APP_CLIENT_ID } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
-import { getCookieValue } from 'utils'
+import { getCookieValue, isInSafeApp } from 'utils'
 
 export type BuildRouteResult =
   | {
@@ -37,7 +37,7 @@ type Args = {
 const useBuildRoute = (args: Args) => {
   const { recipient, routeSummary, slippage, transactionTimeout, permit, currencyIn, currencyOut } = args
   const [searchParams] = useSearchParams()
-  const clientId = searchParams.get('clientId')
+  const clientId = isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId')
   const { chainId, account } = useActiveWeb3React()
   const abortControllerRef = useRef(new AbortController())
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
