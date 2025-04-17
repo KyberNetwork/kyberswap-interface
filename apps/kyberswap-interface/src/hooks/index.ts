@@ -13,6 +13,9 @@ import { useAccount } from 'hooks/useAccount'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useEthersProvider } from 'hooks/useEthersProvider'
 import store, { AppState } from 'state'
+import { useIsAcceptedTerm } from 'state/user/hooks'
+import useDisconnectWallet from './web3/useDisconnectWallet'
+import { isInSafeApp } from 'utils'
 
 export function useActiveWeb3React(): {
   chainId: ChainId
@@ -52,6 +55,7 @@ export function useWeb3React() {
   const provider = useEthersProvider({ chainId: account.chainId })
 
   const latestChainIdRef = useRef(account.chainId)
+  const [isAcceptedTerm] = useIsAcceptedTerm()
 
   useEffect(() => {
     latestChainIdRef.current = account.chainId
@@ -92,6 +96,14 @@ export function useWeb3React() {
         : provider,
     [account.chainId, account.address, kyberChainId, provider],
   )
+
+  const disconnect = useDisconnectWallet()
+  useEffect(() => {
+    // disconnect if the user is not accepted terms, dont apply to safe app
+    if (account.connector && !isAcceptedTerm && !isInSafeApp) {
+      disconnect()
+    }
+  }, [isAcceptedTerm, account.connector, disconnect])
 
   return useMemo(
     () => ({
