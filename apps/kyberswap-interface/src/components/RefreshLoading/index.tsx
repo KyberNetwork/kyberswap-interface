@@ -61,6 +61,10 @@ export default function RefreshLoading({
     }
   }, [countdown, onRefresh, disableRefresh])
 
+  useEffect(() => {
+    onRefresh()
+  }, [onRefresh])
+
   return (
     <SpinWrapper role="button" onClick={handleManualRefresh} clickable={clickable}>
       <Spin countdown={countdown} refreshTime={refreshTime} disableRefresh={disableRefresh} />
