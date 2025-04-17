@@ -7,9 +7,6 @@ import { rgba } from 'polished'
 import { LimitOrderTab } from '../type'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 import { useActiveWeb3React } from 'hooks'
-import { useSearchParams } from 'react-router-dom'
-import { SUPPORTED_NETWORKS } from 'constants/networks'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { MouseoverTooltip } from 'components/Tooltip'
 
 const TabSelectorWrapper = styled.div`
@@ -54,14 +51,9 @@ export default function TabSelector({
   activeTab: LimitOrderTab
   setActiveTab: (n: LimitOrderTab) => void
 }) {
-  const [searchParams] = useSearchParams()
-  const chainIdFromParam = searchParams.get('chainId')
-  const customChainId =
-    chainIdFromParam && SUPPORTED_NETWORKS.includes(+chainIdFromParam) ? +chainIdFromParam : ChainId.MAINNET
-
-  const { chainId: walletChainId, account } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const { data: numberOfInsufficientFundOrders } = useGetNumberOfInsufficientFundOrdersQuery(
-    { chainId: customChainId || walletChainId, maker: account || '' },
+    { chainId, maker: account || '' },
     { skip: !account, pollingInterval: 10_000 },
   )
 
