@@ -339,7 +339,9 @@ export default function SwapDetails({
                     isInSafeApp ? (
                       <Text>
                         Learn more about the Platform Fee{' '}
-                        <ExternalLink href="https://docs.kyberswap.com/">here ↗</ExternalLink>
+                        <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-widget/widget-iframe-fee">
+                          here ↗
+                        </ExternalLink>
                       </Text>
                     ) : (
                       <TooltipTextOfSwapFee
