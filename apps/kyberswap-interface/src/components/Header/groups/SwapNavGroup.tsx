@@ -18,7 +18,7 @@ import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 //import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { isSupportLimitOrder } from 'utils'
+import { isSupportLimitOrder, isInSafeApp } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
@@ -58,9 +58,6 @@ const SwapNavGroup = () => {
   const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.BRIDGE, APP_PATHS.LIMIT].some(path =>
     pathname.startsWith(path),
   )
-
-  const ancestorOrigins = window.location.ancestorOrigins
-  const isSafeAppOrigin = !!ancestorOrigins?.[ancestorOrigins.length - 1]?.includes('app.safe.global')
 
   return (
     <NavGroup
@@ -104,7 +101,7 @@ const SwapNavGroup = () => {
             </StyledNavLink>
           )}
 
-          {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isSafeAppOrigin && (
+          {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
             <StyledNavLink
               id="cross-chain-nav-link"
               to={APP_PATHS.CROSS_CHAIN}
