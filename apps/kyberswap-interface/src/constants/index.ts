@@ -189,10 +189,10 @@ export const APP_PATHS = {
 } as const
 
 export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/Kyber - Terms of Use - 20 November 2023.pdf',
+  KYBERSWAP_TERMS: '/files/Kyber - Terms of Use - 17 April 2025.pdf',
   PRIVACY_POLICY: '/files/Kyber - Privacy Policy - 20 November 2023.pdf',
   // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1700438400000,
+  VERSION: 1744873065000,
 }
 
 export enum FARM_TAB {
@@ -355,3 +355,6 @@ export enum SORT_DIRECTION {
 export const ClientNameMapping: { [key: string]: string } = {
   dexscreener: 'DEX Screener',
 }
+
+export const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x55602F3057be52BFB6F98fFE799CFDec58Af5130'
+export const SAFE_APP_CLIENT_ID = 'app.safe.global'

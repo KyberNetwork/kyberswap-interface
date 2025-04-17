@@ -15,7 +15,7 @@ import Loader from 'components/LocalLoader'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
 import SupportButton from 'components/SupportButton'
-import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
+import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
@@ -24,9 +24,15 @@ import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
-import { isSupportLimitOrder } from 'utils'
+import { isInSafeApp, isSupportLimitOrder } from 'utils'
 
 import VerifyAuth from './Verify/VerifyAuth'
+import Modal from 'components/Modal'
+import { useAppDispatch, useAppSelector } from 'state/hooks'
+import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
+import { Flex, Text } from 'rebass'
+import { ExternalLink } from 'theme'
+import { ButtonPrimary } from 'components/Button'
 
 const Login = lazy(() => import('./Oauth/Login'))
 const Logout = lazy(() => import('./Oauth/Logout'))
@@ -179,9 +185,6 @@ export default function App() {
   const prevOnline = usePrevious(online)
   useSessionExpiredGlobal()
 
-  const ancestorOrigins = window.location.ancestorOrigins
-  const isSafeAppOrigin = !!ancestorOrigins?.[ancestorOrigins.length - 1]?.includes('app.safe.global')
-
   useEffect(() => {
     if (prevOnline === false && online && account) {
       // refresh page when network back to normal to prevent some issues: ex: stale data, ...
@@ -216,6 +219,9 @@ export default function App() {
   const snowflake = new Image()
   snowflake.src = snow
 
+  const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
+  const dispatch = useAppDispatch()
+
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
@@ -240,12 +246,35 @@ export default function App() {
           */}
 
           <BodyWrapper>
+            {isInSafeApp && !safeAppAcceptedTermOfUse && (
+              <Modal isOpen>
+                <Flex width="100%" padding="32px 24px" flexDirection="column" sx={{ gap: '24px' }} alignItems="center">
+                  <Text fontSize={16} lineHeight="24px" textAlign="center">
+                    By clicking Continue, you accept the{' '}
+                    <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+                      KyberSwap&lsquo;s Terms of Use
+                    </ExternalLink>{' '}
+                    and{' '}
+                    <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                      Privacy Policy
+                    </ExternalLink>
+                  </Text>
+                  <ButtonPrimary
+                    onClick={() => {
+                      dispatch(updateSafeAppAcceptedTermOfUse(true))
+                    }}
+                  >
+                    Continue
+                  </ButtonPrimary>
+                </Flex>
+              </Modal>
+            )}
             <Popups />
             <Routes>
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
               <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
-              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isSafeAppOrigin && (
+              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
                 <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
               )}
 

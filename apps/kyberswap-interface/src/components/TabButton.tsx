@@ -44,7 +44,7 @@ const ButtonWrapper = styled.div<{ active?: boolean; separator?: boolean }>`
 `
 
 type Props = {
-  text?: string
+  text?: string | React.ReactNode
   active?: boolean
   onClick?: () => void
   style?: CSSProperties

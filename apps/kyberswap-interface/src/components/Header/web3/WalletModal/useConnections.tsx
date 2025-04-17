@@ -3,6 +3,7 @@ import { isMobile } from 'react-device-detect'
 import { Connector, useConnect } from 'wagmi'
 
 import { CONNECTION, HardCodedConnectors, getConnectorWithId } from 'components/Web3Provider'
+import { isInSafeApp } from 'utils'
 
 function getInjectedConnectors(connectors: readonly Connector[]) {
   let isCoinbaseWalletBrowser = false
@@ -37,6 +38,8 @@ export function useOrderedConnections(): InjectableConnector[] {
 
     const coinbaseSdkConnector = getConnectorWithId(connectors, CONNECTION.COINBASE_SDK_CONNECTOR_ID)
     const walletConnectConnector = getConnectorWithId(connectors, CONNECTION.WALLET_CONNECT_CONNECTOR_ID)
+    const safeConnector = getConnectorWithId(connectors, CONNECTION.SAFE_CONNECTOR_ID)
+    if (isInSafeApp && safeConnector) return [safeConnector]
 
     const hardcodedInjectedIds = HardCodedConnectors.map(c => c.id)
 
