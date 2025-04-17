@@ -4,6 +4,8 @@ import useDebounce from 'hooks/useDebounce'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import { CountDown, SpinWrapper, WrappedSvg } from './styles'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { t } from '@lingui/macro'
 
 const INTERVAL_REFETCH_TIME = 10 // seconds
 const MIN_REFRESH_TIME = 2 // seconds
@@ -67,9 +69,13 @@ export default function RefreshLoading({
 
   return (
     <SpinWrapper role="button" onClick={handleManualRefresh} clickable={clickable}>
-      <Spin countdown={countdown} refreshTime={refreshTime} disableRefresh={disableRefresh} />
+      <MouseoverTooltip text={clickable ? t`Click to refresh, occur once per second.` : null} placement="top">
+        <>
+          <Spin countdown={countdown} refreshTime={refreshTime} disableRefresh={disableRefresh} />
 
-      {countdown > 0 && !disableRefresh && <CountDown>{(countdown / 1_000).toFixed()}</CountDown>}
+          {countdown > 0 && !disableRefresh && <CountDown>{(countdown / 1_000).toFixed()}</CountDown>}
+        </>
+      </MouseoverTooltip>
     </SpinWrapper>
   )
 }
