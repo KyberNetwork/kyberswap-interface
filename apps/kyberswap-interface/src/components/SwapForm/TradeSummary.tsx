@@ -19,7 +19,7 @@ import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
-import RefreshButton from './RefreshButton'
+import RefreshLoading from 'components/RefreshLoading'
 
 type WrapperProps = {
   $visible: boolean
@@ -150,9 +150,10 @@ type Props = {
   routeSummary: DetailedRouteSummary | undefined
   slippage: number
   disableRefresh: boolean
+  routeLoading: boolean
   refreshCallback: () => void
 }
-const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback }) => {
+const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback, routeLoading }) => {
   const theme = useTheme()
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact } = routeSummary || {}
@@ -193,7 +194,12 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh,
           </Text>
 
           <Flex alignItems="center" sx={{ gap: '4px' }}>
-            <RefreshButton shouldDisable={disableRefresh} callback={refreshCallback} size={16} />
+            <RefreshLoading
+              refetchLoading={routeLoading}
+              onRefresh={refreshCallback}
+              disableRefresh={disableRefresh}
+              clickable
+            />
             <TradePrice price={routeSummary?.executionPrice} color={theme.text} />
           </Flex>
         </RowBetween>
