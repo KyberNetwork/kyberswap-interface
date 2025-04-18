@@ -19,6 +19,7 @@ import {
   sonic,
   zksync,
   ronin,
+  unichain,
 } from 'viem/chains'
 import { Connector, WagmiProvider, createConfig, createConnector, useConnect } from 'wagmi'
 import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
@@ -205,6 +206,7 @@ export const wagmiConfig = createConfig({
     sonic,
     berachain,
     ronin,
+    unichain,
   ],
   connectors: [
     injectedWithFallback(),

@@ -21,6 +21,7 @@ import {
   ronin,
   scroll,
   sonic,
+  unichain,
   zksync,
 } from './networks/index'
 import { NetworkInfo } from './networks/type'
@@ -48,6 +49,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.SONIC]: sonic,
   [ChainId.BERA]: bera,
   [ChainId.RONIN]: ronin,
+  [ChainId.UNICHAIN]: unichain,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -78,6 +80,7 @@ export const MAINNET_NETWORKS = [
   ChainId.SONIC,
   ChainId.BERA,
   ChainId.RONIN,
+  ChainId.UNICHAIN,
 ] as const
 
 // These option of walletconnect is not support by wallets properly
