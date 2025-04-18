@@ -19,9 +19,16 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
     return c.type === CONNECTION.INJECTED_CONNECTOR_TYPE && c.id !== CONNECTION.INJECTED_CONNECTOR_ID
   })
 
+  const hardcodedInjectedIds = HardCodedConnectors.map(c => c.id)
+  const realInjectedConnectors = injectedConnectors.filter(c => !hardcodedInjectedIds.includes(c.id))
+
   // Special-case: Return deprecated window.ethereum connector when no eip6963 injectors are present.
-  const fallbackInjector = getConnectorWithId(connectors, CONNECTION.INJECTED_CONNECTOR_ID, { shouldThrow: true })
-  if (!injectedConnectors.length && Boolean(window.ethereum)) {
+  const fallbackInjector = getConnectorWithId(
+    connectors.filter(c => !hardcodedInjectedIds.includes(c.id)),
+    CONNECTION.INJECTED_CONNECTOR_ID,
+    { shouldThrow: true },
+  )
+  if (!realInjectedConnectors.length && Boolean(window.ethereum)) {
     return { injectedConnectors: [fallbackInjector], isCoinbaseWalletBrowser }
   }
 
