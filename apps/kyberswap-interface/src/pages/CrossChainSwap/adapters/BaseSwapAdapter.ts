@@ -10,6 +10,7 @@ export interface QuoteParams {
   fromToken: Currency
   toToken: Currency
   amount: string
+  slippage: number
   walletClient?: WalletClient
 }
 

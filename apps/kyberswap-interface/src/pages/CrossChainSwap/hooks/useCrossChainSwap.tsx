@@ -9,6 +9,7 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'viem'
 import { useWalletClient } from 'wagmi'
 import useDebounce from 'hooks/useDebounce'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -65,6 +66,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
   const walletClient = useWalletClient()
+  const [slippage] = useUserSlippageTolerance()
 
   useEffect(() => {
     if (!fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount) {
@@ -81,6 +83,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           fromToken: currencyIn,
           toToken: currencyOut,
           amount: inputAmount.quotient.toString(),
+          slippage,
           walletClient: walletClient?.data,
         })
         .catch(e => {
@@ -91,7 +94,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       setSelectedQuote(q[0] || null)
       setLoading(false)
     })()
-  }, [fromChainId, toChainId, currencyIn, currencyOut, inputAmount, walletClient?.data])
+  }, [fromChainId, toChainId, currencyIn, currencyOut, inputAmount, walletClient?.data, slippage])
 
   return (
     <RegistryContext.Provider

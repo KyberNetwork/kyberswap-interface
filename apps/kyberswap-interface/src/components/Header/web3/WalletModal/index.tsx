@@ -28,6 +28,7 @@ import { ExternalLink } from 'theme'
 
 import Option from './Option'
 import { useOrderedConnections } from './useConnections'
+import { useNEARWallet } from 'components/Web3Provider/NearProvider'
 
 const CloseIcon = styled.div`
   height: 24px;
@@ -133,6 +134,9 @@ export default function WalletModal() {
 
   const [isPinnedPopupWallet, setPinnedPopupWallet] = useState(false)
 
+  const { connect, accounts } = useNEARWallet()
+  console.log(accounts)
+
   function getModalContent() {
     return (
       <UpperSection>
@@ -153,6 +157,7 @@ export default function WalletModal() {
           <CloseIcon
             onClick={() => {
               reset()
+              connect()
               toggleWalletModal()
             }}
           >
