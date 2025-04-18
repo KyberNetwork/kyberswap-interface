@@ -109,9 +109,6 @@ export function useNftApproval({
 
   useEffect(() => {
     if (!spender || !account || !nftId || !sourcePoolAddress) return;
-    // const methodSignature = getFunctionSelector("getApproved(uint256)"); // getApproved(uint256)
-    // const encodedTokenId = nftId?.toString(16).padStart(64, "0");
-    // const data = "0x" + methodSignature + encodedTokenId;
 
     const encodedSpenderAddress = spender.slice(2).padStart(64, "0");
     let data;

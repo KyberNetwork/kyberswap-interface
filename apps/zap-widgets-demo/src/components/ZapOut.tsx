@@ -38,9 +38,10 @@ const ZapOut = () => {
     poolType: PoolType;
   }>({
     chainId: ChainId.Base.toString(),
-    positionId: "2277276",
-    poolAddress: "0xc9034c3e7f58003e6ae0c8438e7c8f4598d5acaa",
-    poolType: PoolType.DEX_UNISWAPV3,
+    positionId: "35636",
+    poolAddress:
+      "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
+    poolType: PoolType.DEX_UNISWAP_V4,
   });
 
   const widgetProps = {
@@ -155,8 +156,12 @@ const ZapOut = () => {
                     id={`${index + 1}`}
                   />
                   <Label className="text-xs" htmlFor={`${index + 1}`}>
-                    {key in dexMapping
-                      ? dexMapping[key as keyof typeof dexMapping]
+                    {PoolType[key as keyof typeof PoolType] in dexMapping
+                      ? dexMapping[
+                          PoolType[
+                            key as keyof typeof PoolType
+                          ] as keyof typeof dexMapping
+                        ]
                       : PoolType[key as keyof typeof PoolType]}
                   </Label>
                 </div>

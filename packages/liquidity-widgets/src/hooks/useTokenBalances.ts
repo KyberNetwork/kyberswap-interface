@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChainId, NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
 import { getFunctionSelector } from "@kyber/utils/crypto";
+import { ChainId } from "@/schema";
 
 function encodeBytes(data: string) {
   const length = data.length / 2; // Hex string length divided by 2 for bytes
@@ -133,7 +134,7 @@ const useTokenBalances = (
   tokenAddresses: string[],
   account?: string
 ) => {
-  const { defaultRpc: rpcUrl, multiCall } = NetworkInfo[chainId];
+  const { defaultRpc: rpcUrl, multiCall } = NETWORKS_INFO[chainId];
 
   const [balances, setBalances] = useState<{ [address: string]: bigint }>({});
   const [loading, setLoading] = useState(false);

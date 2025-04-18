@@ -41,18 +41,20 @@ const ZapMigration = () => {
     to: {
       dex: Dex;
       poolId: string;
-      positionId?: number;
+      positionId: number | string | undefined;
     };
   }>({
     chainId: ChainId.Base.toString(),
     from: {
-      dex: Dex.DEX_UNISWAPV3,
-      poolId: "0xc9034c3e7f58003e6ae0c8438e7c8f4598d5acaa",
-      positionId: 2275270,
+      dex: Dex.DEX_UNISWAP_V4,
+      poolId:
+        "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
+      positionId: 35636,
     },
     to: {
       dex: Dex.DEX_UNISWAPV3,
       poolId: "0xd364eb55e17700b54bd75feb3f14582ed7a29444",
+      positionId: undefined,
     },
   });
 
@@ -215,6 +217,25 @@ const ZapMigration = () => {
                     setParams((p) => ({
                       ...p,
                       to: { ...p.to, poolId: e.target.value },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label
+                  htmlFor="to-position-id"
+                  className="text-xs text-[#ffffff66]"
+                >
+                  Position Id
+                </Label>
+                <Input
+                  id="to-position-id"
+                  placeholder="Position Id"
+                  value={params.to.positionId}
+                  onChange={(e) =>
+                    setParams((p) => ({
+                      ...p,
+                      to: { ...p.to, positionId: e.target.value },
                     }))
                   }
                 />

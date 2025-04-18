@@ -57,6 +57,8 @@ const dexMapping: Record<Dex, string[]> = {
 
   [Dex.DEX_UNISWAPV2]: ["uniswap"],
   [Dex.DEX_SQUADSWAP_V2]: ["squadswap"],
+
+  [Dex.DEX_UNISWAP_V4]: ["uniswap-v4"],
 } as const;
 
 const poolResponse = z.object({

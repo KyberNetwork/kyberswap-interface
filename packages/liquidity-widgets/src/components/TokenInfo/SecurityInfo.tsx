@@ -1,6 +1,6 @@
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { useMemo } from "react";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
 import IconSecurity from "@/assets/svg/security.svg";
 import LogoGoPlus from "@/assets/svg/goplus.svg";
 import useSecurityTokenInfo from "@/components/TokenInfo/useSecurityTokenInfo";
@@ -17,7 +17,7 @@ const SecurityInfo = ({ token }: { token: Token }) => {
     () =>
       (token?.address
         ? token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NetworkInfo[chainId].wrappedToken.address
+          ? NETWORKS_INFO[chainId].wrappedToken.address
           : token.address
         : ""
       ).toLowerCase(),

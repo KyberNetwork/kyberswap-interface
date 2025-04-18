@@ -1,6 +1,13 @@
-import { DexInfos, NetworkInfo, ZERO_ADDRESS } from "../constants";
+import {
+  DexInfos,
+  FARMING_CONTRACTS,
+  NetworkInfo,
+  ZERO_ADDRESS,
+} from "../constants";
 import { useNftApproval } from "../hooks/use-nft-approval";
-import { ChainId, Token, univ2Dexes } from "../schema";
+import { useTargetNftApproval } from "../hooks/use-target-nft-approval";
+import usePositionOwner from "../hooks/usePositionOwner";
+import { ChainId, Token, univ2Dexes, univ4Dexes } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { usePositionStore } from "../stores/usePositionStore";
 import { RefundAction, useZapStateStore } from "../stores/useZapStateStore";
@@ -39,7 +46,7 @@ export function Action({
   client: string;
 }) {
   const { pools } = usePoolsStore();
-  const { fromPosition: position } = usePositionStore();
+  const { fromPosition: position, toPosition: position1 } = usePositionStore();
 
   const {
     toggleSetting,
@@ -54,11 +61,49 @@ export function Action({
     degenMode,
   } = useZapStateStore();
 
+  const dex0 = pools !== "loading" ? pools[0].dex : undefined;
+  const dex1 = pools !== "loading" ? pools[1].dex : undefined;
+
+  const { positionOwner, positionOwner1 } = usePositionOwner({
+    positionId0: position === "loading" ? undefined : position?.id.toString(),
+    chainId,
+    dex0,
+    positionId1:
+      position1 === "loading" ? undefined : position1?.id?.toString(),
+    dex1,
+  });
+
+  const isToUniv4 = pools !== "loading" && univ4Dexes.includes(pools[1].dex);
+
+  const fromIsNotOwner = Boolean(
+    positionOwner &&
+      connectedAccount.address &&
+      positionOwner.toLowerCase() !== connectedAccount.address.toLowerCase()
+  );
+
+  const toIsNotOwner = Boolean(
+    isToUniv4 &&
+      positionOwner1 &&
+      connectedAccount.address &&
+      positionOwner1.toLowerCase() !== connectedAccount.address.toLowerCase()
+  );
+
+  const fromIsFarming =
+    fromIsNotOwner &&
+    positionOwner &&
+    dex0 &&
+    FARMING_CONTRACTS[dex0]?.[chainId] &&
+    positionOwner.toLowerCase() ===
+      FARMING_CONTRACTS[dex0]?.[chainId]?.toLowerCase();
+
   const isTargetUniv2 =
     pools !== "loading" && univ2Dexes.includes(pools[1].dex);
 
   const nftManager =
     pools === "loading" ? undefined : DexInfos[pools[0].dex].nftManagerContract;
+
+  const targetNftManager =
+    pools === "loading" ? undefined : DexInfos[pools[1].dex].nftManagerContract;
 
   const {
     isChecking,
@@ -78,6 +123,25 @@ export function Action({
     onSubmitTx,
   });
   const isApproved = approved && !isChecking;
+
+  const {
+    isChecking: isTargetNftChecking,
+    isApproved: targetNftApproved,
+    approve: targetNftApprove,
+    pendingTx: targetNftPendingTx,
+  } = useTargetNftApproval({
+    rpcUrl: NetworkInfo[chainId].defaultRpc,
+    nftManagerContract: targetNftManager
+      ? typeof targetNftManager === "string"
+        ? targetNftManager
+        : targetNftManager[chainId]
+      : undefined,
+    nftId: position1 === "loading" || !position1 ? undefined : +position1.id,
+    spender: route?.routerAddress,
+    account: connectedAccount.address,
+    onSubmitTx,
+  });
+  const isTargetNftApproved = targetNftApproved && !isTargetNftChecking;
 
   const debounceLiquidityOut = useDebounce(liquidityOut, 500);
   const debouncedTickUpper = useDebounce(tickUpper, 500);
@@ -120,22 +184,45 @@ export function Action({
   } else if (route === null) btnText = "No Route Found";
   else if (!connectedAccount.address) btnText = "Connect Wallet";
   else if (connectedAccount.chainId !== chainId) btnText = "Switch Network";
-  else if (isChecking) btnText = "Checking Allowance";
-  else if (pendingTx || clickedApprove) btnText = "Approving...";
-  else if (!isApproved) btnText = "Approve";
+  else if (fromIsNotOwner) {
+    if (fromIsFarming) btnText = "Your position is in farming";
+    else btnText = "You are not the owner of this position";
+  } else if (isToUniv4 && toIsNotOwner)
+    btnText = "You are not the owner of this position";
+  else if (isChecking || (isToUniv4 && position1 && isTargetNftChecking))
+    btnText = "Checking Allowance";
+  else if (
+    pendingTx ||
+    clickedApprove ||
+    (isToUniv4 && position1 && targetNftPendingTx)
+  )
+    btnText = "Approving...";
+  else if (!isApproved) btnText = "Approve source position";
+  else if (
+    isToUniv4 &&
+    position1 !== "loading" &&
+    position1 &&
+    !isTargetNftApproved
+  )
+    btnText = "Approve target position";
   else if (pi.piVeryHigh) btnText = "Zap anyway";
   else if (!route) btnText = "No Route Found";
   else btnText = "Preview";
 
-  const disableBtn =
+  const disableBtn = Boolean(
     fetchingRoute ||
-    route === null ||
-    liquidityOut === 0n ||
-    (!isTargetUniv2 &&
-      (tickLower === null || tickUpper === null || tickLower >= tickUpper)) ||
-    isChecking ||
-    !!pendingTx ||
-    clickedApprove;
+      route === null ||
+      liquidityOut === 0n ||
+      (!isTargetUniv2 &&
+        (tickLower === null || tickUpper === null || tickLower >= tickUpper)) ||
+      fromIsNotOwner ||
+      (isToUniv4 && toIsNotOwner) ||
+      isChecking ||
+      (isToUniv4 && position1 && isTargetNftChecking) ||
+      !!pendingTx ||
+      (isToUniv4 && position1 && targetNftPendingTx) ||
+      clickedApprove
+  );
 
   const handleClick = async () => {
     if (!connectedAccount.address) onConnectWallet();
@@ -143,6 +230,14 @@ export function Action({
     else if (!isApproved) {
       setClickedApprove(true);
       await approve().finally(() => setClickedApprove(false));
+    } else if (
+      isToUniv4 &&
+      position1 !== "loading" &&
+      position1 &&
+      !isTargetNftApproved
+    ) {
+      setClickedApprove(true);
+      await targetNftApprove().finally(() => setClickedApprove(false));
     } else if (pi.piVeryHigh && !degenMode) {
       toggleSetting(true);
       document

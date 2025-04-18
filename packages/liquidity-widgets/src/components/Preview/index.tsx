@@ -16,7 +16,13 @@ import {
   AggregatorSwapAction,
   PoolSwapAction,
 } from "@/hooks/types/zapInTypes";
-import { DexInfos, NetworkInfo, PATHS, chainIdToChain } from "@/constants";
+import {
+  DEXES_INFO,
+  NETWORKS_INFO,
+  PATHS,
+  CHAIN_ID_TO_CHAIN,
+  NATIVE_TOKEN_ADDRESS,
+} from "@/constants";
 import {
   PI_LEVEL,
   formatCurrency,
@@ -127,7 +133,7 @@ export default function Preview({
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        isTransactionSuccessful(NetworkInfo[chainId].defaultRpc, txHash).then(
+        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(
           (res) => {
             if (!res) return;
 
@@ -289,7 +295,13 @@ export default function Preview({
       ...tokensIn,
       pool.token0,
       pool.token1,
-      NetworkInfo[chainId].wrappedToken,
+      NETWORKS_INFO[chainId].wrappedToken,
+      {
+        name: "ETH",
+        address: NATIVE_TOKEN_ADDRESS,
+        symbol: "ETH",
+        decimals: 18,
+      },
     ];
 
     const parsedAggregatorSwapInfo =
@@ -396,19 +408,22 @@ export default function Preview({
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
 
-  const rpcUrl = NetworkInfo[chainId].defaultRpc;
+  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
   useEffect(() => {
-    fetch(`${PATHS.ZAP_API}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
-      method: "POST",
-      body: JSON.stringify({
-        sender: account,
-        recipient: account,
-        route: zapInfo.route,
-        deadline,
-        source,
-      }),
-    })
+    fetch(
+      `${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          sender: account,
+          recipient: account,
+          route: zapInfo.route,
+          deadline,
+          source,
+        }),
+      }
+    )
       .then((res) => res.json())
       .then(async (res) => {
         const { data } = res || {};
@@ -422,7 +437,7 @@ export default function Preview({
 
           try {
             const wethAddress =
-              NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+              NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
             const [gasEstimation, nativeTokenPrice, gasPrice] =
               await Promise.all([
                 estimateGas(rpcUrl, txData),
@@ -448,26 +463,29 @@ export default function Preview({
   }, [account, chainId, deadline, fetchPrices, rpcUrl, source, zapInfo.route]);
 
   const dexName =
-    typeof DexInfos[poolType].name === "string"
-      ? DexInfos[poolType].name
-      : DexInfos[poolType].name[chainId];
+    typeof DEXES_INFO[poolType].name === "string"
+      ? DEXES_INFO[poolType].name
+      : DEXES_INFO[poolType].name[chainId];
 
   const handleClick = async () => {
     setAttempTx(true);
     setTxHash("");
     setTxError(null);
 
-    fetch(`${PATHS.ZAP_API}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
-      method: "POST",
-      body: JSON.stringify({
-        sender: account,
-        recipient: account,
-        route: zapInfo.route,
-        deadline,
-        source,
-        referral,
-      }),
-    })
+    fetch(
+      `${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          sender: account,
+          recipient: account,
+          route: zapInfo.route,
+          deadline,
+          source,
+          referral,
+        }),
+      }
+    )
       .then((res) => res.json())
       .then(async (res) => {
         const { data } = res || {};
@@ -536,7 +554,7 @@ export default function Preview({
         {txHash && (
           <a
             className="flex justify-end items-center text-accent text-sm gap-1"
-            href={`${NetworkInfo[chainId].scanLink}/tx/${txHash}`}
+            href={`${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}`}
             target="_blank"
             rel="noopener norefferer"
           >
@@ -637,7 +655,7 @@ export default function Preview({
 
           <img
             className="rounded-full border-2 border-layer1 absolute bottom-0 -right-1"
-            src={NetworkInfo[chainId].logo}
+            src={NETWORKS_INFO[chainId].logo}
             width="18px"
             height="18px"
             onError={({ currentTarget }) => {
@@ -651,7 +669,7 @@ export default function Preview({
           <div className="flex items-center gap-2">
             {pool.token0.symbol}/{pool.token1.symbol}
           </div>
-          <div className="flex items-center gap-1 mt-[2px]">
+          <div className="flex flex-wrap items-center gap-1 mt-[2px]">
             <div className="rounded-full text-xs leading-5 bg-layer2 px-2 py-0 h-max text-text flex items-center gap-1 brightness-75">
               Fee {pool.fee}%
             </div>

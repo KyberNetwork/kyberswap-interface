@@ -417,7 +417,34 @@ export const DexInfos: Record<Dex, DexInfo> = {
     name: "Squad Swap V2",
     nftManagerContract: {},
   },
+  [Dex.DEX_UNISWAP_V4]: {
+    icon: uniLogo,
+    name: "Uniswap V4",
+    nftManagerContract: {
+      [ChainId.Ethereum]: "0xbd216513d74c8cf14cf4747e6aaa6420ff64ee9e",
+      [ChainId.Bsc]: "0x7a4a5c919ae2541aed11041a1aeee68f1287f95b",
+      [ChainId.PolygonPos]: "0x1ec2ebf4f37e7363fdfe3551602425af0b3ceef9",
+      [ChainId.Arbitrum]: "0xd88f38f930b7952f2db2432cb002e7abbf3dd869",
+      [ChainId.Avalanche]: "0xb74b1f14d2754acfcbbe1a221023a5cf50ab8acd",
+      [ChainId.Base]: "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      [ChainId.Blast]: "0x4ad2f4cca2682cbb5b950d660dd458a1d3f1baad",
+      [ChainId.Optimism]: "0x3c3ea4b57a46241e54610e5f022e5c45859a1017",
+    },
+  },
 };
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";
-//export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
+// export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
+
+export const FARMING_CONTRACTS: Partial<
+  Record<Dex, Partial<Record<ChainId, string>>>
+> = {
+  [Dex.DEX_PANCAKESWAPV3]: {
+    [ChainId.Ethereum]: "0x556B9306565093C855AEA9AE92A594704c2Cd59e",
+    [ChainId.Bsc]: "0x556B9306565093C855AEA9AE92A594704c2Cd59e",
+    [ChainId.Arbitrum]: "0x5e09ACf80C0296740eC5d6F643005a4ef8DaA694",
+    [ChainId.ZkSync]: "0x4c615E78c5fCA1Ad31e4d66eb0D8688d84307463",
+    [ChainId.Base]: "0xC6A2Db661D5a5690172d8eB0a7DEA2d3008665A3",
+    [ChainId.Linea]: "0x22E2f236065B780FA33EC8C4E58b99ebc8B55c57",
+  },
+};

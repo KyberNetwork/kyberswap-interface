@@ -1,4 +1,4 @@
-import { PATHS, chainIdToChain, poolTypeToDexId } from "@/constants";
+import { PATHS, CHAIN_ID_TO_CHAIN, poolTypeToDexId } from "@/constants";
 import { ChainId, PoolType, Token } from "@/schema";
 import { z } from "zod";
 import { create } from "zustand";
@@ -110,7 +110,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     try {
       const res = await fetch(
         `${PATHS.ZAP_API}/${
-          chainIdToChain[chainId]
+          CHAIN_ID_TO_CHAIN[chainId]
         }/api/v1/out/route?${search.slice(1)}`
       ).then((res) => res.json());
 

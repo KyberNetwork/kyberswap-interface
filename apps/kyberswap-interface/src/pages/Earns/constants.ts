@@ -15,6 +15,7 @@ export enum EarnDex {
   DEX_THENAFUSION = 'THENA',
   DEX_KODIAK_V3 = 'Kodiak Concentrated',
   DEX_UNISWAPV2 = 'Uniswap V2',
+  // DEX_UNISWAP_V4 = 'Uniswap V4',
 }
 
 export enum EarnDex2 {
@@ -26,6 +27,7 @@ export enum EarnDex2 {
   DEX_THENAFUSION = 'thena',
   DEX_KODIAK_V3 = 'kodiakcl',
   DEX_UNISWAPV2 = 'uniswapv2',
+  // DEX_UNISWAP_V4 = 'uniswapv4',
 }
 
 export enum EarnChain {
@@ -85,6 +87,16 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
     [ChainId.BERA]: '0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD',
   },
   [EarnDex.DEX_UNISWAPV2]: {},
+  // [EarnDex.DEX_UNISWAP_V4]: {
+  //   [ChainId.MAINNET]: '0xbd216513d74c8cf14cf4747e6aaa6420ff64ee9e',
+  //   [ChainId.BSCMAINNET]: '0x7a4a5c919ae2541aed11041a1aeee68f1287f95b',
+  //   [ChainId.MATIC]: '0x1ec2ebf4f37e7363fdfe3551602425af0b3ceef9',
+  //   [ChainId.ARBITRUM]: '0xd88f38f930b7952f2db2432cb002e7abbf3dd869',
+  //   [ChainId.AVAXMAINNET]: '0xb74b1f14d2754acfcbbe1a221023a5cf50ab8acd',
+  //   [ChainId.BASE]: '0x7c5f5a4bbd8fd63184577525326123b519429bdc',
+  //   [ChainId.BLAST]: '0x4ad2f4cca2682cbb5b950d660dd458a1d3f1baad',
+  //   [ChainId.OPTIMISM]: '0x3c3ea4b57a46241e54610e5f022e5c45859a1017',
+  // },
 }
 
 export const NATIVE_ADDRESSES: Record<EarnChain, string> = {
@@ -107,6 +119,7 @@ export const NFT_MANAGER_ABI: { [key in EarnDex]: ContractInterface | null } = {
   [EarnDex.DEX_THENAFUSION]: AlgebraNftManagerABI,
   [EarnDex.DEX_KODIAK_V3]: Univ3NftManagerABI,
   [EarnDex.DEX_UNISWAPV2]: null,
+  // [EarnDex.DEX_UNISWAP_V4]: null,
 }
 
 export const UNWRAP_WNATIVE_TOKEN_FUNC: { [key in EarnDex]: string | null } = {
@@ -118,6 +131,7 @@ export const UNWRAP_WNATIVE_TOKEN_FUNC: { [key in EarnDex]: string | null } = {
   [EarnDex.DEX_THENAFUSION]: 'unwrapWNativeToken',
   [EarnDex.DEX_KODIAK_V3]: 'unwrapWETH9',
   [EarnDex.DEX_UNISWAPV2]: null,
+  // [EarnDex.DEX_UNISWAP_V4]: null,
 }
 
 export const PROTOCOL_POSITION_URL: Record<EarnDex, string> = {
@@ -129,6 +143,7 @@ export const PROTOCOL_POSITION_URL: Record<EarnDex, string> = {
   [EarnDex.DEX_THENAFUSION]: 'https://thena.fi/pools/$poolAddress',
   [EarnDex.DEX_KODIAK_V3]: 'https://app.kodiak.finance/#/liquidity/v3/$positionId',
   [EarnDex.DEX_UNISWAPV2]: 'https://app.uniswap.org/positions/v2/base/$poolAddress',
+  // [EarnDex.DEX_UNISWAP_V4]: '',
 }
 
 export const DEXES_HIDE_TOKEN_ID: Record<EarnDex, boolean> = {
@@ -140,6 +155,7 @@ export const DEXES_HIDE_TOKEN_ID: Record<EarnDex, boolean> = {
   [EarnDex.DEX_THENAFUSION]: true,
   [EarnDex.DEX_KODIAK_V3]: false,
   [EarnDex.DEX_UNISWAPV2]: true,
+  // [EarnDex.DEX_UNISWAP_V4]: false,
 }
 
 export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
@@ -151,9 +167,11 @@ export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
   [EarnDex.DEX_THENAFUSION]: true,
   [EarnDex.DEX_KODIAK_V3]: true,
   [EarnDex.DEX_UNISWAPV2]: false,
+  // [EarnDex.DEX_UNISWAP_V4]: false,
 }
 
 export enum CoreProtocol {
+  UniswapV4,
   UniswapV3,
   UniswapV2,
   AlgebraV1,
@@ -170,4 +188,5 @@ export const PROTOCOLS_CORE_MAPPING: Record<EarnDex, CoreProtocol> = {
   [EarnDex.DEX_THENAFUSION]: CoreProtocol.AlgebraV1,
   [EarnDex.DEX_KODIAK_V3]: CoreProtocol.UniswapV3,
   [EarnDex.DEX_UNISWAPV2]: CoreProtocol.UniswapV2,
+  // [EarnDex.DEX_UNISWAP_V4]: CoreProtocol.UniswapV4,
 }

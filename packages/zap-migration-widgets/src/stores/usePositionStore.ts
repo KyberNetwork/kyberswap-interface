@@ -6,11 +6,13 @@ import {
   Position,
   univ2Dexes,
   univ3Dexes,
+  univ4Dexes,
 } from "../schema";
 import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
 import {
   decodeAlgebraV1Position,
   decodePosition,
+  decodeUniswapV4PositionInfo,
 } from "@kyber/utils/uniswapv3";
 import { create } from "zustand";
 
@@ -48,6 +50,7 @@ export const usePositionStore = create<{
   ) => {
     const isUniv3 = univ3Dexes.includes(dex);
     const isUniv2 = univ2Dexes.includes(dex);
+    const isUniv4 = univ4Dexes.includes(dex);
 
     if (isUniv3) {
       const contract = DexInfos[dex].nftManagerContract;
@@ -55,7 +58,9 @@ export const usePositionStore = create<{
         typeof contract === "string" ? contract : contract[chainId];
 
       // Function signature and encoded token ID
-      const functionSignature = "positions(uint256)";
+      const functionSignature = !isUniv4
+        ? "positions(uint256)"
+        : "positionInfo(uint256)";
       const selector = getFunctionSelector(functionSignature);
       const encodedTokenId = encodeUint256(BigInt(positionId));
 
@@ -87,9 +92,51 @@ export const usePositionStore = create<{
       const { result, error } = await response.json();
 
       if (result && result !== "0x") {
-        const data = algebraTypes.includes(dex)
+        const data = isUniv4
+          ? decodeUniswapV4PositionInfo(result)
+          : algebraTypes.includes(dex)
           ? decodeAlgebraV1Position(result)
           : decodePosition(result);
+
+        if (isUniv4) {
+          const liquidityFunctionSignature = "getPositionLiquidity(uint256)";
+          const liquiditySelector = getFunctionSelector(
+            liquidityFunctionSignature
+          );
+          const liquidityData = `0x${liquiditySelector}${encodedTokenId}`;
+
+          const payload = {
+            jsonrpc: "2.0",
+            method: "eth_call",
+            params: [
+              {
+                to: contractAddress,
+                data: liquidityData,
+              },
+              "latest",
+            ],
+            id: 1,
+          };
+
+          const response = await fetch(NetworkInfo[chainId].defaultRpc, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const { result: liquidityResult, error: liquidityError } =
+            await response.json();
+
+          if (liquidityResult && liquidityResult !== "0x") {
+            data.liquidity = BigInt(liquidityResult);
+          } else {
+            set({
+              error: liquidityError.message || "Position not found",
+            });
+          }
+        }
 
         if (isFromPos)
           set({

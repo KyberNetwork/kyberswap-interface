@@ -1,5 +1,5 @@
 import { useZapOutUserState } from "./zapout-state";
-import { DexInfos, NetworkInfo, PATHS } from "@/constants";
+import { DEXES_INFO, NETWORKS_INFO, PATHS } from "@/constants";
 import {
   ChainId,
   Pool,
@@ -9,9 +9,10 @@ import {
   algebraTypes,
   poolResponse,
   univ2Pool,
-  univ2PoolType,
+  Univ2PoolType,
   univ3Pool,
-  univ3PoolType,
+  Univ3PoolType,
+  univ4Types,
 } from "@/schema";
 import { Theme } from "@/theme";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
@@ -21,6 +22,7 @@ import {
   MIN_TICK,
   decodeAlgebraV1Position,
   decodePosition,
+  decodeUniswapV4PositionInfo,
   getPositionAmounts,
   nearestUsableTick,
 } from "@kyber/utils/uniswapv3";
@@ -187,12 +189,13 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
 
       const { success: isUniV3, data: poolUniv3 } = univ3Pool.safeParse(pool);
       const { success: isUniV2, data: poolUniv2 } = univ2Pool.safeParse(pool);
+      const isUniv4 = univ4Types.includes(poolType);
 
       let p: Pool;
 
       if (isUniV3) {
         const { success: isUniV3PoolType, data: pt } =
-          univ3PoolType.safeParse(poolType);
+          Univ3PoolType.safeParse(poolType);
         if (!isUniV3PoolType) {
           throw new Error("Invalid pool univ3 type");
         }
@@ -227,7 +230,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         };
         set({ pool: p });
 
-        const contract = DexInfos[poolType].nftManagerContract;
+        const contract = DEXES_INFO[poolType].nftManagerContract;
         const contractAddress =
           typeof contract === "string" ? contract : contract[chainId];
         if (!contractAddress) {
@@ -237,7 +240,9 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
           return;
         }
         // Function signature and encoded token ID
-        const functionSignature = "positions(uint256)";
+        const functionSignature = !isUniv4
+          ? "positions(uint256)"
+          : "positionInfo(uint256)";
         const selector = getFunctionSelector(functionSignature);
         const encodedTokenId = encodeUint256(BigInt(positionId));
 
@@ -258,7 +263,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         };
 
         // Send JSON-RPC request via fetch
-        const response = await fetch(NetworkInfo[chainId].defaultRpc, {
+        const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -269,9 +274,51 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         const { result, error } = await response.json();
 
         if (result && result !== "0x") {
-          const data = algebraTypes.includes(pt)
+          const data = isUniv4
+            ? decodeUniswapV4PositionInfo(result)
+            : algebraTypes.includes(pt)
             ? decodeAlgebraV1Position(result)
             : decodePosition(result);
+
+          if (isUniv4) {
+            const liquidityFunctionSignature = "getPositionLiquidity(uint256)";
+            const liquiditySelector = getFunctionSelector(
+              liquidityFunctionSignature
+            );
+            const liquidityData = `0x${liquiditySelector}${encodedTokenId}`;
+
+            const payload = {
+              jsonrpc: "2.0",
+              method: "eth_call",
+              params: [
+                {
+                  to: contractAddress,
+                  data: liquidityData,
+                },
+                "latest",
+              ],
+              id: 1,
+            };
+
+            const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            });
+
+            const { result: liquidityResult, error: liquidityError } =
+              await response.json();
+
+            if (liquidityResult && liquidityResult !== "0x") {
+              data.liquidity = BigInt(liquidityResult);
+            } else {
+              set({
+                errorMsg: liquidityError.message || "Position not found",
+              });
+            }
+          }
 
           const { amount0, amount1 } = getPositionAmounts(
             p.tick,
@@ -298,7 +345,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         set({ errorMsg: error.message || "Position not found" });
       } else if (isUniV2) {
         const { success: isUniV2PoolType, data: pt } =
-          univ2PoolType.safeParse(poolType);
+          Univ2PoolType.safeParse(poolType);
         if (!isUniV2PoolType) {
           throw new Error("Invalid pool univ2 type");
         }
@@ -348,11 +395,11 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         };
 
         const balanceRes = await fetch(
-          NetworkInfo[chainId].defaultRpc,
+          NETWORKS_INFO[chainId].defaultRpc,
           getPayload(`0x${balanceOfSelector}${paddedAccount}`)
         ).then((res) => res.json());
         const totalSupplyRes = await fetch(
-          NetworkInfo[chainId].defaultRpc,
+          NETWORKS_INFO[chainId].defaultRpc,
           getPayload(`0x${totalSupplySelector}`)
         ).then((res) => res.json());
 
