@@ -117,7 +117,8 @@ export default function Content() {
   const isFarming =
     isNotOwner &&
     FARMING_CONTRACTS[poolType]?.[chainId] &&
-    FARMING_CONTRACTS[poolType]?.[chainId] === positionOwner;
+    FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() ===
+      positionOwner?.toLowerCase();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
