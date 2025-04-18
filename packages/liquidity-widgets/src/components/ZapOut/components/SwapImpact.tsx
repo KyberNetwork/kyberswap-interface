@@ -14,7 +14,7 @@ import {
   useZapOutUserState,
 } from "@/stores/zapout/zapout-state";
 import { useZapOutContext } from "@/stores/zapout";
-import { NETWORKS_INFO } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
 import { formatUnits } from "@kyber/utils/crypto";
 
 export const useSwapPI = () => {
@@ -44,8 +44,16 @@ export const useSwapPI = () => {
 
     if (pool === "loading") return [];
 
-    const tokens = [...tokensIn, NETWORKS_INFO[chainId].wrappedToken];
-
+    const tokens = [
+      ...tokensIn,
+      NETWORKS_INFO[chainId].wrappedToken,
+      {
+        name: "ETH",
+        address: NATIVE_TOKEN_ADDRESS,
+        symbol: "ETH",
+        decimals: 18,
+      },
+    ];
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(

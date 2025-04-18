@@ -21,6 +21,7 @@ import {
   NETWORKS_INFO,
   PATHS,
   CHAIN_ID_TO_CHAIN,
+  NATIVE_TOKEN_ADDRESS,
 } from "@/constants";
 import {
   PI_LEVEL,
@@ -295,6 +296,12 @@ export default function Preview({
       pool.token0,
       pool.token1,
       NETWORKS_INFO[chainId].wrappedToken,
+      {
+        name: "ETH",
+        address: NATIVE_TOKEN_ADDRESS,
+        symbol: "ETH",
+        decimals: 18,
+      },
     ];
 
     const parsedAggregatorSwapInfo =

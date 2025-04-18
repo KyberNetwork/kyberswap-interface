@@ -16,7 +16,7 @@ import {
 } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "../Tooltip";
-import { NETWORKS_INFO, PATHS } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PATHS } from "@/constants";
 import {
   Accordion,
   AccordionContent,
@@ -145,6 +145,12 @@ export default function EstLiqValue() {
       pool.token0,
       pool.token1,
       NETWORKS_INFO[chainId].wrappedToken,
+      {
+        name: "ETH",
+        address: NATIVE_TOKEN_ADDRESS,
+        symbol: "ETH",
+        decimals: 18,
+      },
     ];
 
     const parsedAggregatorSwapInfo =

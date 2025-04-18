@@ -7,7 +7,7 @@ import {
 } from "../../hooks/types/zapInTypes";
 import { useMemo, useState } from "react";
 import { formatWei } from "../../utils";
-import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
 import { useWidgetContext } from "@/stores/widget";
 import {
   Accordion,
@@ -51,6 +51,12 @@ export default function ZapRoute() {
       pool.token0,
       pool.token1,
       NETWORKS_INFO[chainId].wrappedToken,
+      {
+        name: "ETH",
+        address: NATIVE_TOKEN_ADDRESS,
+        symbol: "ETH",
+        decimals: 18,
+      },
     ];
 
     const parsedAggregatorSwapInfo =
