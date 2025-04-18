@@ -8,6 +8,8 @@ import NetworkModal from 'components/Header/web3/NetworkModal'
 import { NetworkLogo } from 'components/Logo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { Chain } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'utils'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -39,9 +41,9 @@ const SelectNetwork = forwardRef<
     toggleNetworkModal: () => void
   },
   {
-    chainIds: ChainId[]
-    onSelectNetwork: (chain: ChainId) => void
-    selectedChainId?: ChainId
+    chainIds: Chain[]
+    onSelectNetwork: (chain: Chain) => void
+    selectedChainId?: Chain
     tooltipNotSupportChain?: string
   }
 >(({ chainIds = [], onSelectNetwork, selectedChainId, tooltipNotSupportChain }, ref) => {
@@ -57,7 +59,12 @@ const SelectNetwork = forwardRef<
   }))
 
   if (!chainId) return null
-  const { name } = selectedChainId ? NETWORKS_INFO[selectedChainId] : { name: t`Select a network` }
+  const { name } = !selectedChainId
+    ? { name: t`Select a network` }
+    : isEvmChain(selectedChainId)
+    ? NETWORKS_INFO[selectedChainId as ChainId]
+    : { name: selectedChainId.toString().charAt(0).toUpperCase() + selectedChainId.toString().slice(1) }
+
   return (
     <>
       <NetworkSwitchContainer data-testid="network-button" onClick={() => chainIds.length && toggleNetworkModal()}>

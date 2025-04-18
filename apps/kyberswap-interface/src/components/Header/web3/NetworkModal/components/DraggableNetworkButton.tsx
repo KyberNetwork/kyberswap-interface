@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { rgba } from 'polished'
@@ -18,6 +17,7 @@ import { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { Chain } from 'pages/CrossChainSwap/adapters'
 
 const NewLabel = styled.span`
   font-size: 12px;
@@ -115,15 +115,15 @@ const DraggableNetworkButton = ({
   onDrop,
   isComingSoon,
 }: {
-  networkInfo: NetworkInfo
-  activeChainIds?: ChainId[]
+  networkInfo: Pick<NetworkInfo, 'state' | 'icon' | 'chainId' | 'name'>
+  activeChainIds?: Chain[]
   isSelected?: boolean
   disabledMsg?: string
   isEdittingMobile?: boolean
   isAddButton?: boolean
   dragConstraints?: RefObject<Element>
   customToggleModal?: () => void
-  customOnSelectNetwork?: (chainId: ChainId) => void
+  customOnSelectNetwork?: (chainId: Chain) => void
   onChangedNetwork?: () => void
   onDrag?: (x: number, y: number) => void
   onDrop?: () => void
@@ -208,7 +208,7 @@ const DraggableNetworkButton = ({
   return (
     <MouseoverTooltip
       style={{ zIndex: Z_INDEXS.MODAL + 1 }}
-      key={networkInfo.chainId}
+      key={chainId}
       text={
         disabled && !dragging
           ? isMaintenance
@@ -238,9 +238,9 @@ const DraggableNetworkButton = ({
         )}
         <ListItem
           ref={ref}
-          key={networkInfo.chainId.toString()}
+          key={chainId.toString()}
           drag
-          layoutId={networkInfo.chainId.toString()}
+          layoutId={chainId.toString()}
           dragMomentum={false}
           dragControls={dragControls}
           dragConstraints={dragConstraints}

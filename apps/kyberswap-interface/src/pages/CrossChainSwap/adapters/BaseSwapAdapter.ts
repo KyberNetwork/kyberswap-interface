@@ -2,7 +2,15 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient } from 'viem'
 import { Quote } from '../registry'
 
-export type Chain = ChainId | 'bitcoin' | 'near'
+export type NonEvmChain = 'near' // | 'bitcoin'
+export type Chain = ChainId | NonEvmChain
+
+export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: string } } = {
+  near: {
+    name: 'NEAR',
+    icon: '/images/chains/near.svg',
+  },
+}
 
 export interface QuoteParams {
   fromChain: Chain

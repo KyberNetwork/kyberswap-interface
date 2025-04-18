@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
+import { darken, rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { Text } from 'rebass'
@@ -29,6 +29,14 @@ import { ExternalLink } from 'theme'
 import Option from './Option'
 import { useOrderedConnections } from './useConnections'
 import { useNEARWallet } from 'components/Web3Provider/NearProvider'
+import { useSearchParams } from 'react-router-dom'
+import { NETWORKS_INFO } from 'constants/networks'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+
+enum ChainType {
+  Evm = 'Evm',
+  Near = 'Near',
+}
 
 const CloseIcon = styled.div`
   height: 24px;
@@ -50,6 +58,15 @@ const Wrapper = styled.div`
 const ContentWrapper = styled.div`
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  margin-top: 1rem;
+  gap: 1rem;
+`
+
+const ChainColumn = styled.div`
+  display: flex;
+  flex-direction: column;
 `
 
 export const TermAndCondition = styled.div`
@@ -75,21 +92,38 @@ const UpperSection = styled.div`
   position: relative;
 `
 
-const gap = '1rem'
-const OptionGrid = styled.div`
+const ChainOption = styled.div<{ selected: boolean }>`
+  height: 36px;
+  width: 100%;
+  border-radius: 18px;
   display: flex;
-  gap: ${gap};
+  gap: 8px;
+  font-size: 14px;
   align-items: center;
-  flex-wrap: wrap;
-  margin-top: 16px;
-  & > * {
-    width: calc(33.33% - ${gap} * 2 / 3);
+  cursor: pointer;
+  padding: 8px 10px;
+  background-color: ${({ selected, theme }) => (selected ? darken(0.1, theme.tableHeader) : undefined)};
+
+  &:hover {
+    background-color: ${({ theme }) => darken(0.1, theme.tableHeader)};
+    color: ${({ theme }) => theme.text} !important;
   }
 
+  img {
+    width: 20px;
+    height: 20px;
+    border-radius: 8px;
+  }
+`
+
+const OptionGrid = styled.div`
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+  grid-template-columns: repeat(2, 1fr);
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    & > * {
-      width: calc(50% - ${gap} / 2);
-    }
+     grid-template-columns: 1fr;
   `}
 `
 
@@ -134,8 +168,14 @@ export default function WalletModal() {
 
   const [isPinnedPopupWallet, setPinnedPopupWallet] = useState(false)
 
-  const { connect, accounts } = useNEARWallet()
-  console.log(accounts)
+  const { connect } = useNEARWallet()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const rawChainType = searchParams.get('chainType')
+
+  // Validate that chainType is a valid enum value, default to Evm if not
+  const chainType = Object.values(ChainType).includes(rawChainType as ChainType)
+    ? (rawChainType as ChainType)
+    : ChainType.Evm
 
   function getModalContent() {
     return (
@@ -157,7 +197,6 @@ export default function WalletModal() {
           <CloseIcon
             onClick={() => {
               reset()
-              connect()
               toggleWalletModal()
             }}
           >
@@ -196,11 +235,51 @@ export default function WalletModal() {
           </TermAndCondition>
         )}
         <ContentWrapper>
-          <OptionGrid>
-            {connectors.map(c => (
-              <Option connector={c} key={c.uid} />
-            ))}
-          </OptionGrid>
+          <ChainColumn>
+            <Text color={theme.subText} fontSize={14} ml="16px" mb="12px" fontWeight="500x">
+              CHAIN
+            </Text>
+            <ChainOption
+              selected={chainType === ChainType.Evm}
+              role="button"
+              onClick={() => {
+                searchParams.set('chainType', ChainType.Evm)
+                setSearchParams(searchParams)
+              }}
+            >
+              <img src={NETWORKS_INFO[ChainId.MAINNET].icon} alt="EVM" />
+              <Text>EVM</Text>
+            </ChainOption>
+            <ChainOption
+              style={{ marginTop: '0.5rem' }}
+              selected={chainType === ChainType.Near}
+              role="button"
+              onClick={() => {
+                toggleWalletModal()
+                reset()
+                connect()
+              }}
+            >
+              <img
+                src={
+                  'https://storage.googleapis.com/ks-setting-1d682dca/000c677f-2ebc-44cc-8d76-e4c6d07627631744962669170.png'
+                }
+                alt="Near"
+              />
+              <Text>Near</Text>
+            </ChainOption>
+          </ChainColumn>
+          <div>
+            <Text color={theme.subText} fontSize={14} ml="16px" mb="12px" fontWeight="500x">
+              WALLET
+            </Text>
+
+            <OptionGrid>
+              {connectors.map(c => (
+                <Option connector={c} key={c.uid} />
+              ))}
+            </OptionGrid>
+          </div>
         </ContentWrapper>
       </UpperSection>
     )

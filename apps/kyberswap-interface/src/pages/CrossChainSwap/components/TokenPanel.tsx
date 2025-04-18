@@ -14,6 +14,7 @@ import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
+import { Chain } from '../adapters'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -32,7 +33,7 @@ export const TokenPanel = ({
 }: {
   selectedChain?: ChainId
   selectedCurrency?: Currency
-  onSelectNetwork: (chainId: ChainId) => void
+  onSelectNetwork: (chainId: Chain) => void
   onSelectCurrency: (currency: Currency) => void
   value: string
   amountUsd?: number
@@ -57,7 +58,7 @@ export const TokenPanel = ({
         <SelectNetwork
           onSelectNetwork={onSelectNetwork}
           selectedChainId={selectedChain}
-          chainIds={[...MAINNET_NETWORKS]}
+          chainIds={['near', ...MAINNET_NETWORKS]}
           ref={ref}
         />
         <Flex

@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
@@ -25,6 +24,8 @@ import DraggableNetworkButton from './components/DraggableNetworkButton'
 import DropzoneOverlay from './components/DropzoneOverlay'
 import { useDragAndDrop } from './hooks'
 import { NetworkList, Wrapper } from './styleds'
+import { Chain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'utils'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
@@ -36,10 +37,10 @@ export default function NetworkModal({
   customToggleModal,
   disabledMsg,
 }: {
-  activeChainIds?: ChainId[]
-  selectedId?: ChainId
+  activeChainIds?: Chain[]
+  selectedId?: Chain
   isOpen?: boolean
-  customOnSelectNetwork?: (chainId: ChainId) => void
+  customOnSelectNetwork?: (chain: Chain) => void
   customToggleModal?: () => void
   disabledMsg?: string
 }): JSX.Element | null {
@@ -164,7 +165,14 @@ export default function NetworkModal({
                         />
                       )
                     }
-                    const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
+                    const chainInfo = isEvmChain(+chainId)
+                      ? supportedChains.find(item => item.chainId.toString() === chainId)
+                      : {
+                          ...NonEvmChainInfo[chainId as any],
+                          state: 'active',
+                          chainId,
+                        }
+                    console.log(chainId, chainInfo)
                     if (chainInfo) {
                       return renderNetworkButton(chainInfo)
                     }
