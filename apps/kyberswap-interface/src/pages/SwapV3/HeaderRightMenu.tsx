@@ -17,7 +17,6 @@ import { useDegenModeManager } from 'state/user/hooks'
 
 const ActionPanel = styled.div`
   display: flex;
-  gap: 0.5rem;
   border-radius: 18px;
 `
 

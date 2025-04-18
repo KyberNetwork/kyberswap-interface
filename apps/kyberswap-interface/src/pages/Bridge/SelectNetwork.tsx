@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useState } from 'react'
+import { useState, forwardRef, useImperativeHandle } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
@@ -34,23 +34,27 @@ const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
   transform: rotate(${({ open }) => (open ? '180deg' : '0')});
   transition: transform 300ms;
 `
-function Web3Network({
-  chainIds = [],
-  onSelectNetwork,
-  selectedChainId,
-  tooltipNotSupportChain,
-}: {
-  chainIds: ChainId[]
-  onSelectNetwork: (chain: ChainId) => void
-  selectedChainId?: ChainId
-  tooltipNotSupportChain?: string
-}): JSX.Element | null {
+const SelectNetwork = forwardRef<
+  {
+    toggleNetworkModal: () => void
+  },
+  {
+    chainIds: ChainId[]
+    onSelectNetwork: (chain: ChainId) => void
+    selectedChainId?: ChainId
+    tooltipNotSupportChain?: string
+  }
+>(({ chainIds = [], onSelectNetwork, selectedChainId, tooltipNotSupportChain }, ref) => {
   const { chainId } = useActiveWeb3React()
 
   const [isOpen, setIsOpen] = useState(false)
   const toggleNetworkModal = () => {
     setIsOpen(!isOpen)
   }
+
+  useImperativeHandle(ref, () => ({
+    toggleNetworkModal,
+  }))
 
   if (!chainId) return null
   const { name } = selectedChainId ? NETWORKS_INFO[selectedChainId] : { name: t`Select a network` }
@@ -73,6 +77,7 @@ function Web3Network({
       />
     </>
   )
-}
+})
+SelectNetwork.displayName = 'SelectNetwork'
 
-export default Web3Network
+export default SelectNetwork

@@ -37,7 +37,7 @@ const TabWrapper = styled.div`
 export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
   width: fit-content;
   font-weight: 400;
-  padding: 0px 1rem;
+  padding: 0px 0.75rem;
   margin-bottom: 4px;
   color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
   position: relative;
@@ -89,7 +89,6 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     .filter(item => [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN].includes(item))
   if (!features.length) features = [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN]
 
-  const isCrossChainSwap = pathname.includes(APP_PATHS.CROSS_CHAIN)
   const show = (tab: TAB) => (isParnerSwap ? features.includes(tab) : true)
 
   const onClickTab = (tab: TAB) => {
@@ -112,24 +111,6 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     })
   }
 
-  if (isCrossChainSwap)
-    return (
-      <TabContainer>
-        <TabWrapper>
-          {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
-            <Tab
-              onClick={() => onClickTab(TAB.CROSS_CHAIN)}
-              isActive={activeTab === TAB.CROSS_CHAIN}
-              data-testid="cross-chain-tab"
-            >
-              <Text fontSize={20} fontWeight={500}>
-                <Trans>Cross-Chain</Trans>
-              </Text>
-            </Tab>
-          )}
-        </TabWrapper>
-      </TabContainer>
-    )
   return (
     <TabContainer>
       <TabWrapper>
@@ -146,6 +127,17 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
             active={activeTab === TAB.LIMIT}
             customChainId={customChainId}
           />
+        )}
+        {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+          <Tab
+            onClick={() => onClickTab(TAB.CROSS_CHAIN)}
+            isActive={activeTab === TAB.CROSS_CHAIN}
+            data-testid="cross-chain-tab"
+          >
+            <Text fontSize={20} fontWeight={500}>
+              <Trans>Cross-Chain</Trans>
+            </Text>
+          </Tab>
         )}
       </TabWrapper>
     </TabContainer>
