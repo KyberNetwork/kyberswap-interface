@@ -25,7 +25,7 @@ import PriceInput from "./PriceInput";
 import ZapRoute from "./ZapRoute";
 import ErrorIcon from "@/assets/svg/error.svg";
 import X from "@/assets/svg/x.svg";
-import { MAX_ZAP_IN_TOKENS } from "@/constants";
+import { FARMING_CONTRACTS, MAX_ZAP_IN_TOKENS } from "@/constants";
 import {
   Pool,
   univ2PoolNormalize,
@@ -110,9 +110,14 @@ export default function Content() {
   const isNotOwner =
     positionId &&
     positionOwner &&
+    connectedAccount?.address &&
     positionOwner !== connectedAccount?.address?.toLowerCase()
       ? true
       : false;
+  const isFarming =
+    isNotOwner &&
+    FARMING_CONTRACTS[poolType]?.[chainId] &&
+    FARMING_CONTRACTS[poolType]?.[chainId] === positionOwner;
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
@@ -189,7 +194,10 @@ export default function Content() {
 
   const btnText = (() => {
     if (error) return error;
-    if (isUniv4 && isNotOwner) return "Not the position owner";
+    if (isUniv4 && isNotOwner) {
+      if (isFarming) return "Your position is in farming";
+      return "Not the position owner";
+    }
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
     if (addressToApprove) return "Approving";

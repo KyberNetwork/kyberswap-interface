@@ -1,8 +1,9 @@
 import { useSwapPI } from "./SwapImpact";
 import { WarningMsg } from "./WarningMsg";
 import InfoHelper from "@/components/InfoHelper";
-import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
+import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO } from "@/constants";
 import { useNftApproval } from "@/hooks/useNftApproval";
+import usePositionOwner from "@/hooks/usePositionOwner";
 import { useZapOutContext } from "@/stores/zapout";
 import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { PI_LEVEL } from "@/utils";
@@ -44,7 +45,20 @@ export const Action = () => {
 
   const [clickedApprove, setClickedApprove] = useState(false);
 
+  const positionOwner = usePositionOwner({ positionId, chainId, poolType });
+  const isNotOwner =
+    positionOwner &&
+    connectedAccount?.address &&
+    positionOwner !== connectedAccount?.address?.toLowerCase()
+      ? true
+      : false;
+  const isFarming =
+    isNotOwner &&
+    FARMING_CONTRACTS[poolType]?.[chainId] &&
+    FARMING_CONTRACTS[poolType]?.[chainId] === positionOwner;
+
   const disabled =
+    isNotOwner ||
     clickedApprove ||
     isChecking ||
     fetchingRoute ||
@@ -88,6 +102,10 @@ export const Action = () => {
 
   const btnText = useMemo(() => {
     if (!account) return "Connect Wallet";
+    if (isNotOwner) {
+      if (isFarming) return "Your position is in farming";
+      return "Not the position owner";
+    }
     if (isChecking) return "Checking Approval...";
     if (fetchingRoute) return "Fetching Route...";
     if (!route) return "No route found";
@@ -98,15 +116,17 @@ export const Action = () => {
     return "Preview";
   }, [
     account,
+    isNotOwner,
     isChecking,
-    isApproved,
     fetchingRoute,
+    route,
     chainId,
     walletChainId,
     clickedApprove,
     pendingTx,
+    isApproved,
     pi.piVeryHigh,
-    route,
+    isFarming,
   ]);
 
   return (
