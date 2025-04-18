@@ -229,7 +229,7 @@ const useTokenBalances = (
 
     const interval = setInterval(() => {
       fetchBalances();
-    }, 10000);
+    }, 15000);
 
     return () => clearInterval(interval);
   }, [fetchBalances]);
