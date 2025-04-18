@@ -53,6 +53,7 @@ export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('use
 export const updateChainId = createAction<ChainId>('user/updateChainId')
 export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')
+export const updateSafeAppAcceptedTermOfUse = createAction<boolean>('user/updateSafeAppAcceptedTermOfUse')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
 export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')

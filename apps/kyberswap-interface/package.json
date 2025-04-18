@@ -231,10 +231,7 @@
     "vite": "^4.3.9",
     "vite-plugin-checker": "^0.5.6",
     "vite-plugin-svgr": "^2.4.0",
-    "vite-tsconfig-paths": "^4.0.8"
-  },
-  "resolutions": {
-    "babel-plugin-lodash/@babel/types": "~7.20.0",
+    "vite-tsconfig-paths": "^4.0.8",
     "react-error-overlay": "6.0.9"
   }
 }

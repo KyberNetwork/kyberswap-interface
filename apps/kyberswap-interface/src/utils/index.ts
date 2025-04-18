@@ -467,3 +467,6 @@ export const enumToArrayOfValues = (enumObject: { [x: string]: unknown }, valueT
   Object.keys(enumObject)
     .map(key => enumObject[key])
     .filter(value => !valueType || typeof value === valueType)
+
+const ancestorOrigins = window.location.ancestorOrigins
+export const isInSafeApp = !!ancestorOrigins?.[ancestorOrigins.length - 1]?.includes('app.safe.global')

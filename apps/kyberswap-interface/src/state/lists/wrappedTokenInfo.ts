@@ -16,6 +16,9 @@ export interface TokenInfo {
   readonly permitType?: 'AMOUNT' | 'SALT'
   readonly permitVersion?: '1' | '2'
   readonly isStandardERC20?: boolean
+  readonly isStable?: boolean
+  readonly cgkRank?: number
+  readonly cmcRank?: number
 }
 
 export class WrappedTokenInfo extends Token {
@@ -29,6 +32,9 @@ export class WrappedTokenInfo extends Token {
   public readonly domainSeparator?: string
   public readonly permitType?: 'AMOUNT' | 'SALT'
   public readonly permitVersion?: '1' | '2'
+  public readonly cgkRank?: number
+  public readonly cmcRank?: number
+  public readonly isStable?: boolean
 
   constructor(tokenInfo: TokenInfo) {
     const {
@@ -43,6 +49,9 @@ export class WrappedTokenInfo extends Token {
       domainSeparator,
       permitType,
       permitVersion,
+      cmcRank,
+      cgkRank,
+      isStable,
     } = tokenInfo
     super(chainId, isAddress(chainId, address) || address, decimals, symbol, name)
 
@@ -52,6 +61,9 @@ export class WrappedTokenInfo extends Token {
     this.domainSeparator = domainSeparator
     this.permitType = permitType
     this.permitVersion = permitVersion
+    this.cmcRank = cmcRank
+    this.cgkRank = cgkRank
+    this.isStable = isStable
   }
 
   equals(other: Token): boolean {

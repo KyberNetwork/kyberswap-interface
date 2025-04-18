@@ -121,8 +121,8 @@ export function useTokenReadingContract(tokenAddress?: string, customChainId?: C
 export function useWETHContract(customChainId?: ChainId): Contract | null {
   const { chainId: walletChainId, account } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
-  const signContract = useSigningContract(WETH[chainId].address, WETH_ABI)
-  const readContract = useReadingContract(WETH[chainId].address, WETH_ABI)
+  const signContract = useSigningContract(WETH[chainId]?.address, WETH_ABI)
+  const readContract = useReadingContract(WETH[chainId]?.address, WETH_ABI)
 
   return account ? signContract : readContract
 }
