@@ -33,7 +33,7 @@ import {
 } from 'pages/Earns/PositionDetail/styles'
 import PositionHistory from './PositionHistory'
 
-const FEE_FETCHING_INTERVAL = 15_000
+const FEE_FETCHING_INTERVAL = 30_000
 let feeFetchingInterval: NodeJS.Timeout
 
 export interface FeeInfo {
@@ -52,6 +52,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const [claiming, setClaiming] = useState(false)
   const [claimTx, setClaimTx] = useState<string | null>(null)
   const [feeInfo, setFeeInfo] = useState<FeeInfo | null>(null)
+  const [positionOwner, setPositionOwner] = useState<string | null>(null)
 
   const allTransactions = useAllTransactions(true)
 
@@ -67,18 +68,23 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
   const isUniv2 = isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2)
 
-  const handleFetchUnclaimedFee = useCallback(async () => {
+  const handleGetPositionOwner = useCallback(async () => {
     if (!contract) return
     const owner = await contract.ownerOf(position.id)
+    if (owner) setPositionOwner(owner)
+  }, [contract, position.id])
+
+  const handleFetchUnclaimedFee = useCallback(async () => {
+    if (!contract || !positionOwner) return
     const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
     const results = await contract.callStatic.collect(
       {
         tokenId: position.id,
-        recipient: owner,
+        recipient: positionOwner,
         amount0Max: maxUnit,
         amount1Max: maxUnit,
       },
-      { from: owner },
+      { from: positionOwner },
     )
     const balance0 = results.amount0.toString()
     const balance1 = results.amount1.toString()
@@ -109,16 +115,22 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
     position.token1Address,
     position.token1Decimals,
     position.token1Price,
+    positionOwner,
   ])
 
   useEffect(() => {
+    handleGetPositionOwner()
+  }, [handleGetPositionOwner])
+
+  useEffect(() => {
+    if (!positionOwner) return
     const wrappedHandleFetchUnclaimedFee = () => {
       if (!claiming) handleFetchUnclaimedFee()
     }
     wrappedHandleFetchUnclaimedFee()
     feeFetchingInterval = setInterval(wrappedHandleFetchUnclaimedFee, FEE_FETCHING_INTERVAL)
     return () => clearInterval(feeFetchingInterval)
-  }, [claiming, handleFetchUnclaimedFee])
+  }, [claiming, handleFetchUnclaimedFee, positionOwner])
 
   useEffect(() => {
     if (claimTx && allTransactions && allTransactions[claimTx]) {

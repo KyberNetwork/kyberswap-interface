@@ -144,6 +144,7 @@ const useTokenBalances = (
       setBalances({});
       return;
     }
+    if (tokenAddresses.length < 10) return;
 
     setLoading(true);
 
@@ -230,7 +231,7 @@ const useTokenBalances = (
 
     const interval = setInterval(() => {
       fetchBalances();
-    }, 10000);
+    }, 15000);
 
     return () => clearInterval(interval);
   }, [fetchBalances]);
