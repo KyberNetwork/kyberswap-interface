@@ -143,6 +143,7 @@ const useTokenBalances = (
       setBalances({});
       return;
     }
+    if (tokenAddresses.length < 10) return;
 
     setLoading(true);
 
