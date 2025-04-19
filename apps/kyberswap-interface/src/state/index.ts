@@ -45,11 +45,11 @@ import swap from './swap/reducer'
 import tokenPrices from './tokenPrices'
 import topTokens from './topTokens'
 import transactions from './transactions/reducer'
-import crossChainTransactions from './crossChainTransactions'
+import crossChainSwap from './crossChainSwap'
 import tutorial from './tutorial/reducer'
 import user, { UserState } from './user/reducer'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChainTransactions']
+const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChainSwap']
 ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
 
 // Migrate from old version to new version, prevent lost favorite tokens of user
@@ -79,7 +79,7 @@ const store = configureStore({
     profile,
     user,
     transactions,
-    crossChainTransactions,
+    crossChainSwap,
     swap,
     limit,
     mint,

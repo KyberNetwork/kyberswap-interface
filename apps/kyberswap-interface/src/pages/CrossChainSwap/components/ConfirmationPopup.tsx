@@ -12,7 +12,9 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Summary } from './Summary'
 import { useState } from 'react'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { useCrossChainTransactions } from 'state/crossChainTransactions'
+import { useCrossChainTransactions } from 'state/crossChainSwap'
+import { Chain, NonEvmChain, NonEvmChainInfo } from '../adapters'
+import { isEvmChain } from 'utils'
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -33,25 +35,22 @@ const TokenBoxInfo = ({
   usdValue,
   amount,
 }: {
-  chainId: ChainId
+  chainId: Chain
   currency?: Currency
   amount: string
   usdValue: number
 }) => {
   const theme = useTheme()
+  const { name, icon } = isEvmChain(chainId)
+    ? NETWORKS_INFO[chainId as ChainId]
+    : NonEvmChainInfo[chainId as NonEvmChain]
   return (
     <TokenBox>
       <Flex justifyContent="space-between" fontSize={12} fontWeight={500} mb="0.5rem" color={theme.subText}>
         <Text>Input Amount</Text>
         <Flex sx={{ gap: '4px' }} alignItems="center">
-          <img
-            src={NETWORKS_INFO[chainId].icon}
-            alt={chainId.toString()}
-            width={16}
-            height={16}
-            style={{ borderRadius: '50%' }}
-          />
-          <Text>{NETWORKS_INFO[chainId].name}</Text>
+          <img src={icon} alt={chainId.toString()} width={16} height={16} style={{ borderRadius: '50%' }} />
+          <Text>{name}</Text>
         </Flex>
       </Flex>
       <Flex justifyContent="space-between" fontSize={20} fontWeight={500} mb="0.5rem">

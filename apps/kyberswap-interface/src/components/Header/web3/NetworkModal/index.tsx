@@ -12,7 +12,7 @@ import Row, { RowBetween } from 'components/Row'
 import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
-import useChainsConfig from 'hooks/useChainsConfig'
+import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -24,8 +24,7 @@ import DraggableNetworkButton from './components/DraggableNetworkButton'
 import DropzoneOverlay from './components/DropzoneOverlay'
 import { useDragAndDrop } from './hooks'
 import { NetworkList, Wrapper } from './styleds'
-import { Chain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
-import { isEvmChain } from 'utils'
+import { Chain, NonEvmChainInfo, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
@@ -88,7 +87,7 @@ export default function NetworkModal({
     }
   }
 
-  const renderNetworkButton = (networkInfo: NetworkInfo) => {
+  const renderNetworkButton = (networkInfo: Pick<NetworkInfo, 'state' | 'icon' | 'chainId' | 'name'>) => {
     const chainId = networkInfo.chainId.toString()
     return (
       <DraggableNetworkButton
@@ -165,14 +164,8 @@ export default function NetworkModal({
                         />
                       )
                     }
-                    const chainInfo = isEvmChain(+chainId)
-                      ? supportedChains.find(item => item.chainId.toString() === chainId)
-                      : {
-                          ...NonEvmChainInfo[chainId as any],
-                          state: 'active',
-                          chainId,
-                        }
-                    console.log(chainId, chainInfo)
+                    const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
+
                     if (chainInfo) {
                       return renderNetworkButton(chainInfo)
                     }
@@ -211,6 +204,14 @@ export default function NetworkModal({
                     .map((networkInfo: NetworkInfo) => {
                       return renderNetworkButton(networkInfo)
                     })}
+                  {Object.values(NonEvmChain).map((network: NonEvmChain) => {
+                    return renderNetworkButton({
+                      chainId: network as any,
+                      name: NonEvmChainInfo[network].name,
+                      icon: NonEvmChainInfo[network].icon,
+                      state: ChainState.ACTIVE,
+                    })
+                  })}
                 </>
               </NetworkList>
             )}

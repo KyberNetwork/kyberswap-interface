@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { Chain } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
@@ -473,5 +473,8 @@ const ancestorOrigins = window.location.ancestorOrigins
 export const isInSafeApp = !!ancestorOrigins?.[ancestorOrigins.length - 1]?.includes('app.safe.global')
 
 export const isEvmChain = (chain: Chain) => {
-  return Object.values(ChainId).includes(chain as ChainId)
+  return Object.values(ChainId).includes(chain)
+}
+export const isNonEvmChain = (chain: Chain) => {
+  return Object.values(NonEvmChain).includes(chain)
 }

@@ -3,13 +3,15 @@ import { CrossChainSwapAdapterRegistry, Quote } from '../registry'
 import { CrossChainSwapFactory } from '../factory'
 import { useSearchParams } from 'react-router-dom'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import { MAINNET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'viem'
 import { useWalletClient } from 'wagmi'
 import useDebounce from 'hooks/useDebounce'
 import { useUserSlippageTolerance } from 'state/user/hooks'
+import { isEvmChain, isNonEvmChain } from 'utils'
+import { Chain, NonEvmChain } from '../adapters'
+import { NearToken, useNearTokens } from 'state/crossChainSwap'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -21,8 +23,8 @@ const RegistryContext = createContext<
       amount: string
       setAmount: (amount: string) => void
       registry: CrossChainSwapAdapterRegistry
-      fromChainId: ChainId
-      toChainId: ChainId | undefined
+      fromChainId: Chain
+      toChainId: Chain | undefined
       currencyIn: Currency | undefined
       currencyOut: Currency | undefined
       inputAmount: CurrencyAmount<Currency> | undefined
@@ -30,6 +32,7 @@ const RegistryContext = createContext<
       quotes: Quote[]
       selectedQuote: Quote | null
       setSelectedQuote: (quote: Quote | null) => void
+      nearTokens: NearToken[]
     }
   | undefined
 >(undefined)
@@ -43,10 +46,18 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [amount, setAmount] = useState('1')
   const amountDebounce = useDebounce(amount, 500)
 
+  const { nearTokens } = useNearTokens()
+
   const { chainId } = useActiveWeb3React()
 
-  const fromChainId = MAINNET_NETWORKS.includes(Number(from)) ? Number(from) : chainId
-  const toChainId = MAINNET_NETWORKS.includes(Number(to)) ? Number(to) : undefined
+  const fromChainId = isEvmChain(Number(from))
+    ? Number(from)
+    : isNonEvmChain(from as NonEvmChain)
+    ? (from as NonEvmChain)
+    : chainId
+  const toChainId = isEvmChain(Number(to)) ? Number(to) : isNonEvmChain(to as NonEvmChain) ? to : chainId
+
+  const nearTokenIn = fromChainId === NonEvmChain.Near ? nearTokens.find(token => token.assetId === tokenIn) : undefined
 
   const currencyIn = useCurrencyV2(tokenIn || undefined, fromChainId)
   const currencyOut = useCurrencyV2(tokenOut || undefined, toChainId)
@@ -111,6 +122,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         loading,
         amount,
         setAmount,
+        nearTokens,
       }}
     >
       {children}

@@ -3,18 +3,25 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { Aligner, CurrencySelect, InputRow, StyledTokenName } from 'components/CurrencyInputPanel'
 import Wallet from 'components/Icons/Wallet'
 import useTheme from 'hooks/useTheme'
-import { Flex, Text } from 'rebass'
+import { Flex, Text, Box } from 'rebass'
 import styled from 'styled-components'
 import { Input as NumericalInput } from 'components/NumericalInput'
 import { useEffect, useRef, useState } from 'react'
-import { RowFixed } from 'components/Row'
+import { RowBetween, RowFixed } from 'components/Row'
 import CurrencyLogo from 'components/CurrencyLogo'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
-import { Chain } from '../adapters'
+import { Chain, NonEvmChain } from '../adapters'
+import { isEvmChain } from 'utils'
+import Modal from 'components/Modal'
+import { CloseIcon } from 'theme'
+import { SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
+import { useNearTokens } from 'state/crossChainSwap'
+import { isMobile } from 'react-device-detect'
+import { rgba } from 'polished'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -31,7 +38,7 @@ export const TokenPanel = ({
   disabled,
   onSelectCurrency,
 }: {
-  selectedChain?: ChainId
+  selectedChain?: Chain
   selectedCurrency?: Currency
   onSelectNetwork: (chainId: Chain) => void
   onSelectCurrency: (currency: Currency) => void
@@ -42,7 +49,16 @@ export const TokenPanel = ({
 }) => {
   const theme = useTheme()
   const [modalOpen, setModalOpen] = useState(false)
-  const balance = useCurrencyBalance(selectedCurrency, selectedChain)
+  const isEvm = isEvmChain(selectedChain as Chain)
+  const { nearTokens } = useNearTokens()
+
+  const evmBalance = useCurrencyBalance(
+    isEvm ? selectedCurrency : undefined,
+    isEvm ? (selectedChain as ChainId) : undefined,
+  )
+
+  const balance = evmBalance
+
   const ref = useRef<{ toggleNetworkModal: () => void }>(null)
   const [autoToggleTokenSelector, setAutoToggleTokenSelector] = useState(false)
   useEffect(() => {
@@ -52,13 +68,34 @@ export const TokenPanel = ({
     }
   }, [autoToggleTokenSelector, selectedChain])
 
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // clear the input on open
+  useEffect(() => {
+    if (modalOpen) {
+      setSearchQuery('')
+      inputRef.current?.focus()
+    }
+  }, [modalOpen])
+
+  const filteredNearTokens = nearTokens.filter(token => {
+    const q = searchQuery.toLowerCase().trim()
+    return (
+      token.blockchain === 'near' &&
+      (token.symbol.toLowerCase().includes(q) || token.contractAddress.toLowerCase().includes(q))
+    )
+  })
+
+  const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
+
   return (
     <TokenPanelWrapper>
       <Flex justifyContent="space-between" marginBottom="12px">
         <SelectNetwork
           onSelectNetwork={onSelectNetwork}
           selectedChainId={selectedChain}
-          chainIds={['near', ...MAINNET_NETWORKS]}
+          chainIds={[NonEvmChain.Near, ...MAINNET_NETWORKS]}
           ref={ref}
         />
         <Flex
@@ -123,14 +160,91 @@ export const TokenPanel = ({
         </CurrencySelect>
       </InputRow>
 
-      <CurrencySearchModal
-        isOpen={modalOpen}
-        onDismiss={() => setModalOpen(false)}
-        onCurrencySelect={onSelectCurrency as (currency: Currency) => void}
-        selectedCurrency={selectedCurrency}
-        showCommonBases
-        customChainId={selectedChain}
-      />
+      {isEvm ? (
+        <CurrencySearchModal
+          isOpen={modalOpen}
+          onDismiss={() => setModalOpen(false)}
+          onCurrencySelect={onSelectCurrency as (currency: Currency) => void}
+          selectedCurrency={selectedCurrency}
+          showCommonBases
+          customChainId={selectedChain as ChainId}
+        />
+      ) : (
+        <Modal
+          isOpen={modalOpen}
+          onDismiss={() => setModalOpen(false)}
+          maxHeight={isMobileHorizontal ? 100 : 80}
+          height={isMobileHorizontal ? '95vh' : undefined}
+        >
+          <Flex flexDirection="column" width="100%" padding="20px" sx={{ gap: '1rem' }}>
+            <Flex justifyContent="space-between" alignItems="center">
+              <Text fontSize={20} fontWeight={500}>
+                Select a token
+              </Text>
+              <CloseIcon onClick={() => setModalOpen(false)} />
+            </Flex>
+            <SearchWrapper>
+              <SearchInput
+                type="text"
+                id="token-search-input"
+                data-testid="token-search-input"
+                placeholder={'Search by token name, token symbol or address'}
+                value={searchQuery}
+                ref={inputRef}
+                onChange={e => {
+                  setSearchQuery(e.target.value)
+                }}
+                autoComplete="off"
+              />
+              <SearchIcon size={18} color={theme.border} />
+            </SearchWrapper>
+
+            <Separator />
+            <Box
+              sx={{
+                flex: 1,
+                overflowY: 'scroll',
+                marginX: '-20px',
+              }}
+            >
+              {filteredNearTokens.map(item => {
+                return (
+                  <CurrencyRowWrapper
+                    key={item.assetId}
+                    role="button"
+                    onClick={() => {
+                      console.log(item)
+                      // onSelectCurrency()
+                    }}
+                  >
+                    <Flex alignItems="center" style={{ gap: 8 }}>
+                      <img src={item.logo} alt={item.symbol} width={24} height={24} style={{ borderRadius: '50%' }} />
+                      <Text fontWeight={500}>{item.symbol}</Text>
+                    </Flex>
+                  </CurrencyRowWrapper>
+                )
+              })}
+            </Box>
+          </Flex>
+        </Modal>
+      )}
     </TokenPanelWrapper>
   )
 }
+
+const CurrencyRowWrapper = styled(RowBetween)<{ hoverColor?: string }>`
+  padding: 4px 20px;
+  height: 56px;
+  display: flex;
+  gap: 16px;
+  cursor: pointer;
+  &[data-selected='true'] {
+    background: ${({ theme }) => rgba(theme.bg6, 0.15)};
+  }
+
+  @media (hover: hover) {
+    :hover {
+      background: ${({ theme, hoverColor }) => hoverColor || theme.buttonBlack};
+    }
+  }
+`

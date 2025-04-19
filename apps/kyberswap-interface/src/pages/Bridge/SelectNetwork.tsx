@@ -8,7 +8,7 @@ import NetworkModal from 'components/Header/web3/NetworkModal'
 import { NetworkLogo } from 'components/Logo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { Chain } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { isEvmChain } from 'utils'
 
 const NetworkSwitchContainer = styled.div`
@@ -63,7 +63,7 @@ const SelectNetwork = forwardRef<
     ? { name: t`Select a network` }
     : isEvmChain(selectedChainId)
     ? NETWORKS_INFO[selectedChainId as ChainId]
-    : { name: selectedChainId.toString().charAt(0).toUpperCase() + selectedChainId.toString().slice(1) }
+    : NonEvmChainInfo[selectedChainId as NonEvmChain]
 
   return (
     <>

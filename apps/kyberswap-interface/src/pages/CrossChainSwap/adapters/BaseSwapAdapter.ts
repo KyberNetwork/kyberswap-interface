@@ -1,14 +1,19 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { WalletClient } from 'viem'
 import { Quote } from '../registry'
+import { NearToken } from 'state/crossChainSwap'
 
-export type NonEvmChain = 'near' // | 'bitcoin'
+export enum NonEvmChain {
+  Near = 'near',
+}
+
 export type Chain = ChainId | NonEvmChain
+export type Currency = EvmCurrency | NearToken
 
 export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: string } } = {
-  near: {
+  [NonEvmChain.Near]: {
     name: 'NEAR',
-    icon: '/images/chains/near.svg',
+    icon: 'https://storage.googleapis.com/ks-setting-1d682dca/000c677f-2ebc-44cc-8d76-e4c6d07627631744962669170.png',
   },
 }
 
