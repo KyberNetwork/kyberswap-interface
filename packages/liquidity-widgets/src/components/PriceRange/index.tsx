@@ -14,7 +14,7 @@ import {
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
 import { univ3PoolNormalize, Univ3PoolType } from "@/schema";
-import { toString } from "@/utils/number";
+import { toString } from "@kyber/utils/number";
 
 interface SelectedRange {
   range: number | string;

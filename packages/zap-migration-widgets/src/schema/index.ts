@@ -141,7 +141,7 @@ export const tick = z.object({
 });
 export type Tick = z.infer<typeof tick>;
 
-const univ3PoolCommonField = z.object({
+export const univ3PoolCommonField = z.object({
   address: z.string(),
   token0: token,
   token1: token,
@@ -151,6 +151,8 @@ const univ3PoolCommonField = z.object({
   sqrtPriceX96: z.string(),
   tickSpacing: z.number(),
   ticks: z.array(tick),
+  minTick: z.number(),
+  maxTick: z.number(),
   category: z.enum([
     "stablePair",
     "correlatedPair",

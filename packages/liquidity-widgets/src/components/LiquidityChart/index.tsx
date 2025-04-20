@@ -1,7 +1,7 @@
 import { useZapState } from "@/hooks/useZapInState";
 import { univ3PoolNormalize } from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
-import { toString } from "@/utils/number";
+import { toString } from "@kyber/utils/number";
 import {
   nearestUsableTick,
   priceToClosestTick,

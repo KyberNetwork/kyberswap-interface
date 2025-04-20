@@ -6,12 +6,17 @@ import {
   UniV3Position,
   univ2Dexes,
   univ3Dexes,
+  univ3PoolCommonField,
 } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { usePositionStore } from "../stores/usePositionStore";
 import { useZapStateStore } from "../stores/useZapStateStore";
 import { Skeleton } from "@kyber/ui/skeleton";
-import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
+import {
+  divideBigIntToString,
+  formatDisplayNumber,
+  toString,
+} from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import {
   MAX_TICK,
@@ -22,17 +27,30 @@ import {
 } from "@kyber/utils/uniswapv3";
 import { useEffect, useMemo, useState } from "react";
 import { EstimateLiqValue } from "./EstimateLiqValue";
+import {
+  FeeAmount,
+  FULL_PRICE_RANGE,
+  PRICE_RANGE,
+  DEFAULT_PRICE_RANGE,
+} from "../constants/priceRanges";
 
-const DEFAULT_PRICE_RANGE = {
-  LOW_POOL_FEE: 1,
-  MEDIUM_POOL_FEE: 10,
-  HIGH_POOL_FEE: 50,
-};
+interface SelectedRange {
+  range: number | string;
+  tickLower?: number;
+  tickUpper?: number;
+}
 
-const PRICE_RANGE = {
-  LOW_POOL_FEE: [100, 1, 0.5, 0.1],
-  MEDIUM_POOL_FEE: [100, 20, 10, 5],
-  HIGH_POOL_FEE: [100, 50, 20, 10],
+const getFeeRange = (fee: number): FeeAmount | undefined => {
+  if (!fee) return;
+  return [
+    FeeAmount.HIGH,
+    FeeAmount.MEDIUM,
+    FeeAmount.LOW,
+    FeeAmount.LOWEST,
+  ].reduce(
+    (range, current) => (current >= fee ? current : range),
+    FeeAmount.HIGH
+  );
 };
 
 export function TargetPoolState({
@@ -56,7 +74,7 @@ export function TargetPoolState({
       setTickLower((toPosition as UniV3Position).tickLower);
       setTickUpper((toPosition as UniV3Position).tickUpper);
     }
-  }, [toPosition, isUniV3]);
+  }, [toPosition, isUniV3, setTickLower, setTickUpper]);
 
   const pool = pools === "loading" ? "loading" : pools[1];
   const [revertDisplay, setRevertDisplay] = useState(false);
@@ -91,7 +109,9 @@ export function TargetPoolState({
       );
   }, [tickUpper, pool, revertDisplay, isMaxTick, tickLower]);
 
-  const [selectedRange, setSelectedRange] = useState(0);
+  const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(
+    null
+  );
 
   useEffect(() => {
     if (pool !== "loading" && tickLower && tickUpper)
@@ -173,85 +193,101 @@ export function TargetPoolState({
   };
 
   const fee = pool === "loading" ? 0 : pool.fee;
-
+  const feeRange = getFeeRange(fee);
   const priceRanges = useMemo(
-    () =>
-      !fee
-        ? []
-        : fee <= 0.01
-        ? PRICE_RANGE.LOW_POOL_FEE
-        : fee > 0.1
-        ? PRICE_RANGE.HIGH_POOL_FEE
-        : PRICE_RANGE.MEDIUM_POOL_FEE,
-    [fee]
+    () => (feeRange ? PRICE_RANGE[feeRange] : []),
+    [feeRange]
   );
 
-  useEffect(() => {
-    if (!fee) return;
-    if (
-      pool !== "loading" &&
-      tickLower === null &&
-      tickUpper === null &&
-      toPosition === null &&
-      !initialTick
-    ) {
-      handleSelectRange(
-        fee <= 0.01
-          ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
-          : fee > 0.1
-          ? DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
-          : DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
-      );
-    }
-  }, [pool, tickLower, tickUpper, toPosition]);
+  const priceRangeCalculated = useMemo(() => {
+    if (!priceRanges.length || pool === "loading") return;
+    const { success, data } = univ3PoolCommonField.safeParse(pool);
+    if (!success) return;
+    return priceRanges
+      .map((item) => {
+        if (item === FULL_PRICE_RANGE)
+          return {
+            range: item,
+            tickLower: data.minTick,
+            tickUpper: data.maxTick,
+          };
+
+        const currentPoolPrice = tickToPrice(
+          data.tick,
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          false
+        );
+
+        if (!currentPoolPrice) return;
+
+        const left = +currentPoolPrice * (1 - Number(item));
+        const right = +currentPoolPrice * (1 + Number(item));
+
+        const lower = priceToClosestTick(
+          toString(Number(left)),
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          false
+        );
+        const upper = priceToClosestTick(
+          toString(Number(right)),
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          false
+        );
+        if (!lower || !upper) return null;
+
+        return {
+          range: item,
+          tickLower: nearestUsableTick(lower, data.tickSpacing),
+          tickUpper: nearestUsableTick(upper, data.tickSpacing),
+        };
+      })
+      .filter((item) => !!item);
+  }, [pool, priceRanges]);
+
+  const handleSelectPriceRange = (range: string | number) => {
+    if (!priceRangeCalculated) return;
+    const selected = priceRangeCalculated.find((item) => item?.range === range);
+    if (!selected) return;
+    setSelectedRange(selected);
+    setTickLower(selected.tickLower);
+    setTickUpper(selected.tickUpper);
+  };
 
   useEffect(() => {
-    if (pools === "loading" || !initialTick || !isUniV3) return;
+    if (!priceRangeCalculated) return;
+    const selected = priceRangeCalculated.find(
+      (item) => item?.tickLower === tickLower && item?.tickUpper === tickUpper
+    );
+    if (selected) setSelectedRange(selected);
+    else setSelectedRange(null);
+  }, [priceRangeCalculated, tickLower, tickUpper]);
+
+  // Set default price range depending on protocol fee
+  useEffect(() => {
+    if (!feeRange || (toPosition !== "loading" && toPosition !== null)) return;
+    if (!selectedRange) handleSelectPriceRange(DEFAULT_PRICE_RANGE[feeRange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feeRange, toPosition]);
+
+  useEffect(() => {
     if (
-      initialTick.tickLower % (pools[1] as any).tickSpacing === 0 &&
-      initialTick.tickUpper % (pools[1] as any).tickSpacing === 0
+      pools === "loading" ||
+      !initialTick ||
+      !isUniV3 ||
+      !("tickSpacing" in pools[1])
+    )
+      return;
+    if (
+      initialTick.tickLower % pools[1].tickSpacing === 0 &&
+      initialTick.tickUpper % pools[1].tickSpacing === 0
     ) {
       setTickLower(initialTick.tickLower);
       setTickUpper(initialTick.tickUpper);
     }
-  }, [initialTick?.tickLower, initialTick?.tickUpper, pools]);
-
-  const handleSelectRange = (percent: number) => {
-    if (pool === "loading" || !isUniV3) return;
-
-    setSelectedRange(percent);
-    if (percent === 100) {
-      setTickUpper(nearestUsableTick(MAX_TICK, (pool as any).tickSpacing));
-      setTickLower(nearestUsableTick(MIN_TICK, (pool as any).tickSpacing));
-      return;
-    }
-
-    const currentPrice = tickToPrice(
-      (pool as UniV3Pool).tick,
-      pool.token0.decimals,
-      pool.token1.decimals,
-      false
-    );
-    if (!currentPrice) return;
-
-    const lower = priceToClosestTick(
-      (+currentPrice * (1 - percent / 100)).toString(),
-      pool.token0.decimals,
-      pool.token1.decimals,
-      false
-    );
-    const upper = priceToClosestTick(
-      (+currentPrice * (1 + percent / 100)).toString(),
-      pool.token0.decimals,
-      pool.token1.decimals,
-      false
-    );
-
-    if (lower)
-      setTickLower(nearestUsableTick(lower, (pool as UniV3Pool).tickSpacing));
-    if (upper)
-      setTickUpper(nearestUsableTick(upper, (pool as UniV3Pool).tickSpacing));
-  };
+  }, [initialTick, isUniV3, pools, setTickLower, setTickUpper]);
 
   let poolPrice;
   if (isUniV3 && pool !== "loading") {
@@ -333,20 +369,28 @@ export function TargetPoolState({
         ) : (
           <>
             <div className="flex items-center gap-2 justify-between text-subText text-sm mt-4">
-              {priceRanges.map((percent) => {
+              {priceRanges.map((priceRange) => {
                 return (
                   <button
-                    key={percent}
+                    key={priceRange}
                     className={cn(
                       "border rounded-full border-stroke px-3 py-1 flex items-center justify-center",
-                      percent === 100 ? "w-max-content" : "flex-1",
-                      selectedRange === percent
+                      priceRange === FULL_PRICE_RANGE
+                        ? "w-max-content"
+                        : "flex-1",
+                      selectedRange?.range === priceRange
                         ? "border-primary text-primary"
                         : ""
                     )}
-                    onClick={() => handleSelectRange(percent)}
+                    onClick={() =>
+                      handleSelectPriceRange(
+                        priceRange as typeof FULL_PRICE_RANGE | number
+                      )
+                    }
                   >
-                    {percent === 100 ? "Full Range" : `${percent}%`}
+                    {priceRange === FULL_PRICE_RANGE
+                      ? priceRange
+                      : `${Number(priceRange) * 100}%`}
                   </button>
                 );
               })}
@@ -376,7 +420,7 @@ export function TargetPoolState({
                           value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
                         )
                       ) {
-                        setSelectedRange(0);
+                        setSelectedRange(null);
                         revertDisplay ? setMaxPrice(value) : setMinPrice(value);
                       }
                     }}
@@ -407,7 +451,7 @@ export function TargetPoolState({
                   <button
                     className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center disabled:cursor-not-allowed"
                     onClick={() => {
-                      setSelectedRange(0);
+                      setSelectedRange(null);
                       revertDisplay ? decreaseTickUpper() : increaseTickLower();
                     }}
                     disabled={revertDisplay ? isMaxTick : isMinTick}
@@ -417,7 +461,7 @@ export function TargetPoolState({
                   <button
                     className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center disabled:cursor-not-allowed"
                     onClick={() => {
-                      setSelectedRange(0);
+                      setSelectedRange(null);
                       revertDisplay ? increaseTickUpper() : decreaseTickLower();
                     }}
                     disabled={revertDisplay ? isMaxTick : isMinTick}
@@ -452,7 +496,7 @@ export function TargetPoolState({
                           value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
                         )
                       ) {
-                        setSelectedRange(0);
+                        setSelectedRange(null);
                         revertDisplay ? setMinPrice(value) : setMaxPrice(value);
                       }
                     }}
@@ -483,7 +527,7 @@ export function TargetPoolState({
                   <button
                     className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center disabled:cursor-not-allowed"
                     onClick={() => {
-                      setSelectedRange(0);
+                      setSelectedRange(null);
                       revertDisplay ? decreaseTickLower() : increaseTickUpper();
                     }}
                     disabled={!revertDisplay ? isMaxTick : isMinTick}
@@ -493,7 +537,7 @@ export function TargetPoolState({
                   <button
                     className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center disabled:cursor-not-allowed"
                     onClick={() => {
-                      setSelectedRange(0);
+                      setSelectedRange(null);
                       revertDisplay ? increaseTickLower() : decreaseTickUpper();
                     }}
                     disabled={!revertDisplay ? isMaxTick : isMinTick}

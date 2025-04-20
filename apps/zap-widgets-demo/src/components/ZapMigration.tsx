@@ -75,10 +75,6 @@ const ZapMigration = () => {
       address,
       chainId,
     },
-    initialTick: {
-      tickLower: -100,
-      tickUpper: 20,
-    },
     onClose: () => {
       setOpenWidget(false);
     },

@@ -13,6 +13,7 @@ import { Theme, defaultTheme } from "../theme";
 import { z } from "zod";
 import { create } from "zustand";
 import { NetworkInfo } from "../constants";
+import { MAX_TICK, MIN_TICK, nearestUsableTick } from "@kyber/utils/uniswapv3";
 
 // import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
@@ -262,6 +263,8 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           sqrtPriceX96: p.positionInfo.sqrtPriceX96,
           tickSpacing: p.positionInfo.tickSpacing,
           ticks: p.positionInfo.ticks,
+          minTick: nearestUsableTick(MIN_TICK, p.positionInfo.tickSpacing),
+          maxTick: nearestUsableTick(MAX_TICK, p.positionInfo.tickSpacing),
         } as Pool;
       } else if (isUniV2) {
         pool0 = {
@@ -308,6 +311,8 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           sqrtPriceX96: p1.positionInfo.sqrtPriceX96,
           tickSpacing: p1.positionInfo.tickSpacing,
           ticks: p1.positionInfo.ticks,
+          minTick: nearestUsableTick(MIN_TICK, p1.positionInfo.tickSpacing),
+          maxTick: nearestUsableTick(MAX_TICK, p1.positionInfo.tickSpacing),
         } as Pool;
       } else if (isPoolToUniV2) {
         const totalSupplySelector = getFunctionSelector("totalSupply()");
