@@ -145,7 +145,11 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
                 borderBottom: isWarningSlippage ? `1px dashed ${theme.warning}` : 'none',
               }}
             >
-              <MouseoverTooltip text={`Your slippage ${msg}`}>{formatSlippage(rawSlippage)}</MouseoverTooltip>
+              {msg ? (
+                <MouseoverTooltip text={`Your slippage ${msg}`}>{formatSlippage(rawSlippage)}</MouseoverTooltip>
+              ) : (
+                formatSlippage(rawSlippage)
+              )}
             </Text>
 
             <DropdownIcon data-flip={expanded} data-highlight={!expanded && defaultSlp !== rawSlippage}>
