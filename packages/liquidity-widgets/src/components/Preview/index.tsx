@@ -1033,7 +1033,12 @@ export default function Preview({
             </div>
           </MouseoverTooltip>
           <div className="text-sm font-medium">
-            {gasUsd ? formatCurrency(gasUsd) : "--"}
+            {gasUsd
+              ? formatDisplayNumber(gasUsd, {
+                  significantDigits: 4,
+                  style: "currency",
+                })
+              : "--"}
           </div>
         </div>
 
