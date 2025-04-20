@@ -192,8 +192,8 @@ export default function PriceInput({ type }: { type: Type }) {
         <span>
           {pool !== "loading"
             ? !revertPrice
-              ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
-              : `${pool?.token1.symbol}/${pool?.token0.symbol}`
+              ? `${pool?.token1.symbol}/${pool?.token0.symbol}`
+              : `${pool?.token0.symbol}/${pool?.token1.symbol}`
             : NO_DATA}
         </span>
       </div>

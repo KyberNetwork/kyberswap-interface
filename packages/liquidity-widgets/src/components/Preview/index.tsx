@@ -26,6 +26,7 @@ import {
 import {
   PI_LEVEL,
   formatCurrency,
+  formatNumber,
   formatWei,
   friendlyError,
   getPriceImpact,
@@ -63,8 +64,6 @@ export interface ZapState {
   zapInfo: ZapRouteDetail;
   tokensIn: Token[];
   amountsIn: string;
-  priceLower: string;
-  priceUpper: string;
   deadline: number;
   isFullRange: boolean;
   slippage: number;
@@ -78,16 +77,7 @@ export interface PreviewProps {
 }
 
 export default function Preview({
-  zapState: {
-    pool,
-    zapInfo,
-    priceLower,
-    priceUpper,
-    deadline,
-    slippage,
-    tickLower,
-    tickUpper,
-  },
+  zapState: { pool, zapInfo, deadline, slippage, tickLower, tickUpper },
   onDismiss,
 }: PreviewProps) {
   const {
@@ -254,14 +244,54 @@ export default function Preview({
       })
     : "--";
 
-  const leftPrice = !revert ? priceLower : priceUpper;
-  const rightPrice = !revert ? priceUpper : priceLower;
+  const priceRange = useMemo(() => {
+    if (!univ3Pool) return null;
+    const maxPrice =
+      tickUpper === univ3Pool.maxTick
+        ? revert
+          ? "0"
+          : "∞"
+        : formatNumber(
+            parseFloat(
+              tickToPrice(
+                !revert ? tickUpper : tickLower,
+                pool.token0?.decimals,
+                pool.token1?.decimals,
+                revert
+              )
+            )
+          );
+    const minPrice =
+      tickLower === univ3Pool.minTick
+        ? revert
+          ? "∞"
+          : "0"
+        : formatNumber(
+            parseFloat(
+              tickToPrice(
+                !revert ? tickLower : tickUpper,
+                pool.token0?.decimals,
+                pool.token1?.decimals,
+                revert
+              )
+            )
+          );
+
+    return [minPrice, maxPrice];
+  }, [
+    univ3Pool,
+    tickUpper,
+    revert,
+    pool.token0?.decimals,
+    pool.token1?.decimals,
+    tickLower,
+  ]);
 
   const quote = (
     <span>
       {!revert
-        ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
-        : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
+        ? `${pool?.token1.symbol}/${pool?.token0.symbol}`
+        : `${pool?.token0.symbol}/${pool?.token1.symbol}`}
     </span>
   );
 
@@ -747,40 +777,30 @@ export default function Preview({
             </div>
           </div>
 
-          <div className="flex justify-between items-center gap-4 w-full mt-2">
-            <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
-              <div className="ks-lw-card-title">Min Price</div>
-              <div
-                title={leftPrice}
-                className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-center"
-              >
-                {(
-                  revert
-                    ? tickUpper === univ3Pool.maxTick
-                    : tickLower === univ3Pool.minTick
-                )
-                  ? "0"
-                  : leftPrice}
+          {priceRange && (
+            <div className="flex justify-between items-center gap-4 w-full mt-2">
+              <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
+                <div className="ks-lw-card-title">Min Price</div>
+                <div
+                  title={priceRange[0]}
+                  className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-center"
+                >
+                  {priceRange[0]}
+                </div>
+                <div className="ks-lw-card-title">{quote}</div>
               </div>
-              <div className="ks-lw-card-title">{quote}</div>
-            </div>
-            <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
-              <div className="ks-lw-card-title">Max Price</div>
-              <div
-                title={rightPrice}
-                className="text-center w-full overflow-hidden text-ellipsis whitespace-nowrap"
-              >
-                {(
-                  !revert
-                    ? tickUpper === univ3Pool.maxTick
-                    : tickLower === univ3Pool.minTick
-                )
-                  ? "∞"
-                  : rightPrice}
+              <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
+                <div className="ks-lw-card-title">Max Price</div>
+                <div
+                  title={priceRange[1]}
+                  className="text-center w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                >
+                  {priceRange[1]}
+                </div>
+                <div className="ks-lw-card-title">{quote}</div>
               </div>
-              <div className="ks-lw-card-title">{quote}</div>
             </div>
-          </div>
+          )}
         </div>
       ) : null}
 

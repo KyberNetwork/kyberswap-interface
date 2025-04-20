@@ -383,9 +383,6 @@ export default function Content() {
           ? univ3Pool.minTick === tickUpper && univ3Pool.maxTick === tickLower
           : true,
         slippage,
-        // incase univ2, it's not important
-        priceLower: priceLower || "",
-        priceUpper: priceUpper || "",
         tickUpper: tickUpper !== null ? tickUpper : 0,
         tickLower: tickLower !== null ? tickLower : 0,
       });
