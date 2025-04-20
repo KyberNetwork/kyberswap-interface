@@ -36,8 +36,8 @@ import {
 
 interface SelectedRange {
   range: number | string;
-  tickLower?: number;
-  tickUpper?: number;
+  tickLower: number;
+  tickUpper: number;
 }
 
 const getFeeRange = (fee: number): FeeAmount | undefined => {
@@ -99,7 +99,7 @@ export function TargetPoolState({
             : "∞"
           : formatDisplayNumber(
               +tickToPrice(
-                !revertDisplay ? tickUpper : tickLower,
+                tickUpper,
                 pool.token0.decimals,
                 pool.token1.decimals,
                 revertDisplay
@@ -122,7 +122,7 @@ export function TargetPoolState({
             : "0"
           : formatDisplayNumber(
               +tickToPrice(
-                !revertDisplay ? tickLower : tickUpper,
+                tickLower,
                 pool.token0.decimals,
                 pool.token1.decimals,
                 revertDisplay
@@ -252,9 +252,13 @@ export function TargetPoolState({
     const selected = priceRangeCalculated.find((item) => item?.range === range);
     if (!selected) return;
     setSelectedRange(selected);
-    setTickLower(selected.tickLower);
-    setTickUpper(selected.tickUpper);
   };
+
+  useEffect(() => {
+    if (!priceRangeCalculated || !selectedRange) return;
+    setTickLower(selectedRange.tickLower);
+    setTickUpper(selectedRange.tickUpper);
+  }, [priceRangeCalculated, selectedRange, setTickLower, setTickUpper]);
 
   useEffect(() => {
     if (!priceRangeCalculated) return;

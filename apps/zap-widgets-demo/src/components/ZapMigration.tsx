@@ -49,11 +49,12 @@ const ZapMigration = () => {
       dex: Dex.DEX_UNISWAP_V4,
       poolId:
         "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
-      positionId: 35636,
+      positionId: 40150,
     },
     to: {
-      dex: Dex.DEX_UNISWAPV3,
-      poolId: "0xd364eb55e17700b54bd75feb3f14582ed7a29444",
+      dex: Dex.DEX_UNISWAP_V4,
+      poolId:
+        "0x841c1a22d9a505cbba3e9bf90fd43e1201a09932ca0a90816579346be5f092af",
       positionId: undefined,
     },
   });
