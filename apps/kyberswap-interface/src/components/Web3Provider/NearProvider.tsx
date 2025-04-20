@@ -179,6 +179,7 @@ export default function NEARWalletProvider({ children }: { children: ReactNode }
       console.error('Error fetching balance:', error)
     }
   }
+  console.log(walletState)
 
   // Connect to NEAR wallet
   const connect = async () => {

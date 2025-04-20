@@ -11,6 +11,9 @@ import { TokenLogoWithChain } from './components/TokenLogoWithChain'
 import { Summary } from './components/Summary'
 import { SwapAction } from './components/SwapAction'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
+import { isEvmChain } from 'utils'
+import { NearToken } from 'state/crossChainSwap'
+import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 
 const Wrapper = styled.div`
   display: flex;
@@ -49,9 +52,13 @@ function CrossChainSwap() {
         }}
         disabled={false}
         onSelectCurrency={currency => {
+          const c = currency as EvmCurrency
+
           searchParams.set(
             'tokenIn',
-            (currency.isNative ? currency.symbol : currency.address) || currency.wrapped.address,
+            isEvmChain(fromChainId)
+              ? (c.isNative ? c.symbol : c.address) || c.wrapped.address
+              : (currency as NearToken).assetId,
           )
           setSearchParams(searchParams)
         }}
@@ -75,15 +82,27 @@ function CrossChainSwap() {
 
         <ReverseTokenSelectionButton
           onClick={() => {
+            const cIn = currencyIn as EvmCurrency
+            const cOut = currencyOut as EvmCurrency
+            const isFromEvm = isEvmChain(fromChainId)
+            const isToEvm = toChainId && isEvmChain(toChainId)
             searchParams.set('from', toChainId?.toString() || '')
             searchParams.set('to', fromChainId?.toString() || '')
             searchParams.set(
               'tokenIn',
-              currencyOut?.isNative ? currencyOut.symbol || '' : currencyOut?.wrapped.address || '',
+              isToEvm
+                ? cOut?.isNative
+                  ? cOut.symbol || ''
+                  : cOut?.wrapped.address || ''
+                : (currencyOut as NearToken).assetId,
             )
             searchParams.set(
               'tokenOut',
-              currencyIn?.isNative ? currencyIn.symbol || '' : currencyIn?.wrapped.address || '',
+              isFromEvm
+                ? cIn?.isNative
+                  ? cIn.symbol || ''
+                  : cIn?.wrapped.address || ''
+                : (currencyIn as NearToken).assetId,
             )
             setSearchParams(searchParams)
           }}
@@ -104,9 +123,12 @@ function CrossChainSwap() {
         }}
         disabled
         onSelectCurrency={currency => {
+          const c = currency as EvmCurrency
           searchParams.set(
             'tokenOut',
-            (currency.isNative ? currency.symbol : currency.address) || currency.wrapped.address,
+            toChainId && isEvmChain(toChainId)
+              ? (c.isNative ? c.symbol : c.address) || c.wrapped.address
+              : (currency as NearToken).assetId,
           )
           setSearchParams(searchParams)
         }}

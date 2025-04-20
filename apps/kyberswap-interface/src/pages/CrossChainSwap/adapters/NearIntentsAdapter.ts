@@ -5,69 +5,75 @@ import {
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-  EvmQuoteParams,
+  NonEvmChain,
+  NearQuoteParams,
 } from './BaseSwapAdapter'
 import { MAINNET_RELAY_API, getClient, createClient } from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
 import { ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
+import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 
-export class RelayAdapter extends BaseSwapAdapter {
+export const MappingChainIdToBlockChain = {
+  [ChainId.ARBITRUM]: 'arb',
+  [ChainId.MAINNET]: 'eth',
+}
+
+export class NearIntentsAdapter extends BaseSwapAdapter {
   constructor() {
     super()
-    createClient({
-      baseApiUrl: MAINNET_RELAY_API,
-      source: 'kyberswap',
-    })
+    // Initialize the API client
+    OpenAPI.BASE = 'https://1click.chaindefuser.com'
   }
 
   getName(): string {
-    return 'Relay'
+    return 'Near Intents'
   }
   getIcon(): string {
-    return 'https://relay.link/favicon.ico'
+    return 'https://storage.googleapis.com/ks-setting-1d682dca/000c677f-2ebc-44cc-8d76-e4c6d07627631744962669170.png'
   }
   getSupportedChains(): Chain[] {
     // TODO: handle supported chains
-    return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM]
+    return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM, NonEvmChain.Near]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
     return []
   }
 
-  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
-    const resp = await getClient().actions.getQuote({
-      chainId: +params.fromChain,
-      toChainId: +params.toChain,
-      currency: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address,
-      toCurrency: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
+  async getQuote(params: NearQuoteParams): Promise<NormalizedQuote> {
+    console.log(params)
+    // Create a quote request
+    const quoteRequest: QuoteRequest = {
+      //dry: true,
+      slippageTolerance: params.slippage,
+      swapType: QuoteRequest.swapType.EXACT_INPUT,
+
+      originAsset: 'nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near',
+      depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
+
+      destinationAsset: 'nep141:sol-5ce3bf3a31af18be40ba30f721101b4341690186.omft.near',
       amount: params.amount,
-      tradeType: 'EXACT_INPUT',
-      wallet: params.walletClient,
-      // options: {
-      //   appFees: [
-      //     {
-      //       // TODO: add app fee
-      //       recipient: '0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9',
-      //       fee: '100',
-      //     },
-      //   ],
-      // },
-    })
+
+      refundTo: '0x2527D02599Ba641c19FEa793cD0F167589a0f10D',
+      refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
+      recipient: '13QkxhNMrTPxoCkRdYdJ65tFuwXPhL5gLS2Z5Nr6gjRK',
+      recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
+    }
+
     return {
       quoteParams: params,
-      outputAmount: BigInt(resp.details?.currencyOut?.amount || '0'),
-      formattedOutputAmount: formatUnits(BigInt(resp.details?.currencyOut?.amount || '0'), params.toToken.decimals),
-      inputUsd: Number(resp.details?.currencyIn?.amountUsd || 0),
-      outputUsd: Number(resp.details?.currencyOut?.amountUsd || 0),
-      priceImpact: Number(resp.details?.totalImpact?.percent || 0),
-      rate: Number(resp.details?.rate || 0),
-      gasFeeUsd: Number(resp.fees?.gas?.amountUsd || 0),
-      timeEstimate: resp.details?.timeEstimate || 0,
+      outputAmount: BigInt('0'),
+      formattedOutputAmount: formatUnits(BigInt('0'), params.toToken.decimals),
+      inputUsd: 0,
+      outputUsd: 0,
+      priceImpact: 0,
+      rate: 0,
+      gasFeeUsd: 0,
+      timeEstimate: 0,
       // Relay dont need to approve, we send token to contract directly
       contractAddress: ZERO_ADDRESS,
-      rawQuote: resp,
+      rawQuote: null,
     }
   }
 

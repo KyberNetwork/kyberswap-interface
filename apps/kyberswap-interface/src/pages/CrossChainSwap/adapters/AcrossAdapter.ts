@@ -2,10 +2,10 @@ import { arbitrum, mainnet, optimism } from 'viem/chains'
 import {
   BaseSwapAdapter,
   Chain,
-  QuoteParams,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
+  EvmQuoteParams,
 } from './BaseSwapAdapter'
 import { createAcrossClient, AcrossClient } from '@across-protocol/app-sdk'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
@@ -50,7 +50,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     return []
   }
 
-  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
+  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
     const resp = await this.acrossClient.getQuote({
       route: {
         originChainId: +params.fromChain,

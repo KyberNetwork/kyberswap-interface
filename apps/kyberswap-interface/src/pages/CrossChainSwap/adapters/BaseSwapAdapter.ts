@@ -27,6 +27,16 @@ export interface QuoteParams {
   walletClient?: WalletClient
 }
 
+export interface EvmQuoteParams extends QuoteParams {
+  fromToken: EvmCurrency
+  toToken: EvmCurrency
+}
+
+export interface NearQuoteParams extends QuoteParams {
+  fromToken: NearToken
+  toToken: NearToken
+}
+
 export interface NormalizedQuote {
   quoteParams: QuoteParams
 

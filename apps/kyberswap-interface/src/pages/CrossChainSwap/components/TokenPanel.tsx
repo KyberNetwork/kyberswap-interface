@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { Aligner, CurrencySelect, InputRow, StyledTokenName } from 'components/CurrencyInputPanel'
 import Wallet from 'components/Icons/Wallet'
@@ -14,7 +14,7 @@ import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
-import { Chain, NonEvmChain } from '../adapters'
+import { Chain, Currency, NonEvmChain } from '../adapters'
 import { isEvmChain } from 'utils'
 import Modal from 'components/Modal'
 import { CloseIcon } from 'theme'
@@ -53,7 +53,7 @@ export const TokenPanel = ({
   const { nearTokens } = useNearTokens()
 
   const evmBalance = useCurrencyBalance(
-    isEvm ? selectedCurrency : undefined,
+    isEvm ? (selectedCurrency as EvmCurrency) : undefined,
     isEvm ? (selectedChain as ChainId) : undefined,
   )
 
@@ -146,7 +146,21 @@ export const TokenPanel = ({
         >
           <Aligner>
             <RowFixed>
-              {selectedCurrency && <CurrencyLogo currency={selectedCurrency} size={'20px'} />}
+              {selectedCurrency && (
+                <>
+                  {isEvm ? (
+                    <CurrencyLogo currency={selectedCurrency as EvmCurrency} size={'20px'} />
+                  ) : (
+                    <img
+                      src={(selectedCurrency as any).logo}
+                      alt={selectedCurrency.symbol}
+                      width={24}
+                      height={24}
+                      style={{ borderRadius: '50%' }}
+                    />
+                  )}
+                </>
+              )}
               <StyledTokenName
                 className="token-symbol-container"
                 active={Boolean(selectedCurrency?.symbol)}
@@ -165,7 +179,7 @@ export const TokenPanel = ({
           isOpen={modalOpen}
           onDismiss={() => setModalOpen(false)}
           onCurrencySelect={onSelectCurrency as (currency: Currency) => void}
-          selectedCurrency={selectedCurrency}
+          selectedCurrency={selectedCurrency as EvmCurrency}
           showCommonBases
           customChainId={selectedChain as ChainId}
         />
@@ -213,8 +227,8 @@ export const TokenPanel = ({
                     key={item.assetId}
                     role="button"
                     onClick={() => {
-                      console.log(item)
-                      // onSelectCurrency()
+                      onSelectCurrency(item)
+                      setModalOpen(false)
                     }}
                   >
                     <Flex alignItems="center" style={{ gap: 8 }}>
