@@ -6,7 +6,7 @@ import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { useZapOutContext } from "@/stores/zapout";
 import { NETWORKS_INFO, PATHS, CHAIN_ID_TO_CHAIN } from "@/constants";
 import { SyntheticEvent, useEffect, useState } from "react";
-import { formatTokenAmount } from "@kyber/utils/number";
+import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
 import { PI_LEVEL, formatCurrency } from "@/utils";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { ProtocolFeeAction, ZapAction } from "@/hooks/types/zapInTypes";
@@ -395,7 +395,14 @@ export const Preview = () => {
               Est. Gas Fee
             </div>
           </MouseoverTooltip>
-          <div>{gasUsd ? formatCurrency(gasUsd) : "--"}</div>
+          <div>
+            {gasUsd
+              ? formatDisplayNumber(gasUsd, {
+                  significantDigits: 4,
+                  style: "currency",
+                })
+              : "--"}
+          </div>
         </div>
 
         <div className="flex items-center justify-between">
