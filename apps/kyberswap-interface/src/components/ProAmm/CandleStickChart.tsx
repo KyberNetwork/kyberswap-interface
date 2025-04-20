@@ -87,10 +87,14 @@ const CandleStickChart = ({
       const tooltip = document.getElementById('tooltip-id')
       const currentChart = document.getElementsByClassName('tv-lightweight-charts')
       const node = ref.current
-      tooltip && node?.removeChild(tooltip)
-      if (currentChart.length > 0) {
-        node?.removeChild(currentChart[0])
+      if (tooltip && node && node.contains(tooltip)) {
+        node.removeChild(tooltip)
       }
+
+      if (currentChart.length > 0 && node && node.contains(currentChart[0])) {
+        node.removeChild(currentChart[0])
+      }
+
       chartCreated.current.resize(0, 0)
       chartCreated.current = null
     }
