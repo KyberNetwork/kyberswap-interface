@@ -1,5 +1,5 @@
-import { ChainId } from "@/schema";
-import uniLogo from "@/assets/dexes/uniswap.png";
+import { ChainId } from "../../schema";
+import uniLogo from "../../assets/dexes/uniswap.png";
 
 export default {
   icon: uniLogo,

@@ -1,4 +1,4 @@
-import { DexInfos, NetworkInfo } from "../constants";
+import { DEXES_INFO, NETWORKS_INFO } from "../constants";
 import { ChainId, Dex } from "../schema";
 import { decodeAddress, getFunctionSelector } from "@kyber/utils/crypto";
 import { useEffect, useState } from "react";
@@ -19,16 +19,16 @@ const usePositionOwner = ({
   const [positionOwner, setPositionOwner] = useState<string | null>(null);
   const [positionOwner1, setPositionOwner1] = useState<string | null>(null);
 
-  const rpcUrl = NetworkInfo[chainId].defaultRpc;
+  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
-  const contract0 = dex0 ? DexInfos[dex0].nftManagerContract : undefined;
+  const contract0 = dex0 ? DEXES_INFO[dex0].nftManagerContract : undefined;
   const nftManagerContract0 = contract0
     ? typeof contract0 === "string"
       ? contract0
       : contract0[chainId]
     : undefined;
 
-  const contract1 = dex1 ? DexInfos[dex1].nftManagerContract : undefined;
+  const contract1 = dex1 ? DEXES_INFO[dex1].nftManagerContract : undefined;
   const nftManagerContract1 = contract1
     ? typeof contract1 === "string"
       ? contract1

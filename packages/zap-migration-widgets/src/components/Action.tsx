@@ -1,7 +1,7 @@
 import {
-  DexInfos,
+  DEXES_INFO,
   FARMING_CONTRACTS,
-  NetworkInfo,
+  NETWORKS_INFO,
   ZERO_ADDRESS,
 } from "../constants";
 import { useNftApproval } from "../hooks/use-nft-approval";
@@ -100,10 +100,14 @@ export function Action({
     pools !== "loading" && univ2Dexes.includes(pools[1].dex);
 
   const nftManager =
-    pools === "loading" ? undefined : DexInfos[pools[0].dex].nftManagerContract;
+    pools === "loading"
+      ? undefined
+      : DEXES_INFO[pools[0].dex].nftManagerContract;
 
   const targetNftManager =
-    pools === "loading" ? undefined : DexInfos[pools[1].dex].nftManagerContract;
+    pools === "loading"
+      ? undefined
+      : DEXES_INFO[pools[1].dex].nftManagerContract;
 
   const {
     isChecking,
@@ -111,7 +115,7 @@ export function Action({
     approve,
     pendingTx,
   } = useNftApproval({
-    rpcUrl: NetworkInfo[chainId].defaultRpc,
+    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
     nftManagerContract: nftManager
       ? typeof nftManager === "string"
         ? nftManager
@@ -130,7 +134,7 @@ export function Action({
     approve: targetNftApprove,
     pendingTx: targetNftPendingTx,
   } = useTargetNftApproval({
-    rpcUrl: NetworkInfo[chainId].defaultRpc,
+    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
     nftManagerContract: targetNftManager
       ? typeof targetNftManager === "string"
         ? targetNftManager

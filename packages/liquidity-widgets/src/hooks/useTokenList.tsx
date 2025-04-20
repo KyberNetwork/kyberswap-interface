@@ -127,7 +127,7 @@ export const TokenListProvider = ({
   const fetchTokenList = useCallback(() => {
     setLoading(true);
     fetch(
-      `${PATHS.KYBERSWAP_SETTING_API}?page=1&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
+      `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?page=1&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
     )
       .then((res) => res.json())
       .then((res) =>
@@ -148,7 +148,7 @@ export const TokenListProvider = ({
       setLoading(true);
       try {
         const res = await fetch(
-          `${PATHS.KYBERSWAP_SETTING_API}?query=${address}&page=1&pageSize=100&chainIds=${chainId}`
+          `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?query=${address}&page=1&pageSize=100&chainIds=${chainId}`
         );
         const { data } = await res.json();
 

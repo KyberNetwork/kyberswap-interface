@@ -517,7 +517,7 @@ export default function EstLiqValue() {
                 You still have to pay the standard gas fees.{" "}
                 <a
                   className="text-accent"
-                  href={`${PATHS.KYBERSWAP_DOCS}/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model`}
+                  href={PATHS.DOCUMENT.ZAP_FEE_MODEL}
                   target="_blank"
                   rel="noopener norefferer"
                 >

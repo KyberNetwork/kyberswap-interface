@@ -195,13 +195,16 @@ export const dexValues = Object.values(dexMapping).flat();
 
 export const PATHS = {
   BFF_API: "https://bff.kyberswap.com/api",
-  KYBERSWAP_DOCS: "https://docs.kyberswap.com",
-  KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
+  KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api",
   ZAP_API: "https://zap-api.kyberswap.com", // https://pre-zap-api.kyberengineering.io  https://zap-api.kyberswap.com
   COINGECKO_API_URL: "https://api.coingecko.com/api/v3",
   GO_PLUS_API: "https://api.gopluslabs.io/api/v1/token_security",
   ZAP_EARN_API: "https://pre-zap-earn-service.kyberengineering.io/api",
   TOKEN_API: "https://token-api.kyberengineering.io/api",
+  DOCUMENT: {
+    ZAP_FEE_MODEL:
+      "https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model",
+  },
 };
 
 export const EARN_SUPPORTED_CHAINS = enumToArrayOfValues(EarnChain, "number");

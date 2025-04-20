@@ -1,4 +1,4 @@
-import { DexInfos, NetworkInfo } from "../constants";
+import { DEXES_INFO, NETWORKS_INFO } from "../constants";
 import {
   algebraTypes,
   ChainId,
@@ -53,7 +53,7 @@ export const usePositionStore = create<{
     const isUniv4 = univ4Dexes.includes(dex);
 
     if (isUniv3) {
-      const contract = DexInfos[dex].nftManagerContract;
+      const contract = DEXES_INFO[dex].nftManagerContract;
       const contractAddress =
         typeof contract === "string" ? contract : contract[chainId];
 
@@ -81,7 +81,7 @@ export const usePositionStore = create<{
       };
 
       // Send JSON-RPC request via fetch
-      const response = await fetch(NetworkInfo[chainId].defaultRpc, {
+      const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,7 +118,7 @@ export const usePositionStore = create<{
             id: 1,
           };
 
-          const response = await fetch(NetworkInfo[chainId].defaultRpc, {
+          const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -195,12 +195,12 @@ export const usePositionStore = create<{
       };
 
       const balanceRes = await fetch(
-        NetworkInfo[chainId].defaultRpc,
+        NETWORKS_INFO[chainId].defaultRpc,
         getPayload(`0x${balanceOfSelector}${paddedAccount}`)
       ).then((res) => res.json());
 
       const totalSupplyRes = await fetch(
-        NetworkInfo[chainId].defaultRpc,
+        NETWORKS_INFO[chainId].defaultRpc,
         getPayload(`0x${totalSupplySelector}`)
       ).then((res) => res.json());
 

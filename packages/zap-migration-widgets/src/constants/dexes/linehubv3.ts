@@ -1,5 +1,5 @@
-import { ChainId } from "@/schema";
-import linehubLogo from "@/assets/dexes/linehub.svg?url";
+import { ChainId } from "../../schema";
+import linehubLogo from "../../assets/dexes/linehub.svg?url";
 
 export default {
   icon: linehubLogo,
