@@ -39,7 +39,7 @@ const RegistryContext = createContext<
 >(undefined)
 
 export const CrossChainSwapRegistryProvider = ({ children }: { children: React.ReactNode }) => {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const from = searchParams.get('from')
   const to = searchParams.get('to')
   const tokenIn = searchParams.get('tokenIn')
@@ -50,6 +50,13 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const { nearTokens } = useNearTokens()
 
   const { chainId } = useActiveWeb3React()
+
+  useEffect(() => {
+    if (!from) {
+      searchParams.set('from', chainId?.toString() || '')
+      setSearchParams(searchParams)
+    }
+  }, [from, chainId, searchParams, setSearchParams])
 
   const isFromEvm = isEvmChain(Number(from))
   const fromChainId = isFromEvm ? Number(from) : isNonEvmChain(from as NonEvmChain) ? (from as NonEvmChain) : chainId

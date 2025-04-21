@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import {
   BaseSwapAdapter,
   Chain,
@@ -27,7 +27,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
   }
   getSupportedChains(): Chain[] {
     // TODO: handle supported chains
-    return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM]
+    return []
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
