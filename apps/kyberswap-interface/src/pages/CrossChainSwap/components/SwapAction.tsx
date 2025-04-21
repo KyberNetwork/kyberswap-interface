@@ -8,16 +8,27 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { ZERO_ADDRESS } from 'constants/index'
 import { ConfirmationPopup } from './ConfirmationPopup'
+import { isEvmChain } from 'utils'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
 export const SwapAction = () => {
   const { account, chainId } = useActiveWeb3React()
-  const { inputAmount, fromChainId, toChainId, currencyIn, currencyOut, loading, selectedQuote } = useCrossChainSwap()
-  const balance = useCurrencyBalance(currencyIn, fromChainId)
+  const { amountInWei, fromChainId, toChainId, currencyIn, currencyOut, loading, selectedQuote } = useCrossChainSwap()
+
+  const isFromEvm = isEvmChain(fromChainId)
+  const balance = useCurrencyBalance(
+    isFromEvm ? (currencyIn as Currency) : undefined,
+    isFromEvm ? (fromChainId as ChainId) : undefined,
+  )
 
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
 
   const [showPreview, setShowPreview] = useState(false)
+
+  const inputAmount = isEvmChain(fromChainId)
+    ? CurrencyAmount.fromRawAmount(currencyIn as Currency, amountInWei || '0')
+    : undefined
 
   const [approvalState, approve] = useApproveCallback(inputAmount, selectedQuote?.quote.contractAddress)
   const [clickedApprove, setClickedApprove] = useState(false)
@@ -49,7 +60,7 @@ export const SwapAction = () => {
       }
     }
 
-    if (!inputAmount || !inputAmount.greaterThan(0)) {
+    if (!amountInWei || amountInWei === '0') {
       return {
         label: 'Please input an amount',
         disabled: true,
@@ -65,7 +76,7 @@ export const SwapAction = () => {
         },
       }
 
-    if (!balance || inputAmount.greaterThan(balance)) {
+    if (!balance || inputAmount?.greaterThan(balance)) {
       return {
         label: 'Insufficient Balance',
         disabled: true,
@@ -84,7 +95,7 @@ export const SwapAction = () => {
       return {
         label: 'Switch Network',
         onClick: () => {
-          changeNetwork(fromChainId)
+          if (isFromEvm) changeNetwork(fromChainId as ChainId)
         },
       }
     }

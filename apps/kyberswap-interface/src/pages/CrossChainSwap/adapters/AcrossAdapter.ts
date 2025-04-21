@@ -2,10 +2,10 @@ import { arbitrum, mainnet, optimism } from 'viem/chains'
 import {
   BaseSwapAdapter,
   Chain,
-  QuoteParams,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
+  EvmQuoteParams,
 } from './BaseSwapAdapter'
 import { createAcrossClient, AcrossClient } from '@across-protocol/app-sdk'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
@@ -42,15 +42,24 @@ export class AcrossAdapter extends BaseSwapAdapter {
     return 'https://across.to/favicon.ico'
   }
   getSupportedChains(): Chain[] {
-    // TODO: handle supported chains
-    return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM]
+    return [
+      ChainId.MAINNET,
+      ChainId.ARBITRUM,
+      ChainId.OPTIMISM,
+      ChainId.LINEA,
+      ChainId.MATIC,
+      ChainId.ZKSYNC,
+      ChainId.BASE,
+      ChainId.SCROLL,
+      ChainId.BLAST,
+    ]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
     return []
   }
 
-  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
+  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
     const resp = await this.acrossClient.getQuote({
       route: {
         originChainId: +params.fromChain,

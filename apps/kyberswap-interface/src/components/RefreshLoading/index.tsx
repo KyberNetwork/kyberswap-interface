@@ -1,41 +1,103 @@
-import { useEffect, useState } from 'react'
-import styled, { css, keyframes } from 'styled-components'
+import { useEffect, useRef, useState } from 'react'
 
 import useDebounce from 'hooks/useDebounce'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
+import { CountDown, SpinWrapper, WrappedSvg } from './styles'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { t } from '@lingui/macro'
 
 const INTERVAL_REFETCH_TIME = 10 // seconds
-
-const spin = keyframes`
-    from {
-        transform:rotate(0deg);
-    }
-    to {
-        transform:rotate(360deg);
-    }
-`
-
-const WrappedSvg = styled.svg<{ spinning: boolean }>`
-  ${({ spinning }) =>
-    spinning
-      ? css`
-          animation-name: ${spin};
-          animation-duration: 696ms;
-          animation-iteration-count: infinite;
-          animation-timing-function: linear;
-        `
-      : ''}
-`
+const MIN_REFRESH_TIME = 2 // seconds
 
 let interval: NodeJS.Timeout
 
-const Spin = ({ countdown }: { countdown: number }) => {
+export default function RefreshLoading({
+  refetchLoading,
+  clickable = false,
+  refreshTime = INTERVAL_REFETCH_TIME,
+  disableRefresh = false,
+  onRefresh,
+}: {
+  refetchLoading: boolean
+  clickable?: boolean
+  refreshTime?: number
+  disableRefresh?: boolean
+  onRefresh: () => void
+}) {
+  const [countdown, setCountdown] = useState(0)
+  const disableManualRefresh = useRef(false)
+
+  const debouncedRefetchLoading = useDebounce(refetchLoading, 100)
+  const showLoadingAtLeastTime = useShowLoadingAtLeastTime(debouncedRefetchLoading, 200)
+
+  const handleManualRefresh = () => {
+    if (disableRefresh || disableManualRefresh.current || !clickable) return
+    disableManualRefresh.current = true
+    onRefresh()
+    setTimeout(() => {
+      disableManualRefresh.current = false
+    }, MIN_REFRESH_TIME * 1_000)
+  }
+
+  useEffect(() => {
+    if (disableRefresh) return
+    if (!refetchLoading && !showLoadingAtLeastTime) setCountdown(refreshTime * 1_000)
+    else if (refetchLoading && showLoadingAtLeastTime) setCountdown(0)
+  }, [refetchLoading, showLoadingAtLeastTime, refreshTime, disableRefresh])
+
+  useEffect(() => {
+    if (countdown > 0) {
+      interval = setInterval(() => {
+        if (disableRefresh) return
+        const newCountdown = countdown - 10
+        setCountdown(newCountdown)
+        if (newCountdown === 10) {
+          onRefresh()
+        }
+      }, 10)
+    }
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [countdown, onRefresh, disableRefresh])
+
+  useEffect(() => {
+    onRefresh()
+  }, [onRefresh])
+
+  return (
+    <SpinWrapper role="button" onClick={handleManualRefresh} clickable={clickable}>
+      <MouseoverTooltipDesktopOnly
+        text={clickable ? t`Click to refresh, occur once per second.` : null}
+        placement="top"
+        width="auto"
+      >
+        <>
+          <Spin countdown={countdown} refreshTime={refreshTime} disableRefresh={disableRefresh} />
+
+          {countdown > 0 && !disableRefresh && <CountDown>{(countdown / 1_000).toFixed()}</CountDown>}
+        </>
+      </MouseoverTooltipDesktopOnly>
+    </SpinWrapper>
+  )
+}
+
+const Spin = ({
+  countdown,
+  refreshTime,
+  disableRefresh,
+}: {
+  countdown: number
+  refreshTime: number
+  disableRefresh: boolean
+}) => {
   const theme = useTheme()
 
   return (
     <WrappedSvg
-      spinning={!countdown}
+      spinning={!countdown && !disableRefresh}
       id="arrow_loading"
       xmlns="http://www.w3.org/2000/svg"
       color={theme.primary}
@@ -69,70 +131,9 @@ const Spin = ({ countdown }: { countdown: number }) => {
           stroke="currentColor"
           strokeWidth="16"
           strokeDasharray="30"
-          strokeDashoffset={!countdown ? 0 : -30 + (countdown / (INTERVAL_REFETCH_TIME * 1_000)) * 30}
+          strokeDashoffset={!countdown ? 0 : -30 + (countdown / (refreshTime * 1_000)) * 30}
         />
       </g>
     </WrappedSvg>
-  )
-}
-
-const SpinWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  position: relative;
-  width: fit-content;
-`
-
-const CountDown = styled.div`
-  font-size: 0.75rem;
-  font-weight: 500;
-  position: absolute;
-  margin-left: auto;
-  margin-right: auto;
-  left: 0;
-  right: 0;
-  text-align: center;
-  color: ${({ theme }) => theme.primary};
-`
-
-export default function RefreshLoading({
-  refetchLoading,
-  onRefresh,
-}: {
-  refetchLoading: boolean
-  onRefresh: () => void
-}) {
-  const [countdown, setCountdown] = useState(0)
-
-  const debouncedRefetchLoading = useDebounce(refetchLoading, 100)
-  const showLoadingAtLeastTime = useShowLoadingAtLeastTime(debouncedRefetchLoading, 200)
-
-  useEffect(() => {
-    if (!refetchLoading && !showLoadingAtLeastTime) setCountdown(INTERVAL_REFETCH_TIME * 1_000)
-    else if (refetchLoading && showLoadingAtLeastTime) setCountdown(0)
-  }, [refetchLoading, showLoadingAtLeastTime])
-
-  useEffect(() => {
-    if (countdown > 0) {
-      interval = setInterval(() => {
-        const newCountdown = countdown - 10
-        setCountdown(newCountdown)
-        if (newCountdown === 10) {
-          onRefresh()
-        }
-      }, 10)
-    }
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [countdown, onRefresh])
-
-  return (
-    <SpinWrapper role="button">
-      <Spin countdown={countdown} />
-
-      {countdown > 0 && <CountDown>{(countdown / 1_000).toFixed()}</CountDown>}
-    </SpinWrapper>
   )
 }

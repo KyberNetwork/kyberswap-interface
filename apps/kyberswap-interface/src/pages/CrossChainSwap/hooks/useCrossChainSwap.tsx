@@ -3,12 +3,17 @@ import { CrossChainSwapAdapterRegistry, Quote } from '../registry'
 import { CrossChainSwapFactory } from '../factory'
 import { useSearchParams } from 'react-router-dom'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import { MAINNET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'viem'
 import { useWalletClient } from 'wagmi'
 import useDebounce from 'hooks/useDebounce'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { isEvmChain, isNonEvmChain } from 'utils'
+import { Chain, Currency, NonEvmChain } from '../adapters'
+import { NearToken, useNearTokens } from 'state/crossChainSwap'
+import { MappingChainIdToBlockChain } from '../adapters/NearIntentsAdapter'
+import { useNEARWallet } from 'components/Web3Provider/NearProvider'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -20,15 +25,16 @@ const RegistryContext = createContext<
       amount: string
       setAmount: (amount: string) => void
       registry: CrossChainSwapAdapterRegistry
-      fromChainId: ChainId
-      toChainId: ChainId | undefined
+      fromChainId: Chain
+      toChainId: Chain | undefined
       currencyIn: Currency | undefined
       currencyOut: Currency | undefined
-      inputAmount: CurrencyAmount<Currency> | undefined
       loading: boolean
       quotes: Quote[]
       selectedQuote: Quote | null
       setSelectedQuote: (quote: Quote | null) => void
+      amountInWei: string | undefined
+      nearTokens: NearToken[]
     }
   | undefined
 >(undefined)
@@ -42,46 +48,111 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [amount, setAmount] = useState('1')
   const amountDebounce = useDebounce(amount, 500)
 
+  const { nearTokens } = useNearTokens()
+
   const { chainId } = useActiveWeb3React()
 
-  const fromChainId = MAINNET_NETWORKS.includes(Number(from)) ? Number(from) : chainId
-  const toChainId = MAINNET_NETWORKS.includes(Number(to)) ? Number(to) : undefined
+  const isFromEvm = isEvmChain(Number(from))
+  const fromChainId = isFromEvm ? Number(from) : isNonEvmChain(from as NonEvmChain) ? (from as NonEvmChain) : chainId
 
-  const currencyIn = useCurrencyV2(tokenIn || undefined, fromChainId)
-  const currencyOut = useCurrencyV2(tokenOut || undefined, toChainId)
+  const isToEvm = isEvmChain(Number(to))
+  const toChainId = isToEvm
+    ? (Number(to) as ChainId)
+    : isNonEvmChain(to as NonEvmChain)
+    ? (to as NonEvmChain)
+    : undefined
+
+  const currencyInEvm = useCurrencyV2(
+    isFromEvm ? tokenIn || undefined : undefined,
+    isFromEvm ? (fromChainId as ChainId) : undefined,
+  )
+
+  const currencyIn = useMemo(() => {
+    return isFromEvm ? currencyInEvm : nearTokens.find(token => token.assetId === tokenIn)
+  }, [currencyInEvm, isFromEvm, tokenIn, nearTokens])
+
+  const currencyOutEvm = useCurrencyV2(
+    isToEvm ? tokenOut || undefined : undefined,
+    isToEvm ? (toChainId as ChainId) : undefined,
+  )
+
+  const currencyOut = useMemo(() => {
+    return isToEvm ? currencyOutEvm : nearTokens.find(token => token.assetId === tokenOut)
+  }, [currencyOutEvm, isToEvm, tokenOut, nearTokens])
 
   const inputAmount = useMemo(
     () =>
-      currencyIn &&
-      amountDebounce &&
-      CurrencyAmount.fromRawAmount(
-        currencyIn,
-        parseUnits(amountDebounce || '0', currencyIn.wrapped.decimals).toString(),
-      ),
-    [currencyIn, amountDebounce],
+      currencyIn
+        ? parseUnits(
+            amountDebounce || '0',
+            isFromEvm ? (currencyIn as any).wrapped.decimals : currencyIn.decimals,
+          ).toString()
+        : undefined,
+    [currencyIn, amountDebounce, isFromEvm],
   )
 
   const [loading, setLoading] = useState(false)
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
   const walletClient = useWalletClient()
+  const [slippage] = useUserSlippageTolerance()
+
+  const { walletState } = useNEARWallet()
+  const nearAccountId = walletState?.accountId
 
   useEffect(() => {
-    if (!fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount) {
+    if (!fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount || inputAmount === '0') {
       setQuotes([])
       setSelectedQuote(null)
       return
     }
+    const isFromNear = fromChainId === 'near'
+    const isToNear = toChainId === 'near'
+    const tokenIn =
+      isToNear && !isFromNear
+        ? nearTokens.find(item => {
+            const blockchain = MappingChainIdToBlockChain[fromChainId as ChainId]
+            const cIn = currencyIn as EvmCurrency
+            return (
+              item.blockchain === blockchain &&
+              (item.contractAddress || item.symbol).toLowerCase() ===
+                (cIn.isNative ? cIn.symbol : cIn.wrapped.address)?.toLowerCase()
+            )
+          })
+        : currencyIn
+
+    const tokenOut =
+      isFromNear && !isToNear
+        ? nearTokens.find(item => {
+            const blockchain = MappingChainIdToBlockChain[toChainId as ChainId]
+            const cOut = currencyOut as EvmCurrency
+            return (
+              item.blockchain === blockchain &&
+              (item.contractAddress || item.symbol).toLowerCase() ===
+                (cOut.isNative ? cOut.symbol : cOut.wrapped.address)?.toLowerCase()
+            )
+          })
+        : currencyOut
+
+    if (!tokenIn || !tokenOut) {
+      setQuotes([])
+      setSelectedQuote(null)
+      return
+    }
+
     ;(async () => {
       setLoading(true)
       const q = await registry
         .getQuotes({
           fromChain: fromChainId,
           toChain: toChainId,
-          fromToken: currencyIn,
-          toToken: currencyOut,
-          amount: inputAmount.quotient.toString(),
+          fromToken: tokenIn,
+          toToken: tokenOut,
+          amount: inputAmount,
+          slippage,
           walletClient: walletClient?.data,
+          sender: walletClient?.data?.account.address,
+          recipient: isToNear ? nearAccountId || undefined : walletClient?.data?.account.address,
         })
         .catch(e => {
           console.log(e)
@@ -91,7 +162,17 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       setSelectedQuote(q[0] || null)
       setLoading(false)
     })()
-  }, [fromChainId, toChainId, currencyIn, currencyOut, inputAmount, walletClient?.data])
+  }, [
+    fromChainId,
+    toChainId,
+    currencyIn,
+    currencyOut,
+    inputAmount,
+    walletClient?.data,
+    slippage,
+    nearTokens,
+    nearAccountId,
+  ])
 
   return (
     <RegistryContext.Provider
@@ -103,11 +184,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         toChainId,
         currencyIn: currencyIn || undefined,
         currencyOut: currencyOut || undefined,
-        inputAmount: inputAmount || undefined,
         quotes,
         loading,
         amount,
         setAmount,
+        nearTokens,
+        amountInWei: inputAmount,
       }}
     >
       {children}

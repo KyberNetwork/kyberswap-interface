@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import {
   BaseSwapAdapter,
   Chain,
@@ -7,29 +7,27 @@ import {
   SwapStatus,
   EvmQuoteParams,
 } from './BaseSwapAdapter'
-import { MAINNET_RELAY_API, getClient, createClient } from '@reservoir0x/relay-sdk'
+import { getClient } from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
-import { ZERO_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
-import { MAINNET_NETWORKS } from 'constants/networks'
 
-export class RelayAdapter extends BaseSwapAdapter {
+const XY_FINANCE_API = 'https://aggregator-api.xy.finance/v1/'
+
+export class XYFinanceAdapter extends BaseSwapAdapter {
   constructor() {
     super()
-    createClient({
-      baseApiUrl: MAINNET_RELAY_API,
-      source: 'kyberswap',
-    })
   }
 
   getName(): string {
-    return 'Relay'
+    return 'XYFinance'
   }
   getIcon(): string {
-    return 'https://relay.link/favicon.ico'
+    return 'https://xy.finance/img/favicon.ico'
   }
   getSupportedChains(): Chain[] {
-    return [...MAINNET_NETWORKS]
+    // TODO: handle supported chains
+    return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -37,34 +35,37 @@ export class RelayAdapter extends BaseSwapAdapter {
   }
 
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
-    const resp = await getClient().actions.getQuote({
-      chainId: +params.fromChain,
-      toChainId: +params.toChain,
-      currency: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address,
-      toCurrency: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
-      amount: params.amount,
-      tradeType: 'EXACT_INPUT',
-      wallet: params.walletClient,
-      // options: {
-      //   appFees: [
-      //     {
-      //       // TODO: add app fee
-      //       recipient: '0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9',
-      //       fee: '100',
-      //     },
-      //   ],
-      // },
-    })
+    const p = {
+      srcChainId: params.fromChain,
+      srcQuoteTokenAddress: params.fromToken.isNative ? ETHER_ADDRESS : params.fromToken.address,
+      srcQuoteTokenAmount: params.amount,
+      dstChainId: params.toChain,
+      dstQuoteTokenAddress: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.address,
+      slippage: params.slippage,
+
+      // TODO: add fee
+      // affiliate: '',
+      // Commission rate of affiliate, denominator is 1000000. Affiliate must be provided when passing commissionRate.
+      // commissionRate
+    }
+    // Convert the parameters object to URL query string
+    const queryParams = new URLSearchParams()
+    for (const [key, value] of Object.entries(p)) {
+      queryParams.append(key, String(value))
+    }
+    const resp = await fetch(`${XY_FINANCE_API}/quote?${queryParams.toString()}`)
+    console.log('xy finance quote', resp)
+
     return {
       quoteParams: params,
-      outputAmount: BigInt(resp.details?.currencyOut?.amount || '0'),
-      formattedOutputAmount: formatUnits(BigInt(resp.details?.currencyOut?.amount || '0'), params.toToken.decimals),
-      inputUsd: Number(resp.details?.currencyIn?.amountUsd || 0),
-      outputUsd: Number(resp.details?.currencyOut?.amountUsd || 0),
-      priceImpact: Number(resp.details?.totalImpact?.percent || 0),
-      rate: Number(resp.details?.rate || 0),
-      gasFeeUsd: Number(resp.fees?.gas?.amountUsd || 0),
-      timeEstimate: resp.details?.timeEstimate || 0,
+      outputAmount: BigInt('0'),
+      formattedOutputAmount: formatUnits(BigInt('0'), params.toToken.decimals),
+      inputUsd: 0,
+      outputUsd: 0,
+      priceImpact: 0,
+      rate: 0,
+      gasFeeUsd: 0,
+      timeEstimate: 0,
       // Relay dont need to approve, we send token to contract directly
       contractAddress: ZERO_ADDRESS,
       rawQuote: resp,

@@ -31,6 +31,7 @@ import {
   updateChainId,
   updatePoolDegenMode,
   updatePoolSlippageTolerance,
+  updateSafeAppAcceptedTermOfUse,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
@@ -102,6 +103,7 @@ export interface UserState {
   >
   readonly chainId: ChainId
   acceptedTermVersion: number | null
+  safeAppAcceptedTermOfUse: boolean | null
   viewMode: VIEW_MODE
   paymentToken: Token | null
   holidayMode: boolean
@@ -139,6 +141,7 @@ const initialState: UserState = {
   favoriteTokensByChainIdv2: {},
   chainId: ChainId.MAINNET,
   acceptedTermVersion: null,
+  safeAppAcceptedTermOfUse: false,
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
   isSlippageControlPinned: true,
@@ -270,6 +273,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateAcceptedTermVersion, (state, { payload: acceptedTermVersion }) => {
       state.acceptedTermVersion = acceptedTermVersion
+    })
+    .addCase(updateSafeAppAcceptedTermOfUse, (state, { payload }) => {
+      state.safeAppAcceptedTermOfUse = !!payload
     })
     .addCase(changeViewMode, (state, { payload: viewType }) => {
       state.viewMode = viewType

@@ -3,12 +3,12 @@ import { Quote } from '../registry'
 import { Flex, Text } from 'rebass'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { formatUnits } from 'viem'
 import { formatDisplayNumber } from 'utils/numbers'
 import useTheme from 'hooks/useTheme'
 import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
 import { ExternalLink } from 'theme'
+import { Currency } from '../adapters'
 
 const Wrapper = styled.div`
   border-radius: 16px;
