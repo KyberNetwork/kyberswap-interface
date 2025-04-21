@@ -1,4 +1,4 @@
-import { arbitrum, mainnet, optimism } from 'viem/chains'
+import { arbitrum, base, blast, linea, mainnet, optimism, polygon, scroll, zksync } from 'viem/chains'
 import {
   BaseSwapAdapter,
   Chain,
@@ -30,8 +30,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     super()
     this.acrossClient = createAcrossClient({
       integratorId: `0x${to2ByteHexFromString('kyberswap')}`,
-      // TODO: add more chains here
-      chains: [mainnet, arbitrum, optimism],
+      chains: [mainnet, arbitrum, optimism, linea, polygon, zksync, base, scroll, blast],
     })
   }
 
