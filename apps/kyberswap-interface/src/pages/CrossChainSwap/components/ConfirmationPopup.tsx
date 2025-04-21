@@ -8,12 +8,12 @@ import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
 import { NETWORKS_INFO } from 'constants/networks'
 import { formatDisplayNumber } from 'utils/numbers'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency as EvmCurrency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Summary } from './Summary'
 import { useState } from 'react'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
-import { Chain, NonEvmChain, NonEvmChainInfo } from '../adapters'
+import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
 import { isEvmChain } from 'utils'
 
 const Wrapper = styled.div`
@@ -57,7 +57,11 @@ const TokenBoxInfo = ({
         <Text fontSize={24}>{formatDisplayNumber(amount, { significantDigits: 8 })}</Text>
         <Flex alignItems="center" sx={{ gap: '4px' }} color={theme.subText}>
           <Text fontSize={14}>~{formatDisplayNumber(usdValue, { style: 'currency', significantDigits: 4 })}</Text>
-          <CurrencyLogo currency={currency} size="24px" />
+          {isEvmChain(chainId) ? (
+            <CurrencyLogo currency={currency as EvmCurrency} size="24px" />
+          ) : (
+            <img src={(currency as any).logo} width={24} height={24} alt="" />
+          )}
           <Text>{currency?.symbol}</Text>
         </Flex>
       </Flex>
@@ -67,12 +71,16 @@ const TokenBoxInfo = ({
 
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const theme = useTheme()
-  const { selectedQuote, currencyIn, currencyOut, inputAmount, fromChainId, toChainId } = useCrossChainSwap()
+  const { selectedQuote, currencyIn, currencyOut, amountInWei, fromChainId, toChainId } = useCrossChainSwap()
   const { data: walletClient } = useWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')
   const [transactions, setTransactions] = useCrossChainTransactions()
+
+  const inputAmount = isEvmChain(fromChainId)
+    ? CurrencyAmount.fromRawAmount(currencyIn as EvmCurrency, amountInWei || '0')
+    : undefined
 
   if (!selectedQuote || !currencyIn || !currencyOut || !inputAmount || !fromChainId || !toChainId) return null
 

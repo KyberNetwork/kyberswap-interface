@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import {
   BaseSwapAdapter,
   Chain,
@@ -11,6 +11,7 @@ import { MAINNET_RELAY_API, getClient, createClient } from '@reservoir0x/relay-s
 import { WalletClient, formatUnits } from 'viem'
 import { ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
+import { MAINNET_NETWORKS } from 'constants/networks'
 
 export class RelayAdapter extends BaseSwapAdapter {
   constructor() {
@@ -28,8 +29,7 @@ export class RelayAdapter extends BaseSwapAdapter {
     return 'https://relay.link/favicon.ico'
   }
   getSupportedChains(): Chain[] {
-    // TODO: handle supported chains
-    return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM]
+    return [...MAINNET_NETWORKS]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {

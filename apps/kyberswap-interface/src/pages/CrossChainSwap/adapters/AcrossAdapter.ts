@@ -42,8 +42,17 @@ export class AcrossAdapter extends BaseSwapAdapter {
     return 'https://across.to/favicon.ico'
   }
   getSupportedChains(): Chain[] {
-    // TODO: handle supported chains
-    return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM]
+    return [
+      ChainId.MAINNET,
+      ChainId.ARBITRUM,
+      ChainId.OPTIMISM,
+      ChainId.LINEA,
+      ChainId.MATIC,
+      ChainId.ZKSYNC,
+      ChainId.BASE,
+      ChainId.SCROLL,
+      ChainId.BLAST,
+    ]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {

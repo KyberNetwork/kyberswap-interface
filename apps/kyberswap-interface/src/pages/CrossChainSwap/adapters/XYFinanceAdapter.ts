@@ -2,10 +2,10 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import {
   BaseSwapAdapter,
   Chain,
-  QuoteParams,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
+  EvmQuoteParams,
 } from './BaseSwapAdapter'
 import { getClient } from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
@@ -34,7 +34,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
     return []
   }
 
-  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
+  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
     const p = {
       srcChainId: params.fromChain,
       srcQuoteTokenAddress: params.fromToken.isNative ? ETHER_ADDRESS : params.fromToken.address,

@@ -25,6 +25,8 @@ export interface QuoteParams {
   amount: string
   slippage: number
   walletClient?: WalletClient
+  sender?: string
+  recipient?: string
 }
 
 export interface EvmQuoteParams extends QuoteParams {
@@ -69,12 +71,12 @@ export interface NormalizedTxResponse {
   targetToken: Currency
   targetTxHash?: string
   timestamp: number
-  status?: 'pending' | 'filled'
+  status?: 'pending' | 'filled' | 'failed'
 }
 
 export interface SwapStatus {
   txHash: string
-  status: 'pending' | 'filled'
+  status: 'pending' | 'filled' | 'failed'
 }
 
 // Define a common interface for all swap providers
