@@ -90,47 +90,43 @@ export function TargetPoolState({
     isUniV3 &&
     tickUpper === nearestUsableTick(MAX_TICK, (pool as UniV3Pool).tickSpacing);
 
-  useEffect(() => {
-    if (pool !== "loading" && tickUpper && tickLower)
-      setMaxPrice(
-        isMaxTick
-          ? revertDisplay
-            ? "0"
-            : "∞"
-          : formatDisplayNumber(
-              +tickToPrice(
-                tickUpper,
-                pool.token0.decimals,
-                pool.token1.decimals,
-                revertDisplay
-              ),
-              { significantDigits: 8 }
-            )
-      );
-  }, [tickUpper, pool, revertDisplay, isMaxTick, tickLower]);
-
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(
     null
   );
 
   useEffect(() => {
-    if (pool !== "loading" && tickLower && tickUpper)
-      setMinPrice(
-        isMinTick
-          ? revertDisplay
-            ? "∞"
-            : "0"
-          : formatDisplayNumber(
-              +tickToPrice(
-                tickLower,
-                pool.token0.decimals,
-                pool.token1.decimals,
-                revertDisplay
-              ),
-              { significantDigits: 8 }
-            )
-      );
-  }, [tickLower, pool, revertDisplay, isMinTick, tickUpper]);
+    if (pool !== "loading" && tickUpper && tickLower) {
+      const maxPrice = isMaxTick
+        ? revertDisplay
+          ? "0"
+          : "∞"
+        : formatDisplayNumber(
+            +tickToPrice(
+              tickUpper,
+              pool.token0.decimals,
+              pool.token1.decimals,
+              revertDisplay
+            ),
+            { significantDigits: 8 }
+          );
+      const minPrice = isMinTick
+        ? revertDisplay
+          ? "∞"
+          : "0"
+        : formatDisplayNumber(
+            +tickToPrice(
+              tickLower,
+              pool.token0.decimals,
+              pool.token1.decimals,
+              revertDisplay
+            ),
+            { significantDigits: 8 }
+          );
+
+      setMaxPrice(revertDisplay ? minPrice : maxPrice);
+      setMinPrice(revertDisplay ? maxPrice : minPrice);
+    }
+  }, [tickLower, pool, revertDisplay, isMinTick, isMaxTick, tickUpper]);
 
   const priceLabel =
     pool === "loading" ? (

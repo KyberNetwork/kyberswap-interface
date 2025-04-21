@@ -6,7 +6,7 @@ import {
   useZapStateStore,
 } from "../stores/useZapStateStore";
 import { usePoolsStore } from "../stores/usePoolsStore";
-import { NETWORKS_INFO } from "../constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "../constants";
 import { ChainId } from "..";
 import { PI_LEVEL, getPriceImpact } from "../utils";
 import {
@@ -46,7 +46,16 @@ export const useSwapPI = (chainId: ChainId) => {
 
     if (pools === "loading") return [];
 
-    const tokens = [...tokensIn, NETWORKS_INFO[chainId].wrappedToken];
+    const tokens = [
+      ...tokensIn,
+      NETWORKS_INFO[chainId].wrappedToken,
+      {
+        name: "ETH",
+        address: NATIVE_TOKEN_ADDRESS,
+        symbol: "ETH",
+        decimals: 18,
+      },
+    ];
 
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
