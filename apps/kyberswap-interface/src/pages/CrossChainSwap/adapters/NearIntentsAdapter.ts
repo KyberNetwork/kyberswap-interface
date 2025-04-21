@@ -12,7 +12,6 @@ import { WalletClient, formatUnits } from 'viem'
 import { ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
-import { NearToken } from 'state/crossChainSwap'
 
 export const MappingChainIdToBlockChain: Record<number, string> = {
   [ChainId.MAINNET]: 'eth',
