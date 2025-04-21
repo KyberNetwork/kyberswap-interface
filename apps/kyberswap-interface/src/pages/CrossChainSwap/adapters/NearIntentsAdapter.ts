@@ -15,8 +15,12 @@ import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-cli
 import { NearToken } from 'state/crossChainSwap'
 
 export const MappingChainIdToBlockChain: Record<number, string> = {
-  [ChainId.ARBITRUM]: 'arb',
   [ChainId.MAINNET]: 'eth',
+  [ChainId.ARBITRUM]: 'arb',
+  [ChainId.BSCMAINNET]: 'bsc',
+  [ChainId.BERA]: 'bera',
+  [ChainId.MATIC]: 'pol',
+  [ChainId.BASE]: 'base',
 }
 
 const erc20Abi = [
@@ -46,8 +50,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/000c677f-2ebc-44cc-8d76-e4c6d07627631744962669170.png'
   }
   getSupportedChains(): Chain[] {
-    // TODO: handle supported chains
-    return [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.OPTIMISM, NonEvmChain.Near]
+    return [NonEvmChain.Near, ...Object.keys(MappingChainIdToBlockChain).map(Number)]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -58,6 +61,36 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     const deadline = new Date()
     deadline.setSeconds(deadline.getSeconds() + 60 * 20)
 
+    const fromAssetId =
+      'assetId' in params.fromToken
+        ? params.fromToken.assetId
+        : params.nearTokens.find(token => {
+            const blockchain = MappingChainIdToBlockChain[params.fromChain as ChainId]
+            return (
+              token.blockchain === blockchain &&
+              ((params.fromToken as any).isNative
+                ? token.symbol.toLowerCase() === params.fromToken.symbol?.toLowerCase()
+                : token.contractAddress?.toLowerCase() === (params.fromToken as any).wrapped?.address.toLowerCase())
+            )
+          })?.assetId
+
+    const toAssetId =
+      'assetId' in params.fromToken
+        ? params.fromToken.assetId
+        : params.nearTokens.find(token => {
+            const blockchain = MappingChainIdToBlockChain[params.toChain as ChainId]
+            return (
+              token.blockchain === blockchain &&
+              ((params.toToken as any).isNative
+                ? token.symbol.toLowerCase() === params.toToken.symbol?.toLowerCase()
+                : token.contractAddress?.toLowerCase() === (params.toToken as any).wrapped?.address.toLowerCase())
+            )
+          })?.assetId
+
+    if (!fromAssetId || !toAssetId) {
+      throw new Error('not supported tokens')
+    }
+
     // Create a quote request
     const quoteRequest: QuoteRequest = {
       dry: false,
@@ -65,10 +98,10 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       slippageTolerance: params.slippage,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
 
-      originAsset: params.fromToken.assetId,
+      originAsset: fromAssetId,
       depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
 
-      destinationAsset: params.toToken.assetId,
+      destinationAsset: toAssetId,
       amount: params.amount,
 
       refundTo: params.sender || ZERO_ADDRESS,
@@ -108,8 +141,12 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
       const account = walletClient.account?.address as `0x${string}`
 
+      const fromToken = quote.quote.quoteParams.fromToken
+
       const hash = await walletClient.writeContract({
-        address: (quote.quote.quoteParams.fromToken as NearToken).contractAddress as `0x${string}`,
+        address: ('contractAddress' in fromToken
+          ? fromToken.contractAddress
+          : fromToken.wrapped.address) as `0x${string}`,
         abi: erc20Abi,
         functionName: 'transfer',
         chain: undefined,

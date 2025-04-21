@@ -116,7 +116,7 @@ function CrossChainSwap() {
           searchParams.set('to', chainId.toString())
           setSearchParams(searchParams)
         }}
-        value={quotes[0]?.quote.formattedOutputAmount || ''}
+        value={selectedQuote?.quote.formattedOutputAmount || ''}
         amountUsd={selectedQuote?.quote.outputUsd}
         onUserInput={() => {
           //

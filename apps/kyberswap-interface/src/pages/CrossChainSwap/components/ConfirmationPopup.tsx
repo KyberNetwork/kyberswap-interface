@@ -78,9 +78,10 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
   const [txError, setTxError] = useState('')
   const [transactions, setTransactions] = useCrossChainTransactions()
 
-  const inputAmount = isEvmChain(fromChainId)
-    ? CurrencyAmount.fromRawAmount(currencyIn as EvmCurrency, amountInWei || '0')
-    : undefined
+  const inputAmount =
+    isEvmChain(fromChainId) && currencyIn
+      ? CurrencyAmount.fromRawAmount(currencyIn as EvmCurrency, amountInWei || '0')
+      : undefined
 
   if (!selectedQuote || !currencyIn || !currencyOut || !inputAmount || !fromChainId || !toChainId) return null
 

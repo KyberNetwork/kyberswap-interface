@@ -26,9 +26,10 @@ export const SwapAction = () => {
 
   const [showPreview, setShowPreview] = useState(false)
 
-  const inputAmount = isEvmChain(fromChainId)
-    ? CurrencyAmount.fromRawAmount(currencyIn as Currency, amountInWei || '0')
-    : undefined
+  const inputAmount =
+    isEvmChain(fromChainId) && currencyIn
+      ? CurrencyAmount.fromRawAmount(currencyIn as Currency, amountInWei || '0')
+      : undefined
 
   const [approvalState, approve] = useApproveCallback(inputAmount, selectedQuote?.quote.contractAddress)
   const [clickedApprove, setClickedApprove] = useState(false)

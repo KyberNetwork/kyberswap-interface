@@ -4,7 +4,7 @@ import { CrossChainSwapFactory } from '../factory'
 import { useSearchParams } from 'react-router-dom'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'viem'
 import { useWalletClient } from 'wagmi'
 import useDebounce from 'hooks/useDebounce'
@@ -12,7 +12,6 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
 import { Chain, Currency, NonEvmChain } from '../adapters'
 import { NearToken, useNearTokens } from 'state/crossChainSwap'
-import { MappingChainIdToBlockChain } from '../adapters/NearIntentsAdapter'
 import { useNEARWallet } from 'components/Web3Provider/NearProvider'
 
 export const registry = new CrossChainSwapAdapterRegistry()
@@ -106,39 +105,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       setSelectedQuote(null)
       return
     }
-    const isFromNear = fromChainId === 'near'
     const isToNear = toChainId === 'near'
-    const tokenIn =
-      isToNear && !isFromNear
-        ? nearTokens.find(item => {
-            const blockchain = MappingChainIdToBlockChain[fromChainId as ChainId]
-            const cIn = currencyIn as EvmCurrency
-            return (
-              item.blockchain === blockchain &&
-              (item.contractAddress || item.symbol).toLowerCase() ===
-                (cIn.isNative ? cIn.symbol : cIn.wrapped.address)?.toLowerCase()
-            )
-          })
-        : currencyIn
-
-    const tokenOut =
-      isFromNear && !isToNear
-        ? nearTokens.find(item => {
-            const blockchain = MappingChainIdToBlockChain[toChainId as ChainId]
-            const cOut = currencyOut as EvmCurrency
-            return (
-              item.blockchain === blockchain &&
-              (item.contractAddress || item.symbol).toLowerCase() ===
-                (cOut.isNative ? cOut.symbol : cOut.wrapped.address)?.toLowerCase()
-            )
-          })
-        : currencyOut
-
-    if (!tokenIn || !tokenOut) {
-      setQuotes([])
-      setSelectedQuote(null)
-      return
-    }
 
     ;(async () => {
       setLoading(true)
@@ -146,13 +113,14 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         .getQuotes({
           fromChain: fromChainId,
           toChain: toChainId,
-          fromToken: tokenIn,
-          toToken: tokenOut,
+          fromToken: currencyIn,
+          toToken: currencyOut,
           amount: inputAmount,
           slippage,
           walletClient: walletClient?.data,
           sender: walletClient?.data?.account.address,
           recipient: isToNear ? nearAccountId || undefined : walletClient?.data?.account.address,
+          nearTokens,
         })
         .catch(e => {
           console.log(e)

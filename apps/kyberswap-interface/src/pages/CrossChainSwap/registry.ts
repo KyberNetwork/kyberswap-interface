@@ -1,4 +1,4 @@
-import { NormalizedQuote, QuoteParams, SwapProvider } from './adapters'
+import { NearQuoteParams, NormalizedQuote, QuoteParams, SwapProvider } from './adapters'
 
 export interface Quote {
   adapter: SwapProvider
@@ -21,7 +21,7 @@ export class CrossChainSwapAdapterRegistry {
   }
 
   // get quotes from all adapters and sort them by output amount
-  async getQuotes(params: QuoteParams): Promise<Quote[]> {
+  async getQuotes(params: QuoteParams | NearQuoteParams): Promise<Quote[]> {
     const quotes: { adapter: SwapProvider; quote: NormalizedQuote }[] = []
 
     const adapters = this.getAllAdapters().filter(

@@ -35,8 +35,7 @@ export interface EvmQuoteParams extends QuoteParams {
 }
 
 export interface NearQuoteParams extends QuoteParams {
-  fromToken: NearToken
-  toToken: NearToken
+  nearTokens: NearToken[]
 }
 
 export interface NormalizedQuote {
