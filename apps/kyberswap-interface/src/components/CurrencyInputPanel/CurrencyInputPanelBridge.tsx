@@ -118,7 +118,7 @@ export default function CurrencyInputPanelBridge({
           <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
             <SelectNetwork
               chainIds={chainIds}
-              onSelectNetwork={onSelectNetwork}
+              onSelectNetwork={onSelectNetwork as any}
               selectedChainId={selectedChainId}
               tooltipNotSupportChain={tooltipNotSupportChain}
             />

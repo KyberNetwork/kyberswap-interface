@@ -8,11 +8,13 @@ import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
 import { NETWORKS_INFO } from 'constants/networks'
 import { formatDisplayNumber } from 'utils/numbers'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency as EvmCurrency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Summary } from './Summary'
 import { useState } from 'react'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { useCrossChainTransactions } from 'state/crossChainTransactions'
+import { useCrossChainTransactions } from 'state/crossChainSwap'
+import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
+import { isEvmChain } from 'utils'
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -33,32 +35,33 @@ const TokenBoxInfo = ({
   usdValue,
   amount,
 }: {
-  chainId: ChainId
+  chainId: Chain
   currency?: Currency
   amount: string
   usdValue: number
 }) => {
   const theme = useTheme()
+  const { name, icon } = isEvmChain(chainId)
+    ? NETWORKS_INFO[chainId as ChainId]
+    : NonEvmChainInfo[chainId as NonEvmChain]
   return (
     <TokenBox>
       <Flex justifyContent="space-between" fontSize={12} fontWeight={500} mb="0.5rem" color={theme.subText}>
         <Text>Input Amount</Text>
         <Flex sx={{ gap: '4px' }} alignItems="center">
-          <img
-            src={NETWORKS_INFO[chainId].icon}
-            alt={chainId.toString()}
-            width={16}
-            height={16}
-            style={{ borderRadius: '50%' }}
-          />
-          <Text>{NETWORKS_INFO[chainId].name}</Text>
+          <img src={icon} alt={chainId.toString()} width={16} height={16} style={{ borderRadius: '50%' }} />
+          <Text>{name}</Text>
         </Flex>
       </Flex>
       <Flex justifyContent="space-between" fontSize={20} fontWeight={500} mb="0.5rem">
         <Text fontSize={24}>{formatDisplayNumber(amount, { significantDigits: 8 })}</Text>
         <Flex alignItems="center" sx={{ gap: '4px' }} color={theme.subText}>
           <Text fontSize={14}>~{formatDisplayNumber(usdValue, { style: 'currency', significantDigits: 4 })}</Text>
-          <CurrencyLogo currency={currency} size="24px" />
+          {isEvmChain(chainId) ? (
+            <CurrencyLogo currency={currency as EvmCurrency} size="24px" />
+          ) : (
+            <img src={(currency as any).logo} width={24} height={24} alt="" />
+          )}
           <Text>{currency?.symbol}</Text>
         </Flex>
       </Flex>
@@ -68,12 +71,16 @@ const TokenBoxInfo = ({
 
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const theme = useTheme()
-  const { selectedQuote, currencyIn, currencyOut, inputAmount, fromChainId, toChainId } = useCrossChainSwap()
+  const { selectedQuote, currencyIn, currencyOut, amountInWei, fromChainId, toChainId } = useCrossChainSwap()
   const { data: walletClient } = useWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')
   const [transactions, setTransactions] = useCrossChainTransactions()
+
+  const inputAmount = isEvmChain(fromChainId)
+    ? CurrencyAmount.fromRawAmount(currencyIn as EvmCurrency, amountInWei || '0')
+    : undefined
 
   if (!selectedQuote || !currencyIn || !currencyOut || !inputAmount || !fromChainId || !toChainId) return null
 

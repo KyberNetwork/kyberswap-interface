@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
@@ -13,7 +12,7 @@ import Row, { RowBetween } from 'components/Row'
 import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
-import useChainsConfig from 'hooks/useChainsConfig'
+import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -25,6 +24,7 @@ import DraggableNetworkButton from './components/DraggableNetworkButton'
 import DropzoneOverlay from './components/DropzoneOverlay'
 import { useDragAndDrop } from './hooks'
 import { NetworkList, Wrapper } from './styleds'
+import { Chain, NonEvmChainInfo, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
@@ -36,10 +36,10 @@ export default function NetworkModal({
   customToggleModal,
   disabledMsg,
 }: {
-  activeChainIds?: ChainId[]
-  selectedId?: ChainId
+  activeChainIds?: Chain[]
+  selectedId?: Chain
   isOpen?: boolean
-  customOnSelectNetwork?: (chainId: ChainId) => void
+  customOnSelectNetwork?: (chain: Chain) => void
   customToggleModal?: () => void
   disabledMsg?: string
 }): JSX.Element | null {
@@ -87,7 +87,7 @@ export default function NetworkModal({
     }
   }
 
-  const renderNetworkButton = (networkInfo: NetworkInfo) => {
+  const renderNetworkButton = (networkInfo: Pick<NetworkInfo, 'state' | 'icon' | 'chainId' | 'name'>) => {
     const chainId = networkInfo.chainId.toString()
     return (
       <DraggableNetworkButton
@@ -165,6 +165,7 @@ export default function NetworkModal({
                       )
                     }
                     const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
+
                     if (chainInfo) {
                       return renderNetworkButton(chainInfo)
                     }
@@ -203,6 +204,14 @@ export default function NetworkModal({
                     .map((networkInfo: NetworkInfo) => {
                       return renderNetworkButton(networkInfo)
                     })}
+                  {Object.values(NonEvmChain).map((network: NonEvmChain) => {
+                    return renderNetworkButton({
+                      chainId: network as any,
+                      name: NonEvmChainInfo[network].name,
+                      icon: NonEvmChainInfo[network].icon,
+                      state: ChainState.ACTIVE,
+                    })
+                  })}
                 </>
               </NetworkList>
             )}

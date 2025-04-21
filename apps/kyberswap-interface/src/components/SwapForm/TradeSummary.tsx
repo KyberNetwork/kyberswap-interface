@@ -14,12 +14,12 @@ import { BIPS_BASE } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
-import { formattedNum } from 'utils'
+import { formattedNum, isInSafeApp } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
-import RefreshButton from './RefreshButton'
+import RefreshLoading from 'components/RefreshLoading'
 
 type WrapperProps = {
   $visible: boolean
@@ -119,18 +119,27 @@ const SwapFee: React.FC = () => {
         <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
           <MouseoverTooltip
             text={
-              <TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={routeSummary?.extraFee?.feeAmount} />
+              isInSafeApp ? (
+                <Text>
+                  Learn more about the Platform Fee{' '}
+                  <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-widget/widget-iframe-fee">
+                    here ↗
+                  </ExternalLink>
+                </Text>
+              ) : (
+                <TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={routeSummary?.extraFee?.feeAmount} />
+              )
             }
             placement="right"
           >
-            <Trans>Est. Swap Fee</Trans>
+            {isInSafeApp ? 'Platform Fee' : <Trans>Est. Swap Fee</Trans>}
           </MouseoverTooltip>
         </TextDashed>
       </RowFixed>
 
       <RowFixed>
         <TYPE.black color={theme.text} fontSize={12}>
-          {feeAmountUsd || feeAmountWithSymbol || '--'}
+          {isInSafeApp ? '0.1%' : feeAmountUsd || feeAmountWithSymbol || '--'}
         </TYPE.black>
       </RowFixed>
     </RowBetween>
@@ -141,9 +150,10 @@ type Props = {
   routeSummary: DetailedRouteSummary | undefined
   slippage: number
   disableRefresh: boolean
+  routeLoading: boolean
   refreshCallback: () => void
 }
-const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback }) => {
+const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh, refreshCallback, routeLoading }) => {
   const theme = useTheme()
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact } = routeSummary || {}
@@ -184,7 +194,12 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, disableRefresh,
           </Text>
 
           <Flex alignItems="center" sx={{ gap: '4px' }}>
-            <RefreshButton shouldDisable={disableRefresh} callback={refreshCallback} size={16} />
+            <RefreshLoading
+              refetchLoading={routeLoading}
+              onRefresh={refreshCallback}
+              disableRefresh={disableRefresh}
+              clickable
+            />
             <TradePrice price={routeSummary?.executionPrice} color={theme.text} />
           </Flex>
         </RowBetween>

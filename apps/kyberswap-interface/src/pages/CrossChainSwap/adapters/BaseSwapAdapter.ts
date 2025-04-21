@@ -1,8 +1,21 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { WalletClient } from 'viem'
 import { Quote } from '../registry'
+import { NearToken } from 'state/crossChainSwap'
 
-export type Chain = ChainId | 'bitcoin' | 'near'
+export enum NonEvmChain {
+  Near = 'near',
+}
+
+export type Chain = ChainId | NonEvmChain
+export type Currency = EvmCurrency | NearToken
+
+export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: string } } = {
+  [NonEvmChain.Near]: {
+    name: 'NEAR',
+    icon: 'https://storage.googleapis.com/ks-setting-1d682dca/000c677f-2ebc-44cc-8d76-e4c6d07627631744962669170.png',
+  },
+}
 
 export interface QuoteParams {
   fromChain: Chain
@@ -10,7 +23,20 @@ export interface QuoteParams {
   fromToken: Currency
   toToken: Currency
   amount: string
+  slippage: number
   walletClient?: WalletClient
+  sender?: string
+  recipient?: string
+}
+
+export interface EvmQuoteParams extends QuoteParams {
+  fromToken: EvmCurrency
+  toToken: EvmCurrency
+}
+
+export interface NearQuoteParams extends QuoteParams {
+  fromToken: NearToken
+  toToken: NearToken
 }
 
 export interface NormalizedQuote {
@@ -45,12 +71,12 @@ export interface NormalizedTxResponse {
   targetToken: Currency
   targetTxHash?: string
   timestamp: number
-  status?: 'pending' | 'filled'
+  status?: 'pending' | 'filled' | 'failed'
 }
 
 export interface SwapStatus {
   txHash: string
-  status: 'pending' | 'filled'
+  status: 'pending' | 'filled' | 'failed'
 }
 
 // Define a common interface for all swap providers

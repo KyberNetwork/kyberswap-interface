@@ -7,11 +7,11 @@ import { rgba } from 'polished'
 import MenuFlyout from 'components/MenuFlyout'
 import styled from 'styled-components'
 import { TokenLogoWithChain } from './TokenLogoWithChain'
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 import { Clock } from 'react-feather'
 import { GasStation } from 'components/Icons'
+import { Currency } from '../adapters'
 
 const Wrapper = styled.div`
   width: 100%;

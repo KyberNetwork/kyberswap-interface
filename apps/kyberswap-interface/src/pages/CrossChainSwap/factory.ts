@@ -1,10 +1,13 @@
-import { RelayAdapter, AcrossAdapter, SwapProvider } from './adapters'
+import { RelayAdapter, AcrossAdapter, SwapProvider, XYFinanceAdapter } from './adapters'
+import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 
 // Factory for creating swap provider instances
 export class CrossChainSwapFactory {
   // Singleton instances (lazy loaded)
   private static acrossInstance: AcrossAdapter
   private static relayInstance: RelayAdapter
+  private static xyFinanceInstance: XYFinanceAdapter
+  private static nearIntentsInstance: NearIntentsAdapter
 
   // Get or create Across adapter
   static getAcrossAdapter(): AcrossAdapter {
@@ -22,9 +25,28 @@ export class CrossChainSwapFactory {
     return CrossChainSwapFactory.relayInstance
   }
 
+  static getXyFinanceAdapter(): XYFinanceAdapter {
+    if (!CrossChainSwapFactory.xyFinanceInstance) {
+      CrossChainSwapFactory.xyFinanceInstance = new XYFinanceAdapter()
+    }
+    return CrossChainSwapFactory.xyFinanceInstance
+  }
+
+  static getNearIntentsAdapter(): NearIntentsAdapter {
+    if (!CrossChainSwapFactory.nearIntentsInstance) {
+      CrossChainSwapFactory.nearIntentsInstance = new NearIntentsAdapter()
+    }
+    return CrossChainSwapFactory.nearIntentsInstance
+  }
+
   // Get all registered adapters
   static getAllAdapters(): SwapProvider[] {
-    return [CrossChainSwapFactory.getAcrossAdapter(), CrossChainSwapFactory.getRelayAdapter()]
+    return [
+      CrossChainSwapFactory.getAcrossAdapter(),
+      CrossChainSwapFactory.getRelayAdapter(),
+      CrossChainSwapFactory.getXyFinanceAdapter(),
+      CrossChainSwapFactory.getNearIntentsAdapter(),
+    ]
   }
 
   // Get adapter by name
@@ -34,6 +56,10 @@ export class CrossChainSwapFactory {
         return CrossChainSwapFactory.getAcrossAdapter()
       case 'relay':
         return CrossChainSwapFactory.getRelayAdapter()
+      case 'xyfinance':
+        return CrossChainSwapFactory.getXyFinanceAdapter()
+      case 'near intents':
+        return CrossChainSwapFactory.getNearIntentsAdapter()
       default:
         return undefined
     }

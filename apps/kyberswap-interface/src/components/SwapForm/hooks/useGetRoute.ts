@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import debounce from 'lodash.debounce'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
@@ -8,13 +8,22 @@ import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { AGGREGATOR_API } from 'constants/env'
-import { AGGREGATOR_API_PATHS, ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, SWAP_FEE_RECEIVER_ADDRESS } from 'constants/index'
+import {
+  SAFE_APP_CLIENT_ID,
+  SAFE_APP_FEE_RECEIVER_ADDRESS,
+  AGGREGATOR_API_PATHS,
+  ETHER_ADDRESS,
+  INPUT_DEBOUNCE_TIME,
+  SWAP_FEE_RECEIVER_ADDRESS,
+} from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { ChargeFeeBy } from 'types/route'
+import { isInSafeApp } from 'utils'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 export type ArgsGetRoute = {
   parsedAmount: CurrencyAmount<Currency> | undefined
@@ -79,6 +88,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const { parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
+  const [isLoading, setIsLoading] = useState(false)
 
   const feeConfigFromUrl = useGetFeeConfig()
 
@@ -119,7 +129,9 @@ const useGetRoute = (args: ArgsGetRoute) => {
     () =>
       debounce(
         async (args: { url: string; params: GetRouteParams; authentication: boolean }) => {
+          setIsLoading(true)
           await trigger({ ...args, clientId })
+          setIsLoading(false)
           dismissSwapModalFlag.current = false
         },
         INPUT_DEBOUNCE_TIME,
@@ -129,6 +141,54 @@ const useGetRoute = (args: ArgsGetRoute) => {
       ),
     [trigger, clientId],
   )
+
+  const safeAppFeeConfig = useMemo(() => {
+    let chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+    const isCurrencyInStable = currencyIn instanceof WrappedTokenInfo && currencyIn.isStable
+    const isCurrencyOutStable = currencyOut instanceof WrappedTokenInfo && currencyOut.isStable
+
+    // case 0: stable is highest priority
+    if (isCurrencyOutStable) {
+      if (isCurrencyInStable) {
+        if (currencyIn.cmcRank && currencyOut.cmcRank) {
+          if (currencyIn.cmcRank < currencyOut.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+          else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+        }
+      } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+    } else if (currencyIn?.isNative) {
+      chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+    }
+    // Case 1: Output currency is native
+    else if (currencyOut?.isNative) {
+      if (isCurrencyInStable) {
+        chargeFeeBy = ChargeFeeBy.CURRENCY_IN
+      } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+    } else if (currencyOut instanceof WrappedTokenInfo) {
+      // Case 2: Both are wrapped tokens
+      if (currencyIn instanceof WrappedTokenInfo) {
+        // Case 2.1: Whitelist check
+        if (!currencyIn.isWhitelisted && currencyOut.isWhitelisted) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+        // Case 2.2: CMC rank comparison (highest priority)
+        else if (currencyIn.cmcRank && currencyOut.cmcRank) {
+          if (currencyOut.cmcRank < currencyIn.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+        }
+        // Case 2.3: CGK rank comparison (only if CMC rank isn't available for both)
+        else if (currencyIn.cgkRank && currencyOut.cgkRank) {
+          if (currencyOut.cgkRank < currencyIn.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+        }
+        // Case 2.4: Output has rank but input doesn't
+        else if (currencyOut.cmcRank || currencyOut.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+      } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+    }
+    return {
+      feeAmount: '10',
+      chargeFeeBy,
+      isInBps: '1',
+      feeReceiver: SAFE_APP_FEE_RECEIVER_ADDRESS,
+      enableTip: false,
+      clientId: SAFE_APP_CLIENT_ID,
+    }
+  }, [currencyIn, currencyOut])
 
   const fetcher = useCallback(async () => {
     const amountIn = parsedAmount?.quotient?.toString() || ''
@@ -141,7 +201,9 @@ const useGetRoute = (args: ArgsGetRoute) => {
     const tokenOutAddress = getRouteTokenAddressParam(currencyOut)
 
     const swapFeeConfig = await getSwapFeeConfig(chainId, tokenInAddress, tokenOutAddress)
-    const feeConfigParams = feeConfigFromUrl || getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
+    const feeConfigParams = isInSafeApp
+      ? safeAppFeeConfig
+      : feeConfigFromUrl || getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
 
     const params: GetRouteParams = {
       tokenIn: tokenInAddress,
@@ -171,6 +233,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
     return undefined
   }, [
+    safeAppFeeConfig,
     aggregatorDomain,
     chainId,
     currencyIn,
@@ -184,7 +247,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     feeConfigFromUrl,
   ])
 
-  return { fetcher, result }
+  return { fetcher, result, isLoading }
 }
 
 export default useGetRoute

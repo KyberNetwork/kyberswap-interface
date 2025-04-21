@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { Flex, Text } from 'rebass'
-import { useCrossChainTransactions } from 'state/crossChainTransactions'
+import { useCrossChainTransactions } from 'state/crossChainSwap'
 import styled from 'styled-components'
 import { registry } from '../hooks/useCrossChainSwap'
 import { format } from 'date-fns'

@@ -18,7 +18,7 @@ import { useLimitState } from 'state/limit/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import RefreshLoading from '../ListLimitOrder/RefreshLoading'
+import RefreshLoading from 'components/RefreshLoading'
 import { NoResultWrapper } from '../ListOrder'
 import { groupToMap } from '../helpers'
 import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from '../type'
