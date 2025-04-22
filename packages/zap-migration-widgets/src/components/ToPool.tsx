@@ -27,7 +27,6 @@ export function ToPool({ className }: { className?: string }) {
     route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
 
   if (isTargetUniv2 && newUniv2PoolDetail) {
-    console.log(1);
     const p = pools[1] as UniV2Pool;
     amount0 =
       (BigInt(route.positionDetails.addedLiquidity) *
@@ -44,7 +43,6 @@ export function ToPool({ className }: { className?: string }) {
     tickUpper !== null &&
     newOtherPoolDetail
   ) {
-    console.log(2);
     ({ amount0, amount1 } = getPositionAmounts(
       newOtherPoolDetail.newTick,
       tickLower,

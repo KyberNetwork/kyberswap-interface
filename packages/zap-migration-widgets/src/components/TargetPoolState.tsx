@@ -121,12 +121,35 @@ export function TargetPoolState({
               revertDisplay
             ),
             { significantDigits: 8 }
-          );
+          )
 
       setMaxPrice(revertDisplay ? minPrice : maxPrice);
       setMinPrice(revertDisplay ? maxPrice : minPrice);
+
+      setMaxPrice(
+        toPosition && toPosition !== "loading"
+          ? revertDisplay
+            ? minPrice
+            : maxPrice
+          : maxPrice
+      );
+      setMinPrice(
+        toPosition && toPosition !== "loading"
+          ? revertDisplay
+            ? maxPrice
+            : minPrice
+          : minPrice
+      );
     }
-  }, [tickLower, pool, revertDisplay, isMinTick, isMaxTick, tickUpper]);
+  }, [
+    tickLower,
+    pool,
+    revertDisplay,
+    isMinTick,
+    isMaxTick,
+    tickUpper,
+    toPosition,
+  ]);
 
   const priceLabel =
     pool === "loading" ? (
