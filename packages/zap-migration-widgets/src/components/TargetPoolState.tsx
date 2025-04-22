@@ -123,9 +123,6 @@ export function TargetPoolState({
             { significantDigits: 8 }
           )
 
-      setMaxPrice(revertDisplay ? minPrice : maxPrice);
-      setMinPrice(revertDisplay ? maxPrice : minPrice);
-
       setMaxPrice(
         toPosition && toPosition !== "loading"
           ? revertDisplay
