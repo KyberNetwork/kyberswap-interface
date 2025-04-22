@@ -59,6 +59,7 @@
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/liquidity-widgets": "workspace:*",
     "@kyberswap/zap-migration-widgets": "workspace:*",
+    "@kyberswap/zap-out-widgets": "workspace:*",
     "@kyberswap/liquidity-chart": "workspace:*",
     "@kyberswap/oauth2": "1.0.2",
     "@lingui/core": "^4.6.0",
