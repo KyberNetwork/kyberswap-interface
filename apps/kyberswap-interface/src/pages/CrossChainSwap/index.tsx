@@ -14,6 +14,7 @@ import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelecti
 import { isEvmChain } from 'utils'
 import { NearToken } from 'state/crossChainSwap'
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import RefreshLoading from 'components/RefreshLoading'
 
 const Wrapper = styled.div`
   display: flex;
@@ -32,6 +33,10 @@ function CrossChainSwap() {
     currencyIn,
     currencyOut,
     quotes,
+    loading,
+    getQuote,
+    disable,
+    showPreview,
   } = useCrossChainSwap()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -65,7 +70,14 @@ function CrossChainSwap() {
       />
 
       <Flex justifyContent="space-between" alignItems="center">
-        <Flex color={theme.text} fontSize="14px" alignItems="center" sx={{ gap: '4px', flex: 1 }}>
+        <RefreshLoading
+          refetchLoading={loading}
+          clickable
+          disableRefresh={disable || showPreview}
+          onRefresh={getQuote}
+        />
+
+        <Flex color={theme.text} fontSize="14px" alignItems="center" sx={{ gap: '4px', flex: 1 }} ml="4px">
           <Text as="span" color={theme.subText}>
             Cross-chain rate:
           </Text>

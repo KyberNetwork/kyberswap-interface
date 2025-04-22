@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { CrossChainSwapAdapterRegistry, Quote } from '../registry'
 import { CrossChainSwapFactory } from '../factory'
 import { useSearchParams } from 'react-router-dom'
@@ -21,6 +21,9 @@ CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
 
 const RegistryContext = createContext<
   | {
+      showPreview: boolean
+      setShowPreview: (show: boolean) => void
+      disable: boolean
       amount: string
       setAmount: (amount: string) => void
       registry: CrossChainSwapAdapterRegistry
@@ -34,6 +37,7 @@ const RegistryContext = createContext<
       setSelectedQuote: (quote: Quote | null) => void
       amountInWei: string | undefined
       nearTokens: NearToken[]
+      getQuote: () => Promise<void>
     }
   | undefined
 >(undefined)
@@ -69,8 +73,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     : undefined
 
   const currencyInEvm = useCurrencyV2(
-    isFromEvm ? tokenIn || undefined : undefined,
-    isFromEvm ? (fromChainId as ChainId) : undefined,
+    useMemo(() => (isFromEvm ? tokenIn || undefined : undefined), [isFromEvm, tokenIn]),
+    useMemo(() => (isFromEvm ? (fromChainId as ChainId) : undefined), [fromChainId, isFromEvm]),
   )
 
   const currencyIn = useMemo(() => {
@@ -78,8 +82,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   }, [currencyInEvm, isFromEvm, tokenIn, nearTokens])
 
   const currencyOutEvm = useCurrencyV2(
-    isToEvm ? tokenOut || undefined : undefined,
-    isToEvm ? (toChainId as ChainId) : undefined,
+    useMemo(() => (isToEvm ? tokenOut || undefined : undefined), [tokenOut, isToEvm]),
+    useMemo(() => (isToEvm ? (toChainId as ChainId) : undefined), [toChainId, isToEvm]),
   )
 
   const currencyOut = useMemo(() => {
@@ -99,6 +103,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   const [loading, setLoading] = useState(false)
   const [quotes, setQuotes] = useState<Quote[]>([])
+
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
   const walletClient = useWalletClient()
   const [slippage] = useUserSlippageTolerance()
@@ -106,37 +111,39 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const { walletState } = useNEARWallet()
   const nearAccountId = walletState?.accountId
 
-  useEffect(() => {
-    if (!fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount || inputAmount === '0') {
+  const [showPreview, setShowPreview] = useState(false)
+  const disable = !fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount || inputAmount === '0'
+
+  const getQuote = useCallback(async () => {
+    if (showPreview) return
+    if (disable) {
       setQuotes([])
       setSelectedQuote(null)
       return
     }
     const isToNear = toChainId === 'near'
 
-    ;(async () => {
-      setLoading(true)
-      const q = await registry
-        .getQuotes({
-          fromChain: fromChainId,
-          toChain: toChainId,
-          fromToken: currencyIn,
-          toToken: currencyOut,
-          amount: inputAmount,
-          slippage,
-          walletClient: walletClient?.data,
-          sender: walletClient?.data?.account.address,
-          recipient: isToNear ? nearAccountId || undefined : walletClient?.data?.account.address,
-          nearTokens,
-        })
-        .catch(e => {
-          console.log(e)
-          return []
-        })
-      setQuotes(q)
-      setSelectedQuote(q[0] || null)
-      setLoading(false)
-    })()
+    setLoading(true)
+    const q = await registry
+      .getQuotes({
+        fromChain: fromChainId,
+        toChain: toChainId,
+        fromToken: currencyIn,
+        toToken: currencyOut,
+        amount: inputAmount,
+        slippage,
+        walletClient: walletClient?.data,
+        sender: walletClient?.data?.account.address,
+        recipient: isToNear ? nearAccountId || undefined : walletClient?.data?.account.address,
+        nearTokens,
+      })
+      .catch(e => {
+        console.log(e)
+        return []
+      })
+    setQuotes(q)
+    setSelectedQuote(q[0] || null)
+    setLoading(false)
   }, [
     fromChainId,
     toChainId,
@@ -144,14 +151,20 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     currencyOut,
     inputAmount,
     walletClient?.data,
+    disable,
     slippage,
     nearTokens,
     nearAccountId,
+    showPreview,
   ])
 
   return (
     <RegistryContext.Provider
       value={{
+        showPreview,
+        setShowPreview,
+        disable,
+        getQuote,
         selectedQuote,
         setSelectedQuote,
         registry,

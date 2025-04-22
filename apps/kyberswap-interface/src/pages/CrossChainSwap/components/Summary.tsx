@@ -71,6 +71,7 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
         <Text>{quote ? `${Math.abs(quote.quote.priceImpact).toFixed(2)}%` : '--'}</Text>
       </Flex>
 
+      {/*
       <Flex justifyContent="space-between">
         <MouseoverTooltip text="Estimated network fee for your transaction.">
           <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
@@ -81,6 +82,7 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
           {quote ? `${formatDisplayNumber(quote.quote.gasFeeUsd, { style: 'currency', significantDigits: 4 })}` : '--'}
         </Text>
       </Flex>
+          */}
 
       <Flex justifyContent="space-between">
         <MouseoverTooltip

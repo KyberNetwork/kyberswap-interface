@@ -13,7 +13,17 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
 export const SwapAction = () => {
   const { account, chainId } = useActiveWeb3React()
-  const { amountInWei, fromChainId, toChainId, currencyIn, currencyOut, loading, selectedQuote } = useCrossChainSwap()
+  const {
+    showPreview,
+    setShowPreview,
+    amountInWei,
+    fromChainId,
+    toChainId,
+    currencyIn,
+    currencyOut,
+    loading,
+    selectedQuote,
+  } = useCrossChainSwap()
 
   const isFromEvm = isEvmChain(fromChainId)
   const balance = useCurrencyBalance(
@@ -23,8 +33,6 @@ export const SwapAction = () => {
 
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
-
-  const [showPreview, setShowPreview] = useState(false)
 
   const inputAmount =
     isEvmChain(fromChainId) && currencyIn

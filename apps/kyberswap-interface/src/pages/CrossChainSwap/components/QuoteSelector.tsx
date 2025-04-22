@@ -10,7 +10,7 @@ import { TokenLogoWithChain } from './TokenLogoWithChain'
 import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 import { Clock } from 'react-feather'
-import { GasStation } from 'components/Icons'
+// import { GasStation } from 'components/Icons'
 import { Currency } from '../adapters'
 
 const Wrapper = styled.div`
@@ -147,10 +147,12 @@ export const QuoteSelector = ({
                   <Text ml="4px" mr="8px">
                     {quote.quote.timeEstimate}s
                   </Text>
+                  {/*
                   <GasStation />
                   <Text ml="4px">
                     {formatDisplayNumber(quote.quote.gasFeeUsd, { style: 'currency', significantDigits: 3 })}
                   </Text>
+                  */}
                 </Flex>
               </Row>
             )
