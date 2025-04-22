@@ -257,21 +257,7 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
 }
 
 export const CHAINS_SUPPORT_FEE_CONFIGS: ChainId[] = []
-export const CHAINS_SUPPORT_CROSS_CHAIN =
-  ENV.ENV_KEY === ENV.EnvKeys.PROD || ENV.ENV_KEY === ENV.EnvKeys.STG
-    ? [
-        ChainId.MAINNET,
-        ChainId.BSCMAINNET,
-        ChainId.MATIC,
-        ChainId.AVAXMAINNET,
-        ChainId.ARBITRUM,
-        ChainId.OPTIMISM,
-        ChainId.FANTOM,
-        ChainId.LINEA,
-        ChainId.BASE,
-        ChainId.SCROLL,
-      ]
-    : SUPPORTED_NETWORKS
+export const CHAINS_SUPPORT_CROSS_CHAIN = SUPPORTED_NETWORKS
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 

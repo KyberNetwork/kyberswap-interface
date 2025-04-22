@@ -5,7 +5,7 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
-import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { TAB } from 'pages/SwapV3'
@@ -128,17 +128,15 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
             customChainId={customChainId}
           />
         )}
-        {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
-          <Tab
-            onClick={() => onClickTab(TAB.CROSS_CHAIN)}
-            isActive={activeTab === TAB.CROSS_CHAIN}
-            data-testid="cross-chain-tab"
-          >
-            <Text fontSize={20} fontWeight={500}>
-              <Trans>Cross-Chain</Trans>
-            </Text>
-          </Tab>
-        )}
+        <Tab
+          onClick={() => onClickTab(TAB.CROSS_CHAIN)}
+          isActive={activeTab === TAB.CROSS_CHAIN}
+          data-testid="cross-chain-tab"
+        >
+          <Text fontSize={20} fontWeight={500}>
+            <Trans>Cross-Chain</Trans>
+          </Text>
+        </Tab>
       </TabWrapper>
     </TabContainer>
   )
