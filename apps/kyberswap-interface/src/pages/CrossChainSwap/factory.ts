@@ -1,4 +1,4 @@
-import { RelayAdapter, AcrossAdapter, SwapProvider, XYFinanceAdapter } from './adapters'
+import { RelayAdapter, AcrossAdapter, SwapProvider, XYFinanceAdapter, MayanAdapter } from './adapters'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 
 // Factory for creating swap provider instances
@@ -8,6 +8,7 @@ export class CrossChainSwapFactory {
   private static relayInstance: RelayAdapter
   private static xyFinanceInstance: XYFinanceAdapter
   private static nearIntentsInstance: NearIntentsAdapter
+  private static mayanInstance: MayanAdapter
 
   // Get or create Across adapter
   static getAcrossAdapter(): AcrossAdapter {
@@ -39,6 +40,13 @@ export class CrossChainSwapFactory {
     return CrossChainSwapFactory.nearIntentsInstance
   }
 
+  static getMayanAdapter(): MayanAdapter {
+    if (!CrossChainSwapFactory.mayanInstance) {
+      CrossChainSwapFactory.mayanInstance = new MayanAdapter()
+    }
+    return CrossChainSwapFactory.mayanInstance
+  }
+
   // Get all registered adapters
   static getAllAdapters(): SwapProvider[] {
     return [
@@ -46,6 +54,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getRelayAdapter(),
       CrossChainSwapFactory.getXyFinanceAdapter(),
       CrossChainSwapFactory.getNearIntentsAdapter(),
+      CrossChainSwapFactory.getMayanAdapter(),
     ]
   }
 
@@ -60,6 +69,8 @@ export class CrossChainSwapFactory {
         return CrossChainSwapFactory.getXyFinanceAdapter()
       case 'near intents':
         return CrossChainSwapFactory.getNearIntentsAdapter()
+      case 'mayan':
+        return CrossChainSwapFactory.getMayanAdapter()
       default:
         return undefined
     }

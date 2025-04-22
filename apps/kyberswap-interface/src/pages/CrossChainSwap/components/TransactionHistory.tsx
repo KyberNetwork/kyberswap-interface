@@ -160,10 +160,10 @@ export const TransactionHistory = () => {
             </Flex>
             <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} mt="8px" fontSize="12px">
               <TokenLogoWithChain chainId={tx.targetChain as any} currency={tx.targetToken} />+
-              {formatDisplayNumber(formatUnits(BigInt(tx.outputAmount), tx.sourceToken.decimals), {
+              {formatDisplayNumber(formatUnits(BigInt(tx.outputAmount), tx.targetToken.decimals), {
                 significantDigits: 6,
               })}{' '}
-              {tx.sourceToken.symbol}
+              {tx.targetToken.symbol}
             </Flex>
           </div>
 
