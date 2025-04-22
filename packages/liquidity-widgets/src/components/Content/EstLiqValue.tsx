@@ -1,4 +1,4 @@
-import { useZapState } from "../../hooks/useZapInState";
+import { useZapState } from "@/hooks/useZapInState";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
@@ -7,15 +7,15 @@ import {
   PartnerFeeAction,
   ProtocolFeeAction,
   ZapAction,
-} from "../../hooks/types/zapInTypes";
+} from "@/hooks/types/zapInTypes";
 import {
   PI_LEVEL,
   formatCurrency,
   formatNumber,
   getPriceImpact,
-} from "../../utils";
-import InfoHelper from "../InfoHelper";
-import { MouseoverTooltip } from "../Tooltip";
+} from "@/utils";
+import InfoHelper from "@/components/InfoHelper";
+import { MouseoverTooltip } from "@/components/Tooltip";
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PATHS } from "@/constants";
 import {
   Accordion,
@@ -26,10 +26,10 @@ import {
 import { useMemo } from "react";
 import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { toRawString } from "@kyber/utils/number";
 import { formatUnits } from "@kyber/utils/crypto";
-import { SlippageWarning } from "../SlippageWarning";
+import { SlippageWarning } from "@/components/SlippageWarning";
 import { cn } from "@kyber/utils/tailwind-helpers";
 
 export default function EstLiqValue() {

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useZapState } from "../../hooks/useZapInState";
-import { Type } from "../../hooks/types/zapInTypes";
+import { useZapState } from "@/hooks/useZapInState";
+import { Type } from "@/hooks/types/zapInTypes";
 import { NO_DATA } from "@/constants";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import {
   MAX_TICK,
   MIN_TICK,

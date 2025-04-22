@@ -1,19 +1,15 @@
-import { ReactNode, useEffect, useMemo } from "react";
 import "./Widget.scss";
+import "./globals.css";
 
-import { defaultTheme, Theme } from "../../theme";
+import { ReactNode, useEffect, useMemo } from "react";
+import { defaultTheme, Theme } from "@/theme";
 import { PoolType, ChainId } from "@/schema";
-import WidgetContent from "../Content";
-import { ZapContextProvider } from "../../hooks/useZapInState";
-import { TokenListProvider } from "../../hooks/useTokenList";
-import Setting from "../Setting";
+import WidgetContent from "@/components/Content";
+import { ZapContextProvider } from "@/hooks/useZapInState";
+import { TokenListProvider } from "@/hooks/useTokenList";
+import Setting from "@/components/Setting";
+import { WidgetProps, WidgetProvider, useWidgetContext } from "@/stores";
 
-import "../../globals.css";
-import { WidgetProps, WidgetProvider, useWidgetContext } from "@/stores/widget";
-
-export { PoolType, ChainId };
-
-// createModalRoot.js
 const createModalRoot = () => {
   let modalRoot = document.getElementById("ks-lw-modal-root");
   if (!modalRoot) {
@@ -26,7 +22,7 @@ const createModalRoot = () => {
 
 createModalRoot();
 
-export default function Widget(props: WidgetProps) {
+const LiquidityWidget = (props: WidgetProps) => {
   const {
     theme,
     aggregatorOptions,
@@ -78,7 +74,7 @@ export default function Widget(props: WidgetProps) {
       </TokenProvider>
     </WidgetProvider>
   );
-}
+};
 
 const TokenProvider = ({
   children,
@@ -94,3 +90,5 @@ const TokenProvider = ({
     </TokenListProvider>
   );
 };
+
+export { PoolType, ChainId, LiquidityWidget };

@@ -1,13 +1,13 @@
+import { useEffect, useMemo, useState } from "react";
 import {
   FeeAmount,
   PRICE_RANGE,
   FULL_PRICE_RANGE,
   DEFAULT_PRICE_RANGE,
-} from "./constants";
-import { useEffect, useMemo, useState } from "react";
+} from "@/components/PriceRange/constants";
 import { Button } from "@kyber/ui/button";
 import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import {
   nearestUsableTick,
   priceToClosestTick,

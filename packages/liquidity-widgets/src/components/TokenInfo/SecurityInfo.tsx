@@ -1,14 +1,14 @@
-import { MouseoverTooltip } from "@/components/Tooltip";
 import { useMemo } from "react";
+import { MouseoverTooltip } from "@/components/Tooltip";
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
-import IconSecurity from "@/assets/svg/security.svg";
-import LogoGoPlus from "@/assets/svg/goplus.svg";
+import { useWidgetContext } from "@/stores";
+import { Token } from "@/schema";
 import useSecurityTokenInfo from "@/components/TokenInfo/useSecurityTokenInfo";
 import CollapseInfoItem from "@/components/TokenInfo/CollapseInfoItem";
 import IconSecurityTrading from "@/assets/svg/security-trading.svg";
 import IconSecurityContract from "@/assets/svg/security-contract.svg";
-import { useWidgetContext } from "@/stores/widget";
-import { Token } from "@/schema";
+import IconSecurity from "@/assets/svg/security.svg";
+import LogoGoPlus from "@/assets/svg/goplus.svg";
 
 const SecurityInfo = ({ token }: { token: Token }) => {
   const { theme, chainId } = useWidgetContext((s) => s);

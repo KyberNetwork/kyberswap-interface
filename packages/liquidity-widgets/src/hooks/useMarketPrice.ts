@@ -1,4 +1,4 @@
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 export default function useMarketPrice(tokensAddress: string) {

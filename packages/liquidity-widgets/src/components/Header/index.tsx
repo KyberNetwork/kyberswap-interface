@@ -1,14 +1,14 @@
+import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
+import { useZapState } from "@/hooks/useZapInState";
+import { MouseoverTooltip } from "@/components/Tooltip";
+import { useWidgetContext } from "@/stores";
+import { univ3PoolNormalize, univ3Position, univ4Types } from "@/schema";
+import { shortenAddress } from "@/components/TokenInfo/utils";
+import useCopy from "@/hooks/useCopy";
+import RefreshLoading from "@/components/Header/RefreshLoading";
 import SettingIcon from "@/assets/svg/setting.svg";
 import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import RefreshLoading from "./RefreshLoading";
-import { DEXES_INFO, NETWORKS_INFO } from "../../constants";
-import { useZapState } from "../../hooks/useZapInState";
-import { MouseoverTooltip } from "../Tooltip";
-import { useWidgetContext } from "@/stores/widget";
-import { univ3PoolNormalize, univ3Position, univ4Types } from "@/schema";
-import { shortenAddress } from "../TokenInfo/utils";
-import useCopy from "@/hooks/useCopy";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId, pool, poolType, positionId, position, theme, poolAddress } =

@@ -1,28 +1,29 @@
+import { useEffect, useMemo, useState } from "react";
 import usePositionOwner from "@/hooks/usePositionOwner";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
   Type,
   ZapAction,
-} from "../../hooks/types/zapInTypes";
-import { APPROVAL_STATE, useApprovals } from "../../hooks/useApproval";
-import { ERROR_MESSAGE, useZapState } from "../../hooks/useZapInState";
-import { PI_LEVEL, getPriceImpact } from "../../utils";
-import Header from "../Header";
-import InfoHelper from "../InfoHelper";
-import LiquidityChart from "../LiquidityChart";
-import Modal from "../Modal";
-import PositionLiquidity from "../PositionLiquidity";
-import Preview, { ZapState } from "../Preview";
-import PriceRange from "../PriceRange";
-import { TOKEN_SELECT_MODE } from "../TokenSelector";
-import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
-import EstLiqValue from "./EstLiqValue";
-import LiquidityToAdd from "./LiquidityToAdd";
-import PoolStat from "./PoolStat";
-import PriceInfo from "./PriceInfo";
-import PriceInput from "./PriceInput";
-import ZapRoute from "./ZapRoute";
+} from "@/hooks/types/zapInTypes";
+import { APPROVAL_STATE, useApprovals } from "@/hooks/useApproval";
+import { ERROR_MESSAGE, useZapState } from "@/hooks/useZapInState";
+import { PI_LEVEL, getPriceImpact } from "@/utils";
+import Header from "@/components/Header";
+import InfoHelper from "@/components/InfoHelper";
+import LiquidityChart from "@/components/LiquidityChart";
+import Modal from "@/components/Modal";
+import PositionLiquidity from "@/components/PositionLiquidity";
+import Preview, { ZapState } from "@/components/Preview";
+import PriceRange from "@/components/PriceRange";
+import { TOKEN_SELECT_MODE } from "@/components/TokenSelector";
+import TokenSelectorModal from "@/components/TokenSelector/TokenSelectorModal";
+import EstLiqValue from "@/components/Content/EstLiqValue";
+import LiquidityToAdd from "@/components/Content/LiquidityToAdd";
+import PoolStat from "@/components/Content/PoolStat";
+import PriceInfo from "@/components/Content/PriceInfo";
+import PriceInput from "@/components/Content/PriceInput";
+import ZapRoute from "@/components/Content/ZapRoute";
 import ErrorIcon from "@/assets/svg/error.svg";
 import X from "@/assets/svg/x.svg";
 import { FARMING_CONTRACTS, MAX_ZAP_IN_TOKENS } from "@/constants";
@@ -35,11 +36,10 @@ import {
   univ3Position,
   univ4Types,
 } from "@/schema";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { parseUnits } from "@kyber/utils/crypto";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
-import { useEffect, useMemo, useState } from "react";
 
 export default function Content() {
   const {

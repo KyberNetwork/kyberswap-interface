@@ -32,7 +32,7 @@ import {
   Univ3PoolType,
   univ3Position,
 } from "@/schema";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { divideBigIntToString } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { formatUnits, parseUnits } from "@kyber/utils/crypto";

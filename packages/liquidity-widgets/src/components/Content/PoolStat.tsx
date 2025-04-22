@@ -1,6 +1,6 @@
 import { PATHS } from "@/constants";
 import { Univ2PoolType } from "@/schema";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { formatDisplayNumber } from "@/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";

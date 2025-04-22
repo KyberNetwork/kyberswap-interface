@@ -1,14 +1,14 @@
-import { useZapState } from "../../hooks/useZapInState";
+import { useMemo, useState } from "react";
+import { useZapState } from "@/hooks/useZapInState";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
   PoolSwapAction,
   ZapAction,
-} from "../../hooks/types/zapInTypes";
-import { useMemo, useState } from "react";
-import { formatWei } from "../../utils";
+} from "@/hooks/types/zapInTypes";
+import { formatWei } from "@/utils";
 import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import {
   Accordion,
   AccordionContent,

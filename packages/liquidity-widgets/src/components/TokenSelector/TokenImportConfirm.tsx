@@ -11,7 +11,7 @@ import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useZapState } from "@/hooks/useZapInState";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
 import { Token } from "@/schema";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import useCopy from "@/hooks/useCopy";
 
 const TokenImportConfirm = ({

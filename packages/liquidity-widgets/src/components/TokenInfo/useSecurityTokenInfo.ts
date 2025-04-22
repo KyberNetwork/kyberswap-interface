@@ -4,7 +4,7 @@ import {
   getSecurityTokenInfo,
   SecurityInfo,
 } from "@/components/TokenInfo/utils";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 
 export default function useSecurityTokenInfo(tokenAddress: string) {
   const chainId = useWidgetContext((s) => s.chainId);

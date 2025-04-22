@@ -1,3 +1,5 @@
+import { createContext, useRef, useContext, useEffect } from "react";
+import { createStore, useStore } from "zustand";
 import { DEXES_INFO, NETWORKS_INFO, PATHS } from "@/constants";
 import {
   ChainId,
@@ -25,8 +27,6 @@ import {
   getPositionAmounts,
   nearestUsableTick,
 } from "@kyber/utils/uniswapv3";
-import { createContext, useRef, useContext, useEffect } from "react";
-import { createStore, useStore } from "zustand";
 
 export interface WidgetProps {
   theme?: Theme;

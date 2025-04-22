@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { shortenAddress } from "../TokenInfo/utils";
 import { PATHS } from "@/constants";
 import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { EarnPosition, PositionStatus } from "@/types/index";
 import { isAddress } from "@kyber/utils/crypto";
 import { formatDisplayNumber } from "@kyber/utils/number";

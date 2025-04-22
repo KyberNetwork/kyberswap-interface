@@ -1,5 +1,5 @@
 import { formatCurrency } from "@/utils";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { formatTokenAmount } from "@kyber/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 

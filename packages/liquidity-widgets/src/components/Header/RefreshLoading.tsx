@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import useDebounce from "@/hooks/useDebounce";
 

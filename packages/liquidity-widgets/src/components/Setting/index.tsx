@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import X from "@/assets/svg/x.svg";
-import { useOnClickOutside } from "../../hooks/useOnClickOutside";
-import { useZapState } from "../../hooks/useZapInState";
-import Toggle from "../Toggle";
-import SlippageInput from "./SlippageInput";
-import { MouseoverTooltip } from "../Tooltip";
-import Modal from "../Modal";
+import { useOnClickOutside } from "@/hooks/useOnClickOutside";
+import { useZapState } from "@/hooks/useZapInState";
+import { MouseoverTooltip } from "@/components/Tooltip";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import Toggle from "@/components/Toggle";
+import SlippageInput from "@/components/Setting/SlippageInput";
+import Modal from "@/components/Modal";
+import X from "@/assets/svg/x.svg";
 
 const validateDeadlineString = (str: string): boolean => {
   const value = Number.parseInt(str, 10);

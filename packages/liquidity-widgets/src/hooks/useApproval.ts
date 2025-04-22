@@ -9,7 +9,7 @@ import {
   isAddress,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { univ4Types } from "@/schema";
 
 export enum APPROVAL_STATE {

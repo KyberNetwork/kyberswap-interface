@@ -1,7 +1,7 @@
-import { PATHS, NETWORKS_INFO } from "@/constants";
 import { useEffect, useMemo, useState } from "react";
 import { TokenInfo, parseMarketTokenInfo } from "@/components/TokenInfo/utils";
-import { useWidgetContext } from "@/stores/widget";
+import { PATHS, NETWORKS_INFO } from "@/constants";
+import { useWidgetContext } from "@/stores";
 
 const FETCH_INTERVAL = 60_000;
 let fetchInterval: ReturnType<typeof setInterval>;

@@ -32,7 +32,7 @@ import {
   getPriceImpact,
 } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
-import InfoHelper from "../InfoHelper";
+import InfoHelper from "@/components/InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import {
@@ -46,7 +46,7 @@ import {
   formatDisplayNumber,
   toRawString,
 } from "@kyber/utils/number";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { Pool, Token, univ2PoolNormalize, univ3PoolNormalize } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import {
@@ -57,7 +57,7 @@ import {
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { SlippageWarning } from "../SlippageWarning";
+import { SlippageWarning } from "@/components/SlippageWarning";
 
 export interface ZapState {
   pool: Pool;
