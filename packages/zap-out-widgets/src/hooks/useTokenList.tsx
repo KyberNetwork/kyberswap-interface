@@ -26,11 +26,8 @@ const TokenListContext = createContext<TokenListContextState>({
   loading: false,
   importedTokens: [],
   allTokens: [],
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   addToken: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   removeToken: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   removeAllTokens: () => {},
   fetchTokenInfo: () => Promise.resolve([]),
 });

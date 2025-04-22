@@ -24,7 +24,6 @@ const Modal = ({
       </div>
     </div>,
     // already created in Widget/index.ts
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     document.getElementById("ks-lw-modal-root")!
   ) as ReactElement;
 };

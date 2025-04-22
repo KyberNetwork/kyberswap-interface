@@ -224,6 +224,7 @@ const useTokenBalances = (
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rpcUrl, account, JSON.stringify(tokenAddresses)]);
 
   useEffect(() => {
