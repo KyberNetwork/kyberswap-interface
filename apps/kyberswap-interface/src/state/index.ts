@@ -49,7 +49,7 @@ import crossChainSwap from './crossChainSwap'
 import tutorial from './tutorial/reducer'
 import user, { UserState } from './user/reducer'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile']
+const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChainSwap']
 ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
 
 // Migrate from old version to new version, prevent lost favorite tokens of user

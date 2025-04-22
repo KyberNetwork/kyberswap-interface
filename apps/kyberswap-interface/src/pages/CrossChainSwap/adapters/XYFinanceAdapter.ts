@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import {
   BaseSwapAdapter,
   Chain,
@@ -7,12 +7,11 @@ import {
   SwapStatus,
   EvmQuoteParams,
 } from './BaseSwapAdapter'
-import { getClient } from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
-import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 
-const XY_FINANCE_API = 'https://aggregator-api.xy.finance/v1/'
+const XY_FINANCE_API = 'https://aggregator-api.xy.finance/v1'
 
 export class XYFinanceAdapter extends BaseSwapAdapter {
   constructor() {
@@ -26,8 +25,23 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
     return 'https://xy.finance/img/favicon.ico'
   }
   getSupportedChains(): Chain[] {
-    // TODO: handle supported chains
-    return []
+    return [
+      ChainId.MAINNET,
+      ChainId.BSCMAINNET,
+      ChainId.MATIC,
+      ChainId.FANTOM,
+      ChainId.AVAXMAINNET,
+      ChainId.ARBITRUM,
+      ChainId.OPTIMISM,
+      ChainId.ZKSYNC,
+      ChainId.LINEA,
+      ChainId.BASE,
+      ChainId.MANTLE,
+      ChainId.SCROLL,
+      ChainId.BLAST,
+      ChainId.BERA,
+      ChainId.SONIC,
+    ]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -41,7 +55,8 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       srcQuoteTokenAmount: params.amount,
       dstChainId: params.toChain,
       dstQuoteTokenAddress: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.address,
-      slippage: params.slippage,
+      slippage: (params.slippage * 100) / 10_000,
+      bridgeProviders: 'yBridge',
 
       // TODO: add fee
       // affiliate: '',
@@ -53,61 +68,94 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
     for (const [key, value] of Object.entries(p)) {
       queryParams.append(key, String(value))
     }
-    const resp = await fetch(`${XY_FINANCE_API}/quote?${queryParams.toString()}`)
-    console.log('xy finance quote', resp)
+    const resp = await fetch(`${XY_FINANCE_API}/quote?${queryParams.toString()}`).then(res => res.json())
+    const r = resp?.routes?.[0]
+    console.log(r)
+    if (!r) {
+      throw new Error('No route found')
+    }
 
     return {
       quoteParams: params,
-      outputAmount: BigInt('0'),
-      formattedOutputAmount: formatUnits(BigInt('0'), params.toToken.decimals),
-      inputUsd: 0,
-      outputUsd: 0,
-      priceImpact: 0,
-      rate: 0,
+      outputAmount: BigInt(r.dstQuoteTokenAmount),
+      formattedOutputAmount: formatUnits(BigInt(r.dstQuoteTokenAmount), params.toToken.decimals),
+      inputUsd: Number(r.srcQuoteTokenUsdValue),
+      outputUsd: Number(r.dstQuoteTokenUsdValue),
+      priceImpact: Math.abs(
+        ((Number(r.dstQuoteTokenUsdValue) - Number(r.srcQuoteTokenUsdValue)) * 100) / Number(r.srcQuoteTokenUsdValue),
+      ),
+      rate: Number(r.dstQuoteTokenUsdValue) / Number(r.srcQuoteTokenUsdValue),
       gasFeeUsd: 0,
-      timeEstimate: 0,
-      // Relay dont need to approve, we send token to contract directly
-      contractAddress: ZERO_ADDRESS,
-      rawQuote: resp,
+      timeEstimate: r.estimatedTransferTime,
+      contractAddress: r.contractAddress,
+      rawQuote: r,
     }
   }
 
-  async executeSwap(quote: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
-    return new Promise<NormalizedTxResponse>((resolve, reject) => {
-      getClient()
-        .actions.execute({
-          quote: quote.quote.rawQuote,
-          wallet: walletClient,
-          onProgress: ({ currentStep }) => {
-            if (currentStep?.id === 'deposit' && currentStep.requestId && currentStep.kind === 'transaction') {
-              const txHash = currentStep.items?.[0]?.txHashes?.[0].txHash
-              if (txHash) {
-                resolve({
-                  sourceTxHash: txHash,
-                  adapter: this.getName(),
-                  id: currentStep.requestId,
-                  sourceChain: quote.quote.quoteParams.fromChain,
-                  targetChain: quote.quote.quoteParams.toChain,
-                  inputAmount: quote.quote.quoteParams.amount,
-                  outputAmount: quote.quote.outputAmount.toString(),
-                  sourceToken: quote.quote.quoteParams.fromToken,
-                  targetToken: quote.quote.quoteParams.toToken,
-                  timestamp: new Date().getTime(),
-                })
-              }
-            }
-          },
-        })
-        .catch(reject) // Make sure errors from execute are also caught
-    })
+  async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+    const account = walletClient.account?.address
+    if (!account) throw new Error('WalletClient account is not defined')
+
+    const fromToken = quote.quoteParams.fromToken as Currency
+    const toToken = quote.quoteParams.toToken as Currency
+    const p = {
+      srcChainId: quote.quoteParams.fromChain,
+      srcQuoteTokenAddress: fromToken.isNative ? ETHER_ADDRESS : fromToken.address,
+      srcQuoteTokenAmount: quote.quoteParams.amount,
+      dstChainId: quote.quoteParams.toChain,
+      dstQuoteTokenAddress: toToken.isNative ? ETHER_ADDRESS : toToken.address,
+      // slippage: quote.quoteParams.slippage,
+      slippage: (quote.quoteParams.slippage * 100) / 10_000,
+      receiver: account,
+      bridgeProvider: 'yBridge',
+      srcBridgeTokenAddress: quote.rawQuote.bridgeDescription.srcBridgeTokenAddress,
+      dstBridgeTokenAddress: quote.rawQuote.bridgeDescription.dstBridgeTokenAddress,
+      srcSwapProvider: quote.rawQuote.srcSwapDescription.provider,
+      dstSwapProvider: quote.rawQuote.dstSwapDescription.provider,
+    }
+
+    // Convert the parameters object to URL query string
+    const queryParams = new URLSearchParams()
+    for (const [key, value] of Object.entries(p)) {
+      queryParams.append(key, String(value))
+    }
+    const resp = await fetch(`${XY_FINANCE_API}/buildTx?${queryParams.toString()}`).then(res => res.json())
+
+    // TODO: handle rate change
+
+    if (resp.tx) {
+      const tx = await walletClient.sendTransaction({
+        chain: undefined,
+        account,
+        to: resp.tx.to,
+        value: resp.tx.value,
+        data: resp.tx.data,
+      })
+      return {
+        id: tx, // specific id for each provider
+        sourceTxHash: tx,
+        adapter: this.getName(),
+        sourceChain: quote.quoteParams.fromChain,
+        targetChain: quote.quoteParams.toChain,
+        inputAmount: quote.quoteParams.amount,
+        outputAmount: quote.outputAmount.toString(),
+        sourceToken: fromToken,
+        targetToken: toToken,
+        timestamp: new Date().getTime(),
+      }
+    }
+
+    throw new Error('No transaction found')
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const res = await fetch(`https://api.relay.link/intents/status/v2?requestId=${p.id}`).then(r => r.json())
+    const res = await fetch(`${XY_FINANCE_API}/crossChainStatus?srcChainId=${p.sourceChain}&srcTxHash=${p.id}`).then(
+      r => r.json(),
+    )
 
     return {
-      txHash: res.txHashes?.[0] || '',
-      status: res.status === 'success' ? 'filled' : res.status || 'pending',
+      txHash: res.tx || '',
+      status: res.status === 'Done' ? 'filled' : 'pending',
     }
   }
 }

@@ -29,6 +29,7 @@ export class CrossChainSwapAdapterRegistry {
         adapter.getSupportedChains().includes(params.fromChain) &&
         adapter.getSupportedChains().includes(params.toChain),
     )
+    console.log(adapters, 'adapters')
 
     // Get quotes from all compatible adapters
     const quotePromises = adapters.map(async adapter => {
