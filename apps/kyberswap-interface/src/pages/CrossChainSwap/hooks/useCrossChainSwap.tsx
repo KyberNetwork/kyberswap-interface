@@ -136,20 +136,20 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
       method: 'POST',
       body: JSON.stringify({
-        [fromChainId]: (currencyIn as any).wrapped.address,
-        [toChainId]: (currencyOut as any).wrapped.address,
+        [fromChainId]: [(currencyIn as any).wrapped.address],
+        [toChainId]: [(currencyOut as any).wrapped.address],
       }),
     }).then(r => r.json())
-    const tokenIn = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
-    const tkOutUsd = r?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
+    const tokenInUsd = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
+    const tokenOutUsd = r?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
 
     const isToNear = toChainId === 'near'
 
     setLoading(true)
     const q = await registry
       .getQuotes({
-        tokenInUsd: tokenIn,
-        tokenOutUsd: tkOutUsd,
+        tokenInUsd: tokenInUsd,
+        tokenOutUsd: tokenOutUsd,
         fromChain: fromChainId,
         toChain: toChainId,
         fromToken: currencyIn,
