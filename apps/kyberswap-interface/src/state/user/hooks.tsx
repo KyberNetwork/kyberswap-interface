@@ -2,7 +2,7 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { INITIAL_ALLOWED_SLIPPAGE, TERM_FILES_PATH } from 'constants/index'
+import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { GAS_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -38,7 +38,6 @@ import {
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updatePoolDegenMode,
-  updatePoolSlippageTolerance,
   updateTokenAnalysisSettings,
   updateUserDeadline,
   updateUserDegenMode,
@@ -168,13 +167,13 @@ export function useAggregatorForZapSetting(): [boolean, () => void] {
 
 export function useUserSlippageTolerance(): [number, (slippage: number) => void] {
   const [swapSlippageTolerance, setSwapSlippageTolerance] = useSwapSlippageTolerance()
-  const [poolSlippageTolerance, setPoolSlippageTolerance] = usePoolSlippageTolerance()
+  //const [poolSlippageTolerance, setPoolSlippageTolerance] = usePoolSlippageTolerance()
 
-  const { isSwapPage } = usePageLocation()
-  if (isSwapPage) {
-    return [swapSlippageTolerance, setSwapSlippageTolerance]
-  }
-  return [poolSlippageTolerance, setPoolSlippageTolerance]
+  //const { isSwapPage } = usePageLocation()
+  //if (isSwapPage) {
+  //  return [swapSlippageTolerance, setSwapSlippageTolerance]
+  //}
+  return [swapSlippageTolerance, setSwapSlippageTolerance]
 }
 
 export function useSwapSlippageTolerance(): [number, (slippage: number) => void] {
@@ -192,17 +191,18 @@ export function useSwapSlippageTolerance(): [number, (slippage: number) => void]
 }
 
 export function usePoolSlippageTolerance(): [number, (slippage: number) => void] {
-  const dispatch = useDispatch<AppDispatch>()
-  const poolSlippageTolerance = useSelector<AppState, AppState['user']['poolSlippageTolerance']>(state => {
-    return state.user.poolSlippageTolerance || INITIAL_ALLOWED_SLIPPAGE
-  })
-  const setPoolSlippageTolerance = useCallback(
-    (poolSlippageTolerance: number) => {
-      dispatch(updatePoolSlippageTolerance({ poolSlippageTolerance }))
-    },
-    [dispatch],
-  )
-  return [poolSlippageTolerance, setPoolSlippageTolerance]
+  //const dispatch = useDispatch<AppDispatch>()
+  //const poolSlippageTolerance = useSelector<AppState, AppState['user']['poolSlippageTolerance']>(state => {
+  //  return state.user.poolSlippageTolerance || INITIAL_ALLOWED_SLIPPAGE
+  //})
+  //const setPoolSlippageTolerance = useCallback(
+  //  (poolSlippageTolerance: number) => {
+  //    dispatch(updatePoolSlippageTolerance({ poolSlippageTolerance }))
+  //  },
+  //  [dispatch],
+  //)
+  //return [poolSlippageTolerance, setPoolSlippageTolerance]
+  return useSwapSlippageTolerance()
 }
 
 export function useUserTransactionTTL(): [number, (slippage: number) => void] {

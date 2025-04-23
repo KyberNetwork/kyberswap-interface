@@ -25,6 +25,8 @@ export interface QuoteParams {
   amount: string
   slippage: number
   walletClient?: WalletClient
+  tokenInUsd: number
+  tokenOutUsd: number
   sender?: string
   recipient?: string
 }

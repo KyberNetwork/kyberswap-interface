@@ -13,6 +13,8 @@ import { isEvmChain, isNonEvmChain } from 'utils'
 import { Chain, Currency, NonEvmChain } from '../adapters'
 import { NearToken, useNearTokens } from 'state/crossChainSwap'
 import { useNEARWallet } from 'components/Web3Provider/NearProvider'
+import { ZERO_ADDRESS } from 'constants/index'
+import { TOKEN_API_URL } from 'constants/env'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -34,7 +36,7 @@ const RegistryContext = createContext<
       loading: boolean
       quotes: Quote[]
       selectedQuote: Quote | null
-      setSelectedQuote: (quote: Quote | null) => void
+      setSelectedAdapter: (quote: string | null) => void
       amountInWei: string | undefined
       nearTokens: NearToken[]
       getQuote: () => Promise<void>
@@ -50,7 +52,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const tokenOut = searchParams.get('tokenOut')
   const [amount, setAmount] = useState('1')
   const amountDebounce = useDebounce(amount, 500)
-
   const { nearTokens } = useNearTokens()
 
   const { chainId } = useActiveWeb3React()
@@ -104,9 +105,13 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [loading, setLoading] = useState(false)
   const [quotes, setQuotes] = useState<Quote[]>([])
 
-  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
+  const [selectedAdapter, setSelectedAdapter] = useState<string | null>(null)
   const walletClient = useWalletClient()
   const [slippage] = useUserSlippageTolerance()
+
+  const selectedQuote = useMemo(() => {
+    return quotes.find(q => q.adapter.getName() === selectedAdapter) || quotes[0] || null
+  }, [quotes, selectedAdapter])
 
   const { walletState } = useNEARWallet()
   const nearAccountId = walletState?.accountId
@@ -118,14 +123,33 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (showPreview) return
     if (disable) {
       setQuotes([])
-      setSelectedQuote(null)
+      setSelectedAdapter(null)
       return
     }
+
+    const r: {
+      data: {
+        [chainId: string]: {
+          [address: string]: { PriceBuy: number; PriceSell: number }
+        }
+      }
+    } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
+      method: 'POST',
+      body: JSON.stringify({
+        [fromChainId]: (currencyIn as any).wrapped.address,
+        [toChainId]: (currencyOut as any).wrapped.address,
+      }),
+    }).then(r => r.json())
+    const tokenIn = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
+    const tkOutUsd = r?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
+
     const isToNear = toChainId === 'near'
 
     setLoading(true)
     const q = await registry
       .getQuotes({
+        tokenInUsd: tokenIn,
+        tokenOutUsd: tkOutUsd,
         fromChain: fromChainId,
         toChain: toChainId,
         fromToken: currencyIn,
@@ -133,8 +157,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         amount: inputAmount,
         slippage,
         walletClient: walletClient?.data,
-        sender: walletClient?.data?.account.address,
-        recipient: isToNear ? nearAccountId || undefined : walletClient?.data?.account.address,
+        sender: walletClient?.data?.account.address || ZERO_ADDRESS,
+        recipient: isToNear ? nearAccountId || undefined : walletClient?.data?.account.address || ZERO_ADDRESS,
         nearTokens,
       })
       .catch(e => {
@@ -142,7 +166,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         return []
       })
     setQuotes(q)
-    setSelectedQuote(q[0] || null)
     setLoading(false)
   }, [
     fromChainId,
@@ -166,7 +189,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         disable,
         getQuote,
         selectedQuote,
-        setSelectedQuote,
+        setSelectedAdapter,
         registry,
         fromChainId,
         toChainId,

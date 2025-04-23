@@ -27,7 +27,7 @@ function CrossChainSwap() {
     amount,
     setAmount,
     selectedQuote,
-    setSelectedQuote,
+    setSelectedAdapter,
     fromChainId,
     toChainId,
     currencyIn,
@@ -153,7 +153,7 @@ function CrossChainSwap() {
               quotes={quotes}
               selectedQuote={selectedQuote}
               onChange={newSelectedQuote => {
-                setSelectedQuote(newSelectedQuote)
+                setSelectedAdapter(newSelectedQuote.adapter.getName())
               }}
               tokenOut={currencyOut}
             />

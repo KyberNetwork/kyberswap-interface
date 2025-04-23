@@ -11,7 +11,6 @@ import {
 import { WalletClient, formatUnits, parseUnits } from 'viem'
 import { ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
-import { TOKEN_API_URL } from 'constants/env'
 
 const mappingChain: Record<string, ChainName> = {
   [ChainId.MAINNET]: 'ethereum',
@@ -58,24 +57,10 @@ export class MayanAdapter extends BaseSwapAdapter {
       throw new Error('No quotes found')
     }
 
-    const r: {
-      data: {
-        [chainId: string]: {
-          [address: string]: { PriceBuy: number; PriceSell: number }
-        }
-      }
-    } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-      method: 'POST',
-      body: JSON.stringify({
-        [params.fromChain]: [params.fromToken.wrapped.address],
-        [params.toChain]: [params.toToken.wrapped.address],
-      }),
-    }).then(r => r.json())
-    const tokenInUsd = r?.data?.[params.fromChain]?.[params.fromToken.wrapped.address]?.PriceBuy || 0
-    const tokenOutUsd = r?.data?.[params.toChain]?.[params.toToken.wrapped.address]?.PriceBuy || 0
-
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
 
+    const tokenInUsd = params.tokenInUsd
+    const tokenOutUsd = params.tokenOutUsd
     const inputUsd = tokenInUsd * quotes[0].expectedAmountOut
     const outputUsd = tokenOutUsd * quotes[0].expectedAmountOut
 

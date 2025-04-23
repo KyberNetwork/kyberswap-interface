@@ -10,7 +10,6 @@ import {
 import { createAcrossClient, AcrossClient } from '@across-protocol/app-sdk'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
-import { TOKEN_API_URL } from 'constants/env'
 import { Quote } from '../registry'
 
 function to2ByteHexFromString(input: string): string {
@@ -69,22 +68,8 @@ export class AcrossAdapter extends BaseSwapAdapter {
       },
       inputAmount: params.amount,
     })
-    // across api doesnt return usd value -> call onchain price to calculate
-    const r: {
-      data: {
-        [chainId: string]: {
-          [address: string]: { PriceBuy: number; PriceSell: number }
-        }
-      }
-    } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-      method: 'POST',
-      body: JSON.stringify({
-        [params.fromChain]: [params.fromToken.wrapped.address],
-        [params.toChain]: [params.toToken.wrapped.address],
-      }),
-    }).then(r => r.json())
-    const tokenInUsd = r?.data?.[params.fromChain]?.[params.fromToken.wrapped.address]?.PriceBuy || 0
-    const tokenOutUsd = r?.data?.[params.toChain]?.[params.toToken.wrapped.address]?.PriceBuy || 0
+    const tokenInUsd = params.tokenInUsd
+    const tokenOutUsd = params.tokenOutUsd
     const formattedOutputAmount = formatUnits(BigInt(resp.deposit.outputAmount), params.toToken.decimals)
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
     const inputUsd = tokenInUsd * +formattedInputAmount
