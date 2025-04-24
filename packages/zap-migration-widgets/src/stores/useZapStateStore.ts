@@ -1,4 +1,4 @@
-import { NetworkInfo, ZAP_URL } from "../constants";
+import { NETWORKS_INFO, PATHS } from "../constants";
 import { ChainId, UniV3Position, univ3Dexes } from "../schema";
 import { usePoolsStore } from "./usePoolsStore";
 import { usePositionStore } from "./usePositionStore";
@@ -138,8 +138,8 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
 
     try {
       const res = await fetch(
-        `${ZAP_URL}/${
-          NetworkInfo[chainId].zapPath
+        `${PATHS.ZAP_API}/${
+          NETWORKS_INFO[chainId].zapPath
         }/api/v1/migrate/route?${tmp.slice(1)}`,
         {
           headers: {

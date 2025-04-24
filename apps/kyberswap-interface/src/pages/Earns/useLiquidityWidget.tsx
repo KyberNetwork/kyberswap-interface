@@ -1,5 +1,7 @@
-import { ChainId, LiquidityWidget, PoolType, ZapOut } from '@kyberswap/liquidity-widgets'
+import { ChainId as ZapInChainId, LiquidityWidget, PoolType as ZapInPoolType } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
+import { ChainId as ZapOutChainId, PoolType as ZapOutPoolType, ZapOut } from '@kyberswap/zap-out-widgets'
+import '@kyberswap/zap-out-widgets/dist/style.css'
 import { ZapMigration, ChainId as ZapMigrationChainId, Dex as ZapMigrationDex } from '@kyberswap/zap-migration-widgets'
 import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -21,8 +23,8 @@ import { getTokenId, isForkFrom } from 'pages/Earns/utils'
 
 interface AddLiquidityPureParams {
   poolAddress: string
-  chainId: ChainId
-  poolType: PoolType
+  chainId: ZapInChainId
+  poolType: ZapInPoolType
   positionId?: string
 }
 
@@ -66,48 +68,51 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
 }
 
-const zapDexMapping: Record<EarnDex | EarnDex2, PoolType> = {
-  [EarnDex.DEX_UNISWAPV3]: PoolType.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: PoolType.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: PoolType.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: PoolType.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: PoolType.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: PoolType.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
-  [EarnDex2.DEX_UNISWAPV3]: PoolType.DEX_UNISWAPV3,
-  [EarnDex2.DEX_PANCAKESWAPV3]: PoolType.DEX_PANCAKESWAPV3,
-  [EarnDex2.DEX_SUSHISWAPV3]: PoolType.DEX_SUSHISWAPV3,
-  [EarnDex2.DEX_QUICKSWAPV3ALGEBRA]: PoolType.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex2.DEX_CAMELOTV3]: PoolType.DEX_CAMELOTV3,
-  [EarnDex2.DEX_THENAFUSION]: PoolType.DEX_THENAFUSION,
-  [EarnDex2.DEX_KODIAK_V3]: PoolType.DEX_KODIAK_V3,
-  [EarnDex2.DEX_UNISWAPV2]: PoolType.DEX_UNISWAPV2,
+const zapInDexMapping: Record<EarnDex | EarnDex2, ZapInPoolType> = {
+  [EarnDex.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
+  [EarnDex.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
+  [EarnDex.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapInPoolType.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex.DEX_CAMELOTV3]: ZapInPoolType.DEX_CAMELOTV3,
+  [EarnDex.DEX_THENAFUSION]: ZapInPoolType.DEX_THENAFUSION,
+  [EarnDex.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
+  [EarnDex.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
+  // [EarnDex.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
+  [EarnDex2.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
+  [EarnDex2.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
+  [EarnDex2.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
+  [EarnDex2.DEX_QUICKSWAPV3ALGEBRA]: ZapInPoolType.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex2.DEX_CAMELOTV3]: ZapInPoolType.DEX_CAMELOTV3,
+  [EarnDex2.DEX_THENAFUSION]: ZapInPoolType.DEX_THENAFUSION,
+  [EarnDex2.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
+  [EarnDex2.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
+  // [EarnDex2.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
 }
 
-const zapMigrationDexMapping: Record<PoolType | EarnDex, ZapMigrationDex | null> = {
-  [PoolType.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
-  [PoolType.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
-  [PoolType.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
-  [PoolType.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
-  [PoolType.DEX_PANCAKESWAPV2]: null,
-  [PoolType.DEX_SUSHISWAPV2]: null,
-  [PoolType.DEX_QUICKSWAPV2]: null,
-  [PoolType.DEX_PANGOLINSTANDARD]: null,
-  [PoolType.DEX_THRUSTERV2]: null,
-  [PoolType.DEX_SWAPMODEV2]: null,
-  [PoolType.DEX_METAVAULTV3]: null,
-  [PoolType.DEX_LINEHUBV3]: null,
-  [PoolType.DEX_SWAPMODEV3]: null,
-  [PoolType.DEX_KOICL]: null,
-  [PoolType.DEX_THRUSTERV3]: null,
-  [PoolType.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
-  [PoolType.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
-  [PoolType.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
-  [PoolType.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
-  [PoolType.DEX_KODIAK_V2]: null,
-  [PoolType.DEX_SQUADSWAP_V3]: null,
-  [PoolType.DEX_SQUADSWAP_V2]: null,
+const zapMigrationDexMapping: Record<ZapInPoolType | EarnDex, ZapMigrationDex | null> = {
+  [ZapInPoolType.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
+  [ZapInPoolType.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
+  [ZapInPoolType.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
+  [ZapInPoolType.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
+  [ZapInPoolType.DEX_PANCAKESWAPV2]: null,
+  [ZapInPoolType.DEX_SUSHISWAPV2]: null,
+  [ZapInPoolType.DEX_QUICKSWAPV2]: null,
+  [ZapInPoolType.DEX_PANGOLINSTANDARD]: null,
+  [ZapInPoolType.DEX_THRUSTERV2]: null,
+  [ZapInPoolType.DEX_SWAPMODEV2]: null,
+  [ZapInPoolType.DEX_METAVAULTV3]: null,
+  [ZapInPoolType.DEX_LINEHUBV3]: null,
+  [ZapInPoolType.DEX_SWAPMODEV3]: null,
+  [ZapInPoolType.DEX_KOICL]: null,
+  [ZapInPoolType.DEX_THRUSTERV3]: null,
+  [ZapInPoolType.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
+  [ZapInPoolType.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
+  [ZapInPoolType.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
+  [ZapInPoolType.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
+  [ZapInPoolType.DEX_KODIAK_V2]: null,
+  [ZapInPoolType.DEX_SQUADSWAP_V3]: null,
+  [ZapInPoolType.DEX_SQUADSWAP_V2]: null,
+  [ZapInPoolType.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
   [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
   [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
@@ -116,6 +121,28 @@ const zapMigrationDexMapping: Record<PoolType | EarnDex, ZapMigrationDex | null>
   [EarnDex.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
   [EarnDex.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
+  // [EarnDex.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
+}
+
+const zapOutDexMapping: Record<EarnDex | EarnDex2, ZapOutPoolType> = {
+  [EarnDex.DEX_UNISWAPV3]: ZapOutPoolType.DEX_UNISWAPV3,
+  [EarnDex.DEX_PANCAKESWAPV3]: ZapOutPoolType.DEX_PANCAKESWAPV3,
+  [EarnDex.DEX_SUSHISWAPV3]: ZapOutPoolType.DEX_SUSHISWAPV3,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapOutPoolType.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex.DEX_CAMELOTV3]: ZapOutPoolType.DEX_CAMELOTV3,
+  [EarnDex.DEX_THENAFUSION]: ZapOutPoolType.DEX_THENAFUSION,
+  [EarnDex.DEX_KODIAK_V3]: ZapOutPoolType.DEX_KODIAK_V3,
+  [EarnDex.DEX_UNISWAPV2]: ZapOutPoolType.DEX_UNISWAPV2,
+  // [EarnDex.DEX_UNISWAP_V4]: ZapOutPoolType.DEX_UNISWAP_V4,
+  [EarnDex2.DEX_UNISWAPV3]: ZapOutPoolType.DEX_UNISWAPV3,
+  [EarnDex2.DEX_PANCAKESWAPV3]: ZapOutPoolType.DEX_PANCAKESWAPV3,
+  [EarnDex2.DEX_SUSHISWAPV3]: ZapOutPoolType.DEX_SUSHISWAPV3,
+  [EarnDex2.DEX_QUICKSWAPV3ALGEBRA]: ZapOutPoolType.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex2.DEX_CAMELOTV3]: ZapOutPoolType.DEX_CAMELOTV3,
+  [EarnDex2.DEX_THENAFUSION]: ZapOutPoolType.DEX_THENAFUSION,
+  [EarnDex2.DEX_KODIAK_V3]: ZapOutPoolType.DEX_KODIAK_V3,
+  [EarnDex2.DEX_UNISWAPV2]: ZapOutPoolType.DEX_UNISWAPV2,
+  // [EarnDex2.DEX_UNISWAP_V4]: ZapOutPoolType.DEX_UNISWAP_V4,
 }
 
 const useLiquidityWidget = () => {
@@ -145,8 +172,8 @@ const useLiquidityWidget = () => {
       if (!library || !addLiquidityPureParams) return
       let url
       const chainId = addLiquidityPureParams.chainId
-      const dexIndex = Object.values(zapDexMapping).findIndex(item => item === addLiquidityPureParams.poolType)
-      const dex = Object.keys(zapDexMapping)[dexIndex] as EarnDex
+      const dexIndex = Object.values(zapInDexMapping).findIndex(item => item === addLiquidityPureParams.poolType)
+      const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
       const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
       if (isUniv2) {
         const poolAddress = addLiquidityPureParams.poolAddress
@@ -229,7 +256,7 @@ const useLiquidityWidget = () => {
     pool: { exchange: string; chainId?: number; address: string },
     positionId?: string,
   ) => {
-    const dex = zapDexMapping[pool.exchange as keyof typeof zapDexMapping]
+    const dex = zapInDexMapping[pool.exchange as keyof typeof zapInDexMapping]
     if (!dex) {
       notify(
         {
@@ -246,7 +273,7 @@ const useLiquidityWidget = () => {
     }
     setAddLiquidityPureParams({
       poolAddress: pool.address,
-      chainId: (pool.chainId || filters.chainId) as ChainId,
+      chainId: (pool.chainId || filters.chainId) as ZapInChainId,
       poolType: dex,
       positionId,
     })
@@ -350,9 +377,9 @@ const useLiquidityWidget = () => {
 
   const [zapOutPureParams, setZapOutPureParams] = useState<{
     positionId: string
-    poolType: PoolType
+    poolType: ZapOutPoolType
     poolAddress: string
-    chainId: ChainId
+    chainId: ZapOutChainId
   } | null>(null)
   const zapOutParams = useMemo(
     () =>
@@ -385,7 +412,7 @@ const useLiquidityWidget = () => {
   )
 
   const handleOpenZapOut = (position: { dex: string; chainId: number; poolAddress: string; id: string }) => {
-    const poolType = zapDexMapping[position.dex as keyof typeof zapDexMapping]
+    const poolType = zapOutDexMapping[position.dex as keyof typeof zapOutDexMapping]
     if (!poolType) {
       notify(
         {
@@ -399,7 +426,7 @@ const useLiquidityWidget = () => {
 
     setZapOutPureParams({
       poolType,
-      chainId: position.chainId as ChainId,
+      chainId: position.chainId as ZapOutChainId,
       poolAddress: position.poolAddress,
       positionId: position.id,
     })

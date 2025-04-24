@@ -1,15 +1,15 @@
-import { useZapState } from "../../hooks/useZapInState";
 import { useMemo, useState } from "react";
-import { formatWei } from "@/utils";
-import { TOKEN_SELECT_MODE } from "../TokenSelector/index";
-import WalletIcon from "@/assets/svg/wallet.svg";
-import DropdownIcon from "@/assets/svg/dropdown.svg";
+import { useZapState } from "@/hooks/useZapInState";
+import { TOKEN_SELECT_MODE } from "@/components/TokenSelector/index";
 import { NATIVE_TOKEN_ADDRESS } from "@/constants";
-import X from "@/assets/svg/x.svg";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
+import { formatWei } from "@/utils";
 import { formatUnits } from "@kyber/utils/crypto";
 import { formatDisplayNumber } from "@kyber/utils/number";
+import TokenSelectorModal from "@/components/TokenSelector/TokenSelectorModal";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import WalletIcon from "@/assets/svg/wallet.svg";
+import DropdownIcon from "@/assets/svg/dropdown.svg";
+import X from "@/assets/svg/x.svg";
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const {

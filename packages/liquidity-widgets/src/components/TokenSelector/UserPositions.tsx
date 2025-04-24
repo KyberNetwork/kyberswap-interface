@@ -1,13 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { shortenAddress } from "../TokenInfo/utils";
-import {
-  EARN_SUPPORTED_CHAINS,
-  EARN_SUPPORTED_PROTOCOLS,
-  EarnDex,
-  PATHS,
-} from "@/constants";
+import { PATHS } from "@/constants";
 import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { EarnPosition, PositionStatus } from "@/types/index";
 import { isAddress } from "@kyber/utils/crypto";
 import { formatDisplayNumber } from "@kyber/utils/number";
@@ -16,8 +11,12 @@ import IconCopy from "@/assets/svg/copy.svg";
 import IconPositionConnectWallet from "@/assets/svg/ic_position_connect_wallet.svg";
 import IconPositionNotFound from "@/assets/svg/ic_position_not_found.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { isForkFrom } from "@/utils";
-import { CoreProtocol } from "@/schema";
+import {
+  EarnDex,
+  Univ2EarnDex,
+  EARN_SUPPORTED_CHAINS,
+  EARN_SUPPORTED_PROTOCOLS,
+} from "@/schema";
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
@@ -156,10 +155,7 @@ const UserPositions = ({ search }: { search: string }) => {
     </div>
   ) : positions.length ? (
     positions.map((position: EarnPosition, index: number) => {
-      const isUniv2 = isForkFrom(
-        position.pool.project as EarnDex,
-        CoreProtocol.UniswapV2
-      );
+      const isUniv2 = Univ2EarnDex.safeParse(position.pool.project).success;
       const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status;
 
       return (
@@ -248,11 +244,7 @@ const UserPositions = ({ search }: { search: string }) => {
                   <span className="text-subText">#{position.tokenId}</span>
                 )}
                 <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
-                  {shortenAddress(
-                    position.chainId,
-                    position.pool.poolAddress,
-                    4
-                  )}
+                  {shortenAddress(position.pool.poolAddress, 4)}
                   {copied !== position.tokenId ? (
                     <IconCopy
                       className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"

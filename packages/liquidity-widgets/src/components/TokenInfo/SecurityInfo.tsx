@@ -1,14 +1,14 @@
-import { MouseoverTooltip } from "@/components/Tooltip";
 import { useMemo } from "react";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
-import IconSecurity from "@/assets/svg/security.svg";
-import LogoGoPlus from "@/assets/svg/goplus.svg";
+import { MouseoverTooltip } from "@/components/Tooltip";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
+import { useWidgetContext } from "@/stores";
+import { Token } from "@/schema";
 import useSecurityTokenInfo from "@/components/TokenInfo/useSecurityTokenInfo";
 import CollapseInfoItem from "@/components/TokenInfo/CollapseInfoItem";
 import IconSecurityTrading from "@/assets/svg/security-trading.svg";
 import IconSecurityContract from "@/assets/svg/security-contract.svg";
-import { useWidgetContext } from "@/stores/widget";
-import { Token } from "@/schema";
+import IconSecurity from "@/assets/svg/security.svg";
+import LogoGoPlus from "@/assets/svg/goplus.svg";
 
 const SecurityInfo = ({ token }: { token: Token }) => {
   const { theme, chainId } = useWidgetContext((s) => s);
@@ -17,7 +17,7 @@ const SecurityInfo = ({ token }: { token: Token }) => {
     () =>
       (token?.address
         ? token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NetworkInfo[chainId].wrappedToken.address
+          ? NETWORKS_INFO[chainId].wrappedToken.address
           : token.address
         : ""
       ).toLowerCase(),

@@ -2,20 +2,20 @@ import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from "react";
 import { Input } from "@kyber/ui/input";
 import { ScrollArea } from "@kyber/ui/scroll-area";
 import { useZapState } from "@/hooks/useZapInState";
-import { useTokenList } from "../../hooks/useTokenList";
+import { useTokenList } from "@/hooks/useTokenList";
 import { formatWei } from "@/utils";
 import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { Button } from "@kyber/ui/button";
+import { useWidgetContext } from "@/stores";
+import { Token } from "@/schema";
+import { formatUnits, isAddress } from "@kyber/utils/crypto";
+import UserPositions from "@/components/TokenSelector/UserPositions";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TrashIcon from "@/assets/svg/trash.svg";
 import IconSearch from "@/assets/svg/search.svg";
 import Info from "@/assets/svg/info.svg";
 import X from "@/assets/svg/x.svg";
 import Check from "@/assets/svg/check.svg";
-import { useWidgetContext } from "@/stores/widget";
-import { Token } from "@/schema";
-import { formatUnits, isAddress } from "@kyber/utils/crypto";
-import UserPositions from "./UserPositions";
 
 export enum TOKEN_SELECT_MODE {
   SELECT = "SELECT",

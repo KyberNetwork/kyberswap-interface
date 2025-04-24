@@ -13,7 +13,7 @@ import {
 } from "@kyber/ui/accordion";
 import { NO_DATA } from "@/constants";
 import IconAlertOctagon from "@/assets/svg/alert-octagon.svg";
-import Loader from "../Loader";
+import Loader from "@/components/Loader";
 
 const CollapseInfoItem = ({
   icon,

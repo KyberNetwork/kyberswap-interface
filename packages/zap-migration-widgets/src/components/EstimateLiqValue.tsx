@@ -1,3 +1,4 @@
+import { PATHS } from "../constants";
 import { ChainId, Token, univ2Dexes, UniV2Pool } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import {
@@ -293,7 +294,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                   You still have to pay the standard gas fees.{" "}
                   <a
                     className="text-accent"
-                    href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                    href={PATHS.DOCUMENT.ZAP_FEE_MODEL}
                     target="_blank"
                     rel="noopener norefferer"
                   >

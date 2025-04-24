@@ -1,8 +1,7 @@
 import { Placement } from "@popperjs/core";
 import { CSSProperties, ReactNode, useCallback, useState } from "react";
 import Info from "@/assets/svg/info.svg";
-
-import Tooltip from "../Tooltip";
+import Tooltip from "@/components/Tooltip";
 
 export default function InfoHelper({
   text,

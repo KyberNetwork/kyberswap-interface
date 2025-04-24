@@ -13,6 +13,7 @@ on:
         options:
         - packages/liquidity-widgets
         - packages/zap-migration-widgets
+        - packages/zap-out-widgets
         - packages/liquidity-chart
         - packages/swap-widgets
 

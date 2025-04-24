@@ -1,4 +1,4 @@
-import { DexInfos, NetworkInfo } from "../constants";
+import { DEXES_INFO, NETWORKS_INFO } from "../constants";
 import {
   ChainId,
   Pool,
@@ -37,9 +37,9 @@ export function PoolInfo({
       : false;
 
   const dexName =
-    typeof DexInfos[pool.dex].name === "string"
-      ? (DexInfos[pool.dex].name as string)
-      : DexInfos[pool.dex].name[chainId];
+    typeof DEXES_INFO[pool.dex].name === "string"
+      ? (DEXES_INFO[pool.dex].name as string)
+      : DEXES_INFO[pool.dex].name[chainId];
 
   return (
     <>
@@ -56,8 +56,8 @@ export function PoolInfo({
             className="w-6 h-6 -ml-2 z-10 rounded-full"
           />
           <Image
-            src={NetworkInfo[chainId].logo}
-            alt={NetworkInfo[chainId].name}
+            src={NETWORKS_INFO[chainId].logo}
+            alt={NETWORKS_INFO[chainId].name}
             className="w-3 h-3 -ml-1.5 z-20 rounded-full"
           />
         </div>
@@ -73,7 +73,7 @@ export function PoolInfo({
 
       <div className="mt-2.5 flex items-center gap-1">
         <Image
-          src={DexInfos[pool.dex].icon}
+          src={DEXES_INFO[pool.dex].icon}
           alt={dexName}
           className="w-4 h-4 rounded-full"
         />

@@ -1,4 +1,4 @@
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 
 export default function Loader({
   size = "16px",

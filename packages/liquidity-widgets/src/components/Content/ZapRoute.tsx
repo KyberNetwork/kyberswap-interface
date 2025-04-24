@@ -1,14 +1,14 @@
-import { useZapState } from "../../hooks/useZapInState";
+import { useMemo, useState } from "react";
+import { useZapState } from "@/hooks/useZapInState";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
   PoolSwapAction,
   ZapAction,
-} from "../../hooks/types/zapInTypes";
-import { useMemo, useState } from "react";
-import { formatWei } from "../../utils";
-import { DexInfos, NetworkInfo } from "@/constants";
-import { useWidgetContext } from "@/stores/widget";
+} from "@/hooks/types/zapInTypes";
+import { formatWei } from "@/utils";
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
+import { useWidgetContext } from "@/stores";
 import {
   Accordion,
   AccordionContent,
@@ -30,7 +30,7 @@ export default function ZapRoute() {
   const { symbol: symbol0 } = pool === "loading" ? defaultToken : pool.token0;
   const { symbol: symbol1 } = pool === "loading" ? defaultToken : pool.token1;
 
-  const dexNameObj = DexInfos[poolType].name;
+  const dexNameObj = DEXES_INFO[poolType].name;
   const dexName =
     typeof dexNameObj === "string" ? dexNameObj : dexNameObj[chainId];
 
@@ -50,7 +50,13 @@ export default function ZapRoute() {
       ...tokensIn,
       pool.token0,
       pool.token1,
-      NetworkInfo[chainId].wrappedToken,
+      NETWORKS_INFO[chainId].wrappedToken,
+      {
+        name: "ETH",
+        address: NATIVE_TOKEN_ADDRESS,
+        symbol: "ETH",
+        decimals: 18,
+      },
     ];
 
     const parsedAggregatorSwapInfo =

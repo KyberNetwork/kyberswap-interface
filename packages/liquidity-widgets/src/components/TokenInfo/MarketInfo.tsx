@@ -1,16 +1,15 @@
-import { shortenAddress } from "./utils";
+import { shortenAddress } from "@/components/TokenInfo/utils";
 import { useMemo, useState } from "react";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
+import { useWidgetContext } from "@/stores";
+import { Token } from "@/schema";
 import useMarketTokenInfo from "@/components/TokenInfo/useMarketTokenInfo";
+import useCopy from "@/hooks/useCopy";
+import Loader from "@/components/Loader";
 import IconZiczac from "@/assets/svg/ziczac.svg";
 import LogoCoingecko from "@/assets/svg/coingecko.svg";
 import IconDown from "@/assets/svg/down.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import Loader from "../Loader";
-import { useWidgetContext } from "@/stores/widget";
-import { Token } from "@/schema";
-
-import useCopy from "@/hooks/useCopy";
 
 const MarketInfo = ({ token }: { token: Token }) => {
   const theme = useWidgetContext((s) => s.theme);
@@ -20,7 +19,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
     () =>
       (token?.address
         ? token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NetworkInfo[chainId].wrappedToken.address
+          ? NETWORKS_INFO[chainId].wrappedToken.address
           : token.address
         : ""
       ).toLowerCase(),
@@ -89,7 +88,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
                     currentTarget.src = defaultTokenLogo;
                   }}
                 />
-                <span>{shortenAddress(chainId, tokenAddress, 3)}</span>
+                <span>{shortenAddress(tokenAddress, 3)}</span>
                 {Copy}
               </>
             ) : (

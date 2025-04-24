@@ -3,7 +3,7 @@ import { sassPlugin } from "esbuild-sass-plugin";
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: { "liquidity-widget": "src/components/index.ts" },
+  entry: { "liquidity-widget": "src/index.tsx" },
   format: ["esm", "cjs"],
   outDir: "dist",
   target: "esnext",

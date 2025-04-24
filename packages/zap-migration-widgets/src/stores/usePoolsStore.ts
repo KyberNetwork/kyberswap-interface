@@ -12,9 +12,8 @@ import {
 import { Theme, defaultTheme } from "../theme";
 import { z } from "zod";
 import { create } from "zustand";
-import { NetworkInfo } from "../constants";
-
-// import { useTokenPrices } from "@kyber/hooks/use-token-prices";
+import { NETWORKS_INFO, PATHS } from "../constants";
+import { MAX_TICK, MIN_TICK, nearestUsableTick } from "@kyber/utils/uniswapv3";
 
 interface GetPoolParams {
   chainId: ChainId;
@@ -34,8 +33,6 @@ interface PoolsState {
   setTheme: (theme: Theme) => void;
   reset: () => void;
 }
-
-const BFF_API = "https://bff.kyberswap.com/api";
 
 // Create a mapping object for string to Dex enum
 const dexMapping: Record<Dex, string[]> = {
@@ -57,6 +54,8 @@ const dexMapping: Record<Dex, string[]> = {
 
   [Dex.DEX_UNISWAPV2]: ["uniswap"],
   [Dex.DEX_SQUADSWAP_V2]: ["squadswap"],
+
+  [Dex.DEX_UNISWAP_V4]: ["uniswap-v4"],
 } as const;
 
 const poolResponse = z.object({
@@ -135,7 +134,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
   }: GetPoolParams) => {
     try {
       const res = await fetch(
-        `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${Dex[dexFrom]}`
+        `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${Dex[dexFrom]}`
       ).then((res) => res.json());
 
       const isUniV3 = univ3Dexes.includes(dexFrom);
@@ -184,7 +183,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         symbol: string;
         decimals: number;
       }[] = await fetch(
-        `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${addresses}`
+        `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?chainIds=${chainId}&addresses=${addresses}`
       )
         .then((res) => res.json())
         .then((res) => res?.data?.tokens || [])
@@ -204,7 +203,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
 
         if (!tk) {
           const res = await fetch(
-            `https://ks-setting.kyberswap.com/api/v1/tokens/import`,
+            `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens/import`,
             {
               method: "POST",
               headers: {
@@ -241,7 +240,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
       }
       // check category pair
       const pairCheck0 = await fetch(
-        `https://token-api.kyberengineering.io/api/v1/public/category/pair?chainId=${chainId}&tokenIn=${tokenFrom0.address}&tokenOut=${tokenFrom1.address}`
+        `${PATHS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${tokenFrom0.address}&tokenOut=${tokenFrom1.address}`
       ).then((res) => res.json());
       const cat = pairCheck0?.data?.category || "commonPair";
 
@@ -260,6 +259,8 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           sqrtPriceX96: p.positionInfo.sqrtPriceX96,
           tickSpacing: p.positionInfo.tickSpacing,
           ticks: p.positionInfo.ticks,
+          minTick: nearestUsableTick(MIN_TICK, p.positionInfo.tickSpacing),
+          maxTick: nearestUsableTick(MAX_TICK, p.positionInfo.tickSpacing),
         } as Pool;
       } else if (isUniV2) {
         pool0 = {
@@ -285,7 +286,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
 
       // check category pair
       const pairCheck1 = await fetch(
-        `https://token-api.kyberengineering.io/api/v1/public/category/pair?chainId=${chainId}&tokenIn=${tokenTo0.address}&tokenOut=${tokenTo1.address}`
+        `${PATHS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${tokenTo0.address}&tokenOut=${tokenTo1.address}`
       ).then((res) => res.json());
       const cat1 = pairCheck1?.data?.category || "commonPair";
 
@@ -306,6 +307,8 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           sqrtPriceX96: p1.positionInfo.sqrtPriceX96,
           tickSpacing: p1.positionInfo.tickSpacing,
           ticks: p1.positionInfo.ticks,
+          minTick: nearestUsableTick(MIN_TICK, p1.positionInfo.tickSpacing),
+          maxTick: nearestUsableTick(MAX_TICK, p1.positionInfo.tickSpacing),
         } as Pool;
       } else if (isPoolToUniV2) {
         const totalSupplySelector = getFunctionSelector("totalSupply()");
@@ -330,7 +333,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           };
         };
         const totalSupplyRes = await fetch(
-          NetworkInfo[chainId].defaultRpc,
+          NETWORKS_INFO[chainId].defaultRpc,
           getPayload(`0x${totalSupplySelector}`)
         ).then((res) => res.json());
         const totalSupply = BigInt(totalSupplyRes?.result || "0");

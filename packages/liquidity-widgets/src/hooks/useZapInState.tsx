@@ -14,10 +14,10 @@ import useDebounce from "@/hooks/useDebounce";
 import useTokenBalances from "@/hooks/useTokenBalances";
 import {
   NATIVE_TOKEN_ADDRESS,
-  NetworkInfo,
+  NETWORKS_INFO,
   PATHS,
   ZERO_ADDRESS,
-  chainIdToChain,
+  CHAIN_ID_TO_CHAIN,
 } from "@/constants";
 import {
   assertUnreachable,
@@ -29,10 +29,10 @@ import {
   Token,
   univ2PoolNormalize,
   univ3PoolNormalize,
-  univ3PoolType,
+  Univ3PoolType,
   univ3Position,
 } from "@/schema";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { divideBigIntToString } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { formatUnits, parseUnits } from "@kyber/utils/crypto";
@@ -183,7 +183,7 @@ export const ZapContextProvider = ({
   const isTokensInPair = tokensIn.every((tk) => {
     const addr =
       tk.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-        ? NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+        ? NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
         : tk.address.toLowerCase();
     return (
       pool !== "loading" &&
@@ -207,7 +207,7 @@ export const ZapContextProvider = ({
       .map((token) =>
         token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
           ? token.address
-          : NetworkInfo[chainId].wrappedToken.address
+          : NETWORKS_INFO[chainId].wrappedToken.address
       )
       ?.join(",")
   );
@@ -221,13 +221,13 @@ export const ZapContextProvider = ({
   const nativeToken = useMemo(
     () => ({
       address: NATIVE_TOKEN_ADDRESS,
-      decimals: NetworkInfo[chainId].wrappedToken?.decimals,
-      symbol: NetworkInfo[chainId].wrappedToken.symbol.slice(1) || "",
-      logo: NetworkInfo[chainId].nativeLogo,
+      decimals: NETWORKS_INFO[chainId].wrappedToken?.decimals,
+      symbol: NETWORKS_INFO[chainId].wrappedToken.symbol.slice(1) || "",
+      logo: NETWORKS_INFO[chainId].nativeLogo,
     }),
     [chainId]
   );
-  const wrappedNativeToken = NetworkInfo[chainId].wrappedToken;
+  const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
 
   const priceLower = useMemo(() => {
     if (pool === "loading" || tickLower == null) return null;
@@ -254,7 +254,7 @@ export const ZapContextProvider = ({
   }, [pool, tickUpper, revertPrice]);
 
   const isUniv3Pool = useMemo(
-    () => univ3PoolType.safeParse(poolType).success,
+    () => Univ3PoolType.safeParse(poolType).success,
     [poolType]
   );
 
@@ -535,7 +535,7 @@ export const ZapContextProvider = ({
 
       fetch(
         `${PATHS.ZAP_API}/${
-          chainIdToChain[chainId]
+          CHAIN_ID_TO_CHAIN[chainId]
         }/api/v1/in/route?${tmp.slice(1)}`,
         {
           headers: {

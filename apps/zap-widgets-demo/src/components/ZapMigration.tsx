@@ -1,4 +1,4 @@
-import { dexMapping } from "../constant";
+import { zapMigrationDexMapping } from "../constant";
 import Input from "./Input";
 import Modal from "./Modal";
 import SubmitButton from "./SubmitButton";
@@ -14,7 +14,7 @@ import { Label } from "@kyber/ui/label";
 import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
 import { TabsContent } from "@kyber/ui/tabs";
 import {
-  Dex,
+  Dex as ZapMigrationDex,
   ZapMigration as ZapMigrationWidget,
   ChainId,
 } from "@kyberswap/zap-migration-widgets";
@@ -34,25 +34,28 @@ const ZapMigration = () => {
   const [params, setParams] = useState<{
     chainId: string;
     from: {
-      dex: Dex;
+      dex: ZapMigrationDex;
       poolId: string;
       positionId: number | string | undefined;
     };
     to: {
-      dex: Dex;
+      dex: ZapMigrationDex;
       poolId: string;
-      positionId?: number;
+      positionId: number | string | undefined;
     };
   }>({
     chainId: ChainId.Base.toString(),
     from: {
-      dex: Dex.DEX_UNISWAPV3,
-      poolId: "0xc9034c3e7f58003e6ae0c8438e7c8f4598d5acaa",
-      positionId: 2275270,
+      dex: ZapMigrationDex.DEX_UNISWAP_V4,
+      poolId:
+        "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
+      positionId: 40150,
     },
     to: {
-      dex: Dex.DEX_UNISWAPV3,
-      poolId: "0xd364eb55e17700b54bd75feb3f14582ed7a29444",
+      dex: ZapMigrationDex.DEX_UNISWAP_V4,
+      poolId:
+        "0x841c1a22d9a505cbba3e9bf90fd43e1201a09932ca0a90816579346be5f092af",
+      positionId: undefined,
     },
   });
 
@@ -72,10 +75,6 @@ const ZapMigration = () => {
     connectedAccount: {
       address,
       chainId,
-    },
-    initialTick: {
-      tickLower: -100,
-      tickUpper: 20,
     },
     onClose: () => {
       setOpenWidget(false);
@@ -182,7 +181,7 @@ const ZapMigration = () => {
                   }))
                 }
               >
-                {Object.entries(Dex)
+                {Object.entries(ZapMigrationDex)
                   .filter((x) => isNaN(+x[0]))
                   .map(([key, value]) => {
                     return (
@@ -192,9 +191,9 @@ const ZapMigration = () => {
                           id={`from-${key}`}
                         />
                         <Label className="text-xs" htmlFor={`from-${key}`}>
-                          {key in dexMapping
-                            ? dexMapping[key as keyof typeof dexMapping]
-                            : key}
+                          {zapMigrationDexMapping[
+                            value as keyof typeof zapMigrationDexMapping
+                          ] || key}
                         </Label>
                       </div>
                     );
@@ -219,6 +218,25 @@ const ZapMigration = () => {
                   }
                 />
               </div>
+              <div className="space-y-1">
+                <Label
+                  htmlFor="to-position-id"
+                  className="text-xs text-[#ffffff66]"
+                >
+                  Position Id
+                </Label>
+                <Input
+                  id="to-position-id"
+                  placeholder="Position Id"
+                  value={params.to.positionId}
+                  onChange={(e) =>
+                    setParams((p) => ({
+                      ...p,
+                      to: { ...p.to, positionId: e.target.value },
+                    }))
+                  }
+                />
+              </div>
               <Label className="relative top-1 text-xs text-[#ffffff66]">
                 Protocols
               </Label>
@@ -232,7 +250,7 @@ const ZapMigration = () => {
                   }))
                 }
               >
-                {Object.entries(Dex)
+                {Object.entries(ZapMigrationDex)
                   .filter((x) => isNaN(+x[0]))
                   .map(([key, value]) => {
                     return (
@@ -242,9 +260,9 @@ const ZapMigration = () => {
                           id={`to-${key}`}
                         />
                         <Label className="text-xs" htmlFor={`to-${key}`}>
-                          {key in dexMapping
-                            ? dexMapping[key as keyof typeof dexMapping]
-                            : key}
+                          {zapMigrationDexMapping[
+                            value as keyof typeof zapMigrationDexMapping
+                          ] || key}
                         </Label>
                       </div>
                     );

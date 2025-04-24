@@ -34,6 +34,7 @@ import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 export const dexMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
   kodiakcl: 'kodiak-v3',
+  uniswapv4: 'uniswap-v4',
 }
 
 const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPool) => void }) => {

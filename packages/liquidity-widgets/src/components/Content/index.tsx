@@ -1,43 +1,45 @@
+import { useEffect, useMemo, useState } from "react";
+import usePositionOwner from "@/hooks/usePositionOwner";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
   Type,
   ZapAction,
-} from "../../hooks/types/zapInTypes";
-import { APPROVAL_STATE, useApprovals } from "../../hooks/useApproval";
-import { ERROR_MESSAGE, useZapState } from "../../hooks/useZapInState";
-import { PI_LEVEL, getPriceImpact } from "../../utils";
-import Header from "../Header";
-import InfoHelper from "../InfoHelper";
-import LiquidityChart from "../LiquidityChart";
-import Modal from "../Modal";
-import PositionLiquidity from "../PositionLiquidity";
-import Preview, { ZapState } from "../Preview";
-import PriceRange from "../PriceRange";
-import { TOKEN_SELECT_MODE } from "../TokenSelector";
-import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
-import EstLiqValue from "./EstLiqValue";
-import LiquidityToAdd from "./LiquidityToAdd";
-import PoolStat from "./PoolStat";
-import PriceInfo from "./PriceInfo";
-import PriceInput from "./PriceInput";
-import ZapRoute from "./ZapRoute";
+} from "@/hooks/types/zapInTypes";
+import { APPROVAL_STATE, useApprovals } from "@/hooks/useApproval";
+import { ERROR_MESSAGE, useZapState } from "@/hooks/useZapInState";
+import { PI_LEVEL, getPriceImpact } from "@/utils";
+import Header from "@/components/Header";
+import InfoHelper from "@/components/InfoHelper";
+import LiquidityChart from "@/components/LiquidityChart";
+import Modal from "@/components/Modal";
+import PositionLiquidity from "@/components/PositionLiquidity";
+import Preview, { ZapState } from "@/components/Preview";
+import PriceRange from "@/components/PriceRange";
+import { TOKEN_SELECT_MODE } from "@/components/TokenSelector";
+import TokenSelectorModal from "@/components/TokenSelector/TokenSelectorModal";
+import EstLiqValue from "@/components/Content/EstLiqValue";
+import LiquidityToAdd from "@/components/Content/LiquidityToAdd";
+import PoolStat from "@/components/Content/PoolStat";
+import PriceInfo from "@/components/Content/PriceInfo";
+import PriceInput from "@/components/Content/PriceInput";
+import ZapRoute from "@/components/Content/ZapRoute";
 import ErrorIcon from "@/assets/svg/error.svg";
 import X from "@/assets/svg/x.svg";
-import { MAX_ZAP_IN_TOKENS } from "@/constants";
+import { FARMING_CONTRACTS, MAX_ZAP_IN_TOKENS } from "@/constants";
 import {
   Pool,
   univ2PoolNormalize,
-  univ2PoolType,
+  Univ2PoolType,
   univ3PoolNormalize,
-  univ3PoolType,
+  Univ3PoolType,
   univ3Position,
+  univ4Types,
 } from "@/schema";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { parseUnits } from "@kyber/utils/crypto";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
-import { useEffect, useMemo, useState } from "react";
 
 export default function Content() {
   const {
@@ -71,9 +73,11 @@ export default function Content() {
     toggleShowWidget,
     poolAddress,
     chainId,
+    connectedAccount,
   } = useWidgetContext((s) => s);
 
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
+  const isUniv4 = univ4Types.includes(poolType);
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -90,11 +94,31 @@ export default function Content() {
     [tokensIn, amountsIn]
   );
 
-  const { loading, approvalStates, approve, addressToApprove } = useApprovals(
+  const {
+    loading,
+    approvalStates,
+    approve,
+    addressToApprove,
+    nftApproval,
+    approveNft,
+  } = useApprovals(
     amountsInWei,
     tokensIn.map((token) => token?.address || ""),
     zapInfo?.routerAddress || ""
   );
+  const positionOwner = usePositionOwner({ positionId, chainId, poolType });
+  const isNotOwner =
+    positionId &&
+    positionOwner &&
+    connectedAccount?.address &&
+    positionOwner !== connectedAccount?.address?.toLowerCase()
+      ? true
+      : false;
+  const isFarming =
+    isNotOwner &&
+    FARMING_CONTRACTS[poolType]?.[chainId] &&
+    FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() ===
+      positionOwner?.toLowerCase();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
@@ -171,10 +195,15 @@ export default function Content() {
 
   const btnText = (() => {
     if (error) return error;
+    if (isUniv4 && isNotOwner) {
+      if (isFarming) return "Your position is in farming";
+      return "Not the position owner";
+    }
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
     if (addressToApprove) return "Approving";
     if (notApprove) return `Approve ${notApprove.symbol}`;
+    if (isUniv4 && positionId && !nftApproval) return "Approve NFT";
     if (pi.piVeryHigh) return "Zap anyway";
 
     return "Preview";
@@ -184,6 +213,7 @@ export default function Content() {
   const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
 
   const disabled =
+    (isUniv4 && isNotOwner) ||
     clickedApprove ||
     loading ||
     zapLoading ||
@@ -192,18 +222,18 @@ export default function Content() {
       (item) => item === APPROVAL_STATE.PENDING
     );
 
-  const { success: isUniV3PoolType } = univ3PoolType.safeParse(poolType);
+  const { success: isUniV3PoolType } = Univ3PoolType.safeParse(poolType);
 
   const newPool: Pool | null = useMemo(() => {
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     const { success: isUniV3PoolType, data: pt } =
-      univ3PoolType.safeParse(poolType);
+      Univ3PoolType.safeParse(poolType);
 
     const { success: isUniV2, data: poolUniv2 } =
       univ2PoolNormalize.safeParse(pool);
 
     const { success: isUniV2PoolType, data: univ2pt } =
-      univ2PoolType.safeParse(poolType);
+      Univ2PoolType.safeParse(poolType);
 
     if (zapInfo) {
       if (success && isUniV3PoolType) {
@@ -319,6 +349,9 @@ export default function Content() {
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
+    } else if (isUniv4 && positionId && !nftApproval) {
+      setClickedLoading(true);
+      approveNft().finally(() => setClickedLoading(false));
     } else if (
       pool !== "loading" &&
       amountsIn &&
@@ -350,9 +383,6 @@ export default function Content() {
           ? univ3Pool.minTick === tickUpper && univ3Pool.maxTick === tickLower
           : true,
         slippage,
-        // incase univ2, it's not important
-        priceLower: priceLower || "",
-        priceUpper: priceUpper || "",
         tickUpper: tickUpper !== null ? tickUpper : 0,
         tickLower: tickLower !== null ? tickLower : 0,
       });
@@ -532,21 +562,15 @@ export default function Content() {
               </div>
             )}
 
-            {/* TODO: implement owner check 
-                {position?.owner &&
-                  account &&
-                  position.owner.toLowerCase() !== account.toLowerCase() && (
-                    <div
-                      className="py-3 px-4 text-sm rounded-md mt-2 font-normal text-warning"
-                      style={{
-                        backgroundColor: `${theme.warning}33`,
-                      }}
-                    >
-                      You are not the current owner of the position #{positionId},
-                      please double check before proceeding
-                    </div>
-                  )}
-                */}
+            {isUniv4 && isNotOwner && (
+              <div
+                className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
+                style={{ backgroundColor: `${theme.warning}33` }}
+              >
+                You are not the current owner of the position #{positionId},
+                please double check before proceeding
+              </div>
+            )}
           </div>
         </div>
         <div className="flex gap-6 mt-6">

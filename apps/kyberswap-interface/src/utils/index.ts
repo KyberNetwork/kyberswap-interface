@@ -439,7 +439,9 @@ export const downloadImage = (data: Blob | string | undefined, filename: string)
   link.href = typeof data === 'string' ? data : URL.createObjectURL(data)
   document.body.appendChild(link)
   link.click()
-  document.body.removeChild(link)
+  if (link && document.body.contains(link)) {
+    document.body.removeChild(link)
+  }
 }
 
 export function buildFlagsForFarmV21({

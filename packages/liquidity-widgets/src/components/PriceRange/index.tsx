@@ -1,20 +1,20 @@
+import { useEffect, useMemo, useState } from "react";
 import {
   FeeAmount,
   PRICE_RANGE,
   FULL_PRICE_RANGE,
   DEFAULT_PRICE_RANGE,
-} from "./constants";
-import { useEffect, useMemo, useState } from "react";
+} from "@/components/PriceRange/constants";
 import { Button } from "@kyber/ui/button";
 import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import {
   nearestUsableTick,
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
-import { univ3PoolNormalize, univ3PoolType } from "@/schema";
-import { toString } from "@/utils/number";
+import { univ3PoolNormalize, Univ3PoolType } from "@/schema";
+import { toString } from "@kyber/utils/number";
 
 interface SelectedRange {
   range: number | string;
@@ -161,7 +161,7 @@ const PriceRange = () => {
   }, [feeRange]);
 
   const isUniv3 =
-    pool !== "loading" && univ3PoolType.safeParse(pool.poolType).success;
+    pool !== "loading" && Univ3PoolType.safeParse(pool.poolType).success;
 
   if (!isUniv3) return null;
 

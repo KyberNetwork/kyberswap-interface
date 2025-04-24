@@ -148,3 +148,26 @@ export function formatUnits(value: string, decimals = 18) {
   // Otherwise, combine whole and fractional parts
   return `${wholePart.toString()}.${formattedFractionalStr}`;
 }
+
+export function toString(x: number): string {
+  if (Math.abs(x) < 1.0) {
+    const e = parseInt(x.toString().split("e-")[1]);
+    if (e) {
+      x *= Math.pow(10, e - 1);
+      return (
+        x.toString().split(".")[0] +
+        "." +
+        "0".repeat(e - 1) +
+        x.toString().split(".")[1]
+      );
+    }
+  } else {
+    let e = parseInt(x.toString().split("+")[1]);
+    if (e > 20) {
+      e -= 20;
+      x /= Math.pow(10, e);
+      return x.toString() + "0".repeat(e);
+    }
+  }
+  return x.toString();
+}

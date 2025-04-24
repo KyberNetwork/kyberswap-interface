@@ -366,6 +366,24 @@ export function decodeAlgebraV1Position(rawData: string) {
   };
 }
 
+export const decodeUniswapV4PositionInfo = (rawData: string) => {
+  const dataInt = BigInt(rawData);
+
+  // Extract tickLower (24 bits)
+  let tickLower = Number((dataInt >> 8n) & 0xffffffn);
+  if (tickLower >= 1 << 23) tickLower -= 1 << 24;
+
+  // Extract tickUpper (24 bits)
+  let tickUpper = Number((dataInt >> 32n) & 0xffffffn);
+  if (tickUpper >= 1 << 23) tickUpper -= 1 << 24;
+
+  return {
+    tickLower,
+    tickUpper,
+    liquidity: BigInt(0),
+  };
+};
+
 export function tickToPrice(
   tick: number,
   baseDecimal: number,
