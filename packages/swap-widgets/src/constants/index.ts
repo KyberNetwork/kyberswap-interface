@@ -369,7 +369,7 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   59144: 'https://rpc.linea.build',
   1101: 'https://zkevm-rpc.com',
   324: 'https://mainnet.era.zksync.io',
-  8453: 'https://mainnet.base.org',
+  8453: 'https://base.kyberengineering.io',
   81457: 'https://rpc.blast.io',
   5000: 'https://rpc.mantle.xyz',
   80094: 'https://rpc.berachain.com',
