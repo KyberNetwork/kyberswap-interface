@@ -149,18 +149,13 @@ export const parseMarketTokenInfo = (tokenInfo: TokenInfo | null) => {
   return listData;
 };
 
-export const shortenAddress = (
-  address: string,
-  chars = 4,
-  isUniv4 = false
-): string => {
+export const shortenAddress = (address: string, chars = 4): string => {
   const parsed = isAddress(address);
   if (!parsed) {
     throw Error(`Invalid 'address' parameter '${address}'`);
   }
-  const addressLength = isUniv4 ? 66 : 42;
   return `${address.substring(0, chars + 2)}...${address.substring(
-    addressLength - chars
+    address.length - chars
   )}`;
 };
 

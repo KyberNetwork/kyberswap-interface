@@ -2,7 +2,7 @@ import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
 import { useZapState } from "@/hooks/useZapInState";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { useWidgetContext } from "@/stores";
-import { univ3PoolNormalize, univ3Position, univ4Types } from "@/schema";
+import { univ3PoolNormalize, univ3Position } from "@/schema";
 import { shortenAddress } from "@/components/TokenInfo/utils";
 import useCopy from "@/hooks/useCopy";
 import RefreshLoading from "@/components/Header/RefreshLoading";
@@ -35,8 +35,6 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const { success: isUniV3, data: univ3Pool } =
     univ3PoolNormalize.safeParse(pool);
-
-  const isUniv4 = univ4Types.includes(poolType);
 
   const isOutOfRange =
     positionId !== undefined && success && isUniV3
@@ -116,7 +114,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               Fee {fee}%
             </div>
             <div className="rounded-full text-xs bg-layer2 text-[#2C9CE4] px-3 py-1 flex gap-1">
-              {shortenAddress(poolAddress, 4, isUniv4)}
+              {shortenAddress(poolAddress, 4)}
               {Copy}
             </div>
             <div className="flex items-center gap-1">
