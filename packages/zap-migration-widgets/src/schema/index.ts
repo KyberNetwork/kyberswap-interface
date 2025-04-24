@@ -63,6 +63,8 @@ export enum Dex {
 
   DEX_UNISWAPV2 = 4,
   DEX_SQUADSWAP_V2 = 65,
+
+  DEX_UNISWAP_V4 = 68,
 }
 
 export const dex = z.nativeEnum(Dex);
@@ -139,7 +141,7 @@ export const tick = z.object({
 });
 export type Tick = z.infer<typeof tick>;
 
-const univ3PoolCommonField = z.object({
+export const univ3PoolCommonField = z.object({
   address: z.string(),
   token0: token,
   token1: token,
@@ -149,6 +151,8 @@ const univ3PoolCommonField = z.object({
   sqrtPriceX96: z.string(),
   tickSpacing: z.number(),
   ticks: z.array(tick),
+  minTick: z.number(),
+  maxTick: z.number(),
   category: z.enum([
     "stablePair",
     "correlatedPair",
@@ -182,6 +186,8 @@ export const algebraTypes: Dex[] = [
   Dex.DEX_QUICKSWAPV3ALGEBRA,
 ] as const;
 
+export const univ4Dexes: Dex[] = [Dex.DEX_UNISWAP_V4] as const;
+
 export const univ3Dexes: Dex[] = [
   Dex.DEX_UNISWAPV3,
   Dex.DEX_PANCAKESWAPV3,
@@ -196,6 +202,7 @@ export const univ3Dexes: Dex[] = [
   Dex.DEX_QUICKSWAPV3ALGEBRA,
   Dex.DEX_KODIAK_V3,
   Dex.DEX_SQUADSWAP_V3,
+  Dex.DEX_UNISWAP_V4,
 ] as const;
 export type Univ3Dex = (typeof univ3Dexes)[number];
 
@@ -245,6 +252,9 @@ export const pool = z.discriminatedUnion("dex", [
   }),
   univ3PoolCommonField.extend({
     dex: z.literal(Dex.DEX_SQUADSWAP_V3),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_UNISWAP_V4),
   }),
 
   univ2PoolNormalize.extend({
@@ -310,6 +320,9 @@ export const position = z.discriminatedUnion("dex", [
   }),
   univ3Position.extend({
     dex: z.literal(Dex.DEX_SQUADSWAP_V3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_UNISWAP_V4),
   }),
 
   univ2Position.extend({

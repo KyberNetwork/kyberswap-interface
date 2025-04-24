@@ -66,7 +66,7 @@ jobs:
         run: |
           pnpm --parallel -r --filter "@kyber/svgr-esbuild-plugin" --filter "@kyber/ui" build
           pnpm --filter "@kyberswap/liquidity-chart" build
-          pnpm --parallel --filter "@kyberswap/liquidity-widgets" --filter "@kyberswap/zap-migration-widgets" build
+          pnpm --parallel --filter "@kyberswap/liquidity-widgets" --filter "@kyberswap/zap-migration-widgets" --filter "@kyberswap/zap-out-widgets" build
 
       - name: Run lint
         run: pnpm lint && pnpm type-check

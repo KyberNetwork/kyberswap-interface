@@ -11,7 +11,7 @@ import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useZapState } from "@/hooks/useZapInState";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
 import { Token } from "@/schema";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import useCopy from "@/hooks/useCopy";
 
 const TokenImportConfirm = ({
@@ -100,7 +100,7 @@ const TokenImportConfirm = ({
             <p className="text-lg">{token.symbol}</p>
             <p className="text-subText text-sm">{token.name}</p>
             <p className="text-xs flex items-center gap-[5px]">
-              <span>Address: {shortenAddress(chainId, token.address, 7)}</span>
+              <span>Address: {shortenAddress(token.address, 7)}</span>
               {Copy}
               <IconExternalLink
                 className="w-4 text-subText hover:text-text cursor-pointer"

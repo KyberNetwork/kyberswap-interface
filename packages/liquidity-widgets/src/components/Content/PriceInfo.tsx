@@ -1,12 +1,12 @@
 import { useMemo } from "react";
-import { useZapState } from "../../hooks/useZapInState";
-import { assertUnreachable } from "../../utils";
+import { useZapState } from "@/hooks/useZapInState";
+import { assertUnreachable } from "@/utils";
 import SwitchIcon from "@/assets/svg/switch.svg";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import { univ2PoolNormalize, univ3PoolNormalize } from "@/schema";
-import { MouseoverTooltip } from "../Tooltip";
+import { MouseoverTooltip } from "@/components/Tooltip";
 
 const shortenSymbol = (symbol: string, characterNumber: number = 8) =>
   symbol.length > characterNumber + 2

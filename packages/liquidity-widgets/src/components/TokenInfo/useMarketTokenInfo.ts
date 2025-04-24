@@ -1,7 +1,7 @@
-import { PATHS, NetworkInfo } from "@/constants";
 import { useEffect, useMemo, useState } from "react";
 import { TokenInfo, parseMarketTokenInfo } from "@/components/TokenInfo/utils";
-import { useWidgetContext } from "@/stores/widget";
+import { PATHS, NETWORKS_INFO } from "@/constants";
+import { useWidgetContext } from "@/stores";
 
 const FETCH_INTERVAL = 60_000;
 let fetchInterval: ReturnType<typeof setInterval>;
@@ -22,9 +22,9 @@ export default function useMarketTokenInfo(tokenAddress: string) {
     if (!tokenAddress) return;
     setLoading(true);
     fetch(
-      tokenAddress === NetworkInfo[chainId].wrappedToken.address.toLowerCase()
-        ? `${PATHS.COINGECKO_API_URL}/coins/${NetworkInfo[chainId].coingeckoNativeTokenId}`
-        : `${PATHS.COINGECKO_API_URL}/coins/${NetworkInfo[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
+      tokenAddress === NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
+        ? `${PATHS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
+        : `${PATHS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
     )
       .then((res) => res.json())
       .then((data) =>

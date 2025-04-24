@@ -23,7 +23,7 @@ import AlertIcon from "../../assets/icons/circle-alert.svg";
 import LoadingIcon from "../../assets/icons/loader-circle.svg";
 import CheckIcon from "../../assets/icons/circle-check.svg";
 import { Image } from "../Image";
-import { ZAP_URL, DexInfos, NetworkInfo } from "../../constants";
+import { DEXES_INFO, NETWORKS_INFO, PATHS } from "../../constants";
 import { ChainId, Token, univ2Dexes, UniV2Pool } from "../../schema";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
@@ -94,7 +94,7 @@ export function Preview({
   useEffect(() => {
     if (!route?.route || !showPreview) return;
     fetch(
-      `${ZAP_URL}/${NetworkInfo[chainId].zapPath}/api/v1/migrate/route/build`,
+      `${PATHS.ZAP_API}/${NETWORKS_INFO[chainId].zapPath}/api/v1/migrate/route/build`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -119,7 +119,7 @@ export function Preview({
       });
   }, [route?.route, showPreview]);
 
-  const rpcUrl = NetworkInfo[chainId].defaultRpc;
+  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
@@ -127,7 +127,7 @@ export function Preview({
     if (!buildData || !account) return;
     (async () => {
       const wethAddress =
-        NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+        NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
       const [gasEstimation, gasPrice, nativeTokenPrice] = await Promise.all([
         estimateGas(rpcUrl, {
           from: account,
@@ -273,7 +273,7 @@ export function Preview({
           </div>
           <a
             className="text-primary text-xs mt-4"
-            href={`${NetworkInfo[chainId].scanLink}/tx/${txHash}`}
+            href={`${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}`}
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -347,14 +347,14 @@ export function Preview({
     );
   }
   const dexFrom =
-    typeof DexInfos[pools[0].dex].name === "string"
-      ? (DexInfos[pools[0].dex].name as string)
-      : DexInfos[pools[0].dex].name[chainId];
+    typeof DEXES_INFO[pools[0].dex].name === "string"
+      ? (DEXES_INFO[pools[0].dex].name as string)
+      : DEXES_INFO[pools[0].dex].name[chainId];
 
   const dexTo =
-    typeof DexInfos[pools[1].dex].name === "string"
-      ? (DexInfos[pools[1].dex].name as string)
-      : DexInfos[pools[1].dex].name[chainId];
+    typeof DEXES_INFO[pools[1].dex].name === "string"
+      ? (DEXES_INFO[pools[1].dex].name as string)
+      : DEXES_INFO[pools[1].dex].name[chainId];
 
   return (
     <>
@@ -389,8 +389,8 @@ export function Preview({
                     className="w-9 h-9 -ml-3 z-10"
                   />
                   <Image
-                    src={NetworkInfo[chainId].logo}
-                    alt={NetworkInfo[chainId].name}
+                    src={NETWORKS_INFO[chainId].logo}
+                    alt={NETWORKS_INFO[chainId].name}
                     className="w-4 h-4 -ml-1.5 z-20"
                   />
                 </div>
@@ -401,7 +401,7 @@ export function Preview({
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
                     <Image
-                      src={DexInfos[pools[0].dex].icon}
+                      src={DEXES_INFO[pools[0].dex].icon}
                       alt={dexFrom}
                       className="w-3 h-3"
                     />
@@ -426,8 +426,8 @@ export function Preview({
                     className="w-9 h-9 -ml-3 z-10"
                   />
                   <Image
-                    src={NetworkInfo[chainId].logo}
-                    alt={NetworkInfo[chainId].name}
+                    src={NETWORKS_INFO[chainId].logo}
+                    alt={NETWORKS_INFO[chainId].name}
                     className="w-4 h-4 -ml-1.5 z-20"
                   />
                 </div>
@@ -438,7 +438,7 @@ export function Preview({
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
                     <Image
-                      src={DexInfos[pools[1].dex].icon}
+                      src={DEXES_INFO[pools[1].dex].icon}
                       alt={dexTo}
                       className="w-3 h-3"
                     />
@@ -595,7 +595,7 @@ export function Preview({
                       pool. You still have to pay the standard gas fees.{" "}
                       <a
                         className="text-accent"
-                        href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                        href={PATHS.DOCUMENT.ZAP_FEE_MODEL}
                         target="_blank"
                         rel="noopener norefferer"
                       >

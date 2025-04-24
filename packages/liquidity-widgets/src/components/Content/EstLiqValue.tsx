@@ -1,4 +1,4 @@
-import { useZapState } from "../../hooks/useZapInState";
+import { useZapState } from "@/hooks/useZapInState";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
@@ -7,16 +7,16 @@ import {
   PartnerFeeAction,
   ProtocolFeeAction,
   ZapAction,
-} from "../../hooks/types/zapInTypes";
+} from "@/hooks/types/zapInTypes";
 import {
   PI_LEVEL,
   formatCurrency,
   formatNumber,
   getPriceImpact,
-} from "../../utils";
-import InfoHelper from "../InfoHelper";
-import { MouseoverTooltip } from "../Tooltip";
-import { NetworkInfo, PATHS } from "@/constants";
+} from "@/utils";
+import InfoHelper from "@/components/InfoHelper";
+import { MouseoverTooltip } from "@/components/Tooltip";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PATHS } from "@/constants";
 import {
   Accordion,
   AccordionContent,
@@ -26,10 +26,10 @@ import {
 import { useMemo } from "react";
 import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetContext } from "@/stores";
 import { toRawString } from "@kyber/utils/number";
 import { formatUnits } from "@kyber/utils/crypto";
-import { SlippageWarning } from "../SlippageWarning";
+import { SlippageWarning } from "@/components/SlippageWarning";
 import { cn } from "@kyber/utils/tailwind-helpers";
 
 export default function EstLiqValue() {
@@ -144,7 +144,13 @@ export default function EstLiqValue() {
       ...tokensIn,
       pool.token0,
       pool.token1,
-      NetworkInfo[chainId].wrappedToken,
+      NETWORKS_INFO[chainId].wrappedToken,
+      {
+        name: "ETH",
+        address: NATIVE_TOKEN_ADDRESS,
+        symbol: "ETH",
+        decimals: 18,
+      },
     ];
 
     const parsedAggregatorSwapInfo =
@@ -221,7 +227,13 @@ export default function EstLiqValue() {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [zapInfo?.zapDetails.actions, pool, tokensIn, chainId, feeInfo]);
+  }, [
+    zapInfo?.zapDetails.actions,
+    zapInfo?.zapDetails.suggestedSlippage,
+    pool,
+    tokensIn,
+    chainId,
+  ]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
@@ -505,7 +517,7 @@ export default function EstLiqValue() {
                 You still have to pay the standard gas fees.{" "}
                 <a
                   className="text-accent"
-                  href={`${PATHS.KYBERSWAP_DOCS}/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model`}
+                  href={PATHS.DOCUMENT.ZAP_FEE_MODEL}
                   target="_blank"
                   rel="noopener norefferer"
                 >

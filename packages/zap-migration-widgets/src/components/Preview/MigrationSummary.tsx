@@ -1,5 +1,5 @@
 import { formatTokenAmount } from "@kyber/utils/number";
-import { DexInfos, NetworkInfo } from "../../constants";
+import { DEXES_INFO, NETWORKS_INFO } from "../../constants";
 import { usePoolsStore } from "../../stores/usePoolsStore";
 import {
   AddLiquidityAction,
@@ -36,7 +36,7 @@ export function MigrationSummary({
       pools[0].token1,
       pools[1].token0,
       pools[1].token1,
-      NetworkInfo[chainId].wrappedToken,
+      NETWORKS_INFO[chainId].wrappedToken,
     ];
 
     const parsedAggregatorSwapInfo =
@@ -58,7 +58,7 @@ export function MigrationSummary({
         };
       }) || [];
 
-    const dexNameObj = DexInfos[pools[1].dex].name;
+    const dexNameObj = DEXES_INFO[pools[1].dex].name;
     const dexName =
       typeof dexNameObj === "string" ? dexNameObj : dexNameObj[chainId];
 
@@ -108,14 +108,14 @@ export function MigrationSummary({
     addliquidityAction?.addLiquidity.token1.amount || 0
   );
   const dexFrom =
-    typeof DexInfos[pools[0].dex].name === "string"
-      ? DexInfos[pools[0].dex].name
-      : DexInfos[pools[0].dex].name[chainId];
+    typeof DEXES_INFO[pools[0].dex].name === "string"
+      ? DEXES_INFO[pools[0].dex].name
+      : DEXES_INFO[pools[0].dex].name[chainId];
 
   const dexTo =
-    typeof DexInfos[pools[1].dex].name === "string"
-      ? DexInfos[pools[1].dex].name
-      : DexInfos[pools[1].dex].name[chainId];
+    typeof DEXES_INFO[pools[1].dex].name === "string"
+      ? DEXES_INFO[pools[1].dex].name
+      : DEXES_INFO[pools[1].dex].name[chainId];
 
   return (
     <div className="border border-stroke rounded-md px-4 py-3 mt-8">

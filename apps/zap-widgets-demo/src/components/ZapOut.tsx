@@ -1,4 +1,4 @@
-import { dexMapping } from "../constant";
+import { zapOutDexMapping } from "../constant";
 import Input from "./Input";
 import Modal from "./Modal";
 import SubmitButton from "./SubmitButton";
@@ -14,11 +14,11 @@ import { Label } from "@kyber/ui/label";
 import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
 import { TabsContent } from "@kyber/ui/tabs";
 import {
-  PoolType,
+  PoolType as ZapOutDex,
   ChainId,
   ZapOut as ZapOutWidget,
-} from "@kyberswap/liquidity-widgets";
-import "@kyberswap/liquidity-widgets/dist/style.css";
+} from "@kyberswap/zap-out-widgets";
+import "@kyberswap/zap-out-widgets/dist/style.css";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
@@ -35,18 +35,17 @@ const ZapOut = () => {
     chainId: string;
     positionId: string;
     poolAddress: string;
-    poolType: PoolType;
+    poolType: ZapOutDex;
   }>({
     chainId: ChainId.Base.toString(),
-    positionId: "2277276",
-    poolAddress: "0xc9034c3e7f58003e6ae0c8438e7c8f4598d5acaa",
-    poolType: PoolType.DEX_UNISWAPV3,
+    positionId: "35636",
+    poolAddress:
+      "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
+    poolType: ZapOutDex.DEX_UNISWAP_V4,
   });
 
   const widgetProps = {
-    chainId: params.chainId
-      ? Number(params.chainId)
-      : ("" as unknown as ChainId),
+    chainId: params.chainId ? Number(params.chainId) : ChainId.Base,
     positionId: params.positionId,
     poolAddress: params.poolAddress,
     poolType: params.poolType,
@@ -105,12 +104,16 @@ const ZapOut = () => {
                 id="chainId"
                 placeholder="Chain Id"
                 value={params.chainId}
-                onChange={(e) =>
-                  setParams((p) => ({
-                    ...p,
-                    chainId: e.target.value,
-                  }))
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Only allow numbers
+                  if (value === "" || /^\d+$/.test(value)) {
+                    setParams((p) => ({
+                      ...p,
+                      chainId: value,
+                    }));
+                  }
+                }}
               />
             </div>
             <div className="space-y-1">
@@ -144,20 +147,25 @@ const ZapOut = () => {
               onValueChange={(value) =>
                 setParams((p) => ({
                   ...p,
-                  poolType: value as PoolType,
+                  poolType: value as ZapOutDex,
                 }))
               }
             >
-              {Object.keys(PoolType).map((key, index) => (
+              {Object.keys(ZapOutDex).map((key, index) => (
                 <div className="flex items-center space-x-2" key={key}>
                   <RadioGroupItem
-                    value={PoolType[key as keyof typeof PoolType]}
+                    value={ZapOutDex[key as keyof typeof ZapOutDex]}
                     id={`${index + 1}`}
                   />
                   <Label className="text-xs" htmlFor={`${index + 1}`}>
-                    {key in dexMapping
-                      ? dexMapping[key as keyof typeof dexMapping]
-                      : PoolType[key as keyof typeof PoolType]}
+                    {ZapOutDex[key as keyof typeof ZapOutDex] in
+                    zapOutDexMapping
+                      ? zapOutDexMapping[
+                          ZapOutDex[
+                            key as keyof typeof ZapOutDex
+                          ] as keyof typeof zapOutDexMapping
+                        ]
+                      : ZapOutDex[key as keyof typeof ZapOutDex]}
                   </Label>
                 </div>
               ))}

@@ -1,4 +1,4 @@
-import { dexMapping } from "../constant";
+import { zapInDexMapping } from "../constant";
 import Input from "./Input";
 import Modal from "./Modal";
 import SubmitButton from "./SubmitButton";
@@ -14,7 +14,7 @@ import { Label } from "@kyber/ui/label";
 import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
 import { TabsContent } from "@kyber/ui/tabs";
 import {
-  PoolType,
+  PoolType as ZapInDex,
   LiquidityWidget as ZapInWidget,
   ChainId,
 } from "@kyberswap/liquidity-widgets";
@@ -35,12 +35,13 @@ const ZapIn = () => {
     chainId: string;
     positionId: string;
     poolAddress: string;
-    poolType: PoolType;
+    poolType: ZapInDex;
   }>({
     chainId: ChainId.Base.toString(),
-    positionId: "",
-    poolAddress: "0xc9034c3e7f58003e6ae0c8438e7c8f4598d5acaa",
-    poolType: PoolType.DEX_UNISWAPV3,
+    positionId: "35636",
+    poolAddress:
+      "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
+    poolType: ZapInDex.DEX_UNISWAP_V4,
   });
 
   const widgetProps = {
@@ -144,20 +145,24 @@ const ZapIn = () => {
               onValueChange={(value) =>
                 setParams((p) => ({
                   ...p,
-                  poolType: value as PoolType,
+                  poolType: value as ZapInDex,
                 }))
               }
             >
-              {Object.keys(PoolType).map((key, index) => (
+              {Object.keys(ZapInDex).map((key: string, index: number) => (
                 <div className="flex items-center space-x-2" key={key}>
                   <RadioGroupItem
-                    value={PoolType[key as keyof typeof PoolType]}
+                    value={ZapInDex[key as keyof typeof ZapInDex]}
                     id={`${index + 1}`}
                   />
                   <Label className="text-xs" htmlFor={`${index + 1}`}>
-                    {key in dexMapping
-                      ? dexMapping[key as keyof typeof dexMapping]
-                      : PoolType[key as keyof typeof PoolType]}
+                    {ZapInDex[key as keyof typeof ZapInDex] in zapInDexMapping
+                      ? zapInDexMapping[
+                          ZapInDex[
+                            key as keyof typeof ZapInDex
+                          ] as keyof typeof zapInDexMapping
+                        ]
+                      : ZapInDex[key as keyof typeof ZapInDex]}
                   </Label>
                 </div>
               ))}
