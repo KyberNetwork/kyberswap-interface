@@ -40,6 +40,12 @@ export const SwapAction = () => {
       : undefined
 
   const [approvalState, approve] = useApproveCallback(inputAmount, selectedQuote?.quote.contractAddress)
+  console.log(
+    inputAmount?.toExact(),
+    inputAmount?.currency.wrapped.address,
+    approvalState,
+    selectedQuote?.quote.contractAddress,
+  )
   const [clickedApprove, setClickedApprove] = useState(false)
 
   const {
