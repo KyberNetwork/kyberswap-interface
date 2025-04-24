@@ -8,7 +8,7 @@ import { EarnPool } from 'pages/Earns/types'
 
 import { NotificationType } from 'components/Announcement/type'
 import CopyHelper from 'components/Copy'
-import { Image } from 'components/Image'
+import TokenLogo from 'components/TokenLogo'
 import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -20,8 +20,6 @@ import { formatDisplayNumber } from 'utils/numbers'
 import { formatAprNumber } from 'pages/Earns/utils'
 import {
   Apr,
-  CurrencyRoundedImage,
-  CurrencySecondImage,
   FeeTier,
   MobileTableBottomRow,
   MobileTableRow,
@@ -171,8 +169,8 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
             <Flex alignItems="flex-start" justifyContent="space-between">
               <Flex sx={{ gap: 1 }}>
                 <Flex sx={{ position: 'relative', top: -1 }}>
-                  <CurrencyRoundedImage src={pool.tokens?.[0]?.logoURI} alt="" />
-                  <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} alt="" />
+                  <TokenLogo src={pool.tokens?.[0]?.logoURI} />
+                  <TokenLogo src={pool.tokens?.[1]?.logoURI} />
                 </Flex>
                 <Flex flexDirection={'column'} sx={{ gap: 2 }}>
                   <Flex sx={{ gap: 1 }}>
@@ -182,7 +180,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                     <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
                   </Flex>
                   <Flex sx={{ gap: 2 }}>
-                    <Image src={pool.dexLogo} width="22px" height="22px" alt="" />
+                    <TokenLogo src={pool.dexLogo} width={22} height={22} />
                     <FeeTier>{pool.feeTier}%</FeeTier>
                   </Flex>
                 </Flex>
@@ -223,13 +221,13 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
       {tablePoolData.map(pool => (
         <TableRow key={pool.address} onClick={() => onOpenZapInWidget(pool)}>
           <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
-            <Image src={pool.dexLogo} width="20px" height="20px" alt="" />
+            <TokenLogo src={pool.dexLogo} width={20} height={20} />
             <Text color={theme.subText}>{pool.dexName}</Text>
           </Flex>
           <Flex alignItems="center" sx={{ gap: 2 }}>
             <Flex alignItems="center">
-              <CurrencyRoundedImage src={pool.tokens?.[0]?.logoURI} alt="" />
-              <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} alt="" />
+              <TokenLogo src={pool.tokens?.[0]?.logoURI} />
+              <TokenLogo src={pool.tokens?.[1]?.logoURI} />
             </Flex>
             <SymbolText>
               {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}

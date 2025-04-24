@@ -18,7 +18,6 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
-import { CurrencyRoundedImage, CurrencySecondImage } from 'pages/Earns/PoolExplorer/styles'
 import {
   Badge,
   BadgeType,
@@ -29,6 +28,7 @@ import {
 } from 'pages/Earns/UserPositions/styles'
 import { DexInfo, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { isForkFrom } from 'pages/Earns/utils'
+import TokenLogo from 'components/TokenLogo'
 
 const PositionDetailHeader = ({
   position,
@@ -68,8 +68,8 @@ const PositionDetailHeader = ({
       <PositionOverview>
         <Flex alignItems={'center'} sx={{ gap: 2 }}>
           <ImageContainer>
-            <CurrencyRoundedImage src={position.token0Logo} alt="" />
-            <CurrencySecondImage src={position.token1Logo} alt="" />
+            <TokenLogo src={position.token0Logo} />
+            <TokenLogo src={position.token1Logo} />
             <ChainImage src={position.chainLogo} alt="" />
           </ImageContainer>
           <Text marginLeft={-3} fontSize={upToSmall ? 20 : 16}>

@@ -23,7 +23,6 @@ import { shortenAddress } from 'utils'
 import { getReadingContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { CurrencyRoundedImage, CurrencySecondImage } from 'pages/Earns/PoolExplorer/styles'
 import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import ClaimFeeModal, { PositionToClaim, isNativeToken } from 'pages/Earns/ClaimFeeModal'
@@ -52,6 +51,7 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import TokenLogo from 'components/TokenLogo'
 
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string
@@ -318,8 +318,8 @@ export default function TableContent({
                 <PositionOverview>
                   <Flex alignItems={'center'} sx={{ gap: 2 }} flexWrap={'wrap'}>
                     <ImageContainer>
-                      <CurrencyRoundedImage src={token0Logo} alt="" />
-                      <CurrencySecondImage src={token1Logo} alt="" />
+                      <TokenLogo src={token0Logo} />
+                      <TokenLogo src={token1Logo} />
                       <ChainImage src={NETWORKS_INFO[poolChainId as ChainId]?.icon || chainImage} alt="" />
                     </ImageContainer>
                     <Text marginLeft={-3} fontSize={upToSmall ? 15 : 16}>

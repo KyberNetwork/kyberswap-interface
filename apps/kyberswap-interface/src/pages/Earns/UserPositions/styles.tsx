@@ -71,7 +71,7 @@ export const ChainImage = styled.img`
   height: 12px;
   border-radius: 50%;
   position: relative;
-  left: -14px;
+  left: -8px;
   top: 4px;
 `
 

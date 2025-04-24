@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { Image } from 'components/Image'
-
 export const PoolPageWrapper = styled.div`
   padding: 32px 24px 68px;
   width: 100%;
@@ -162,17 +160,6 @@ export const FeeTier = styled.div`
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     font-size: 14px;
   `}
-`
-
-export const CurrencyRoundedImage = styled(Image)`
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-`
-
-export const CurrencySecondImage = styled(CurrencyRoundedImage)`
-  position: relative;
-  left: -6px;
 `
 
 export const SymbolText = styled.div`
