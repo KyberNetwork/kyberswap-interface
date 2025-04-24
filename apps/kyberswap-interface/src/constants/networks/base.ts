@@ -28,7 +28,7 @@ const base: NetworkInfo = {
     decimal: 18,
     minForGas: 10 ** 14,
   },
-  defaultRpcUrl: 'https://mainnet.base.org',
+  defaultRpcUrl: 'https://base.kyberengineering.io',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: 'https://base-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-base',
