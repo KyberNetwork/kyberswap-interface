@@ -6,6 +6,7 @@ import {
   MayanAdapter,
   SymbiosisAdapter,
   DeBridgeAdapter,
+  LifiAdapter,
 } from './adapters'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 
@@ -19,6 +20,7 @@ export class CrossChainSwapFactory {
   private static mayanInstance: MayanAdapter
   private static symbiosisInstance: SymbiosisAdapter
   private static debridgeInstance: DeBridgeAdapter
+  private static lifiInstance: LifiAdapter
 
   // Get or create Across adapter
   static getAcrossAdapter(): AcrossAdapter {
@@ -71,6 +73,13 @@ export class CrossChainSwapFactory {
     return CrossChainSwapFactory.debridgeInstance
   }
 
+  static getLifiInstance(): LifiAdapter {
+    if (!CrossChainSwapFactory.lifiInstance) {
+      CrossChainSwapFactory.lifiInstance = new LifiAdapter()
+    }
+    return CrossChainSwapFactory.lifiInstance
+  }
+
   // Get all registered adapters
   static getAllAdapters(): SwapProvider[] {
     return [
@@ -81,6 +90,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getMayanAdapter(),
       CrossChainSwapFactory.getSymbiosisAdapter(),
       CrossChainSwapFactory.getDebridgeInstance(),
+      CrossChainSwapFactory.getLifiInstance(),
     ]
   }
 
