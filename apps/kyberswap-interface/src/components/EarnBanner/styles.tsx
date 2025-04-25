@@ -1,13 +1,24 @@
 import styled, { css, keyframes } from 'styled-components'
-
+import { Text } from 'rebass'
 import { ReactComponent as MoveBackSvg } from 'assets/svg/ic_move_back.svg'
 import { ReactComponent as MoveForwardSvg } from 'assets/svg/ic_move_forward.svg'
+
+const borderAnimation = keyframes`
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+`
 
 // TrendingBanner
 export const TrendingWrapper = styled.div`
   width: 100%;
   border-radius: 16px;
-  background: #1d5b49cc;
   padding: 12px 16px;
   display: flex;
   flex-direction: column;
@@ -15,10 +26,29 @@ export const TrendingWrapper = styled.div`
   align-items: flex-start;
   gap: 8px;
   flex-shrink: 0;
-  border: 1px solid #196750;
-  background: rgba(29, 91, 73, 0.8);
-  backdrop-filter: blur(2px);
   cursor: pointer;
+  position: relative;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(90deg, #196750, ${({ theme }) => theme.primary}, #196750);
+    background-size: 200% 200%;
+    animation: ${borderAnimation} 2s linear infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  background: #1d5b49cc;
+  backdrop-filter: blur(2px);
 `
 
 export const pulse = keyframes`
@@ -76,7 +106,7 @@ export const PoolApr = styled.div`
 // FarmingBanner
 export const FarmingWrapper = styled.div`
   width: 100%;
-  padding: 10px 18px;
+  padding: 10px 16px;
   gap: 5px;
   display: flex;
   flex-direction: column;
@@ -84,9 +114,27 @@ export const FarmingWrapper = styled.div`
   align-items: flex-start;
   flex-shrink: 0;
   border-radius: 16px;
-  border: 1px solid #3c88e2;
+  position: relative;
   background: rgba(74, 91, 222, 0.4);
   backdrop-filter: blur(2px);
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(90deg, #3c88e2, #4a5bde, #3c88e2);
+    background-size: 200% 200%;
+    animation: ${borderAnimation} 1s linear infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
 `
 
 export const FarmingPoolContainer = styled.div`
@@ -161,4 +209,12 @@ export const MoveForwardIcon = styled(MoveForwardSvg)`
   top: 3px;
   right: 0;
   cursor: pointer;
+`
+
+export const PoolPairText = styled(Text)`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  max-width: 120px;
 `

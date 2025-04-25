@@ -6,6 +6,7 @@ import {
   FarmingWrapper,
   MoveBackIcon,
   MoveForwardIcon,
+  PoolPairText,
 } from 'components/EarnBanner/styles'
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import { Flex, Text } from 'rebass'
@@ -86,9 +87,9 @@ export default function FarmingPoolBanner() {
           <FarmingPoolWrapper animateMoveForward={animateMoveForward} animateMoveBack={animateMoveBack}>
             {pools.map(pool => (
               <FarmingPool key={pool.address} className="farming-pool">
-                <Text>
+                <PoolPairText>
                   {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
-                </Text>
+                </PoolPairText>
                 <FarmingAprBadge>{formatAprNumber(pool.apr)}%</FarmingAprBadge>
               </FarmingPool>
             ))}
