@@ -5,13 +5,19 @@ import { ReactComponent as MoveForwardSvg } from 'assets/svg/ic_move_forward.svg
 
 const borderAnimation = keyframes`
   0% {
-    background-position: 0% 50%;
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
   }
   50% {
-    background-position: 100% 50%;
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
   }
   100% {
-    background-position: 0% 50%;
+    background-position: 0% 0%;
   }
 `
 
@@ -127,9 +133,9 @@ export const FarmingWrapper = styled.div`
     bottom: 0;
     border-radius: 16px;
     padding: 1px;
-    background: linear-gradient(90deg, #3c88e2, #4a5bde, #3c88e2);
-    background-size: 200% 200%;
-    animation: ${borderAnimation} 1s linear infinite;
+    background: linear-gradient(45deg, #3c88e2, #6b7fff, #7161ff, #6b7fff, #3c88e2);
+    background-size: 400% 400%;
+    animation: ${borderAnimation} 3s linear infinite;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
