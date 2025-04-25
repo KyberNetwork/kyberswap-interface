@@ -1,5 +1,26 @@
 import styled, { css, keyframes } from 'styled-components'
 
+import { ReactComponent as MoveBackSvg } from 'assets/svg/ic_move_back.svg'
+import { ReactComponent as MoveForwardSvg } from 'assets/svg/ic_move_forward.svg'
+
+// TrendingBanner
+export const TrendingWrapper = styled.div`
+  width: 100%;
+  border-radius: 16px;
+  background: #1d5b49cc;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  flex-shrink: 0;
+  border: 1px solid #196750;
+  background: rgba(29, 91, 73, 0.8);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+`
+
 export const pulse = keyframes`
   0% {
     opacity: 1;
@@ -10,23 +31,6 @@ export const pulse = keyframes`
   100% {
     opacity: 1;
   }
-`
-
-export const Wrapper = styled.div`
-  width: 100%;
-  border-radius: 16px;
-  background: #1d5b49cc;
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 4px;
-  flex-shrink: 0;
-  border: 1px solid #196750;
-  background: rgba(29, 91, 73, 0.8);
-  backdrop-filter: blur(2px);
-  cursor: pointer;
 `
 
 export const PoolWrapper = styled.div<{ animate: boolean }>`
@@ -41,14 +45,6 @@ export const PoolWrapper = styled.div<{ animate: boolean }>`
     css`
       animation: ${pulse} 0.6s;
     `}
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    width: 100%;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: unset;
-  `}
 `
 
 export const PoolAprWrapper = styled.div`
@@ -75,4 +71,94 @@ export const PoolApr = styled.div`
   color: ${({ theme }) => theme.primary};
   padding: 4px 16px;
   width: max-content;
+`
+
+// FarmingBanner
+export const FarmingWrapper = styled.div`
+  width: 100%;
+  padding: 10px 18px;
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex-shrink: 0;
+  border-radius: 16px;
+  border: 1px solid #3c88e2;
+  background: rgba(74, 91, 222, 0.4);
+  backdrop-filter: blur(2px);
+`
+
+export const FarmingPoolContainer = styled.div`
+  width: 430px;
+  overflow: hidden;
+  margin: 0 auto;
+`
+
+export const moveForward = keyframes`
+  0% {
+    left: -50%;
+  }
+  100% {
+    left: -100%;
+  }
+`
+
+export const moveBack = keyframes`
+  0% {
+    left: -50%;
+  }
+  100% {
+    left: 0;
+  }
+`
+
+export const FarmingPoolWrapper = styled.div<{ animateMoveForward: boolean; animateMoveBack: boolean }>`
+  width: 860px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  left: -50%;
+
+  ${({ animateMoveForward }) =>
+    animateMoveForward &&
+    css`
+      animation: ${moveForward} 0.8s;
+    `}
+
+  ${({ animateMoveBack }) =>
+    animateMoveBack &&
+    css`
+      animation: ${moveBack} 0.8s;
+    `}
+`
+
+export const FarmingPool = styled.div`
+  width: 215px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+`
+
+export const FarmingAprBadge = styled.div`
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #221749;
+  color: ${({ theme }) => theme.primary};
+`
+
+export const MoveBackIcon = styled(MoveBackSvg)`
+  position: absolute;
+  top: 3px;
+  left: 0;
+  cursor: pointer;
+`
+
+export const MoveForwardIcon = styled(MoveForwardSvg)`
+  position: absolute;
+  top: 3px;
+  right: 0;
+  cursor: pointer;
 `

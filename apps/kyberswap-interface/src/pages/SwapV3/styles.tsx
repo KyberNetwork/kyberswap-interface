@@ -39,10 +39,10 @@ export const BannerWrapper = styled.div`
   overflow: hidden;
 `
 
-export const EarnBannerWrapper = styled.div`
+export const TrendingWrapper = styled.div`
   width: 40%;
 `
 
-export const FarmingBannerWrapper = styled.div`
+export const FarmingWrapper = styled.div`
   width: calc(60% - 20px);
 `

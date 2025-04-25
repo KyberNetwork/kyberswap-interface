@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import Banner from 'components/Banner'
-import EarnBanner from 'components/EarnBanner'
+import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasTokenSetting from 'components/swapv2/GasTokenSetting'
@@ -41,8 +41,8 @@ import PopulatedSwapForm from './PopulatedSwapForm'
 import {
   AppBodyWrapped,
   BannerWrapper,
-  FarmingBannerWrapper,
-  EarnBannerWrapper,
+  TrendingWrapper,
+  FarmingWrapper,
   RoutingIconWrapper,
   SwitchLocaleLinkWrapper,
 } from 'pages/SwapV3/styles'
@@ -179,12 +179,12 @@ export default function Swap() {
           <InfoComponents>
             {(isSwapPage || isLimitPage) && !isPartnerSwap && (
               <BannerWrapper>
-                <EarnBannerWrapper>
-                  <EarnBanner />
-                </EarnBannerWrapper>
-                <FarmingBannerWrapper>
-                  <EarnBanner />
-                </FarmingBannerWrapper>
+                <TrendingWrapper>
+                  <TrendingPoolBanner />
+                </TrendingWrapper>
+                <FarmingWrapper>
+                  <FarmingPoolBanner />
+                </FarmingWrapper>
               </BannerWrapper>
             )}
             {isShowTradeRoutes && isSwapPage && (

@@ -1,0 +1,83 @@
+import { useEffect, useMemo, useState } from 'react'
+import { t } from '@lingui/macro'
+import { useNavigate } from 'react-router-dom'
+import { Flex, Text } from 'rebass'
+import { useExplorerLandingQuery } from 'services/zapEarn'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { formatAprNumber } from 'pages/Earns/utils'
+import { PoolAprWrapper, PoolApr, AprText, TrendingWrapper, PoolWrapper } from 'components/EarnBanner/styles'
+import { ReactComponent as IconTrending } from 'assets/svg/ic_pool_high_apr.svg'
+import useTheme from 'hooks/useTheme'
+import TokenLogo from 'components/TokenLogo'
+
+let indexInterval: NodeJS.Timeout
+
+export default function TrendingPoolBanner() {
+  const theme = useTheme()
+  const navigate = useNavigate()
+  const { mixpanelHandler } = useMixpanel()
+  const { account } = useActiveWeb3React()
+  const { data } = useExplorerLandingQuery({ userAddress: account })
+
+  const [index, setIndex] = useState(0)
+  const [animate, setAnimate] = useState(false)
+
+  const pool = useMemo(() => data?.data.highlightedPools[index] || null, [data, index])
+
+  const handleClickBanner = () => {
+    mixpanelHandler(MIXPANEL_TYPE.EARN_BANNER_CLICK, {
+      banner_name: 'HomePage_Earn_Banner',
+      page: 'HomePage',
+      destination_url: '/earn',
+    })
+    navigate({ pathname: APP_PATHS.EARN })
+  }
+
+  const handleClickBannerPool = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!pool) return
+    e.stopPropagation()
+    mixpanelHandler(MIXPANEL_TYPE.EARN_BANNER_POOL_CLICK, {
+      banner_name: 'HomePage_Pool_Banner',
+      page: 'HomePage',
+      pool_pair: `${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
+      destination_url: `/pools/${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
+    })
+    navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}` })
+  }
+
+  useEffect(() => {
+    const handleIndexChange = () => {
+      setAnimate(true)
+      setTimeout(() => setIndex(prev => (prev >= 9 ? 0 : prev + 1)), 200)
+      setTimeout(() => setAnimate(false), 1000)
+    }
+    indexInterval = setInterval(handleIndexChange, 4000)
+
+    return () => indexInterval && clearInterval(indexInterval)
+  }, [])
+
+  return !!pool ? (
+    <TrendingWrapper onClick={handleClickBanner}>
+      <Flex alignItems="center" sx={{ gap: '8px' }}>
+        <IconTrending width={24} height={24} color={theme.primary} />
+        <Text color={theme.primary}>{t`TRENDING POOLS`}</Text>
+      </Flex>
+      <PoolWrapper animate={animate} onClick={handleClickBannerPool}>
+        <Flex alignItems="center">
+          <TokenLogo src={pool.tokens[0].logoURI} />
+          <TokenLogo src={pool.tokens[1].logoURI} />
+          <Text marginLeft={2}>
+            {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
+          </Text>
+        </Flex>
+        <PoolAprWrapper>
+          <PoolApr>
+            {formatAprNumber(pool.apr)}% <AprText>APR</AprText>
+          </PoolApr>
+        </PoolAprWrapper>
+      </PoolWrapper>
+    </TrendingWrapper>
+  ) : null
+}
