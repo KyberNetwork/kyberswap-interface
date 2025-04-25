@@ -45,7 +45,7 @@ mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
   debug: ENV_LEVEL < ENV_TYPE.PROD,
 })
 
-if (ENV_LEVEL > ENV_TYPE.LOCAL) {
+if (ENV_LEVEL === ENV_TYPE.PROD) {
   Sentry.init({
     dsn: SENTRY_DNS,
     environment: 'production',
