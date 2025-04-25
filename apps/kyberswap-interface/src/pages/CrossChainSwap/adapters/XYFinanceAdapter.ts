@@ -56,7 +56,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       dstChainId: params.toChain,
       dstQuoteTokenAddress: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.address,
       slippage: (params.slippage * 100) / 10_000,
-      bridgeProviders: 'yBridge',
+      //bridgeProviders: 'yBridge',
 
       // TODO: add fee
       // affiliate: '',
@@ -69,22 +69,27 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       queryParams.append(key, String(value))
     }
     const resp = await fetch(`${XY_FINANCE_API}/quote?${queryParams.toString()}`).then(res => res.json())
-    const r = resp?.routes?.[0]
-    console.log(r)
+    const r = resp?.routes?.sort((a: any, b: any) => {
+      return +(BigInt(b.dstQuoteTokenAmount) - BigInt(a.dstQuoteTokenAmount)).toString()
+    })?.[0]
+
     if (!r) {
       throw new Error('No route found')
     }
 
+    const formattedOutputAmount = formatUnits(BigInt(r.dstQuoteTokenAmount), params.toToken.decimals)
+    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
+
     return {
       quoteParams: params,
       outputAmount: BigInt(r.dstQuoteTokenAmount),
-      formattedOutputAmount: formatUnits(BigInt(r.dstQuoteTokenAmount), params.toToken.decimals),
+      formattedOutputAmount,
       inputUsd: Number(r.srcQuoteTokenUsdValue),
       outputUsd: Number(r.dstQuoteTokenUsdValue),
       priceImpact: Math.abs(
         ((Number(r.dstQuoteTokenUsdValue) - Number(r.srcQuoteTokenUsdValue)) * 100) / Number(r.srcQuoteTokenUsdValue),
       ),
-      rate: Number(r.dstQuoteTokenUsdValue) / Number(r.srcQuoteTokenUsdValue),
+      rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: 0,
       timeEstimate: r.estimatedTransferTime,
       contractAddress: r.contractAddress,
@@ -107,7 +112,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       // slippage: quote.quoteParams.slippage,
       slippage: (quote.quoteParams.slippage * 100) / 10_000,
       receiver: account,
-      bridgeProvider: 'yBridge',
+      bridgeProvider: quote.rawQuote.bridgeDescription.provider,
       srcBridgeTokenAddress: quote.rawQuote.bridgeDescription.srcBridgeTokenAddress,
       dstBridgeTokenAddress: quote.rawQuote.bridgeDescription.dstBridgeTokenAddress,
       srcSwapProvider: quote.rawQuote.srcSwapDescription.provider,
