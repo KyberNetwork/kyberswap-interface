@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import Announcement from 'components/Announcement'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
-import Menu, { NewLabel } from 'components/Menu'
+import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
@@ -21,6 +21,7 @@ import AboutNavGroup from './groups/AboutNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
 import { StyledNavExternalLink, StyledNavLink } from './styleds'
+import EarnNavGroup from './groups/EarnNavGroup'
 
 const HeaderFrame = styled.div<{ hide?: boolean }>`
   height: ${({ hide }) => (hide ? 0 : undefined)};
@@ -207,12 +208,7 @@ export default function Header() {
         {!isPartnerSwap && (
           <HeaderLinks>
             <SwapNavGroup />
-            <StyledNavLink to={`${APP_PATHS.EARN}`}>
-              <Flex>
-                Earn
-                <NewLabel>New</NewLabel>
-              </Flex>
-            </StyledNavLink>
+            <EarnNavGroup />
             <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>
             <KyberDAONavGroup />
             <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>

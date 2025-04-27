@@ -360,7 +360,7 @@ export default function TableContent({
                       {claiming && positionToClaim && positionToClaim.id === position.tokenId ? (
                         <Loader size={'16px'} stroke={'#7a7a7a'} />
                       ) : (
-                        <IconClaim width={16} style={{ margin: '0 7px' }} />
+                        <IconClaim width={16} color={theme.subText} style={{ margin: '0 7px' }} />
                       )}
                     </PositionAction>
                   </Flex>

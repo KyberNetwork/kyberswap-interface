@@ -11,6 +11,7 @@ import { ReactComponent as IconHighlightedPool } from 'assets/svg/ic_pool_highli
 import { ReactComponent as IconLowVolatility } from 'assets/svg/ic_pool_low_volatility.svg'
 import { ReactComponent as IconSolidEarningPool } from 'assets/svg/ic_pool_solid_earning.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/ic_user_earn_position.svg'
+import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
 import Search from 'components/Search'
@@ -42,6 +43,7 @@ import {
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 
 export enum FilterTag {
+  FARMING_POOL = 'farming_pool',
   HIGHLIGHTED_POOL = 'highlighted_pool',
   HIGH_APR = 'high_apr',
   SOLID_EARNING = 'solid_earning',
@@ -56,6 +58,12 @@ export enum SortBy {
 }
 
 const filterTags = [
+  {
+    label: 'LM Pools',
+    value: FilterTag.FARMING_POOL,
+    icon: <IconFarmingPool width={24} />,
+    tooltip: 'No staking is required to earn rewards in these pools',
+  },
   {
     label: 'Highlighted Pools',
     value: FilterTag.HIGHLIGHTED_POOL,
@@ -293,7 +301,7 @@ const PoolExplorer = () => {
               <Text>Protocol</Text>
               <Text>Pair</Text>
               <Flex
-                justifyContent="flex-end"
+                justifyContent="flex-start"
                 sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
                 role="button"
                 onClick={() => onSortChange(SortBy.APR)}

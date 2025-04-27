@@ -66,8 +66,8 @@ export default function TrendingPoolBanner() {
       </Flex>
       <PoolWrapper animate={animate} onClick={handleClickBannerPool}>
         <Flex alignItems="center">
-          <TokenLogo src={pool.tokens[0].logoURI} />
-          <TokenLogo src={pool.tokens[1].logoURI} />
+          <TokenLogo src={pool.tokens[0].logoURI} primaryBoxShadow />
+          <TokenLogo src={pool.tokens[1].logoURI} primaryBoxShadow />
           <Text marginLeft={2}>
             {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
           </Text>

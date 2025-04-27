@@ -116,7 +116,7 @@ export const ContentWrapper = styled.div``
 
 export const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1.4fr 0.5fr 1fr 1fr 1fr 80px;
+  grid-template-columns: 1fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px;
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
@@ -125,7 +125,7 @@ export const TableHeader = styled.div`
   margin-bottom: 0;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr 1.2fr 0.5fr 1fr 1fr 1fr 80px;
+    grid-template-columns: 1fr 1.2fr 0.5fr 0.8fr 1fr 1fr 80px;
   `}
 `
 
@@ -136,7 +136,7 @@ export const TableBody = styled.div`
 
 export const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1.4fr 0.5fr 1fr 1fr 1fr 80px;
+  grid-template-columns: 1fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px;
   padding: 24px;
   cursor: pointer;
 
@@ -145,7 +145,7 @@ export const TableRow = styled.div`
   }
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr 1.2fr 0.5fr 1fr 1fr 1fr 80px;
+    grid-template-columns: 1fr 1.2fr 0.5fr 0.8fr 1fr 1fr 80px;
   `}
 `
 
@@ -170,7 +170,8 @@ export const SymbolText = styled.div`
 
 export const Apr = styled.div<{ positive: boolean }>`
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  align-items: center;
   color: ${({ positive, theme }) => (positive ? theme.primary : theme.red)};
 `
 

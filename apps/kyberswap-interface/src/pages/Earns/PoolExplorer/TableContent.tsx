@@ -16,6 +16,7 @@ import useTheme from 'hooks/useTheme'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
+import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 
 import { formatAprNumber } from 'pages/Earns/utils'
 import {
@@ -28,6 +29,7 @@ import {
   TableRow,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 
 export const dexMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
@@ -60,6 +62,11 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
       ...pool,
       dexLogo: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.logoURL || '',
       dexName: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.name || '',
+      // farming: null,
+      farming: {
+        lpFeeApr: 1.0,
+        farmRewardApr: 0.24,
+      },
     }))
   }, [poolData, dexList])
 
@@ -161,6 +168,22 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
       </Text>
     )
 
+  const farming = (pool: { farming: { lpFeeApr: number; farmRewardApr: number } }) => (
+    <MouseoverTooltipDesktopOnly
+      placement="bottom"
+      width="max-content"
+      text={
+        <div>
+          LP Fee APR: {pool.farming.lpFeeApr}%
+          <br />
+          Farm Rewards APR: {pool.farming.farmRewardApr}%
+        </div>
+      }
+    >
+      <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
+    </MouseoverTooltipDesktopOnly>
+  )
+
   if (upToMedium)
     return (
       <TableBody>
@@ -186,7 +209,10 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                 </Flex>
               </Flex>
               <Flex alignItems="center" sx={{ gap: 3 }}>
-                <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
+                <Flex alignItems="center" sx={{ gap: '2px' }}>
+                  {farming(pool)}
+                  <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
+                </Flex>
                 <Star
                   size={16}
                   color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
@@ -234,7 +260,9 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
             </SymbolText>
             <FeeTier>{pool.feeTier}%</FeeTier>
           </Flex>
-          <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
+          <Apr positive={pool.apr > 0}>
+            {formatAprNumber(pool.apr)}% {farming(pool)}
+          </Apr>
           <Flex justifyContent="flex-end">
             {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
           </Flex>

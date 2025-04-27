@@ -1,6 +1,6 @@
 import { Flex } from 'rebass'
 
-const Icon = ({ icon, size = 'medium' }: { icon: string; size: 'small' | 'medium' }) => {
+const Icon = ({ icon, size = 'medium' }: { icon: string | React.ReactNode; size: 'small' | 'medium' }) => {
   return (
     <Flex
       width={size === 'small' ? '40px' : '80px'}
@@ -18,7 +18,7 @@ const Icon = ({ icon, size = 'medium' }: { icon: string; size: 'small' | 'medium
           borderRadius: '50%',
         }}
       >
-        <img src={icon} alt="icon" width={size === 'small' ? '24px' : '40px'} />
+        {typeof icon === 'string' ? <img src={icon} alt="icon" width={size === 'small' ? '24px' : '40px'} /> : icon}
       </Flex>
     </Flex>
   )

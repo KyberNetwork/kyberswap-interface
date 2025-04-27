@@ -61,7 +61,7 @@ const SwapNavGroup = () => {
 
   return (
     <NavGroup
-      dropdownAlign={upToXXSmall ? 'right' : 'left'}
+      dropdownAlign={upToXXSmall ? 'center' : 'left'}
       isActive={isActive}
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={
@@ -70,7 +70,7 @@ const SwapNavGroup = () => {
         </DropdownTextAnchor>
       }
       dropdownContent={
-        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={'250px'}>
+        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={upToXXSmall ? '230px' : '250px'}>
           <StyledNavLink
             id={`swapv2-nav-link`}
             to={`${APP_PATHS.SWAP}/${networkInfo.route}`}

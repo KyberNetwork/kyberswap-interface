@@ -6,8 +6,9 @@ import useTheme from 'hooks/useTheme'
 import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import { formatAprNumber } from 'pages/Earns/utils'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
+import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 
-const PoolItem = ({ pool }: { pool: EarnPool }) => {
+const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) => {
   const theme = useTheme()
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
 
@@ -58,7 +59,10 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
         <Tag>{pool.feeTier}%</Tag>
       </Flex>
 
-      <Text color={theme.primary}>{formatAprNumber(pool.apr)}%</Text>
+      <Flex alignItems="center" sx={{ gap: '4px' }}>
+        <Text color={theme.primary}>{formatAprNumber(pool.apr)}%</Text>
+        {isFarming && <IconFarmingPool width={20} height={20} />}
+      </Flex>
     </PoolRow>
   )
 }

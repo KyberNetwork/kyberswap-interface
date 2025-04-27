@@ -4,6 +4,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
+import { MEDIA_WIDTHS } from 'theme'
+import { FilterTag } from 'pages/Earns/PoolExplorer'
+import { OverviewWrapper, WrapperBg, Container } from 'pages/Earns/Landing/styles'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import FireIcon from 'assets/svg/fire.svg'
 import LiquidityPoolIcon from 'assets/svg/liquidity-pools.svg'
 import LiquidityPosIcon from 'assets/svg/liquidity-positions.svg'
@@ -12,18 +17,11 @@ import PlayIcon from 'assets/svg/play-icon.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
 import SolidEarningIcon from 'assets/svg/solid-earning.svg'
 import StakingIcon from 'assets/svg/staking.svg'
-import LocalLoader from 'components/LocalLoader'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+import { ReactComponent as FarmingIcon } from 'assets/svg/ic_claim.svg'
 import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS } from 'theme'
-import { FilterTag } from 'pages/Earns/PoolExplorer'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
-import { OverviewWrapper, WrapperBg, Container, PoolWrapper, ListPoolWrapper } from 'pages/Earns/Landing/styles'
-import Icon from 'pages/Earns/Landing/Icon'
 import Card from 'pages/Earns/Landing/Card'
-import PoolItem from 'pages/Earns/Landing/PoolItem'
+import PoolSection from 'pages/Earns/Landing/PoolSection'
+import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 
 const EarnLanding = () => {
   const navigate = useNavigate()
@@ -32,25 +30,6 @@ const EarnLanding = () => {
   const { account } = useActiveWeb3React()
   const { isLoading, data } = useExplorerLandingQuery({ userAddress: account })
   const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
-
-  const title = (title: string, tooltip: string, icon: string) => (
-    <>
-      <Flex alignItems="center" sx={{ gap: '12px' }}>
-        <Icon icon={icon} size="small" />
-        <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-          <Text fontSize={20}>{title}</Text>
-        </MouseoverTooltipDesktopOnly>
-      </Flex>
-      <Box
-        sx={{
-          height: '1px',
-          margin: '16px',
-          width: '100%',
-          background: 'linear-gradient(90deg, #161A1C 0%, #49287F 29%, #111413 100%)',
-        }}
-      />
-    </>
-  )
 
   const highlightedPools = (data?.data?.highlightedPools || []).slice(0, 9)
   const highAprPool = (data?.data?.highAPR || []).slice(0, 5)
@@ -119,38 +98,28 @@ const EarnLanding = () => {
           />
         </OverviewWrapper>
 
-        <PoolWrapper style={{ marginTop: '64px' }}>
-          <ListPoolWrapper
-            role="button"
-            onClick={() => {
-              navigate({
-                pathname: APP_PATHS.EARN_POOLS,
-                search: `tag=${FilterTag.HIGHLIGHTED_POOL}`,
-              })
-            }}
-          >
-            {title(
-              'Highlighted Pools',
-              'Pools matching your wallet tokens or top 24h volume pools if no wallet is connected',
-              FireIcon,
-            )}
-            {isLoading ? (
-              <LocalLoader />
-            ) : (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)',
-                  gap: '1rem',
-                }}
-              >
-                {highlightedPools.map(pool => (
-                  <PoolItem pool={pool} key={pool.address} />
-                ))}
-              </Box>
-            )}
-          </ListPoolWrapper>
-        </PoolWrapper>
+        <PoolSection
+          title="Farming Pools"
+          tooltip="No staking is required to earn rewards in these pools"
+          icon={<FarmingIcon width={21} height={21} color={theme.primary} />}
+          tag={FilterTag.FARMING_POOL}
+          isLoading={isLoading}
+          listPools={highlightedPools}
+          size="large"
+          isFarming
+          styles={{ marginTop: '64px' }}
+        />
+
+        <PoolSection
+          title="Highlighted Pools"
+          tooltip="Pools matching your wallet tokens or top 24h volume pools if no wallet is connected"
+          icon={FireIcon}
+          tag={FilterTag.HIGHLIGHTED_POOL}
+          isLoading={isLoading}
+          listPools={highlightedPools}
+          size="large"
+          styles={{ marginTop: '40px' }}
+        />
 
         <Box
           sx={{
@@ -160,100 +129,32 @@ const EarnLanding = () => {
             gap: upToXXSmall ? 16 : 20,
           }}
         >
-          <PoolWrapper>
-            <ListPoolWrapper
-              role="button"
-              onClick={() => {
-                navigate({
-                  pathname: APP_PATHS.EARN_POOLS,
-                  search: `tag=${FilterTag.HIGH_APR}`,
-                })
-              }}
-            >
-              {title('High APR', 'Top 100 Pools with assets that offer exceptionally high APRs', RocketIcon)}
-              {isLoading ? (
-                <LocalLoader />
-              ) : (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem',
-                  }}
-                >
-                  {highAprPool.map(pool => (
-                    <PoolItem pool={pool} key={pool.address} />
-                  ))}
-                </Box>
-              )}
-            </ListPoolWrapper>
-          </PoolWrapper>
+          <PoolSection
+            title="High APR"
+            tooltip="Top 100 Pools with assets that offer exceptionally high APRs"
+            icon={RocketIcon}
+            tag={FilterTag.HIGH_APR}
+            isLoading={isLoading}
+            listPools={highAprPool}
+          />
 
-          <PoolWrapper>
-            <ListPoolWrapper
-              role="button"
-              onClick={() => {
-                navigate({
-                  pathname: APP_PATHS.EARN_POOLS,
-                  search: `tag=${FilterTag.LOW_VOLATILITY}`,
-                })
-              }}
-            >
-              {title(
-                'Low Volatility',
-                'Top 100 highest TVL Pools consisting of stable coins or correlated pairs',
-                LowVolatilityIcon,
-              )}
-              {isLoading ? (
-                <LocalLoader />
-              ) : (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem',
-                  }}
-                >
-                  {lowVolatilityPool.map(pool => (
-                    <PoolItem pool={pool} key={pool.address} />
-                  ))}
-                </Box>
-              )}
-            </ListPoolWrapper>
-          </PoolWrapper>
+          <PoolSection
+            title="Low Volatility"
+            tooltip="Top 100 highest TVL Pools consisting of stable coins or correlated pairs"
+            icon={LowVolatilityIcon}
+            tag={FilterTag.LOW_VOLATILITY}
+            isLoading={isLoading}
+            listPools={lowVolatilityPool}
+          />
 
-          <PoolWrapper>
-            <ListPoolWrapper
-              role="button"
-              onClick={() => {
-                navigate({
-                  pathname: APP_PATHS.EARN_POOLS,
-                  search: `tag=${FilterTag.SOLID_EARNING}`,
-                })
-              }}
-            >
-              {title(
-                'Solid Earning',
-                'Top 100 pools that have the high total earned fee in the last 7 days',
-                SolidEarningIcon,
-              )}
-              {isLoading ? (
-                <LocalLoader />
-              ) : (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem',
-                  }}
-                >
-                  {solidEarningPool.map(pool => (
-                    <PoolItem pool={pool} key={pool.address} />
-                  ))}
-                </Box>
-              )}
-            </ListPoolWrapper>
-          </PoolWrapper>
+          <PoolSection
+            title="Solid Earning"
+            tooltip="Top 100 pools that have the high total earned fee in the last 7 days"
+            icon={SolidEarningIcon}
+            tag={FilterTag.SOLID_EARNING}
+            isLoading={isLoading}
+            listPools={solidEarningPool}
+          />
         </Box>
 
         <Flex
