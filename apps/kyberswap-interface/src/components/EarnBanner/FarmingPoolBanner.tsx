@@ -74,7 +74,7 @@ export default function FarmingPoolBanner() {
   return pools.length > 0 ? (
     <FarmingWrapper>
       <Flex alignItems="center" sx={{ gap: '6px' }}>
-        <IconKem width={32} height={32} color={theme.primary} />
+        <IconKem width={26} height={26} color={theme.primary} />
         <Text color={'#FCD884'}>{t`FARMING POOLS`}</Text>
       </Flex>
       <Flex
