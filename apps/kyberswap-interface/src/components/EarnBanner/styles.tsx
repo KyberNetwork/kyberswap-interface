@@ -3,57 +3,30 @@ import { Text } from 'rebass'
 import { ReactComponent as MoveBackSvg } from 'assets/svg/ic_move_back.svg'
 import { ReactComponent as MoveForwardSvg } from 'assets/svg/ic_move_forward.svg'
 
-const borderAnimation = keyframes`
-  0% {
-    background-position: 0% 0%;
-  }
-  25% {
-    background-position: 100% 0%;
-  }
-  50% {
-    background-position: 100% 100%;
-  }
-  75% {
-    background-position: 0% 100%;
-  }
-  100% {
-    background-position: 0% 0%;
-  }
+const borderRotate = keyframes`
+  0% { --border-angle: 0deg; }
+  100% { --border-angle: 360deg; }
 `
 
 // TrendingBanner
 export const TrendingWrapper = styled.div`
   width: 100%;
-  border-radius: 16px;
   padding: 12px 16px;
+  gap: 8px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 8px;
   flex-shrink: 0;
-  cursor: pointer;
   position: relative;
+  cursor: pointer;
 
-  &:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 16px;
-    padding: 1px;
-    background: linear-gradient(90deg, #196750, ${({ theme }) => theme.primary}, #196750);
-    background-size: 200% 200%;
-    animation: ${borderAnimation} 2s linear infinite;
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-  }
-
-  background: #1d5b49cc;
+  --border-angle: 0deg;
+  animation: ${borderRotate} 2s infinite linear;
+  border: 1px solid transparent;
+  background: linear-gradient(#1d5b49, #1d5b49) padding-box,
+    conic-gradient(from var(--border-angle), #196750 50%, ${({ theme }) => theme.primary}) border-box;
   backdrop-filter: blur(2px);
 `
 
@@ -114,33 +87,20 @@ export const FarmingWrapper = styled.div`
   width: 100%;
   padding: 10px 16px;
   gap: 5px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
   flex-shrink: 0;
-  border-radius: 16px;
   position: relative;
-  background: rgba(74, 91, 222, 0.4);
-  backdrop-filter: blur(2px);
 
-  &:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 16px;
-    padding: 1px;
-    background: linear-gradient(45deg, #3c88e2, #6b7fff, #7161ff, #6b7fff, #3c88e2);
-    background-size: 400% 400%;
-    animation: ${borderAnimation} 3s linear infinite;
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-  }
+  --border-angle: 0deg;
+  animation: ${borderRotate} 2s infinite linear;
+  border: 1px solid transparent;
+  background: linear-gradient(#272e62, #272e62) padding-box,
+    conic-gradient(from var(--border-angle), #3c88e2 50%, #704ad8) border-box; // #3c88e2 #7161ff
+  backdrop-filter: blur(2px);
 `
 
 export const FarmingPoolContainer = styled.div`
