@@ -1,11 +1,8 @@
 import { t } from '@lingui/macro'
-import { AlertOctagon } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
-import { MoneyBag } from 'components/Icons'
-import Icon from 'components/Icons/Icon'
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/ic_claim.svg'
 import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview.svg'
