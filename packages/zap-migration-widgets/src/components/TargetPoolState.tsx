@@ -121,7 +121,7 @@ export function TargetPoolState({
               revertDisplay
             ),
             { significantDigits: 8 }
-          )
+          );
 
       setMaxPrice(
         toPosition && toPosition !== "loading"
@@ -297,7 +297,9 @@ export function TargetPoolState({
       pools === "loading" ||
       !initialTick ||
       !isUniV3 ||
-      !("tickSpacing" in pools[1])
+      !("tickSpacing" in pools[1]) ||
+      tickLower ||
+      tickUpper
     )
       return;
     if (
@@ -307,7 +309,15 @@ export function TargetPoolState({
       setTickLower(initialTick.tickLower);
       setTickUpper(initialTick.tickUpper);
     }
-  }, [initialTick, isUniV3, pools, setTickLower, setTickUpper]);
+  }, [
+    initialTick,
+    isUniV3,
+    pools,
+    setTickLower,
+    setTickUpper,
+    tickLower,
+    tickUpper,
+  ]);
 
   let poolPrice;
   if (isUniV3 && pool !== "loading") {

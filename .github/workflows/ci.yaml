@@ -58,7 +58,7 @@ jobs:
           echo "::set-output name=branch_tag::$branch_tag-$short_sha"
 
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs:
       - prepare
     steps:
@@ -92,7 +92,7 @@ jobs:
         run: pnpm lint && pnpm type-check
 
   build-zap-demo: 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs:
       - prepare
     steps:
