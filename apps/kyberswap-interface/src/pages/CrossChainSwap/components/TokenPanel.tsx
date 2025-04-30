@@ -95,7 +95,7 @@ export const TokenPanel = ({
         <SelectNetwork
           onSelectNetwork={onSelectNetwork}
           selectedChainId={selectedChain}
-          chainIds={[NonEvmChain.Near, ...MAINNET_NETWORKS]}
+          chainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...MAINNET_NETWORKS]}
           ref={ref}
         />
         <Flex
