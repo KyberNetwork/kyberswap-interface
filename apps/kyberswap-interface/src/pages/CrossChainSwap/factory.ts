@@ -9,6 +9,7 @@ import {
   LifiAdapter,
 } from './adapters'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
+import { OptimexAdapter } from './adapters/OptimexAdapter'
 
 // Factory for creating swap provider instances
 export class CrossChainSwapFactory {
@@ -21,6 +22,7 @@ export class CrossChainSwapFactory {
   private static symbiosisInstance: SymbiosisAdapter
   private static debridgeInstance: DeBridgeAdapter
   private static lifiInstance: LifiAdapter
+  private static optimexInstance: OptimexAdapter
 
   // Get or create Across adapter
   static getAcrossAdapter(): AcrossAdapter {
@@ -80,6 +82,13 @@ export class CrossChainSwapFactory {
     return CrossChainSwapFactory.lifiInstance
   }
 
+  static getOptimexAdapter(): OptimexAdapter {
+    if (!CrossChainSwapFactory.optimexInstance) {
+      CrossChainSwapFactory.optimexInstance = new OptimexAdapter()
+    }
+    return CrossChainSwapFactory.optimexInstance
+  }
+
   // Get all registered adapters
   static getAllAdapters(): SwapProvider[] {
     return [
@@ -91,6 +100,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getSymbiosisAdapter(),
       CrossChainSwapFactory.getDebridgeInstance(),
       CrossChainSwapFactory.getLifiInstance(),
+      CrossChainSwapFactory.getOptimexAdapter(),
     ]
   }
 
@@ -109,6 +119,12 @@ export class CrossChainSwapFactory {
         return CrossChainSwapFactory.getMayanAdapter()
       case 'symbiosis':
         return CrossChainSwapFactory.getSymbiosisAdapter()
+      case 'debridge':
+        return CrossChainSwapFactory.getDebridgeInstance()
+      case 'lifi':
+        return CrossChainSwapFactory.getLifiInstance()
+      case 'optimex':
+        return CrossChainSwapFactory.getOptimexAdapter()
       default:
         return undefined
     }

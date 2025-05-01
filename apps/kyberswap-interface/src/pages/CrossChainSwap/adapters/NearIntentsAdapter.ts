@@ -145,7 +145,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       const hash = await walletClient.writeContract({
         address: ('contractAddress' in fromToken
           ? fromToken.contractAddress
-          : fromToken.wrapped.address) as `0x${string}`,
+          : (fromToken as any).wrapped.address) as `0x${string}`,
         abi: erc20Abi,
         functionName: 'transfer',
         chain: undefined,

@@ -10,7 +10,7 @@ import { useWalletClient } from 'wagmi'
 import useDebounce from 'hooks/useDebounce'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
-import { Chain, Currency, NonEvmChain } from '../adapters'
+import { BitcoinToken, Chain, Currency, NonEvmChain } from '../adapters'
 import { NearToken, useNearTokens } from 'state/crossChainSwap'
 import { useNEARWallet } from 'components/Web3Provider/NearProvider'
 import { ZERO_ADDRESS } from 'constants/index'
@@ -63,9 +63,13 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     }
   }, [from, chainId, searchParams, setSearchParams])
 
+  const isFromNear = from === 'near'
+  const isFromBitcoin = from === 'bitcoin'
   const isFromEvm = isEvmChain(Number(from))
   const fromChainId = isFromEvm ? Number(from) : isNonEvmChain(from as NonEvmChain) ? (from as NonEvmChain) : chainId
 
+  const isToNear = to === 'near'
+  const isToBitcoin = to === 'bitcoin'
   const isToEvm = isEvmChain(Number(to))
   const toChainId = isToEvm
     ? (Number(to) as ChainId)
@@ -79,8 +83,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   )
 
   const currencyIn = useMemo(() => {
-    return isFromEvm ? currencyInEvm : nearTokens.find(token => token.assetId === tokenIn)
-  }, [currencyInEvm, isFromEvm, tokenIn, nearTokens])
+    if (isFromEvm) return currencyInEvm
+    if (isFromBitcoin) return BitcoinToken
+    if (isFromNear) nearTokens.find(token => token.assetId === tokenIn)
+    throw new Error('Network is not supported')
+  }, [currencyInEvm, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens])
 
   const currencyOutEvm = useCurrencyV2(
     useMemo(() => (isToEvm ? tokenOut || undefined : undefined), [tokenOut, isToEvm]),
@@ -88,8 +95,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   )
 
   const currencyOut = useMemo(() => {
-    return isToEvm ? currencyOutEvm : nearTokens.find(token => token.assetId === tokenOut)
-  }, [currencyOutEvm, isToEvm, tokenOut, nearTokens])
+    if (!toChainId) return
+    if (isToEvm) return currencyOutEvm
+    if (isToBitcoin) return BitcoinToken
+    if (isToNear) return nearTokens.find(token => token.assetId === tokenOut)
+    throw new Error('Network is not supported')
+  }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens])
 
   const inputAmount = useMemo(
     () =>
@@ -136,10 +147,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
       method: 'POST',
       body: JSON.stringify({
-        [fromChainId]: [(currencyIn as any).wrapped.address],
-        [toChainId]: [(currencyOut as any).wrapped.address],
+        [fromChainId]: [(currencyIn as any)?.wrapped?.address],
+        [toChainId]: [(currencyOut as any)?.wrapped?.address],
       }),
     }).then(r => r.json())
+
     const tokenInUsd = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
     const tokenOutUsd = r?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
 

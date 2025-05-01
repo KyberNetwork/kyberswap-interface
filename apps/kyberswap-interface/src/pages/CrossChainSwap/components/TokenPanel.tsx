@@ -14,7 +14,7 @@ import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
-import { Chain, Currency, NonEvmChain } from '../adapters'
+import { BitcoinToken, Chain, Currency, NonEvmChain } from '../adapters'
 import { isEvmChain } from 'utils'
 import Modal from 'components/Modal'
 import { CloseIcon } from 'theme'
@@ -79,13 +79,21 @@ export const TokenPanel = ({
     }
   }, [modalOpen])
 
-  const filteredNearTokens = nearTokens.filter(token => {
-    const q = searchQuery.toLowerCase().trim()
-    return (
-      token.blockchain === 'near' &&
-      (token.symbol.toLowerCase().includes(q) || token.contractAddress.toLowerCase().includes(q))
-    )
-  })
+  const filteredNearTokens =
+    selectedChain === NonEvmChain.Bitcoin
+      ? [
+          {
+            ...BitcoinToken,
+            assetId: BitcoinToken.symbol,
+          },
+        ]
+      : nearTokens.filter(token => {
+          const q = searchQuery.toLowerCase().trim()
+          return (
+            token.blockchain === 'near' &&
+            (token.symbol.toLowerCase().includes(q) || token.contractAddress.toLowerCase().includes(q))
+          )
+        })
 
   const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
 
@@ -132,8 +140,6 @@ export const TokenPanel = ({
 
         <CurrencySelect
           selected={!!selectedCurrency}
-          className="open-currency-select-button"
-          data-testid="open-currency-select-button"
           onClick={() => {
             if (!selectedChain) {
               ref?.current?.toggleNetworkModal()

@@ -8,8 +8,15 @@ export enum NonEvmChain {
   Bitcoin = 'bitcoin',
 }
 
+export const BitcoinToken = {
+  name: 'Bitcoin',
+  symbol: 'BTC',
+  decimals: 8,
+  logo: 'https://storage.googleapis.com/bitfi-static-35291d79/images/tokens/btc.svg',
+}
+
 export type Chain = ChainId | NonEvmChain
-export type Currency = EvmCurrency | NearToken
+export type Currency = EvmCurrency | NearToken | typeof BitcoinToken
 
 export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: string } } = {
   [NonEvmChain.Near]: {
