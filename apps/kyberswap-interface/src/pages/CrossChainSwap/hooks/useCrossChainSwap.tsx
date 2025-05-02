@@ -40,11 +40,17 @@ const RegistryContext = createContext<
       amountInWei: string | undefined
       nearTokens: NearToken[]
       getQuote: () => Promise<void>
+      recipient: string
+      setRecipient: (value: string) => void
     }
   | undefined
 >(undefined)
 
 export const CrossChainSwapRegistryProvider = ({ children }: { children: React.ReactNode }) => {
+  const [evmRecipient, setEvmRecipient] = useState('')
+  const [nearRecipient, setNearRecipient] = useState('')
+  const [btcRecipient, setBtcRecipient] = useState('')
+
   const [searchParams, setSearchParams] = useSearchParams()
   const from = searchParams.get('from')
   const to = searchParams.get('to')
@@ -54,7 +60,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const amountDebounce = useDebounce(amount, 500)
   const { nearTokens } = useNearTokens()
 
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
 
   useEffect(() => {
     if (!from) {
@@ -71,6 +77,39 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const isToNear = to === 'near'
   const isToBitcoin = to === 'bitcoin'
   const isToEvm = isEvmChain(Number(to))
+
+  useEffect(() => {
+    if (account && !evmRecipient) {
+      setEvmRecipient(account)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account])
+
+  const { walletState } = useNEARWallet()
+  const nearAccountId = walletState?.accountId
+  useEffect(() => {
+    if (nearAccountId && !nearRecipient) {
+      setNearRecipient(nearAccountId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nearAccountId])
+
+  const recipient = useMemo(() => {
+    if (isToNear) return nearRecipient
+    if (isToBitcoin) return btcRecipient
+    if (isToEvm) return evmRecipient
+    return ''
+  }, [isToNear, isToBitcoin, isToEvm, nearRecipient, btcRecipient, evmRecipient])
+
+  const setRecipient = useCallback(
+    (value: string) => {
+      if (isToNear) setNearRecipient(value)
+      if (isToBitcoin) setBtcRecipient(value)
+      if (isToEvm) setEvmRecipient(value)
+    },
+    [isToNear, isToBitcoin, isToEvm],
+  )
+
   const toChainId = isToEvm
     ? (Number(to) as ChainId)
     : isNonEvmChain(to as NonEvmChain)
@@ -83,11 +122,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   )
 
   const currencyIn = useMemo(() => {
+    if (!from) return
     if (isFromEvm) return currencyInEvm
     if (isFromBitcoin) return BitcoinToken
     if (isFromNear) return nearTokens.find(token => token.assetId === tokenIn)
     throw new Error('Network is not supported')
-  }, [currencyInEvm, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens])
+  }, [currencyInEvm, from, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens])
 
   const currencyOutEvm = useCurrencyV2(
     useMemo(() => (isToEvm ? tokenOut || undefined : undefined), [tokenOut, isToEvm]),
@@ -123,9 +163,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const selectedQuote = useMemo(() => {
     return quotes.find(q => q.adapter.getName() === selectedAdapter) || quotes[0] || null
   }, [quotes, selectedAdapter])
-
-  const { walletState } = useNEARWallet()
-  const nearAccountId = walletState?.accountId
 
   const [showPreview, setShowPreview] = useState(false)
   const disable = !fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount || inputAmount === '0'
@@ -219,6 +256,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         setAmount,
         nearTokens,
         amountInWei: inputAmount,
+        recipient,
+        setRecipient,
       }}
     >
       {children}
