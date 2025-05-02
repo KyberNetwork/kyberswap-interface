@@ -5,15 +5,27 @@ import { NearToken } from 'state/crossChainSwap'
 
 export enum NonEvmChain {
   Near = 'near',
+  Bitcoin = 'bitcoin',
+}
+
+export const BitcoinToken = {
+  name: 'Bitcoin',
+  symbol: 'BTC',
+  decimals: 8,
+  logo: 'https://storage.googleapis.com/bitfi-static-35291d79/images/tokens/btc.svg',
 }
 
 export type Chain = ChainId | NonEvmChain
-export type Currency = EvmCurrency | NearToken
+export type Currency = EvmCurrency | NearToken | typeof BitcoinToken
 
 export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: string } } = {
   [NonEvmChain.Near]: {
     name: 'NEAR',
     icon: 'https://storage.googleapis.com/ks-setting-1d682dca/000c677f-2ebc-44cc-8d76-e4c6d07627631744962669170.png',
+  },
+  [NonEvmChain.Bitcoin]: {
+    name: 'Bitcoin',
+    icon: 'https://storage.googleapis.com/bitfi-static-35291d79/images/tokens/btc_network.svg',
   },
 }
 

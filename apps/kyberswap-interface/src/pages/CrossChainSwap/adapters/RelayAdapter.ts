@@ -55,14 +55,21 @@ export class RelayAdapter extends BaseSwapAdapter {
       //   ],
       // },
     })
+
+    const formattedOutputAmount = formatUnits(BigInt(resp.details?.currencyOut?.amount || '0'), params.toToken.decimals)
+    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
+    const inputUsd = params.tokenInUsd * +formattedInputAmount
+    const outputUsd = params.tokenOutUsd * +formattedOutputAmount
+
     return {
       quoteParams: params,
       outputAmount: BigInt(resp.details?.currencyOut?.amount || '0'),
-      formattedOutputAmount: formatUnits(BigInt(resp.details?.currencyOut?.amount || '0'), params.toToken.decimals),
-      inputUsd: Number(resp.details?.currencyIn?.amountUsd || 0),
-      outputUsd: Number(resp.details?.currencyOut?.amountUsd || 0),
-      priceImpact: Number(resp.details?.totalImpact?.percent || 0),
-      rate: Number(resp.details?.rate || 0),
+      formattedOutputAmount,
+      inputUsd,
+      outputUsd,
+      priceImpact: (Math.abs(outputUsd - inputUsd) * 100) / inputUsd,
+      //rate: Number(resp.details?.rate || 0),
+      rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: Number(resp.fees?.gas?.amountUsd || 0),
       timeEstimate: resp.details?.timeEstimate || 0,
       // Relay dont need to approve, we send token to contract directly

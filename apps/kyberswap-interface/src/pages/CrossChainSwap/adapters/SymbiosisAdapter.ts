@@ -9,6 +9,7 @@ import {
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
 import { Quote } from '../registry'
+import { ZERO_ADDRESS } from 'constants/index'
 
 const SYMBIOSIS_API = 'https://api.symbiosis.finance/crosschain/v1'
 
@@ -94,7 +95,7 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: 0,
       timeEstimate: res.estimatedTime,
-      contractAddress: res.tx.to,
+      contractAddress: res.approveTo || ZERO_ADDRESS,
       rawQuote: res,
     }
   }

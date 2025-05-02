@@ -1,4 +1,5 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import HelpIcon from 'assets/svg/help-circle.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { Aligner, CurrencySelect, InputRow, StyledTokenName } from 'components/CurrencyInputPanel'
 import Wallet from 'components/Icons/Wallet'
@@ -14,7 +15,7 @@ import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
-import { Chain, Currency, NonEvmChain } from '../adapters'
+import { BitcoinToken, Chain, Currency, NonEvmChain } from '../adapters'
 import { isEvmChain } from 'utils'
 import Modal from 'components/Modal'
 import { CloseIcon } from 'theme'
@@ -79,13 +80,21 @@ export const TokenPanel = ({
     }
   }, [modalOpen])
 
-  const filteredNearTokens = nearTokens.filter(token => {
-    const q = searchQuery.toLowerCase().trim()
-    return (
-      token.blockchain === 'near' &&
-      (token.symbol.toLowerCase().includes(q) || token.contractAddress.toLowerCase().includes(q))
-    )
-  })
+  const filteredNearTokens =
+    selectedChain === NonEvmChain.Bitcoin
+      ? [
+          {
+            ...BitcoinToken,
+            assetId: BitcoinToken.symbol,
+          },
+        ]
+      : nearTokens.filter(token => {
+          const q = searchQuery.toLowerCase().trim()
+          return (
+            token.blockchain === 'near' &&
+            (token.symbol.toLowerCase().includes(q) || token.contractAddress.toLowerCase().includes(q))
+          )
+        })
 
   const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
 
@@ -95,7 +104,7 @@ export const TokenPanel = ({
         <SelectNetwork
           onSelectNetwork={onSelectNetwork}
           selectedChainId={selectedChain}
-          chainIds={[NonEvmChain.Near, ...MAINNET_NETWORKS]}
+          chainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...MAINNET_NETWORKS]}
           ref={ref}
         />
         <Flex
@@ -132,8 +141,6 @@ export const TokenPanel = ({
 
         <CurrencySelect
           selected={!!selectedCurrency}
-          className="open-currency-select-button"
-          data-testid="open-currency-select-button"
           onClick={() => {
             if (!selectedChain) {
               ref?.current?.toggleNetworkModal()
@@ -157,6 +164,10 @@ export const TokenPanel = ({
                       width={24}
                       height={24}
                       style={{ borderRadius: '50%' }}
+                      onError={({ currentTarget }) => {
+                        currentTarget.onerror = null
+                        currentTarget.src = HelpIcon
+                      }}
                     />
                   )}
                 </>
@@ -232,7 +243,17 @@ export const TokenPanel = ({
                     }}
                   >
                     <Flex alignItems="center" style={{ gap: 8 }}>
-                      <img src={item.logo} alt={item.symbol} width={24} height={24} style={{ borderRadius: '50%' }} />
+                      <img
+                        src={item.logo}
+                        alt={item.symbol}
+                        width={24}
+                        height={24}
+                        style={{ borderRadius: '50%' }}
+                        onError={({ currentTarget }) => {
+                          currentTarget.onerror = null
+                          currentTarget.src = HelpIcon
+                        }}
+                      />
                       <Text fontWeight={500}>{item.symbol}</Text>
                     </Flex>
                   </CurrencyRowWrapper>

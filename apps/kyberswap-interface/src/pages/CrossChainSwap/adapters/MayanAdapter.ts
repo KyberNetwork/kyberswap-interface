@@ -61,7 +61,7 @@ export class MayanAdapter extends BaseSwapAdapter {
 
     const tokenInUsd = params.tokenInUsd
     const tokenOutUsd = params.tokenOutUsd
-    const inputUsd = tokenInUsd * quotes[0].expectedAmountOut
+    const inputUsd = tokenInUsd * +formattedInputAmount
     const outputUsd = tokenOutUsd * quotes[0].expectedAmountOut
 
     return {

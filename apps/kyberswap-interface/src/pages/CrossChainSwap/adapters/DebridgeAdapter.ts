@@ -8,7 +8,7 @@ import {
   EvmQuoteParams,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
-import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
@@ -47,11 +47,11 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
     let p: Record<string, string | boolean | number> = {
       srcChainId: params.fromChain,
-      srcChainTokenIn: params.fromToken.isNative ? ETHER_ADDRESS : params.fromToken.address,
+      srcChainTokenIn: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.address,
       srcChainTokenInAmount: params.amount,
 
       dstChainId: params.toChain,
-      dstChainTokenOut: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.address,
+      dstChainTokenOut: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.address,
       dstChainTokenOutAmount: 'auto',
 
       enableEstimate: false,
@@ -84,14 +84,18 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       throw new Error('No route found')
     }
 
-    const inputUsd = r.estimation.srcChainTokenIn.approximateUsdValue
-    const outputUsd = r.estimation.dstChainTokenOut.recommendedApproximateUsdValue
+    //const inputUsd = r.estimation.srcChainTokenIn.approximateUsdValue
+    //const outputUsd = r.estimation.dstChainTokenOut.recommendedApproximateUsdValue
 
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
     const formattedOutputAmount = formatUnits(
       BigInt(r.estimation.dstChainTokenOut.recommendedAmount),
       params.toToken.decimals,
     )
+
+    const inputUsd = params.tokenInUsd * +formattedInputAmount
+    const outputUsd = params.tokenOutUsd * +formattedOutputAmount
+    console.log(params.tokenInUsd, params.tokenOutUsd, formattedInputAmount, formattedOutputAmount)
 
     return {
       quoteParams: params,
