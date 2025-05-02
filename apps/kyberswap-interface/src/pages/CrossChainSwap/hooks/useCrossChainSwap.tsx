@@ -85,7 +85,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const currencyIn = useMemo(() => {
     if (isFromEvm) return currencyInEvm
     if (isFromBitcoin) return BitcoinToken
-    if (isFromNear) nearTokens.find(token => token.assetId === tokenIn)
+    if (isFromNear) return nearTokens.find(token => token.assetId === tokenIn)
     throw new Error('Network is not supported')
   }, [currencyInEvm, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens])
 
@@ -100,7 +100,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isToBitcoin) return BitcoinToken
     if (isToNear) return nearTokens.find(token => token.assetId === tokenOut)
     throw new Error('Network is not supported')
-  }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens])
+  }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, toChainId])
 
   const inputAmount = useMemo(
     () =>
@@ -138,6 +138,14 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       return
     }
 
+    const body: Record<string, string[]> = {}
+    if ((currencyIn as any)?.wrapped?.address) {
+      body[fromChainId] = [(currencyIn as any)?.wrapped?.address]
+    }
+    if ((currencyOut as any)?.wrapped?.address) {
+      body[toChainId] = [(currencyOut as any)?.wrapped?.address]
+    }
+
     const r: {
       data: {
         [chainId: string]: {
@@ -146,10 +154,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       }
     } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
       method: 'POST',
-      body: JSON.stringify({
-        [fromChainId]: [(currencyIn as any)?.wrapped?.address],
-        [toChainId]: [(currencyOut as any)?.wrapped?.address],
-      }),
+      body: JSON.stringify(body),
     }).then(r => r.json())
 
     const tokenInUsd = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
@@ -169,7 +174,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         amount: inputAmount,
         slippage,
         walletClient: walletClient?.data,
-        sender: walletClient?.data?.account.address || ZERO_ADDRESS,
+        sender: isFromNear ? nearAccountId || undefined : walletClient?.data?.account.address || ZERO_ADDRESS,
         recipient: isToNear ? nearAccountId || undefined : walletClient?.data?.account.address || ZERO_ADDRESS,
         nearTokens,
       })
@@ -189,6 +194,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     disable,
     slippage,
     nearTokens,
+    isFromNear,
     nearAccountId,
     showPreview,
   ])

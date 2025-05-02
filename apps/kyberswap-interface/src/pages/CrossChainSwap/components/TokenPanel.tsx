@@ -1,4 +1,5 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import HelpIcon from 'assets/svg/help-circle.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { Aligner, CurrencySelect, InputRow, StyledTokenName } from 'components/CurrencyInputPanel'
 import Wallet from 'components/Icons/Wallet'
@@ -163,6 +164,10 @@ export const TokenPanel = ({
                       width={24}
                       height={24}
                       style={{ borderRadius: '50%' }}
+                      onError={({ currentTarget }) => {
+                        currentTarget.onerror = null
+                        currentTarget.src = HelpIcon
+                      }}
                     />
                   )}
                 </>
@@ -238,7 +243,17 @@ export const TokenPanel = ({
                     }}
                   >
                     <Flex alignItems="center" style={{ gap: 8 }}>
-                      <img src={item.logo} alt={item.symbol} width={24} height={24} style={{ borderRadius: '50%' }} />
+                      <img
+                        src={item.logo}
+                        alt={item.symbol}
+                        width={24}
+                        height={24}
+                        style={{ borderRadius: '50%' }}
+                        onError={({ currentTarget }) => {
+                          currentTarget.onerror = null
+                          currentTarget.src = HelpIcon
+                        }}
+                      />
                       <Text fontWeight={500}>{item.symbol}</Text>
                     </Flex>
                   </CurrencyRowWrapper>

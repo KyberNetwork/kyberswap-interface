@@ -59,11 +59,13 @@ export class LifiAdapter extends BaseSwapAdapter {
       toAddress: params.recipient,
     })
 
-    const inputUsd = Number(r.estimate.fromAmountUSD || '0')
-    const outputUsd = Number(r.estimate.toAmountUSD || '0')
+    //const inputUsd = Number(r.estimate.fromAmountUSD || '0')
+    //const outputUsd = Number(r.estimate.toAmountUSD || '0')
     const formattedOutputAmount = formatUnits(BigInt(r.estimate.toAmount), params.toToken.decimals)
-
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
+
+    const inputUsd = params.tokenInUsd * +formattedInputAmount
+    const outputUsd = params.tokenOutUsd * +formattedOutputAmount
 
     return {
       quoteParams: params,

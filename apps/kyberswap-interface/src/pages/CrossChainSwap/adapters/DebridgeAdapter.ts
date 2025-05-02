@@ -84,14 +84,18 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       throw new Error('No route found')
     }
 
-    const inputUsd = r.estimation.srcChainTokenIn.approximateUsdValue
-    const outputUsd = r.estimation.dstChainTokenOut.recommendedApproximateUsdValue
+    //const inputUsd = r.estimation.srcChainTokenIn.approximateUsdValue
+    //const outputUsd = r.estimation.dstChainTokenOut.recommendedApproximateUsdValue
 
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
     const formattedOutputAmount = formatUnits(
       BigInt(r.estimation.dstChainTokenOut.recommendedAmount),
       params.toToken.decimals,
     )
+
+    const inputUsd = params.tokenInUsd * +formattedInputAmount
+    const outputUsd = params.tokenOutUsd * +formattedOutputAmount
+    console.log(params.tokenInUsd, params.tokenOutUsd, formattedInputAmount, formattedOutputAmount)
 
     return {
       quoteParams: params,

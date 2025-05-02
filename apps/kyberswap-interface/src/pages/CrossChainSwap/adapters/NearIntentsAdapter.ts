@@ -74,8 +74,8 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           })?.assetId
 
     const toAssetId =
-      'assetId' in params.fromToken
-        ? params.fromToken.assetId
+      'assetId' in params.toToken
+        ? params.toToken.assetId
         : params.nearTokens.find(token => {
             const blockchain = MappingChainIdToBlockChain[params.toChain as ChainId]
             return (
