@@ -1,0 +1,213 @@
+import { useEffect, useRef, useState } from 'react'
+import { useMedia } from 'react-use'
+import styled from 'styled-components'
+import Loader from 'components/Loader'
+import { MEDIA_WIDTHS } from 'theme'
+import { EarnPosition } from 'pages/Earns/types'
+import { PositionToClaim } from 'pages/Earns/ClaimFeeModal'
+import { MoreVertical, Plus, Minus } from 'react-feather'
+import { ReactComponent as IconClaimRewards } from 'assets/svg/ic_claim.svg'
+import { ReactComponent as IconClaimFees } from 'assets/svg/earn/ic_earn_claim_fees.svg'
+import useTheme from 'hooks/useTheme'
+import { Text } from 'rebass'
+import { t } from '@lingui/macro'
+
+const DropdownWrapper = styled.div`
+  position: relative;
+  width: fit-content;
+`
+
+const DropdownTitleWrapper = styled.div<{ open: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: ${({ theme, open }) => (open ? theme.tabActive : 'inherit')};
+  transform: scale(1.1);
+  position: relative;
+  top: 5px;
+  cursor: pointer;
+
+  ${({ theme, open }) => theme.mediaWidth.upToSmall`
+    background: ${open ? theme.buttonGray : theme.tabActive};
+  `}
+`
+
+const DropdownContent = styled.div`
+  position: absolute;
+  top: 42px;
+  right: 0;
+  background: ${({ theme }) => theme.tabActive};
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 14px;
+  color: ${({ theme }) => theme.text};
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+  align-items: 'flex-start';
+  gap: 4px;
+  z-index: 100;
+`
+
+const DropdownContentItem = styled.div<{ disabled?: boolean }>`
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  align-items: center;
+  align-self: stretch;
+  justify-content: flex-start;
+  text-transform: capitalize;
+  cursor: pointer;
+
+  &:hover {
+    color: ${({ theme, disabled }) => (disabled ? theme.subText : theme.primary)};
+  }
+
+  ${({ disabled, theme }) =>
+    disabled &&
+    `
+      cursor: not-allowed;
+      color: ${theme.subText};
+      filter: brightness(0.6) !important;
+    `}
+`
+
+const BottomDrawer = styled.div<{ open: boolean }>`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: ${({ theme }) => theme.tabActive};
+  border-radius: 20px 20px 0 0;
+  padding: 16px;
+  transform: translateY(${({ open }) => (open ? '-60px' : '100%')});
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+`
+
+const DrawerContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`
+
+const Overlay = styled.div<{ open: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: ${({ open }) => (open ? 1 : 0)};
+  visibility: ${({ open }) => (open ? 'visible' : 'hidden')};
+  transition: opacity 0.3s ease-in-out;
+  z-index: 999;
+`
+
+const DropdownAction = ({
+  position,
+  onOpenIncreaseLiquidityWidget,
+  onOpenZapOut,
+  onClaimFee,
+  claimDisabled,
+  claiming,
+  positionToClaim,
+}: {
+  position: EarnPosition
+  onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: EarnPosition) => void
+  onOpenZapOut: (e: React.MouseEvent, position: EarnPosition) => void
+  onClaimFee: (e: React.MouseEvent, position: EarnPosition) => void
+  claimDisabled: boolean
+  claiming: boolean
+  positionToClaim: PositionToClaim | null
+}) => {
+  const theme = useTheme()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const handleOpenChange = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setOpen(!open)
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!ref?.current?.contains(event.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [ref])
+
+  const handleAction = (e: React.MouseEvent, action: (e: React.MouseEvent, position: EarnPosition) => void) => {
+    setOpen(false)
+    action(e, position)
+  }
+
+  const onClickOverlay = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setOpen(false)
+  }
+
+  const renderActionItems = () => (
+    <>
+      <DropdownContentItem onClick={e => handleAction(e, onOpenIncreaseLiquidityWidget)}>
+        <Plus size={16} />
+        <Text>{t`Increase Liquidity`}</Text>
+      </DropdownContentItem>
+      <DropdownContentItem onClick={e => handleAction(e, onOpenZapOut)}>
+        <Minus size={16} />
+        <Text>{t`Remove Liquidity`}</Text>
+      </DropdownContentItem>
+      <DropdownContentItem
+        disabled={claimDisabled}
+        onClick={e => {
+          if (!claimDisabled) {
+            handleAction(e, onClaimFee)
+          } else e.preventDefault()
+        }}
+      >
+        {claiming && positionToClaim && positionToClaim.id === position.tokenId ? (
+          <Loader size={'16px'} stroke={'#7a7a7a'} />
+        ) : (
+          <IconClaimFees width={16} />
+        )}
+        <Text>{t`Claim Fees`}</Text>
+      </DropdownContentItem>
+      <DropdownContentItem
+        disabled
+        onClick={e => {
+          e.preventDefault()
+          e.stopPropagation()
+        }}
+      >
+        <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
+        <Text>{t`Claim Rewards`}</Text>
+      </DropdownContentItem>
+    </>
+  )
+
+  return (
+    <DropdownWrapper ref={ref}>
+      <DropdownTitleWrapper open={open} onClick={handleOpenChange}>
+        <MoreVertical color={theme.subText} size={18} />
+      </DropdownTitleWrapper>
+      {!upToExtraSmall && open && <DropdownContent>{renderActionItems()}</DropdownContent>}
+      {upToExtraSmall && (
+        <>
+          <Overlay open={open} onClick={onClickOverlay} />
+          <BottomDrawer open={open}>
+            <DrawerContent>{renderActionItems()}</DrawerContent>
+          </BottomDrawer>
+        </>
+      )}
+    </DropdownWrapper>
+  )
+}
+
+export default DropdownAction

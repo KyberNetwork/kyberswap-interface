@@ -75,7 +75,7 @@ export default function PriceRange({
       {outOfRange && (
         <CurrentPriceIndicator lower={currentPrice < minPrice} currentPrice={currentPrice} color="#fbb324" />
       )}
-      <PriceRangeEl isLowestPrice={ticksAtLimit.lower} isHighestPrice={ticksAtLimit.upper}>
+      <PriceRangeEl isLowestPrice={ticksAtLimit.lower} isHighestPrice={ticksAtLimit.upper} outOfRange={outOfRange}>
         {!outOfRange && (
           <CurrentPriceIndicator
             currentPrice={currentPrice}
@@ -83,12 +83,12 @@ export default function PriceRange({
             left={isUniv2 ? 0.2 : (currentPrice - minPrice) / (maxPrice - minPrice)}
           />
         )}
-        <LowerPriceIndicator>
+        <LowerPriceIndicator outOfRange={outOfRange}>
           <IndicatorLabel>
             {ticksAtLimit.lower ? '0' : formatDisplayNumber(minPrice, { significantDigits: 6 })}
           </IndicatorLabel>
         </LowerPriceIndicator>
-        <UpperPriceIndicator>
+        <UpperPriceIndicator outOfRange={outOfRange}>
           <IndicatorLabel>
             {ticksAtLimit.upper ? '∞' : formatDisplayNumber(maxPrice, { significantDigits: 6 })}
           </IndicatorLabel>

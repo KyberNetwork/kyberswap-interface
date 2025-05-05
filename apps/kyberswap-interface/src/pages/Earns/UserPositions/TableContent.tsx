@@ -1,16 +1,14 @@
 import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { Minus, Plus } from 'react-feather'
-import { Link, useNavigate } from 'react-router-dom'
+import { ArrowRightCircle } from 'react-feather'
+import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { PositionStatus, EarnPosition } from 'pages/Earns/types'
 
-import { ReactComponent as IconClaim } from 'assets/svg/ic_claim.svg'
+import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
-import CopyHelper from 'components/Copy'
-import Loader from 'components/Loader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -19,7 +17,6 @@ import useTheme from 'hooks/useTheme'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
 import { getReadingContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -44,14 +41,15 @@ import {
   Divider,
   EmptyPositionText,
   ImageContainer,
-  PositionAction,
   PositionOverview,
   PositionRow,
   PositionTableBody,
   PositionValueLabel,
   PositionValueWrapper,
+  PositionActionWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import TokenLogo from 'components/TokenLogo'
+import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
 
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string
@@ -73,7 +71,6 @@ export default function TableContent({
 }) {
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const navigate = useNavigate()
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
@@ -88,6 +85,7 @@ export default function TableContent({
 
   const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
+    e.preventDefault()
     const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
     onOpenZapInWidget(
       {
@@ -101,6 +99,7 @@ export default function TableContent({
 
   const handleOpenZapOut = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
+    e.preventDefault()
     const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
     onOpenZapOut({
       dex: position.pool.project || '',
@@ -112,6 +111,7 @@ export default function TableContent({
 
   const handleClaimFee = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
+    e.preventDefault()
     const totalUnclaimedFees = position.feeInfo
       ? position.feeInfo.totalValue
       : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
@@ -214,6 +214,12 @@ export default function TableContent({
     [feeInfoFromRpc, library, positions, setFeeInfoFromRpc],
   )
 
+  const handleMigrateToKem = (e: React.MouseEvent, position: EarnPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+    console.log('migrate to kem', position)
+  }
+
   useEffect(() => {
     if (claimTx && allTransactions && allTransactions[claimTx]) {
       const tx = allTransactions[claimTx]
@@ -283,7 +289,7 @@ export default function TableContent({
             const token0TotalAmount = token0TotalProvide + token0EarnedAmount
             const token1TotalAmount = token1TotalProvide + token1EarnedAmount
             const apr7d = position.apr
-            const totalUnclaimedFee = position.feeInfo
+            const totalUnclaimedFees = position.feeInfo
               ? position.feeInfo.totalValue
               : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
             const token0UnclaimedAmount = position.feeInfo
@@ -295,7 +301,7 @@ export default function TableContent({
 
             const isUniv2 = isForkFrom(dex as EarnDex, CoreProtocol.UniswapV2)
             const posStatus = isUniv2 ? PositionStatus.IN_RANGE : status
-            const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex as EarnDex] || totalUnclaimedFee === 0 || claiming
+            const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex as EarnDex] || totalUnclaimedFees === 0 || claiming
 
             const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
             const token1Address = position.pool.tokenAmounts[1]?.token.address || ''
@@ -304,17 +310,20 @@ export default function TableContent({
             const isToken1Native = isNativeToken(token1Address, position.chainId as keyof typeof WETH)
             const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
 
+            const isInKem = true
+            const canMigrateToKem = true
+
+            const rewardToken = 'KNC'
+            const unclaimedReward = 12.2
+
             return (
               <PositionRow
                 key={`${positionId}-${poolAddress}-${index}`}
-                onClick={() =>
-                  navigate({
-                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !isUniv2 ? id : poolAddress)
-                      .replace(':chainId', poolChainId.toString())
-                      .replace(':protocol', dex),
-                  })
-                }
+                to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !isUniv2 ? id : poolAddress)
+                  .replace(':chainId', poolChainId.toString())
+                  .replace(':protocol', dex)}
               >
+                {/* Overview info */}
                 <PositionOverview>
                   <Flex alignItems={'center'} sx={{ gap: 2 }} flexWrap={'wrap'}>
                     <ImageContainer>
@@ -326,11 +335,8 @@ export default function TableContent({
                       {token0Symbol}/{token1Symbol}
                     </Text>
                     {poolFee && <Badge>{poolFee}%</Badge>}
-                    <Badge type={posStatus === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-                      ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
-                    </Badge>
                   </Flex>
-                  <Flex alignItems={'center'} sx={{ gap: '10px' }}>
+                  <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '10px' }}>
                     <Flex alignItems={'center'} sx={{ gap: 1 }}>
                       <DexImage src={dexImage} alt="" />
                       <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
@@ -342,29 +348,28 @@ export default function TableContent({
                         #{positionId}
                       </Text>
                     )}
-                    <Badge type={BadgeType.SECONDARY}>
-                      <Text fontSize={14}>{shortenAddress(poolChainId, poolAddress, 4)}</Text>
-                      <CopyHelper size={16} toCopy={poolAddress} />
+                    <Badge type={posStatus === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
+                      ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
                     </Badge>
                   </Flex>
                 </PositionOverview>
-                {upToLarge && !upToSmall && (
-                  <Flex alignItems={'center'} justifyContent={'flex-end'} sx={{ gap: '16px' }}>
-                    <PositionAction primary onClick={e => handleOpenIncreaseLiquidityWidget(e, position)}>
-                      <Plus size={16} />
-                    </PositionAction>
-                    <PositionAction onClick={e => handleOpenZapOut(e, position)}>
-                      <Minus size={16} />
-                    </PositionAction>
-                    <PositionAction disabled={claimDisabled} onClick={e => handleClaimFee(e, position)}>
-                      {claiming && positionToClaim && positionToClaim.id === position.tokenId ? (
-                        <Loader size={'16px'} stroke={'#7a7a7a'} />
-                      ) : (
-                        <IconClaim width={16} color={theme.subText} style={{ margin: '0 7px' }} />
-                      )}
-                    </PositionAction>
-                  </Flex>
+
+                {/* Actions for Tablet */}
+                {upToLarge && (
+                  <PositionActionWrapper>
+                    <DropdownAction
+                      position={position}
+                      onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
+                      onOpenZapOut={handleOpenZapOut}
+                      onClaimFee={handleClaimFee}
+                      claimDisabled={claimDisabled}
+                      claiming={claiming}
+                      positionToClaim={positionToClaim}
+                    />
+                  </PositionActionWrapper>
                 )}
+
+                {/* Value info */}
                 <PositionValueWrapper>
                   <PositionValueLabel>{t`Value`}</PositionValueLabel>
                   <MouseoverTooltipDesktopOnly
@@ -389,39 +394,77 @@ export default function TableContent({
                     </Text>
                   </MouseoverTooltipDesktopOnly>
                 </PositionValueWrapper>
+
+                {/* APR info */}
                 <PositionValueWrapper>
                   <PositionValueLabel>{t`APR`}</PositionValueLabel>
-                  <Text>{formatAprNumber(apr7d * 100)}%</Text>
-                </PositionValueWrapper>
-                <PositionValueWrapper align={upToLarge ? 'center' : ''}>
-                  {!isUniv2 ? (
-                    <>
-                      <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+                  <Flex alignItems={'center'} sx={{ gap: 1 }}>
+                    <Text color={isInKem ? theme.primary : theme.text}>{formatAprNumber(apr7d * 100)}%</Text>
+                    {canMigrateToKem && (
                       <MouseoverTooltipDesktopOnly
                         text={
                           <>
                             <Text>
-                              {formatDisplayNumber(token0UnclaimedAmount, { significantDigits: 6 })}{' '}
-                              {isToken0Native ? nativeToken.symbol : token0Symbol}
+                              {t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
+                              Kyberswap Liquidity Mining Program.`}
                             </Text>
-                            <Text>
-                              {formatDisplayNumber(token1UnclaimedAmount, { significantDigits: 6 })}{' '}
-                              {isToken1Native ? nativeToken.symbol : token1Symbol}
+                            <Text color={theme.primary} sx={{ cursor: 'pointer' }}>
+                              Migrate →
                             </Text>
                           </>
                         }
-                        width="fit-content"
+                        width="290px"
                         placement="bottom"
                       >
-                        <Text>
-                          {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
-                        </Text>
+                        <ArrowRightCircle
+                          size={16}
+                          color={theme.primary}
+                          onClick={e => handleMigrateToKem(e, position)}
+                        />
                       </MouseoverTooltipDesktopOnly>
-                    </>
-                  ) : null}
+                    )}
+                  </Flex>
                 </PositionValueWrapper>
+
+                {/* Unclaimed fees info */}
+                <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
+                  <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+                  <MouseoverTooltipDesktopOnly
+                    text={
+                      <>
+                        <Text>
+                          {formatDisplayNumber(token0UnclaimedAmount, { significantDigits: 6 })}{' '}
+                          {isToken0Native ? nativeToken.symbol : token0Symbol}
+                        </Text>
+                        <Text>
+                          {formatDisplayNumber(token1UnclaimedAmount, { significantDigits: 6 })}{' '}
+                          {isToken1Native ? nativeToken.symbol : token1Symbol}
+                        </Text>
+                      </>
+                    }
+                    width="fit-content"
+                    placement="bottom"
+                  >
+                    <Text>{formatDisplayNumber(totalUnclaimedFees, { style: 'currency', significantDigits: 4 })}</Text>
+                  </MouseoverTooltipDesktopOnly>
+                </PositionValueWrapper>
+
+                {/* Unclaimed rewards info */}
+                <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
+                  <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
+                  <Flex alignItems={'center'} sx={{ gap: 1 }}>
+                    {upToSmall && <IconKem width={20} height={20} />}
+                    <Text>
+                      {formatDisplayNumber(unclaimedReward, { significantDigits: 4 })} {rewardToken}
+                    </Text>
+                  </Flex>
+                </PositionValueWrapper>
+
+                {!upToLarge && <div />}
+
+                {/* Balance info */}
                 <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
-                  <PositionValueLabel>{t`Bal`}</PositionValueLabel>
+                  <PositionValueLabel>{t`Balance`}</PositionValueLabel>
                   <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
                     <Text>
                       {formatDisplayNumber(token0TotalProvide, { significantDigits: 4 })} {token0Symbol}
@@ -432,7 +475,9 @@ export default function TableContent({
                     </Text>
                   </Flex>
                 </PositionValueWrapper>
-                <PositionValueWrapper>
+
+                {/* Price range info */}
+                <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
                   <PriceRange
                     minPrice={minPrice}
                     maxPrice={maxPrice}
@@ -443,41 +488,20 @@ export default function TableContent({
                     dex={dex as EarnDex}
                   />
                 </PositionValueWrapper>
-                {(upToSmall || !upToLarge) && (
-                  <Flex
-                    alignItems={'center'}
-                    justifyContent={upToSmall ? 'flex-end' : 'flex-start'}
-                    sx={{ gap: '12px', zIndex: 1 }}
-                  >
-                    <MouseoverTooltipDesktopOnly
-                      text={t`Add more liquidity to this position using any token(s) or migrate liquidity from your existing positions.`}
-                      placement="top"
-                    >
-                      <PositionAction primary onClick={e => handleOpenIncreaseLiquidityWidget(e, position)}>
-                        <Plus size={16} />
-                      </PositionAction>
-                    </MouseoverTooltipDesktopOnly>
-                    <MouseoverTooltipDesktopOnly
-                      text={t`Remove liquidity from this position by zapping out to any token(s) or migrating to another position.`}
-                      placement="top"
-                    >
-                      <PositionAction onClick={e => handleOpenZapOut(e, position)}>
-                        <Minus size={16} />
-                      </PositionAction>
-                    </MouseoverTooltipDesktopOnly>
-                    <MouseoverTooltipDesktopOnly
-                      text={!claimDisabled && t`Claim your unclaimed fees from this position.`}
-                      placement="top"
-                    >
-                      <PositionAction disabled={claimDisabled} onClick={e => handleClaimFee(e, position)}>
-                        {claiming && positionToClaim && positionToClaim.id === position.tokenId ? (
-                          <Loader size={'16px'} stroke={'#7a7a7a'} />
-                        ) : (
-                          <IconClaim width={16} style={{ margin: '0 7px' }} />
-                        )}
-                      </PositionAction>
-                    </MouseoverTooltipDesktopOnly>
-                  </Flex>
+
+                {/* Actions info */}
+                {!upToLarge && (
+                  <PositionValueWrapper align="flex-end">
+                    <DropdownAction
+                      position={position}
+                      onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
+                      onOpenZapOut={handleOpenZapOut}
+                      onClaimFee={handleClaimFee}
+                      claimDisabled={claimDisabled}
+                      claiming={claiming}
+                      positionToClaim={positionToClaim}
+                    />
+                  </PositionValueWrapper>
                 )}
               </PositionRow>
             )
@@ -486,7 +510,7 @@ export default function TableContent({
           <EmptyPositionText>
             <IconEarnNotFound />
             <Flex flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: 1 }} marginBottom={12}>
-              <Text color={theme.subText}>{t`You don’t have any liquidity positions yet`}.</Text>
+              <Text color={theme.subText}>{t`You don't have any liquidity positions yet`}.</Text>
               <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
             </Flex>
             {!account && <PositionActionBtn onClick={toggleWalletModal}>Connect Wallet</PositionActionBtn>}

@@ -9,6 +9,7 @@ export enum SortBy {
   VALUE = 'value',
   APR_7D = 'apr_7d',
   UNCLAIMED_FEE = 'unclaimed_fee',
+  UNCLAIMED_REWARDS = 'unclaimed_rewards',
 }
 
 export default function useFilter() {

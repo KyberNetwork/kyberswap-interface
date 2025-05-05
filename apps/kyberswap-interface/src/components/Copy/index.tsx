@@ -89,6 +89,7 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
 
   const onCopy = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      event.preventDefault()
       event.stopPropagation()
       setCopied(toCopy)
     },
@@ -106,7 +107,16 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
   )
 
   return (
-    <Wrapper ref={ref} onMouseDown={onCopy} onClick={e => e.stopPropagation()} margin={margin} style={style}>
+    <Wrapper
+      ref={ref}
+      onMouseDown={onCopy}
+      onClick={e => {
+        e.preventDefault()
+        e.stopPropagation()
+      }}
+      margin={margin}
+      style={style}
+    >
       {text ? (
         <RowFit>
           {copyIcon}&nbsp;{text}

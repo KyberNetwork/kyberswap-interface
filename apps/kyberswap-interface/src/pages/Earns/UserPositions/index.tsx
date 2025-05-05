@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
+import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { APP_PATHS } from 'constants/index'
@@ -20,11 +21,18 @@ import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
 import Filter from 'pages/Earns/UserPositions/Filter'
 import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
-import { PositionPageWrapper, PositionTableHeader, PositionTableWrapper } from 'pages/Earns/UserPositions/styles'
+import {
+  PositionPageWrapper,
+  PositionTableHeader,
+  PositionTableHeaderFlexItem,
+  PositionTableHeaderItem,
+  PositionTableWrapper,
+} from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { CoreProtocol, EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
 import { PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
+import InfoHelper from 'components/InfoHelper'
 
 const POSITIONS_TABLE_LIMIT = 10
 
@@ -189,36 +197,67 @@ const UserPositions = () => {
           <ContentWrapper>
             {!upToLarge && positionsToShow && positionsToShow.length > 0 && (
               <PositionTableHeader>
-                <Text>{t`Position`}</Text>
-                <Flex
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                  role="button"
-                  onClick={() => onSortChange(SortBy.VALUE)}
-                >
+                <PositionTableHeaderItem>{t`Position`}</PositionTableHeaderItem>
+
+                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.VALUE)}>
                   {t`Value`}
-                  <SortIcon sorted={filters.sortBy === SortBy.VALUE ? (filters.orderBy as Direction) : undefined} />
-                </Flex>
+                  <SortIcon
+                    sorted={filters.sortBy === SortBy.VALUE ? (filters.orderBy as Direction) : undefined}
+                    style={{ position: 'relative', top: '5px' }}
+                  />
+                </PositionTableHeaderFlexItem>
+
+                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.APR_7D)}>
+                  {t`est. APR`}
+                  <InfoHelper
+                    text={t`7 days data`}
+                    placement="bottom"
+                    width="fit-content"
+                    size={16}
+                    style={{ marginLeft: '2px', position: 'relative', top: '2px' }}
+                  />
+                  <SortIcon
+                    sorted={filters.sortBy === SortBy.APR_7D ? (filters.orderBy as Direction) : undefined}
+                    style={{ position: 'relative', top: '4px' }}
+                  />
+                </PositionTableHeaderFlexItem>
+
                 <Flex
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                  role="button"
-                  onClick={() => onSortChange(SortBy.APR_7D)}
-                >
-                  {t`7D APR`}
-                  <SortIcon sorted={filters.sortBy === SortBy.APR_7D ? (filters.orderBy as Direction) : undefined} />
-                </Flex>
-                <Flex
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  flexDirection={'column'}
+                  justifyContent={'flex-start'}
+                  sx={{ height: '100%', gap: '9px', cursor: 'pointer' }}
                   role="button"
                   onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
                 >
-                  {t`Unclaimed fee`}
-                  <SortIcon
-                    sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
-                  />
+                  <div>Unclaimed</div>
+                  <Flex alignItems={'center'} sx={{ gap: '4px' }}>
+                    fees
+                    <SortIcon
+                      sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
+                    />
+                  </Flex>
                 </Flex>
-                <Text>{t`Balance`}</Text>
-                <Text>{t`Price Range`}</Text>
-                <Text>{t`Actions`}</Text>
+
+                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
+                  <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
+                    <IconKem width={24} height={24} />
+                    <Text>Unclaimed</Text>
+                  </Flex>
+                  <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
+                    <Text>rewards</Text>
+                    <SortIcon
+                      sorted={filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined}
+                    />
+                  </Flex>
+                </PositionTableHeaderFlexItem>
+
+                {!upToLarge && <div />}
+
+                <PositionTableHeaderItem>{t`Balance`}</PositionTableHeaderItem>
+
+                <PositionTableHeaderItem>{t`Price range`}</PositionTableHeaderItem>
+
+                <Flex alignContent="flex-start" justifyContent="flex-end" height="100%">{t`Actions`}</Flex>
               </PositionTableHeader>
             )}
             {isFetching && loading ? (
