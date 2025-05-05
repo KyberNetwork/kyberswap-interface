@@ -95,7 +95,6 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
     const inputUsd = params.tokenInUsd * +formattedInputAmount
     const outputUsd = params.tokenOutUsd * +formattedOutputAmount
-    console.log(params.tokenInUsd, params.tokenOutUsd, formattedInputAmount, formattedOutputAmount)
 
     return {
       quoteParams: params,

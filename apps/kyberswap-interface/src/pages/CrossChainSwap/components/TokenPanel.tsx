@@ -7,7 +7,7 @@ import useTheme from 'hooks/useTheme'
 import { Flex, Text, Box } from 'rebass'
 import styled from 'styled-components'
 import { Input as NumericalInput } from 'components/NumericalInput'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { RowBetween, RowFixed } from 'components/Row'
 import CurrencyLogo from 'components/CurrencyLogo'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
@@ -23,6 +23,8 @@ import { SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/Se
 import { useNearTokens } from 'state/crossChainSwap'
 import { isMobile } from 'react-device-detect'
 import { rgba } from 'polished'
+import { formatUnits } from 'viem'
+import { useNearBalances } from '../hooks/useNearBalances'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -72,6 +74,14 @@ export const TokenPanel = ({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const tokenOnNears = useMemo(
+    () =>
+      nearTokens.filter(token => {
+        return token.blockchain === 'near'
+      }),
+    [nearTokens],
+  )
+
   // clear the input on open
   useEffect(() => {
     if (modalOpen) {
@@ -88,15 +98,15 @@ export const TokenPanel = ({
             assetId: BitcoinToken.symbol,
           },
         ]
-      : nearTokens.filter(token => {
-          const q = searchQuery.toLowerCase().trim()
-          return (
-            token.blockchain === 'near' &&
-            (token.symbol.toLowerCase().includes(q) || token.contractAddress.toLowerCase().includes(q))
-          )
-        })
+      : tokenOnNears.filter(
+          token =>
+            token.symbol.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+            token.contractAddress.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+        )
 
   const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
+
+  const { balances } = useNearBalances()
 
   return (
     <TokenPanelWrapper>
@@ -116,11 +126,30 @@ export const TokenPanel = ({
           role="button"
           onClick={() => {
             if (disabled) return
+            if (selectedChain === NonEvmChain.Near) {
+              onUserInput(
+                formatUnits(
+                  BigInt(balances[(selectedCurrency as any)?.assetId] || '0'),
+                  (selectedCurrency as any)?.decimals || 18,
+                ),
+              )
+              return
+            }
             onUserInput(balance?.toExact() || '0')
           }}
         >
           <Wallet color={theme.subText} />
-          {balance?.toSignificant(6) || 0}
+          {selectedChain === NonEvmChain.Near
+            ? formatDisplayNumber(
+                formatUnits(
+                  BigInt(balances[(selectedCurrency as any)?.assetId] || '0'),
+                  (selectedCurrency as any)?.decimals,
+                ),
+                {
+                  significantDigits: 8,
+                },
+              )
+            : balance?.toSignificant(6) || 0}
         </Flex>
       </Flex>
 
@@ -256,6 +285,11 @@ export const TokenPanel = ({
                       />
                       <Text fontWeight={500}>{item.symbol}</Text>
                     </Flex>
+                    <Text>
+                      {formatDisplayNumber(formatUnits(BigInt(balances[item.assetId] || '0'), item.decimals), {
+                        significantDigits: 8,
+                      })}
+                    </Text>
                   </CurrencyRowWrapper>
                 )
               })}

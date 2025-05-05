@@ -1,4 +1,5 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import {
   BaseSwapAdapter,
   Chain,
@@ -62,7 +63,9 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
     const fromAssetId =
       'assetId' in params.fromToken
-        ? params.fromToken.assetId
+        ? params.fromToken.assetId === 'near'
+          ? 'nep141:wrap.near'
+          : params.fromToken.assetId
         : params.nearTokens.find(token => {
             const blockchain = MappingChainIdToBlockChain[params.fromChain as ChainId]
             return (
@@ -75,7 +78,9 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
     const toAssetId =
       'assetId' in params.toToken
-        ? params.toToken.assetId
+        ? params.toToken.assetId === 'near'
+          ? 'nep141:wrap.near'
+          : params.toToken.assetId
         : params.nearTokens.find(token => {
             const blockchain = MappingChainIdToBlockChain[params.toChain as ChainId]
             return (
@@ -103,10 +108,10 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       destinationAsset: toAssetId,
       amount: params.amount,
 
-      refundTo: params.sender || ZERO_ADDRESS,
+      refundTo: params.sender,
       refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
 
-      recipient: params.recipient || ZERO_ADDRESS,
+      recipient: params.recipient,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
     }
 
@@ -132,15 +137,100 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     }
   }
 
-  async executeSwap(quote: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+  async executeSwap(
+    { quote }: Quote,
+    walletClient: WalletClient,
+    nearWallet?: ReturnType<typeof useWalletSelector>,
+  ): Promise<NormalizedTxResponse> {
+    const params = {
+      id: quote.rawQuote.quote.depositAddress, // specific id for each provider
+      adapter: this.getName(),
+      sourceChain: quote.quoteParams.fromChain,
+      targetChain: quote.quoteParams.toChain,
+      inputAmount: quote.quoteParams.amount,
+      outputAmount: quote.outputAmount.toString(),
+      sourceToken: quote.quoteParams.fromToken,
+      targetToken: quote.quoteParams.toToken,
+      timestamp: new Date().getTime(),
+    }
+
+    if (quote.quoteParams.fromChain === NonEvmChain.Near) {
+      return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
+        if (!nearWallet || !nearWallet.signedAccountId) {
+          reject('Not connected')
+          return
+        }
+        try {
+          const isNative = (quote.quoteParams.fromToken as any).assetId === 'near'
+
+          const transactions: any = []
+          if (!isNative)
+            transactions.push({
+              signerId: nearWallet.signedAccountId,
+              receiverId: (quote.quoteParams.fromToken as any).contractAddress,
+              actions: [
+                {
+                  type: 'FunctionCall',
+                  params: {
+                    methodName: 'storage_deposit',
+                    args: { account_id: quote.rawQuote.quote.depositAddress, registration_only: true },
+                    gas: '30000000000000',
+                    deposit: '1250000000000000000000', // 0.00125 NEAR
+                  },
+                },
+              ],
+            })
+
+          transactions.push({
+            signerId: nearWallet.signedAccountId,
+            receiverId: isNative
+              ? quote.rawQuote.quote.depositAddress
+              : (quote.quoteParams.fromToken as any).contractAddress,
+            actions: [
+              isNative
+                ? {
+                    type: 'Transfer',
+                    params: {
+                      deposit: quote.quoteParams.amount,
+                    },
+                  }
+                : {
+                    type: 'FunctionCall',
+                    params: {
+                      methodName: 'ft_transfer',
+                      args: {
+                        receiver_id: quote.rawQuote.quote.depositAddress,
+                        amount: quote.quoteParams.amount,
+                      },
+                      gas: '30000000000000',
+                      deposit: '1',
+                    },
+                  },
+            ],
+          })
+
+          await nearWallet.signAndSendTransactions({
+            transactions,
+          })
+
+          resolve({
+            ...params,
+            // will fill later
+            sourceTxHash: '',
+          })
+        } catch (e) {
+          reject(e)
+        }
+      })
+    }
     return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
-      if (!walletClient || !walletClient.account) reject()
-      if (quote.quote.quoteParams.sender === ZERO_ADDRESS || quote.quote.quoteParams.recipient === ZERO_ADDRESS)
+      if (!walletClient || !walletClient.account) reject('Not connected')
+      if (quote.quoteParams.sender === ZERO_ADDRESS || quote.quoteParams.recipient === ZERO_ADDRESS)
         reject('Near Intent refundTo or recipient is ZERO ADDRESS')
 
       const account = walletClient.account?.address as `0x${string}`
 
-      const fromToken = quote.quote.quoteParams.fromToken
+      const fromToken = quote.quoteParams.fromToken
 
       const hash = await walletClient.writeContract({
         address: ('contractAddress' in fromToken
@@ -149,25 +239,19 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
         abi: erc20Abi,
         functionName: 'transfer',
         chain: undefined,
-        args: [quote.quote.rawQuote.quote.depositAddress, quote.quote.quoteParams.amount],
+        args: [quote.rawQuote.quote.depositAddress, quote.quoteParams.amount],
         account,
       })
       await OneClickService.submitDepositTx({
         txHash: hash,
-        depositAddress: quote.quote.rawQuote.quote.depositAddress,
+        depositAddress: quote.rawQuote.quote.depositAddress,
+      }).catch(e => {
+        console.log('NearIntents submitDepositTx failed', e)
       })
 
       resolve({
-        id: quote.quote.rawQuote.quote.depositAddress, // specific id for each provider
+        ...params,
         sourceTxHash: hash,
-        adapter: this.getName(),
-        sourceChain: quote.quote.quoteParams.fromChain,
-        targetChain: quote.quote.quoteParams.toChain,
-        inputAmount: quote.quote.quoteParams.amount,
-        outputAmount: quote.quote.outputAmount.toString(),
-        sourceToken: quote.quote.quoteParams.fromToken,
-        targetToken: quote.quote.quoteParams.toToken,
-        timestamp: new Date().getTime(),
       })
     })
   }

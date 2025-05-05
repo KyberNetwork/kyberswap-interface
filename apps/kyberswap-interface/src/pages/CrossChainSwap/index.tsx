@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { TokenPanel } from './components/TokenPanel'
 import { Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
@@ -19,7 +20,6 @@ import { AddressInput } from 'components/AddressInputPanel'
 import { AutoColumn } from 'components/Column'
 import { ButtonLight, ButtonOutlined } from 'components/Button'
 import { NonEvmChain } from './adapters'
-import { useNEARWallet } from 'components/Web3Provider/NearProvider'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { ChangeEvent } from 'react'
@@ -57,16 +57,17 @@ function CrossChainSwap() {
   const isToEvm = toChainId && isEvmChain(toChainId)
   const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : 'EVM'
 
-  const nearWallet = useNEARWallet()
+  const nearWallet = useWalletSelector()
+
   const toggleWalletModal = useWalletModalToggle()
 
-  const showNearConnect = isToNear && !nearWallet.walletState.isConnected
+  const showNearConnect = isToNear && !nearWallet.signedAccountId
   const showBtcConnect = isToBtc && true // TODO: handle connect btc wallet
   const showEvmConnect = isToEvm && !account
   const showConnect = showNearConnect || showBtcConnect || showEvmConnect
 
   const isDifferentRecipient = isToNear
-    ? recipient !== nearWallet.walletState.accountId
+    ? recipient !== nearWallet.signedAccountId
     : isToEvm
     ? recipient !== account
     : false
@@ -186,7 +187,7 @@ function CrossChainSwap() {
               style={{ fontSize: '12px' }}
               onClick={() => {
                 if (isToNear) {
-                  nearWallet.connect()
+                  nearWallet.signIn()
                 } else if (isToEvm) {
                   toggleWalletModal()
                 }
@@ -205,7 +206,7 @@ function CrossChainSwap() {
                     onClick={() => {
                       let reci = ''
                       if (isToEvm) reci = account || ''
-                      if (isToNear) reci = nearWallet.walletState.accountId || ''
+                      if (isToNear) reci = nearWallet.signedAccountId || ''
                       setRecipient(reci)
                     }}
                   >
@@ -218,7 +219,7 @@ function CrossChainSwap() {
                     width="fit-content"
                     style={{ fontSize: '12px' }}
                     onClick={() => {
-                      if (isToNear) nearWallet.disconnect()
+                      if (isToNear) nearWallet.signOut()
                     }}
                   >
                     Disconnect

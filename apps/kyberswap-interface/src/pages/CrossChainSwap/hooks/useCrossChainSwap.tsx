@@ -12,9 +12,9 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
 import { BitcoinToken, Chain, Currency, NonEvmChain } from '../adapters'
 import { NearToken, useNearTokens } from 'state/crossChainSwap'
-import { useNEARWallet } from 'components/Web3Provider/NearProvider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { TOKEN_API_URL } from 'constants/env'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -85,14 +85,14 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 
-  const { walletState } = useNEARWallet()
-  const nearAccountId = walletState?.accountId
+  const { signedAccountId } = useWalletSelector()
+
   useEffect(() => {
-    if (nearAccountId && !nearRecipient) {
-      setNearRecipient(nearAccountId)
+    if (signedAccountId && !nearRecipient) {
+      setNearRecipient(signedAccountId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nearAccountId])
+  }, [signedAccountId])
 
   const recipient = useMemo(() => {
     if (isToNear) return nearRecipient
@@ -211,8 +211,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         amount: inputAmount,
         slippage,
         walletClient: walletClient?.data,
-        sender: isFromNear ? nearAccountId || undefined : walletClient?.data?.account.address || ZERO_ADDRESS,
-        recipient: isToNear ? nearAccountId || undefined : walletClient?.data?.account.address || ZERO_ADDRESS,
+        sender: isFromNear ? signedAccountId || ZERO_ADDRESS : walletClient?.data?.account.address || ZERO_ADDRESS,
+        recipient: isToNear ? signedAccountId || ZERO_ADDRESS : walletClient?.data?.account.address || ZERO_ADDRESS,
         nearTokens,
       })
       .catch(e => {
@@ -232,7 +232,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     slippage,
     nearTokens,
     isFromNear,
-    nearAccountId,
+    signedAccountId,
     showPreview,
   ])
 

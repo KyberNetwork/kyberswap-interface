@@ -134,16 +134,37 @@ export const useNearTokens = () => {
     fetch(`https://1click.chaindefuser.com/v0/tokens`)
       .then(res => res.json())
       .then(res => {
+        const wNear = res.find((token: NearToken) => token.contractAddress === 'wrap.near')
+
+        const native: NearToken = wNear
+          ? {
+              ...wNear,
+              symbol: 'NEAR',
+              contractAddress: '',
+              assetId: 'near',
+              logo: getTokenLogoUrl(wNear),
+            }
+          : {
+              assetId: 'near',
+              decimals: 24,
+              blockchain: 'near',
+              symbol: 'NEAR',
+              price: 0,
+              priceUpdatedAt: 0,
+              contractAddress: '',
+              logo: getTokenLogoUrl(wNear),
+            }
+
         dispatch(
-          updateNearTokens(
-            res?.map((item: NearToken) => {
-              console.log(item, getTokenLogoUrl(item))
+          updateNearTokens([
+            native,
+            ...(res?.map((item: NearToken) => {
               return {
                 ...item,
                 logo: getTokenLogoUrl(item),
               }
-            }) || [],
-          ),
+            }) || []),
+          ]),
         )
       })
       .catch(error => {
