@@ -216,8 +216,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
           resolve({
             ...params,
-            // will fill later
-            sourceTxHash: '',
+            sourceTxHash: quote.rawQuote.quote.depositAddress,
           })
         } catch (e) {
           reject(e)

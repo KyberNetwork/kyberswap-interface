@@ -14,6 +14,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'viem'
 import { getEtherscanLink, shortenHash } from 'utils'
 import { ExternalLinkIcon } from 'theme'
+import { NonEvmChain, NonEvmChainInfo } from '../adapters'
 
 const TableHeader = styled.div`
   display: grid;
@@ -116,91 +117,110 @@ export const TransactionHistory = () => {
         <Text>AMOUNT</Text>
         <Text textAlign="right">ACTIONS</Text>
       </TableHeader>
-      {transactions.map(tx => (
-        <TableRow key={tx.id}>
-          <Flex sx={{ gap: '4px' }} alignItems="center">
-            <img
-              src={registry.getAdapter(tx.adapter)?.getIcon()}
-              style={{ borderRadius: '50%' }}
-              width={16}
-              height={16}
-              alt=""
-            />
-            <Text>{format(new Date(tx.timestamp), 'dd/MM/yyyy')}</Text>
-            <Text color={theme.subText}>{format(new Date(tx.timestamp), 'HH:mm:ss')}</Text>
-          </Flex>
+      {transactions.map(tx => {
+        const sourceChainLogo =
+          tx.sourceChain === NonEvmChain.Near
+            ? NonEvmChainInfo[NonEvmChain.Near].icon
+            : (NETWORKS_INFO as any)[tx.sourceChain]?.icon
+        const targetChainLogo =
+          tx.targetChain === NonEvmChain.Near
+            ? NonEvmChainInfo[NonEvmChain.Near].icon
+            : (NETWORKS_INFO as any)[tx.targetChain]?.icon
 
-          <Flex
-            sx={{
-              borderRadius: '999px',
-              padding: '2px 8px',
-              width: 'fit-content',
-              height: 'fit-content',
-              background: rgba(tx.status === 'filled' ? theme.primary : theme.warning, 0.2),
-              color: tx.status === 'filled' ? theme.primary : theme.warning,
-              fontSize: '12px',
-            }}
-          >
-            {tx.status === 'filled' ? 'Success' : 'Processing'}
-          </Flex>
-
-          <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
-            <img src={(NETWORKS_INFO as any)[tx.sourceChain]?.icon} alt="" width={16} height={16} />
-            <ChevronRight size={14} />
-            <img src={(NETWORKS_INFO as any)[tx.targetChain]?.icon} alt="" width={16} height={16} />
-          </Flex>
-
-          <div>
-            <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} fontSize="12px">
-              <TokenLogoWithChain chainId={tx.sourceChain as any} currency={tx.sourceToken} />-
-              {formatDisplayNumber(formatUnits(BigInt(tx.inputAmount), tx.sourceToken.decimals), {
-                significantDigits: 6,
-              })}{' '}
-              {tx.sourceToken.symbol}
-            </Flex>
-            <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} mt="8px" fontSize="12px">
-              <TokenLogoWithChain chainId={tx.targetChain as any} currency={tx.targetToken} />+
-              {formatDisplayNumber(formatUnits(BigInt(tx.outputAmount), tx.targetToken.decimals), {
-                significantDigits: 6,
-              })}{' '}
-              {tx.targetToken.symbol}
-            </Flex>
-          </div>
-
-          <div>
-            <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText}>
-              <Text color={theme.text}>Deposit:</Text> {shortenHash(tx.sourceTxHash)}
-              <ExternalLinkIcon
-                color={theme.subText}
-                size={16}
-                href={getEtherscanLink(tx.sourceChain as any, tx.sourceTxHash, 'transaction')}
+        return (
+          <TableRow key={tx.id}>
+            <Flex sx={{ gap: '4px' }} alignItems="center">
+              <img
+                src={registry.getAdapter(tx.adapter)?.getIcon()}
+                style={{ borderRadius: '50%' }}
+                width={16}
+                height={16}
+                alt=""
               />
+              <Text>{format(new Date(tx.timestamp), 'dd/MM/yyyy')}</Text>
+              <Text color={theme.subText}>{format(new Date(tx.timestamp), 'HH:mm:ss')}</Text>
             </Flex>
 
-            <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText} mt="8px">
-              <Text color={theme.text}>Fill:</Text>{' '}
-              {tx.targetTxHash ? (
-                <>
-                  {shortenHash(tx.targetTxHash)}
-                  <ExternalLinkIcon
-                    color={theme.subText}
-                    size={16}
-                    href={getEtherscanLink(tx.targetChain as any, tx.targetTxHash, 'transaction')}
-                  />
-                </>
-              ) : (
-                <Skeleton
-                  height="18px"
-                  width="98px"
-                  baseColor={theme.background}
-                  highlightColor={theme.buttonGray}
-                  borderRadius="1rem"
-                />
-              )}
+            <Flex
+              sx={{
+                borderRadius: '999px',
+                padding: '2px 8px',
+                width: 'fit-content',
+                height: 'fit-content',
+                background: rgba(tx.status === 'filled' ? theme.primary : theme.warning, 0.2),
+                color: tx.status === 'filled' ? theme.primary : theme.warning,
+                fontSize: '12px',
+              }}
+            >
+              {tx.status === 'filled' ? 'Success' : 'Processing'}
             </Flex>
-          </div>
-        </TableRow>
-      ))}
+
+            <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
+              <img src={sourceChainLogo} alt="" width={16} height={16} />
+              <ChevronRight size={14} />
+              <img src={targetChainLogo} alt="" width={16} height={16} />
+            </Flex>
+
+            <div>
+              <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} fontSize="12px">
+                <TokenLogoWithChain chainId={tx.sourceChain as any} currency={tx.sourceToken} />-
+                {formatDisplayNumber(formatUnits(BigInt(tx.inputAmount), tx.sourceToken.decimals), {
+                  significantDigits: 6,
+                })}{' '}
+                {tx.sourceToken.symbol}
+              </Flex>
+              <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} mt="8px" fontSize="12px">
+                <TokenLogoWithChain chainId={tx.targetChain as any} currency={tx.targetToken} />+
+                {formatDisplayNumber(formatUnits(BigInt(tx.outputAmount), tx.targetToken.decimals), {
+                  significantDigits: 6,
+                })}{' '}
+                {tx.targetToken.symbol}
+              </Flex>
+            </div>
+
+            <div>
+              <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText}>
+                <Text color={theme.text}>Deposit:</Text> {shortenHash(tx.sourceTxHash)}
+                <ExternalLinkIcon
+                  color={theme.subText}
+                  size={16}
+                  href={
+                    tx.sourceChain === NonEvmChain.Near
+                      ? `https://nearblocks.io/address/${tx.id}`
+                      : getEtherscanLink(tx.sourceChain as any, tx.sourceTxHash, 'transaction')
+                  }
+                />
+              </Flex>
+
+              <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText} mt="8px">
+                <Text color={theme.text}>Fill:</Text>{' '}
+                {tx.targetTxHash ? (
+                  <>
+                    {shortenHash(tx.targetTxHash)}
+                    <ExternalLinkIcon
+                      color={theme.subText}
+                      size={16}
+                      href={
+                        tx.targetChain === NonEvmChain.Near
+                          ? `https://nearblocks.io/txns/${tx.targetTxHash}`
+                          : getEtherscanLink(tx.targetChain as any, tx.targetTxHash, 'transaction')
+                      }
+                    />
+                  </>
+                ) : (
+                  <Skeleton
+                    height="18px"
+                    width="98px"
+                    baseColor={theme.background}
+                    highlightColor={theme.buttonGray}
+                    borderRadius="1rem"
+                  />
+                )}
+              </Flex>
+            </div>
+          </TableRow>
+        )
+      })}
     </>
   )
 }

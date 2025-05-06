@@ -2,7 +2,7 @@ import { useMemo, useCallback, useState, useEffect } from 'react'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useNearTokens } from 'state/crossChainSwap'
 
-const TTL = 0.5 * 60 * 1000 // 30s
+const TTL = 30 // 30s
 let lastUpdated = Date.now() / 1000
 let cached: Record<string, string> = {}
 
