@@ -8,7 +8,7 @@ import { Flex, Text } from 'rebass'
 import { PositionStatus, EarnPosition } from 'pages/Earns/types'
 
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
-import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
+import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'

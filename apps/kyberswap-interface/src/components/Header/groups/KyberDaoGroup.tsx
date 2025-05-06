@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
-import { ReactComponent as KyberLogo } from 'assets/svg/knc_black.svg'
+import { ReactComponent as KyberLogo } from 'assets/svg/kyber/knc_black.svg'
 import Column from 'components/Column'
 import LightBulb from 'components/Icons/LightBulb'
 import StakeIcon from 'components/Icons/Stake'

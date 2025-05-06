@@ -1,4 +1,4 @@
-import UnknownToken from 'assets/svg/unknown-token.svg'
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import styled from 'styled-components'
 
 const Image = styled.img<{ primaryBoxShadow?: boolean }>`

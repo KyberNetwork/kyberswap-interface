@@ -4,7 +4,7 @@ import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
-import { ReactComponent as FarmingIcon } from 'assets/svg/ic_claim.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview.svg'
 import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positions.svg'

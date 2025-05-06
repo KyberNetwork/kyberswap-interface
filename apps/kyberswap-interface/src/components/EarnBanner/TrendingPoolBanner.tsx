@@ -8,7 +8,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { formatAprNumber } from 'pages/Earns/utils'
 import { PoolAprWrapper, PoolApr, AprText, TrendingWrapper, PoolWrapper } from 'components/EarnBanner/styles'
-import { ReactComponent as IconTrending } from 'assets/svg/ic_pool_high_apr.svg'
+import { ReactComponent as IconTrending } from 'assets/svg/earn/ic_pool_high_apr.svg'
 import useTheme from 'hooks/useTheme'
 import TokenLogo from 'components/TokenLogo'
 
