@@ -35,9 +35,12 @@ import InfoHelper from 'components/InfoHelper'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
+import useTheme from 'hooks/useTheme'
+
 const POSITIONS_TABLE_LIMIT = 10
 
 const UserPositions = () => {
+  const theme = useTheme()
   const navigate = useNavigate()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -162,6 +165,44 @@ const UserPositions = () => {
     return () => clearInterval(interval)
   }, [])
 
+  const actionsInfoHelper = (
+    <InfoHelper
+      text={
+        <Flex flexDirection="column" sx={{ gap: 1 }}>
+          <Text fontSize={14}>
+            <Text as="u" color={theme.primary}>
+              {t`Increase liquidity`}
+            </Text>
+            : {t`Add more liquidity to this position using any token(s).`}
+          </Text>
+          <Text fontSize={14}>
+            <Text as="u" color={theme.primary}>
+              {t`Remove liquidity`}
+            </Text>
+            : {t`Remove liquidity from this position by zapping out to any token(s).`}
+          </Text>
+          <Text fontSize={14}>
+            <Text as="u" color={theme.primary}>
+              {t`Claim fees`}
+            </Text>
+            : {t`Claim your unclaimed fees from this position.`}
+          </Text>
+          <Text fontSize={14}>
+            <Text as="u" color={theme.primary}>
+              {t`Claim rewards`}
+            </Text>
+            : {t`Claim your claimable farming rewards from a position.`}
+          </Text>
+        </Flex>
+      }
+      noArrow
+      placement="top-end"
+      width="330px"
+      size={16}
+      style={{ position: 'relative', top: '2px', height: 16 }}
+    />
+  )
+
   return (
     <>
       {zapInWidget}
@@ -264,7 +305,10 @@ const UserPositions = () => {
 
                 <PositionTableHeaderItem>{t`Price range`}</PositionTableHeaderItem>
 
-                <Flex alignContent="flex-start" justifyContent="flex-end" height="100%">{t`Actions`}</Flex>
+                <Flex alignContent="flex-start" justifyContent="flex-end" height="100%">
+                  {t`Actions`}
+                  {actionsInfoHelper}
+                </Flex>
               </PositionTableHeader>
             )}
             {isFetching && loading ? (
