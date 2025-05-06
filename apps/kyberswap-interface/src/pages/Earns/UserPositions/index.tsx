@@ -197,7 +197,7 @@ const UserPositions = () => {
       }
       noArrow
       placement="top-end"
-      width="330px"
+      width="280px"
       size={16}
       style={{ position: 'relative', top: '2px', height: 16 }}
     />

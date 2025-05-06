@@ -9,14 +9,30 @@ import { FilterTag } from 'pages/Earns/PoolExplorer'
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
 import { MEDIA_WIDTHS } from 'theme'
 import { useMedia } from 'react-use'
+import { useActiveWeb3React } from 'hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 const TotalRewards = () => {
+  const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const totalRewards = 1276
   const tokenRewards = 'KNC'
   const rewardUsdValue = 876.76
+
+  const btnPath = !account
+    ? '#'
+    : rewardUsdValue >= 10
+    ? APP_PATHS.EARN_POSITIONS
+    : `${APP_PATHS.EARN_POOLS}?tag=${FilterTag.FARMING_POOL}`
+
+  const btnText = !account ? t`Connect wallet` : rewardUsdValue >= 10 ? t`Collect Rewards` : t`Earn Rewards`
+
+  const handleClickBtn = () => {
+    if (!account) toggleWalletModal()
+  }
 
   return (
     <Flex
@@ -44,17 +60,17 @@ const TotalRewards = () => {
               <Text>{formatDisplayNumber(totalRewards, { significantDigits: 4 })}</Text>
               <Text>{tokenRewards}</Text>
             </Flex>
-            <Text width={'fit-content'} color={theme.subText} fontSize={upToSmall ? '16px' : undefined}>
-              {formatDisplayNumber(rewardUsdValue, { significantDigits: 6, style: 'currency' })}
-            </Text>
+            {rewardUsdValue > 0 ? (
+              <Text width={'fit-content'} color={theme.subText} fontSize={upToSmall ? '16px' : undefined}>
+                {formatDisplayNumber(rewardUsdValue, { significantDigits: 6, style: 'currency' })}
+              </Text>
+            ) : null}
           </Flex>
         </Flex>
       </Flex>
-      <RewardsNavigateButton
-        to={rewardUsdValue >= 10 ? APP_PATHS.EARN_POSITIONS : `${APP_PATHS.EARN_POOLS}?tag=${FilterTag.FARMING_POOL}`}
-      >
+      <RewardsNavigateButton to={btnPath} onClick={handleClickBtn}>
         <Text fontSize={14} color={theme.primary} fontWeight={500} sx={{ textTransform: 'uppercase' }}>
-          {rewardUsdValue >= 10 ? t`Collect Rewards` : t`Earn Rewards`}
+          {btnText}
         </Text>
         <img src={PlayIcon} alt="play" width={36} height={36} />
       </RewardsNavigateButton>
