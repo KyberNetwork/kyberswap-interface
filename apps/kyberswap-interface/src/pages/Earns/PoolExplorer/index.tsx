@@ -25,7 +25,7 @@ import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
+import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
 import TableContent, { dexMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import {

@@ -7,11 +7,10 @@ import '@kyberswap/liquidity-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { CoreProtocol, EarnDex, EarnDex2, earnSupportedProtocols, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
+import { EarnDex, EarnDex2, earnSupportedProtocols } from 'pages/Earns/constants'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
-import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -19,7 +18,7 @@ import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
-import { getTokenId, isForkFrom } from 'pages/Earns/utils'
+import { navigateToPositionAfterZap } from 'pages/Earns/utils'
 import { OpenZapMigrationArgs } from './useZapMigrationWidget'
 
 interface AddLiquidityPureParams {
@@ -88,7 +87,6 @@ const useZapInWidget = ({ onOpenZapMigration }: { onOpenZapMigration: (props: Op
     async (txHash: string, chainId: number, poolType: ZapInPoolType, poolId: string) => {
       if (!library) return
 
-      let url
       const dexIndex = Object.values(zapInDexMapping).findIndex(
         (item, index) => item === poolType && earnSupportedProtocols.includes(Object.keys(zapInDexMapping)[index]),
       )
@@ -98,31 +96,7 @@ const useZapInWidget = ({ onOpenZapMigration }: { onOpenZapMigration: (props: Op
       }
       const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
 
-      const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
-
-      if (isUniv2) {
-        url =
-          APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', poolId)
-            .replace(':chainId', chainId.toString())
-            .replace(':protocol', dex) + '?forceLoading=true'
-      } else {
-        const tokenId = await getTokenId(library, txHash)
-        if (!tokenId) {
-          navigate(APP_PATHS.EARN_POSITIONS)
-          return
-        }
-        const nftContractObj = NFT_MANAGER_CONTRACT[dex]
-        const nftContract =
-          typeof nftContractObj === 'string'
-            ? nftContractObj
-            : nftContractObj[chainId as unknown as keyof typeof nftContractObj]
-        url =
-          APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', `${nftContract}-${tokenId}`)
-            .replace(':chainId', chainId.toString())
-            .replace(':protocol', dex) + '?forceLoading=true'
-      }
-
-      navigate(url)
+      navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate)
     },
     [library, navigate],
   )

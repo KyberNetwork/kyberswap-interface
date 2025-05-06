@@ -10,7 +10,7 @@ import useDebounce from 'hooks/useDebounce'
 import { MEDIA_WIDTHS } from 'theme'
 
 import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
-import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/useSupportedDexesAndChains'
+import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 
 const POSITION_STATUS = [
   { label: 'All Positions', value: '' },

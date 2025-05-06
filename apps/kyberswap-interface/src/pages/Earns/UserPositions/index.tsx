@@ -16,7 +16,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 import { ContentWrapper, Disclaimer, NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
+import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import Filter from 'pages/Earns/UserPositions/Filter'
 import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'

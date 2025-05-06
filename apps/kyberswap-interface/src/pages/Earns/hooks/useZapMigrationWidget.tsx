@@ -3,17 +3,16 @@ import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { CoreProtocol, EarnDex, earnSupportedProtocols, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
+import { EarnDex, earnSupportedProtocols } from 'pages/Earns/constants'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
-import { getTokenId, isForkFrom } from 'pages/Earns/utils'
+import { navigateToPositionAfterZap } from 'pages/Earns/utils'
 
 interface MigrateLiquidityPureParams {
   from: {
@@ -84,7 +83,6 @@ const useZapMigrationWidget = () => {
     async (txHash: string, chainId: number, targetDex: ZapMigrationDex, targetPoolId: string) => {
       if (!library) return
 
-      let url
       const dexIndex = Object.values(zapMigrationDexMapping).findIndex(
         (item, index) =>
           item === targetDex && earnSupportedProtocols.includes(Object.keys(zapMigrationDexMapping)[index]),
@@ -94,32 +92,8 @@ const useZapMigrationWidget = () => {
         return
       }
       const dex = Object.keys(zapMigrationDexMapping)[dexIndex] as EarnDex
-      const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
 
-      if (isUniv2) {
-        url =
-          APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', targetPoolId)
-            .replace(':chainId', chainId.toString())
-            .replace(':protocol', dex) + '?forceLoading=true'
-      } else {
-        const tokenId = await getTokenId(library, txHash)
-
-        if (!tokenId) {
-          navigate(APP_PATHS.EARN_POSITIONS)
-          return
-        }
-        const nftContractObj = NFT_MANAGER_CONTRACT[dex]
-        const nftContract =
-          typeof nftContractObj === 'string'
-            ? nftContractObj
-            : nftContractObj[chainId as unknown as keyof typeof nftContractObj]
-        url =
-          APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', `${nftContract}-${tokenId}`)
-            .replace(':chainId', chainId.toString())
-            .replace(':protocol', dex) + '?forceLoading=true'
-      }
-
-      navigate(url)
+      navigateToPositionAfterZap(library, txHash, chainId, dex, targetPoolId, navigate)
     },
     [library, navigate],
   )
