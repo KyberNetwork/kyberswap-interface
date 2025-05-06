@@ -2,6 +2,7 @@ import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { WalletClient } from 'viem'
 import { Quote } from '../registry'
 import { NearToken } from 'state/crossChainSwap'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
 
 export enum NonEvmChain {
   Near = 'near',
@@ -39,8 +40,8 @@ export interface QuoteParams {
   walletClient?: WalletClient
   tokenInUsd: number
   tokenOutUsd: number
-  sender?: string
-  recipient?: string
+  sender: string
+  recipient: string
 }
 
 export interface EvmQuoteParams extends QuoteParams {
@@ -99,7 +100,11 @@ export interface SwapProvider {
   getSupportedChains(): Chain[]
   getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
   getQuote(params: QuoteParams): Promise<NormalizedQuote>
-  executeSwap(quote: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse>
+  executeSwap(
+    quote: Quote,
+    walletClient: WalletClient,
+    nearWallet?: ReturnType<typeof useWalletSelector>,
+  ): Promise<NormalizedTxResponse>
   getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
 }
 export abstract class BaseSwapAdapter implements SwapProvider {
@@ -108,7 +113,11 @@ export abstract class BaseSwapAdapter implements SwapProvider {
   abstract getSupportedChains(): Chain[]
   abstract getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
   abstract getQuote(params: QuoteParams): Promise<NormalizedQuote>
-  abstract executeSwap(params: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse>
+  abstract executeSwap(
+    params: Quote,
+    walletClient: WalletClient,
+    nearWallet?: ReturnType<typeof useWalletSelector>,
+  ): Promise<NormalizedTxResponse>
   abstract getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
 
   protected handleError(error: any): never {

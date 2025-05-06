@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { TokenPanel } from './components/TokenPanel'
 import { Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
@@ -15,6 +16,13 @@ import { isEvmChain } from 'utils'
 import { NearToken } from 'state/crossChainSwap'
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import RefreshLoading from 'components/RefreshLoading'
+import { AddressInput } from 'components/AddressInputPanel'
+import { AutoColumn } from 'components/Column'
+import { ButtonLight, ButtonOutlined } from 'components/Button'
+import { NonEvmChain } from './adapters'
+import { useActiveWeb3React } from 'hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
+import { ChangeEvent } from 'react'
 
 const Wrapper = styled.div`
   display: flex;
@@ -37,9 +45,32 @@ function CrossChainSwap() {
     getQuote,
     disable,
     showPreview,
+    recipient,
+    setRecipient,
   } = useCrossChainSwap()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { account } = useActiveWeb3React()
+
+  const isToNear = toChainId === NonEvmChain.Near
+  const isToBtc = toChainId === NonEvmChain.Bitcoin
+  const isToEvm = toChainId && isEvmChain(toChainId)
+  const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : 'EVM'
+
+  const nearWallet = useWalletSelector()
+
+  const toggleWalletModal = useWalletModalToggle()
+
+  const showNearConnect = isToNear && !nearWallet.signedAccountId
+  const showBtcConnect = isToBtc && true // TODO: handle connect btc wallet
+  const showEvmConnect = isToEvm && !account
+  const showConnect = showNearConnect || showBtcConnect || showEvmConnect
+
+  const isDifferentRecipient = isToNear
+    ? recipient !== nearWallet.signedAccountId
+    : isToEvm
+    ? recipient !== account
+    : false
 
   return (
     <Wrapper>
@@ -145,6 +176,69 @@ function CrossChainSwap() {
           setSearchParams(searchParams)
         }}
       />
+
+      <AutoColumn gap="8px">
+        <Flex justifyContent="space-between" fontSize={12} color={theme.subText} px="8px" alignItems="center">
+          <Text>Recipient ({networkName} address)</Text>
+          {showConnect ? (
+            <ButtonLight
+              padding="2px 8px"
+              width="fit-content"
+              style={{ fontSize: '12px' }}
+              onClick={() => {
+                if (isToNear) {
+                  nearWallet.signIn()
+                } else if (isToEvm) {
+                  toggleWalletModal()
+                }
+              }}
+            >
+              Connect {networkName} wallet
+            </ButtonLight>
+          ) : (
+            toChainId && (
+              <Flex sx={{ gap: '4px' }}>
+                {isDifferentRecipient && (
+                  <ButtonLight
+                    padding="2px 8px"
+                    width="fit-content"
+                    style={{ fontSize: '12px' }}
+                    onClick={() => {
+                      let reci = ''
+                      if (isToEvm) reci = account || ''
+                      if (isToNear) reci = nearWallet.signedAccountId || ''
+                      setRecipient(reci)
+                    }}
+                  >
+                    Use my wallet
+                  </ButtonLight>
+                )}
+                {!isToEvm && (
+                  <ButtonOutlined
+                    padding="2px 8px"
+                    width="fit-content"
+                    style={{ fontSize: '12px' }}
+                    onClick={() => {
+                      if (isToNear) nearWallet.signOut()
+                    }}
+                  >
+                    Disconnect
+                  </ButtonOutlined>
+                )}
+              </Flex>
+            )
+          )}
+        </Flex>
+        <AddressInput
+          placeholder={`Enter ${networkName} receiving address`}
+          value={recipient}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            const input = event.target.value
+            const withoutSpaces = input.replace(/\s+/g, '')
+            setRecipient(withoutSpaces)
+          }}
+        />
+      </AutoColumn>
 
       <SlippageSetting
         rightComponent={

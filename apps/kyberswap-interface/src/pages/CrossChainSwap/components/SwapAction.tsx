@@ -1,4 +1,5 @@
 import { ButtonPrimary } from 'components/Button'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
 import { useActiveWeb3React } from 'hooks'
@@ -10,6 +11,8 @@ import { ZERO_ADDRESS } from 'constants/index'
 import { ConfirmationPopup } from './ConfirmationPopup'
 import { isEvmChain } from 'utils'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { useNearBalances } from '../hooks/useNearBalances'
+import { NonEvmChain } from '../adapters'
 
 export const SwapAction = () => {
   const { account, chainId } = useActiveWeb3React()
@@ -26,13 +29,17 @@ export const SwapAction = () => {
   } = useCrossChainSwap()
 
   const isFromEvm = isEvmChain(fromChainId)
+  const isFromNear = fromChainId === NonEvmChain.Near
   const balance = useCurrencyBalance(
     isFromEvm ? (currencyIn as Currency) : undefined,
     isFromEvm ? (fromChainId as ChainId) : undefined,
   )
+  const { balances: nearBalances } = useNearBalances()
 
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
+
+  const { signedAccountId, signIn } = useWalletSelector()
 
   const inputAmount =
     isEvmChain(fromChainId) && currencyIn
@@ -77,7 +84,7 @@ export const SwapAction = () => {
       }
     }
 
-    if (!account)
+    if (isFromEvm && !account)
       return {
         label: 'Connect Wallet',
         onClick: () => {
@@ -85,11 +92,12 @@ export const SwapAction = () => {
         },
       }
 
-    if (!balance || inputAmount?.greaterThan(balance)) {
+    if (isFromNear && !signedAccountId) {
       return {
-        label: 'Insufficient Balance',
-        disabled: true,
-        onClick: () => {},
+        label: 'Connect NEAR Wallet',
+        onClick: () => {
+          signIn()
+        },
       }
     }
 
@@ -100,7 +108,20 @@ export const SwapAction = () => {
         onClick: () => {},
       }
 
-    if (chainId !== fromChainId) {
+    let notEnougBalance = false
+    if (isFromEvm && (!balance || inputAmount?.greaterThan(balance))) notEnougBalance = true
+    if (isFromNear && BigInt(nearBalances[(currencyIn as any).assetId] || 0) < BigInt(amountInWei))
+      notEnougBalance = true
+
+    if (notEnougBalance) {
+      return {
+        label: 'Insufficient Balance',
+        disabled: true,
+        onClick: () => {},
+      }
+    }
+
+    if (isFromEvm && chainId !== fromChainId) {
       return {
         label: 'Switch Network',
         onClick: () => {

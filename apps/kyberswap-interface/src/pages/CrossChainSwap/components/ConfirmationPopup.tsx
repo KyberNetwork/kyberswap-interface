@@ -1,4 +1,5 @@
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import useTheme from 'hooks/useTheme'
 import { ArrowDown, X } from 'react-feather'
 import { Flex, Box, Text } from 'rebass'
@@ -15,6 +16,7 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
 import { isEvmChain } from 'utils'
+import { formatUnits } from 'viem'
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -78,17 +80,32 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
   const [txError, setTxError] = useState('')
   const [transactions, setTransactions] = useCrossChainTransactions()
 
+  const nearWallet = useWalletSelector()
+
   const inputAmount =
     isEvmChain(fromChainId) && currencyIn
       ? CurrencyAmount.fromRawAmount(currencyIn as EvmCurrency, amountInWei || '0')
       : undefined
 
-  if (!selectedQuote || !currencyIn || !currencyOut || !inputAmount || !fromChainId || !toChainId) return null
+  if (
+    !selectedQuote ||
+    !currencyIn ||
+    !currencyOut ||
+    !fromChainId ||
+    !toChainId ||
+    !amountInWei ||
+    amountInWei === '0'
+  )
+    return null
+
+  if (isEvmChain(fromChainId) && !inputAmount) return null
+
+  const amount = inputAmount?.toExact() || formatUnits(BigInt(amountInWei), currencyIn.decimals)
 
   const handleSwap = async () => {
-    if (!walletClient) return
+    if (isEvmChain(fromChainId) && !walletClient) return
     setSubmittingTx(true)
-    const res = await selectedQuote.adapter.executeSwap(selectedQuote, walletClient).catch(e => {
+    const res = await selectedQuote.adapter.executeSwap(selectedQuote, walletClient as any, nearWallet).catch(e => {
       console.log(e)
       setTxError(e?.message)
       setSubmittingTx(false)
@@ -133,7 +150,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             <TokenBoxInfo
               chainId={fromChainId}
               currency={currencyIn}
-              amount={inputAmount?.toExact() || ''}
+              amount={amount || ''}
               usdValue={selectedQuote?.quote.inputUsd || 0}
             />
             <Box
