@@ -4,6 +4,7 @@ import styled, { keyframes } from 'styled-components'
 
 import bg from 'assets/images/earn-bg.png'
 import { ButtonPrimary } from 'components/Button'
+import { Link } from 'react-router-dom'
 
 export const WrapperBg = styled.div`
   background-image: url(${bg});
@@ -198,4 +199,26 @@ export const Tag = styled.div`
   color: ${({ theme }) => theme.subText};
   padding: 4px 8px;
   font-size: 12px;
+`
+
+const borderRotate = keyframes`
+  0% { --border-angle: 0deg; }
+  100% { --border-angle: 360deg; }
+`
+
+// Total rewards
+export const RewardsNavigateButton = styled(Link)`
+  padding: 2px 14px 2px 20px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  --border-angle: 0deg;
+  animation: ${borderRotate} 2s infinite linear;
+  border: 1px solid transparent;
+  background: linear-gradient(#1d5b49, #1d5b49) padding-box,
+    conic-gradient(from var(--border-angle), #196750 50%, ${({ theme }) => theme.primary}) border-box;
+  backdrop-filter: blur(2px);
 `

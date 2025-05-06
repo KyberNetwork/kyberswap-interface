@@ -23,6 +23,8 @@ import Card from 'pages/Earns/Landing/Card'
 import PoolSection from 'pages/Earns/Landing/PoolSection'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
+import TotalRewards from 'pages/Earns/Landing/TotalRewards'
+import { t } from '@lingui/macro'
 
 const EarnLanding = () => {
   const navigate = useNavigate()
@@ -63,40 +65,51 @@ const EarnLanding = () => {
     <WrapperBg>
       {zapInWidget}
       {zapMigrationWidget}
+
       <Container>
         <Text fontSize={36} fontWeight="500">
-          Maximize Your Earnings in DeFi
+          {t`Maximize Your Earnings in DeFi`}
         </Text>
-        <Text marginTop="1rem" maxWidth="800px" fontSize={16} color={theme.subText} marginX="auto" lineHeight="24px">
-          Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap
-          technology—to help you maximize earnings from your liquidity across various DeFi protocols.
+        <Text
+          marginTop="1rem"
+          marginBottom={'32px'}
+          maxWidth="800px"
+          fontSize={16}
+          color={theme.subText}
+          marginX="auto"
+          lineHeight="24px"
+        >
+          {t`Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap
+            technology—to help you maximize earnings from your liquidity across various DeFi protocols.`}
         </Text>
+
+        <TotalRewards />
 
         <OverviewWrapper>
           <Card
-            title="Liquidity Pools"
+            title={t`Liquidity Pools`}
             icon={LiquidityPoolIcon}
-            desc="Explore and instantly add liquidity to high-APY pools the easy way with Zap Technology."
+            desc={t`Explore and instantly add liquidity to high-APY pools the easy way with Zap Technology.`}
             action={{
-              text: 'Explore Pools',
+              text: t`Explore Pools`,
               onClick: () => navigate({ pathname: APP_PATHS.EARN_POOLS }),
             }}
           />
           <Card
-            title="Enhance Your Liquidity Positions"
+            title={t`Enhance Your Liquidity Positions`}
             icon={LiquidityPosIcon}
-            desc="Track, adjust, and optimize your positions to stay in control of your DeFi journey."
+            desc={t`Track, adjust, and optimize your positions to stay in control of your DeFi journey.`}
             action={{
-              text: 'My positions',
+              text: t`My positions`,
               onClick: () => navigate({ pathname: APP_PATHS.EARN_POSITIONS }),
             }}
           />
           <Card
-            title="Staking/Compounding Strategies"
+            title={t`Staking/Compounding Strategies`}
             icon={StakingIcon}
-            desc="Coming soon..."
+            desc={t`Coming soon...`}
             action={{
-              text: 'Coming Soon',
+              text: t`Coming Soon`,
               onClick: () => {},
               disabled: true,
             }}
@@ -104,8 +117,8 @@ const EarnLanding = () => {
         </OverviewWrapper>
 
         <PoolSection
-          title="Farming Pools"
-          tooltip="No staking is required to earn rewards in these pools"
+          title={t`Farming Pools`}
+          tooltip={t`No staking is required to earn rewards in these pools`}
           icon={<FarmingIcon width={21} height={21} color={theme.primary} />}
           tag={FilterTag.FARMING_POOL}
           isLoading={isLoading}
@@ -116,8 +129,8 @@ const EarnLanding = () => {
         />
 
         <PoolSection
-          title="Highlighted Pools"
-          tooltip="Pools matching your wallet tokens or top 24h volume pools if no wallet is connected"
+          title={t`Highlighted Pools`}
+          tooltip={t`Pools matching your wallet tokens or top 24h volume pools if no wallet is connected`}
           icon={FireIcon}
           tag={FilterTag.HIGHLIGHTED_POOL}
           isLoading={isLoading}
@@ -135,8 +148,8 @@ const EarnLanding = () => {
           }}
         >
           <PoolSection
-            title="High APR"
-            tooltip="Top 100 Pools with assets that offer exceptionally high APRs"
+            title={t`High APR`}
+            tooltip={t`Top 100 Pools with assets that offer exceptionally high APRs`}
             icon={RocketIcon}
             tag={FilterTag.HIGH_APR}
             isLoading={isLoading}
@@ -144,8 +157,8 @@ const EarnLanding = () => {
           />
 
           <PoolSection
-            title="Low Volatility"
-            tooltip="Top 100 highest TVL Pools consisting of stable coins or correlated pairs"
+            title={t`Low Volatility`}
+            tooltip={t`Top 100 highest TVL Pools consisting of stable coins or correlated pairs`}
             icon={LowVolatilityIcon}
             tag={FilterTag.LOW_VOLATILITY}
             isLoading={isLoading}
@@ -153,8 +166,8 @@ const EarnLanding = () => {
           />
 
           <PoolSection
-            title="Solid Earning"
-            tooltip="Top 100 pools that have the high total earned fee in the last 7 days"
+            title={t`Solid Earning`}
+            tooltip={t`Top 100 pools that have the high total earned fee in the last 7 days`}
             icon={SolidEarningIcon}
             tag={FilterTag.SOLID_EARNING}
             isLoading={isLoading}
