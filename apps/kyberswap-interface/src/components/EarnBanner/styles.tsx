@@ -104,7 +104,7 @@ export const FarmingWrapper = styled.div`
 `
 
 export const FarmingPoolContainer = styled.div`
-  width: 430px;
+  width: calc(100% - (36px * 2));
   overflow: hidden;
   margin: 0 auto;
 `
@@ -127,8 +127,25 @@ export const moveBack = keyframes`
   }
 `
 
+export const moveForwardExtraSmall = keyframes`
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: -200%;
+  }
+`
+
+export const moveBackExtraSmall = keyframes`
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 0;
+  }
+`
+
 export const FarmingPoolWrapper = styled.div<{ animateMoveForward: boolean; animateMoveBack: boolean }>`
-  width: 860px;
   display: flex;
   align-items: center;
   position: relative;
@@ -138,17 +155,28 @@ export const FarmingPoolWrapper = styled.div<{ animateMoveForward: boolean; anim
     animateMoveForward &&
     css`
       animation: ${moveForward} 0.8s;
+
+      ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+        animation: ${moveForwardExtraSmall} 0.8s;
+      `}
     `}
 
   ${({ animateMoveBack }) =>
     animateMoveBack &&
     css`
       animation: ${moveBack} 0.8s;
+
+      ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+        animation: ${moveBackExtraSmall} 0.8s;
+      `}
     `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    left: -100%;
+  `}
 `
 
 export const FarmingPool = styled.div`
-  width: 215px;
   display: flex;
   align-items: center;
   justify-content: center;

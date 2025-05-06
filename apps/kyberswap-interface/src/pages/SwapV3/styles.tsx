@@ -37,12 +37,25 @@ export const BannerWrapper = styled.div`
   display: flex;
   align-items: center;
   overflow: hidden;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    flex-direction: column;
+    gap: 12px;
+  `}
 `
 
 export const TrendingWrapper = styled.div`
   width: 40%;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    width: 100%;
+  `}
 `
 
 export const FarmingWrapper = styled.div`
   width: calc(60% - 20px);
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    width: 100%;
+  `}
 `

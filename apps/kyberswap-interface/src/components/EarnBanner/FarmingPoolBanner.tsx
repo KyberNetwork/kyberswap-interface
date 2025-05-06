@@ -14,8 +14,10 @@ import { t } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
 import { useActiveWeb3React } from 'hooks'
 import { useExplorerLandingQuery } from 'services/zapEarn'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { formatAprNumber } from 'pages/Earns/utils'
+import { useMedia } from 'react-use'
+import { MEDIA_WIDTHS } from 'theme'
 
 let indexInterval: NodeJS.Timeout
 
@@ -28,10 +30,16 @@ export default function FarmingPoolBanner() {
   const [animateMoveForward, setAnimateMoveForward] = useState(false)
   const [animateMoveBack, setAnimateMoveBack] = useState(false)
 
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const containerWidth = containerRef.current?.clientWidth || 0
+
   const totalPools = useMemo(() => data?.data.highlightedPools || [], [data])
 
   const pools = useMemo(() => {
-    if (totalPools.length < 4) return []
+    const numberPoolsToShow = upToExtraSmall ? 3 : 4
+    if (totalPools.length < numberPoolsToShow) return []
 
     const getWrappedIndex = (i: number) => {
       if (i < 0) return totalPools.length + i
@@ -42,12 +50,12 @@ export default function FarmingPoolBanner() {
     const startIndex = getWrappedIndex(index - 1)
     const result = []
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < numberPoolsToShow; i++) {
       result.push(totalPools[getWrappedIndex(startIndex + i)])
     }
 
     return result
-  }, [totalPools, index])
+  }, [totalPools, index, upToExtraSmall])
 
   const handleMoveBack = () => {
     setAnimateMoveBack(true)
@@ -66,7 +74,7 @@ export default function FarmingPoolBanner() {
   }, [totalPools])
 
   useEffect(() => {
-    indexInterval = setInterval(handleMoveForward, 4000)
+    indexInterval = setInterval(handleMoveForward, 10_000)
 
     return () => indexInterval && clearInterval(indexInterval)
   }, [handleMoveForward])
@@ -82,20 +90,34 @@ export default function FarmingPoolBanner() {
         alignItems="center"
         sx={{ gap: '8px', width: '102%', position: 'relative', left: '-1%' }}
       >
-        <MoveBackIcon onClick={handleMoveBack} />
-        <FarmingPoolContainer>
-          <FarmingPoolWrapper animateMoveForward={animateMoveForward} animateMoveBack={animateMoveBack}>
-            {pools.map(pool => (
-              <FarmingPool key={pool.address} className="farming-pool">
-                <PoolPairText>
-                  {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
-                </PoolPairText>
-                <FarmingAprBadge>{formatAprNumber(pool.apr)}%</FarmingAprBadge>
-              </FarmingPool>
-            ))}
-          </FarmingPoolWrapper>
-        </FarmingPoolContainer>
-        <MoveForwardIcon onClick={handleMoveForward} />
+        {pools.length > 0 && (
+          <>
+            {containerWidth > 0 && <MoveBackIcon onClick={handleMoveBack} />}
+            <FarmingPoolContainer ref={containerRef}>
+              {containerWidth > 0 && (
+                <FarmingPoolWrapper
+                  animateMoveForward={animateMoveForward}
+                  animateMoveBack={animateMoveBack}
+                  style={{ width: containerWidth * (!upToExtraSmall ? 2 : 3) }}
+                >
+                  {pools.map(pool => (
+                    <FarmingPool
+                      key={pool.address}
+                      className="farming-pool"
+                      style={{ width: !upToExtraSmall ? containerWidth / 2 : containerWidth }}
+                    >
+                      <PoolPairText>
+                        {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
+                      </PoolPairText>
+                      <FarmingAprBadge>{formatAprNumber(pool.apr)}%</FarmingAprBadge>
+                    </FarmingPool>
+                  ))}
+                </FarmingPoolWrapper>
+              )}
+            </FarmingPoolContainer>
+            {containerWidth > 0 && <MoveForwardIcon onClick={handleMoveForward} />}
+          </>
+        )}
       </Flex>
     </FarmingWrapper>
   ) : null
