@@ -33,7 +33,7 @@ export const TagContainer = styled.div`
   display: flex;
   gap: 1rem;
   width: 100%;
-  overflow-x: auto;
+  flex-wrap: wrap;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     gap: 0.75rem;
@@ -58,6 +58,10 @@ export const Tag = styled.div<{ active: boolean }>`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     height: 38px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 16px;
   `}
 `
 
@@ -178,15 +182,12 @@ export const Apr = styled.div<{ positive: boolean }>`
 export const MobileTableRow = styled.div`
   padding: 28px 24px 0;
   cursor: pointer;
-
-  :hover {
-    background: ${({ theme }) => rgba(theme.primary, 0.2)};
-  }
 `
 export const MobileTableBottomRow = styled.div<{ withoutBorder: boolean }>`
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   padding: 16px 0;
+  gap: 12px;
   border-bottom: ${({ withoutBorder, theme }) => (withoutBorder ? 'none' : `1px solid ${theme.tableHeader}`)};
 `
 

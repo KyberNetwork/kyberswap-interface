@@ -60,7 +60,7 @@ export enum SortBy {
 
 const filterTags = [
   {
-    label: 'LM Pools',
+    label: 'Farming Pools',
     value: FilterTag.FARMING_POOL,
     icon: <IconFarmingPool width={24} />,
     tooltip: 'No staking is required to earn rewards in these pools',
@@ -217,6 +217,7 @@ const PoolExplorer = () => {
     <PoolPageWrapper>
       {zapInWidget}
       {zapMigrationWidget}
+
       <div>
         <Flex sx={{ gap: 3 }}>
           <IconArrowLeft onClick={() => navigate(-1)} />
@@ -225,7 +226,7 @@ const PoolExplorer = () => {
           </Text>
         </Flex>
         <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-          {t`KyberSwap Zap: Instantly add liquidity to high-APY pools using any token(s) or your existing liquidity position with KyberZap`}
+          {t`Kyberswap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
         </Text>
       </div>
       <HeadSection>
@@ -240,17 +241,17 @@ const PoolExplorer = () => {
           </MouseoverTooltip>
           {filterTags.map((item, index) =>
             !upToMedium ? (
-              <MouseoverTooltip text={item.tooltip} placement="top" key={index}>
+              <MouseoverTooltipDesktopOnly text={item.tooltip} placement="top" key={index}>
                 <Tag
                   active={filters.tag === item.value}
                   key={item.value}
                   role="button"
                   onClick={() => updateFilters('tag', item.value)}
                 >
-                  {!upToExtraSmall && item.icon}
+                  {item.icon}
                   {item.label}
                 </Tag>
-              </MouseoverTooltip>
+              </MouseoverTooltipDesktopOnly>
             ) : (
               <Tag
                 active={filters.tag === item.value}
@@ -258,7 +259,7 @@ const PoolExplorer = () => {
                 role="button"
                 onClick={() => updateFilters('tag', item.value)}
               >
-                {!upToExtraSmall && item.icon}
+                {item.icon}
                 {item.label}
               </Tag>
             ),
@@ -295,7 +296,12 @@ const PoolExplorer = () => {
       </Flex>
 
       {upToLarge && (
-        <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+        <NavigateButton
+          mobileFullWidth
+          icon={<IconUserEarnPosition />}
+          text={t`My Positions`}
+          to={APP_PATHS.EARN_POSITIONS}
+        />
       )}
 
       <TableWrapper>
@@ -310,7 +316,7 @@ const PoolExplorer = () => {
                 role="button"
                 onClick={() => onSortChange(SortBy.APR)}
               >
-                APR
+                {t`APR`}
                 <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <Flex
@@ -319,7 +325,7 @@ const PoolExplorer = () => {
                 role="button"
                 onClick={() => onSortChange(SortBy.EARN_FEE)}
               >
-                Earn Fees
+                {t`Earn Fees`}
                 <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <Flex
@@ -328,7 +334,7 @@ const PoolExplorer = () => {
                 role="button"
                 onClick={() => onSortChange(SortBy.TVL)}
               >
-                TVL
+                {t`TVL`}
                 <MouseoverTooltipDesktopOnly
                   text={t`Only pools with a Total Value Locked of $10,000 or more are displayed on this page`}
                   placement="top"
@@ -345,7 +351,7 @@ const PoolExplorer = () => {
                 role="button"
                 onClick={() => onSortChange(SortBy.VOLUME)}
               >
-                Volume
+                {t`Volume`}
                 <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <div />

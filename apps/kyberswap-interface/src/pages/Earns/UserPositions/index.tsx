@@ -208,6 +208,7 @@ const UserPositions = () => {
       {zapInWidget}
       {zapMigrationWidget}
       {zapOutWidget}
+
       <PositionPageWrapper>
         <Flex
           flexDirection={upToSmall ? 'column' : 'row'}
@@ -218,7 +219,7 @@ const UserPositions = () => {
           <Flex sx={{ gap: 3 }}>
             <IconArrowLeft onClick={() => navigate(-1)} />
             <Text as="h1" fontSize={24} fontWeight="500">
-              {t`My Liquidity Positions`}
+              {t`My Positions`}
             </Text>
           </Flex>
           <NavigateButton

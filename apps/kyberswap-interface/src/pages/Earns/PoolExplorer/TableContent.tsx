@@ -168,7 +168,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
       </Text>
     )
 
-  const farming = (pool: { farming: { lpFeeApr: number; farmRewardApr: number } }) => (
+  const kemFarming = (pool: { farming: { lpFeeApr: number; farmRewardApr: number } }) => (
     <MouseoverTooltipDesktopOnly
       placement="bottom"
       width="max-content"
@@ -183,6 +183,8 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
       <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
     </MouseoverTooltipDesktopOnly>
   )
+
+  const rewardToken = 'KNC'
 
   if (upToMedium)
     return (
@@ -208,10 +210,10 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                   </Flex>
                 </Flex>
               </Flex>
-              <Flex alignItems="center" sx={{ gap: 3 }}>
+              <Flex alignItems="center" sx={{ gap: '12px' }}>
                 <Flex alignItems="center" sx={{ gap: '2px' }}>
-                  {farming(pool)}
                   <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
+                  {kemFarming(pool)}
                 </Flex>
                 <Star
                   size={16}
@@ -224,15 +226,21 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
               </Flex>
             </Flex>
             <MobileTableBottomRow withoutBorder={index === tablePoolData.length - 1}>
-              <Flex flexDirection="column" sx={{ gap: 1 }}>
+              <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                 <Text color={theme.subText}>Earn Fees</Text>
                 <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
               </Flex>
-              <Flex flexDirection="column" sx={{ gap: 1 }}>
+              <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+                <Text color={theme.subText}>Rewards</Text>
+                <Text>
+                  {formatDisplayNumber(pool.earnFee, { significantDigits: 6 })} {rewardToken}
+                </Text>
+              </Flex>
+              <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                 <Text color={theme.subText}>TVL</Text>
                 <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
               </Flex>
-              <Flex flexDirection="column" alignItems={'flex-end'} sx={{ gap: 1 }}>
+              <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                 <Text color={theme.subText}>Volume</Text>
                 <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
               </Flex>
@@ -261,7 +269,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
             <FeeTier>{pool.feeTier}%</FeeTier>
           </Flex>
           <Apr positive={pool.apr > 0}>
-            {formatAprNumber(pool.apr)}% {farming(pool)}
+            {formatAprNumber(pool.apr)}% {kemFarming(pool)}
           </Apr>
           <Flex justifyContent="flex-end">
             {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
