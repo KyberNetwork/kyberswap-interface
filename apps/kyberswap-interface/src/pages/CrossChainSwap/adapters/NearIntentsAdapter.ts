@@ -71,7 +71,8 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
             return (
               token.blockchain === blockchain &&
               ((params.fromToken as any).isNative
-                ? token.symbol.toLowerCase() === params.fromToken.symbol?.toLowerCase()
+                ? token.symbol.toLowerCase() === params.fromToken.symbol?.toLowerCase() &&
+                  token.assetId.includes('omft')
                 : token.contractAddress?.toLowerCase() === (params.fromToken as any).wrapped?.address.toLowerCase())
             )
           })?.assetId
@@ -86,7 +87,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
             return (
               token.blockchain === blockchain &&
               ((params.toToken as any).isNative
-                ? token.symbol.toLowerCase() === params.toToken.symbol?.toLowerCase()
+                ? token.symbol.toLowerCase() === params.toToken.symbol?.toLowerCase() && token.assetId.includes('omft')
                 : token.contractAddress?.toLowerCase() === (params.toToken as any).wrapped?.address.toLowerCase())
             )
           })?.assetId
@@ -224,35 +225,46 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       })
     }
     return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
-      if (!walletClient || !walletClient.account) reject('Not connected')
-      if (quote.quoteParams.sender === ZERO_ADDRESS || quote.quoteParams.recipient === ZERO_ADDRESS)
-        reject('Near Intent refundTo or recipient is ZERO ADDRESS')
+      try {
+        if (!walletClient || !walletClient.account) reject('Not connected')
+        if (quote.quoteParams.sender === ZERO_ADDRESS || quote.quoteParams.recipient === ZERO_ADDRESS)
+          reject('Near Intent refundTo or recipient is ZERO ADDRESS')
 
-      const account = walletClient.account?.address as `0x${string}`
+        const account = walletClient.account?.address as `0x${string}`
 
-      const fromToken = quote.quoteParams.fromToken
+        const fromToken = quote.quoteParams.fromToken
 
-      const hash = await walletClient.writeContract({
-        address: ('contractAddress' in fromToken
-          ? fromToken.contractAddress
-          : (fromToken as any).wrapped.address) as `0x${string}`,
-        abi: erc20Abi,
-        functionName: 'transfer',
-        chain: undefined,
-        args: [quote.rawQuote.quote.depositAddress, quote.quoteParams.amount],
-        account,
-      })
-      await OneClickService.submitDepositTx({
-        txHash: hash,
-        depositAddress: quote.rawQuote.quote.depositAddress,
-      }).catch(e => {
-        console.log('NearIntents submitDepositTx failed', e)
-      })
+        const hash = await ((fromToken as any).isNative
+          ? walletClient.sendTransaction({
+              to: quote.rawQuote.quote.depositAddress,
+              value: BigInt(quote.quoteParams.amount),
+              chain: undefined,
+              account,
+            })
+          : walletClient.writeContract({
+              address: ('contractAddress' in fromToken
+                ? fromToken.contractAddress
+                : (fromToken as any).wrapped.address) as `0x${string}`,
+              abi: erc20Abi,
+              functionName: 'transfer',
+              args: [quote.rawQuote.quote.depositAddress, quote.quoteParams.amount],
+              chain: undefined,
+              account,
+            }))
+        await OneClickService.submitDepositTx({
+          txHash: hash,
+          depositAddress: quote.rawQuote.quote.depositAddress,
+        }).catch(e => {
+          console.log('NearIntents submitDepositTx failed', e)
+        })
 
-      resolve({
-        ...params,
-        sourceTxHash: hash,
-      })
+        resolve({
+          ...params,
+          sourceTxHash: hash,
+        })
+      } catch (e) {
+        reject(e)
+      }
     })
   }
 
