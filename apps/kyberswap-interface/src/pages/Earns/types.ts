@@ -45,101 +45,73 @@ export interface EarnPosition {
   chainName: 'eth'
   chainId: number
   chainLogo: string
-  userAddress: string
   id: string
   tokenAddress: string
   tokenId: string
-  liquidity: string
   minPrice: number
   maxPrice: number
   currentAmounts: Array<PositionAmount>
-  providedAmounts: Array<PositionAmount>
   feePending: Array<PositionAmount>
   feesClaimed: Array<PositionAmount>
-  farmRewardsPending: Array<PositionAmount>
-  farmRewardsClaimed: Array<PositionAmount>
-  feeEarned24h: Array<PositionAmount>
-  farmReward24h: Array<PositionAmount>
   createdTime: number
-  lastUpdateBlock: number
-  openedBlock: number
-  openedTime: number
-  closedBlock: number
-  closedTime: number
-  closedPrice: number
-  farming: boolean
-  impermanentLoss: number
   apr: number
-  feeApr: number
-  farmApr: number
-  pnl: number
-  initialUnderlyingValue: number
-  currentUnderlyingValue: number
   currentPositionValue: number
-  compareWithHodl: number
-  returnOnInvestment: number
-  totalDepositValue: number
-  totalWithdrawValue: number
-  yesterdayEarning: number
   earning24h: number
   earning7d: number
   status: PositionStatus
-  avgConvertPrice: number
-  isConvertedFromToken0: boolean
-  gasUsed: number
-  isSupportAutomation: boolean
-  hasAutomationOrder: boolean
   pool: {
     id: string
     poolAddress: string
     price: number
     tokenAmounts: Array<PositionAmount>
-    farmRewardTokens: Array<PositionAmount>
     fees: Array<number>
-    rewards24h: Array<PositionAmount>
     tickSpacing: number
     project: string
     projectLogo: string
-    projectAddress: string
-    showWarning: boolean
-    tvl: number
-    farmAddress: string
-    tag: string
   }
 }
 
 export interface ParsedPosition {
   id: string
-  dex: string
-  dexImage: string
-  chainId: number
-  chainName: string
-  chainLogo: string
-  poolAddress: string
+  pool: {
+    fee: number
+    address: string
+  }
+  dex: {
+    id: string
+    logo: string
+  }
+  chain: {
+    id: number
+    name: string
+    logo: string
+  }
+  priceRange: {
+    min: number
+    max: number
+    current: number
+  }
+  earning: {
+    earned: number
+    in7d: number
+    in24h: number
+  }
+  token0: Token
+  token1: Token
   tokenAddress: string
-  token0Address: string
-  token1Address: string
-  token0Logo: string
-  token1Logo: string
-  token0Symbol: string
-  token1Symbol: string
-  token0Decimals: number
-  token1Decimals: number
-  token0Price: number
-  token1Price: number
-  poolFee: number
-  status: string
-  totalValue: number
   apr: number
-  token0TotalAmount: number
-  token1TotalAmount: number
-  minPrice: number
-  maxPrice: number
-  pairRate: number
-  earning24h: number
-  earning7d: number
-  totalEarnedFee: number
+  totalValue: number
+  status: string
   createdTime: number
+}
+
+interface Token {
+  address: string
+  symbol: string
+  decimals: number
+  logo: string
+  price: number
+  totalAmount: number
 }
 
 interface PositionAmount {
@@ -149,20 +121,13 @@ interface PositionAmount {
     name: string
     decimals: number
     logo: string
-    tag: string
     price: number
   }
-  tokenType: string
-  tokenID: string
   balance: string
   quotes: {
     usd: {
-      symbol: string
-      marketPrice: number
       price: number
-      priceChange24hPercentage: number
       value: number
-      timestamp: number
     }
   }
 }

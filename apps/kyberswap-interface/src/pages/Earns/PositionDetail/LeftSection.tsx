@@ -56,17 +56,17 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
 
   const allTransactions = useAllTransactions(true)
 
-  const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[position.dex as keyof typeof NFT_MANAGER_CONTRACT]
+  const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[position.dex.id as keyof typeof NFT_MANAGER_CONTRACT]
   const nftManagerContract =
     typeof nftManagerContractOfDex === 'string'
       ? nftManagerContractOfDex
-      : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
-  const nftManagerAbi = NFT_MANAGER_ABI[position.dex as keyof typeof NFT_MANAGER_ABI]
-  const contract = useReadingContract(nftManagerContract, nftManagerAbi, position.chainId)
+      : nftManagerContractOfDex[position.chain.id as keyof typeof nftManagerContractOfDex]
+  const nftManagerAbi = NFT_MANAGER_ABI[position.dex.id as keyof typeof NFT_MANAGER_ABI]
+  const contract = useReadingContract(nftManagerContract, nftManagerAbi, position.chain.id)
 
-  const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
-  const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
-  const isUniv2 = isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2)
+  const isToken0Native = isNativeToken(position.token0.address, position.chain.id as keyof typeof WETH)
+  const isToken1Native = isNativeToken(position.token1.address, position.chain.id as keyof typeof WETH)
+  const isUniv2 = isForkFrom(position.dex.id as EarnDex, CoreProtocol.UniswapV2)
 
   const handleGetPositionOwner = useCallback(async () => {
     if (!contract) return
@@ -89,11 +89,11 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
     const balance0 = results.amount0.toString()
     const balance1 = results.amount1.toString()
     const amount0 = CurrencyAmount.fromRawAmount(
-      new Token(position.chainId, position.token0Address, position.token0Decimals),
+      new Token(position.chain.id, position.token0.address, position.token0.decimals),
       balance0,
     ).toExact()
     const amount1 = CurrencyAmount.fromRawAmount(
-      new Token(position.chainId, position.token1Address, position.token1Decimals),
+      new Token(position.chain.id, position.token1.address, position.token1.decimals),
       balance1,
     ).toExact()
     setFeeInfo({
@@ -101,22 +101,11 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
       balance1,
       amount0,
       amount1,
-      value0: parseFloat(amount0) * position.token0Price,
-      value1: parseFloat(amount1) * position.token1Price,
-      totalValue: parseFloat(amount0) * position.token0Price + parseFloat(amount1) * position.token1Price,
+      value0: parseFloat(amount0) * position.token0.price,
+      value1: parseFloat(amount1) * position.token1.price,
+      totalValue: parseFloat(amount0) * position.token0.price + parseFloat(amount1) * position.token1.price,
     })
-  }, [
-    contract,
-    position.chainId,
-    position.id,
-    position.token0Address,
-    position.token0Decimals,
-    position.token0Price,
-    position.token1Address,
-    position.token1Decimals,
-    position.token1Price,
-    positionOwner,
-  ])
+  }, [contract, position.chain, position.id, position.token0, position.token1, positionOwner])
 
   useEffect(() => {
     handleGetPositionOwner()
@@ -145,7 +134,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allTransactions])
 
-  const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
+  const nativeToken = NETWORKS_INFO[position.chain.id as keyof typeof NETWORKS_INFO].nativeToken
 
   return (
     <InfoLeftColumn halfWidth={isUniv2}>
@@ -172,25 +161,25 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           </Text>
           <Flex alignItems={'center'} sx={{ gap: '6px' }}>
             <DexImage
-              src={position.token0Logo}
+              src={position.token0.logo}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null
                 currentTarget.src = HelpIcon
               }}
             />
-            <Text>{formatDisplayNumber(position.token0TotalAmount, { significantDigits: 6 })}</Text>
-            <Text>{position.token0Symbol}</Text>
+            <Text>{formatDisplayNumber(position.token0.totalAmount, { significantDigits: 6 })}</Text>
+            <Text>{position.token0.symbol}</Text>
           </Flex>
           <Flex alignItems={'center'} sx={{ gap: '6px' }}>
             <DexImage
-              src={position.token1Logo}
+              src={position.token1.logo}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null
                 currentTarget.src = HelpIcon
               }}
             />
-            <Text>{formatDisplayNumber(position.token1TotalAmount, { significantDigits: 6 })}</Text>
-            <Text>{position.token1Symbol}</Text>
+            <Text>{formatDisplayNumber(position.token1.totalAmount, { significantDigits: 6 })}</Text>
+            <Text>{position.token1.symbol}</Text>
           </Flex>
         </InfoRight>
       </InfoSectionFirstFormat>
@@ -215,8 +204,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               1 {t`day`}
             </Text>
             <Text>
-              {(position.earning24h || position.earning24h === 0) && !isUniv2
-                ? formatDisplayNumber(position.earning24h, { significantDigits: 4, style: 'currency' })
+              {(position.earning.in24h || position.earning.in24h === 0) && !isUniv2
+                ? formatDisplayNumber(position.earning.in24h, { significantDigits: 4, style: 'currency' })
                 : '--'}
             </Text>
           </Flex>
@@ -226,8 +215,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               7 {t`days`}
             </Text>
             <Text>
-              {(position.earning7d || position.earning7d === 0) && !isUniv2
-                ? formatDisplayNumber(position.earning7d, { significantDigits: 4, style: 'currency' })
+              {(position.earning.in7d || position.earning.in7d === 0) && !isUniv2
+                ? formatDisplayNumber(position.earning.in7d, { significantDigits: 4, style: 'currency' })
                 : '--'}
             </Text>
           </Flex>
@@ -236,17 +225,17 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <Text fontSize={14} color={theme.subText}>
               {t`All`}
             </Text>
-            <Text fontSize={18} color={position.totalEarnedFee > 0 ? theme.primary : theme.text}>
-              {(position.totalEarnedFee || position.totalEarnedFee === 0) && position.totalEarnedFee >= 0
-                ? formatDisplayNumber(position.totalEarnedFee, { style: 'currency', significantDigits: 4 })
-                : position.totalEarnedFee && position.totalEarnedFee < 0
+            <Text fontSize={18} color={position.earning.earned > 0 ? theme.primary : theme.text}>
+              {(position.earning.earned || position.earning.earned === 0) && position.earning.earned >= 0
+                ? formatDisplayNumber(position.earning.earned, { style: 'currency', significantDigits: 4 })
+                : position.earning.earned && position.earning.earned < 0
                 ? 0
                 : '--'}
             </Text>
           </Flex>
         </Flex>
       </InfoSection>
-      {DEXES_SUPPORT_COLLECT_FEE[position.dex as EarnDex] ? (
+      {DEXES_SUPPORT_COLLECT_FEE[position.dex.id as EarnDex] ? (
         <InfoSection>
           <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
             <Text fontSize={14} color={theme.subText} marginTop={1}>
@@ -265,7 +254,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <div>
               <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
                 <Text>{formatDisplayNumber(feeInfo?.amount0, { significantDigits: 4 })}</Text>
-                <Text>{isToken0Native ? nativeToken.symbol : position.token0Symbol}</Text>
+                <Text>{isToken0Native ? nativeToken.symbol : position.token0.symbol}</Text>
                 <Text fontSize={14} color={theme.subText}>
                   {formatDisplayNumber(feeInfo?.value0, {
                     style: 'currency',
@@ -275,7 +264,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
               </Flex>
               <Flex alignItems={'center'} sx={{ gap: '6px' }}>
                 <Text>{formatDisplayNumber(feeInfo?.amount1, { significantDigits: 4 })}</Text>
-                <Text>{isToken1Native ? nativeToken.symbol : position.token1Symbol}</Text>
+                <Text>{isToken1Native ? nativeToken.symbol : position.token1.symbol}</Text>
                 <Text fontSize={14} color={theme.subText}>
                   {formatDisplayNumber(feeInfo?.value1, {
                     style: 'currency',

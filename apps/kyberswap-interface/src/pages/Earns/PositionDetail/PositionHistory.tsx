@@ -17,7 +17,7 @@ const PositionHistory = ({ position }: { position: ParsedPosition }) => {
   const { account } = useActiveWeb3React()
 
   const { data: historyData } = usePositionHistoryQuery({
-    chainId: position.chainId,
+    chainId: position.chain.id,
     tokenAddress: position.tokenAddress,
     tokenId: position.id,
     userAddress: account,
@@ -50,7 +50,7 @@ const PositionHistory = ({ position }: { position: ParsedPosition }) => {
             <Text fontSize={14} color={theme.subText}>{t`Tnx Hash`}</Text>
             <Text
               color={theme.blue2}
-              onClick={() => window.open(NETWORKS_INFO[position.chainId as ChainId].etherscanUrl + '/tx/' + txHash)}
+              onClick={() => window.open(NETWORKS_INFO[position.chain.id as ChainId].etherscanUrl + '/tx/' + txHash)}
               sx={{ cursor: 'pointer' }}
               marginRight={-1}
             >{`${txHash.substring(0, 6)}...${txHash.substring(62)}`}</Text>

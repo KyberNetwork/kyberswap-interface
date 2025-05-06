@@ -41,17 +41,17 @@ const PositionDetailHeader = ({
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const isUniv2 = isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2)
+  const isUniv2 = isForkFrom(position.dex.id as EarnDex, CoreProtocol.UniswapV2)
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status
 
   const onOpenPositionInDexSite = () => {
-    if (!position || !earnSupportedProtocols.includes(position.dex)) return
+    if (!position || !earnSupportedProtocols.includes(position.dex.id)) return
 
     const chainName =
-      position.dex === EarnDex.DEX_UNISWAPV3 && position.chainName === 'eth' ? 'ethereum' : position.chainName
+      position.dex.id === EarnDex.DEX_UNISWAPV3 && position.chain.name === 'eth' ? 'ethereum' : position.chain.name
     const positionId = position.id
-    const poolAddress = position.poolAddress
-    const positionDetailUrl = PROTOCOL_POSITION_URL[position.dex as EarnDex]
+    const poolAddress = position.pool.address
+    const positionDetailUrl = PROTOCOL_POSITION_URL[position.dex.id as EarnDex]
 
     if (!positionDetailUrl) return
     const parsedUrl = positionDetailUrl
@@ -68,17 +68,17 @@ const PositionDetailHeader = ({
       <PositionOverview>
         <Flex alignItems={'center'} sx={{ gap: 2 }}>
           <ImageContainer>
-            <TokenLogo src={position.token0Logo} />
-            <TokenLogo src={position.token1Logo} />
-            <ChainImage src={position.chainLogo} alt="" />
+            <TokenLogo src={position.token0.logo} />
+            <TokenLogo src={position.token1.logo} />
+            <ChainImage src={position.chain.logo} alt="" />
           </ImageContainer>
           <Text marginLeft={-3} fontSize={upToSmall ? 20 : 16}>
-            {position.token0Symbol}/{position.token1Symbol}
+            {position.token0.symbol}/{position.token1.symbol}
           </Text>
-          {position.poolFee && <Badge>{position.poolFee}%</Badge>}
+          {position.pool.fee && <Badge>{position.pool.fee}%</Badge>}
         </Flex>
         <Flex alignItems={'center'} sx={{ gap: '10px' }} flexWrap={'wrap'}>
-          {DEXES_HIDE_TOKEN_ID[position.dex as EarnDex] ? null : (
+          {DEXES_HIDE_TOKEN_ID[position.dex.id as EarnDex] ? null : (
             <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
               #{position.id}
             </Text>
@@ -88,19 +88,19 @@ const PositionDetailHeader = ({
           </Badge>
           <Badge type={BadgeType.SECONDARY}>
             <Text fontSize={14}>
-              {position.poolAddress ? shortenAddress(position.chainId as ChainId, position.poolAddress, 4) : ''}
+              {position.pool.address ? shortenAddress(position.chain.id as ChainId, position.pool.address, 4) : ''}
             </Text>
-            <CopyHelper size={16} toCopy={position.poolAddress} />
+            <CopyHelper size={16} toCopy={position.pool.address} />
           </Badge>
           <MouseoverTooltipDesktopOnly
-            text={`View this position on ${position.dex.split(' ')?.[0] || ''}`}
+            text={`View this position on ${position.dex.id.split(' ')?.[0] || ''}`}
             width="fit-content"
             placement="top"
           >
-            <DexInfo openable={earnSupportedProtocols.includes(position.dex)} onClick={onOpenPositionInDexSite}>
-              <DexImage src={position.dexImage} alt="" />
+            <DexInfo openable={earnSupportedProtocols.includes(position.dex.id)} onClick={onOpenPositionInDexSite}>
+              <DexImage src={position.dex.logo} alt="" />
               <Text fontSize={14} color={theme.subText}>
-                {position.dex}
+                {position.dex.id}
               </Text>
             </DexInfo>
           </MouseoverTooltipDesktopOnly>

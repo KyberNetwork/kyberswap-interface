@@ -25,13 +25,16 @@ import { isForkFrom } from 'pages/Earns/utils'
 
 const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
-  const { stableCoins } = useStableCoins(position.chainId)
-  const { data: pool } = usePoolDetailQuery({ chainId: position.chainId, ids: position.poolAddress })
+  const { stableCoins } = useStableCoins(position.chain.id)
+  const { data: pool } = usePoolDetailQuery({ chainId: position.chain.id, ids: position.pool.address })
   const [revert, setRevert] = useState(false)
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
 
-  const price = useMemo(() => (!revert ? position.pairRate : 1 / position.pairRate), [position.pairRate, revert])
-  const isUniv2 = isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2)
+  const price = useMemo(
+    () => (!revert ? position.priceRange.current : 1 / position.priceRange.current),
+    [position.priceRange, revert],
+  )
+  const isUniv2 = isForkFrom(position.dex.id as EarnDex, CoreProtocol.UniswapV2)
 
   const priceRange = useMemo(() => {
     if (!pool) return
@@ -42,8 +45,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
 
     if (minTick === undefined || maxTick === undefined) return
 
-    const minPrice = toString(Number(position.minPrice.toFixed(18)))
-    const maxPrice = toString(Number(position.maxPrice.toFixed(18)))
+    const minPrice = toString(Number(position.priceRange.min.toFixed(18)))
+    const maxPrice = toString(Number(position.priceRange.max.toFixed(18)))
 
     const tickLower =
       minPrice === '0' ? minTick : priceToClosestTick(minPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
@@ -55,8 +58,12 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
     if (usableTickLower === undefined || usableTickUpper === undefined) return
     if (usableTickLower === minTick && usableTickUpper === maxTick) return ['0', '∞']
     else {
-      const parsedMinPrice = toString(Number((!revert ? position.minPrice : 1 / position.maxPrice).toFixed(18)))
-      const parsedMaxPrice = toString(Number((!revert ? position.maxPrice : 1 / position.minPrice).toFixed(18)))
+      const parsedMinPrice = toString(
+        Number((!revert ? position.priceRange.min : 1 / position.priceRange.max).toFixed(18)),
+      )
+      const parsedMaxPrice = toString(
+        Number((!revert ? position.priceRange.max : 1 / position.priceRange.min).toFixed(18)),
+      )
       return [
         formatDisplayNumber(parsedMinPrice, { significantDigits: 6 }),
         formatDisplayNumber(parsedMaxPrice, { significantDigits: 6 }),
@@ -65,15 +72,15 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   }, [pool, position, revert])
 
   useEffect(() => {
-    if (!pool || !position.chainId || !pool.tokens?.[0] || defaultRevertChecked || !stableCoins.length) return
+    if (!pool || !position.chain.id || !pool.tokens?.[0] || defaultRevertChecked || !stableCoins.length) return
     setDefaultRevertChecked(true)
     const isToken0Native =
       pool.tokens[0].address.toLowerCase() ===
-      NativeCurrencies[position.chainId as ChainId].wrapped.address.toLowerCase()
+      NativeCurrencies[position.chain.id as ChainId].wrapped.address.toLowerCase()
     const isToken0Stable = stableCoins.some(coin => coin.address === pool.tokens[0].address)
     const isToken1Stable = stableCoins.some(coin => coin.address === pool.tokens[1].address)
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevert(true)
-  }, [defaultRevertChecked, pool, position.chainId, stableCoins])
+  }, [defaultRevertChecked, pool, position.chain.id, stableCoins])
 
   return (
     <InfoRightColumn halfWidth={isUniv2}>
@@ -89,8 +96,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
               })}
             </Text>
             <Text fontSize={14} color={theme.subText}>
-              {!revert ? position.token1Symbol : position.token0Symbol} per{' '}
-              {!revert ? position.token0Symbol : position.token1Symbol}
+              {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
+              {!revert ? position.token0.symbol : position.token1.symbol}
             </Text>
             <RevertIconWrapper onClick={() => setRevert(!revert)}>
               <SwapIcon size={18} />
@@ -100,11 +107,11 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
       ) : null}
 
       <LiquidityChart
-        chainId={position.chainId}
-        poolAddress={position.poolAddress}
+        chainId={position.chain.id}
+        poolAddress={position.pool.address}
         price={price}
-        minPrice={position.minPrice}
-        maxPrice={position.maxPrice}
+        minPrice={position.priceRange.min}
+        maxPrice={position.priceRange.max}
         revertPrice={revert}
       />
 
@@ -118,8 +125,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
               {priceRange[0]}
             </Text>
             <Text fontSize={14} color={theme.subText}>
-              {!revert ? position.token0Symbol : position.token1Symbol}/
-              {!revert ? position.token1Symbol : position.token0Symbol}
+              {!revert ? position.token0.symbol : position.token1.symbol}/
+              {!revert ? position.token1.symbol : position.token0.symbol}
             </Text>
           </InfoSectionSecondFormat>
           <InfoSectionSecondFormat>
@@ -130,8 +137,8 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
               {priceRange[1]}
             </Text>
             <Text fontSize={14} color={theme.subText}>
-              {!revert ? position.token0Symbol : position.token1Symbol}/
-              {!revert ? position.token1Symbol : position.token0Symbol}
+              {!revert ? position.token0.symbol : position.token1.symbol}/
+              {!revert ? position.token1.symbol : position.token0.symbol}
             </Text>
           </InfoSectionSecondFormat>
         </Flex>

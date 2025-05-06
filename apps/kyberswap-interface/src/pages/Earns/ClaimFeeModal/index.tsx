@@ -35,15 +35,23 @@ import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } fr
 
 export interface PositionToClaim {
   id: string
-  dex: string
-  chainId: number
-  token0Address: string
-  token1Address: string
-  token0Symbol: string
-  token1Symbol: string
-  token0Logo: string
-  token1Logo: string
-  chainLogo: string
+  dex: {
+    id: string
+  }
+  chain: {
+    id: number
+    logo: string
+  }
+  token0: {
+    address: string
+    symbol: string
+    logo: string
+  }
+  token1: {
+    address: string
+    symbol: string
+    logo: string
+  }
 }
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
@@ -74,24 +82,24 @@ export default function ClaimFeeModal({
 
   const [autoClaim, setAutoClaim] = useState(false)
 
-  const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[position.dex as keyof typeof NFT_MANAGER_CONTRACT]
+  const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[position.dex.id as keyof typeof NFT_MANAGER_CONTRACT]
   const nftManagerContract =
     typeof nftManagerContractOfDex === 'string'
       ? nftManagerContractOfDex
-      : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
-  const nftManagerAbi = NFT_MANAGER_ABI[position.dex as keyof typeof NFT_MANAGER_ABI]
+      : nftManagerContractOfDex[position.chain.id as keyof typeof nftManagerContractOfDex]
+  const nftManagerAbi = NFT_MANAGER_ABI[position.dex.id as keyof typeof NFT_MANAGER_ABI]
   const contract = useSigningContract(nftManagerContract, nftManagerAbi)
 
-  const isToken0Native = isNativeToken(position.token0Address, position.chainId as keyof typeof WETH)
-  const isToken1Native = isNativeToken(position.token1Address, position.chainId as keyof typeof WETH)
+  const isToken0Native = isNativeToken(position.token0.address, position.chain.id as keyof typeof WETH)
+  const isToken1Native = isNativeToken(position.token1.address, position.chain.id as keyof typeof WETH)
 
-  const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
+  const nativeToken = NETWORKS_INFO[position.chain.id as keyof typeof NETWORKS_INFO].nativeToken
 
   const handleCollectFees = useCallback(async () => {
-    if (!library || !contract || !DEXES_SUPPORT_COLLECT_FEE[position.dex as EarnDex]) return
+    if (!library || !contract || !DEXES_SUPPORT_COLLECT_FEE[position.dex.id as EarnDex]) return
     const accounts = await library.listAccounts()
-    if (chainId !== position.chainId || !accounts.length) {
-      if (chainId !== position.chainId) changeNetwork(position.chainId)
+    if (chainId !== position.chain.id || !accounts.length) {
+      if (chainId !== position.chain.id) changeNetwork(position.chain.id)
       setAutoClaim(true)
       return
     }
@@ -116,12 +124,12 @@ export default function ClaimFeeModal({
 
       if (involvesETH) {
         const ethAmount = isToken0Native ? feeInfo.balance0 : feeInfo.balance1
-        const token = isToken0Native ? position.token1Address : position.token0Address
+        const token = isToken0Native ? position.token1.address : position.token0.address
         const tokenAmount = isToken0Native ? feeInfo.balance1 : feeInfo.balance0
 
         // Encode the unwrapWETH9 call
         const unwrapWNativeTokenFuncName =
-          UNWRAP_WNATIVE_TOKEN_FUNC[position.dex as keyof typeof UNWRAP_WNATIVE_TOKEN_FUNC]
+          UNWRAP_WNATIVE_TOKEN_FUNC[position.dex.id as keyof typeof UNWRAP_WNATIVE_TOKEN_FUNC]
         if (!unwrapWNativeTokenFuncName) return
         const unwrapWETH9CallData = contract.interface.encodeFunctionData(unwrapWNativeTokenFuncName, [
           ethAmount,
@@ -149,13 +157,13 @@ export default function ClaimFeeModal({
         extraInfo: {
           tokenAmountIn: formatDisplayNumber(feeInfo.amount0, { significantDigits: 4 }),
           tokenAmountOut: formatDisplayNumber(feeInfo.amount1, { significantDigits: 4 }),
-          tokenAddressIn: position.token0Address,
-          tokenAddressOut: position.token1Address,
-          tokenSymbolIn: isToken0Native ? nativeToken.symbol : position.token0Symbol,
-          tokenSymbolOut: isToken1Native ? nativeToken.symbol : position.token1Symbol,
+          tokenAddressIn: position.token0.address,
+          tokenAddressOut: position.token1.address,
+          tokenSymbolIn: isToken0Native ? nativeToken.symbol : position.token0.symbol,
+          tokenSymbolOut: isToken1Native ? nativeToken.symbol : position.token1.symbol,
           arbitrary: {
-            token_1: position.token0Symbol,
-            token_2: position.token1Symbol,
+            token_1: position.token0.symbol,
+            token_2: position.token1.symbol,
             token_1_amount: formatDisplayNumber(feeInfo.amount0, { significantDigits: 4 }),
             token_2_amount: formatDisplayNumber(feeInfo.amount1, { significantDigits: 4 }),
           },
@@ -187,23 +195,21 @@ export default function ClaimFeeModal({
     nativeToken.symbol,
     nftManagerContract,
     notify,
-    position.chainId,
-    position.dex,
+    position.chain.id,
+    position.dex.id,
     position.id,
-    position.token0Address,
-    position.token0Symbol,
-    position.token1Address,
-    position.token1Symbol,
+    position.token0,
+    position.token1,
     setClaimTx,
     setClaiming,
   ])
 
   useEffect(() => {
-    if (autoClaim && chainId === position.chainId) {
+    if (autoClaim && chainId === position.chain.id) {
       handleCollectFees()
       setAutoClaim(false)
     }
-  }, [chainId, position.chainId, handleCollectFees, autoClaim])
+  }, [chainId, position.chain.id, handleCollectFees, autoClaim])
 
   return (
     <Modal isOpen onDismiss={onClose}>
@@ -224,17 +230,17 @@ export default function ClaimFeeModal({
               </Text>
             </Flex>
             <ClaimInfoRow
-              tokenImage={isToken0Native ? nativeToken.logo : position.token0Logo}
-              dexImage={position.chainLogo}
+              tokenImage={isToken0Native ? nativeToken.logo : position.token0.logo}
+              dexImage={position.chain.logo}
               tokenAmount={feeInfo.amount0}
-              tokenSymbol={isToken0Native ? nativeToken.symbol : position.token0Symbol}
+              tokenSymbol={isToken0Native ? nativeToken.symbol : position.token0.symbol}
               tokenUsdValue={feeInfo.value0}
             />
             <ClaimInfoRow
-              tokenImage={isToken1Native ? nativeToken.logo : position.token1Logo}
-              dexImage={position.chainLogo}
+              tokenImage={isToken1Native ? nativeToken.logo : position.token1.logo}
+              dexImage={position.chain.logo}
               tokenAmount={feeInfo.amount1}
-              tokenSymbol={isToken1Native ? nativeToken.symbol : position.token1Symbol}
+              tokenSymbol={isToken1Native ? nativeToken.symbol : position.token1.symbol}
               tokenUsdValue={feeInfo.value1}
             />
           </ClaimInfo>

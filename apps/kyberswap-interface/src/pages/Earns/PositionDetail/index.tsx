@@ -60,54 +60,68 @@ const PositionDetail = () => {
 
     return {
       id: position.tokenId,
-      dex: position.pool.project || '',
-      dexImage: position.pool.projectLogo || '',
-      chainId: position.chainId,
-      chainName: position.chainName,
-      chainLogo: position.chainLogo || '',
-      poolAddress: position.pool.poolAddress || '',
+      pool: {
+        fee: position.pool.fees?.[0],
+        address: position.pool.poolAddress,
+      },
+      dex: {
+        id: position.pool.project || '',
+        logo: position.pool.projectLogo || '',
+      },
+      chain: {
+        id: position.chainId,
+        name: position.chainName,
+        logo: position.chainLogo || '',
+      },
+      priceRange: {
+        min: position.minPrice || 0,
+        max: position.maxPrice || 0,
+        current: position.pool.price || 0,
+      },
+      earning: {
+        earned:
+          position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
+          position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
+        in7d: position.earning7d || 0,
+        in24h: position.earning24h || 0,
+      },
+      token0: {
+        address: position.pool.tokenAmounts[0]?.token.address || '',
+        logo: position.pool.tokenAmounts[0]?.token.logo || '',
+        symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
+        decimals: position.pool.tokenAmounts[0]?.token.decimals,
+        price: position.currentAmounts[0]?.token.price,
+        totalAmount: position
+          ? position.currentAmounts[0]?.quotes.usd.value / position.currentAmounts[0]?.quotes.usd.price
+          : 0,
+      },
+      token1: {
+        address: position.pool.tokenAmounts[1]?.token.address || '',
+        logo: position.pool.tokenAmounts[1]?.token.logo || '',
+        symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
+        decimals: position.pool.tokenAmounts[1]?.token.decimals,
+        price: position.currentAmounts[1]?.token.price,
+        totalAmount: position
+          ? position.currentAmounts[1]?.quotes.usd.value / position.currentAmounts[1]?.quotes.usd.price
+          : 0,
+      },
       tokenAddress: position.tokenAddress,
-      token0Address: position.pool.tokenAmounts[0]?.token.address || '',
-      token1Address: position.pool.tokenAmounts[1]?.token.address || '',
-      token0Logo: position.pool.tokenAmounts[0]?.token.logo || '',
-      token1Logo: position.pool.tokenAmounts[1]?.token.logo || '',
-      token0Symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
-      token1Symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
-      token0Decimals: position.pool.tokenAmounts[0]?.token.decimals,
-      token1Decimals: position.pool.tokenAmounts[1]?.token.decimals,
-      token0Price: position.currentAmounts[0]?.token.price,
-      token1Price: position.currentAmounts[1]?.token.price,
-      poolFee: position.pool.fees?.[0],
-      status: position.status,
-      totalValue: position.currentPositionValue,
       apr: position.apr || 0,
-      token0TotalAmount: position
-        ? position.currentAmounts[0]?.quotes.usd.value / position.currentAmounts[0]?.quotes.usd.price
-        : 0,
-      token1TotalAmount: position
-        ? position.currentAmounts[1]?.quotes.usd.value / position.currentAmounts[1]?.quotes.usd.price
-        : 0,
-      minPrice: position.minPrice || 0,
-      maxPrice: position.maxPrice || 0,
-      pairRate: position.pool.price || 0,
-      earning24h: position.earning24h,
-      earning7d: position.earning7d,
-      totalEarnedFee:
-        position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
-        position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
+      totalValue: position.currentPositionValue,
+      status: position.status,
       createdTime: position.createdTime,
     }
   }, [userPosition])
 
-  const isUniv2 = useMemo(() => position && isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2), [position])
+  const isUniv2 = useMemo(() => position && isForkFrom(position.dex.id as EarnDex, CoreProtocol.UniswapV2), [position])
 
   const onOpenIncreaseLiquidityWidget = () => {
     if (!position) return
     handleOpenZapIn(
       {
-        exchange: position.dex,
-        chainId: position.chainId,
-        address: position.poolAddress,
+        exchange: position.dex.id,
+        chainId: position.chain.id,
+        address: position.pool.address,
       },
       isUniv2 ? account || '' : position.id,
     )
@@ -151,7 +165,9 @@ const PositionDetail = () => {
                   outline
                   onClick={() => {
                     handleOpenZapOut({
-                      ...position,
+                      dex: position.dex.id,
+                      chainId: position.chain.id,
+                      poolAddress: position.pool.address,
                       id: isUniv2 ? account || '' : position.id,
                     })
                   }}

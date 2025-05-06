@@ -119,15 +119,23 @@ export default function TableContent({
     if (isUniv2 || claiming || totalUnclaimedFees === 0) return
     setPositionToClaim({
       id: position.tokenId,
-      dex: position.pool.project || '',
-      chainId: position.chainId,
-      token0Address: position.pool.tokenAmounts[0]?.token.address || '',
-      token1Address: position.pool.tokenAmounts[1]?.token.address || '',
-      token0Symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
-      token1Symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
-      token0Logo: position.pool.tokenAmounts[0]?.token.logo || '',
-      token1Logo: position.pool.tokenAmounts[1]?.token.logo || '',
-      chainLogo: position.chainLogo || '',
+      dex: {
+        id: position.pool.project || '',
+      },
+      chain: {
+        id: position.chainId,
+        logo: position.chainLogo || '',
+      },
+      token0: {
+        address: position.pool.tokenAmounts[0]?.token.address || '',
+        symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
+        logo: position.pool.tokenAmounts[0]?.token.logo || '',
+      },
+      token1: {
+        address: position.pool.tokenAmounts[1]?.token.address || '',
+        symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
+        logo: position.pool.tokenAmounts[1]?.token.logo || '',
+      },
     })
     setFeeInfoToClaim({
       balance0: position.feeInfo ? position.feeInfo.balance0 : position.feePending[0].balance,
