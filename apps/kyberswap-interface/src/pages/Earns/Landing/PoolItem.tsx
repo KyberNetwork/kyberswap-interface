@@ -3,14 +3,18 @@ import { Flex, Text } from 'rebass'
 import { EarnPool } from 'pages/Earns/types'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import { formatAprNumber } from 'pages/Earns/utils'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 
 const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) => {
   const theme = useTheme()
-  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration: handleOpenZapMigration,
+  })
 
   return (
     <PoolRow
@@ -19,14 +23,15 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
       role="button"
       onClick={e => {
         e.stopPropagation()
-        handleOpenZapInWidget({
+        handleOpenZapIn({
           exchange: pool.exchange,
           chainId: pool.chainId,
           address: pool.address,
         })
       }}
     >
-      {liquidityWidget}
+      {zapInWidget}
+      {zapMigrationWidget}
       <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
         <img src={pool.tokens?.[0].logoURI} width={24} height={24} alt="" style={{ borderRadius: '50%' }} />
         <img

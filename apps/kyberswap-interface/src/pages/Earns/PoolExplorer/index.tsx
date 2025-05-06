@@ -25,7 +25,6 @@ import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
 import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
 import TableContent, { dexMapping } from 'pages/Earns/PoolExplorer/TableContent'
@@ -41,6 +40,8 @@ import {
   TagContainer,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 
 export enum FilterTag {
   FARMING_POOL = 'farming_pool',
@@ -104,7 +105,10 @@ const PoolExplorer = () => {
   const theme = useTheme()
   const notify = useNotify()
   const { filters, updateFilters } = useFilter(setSearch)
-  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration: handleOpenZapMigration,
+  })
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
@@ -153,13 +157,13 @@ const PoolExplorer = () => {
     }
   }
 
-  const handleOpenZapInWidgetWithParams = (pool: { exchange: string; chainId?: number; address: string }) => {
+  const handleOpenZapInWithParams = (pool: { exchange: string; chainId?: number; address: string }) => {
     const { exchange, chainId, address } = pool
     searchParams.set('exchange', exchange)
     searchParams.set('poolChainId', chainId ? chainId.toString() : filters.chainId.toString())
     searchParams.set('poolAddress', address)
     setSearchParams(searchParams)
-    handleOpenZapInWidget(pool)
+    handleOpenZapIn(pool)
   }
 
   const handleRemoveUrlParams = useCallback(() => {
@@ -193,7 +197,7 @@ const PoolExplorer = () => {
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
       if (pool && (pool.exchange === exchange || pool.exchange === dexMapping[exchange]))
-        handleOpenZapInWidget({ exchange, chainId: Number(chainId), address: pool.address })
+        handleOpenZapIn({ exchange, chainId: Number(chainId), address: pool.address })
       else {
         notify(
           {
@@ -211,8 +215,8 @@ const PoolExplorer = () => {
 
   return (
     <PoolPageWrapper>
-      {liquidityWidget}
-
+      {zapInWidget}
+      {zapMigrationWidget}
       <div>
         <Flex sx={{ gap: 3 }}>
           <IconArrowLeft onClick={() => navigate(-1)} />
@@ -347,7 +351,7 @@ const PoolExplorer = () => {
               <div />
             </TableHeader>
           )}
-          <TableContent onOpenZapInWidget={handleOpenZapInWidgetWithParams} />
+          <TableContent onOpenZapInWidget={handleOpenZapInWithParams} />
         </ContentWrapper>
         {!isError && (
           <Pagination

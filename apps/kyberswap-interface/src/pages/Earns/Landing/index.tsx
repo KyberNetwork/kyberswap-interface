@@ -21,7 +21,8 @@ import { ReactComponent as FarmingIcon } from 'assets/svg/ic_claim.svg'
 import useTheme from 'hooks/useTheme'
 import Card from 'pages/Earns/Landing/Card'
 import PoolSection from 'pages/Earns/Landing/PoolSection'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 
 const EarnLanding = () => {
   const navigate = useNavigate()
@@ -29,7 +30,10 @@ const EarnLanding = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { isLoading, data } = useExplorerLandingQuery({ userAddress: account })
-  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration: handleOpenZapMigration,
+  })
 
   const highlightedPools = (data?.data?.highlightedPools || []).slice(0, 9)
   const highAprPool = (data?.data?.highAPR || []).slice(0, 5)
@@ -47,17 +51,18 @@ const EarnLanding = () => {
     if (!isNaN(openPoolIndex) && poolsToOpen.length && poolsToOpen[openPoolIndex]) {
       searchParams.delete('openPool')
       setSearchParams(searchParams)
-      handleOpenZapInWidget({
+      handleOpenZapIn({
         exchange: poolsToOpen[openPoolIndex].exchange,
         chainId: poolsToOpen[openPoolIndex].chainId,
         address: poolsToOpen[openPoolIndex].address,
       })
     }
-  }, [handleOpenZapInWidget, data, searchParams, setSearchParams])
+  }, [handleOpenZapIn, data, searchParams, setSearchParams])
 
   return (
     <WrapperBg>
-      {liquidityWidget}
+      {zapInWidget}
+      {zapMigrationWidget}
       <Container>
         <Text fontSize={36} fontWeight="500">
           Maximize Your Earnings in DeFi

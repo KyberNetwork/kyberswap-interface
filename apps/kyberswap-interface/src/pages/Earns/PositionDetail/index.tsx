@@ -13,7 +13,6 @@ import { useActiveWeb3React } from 'hooks'
 
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
 import RightSection from 'pages/Earns/PositionDetail/RightSection'
@@ -26,6 +25,9 @@ import {
 import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
+import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -35,7 +37,11 @@ const PositionDetail = () => {
 
   const { account } = useActiveWeb3React()
   const { positionId, chainId, protocol } = useParams()
-  const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration: handleOpenZapMigration,
+  })
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget()
   const { data: userPosition, isLoading } = useUserPositionsQuery(
     {
       addresses: account || '',
@@ -97,7 +103,7 @@ const PositionDetail = () => {
 
   const onOpenIncreaseLiquidityWidget = () => {
     if (!position) return
-    handleOpenZapInWidget(
+    handleOpenZapIn(
       {
         exchange: position.dex,
         chainId: position.chainId,
@@ -126,7 +132,9 @@ const PositionDetail = () => {
 
   return (
     <>
-      {liquidityWidget}
+      {zapInWidget}
+      {zapMigrationWidget}
+      {zapOutWidget}
       <PositionPageWrapper>
         {forceLoading || (isLoading && !firstLoading.current) ? (
           <LocalLoader />

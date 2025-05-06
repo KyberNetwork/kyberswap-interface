@@ -16,7 +16,6 @@ import { MEDIA_WIDTHS } from 'theme'
 
 import { ContentWrapper, Disclaimer, NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
 import Filter from 'pages/Earns/UserPositions/Filter'
 import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
@@ -33,7 +32,9 @@ import { CoreProtocol, EarnDex, earnSupportedChains, earnSupportedProtocols } fr
 import { PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import InfoHelper from 'components/InfoHelper'
-
+import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 const POSITIONS_TABLE_LIMIT = 10
 
 const UserPositions = () => {
@@ -44,7 +45,11 @@ const UserPositions = () => {
   const { filters, updateFilters } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
-  const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration: handleOpenZapMigration,
+  })
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget()
   const firstLoading = useRef(false)
   const [loading, setLoading] = useState(false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
@@ -159,7 +164,9 @@ const UserPositions = () => {
 
   return (
     <>
-      {liquidityWidget}
+      {zapInWidget}
+      {zapMigrationWidget}
+      {zapOutWidget}
       <PositionPageWrapper>
         <Flex
           flexDirection={upToSmall ? 'column' : 'row'}
@@ -267,7 +274,7 @@ const UserPositions = () => {
                 positions={positionsToShow}
                 feeInfoFromRpc={feeInfoFromRpc}
                 setFeeInfoFromRpc={setFeeInfoFromRpc}
-                onOpenZapInWidget={handleOpenZapInWidget}
+                onOpenZapInWidget={handleOpenZapIn}
                 onOpenZapOut={handleOpenZapOut}
               />
             )}
