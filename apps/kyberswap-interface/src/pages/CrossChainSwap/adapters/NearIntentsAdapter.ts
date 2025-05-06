@@ -50,7 +50,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/000c677f-2ebc-44cc-8d76-e4c6d07627631744962669170.png'
   }
   getSupportedChains(): Chain[] {
-    return [NonEvmChain.Near, ...Object.keys(MappingChainIdToBlockChain).map(Number)]
+    return [NonEvmChain.Bitcoin, NonEvmChain.Near, ...Object.keys(MappingChainIdToBlockChain).map(Number)]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -161,66 +161,67 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           reject('Not connected')
           return
         }
-        try {
-          const isNative = (quote.quoteParams.fromToken as any).assetId === 'near'
+        const isNative = (quote.quoteParams.fromToken as any).assetId === 'near'
 
-          const transactions: any = []
-          if (!isNative)
-            transactions.push({
-              signerId: nearWallet.signedAccountId,
-              receiverId: (quote.quoteParams.fromToken as any).contractAddress,
-              actions: [
-                {
-                  type: 'FunctionCall',
-                  params: {
-                    methodName: 'storage_deposit',
-                    args: { account_id: quote.rawQuote.quote.depositAddress, registration_only: true },
-                    gas: '30000000000000',
-                    deposit: '1250000000000000000000', // 0.00125 NEAR
-                  },
-                },
-              ],
-            })
-
+        const transactions: any = []
+        if (!isNative)
           transactions.push({
             signerId: nearWallet.signedAccountId,
-            receiverId: isNative
-              ? quote.rawQuote.quote.depositAddress
-              : (quote.quoteParams.fromToken as any).contractAddress,
+            receiverId: (quote.quoteParams.fromToken as any).contractAddress,
             actions: [
-              isNative
-                ? {
-                    type: 'Transfer',
-                    params: {
-                      deposit: quote.quoteParams.amount,
-                    },
-                  }
-                : {
-                    type: 'FunctionCall',
-                    params: {
-                      methodName: 'ft_transfer',
-                      args: {
-                        receiver_id: quote.rawQuote.quote.depositAddress,
-                        amount: quote.quoteParams.amount,
-                      },
-                      gas: '30000000000000',
-                      deposit: '1',
-                    },
-                  },
+              {
+                type: 'FunctionCall',
+                params: {
+                  methodName: 'storage_deposit',
+                  args: { account_id: quote.rawQuote.quote.depositAddress, registration_only: true },
+                  gas: '30000000000000',
+                  deposit: '1250000000000000000000', // 0.00125 NEAR
+                },
+              },
             ],
           })
 
-          await nearWallet.signAndSendTransactions({
+        transactions.push({
+          signerId: nearWallet.signedAccountId,
+          receiverId: isNative
+            ? quote.rawQuote.quote.depositAddress
+            : (quote.quoteParams.fromToken as any).contractAddress,
+          actions: [
+            isNative
+              ? {
+                  type: 'Transfer',
+                  params: {
+                    deposit: quote.quoteParams.amount,
+                  },
+                }
+              : {
+                  type: 'FunctionCall',
+                  params: {
+                    methodName: 'ft_transfer',
+                    args: {
+                      receiver_id: quote.rawQuote.quote.depositAddress,
+                      amount: quote.quoteParams.amount,
+                    },
+                    gas: '30000000000000',
+                    deposit: '1',
+                  },
+                },
+          ],
+        })
+
+        await nearWallet
+          .signAndSendTransactions({
             transactions,
           })
-
-          resolve({
-            ...params,
-            sourceTxHash: quote.rawQuote.quote.depositAddress,
+          .catch(e => {
+            console.log('NearIntents signAndSendTransactions failed', e)
+            reject(e)
           })
-        } catch (e) {
-          reject(e)
-        }
+
+        resolve({
+          ...params,
+          sourceTxHash: quote.rawQuote.quote.depositAddress,
+        })
       })
     }
     return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
@@ -272,8 +273,14 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
     return {
       txHash: res.swapDetails?.destinationChainTxHashes[0]?.hash || '',
-      // TODO: Handle Refund status
-      status: res.status === 'SUCCESS' ? 'filled' : 'pending',
+      status:
+        res.status === 'SUCCESS'
+          ? 'Success'
+          : res.status === 'FAILED'
+          ? 'Failed'
+          : res.status === 'REFUNDED'
+          ? 'Refunded'
+          : 'Processing',
     }
   }
 }

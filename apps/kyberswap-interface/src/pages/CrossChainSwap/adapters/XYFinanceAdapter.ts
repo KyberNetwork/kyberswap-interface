@@ -56,7 +56,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       dstChainId: params.toChain,
       dstQuoteTokenAddress: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.address,
       slippage: (params.slippage * 100) / 10_000,
-      //bridgeProviders: 'yBridge',
+      // bridgeProviders: 'yBridge',
 
       // TODO: add fee
       // affiliate: '',
@@ -160,7 +160,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
 
     return {
       txHash: res.tx || '',
-      status: res.status === 'Done' ? 'filled' : 'pending',
+      status: res.status === 'Done' ? 'Success' : res.status === 'Refunded' ? 'Refunded' : 'Processing',
     }
   }
 }

@@ -26,6 +26,7 @@ export const SwapAction = () => {
     currencyOut,
     loading,
     selectedQuote,
+    recipient,
   } = useCrossChainSwap()
 
   const isFromEvm = isEvmChain(fromChainId)
@@ -127,6 +128,14 @@ export const SwapAction = () => {
         onClick: () => {
           if (isFromEvm) changeNetwork(fromChainId as ChainId)
         },
+      }
+    }
+
+    if (!recipient) {
+      return {
+        label: 'Enter Recipient',
+        disabled: true,
+        onClick: () => {},
       }
     }
 

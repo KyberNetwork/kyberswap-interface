@@ -119,7 +119,7 @@ export class LifiAdapter extends BaseSwapAdapter {
 
     return {
       txHash: (res as any)?.receiving?.txHash || '',
-      status: res.status === 'DONE' ? 'filled' : 'pending',
+      status: res.status === 'DONE' ? 'Success' : res.status === 'FAILED' ? 'Failed' : 'Processing',
     }
   }
 }

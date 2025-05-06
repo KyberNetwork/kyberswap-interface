@@ -129,7 +129,7 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     const res = await fetch(`${SYMBIOSIS_API}/tx/${p.sourceChain}/${p.sourceTxHash}`).then(r => r.json())
     return {
       txHash: res?.tx?.hash || '',
-      status: res.status.code === 0 ? 'filled' : 'pending',
+      status: res.status.code === 0 ? 'Success' : res.status.code === 3 ? 'Failed' : 'Processing',
     }
   }
 }

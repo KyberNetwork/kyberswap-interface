@@ -85,12 +85,12 @@ export interface NormalizedTxResponse {
   targetToken: Currency
   targetTxHash?: string
   timestamp: number
-  status?: 'pending' | 'filled' | 'failed'
+  status?: 'Processing' | 'Success' | 'Failed' | 'Refunded'
 }
 
 export interface SwapStatus {
   txHash: string
-  status: 'pending' | 'filled' | 'failed'
+  status: 'Processing' | 'Success' | 'Failed' | 'Refunded'
 }
 
 // Define a common interface for all swap providers

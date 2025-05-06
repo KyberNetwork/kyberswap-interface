@@ -43,7 +43,7 @@ export const TransactionHistory = () => {
   const [transactions, setTransactions] = useCrossChainTransactions()
 
   const pendingTxs = useMemo(() => {
-    return transactions.filter(tx => !tx.targetTxHash || tx.status !== 'filled')
+    return transactions.filter(tx => !tx.targetTxHash || !tx.status || tx.status === 'Processing')
   }, [transactions])
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export const TransactionHistory = () => {
           try {
             const { txHash, status } = (await adapter.getTransactionStatus(tx)) || {
               txHash: '',
-              status: 'pending',
+              status: 'Processing',
             }
 
             // Only update if we have a txHash or status changed
@@ -147,12 +147,15 @@ export const TransactionHistory = () => {
                 padding: '2px 8px',
                 width: 'fit-content',
                 height: 'fit-content',
-                background: rgba(tx.status === 'filled' ? theme.primary : theme.warning, 0.2),
-                color: tx.status === 'filled' ? theme.primary : theme.warning,
+                background: rgba(
+                  tx.status === 'Success' ? theme.primary : tx.status === 'Failed' ? theme.red : theme.warning,
+                  0.2,
+                ),
+                color: tx.status === 'Success' ? theme.primary : tx.status === 'Failed' ? theme.red : theme.warning,
                 fontSize: '12px',
               }}
             >
-              {tx.status === 'filled' ? 'Success' : 'Processing'}
+              {tx.status}
             </Flex>
 
             <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
@@ -207,7 +210,7 @@ export const TransactionHistory = () => {
                       }
                     />
                   </>
-                ) : (
+                ) : tx.status === 'Processing' ? (
                   <Skeleton
                     height="18px"
                     width="98px"
@@ -215,6 +218,8 @@ export const TransactionHistory = () => {
                     highlightColor={theme.buttonGray}
                     borderRadius="1rem"
                   />
+                ) : (
+                  '--'
                 )}
               </Flex>
             </div>

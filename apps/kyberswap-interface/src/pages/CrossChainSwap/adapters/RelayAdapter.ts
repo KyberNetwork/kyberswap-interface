@@ -113,7 +113,14 @@ export class RelayAdapter extends BaseSwapAdapter {
 
     return {
       txHash: res.txHashes?.[0] || '',
-      status: res.status === 'success' ? 'filled' : res.status || 'pending',
+      status:
+        res.status === 'success'
+          ? 'Success'
+          : res.status === 'refund'
+          ? 'Refunded'
+          : res.status === 'failure'
+          ? 'Failed'
+          : 'Processing',
     }
   }
 }

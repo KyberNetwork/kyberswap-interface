@@ -128,7 +128,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
 
     return {
       txHash: res.fillTxHash || '',
-      status: res.status || 'pending',
+      status: res.status === 'filled' ? 'Success' : 'Processing',
     }
   }
 }
