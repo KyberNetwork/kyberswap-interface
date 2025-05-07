@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { usePoolDetailQuery } from 'services/poolService'
 
-import { Swap as SwapIcon } from 'components/Icons'
+import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
@@ -13,10 +13,11 @@ import LiquidityChart from 'pages/Earns/PositionDetail/LiquidityChart'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import {
   InfoRightColumn,
-  InfoSection,
-  InfoSectionSecondFormat,
+  MaxPriceInfoSection,
+  MinPriceInfoSection,
   PositionAction,
   PositionActionWrapper,
+  PriceInfoSection,
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import { CoreProtocol } from 'pages/Earns/constants'
@@ -117,25 +118,25 @@ const RightSection = ({
 
       <InfoRightColumn halfWidth={isUniv2}>
         {price ? (
-          <InfoSection>
-            <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
-              <Text fontSize={14} color={theme.subText}>
-                {t`Current Price`}
-              </Text>
-              <Text fontSize={14}>
-                {formatDisplayNumber(price, {
-                  significantDigits: 6,
-                })}
-              </Text>
-              <Text fontSize={14} color={theme.subText}>
-                {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
-                {!revert ? position.token0.symbol : position.token1.symbol}
-              </Text>
+          <PriceInfoSection>
+            <Flex alignItems={'center'} justifyContent={'space-between'} flexWrap={'wrap'}>
+              <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
+                <Text fontSize={14} color={theme.subText}>
+                  {t`Current Price`}
+                </Text>
+                <Text fontSize={14}>
+                  1 {!revert ? position.token0.symbol : position.token1.symbol} ={' '}
+                  {formatDisplayNumber(price, {
+                    significantDigits: 6,
+                  })}{' '}
+                  {!revert ? position.token1.symbol : position.token0.symbol}
+                </Text>
+              </Flex>
               <RevertIconWrapper onClick={() => setRevert(!revert)}>
-                <SwapIcon size={18} />
+                <RevertPriceIcon width={12} height={12} />
               </RevertIconWrapper>
             </Flex>
-          </InfoSection>
+          </PriceInfoSection>
         ) : null}
 
         <LiquidityChart
@@ -149,7 +150,7 @@ const RightSection = ({
 
         {priceRange ? (
           <Flex sx={{ gap: '16px' }}>
-            <InfoSectionSecondFormat>
+            <MinPriceInfoSection>
               <Text fontSize={14} color={theme.subText}>
                 {t`Min Price`}
               </Text>
@@ -157,11 +158,11 @@ const RightSection = ({
                 {priceRange[0]}
               </Text>
               <Text fontSize={14} color={theme.subText}>
-                {!revert ? position.token0.symbol : position.token1.symbol}/
-                {!revert ? position.token1.symbol : position.token0.symbol}
+                {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
+                {!revert ? position.token0.symbol : position.token1.symbol}
               </Text>
-            </InfoSectionSecondFormat>
-            <InfoSectionSecondFormat>
+            </MinPriceInfoSection>
+            <MaxPriceInfoSection>
               <Text fontSize={14} color={theme.subText}>
                 {t`Max Price`}
               </Text>
@@ -169,10 +170,10 @@ const RightSection = ({
                 {priceRange[1]}
               </Text>
               <Text fontSize={14} color={theme.subText}>
-                {!revert ? position.token0.symbol : position.token1.symbol}/
-                {!revert ? position.token1.symbol : position.token0.symbol}
+                {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
+                {!revert ? position.token0.symbol : position.token1.symbol}
               </Text>
-            </InfoSectionSecondFormat>
+            </MaxPriceInfoSection>
           </Flex>
         ) : null}
 
@@ -180,7 +181,7 @@ const RightSection = ({
 
         <PositionActionWrapper>
           <PositionAction
-            outline
+            outlineDefault
             onClick={() => {
               handleOpenZapOut({
                 position: {

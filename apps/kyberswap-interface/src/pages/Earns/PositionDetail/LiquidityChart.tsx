@@ -91,14 +91,16 @@ export default function LiquidityChart({
         ticksAtLimit={ticksAtLimit}
         revertPrice={revertPrice}
         zoomPosition={{
-          top: '0px',
+          top: !upToSmall ? '0px' : '-16px',
           left: undefined,
-          right: '18px',
+          right: !upToSmall ? '-32px' : '0px',
           bottom: undefined,
           gap: '8px',
         }}
         dimensions={upToSmall ? { width: 400, height: 200 } : { width: 800, height: 400 }}
         margins={upToSmall ? { top: 0, right: 10, bottom: 20, left: 10 } : { top: 20, right: 20, bottom: 40, left: 20 }}
+        alwaysShowLabel
+        showLabelAsAmount
       />
     </ChartWrapper>
   )

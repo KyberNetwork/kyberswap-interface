@@ -1,3 +1,4 @@
+import { rgba } from 'polished'
 import styled from 'styled-components'
 
 import { ReactComponent as IconArrowLeftSvg } from 'assets/svg/ic_left_arrow.svg'
@@ -68,6 +69,10 @@ export const InfoSection = styled.div`
   `}
 `
 
+export const PriceInfoSection = styled(InfoSection)`
+  padding: 8px 16px;
+`
+
 export const InfoSectionFirstFormat = styled(InfoSection)`
   display: flex;
   align-items: flex-start;
@@ -80,6 +85,18 @@ export const InfoSectionSecondFormat = styled(InfoSection)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+`
+
+const PriceRangeInfoSection = styled(InfoSectionSecondFormat)`
+  padding: 12px 24px;
+`
+
+export const MinPriceInfoSection = styled(PriceRangeInfoSection)`
+  border-color: rgba(49, 203, 158, 0.4);
+`
+
+export const MaxPriceInfoSection = styled(PriceRangeInfoSection)`
+  border-color: rgba(143, 146, 255, 0.6);
 `
 
 export const InfoRight = styled.div`
@@ -96,7 +113,15 @@ export const VerticalDivider = styled.div`
 `
 
 export const RevertIconWrapper = styled.div`
-  transform: rotate(90deg);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
   cursor: pointer;
 
   :hover {
@@ -109,6 +134,7 @@ export const PositionActionWrapper = styled.div`
   align-items: center;
   justify-content: flex-end;
   gap: 24px;
+  margin-top: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     gap: 16px;
@@ -117,6 +143,7 @@ export const PositionActionWrapper = styled.div`
 
 export const PositionAction = styled.button<{
   outline?: boolean
+  outlineDefault?: boolean
   small?: boolean
   disabled?: boolean
   load?: boolean
@@ -133,8 +160,10 @@ export const PositionAction = styled.button<{
   cursor: pointer;
 
   ${({ small }) => small && 'padding: 6px 16px;'}
-  ${({ outline }) => outline && 'background-color: transparent;'}
+  ${({ outline, outlineDefault }) => (outlineDefault || outline) && 'background-color: transparent;'}
   ${({ outline, theme }) => outline && `color: ${theme.primary};`}
+  ${({ outlineDefault, theme }) =>
+    outlineDefault && `color: ${rgba(theme.white, 0.7)}; border-color: ${rgba(theme.white, 0.7)};`}
 
   ${({ theme, mobileAutoWidth }) =>
     !mobileAutoWidth &&

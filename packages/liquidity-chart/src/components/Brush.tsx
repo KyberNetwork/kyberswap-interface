@@ -19,6 +19,7 @@ export default function Brush({
   innerWidth,
   innerHeight,
   zoomInited,
+  alwaysShowLabel,
   brushLabelValue,
   setBrushExtent,
 }: BrushProps) {
@@ -29,7 +30,7 @@ export default function Brush({
   const [localBrushExtent, setLocalBrushExtent] = useState<
     [number, number] | null
   >(brushExtent);
-  const [showLabels, setShowLabels] = useState(false);
+  const [showLabels, setShowLabels] = useState(true);
   const [hovering, setHovering] = useState(false);
 
   const previousBrushExtent = usePreviousValue(brushExtent);
@@ -216,7 +217,7 @@ export default function Brush({
 
                 <g
                   className="transition-opacity duration-300"
-                  opacity={showLabels || hovering ? 1 : 0}
+                  opacity={alwaysShowLabel || showLabels || hovering ? 1 : 0}
                   transform={`translate(50,0), scale(${
                     flipWestHandle ? "1" : "-1"
                   }, 1)`}
@@ -262,7 +263,7 @@ export default function Brush({
 
                 <g
                   className="transition-opacity duration-300"
-                  opacity={showLabels || hovering ? 1 : 0}
+                  opacity={alwaysShowLabel || showLabels || hovering ? 1 : 0}
                   transform={`translate(50,0), scale(${
                     flipEastHandle ? "-1" : "1"
                   }, 1)`}
