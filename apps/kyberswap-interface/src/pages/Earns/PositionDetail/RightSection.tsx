@@ -13,11 +13,11 @@ import LiquidityChart from 'pages/Earns/PositionDetail/LiquidityChart'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import {
   InfoRightColumn,
-  MaxPriceInfoSection,
-  MinPriceInfoSection,
+  MaxPriceSection,
+  MinPriceSection,
   PositionAction,
   PositionActionWrapper,
-  PriceInfoSection,
+  PriceSection,
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import { CoreProtocol } from 'pages/Earns/constants'
@@ -118,25 +118,23 @@ const RightSection = ({
 
       <InfoRightColumn halfWidth={isUniv2}>
         {price ? (
-          <PriceInfoSection>
-            <Flex alignItems={'center'} justifyContent={'space-between'} flexWrap={'wrap'}>
-              <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
-                <Text fontSize={14} color={theme.subText}>
-                  {t`Current Price`}
-                </Text>
-                <Text fontSize={14}>
-                  1 {!revert ? position.token0.symbol : position.token1.symbol} ={' '}
-                  {formatDisplayNumber(price, {
-                    significantDigits: 6,
-                  })}{' '}
-                  {!revert ? position.token1.symbol : position.token0.symbol}
-                </Text>
-              </Flex>
-              <RevertIconWrapper onClick={() => setRevert(!revert)}>
-                <RevertPriceIcon width={12} height={12} />
-              </RevertIconWrapper>
+          <PriceSection>
+            <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
+              <Text fontSize={14} color={theme.subText}>
+                {t`Current Price`}
+              </Text>
+              <Text fontSize={14}>
+                1 {!revert ? position.token0.symbol : position.token1.symbol} ={' '}
+                {formatDisplayNumber(price, {
+                  significantDigits: 6,
+                })}{' '}
+                {!revert ? position.token1.symbol : position.token0.symbol}
+              </Text>
             </Flex>
-          </PriceInfoSection>
+            <RevertIconWrapper onClick={() => setRevert(!revert)}>
+              <RevertPriceIcon width={12} height={12} />
+            </RevertIconWrapper>
+          </PriceSection>
         ) : null}
 
         <LiquidityChart
@@ -150,7 +148,7 @@ const RightSection = ({
 
         {priceRange ? (
           <Flex sx={{ gap: '16px' }}>
-            <MinPriceInfoSection>
+            <MinPriceSection>
               <Text fontSize={14} color={theme.subText}>
                 {t`Min Price`}
               </Text>
@@ -161,8 +159,8 @@ const RightSection = ({
                 {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
                 {!revert ? position.token0.symbol : position.token1.symbol}
               </Text>
-            </MinPriceInfoSection>
-            <MaxPriceInfoSection>
+            </MinPriceSection>
+            <MaxPriceSection>
               <Text fontSize={14} color={theme.subText}>
                 {t`Max Price`}
               </Text>
@@ -173,7 +171,7 @@ const RightSection = ({
                 {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
                 {!revert ? position.token0.symbol : position.token1.symbol}
               </Text>
-            </MaxPriceInfoSection>
+            </MaxPriceSection>
           </Flex>
         ) : null}
 

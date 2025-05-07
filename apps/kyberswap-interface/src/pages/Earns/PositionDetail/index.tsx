@@ -10,11 +10,12 @@ import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import LocalLoader from 'components/LocalLoader'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
 import RightSection from 'pages/Earns/PositionDetail/RightSection'
-import { PositionDetailWrapper } from 'pages/Earns/PositionDetail/styles'
+import { MigrationLiquidityRecommend, PositionDetailWrapper } from 'pages/Earns/PositionDetail/styles'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ParsedPosition } from 'pages/Earns/types'
@@ -23,6 +24,7 @@ import { parseRawPosition } from 'pages/Earns/utils'
 const PositionDetail = () => {
   const firstLoading = useRef(false)
   const navigate = useNavigate()
+  const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const forceLoading = searchParams.get('forceLoading')
 
@@ -89,6 +91,15 @@ const PositionDetail = () => {
         ) : !!position ? (
           <>
             <PositionDetailHeader position={position} hadForceLoading={hadForceLoading.current} />
+            <MigrationLiquidityRecommend>
+              <Text
+                color={'#fafafa'}
+                lineHeight={'18px'}
+              >{t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn farming rewards from the Kyberswap Liquidity Mining Program.`}</Text>
+              <Text color={theme.primary} sx={{ cursor: 'pointer' }}>
+                Migrate →
+              </Text>
+            </MigrationLiquidityRecommend>
             <PositionDetailWrapper>
               <LeftSection position={position} />
               <RightSection position={position} onOpenZapMigration={handleOpenZapMigration} />

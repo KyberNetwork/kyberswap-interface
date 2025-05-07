@@ -69,41 +69,56 @@ export const InfoSection = styled.div`
   `}
 `
 
-export const PriceInfoSection = styled(InfoSection)`
-  padding: 8px 16px;
+export const RewardsSection = styled(InfoSection)`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 `
 
-export const InfoSectionFirstFormat = styled(InfoSection)`
+export const NextDistribution = styled.div`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  background: ${({ theme }) => rgba(theme.white, 0.04)};
+  padding: 8px 12px 12px;
+`
+
+export const TotalLiquiditySection = styled(InfoSection)`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`
+
+export const PriceSection = styled(InfoSection)`
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+`
+
+export const AprSection = styled(InfoSection)`
+  display: flex;
+  align-items: center;
   justify-content: space-between;
 `
 
-export const InfoSectionSecondFormat = styled(InfoSection)`
+const PriceRangeSection = styled(InfoSection)`
   flex: 1 1 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-`
-
-const PriceRangeInfoSection = styled(InfoSectionSecondFormat)`
   padding: 12px 24px;
 `
 
-export const MinPriceInfoSection = styled(PriceRangeInfoSection)`
+export const MinPriceSection = styled(PriceRangeSection)`
   border-color: rgba(49, 203, 158, 0.4);
 `
 
-export const MaxPriceInfoSection = styled(PriceRangeInfoSection)`
+export const MaxPriceSection = styled(PriceRangeSection)`
   border-color: rgba(143, 146, 255, 0.6);
-`
-
-export const InfoRight = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
 `
 
 export const VerticalDivider = styled.div`
@@ -178,7 +193,10 @@ export const PositionAction = styled.button<{
 
   ${({ disabled, theme }) =>
     disabled &&
-    `cursor: not-allowed; color: ${theme.subText}; border-color: ${theme.subText}; filter: brightness(0.6) !important;`}
+    `cursor: not-allowed; color: ${rgba(
+      theme.white,
+      0.4,
+    )}; border-color: transparent; filter: brightness(0.6) !important; background-color: ${rgba(theme.white, 0.12)};`}
   ${({ load }) => load && `cursor: not-allowed; filter: brightness(0.6) !important;`}
 `
 
@@ -199,5 +217,21 @@ export const PositionHeader = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
     gap: 12px;
+  `}
+`
+
+export const MigrationLiquidityRecommend = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px 20px;
+  align-items: center;
+  font-size: 14px;
+  gap: 8px;
+  row-gap: 4px;
+  border-radius: 16px;
+  background: rgba(15, 170, 162, 0.2);
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    row-gap: 2px;
   `}
 `

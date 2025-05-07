@@ -11,12 +11,13 @@ import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import ClaimFeeModal from 'pages/Earns/ClaimFeeModal'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
+import Rewards from 'pages/Earns/PositionDetail/Rewards'
 import {
+  AprSection,
   InfoLeftColumn,
-  InfoRight,
   InfoSection,
-  InfoSectionFirstFormat,
   PositionAction,
+  TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import { DexImage } from 'pages/Earns/UserPositions/styles'
@@ -130,7 +131,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const nativeToken = NETWORKS_INFO[position.chain.id as keyof typeof NETWORKS_INFO].nativeToken
 
   return (
-    <InfoLeftColumn halfWidth={isUniv2}>
+    <>
       {openClaimFeeModal && feeInfo && (
         <ClaimFeeModal
           claiming={claiming}
@@ -141,147 +142,165 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           onClose={() => setOpenClaimFeeModal(false)}
         />
       )}
-      <InfoSectionFirstFormat>
-        <Text fontSize={14} color={theme.subText} marginTop={1}>
-          {t`Total Liquidity`}
-        </Text>
-        <InfoRight>
-          <Text fontSize={20}>
-            {formatDisplayNumber(position.totalValue, {
-              style: 'currency',
-              significantDigits: 4,
-            })}
-          </Text>
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <DexImage
-              src={position.token0.logo}
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null
-                currentTarget.src = HelpIcon
-              }}
-            />
-            <Text>{formatDisplayNumber(position.token0.totalAmount, { significantDigits: 6 })}</Text>
-            <Text>{position.token0.symbol}</Text>
-          </Flex>
-          <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-            <DexImage
-              src={position.token1.logo}
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null
-                currentTarget.src = HelpIcon
-              }}
-            />
-            <Text>{formatDisplayNumber(position.token1.totalAmount, { significantDigits: 6 })}</Text>
-            <Text>{position.token1.symbol}</Text>
-          </Flex>
-        </InfoRight>
-      </InfoSectionFirstFormat>
-      <InfoSectionFirstFormat>
-        <Flex alignItems={'center'} sx={{ marginTop: 1 }}>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Est. Position APR`}
-          </Text>
-          <InfoHelper text={t`Estimated 7 days APR`} placement="top" />
-        </Flex>
-        <Text fontSize={20} color={position.apr > 0 ? theme.primary : theme.text}>
-          {formatAprNumber(position.apr * 100)}%
-        </Text>
-      </InfoSectionFirstFormat>
-      <InfoSection>
-        <Text fontSize={14} color={theme.subText} marginBottom={3}>
-          {t`Fee Earn`}
-        </Text>
-        <Flex alignItems={'center'} justifyContent={'space-between'}>
-          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+
+      <InfoLeftColumn halfWidth={isUniv2}>
+        {/* Total Liquidity */}
+        <TotalLiquiditySection>
+          <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
             <Text fontSize={14} color={theme.subText}>
-              1 {t`day`}
+              {t`Total Liquidity`}
             </Text>
-            <Text>
-              {(position.earning.in24h || position.earning.in24h === 0) && !isUniv2
-                ? formatDisplayNumber(position.earning.in24h, { significantDigits: 4, style: 'currency' })
-                : '--'}
+            <Text fontSize={20}>
+              {formatDisplayNumber(position.totalValue, {
+                style: 'currency',
+                significantDigits: 4,
+              })}
             </Text>
           </Flex>
           <VerticalDivider />
-          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-            <Text fontSize={14} color={theme.subText}>
-              7 {t`days`}
-            </Text>
-            <Text>
-              {(position.earning.in7d || position.earning.in7d === 0) && !isUniv2
-                ? formatDisplayNumber(position.earning.in7d, { significantDigits: 4, style: 'currency' })
-                : '--'}
-            </Text>
+          <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
+            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+              <DexImage
+                src={position.token0.logo}
+                onError={({ currentTarget }) => {
+                  currentTarget.onerror = null
+                  currentTarget.src = HelpIcon
+                }}
+              />
+              <Text>{formatDisplayNumber(position.token0.totalAmount, { significantDigits: 6 })}</Text>
+              <Text>{position.token0.symbol}</Text>
+            </Flex>
+            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+              <DexImage
+                src={position.token1.logo}
+                onError={({ currentTarget }) => {
+                  currentTarget.onerror = null
+                  currentTarget.src = HelpIcon
+                }}
+              />
+              <Text>{formatDisplayNumber(position.token1.totalAmount, { significantDigits: 6 })}</Text>
+              <Text>{position.token1.symbol}</Text>
+            </Flex>
           </Flex>
-          <VerticalDivider />
-          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+        </TotalLiquiditySection>
+
+        {/* Est. Position APR */}
+        <AprSection>
+          <Flex alignItems={'center'} sx={{ marginTop: 1 }}>
             <Text fontSize={14} color={theme.subText}>
-              {t`All`}
+              {t`Est. Position APR`}
             </Text>
-            <Text fontSize={18} color={position.earning.earned > 0 ? theme.primary : theme.text}>
-              {(position.earning.earned || position.earning.earned === 0) && position.earning.earned >= 0
-                ? formatDisplayNumber(position.earning.earned, { style: 'currency', significantDigits: 4 })
-                : position.earning.earned && position.earning.earned < 0
-                ? 0
-                : '--'}
-            </Text>
+            <InfoHelper text={t`Estimated 7 days APR`} placement="top" />
           </Flex>
-        </Flex>
-      </InfoSection>
-      {DEXES_SUPPORT_COLLECT_FEE[position.dex.id] ? (
+          <Text fontSize={20} color={position.apr > 0 ? theme.primary : theme.text}>
+            {formatAprNumber(position.apr * 100)}%
+          </Text>
+        </AprSection>
+
+        {/* Fee Earn */}
         <InfoSection>
-          <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
-            <Text fontSize={14} color={theme.subText} marginTop={1}>
-              {t`Total Unclaimed Fees`}
-            </Text>
-            <Text fontSize={18}>
-              {feeInfo
-                ? formatDisplayNumber(feeInfo.totalValue, {
-                    significantDigits: 4,
-                    style: 'currency',
-                  })
-                : '--'}
-            </Text>
-          </Flex>
+          <Text fontSize={14} color={theme.subText} marginBottom={3}>
+            {t`Fee Earn`}
+          </Text>
           <Flex alignItems={'center'} justifyContent={'space-between'}>
-            <div>
-              <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
-                <Text>{formatDisplayNumber(feeInfo?.amount0, { significantDigits: 4 })}</Text>
-                <Text>{isToken0Native ? nativeToken.symbol : position.token0.symbol}</Text>
-                <Text fontSize={14} color={theme.subText}>
-                  {formatDisplayNumber(feeInfo?.value0, {
-                    style: 'currency',
-                    significantDigits: 4,
-                  })}
-                </Text>
-              </Flex>
-              <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-                <Text>{formatDisplayNumber(feeInfo?.amount1, { significantDigits: 4 })}</Text>
-                <Text>{isToken1Native ? nativeToken.symbol : position.token1.symbol}</Text>
-                <Text fontSize={14} color={theme.subText}>
-                  {formatDisplayNumber(feeInfo?.value1, {
-                    style: 'currency',
-                    significantDigits: 4,
-                  })}
-                </Text>
-              </Flex>
-            </div>
-            <PositionAction
-              small
-              outline
-              mobileAutoWidth
-              load={claiming}
-              disabled={(!feeInfo || feeInfo.totalValue === 0) && !claiming}
-              onClick={() => feeInfo && feeInfo.totalValue !== 0 && !claiming && setOpenClaimFeeModal(true)}
-            >
-              {claiming && <Loader size="14px" />}
-              {claiming ? t`Claiming` : t`Claim`}
-            </PositionAction>
+            <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+              <Text fontSize={14} color={theme.subText}>
+                1 {t`day`}
+              </Text>
+              <Text>
+                {(position.earning.in24h || position.earning.in24h === 0) && !isUniv2
+                  ? formatDisplayNumber(position.earning.in24h, { significantDigits: 4, style: 'currency' })
+                  : '--'}
+              </Text>
+            </Flex>
+            <VerticalDivider />
+            <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+              <Text fontSize={14} color={theme.subText}>
+                7 {t`days`}
+              </Text>
+              <Text>
+                {(position.earning.in7d || position.earning.in7d === 0) && !isUniv2
+                  ? formatDisplayNumber(position.earning.in7d, { significantDigits: 4, style: 'currency' })
+                  : '--'}
+              </Text>
+            </Flex>
+            <VerticalDivider />
+            <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+              <Text fontSize={14} color={theme.subText}>
+                {t`All`}
+              </Text>
+              <Text fontSize={18} color={position.earning.earned > 0 ? theme.primary : theme.text}>
+                {(position.earning.earned || position.earning.earned === 0) && position.earning.earned >= 0
+                  ? formatDisplayNumber(position.earning.earned, { style: 'currency', significantDigits: 4 })
+                  : position.earning.earned && position.earning.earned < 0
+                  ? 0
+                  : '--'}
+              </Text>
+            </Flex>
           </Flex>
         </InfoSection>
-      ) : null}
-      {!isUniv2 && <PositionHistory position={position} />}
-    </InfoLeftColumn>
+
+        {/* Claim Fees */}
+        {DEXES_SUPPORT_COLLECT_FEE[position.dex.id] ? (
+          <InfoSection>
+            <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
+              <Text fontSize={14} color={theme.subText} marginTop={1}>
+                {t`Total Unclaimed Fees`}
+              </Text>
+              <Text fontSize={18}>
+                {feeInfo
+                  ? formatDisplayNumber(feeInfo.totalValue, {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })
+                  : '--'}
+              </Text>
+            </Flex>
+            <Flex alignItems={'center'} justifyContent={'space-between'}>
+              <div>
+                <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
+                  <Text>{formatDisplayNumber(feeInfo?.amount0, { significantDigits: 4 })}</Text>
+                  <Text>{isToken0Native ? nativeToken.symbol : position.token0.symbol}</Text>
+                  <Text fontSize={14} color={theme.subText}>
+                    {formatDisplayNumber(feeInfo?.value0, {
+                      style: 'currency',
+                      significantDigits: 4,
+                    })}
+                  </Text>
+                </Flex>
+                <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+                  <Text>{formatDisplayNumber(feeInfo?.amount1, { significantDigits: 4 })}</Text>
+                  <Text>{isToken1Native ? nativeToken.symbol : position.token1.symbol}</Text>
+                  <Text fontSize={14} color={theme.subText}>
+                    {formatDisplayNumber(feeInfo?.value1, {
+                      style: 'currency',
+                      significantDigits: 4,
+                    })}
+                  </Text>
+                </Flex>
+              </div>
+              <PositionAction
+                small
+                outline
+                mobileAutoWidth
+                load={claiming}
+                disabled={(!feeInfo || feeInfo.totalValue === 0) && !claiming}
+                onClick={() => feeInfo && feeInfo.totalValue !== 0 && !claiming && setOpenClaimFeeModal(true)}
+              >
+                {claiming && <Loader size="14px" />}
+                {claiming ? t`Claiming` : t`Claim`}
+              </PositionAction>
+            </Flex>
+          </InfoSection>
+        ) : null}
+
+        {/* Rewards */}
+        <Rewards />
+
+        {/* Position History */}
+        {!isUniv2 && <PositionHistory position={position} />}
+      </InfoLeftColumn>
+    </>
   )
 }
 
