@@ -1,5 +1,6 @@
-import styled, { css, keyframes } from 'styled-components'
 import { Text } from 'rebass'
+import styled, { css, keyframes } from 'styled-components'
+
 import { ReactComponent as MoveBackSvg } from 'assets/svg/ic_move_back.svg'
 import { ReactComponent as MoveForwardSvg } from 'assets/svg/ic_move_forward.svg'
 

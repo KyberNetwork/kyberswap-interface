@@ -9,11 +9,11 @@ import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/us
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { AGGREGATOR_API } from 'constants/env'
 import {
-  SAFE_APP_CLIENT_ID,
-  SAFE_APP_FEE_RECEIVER_ADDRESS,
   AGGREGATOR_API_PATHS,
   ETHER_ADDRESS,
   INPUT_DEBOUNCE_TIME,
+  SAFE_APP_CLIENT_ID,
+  SAFE_APP_FEE_RECEIVER_ADDRESS,
   SWAP_FEE_RECEIVER_ADDRESS,
 } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -21,9 +21,9 @@ import { useActiveWeb3React } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ChargeFeeBy } from 'types/route'
 import { isInSafeApp } from 'utils'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 export type ArgsGetRoute = {
   parsedAmount: CurrencyAmount<Currency> | undefined

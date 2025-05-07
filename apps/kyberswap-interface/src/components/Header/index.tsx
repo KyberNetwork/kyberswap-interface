@@ -6,6 +6,11 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import Announcement from 'components/Announcement'
+import AboutNavGroup from 'components/Header/groups/AboutNavGroup'
+import EarnNavGroup from 'components/Header/groups/EarnNavGroup'
+import KyberDAONavGroup from 'components/Header/groups/KyberDaoGroup'
+import SwapNavGroup from 'components/Header/groups/SwapNavGroup'
+import { StyledNavExternalLink, StyledNavLink } from 'components/Header/styleds'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import Menu from 'components/Menu'
@@ -16,12 +21,6 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-import AboutNavGroup from './groups/AboutNavGroup'
-import KyberDAONavGroup from './groups/KyberDaoGroup'
-import SwapNavGroup from './groups/SwapNavGroup'
-import { StyledNavExternalLink, StyledNavLink } from './styleds'
-import EarnNavGroup from './groups/EarnNavGroup'
 
 const HeaderFrame = styled.div<{ hide?: boolean }>`
   height: ${({ hide }) => (hide ? 0 : undefined)};

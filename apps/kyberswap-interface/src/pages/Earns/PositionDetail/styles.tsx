@@ -4,8 +4,6 @@ import { ReactComponent as IconArrowLeftSvg } from 'assets/svg/ic_left_arrow.svg
 
 export const IconArrowLeft = styled(IconArrowLeftSvg)`
   cursor: pointer;
-  position: relative;
-  top: 5px;
   color: rgba(250, 250, 250, 1);
 
   :hover {
@@ -27,7 +25,6 @@ export const DexInfo = styled.div<{ openable: boolean }>`
 
 export const PositionDetailWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   gap: 36px;
   padding: 36px;
   border-radius: 20px;
@@ -43,14 +40,6 @@ export const PositionDetailWrapper = styled.div`
     margin: 0 -16px;
     width: calc(100% + 32px);
     padding: 20px 16px;
-  `}
-`
-
-export const MainSection = styled.div`
-  display: flex;
-  gap: 36px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
   `}
 `
@@ -171,5 +160,15 @@ export const ChartWrapper = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 0;
+  `}
+`
+
+export const PositionHeader = styled.div`
+  display: flex;
+  gap: 8px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    gap: 12px;
   `}
 `

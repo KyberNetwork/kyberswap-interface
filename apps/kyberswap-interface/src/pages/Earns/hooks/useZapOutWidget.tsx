@@ -1,16 +1,24 @@
-import { ChainId as ZapOutChainId, PoolType as ZapOutDex, ZapOut } from '@kyberswap/zap-out-widgets'
+import { ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
 import '@kyberswap/zap-out-widgets/dist/style.css'
-
 import { useEffect, useMemo, useState } from 'react'
 import { usePreviousDistinct } from 'react-use'
-import { EarnDex, EarnDex2 } from 'pages/Earns/constants'
+
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { EarnDex, EarnDex2 } from 'pages/Earns/constants'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
-import { t } from '@lingui/macro'
+
+export interface ZapOutInfo {
+  position: {
+    dex: EarnDex | EarnDex2
+    chainId: number
+    poolAddress: string
+    id: string
+  }
+}
 
 const zapOutDexMapping: Record<EarnDex | EarnDex2, ZapOutDex> = {
   [EarnDex.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
@@ -78,13 +86,13 @@ const useZapOutWidget = () => {
     [account, chainId, changeNetwork, library, toggleWalletModal, zapOutPureParams, refCode],
   )
 
-  const handleOpenZapOut = (position: { dex: string; chainId: number; poolAddress: string; id: string }) => {
-    const poolType = zapOutDexMapping[position.dex as keyof typeof zapOutDexMapping]
+  const handleOpenZapOut = ({ position }: ZapOutInfo) => {
+    const poolType = zapOutDexMapping[position.dex]
     if (!poolType) {
       notify(
         {
+          title: `Protocol ${position.dex} is not supported!`,
           type: NotificationType.ERROR,
-          title: t`Pool Type is not supported`,
         },
         5_000,
       )

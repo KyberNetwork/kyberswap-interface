@@ -1,16 +1,17 @@
 import { t } from '@lingui/macro'
-import useTheme from 'hooks/useTheme'
-import { Flex, Text } from 'rebass'
-import { ReactComponent as KyberIcon } from 'assets/images/KNC.svg'
-import { formatDisplayNumber } from 'utils/numbers'
-import { RewardsNavigateButton } from 'pages/Earns/Landing/styles'
-import { APP_PATHS } from 'constants/index'
-import { FilterTag } from 'pages/Earns/PoolExplorer'
-import PlayIcon from 'assets/svg/earn/play-icon.svg'
-import { MEDIA_WIDTHS } from 'theme'
 import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+
+import { ReactComponent as KyberIcon } from 'assets/images/KNC.svg'
+import PlayIcon from 'assets/svg/earn/play-icon.svg'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
+import { RewardsNavigateButton } from 'pages/Earns/Landing/styles'
+import { FilterTag } from 'pages/Earns/PoolExplorer'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { MEDIA_WIDTHS } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const TotalRewards = () => {
   const { account } = useActiveWeb3React()

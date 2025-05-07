@@ -6,35 +6,52 @@ import { usePoolDetailQuery } from 'services/poolService'
 
 import { Swap as SwapIcon } from 'components/Icons'
 import { NativeCurrencies } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
-import { formatDisplayNumber, toString } from 'utils/numbers'
-
-import { ParsedPosition } from 'pages/Earns/types'
 import LiquidityChart from 'pages/Earns/PositionDetail/LiquidityChart'
+import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import {
   InfoRightColumn,
   InfoSection,
   InfoSectionSecondFormat,
+  PositionAction,
+  PositionActionWrapper,
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
+import { CoreProtocol } from 'pages/Earns/constants'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
+import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
+import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
+import { ParsedPosition } from 'pages/Earns/types'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
-import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
-import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import { isForkFrom } from 'pages/Earns/utils'
+import { formatDisplayNumber, toString } from 'utils/numbers'
 
-const RightSection = ({ position }: { position: ParsedPosition }) => {
+const RightSection = ({
+  position,
+  onOpenZapMigration,
+}: {
+  position: ParsedPosition
+  onOpenZapMigration: (props: ZapMigrationInfo) => void
+}) => {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const { stableCoins } = useStableCoins(position.chain.id)
   const { data: pool } = usePoolDetailQuery({ chainId: position.chain.id, ids: position.pool.address })
   const [revert, setRevert] = useState(false)
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
 
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration,
+  })
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget()
+
   const price = useMemo(
     () => (!revert ? position.priceRange.current : 1 / position.priceRange.current),
     [position.priceRange, revert],
   )
-  const isUniv2 = isForkFrom(position.dex.id as EarnDex, CoreProtocol.UniswapV2)
+  const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
 
   const priceRange = useMemo(() => {
     if (!pool) return
@@ -51,7 +68,6 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
     const tickLower =
       minPrice === '0' ? minTick : priceToClosestTick(minPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
     const tickUpper = priceToClosestTick(maxPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
-
     const usableTickLower = nearestUsableTick(Number(tickLower), tickSpacing)
     const usableTickUpper = nearestUsableTick(Number(tickUpper), tickSpacing)
 
@@ -71,6 +87,18 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
     }
   }, [pool, position, revert])
 
+  const onOpenIncreaseLiquidityWidget = () => {
+    if (!position) return
+    handleOpenZapIn({
+      pool: {
+        dex: position.dex.id,
+        chainId: position.chain.id,
+        address: position.pool.address,
+      },
+      positionId: isUniv2 ? account || '' : position.tokenId,
+    })
+  }
+
   useEffect(() => {
     if (!pool || !position.chain.id || !pool.tokens?.[0] || defaultRevertChecked || !stableCoins.length) return
     setDefaultRevertChecked(true)
@@ -83,69 +111,91 @@ const RightSection = ({ position }: { position: ParsedPosition }) => {
   }, [defaultRevertChecked, pool, position.chain.id, stableCoins])
 
   return (
-    <InfoRightColumn halfWidth={isUniv2}>
-      {price ? (
-        <InfoSection>
-          <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
-            <Text fontSize={14} color={theme.subText}>
-              {t`Current Price`}
-            </Text>
-            <Text fontSize={14}>
-              {formatDisplayNumber(price, {
-                significantDigits: 6,
-              })}
-            </Text>
-            <Text fontSize={14} color={theme.subText}>
-              {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
-              {!revert ? position.token0.symbol : position.token1.symbol}
-            </Text>
-            <RevertIconWrapper onClick={() => setRevert(!revert)}>
-              <SwapIcon size={18} />
-            </RevertIconWrapper>
+    <>
+      {zapInWidget}
+      {zapOutWidget}
+
+      <InfoRightColumn halfWidth={isUniv2}>
+        {price ? (
+          <InfoSection>
+            <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
+              <Text fontSize={14} color={theme.subText}>
+                {t`Current Price`}
+              </Text>
+              <Text fontSize={14}>
+                {formatDisplayNumber(price, {
+                  significantDigits: 6,
+                })}
+              </Text>
+              <Text fontSize={14} color={theme.subText}>
+                {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
+                {!revert ? position.token0.symbol : position.token1.symbol}
+              </Text>
+              <RevertIconWrapper onClick={() => setRevert(!revert)}>
+                <SwapIcon size={18} />
+              </RevertIconWrapper>
+            </Flex>
+          </InfoSection>
+        ) : null}
+
+        <LiquidityChart
+          chainId={position.chain.id}
+          poolAddress={position.pool.address}
+          price={price}
+          minPrice={position.priceRange.min}
+          maxPrice={position.priceRange.max}
+          revertPrice={revert}
+        />
+
+        {priceRange ? (
+          <Flex sx={{ gap: '16px' }}>
+            <InfoSectionSecondFormat>
+              <Text fontSize={14} color={theme.subText}>
+                {t`Min Price`}
+              </Text>
+              <Text fontSize={18} marginBottom={2} marginTop={2}>
+                {priceRange[0]}
+              </Text>
+              <Text fontSize={14} color={theme.subText}>
+                {!revert ? position.token0.symbol : position.token1.symbol}/
+                {!revert ? position.token1.symbol : position.token0.symbol}
+              </Text>
+            </InfoSectionSecondFormat>
+            <InfoSectionSecondFormat>
+              <Text fontSize={14} color={theme.subText}>
+                {t`Max Price`}
+              </Text>
+              <Text fontSize={18} marginBottom={2} marginTop={2}>
+                {priceRange[1]}
+              </Text>
+              <Text fontSize={14} color={theme.subText}>
+                {!revert ? position.token0.symbol : position.token1.symbol}/
+                {!revert ? position.token1.symbol : position.token0.symbol}
+              </Text>
+            </InfoSectionSecondFormat>
           </Flex>
-        </InfoSection>
-      ) : null}
+        ) : null}
 
-      <LiquidityChart
-        chainId={position.chain.id}
-        poolAddress={position.pool.address}
-        price={price}
-        minPrice={position.priceRange.min}
-        maxPrice={position.priceRange.max}
-        revertPrice={revert}
-      />
+        {isUniv2 && <PositionHistory position={position} />}
 
-      {priceRange ? (
-        <Flex sx={{ gap: '16px' }}>
-          <InfoSectionSecondFormat>
-            <Text fontSize={14} color={theme.subText}>
-              {t`Min Price`}
-            </Text>
-            <Text fontSize={18} marginBottom={2} marginTop={2}>
-              {priceRange[0]}
-            </Text>
-            <Text fontSize={14} color={theme.subText}>
-              {!revert ? position.token0.symbol : position.token1.symbol}/
-              {!revert ? position.token1.symbol : position.token0.symbol}
-            </Text>
-          </InfoSectionSecondFormat>
-          <InfoSectionSecondFormat>
-            <Text fontSize={14} color={theme.subText}>
-              {t`Max Price`}
-            </Text>
-            <Text fontSize={18} marginBottom={2} marginTop={2}>
-              {priceRange[1]}
-            </Text>
-            <Text fontSize={14} color={theme.subText}>
-              {!revert ? position.token0.symbol : position.token1.symbol}/
-              {!revert ? position.token1.symbol : position.token0.symbol}
-            </Text>
-          </InfoSectionSecondFormat>
-        </Flex>
-      ) : null}
-
-      {isUniv2 && <PositionHistory position={position} />}
-    </InfoRightColumn>
+        <PositionActionWrapper>
+          <PositionAction
+            outline
+            onClick={() => {
+              handleOpenZapOut({
+                position: {
+                  dex: position.dex.id,
+                  chainId: position.chain.id,
+                  poolAddress: position.pool.address,
+                  id: isUniv2 ? account || '' : position.tokenId,
+                },
+              })
+            }}
+          >{t`Remove Liquidity`}</PositionAction>
+          <PositionAction onClick={onOpenIncreaseLiquidityWidget}>{t`Add Liquidity`}</PositionAction>
+        </PositionActionWrapper>
+      </InfoRightColumn>
+    </>
   )
 }
 

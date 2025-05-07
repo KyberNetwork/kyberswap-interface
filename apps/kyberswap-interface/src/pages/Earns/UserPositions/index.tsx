@@ -5,18 +5,16 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
-import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
+import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
-import { MEDIA_WIDTHS } from 'theme'
-
+import useTheme from 'hooks/useTheme'
 import { ContentWrapper, Disclaimer, NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import Filter from 'pages/Earns/UserPositions/Filter'
 import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
@@ -28,14 +26,15 @@ import {
   PositionTableWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
-import { CoreProtocol, EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import { CoreProtocol, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
-import InfoHelper from 'components/InfoHelper'
-import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
-import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
-import useTheme from 'hooks/useTheme'
+import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { MEDIA_WIDTHS } from 'theme'
 
 const POSITIONS_TABLE_LIMIT = 10
 
@@ -86,7 +85,7 @@ const UserPositions = () => {
     })
     if (filters.status)
       positions = positions.filter(position =>
-        !isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
+        !isForkFrom(position.pool.project, CoreProtocol.UniswapV2)
           ? position.status === filters.status
           : filters.status === PositionStatus.IN_RANGE,
       )

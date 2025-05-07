@@ -1,4 +1,3 @@
-import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { useMedia } from 'react-use'
@@ -10,53 +9,25 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
 import { ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useWeb3React } from 'hooks'
 import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from 'pages/Earns/ClaimFeeModal/styles'
 import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
 import {
   DEXES_SUPPORT_COLLECT_FEE,
-  EarnChain,
   EarnDex,
-  NATIVE_ADDRESSES,
   NFT_MANAGER_ABI,
   NFT_MANAGER_CONTRACT,
   UNWRAP_WNATIVE_TOKEN_FUNC,
 } from 'pages/Earns/constants'
+import { ParsedPosition } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from 'pages/Earns/ClaimFeeModal/styles'
-
-export interface PositionToClaim {
-  id: string
-  dex: {
-    id: string
-  }
-  chain: {
-    id: number
-    logo: string
-  }
-  token0: {
-    address: string
-    symbol: string
-    logo: string
-  }
-  token1: {
-    address: string
-    symbol: string
-    logo: string
-  }
-}
-
-export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
-  NATIVE_ADDRESSES[chainId as EarnChain] === tokenAddress.toLowerCase() ||
-  (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address)
 
 export default function ClaimFeeModal({
   claiming,
@@ -69,7 +40,7 @@ export default function ClaimFeeModal({
   claiming: boolean
   setClaiming: (claiming: boolean) => void
   setClaimTx: (tx: string | null) => void
-  position: PositionToClaim
+  position: ParsedPosition
   feeInfo: FeeInfo
   onClose: () => void
 }) {
@@ -90,10 +61,9 @@ export default function ClaimFeeModal({
   const nftManagerAbi = NFT_MANAGER_ABI[position.dex.id as keyof typeof NFT_MANAGER_ABI]
   const contract = useSigningContract(nftManagerContract, nftManagerAbi)
 
-  const isToken0Native = isNativeToken(position.token0.address, position.chain.id as keyof typeof WETH)
-  const isToken1Native = isNativeToken(position.token1.address, position.chain.id as keyof typeof WETH)
+  const { token0, token1 } = position
 
-  const nativeToken = NETWORKS_INFO[position.chain.id as keyof typeof NETWORKS_INFO].nativeToken
+  const nativeToken = position.pool.nativeToken
 
   const handleCollectFees = useCallback(async () => {
     if (!library || !contract || !DEXES_SUPPORT_COLLECT_FEE[position.dex.id as EarnDex]) return
@@ -105,14 +75,14 @@ export default function ClaimFeeModal({
     }
     setClaiming(true)
 
-    const tokenId = position.id
+    const tokenId = position.tokenId
     const recipient = account
     const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
     const calldatas = []
 
     try {
-      const owner = await contract.ownerOf(position.id)
-      const involvesETH = isToken0Native || isToken1Native
+      const owner = await contract.ownerOf(tokenId)
+      const involvesETH = token0.isNative || token1.isNative
       const collectParams = {
         tokenId,
         recipient: involvesETH ? ZERO_ADDRESS : account,
@@ -123,9 +93,9 @@ export default function ClaimFeeModal({
       calldatas.push(collectCallData)
 
       if (involvesETH) {
-        const ethAmount = isToken0Native ? feeInfo.balance0 : feeInfo.balance1
-        const token = isToken0Native ? position.token1.address : position.token0.address
-        const tokenAmount = isToken0Native ? feeInfo.balance1 : feeInfo.balance0
+        const ethAmount = token0.isNative ? feeInfo.balance0 : feeInfo.balance1
+        const token = token0.isNative ? token1.address : token0.address
+        const tokenAmount = token0.isNative ? feeInfo.balance1 : feeInfo.balance0
 
         // Encode the unwrapWETH9 call
         const unwrapWNativeTokenFuncName =
@@ -157,13 +127,13 @@ export default function ClaimFeeModal({
         extraInfo: {
           tokenAmountIn: formatDisplayNumber(feeInfo.amount0, { significantDigits: 4 }),
           tokenAmountOut: formatDisplayNumber(feeInfo.amount1, { significantDigits: 4 }),
-          tokenAddressIn: position.token0.address,
-          tokenAddressOut: position.token1.address,
-          tokenSymbolIn: isToken0Native ? nativeToken.symbol : position.token0.symbol,
-          tokenSymbolOut: isToken1Native ? nativeToken.symbol : position.token1.symbol,
+          tokenAddressIn: token0.address,
+          tokenAddressOut: token1.address,
+          tokenSymbolIn: token0.isNative ? nativeToken.symbol : token0.symbol,
+          tokenSymbolOut: token1.isNative ? nativeToken.symbol : token1.symbol,
           arbitrary: {
-            token_1: position.token0.symbol,
-            token_2: position.token1.symbol,
+            token_1: token0.symbol,
+            token_2: token1.symbol,
             token_1_amount: formatDisplayNumber(feeInfo.amount0, { significantDigits: 4 }),
             token_2_amount: formatDisplayNumber(feeInfo.amount1, { significantDigits: 4 }),
           },
@@ -189,19 +159,21 @@ export default function ClaimFeeModal({
     feeInfo.amount1,
     feeInfo.balance0,
     feeInfo.balance1,
-    isToken0Native,
-    isToken1Native,
     library,
     nativeToken.symbol,
     nftManagerContract,
     notify,
     position.chain.id,
     position.dex.id,
-    position.id,
-    position.token0,
-    position.token1,
+    position.tokenId,
     setClaimTx,
     setClaiming,
+    token0.address,
+    token0.isNative,
+    token0.symbol,
+    token1.address,
+    token1.isNative,
+    token1.symbol,
   ])
 
   useEffect(() => {
@@ -230,17 +202,17 @@ export default function ClaimFeeModal({
               </Text>
             </Flex>
             <ClaimInfoRow
-              tokenImage={isToken0Native ? nativeToken.logo : position.token0.logo}
+              tokenImage={token0.isNative ? nativeToken.logo : token0.logo}
               dexImage={position.chain.logo}
               tokenAmount={feeInfo.amount0}
-              tokenSymbol={isToken0Native ? nativeToken.symbol : position.token0.symbol}
+              tokenSymbol={token0.isNative ? nativeToken.symbol : token0.symbol}
               tokenUsdValue={feeInfo.value0}
             />
             <ClaimInfoRow
-              tokenImage={isToken1Native ? nativeToken.logo : position.token1.logo}
+              tokenImage={token1.isNative ? nativeToken.logo : token1.logo}
               dexImage={position.chain.logo}
               tokenAmount={feeInfo.amount1}
-              tokenSymbol={isToken1Native ? nativeToken.symbol : position.token1.symbol}
+              tokenSymbol={token1.isNative ? nativeToken.symbol : token1.symbol}
               tokenUsdValue={feeInfo.value1}
             />
           </ClaimInfo>

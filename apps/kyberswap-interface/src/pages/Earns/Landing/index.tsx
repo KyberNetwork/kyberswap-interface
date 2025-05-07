@@ -1,30 +1,31 @@
+import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
-import { MEDIA_WIDTHS } from 'theme'
-import { FilterTag } from 'pages/Earns/PoolExplorer'
-import { OverviewWrapper, WrapperBg, Container } from 'pages/Earns/Landing/styles'
-import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+
 import FireIcon from 'assets/svg/earn/fire.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_claim.svg'
 import LiquidityPoolIcon from 'assets/svg/earn/liquidity-pools.svg'
 import LiquidityPosIcon from 'assets/svg/earn/liquidity-positions.svg'
 import LowVolatilityIcon from 'assets/svg/earn/low-volatility.svg'
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
-import RocketIcon from 'assets/svg/rocket.svg'
 import SolidEarningIcon from 'assets/svg/earn/solid-earning.svg'
+import RocketIcon from 'assets/svg/rocket.svg'
 import StakingIcon from 'assets/svg/staking.svg'
-import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_claim.svg'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import Card from 'pages/Earns/Landing/Card'
 import PoolSection from 'pages/Earns/Landing/PoolSection'
-import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import TotalRewards from 'pages/Earns/Landing/TotalRewards'
-import { t } from '@lingui/macro'
+import { Container, OverviewWrapper, WrapperBg } from 'pages/Earns/Landing/styles'
+import { FilterTag } from 'pages/Earns/PoolExplorer'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import { MEDIA_WIDTHS } from 'theme'
 
 const EarnLanding = () => {
   const navigate = useNavigate()
@@ -54,9 +55,11 @@ const EarnLanding = () => {
       searchParams.delete('openPool')
       setSearchParams(searchParams)
       handleOpenZapIn({
-        exchange: poolsToOpen[openPoolIndex].exchange,
-        chainId: poolsToOpen[openPoolIndex].chainId,
-        address: poolsToOpen[openPoolIndex].address,
+        pool: {
+          dex: poolsToOpen[openPoolIndex].exchange,
+          chainId: poolsToOpen[openPoolIndex].chainId as number,
+          address: poolsToOpen[openPoolIndex].address,
+        },
       })
     }
   }, [handleOpenZapIn, data, searchParams, setSearchParams])

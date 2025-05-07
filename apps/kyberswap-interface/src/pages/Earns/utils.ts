@@ -1,9 +1,19 @@
 import { Web3Provider } from '@ethersproject/providers'
+import { WETH } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 
-import { formatDisplayNumber } from 'utils/numbers'
-import { CoreProtocol, EarnDex, NFT_MANAGER_CONTRACT, PROTOCOLS_CORE_MAPPING } from 'pages/Earns/constants'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import {
+  CoreProtocol,
+  EarnChain,
+  EarnDex,
+  NATIVE_ADDRESSES,
+  NFT_MANAGER_CONTRACT,
+  PROTOCOLS_CORE_MAPPING,
+} from 'pages/Earns/constants'
+import { EarnPosition, PositionStatus } from 'pages/Earns/types'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export const formatAprNumber = (apr: string | number): string => {
   const formattedApr = Number(apr)
@@ -69,4 +79,100 @@ export const navigateToPositionAfterZap = async (
   }
 
   navigateFunc(url)
+}
+
+export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
+  NATIVE_ADDRESSES[chainId as EarnChain] === tokenAddress.toLowerCase() ||
+  (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address)
+
+export const parseRawPosition = (position: EarnPosition) => {
+  const token0TotalProvide = position.currentAmounts[0]?.quotes.usd.value / position.currentAmounts[0]?.quotes.usd.price
+  const token1TotalProvide = position.currentAmounts[1]?.quotes.usd.value / position.currentAmounts[1]?.quotes.usd.price
+  const token0EarnedAmount =
+    position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price +
+    position.feesClaimed[0]?.quotes.usd.value / position.feesClaimed[0]?.quotes.usd.price
+  const token1EarnedAmount =
+    position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price +
+    position.feesClaimed[1]?.quotes.usd.value / position.feesClaimed[1]?.quotes.usd.price
+  const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
+  const token1Address = position.pool.tokenAmounts[1]?.token.address || ''
+  const dex = position.pool.project || ''
+  const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
+
+  return {
+    id: position.id,
+    tokenId: position.tokenId,
+    pool: {
+      fee: position.pool.fees?.[0],
+      address: position.pool.poolAddress,
+      nativeToken: NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken,
+      tickSpacing: position.pool.tickSpacing,
+      isUniv2,
+    },
+    dex: {
+      id: dex,
+      logo: position.pool.projectLogo || '',
+      version: position.pool.project?.split(' ')?.[1] || '',
+    },
+    chain: {
+      id: position.chainId,
+      name: position.chainName,
+      logo: position.chainLogo || '',
+    },
+    priceRange: {
+      min: position.minPrice || 0,
+      max: position.maxPrice || 0,
+      current: position.pool.price || 0,
+    },
+    earning: {
+      earned:
+        position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
+        position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
+      in7d: position.earning7d || 0,
+      in24h: position.earning24h || 0,
+    },
+    token0: {
+      address: token0Address,
+      logo: position.pool.tokenAmounts[0]?.token.logo || '',
+      symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
+      decimals: position.pool.tokenAmounts[0]?.token.decimals,
+      price: position.currentAmounts[0]?.token.price,
+      isNative: isNativeToken(token0Address, position.chainId as keyof typeof WETH),
+      totalProvide: token0TotalProvide,
+      totalAmount: token0TotalProvide + token0EarnedAmount,
+      unclaimedAmount: position.feeInfo
+        ? position.feeInfo.amount0
+        : position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price,
+      unclaimedBalance: position.feeInfo ? position.feeInfo.balance0 : position.feePending[0].balance,
+      unclaimedValue: position.feeInfo ? position.feeInfo.value0 : position.feePending[0]?.quotes.usd.value,
+    },
+    token1: {
+      address: token1Address,
+      logo: position.pool.tokenAmounts[1]?.token.logo || '',
+      symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
+      decimals: position.pool.tokenAmounts[1]?.token.decimals,
+      price: position.currentAmounts[1]?.token.price,
+      isNative: isNativeToken(token1Address, position.chainId as keyof typeof WETH),
+      totalProvide: token1TotalProvide,
+      totalAmount: token1TotalProvide + token1EarnedAmount,
+      unclaimedAmount: position.feeInfo
+        ? position.feeInfo.amount1
+        : position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price,
+      unclaimedBalance: position.feeInfo ? position.feeInfo.balance1 : position.feePending[1].balance,
+      unclaimedValue: position.feeInfo ? position.feeInfo.value1 : position.feePending[1]?.quotes.usd.value,
+    },
+    tokenAddress: position.tokenAddress,
+    apr: position.apr || 0,
+    totalValue: position.currentPositionValue,
+    unclaimedFees: position.feeInfo
+      ? position.feeInfo.totalValue
+      : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0),
+    status: isUniv2 ? PositionStatus.IN_RANGE : position.status,
+    createdTime: position.createdTime,
+
+    isInKemLm: true,
+    kemPoolToMigrate: true,
+    rewardToken: 'KNC',
+    unclaimedRewards: 12.2,
+  }
 }

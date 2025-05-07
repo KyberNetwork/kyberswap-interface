@@ -3,12 +3,13 @@ import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import { usePositionHistoryQuery } from 'services/zapEarn'
-import { PositionHistoryType, ParsedPosition } from 'pages/Earns/types'
+
 import CopyHelper from 'components/Copy'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { InfoSection } from 'pages/Earns/PositionDetail/styles'
-import { useActiveWeb3React } from 'hooks'
+import { ParsedPosition, PositionHistoryType } from 'pages/Earns/types'
 
 const formatDateTime = (number: number) => (number < 10 ? `0${number}` : number)
 
@@ -19,7 +20,7 @@ const PositionHistory = ({ position }: { position: ParsedPosition }) => {
   const { data: historyData } = usePositionHistoryQuery({
     chainId: position.chain.id,
     tokenAddress: position.tokenAddress,
-    tokenId: position.id,
+    tokenId: position.tokenId,
     userAddress: account,
   })
 

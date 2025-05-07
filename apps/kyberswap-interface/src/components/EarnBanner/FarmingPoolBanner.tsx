@@ -1,3 +1,10 @@
+import { t } from '@lingui/macro'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+import { useExplorerLandingQuery } from 'services/zapEarn'
+
+import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import {
   FarmingAprBadge,
   FarmingPool,
@@ -8,15 +15,9 @@ import {
   MoveForwardIcon,
   PoolPairText,
 } from 'components/EarnBanner/styles'
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
-import { Flex, Text } from 'rebass'
-import { t } from '@lingui/macro'
-import useTheme from 'hooks/useTheme'
 import { useActiveWeb3React } from 'hooks'
-import { useExplorerLandingQuery } from 'services/zapEarn'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import useTheme from 'hooks/useTheme'
 import { formatAprNumber } from 'pages/Earns/utils'
-import { useMedia } from 'react-use'
 import { MEDIA_WIDTHS } from 'theme'
 
 let indexInterval: NodeJS.Timeout

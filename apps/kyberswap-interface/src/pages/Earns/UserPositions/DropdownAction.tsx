@@ -1,16 +1,16 @@
+import { t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
+import { Minus, MoreVertical, Plus } from 'react-feather'
 import { useMedia } from 'react-use'
+import { Text } from 'rebass'
 import styled from 'styled-components'
-import Loader from 'components/Loader'
-import { MEDIA_WIDTHS } from 'theme'
-import { EarnPosition } from 'pages/Earns/types'
-import { PositionToClaim } from 'pages/Earns/ClaimFeeModal'
-import { MoreVertical, Plus, Minus } from 'react-feather'
+
 import { ReactComponent as IconClaimRewards } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as IconClaimFees } from 'assets/svg/earn/ic_earn_claim_fees.svg'
+import Loader from 'components/Loader'
 import useTheme from 'hooks/useTheme'
-import { Text } from 'rebass'
-import { t } from '@lingui/macro'
+import { ParsedPosition } from 'pages/Earns/types'
+import { MEDIA_WIDTHS } from 'theme'
 
 const DropdownWrapper = styled.div`
   position: relative;
@@ -117,13 +117,13 @@ const DropdownAction = ({
   claiming,
   positionToClaim,
 }: {
-  position: EarnPosition
-  onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: EarnPosition) => void
-  onOpenZapOut: (e: React.MouseEvent, position: EarnPosition) => void
-  onClaimFee: (e: React.MouseEvent, position: EarnPosition) => void
+  position: ParsedPosition
+  onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: ParsedPosition) => void
+  onOpenZapOut: (e: React.MouseEvent, position: ParsedPosition) => void
+  onClaimFee: (e: React.MouseEvent, position: ParsedPosition) => void
   claimDisabled: boolean
   claiming: boolean
-  positionToClaim: PositionToClaim | null
+  positionToClaim: ParsedPosition | null
 }) => {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
@@ -143,7 +143,7 @@ const DropdownAction = ({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [ref])
 
-  const handleAction = (e: React.MouseEvent, action: (e: React.MouseEvent, position: EarnPosition) => void) => {
+  const handleAction = (e: React.MouseEvent, action: (e: React.MouseEvent, position: ParsedPosition) => void) => {
     setOpen(false)
     action(e, position)
   }
@@ -172,7 +172,7 @@ const DropdownAction = ({
           } else e.preventDefault()
         }}
       >
-        {claiming && positionToClaim && positionToClaim.id === position.tokenId ? (
+        {claiming && positionToClaim && positionToClaim.tokenId === position.tokenId ? (
           <Loader size={'16px'} stroke={'#7a7a7a'} />
         ) : (
           <IconClaimFees width={16} />

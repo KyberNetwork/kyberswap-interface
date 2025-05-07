@@ -31,6 +31,14 @@ import CrossChain from 'pages/CrossChain'
 import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import Header from 'pages/SwapV3/Header'
+import {
+  AppBodyWrapped,
+  BannerWrapper,
+  FarmingWrapper,
+  RoutingIconWrapper,
+  SwitchLocaleLinkWrapper,
+  TrendingWrapper,
+} from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useShowTradeRoutes } from 'state/user/hooks'
@@ -38,14 +46,6 @@ import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 
 import PopulatedSwapForm from './PopulatedSwapForm'
-import {
-  AppBodyWrapped,
-  BannerWrapper,
-  TrendingWrapper,
-  FarmingWrapper,
-  RoutingIconWrapper,
-  SwitchLocaleLinkWrapper,
-} from 'pages/SwapV3/styles'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 

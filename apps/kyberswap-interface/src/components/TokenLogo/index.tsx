@@ -1,5 +1,6 @@
-import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import styled from 'styled-components'
+
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 
 const Image = styled.img<{ primaryBoxShadow?: boolean }>`
   border-radius: 50%;

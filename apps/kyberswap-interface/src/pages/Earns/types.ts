@@ -1,3 +1,6 @@
+import { NativeToken } from 'constants/networks/type'
+import { EarnDex, EarnDex2 } from 'pages/Earns/constants'
+
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',
   OUT_RANGE = 'OUT_RANGE',
@@ -21,7 +24,7 @@ export interface PositionFilter {
 export interface EarnPool {
   address: string
   earnFee: number
-  exchange: string
+  exchange: EarnDex2
   type: string
   feeTier: number
   volume: number
@@ -66,20 +69,25 @@ export interface EarnPosition {
     tokenAmounts: Array<PositionAmount>
     fees: Array<number>
     tickSpacing: number
-    project: string
+    project: EarnDex
     projectLogo: string
   }
 }
 
 export interface ParsedPosition {
   id: string
+  tokenId: string
   pool: {
     fee: number
     address: string
+    isUniv2: boolean
+    nativeToken: NativeToken
+    tickSpacing: number
   }
   dex: {
-    id: string
+    id: EarnDex
     logo: string
+    version: string
   }
   chain: {
     id: number
@@ -103,6 +111,11 @@ export interface ParsedPosition {
   totalValue: number
   status: string
   createdTime: number
+  unclaimedFees: number
+  isInKemLm: boolean
+  kemPoolToMigrate: boolean
+  rewardToken: string
+  unclaimedRewards: number
 }
 
 interface Token {
@@ -112,6 +125,11 @@ interface Token {
   logo: string
   price: number
   totalAmount: number
+  isNative: boolean
+  totalProvide: number
+  unclaimedAmount: number
+  unclaimedBalance: number
+  unclaimedValue: number
 }
 
 interface PositionAmount {

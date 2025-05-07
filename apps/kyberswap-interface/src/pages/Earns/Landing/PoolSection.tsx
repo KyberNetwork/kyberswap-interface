@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
+
 import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { MEDIA_WIDTHS } from 'theme'
-import { PoolWrapper, ListPoolWrapper } from 'pages/Earns/Landing/styles'
 import Icon from 'pages/Earns/Landing/Icon'
 import PoolItem from 'pages/Earns/Landing/PoolItem'
+import { ListPoolWrapper, PoolWrapper } from 'pages/Earns/Landing/styles'
+import { MEDIA_WIDTHS } from 'theme'
 
 const PoolSection = ({
   title,

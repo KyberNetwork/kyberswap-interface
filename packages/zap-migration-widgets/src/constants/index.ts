@@ -29,7 +29,6 @@ import squadswapv3 from "./dexes/squadswapv3";
 import uniswapv2 from "./dexes/uniswapv2";
 import squadswapv2 from "./dexes/squadswapv2";
 import uniswapv4 from "./dexes/uniswapv4";
-import uniswapv4kem from "./dexes/uniswapv4kem";
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
@@ -54,7 +53,7 @@ export const NETWORKS_INFO: Record<ChainId, Chain> = {
 
 export const DEXES_INFO: Record<Dex, DexInfo> = {
   [Dex.DEX_UNISWAP_V4]: uniswapv4,
-  [Dex.DEX_UNISWAP_V4_KEM]: uniswapv4kem,
+  [Dex.DEX_UNISWAP_V4_KEM]: uniswapv4,
   [Dex.DEX_UNISWAPV3]: uniswapv3,
   [Dex.DEX_UNISWAPV2]: uniswapv2,
   [Dex.DEX_PANCAKESWAPV3]: pancakeswapv3,

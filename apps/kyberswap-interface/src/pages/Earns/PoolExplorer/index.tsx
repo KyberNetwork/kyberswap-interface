@@ -20,12 +20,6 @@ import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
-import { useNotify } from 'state/application/hooks'
-import { MEDIA_WIDTHS } from 'theme'
-
-import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
 import TableContent, { dexMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import {
@@ -40,8 +34,14 @@ import {
   TagContainer,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import { EarnDex2 } from 'pages/Earns/constants'
+import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
+import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { useNotify } from 'state/application/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 export enum FilterTag {
   FARMING_POOL = 'farming_pool',
@@ -156,13 +156,13 @@ const PoolExplorer = () => {
     }
   }
 
-  const handleOpenZapInWithParams = (pool: { exchange: string; chainId?: number; address: string }) => {
-    const { exchange, chainId, address } = pool
-    searchParams.set('exchange', exchange)
-    searchParams.set('poolChainId', chainId ? chainId.toString() : filters.chainId.toString())
+  const handleOpenZapInWithParams = ({ pool }: ZapInInfo) => {
+    const { dex, chainId, address } = pool
+    searchParams.set('exchange', dex)
+    searchParams.set('poolChainId', chainId.toString())
     searchParams.set('poolAddress', address)
     setSearchParams(searchParams)
-    handleOpenZapIn(pool)
+    handleOpenZapIn({ pool })
   }
 
   const handleRemoveUrlParams = useCallback(() => {
@@ -186,17 +186,17 @@ const PoolExplorer = () => {
   }, [deboundedSearch, filters.q, updateFilters])
 
   useEffect(() => {
-    const exchange = searchParams.get('exchange')
+    const dex = searchParams.get('exchange')
     const chainId = searchParams.get('poolChainId')
     const address = searchParams.get('poolAddress')
-    if (!exchange || !chainId || !address) {
+    if (!dex || !chainId || !address) {
       handleRemoveUrlParams()
       return
     }
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
-      if (pool && (pool.exchange === exchange || pool.exchange === dexMapping[exchange]))
-        handleOpenZapIn({ exchange, chainId: Number(chainId), address: pool.address })
+      if (pool && (pool.exchange === dex || pool.exchange === dexMapping[dex]))
+        handleOpenZapIn({ pool: { dex: dex as EarnDex2, chainId: Number(chainId), address: pool.address } })
       else {
         notify(
           {

@@ -1,10 +1,10 @@
 import { rgba } from 'polished'
+import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
 import bg from 'assets/images/earn-bg.png'
 import { ButtonPrimary } from 'components/Button'
-import { Link } from 'react-router-dom'
 
 export const WrapperBg = styled.div`
   background-image: url(${bg});

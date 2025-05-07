@@ -2,7 +2,6 @@ import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
-import { ParsedPosition } from 'pages/Earns/types'
 
 import HelpIcon from 'assets/svg/help-circle.svg'
 import InfoHelper from 'components/InfoHelper'
@@ -10,19 +9,8 @@ import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
-import { useAllTransactions } from 'state/transactions/hooks'
-import { formatDisplayNumber } from 'utils/numbers'
-
-import { DexImage } from 'pages/Earns/UserPositions/styles'
-import ClaimFeeModal, { isNativeToken } from 'pages/Earns/ClaimFeeModal'
-import {
-  CoreProtocol,
-  DEXES_SUPPORT_COLLECT_FEE,
-  EarnDex,
-  NFT_MANAGER_ABI,
-  NFT_MANAGER_CONTRACT,
-} from 'pages/Earns/constants'
-import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
+import ClaimFeeModal from 'pages/Earns/ClaimFeeModal'
+import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import {
   InfoLeftColumn,
   InfoRight,
@@ -31,16 +19,21 @@ import {
   PositionAction,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
-import PositionHistory from './PositionHistory'
+import { DexImage } from 'pages/Earns/UserPositions/styles'
+import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE, NFT_MANAGER_ABI, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
+import { ParsedPosition } from 'pages/Earns/types'
+import { formatAprNumber, isForkFrom, isNativeToken } from 'pages/Earns/utils'
+import { useAllTransactions } from 'state/transactions/hooks'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const FEE_FETCHING_INTERVAL = 30_000
 let feeFetchingInterval: NodeJS.Timeout
 
 export interface FeeInfo {
-  balance0: string
-  balance1: string
-  amount0: string
-  amount1: string
+  balance0: string | number
+  balance1: string | number
+  amount0: string | number
+  amount1: string | number
   value0: number
   value1: number
   totalValue: number
@@ -66,20 +59,20 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
 
   const isToken0Native = isNativeToken(position.token0.address, position.chain.id as keyof typeof WETH)
   const isToken1Native = isNativeToken(position.token1.address, position.chain.id as keyof typeof WETH)
-  const isUniv2 = isForkFrom(position.dex.id as EarnDex, CoreProtocol.UniswapV2)
+  const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
 
   const handleGetPositionOwner = useCallback(async () => {
     if (!contract) return
-    const owner = await contract.ownerOf(position.id)
+    const owner = await contract.ownerOf(position.tokenId)
     if (owner) setPositionOwner(owner)
-  }, [contract, position.id])
+  }, [contract, position.tokenId])
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!contract || !positionOwner) return
     const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
     const results = await contract.callStatic.collect(
       {
-        tokenId: position.id,
+        tokenId: position.tokenId,
         recipient: positionOwner,
         amount0Max: maxUnit,
         amount1Max: maxUnit,
@@ -105,7 +98,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
       value1: parseFloat(amount1) * position.token1.price,
       totalValue: parseFloat(amount0) * position.token0.price + parseFloat(amount1) * position.token1.price,
     })
-  }, [contract, position.chain, position.id, position.token0, position.token1, positionOwner])
+  }, [contract, position.chain, position.tokenId, position.token0, position.token1, positionOwner])
 
   useEffect(() => {
     handleGetPositionOwner()
@@ -235,7 +228,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           </Flex>
         </Flex>
       </InfoSection>
-      {DEXES_SUPPORT_COLLECT_FEE[position.dex.id as EarnDex] ? (
+      {DEXES_SUPPORT_COLLECT_FEE[position.dex.id] ? (
         <InfoSection>
           <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
             <Text fontSize={14} color={theme.subText} marginTop={1}>

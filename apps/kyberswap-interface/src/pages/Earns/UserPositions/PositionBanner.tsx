@@ -2,16 +2,15 @@ import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { EarnPosition } from 'pages/Earns/types'
 
-import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS } from 'theme'
-import { formatDisplayNumber } from 'utils/numbers'
-
-import { BannerContainer, BannerDataItem, BannerDivider, BannerWrapper } from 'pages/Earns/UserPositions/styles'
-import { PositionAction } from 'pages/Earns/PositionDetail/styles'
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import useTheme from 'hooks/useTheme'
+import { PositionAction } from 'pages/Earns/PositionDetail/styles'
+import { BannerContainer, BannerDataItem, BannerDivider, BannerWrapper } from 'pages/Earns/UserPositions/styles'
+import { EarnPosition } from 'pages/Earns/types'
+import { MEDIA_WIDTHS } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export default function PositionBanner({ positions }: { positions: Array<EarnPosition> | undefined }) {
   const theme = useTheme()

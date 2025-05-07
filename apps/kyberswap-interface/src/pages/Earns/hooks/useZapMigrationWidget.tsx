@@ -3,16 +3,15 @@ import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { EarnDex, earnSupportedProtocols } from 'pages/Earns/constants'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { EarnDex, earnSupportedProtocols } from 'pages/Earns/constants'
+import { navigateToPositionAfterZap } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
-
-import { navigateToPositionAfterZap } from 'pages/Earns/utils'
 
 interface MigrateLiquidityPureParams {
   from: {
@@ -41,14 +40,14 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
 }
 
-export interface OpenZapMigrationArgs {
+export interface ZapMigrationInfo {
   from: {
-    exchange: string
+    dex: EarnDex
     poolId: string
     positionId: string | number
   }
   to: {
-    exchange: string
+    dex: EarnDex
     poolId: string
     positionId?: string | number
   }
@@ -98,18 +97,17 @@ const useZapMigrationWidget = () => {
     [library, navigate],
   )
 
-  const handleOpenZapMigration = ({ from, to, chainId, initialTick }: OpenZapMigrationArgs) => {
-    const sourceDex = zapMigrationDexMapping[from.exchange as keyof typeof zapMigrationDexMapping]
-    const targetDex = zapMigrationDexMapping[to.exchange as keyof typeof zapMigrationDexMapping]
+  const handleOpenZapMigration = ({ from, to, chainId, initialTick }: ZapMigrationInfo) => {
+    const sourceDex = zapMigrationDexMapping[from.dex]
+    const targetDex = zapMigrationDexMapping[to.dex]
 
     if (!sourceDex || !targetDex) {
       notify(
         {
-          title: `Open liquidity migration widget failed`,
-          summary: `Protocol ${!sourceDex ? from.exchange : to.exchange} is not supported`,
+          title: `Protocol ${!sourceDex ? from.dex : to.dex} is not supported!`,
           type: NotificationType.ERROR,
         },
-        8000,
+        5_000,
       )
       return
     }

@@ -1,9 +1,9 @@
 import { rgba } from 'polished'
-import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
+import styled, { keyframes } from 'styled-components'
+
 import positionsBg from 'assets/banners/positions_background.png'
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
-
 import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
@@ -29,7 +29,7 @@ export const PositionRow = styled(Link)`
     24px /* Spacer column for better visual separation */
     minmax(150px, 1.5fr) /* Balance */
     minmax(160px, 1.5fr) /* Price range */
-    minmax(48px, auto); /* Actions */
+    minmax(75px, auto); /* Actions */
   grid-template-rows: 1fr;
   padding: 16px 28px;
   row-gap: 8px;
@@ -98,6 +98,7 @@ export enum BadgeType {
   PRIMARY = 'primary',
   WARNING = 'warning',
   SECONDARY = 'secondary',
+  ROUNDED = 'rounded',
 }
 
 export const Badge = styled.div<{ type?: BadgeType }>`
@@ -124,6 +125,10 @@ export const Badge = styled.div<{ type?: BadgeType }>`
       case BadgeType.SECONDARY:
         return `
             color: ${theme.blue2};
+            `
+      case BadgeType.ROUNDED:
+        return `
+            padding: 8px;
             `
       default:
         return ''
@@ -279,6 +284,10 @@ export const BannerWrapper = styled.div`
     border-radius: 12px;
   }
 
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    gap: 2rem;
+  `}
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
     justify-content: space-between;
     gap: 0;
@@ -333,7 +342,7 @@ export const PositionTableHeader = styled(TableHeader)`
     24px /* Spacer column for better visual separation */
     minmax(150px, 1.5fr) /* Balance */
     minmax(160px, 1.5fr) /* Price range */
-    minmax(48px, auto); /* Actions */
+    minmax(75px, auto); /* Actions */
 `
 
 export const PositionTableHeaderItem = styled.div`

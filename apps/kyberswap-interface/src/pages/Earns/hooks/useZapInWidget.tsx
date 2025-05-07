@@ -1,25 +1,22 @@
 import {
-  ChainId as ZapInChainId,
   LiquidityWidget as ZapIn,
+  ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
 } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { EarnDex, EarnDex2, earnSupportedProtocols } from 'pages/Earns/constants'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { EarnDex, EarnDex2, earnSupportedProtocols } from 'pages/Earns/constants'
+import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
+import { navigateToPositionAfterZap } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
-
-import useFilter from 'pages/Earns/PoolExplorer/useFilter'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils'
-import { OpenZapMigrationArgs } from './useZapMigrationWidget'
 
 interface AddLiquidityPureParams {
   poolAddress: string
@@ -39,6 +36,15 @@ interface AddLiquidityParams extends AddLiquidityPureParams {
   onSwitchChain: () => void
   onOpenZapMigration?: (position: { exchange: string; poolId: string; positionId: string | number }) => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>
+}
+
+export interface ZapInInfo {
+  pool: {
+    chainId: number
+    address: string
+    dex: EarnDex | EarnDex2
+  }
+  positionId?: string
 }
 
 const zapInDexMapping: Record<EarnDex | EarnDex2, ZapInPoolType> = {
@@ -62,14 +68,13 @@ const zapInDexMapping: Record<EarnDex | EarnDex2, ZapInPoolType> = {
   [EarnDex2.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
 }
 
-const useZapInWidget = ({ onOpenZapMigration }: { onOpenZapMigration: (props: OpenZapMigrationArgs) => void }) => {
+const useZapInWidget = ({ onOpenZapMigration }: { onOpenZapMigration: (props: ZapMigrationInfo) => void }) => {
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
   const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
-  const { filters } = useFilter()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -101,25 +106,21 @@ const useZapInWidget = ({ onOpenZapMigration }: { onOpenZapMigration: (props: Op
     [library, navigate],
   )
 
-  const handleOpenZapIn = (pool: { exchange: string; chainId?: number; address: string }, positionId?: string) => {
-    const dex = zapInDexMapping[pool.exchange as keyof typeof zapInDexMapping]
+  const handleOpenZapIn = ({ pool, positionId }: ZapInInfo) => {
+    const dex = zapInDexMapping[pool.dex]
     if (!dex) {
       notify(
         {
-          title: `Open pool detail failed`,
-          summary: `Protocol ${pool.exchange} on ${
-            NETWORKS_INFO[String(pool?.chainId || filters.chainId) as unknown as keyof typeof NETWORKS_INFO]?.name ||
-            'this network'
-          } is not supported`,
+          title: `Protocol ${pool.dex} is not supported!`,
           type: NotificationType.ERROR,
         },
-        8000,
+        5_000,
       )
       return
     }
     setAddLiquidityPureParams({
       poolAddress: pool.address,
-      chainId: (pool.chainId || filters.chainId) as ZapInChainId,
+      chainId: pool.chainId as ZapInChainId,
       poolType: dex,
       positionId,
     })
@@ -144,11 +145,14 @@ const useZapInWidget = ({ onOpenZapMigration }: { onOpenZapMigration: (props: Op
       const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
 
       onOpenZapMigration({
-        from: position,
+        from: {
+          ...position,
+          dex: position.exchange as EarnDex,
+        },
         to: {
           poolId: addLiquidityPureParams.poolAddress,
           positionId: addLiquidityPureParams.positionId,
-          exchange: dex,
+          dex: dex,
         },
         chainId: addLiquidityPureParams.chainId,
         initialTick,

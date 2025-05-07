@@ -1,13 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Flex, Text } from 'rebass'
-import { EarnPool } from 'pages/Earns/types'
+
+import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
-import { formatAprNumber } from 'pages/Earns/utils'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
-import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
-import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import { EarnPool } from 'pages/Earns/types'
+import { formatAprNumber } from 'pages/Earns/utils'
 
 const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) => {
   const theme = useTheme()
@@ -24,9 +25,11 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
       onClick={e => {
         e.stopPropagation()
         handleOpenZapIn({
-          exchange: pool.exchange,
-          chainId: pool.chainId,
-          address: pool.address,
+          pool: {
+            dex: pool.exchange,
+            chainId: pool.chainId as number,
+            address: pool.address,
+          },
         })
       }}
     >

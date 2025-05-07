@@ -1,16 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
 import { t } from '@lingui/macro'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
+
+import { ReactComponent as IconTrending } from 'assets/svg/earn/ic_pool_high_apr.svg'
+import { AprText, PoolApr, PoolAprWrapper, PoolWrapper, TrendingWrapper } from 'components/EarnBanner/styles'
+import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { formatAprNumber } from 'pages/Earns/utils'
-import { PoolAprWrapper, PoolApr, AprText, TrendingWrapper, PoolWrapper } from 'components/EarnBanner/styles'
-import { ReactComponent as IconTrending } from 'assets/svg/earn/ic_pool_high_apr.svg'
 import useTheme from 'hooks/useTheme'
-import TokenLogo from 'components/TokenLogo'
+import { formatAprNumber } from 'pages/Earns/utils'
 
 let indexInterval: NodeJS.Timeout
 

@@ -76,7 +76,7 @@ export const ClaimInfoRow = ({
 }: {
   tokenImage: string
   dexImage: string
-  tokenAmount: string
+  tokenAmount: string | number
   tokenSymbol: string
   tokenUsdValue: number
 }) => {
