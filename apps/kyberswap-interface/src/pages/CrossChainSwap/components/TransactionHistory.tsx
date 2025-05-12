@@ -43,7 +43,9 @@ export const TransactionHistory = () => {
   const [transactions, setTransactions] = useCrossChainTransactions()
 
   const pendingTxs = useMemo(() => {
-    return transactions.filter(tx => !tx.targetTxHash || !tx.status || tx.status === 'Processing')
+    return transactions.filter(
+      tx => (!tx.targetTxHash || !tx.status || tx.status === 'Processing') && tx.status !== 'Refunded',
+    )
   }, [transactions])
 
   useEffect(() => {

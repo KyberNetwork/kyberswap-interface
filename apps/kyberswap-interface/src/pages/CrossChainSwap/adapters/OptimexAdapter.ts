@@ -24,7 +24,7 @@ import { ZERO_ADDRESS } from 'constants/index'
 //  },
 //]
 
-const OPTIMEX_API = 'https://api-stg.bitdex.xyz/v1'
+const OPTIMEX_API = 'https://ks-provider.optimex.xyz/v1'
 
 interface OptimexToken {
   id: number
@@ -52,7 +52,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
   private async getTokens() {
     try {
-      const res = await fetch(`${OPTIMEX_API}/tokens`)
+      const res = await fetch(`${OPTIMEX_API}/provider/tokens`)
       const { data } = await res.json()
       this.tokens = data.tokens
     } catch (error) {
@@ -100,7 +100,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     }
 
     const [quoteRes, estimateRes] = await Promise.all([
-      fetch(`${OPTIMEX_API}/solver/indicative-quote`, {
+      fetch(`${OPTIMEX_API}/provider/solver/indicative-quote`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +113,9 @@ export class OptimexAdapter extends BaseSwapAdapter {
           to_token_id: toTokenId,
         }),
       }).then(res => res.json()),
-      fetch(`${OPTIMEX_API}/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res => res.json()),
+      fetch(`${OPTIMEX_API}/provider/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res =>
+        res.json(),
+      ),
     ])
 
     if (params.sender && params.recipient) {

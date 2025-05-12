@@ -104,6 +104,7 @@ export interface SwapProvider {
     quote: Quote,
     walletClient: WalletClient,
     nearWallet?: ReturnType<typeof useWalletSelector>,
+    sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
   ): Promise<NormalizedTxResponse>
   getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
 }

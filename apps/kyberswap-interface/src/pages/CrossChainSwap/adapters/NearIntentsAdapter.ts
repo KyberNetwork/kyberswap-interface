@@ -14,7 +14,8 @@ import { ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 
-export const MappingChainIdToBlockChain: Record<number, string> = {
+export const MappingChainIdToBlockChain: Record<string, string> = {
+  [NonEvmChain.Bitcoin]: 'btc',
   [ChainId.MAINNET]: 'eth',
   [ChainId.ARBITRUM]: 'arb',
   [ChainId.BSCMAINNET]: 'bsc',
@@ -60,6 +61,8 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
   async getQuote(params: NearQuoteParams): Promise<NormalizedQuote> {
     const deadline = new Date()
     deadline.setSeconds(deadline.getSeconds() + 60 * 20)
+
+    console.log(params)
 
     const fromAssetId =
       'assetId' in params.fromToken
@@ -142,6 +145,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     { quote }: Quote,
     walletClient: WalletClient,
     nearWallet?: ReturnType<typeof useWalletSelector>,
+    sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
   ): Promise<NormalizedTxResponse> {
     const params = {
       id: quote.rawQuote.quote.depositAddress, // specific id for each provider
@@ -153,6 +157,31 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       sourceToken: quote.quoteParams.fromToken,
       targetToken: quote.quoteParams.toToken,
       timestamp: new Date().getTime(),
+    }
+
+    if (quote.quoteParams.fromChain === NonEvmChain.Bitcoin) {
+      return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
+        if (!sendBtcFn) {
+          reject('Not connected')
+          return
+        }
+
+        const tx = await sendBtcFn({
+          recipient: quote.rawQuote.quote.depositAddress,
+          amount: quote.quoteParams.amount,
+        })
+        await OneClickService.submitDepositTx({
+          txHash: tx,
+          depositAddress: quote.rawQuote.quote.depositAddress,
+        }).catch(e => {
+          console.log('NearIntents submitDepositTx failed', e)
+        })
+
+        resolve({
+          ...params,
+          sourceTxHash: tx,
+        })
+      })
     }
 
     if (quote.quoteParams.fromChain === NonEvmChain.Near) {

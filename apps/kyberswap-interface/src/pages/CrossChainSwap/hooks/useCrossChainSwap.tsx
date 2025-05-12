@@ -15,6 +15,7 @@ import { NearToken, useNearTokens } from 'state/crossChainSwap'
 import { ZERO_ADDRESS } from 'constants/index'
 import { TOKEN_API_URL } from 'constants/env'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -93,6 +94,16 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signedAccountId])
+
+  const { walletInfo } = useBitcoinWallet()
+  const btcAddress = walletInfo?.address
+
+  useEffect(() => {
+    if (btcAddress && !btcRecipient) {
+      setBtcRecipient(btcAddress)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [btcAddress])
 
   const recipient = useMemo(() => {
     if (isToNear) return nearRecipient
@@ -211,8 +222,16 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         amount: inputAmount,
         slippage,
         walletClient: walletClient?.data,
-        sender: isFromNear ? signedAccountId || ZERO_ADDRESS : walletClient?.data?.account.address || ZERO_ADDRESS,
-        recipient: isToNear ? signedAccountId || ZERO_ADDRESS : walletClient?.data?.account.address || ZERO_ADDRESS,
+        sender: isFromBitcoin
+          ? btcAddress || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
+          : isFromNear
+          ? signedAccountId || ZERO_ADDRESS
+          : walletClient?.data?.account.address || ZERO_ADDRESS,
+        recipient: isToBitcoin
+          ? btcAddress || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p' // TODO: default address???
+          : isToNear
+          ? signedAccountId || ZERO_ADDRESS
+          : walletClient?.data?.account.address || ZERO_ADDRESS,
         nearTokens,
       })
       .catch(e => {
@@ -222,6 +241,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     setQuotes(q)
     setLoading(false)
   }, [
+    isFromBitcoin,
+    btcAddress,
+    isToBitcoin,
     fromChainId,
     toChainId,
     currencyIn,

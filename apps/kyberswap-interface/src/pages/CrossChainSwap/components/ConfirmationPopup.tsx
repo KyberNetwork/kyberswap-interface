@@ -17,6 +17,7 @@ import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
 import { isEvmChain } from 'utils'
 import { formatUnits } from 'viem'
+import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -82,6 +83,14 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const nearWallet = useWalletSelector()
 
+  const { walletInfo, availableWallets } = useBitcoinWallet()
+
+  const sendBtcFn = (params: { recipient: string; amount: string | number }) => {
+    const selectedWallet = availableWallets.find(item => item.type === walletInfo.walletType)
+    if (!selectedWallet) throw new Error('Not connected wallet')
+    return selectedWallet.sendBitcoin(params)
+  }
+
   const inputAmount =
     isEvmChain(fromChainId) && currencyIn
       ? CurrencyAmount.fromRawAmount(currencyIn as EvmCurrency, amountInWei || '0')
@@ -105,11 +114,13 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
   const handleSwap = async () => {
     if (isEvmChain(fromChainId) && !walletClient) return
     setSubmittingTx(true)
-    const res = await selectedQuote.adapter.executeSwap(selectedQuote, walletClient as any, nearWallet).catch(e => {
-      console.log(e)
-      setTxError(e?.message)
-      setSubmittingTx(false)
-    })
+    const res = await selectedQuote.adapter
+      .executeSwap(selectedQuote, walletClient as any, nearWallet, sendBtcFn)
+      .catch(e => {
+        console.log(e)
+        setTxError(e?.message)
+        setSubmittingTx(false)
+      })
     if (res) setTransactions([res, ...transactions])
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)

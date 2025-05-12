@@ -29,7 +29,7 @@ import { ExternalLink } from 'theme'
 import Option from './Option'
 import { useOrderedConnections } from './useConnections'
 
-const CloseIcon = styled.div`
+export const CloseIcon = styled.div`
   height: 24px;
   align-self: flex-end;
   cursor: pointer;
@@ -46,7 +46,7 @@ const Wrapper = styled.div`
   width: 100%;
 `
 
-const ContentWrapper = styled.div`
+export const ContentWrapper = styled.div`
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
   margin-top: 1rem;
@@ -70,13 +70,13 @@ export const TermAndCondition = styled.div`
   }
 `
 
-const UpperSection = styled.div`
+export const UpperSection = styled.div`
   position: relative;
   padding: 24px;
   position: relative;
 `
 
-const OptionGrid = styled.div`
+export const OptionGrid = styled.div`
   display: grid;
   gap: 1rem;
   align-items: center;

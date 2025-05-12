@@ -46,4 +46,7 @@ interface Window {
   chrome?: any
   opr?: any
   zESettings?: any
+
+  XverseProviders?: { BitcoinProvider: any }
+  bitkeep?: any
 }

@@ -25,6 +25,7 @@ import { isMobile } from 'react-device-detect'
 import { rgba } from 'polished'
 import { formatUnits } from 'viem'
 import { useNearBalances } from '../hooks/useNearBalances'
+import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -108,6 +109,8 @@ export const TokenPanel = ({
 
   const { balances } = useNearBalances()
 
+  const { balance: btcBalance } = useBitcoinWallet()
+
   return (
     <TokenPanelWrapper>
       <Flex justifyContent="space-between" marginBottom="12px">
@@ -135,14 +138,22 @@ export const TokenPanel = ({
               )
               return
             }
+
+            if (selectedChain === NonEvmChain.Bitcoin) {
+              onUserInput(formatUnits(BigInt(btcBalance || '0'), 8))
+              return
+            }
+
             onUserInput(balance?.toExact() || '0')
           }}
         >
           <Wallet color={theme.subText} />
-          {selectedChain === NonEvmChain.Near
+          {[NonEvmChain.Near, NonEvmChain.Bitcoin].includes(selectedChain)
             ? formatDisplayNumber(
                 formatUnits(
-                  BigInt(balances[(selectedCurrency as any)?.assetId] || '0'),
+                  NonEvmChain.Near === selectedChain
+                    ? BigInt(balances[(selectedCurrency as any)?.assetId] || '0')
+                    : BigInt(btcBalance),
                   (selectedCurrency as any)?.decimals,
                 ),
                 {

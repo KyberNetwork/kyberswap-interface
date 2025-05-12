@@ -13,8 +13,9 @@ import { isEvmChain } from 'utils'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useNearBalances } from '../hooks/useNearBalances'
 import { NonEvmChain } from '../adapters'
+import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 
-export const SwapAction = () => {
+export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean) => void }) => {
   const { account, chainId } = useActiveWeb3React()
   const {
     showPreview,
@@ -31,11 +32,14 @@ export const SwapAction = () => {
 
   const isFromEvm = isEvmChain(fromChainId)
   const isFromNear = fromChainId === NonEvmChain.Near
+  const isFromBitcoin = fromChainId === NonEvmChain.Bitcoin
   const balance = useCurrencyBalance(
     isFromEvm ? (currencyIn as Currency) : undefined,
     isFromEvm ? (fromChainId as ChainId) : undefined,
   )
   const { balances: nearBalances } = useNearBalances()
+  const { walletInfo } = useBitcoinWallet()
+  const btcAddress = walletInfo?.address
 
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
@@ -82,6 +86,15 @@ export const SwapAction = () => {
         label: 'Please input an amount',
         disabled: true,
         onClick: () => {},
+      }
+    }
+
+    if (isFromBitcoin && !btcAddress) {
+      return {
+        label: 'Connect Bitcoin Wallet',
+        onClick: () => {
+          setShowBtcModal(true)
+        },
       }
     }
 

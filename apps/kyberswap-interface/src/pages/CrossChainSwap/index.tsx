@@ -22,7 +22,9 @@ import { ButtonLight, ButtonOutlined } from 'components/Button'
 import { NonEvmChain } from './adapters'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { ChangeEvent } from 'react'
+import { ChangeEvent, useState } from 'react'
+import { BitcoinConnectModal } from './components/BitcoinConnectModal'
+import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 
 const Wrapper = styled.div`
   display: flex;
@@ -51,6 +53,7 @@ function CrossChainSwap() {
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const { account } = useActiveWeb3React()
+  const [showBtcModal, setShowBtcConnect] = useState(false)
 
   const isToNear = toChainId === NonEvmChain.Near
   const isToBtc = toChainId === NonEvmChain.Bitcoin
@@ -58,11 +61,13 @@ function CrossChainSwap() {
   const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : 'EVM'
 
   const nearWallet = useWalletSelector()
+  const { walletInfo, availableWallets } = useBitcoinWallet()
+  const btcAddress = walletInfo?.address
 
   const toggleWalletModal = useWalletModalToggle()
 
   const showNearConnect = isToNear && !nearWallet.signedAccountId
-  const showBtcConnect = isToBtc && true // TODO: handle connect btc wallet
+  const showBtcConnect = isToBtc && !btcAddress
   const showEvmConnect = isToEvm && !account
   const showConnect = showNearConnect || showBtcConnect || showEvmConnect
 
@@ -190,6 +195,8 @@ function CrossChainSwap() {
                   nearWallet.signIn()
                 } else if (isToEvm) {
                   toggleWalletModal()
+                } else if (isToBtc) {
+                  setShowBtcConnect(true)
                 }
               }}
             >
@@ -220,6 +227,9 @@ function CrossChainSwap() {
                     style={{ fontSize: '12px' }}
                     onClick={() => {
                       if (isToNear) nearWallet.signOut()
+                      if (isToBtc) {
+                        availableWallets.find(wallet => wallet.type === walletInfo.walletType)?.disconnect?.()
+                      }
                     }}
                   >
                     Disconnect
@@ -257,7 +267,14 @@ function CrossChainSwap() {
 
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
 
-      <SwapAction />
+      <SwapAction setShowBtcModal={setShowBtcConnect} />
+
+      <BitcoinConnectModal
+        isOpen={showBtcModal}
+        onDismiss={() => {
+          setShowBtcConnect(false)
+        }}
+      />
     </Wrapper>
   )
 }
