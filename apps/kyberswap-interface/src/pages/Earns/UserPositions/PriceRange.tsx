@@ -1,3 +1,4 @@
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useMemo, useRef, useState } from 'react'
 
@@ -12,7 +13,6 @@ import {
   UpperPriceIndicator,
 } from 'pages/Earns/UserPositions/styles'
 import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 import { isForkFrom } from 'pages/Earns/utils'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 

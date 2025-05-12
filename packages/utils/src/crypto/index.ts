@@ -2,6 +2,16 @@ import { keccak256 } from "js-sha3";
 
 export * from "./address";
 
+interface JsonRpcResponse<T> {
+  jsonrpc: string;
+  id: number;
+  result?: T;
+  error?: {
+    code: number;
+    message: string;
+  };
+}
+
 // Function to encode a uint256 parameter to hex (minimal ABI encoding)
 export function encodeUint256(value: bigint): string {
   return value.toString(16).padStart(64, "0"); // Encode bigint as hex, pad to 32 bytes
@@ -29,7 +39,7 @@ export function decodeUint(hex: string): bigint {
 export function decodeInt24(hex: string): number {
   const last3Bytes = hex.slice(-6);
   const int = parseInt(last3Bytes, 16);
-  // If the int is greater than the max signed value for 24 bits (2^23), it’s negative
+  // If the int is greater than the max signed value for 24 bits (2^23), it's negative
   return int >= 0x800000 ? int - 0x1000000 : int;
 }
 
@@ -46,9 +56,12 @@ export async function getCurrentGasPrice(rpcUrl: string) {
       id: 1,
     }),
   });
-  const result = await response.json();
+  const result = (await response.json()) as JsonRpcResponse<string>;
   if (result.error) {
     throw new Error(result.error.message);
+  }
+  if (!result.result) {
+    throw new Error("No result returned from RPC call");
   }
   return parseInt(result.result, 16); // Convert from hex to decimal
 }
@@ -81,21 +94,24 @@ export async function estimateGas(
       id: 1,
     }),
   });
-  const result = await response.json();
+  const result = (await response.json()) as JsonRpcResponse<string>;
   if (result.error) {
     throw new Error(result.error.message);
+  }
+  if (!result.result) {
+    throw new Error("No result returned from RPC call");
   }
   return BigInt(result.result); // Gas estimate as a hex string
 }
 
 interface TxReceipt {
-  status: boolean;
+  status: string;
 }
 
 export async function isTransactionSuccessful(
   rpcUrl: string,
   txHash: string
-): Promise<false | TxReceipt> {
+): Promise<false | { status: boolean }> {
   const response = await fetch(rpcUrl, {
     method: "POST",
     headers: {
@@ -109,7 +125,7 @@ export async function isTransactionSuccessful(
     }),
   });
 
-  const result = await response.json();
+  const result = (await response.json()) as JsonRpcResponse<TxReceipt>;
 
   // Check if the transaction receipt was found
   if (!result.result) {
@@ -160,9 +176,14 @@ export async function checkApproval({
         id: 1,
       }),
     });
-    const result = await response.json();
-    const allowance = BigInt(result.result);
-    return allowance;
+    const result = (await response.json()) as JsonRpcResponse<string>;
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+    if (!result.result) {
+      throw new Error("No result returned from RPC call");
+    }
+    return BigInt(result.result);
   } catch (e) {
     throw e;
   }

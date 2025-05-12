@@ -1,3 +1,4 @@
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
 import { useMemo } from 'react'
@@ -5,7 +6,6 @@ import { useMedia } from 'react-use'
 import { usePoolDetailQuery } from 'services/poolService'
 
 import { ChartWrapper } from 'pages/Earns/PositionDetail/styles'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 import { MEDIA_WIDTHS } from 'theme'
 import { toString } from 'utils/numbers'
 

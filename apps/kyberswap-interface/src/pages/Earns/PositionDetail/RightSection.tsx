@@ -1,3 +1,4 @@
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
@@ -25,7 +26,6 @@ import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition } from 'pages/Earns/types'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 import { isForkFrom } from 'pages/Earns/utils'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
