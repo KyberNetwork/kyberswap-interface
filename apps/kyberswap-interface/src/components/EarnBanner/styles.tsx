@@ -87,7 +87,7 @@ export const PoolApr = styled.div`
 export const FarmingWrapper = styled.div`
   width: 100%;
   padding: 10px 16px;
-  gap: 5px;
+  gap: 11px;
   border-radius: 16px;
   display: flex;
   flex-direction: column;

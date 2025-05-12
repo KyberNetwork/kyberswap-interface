@@ -4,17 +4,17 @@ import {
   PoolType as ZapInPoolType,
 } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { usePreviousDistinct } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EarnDex, EarnDex2, earnSupportedProtocols } from 'pages/Earns/constants'
+import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils'
+import { navigateToPositionAfterZap, submitTransaction } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
@@ -182,16 +182,9 @@ const useZapInWidget = ({ onOpenZapMigration }: { onOpenZapMigration: (props: Za
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
             onOpenZapMigration: handleOpenZapMigration,
             onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
-              try {
-                if (!library) throw new Error('Library is not ready!')
-                await library.estimateGas(txData)
-                const res = await library?.getSigner().sendTransaction(txData)
-                if (!res) throw new Error('Transaction failed')
-                return res.hash
-              } catch (e) {
-                console.log(e)
-                throw e
-              }
+              const txHash = await submitTransaction({ library, txData })
+              if (!txHash) throw new Error('Transaction failed')
+              return txHash
             },
           }
         : null,
@@ -209,11 +202,7 @@ const useZapInWidget = ({ onOpenZapMigration }: { onOpenZapMigration: (props: Za
     ],
   )
 
-  const previousAccount = usePreviousDistinct(account)
-
-  useEffect(() => {
-    if (account && previousAccount) handleCloseZapInWidget()
-  }, [account, previousAccount, handleCloseZapInWidget])
+  useAccountChanged(handleCloseZapInWidget)
 
   const widget = addLiquidityParams ? (
     <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapInWidget}>

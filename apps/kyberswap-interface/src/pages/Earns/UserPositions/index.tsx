@@ -27,6 +27,7 @@ import {
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { CoreProtocol, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -67,9 +68,15 @@ const UserPositions = () => {
     data: userPosition,
     isFetching,
     isError,
+    refetch,
   } = useUserPositionsQuery(positionQueryParams, {
     skip: !account,
     pollingInterval: 15_000,
+  })
+
+  useAccountChanged(() => {
+    refetch()
+    setLoading(true)
   })
 
   const filteredPositions = useMemo(() => {

@@ -1,6 +1,6 @@
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ArrowRightCircle } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -14,7 +14,6 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import ClaimFeeModal from 'pages/Earns/ClaimFeeModal'
 import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
@@ -34,22 +33,21 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
-import {
-  CoreProtocol,
-  DEXES_HIDE_TOKEN_ID,
-  DEXES_SUPPORT_COLLECT_FEE,
-  EarnDex,
-  NFT_MANAGER_ABI,
-  NFT_MANAGER_CONTRACT,
-} from 'pages/Earns/constants'
+import { CoreProtocol, DEXES_HIDE_TOKEN_ID, DEXES_SUPPORT_COLLECT_FEE, EarnDex } from 'pages/Earns/constants'
+import useCollectFees from 'pages/Earns/hooks/useCollectFees'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { EarnPosition, ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { formatAprNumber, isForkFrom, parseRawPosition } from 'pages/Earns/utils'
+import {
+  formatAprNumber,
+  getFullUnclaimedFeesInfo,
+  getNftManagerContract,
+  isForkFrom,
+  parseRawPosition,
+} from 'pages/Earns/utils'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useAllTransactions } from 'state/transactions/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { getReadingContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export interface FeeInfoFromRpc extends FeeInfo {
@@ -76,13 +74,56 @@ export default function TableContent({
   const theme = useTheme()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
-  const allTransactions = useAllTransactions(true)
-
-  const [claiming, setClaiming] = useState(false)
-  const [claimTx, setClaimTx] = useState<string | null>(null)
   const [positionToClaim, setPositionToClaim] = useState<ParsedPosition | null>(null)
-  const [feeInfoToClaim, setFeeInfoToClaim] = useState<FeeInfo | null>(null)
+
+  const {
+    claimModal: claimFeesModal,
+    onOpenClaim: onOpenClaimFees,
+    claiming: feesClaiming,
+  } = useCollectFees({
+    refetchAfterCollect: () => {
+      handleFetchUnclaimedFee(positionToClaim)
+      setPositionToClaim(null)
+    },
+  })
+
+  const { rewardInfo } = useKemRewards({
+    campaignId: '0x4e68e00a1a0e6bc8d38429b3e370fb8c24c612e7f0308111d92c21f44fd26cc7',
+  })
+
+  const handleFetchUnclaimedFee = useCallback(
+    async (position: ParsedPosition | null) => {
+      if (!position || !library) return
+
+      const { token0, token1, chain, dex, tokenId } = position
+      const contract = getNftManagerContract(dex.id, chain.id, library)
+
+      if (!contract) return
+      const owner = await contract.ownerOf(position.tokenId)
+
+      const feeFromRpc = await getFullUnclaimedFeesInfo({
+        contract,
+        positionOwner: owner,
+        tokenId,
+        chainId: chain.id,
+        token0,
+        token1,
+      })
+      const feeInfoToAdd = {
+        ...feeFromRpc,
+        id: tokenId,
+        timeRemaining: 30,
+      }
+
+      const feeInfoFromRpcClone = [...feeInfoFromRpc]
+      const index = feeInfoFromRpcClone.findIndex(feeInfo => feeInfo.id === tokenId)
+      if (index !== -1) feeInfoFromRpcClone[index] = feeInfoToAdd
+      else feeInfoFromRpcClone.push(feeInfoToAdd)
+
+      setFeeInfoFromRpc(feeInfoFromRpcClone)
+    },
+    [feeInfoFromRpc, library, setFeeInfoFromRpc],
+  )
 
   const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
@@ -112,107 +153,18 @@ export default function TableContent({
     })
   }
 
-  const handleClaimFee = (e: React.MouseEvent, position: ParsedPosition) => {
+  const handleClaimFees = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-
-    if (position.pool.isUniv2 || claiming || position.unclaimedFees === 0) return
-    setPositionToClaim(position)
-
-    setFeeInfoToClaim({
-      balance0: position.token0.unclaimedBalance,
-      balance1: position.token1.unclaimedBalance,
-      amount0: position.token0.unclaimedAmount,
-      amount1: position.token1.unclaimedAmount,
-      value0: position.token0.unclaimedValue,
-      value1: position.token1.unclaimedValue,
-      totalValue: position.unclaimedFees,
-    })
+    if (position.pool.isUniv2 || feesClaiming || position.unclaimedFees === 0) return
+    onOpenClaimFees(position)
   }
-
-  const handleFetchUnclaimedFee = useCallback(
-    async (position: ParsedPosition | null) => {
-      if (!position || !library) return
-
-      const { token0, token1, chain, dex, tokenId } = position
-
-      const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[dex.id as keyof typeof NFT_MANAGER_CONTRACT]
-      const nftManagerContract =
-        typeof nftManagerContractOfDex === 'string'
-          ? nftManagerContractOfDex
-          : nftManagerContractOfDex[chain.id as keyof typeof nftManagerContractOfDex]
-      const nftManagerAbi = NFT_MANAGER_ABI[dex.id as keyof typeof NFT_MANAGER_ABI]
-
-      if (!nftManagerAbi) return
-      const contract = getReadingContract(nftManagerContract, nftManagerAbi, library)
-
-      if (!contract) return
-      const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
-      const owner = await contract.ownerOf(position.tokenId)
-      const results = await contract.callStatic.collect(
-        {
-          tokenId: tokenId,
-          recipient: owner,
-          amount0Max: maxUnit,
-          amount1Max: maxUnit,
-        },
-        { from: owner },
-      )
-      const balance0 = results.amount0.toString()
-      const balance1 = results.amount1.toString()
-      const amount0 = CurrencyAmount.fromRawAmount(
-        new Token(chain.id, token0.address, token0.decimals),
-        balance0,
-      ).toExact()
-      const amount1 = CurrencyAmount.fromRawAmount(
-        new Token(chain.id, token1.address, token1.decimals),
-        balance1,
-      ).toExact()
-
-      const token0Price = token0.price
-      const token1Price = token1.price
-
-      const feeInfoToAdd = {
-        id: tokenId,
-        balance0,
-        balance1,
-        amount0,
-        amount1,
-        value0: parseFloat(amount0) * token0Price,
-        value1: parseFloat(amount1) * token1Price,
-        totalValue: parseFloat(amount0) * token0Price + parseFloat(amount1) * token1Price,
-        timeRemaining: 30,
-      }
-
-      const feeInfoFromRpcClone = [...feeInfoFromRpc]
-      const index = feeInfoFromRpcClone.findIndex(feeInfo => feeInfo.id === tokenId)
-      if (index !== -1) feeInfoFromRpcClone[index] = feeInfoToAdd
-      else feeInfoFromRpcClone.push(feeInfoToAdd)
-
-      setFeeInfoFromRpc(feeInfoFromRpcClone)
-    },
-    [feeInfoFromRpc, library, setFeeInfoFromRpc],
-  )
 
   const handleMigrateToKem = (e: React.MouseEvent, position: EarnPosition) => {
     e.stopPropagation()
     e.preventDefault()
     console.log('migrate to kem', position)
   }
-
-  useEffect(() => {
-    if (claimTx && allTransactions && allTransactions[claimTx]) {
-      const tx = allTransactions[claimTx]
-      if (tx?.[0].receipt && tx?.[0].receipt.status === 1) {
-        setClaiming(false)
-        setClaimTx(null)
-        handleFetchUnclaimedFee(positionToClaim)
-        setPositionToClaim(null)
-        setFeeInfoToClaim(null)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allTransactions])
 
   const emptyPosition = (
     <EmptyPositionText>
@@ -227,19 +179,8 @@ export default function TableContent({
 
   return (
     <>
-      {positionToClaim && feeInfoToClaim && (
-        <ClaimFeeModal
-          claiming={claiming}
-          setClaiming={setClaiming}
-          setClaimTx={setClaimTx}
-          position={positionToClaim}
-          feeInfo={feeInfoToClaim}
-          onClose={() => {
-            setPositionToClaim(null)
-            setFeeInfoToClaim(null)
-          }}
-        />
-      )}
+      {claimFeesModal}
+
       <PositionTableBody>
         {account && positions && positions.length > 0
           ? positions.map((position, index) => {
@@ -262,7 +203,22 @@ export default function TableContent({
                 unclaimedRewards,
                 status,
               } = parsedPosition
-              const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || claiming
+              const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
+
+              const actions = (
+                <DropdownAction
+                  position={parsedPosition}
+                  onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
+                  onOpenZapOut={handleOpenZapOut}
+                  onClaimFee={handleClaimFees}
+                  claimDisabled={claimDisabled}
+                  claiming={feesClaiming}
+                  positionToClaim={positionToClaim}
+                  placement={index < positions.length - 2 ? 'bottom' : 'top'}
+                />
+              )
+
+              const rewardNftInfo = rewardInfo?.nfts.find(nft => nft.nftId === tokenId)
 
               return (
                 <PositionRow
@@ -303,19 +259,7 @@ export default function TableContent({
                   </PositionOverview>
 
                   {/* Actions for Tablet */}
-                  {upToLarge && (
-                    <PositionActionWrapper>
-                      <DropdownAction
-                        position={parsedPosition}
-                        onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
-                        onOpenZapOut={handleOpenZapOut}
-                        onClaimFee={handleClaimFee}
-                        claimDisabled={claimDisabled}
-                        claiming={claiming}
-                        positionToClaim={positionToClaim}
-                      />
-                    </PositionActionWrapper>
-                  )}
+                  {upToLarge && <PositionActionWrapper>{actions}</PositionActionWrapper>}
 
                   {/* Value info */}
                   <PositionValueWrapper>
@@ -402,9 +346,15 @@ export default function TableContent({
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     <Flex alignItems={'center'} sx={{ gap: 1 }}>
                       {upToSmall && <IconKem width={20} height={20} />}
-                      <Text>
-                        {formatDisplayNumber(unclaimedRewards, { significantDigits: 4 })} {rewardToken}
-                      </Text>
+                      <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+                        {rewardNftInfo
+                          ? rewardNftInfo.tokens.map((token, index) => (
+                              <Text key={index}>
+                                {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
+                              </Text>
+                            ))
+                          : null}
+                      </Flex>
                     </Flex>
                   </PositionValueWrapper>
 
@@ -438,19 +388,7 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Actions info */}
-                  {!upToLarge && (
-                    <PositionValueWrapper align="flex-end">
-                      <DropdownAction
-                        position={parsedPosition}
-                        onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
-                        onOpenZapOut={handleOpenZapOut}
-                        onClaimFee={handleClaimFee}
-                        claimDisabled={claimDisabled}
-                        claiming={claiming}
-                        positionToClaim={positionToClaim}
-                      />
-                    </PositionValueWrapper>
-                  )}
+                  {!upToLarge && <PositionValueWrapper align="flex-end">{actions}</PositionValueWrapper>}
                 </PositionRow>
               )
             })

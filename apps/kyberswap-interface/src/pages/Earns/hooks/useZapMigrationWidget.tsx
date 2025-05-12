@@ -9,7 +9,8 @@ import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EarnDex, earnSupportedProtocols } from 'pages/Earns/constants'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils'
+import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import { navigateToPositionAfterZap, submitTransaction } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
@@ -150,15 +151,9 @@ const useZapMigrationWidget = () => {
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
             onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
-              try {
-                if (!library) throw new Error('Library is not ready!')
-                const res = await library?.getSigner().sendTransaction(txData)
-                if (!res) throw new Error('Transaction failed')
-                return res.hash
-              } catch (e) {
-                console.log(e)
-                throw e
-              }
+              const txHash = await submitTransaction({ library, txData })
+              if (!txHash) throw new Error('Transaction failed')
+              return txHash
             },
           }
         : null,
@@ -179,6 +174,8 @@ const useZapMigrationWidget = () => {
   useEffect(() => {
     if (account && previousAccount) setMigrateLiquidityPureParams(null)
   }, [account, previousAccount])
+
+  useAccountChanged(() => setMigrateLiquidityPureParams(null))
 
   const widget = migrateLiquidityParams ? (
     <Modal

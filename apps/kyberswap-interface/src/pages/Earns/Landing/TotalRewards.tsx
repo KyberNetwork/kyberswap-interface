@@ -9,6 +9,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { RewardsNavigateButton } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -19,9 +20,13 @@ const TotalRewards = () => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const totalRewards = 1276
-  const tokenRewards = 'KNC'
-  const rewardUsdValue = 876.76
+  const { rewardInfo } = useKemRewards({
+    campaignId: '0x4e68e00a1a0e6bc8d38429b3e370fb8c24c612e7f0308111d92c21f44fd26cc7',
+  })
+
+  const totalRewardsAmount = rewardInfo?.totalRewardsAmount || 0
+  const rewardUsdValue = rewardInfo?.totalRewardsUsdValue || 0
+  const rewardToken = 'KNC'
 
   const btnPath = !account
     ? '#'
@@ -58,8 +63,8 @@ const TotalRewards = () => {
           />
           <Flex flexDirection={upToSmall ? 'column' : 'row'} alignContent={'center'} sx={{ gap: upToSmall ? 0 : 2 }}>
             <Flex alignContent={'center'} sx={{ gap: 2 }}>
-              <Text>{formatDisplayNumber(totalRewards, { significantDigits: 4 })}</Text>
-              <Text>{tokenRewards}</Text>
+              <Text>{formatDisplayNumber(totalRewardsAmount, { significantDigits: 6 })}</Text>
+              <Text>{rewardToken}</Text>
             </Flex>
             {rewardUsdValue > 0 ? (
               <Text width={'fit-content'} color={theme.subText} fontSize={upToSmall ? '16px' : undefined}>

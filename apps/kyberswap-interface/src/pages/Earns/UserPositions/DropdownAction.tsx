@@ -36,9 +36,10 @@ const DropdownTitleWrapper = styled.div<{ open: boolean }>`
   `}
 `
 
-const DropdownContent = styled.div`
+const DropdownContent = styled.div<{ placement?: 'top' | 'bottom' }>`
   position: absolute;
-  top: 42px;
+  top: ${({ placement }) => (placement === 'bottom' ? '42px' : undefined)};
+  bottom: ${({ placement }) => (placement === 'top' ? '34px' : undefined)};
   right: 0;
   background: ${({ theme }) => theme.tabActive};
   border-radius: 12px;
@@ -116,6 +117,7 @@ const DropdownAction = ({
   claimDisabled,
   claiming,
   positionToClaim,
+  placement = 'bottom',
 }: {
   position: ParsedPosition
   onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: ParsedPosition) => void
@@ -124,6 +126,7 @@ const DropdownAction = ({
   claimDisabled: boolean
   claiming: boolean
   positionToClaim: ParsedPosition | null
+  placement?: 'top' | 'bottom'
 }) => {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
@@ -197,7 +200,7 @@ const DropdownAction = ({
       <DropdownTitleWrapper open={open} onClick={handleOpenChange}>
         <MoreVertical color={theme.subText} size={18} />
       </DropdownTitleWrapper>
-      {!upToExtraSmall && open && <DropdownContent>{renderActionItems()}</DropdownContent>}
+      {!upToExtraSmall && open && <DropdownContent placement={placement}>{renderActionItems()}</DropdownContent>}
       {upToExtraSmall && (
         <>
           <Overlay open={open} onClick={onClickOverlay} />

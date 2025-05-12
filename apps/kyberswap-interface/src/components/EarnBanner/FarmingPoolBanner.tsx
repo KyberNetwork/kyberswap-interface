@@ -75,7 +75,7 @@ export default function FarmingPoolBanner() {
   }, [totalPools])
 
   useEffect(() => {
-    indexInterval = setInterval(handleMoveForward, 10_000)
+    indexInterval = setInterval(handleMoveForward, 6_000)
 
     return () => indexInterval && clearInterval(indexInterval)
   }, [handleMoveForward])

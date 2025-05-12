@@ -190,3 +190,5 @@ export const PROTOCOLS_CORE_MAPPING: Record<EarnDex, CoreProtocol> = {
   [EarnDex.DEX_UNISWAPV2]: CoreProtocol.UniswapV2,
   [EarnDex.DEX_UNISWAP_V4]: CoreProtocol.UniswapV4,
 }
+
+export const KEM_REWARDS_CONTRACT = '0x0bd49FdEa9e8c3Fc410f37A643377C45659297cc'

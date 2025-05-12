@@ -1,13 +1,14 @@
 import { ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
 import '@kyberswap/zap-out-widgets/dist/style.css'
-import { useEffect, useMemo, useState } from 'react'
-import { usePreviousDistinct } from 'react-use'
+import { useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EarnDex, EarnDex2 } from 'pages/Earns/constants'
+import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import { submitTransaction } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
@@ -71,15 +72,9 @@ const useZapOutWidget = () => {
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
             onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
-              try {
-                if (!library) throw new Error('Library is not ready!')
-                const res = await library?.getSigner().sendTransaction(txData)
-                if (!res) throw new Error('Transaction failed')
-                return res.hash
-              } catch (e) {
-                console.log(e)
-                throw e
-              }
+              const txHash = await submitTransaction({ library, txData })
+              if (!txHash) throw new Error('Transaction failed')
+              return txHash
             },
           }
         : null,
@@ -107,11 +102,7 @@ const useZapOutWidget = () => {
     })
   }
 
-  const previousAccount = usePreviousDistinct(account)
-
-  useEffect(() => {
-    if (account && previousAccount) setZapOutPureParams(null)
-  }, [account, previousAccount])
+  useAccountChanged(() => setZapOutPureParams(null))
 
   const widget = zapOutParams ? (
     <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={() => setZapOutPureParams(null)}>

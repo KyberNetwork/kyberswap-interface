@@ -1,6 +1,6 @@
-import { Web3Provider } from '@ethersproject/providers'
-import { WETH } from '@kyberswap/ks-sdk-core'
-import { ethers } from 'ethers'
+import { TransactionRequest, Web3Provider } from '@ethersproject/providers'
+import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { Contract, ethers } from 'ethers'
 
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -9,10 +9,13 @@ import {
   EarnChain,
   EarnDex,
   NATIVE_ADDRESSES,
+  NFT_MANAGER_ABI,
   NFT_MANAGER_CONTRACT,
   PROTOCOLS_CORE_MAPPING,
 } from 'pages/Earns/constants'
 import { EarnPosition, PositionStatus } from 'pages/Earns/types'
+import { calculateGasMargin } from 'utils'
+import { getReadingContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const formatAprNumber = (apr: string | number): string => {
@@ -99,6 +102,8 @@ export const parseRawPosition = (position: EarnPosition) => {
   const dex = position.pool.project || ''
   const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
 
+  const listDexesWithVersion = [EarnDex.DEX_UNISWAPV2, EarnDex.DEX_UNISWAPV3, EarnDex.DEX_UNISWAP_V4]
+
   return {
     id: position.id,
     tokenId: position.tokenId,
@@ -112,7 +117,7 @@ export const parseRawPosition = (position: EarnPosition) => {
     dex: {
       id: dex,
       logo: position.pool.projectLogo || '',
-      version: position.pool.project?.split(' ')?.[1] || '',
+      version: listDexesWithVersion.includes(dex) ? position.pool.project?.split(' ')?.[1] || '' : '',
     },
     chain: {
       id: position.chainId,
@@ -175,4 +180,123 @@ export const parseRawPosition = (position: EarnPosition) => {
     rewardToken: 'KNC',
     unclaimedRewards: 12.2,
   }
+}
+
+export const submitTransaction = async ({
+  library,
+  txData,
+  onError,
+}: {
+  library?: Web3Provider
+  txData: TransactionRequest
+  onError?: (error: Error) => void
+}) => {
+  if (!library) throw new Error('Library is not ready!')
+  try {
+    const estimate = await library.getSigner().estimateGas(txData)
+    const res = await library.getSigner().sendTransaction({
+      ...txData,
+      gasLimit: calculateGasMargin(estimate),
+    })
+
+    return res.hash || undefined
+  } catch (error) {
+    console.error('Submit transaction error:', error)
+    if (onError) onError(error as Error)
+    return
+  }
+}
+
+export const getUnclaimedFees = async ({
+  contract,
+  positionOwner,
+  tokenId,
+}: {
+  contract: Contract
+  positionOwner: string
+  tokenId: string
+}) => {
+  const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
+  const results = await contract.callStatic.collect(
+    {
+      tokenId: tokenId,
+      recipient: positionOwner,
+      amount0Max: maxUnit,
+      amount1Max: maxUnit,
+    },
+    { from: positionOwner },
+  )
+  const balance0 = results.amount0.toString()
+  const balance1 = results.amount1.toString()
+
+  return { balance0, balance1 }
+}
+
+export const getFullUnclaimedFeesInfo = async ({
+  contract,
+  positionOwner,
+  tokenId,
+  chainId,
+  token0,
+  token1,
+}: {
+  contract: Contract
+  positionOwner: string
+  tokenId: string
+  chainId: number
+  token0: {
+    address: string
+    decimals: number
+    price: number
+  }
+  token1: {
+    address: string
+    decimals: number
+    price: number
+  }
+}) => {
+  const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
+  const results = await contract.callStatic.collect(
+    {
+      tokenId: tokenId,
+      recipient: positionOwner,
+      amount0Max: maxUnit,
+      amount1Max: maxUnit,
+    },
+    { from: positionOwner },
+  )
+  const balance0 = results.amount0.toString()
+  const balance1 = results.amount1.toString()
+
+  const amount0 = CurrencyAmount.fromRawAmount(new Token(chainId, token0.address, token0.decimals), balance0).toExact()
+  const amount1 = CurrencyAmount.fromRawAmount(new Token(chainId, token1.address, token1.decimals), balance1).toExact()
+
+  const token0Price = token0.price
+  const token1Price = token1.price
+
+  return {
+    balance0,
+    balance1,
+    amount0,
+    amount1,
+    value0: parseFloat(amount0) * token0Price,
+    value1: parseFloat(amount1) * token1Price,
+    totalValue: parseFloat(amount0) * token0Price + parseFloat(amount1) * token1Price,
+  }
+}
+
+export const getNftManagerContractAddress = (dex: EarnDex, chainId: number) => {
+  const nftManagerContractElement = NFT_MANAGER_CONTRACT[dex]
+
+  return typeof nftManagerContractElement === 'string'
+    ? nftManagerContractElement
+    : nftManagerContractElement[chainId as keyof typeof nftManagerContractElement]
+}
+
+export const getNftManagerContract = (dex: EarnDex, chainId: number, library: Web3Provider) => {
+  const nftManagerContractAddress = getNftManagerContractAddress(dex, chainId)
+  const nftManagerAbi = NFT_MANAGER_ABI[dex]
+  if (!nftManagerAbi) return
+
+  return getReadingContract(nftManagerContractAddress, nftManagerAbi, library)
 }
