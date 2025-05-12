@@ -199,8 +199,6 @@ export default function TableContent({
                 unclaimedFees,
                 isInKemLm,
                 kemPoolToMigrate,
-                rewardToken,
-                unclaimedRewards,
                 status,
               } = parsedPosition
               const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming

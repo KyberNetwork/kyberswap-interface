@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
@@ -12,6 +13,14 @@ import { useNotify } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+
+interface TokenType {
+  symbol: string
+  logo: string
+  chainId: ChainId
+  amount: number
+  usdValue: null
+}
 
 const useKemRewards = ({ campaignId }: { campaignId: string }) => {
   const notify = useNotify()
@@ -91,7 +100,7 @@ const useKemRewards = ({ campaignId }: { campaignId: string }) => {
                 usdValue: null,
               }
             })
-            .filter(token => !!token),
+            .filter((token): token is TokenType => !!token),
         }
       }),
     }
