@@ -120,14 +120,12 @@ export const TransactionHistory = () => {
         <Text textAlign="right">ACTIONS</Text>
       </TableHeader>
       {transactions.map(tx => {
-        const sourceChainLogo =
-          tx.sourceChain === NonEvmChain.Near
-            ? NonEvmChainInfo[NonEvmChain.Near].icon
-            : (NETWORKS_INFO as any)[tx.sourceChain]?.icon
-        const targetChainLogo =
-          tx.targetChain === NonEvmChain.Near
-            ? NonEvmChainInfo[NonEvmChain.Near].icon
-            : (NETWORKS_INFO as any)[tx.targetChain]?.icon
+        const sourceChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin].includes(tx.sourceChain)
+          ? NonEvmChainInfo[tx.sourceChain].icon
+          : (NETWORKS_INFO as any)[tx.sourceChain]?.icon
+        const targetChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin].includes(tx.targetChain)
+          ? NonEvmChainInfo[tx.targetChain].icon
+          : (NETWORKS_INFO as any)[tx.targetChain]?.icon
 
         return (
           <TableRow key={tx.id}>
@@ -192,6 +190,8 @@ export const TransactionHistory = () => {
                   href={
                     tx.sourceChain === NonEvmChain.Near
                       ? `https://nearblocks.io/address/${tx.id}`
+                      : tx.sourceChain === NonEvmChain.Bitcoin
+                      ? `https://mempool.space/tx/${tx.sourceTxHash}`
                       : getEtherscanLink(tx.sourceChain as any, tx.sourceTxHash, 'transaction')
                   }
                 />
@@ -208,6 +208,8 @@ export const TransactionHistory = () => {
                       href={
                         tx.targetChain === NonEvmChain.Near
                           ? `https://nearblocks.io/txns/${tx.targetTxHash}`
+                          : tx.targetChain === NonEvmChain.Bitcoin
+                          ? `https://mempool.space/tx/${tx.targetTxHash}`
                           : getEtherscanLink(tx.targetChain as any, tx.targetTxHash, 'transaction')
                       }
                     />
