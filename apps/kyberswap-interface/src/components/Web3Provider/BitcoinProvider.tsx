@@ -50,7 +50,16 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
 
   const [availableWallets, setAvailableWallets] = useState<BitcoinWalletBase[]>([])
 
-  const { address } = walletInfo
+  const { address, walletType } = walletInfo
+
+  useEffect(() => {
+    if (walletType) localStorage.setItem('bitcoinWallet', walletType || '')
+  }, [walletType])
+
+  useEffect(() => {
+    const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
+    availableWallets.find(wallet => wallet.type === lastConnectedWallet)?.connect()
+  }, [availableWallets])
 
   const [balance, setBalance] = useState<number>(0)
   const getBalance = useCallback(async () => {
@@ -119,21 +128,26 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           })
         },
         disconnect: async () => {
+          localStorage.removeItem('bitcoinWallet')
           await window?.XverseProviders?.BitcoinProvider.request('wallet_renouncePermissions')
           setWalletInfo(defaultInfo)
         },
         sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
           const response = await window?.XverseProviders?.BitcoinProvider.request('sendTransfer', {
-            recipients: {
-              address: recipient,
-              amount: Number(amount),
-            },
+            recipients: [
+              {
+                address: recipient,
+                amount: Number(amount),
+              },
+            ],
+          }).catch((err: any) => {
+            throw new Error(err.message)
           })
           if (response.result?.txid) {
             return response.result.txid
           }
 
-          throw new Error('No transaction ID received')
+          throw new Error(response?.error?.message || 'No transaction ID received')
         },
       }
       providers.push(xverseProvider)
@@ -166,6 +180,7 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           setConnectingWallet(null)
         },
         disconnect: async () => {
+          localStorage.removeItem('bitcoinWallet')
           setWalletInfo(defaultInfo)
         },
         sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {

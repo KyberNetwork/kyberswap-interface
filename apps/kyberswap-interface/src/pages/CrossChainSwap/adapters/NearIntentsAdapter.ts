@@ -166,21 +166,26 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           return
         }
 
-        const tx = await sendBtcFn({
-          recipient: quote.rawQuote.quote.depositAddress,
-          amount: quote.quoteParams.amount,
-        })
-        await OneClickService.submitDepositTx({
-          txHash: tx,
-          depositAddress: quote.rawQuote.quote.depositAddress,
-        }).catch(e => {
-          console.log('NearIntents submitDepositTx failed', e)
-        })
-
-        resolve({
-          ...params,
-          sourceTxHash: tx,
-        })
+        try {
+          const tx = await sendBtcFn({
+            recipient: quote.rawQuote.quote.depositAddress,
+            amount: quote.quoteParams.amount,
+          })
+          await OneClickService.submitDepositTx({
+            txHash: tx,
+            depositAddress: quote.rawQuote.quote.depositAddress,
+          }).catch(e => {
+            console.log('NearIntents submitDepositTx failed', e)
+          })
+          resolve({
+            ...params,
+            sourceTxHash: tx,
+          })
+        } catch (e) {
+          console.log(e)
+          reject(e)
+          return
+        }
       })
     }
 

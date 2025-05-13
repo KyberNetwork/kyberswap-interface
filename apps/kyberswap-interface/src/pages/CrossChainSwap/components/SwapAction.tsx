@@ -38,7 +38,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     isFromEvm ? (fromChainId as ChainId) : undefined,
   )
   const { balances: nearBalances } = useNearBalances()
-  const { walletInfo } = useBitcoinWallet()
+  const { walletInfo, balance: btcBalance } = useBitcoinWallet()
   const btcAddress = walletInfo?.address
 
   const toggleWalletModal = useWalletModalToggle()
@@ -126,6 +126,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     if (isFromEvm && (!balance || inputAmount?.greaterThan(balance))) notEnougBalance = true
     if (isFromNear && BigInt(nearBalances[(currencyIn as any).assetId] || 0) < BigInt(amountInWei))
       notEnougBalance = true
+    if (isFromBitcoin && BigInt(btcBalance || 0) < BigInt(amountInWei)) notEnougBalance = true
 
     if (notEnougBalance) {
       return {
