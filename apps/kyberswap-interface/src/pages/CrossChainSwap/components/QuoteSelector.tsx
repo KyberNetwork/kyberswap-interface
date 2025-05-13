@@ -7,7 +7,6 @@ import { rgba } from 'polished'
 import MenuFlyout from 'components/MenuFlyout'
 import styled from 'styled-components'
 import { TokenLogoWithChain } from './TokenLogoWithChain'
-import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 import { Clock } from 'react-feather'
 // import { GasStation } from 'components/Icons'
@@ -54,7 +53,6 @@ export const QuoteSelector = ({
 }) => {
   const [show, setShow] = useState(false)
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
 
   return (
     <MenuFlyout
@@ -116,7 +114,7 @@ export const QuoteSelector = ({
                   <Flex alignItems="center">
                     <TokenLogoWithChain
                       currency={tokenOut}
-                      chainId={chainId}
+                      chainId={quote.quote.quoteParams.toChain}
                       size={24}
                       chainLogoStyle={{
                         bottom: 0,

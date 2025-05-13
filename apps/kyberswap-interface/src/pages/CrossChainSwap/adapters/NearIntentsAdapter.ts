@@ -62,8 +62,6 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     const deadline = new Date()
     deadline.setSeconds(deadline.getSeconds() + 60 * 20)
 
-    console.log(params)
-
     const fromAssetId =
       'assetId' in params.fromToken
         ? params.fromToken.assetId === 'near'
@@ -258,6 +256,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
         })
       })
     }
+
     return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
       try {
         if (!walletClient || !walletClient.account) reject('Not connected')

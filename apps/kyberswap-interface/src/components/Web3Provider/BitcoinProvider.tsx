@@ -23,6 +23,7 @@ interface AddressResponse {
 interface WalletInfo {
   isConnected: boolean
   address: string | null
+  publicKey: string | null
   walletType: WalletType | null
 }
 
@@ -41,6 +42,7 @@ const BitcoinWalletContext = createContext<BitcoinWalletContextValue | null>(nul
 const defaultInfo = {
   isConnected: false,
   address: null,
+  publicKey: null,
   walletType: null,
 }
 
@@ -124,6 +126,7 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           setWalletInfo({
             isConnected: true,
             address: address.address,
+            publicKey: address.publicKey,
             walletType: 'xverse',
           })
         },
@@ -131,6 +134,7 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           localStorage.removeItem('bitcoinWallet')
           await window?.XverseProviders?.BitcoinProvider.request('wallet_renouncePermissions')
           setWalletInfo(defaultInfo)
+          setBalance(0)
         },
         sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
           const response = await window?.XverseProviders?.BitcoinProvider.request('sendTransfer', {
@@ -170,11 +174,15 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           if (currentNetwork !== 'livenet') {
             await window.bitkeep.unisat.switchNetwork('livenet')
           }
-          const accounts = await window.bitkeep.unisat.requestAccounts()
+          const [accounts, publicKey] = await Promise.all([
+            window.bitkeep.unisat.requestAccounts(),
+            window.bitkeep.unisat.getPublicKey(),
+          ])
 
           setWalletInfo({
             isConnected: true,
             address: accounts[0],
+            publicKey,
             walletType: 'bitget',
           })
           setConnectingWallet(null)
@@ -182,6 +190,7 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
         disconnect: async () => {
           localStorage.removeItem('bitcoinWallet')
           setWalletInfo(defaultInfo)
+          setBalance(0)
         },
         sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
           return await window?.bitkeep.unisat.sendBitcoin(recipient, amount.toString())

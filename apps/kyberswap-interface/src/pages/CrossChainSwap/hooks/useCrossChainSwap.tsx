@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { CrossChainSwapAdapterRegistry, Quote } from '../registry'
 import { CrossChainSwapFactory } from '../factory'
 import { useSearchParams } from 'react-router-dom'
@@ -10,7 +10,7 @@ import { useWalletClient } from 'wagmi'
 import useDebounce from 'hooks/useDebounce'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
-import { BitcoinToken, Chain, Currency, NonEvmChain } from '../adapters'
+import { BitcoinToken, Chain, Currency, NearQuoteParams, NonEvmChain, QuoteParams } from '../adapters'
 import { NearToken, useNearTokens } from 'state/crossChainSwap'
 import { ZERO_ADDRESS } from 'constants/index'
 import { TOKEN_API_URL } from 'constants/env'
@@ -97,6 +97,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   const { walletInfo } = useBitcoinWallet()
   const btcAddress = walletInfo?.address
+  const btcPublicKey = walletInfo?.publicKey
 
   useEffect(() => {
     if (btcAddress && !btcRecipient) {
@@ -178,6 +179,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [showPreview, setShowPreview] = useState(false)
   const disable = !fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount || inputAmount === '0'
 
+  const abortControllerRef = useRef(new AbortController())
+
   const getQuote = useCallback(async () => {
     if (showPreview) return
     if (disable) {
@@ -185,6 +188,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       setSelectedAdapter(null)
       return
     }
+    abortControllerRef.current.abort()
+    // Create a new controller for this request
+    abortControllerRef.current = new AbortController()
+
+    const { signal } = abortControllerRef.current
 
     const body: Record<string, string[]> = {}
     if ((currencyIn as any)?.wrapped?.address) {
@@ -203,7 +211,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
       method: 'POST',
       body: JSON.stringify(body),
+      signal,
     }).then(r => r.json())
+    // Check if this request has been aborted
+    if (signal.aborted) return
 
     const tokenInUsd = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
     const tokenOutUsd = r?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
@@ -211,36 +222,78 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     const isToNear = toChainId === 'near'
 
     setLoading(true)
-    const q = await registry
-      .getQuotes({
-        tokenInUsd: tokenInUsd,
-        tokenOutUsd: tokenOutUsd,
-        fromChain: fromChainId,
-        toChain: toChainId,
-        fromToken: currencyIn,
-        toToken: currencyOut,
-        amount: inputAmount,
-        slippage,
-        walletClient: walletClient?.data,
-        sender: isFromBitcoin
-          ? btcAddress || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
-          : isFromNear
-          ? signedAccountId || ZERO_ADDRESS
-          : walletClient?.data?.account.address || ZERO_ADDRESS,
-        recipient: isToBitcoin
-          ? btcAddress || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p' // TODO: default address???
-          : isToNear
-          ? signedAccountId || ZERO_ADDRESS
-          : walletClient?.data?.account.address || ZERO_ADDRESS,
-        nearTokens,
+
+    const getQuotesWithCancellation = async (params: QuoteParams | NearQuoteParams) => {
+      // Create a modified version of getQuotes that can be cancelled
+      const quotes: Quote[] = []
+      const adapters = registry
+        .getAllAdapters()
+        .filter(
+          adapter =>
+            adapter.getSupportedChains().includes(params.fromChain) &&
+            adapter.getSupportedChains().includes(params.toChain),
+        )
+
+      // Map each adapter to a promise that can be cancelled
+      const quotePromises = adapters.map(async adapter => {
+        try {
+          // Check for cancellation before starting
+          if (signal.aborted) throw new Error('Cancelled')
+
+          const quote = await adapter.getQuote(params)
+
+          // Check for cancellation after getting quote
+          if (signal.aborted) throw new Error('Cancelled')
+
+          quotes.push({ adapter, quote })
+        } catch (err) {
+          if (err.message === 'Cancelled' || signal.aborted) {
+            throw new Error('Cancelled')
+          }
+          console.error(`Failed to get quote from ${adapter.getName()}:`, err)
+        }
       })
-      .catch(e => {
-        console.log(e)
-        return []
-      })
+
+      await Promise.all(quotePromises)
+
+      if (quotes.length === 0) {
+        throw new Error('No valid quotes found for the requested swap')
+      }
+
+      quotes.sort((a, b) => (a.quote.outputAmount < b.quote.outputAmount ? 1 : -1))
+      return quotes
+    }
+
+    const q = await getQuotesWithCancellation({
+      tokenInUsd: tokenInUsd,
+      tokenOutUsd: tokenOutUsd,
+      fromChain: fromChainId,
+      toChain: toChainId,
+      fromToken: currencyIn,
+      toToken: currencyOut,
+      amount: inputAmount,
+      slippage,
+      walletClient: walletClient?.data,
+      sender: isFromBitcoin
+        ? btcAddress || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
+        : isFromNear
+        ? signedAccountId || ZERO_ADDRESS
+        : walletClient?.data?.account.address || ZERO_ADDRESS,
+      recipient: isToBitcoin
+        ? btcAddress || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p' // TODO: default address???
+        : isToNear
+        ? signedAccountId || ZERO_ADDRESS
+        : walletClient?.data?.account.address || ZERO_ADDRESS,
+      nearTokens,
+      publicKey: btcPublicKey || '',
+    }).catch(e => {
+      console.log(e)
+      return []
+    })
     setQuotes(q)
     setLoading(false)
   }, [
+    btcPublicKey,
     isFromBitcoin,
     btcAddress,
     isToBitcoin,

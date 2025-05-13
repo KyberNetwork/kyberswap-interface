@@ -42,6 +42,7 @@ export interface QuoteParams {
   tokenOutUsd: number
   sender: string
   recipient: string
+  publicKey?: string
 }
 
 export interface EvmQuoteParams extends QuoteParams {
