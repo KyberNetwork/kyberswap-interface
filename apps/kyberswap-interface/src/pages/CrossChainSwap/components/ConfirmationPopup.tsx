@@ -121,7 +121,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
         setTxError(e?.message)
         setSubmittingTx(false)
       })
-    if (res) setTransactions([res, ...transactions])
+    if (res) setTransactions([res, ...transactions].slice(0, 30))
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)
   }

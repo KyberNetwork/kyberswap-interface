@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { Flex, Text } from 'rebass'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
@@ -15,6 +15,9 @@ import { formatUnits } from 'viem'
 import { getEtherscanLink, shortenHash } from 'utils'
 import { ExternalLinkIcon } from 'theme'
 import { NonEvmChain, NonEvmChainInfo } from '../adapters'
+import Pagination from 'components/Pagination'
+
+const PAGE_SIZE = 5
 
 const TableHeader = styled.div`
   display: grid;
@@ -110,6 +113,8 @@ export const TransactionHistory = () => {
 
   const theme = useTheme()
 
+  const [currentPage, setCurrentPage] = useState(1)
+
   return (
     <>
       <TableHeader>
@@ -119,7 +124,12 @@ export const TransactionHistory = () => {
         <Text>AMOUNT</Text>
         <Text textAlign="right">ACTIONS</Text>
       </TableHeader>
-      {transactions.map(tx => {
+      {transactions.length === 0 && (
+        <Text color={theme.subText} padding="36px" textAlign="center">
+          No transaction found
+        </Text>
+      )}
+      {transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(tx => {
         const sourceChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin].includes(tx.sourceChain)
           ? NonEvmChainInfo[tx.sourceChain].icon
           : (NETWORKS_INFO as any)[tx.sourceChain]?.icon
@@ -230,6 +240,14 @@ export const TransactionHistory = () => {
           </TableRow>
         )
       })}
+      <Pagination
+        onPageChange={setCurrentPage}
+        totalCount={transactions.length}
+        currentPage={currentPage}
+        pageSize={PAGE_SIZE}
+        haveBg={false}
+        style={{ padding: '0', marginTop: '16px' }}
+      />
     </>
   )
 }
