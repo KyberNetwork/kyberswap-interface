@@ -24,6 +24,7 @@ import {
   TableRow,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import { EarnDex2 } from 'pages/Earns/constants'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { EarnPool } from 'pages/Earns/types'
 import { formatAprNumber } from 'pages/Earns/utils'
@@ -168,23 +169,22 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
       </Text>
     )
 
-  const kemFarming = (pool: { farming: { lpFeeApr: number; farmRewardApr: number } }) => (
-    <MouseoverTooltipDesktopOnly
-      placement="bottom"
-      width="max-content"
-      text={
-        <div>
-          LP Fee APR: {pool.farming.lpFeeApr}%
-          <br />
-          Farm Rewards APR: {pool.farming.farmRewardApr}%
-        </div>
-      }
-    >
-      <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
-    </MouseoverTooltipDesktopOnly>
-  )
-
-  const rewardToken = 'KNC'
+  const kemFarming = (pool: { farming: { lpFeeApr: number; farmRewardApr: number }; exchange: EarnDex2 }) =>
+    pool.exchange === EarnDex2.DEX_UNISWAP_V4_KEM ? (
+      <MouseoverTooltipDesktopOnly
+        placement="bottom"
+        width="max-content"
+        text={
+          <div>
+            LP Fee APR: {pool.farming.lpFeeApr}%
+            <br />
+            Farm Rewards APR: {pool.farming.farmRewardApr}%
+          </div>
+        }
+      >
+        <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
+      </MouseoverTooltipDesktopOnly>
+    ) : null
 
   if (upToMedium)
     return (
@@ -243,9 +243,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
               </Flex>
               <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                 <Text color={theme.subText}>Rewards</Text>
-                <Text>
-                  {formatDisplayNumber(pool.earnFee, { significantDigits: 6 })} {rewardToken}
-                </Text>
+                <Text>{formatDisplayNumber(pool.earnFee, { significantDigits: 6 })} KNC</Text>
               </Flex>
               <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                 <Text color={theme.subText}>TVL</Text>
