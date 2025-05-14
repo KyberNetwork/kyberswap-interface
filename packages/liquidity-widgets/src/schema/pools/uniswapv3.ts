@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PoolType, Univ3PoolType } from "@/schema/protocol";
+import { PoolType, Univ3PoolType } from "@/schema/dex";
 import { token } from "@/schema/token";
 import { tick } from "@/schema/tick";
 

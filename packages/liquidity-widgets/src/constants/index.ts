@@ -39,7 +39,7 @@ import kodiakv3 from "@/constants/dexes/kodiakv3";
 import squadswapv3 from "@/constants/dexes/squadswapv3";
 import squadswapv2 from "@/constants/dexes/squadswapv2";
 
-import { DexInfo, PoolType } from "@/schema/protocol";
+import { DexInfo, PoolType } from "@/schema/dex";
 import { ChainId } from "@/schema/chain";
 import { EarnChain, EarnDex } from "@/schema/earn";
 import { NetworkInfo } from "@/types/index";
