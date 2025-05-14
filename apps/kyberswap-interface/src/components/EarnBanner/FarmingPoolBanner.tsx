@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
@@ -15,6 +16,7 @@ import {
   MoveForwardIcon,
   PoolPairText,
 } from 'components/EarnBanner/styles'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { formatAprNumber } from 'pages/Earns/utils'
@@ -24,6 +26,7 @@ let indexInterval: NodeJS.Timeout
 
 export default function FarmingPoolBanner() {
   const theme = useTheme()
+  const navigate = useNavigate()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
 
@@ -33,14 +36,14 @@ export default function FarmingPoolBanner() {
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const containerWidth = containerRef.current?.clientWidth || 0
+  const WrapperRef = useRef<HTMLDivElement>(null)
+  const containerWidth = WrapperRef.current?.clientWidth ? WrapperRef.current.clientWidth - 36 * 2 : 0
 
-  const totalPools = useMemo(() => data?.data.highlightedPools || [], [data])
+  const totalPools = useMemo(() => data?.data.farmingPools || [], [data])
 
   const pools = useMemo(() => {
     const numberPoolsToShow = upToExtraSmall ? 3 : 4
-    if (totalPools.length < numberPoolsToShow) return []
+    if (totalPools.length < 2) return []
 
     const getWrappedIndex = (i: number) => {
       if (i < 0) return totalPools.length + i
@@ -57,6 +60,12 @@ export default function FarmingPoolBanner() {
 
     return result
   }, [totalPools, index, upToExtraSmall])
+
+  const handleClickBannerPool = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!index && index !== 0) return
+    e.stopPropagation()
+    navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}&type=farming` })
+  }
 
   const handleMoveBack = () => {
     setAnimateMoveBack(true)
@@ -90,22 +99,24 @@ export default function FarmingPoolBanner() {
         justifyContent="center"
         alignItems="center"
         sx={{ gap: '8px', width: '102%', position: 'relative', left: '-1%' }}
+        ref={WrapperRef}
       >
         {pools.length > 0 && (
           <>
             {containerWidth > 0 && <MoveBackIcon onClick={handleMoveBack} />}
-            <FarmingPoolContainer ref={containerRef}>
+            <FarmingPoolContainer>
               {containerWidth > 0 && (
                 <FarmingPoolWrapper
                   animateMoveForward={animateMoveForward}
                   animateMoveBack={animateMoveBack}
                   style={{ width: containerWidth * (!upToExtraSmall ? 2 : 3) }}
                 >
-                  {pools.map(pool => (
+                  {pools.map((pool, index) => (
                     <FarmingPool
-                      key={pool.address}
+                      key={`${pool.address}-${index}`}
                       className="farming-pool"
                       style={{ width: !upToExtraSmall ? containerWidth / 2 : containerWidth }}
+                      onClick={handleClickBannerPool}
                     >
                       <PoolPairText>
                         {pool.tokens[0].symbol}/{pool.tokens[1].symbol}

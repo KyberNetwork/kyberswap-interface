@@ -45,7 +45,7 @@ export default function TrendingPoolBanner() {
       pool_pair: `${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
       destination_url: `/pools/${pool.tokens[0].symbol}-${pool.tokens[1].symbol}`,
     })
-    navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}` })
+    navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}&type=highlighted` })
   }
 
   useEffect(() => {
