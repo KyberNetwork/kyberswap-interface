@@ -7,12 +7,12 @@ import { Box, Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 
 import FireIcon from 'assets/svg/earn/fire.svg'
-import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_claim.svg'
 import LiquidityPoolIcon from 'assets/svg/earn/liquidity-pools.svg'
 import LiquidityPosIcon from 'assets/svg/earn/liquidity-positions.svg'
 import LowVolatilityIcon from 'assets/svg/earn/low-volatility.svg'
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
 import SolidEarningIcon from 'assets/svg/earn/solid-earning.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
 import StakingIcon from 'assets/svg/staking.svg'
 import { APP_PATHS } from 'constants/index'
@@ -20,7 +20,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import Card from 'pages/Earns/Landing/Card'
 import PoolSection from 'pages/Earns/Landing/PoolSection'
-import TotalRewards from 'pages/Earns/Landing/TotalRewards'
+import RewardSection from 'pages/Earns/Landing/RewardSection'
 import { Container, OverviewWrapper, WrapperBg } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
@@ -38,21 +38,24 @@ const EarnLanding = () => {
     onOpenZapMigration: handleOpenZapMigration,
   })
 
-  const highlightedPools = (data?.data?.highlightedPools || []).slice(0, 9)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+
+  const farmingPools = (data?.data?.farmingPools || []).slice(0, upToSmall ? 5 : 9)
+  const highlightedPools = (data?.data?.highlightedPools || []).slice(0, upToSmall ? 5 : 9)
   const highAprPool = (data?.data?.highAPR || []).slice(0, 5)
   const lowVolatilityPool = [...(data?.data?.lowVolatility || [])].sort((a, b) => b.apr - a.apr).slice(0, 5)
   const solidEarningPool = (data?.data?.solidEarning || []).slice(0, 5)
 
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
-
   useEffect(() => {
-    const poolsToOpen = data?.data?.highlightedPools || []
     const openPool = searchParams.get('openPool')
+    const type = searchParams.get('type')
     const openPoolIndex = parseInt(openPool || '', 10)
+    const poolsToOpen = type === 'farming' ? farmingPools : type === 'highlighted' ? highlightedPools : []
 
     if (!isNaN(openPoolIndex) && poolsToOpen.length && poolsToOpen[openPoolIndex]) {
       searchParams.delete('openPool')
+      searchParams.delete('type')
       setSearchParams(searchParams)
       handleOpenZapIn({
         pool: {
@@ -62,7 +65,7 @@ const EarnLanding = () => {
         },
       })
     }
-  }, [handleOpenZapIn, data, searchParams, setSearchParams])
+  }, [handleOpenZapIn, searchParams, setSearchParams, farmingPools, highlightedPools])
 
   return (
     <WrapperBg>
@@ -86,7 +89,7 @@ const EarnLanding = () => {
             technology—to help you maximize earnings from your liquidity across various DeFi protocols.`}
         </Text>
 
-        <TotalRewards />
+        <RewardSection />
 
         <OverviewWrapper>
           <Card
@@ -122,13 +125,13 @@ const EarnLanding = () => {
         <PoolSection
           title={t`Farming Pools`}
           tooltip={t`No staking is required to earn rewards in these pools`}
-          icon={<FarmingIcon width={21} height={21} color={theme.primary} />}
+          icon={<FarmingIcon width={28} height={28} />}
           tag={FilterTag.FARMING_POOL}
           isLoading={isLoading}
-          listPools={highlightedPools}
+          listPools={farmingPools}
           size="large"
           isFarming
-          styles={{ marginTop: '64px' }}
+          styles={{ marginTop: upToSmall ? '40px' : '64px' }}
         />
 
         <PoolSection
@@ -139,7 +142,7 @@ const EarnLanding = () => {
           isLoading={isLoading}
           listPools={highlightedPools}
           size="large"
-          styles={{ marginTop: '40px' }}
+          styles={{ marginTop: upToSmall ? '16px' : '40px' }}
         />
 
         <Box

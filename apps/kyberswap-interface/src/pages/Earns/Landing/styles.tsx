@@ -81,10 +81,10 @@ export const OverviewWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: flex;
     flex-direction: column;
+    margin-top: 20px;
   `}
 
   ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    margin-top: 40px;
     gap: 16px;
   `}
 `
@@ -221,4 +221,9 @@ export const RewardsNavigateButton = styled(Link)`
   background: linear-gradient(#1d5b49, #1d5b49) padding-box,
     conic-gradient(from var(--border-angle), #196750 50%, ${({ theme }) => theme.primary}) border-box;
   backdrop-filter: blur(2px);
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+    justify-content: center;
+  `}
 `

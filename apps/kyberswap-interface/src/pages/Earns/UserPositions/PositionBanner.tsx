@@ -15,13 +15,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 export default function PositionBanner({ positions }: { positions: Array<EarnPosition> | undefined }) {
   const theme = useTheme()
-  const {
-    onOpenClaim: onOpenClaimRewards,
-    rewardInfo,
-    claimModal: claimRewardsModal,
-  } = useKemRewards({
-    campaignId: '0x4e68e00a1a0e6bc8d38429b3e370fb8c24c612e7f0308111d92c21f44fd26cc7',
-  })
+  const { onOpenClaim: onOpenClaimRewards, rewardInfo, claimModal: claimRewardsModal } = useKemRewards()
 
   const totalRewardsAmount = rewardInfo?.totalRewardsAmount || 0
   const claimableRewardsAmount = rewardInfo?.claimableRewardsAmount || 0

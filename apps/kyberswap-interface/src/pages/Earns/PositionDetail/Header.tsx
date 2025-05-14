@@ -10,13 +10,7 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ChainImage, DexImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
-import {
-  CoreProtocol,
-  DEXES_HIDE_TOKEN_ID,
-  EarnDex,
-  PROTOCOL_POSITION_URL,
-  earnSupportedProtocols,
-} from 'pages/Earns/constants'
+import { CoreProtocol, EarnDex, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
@@ -88,7 +82,7 @@ const PositionDetailHeader = ({
               ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
             </Badge>
           )}
-          {DEXES_HIDE_TOKEN_ID[position.dex.id as EarnDex] ? null : (
+          {isUniv2 ? null : (
             <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
               #{position.tokenId}
             </Text>

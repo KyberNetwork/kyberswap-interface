@@ -14,15 +14,13 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const TotalRewards = () => {
+const RewardSection = () => {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { rewardInfo } = useKemRewards({
-    campaignId: '0x4e68e00a1a0e6bc8d38429b3e370fb8c24c612e7f0308111d92c21f44fd26cc7',
-  })
+  const { rewardInfo } = useKemRewards()
 
   const totalRewardsAmount = rewardInfo?.totalRewardsAmount || 0
   const rewardUsdValue = rewardInfo?.totalRewardsUsdValue || 0
@@ -84,4 +82,4 @@ const TotalRewards = () => {
   )
 }
 
-export default TotalRewards
+export default RewardSection

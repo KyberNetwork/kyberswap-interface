@@ -16,6 +16,10 @@ interface ClaimEncodeParams {
   recipient: string
 }
 
+interface RewardCampaignParams {
+  chainId: ChainId
+}
+
 interface RewardInfoParams {
   chainId: ChainId
   campaignId: string
@@ -57,6 +61,17 @@ const rewardServiceApi = createApi({
       }),
       transformResponse: (response: { data: string }) => response.data,
     }),
+    rewardCampaign: builder.query<string | null, RewardCampaignParams>({
+      query: params => ({
+        url: `/kem/campaigns`,
+        params,
+      }),
+      transformResponse: (response: {
+        data: Array<{
+          campaignId: string
+        }>
+      }) => (response.data.length > 0 ? response.data[0].campaignId : null),
+    }),
     rewardInfo: builder.query<Array<TokenReward>, RewardInfoParams>({
       query: params => ({
         url: `/kem/owner/claim-status`,
@@ -71,6 +86,11 @@ const rewardServiceApi = createApi({
   }),
 })
 
-export const { useRewardInfoQuery, useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation } = rewardServiceApi
+export const {
+  useRewardCampaignQuery,
+  useRewardInfoQuery,
+  useBatchClaimEncodeDataMutation,
+  useClaimEncodeDataMutation,
+} = rewardServiceApi
 
 export default rewardServiceApi

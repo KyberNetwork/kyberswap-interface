@@ -33,7 +33,7 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
-import { CoreProtocol, DEXES_HIDE_TOKEN_ID, DEXES_SUPPORT_COLLECT_FEE, EarnDex } from 'pages/Earns/constants'
+import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE, EarnDex } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
@@ -87,9 +87,7 @@ export default function TableContent({
     },
   })
 
-  const { rewardInfo } = useKemRewards({
-    campaignId: '0x4e68e00a1a0e6bc8d38429b3e370fb8c24c612e7f0308111d92c21f44fd26cc7',
-  })
+  const { rewardInfo } = useKemRewards()
 
   const handleFetchUnclaimedFee = useCallback(
     async (position: ParsedPosition | null) => {
@@ -245,7 +243,7 @@ export default function TableContent({
                           {dex.version}
                         </Text>
                       </Flex>
-                      {DEXES_HIDE_TOKEN_ID[dex.id as EarnDex] ? null : (
+                      {pool.isUniv2 ? null : (
                         <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
                           #{tokenId}
                         </Text>

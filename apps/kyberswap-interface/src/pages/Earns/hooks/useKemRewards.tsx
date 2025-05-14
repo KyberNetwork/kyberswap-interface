@@ -1,7 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
+import {
+  useBatchClaimEncodeDataMutation,
+  useClaimEncodeDataMutation,
+  useRewardCampaignQuery,
+  useRewardInfoQuery,
+} from 'services/reward'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -22,7 +27,7 @@ interface TokenType {
   usdValue: null
 }
 
-const useKemRewards = ({ campaignId }: { campaignId: string }) => {
+const useKemRewards = () => {
   const notify = useNotify()
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions(true)
@@ -30,13 +35,17 @@ const useKemRewards = ({ campaignId }: { campaignId: string }) => {
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
 
+  const { data: campaignId } = useRewardCampaignQuery({
+    chainId,
+  })
+
   const { data, refetch: refetchRewardInfo } = useRewardInfoQuery(
     {
       owner: account || '',
-      campaignId,
+      campaignId: campaignId || '',
       chainId,
     },
-    { skip: !account },
+    { skip: !account || !campaignId },
   )
   const [batchClaimEncodeData] = useBatchClaimEncodeDataMutation()
   const [claimEncodeData] = useClaimEncodeDataMutation()
@@ -48,7 +57,7 @@ const useKemRewards = ({ campaignId }: { campaignId: string }) => {
   const [txHash, setTxHash] = useState<string | null>(null)
 
   const rewardInfo = useMemo(() => {
-    if (!data || !data.length || !tokens.length) return null
+    if (!campaignId || !data || !data.length || !tokens.length) return null
 
     const phase1TokenAddress = Object.keys(data[0].claimedAmounts)[0]
     const phase1Token = tokens.find(token => token.address.toLowerCase() === phase1TokenAddress.toLowerCase())
@@ -104,10 +113,10 @@ const useKemRewards = ({ campaignId }: { campaignId: string }) => {
         }
       }),
     }
-  }, [data, tokens])
+  }, [campaignId, data, tokens])
 
   const handleClaim = useCallback(async () => {
-    if (!account || !claimInfo) return
+    if (!account || !claimInfo || !campaignId) return
     setClaiming(true)
 
     const encodeData = !claimInfo.nftId
