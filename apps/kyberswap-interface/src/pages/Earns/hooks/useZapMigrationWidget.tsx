@@ -66,6 +66,7 @@ const zapMigrationDexMapping: Record<EarnDex, ZapMigrationDex | null> = {
   [EarnDex.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
+  [EarnDex.DEX_UNISWAP_V4_KEM]: ZapMigrationDex.DEX_UNISWAP_V4_KEM,
 }
 
 const useZapMigrationWidget = () => {

@@ -57,6 +57,7 @@ const zapInDexMapping: Record<EarnDex | EarnDex2, ZapInPoolType> = {
   [EarnDex.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
+  [EarnDex.DEX_UNISWAP_V4_KEM]: ZapInPoolType.DEX_UNISWAP_V4_KEM,
   [EarnDex2.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
   [EarnDex2.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
   [EarnDex2.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
@@ -66,6 +67,7 @@ const zapInDexMapping: Record<EarnDex | EarnDex2, ZapInPoolType> = {
   [EarnDex2.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
   [EarnDex2.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [EarnDex2.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
+  [EarnDex2.DEX_UNISWAP_V4_KEM]: ZapInPoolType.DEX_UNISWAP_V4_KEM,
 }
 
 const useZapInWidget = ({ onOpenZapMigration }: { onOpenZapMigration: (props: ZapMigrationInfo) => void }) => {

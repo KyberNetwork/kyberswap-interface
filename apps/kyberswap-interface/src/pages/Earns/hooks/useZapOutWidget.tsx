@@ -31,6 +31,7 @@ const zapOutDexMapping: Record<EarnDex | EarnDex2, ZapOutDex> = {
   [EarnDex.DEX_KODIAK_V3]: ZapOutDex.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
+  [EarnDex.DEX_UNISWAP_V4_KEM]: ZapOutDex.DEX_UNISWAP_V4_KEM,
   [EarnDex2.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
   [EarnDex2.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
   [EarnDex2.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
@@ -40,6 +41,7 @@ const zapOutDexMapping: Record<EarnDex | EarnDex2, ZapOutDex> = {
   [EarnDex2.DEX_KODIAK_V3]: ZapOutDex.DEX_KODIAK_V3,
   [EarnDex2.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
   [EarnDex2.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
+  [EarnDex2.DEX_UNISWAP_V4_KEM]: ZapOutDex.DEX_UNISWAP_V4_KEM,
 }
 
 const useZapOutWidget = () => {
