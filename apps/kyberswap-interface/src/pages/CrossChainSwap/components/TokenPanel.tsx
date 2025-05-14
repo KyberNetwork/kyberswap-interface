@@ -1,4 +1,5 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import HelpIcon from 'assets/svg/help-circle.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { Aligner, CurrencySelect, InputRow, StyledTokenName } from 'components/CurrencyInputPanel'
@@ -16,7 +17,7 @@ import { MAINNET_NETWORKS } from 'constants/networks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 import { BitcoinToken, Chain, Currency, NonEvmChain } from '../adapters'
-import { isEvmChain } from 'utils'
+import { isEvmChain, shortenHash } from 'utils'
 import Modal from 'components/Modal'
 import { CloseIcon } from 'theme'
 import { SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
@@ -26,6 +27,12 @@ import { rgba } from 'polished'
 import { formatUnits } from 'viem'
 import { useNearBalances } from '../hooks/useNearBalances'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { useActiveWeb3React } from 'hooks'
+import { ChevronDown } from 'react-feather'
+import { useWalletModalToggle } from 'state/application/hooks'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import useToggle from 'hooks/useToggle'
+import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -41,7 +48,9 @@ export const TokenPanel = ({
   onUserInput,
   disabled,
   onSelectCurrency,
+  setShowBtcConnect,
 }: {
+  setShowBtcConnect: (val: boolean) => void
   selectedChain?: Chain
   selectedCurrency?: Currency
   onSelectNetwork: (chainId: Chain) => void
@@ -109,7 +118,80 @@ export const TokenPanel = ({
 
   const { balances } = useNearBalances()
 
-  const { balance: btcBalance } = useBitcoinWallet()
+  const { balance: btcBalance, walletInfo, availableWallets } = useBitcoinWallet()
+  const { address: btcAddress } = walletInfo || {}
+  const { signedAccountId: nearAddress, signIn: nearSignIn, signOut: nearSignOut } = useWalletSelector()
+  const { account: evmAddress } = useActiveWeb3React()
+
+  const connectedAddress =
+    selectedChain === NonEvmChain.Bitcoin ? btcAddress : selectedChain === NonEvmChain.Near ? nearAddress : evmAddress
+
+  const toggleWalletModal = useWalletModalToggle()
+  const [showMenu, toggleShowMenu] = useToggle(false)
+
+  const node = useRef<HTMLDivElement>()
+  useOnClickOutside(node, showMenu ? toggleShowMenu : undefined)
+
+  const disconnectWallet = useDisconnectWallet()
+
+  const handleWalletClick = () => {
+    if (connectedAddress) {
+      toggleShowMenu()
+      return
+    }
+    if (selectedChain === NonEvmChain.Near) {
+      nearSignIn()
+    } else if (selectedChain === NonEvmChain.Bitcoin) {
+      setShowBtcConnect(true)
+    } else {
+      toggleWalletModal()
+    }
+  }
+
+  const balanceSection = (
+    <Flex
+      sx={{ gap: '4px', cursor: 'pointer' }}
+      color={theme.subText}
+      fontSize="12px"
+      fontWeight="500"
+      alignItems="center"
+      role="button"
+      onClick={() => {
+        if (disabled) return
+        if (selectedChain === NonEvmChain.Near) {
+          onUserInput(
+            formatUnits(
+              BigInt(balances[(selectedCurrency as any)?.assetId] || '0'),
+              (selectedCurrency as any)?.decimals || 18,
+            ),
+          )
+          return
+        }
+
+        if (selectedChain === NonEvmChain.Bitcoin) {
+          onUserInput(formatUnits(BigInt(btcBalance || '0'), 8))
+          return
+        }
+
+        onUserInput(balance?.toExact() || '0')
+      }}
+    >
+      <Wallet color={theme.subText} />
+      {[NonEvmChain.Near, NonEvmChain.Bitcoin].includes(selectedChain)
+        ? formatDisplayNumber(
+            formatUnits(
+              NonEvmChain.Near === selectedChain
+                ? BigInt(balances[(selectedCurrency as any)?.assetId] || '0')
+                : BigInt(btcBalance),
+              (selectedCurrency as any)?.decimals,
+            ),
+            {
+              significantDigits: 8,
+            },
+          )
+        : balance?.toSignificant(6) || 0}
+    </Flex>
+  )
 
   return (
     <TokenPanelWrapper>
@@ -120,47 +202,52 @@ export const TokenPanel = ({
           chainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...MAINNET_NETWORKS]}
           ref={ref}
         />
+
         <Flex
-          sx={{ gap: '4px', cursor: 'pointer' }}
-          color={theme.subText}
-          fontSize="12px"
-          fontWeight="500"
-          alignItems="center"
           role="button"
-          onClick={() => {
-            if (disabled) return
-            if (selectedChain === NonEvmChain.Near) {
-              onUserInput(
-                formatUnits(
-                  BigInt(balances[(selectedCurrency as any)?.assetId] || '0'),
-                  (selectedCurrency as any)?.decimals || 18,
-                ),
-              )
-              return
-            }
-
-            if (selectedChain === NonEvmChain.Bitcoin) {
-              onUserInput(formatUnits(BigInt(btcBalance || '0'), 8))
-              return
-            }
-
-            onUserInput(balance?.toExact() || '0')
-          }}
+          fontSize={12}
+          fontWeight={500}
+          alignItems="center"
+          color={theme.subText}
+          sx={{ gap: '4px', cursor: 'pointer', position: 'relative' }}
+          onClick={handleWalletClick}
         >
-          <Wallet color={theme.subText} />
-          {[NonEvmChain.Near, NonEvmChain.Bitcoin].includes(selectedChain)
-            ? formatDisplayNumber(
-                formatUnits(
-                  NonEvmChain.Near === selectedChain
-                    ? BigInt(balances[(selectedCurrency as any)?.assetId] || '0')
-                    : BigInt(btcBalance),
-                  (selectedCurrency as any)?.decimals,
-                ),
-                {
-                  significantDigits: 8,
-                },
-              )
-            : balance?.toSignificant(6) || 0}
+          {connectedAddress
+            ? selectedChain === NonEvmChain.Near
+              ? connectedAddress
+              : shortenHash(connectedAddress)
+            : `Select Wallet`}
+          <ChevronDown size={14} />
+
+          {showMenu && (
+            <Box
+              ref={node}
+              sx={{
+                position: 'absolute',
+                right: 0,
+                top: '26px',
+                background: theme.tableHeader,
+                borderRadius: '8px',
+              }}
+            >
+              <Text
+                role="button"
+                padding="12px 16px"
+                onClick={async e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if (selectedChain === NonEvmChain.Near) nearSignOut()
+                  else if (selectedChain === NonEvmChain.Bitcoin)
+                    await availableWallets.find(wallet => wallet.type === walletInfo.walletType)?.disconnect?.()
+                  else disconnectWallet()
+
+                  toggleShowMenu()
+                }}
+              >
+                Disconnect
+              </Text>
+            </Box>
+          )}
         </Flex>
       </Flex>
 
@@ -224,6 +311,7 @@ export const TokenPanel = ({
           </Aligner>
         </CurrencySelect>
       </InputRow>
+      {balanceSection}
 
       {isEvm ? (
         <CurrencySearchModal

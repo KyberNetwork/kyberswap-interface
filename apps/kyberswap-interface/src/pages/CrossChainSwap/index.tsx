@@ -18,10 +18,9 @@ import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import RefreshLoading from 'components/RefreshLoading'
 import { AddressInput } from 'components/AddressInputPanel'
 import { AutoColumn } from 'components/Column'
-import { ButtonLight, ButtonOutlined } from 'components/Button'
+import { ButtonLight } from 'components/Button'
 import { NonEvmChain } from './adapters'
 import { useActiveWeb3React } from 'hooks'
-import { useWalletModalToggle } from 'state/application/hooks'
 import { ChangeEvent, useState } from 'react'
 import { BitcoinConnectModal } from './components/BitcoinConnectModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
@@ -61,25 +60,21 @@ function CrossChainSwap() {
   const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : 'EVM'
 
   const nearWallet = useWalletSelector()
-  const { walletInfo, availableWallets } = useBitcoinWallet()
+  const { walletInfo } = useBitcoinWallet()
   const btcAddress = walletInfo?.address
 
-  const toggleWalletModal = useWalletModalToggle()
-
-  const showNearConnect = isToNear && !nearWallet.signedAccountId
-  const showBtcConnect = isToBtc && !btcAddress
-  const showEvmConnect = isToEvm && !account
-  const showConnect = showNearConnect || showBtcConnect || showEvmConnect
-
   const isDifferentRecipient = isToNear
-    ? recipient !== nearWallet.signedAccountId
+    ? nearWallet.signedAccountId && recipient !== nearWallet.signedAccountId
     : isToEvm
-    ? recipient !== account
+    ? account && recipient !== account
+    : isToBtc
+    ? btcAddress && btcAddress !== recipient
     : false
 
   return (
     <Wrapper>
       <TokenPanel
+        setShowBtcConnect={setShowBtcConnect}
         selectedChain={fromChainId}
         selectedCurrency={currencyIn || undefined}
         onSelectNetwork={chainId => {
@@ -158,6 +153,7 @@ function CrossChainSwap() {
       </Flex>
 
       <TokenPanel
+        setShowBtcConnect={setShowBtcConnect}
         selectedChain={toChainId}
         selectedCurrency={currencyOut || undefined}
         onSelectNetwork={chainId => {
@@ -185,58 +181,26 @@ function CrossChainSwap() {
       <AutoColumn gap="8px">
         <Flex justifyContent="space-between" fontSize={12} color={theme.subText} px="8px" alignItems="center">
           <Text>Recipient ({networkName} address)</Text>
-          {showConnect ? (
-            <ButtonLight
-              padding="2px 8px"
-              width="fit-content"
-              style={{ fontSize: '12px' }}
-              onClick={() => {
-                if (isToNear) {
-                  nearWallet.signIn()
-                } else if (isToEvm) {
-                  toggleWalletModal()
-                } else if (isToBtc) {
-                  setShowBtcConnect(true)
-                }
-              }}
-            >
-              Connect {networkName} wallet
-            </ButtonLight>
-          ) : (
-            toChainId && (
-              <Flex sx={{ gap: '4px' }}>
-                {isDifferentRecipient && (
-                  <ButtonLight
-                    padding="2px 8px"
-                    width="fit-content"
-                    style={{ fontSize: '12px' }}
-                    onClick={() => {
-                      let reci = ''
-                      if (isToEvm) reci = account || ''
-                      if (isToNear) reci = nearWallet.signedAccountId || ''
-                      setRecipient(reci)
-                    }}
-                  >
-                    Use my wallet
-                  </ButtonLight>
-                )}
-                {!isToEvm && (
-                  <ButtonOutlined
-                    padding="2px 8px"
-                    width="fit-content"
-                    style={{ fontSize: '12px' }}
-                    onClick={() => {
-                      if (isToNear) nearWallet.signOut()
-                      if (isToBtc) {
-                        availableWallets.find(wallet => wallet.type === walletInfo.walletType)?.disconnect?.()
-                      }
-                    }}
-                  >
-                    Disconnect
-                  </ButtonOutlined>
-                )}
-              </Flex>
-            )
+
+          {toChainId && (
+            <Flex sx={{ gap: '4px' }}>
+              {isDifferentRecipient && (
+                <ButtonLight
+                  padding="2px 8px"
+                  width="fit-content"
+                  style={{ fontSize: '12px' }}
+                  onClick={() => {
+                    let reci = ''
+                    if (isToEvm) reci = account || ''
+                    if (isToNear) reci = nearWallet.signedAccountId || ''
+                    if (isToBtc) reci = btcAddress || ''
+                    setRecipient(reci)
+                  }}
+                >
+                  Use my wallet
+                </ButtonLight>
+              )}
+            </Flex>
           )}
         </Flex>
         <AddressInput

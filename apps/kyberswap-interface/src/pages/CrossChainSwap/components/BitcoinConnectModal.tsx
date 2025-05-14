@@ -18,6 +18,7 @@ import dayjs from 'dayjs'
 import useTheme from 'hooks/useTheme'
 import { darken } from 'polished'
 import Loader from 'components/Loader'
+import { useEffect } from 'react'
 
 const Wrapper = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}
@@ -70,6 +71,13 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
 
   const { walletInfo, availableWallets, connectingWallet, setConnectingWallet } = useBitcoinWallet()
 
+  useEffect(() => {
+    if (walletInfo.isConnected) {
+      setConnectingWallet(null)
+      onDismiss()
+    }
+  }, [walletInfo.isConnected, onDismiss, setConnectingWallet])
+
   if (walletInfo.isConnected) return null
 
   return (
@@ -94,6 +102,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
             </Text>
             <CloseIcon
               onClick={() => {
+                setConnectingWallet(null)
                 onDismiss()
               }}
             >
@@ -155,11 +164,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                       <HeaderText>{wallet.name}</HeaderText>
                       {connectingWallet === wallet.type && <Loader color={theme.white} />}
                     </Flex>
-                    <Text
-                      color={wallet.isInstalled() ? theme.primary : theme.subText}
-                      fontSize={12}
-                      minWidth="max-content"
-                    >
+                    <Text color={theme.subText} fontSize={12} minWidth="max-content">
                       {wallet.isInstalled() ? 'Detected' : 'Not Install'}
                     </Text>
                   </Option>

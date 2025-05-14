@@ -58,10 +58,10 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
     if (walletType) localStorage.setItem('bitcoinWallet', walletType || '')
   }, [walletType])
 
-  useEffect(() => {
-    const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
-    availableWallets.find(wallet => wallet.type === lastConnectedWallet)?.connect()
-  }, [availableWallets])
+  // useEffect(() => {
+  //   const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
+  //   availableWallets.find(wallet => wallet.type === lastConnectedWallet)?.connect()
+  // }, [availableWallets])
 
   const [balance, setBalance] = useState<number>(0)
   const getBalance = useCallback(async () => {
@@ -95,7 +95,7 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
             window.open('https://xverse.app/download', '_blank')
             return
           }
-          if (!!connectingWallet) {
+          if (connectingWallet !== null) {
             return
           }
 
@@ -189,8 +189,8 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
         },
         disconnect: async () => {
           localStorage.removeItem('bitcoinWallet')
-          setWalletInfo(defaultInfo)
           setBalance(0)
+          setWalletInfo(defaultInfo)
         },
         sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
           return await window?.bitkeep.unisat.sendBitcoin(recipient, amount.toString())
@@ -198,11 +198,15 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
       }
       providers.push(bitgetProvider)
 
+      const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
+      providers.find(wallet => wallet.type === lastConnectedWallet)?.connect()
+
       setAvailableWallets(providers)
     }
 
     checkWalletProviders()
-  }, [connectingWallet])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <BitcoinWalletContext.Provider

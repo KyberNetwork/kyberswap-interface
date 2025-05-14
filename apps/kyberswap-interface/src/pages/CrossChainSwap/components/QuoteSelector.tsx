@@ -88,7 +88,7 @@ export const QuoteSelector = ({
     >
       <Wrapper>
         <Text fontSize="16px" fontWeight="500">
-          Choose your math return
+          Choose your exchange rate
         </Text>
         <Box
           sx={{
