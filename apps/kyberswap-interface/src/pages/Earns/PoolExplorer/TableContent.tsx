@@ -68,7 +68,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
           dexLogo: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.logoURL || '',
           dexName: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.name || '',
           aprFee: pool.apr,
-          apr: isFarmingPool ? pool.aprKem + pool.apr : pool.apr,
+          apr: isFarmingPool ? (pool.aprKem || 0) + pool.apr : pool.apr,
         }
       }),
     [poolData, dexList],
@@ -181,7 +181,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
           <div>
             {t`LP Fee APR`}: {formatAprNumber(pool.aprFee)}%
             <br />
-            {t`Farm Rewards APR`}: {formatAprNumber(pool.aprKem)}%
+            {t`Farm Rewards APR`}: {formatAprNumber(pool.aprKem || 0)}%
           </div>
         }
       >
@@ -220,7 +220,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
                   </Flex>
                   <Flex sx={{ gap: 2 }}>
                     <TokenLogo src={pool.dexLogo} width={22} height={22} />
-                    <FeeTier>{pool.feeTier}%</FeeTier>
+                    <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
                   </Flex>
                 </Flex>
               </Flex>
@@ -285,7 +285,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
             <SymbolText>
               {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
             </SymbolText>
-            <FeeTier>{pool.feeTier}%</FeeTier>
+            <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
           </Flex>
           <Apr positive={pool.apr > 0}>
             {formatAprNumber(pool.apr)}% {kemFarming(pool)}

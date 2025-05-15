@@ -218,7 +218,7 @@ const PoolExplorer = () => {
       {zapMigrationWidget}
 
       <div>
-        <Flex sx={{ gap: 3 }}>
+        <Flex alignItems="center" sx={{ gap: 3 }}>
           <IconArrowLeft onClick={() => navigate(-1)} />
           <Text as="h1" fontSize={24} fontWeight="500">
             {t`Earning with Smart Liquidity Providing`}
