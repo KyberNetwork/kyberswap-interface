@@ -6,8 +6,8 @@ const Image = styled.img<{ primaryBoxShadow?: boolean }>`
   border-radius: 50%;
   filter: drop-shadow(0px 4px 8px ${props => (props.primaryBoxShadow ? '#0b2e24' : 'none')});
 
-  &:nth-child(1) {
-    margin-right: -8px;
+  & ~ & {
+    margin-left: -8px;
   }
 `
 

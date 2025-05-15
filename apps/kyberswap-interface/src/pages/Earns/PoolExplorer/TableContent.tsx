@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -24,10 +25,9 @@ import {
   TableRow,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
-import { EarnDex2 } from 'pages/Earns/constants'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
-import { EarnPool } from 'pages/Earns/types'
-import { formatAprNumber } from 'pages/Earns/utils'
+import { ParsedEarnPool } from 'pages/Earns/types'
+import { formatAprNumber, isFarmingProtocol } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -58,20 +58,23 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const tablePoolData = useMemo(() => {
-    return (poolData?.data?.pools || []).map(pool => ({
-      ...pool,
-      dexLogo: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.logoURL || '',
-      dexName: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.name || '',
-      // farming: null,
-      farming: {
-        lpFeeApr: 1.0,
-        farmRewardApr: 0.24,
-      },
-    }))
-  }, [poolData, dexList])
+  const tablePoolData: Array<ParsedEarnPool> = useMemo(
+    () =>
+      (poolData?.data?.pools || []).map(pool => {
+        const isFarmingPool = isFarmingProtocol(pool.exchange)
 
-  const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: EarnPool) => {
+        return {
+          ...pool,
+          dexLogo: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.logoURL || '',
+          dexName: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.name || '',
+          aprFee: pool.apr,
+          apr: isFarmingPool ? pool.aprKem + pool.apr : pool.apr,
+        }
+      }),
+    [poolData, dexList],
+  )
+
+  const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => {
     e.stopPropagation()
     if (favoriteLoading.includes(pool.address) || delayFavorite) return
     handleAddFavoriteLoading(pool.address)
@@ -169,16 +172,16 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
       </Text>
     )
 
-  const kemFarming = (pool: { farming: { lpFeeApr: number; farmRewardApr: number }; exchange: EarnDex2 }) =>
-    pool.exchange === EarnDex2.DEX_UNISWAP_V4_KEM ? (
+  const kemFarming = (pool: ParsedEarnPool) =>
+    isFarmingProtocol(pool.exchange) ? (
       <MouseoverTooltipDesktopOnly
         placement="bottom"
         width="max-content"
         text={
           <div>
-            LP Fee APR: {pool.farming.lpFeeApr}%
+            {t`LP Fee APR`}: {formatAprNumber(pool.aprFee)}%
             <br />
-            Farm Rewards APR: {pool.farming.farmRewardApr}%
+            {t`Farm Rewards APR`}: {formatAprNumber(pool.aprKem)}%
           </div>
         }
       >
@@ -240,10 +243,6 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
               <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                 <Text color={theme.subText}>Earn Fees</Text>
                 <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
-              </Flex>
-              <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                <Text color={theme.subText}>Rewards</Text>
-                <Text>{formatDisplayNumber(pool.earnFee, { significantDigits: 6 })} KNC</Text>
               </Flex>
               <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                 <Text color={theme.subText}>TVL</Text>

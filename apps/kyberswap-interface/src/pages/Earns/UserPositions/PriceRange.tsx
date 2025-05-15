@@ -37,6 +37,7 @@ export default function PriceRange({
   const outOfRange = isUniv2 ? false : currentPrice < minPrice || currentPrice > maxPrice
 
   const ticksAtLimit: { lower: boolean; upper: boolean } | undefined = useMemo(() => {
+    if (!tickSpacing) return
     if (isUniv2) return { lower: true, upper: true }
 
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)

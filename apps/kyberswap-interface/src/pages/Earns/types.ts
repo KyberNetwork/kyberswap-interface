@@ -29,6 +29,7 @@ export interface EarnPool {
   feeTier: number
   volume: number
   apr: number
+  aprKem: number
   liquidity: number
   tvl: number
   chainId?: number
@@ -41,6 +42,12 @@ export interface EarnPool {
     logoURI: string
     symbol: string
   }>
+}
+
+export interface ParsedEarnPool extends EarnPool {
+  dexLogo: string
+  dexName: string
+  aprFee: number
 }
 
 export interface EarnPosition {

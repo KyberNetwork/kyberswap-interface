@@ -112,6 +112,12 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
   },
 }
 
+export const FARMING_DEXES = [EarnDex.DEX_UNISWAP_V4_KEM, EarnDex2.DEX_UNISWAP_V4_KEM]
+
+export const DEX_FILTER_MAPPING = {
+  [EarnDex2.DEX_UNISWAP_V4]: [EarnDex2.DEX_UNISWAP_V4, EarnDex2.DEX_UNISWAP_V4_KEM],
+}
+
 export const NATIVE_ADDRESSES: Record<EarnChain, string> = {
   [EarnChain.MAINNET]: ETHER_ADDRESS.toLowerCase(),
   [EarnChain.BASE]: ETHER_ADDRESS.toLowerCase(),

@@ -8,6 +8,8 @@ import {
   CoreProtocol,
   EarnChain,
   EarnDex,
+  EarnDex2,
+  FARMING_DEXES,
   NATIVE_ADDRESSES,
   NFT_MANAGER_ABI,
   NFT_MANAGER_CONTRACT,
@@ -47,6 +49,8 @@ export const getTokenId = async (provider: Web3Provider, txHash: string) => {
 
 export const isForkFrom = (protocol: EarnDex, coreProtocol: CoreProtocol) =>
   PROTOCOLS_CORE_MAPPING[protocol] === coreProtocol
+
+export const isFarmingProtocol = (protocol: EarnDex | EarnDex2) => FARMING_DEXES.includes(protocol)
 
 export const navigateToPositionAfterZap = async (
   library: Web3Provider,

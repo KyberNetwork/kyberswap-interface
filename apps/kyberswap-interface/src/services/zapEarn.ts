@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+import { DEX_FILTER_MAPPING } from 'pages/Earns/constants'
 import { EarnPool, EarnPosition, PositionHistoryType } from 'pages/Earns/types'
 
 interface LandingResponse {
@@ -104,6 +105,9 @@ const zapEarnServiceApi = createApi({
         params: {
           ...params,
           orderBy: params.orderBy?.toUpperCase() || '',
+          protocol: DEX_FILTER_MAPPING[params.protocol as keyof typeof DEX_FILTER_MAPPING]
+            ? DEX_FILTER_MAPPING[params.protocol as keyof typeof DEX_FILTER_MAPPING].join(',')
+            : params.protocol,
         },
       }),
       async onQueryStarted(agr, { dispatch, queryFulfilled }) {
