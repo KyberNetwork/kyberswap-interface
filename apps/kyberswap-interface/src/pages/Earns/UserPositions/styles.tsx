@@ -2,7 +2,6 @@ import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 
-import positionsBg from 'assets/banners/positions_background.png'
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 
@@ -246,10 +245,11 @@ const borderRotate = keyframes`
 
 export const BannerContainer = styled.div`
   padding: 1px;
-  position: relative;
   background-clip: padding-box;
   overflow: hidden;
   border-radius: 12px;
+  width: 100%;
+  height: auto;
 
   --border-angle: 0deg;
   animation: ${borderRotate} 2s infinite linear;
@@ -260,46 +260,35 @@ export const BannerContainer = styled.div`
 `
 
 export const BannerWrapper = styled.div`
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
-  gap: 3rem;
-  padding: 18px 28px;
+  gap: 32px;
+  padding: 32.5px 32px;
   border-radius: 12px;
   position: relative;
   background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
-
-  ::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url(${positionsBg});
-    background-position: right-top;
-    background-size: cover;
-    border-radius: 12px;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    gap: 2rem;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    justify-content: space-between;
-    gap: 0;
-    row-gap: 1rem;
-  `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
     padding: 16px;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: 16px;
   `}
+`
+
+export const RewardBannerWrapper = styled(BannerWrapper)`
+  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 14px 32px;
+`
+
+export const ListClaimableTokens = styled.ul`
+  margin: 0;
+  padding-left: 24px;
+  margin-top: 2px;
 `
 
 export const BannerDivider = styled.div`
@@ -312,7 +301,7 @@ export const BannerDivider = styled.div`
   `}
 `
 
-export const BannerDataItem = styled.div<{ columnInMobile?: boolean }>`
+export const BannerDataItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -321,11 +310,6 @@ export const BannerDataItem = styled.div<{ columnInMobile?: boolean }>`
   ${({ theme }) =>
     theme.mediaWidth.upToSmall`
       width: 100%;
-    `}
-
-  ${({ theme, columnInMobile }) =>
-    !columnInMobile &&
-    theme.mediaWidth.upToSmall`
       flex-direction: row;
       justify-content: space-between;
       align-items: center;

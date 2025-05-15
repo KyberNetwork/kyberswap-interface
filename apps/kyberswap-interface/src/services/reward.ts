@@ -38,6 +38,7 @@ interface TokenReward {
   claimedAmounts: { [tokenAddress: string]: string }
   merkleAmounts: { [tokenAddress: string]: string }
   pendingAmounts: { [tokenAddress: string]: string }
+  claimableUSDValues: { [tokenAddress: string]: string }
 }
 
 const rewardServiceApi = createApi({
