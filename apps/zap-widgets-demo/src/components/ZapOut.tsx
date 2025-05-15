@@ -61,7 +61,7 @@ const ZapOut = () => {
       openConnectModal?.();
     },
     onSwitchChain: () => {
-      switchChain?.({ chainId: ChainId.Base });
+      switchChain?.({ chainId: Number(params.chainId) });
     },
     onSubmitTx: async (txData: {
       from: string;

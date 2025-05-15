@@ -83,7 +83,7 @@ const ZapMigration = () => {
       openConnectModal?.();
     },
     onSwitchChain: () => {
-      switchChain?.({ chainId: ChainId.Bsc });
+      switchChain?.({ chainId: Number(params.chainId) });
     },
     onSubmitTx: async (txData: {
       from: string;
