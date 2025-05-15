@@ -31,6 +31,7 @@ export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: stri
 }
 
 export interface QuoteParams {
+  feeBps: number
   fromChain: Chain
   toChain: Chain
   fromToken: Currency

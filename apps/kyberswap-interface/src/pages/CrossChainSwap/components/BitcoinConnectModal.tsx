@@ -165,7 +165,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                       {connectingWallet === wallet.type && <Loader color={theme.white} />}
                     </Flex>
                     <Text color={theme.subText} fontSize={12} minWidth="max-content">
-                      {wallet.isInstalled() ? 'Detected' : 'Not Install'}
+                      {wallet.isInstalled() && 'Detected'}
                     </Text>
                   </Option>
                 )

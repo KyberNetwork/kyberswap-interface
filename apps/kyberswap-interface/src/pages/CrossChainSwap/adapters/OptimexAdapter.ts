@@ -53,7 +53,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
   private async getTokens() {
     try {
-      const res = await fetch(`${OPTIMEX_API}/provider/tokens`)
+      const res = await fetch(`${OPTIMEX_API}/tokens`)
       const { data } = await res.json()
       this.tokens = data.tokens
     } catch (error) {
@@ -104,7 +104,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     }
 
     const [quoteRes, estimateRes, token0Usd, token1Usd] = await Promise.all([
-      fetch(`${OPTIMEX_API}/provider/solver/indicative-quote`, {
+      fetch(`${OPTIMEX_API}/solver/indicative-quote`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
       const scriptTimeout = new Date()
       scriptTimeout.setHours(scriptTimeout.getHours() + 24)
 
-      const res = await fetch(`${OPTIMEX_API}/provider/trades/initiate`, {
+      const res = await fetch(`${OPTIMEX_API}/trades/initiate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,7 +205,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
         recipient: quote.rawQuote.txData.deposit_address,
         amount: quote.quoteParams.amount,
       })
-      await fetch(`${OPTIMEX_API}/provider/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+      await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -233,7 +233,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
       account,
     })
 
-    await fetch(`${OPTIMEX_API}/provider/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+    await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -219,6 +219,46 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     const tokenInUsd = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
     const tokenOutUsd = r?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
 
+    let feeBps = 25 // 0.25% for BTC-> EVM and non-EVM -> non-EVM
+    if (isFromEvm && isToEvm) {
+      const [token0Cat, token1Cat] = await Promise.all([
+        await fetch(
+          `${TOKEN_API_URL}/v1/public/category/token?tokens=${
+            (currencyIn as any).wrapped.address
+          }&chainId=${fromChainId}`,
+        )
+          .then(res => res.json())
+          .then(res => {
+            const cat = res?.data?.find(
+              (item: any) => item.token.toLowerCase() === (currencyIn as any).wrapped.address.toLowerCase(),
+            )
+            return cat?.category || 'exoticPair'
+          }),
+
+        await fetch(
+          `${TOKEN_API_URL}/v1/public/category/token?tokens=${
+            (currencyOut as any).wrapped.address
+          }&chainId=${toChainId}`,
+        )
+          .then(res => res.json())
+          .then(res => {
+            const cat = res?.data?.find(
+              (item: any) => item.token.toLowerCase() === (currencyOut as any).wrapped.address.toLowerCase(),
+            )
+            return cat?.category || 'exoticPair'
+          }),
+      ])
+      if (token0Cat === 'stablePair' && token1Cat === 'stablePair') {
+        feeBps = 5
+      } else if (token0Cat === 'commonPair' && token1Cat === 'commonPair') {
+        feeBps = 10
+      } else if (token0Cat === 'highVolatilityPair' && token1Cat === 'highVolatilityPair') {
+        feeBps = 25
+      } else {
+        feeBps = 15
+      }
+    }
+
     const isToNear = toChainId === 'near'
 
     setLoading(true)
@@ -265,6 +305,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     }
 
     const q = await getQuotesWithCancellation({
+      feeBps,
       tokenInUsd: tokenInUsd,
       tokenOutUsd: tokenOutUsd,
       fromChain: fromChainId,
@@ -280,10 +321,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         ? signedAccountId || ZERO_ADDRESS
         : walletClient?.data?.account.address || ZERO_ADDRESS,
       recipient: isToBitcoin
-        ? btcAddress || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p' // TODO: default address???
+        ? recipient || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p' // TODO: default address???
         : isToNear
-        ? signedAccountId || ZERO_ADDRESS
-        : walletClient?.data?.account.address || ZERO_ADDRESS,
+        ? recipient || signedAccountId || ZERO_ADDRESS
+        : recipient || walletClient?.data?.account.address || ZERO_ADDRESS,
       nearTokens,
       publicKey: btcPublicKey || '',
     }).catch(e => {
@@ -293,6 +334,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     setQuotes(q)
     setLoading(false)
   }, [
+    recipient,
+    isFromEvm,
+    isToEvm,
     btcPublicKey,
     isFromBitcoin,
     btcAddress,
