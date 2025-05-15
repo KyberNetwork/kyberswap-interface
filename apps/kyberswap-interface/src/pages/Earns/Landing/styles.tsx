@@ -145,14 +145,11 @@ export const CardWrapper = styled.div`
   `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 0 36px 28px;
-    min-height: 285px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    padding: 0 30px 24px;
+    padding: 20px 16px;
     min-height: unset;
     height: fit-content;
+    flex-direction: row;
+    gap: 12px;
   `}
 `
 
@@ -161,8 +158,8 @@ export const ButtonPrimaryStyled = styled(ButtonPrimary)`
   width: 132px;
   height: 36px;
 
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    margin-top: 18px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-top: 20px;
   `}
 `
 

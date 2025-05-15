@@ -1,10 +1,18 @@
 import { Flex } from 'rebass'
 
-const Icon = ({ icon, size = 'medium' }: { icon: string | React.ReactNode; size: 'small' | 'medium' }) => {
+const Icon = ({
+  icon,
+  size = 'medium',
+  customSize,
+}: {
+  icon: string | React.ReactNode
+  size: 'small' | 'medium'
+  customSize?: number
+}) => {
   return (
     <Flex
-      width={size === 'small' ? '40px' : '80px'}
-      height={size === 'small' ? '40px' : '80px'}
+      width={customSize ? `${customSize}px` : size === 'small' ? '40px' : '80px'}
+      height={customSize ? `${customSize}px` : size === 'small' ? '40px' : '80px'}
       padding={size === 'medium' ? '8px' : '4px'}
       sx={{ border: `1px solid #258166`, borderRadius: '50%' }}
     >

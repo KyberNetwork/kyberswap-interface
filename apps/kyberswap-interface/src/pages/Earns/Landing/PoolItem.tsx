@@ -9,6 +9,7 @@ import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { EarnPool } from 'pages/Earns/types'
 import { formatAprNumber } from 'pages/Earns/utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) => {
   const theme = useTheme()
@@ -64,7 +65,7 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
             {pool.tokens?.[1].symbol}
           </Text>
         </Text>
-        <Tag>{pool.feeTier}%</Tag>
+        <Tag>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</Tag>
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '4px' }}>
